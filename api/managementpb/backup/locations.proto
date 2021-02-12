@@ -94,11 +94,7 @@ message ChangeLocationRequest {
     }
   ];
   // Location name
-  string name = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string name = 2;
   string description = 3;
   // PMM-client file system configuration. Exactly one config should be set.
   PMMClientLocationConfig pmm_client_config = 4;

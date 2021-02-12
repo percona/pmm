@@ -106,9 +106,6 @@ func (this *ChangeLocationRequest) Validate() error {
 	if this.LocationId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("LocationId", fmt.Errorf(`value '%v' must not be an empty string`, this.LocationId))
 	}
-	if this.Name == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
-	}
 	if this.PmmClientConfig != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PmmClientConfig); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("PmmClientConfig", err)
