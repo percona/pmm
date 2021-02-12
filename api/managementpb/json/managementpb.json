@@ -1436,6 +1436,11 @@
                   "type": "string",
                   "x-order": 4
                 },
+                "skip_connection_checks": {
+                  "description": "Skip connection checks.",
+                  "type": "boolean",
+                  "x-order": 17
+                },
                 "username": {
                   "description": "HTTP basic auth username for collecting metrics.",
                   "type": "string",

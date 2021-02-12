@@ -179,6 +179,9 @@ type AddExternalBody struct {
 	// Enum: [AUTO PULL PUSH]
 	MetricsMode *string `json:"metrics_mode,omitempty"`
 
+	// Skip connection checks.
+	SkipConnectionChecks bool `json:"skip_connection_checks,omitempty"`
+
 	// add node
 	AddNode *AddExternalParamsBodyAddNode `json:"add_node,omitempty"`
 }

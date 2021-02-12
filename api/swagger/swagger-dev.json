@@ -16146,6 +16146,11 @@
                     "PUSH"
                   ],
                   "x-order": 16
+                },
+                "skip_connection_checks": {
+                  "description": "Skip connection checks.",
+                  "type": "boolean",
+                  "x-order": 17
                 }
               }
             }
