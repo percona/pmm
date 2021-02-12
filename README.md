@@ -27,6 +27,12 @@ As a general rule of thumb, please try to create bug reports that are:
 - *Specific.* Include as much detail as possible: which version, what environment, etc.
 - *Unique.* Do not duplicate existing tickets.
 
+## APIs
+
+See stable API definitions [there](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/percona/pmm/PMM-2.0/api/swagger/swagger.json),
+and all API definitions (including technical preview, development and testing APIs)
+[there](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/percona/pmm/PMM-2.0/api/swagger/swagger-dev.json).
+
 
 ## Repositories
 
