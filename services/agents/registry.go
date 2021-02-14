@@ -26,6 +26,7 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
+	"github.com/golang/protobuf/proto" //nolint:staticcheck
 	"github.com/golang/protobuf/ptypes"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
@@ -43,19 +44,42 @@ import (
 )
 
 const (
-	prometheusNamespace = "pmm_managed"
-	prometheusSubsystem = "agents"
-)
-
-// constants for delayed batch updates.
-const (
+	// constants for delayed batch updates
 	updateBatchDelay   = time.Second
 	stateChangeTimeout = 5 * time.Second
+
+	prometheusNamespace = "pmm_managed"
+	prometheusSubsystem = "agents"
 )
 
 var (
 	defaultActionTimeout      = ptypes.DurationProto(10 * time.Second)
 	defaultQueryActionTimeout = ptypes.DurationProto(15 * time.Second) // should be less than checks.resultTimeout
+
+	mSentDesc = prom.NewDesc(
+		prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "messages_sent_total"),
+		"A total number of messages sent to pmm-agent.",
+		[]string{"agent_id"},
+		nil,
+	)
+	mRecvDesc = prom.NewDesc(
+		prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "messages_received_total"),
+		"A total number of messages received from pmm-agent.",
+		[]string{"agent_id"},
+		nil,
+	)
+	mResponsesDesc = prom.NewDesc(
+		prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "messages_response_queue_length"),
+		"The current length of the response queue.",
+		[]string{"agent_id"},
+		nil,
+	)
+	mRequestsDesc = prom.NewDesc(
+		prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "messages_request_queue_length"),
+		"The current length of the request queue.",
+		[]string{"agent_id"},
+		nil,
+	)
 )
 
 type pmmAgentInfo struct {
@@ -78,25 +102,33 @@ type Registry struct {
 
 	roster *roster
 
-	sharedMetrics *channel.SharedChannelMetrics
-	mConnects     prom.Counter
-	mDisconnects  *prom.CounterVec
-	mRoundTrip    prom.Summary
-	mClockDrift   prom.Summary
+	mAgents      prom.GaugeFunc
+	mConnects    prom.Counter
+	mDisconnects *prom.CounterVec
+	mRoundTrip   prom.Summary
+	mClockDrift  prom.Summary
 }
 
 // NewRegistry creates a new registry with given database connection.
 func NewRegistry(db *reform.DB, qanClient qanClient, vmdb prometheusService) *Registry {
+	agents := make(map[string]*pmmAgentInfo)
 	r := &Registry{
 		db:        db,
 		vmdb:      vmdb,
 		qanClient: qanClient,
 
-		agents: make(map[string]*pmmAgentInfo),
+		agents: agents,
 
 		roster: newRoster(),
 
-		sharedMetrics: channel.NewSharedMetrics(),
+		mAgents: prom.NewGaugeFunc(prom.GaugeOpts{
+			Namespace: prometheusNamespace,
+			Subsystem: prometheusSubsystem,
+			Name:      "connected",
+			Help:      "The current number of connected pmm-agents.",
+		}, func() float64 {
+			return float64(len(agents))
+		}),
 		mConnects: prom.NewCounter(prom.CounterOpts{
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
@@ -159,8 +191,7 @@ func (r *Registry) Run(stream agentpb.Agent_ConnectServer) error {
 	// run pmm-agent state update loop for the current agent.
 	go r.runStateChangeHandler(ctx, agent)
 
-	// send first SetStateRequest concurrently with handling ping from agent
-	go r.RequestStateUpdate(ctx, agent.id)
+	r.RequestStateUpdate(ctx, agent.id)
 
 	ticker := time.NewTicker(10 * time.Second)
 	defer ticker.Stop()
@@ -169,16 +200,20 @@ func (r *Registry) Run(stream agentpb.Agent_ConnectServer) error {
 		case <-ticker.C:
 			r.ping(ctx, agent)
 
+		// see unregister and Kick methods
 		case <-agent.kick:
+			// already unregistered, no need to call unregister method
 			l.Warn("Kicked.")
 			disconnectReason = "kicked"
-			err = status.Errorf(codes.Aborted, "Another pmm-agent with ID %q connected to the server.", agent.id)
+			err = status.Errorf(codes.Aborted, "Kicked.")
 			return err
 
 		case req := <-agent.channel.Requests():
 			if req == nil {
 				disconnectReason = "done"
-				return agent.channel.Wait()
+				err = agent.channel.Wait()
+				r.unregister(agent.id)
+				return err
 			}
 
 			switch p := req.Payload.(type) {
@@ -269,17 +304,19 @@ func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, 
 		return nil, err
 	}
 
+	// pmm-agent with the same ID can still be connected in two cases:
+	//   1. Someone uses the same ID by mistake, glitch, or malicious intent.
+	//   2. pmm-agent detects broken connection and reconnects,
+	//      but pmm-managed still thinks that the previous connection is okay.
+	// In both cases, kick it.
+	l.Warnf("Another pmm-agent with ID %q is already connected.", agentMD.ID)
+	r.Kick(ctx, agentMD.ID)
+
 	r.rw.Lock()
 	defer r.rw.Unlock()
 
-	// do not use r.get() - r.rw is already locked
-	if agent := r.agents[agentMD.ID]; agent != nil {
-		r.roster.clear(agentMD.ID)
-		close(agent.kick)
-	}
-
 	agent := &pmmAgentInfo{
-		channel:         channel.New(stream, r.sharedMetrics),
+		channel:         channel.New(stream),
 		id:              agentMD.ID,
 		stateChangeChan: make(chan struct{}, 1),
 		kick:            make(chan struct{}),
@@ -324,6 +361,24 @@ func authenticate(md *agentpb.AgentConnectMetadata, q *reform.Querier) (string, 
 	}
 
 	return pointer.GetString(agent.RunsOnNodeID), nil
+}
+
+// unregister removes pmm-agent with given ID from the registry.
+func (r *Registry) unregister(pmmAgentID string) *pmmAgentInfo {
+	r.rw.Lock()
+	defer r.rw.Unlock()
+
+	// We do not check that pmmAgentID is in fact ID of existing pmm-agent because
+	// it may be already deleted from the database, that's why we unregister it.
+
+	agent := r.agents[pmmAgentID]
+	if agent == nil {
+		return nil
+	}
+
+	delete(r.agents, pmmAgentID)
+	r.roster.clear(pmmAgentID)
+	return agent
 }
 
 // addOrRemoveVMAgent - creates vmAgent agentType if pmm-agent's version supports it and agent not exists yet,
@@ -389,26 +444,21 @@ func removeVMAgentFromPMMAgent(q *reform.Querier, pmmAgentID string) error {
 	return nil
 }
 
-// Kick disconnects pmm-agent with given ID.
+// Kick unregisters and forcefully disconnects pmm-agent with given ID.
 func (r *Registry) Kick(ctx context.Context, pmmAgentID string) {
-	// We do not check that pmmAgentID is in fact ID of existing pmm-agent because
-	// it may be already deleted from the database, that's why we disconnect it.
-
-	r.rw.Lock()
-	defer r.rw.Unlock()
-
-	// do not use r.get() - r.rw is already locked
-	l := logger.Get(ctx)
-	agent := r.agents[pmmAgentID]
+	agent := r.unregister(pmmAgentID)
 	if agent == nil {
-		l.Infof("pmm-agent with ID %q is not connected.", pmmAgentID)
 		return
 	}
-	l.Infof("pmm-agent with ID %q is connected, kicking.", pmmAgentID)
-	delete(r.agents, pmmAgentID)
-	r.roster.clear(pmmAgentID)
+
+	l := logger.Get(ctx)
+	l.Debugf("pmm-agent with ID %q will be kicked in a moment.", pmmAgentID)
+
+	// see Run method
 	close(agent.kick)
-	close(agent.stateChangeChan)
+
+	// Do not close agent.stateChangeChan to avoid breaking RequestStateUpdate;
+	// closing agent.kick is enough to exit runStateChangeHandler goroutine.
 }
 
 // ping sends Ping message to given Agent, waits for Pong and observes round-trip time and clock drift.
@@ -695,7 +745,7 @@ func (r *Registry) sendSetStateRequest(ctx context.Context, agent *pmmAgentInfo)
 		AgentProcesses: agentProcesses,
 		BuiltinAgents:  builtinAgents,
 	}
-	l.Infof("sendSetStateRequest: %+v.", state)
+	l.Infof("sendSetStateRequest:\n%s", proto.MarshalTextString(state))
 	resp := agent.channel.SendRequest(state)
 	l.Infof("SetState response: %+v.", resp)
 }
@@ -797,7 +847,12 @@ func (r *Registry) get(pmmAgentID string) (*pmmAgentInfo, error) {
 
 // Describe implements prometheus.Collector.
 func (r *Registry) Describe(ch chan<- *prom.Desc) {
-	r.sharedMetrics.Describe(ch)
+	ch <- mSentDesc
+	ch <- mRecvDesc
+	ch <- mResponsesDesc
+	ch <- mRequestsDesc
+
+	r.mAgents.Describe(ch)
 	r.mConnects.Describe(ch)
 	r.mDisconnects.Describe(ch)
 	r.mRoundTrip.Describe(ch)
@@ -806,7 +861,20 @@ func (r *Registry) Describe(ch chan<- *prom.Desc) {
 
 // Collect implement prometheus.Collector.
 func (r *Registry) Collect(ch chan<- prom.Metric) {
-	r.sharedMetrics.Collect(ch)
+	r.rw.RLock()
+
+	for _, agent := range r.agents {
+		m := agent.channel.Metrics()
+
+		ch <- prom.MustNewConstMetric(mSentDesc, prom.CounterValue, m.Sent, agent.id)
+		ch <- prom.MustNewConstMetric(mRecvDesc, prom.CounterValue, m.Recv, agent.id)
+		ch <- prom.MustNewConstMetric(mResponsesDesc, prom.GaugeValue, m.Responses, agent.id)
+		ch <- prom.MustNewConstMetric(mRequestsDesc, prom.GaugeValue, m.Requests, agent.id)
+	}
+
+	r.rw.RUnlock()
+
+	r.mAgents.Collect(ch)
 	r.mConnects.Collect(ch)
 	r.mDisconnects.Collect(ch)
 	r.mRoundTrip.Collect(ch)

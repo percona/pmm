@@ -54,6 +54,7 @@ check:                          ## Run required checkers and linters.
 	go run .github/check-license.go
 	dep check
 	go-sumtype ./vendor/... ./...
+	golangci-lint run -c=.golangci-required.yml
 
 check-all: check                ## Run all linters for new code.
 	golangci-lint run -c=.golangci.yml --new-from-rev=PMM-2.0

@@ -29,7 +29,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/proto" //nolint:staticcheck
 	"github.com/golang/protobuf/ptypes"
 	"github.com/google/uuid"
 	events "github.com/percona-platform/saas/gen/telemetry/events/pmm"
@@ -283,7 +283,7 @@ func (s *Service) makeV2Payload(serverUUID string) (*reporter.ReportRequest, err
 			Id:   id[:],
 			Time: ptypes.TimestampNow(),
 			Event: &reporter.AnyEvent{
-				TypeUrl: proto.MessageName(event),
+				TypeUrl: proto.MessageName(event), //nolint:staticcheck
 				Binary:  eventB,
 			},
 		}},

@@ -472,7 +472,7 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 func getQANClient(ctx context.Context, sqlDB *sql.DB, dbName, qanAPIAddr string) *qan.Client {
 	opts := []grpc.DialOption{
 		grpc.WithInsecure(),
-		grpc.WithBackoffMaxDelay(time.Second),
+		grpc.WithBackoffMaxDelay(time.Second), //nolint:staticcheck
 		grpc.WithUserAgent("pmm-managed/" + version.Version),
 	}
 

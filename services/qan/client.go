@@ -188,7 +188,7 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsB
 			PeriodStartUnixSecs:  m.Common.PeriodStartUnixSecs,
 			PeriodLengthSecs:     m.Common.PeriodLengthSecs,
 			Example:              m.Common.Example,
-			ExampleFormat:        convertExampleFormat(m.Common.ExampleFormat),
+			ExampleFormat:        convertExampleFormat(m.Common.ExampleFormat), //nolint:staticcheck
 			ExampleType:          convertExampleType(m.Common.ExampleType),
 			IsTruncated:          m.Common.IsTruncated,
 			NumQueriesWithErrors: m.Common.NumQueriesWithErrors,
@@ -265,6 +265,7 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsB
 	return nil
 }
 
+//nolint:staticcheck
 func convertExampleFormat(exampleFormat agentpb.ExampleFormat) qanpb.ExampleFormat {
 	switch exampleFormat {
 	case agentpb.ExampleFormat_EXAMPLE:

@@ -81,7 +81,7 @@ var (
 		pointer.ToString("mariadb"),
 		pointer.ToString("mysql"),
 
-		// TODO https://jira.percona.com/browse/PMM-4574
+		// TODO https://jira.percona.com/browse/PMM-5195
 		// pointer.ToString("aurora-postgresql"),
 		// pointer.ToString("postgres"),
 	}
