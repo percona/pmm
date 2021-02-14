@@ -3194,6 +3194,14 @@
                   "description": "Enables push metrics mode for exporter.",
                   "type": "boolean",
                   "x-order": 11
+                },
+                "disable_collectors": {
+                  "description": "List of collector names to disable in this exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 12
                 }
               }
             }
@@ -3257,6 +3265,14 @@
                       "type": "boolean",
                       "x-order": 8
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -3269,13 +3285,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -3393,6 +3409,14 @@
                   "description": "Enables push metrics mode for exporter.",
                   "type": "boolean",
                   "x-order": 9
+                },
+                "disable_collectors": {
+                  "description": "List of collector names to disable in this exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 10
                 }
               }
             }
@@ -3462,6 +3486,14 @@
                       "type": "boolean",
                       "x-order": 9
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 10
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -3474,18 +3506,18 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 12
+                      "x-order": 13
                     }
                   },
                   "x-order": 0
@@ -3573,6 +3605,14 @@
                   "description": "Enables push metrics mode for exporter.",
                   "type": "boolean",
                   "x-order": 2
+                },
+                "disable_collectors": {
+                  "description": "List of collector names to disable in this exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 3
                 }
               }
             }
@@ -3616,6 +3656,14 @@
                       "type": "boolean",
                       "x-order": 4
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 5
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -3628,13 +3676,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 5
+                      "x-order": 6
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 6
+                      "x-order": 7
                     }
                   },
                   "x-order": 0
@@ -3859,6 +3907,14 @@
                   "description": "Enables push metrics mode for exporter.",
                   "type": "boolean",
                   "x-order": 8
+                },
+                "disable_collectors": {
+                  "description": "List of collector names to disable in this exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 9
                 }
               }
             }
@@ -3922,6 +3978,14 @@
                       "type": "boolean",
                       "x-order": 8
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -3934,13 +3998,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -4052,6 +4116,14 @@
                   "description": "Enables push metrics mode for exporter.",
                   "type": "boolean",
                   "x-order": 8
+                },
+                "disable_collectors": {
+                  "description": "List of collector names to disable in this exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 9
                 }
               }
             }
@@ -4115,6 +4187,14 @@
                       "type": "boolean",
                       "x-order": 8
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -4127,13 +4207,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -5614,6 +5694,14 @@
                       "type": "boolean",
                       "x-order": 8
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -5626,13 +5714,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -5809,6 +5897,14 @@
                       "type": "boolean",
                       "x-order": 9
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 10
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -5821,18 +5917,18 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 12
+                      "x-order": 13
                     }
                   },
                   "x-order": 0
@@ -5983,6 +6079,14 @@
                       "type": "boolean",
                       "x-order": 4
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 5
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -5995,13 +6099,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 5
+                      "x-order": 6
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 6
+                      "x-order": 7
                     }
                   },
                   "x-order": 0
@@ -6172,6 +6276,14 @@
                       "type": "boolean",
                       "x-order": 8
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -6184,13 +6296,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -6361,6 +6473,14 @@
                       "type": "boolean",
                       "x-order": 8
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -6373,13 +6493,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -7652,6 +7772,14 @@
                       "type": "boolean",
                       "x-order": 4
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 5
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -7664,13 +7792,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 5
+                      "x-order": 6
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 6
+                      "x-order": 7
                     }
                   },
                   "x-order": 2
@@ -7733,6 +7861,14 @@
                       "type": "boolean",
                       "x-order": 9
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 10
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -7745,18 +7881,18 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 12
+                      "x-order": 13
                     }
                   },
                   "x-order": 3
@@ -7813,6 +7949,14 @@
                       "type": "boolean",
                       "x-order": 8
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -7825,13 +7969,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 4
@@ -7888,6 +8032,14 @@
                       "type": "boolean",
                       "x-order": 8
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -7900,13 +8052,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 5
@@ -7963,6 +8115,14 @@
                       "type": "boolean",
                       "x-order": 8
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -7975,13 +8135,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 6
@@ -8672,6 +8832,14 @@
                         "type": "boolean",
                         "x-order": 4
                       },
+                      "disabled_collectors": {
+                        "description": "List of disabled collector names.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 5
+                      },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                         "type": "string",
@@ -8684,13 +8852,13 @@
                           "STOPPING",
                           "DONE"
                         ],
-                        "x-order": 5
+                        "x-order": 6
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 6
+                        "x-order": 7
                       }
                     }
                   },
@@ -8756,6 +8924,14 @@
                         "type": "boolean",
                         "x-order": 9
                       },
+                      "disabled_collectors": {
+                        "description": "List of disabled collector names.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 10
+                      },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                         "type": "string",
@@ -8768,18 +8944,18 @@
                           "STOPPING",
                           "DONE"
                         ],
-                        "x-order": 10
+                        "x-order": 11
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 11
+                        "x-order": 12
                       },
                       "tablestats_group_disabled": {
                         "description": "True if tablestats group collectors are currently disabled.",
                         "type": "boolean",
-                        "x-order": 12
+                        "x-order": 13
                       }
                     }
                   },
@@ -8839,6 +9015,14 @@
                         "type": "boolean",
                         "x-order": 8
                       },
+                      "disabled_collectors": {
+                        "description": "List of disabled collector names.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 9
+                      },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                         "type": "string",
@@ -8851,13 +9035,13 @@
                           "STOPPING",
                           "DONE"
                         ],
-                        "x-order": 9
+                        "x-order": 10
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 10
+                        "x-order": 11
                       }
                     }
                   },
@@ -8917,6 +9101,14 @@
                         "type": "boolean",
                         "x-order": 8
                       },
+                      "disabled_collectors": {
+                        "description": "List of disabled collector names.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 9
+                      },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                         "type": "string",
@@ -8929,13 +9121,13 @@
                           "STOPPING",
                           "DONE"
                         ],
-                        "x-order": 9
+                        "x-order": 10
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 10
+                        "x-order": 11
                       }
                     }
                   },
@@ -8995,6 +9187,14 @@
                         "type": "boolean",
                         "x-order": 8
                       },
+                      "disabled_collectors": {
+                        "description": "List of disabled collector names.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 9
+                      },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                         "type": "string",
@@ -9007,13 +9207,13 @@
                           "STOPPING",
                           "DONE"
                         ],
-                        "x-order": 9
+                        "x-order": 10
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 10
+                        "x-order": 11
                       }
                     }
                   },
@@ -11097,6 +11297,154 @@
         }
       }
     },
+    "/v1/inventory/Services/AddHAProxyService": {
+      "post": {
+        "tags": [
+          "Services"
+        ],
+        "summary": "AddHAProxyService adds HAProxy Service.",
+        "operationId": "AddHAProxyService",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "service_name": {
+                  "description": "Unique across all Services user-defined name. Required.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "node_id": {
+                  "description": "Node identifier where this instance runs. Required.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "environment": {
+                  "description": "Environment name.",
+                  "type": "string",
+                  "x-order": 2
+                },
+                "cluster": {
+                  "description": "Cluster name.",
+                  "type": "string",
+                  "x-order": 3
+                },
+                "replication_set": {
+                  "description": "Replication set name.",
+                  "type": "string",
+                  "x-order": 4
+                },
+                "custom_labels": {
+                  "description": "Custom user-assigned labels.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "x-order": 5
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "haproxy": {
+                  "description": "HAProxyService represents a generic HAProxy service instance.",
+                  "type": "object",
+                  "properties": {
+                    "service_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "node_id": {
+                      "description": "Node identifier where this service instance runs.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "cluster": {
+                      "description": "Cluster name.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "replication_set": {
+                      "description": "Replication set name.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 6
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/inventory/Services/AddMongoDB": {
       "post": {
         "tags": [
@@ -12091,6 +12439,51 @@
                   },
                   "x-order": 3
                 },
+                "haproxy": {
+                  "description": "HAProxyService represents a generic HAProxy service instance.",
+                  "type": "object",
+                  "properties": {
+                    "service_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "node_id": {
+                      "description": "Node identifier where this service instance runs.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "cluster": {
+                      "description": "Cluster name.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "replication_set": {
+                      "description": "Replication set name.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 6
+                    }
+                  },
+                  "x-order": 4
+                },
                 "external": {
                   "description": "ExternalService represents a generic External service instance.",
                   "type": "object",
@@ -12139,7 +12532,7 @@
                       "x-order": 7
                     }
                   },
-                  "x-order": 4
+                  "x-order": 5
                 }
               }
             }
@@ -12216,9 +12609,15 @@
                     "MONGODB_SERVICE",
                     "POSTGRESQL_SERVICE",
                     "PROXYSQL_SERVICE",
+                    "HAPROXY_SERVICE",
                     "EXTERNAL_SERVICE"
                   ],
                   "x-order": 1
+                },
+                "external_group": {
+                  "description": "Return only services in this external group.",
+                  "type": "string",
+                  "x-order": 2
                 }
               }
             }
@@ -12486,6 +12885,54 @@
                   },
                   "x-order": 3
                 },
+                "haproxy": {
+                  "type": "array",
+                  "items": {
+                    "description": "HAProxyService represents a generic HAProxy service instance.",
+                    "type": "object",
+                    "properties": {
+                      "service_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "service_name": {
+                        "description": "Unique across all Services user-defined name.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "node_id": {
+                        "description": "Node identifier where this service instance runs.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "environment": {
+                        "description": "Environment name.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "cluster": {
+                        "description": "Cluster name.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "replication_set": {
+                        "description": "Replication set name.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 6
+                      }
+                    }
+                  },
+                  "x-order": 4
+                },
                 "external": {
                   "type": "array",
                   "items": {
@@ -12537,7 +12984,7 @@
                       }
                     }
                   },
-                  "x-order": 4
+                  "x-order": 5
                 }
               }
             }
@@ -13474,6 +13921,98 @@
             "description": "A successful response.",
             "schema": {
               "type": "object",
+              "properties": {
+                "action_id": {
+                  "description": "Unique Action ID.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "pmm_agent_id": {
+                  "description": "pmm-agent ID where to this Action was started.",
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/Actions/StartPTMongoDBSummary": {
+      "post": {
+        "tags": [
+          "Actions"
+        ],
+        "summary": "StartPTMongoDBSummaryAction starts pt-mongodb-summary Action.",
+        "operationId": "StartPTMongoDBSummaryAction",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "title": "Message to prepare pt-mongodb-summary data",
+              "properties": {
+                "pmm_agent_id": {
+                  "description": "pmm-agent ID where to run this Action.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "service_id": {
+                  "description": "Service ID for this Action.",
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "title": "Message to retrieve the prepared pt-mongodb-summary data",
               "properties": {
                 "action_id": {
                   "description": "Unique Action ID.",
@@ -14711,13 +15250,13 @@
         }
       }
     },
-    "/v1/management/DBaaS/PSMDBClusters/Get": {
+    "/v1/management/DBaaS/PSMDBClusters/GetCredentials": {
       "post": {
         "tags": [
           "PSMDBCluster"
         ],
-        "summary": "GetPSMDBCluster returns a PSMDB cluster by name.",
-        "operationId": "GetPSMDBCluster",
+        "summary": "GetPSMDBClusterCredentials returns a PSMDB cluster credentials by cluster name.",
+        "operationId": "GetPSMDBClusterCredentials",
         "parameters": [
           {
             "name": "body",
@@ -14746,89 +15285,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "state": {
-                  "description": "PSMDBClusterState represents PSMDB cluster CR state.\n\n - PSMDB_CLUSTER_STATE_INVALID: PSMDB_CLUSTER_STATE_INVALID represents unknown state.\n - PSMDB_CLUSTER_STATE_CHANGING: PSMDB_CLUSTER_STATE_CHANGING represents a cluster being changed.\n - PSMDB_CLUSTER_STATE_READY: PSMDB_CLUSTER_STATE_READY represents a cluster without pending changes.\n - PSMDB_CLUSTER_STATE_FAILED: PSMDB_CLUSTER_STATE_FAILED represents a failed cluster.\n - PSMDB_CLUSTER_STATE_DELETING: PSMDB_CLUSTER_STATE_DELETING represents a cluster being deleting.\n - PSMDB_CLUSTER_STATE_PAUSED: PSMDB_CLUSTER_STATE_PAUSED represents a cluster is paused.",
-                  "type": "string",
-                  "default": "PSMDB_CLUSTER_STATE_INVALID",
-                  "enum": [
-                    "PSMDB_CLUSTER_STATE_INVALID",
-                    "PSMDB_CLUSTER_STATE_CHANGING",
-                    "PSMDB_CLUSTER_STATE_READY",
-                    "PSMDB_CLUSTER_STATE_FAILED",
-                    "PSMDB_CLUSTER_STATE_DELETING",
-                    "PSMDB_CLUSTER_STATE_PAUSED"
-                  ],
-                  "x-order": 0
-                },
-                "operation": {
-                  "description": "RunningOperation respresents a long-running operation.",
-                  "type": "object",
-                  "properties": {
-                    "finished_steps": {
-                      "description": "Finished steps of the operaion; can decrease or increase compared to the previous value.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 0
-                    },
-                    "message": {
-                      "description": "Text describing the current operation progress step.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "total_steps": {
-                      "description": "Total steps needed to finish the operation; can decrease or increase compared to the previous value.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 2
-                    }
-                  },
-                  "x-order": 1
-                },
-                "params": {
-                  "description": "PSMDBClusterParams represents PSMDB cluster parameters that can be updated.",
-                  "type": "object",
-                  "properties": {
-                    "cluster_size": {
-                      "description": "Cluster size.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 0
-                    },
-                    "replicaset": {
-                      "description": "ReplicaSet container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
-                      "type": "object",
-                      "properties": {
-                        "compute_resources": {
-                          "description": "ComputeResources represents container computer resources requests or limits.",
-                          "type": "object",
-                          "properties": {
-                            "cpu_m": {
-                              "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
-                              "type": "integer",
-                              "format": "int32",
-                              "x-order": 0
-                            },
-                            "memory_bytes": {
-                              "description": "Memory in bytes.",
-                              "type": "string",
-                              "format": "int64",
-                              "x-order": 1
-                            }
-                          },
-                          "x-order": 0
-                        },
-                        "disk_size": {
-                          "description": "Disk size in bytes.",
-                          "type": "string",
-                          "format": "int64",
-                          "x-order": 1
-                        }
-                      },
-                      "x-order": 1
-                    }
-                  },
-                  "x-order": 2
-                },
                 "connection_credentials": {
                   "description": "PSMDBCredentials is a credentials to connect to PSMDB.\nTODO Do not use inner messages in all public APIs (for consistency).",
                   "type": "object",
@@ -14860,7 +15316,7 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 3
+                  "x-order": 0
                 }
               }
             }
@@ -15545,13 +16001,13 @@
         }
       }
     },
-    "/v1/management/DBaaS/XtraDBClusters/Get": {
+    "/v1/management/DBaaS/XtraDBClusters/GetCredentials": {
       "post": {
         "tags": [
           "XtraDBCluster"
         ],
-        "summary": "GetXtraDBCluster returns a XtraDB cluster by name.",
-        "operationId": "GetXtraDBCluster",
+        "summary": "GetXtraDBClusterCredentials returns a XtraDB cluster credentials by cluster name.",
+        "operationId": "GetXtraDBClusterCredentials",
         "parameters": [
           {
             "name": "body",
@@ -15580,121 +16036,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "state": {
-                  "description": "XtraDBClusterState represents XtraDB cluster CR state.\n\n - XTRA_DB_CLUSTER_STATE_INVALID: XTRA_DB_CLUSTER_STATE_INVALID represents unknown state.\n - XTRA_DB_CLUSTER_STATE_CHANGING: XTRA_DB_CLUSTER_STATE_CHANGING represents a cluster being changed.\n - XTRA_DB_CLUSTER_STATE_READY: XTRA_DB_CLUSTER_STATE_READY represents a cluster without pending changes.\n - XTRA_DB_CLUSTER_STATE_FAILED: XTRA_DB_CLUSTER_STATE_FAILED represents a failed cluster.\n - XTRA_DB_CLUSTER_STATE_DELETING: XTRA_DB_CLUSTER_STATE_DELETING represents a cluster being deleting.\n - XTRA_DB_CLUSTER_STATE_PAUSED: XTRA_DB_CLUSTER_STATE_PAUSED represents a cluster is paused.",
-                  "type": "string",
-                  "default": "XTRA_DB_CLUSTER_STATE_INVALID",
-                  "enum": [
-                    "XTRA_DB_CLUSTER_STATE_INVALID",
-                    "XTRA_DB_CLUSTER_STATE_CHANGING",
-                    "XTRA_DB_CLUSTER_STATE_READY",
-                    "XTRA_DB_CLUSTER_STATE_FAILED",
-                    "XTRA_DB_CLUSTER_STATE_DELETING",
-                    "XTRA_DB_CLUSTER_STATE_PAUSED"
-                  ],
-                  "x-order": 0
-                },
-                "operation": {
-                  "description": "RunningOperation respresents a long-running operation.",
-                  "type": "object",
-                  "properties": {
-                    "finished_steps": {
-                      "description": "Finished steps of the operaion; can decrease or increase compared to the previous value.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 0
-                    },
-                    "message": {
-                      "description": "Text describing the current operation progress step.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "total_steps": {
-                      "description": "Total steps needed to finish the operation; can decrease or increase compared to the previous value.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 2
-                    }
-                  },
-                  "x-order": 1
-                },
-                "params": {
-                  "description": "XtraDBClusterParams represents XtraDB cluster parameters that can be updated.",
-                  "type": "object",
-                  "properties": {
-                    "cluster_size": {
-                      "description": "Cluster size.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 0
-                    },
-                    "pxc": {
-                      "description": "PXC container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
-                      "type": "object",
-                      "properties": {
-                        "compute_resources": {
-                          "description": "ComputeResources represents container computer resources requests or limits.",
-                          "type": "object",
-                          "properties": {
-                            "cpu_m": {
-                              "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
-                              "type": "integer",
-                              "format": "int32",
-                              "x-order": 0
-                            },
-                            "memory_bytes": {
-                              "description": "Memory in bytes.",
-                              "type": "string",
-                              "format": "int64",
-                              "x-order": 1
-                            }
-                          },
-                          "x-order": 0
-                        },
-                        "disk_size": {
-                          "description": "Disk size in bytes.",
-                          "type": "string",
-                          "format": "int64",
-                          "x-order": 1
-                        }
-                      },
-                      "x-order": 1
-                    },
-                    "proxysql": {
-                      "description": "ProxySQL container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
-                      "type": "object",
-                      "properties": {
-                        "compute_resources": {
-                          "description": "ComputeResources represents container computer resources requests or limits.",
-                          "type": "object",
-                          "properties": {
-                            "cpu_m": {
-                              "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
-                              "type": "integer",
-                              "format": "int32",
-                              "x-order": 0
-                            },
-                            "memory_bytes": {
-                              "description": "Memory in bytes.",
-                              "type": "string",
-                              "format": "int64",
-                              "x-order": 1
-                            }
-                          },
-                          "x-order": 0
-                        },
-                        "disk_size": {
-                          "description": "Disk size in bytes.",
-                          "type": "string",
-                          "format": "int64",
-                          "x-order": 1
-                        }
-                      },
-                      "x-order": 2
-                    }
-                  },
-                  "x-order": 2
-                },
                 "connection_credentials": {
                   "description": "XtraDBClusterConnectionCredentials is cluster connection credentials.",
                   "type": "object",
@@ -15721,7 +16062,7 @@
                       "x-order": 3
                     }
                   },
-                  "x-order": 3
+                  "x-order": 0
                 }
               }
             }
@@ -16313,6 +16654,330 @@
         }
       }
     },
+    "/v1/management/HAProxy/Add": {
+      "post": {
+        "tags": [
+          "HAProxy"
+        ],
+        "summary": "AddHAProxy adds HAProxy service and adds external exporter.\nIt automatically adds a service to inventory, which is running on provided \"node_id\",\nthen adds an \"external exporter\" agent to inventory.",
+        "operationId": "AddHAProxy",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "node_id": {
+                  "description": "Node identifier on which an external exporter is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "node_name": {
+                  "description": "Node name on which a service and node is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "add_node": {
+                  "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
+                  "type": "object",
+                  "properties": {
+                    "node_type": {
+                      "description": "NodeType describes supported Node types.",
+                      "type": "string",
+                      "default": "NODE_TYPE_INVALID",
+                      "enum": [
+                        "NODE_TYPE_INVALID",
+                        "GENERIC_NODE",
+                        "CONTAINER_NODE",
+                        "REMOTE_NODE",
+                        "REMOTE_RDS_NODE"
+                      ],
+                      "x-order": 0
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "machine_id": {
+                      "description": "Linux machine-id.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "distro": {
+                      "description": "Linux distribution name and version.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "container_id": {
+                      "description": "Container identifier. If specified, must be a unique Docker container identifier.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "container_name": {
+                      "description": "Container name.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "node_model": {
+                      "description": "Node model.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels for Node.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    }
+                  },
+                  "x-order": 2
+                },
+                "address": {
+                  "description": "Node and Exporter access address (DNS name or IP).\naddress always should be passed with add_node.",
+                  "type": "string",
+                  "x-order": 3
+                },
+                "service_name": {
+                  "description": "Unique across all Services user-defined name. Required.",
+                  "type": "string",
+                  "x-order": 4
+                },
+                "username": {
+                  "description": "HTTP basic auth username for collecting metrics.",
+                  "type": "string",
+                  "x-order": 5
+                },
+                "password": {
+                  "description": "HTTP basic auth password for collecting metrics.",
+                  "type": "string",
+                  "x-order": 6
+                },
+                "scheme": {
+                  "description": "Scheme to generate URI to exporter metrics endpoints.",
+                  "type": "string",
+                  "x-order": 7
+                },
+                "metrics_path": {
+                  "description": "Path under which metrics are exposed, used to generate URI.",
+                  "type": "string",
+                  "x-order": 8
+                },
+                "listen_port": {
+                  "description": "Listen port for scraping metrics.",
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 9
+                },
+                "environment": {
+                  "description": "Environment name.",
+                  "type": "string",
+                  "x-order": 10
+                },
+                "cluster": {
+                  "description": "Cluster name.",
+                  "type": "string",
+                  "x-order": 11
+                },
+                "replication_set": {
+                  "description": "Replication set name.",
+                  "type": "string",
+                  "x-order": 12
+                },
+                "custom_labels": {
+                  "description": "Custom user-assigned labels for Service.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "x-order": 13
+                },
+                "metrics_mode": {
+                  "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
+                  "type": "string",
+                  "default": "AUTO",
+                  "enum": [
+                    "AUTO",
+                    "PULL",
+                    "PUSH"
+                  ],
+                  "x-order": 14
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "service": {
+                  "description": "HAProxyService represents a generic HAProxy service instance.",
+                  "type": "object",
+                  "properties": {
+                    "service_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "node_id": {
+                      "description": "Node identifier where this service instance runs.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "cluster": {
+                      "description": "Cluster name.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "replication_set": {
+                      "description": "Replication set name.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 6
+                    }
+                  },
+                  "x-order": 0
+                },
+                "external_exporter": {
+                  "description": "ExternalExporter runs on any Node type, including Remote Node.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "runs_on_node_id": {
+                      "description": "Node identifier where this instance runs.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "If disabled, metrics from this exporter will not be collected.",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "username": {
+                      "description": "HTTP basic auth username for collecting metrics.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "scheme": {
+                      "description": "Scheme to generate URI to exporter metrics endpoints.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "metrics_path": {
+                      "description": "Path under which metrics are exposed, used to generate URI.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 7
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 8
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 9
+                    }
+                  },
+                  "x-order": 1
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/MongoDB/Add": {
       "post": {
         "tags": [
@@ -16510,6 +17175,14 @@
                     "PUSH"
                   ],
                   "x-order": 21
+                },
+                "disable_collectors": {
+                  "description": "List of collector names to disable in this exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 22
                 }
               }
             }
@@ -16634,6 +17307,14 @@
                       "type": "boolean",
                       "x-order": 8
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -16646,13 +17327,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 1
@@ -16970,6 +17651,14 @@
                     "PUSH"
                   ],
                   "x-order": 22
+                },
+                "disable_collectors": {
+                  "description": "List of collector names to disable in this exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 23
                 }
               }
             }
@@ -17100,6 +17789,14 @@
                       "type": "boolean",
                       "x-order": 9
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 10
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -17112,18 +17809,18 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 12
+                      "x-order": 13
                     }
                   },
                   "x-order": 1
@@ -17419,6 +18116,14 @@
                     "PUSH"
                   ],
                   "x-order": 12
+                },
+                "disable_collectors": {
+                  "description": "List of collector names to disable in this exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 13
                 }
               }
             }
@@ -17812,6 +18517,14 @@
                     "PUSH"
                   ],
                   "x-order": 20
+                },
+                "disable_collectors": {
+                  "description": "List of collector names to disable in this exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 21
                 }
               }
             }
@@ -17936,6 +18649,14 @@
                       "type": "boolean",
                       "x-order": 8
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -17948,13 +18669,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 1
@@ -18314,6 +19035,14 @@
                     "PUSH"
                   ],
                   "x-order": 17
+                },
+                "disable_collectors": {
+                  "description": "List of collector names to disable in this exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 18
                 }
               }
             }
@@ -18438,6 +19167,14 @@
                       "type": "boolean",
                       "x-order": 8
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -18450,13 +19187,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 1
@@ -18921,6 +19658,14 @@
                       "type": "boolean",
                       "x-order": 9
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 10
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -18933,18 +19678,18 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 12
+                      "x-order": 13
                     }
                   },
                   "x-order": 3
@@ -19356,6 +20101,11 @@
                           "type": "string"
                         },
                         "x-order": 3
+                      },
+                      "read_more_url": {
+                        "description": "URL containing information on how to resolve an issue detected by an STT check.",
+                        "type": "string",
+                        "x-order": 4
                       }
                     }
                   },
@@ -19595,6 +20345,7 @@
                     "MONGODB_SERVICE",
                     "POSTGRESQL_SERVICE",
                     "PROXYSQL_SERVICE",
+                    "HAPROXY_SERVICE",
                     "EXTERNAL_SERVICE"
                   ],
                   "x-order": 0
@@ -19618,6 +20369,265 @@
             "description": "A successful response.",
             "schema": {
               "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/backup/Locations/Add": {
+      "post": {
+        "tags": [
+          "Locations"
+        ],
+        "summary": "AddLocation adds backup location.",
+        "operationId": "AddLocation",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "title": "Location name",
+                  "x-order": 0
+                },
+                "description": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "pmm_client_config": {
+                  "description": "PMMClientLocationConfig represents file system config inside pmm-client.",
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "x-order": 0
+                    }
+                  },
+                  "x-order": 2
+                },
+                "pmm_server_config": {
+                  "description": "PMMServerLocationConfig represents file system config inside pmm-server.",
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "x-order": 0
+                    }
+                  },
+                  "x-order": 3
+                },
+                "s3_config": {
+                  "description": "S3LocationConfig represents S3 bucket configuration.",
+                  "type": "object",
+                  "properties": {
+                    "endpoint": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "access_key": {
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "secret_key": {
+                      "type": "string",
+                      "x-order": 2
+                    }
+                  },
+                  "x-order": 4
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "location_id": {
+                  "description": "Machine-readable ID.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/backup/Locations/List": {
+      "post": {
+        "tags": [
+          "Locations"
+        ],
+        "summary": "ListLocations returns a list of all backup locations.",
+        "operationId": "ListLocations",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "locations": {
+                  "type": "array",
+                  "items": {
+                    "description": "Location represents single Backup Location.",
+                    "type": "object",
+                    "properties": {
+                      "location_id": {
+                        "description": "Machine-readable ID.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "name": {
+                        "type": "string",
+                        "title": "Location name",
+                        "x-order": 1
+                      },
+                      "description": {
+                        "type": "string",
+                        "title": "Short description",
+                        "x-order": 2
+                      },
+                      "pmm_client_config": {
+                        "description": "PMMClientLocationConfig represents file system config inside pmm-client.",
+                        "type": "object",
+                        "properties": {
+                          "path": {
+                            "type": "string",
+                            "x-order": 0
+                          }
+                        },
+                        "x-order": 3
+                      },
+                      "pmm_server_config": {
+                        "description": "PMMServerLocationConfig represents file system config inside pmm-server.",
+                        "type": "object",
+                        "properties": {
+                          "path": {
+                            "type": "string",
+                            "x-order": 0
+                          }
+                        },
+                        "x-order": 4
+                      },
+                      "s3_config": {
+                        "description": "S3LocationConfig represents S3 bucket configuration.",
+                        "type": "object",
+                        "properties": {
+                          "endpoint": {
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "access_key": {
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "secret_key": {
+                            "type": "string",
+                            "x-order": 2
+                          }
+                        },
+                        "x-order": 5
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
             }
           },
           "default": {
@@ -20235,6 +21245,11 @@
                             "type": "string",
                             "format": "date-time",
                             "x-order": 10
+                          },
+                          "expr": {
+                            "description": "Template expression with rule parameters.",
+                            "type": "string",
+                            "x-order": 11
                           }
                         },
                         "x-order": 5
@@ -21929,6 +22944,11 @@
                         "type": "string",
                         "format": "date-time",
                         "x-order": 10
+                      },
+                      "expr": {
+                        "description": "Template expression with rule parameters.",
+                        "type": "string",
+                        "x-order": 11
                       }
                     }
                   },
