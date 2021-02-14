@@ -16,6 +16,9 @@
 package inventory
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/percona/pmm/api/inventorypb/json/client"
 	"github.com/percona/pmm/api/inventorypb/json/client/agents"
 
@@ -63,6 +66,11 @@ func (cmd *addAgentExternalExporterCommand) Run() (commands.Result, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	if !strings.HasPrefix(cmd.MetricsPath, "/") {
+		cmd.MetricsPath = fmt.Sprintf("/%s", cmd.MetricsPath)
+	}
+
 	params := &agents.AddExternalExporterParams{
 		Body: agents.AddExternalExporterBody{
 			RunsOnNodeID: cmd.RunsOnNodeID,
@@ -98,7 +106,7 @@ func init() {
 	AddAgentExternalExporterC.Flag("service-id", "Service identifier").Required().StringVar(&AddAgentExternalExporter.ServiceID)
 	AddAgentExternalExporterC.Flag("username", "HTTP Basic auth username for scraping metrics").StringVar(&AddAgentExternalExporter.Username)
 	AddAgentExternalExporterC.Flag("password", "HTTP Basic auth password for scraping metrics").StringVar(&AddAgentExternalExporter.Password)
-	AddAgentExternalExporterC.Flag("scheme", "Scheme to generate URI to exporter metrics endpoints").StringVar(&AddAgentExternalExporter.Scheme)
+	AddAgentExternalExporterC.Flag("scheme", "Scheme to generate URI to exporter metrics endpoints (http, https)").StringVar(&AddAgentExternalExporter.Scheme)
 	AddAgentExternalExporterC.Flag("metrics-path", "Path under which metrics are exposed, used to generate URI").StringVar(&AddAgentExternalExporter.MetricsPath)
 	AddAgentExternalExporterC.Flag("listen-port", "Listen port for scraping metrics").Required().Int64Var(&AddAgentExternalExporter.ListenPort)
 	AddAgentExternalExporterC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentExternalExporter.CustomLabels)
