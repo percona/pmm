@@ -240,8 +240,8 @@
   version = "v1.1.2"
 
 [[projects]]
-  branch = "release/2.15"
-  digest = "1:bf708b9749c91c6cd2e308fbd5892ac66b7375e6967cfc8b251bf4320ea2edf2"
+  branch = "PMM-2.0"
+  digest = "1:0b55cc70802a3d417bc8cabe030255107001bfd4e32408bfdcb3503e23e83781"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentlocalpb/json/client",
@@ -255,6 +255,7 @@
     "api/managementpb/json/client/actions",
     "api/managementpb/json/client/annotation",
     "api/managementpb/json/client/external",
+    "api/managementpb/json/client/ha_proxy",
     "api/managementpb/json/client/mongo_db",
     "api/managementpb/json/client/my_sql",
     "api/managementpb/json/client/node",
@@ -270,7 +271,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "e275308228f80dd15a8671e5b571509cf86d3688"
+  revision = "4559713b8bc01ab2538bd183bca387cebe624966"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
