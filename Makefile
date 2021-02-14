@@ -87,10 +87,10 @@ fuzz-postgres-parser:   ## Run fuzzer for agents/postgres/parser package.
 	cd agents/postgres/parser && go-fuzz -workdir fuzzing
 
 bench:                          ## Run benchmarks.
-	go test -bench=. -benchtime=3s -count=5 -cpu=1 -timeout=20m -failfast github.com/percona/pmm-agent/agents/mysql/slowlog/parser | tee slowlog_parser_new.bench
+	go test -bench=. -benchtime=1s -count=5 -cpu=1 -timeout=30m -failfast github.com/percona/pmm-agent/agents/mysql/slowlog/parser | tee slowlog_parser_new.bench
 	benchstat slowlog_parser_old.bench slowlog_parser_new.bench
 
-	go test -bench=. -benchtime=3s -count=5 -cpu=1 -timeout=20m -failfast github.com/percona/pmm-agent/agents/postgres/parser | tee postgres_parser_new.bench
+	go test -bench=. -benchtime=1s -count=5 -cpu=1 -timeout=30m -failfast github.com/percona/pmm-agent/agents/postgres/parser | tee postgres_parser_new.bench
 	benchstat postgres_parser_old.bench postgres_parser_new.bench
 
 check:                          ## Run required checkers and linters.
