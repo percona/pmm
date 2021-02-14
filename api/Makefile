@@ -54,16 +54,16 @@ gen: clean            ## Generate files.
 
 	swagger-order --output=swagger/swagger.json swagger/swagger.json
 
-	# generate dev API spec
+	# generate dev API spec with all PMM Server APIs (omit agentlocalpb)
 	swagger mixin --output=swagger/swagger-dev.json \
 		swagger/header-dev.json \
 		serverpb/json/serverpb.json \
 		inventorypb/json/inventorypb.json \
+		managementpb/json/managementpb.json \
 		managementpb/dbaas/json/dbaas.json \
 		managementpb/ia/json/ia.json \
 		managementpb/backup/json/backup.json \
-		qanpb/json/qanpb.json \
-		managementpb/json/managementpb.json
+		qanpb/json/qanpb.json
 	swagger validate swagger/swagger-dev.json
 
 	swagger-order --output=swagger/swagger-dev.json swagger/swagger-dev.json
@@ -89,7 +89,7 @@ clean: clean_swagger  ## Remove generated files.
 	for API in agentlocalpb serverpb inventorypb managementpb managementpb/dbaas managementpb/ia managementpb/backup qanpb ; do \
 		rm -fr $$API/json/client $$API/json/models $$API/json/$$(basename $$API).json ; \
 	done
-	rm -f swagger/swagger.json
+	rm -f swagger/swagger.json swagger/swagger-dev.json
 
 serve:                ## Serve API documentation with nginx.
 	# http://127.0.0.1:8080/swagger-ui.html
