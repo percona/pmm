@@ -182,10 +182,6 @@ func FindPMMAgentsRunningOnNode(q *reform.Querier, nodeID string) ([]*Agent, err
 		res = append(res, row)
 	}
 
-	if len(res) == 0 {
-		return nil, status.Errorf(codes.NotFound, "Couldn't found any pmm-agents by NodeID")
-	}
-
 	return res, nil
 }
 
@@ -214,6 +210,10 @@ func FindPMMAgentsForService(q *reform.Querier, serviceID string) ([]*Agent, err
 		}
 	}
 
+	if len(pmmAgentIDs) == 0 {
+		return []*Agent{}, nil
+	}
+
 	// Last, find all pmm-agents.
 	ph := strings.Join(q.Placeholders(1, len(pmmAgentIDs)), ", ")
 	atail := fmt.Sprintf("WHERE agent_id IN (%s) AND agent_type = '%s' ORDER BY agent_id", ph, PMMAgentType) //nolint:gosec
@@ -228,6 +228,27 @@ func FindPMMAgentsForService(q *reform.Querier, serviceID string) ([]*Agent, err
 	}
 
 	return res, nil
+}
+
+// FindPMMAgentsForServicesOnNode gets pmm-agents for Services running on Node.
+func FindPMMAgentsForServicesOnNode(q *reform.Querier, nodeID string) ([]*Agent, error) {
+	structs, err := q.FindAllFrom(ServiceTable, "node_id", nodeID)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to select Service IDs")
+	}
+
+	allAgents := make([]*Agent, 0, len(structs))
+	for _, str := range structs {
+		serviceID := str.(*Service).ServiceID
+		agents, err := FindPMMAgentsForService(q, serviceID)
+		if err != nil {
+			return nil, errors.WithStack(err)
+		}
+
+		allAgents = append(allAgents, agents...)
+	}
+
+	return allAgents, nil
 }
 
 // FindPMMAgentsForVersion selects pmm-agents with version >= minPMMAgentVersion.
@@ -346,7 +367,7 @@ func CreatePMMAgent(q *reform.Querier, runsOnNodeID string, customLabels map[str
 }
 
 // CreateNodeExporter creates NodeExporter.
-func CreateNodeExporter(q *reform.Querier, pmmAgentID string, customLabels map[string]string, pushMetrics bool) (*Agent, error) {
+func CreateNodeExporter(q *reform.Querier, pmmAgentID string, customLabels map[string]string, pushMetrics bool, disableCollectors []string) (*Agent, error) {
 	// TODO merge into CreateAgent
 
 	id := "/agent_id/" + uuid.New().String()
@@ -363,11 +384,12 @@ func CreateNodeExporter(q *reform.Querier, pmmAgentID string, customLabels map[s
 			" it doesn't support it, minimum supported version=%q", pointer.GetString(pmmAgent.Version), PMMAgentWithPushMetricsSupport.String())
 	}
 	row := &Agent{
-		AgentID:     id,
-		AgentType:   NodeExporterType,
-		PMMAgentID:  &pmmAgentID,
-		NodeID:      pmmAgent.RunsOnNodeID,
-		PushMetrics: pushMetrics,
+		AgentID:            id,
+		AgentType:          NodeExporterType,
+		PMMAgentID:         &pmmAgentID,
+		NodeID:             pmmAgent.RunsOnNodeID,
+		PushMetrics:        pushMetrics,
+		DisabledCollectors: disableCollectors,
 	}
 	if err := row.SetCustomLabels(customLabels); err != nil {
 		return nil, err
@@ -409,9 +431,13 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 		if err != nil {
 			return nil, errors.Wrapf(err, "cannot find pmm_agent for external exporter with push_metrics")
 		}
-		if len(agentIDs) > 1 {
-			return nil, errors.Errorf("cannot find exact match for pmm_agent for external exporter,"+
-				" more than one (%d) pmm_agent was found at node: %s", len(agentIDs), params.RunsOnNodeID)
+		switch len(agentIDs) {
+		case 0:
+			return nil, status.Errorf(codes.NotFound, "cannot find any pmm-agent by NodeID")
+		case 1:
+		default:
+			return nil, errors.Errorf("exactly one pmm_agent expected for external exporter, but "+
+				"(%d) found at node: %s", len(agentIDs), params.RunsOnNodeID)
 		}
 		if !IsPushMetricsSupported(agentIDs[0].Version) {
 			return nil, status.Errorf(codes.FailedPrecondition, "cannot use push_metrics_enabled with pmm_agent version=%q,"+
@@ -478,6 +504,7 @@ type CreateAgentParams struct {
 	RDSBasicMetricsDisabled        bool
 	RDSEnhancedMetricsDisabled     bool
 	PushMetrics                    bool
+	DisableCollectors              []string
 }
 
 // CreateAgent creates Agent with given type.
@@ -530,7 +557,9 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		RDSBasicMetricsDisabled:        params.RDSBasicMetricsDisabled,
 		RDSEnhancedMetricsDisabled:     params.RDSEnhancedMetricsDisabled,
 		PushMetrics:                    params.PushMetrics,
+		DisabledCollectors:             params.DisableCollectors,
 	}
+
 	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
 		return nil, err
 	}
@@ -637,10 +666,15 @@ func updateExternalExporterParams(q *reform.Querier, row *Agent) error {
 		if err != nil {
 			return err
 		}
-		row.RunsOnNodeID = nil
-		if len(pmmAgent) > 1 {
-			return errors.Errorf("bad count for pmmAgents, expected one, get: %d", len(pmmAgent))
+		switch len(pmmAgent) {
+		case 0:
+			return status.Errorf(codes.NotFound, "cannot find any pmm-agent by NodeID")
+		case 1:
+		default:
+			return errors.Errorf("exactly one pmm agent expected, but (%d) found", len(pmmAgent))
 		}
+
+		row.RunsOnNodeID = nil
 		row.PMMAgentID = pointer.ToString(pmmAgent[0].AgentID)
 	}
 	// without push metrics, external exporter must have RunsOnNodeID without PMMAgentID

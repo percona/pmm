@@ -76,13 +76,14 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 		}
 
 		row, err := models.CreateAgent(tx.Querier, models.PostgresExporterType, &models.CreateAgentParams{
-			PMMAgentID:    req.PmmAgentId,
-			ServiceID:     service.ServiceID,
-			Username:      req.Username,
-			Password:      req.Password,
-			TLS:           req.Tls,
-			TLSSkipVerify: req.TlsSkipVerify,
-			PushMetrics:   isPushMode(req.MetricsMode),
+			PMMAgentID:        req.PmmAgentId,
+			ServiceID:         service.ServiceID,
+			Username:          req.Username,
+			Password:          req.Password,
+			TLS:               req.Tls,
+			TLSSkipVerify:     req.TlsSkipVerify,
+			PushMetrics:       isPushMode(req.MetricsMode),
+			DisableCollectors: req.DisableCollectors,
 		})
 		if err != nil {
 			return err

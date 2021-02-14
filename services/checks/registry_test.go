@@ -48,6 +48,7 @@ func TestRegistry(t *testing.T) {
 				result: check.Result{
 					Summary:     "check summary",
 					Description: "check description",
+					ReadMoreURL: "https://www.example.com",
 					Severity:    common.Warning,
 					Labels: map[string]string{
 						"baz": "qux",
@@ -60,13 +61,14 @@ func TestRegistry(t *testing.T) {
 
 		expectedAlert := &ammodels.PostableAlert{
 			Annotations: map[string]string{
-				"summary":     "check summary",
-				"description": "check description",
+				"summary":       "check summary",
+				"description":   "check description",
+				"read_more_url": "https://www.example.com",
 			},
 			EndsAt: strfmt.DateTime(nowValue.Add(alertTTL)),
 			Alert: ammodels.Alert{
 				Labels: map[string]string{
-					"alert_id":  "/stt/3293a1002b32c425dbda851406bf1428dced74cd",
+					"alert_id":  "/stt/e7b471407fe9734eac5b6adb178ee0ef08ef45f2",
 					"alertname": "name",
 					"baz":       "qux",
 					"foo":       "bar",

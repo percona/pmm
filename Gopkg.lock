@@ -384,15 +384,15 @@
 
 [[projects]]
   branch = "main"
-  digest = "1:436b854da3ff2bbd228f33cd6f0c0497c4cdf4daaefa6325f83a3c5e73995cfd"
+  digest = "1:a7d0b2cedb16e5aaa117dd3ea42166b40abc941f12c9cf0c1f87bad1a995f829"
   name = "github.com/percona-platform/dbaas-api"
   packages = ["gen/controller"]
   pruneopts = "NUT"
-  revision = "c385730b6f7e85bc2f8218051e888020f686cb47"
+  revision = "eb2f85b7f9b8b6c60da225dd7de285b069888809"
 
 [[projects]]
   branch = "main"
-  digest = "1:c1629f86dc19ba5a6f03cbce52a629deda6f77184272ed10d97e744224cf2fad"
+  digest = "1:adfc8f23176169e0c810abf12615f8303ffbc5d669cd11f73b145e635634f5c5"
   name = "github.com/percona-platform/saas"
   packages = [
     "gen/auth",
@@ -405,11 +405,11 @@
     "pkg/starlark",
   ]
   pruneopts = "NUT"
-  revision = "fa94aa1c69dda7db9834dbaa295ec9977a45b165"
+  revision = "c158e23a172f892cc389233858238449efec1dbb"
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:946c0c27ce795798554ef95ede53e14566cfbba9ed2b25eb68a2466db3a7ef4a"
+  digest = "1:a3113281b924c96d25babbdd2a7611ed58ff4e5184dab85353d4199666abe275"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentpb",
@@ -422,6 +422,7 @@
     "api/alertmanager/ammodels",
     "api/inventorypb",
     "api/managementpb",
+    "api/managementpb/backup",
     "api/managementpb/dbaas",
     "api/managementpb/ia",
     "api/qanpb",
@@ -432,7 +433,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "82984d90aa6f2c391b627dc958cb5b698a7122dc"
+  revision = "4559713b8bc01ab2538bd183bca387cebe624966"
 
 [[projects]]
   digest = "1:65230c46134944510adb8844cf4098b5c9fdd1dd11992c3980afc1d3e0c8e4bd"
@@ -880,6 +881,7 @@
     "github.com/percona/pmm/api/alertmanager/ammodels",
     "github.com/percona/pmm/api/inventorypb",
     "github.com/percona/pmm/api/managementpb",
+    "github.com/percona/pmm/api/managementpb/backup",
     "github.com/percona/pmm/api/managementpb/dbaas",
     "github.com/percona/pmm/api/managementpb/ia",
     "github.com/percona/pmm/api/qanpb",

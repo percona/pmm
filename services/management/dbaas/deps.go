@@ -39,8 +39,8 @@ type dbaasClient interface {
 	DeleteXtraDBCluster(ctx context.Context, in *controllerv1beta1.DeleteXtraDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.DeleteXtraDBClusterResponse, error)
 	// RestartXtraDBCluster restarts XtraDB cluster.
 	RestartXtraDBCluster(ctx context.Context, in *controllerv1beta1.RestartXtraDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.RestartXtraDBClusterResponse, error)
-	// GetXtraDBCluster returns an XtraDB cluster credentials.
-	GetXtraDBCluster(ctx context.Context, in *controllerv1beta1.GetXtraDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetXtraDBClusterResponse, error)
+	// GetXtraDBClusterCredentials returns an XtraDB cluster credentials.
+	GetXtraDBClusterCredentials(ctx context.Context, in *controllerv1beta1.GetXtraDBClusterCredentialsRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetXtraDBClusterCredentialsResponse, error)
 	// ListPSMDBClusters returns a list of PSMDB clusters.
 	ListPSMDBClusters(ctx context.Context, in *controllerv1beta1.ListPSMDBClustersRequest, opts ...grpc.CallOption) (*controllerv1beta1.ListPSMDBClustersResponse, error)
 	// CreatePSMDBCluster creates a new PSMDB cluster.
@@ -51,6 +51,6 @@ type dbaasClient interface {
 	DeletePSMDBCluster(ctx context.Context, in *controllerv1beta1.DeletePSMDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.DeletePSMDBClusterResponse, error)
 	// RestartPSMDBCluster restarts PSMDB cluster.
 	RestartPSMDBCluster(ctx context.Context, in *controllerv1beta1.RestartPSMDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.RestartPSMDBClusterResponse, error)
-	// GetPSMDBCluster gets a PSMDB cluster.
-	GetPSMDBCluster(ctx context.Context, in *controllerv1beta1.GetPSMDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetPSMDBClusterResponse, error)
+	// GetPSMDBClusterCredentials gets a PSMDB cluster.
+	GetPSMDBClusterCredentials(ctx context.Context, in *controllerv1beta1.GetPSMDBClusterCredentialsRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetPSMDBClusterCredentialsResponse, error)
 }

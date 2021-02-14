@@ -221,6 +221,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 
 		"/prometheus/":   admin,
 		"/alertmanager/": admin,
+		"/logs.zip":      admin,
 	} {
 		for _, role := range []role{viewer, editor, admin} {
 			uri := uri
