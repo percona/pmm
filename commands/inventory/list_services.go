@@ -157,4 +157,5 @@ var (
 func init() {
 	ListServicesC.Flag("node-id", "Filter by Node identifier").StringVar(&ListServices.filters.NodeID)
 	ListServicesC.Flag("service-type", "Filter by Service type").StringVar(&ListServices.ServiceType)
+	ListServicesC.Flag("external-group", "Filter by external group").StringVar(&ListServices.filters.ExternalGroup)
 }

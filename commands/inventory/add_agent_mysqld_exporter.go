@@ -91,6 +91,7 @@ type addAgentMysqldExporterCommand struct {
 	TLSSkipVerify             bool
 	TablestatsGroupTableLimit int32
 	PushMetrics               bool
+	DisableCollectors         string
 }
 
 func (cmd *addAgentMysqldExporterCommand) Run() (commands.Result, error) {
@@ -110,6 +111,7 @@ func (cmd *addAgentMysqldExporterCommand) Run() (commands.Result, error) {
 			TLSSkipVerify:             cmd.TLSSkipVerify,
 			TablestatsGroupTableLimit: cmd.TablestatsGroupTableLimit,
 			PushMetrics:               cmd.PushMetrics,
+			DisableCollectors:         commands.ParseDisableCollectors(cmd.DisableCollectors),
 		},
 		Context: commands.Ctx,
 	}
@@ -145,4 +147,6 @@ func init() {
 		Int32Var(&AddAgentMysqldExporter.TablestatsGroupTableLimit)
 	AddAgentMysqldExporterC.Flag("push-metrics", "Enables push metrics model flow,"+
 		" it will be sent to the server by an agent").BoolVar(&AddAgentMysqldExporter.PushMetrics)
+	AddAgentMysqldExporterC.Flag("disable-collectors",
+		"Comma-separated list of collector names to exclude from exporter").StringVar(&AddAgentMysqldExporter.DisableCollectors)
 }

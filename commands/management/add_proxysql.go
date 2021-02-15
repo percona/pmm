@@ -45,18 +45,19 @@ func (res *addProxySQLResult) String() string {
 }
 
 type addProxySQLCommand struct {
-	Address        string
-	Socket         string
-	NodeID         string
-	PMMAgentID     string
-	ServiceName    string
-	Username       string
-	Password       string
-	Environment    string
-	Cluster        string
-	ReplicationSet string
-	CustomLabels   string
-	MetricsMode    string
+	Address           string
+	Socket            string
+	NodeID            string
+	PMMAgentID        string
+	ServiceName       string
+	Username          string
+	Password          string
+	Environment       string
+	Cluster           string
+	ReplicationSet    string
+	CustomLabels      string
+	MetricsMode       string
+	DisableCollectors string
 
 	SkipConnectionCheck bool
 	TLS                 bool
@@ -122,6 +123,7 @@ func (cmd *addProxySQLCommand) Run() (commands.Result, error) {
 			TLS:                 cmd.TLS,
 			TLSSkipVerify:       cmd.TLSSkipVerify,
 			MetricsMode:         pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
+			DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
 		},
 		Context: commands.Ctx,
 	}
@@ -168,6 +170,8 @@ func init() {
 		" pull - server scrape metrics from agent  or auto - chosen by server.").
 		Default("auto").
 		EnumVar(&AddProxySQL.MetricsMode, metricsModes...)
+
+	AddProxySQLC.Flag("disable-collectors", "Comma-separated list of collector names to exclude from exporter").StringVar(&AddProxySQL.DisableCollectors)
 
 	addGlobalFlags(AddProxySQLC)
 }

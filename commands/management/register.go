@@ -48,18 +48,19 @@ func (res *registerResult) String() string {
 }
 
 type registerCommand struct {
-	NodeType      string
-	NodeName      string
-	MachineID     string
-	Distro        string
-	ContainerID   string
-	ContainerName string
-	NodeModel     string
-	Region        string
-	Az            string
-	CustomLabels  string
-	Address       string
-	MetricsMode   string
+	NodeType          string
+	NodeName          string
+	MachineID         string
+	Distro            string
+	ContainerID       string
+	ContainerName     string
+	NodeModel         string
+	Region            string
+	Az                string
+	CustomLabels      string
+	Address           string
+	MetricsMode       string
+	DisableCollectors string
 
 	Force bool
 }
@@ -84,8 +85,9 @@ func (cmd *registerCommand) Run() (commands.Result, error) {
 			CustomLabels:  customLabels,
 			Address:       cmd.Address,
 
-			Reregister:  cmd.Force,
-			MetricsMode: pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
+			Reregister:        cmd.Force,
+			MetricsMode:       pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
+			DisableCollectors: commands.ParseDisableCollectors(cmd.DisableCollectors),
 		},
 		Context: commands.Ctx,
 	}
@@ -142,4 +144,5 @@ func init() {
 	RegisterC.Flag("force", "Remove Node with that name with all dependent Services and Agents if one exist").BoolVar(&Register.Force)
 	RegisterC.Flag("metrics-mode", "Metrics flow mode, can be push - agent will push metrics,"+
 		" pull - server scrape metrics from agent  or auto - chosen by server.").Default("auto").EnumVar(&Register.MetricsMode, "auto", "pull", "push")
+	RegisterC.Flag("disable-collectors", "Comma-separated list of collector names to exclude from exporter").StringVar(&Register.DisableCollectors)
 }
