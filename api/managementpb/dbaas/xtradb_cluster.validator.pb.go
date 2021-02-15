@@ -91,7 +91,7 @@ func (this *ListXtraDBClustersResponse_Cluster) Validate() error {
 	}
 	return nil
 }
-func (this *GetXtraDBClusterRequest) Validate() error {
+func (this *GetXtraDBClusterCredentialsRequest) Validate() error {
 	if this.KubernetesClusterName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
 	}
@@ -103,17 +103,7 @@ func (this *GetXtraDBClusterRequest) Validate() error {
 func (this *XtraDBClusterConnectionCredentials) Validate() error {
 	return nil
 }
-func (this *GetXtraDBClusterResponse) Validate() error {
-	if this.Operation != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Operation); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Operation", err)
-		}
-	}
-	if this.Params != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Params); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Params", err)
-		}
-	}
+func (this *GetXtraDBClusterCredentialsResponse) Validate() error {
 	if this.ConnectionCredentials != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ConnectionCredentials); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("ConnectionCredentials", err)
