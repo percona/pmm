@@ -1857,14 +1857,11 @@
                   "type": "string",
                   "x-order": 4
                 },
-<<<<<<< HEAD
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 15
                 },
-=======
->>>>>>> PMM-2.0
                 "username": {
                   "description": "HTTP basic auth username for collecting metrics.",
                   "type": "string",

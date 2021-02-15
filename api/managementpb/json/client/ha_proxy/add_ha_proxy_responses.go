@@ -171,12 +171,9 @@ type AddHAProxyBody struct {
 	// Enum: [AUTO PULL PUSH]
 	MetricsMode *string `json:"metrics_mode,omitempty"`
 
-<<<<<<< HEAD
 	// Skip connection check.
 	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 
-=======
->>>>>>> PMM-2.0
 	// add node
 	AddNode *AddHAProxyParamsBodyAddNode `json:"add_node,omitempty"`
 }
