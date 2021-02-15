@@ -78,7 +78,7 @@ message ListPSMDBClustersResponse {
   repeated Cluster clusters = 1;
 }
 
-message GetPSMDBClusterCredentialsRequest {
+message GetPSMDBClusterRequest {
   // Kubernetes cluster name.
   string kubernetes_cluster_name = 1 [
     (validator.field) = {
@@ -93,7 +93,7 @@ message GetPSMDBClusterCredentialsRequest {
   ];
 }
 
-message GetPSMDBClusterCredentialsResponse {
+message GetPSMDBClusterResponse {
   // PSMDBCredentials is a credentials to connect to PSMDB.
   // TODO Do not use inner messages in all public APIs (for consistency).
   message PSMDBCredentials {
@@ -108,7 +108,14 @@ message GetPSMDBClusterCredentialsResponse {
     // Replicaset name.
     string replicaset = 5;
   }
-  PSMDBCredentials connection_credentials = 1;
+  // Cluster state.
+  PSMDBClusterState state = 1;
+  // Currently running operation, if any.
+  RunningOperation operation = 2;
+  // Cluster parameters.
+  PSMDBClusterParams params = 3;
+  // Connection credentials.
+  PSMDBCredentials connection_credentials = 4;
 }
 
 message CreatePSMDBClusterRequest {
@@ -215,10 +222,10 @@ service PSMDBCluster {
       body: "*"
     };
   }
-  // GetPSMDBClusterCredentials returns a PSMDB cluster credentials by cluster name.
-  rpc GetPSMDBClusterCredentials(GetPSMDBClusterCredentialsRequest) returns (GetPSMDBClusterCredentialsResponse) {
+  // GetPSMDBCluster returns a PSMDB cluster by name.
+  rpc GetPSMDBCluster(GetPSMDBClusterRequest) returns (GetPSMDBClusterResponse) {
     option (google.api.http) = {
-      post: "/v1/management/DBaaS/PSMDBClusters/GetCredentials"
+      post: "/v1/management/DBaaS/PSMDBClusters/Get"
       body: "*"
     };
   }

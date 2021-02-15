@@ -27,8 +27,6 @@ type Client struct {
 type ClientService interface {
 	AddExternalService(params *AddExternalServiceParams) (*AddExternalServiceOK, error)
 
-	AddHAProxyService(params *AddHAProxyServiceParams) (*AddHAProxyServiceOK, error)
-
 	AddMongoDBService(params *AddMongoDBServiceParams) (*AddMongoDBServiceOK, error)
 
 	AddMySQLService(params *AddMySQLServiceParams) (*AddMySQLServiceOK, error)
@@ -76,39 +74,6 @@ func (a *Client) AddExternalService(params *AddExternalServiceParams) (*AddExter
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*AddExternalServiceDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-  AddHAProxyService adds HA proxy service adds HA proxy service
-*/
-func (a *Client) AddHAProxyService(params *AddHAProxyServiceParams) (*AddHAProxyServiceOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewAddHAProxyServiceParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "AddHAProxyService",
-		Method:             "POST",
-		PathPattern:        "/v1/inventory/Services/AddHAProxyService",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &AddHAProxyServiceReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*AddHAProxyServiceOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*AddHAProxyServiceDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

@@ -29,7 +29,7 @@ type ClientService interface {
 
 	DeleteXtraDBCluster(params *DeleteXtraDBClusterParams) (*DeleteXtraDBClusterOK, error)
 
-	GetXtraDBClusterCredentials(params *GetXtraDBClusterCredentialsParams) (*GetXtraDBClusterCredentialsOK, error)
+	GetXtraDBCluster(params *GetXtraDBClusterParams) (*GetXtraDBClusterOK, error)
 
 	ListXtraDBClusters(params *ListXtraDBClustersParams) (*ListXtraDBClustersOK, error)
 
@@ -107,35 +107,35 @@ func (a *Client) DeleteXtraDBCluster(params *DeleteXtraDBClusterParams) (*Delete
 }
 
 /*
-  GetXtraDBClusterCredentials gets xtra DB cluster credentials returns a xtra DB cluster credentials by cluster name
+  GetXtraDBCluster gets xtra DB cluster returns a xtra DB cluster by name
 */
-func (a *Client) GetXtraDBClusterCredentials(params *GetXtraDBClusterCredentialsParams) (*GetXtraDBClusterCredentialsOK, error) {
+func (a *Client) GetXtraDBCluster(params *GetXtraDBClusterParams) (*GetXtraDBClusterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewGetXtraDBClusterCredentialsParams()
+		params = NewGetXtraDBClusterParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "GetXtraDBClusterCredentials",
+		ID:                 "GetXtraDBCluster",
 		Method:             "POST",
-		PathPattern:        "/v1/management/DBaaS/XtraDBClusters/GetCredentials",
+		PathPattern:        "/v1/management/DBaaS/XtraDBClusters/Get",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &GetXtraDBClusterCredentialsReader{formats: a.formats},
+		Reader:             &GetXtraDBClusterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*GetXtraDBClusterCredentialsOK)
+	success, ok := result.(*GetXtraDBClusterOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*GetXtraDBClusterCredentialsDefault)
+	unexpectedSuccess := result.(*GetXtraDBClusterDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

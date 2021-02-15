@@ -70,8 +70,6 @@ message AddProxySQLRequest {
   // Metrics could be pushed to the server with vmagent,
   // pulled by the server, or the server could choose behavior automatically.
   MetricsMode metrics_mode = 18;
-  // List of collector names to disable in this exporter.
-  repeated string disable_collectors = 19;
 }
 
 message AddProxySQLResponse {
