@@ -18,7 +18,9 @@ package client
 
 import (
 	"context"
+	"fmt"
 	"net"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -326,6 +328,9 @@ func (c *Client) processChannelRequests() {
 			case *agentpb.StartActionRequest_PtSummaryParams:
 				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTSummary, []string{})
 
+			case *agentpb.StartActionRequest_PtMongodbSummaryParams:
+				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTMongoDBSummary, argListFromMongoDBParams(params.PtMongodbSummaryParams))
+
 			case nil:
 				// Requests() is not closed, so exit early to break channel
 				c.l.Errorf("Unhandled StartAction request: %v.", req)
@@ -554,6 +559,35 @@ func (c *Client) Collect(ch chan<- prometheus.Metric) {
 	} else {
 		ch <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue, 0)
 	}
+}
+
+// argListFromMongoDBParams creates an array of strings from the pointer to the parameters for pt-mongodb-sumamry
+func argListFromMongoDBParams(pParams *agentpb.StartActionRequest_PTMongoDBSummaryParams) []string {
+	var args []string
+
+	// Only adds the arguments are valid
+
+	if pParams.Username != "" {
+		args = append(args, "--username", pParams.Username)
+	}
+
+	if pParams.Password != "" {
+		// TODO change this line when pt-mongodb-summary is updated
+		args = append(args, fmt.Sprintf("--password=%s", pParams.Password))
+	}
+
+	if pParams.Host != "" {
+		var hostPortStr string = pParams.Host
+
+		// If valid port attaches ':' and the port number after address
+		if pParams.Port > 0 && pParams.Port <= 65535 {
+			hostPortStr += ":" + strconv.Itoa(int(pParams.Port))
+		}
+
+		args = append(args, hostPortStr)
+	}
+
+	return args
 }
 
 // check interface
