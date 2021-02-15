@@ -141,14 +141,6 @@ func serverRegister(cfgSetup *config.Setup) (string, error) {
 		"container": node.RegisterNodeBodyNodeTypeCONTAINERNODE,
 	}
 
-	var disableCollectors []string
-	for _, v := range strings.Split(cfgSetup.DisableCollectors, ",") {
-		disableCollector := strings.TrimSpace(v)
-		if disableCollector != "" {
-			disableCollectors = append(disableCollectors, disableCollector)
-		}
-	}
-
 	res, err := managementpb.Default.Node.RegisterNode(&node.RegisterNodeParams{
 		Body: node.RegisterNodeBody{
 			NodeType:      pointer.ToString(nodeTypes[cfgSetup.NodeType]),
@@ -163,9 +155,8 @@ func serverRegister(cfgSetup *config.Setup) (string, error) {
 			// TODO CustomLabels:  customLabels,
 			Address: cfgSetup.Address,
 
-			Reregister:        cfgSetup.Force,
-			MetricsMode:       pointer.ToString(strings.ToUpper(cfgSetup.MetricsMode)),
-			DisableCollectors: disableCollectors,
+			Reregister:  cfgSetup.Force,
+			MetricsMode: pointer.ToString(strings.ToUpper(cfgSetup.MetricsMode)),
 		},
 		Context: context.Background(),
 	})

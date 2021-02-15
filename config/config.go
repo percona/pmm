@@ -93,8 +93,7 @@ type Paths struct {
 
 	TempDir string `yaml:"tempdir"`
 
-	PTSummary        string `yaml:"pt_summary"`
-	PTMongoDBSummary string `yaml:"pt_mongodb_summary"`
+	PTSummary string `yaml:"pt_summary"`
 
 	SlowLogFilePrefix string `yaml:"slowlog_file_prefix,omitempty"` // for development and testing
 }
@@ -108,18 +107,17 @@ type Ports struct {
 // Setup contains `pmm-agent setup` flag and argument values.
 // It is never stored in configuration file.
 type Setup struct {
-	NodeType          string
-	NodeName          string
-	MachineID         string
-	Distro            string
-	ContainerID       string
-	ContainerName     string
-	NodeModel         string
-	Region            string
-	Az                string
-	Address           string
-	MetricsMode       string
-	DisableCollectors string
+	NodeType      string
+	NodeName      string
+	MachineID     string
+	Distro        string
+	ContainerID   string
+	ContainerName string
+	NodeModel     string
+	Region        string
+	Az            string
+	Address       string
+	MetricsMode   string
 
 	Force            bool
 	SkipRegistration bool
@@ -194,7 +192,6 @@ func get(args []string, l *logrus.Entry) (cfg *Config, configFileF string, err e
 			&cfg.Paths.VMAgent:          "vmagent",
 			&cfg.Paths.TempDir:          os.TempDir(),
 			&cfg.Paths.PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
-			&cfg.Paths.PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
 		} {
 			if *sp == "" {
 				*sp = v
@@ -316,8 +313,6 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_PATHS_PROXYSQL_EXPORTER").StringVar(&cfg.Paths.ProxySQLExporter)
 	app.Flag("paths-pt-summary", "Path to pt summary to use [PMM_AGENT_PATHS_PT_SUMMARY]").
 		Envar("PMM_AGENT_PATHS_PT_SUMMARY").StringVar(&cfg.Paths.PTSummary)
-	app.Flag("paths-pt-mongodb-summary", "Path to pt mongodb summary to use [PMM_AGENT_PATHS_PT_MONGODB_SUMMARY]").
-		Envar("PMM_AGENT_PATHS_PT_MONGODB_SUMMARY").StringVar(&cfg.Paths.PTMongoDBSummary)
 	app.Flag("paths-tempdir", "Temporary directory for exporters [PMM_AGENT_PATHS_TEMPDIR]").
 		Envar("PMM_AGENT_PATHS_TEMPDIR").StringVar(&cfg.Paths.TempDir)
 	// no flag for SlowLogFilePrefix - it is only for development and testing
@@ -385,8 +380,6 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 	setupCmd.Flag("metrics-mode", "Metrics flow mode for agents node-exporter, can be push - agent will push metrics,"+
 		"pull - server scrape metrics from agent  or auto - chosen by server. [PMM_AGENT_SETUP_METRICS_MODE]").
 		Envar("PMM_AGENT_SETUP_METRICS_MODE").Default("auto").EnumVar(&cfg.Setup.MetricsMode, "auto", "push", "pull")
-	setupCmd.Flag("disable-collectors", "Comma-separated list of collector names to exclude from exporter. [PMM_AGENT_SETUP_METRICS_MODE]").
-		Envar("PMM_AGENT_SETUP_DISABLE_COLLECTORS").Default("").StringVar(&cfg.Setup.DisableCollectors)
 
 	return app, configFileF
 }

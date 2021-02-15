@@ -124,18 +124,8 @@ swagger:model AddExternalBody
 */
 type AddExternalBody struct {
 
-	// Node identifier on which an external exporter is been running.
-	// runs_on_node_id always should be passed with node_id.
-	// Exactly one of these parameters should be present: node_id, node_name, add_node.
+	// Node identifier on which a external exporter is been running. Required.
 	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
-
-	// Node name on which a service and node is been running.
-	// Exactly one of these parameters should be present: node_id, node_name, add_node.
-	NodeName string `json:"node_name,omitempty"`
-
-	// Node and Exporter access address (DNS name or IP).
-	// address always should be passed with add_node.
-	Address string `json:"address,omitempty"`
 
 	// Unique across all Services user-defined name. Required.
 	ServiceName string `json:"service_name,omitempty"`
@@ -155,8 +145,7 @@ type AddExternalBody struct {
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
-	// Node identifier on which an external service is been running.
-	// node_id always should be passed with runs_on_node_id.
+	// Node identifier on which a external service is been running. Required.
 	NodeID string `json:"node_id,omitempty"`
 
 	// Environment name.
@@ -178,9 +167,6 @@ type AddExternalBody struct {
 	// it can be pull, push or auto mode chosen by server.
 	// Enum: [AUTO PULL PUSH]
 	MetricsMode *string `json:"metrics_mode,omitempty"`
-
-	// add node
-	AddNode *AddExternalParamsBodyAddNode `json:"add_node,omitempty"`
 }
 
 // Validate validates this add external body
@@ -188,10 +174,6 @@ func (o *AddExternalBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateMetricsMode(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateAddNode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -242,24 +224,6 @@ func (o *AddExternalBody) validateMetricsMode(formats strfmt.Registry) error {
 	// value enum
 	if err := o.validateMetricsModeEnum("body"+"."+"metrics_mode", "body", *o.MetricsMode); err != nil {
 		return err
-	}
-
-	return nil
-}
-
-func (o *AddExternalBody) validateAddNode(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.AddNode) { // not required
-		return nil
-	}
-
-	if o.AddNode != nil {
-		if err := o.AddNode.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "add_node")
-			}
-			return err
-		}
 	}
 
 	return nil
@@ -547,127 +511,6 @@ func (o *AddExternalOKBodyService) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddExternalOKBodyService) UnmarshalBinary(b []byte) error {
 	var res AddExternalOKBodyService
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*AddExternalParamsBodyAddNode AddNodeParams is a params to add new node to inventory while adding new service.
-swagger:model AddExternalParamsBodyAddNode
-*/
-type AddExternalParamsBodyAddNode struct {
-
-	// NodeType describes supported Node types.
-	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE]
-	NodeType *string `json:"node_type,omitempty"`
-
-	// Unique across all Nodes user-defined name.
-	NodeName string `json:"node_name,omitempty"`
-
-	// Linux machine-id.
-	MachineID string `json:"machine_id,omitempty"`
-
-	// Linux distribution name and version.
-	Distro string `json:"distro,omitempty"`
-
-	// Container identifier. If specified, must be a unique Docker container identifier.
-	ContainerID string `json:"container_id,omitempty"`
-
-	// Container name.
-	ContainerName string `json:"container_name,omitempty"`
-
-	// Node model.
-	NodeModel string `json:"node_model,omitempty"`
-
-	// Node region.
-	Region string `json:"region,omitempty"`
-
-	// Node availability zone.
-	Az string `json:"az,omitempty"`
-
-	// Custom user-assigned labels for Node.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-}
-
-// Validate validates this add external params body add node
-func (o *AddExternalParamsBodyAddNode) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateNodeType(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-var addExternalParamsBodyAddNodeTypeNodeTypePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["NODE_TYPE_INVALID","GENERIC_NODE","CONTAINER_NODE","REMOTE_NODE","REMOTE_RDS_NODE"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		addExternalParamsBodyAddNodeTypeNodeTypePropEnum = append(addExternalParamsBodyAddNodeTypeNodeTypePropEnum, v)
-	}
-}
-
-const (
-
-	// AddExternalParamsBodyAddNodeNodeTypeNODETYPEINVALID captures enum value "NODE_TYPE_INVALID"
-	AddExternalParamsBodyAddNodeNodeTypeNODETYPEINVALID string = "NODE_TYPE_INVALID"
-
-	// AddExternalParamsBodyAddNodeNodeTypeGENERICNODE captures enum value "GENERIC_NODE"
-	AddExternalParamsBodyAddNodeNodeTypeGENERICNODE string = "GENERIC_NODE"
-
-	// AddExternalParamsBodyAddNodeNodeTypeCONTAINERNODE captures enum value "CONTAINER_NODE"
-	AddExternalParamsBodyAddNodeNodeTypeCONTAINERNODE string = "CONTAINER_NODE"
-
-	// AddExternalParamsBodyAddNodeNodeTypeREMOTENODE captures enum value "REMOTE_NODE"
-	AddExternalParamsBodyAddNodeNodeTypeREMOTENODE string = "REMOTE_NODE"
-
-	// AddExternalParamsBodyAddNodeNodeTypeREMOTERDSNODE captures enum value "REMOTE_RDS_NODE"
-	AddExternalParamsBodyAddNodeNodeTypeREMOTERDSNODE string = "REMOTE_RDS_NODE"
-)
-
-// prop value enum
-func (o *AddExternalParamsBodyAddNode) validateNodeTypeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addExternalParamsBodyAddNodeTypeNodeTypePropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *AddExternalParamsBodyAddNode) validateNodeType(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.NodeType) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateNodeTypeEnum("body"+"."+"add_node"+"."+"node_type", "body", *o.NodeType); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AddExternalParamsBodyAddNode) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AddExternalParamsBodyAddNode) UnmarshalBinary(b []byte) error {
-	var res AddExternalParamsBodyAddNode
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
