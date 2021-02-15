@@ -23,8 +23,3 @@ required = [
 [[constraint]]
   name = "github.com/percona-platform/dbaas-api"
   branch = "main"
-
-# to prevent unexpected downgrades; see https://github.com/percona/exporter_shared/releases/tag/v0.6.0
-[[constraint]]
-  name = "github.com/percona/exporter_shared"
-  version = "0.7.2"
