@@ -8,7 +8,6 @@ const (
 	ServiceTypeMongoDBService    = "MONGODB_SERVICE"
 	ServiceTypePostgreSQLService = "POSTGRESQL_SERVICE"
 	ServiceTypeProxySQLService   = "PROXYSQL_SERVICE"
-	ServiceTypeHAProxyService    = "HAPROXY_SERVICE"
 	ServiceTypeExternalService   = "EXTERNAL_SERVICE"
 )
 
@@ -18,7 +17,6 @@ var serviceTypeNames = map[string]string{
 	ServiceTypeMongoDBService:    "MongoDB",
 	ServiceTypePostgreSQLService: "PostgreSQL",
 	ServiceTypeProxySQLService:   "ProxySQL",
-	ServiceTypeHAProxyService:    "HAProxy",
 	ServiceTypeExternalService:   "External",
 }
 

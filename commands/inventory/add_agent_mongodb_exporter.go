@@ -60,7 +60,6 @@ type addAgentMongodbExporterCommand struct {
 	TLSCertificateKeyFilePassword string
 	TLSCaFile                     string
 	PushMetrics                   bool
-	DisableCollectors             string
 }
 
 func (cmd *addAgentMongodbExporterCommand) Run() (commands.Result, error) {
@@ -92,7 +91,6 @@ func (cmd *addAgentMongodbExporterCommand) Run() (commands.Result, error) {
 			TLSCertificateKeyFilePassword: cmd.TLSCertificateKeyFilePassword,
 			TLSCa:                         tlsCa,
 			PushMetrics:                   cmd.PushMetrics,
-			DisableCollectors:             commands.ParseDisableCollectors(cmd.DisableCollectors),
 		},
 		Context: commands.Ctx,
 	}
@@ -126,6 +124,4 @@ func init() {
 	AddAgentMongodbExporterC.Flag("tls-ca-file", "Path to certificate authority file").StringVar(&AddAgentMongodbExporter.TLSCaFile)
 	AddAgentMongodbExporterC.Flag("push-metrics", "Enables push metrics model flow,"+
 		" it will be sent to the server by an agent").BoolVar(&AddAgentMongodbExporter.PushMetrics)
-	AddAgentMongodbExporterC.Flag("disable-collectors",
-		"Comma-separated list of collector names to exclude from exporter").StringVar(&AddAgentMongodbExporter.DisableCollectors)
 }

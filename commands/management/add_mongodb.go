@@ -50,19 +50,18 @@ func (res *addMongoDBResult) String() string {
 }
 
 type addMongoDBCommand struct {
-	Address           string
-	Socket            string
-	NodeID            string
-	PMMAgentID        string
-	ServiceName       string
-	Username          string
-	Password          string
-	Environment       string
-	Cluster           string
-	ReplicationSet    string
-	CustomLabels      string
-	MetricsMode       string
-	DisableCollectors string
+	Address        string
+	Socket         string
+	NodeID         string
+	PMMAgentID     string
+	ServiceName    string
+	Username       string
+	Password       string
+	Environment    string
+	Cluster        string
+	ReplicationSet string
+	CustomLabels   string
+	MetricsMode    string
 
 	QuerySource string
 
@@ -147,7 +146,6 @@ func (cmd *addMongoDBCommand) Run() (commands.Result, error) {
 			TLSCertificateKeyFilePassword: cmd.TLSCertificateKeyFilePassword,
 			TLSCa:                         tlsCa,
 			MetricsMode:                   pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
-			DisableCollectors:             commands.ParseDisableCollectors(cmd.DisableCollectors),
 		},
 		Context: commands.Ctx,
 	}
@@ -200,7 +198,6 @@ func init() {
 		" pull - server scrape metrics from agent  or auto - chosen by server.").
 		Default("auto").
 		EnumVar(&AddMongoDB.MetricsMode, metricsModes...)
-	AddMongoDBC.Flag("disable-collectors", "Comma-separated list of collector names to exclude from exporter").StringVar(&AddMongoDB.DisableCollectors)
 	addGlobalFlags(AddMongoDBC)
 	AddMongoDBC.Flag("socket", "Path to socket").StringVar(&AddMongoDB.Socket)
 }

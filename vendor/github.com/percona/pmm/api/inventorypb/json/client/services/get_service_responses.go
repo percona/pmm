@@ -232,9 +232,6 @@ type GetServiceOKBody struct {
 	// external
 	External *GetServiceOKBodyExternal `json:"external,omitempty"`
 
-	// haproxy
-	Haproxy *GetServiceOKBodyHaproxy `json:"haproxy,omitempty"`
-
 	// mongodb
 	Mongodb *GetServiceOKBodyMongodb `json:"mongodb,omitempty"`
 
@@ -253,10 +250,6 @@ func (o *GetServiceOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateExternal(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateHaproxy(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -292,24 +285,6 @@ func (o *GetServiceOKBody) validateExternal(formats strfmt.Registry) error {
 		if err := o.External.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getServiceOk" + "." + "external")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (o *GetServiceOKBody) validateHaproxy(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Haproxy) { // not required
-		return nil
-	}
-
-	if o.Haproxy != nil {
-		if err := o.Haproxy.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getServiceOk" + "." + "haproxy")
 			}
 			return err
 		}
@@ -454,56 +429,6 @@ func (o *GetServiceOKBodyExternal) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetServiceOKBodyExternal) UnmarshalBinary(b []byte) error {
 	var res GetServiceOKBodyExternal
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*GetServiceOKBodyHaproxy HAProxyService represents a generic HAProxy service instance.
-swagger:model GetServiceOKBodyHaproxy
-*/
-type GetServiceOKBodyHaproxy struct {
-
-	// Unique randomly generated instance identifier.
-	ServiceID string `json:"service_id,omitempty"`
-
-	// Unique across all Services user-defined name.
-	ServiceName string `json:"service_name,omitempty"`
-
-	// Node identifier where this service instance runs.
-	NodeID string `json:"node_id,omitempty"`
-
-	// Environment name.
-	Environment string `json:"environment,omitempty"`
-
-	// Cluster name.
-	Cluster string `json:"cluster,omitempty"`
-
-	// Replication set name.
-	ReplicationSet string `json:"replication_set,omitempty"`
-
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-}
-
-// Validate validates this get service OK body haproxy
-func (o *GetServiceOKBodyHaproxy) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetServiceOKBodyHaproxy) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetServiceOKBodyHaproxy) UnmarshalBinary(b []byte) error {
-	var res GetServiceOKBodyHaproxy
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
