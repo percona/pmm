@@ -13,7 +13,6 @@ import (
 	"github.com/percona/pmm/api/managementpb/json/client/actions"
 	"github.com/percona/pmm/api/managementpb/json/client/annotation"
 	"github.com/percona/pmm/api/managementpb/json/client/external"
-	"github.com/percona/pmm/api/managementpb/json/client/ha_proxy"
 	"github.com/percona/pmm/api/managementpb/json/client/mongo_db"
 	"github.com/percona/pmm/api/managementpb/json/client/my_sql"
 	"github.com/percona/pmm/api/managementpb/json/client/node"
@@ -69,7 +68,6 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMManagem
 	cli.Actions = actions.New(transport, formats)
 	cli.Annotation = annotation.New(transport, formats)
 	cli.External = external.New(transport, formats)
-	cli.HAProxy = ha_proxy.New(transport, formats)
 	cli.MongoDB = mongo_db.New(transport, formats)
 	cli.MySQL = my_sql.New(transport, formats)
 	cli.Node = node.New(transport, formats)
@@ -128,8 +126,6 @@ type PMMManagement struct {
 
 	External external.ClientService
 
-	HAProxy ha_proxy.ClientService
-
 	MongoDB mongo_db.ClientService
 
 	MySQL my_sql.ClientService
@@ -155,7 +151,6 @@ func (c *PMMManagement) SetTransport(transport runtime.ClientTransport) {
 	c.Actions.SetTransport(transport)
 	c.Annotation.SetTransport(transport)
 	c.External.SetTransport(transport)
-	c.HAProxy.SetTransport(transport)
 	c.MongoDB.SetTransport(transport)
 	c.MySQL.SetTransport(transport)
 	c.Node.SetTransport(transport)

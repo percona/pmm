@@ -57,7 +57,6 @@ type addAgentProxysqlExporterCommand struct {
 	TLS                 bool
 	TLSSkipVerify       bool
 	PushMetrics         bool
-	DisableCollectors   string
 }
 
 func (cmd *addAgentProxysqlExporterCommand) Run() (commands.Result, error) {
@@ -76,7 +75,6 @@ func (cmd *addAgentProxysqlExporterCommand) Run() (commands.Result, error) {
 			TLS:                 cmd.TLS,
 			TLSSkipVerify:       cmd.TLSSkipVerify,
 			PushMetrics:         cmd.PushMetrics,
-			DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
 		},
 		Context: commands.Ctx,
 	}
@@ -107,6 +105,4 @@ func init() {
 	AddAgentProxysqlExporterC.Flag("tls-skip-verify", "Skip TLS certificates validation").BoolVar(&AddAgentProxysqlExporter.TLSSkipVerify)
 	AddAgentProxysqlExporterC.Flag("push-metrics", "Enables push metrics model flow,"+
 		" it will be sent to the server by an agent").BoolVar(&AddAgentProxysqlExporter.PushMetrics)
-	AddAgentProxysqlExporterC.Flag("disable-collectors",
-		"Comma-separated list of collector names to exclude from exporter").StringVar(&AddAgentProxysqlExporter.DisableCollectors)
 }
