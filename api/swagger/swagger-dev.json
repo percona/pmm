@@ -15250,13 +15250,13 @@
         }
       }
     },
-    "/v1/management/DBaaS/PSMDBClusters/Get": {
+    "/v1/management/DBaaS/PSMDBClusters/GetCredentials": {
       "post": {
         "tags": [
           "PSMDBCluster"
         ],
-        "summary": "GetPSMDBCluster returns a PSMDB cluster by name.",
-        "operationId": "GetPSMDBCluster",
+        "summary": "GetPSMDBClusterCredentials returns a PSMDB cluster credentials by cluster name.",
+        "operationId": "GetPSMDBClusterCredentials",
         "parameters": [
           {
             "name": "body",
@@ -15285,89 +15285,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "state": {
-                  "description": "PSMDBClusterState represents PSMDB cluster CR state.\n\n - PSMDB_CLUSTER_STATE_INVALID: PSMDB_CLUSTER_STATE_INVALID represents unknown state.\n - PSMDB_CLUSTER_STATE_CHANGING: PSMDB_CLUSTER_STATE_CHANGING represents a cluster being changed.\n - PSMDB_CLUSTER_STATE_READY: PSMDB_CLUSTER_STATE_READY represents a cluster without pending changes.\n - PSMDB_CLUSTER_STATE_FAILED: PSMDB_CLUSTER_STATE_FAILED represents a failed cluster.\n - PSMDB_CLUSTER_STATE_DELETING: PSMDB_CLUSTER_STATE_DELETING represents a cluster being deleting.\n - PSMDB_CLUSTER_STATE_PAUSED: PSMDB_CLUSTER_STATE_PAUSED represents a cluster is paused.",
-                  "type": "string",
-                  "default": "PSMDB_CLUSTER_STATE_INVALID",
-                  "enum": [
-                    "PSMDB_CLUSTER_STATE_INVALID",
-                    "PSMDB_CLUSTER_STATE_CHANGING",
-                    "PSMDB_CLUSTER_STATE_READY",
-                    "PSMDB_CLUSTER_STATE_FAILED",
-                    "PSMDB_CLUSTER_STATE_DELETING",
-                    "PSMDB_CLUSTER_STATE_PAUSED"
-                  ],
-                  "x-order": 0
-                },
-                "operation": {
-                  "description": "RunningOperation respresents a long-running operation.",
-                  "type": "object",
-                  "properties": {
-                    "finished_steps": {
-                      "description": "Finished steps of the operaion; can decrease or increase compared to the previous value.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 0
-                    },
-                    "message": {
-                      "description": "Text describing the current operation progress step.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "total_steps": {
-                      "description": "Total steps needed to finish the operation; can decrease or increase compared to the previous value.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 2
-                    }
-                  },
-                  "x-order": 1
-                },
-                "params": {
-                  "description": "PSMDBClusterParams represents PSMDB cluster parameters that can be updated.",
-                  "type": "object",
-                  "properties": {
-                    "cluster_size": {
-                      "description": "Cluster size.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 0
-                    },
-                    "replicaset": {
-                      "description": "ReplicaSet container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
-                      "type": "object",
-                      "properties": {
-                        "compute_resources": {
-                          "description": "ComputeResources represents container computer resources requests or limits.",
-                          "type": "object",
-                          "properties": {
-                            "cpu_m": {
-                              "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
-                              "type": "integer",
-                              "format": "int32",
-                              "x-order": 0
-                            },
-                            "memory_bytes": {
-                              "description": "Memory in bytes.",
-                              "type": "string",
-                              "format": "int64",
-                              "x-order": 1
-                            }
-                          },
-                          "x-order": 0
-                        },
-                        "disk_size": {
-                          "description": "Disk size in bytes.",
-                          "type": "string",
-                          "format": "int64",
-                          "x-order": 1
-                        }
-                      },
-                      "x-order": 1
-                    }
-                  },
-                  "x-order": 2
-                },
                 "connection_credentials": {
                   "description": "PSMDBCredentials is a credentials to connect to PSMDB.\nTODO Do not use inner messages in all public APIs (for consistency).",
                   "type": "object",
@@ -15399,7 +15316,7 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 3
+                  "x-order": 0
                 }
               }
             }
@@ -16084,13 +16001,13 @@
         }
       }
     },
-    "/v1/management/DBaaS/XtraDBClusters/Get": {
+    "/v1/management/DBaaS/XtraDBClusters/GetCredentials": {
       "post": {
         "tags": [
           "XtraDBCluster"
         ],
-        "summary": "GetXtraDBCluster returns a XtraDB cluster by name.",
-        "operationId": "GetXtraDBCluster",
+        "summary": "GetXtraDBClusterCredentials returns a XtraDB cluster credentials by cluster name.",
+        "operationId": "GetXtraDBClusterCredentials",
         "parameters": [
           {
             "name": "body",
@@ -16119,121 +16036,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "state": {
-                  "description": "XtraDBClusterState represents XtraDB cluster CR state.\n\n - XTRA_DB_CLUSTER_STATE_INVALID: XTRA_DB_CLUSTER_STATE_INVALID represents unknown state.\n - XTRA_DB_CLUSTER_STATE_CHANGING: XTRA_DB_CLUSTER_STATE_CHANGING represents a cluster being changed.\n - XTRA_DB_CLUSTER_STATE_READY: XTRA_DB_CLUSTER_STATE_READY represents a cluster without pending changes.\n - XTRA_DB_CLUSTER_STATE_FAILED: XTRA_DB_CLUSTER_STATE_FAILED represents a failed cluster.\n - XTRA_DB_CLUSTER_STATE_DELETING: XTRA_DB_CLUSTER_STATE_DELETING represents a cluster being deleting.\n - XTRA_DB_CLUSTER_STATE_PAUSED: XTRA_DB_CLUSTER_STATE_PAUSED represents a cluster is paused.",
-                  "type": "string",
-                  "default": "XTRA_DB_CLUSTER_STATE_INVALID",
-                  "enum": [
-                    "XTRA_DB_CLUSTER_STATE_INVALID",
-                    "XTRA_DB_CLUSTER_STATE_CHANGING",
-                    "XTRA_DB_CLUSTER_STATE_READY",
-                    "XTRA_DB_CLUSTER_STATE_FAILED",
-                    "XTRA_DB_CLUSTER_STATE_DELETING",
-                    "XTRA_DB_CLUSTER_STATE_PAUSED"
-                  ],
-                  "x-order": 0
-                },
-                "operation": {
-                  "description": "RunningOperation respresents a long-running operation.",
-                  "type": "object",
-                  "properties": {
-                    "finished_steps": {
-                      "description": "Finished steps of the operaion; can decrease or increase compared to the previous value.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 0
-                    },
-                    "message": {
-                      "description": "Text describing the current operation progress step.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "total_steps": {
-                      "description": "Total steps needed to finish the operation; can decrease or increase compared to the previous value.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 2
-                    }
-                  },
-                  "x-order": 1
-                },
-                "params": {
-                  "description": "XtraDBClusterParams represents XtraDB cluster parameters that can be updated.",
-                  "type": "object",
-                  "properties": {
-                    "cluster_size": {
-                      "description": "Cluster size.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 0
-                    },
-                    "pxc": {
-                      "description": "PXC container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
-                      "type": "object",
-                      "properties": {
-                        "compute_resources": {
-                          "description": "ComputeResources represents container computer resources requests or limits.",
-                          "type": "object",
-                          "properties": {
-                            "cpu_m": {
-                              "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
-                              "type": "integer",
-                              "format": "int32",
-                              "x-order": 0
-                            },
-                            "memory_bytes": {
-                              "description": "Memory in bytes.",
-                              "type": "string",
-                              "format": "int64",
-                              "x-order": 1
-                            }
-                          },
-                          "x-order": 0
-                        },
-                        "disk_size": {
-                          "description": "Disk size in bytes.",
-                          "type": "string",
-                          "format": "int64",
-                          "x-order": 1
-                        }
-                      },
-                      "x-order": 1
-                    },
-                    "proxysql": {
-                      "description": "ProxySQL container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
-                      "type": "object",
-                      "properties": {
-                        "compute_resources": {
-                          "description": "ComputeResources represents container computer resources requests or limits.",
-                          "type": "object",
-                          "properties": {
-                            "cpu_m": {
-                              "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
-                              "type": "integer",
-                              "format": "int32",
-                              "x-order": 0
-                            },
-                            "memory_bytes": {
-                              "description": "Memory in bytes.",
-                              "type": "string",
-                              "format": "int64",
-                              "x-order": 1
-                            }
-                          },
-                          "x-order": 0
-                        },
-                        "disk_size": {
-                          "description": "Disk size in bytes.",
-                          "type": "string",
-                          "format": "int64",
-                          "x-order": 1
-                        }
-                      },
-                      "x-order": 2
-                    }
-                  },
-                  "x-order": 2
-                },
                 "connection_credentials": {
                   "description": "XtraDBClusterConnectionCredentials is cluster connection credentials.",
                   "type": "object",
@@ -16260,7 +16062,7 @@
                       "x-order": 3
                     }
                   },
-                  "x-order": 3
+                  "x-order": 0
                 }
               }
             }
@@ -20524,7 +20326,7 @@
           "Service"
         ],
         "summary": "RemoveService removes Service with Agents.",
-        "operationId": "RemoveServiceMixin5",
+        "operationId": "RemoveServiceMixin2",
         "parameters": [
           {
             "name": "body",
@@ -20567,6 +20369,265 @@
             "description": "A successful response.",
             "schema": {
               "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/backup/Locations/Add": {
+      "post": {
+        "tags": [
+          "Locations"
+        ],
+        "summary": "AddLocation adds backup location.",
+        "operationId": "AddLocation",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "title": "Location name",
+                  "x-order": 0
+                },
+                "description": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "pmm_client_config": {
+                  "description": "PMMClientLocationConfig represents file system config inside pmm-client.",
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "x-order": 0
+                    }
+                  },
+                  "x-order": 2
+                },
+                "pmm_server_config": {
+                  "description": "PMMServerLocationConfig represents file system config inside pmm-server.",
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "x-order": 0
+                    }
+                  },
+                  "x-order": 3
+                },
+                "s3_config": {
+                  "description": "S3LocationConfig represents S3 bucket configuration.",
+                  "type": "object",
+                  "properties": {
+                    "endpoint": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "access_key": {
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "secret_key": {
+                      "type": "string",
+                      "x-order": 2
+                    }
+                  },
+                  "x-order": 4
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "location_id": {
+                  "description": "Machine-readable ID.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/backup/Locations/List": {
+      "post": {
+        "tags": [
+          "Locations"
+        ],
+        "summary": "ListLocations returns a list of all backup locations.",
+        "operationId": "ListLocations",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "locations": {
+                  "type": "array",
+                  "items": {
+                    "description": "Location represents single Backup Location.",
+                    "type": "object",
+                    "properties": {
+                      "location_id": {
+                        "description": "Machine-readable ID.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "name": {
+                        "type": "string",
+                        "title": "Location name",
+                        "x-order": 1
+                      },
+                      "description": {
+                        "type": "string",
+                        "title": "Short description",
+                        "x-order": 2
+                      },
+                      "pmm_client_config": {
+                        "description": "PMMClientLocationConfig represents file system config inside pmm-client.",
+                        "type": "object",
+                        "properties": {
+                          "path": {
+                            "type": "string",
+                            "x-order": 0
+                          }
+                        },
+                        "x-order": 3
+                      },
+                      "pmm_server_config": {
+                        "description": "PMMServerLocationConfig represents file system config inside pmm-server.",
+                        "type": "object",
+                        "properties": {
+                          "path": {
+                            "type": "string",
+                            "x-order": 0
+                          }
+                        },
+                        "x-order": 4
+                      },
+                      "s3_config": {
+                        "description": "S3LocationConfig represents S3 bucket configuration.",
+                        "type": "object",
+                        "properties": {
+                          "endpoint": {
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "access_key": {
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "secret_key": {
+                            "type": "string",
+                            "x-order": 2
+                          }
+                        },
+                        "x-order": 5
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
             }
           },
           "default": {
