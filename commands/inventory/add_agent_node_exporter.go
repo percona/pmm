@@ -44,9 +44,10 @@ func (res *addAgentNodeExporterResult) String() string {
 }
 
 type addAgentNodeExporterCommand struct {
-	PMMAgentID   string
-	CustomLabels string
-	PushMetrics  bool
+	PMMAgentID        string
+	CustomLabels      string
+	PushMetrics       bool
+	DisableCollectors string
 }
 
 func (cmd *addAgentNodeExporterCommand) Run() (commands.Result, error) {
@@ -56,9 +57,10 @@ func (cmd *addAgentNodeExporterCommand) Run() (commands.Result, error) {
 	}
 	params := &agents.AddNodeExporterParams{
 		Body: agents.AddNodeExporterBody{
-			PMMAgentID:   cmd.PMMAgentID,
-			CustomLabels: customLabels,
-			PushMetrics:  cmd.PushMetrics,
+			PMMAgentID:        cmd.PMMAgentID,
+			CustomLabels:      customLabels,
+			PushMetrics:       cmd.PushMetrics,
+			DisableCollectors: commands.ParseDisableCollectors(cmd.DisableCollectors),
 		},
 		Context: commands.Ctx,
 	}
@@ -83,4 +85,6 @@ func init() {
 	AddAgentNodeExporterC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentNodeExporter.CustomLabels)
 	AddAgentNodeExporterC.Flag("push-metrics", "Enables push metrics model flow,"+
 		" it will be sent to the server by an agent").BoolVar(&AddAgentNodeExporter.PushMetrics)
+	AddAgentNodeExporterC.Flag("disable-collectors",
+		"Comma-separated list of collector names to exclude from exporter").StringVar(&AddAgentNodeExporter.DisableCollectors)
 }

@@ -68,4 +68,29 @@ func TestConfigCommandArgs(t *testing.T) {
 		assert.Equal(t, expected, args)
 		assert.True(t, switchedToTLS)
 	})
+	t.Run("DisableCollectors", func(t *testing.T) {
+		cmd := &configCommand{
+			NodeAddress:       "1.2.3.4",
+			NodeType:          "generic",
+			NodeName:          "node1",
+			DisableCollectors: "cpu,diskstats",
+		}
+		u, err := url.Parse("http://admin:admin@127.0.0.1")
+		require.NoError(t, err)
+		GlobalFlags = &globalFlagsValues{
+			ServerURL: u,
+		}
+		args, switchedToTLS := cmd.args()
+		expected := []string{
+			"--server-address=127.0.0.1:443",
+			"--server-username=admin",
+			"--server-password=admin",
+			"--server-insecure-tls",
+			"setup",
+			"--disable-collectors=cpu,diskstats",
+			"1.2.3.4", "generic", "node1",
+		}
+		assert.Equal(t, expected, args)
+		assert.True(t, switchedToTLS)
+	})
 }
