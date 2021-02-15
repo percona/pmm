@@ -19,7 +19,6 @@ package models
 import (
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/percona-platform/saas/pkg/alert"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
@@ -215,39 +214,46 @@ func templateInUse(q *reform.Querier, name string) (bool, error) {
 func convertTemplateParams(params []alert.Parameter) (TemplateParams, error) {
 	res := make(TemplateParams, 0, len(params))
 	for _, param := range params {
+		t, err := convertParamType(param.Type)
+		if err != nil {
+			return nil, err
+		}
+
 		p := TemplateParam{
 			Name:    param.Name,
 			Summary: param.Summary,
-			Unit:    string(param.Unit),
-			Type:    ParamType(param.Type),
+			Unit:    param.Unit,
+			Type:    t,
 		}
 
 		switch param.Type {
 		case alert.Float:
 			var fp FloatParam
-			if param.Value != nil {
-				def, err := param.GetValueForFloat()
-				if err != nil {
-					return nil, errors.Wrap(err, "failed to parse param value")
-				}
-				fp.Default = pointer.ToFloat64(def)
+			var err error
+			fp.Default, err = param.GetValueForFloat()
+			if err != nil {
+				return nil, errors.Wrap(err, "failed to parse param value")
 			}
 
-			if len(param.Range) != 0 {
-				min, max, err := param.GetRangeForFloat()
-				if err != nil {
-					return nil, errors.Wrap(err, "failed to parse param range")
-				}
-				fp.Min, fp.Max = pointer.ToFloat64(min), pointer.ToFloat64(max)
+			fp.Min, fp.Max, err = param.GetRangeForFloat()
+			if err != nil {
+				return nil, errors.Wrap(err, "failed to parse param range")
 			}
 
 			p.FloatParam = &fp
-		default:
-			return nil, errors.Errorf("Unknown parameter type %s", param.Type)
 		}
 
 		res = append(res, p)
 	}
 
 	return res, nil
+}
+
+func convertParamType(paramType alert.Type) (ParamType, error) {
+	switch paramType {
+	case alert.Float:
+		return Float, nil
+	default:
+		return "", errors.Errorf("UnknownSeverity parameter type %s", paramType)
+	}
 }

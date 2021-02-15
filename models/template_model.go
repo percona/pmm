@@ -122,19 +122,19 @@ type TemplateParam struct {
 
 // BoolParam represents boolean template parameter.
 type BoolParam struct {
-	Default *bool `json:"default,omitempty"`
+	Default bool `json:"default"`
 }
 
 // FloatParam represents float template parameter.
 type FloatParam struct {
-	Default *float64 `json:"default,omitempty"`
-	Min     *float64 `json:"min,omitempty"`
-	Max     *float64 `json:"max,omitempty"`
+	Default float64 `json:"default"`
+	Min     float64 `json:"min"`
+	Max     float64 `json:"max"`
 }
 
 // StringParam represents string template parameter.
 type StringParam struct {
-	Default *string `json:"default,omitempty"`
+	Default string `json:"default"`
 }
 
 // Source represents template source.

@@ -28,17 +28,15 @@ import (
 
 // ServicesService works with inventory API Services.
 type ServicesService struct {
-	db   *reform.DB
-	r    agentsRegistry
-	vmdb prometheusService
+	db *reform.DB
+	r  agentsRegistry
 }
 
 // NewServicesService creates new ServicesService
-func NewServicesService(db *reform.DB, r agentsRegistry, vmdb prometheusService) *ServicesService {
+func NewServicesService(db *reform.DB, r agentsRegistry) *ServicesService {
 	return &ServicesService{
-		db:   db,
-		r:    r,
-		vmdb: vmdb,
+		db: db,
+		r:  r,
 	}
 }
 
@@ -174,29 +172,6 @@ func (ss *ServicesService) AddProxySQL(ctx context.Context, params *models.AddDB
 	return res.(*inventorypb.ProxySQLService), nil
 }
 
-// AddHAProxyService inserts HAProxy Service with given parameters.
-//nolint:dupl,unparam
-func (ss *ServicesService) AddHAProxyService(ctx context.Context, params *models.AddDBMSServiceParams) (*inventorypb.HAProxyService, error) {
-	service := new(models.Service)
-	e := ss.db.InTransaction(func(tx *reform.TX) error {
-		var err error
-		service, err = models.AddNewService(tx.Querier, models.HAProxyServiceType, params)
-		if err != nil {
-			return err
-		}
-		return nil
-	})
-	if e != nil {
-		return nil, e
-	}
-
-	res, err := services.ToAPIService(service)
-	if err != nil {
-		return nil, err
-	}
-	return res.(*inventorypb.HAProxyService), nil
-}
-
 // AddExternalService inserts External Service with given parameters.
 //nolint:dupl,unparam
 func (ss *ServicesService) AddExternalService(ctx context.Context, params *models.AddDBMSServiceParams) (*inventorypb.ExternalService, error) {
@@ -221,37 +196,13 @@ func (ss *ServicesService) AddExternalService(ctx context.Context, params *model
 }
 
 // Remove removes Service without any Agents.
-// Removes Service with the Agents if force == true.
-// Returns an error if force == false and Service has Agents.
+//nolint:unparam
 func (ss *ServicesService) Remove(ctx context.Context, id string, force bool) error {
-	var agents []*models.Agent
-
-	if e := ss.db.InTransaction(func(tx *reform.TX) error {
+	return ss.db.InTransaction(func(tx *reform.TX) error {
 		mode := models.RemoveRestrict
 		if force {
 			mode = models.RemoveCascade
-
-			foundAgents, err := models.FindPMMAgentsForService(tx.Querier, id)
-			if err != nil {
-				return err
-			}
-
-			agents = foundAgents
 		}
-
 		return models.RemoveService(tx.Querier, id, mode)
-	}); e != nil {
-		return e
-	}
-
-	for _, a := range agents {
-		ss.r.RequestStateUpdate(ctx, a.AgentID)
-	}
-
-	if force {
-		// It's required to regenerate victoriametrics config file for the agents which aren't run by pmm-agent.
-		ss.vmdb.RequestConfigurationUpdate()
-	}
-
-	return nil
+	})
 }

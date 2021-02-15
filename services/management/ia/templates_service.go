@@ -19,12 +19,12 @@ package ia
 import (
 	"bytes"
 	"context"
+	"html/template"
 	"io/ioutil"
 	"path/filepath"
 	"sort"
 	"strings"
 	"sync"
-	"text/template"
 	"time"
 
 	"github.com/percona-platform/saas/pkg/alert"
@@ -268,21 +268,15 @@ func (s *TemplatesService) loadTemplatesFromDB() ([]templateInfo, error) {
 			p := alert.Parameter{
 				Name:    param.Name,
 				Summary: param.Summary,
-				Unit:    alert.Unit(param.Unit),
+				Unit:    param.Unit,
 				Type:    alert.Type(param.Type),
 			}
 
 			switch alert.Type(param.Type) {
 			case alert.Float:
 				f := param.FloatParam
-
-				if f.Default != nil {
-					p.Value = *f.Default
-				}
-
-				if f.Min != nil && f.Max != nil {
-					p.Range = []interface{}{*f.Min, *f.Max}
-				}
+				p.Value = f.Default
+				p.Range = []interface{}{f.Min, f.Max}
 			}
 
 			params = append(params, p)

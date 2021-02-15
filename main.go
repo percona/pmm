@@ -42,7 +42,6 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/managementpb"
-	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
 	"github.com/percona/pmm/api/serverpb"
@@ -71,7 +70,6 @@ import (
 	"github.com/percona/pmm-managed/services/inventory"
 	inventorygrpc "github.com/percona/pmm-managed/services/inventory/grpc"
 	"github.com/percona/pmm-managed/services/management"
-	"github.com/percona/pmm-managed/services/management/backup"
 	managementdbaas "github.com/percona/pmm-managed/services/management/dbaas"
 	managementgrpc "github.com/percona/pmm-managed/services/management/grpc"
 	"github.com/percona/pmm-managed/services/management/ia"
@@ -153,8 +151,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	agentpb.RegisterAgentServer(gRPCServer, agentgrpc.NewAgentServer(deps.agentsRegistry))
 
-	nodesSvc := inventory.NewNodesService(deps.db, deps.agentsRegistry, deps.vmdb)
-	servicesSvc := inventory.NewServicesService(deps.db, deps.agentsRegistry, deps.vmdb)
+	nodesSvc := inventory.NewNodesService(deps.db)
+	servicesSvc := inventory.NewServicesService(deps.db, deps.agentsRegistry)
 	agentsSvc := inventory.NewAgentsService(deps.db, deps.agentsRegistry, deps.vmdb)
 
 	inventorypb.RegisterNodesServer(gRPCServer, inventorygrpc.NewNodesServer(nodesSvc))
@@ -177,7 +175,6 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	managementpb.RegisterProxySQLServer(gRPCServer, managementgrpc.NewManagementProxySQLServer(proxysqlSvc))
 	managementpb.RegisterActionsServer(gRPCServer, managementgrpc.NewActionsServer(deps.agentsRegistry, deps.db))
 	managementpb.RegisterRDSServer(gRPCServer, management.NewRDSService(deps.db, deps.agentsRegistry))
-	managementpb.RegisterHAProxyServer(gRPCServer, management.NewHAProxyService(deps.db, deps.agentsRegistry, deps.vmdb))
 	managementpb.RegisterExternalServer(gRPCServer, management.NewExternalService(deps.db, deps.agentsRegistry, deps.vmdb))
 	managementpb.RegisterAnnotationServer(gRPCServer, managementgrpc.NewAnnotationServer(deps.db, deps.grafanaClient))
 	managementpb.RegisterSecurityChecksServer(gRPCServer, managementgrpc.NewChecksServer(checksSvc))
@@ -188,8 +185,6 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	iav1beta1.RegisterTemplatesServer(gRPCServer, templatesSvc)
 	iav1beta1.RegisterRulesServer(gRPCServer, ia.NewRulesService(deps.db, templatesSvc, deps.vmalert, deps.alertmanager))
 	iav1beta1.RegisterAlertsServer(gRPCServer, ia.NewAlertsService(deps.db, deps.alertmanager, templatesSvc))
-
-	backupv1beta1.RegisterLocationsServer(gRPCServer, backup.NewLocationsService(deps.db))
 
 	// TODO Remove once changing settings.DBaaS.Enabled is possible via API.
 	if deps.settings.DBaaS.Enabled {
@@ -285,7 +280,6 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		managementpb.RegisterProxySQLHandlerFromEndpoint,
 		managementpb.RegisterActionsHandlerFromEndpoint,
 		managementpb.RegisterRDSHandlerFromEndpoint,
-		managementpb.RegisterHAProxyHandlerFromEndpoint,
 		managementpb.RegisterExternalHandlerFromEndpoint,
 		managementpb.RegisterAnnotationHandlerFromEndpoint,
 		managementpb.RegisterSecurityChecksHandlerFromEndpoint,
@@ -294,8 +288,6 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		iav1beta1.RegisterChannelsHandlerFromEndpoint,
 		iav1beta1.RegisterRulesHandlerFromEndpoint,
 		iav1beta1.RegisterTemplatesHandlerFromEndpoint,
-
-		backupv1beta1.RegisterLocationsHandlerFromEndpoint,
 
 		dbaasv1beta1.RegisterKubernetesHandlerFromEndpoint,
 		dbaasv1beta1.RegisterXtraDBClusterHandlerFromEndpoint,
@@ -632,7 +624,6 @@ func main() {
 		VMAlert:              vmalert,
 		AgentsRegistry:       agentsRegistry,
 		Alertmanager:         alertmanager,
-		ChecksService:        checksService,
 		Supervisord:          supervisord,
 		TelemetryService:     telemetry,
 		PlatformService:      platformService,

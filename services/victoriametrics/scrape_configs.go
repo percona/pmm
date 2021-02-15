@@ -29,8 +29,6 @@ import (
 	config "github.com/percona/promconfig"
 
 	"github.com/percona/pmm-managed/models"
-
-	"github.com/percona/pmm-managed/utils/collectors"
 )
 
 // ScrapeTimeout - wraps scrapeTimeout and makes it public for victoriametrics package.
@@ -224,24 +222,20 @@ func scrapeConfigsForNodeExporter(s *models.MetricsResolutions, params *scrapeCo
 	var hrCollect []string
 
 	if params.node.Distro != "darwin" {
-		mrCollect := []string{
+		mr, err = scrapeConfigForStandardExporter("mr", s.MR, params, []string{
 			"hwmon",
 			"textfile.mr",
-		}
-		mrCollect = collectors.FilterOutCollectors("", mrCollect, params.agent.DisabledCollectors)
-		mr, err = scrapeConfigForStandardExporter("mr", s.MR, params, mrCollect)
+		})
 		if err != nil {
 			return nil, err
 		}
 
-		lrCollect := []string{
+		lr, err = scrapeConfigForStandardExporter("lr", s.LR, params, []string{
 			"bonding",
 			"entropy",
 			"textfile.lr",
 			"uname",
-		}
-		lrCollect = collectors.FilterOutCollectors("", lrCollect, params.agent.DisabledCollectors)
-		lr, err = scrapeConfigForStandardExporter("lr", s.LR, params, lrCollect)
+		})
 		if err != nil {
 			return nil, err
 		}
@@ -260,7 +254,7 @@ func scrapeConfigsForNodeExporter(s *models.MetricsResolutions, params *scrapeCo
 		)
 	}
 
-	hrCollect = append(hrCollect,
+	hr, err = scrapeConfigForStandardExporter("hr", s.HR, params, append(hrCollect,
 		"cpu",
 		"diskstats",
 		"filesystem",
@@ -268,10 +262,7 @@ func scrapeConfigsForNodeExporter(s *models.MetricsResolutions, params *scrapeCo
 		"meminfo",
 		"netdev",
 		"time",
-	)
-	hrCollect = collectors.FilterOutCollectors("", hrCollect, params.agent.DisabledCollectors)
-
-	hr, err = scrapeConfigForStandardExporter("hr", s.HR, params, hrCollect)
+	))
 	if err != nil {
 		return nil, err
 	}
@@ -292,16 +283,14 @@ func scrapeConfigsForNodeExporter(s *models.MetricsResolutions, params *scrapeCo
 // scrapeConfigsForMySQLdExporter returns scrape config for mysqld_exporter.
 func scrapeConfigsForMySQLdExporter(s *models.MetricsResolutions, params *scrapeConfigParams) ([]*config.ScrapeConfig, error) {
 	// keep in sync with mysqld_exporter Agent flags generator
-	hrOptions := []string{
+
+	hr, err := scrapeConfigForStandardExporter("hr", s.HR, params, []string{
 		"global_status",
 		"info_schema.innodb_metrics",
 		"custom_query.hr",
 		"standard.go",
 		"standard.process",
-	}
-	hrOptions = collectors.FilterOutCollectors("", hrOptions, params.agent.DisabledCollectors)
-
-	hr, err := scrapeConfigForStandardExporter("hr", s.HR, params, hrOptions)
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -321,7 +310,6 @@ func scrapeConfigsForMySQLdExporter(s *models.MetricsResolutions, params *scrape
 		mrOptions = append(mrOptions, "perf_schema.tablelocks")
 	}
 
-	mrOptions = collectors.FilterOutCollectors("", mrOptions, params.agent.DisabledCollectors)
 	mr, err := scrapeConfigForStandardExporter("mr", s.MR, params, mrOptions)
 	if err != nil {
 		return nil, err
@@ -333,6 +321,7 @@ func scrapeConfigsForMySQLdExporter(s *models.MetricsResolutions, params *scrape
 		"global_variables",
 		"heartbeat",
 		"info_schema.clientstats",
+		"info_schema.innodb_tablespaces",
 		"info_schema.userstats",
 		"perf_schema.eventsstatements",
 		"perf_schema.file_instances",
@@ -343,13 +332,10 @@ func scrapeConfigsForMySQLdExporter(s *models.MetricsResolutions, params *scrape
 			"auto_increment.columns",
 			"info_schema.tables",
 			"info_schema.tablestats",
-			"info_schema.innodb_tablespaces",
 			"perf_schema.indexiowaits",
 			"perf_schema.tableiowaits",
 		)
 	}
-
-	lrOptions = collectors.FilterOutCollectors("", lrOptions, params.agent.DisabledCollectors)
 
 	lr, err := scrapeConfigForStandardExporter("lr", s.LR, params, lrOptions)
 	if err != nil {
@@ -383,32 +369,26 @@ func scrapeConfigsForMongoDBExporter(s *models.MetricsResolutions, params *scrap
 }
 
 func scrapeConfigsForPostgresExporter(s *models.MetricsResolutions, params *scrapeConfigParams) ([]*config.ScrapeConfig, error) {
-	hrOptions := []string{
+	hr, err := scrapeConfigForStandardExporter("hr", s.HR, params, []string{
 		"exporter",
 		"custom_query.hr",
 		"standard.go",
 		"standard.process",
-	}
-	hrOptions = collectors.FilterOutCollectors("", hrOptions, params.agent.DisabledCollectors)
-	hr, err := scrapeConfigForStandardExporter("hr", s.HR, params, hrOptions)
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	mrOptions := []string{
+	mr, err := scrapeConfigForStandardExporter("mr", s.MR, params, []string{
 		"custom_query.mr",
-	}
-	mrOptions = collectors.FilterOutCollectors("", mrOptions, params.agent.DisabledCollectors)
-	mr, err := scrapeConfigForStandardExporter("mr", s.MR, params, mrOptions)
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	lrOptions := []string{
+	lr, err := scrapeConfigForStandardExporter("lr", s.LR, params, []string{
 		"custom_query.lr",
-	}
-	lrOptions = collectors.FilterOutCollectors("", lrOptions, params.agent.DisabledCollectors)
-	lr, err := scrapeConfigForStandardExporter("lr", s.LR, params, lrOptions)
+	})
 	if err != nil {
 		return nil, err
 	}

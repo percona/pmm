@@ -210,17 +210,17 @@ func TestXtraDBClusterService(t *testing.T) {
 		assert.NoError(t, err)
 	})
 
-	t.Run("BasicGetXtraDBClusterCredentials", func(t *testing.T) {
+	t.Run("BasicGetXtraDBCluster", func(t *testing.T) {
 		name := "third-pxc-test"
 		s := NewXtraDBClusterService(db, dbaasClient)
-		mockReq := controllerv1beta1.GetXtraDBClusterCredentialsRequest{
+		mockReq := controllerv1beta1.GetXtraDBClusterRequest{
 			KubeAuth: &controllerv1beta1.KubeAuth{
 				Kubeconfig: pxcKubeconfigTest,
 			},
 			Name: name,
 		}
 
-		dbaasClient.On("GetXtraDBClusterCredentials", ctx, &mockReq).Return(&controllerv1beta1.GetXtraDBClusterCredentialsResponse{
+		dbaasClient.On("GetXtraDBCluster", ctx, &mockReq).Return(&controllerv1beta1.GetXtraDBClusterResponse{
 			Credentials: &controllerv1beta1.XtraDBCredentials{
 				Username: "root",
 				Password: "root_password",
@@ -229,12 +229,12 @@ func TestXtraDBClusterService(t *testing.T) {
 			},
 		}, nil)
 
-		in := dbaasv1beta1.GetXtraDBClusterCredentialsRequest{
+		in := dbaasv1beta1.GetXtraDBClusterRequest{
 			KubernetesClusterName: pxcKubernetesClusterNameTest,
 			Name:                  name,
 		}
 
-		actual, err := s.GetXtraDBClusterCredentials(ctx, &in)
+		actual, err := s.GetXtraDBCluster(ctx, &in)
 		assert.NoError(t, err)
 		assert.Equal(t, actual.ConnectionCredentials.Username, "root")
 		assert.Equal(t, actual.ConnectionCredentials.Password, "root_password")
@@ -242,17 +242,17 @@ func TestXtraDBClusterService(t *testing.T) {
 		assert.Equal(t, actual.ConnectionCredentials.Port, int32(3306))
 	})
 
-	t.Run("BasicGetXtraDBClusterCredentialsWithHost", func(t *testing.T) { // Real kubernetes will have ingress
+	t.Run("BasicGetXtraDBClusterWithHost", func(t *testing.T) { // Real kubernetes will have ingress
 		name := "another-third-pxc-test"
 		s := NewXtraDBClusterService(db, dbaasClient)
-		mockReq := controllerv1beta1.GetXtraDBClusterCredentialsRequest{
+		mockReq := controllerv1beta1.GetXtraDBClusterRequest{
 			KubeAuth: &controllerv1beta1.KubeAuth{
 				Kubeconfig: pxcKubeconfigTest,
 			},
 			Name: name,
 		}
 
-		mockCluster := &controllerv1beta1.GetXtraDBClusterCredentialsResponse{
+		mockCluster := &controllerv1beta1.GetXtraDBClusterResponse{
 			Credentials: &controllerv1beta1.XtraDBCredentials{
 				Username: "root",
 				Password: "root_password",
@@ -261,14 +261,14 @@ func TestXtraDBClusterService(t *testing.T) {
 			},
 		}
 
-		dbaasClient.On("GetXtraDBClusterCredentials", ctx, &mockReq).Return(mockCluster, nil)
+		dbaasClient.On("GetXtraDBCluster", ctx, &mockReq).Return(mockCluster, nil)
 
-		in := dbaasv1beta1.GetXtraDBClusterCredentialsRequest{
+		in := dbaasv1beta1.GetXtraDBClusterRequest{
 			KubernetesClusterName: pxcKubernetesClusterNameTest,
 			Name:                  name,
 		}
 
-		actual, err := s.GetXtraDBClusterCredentials(ctx, &in)
+		actual, err := s.GetXtraDBCluster(ctx, &in)
 		assert.NoError(t, err)
 		assert.Equal(t, "root", actual.ConnectionCredentials.Username)
 		assert.Equal(t, "root_password", actual.ConnectionCredentials.Password)

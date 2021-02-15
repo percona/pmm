@@ -83,26 +83,4 @@ func TestPostgresExporterConfig(t *testing.T) {
 		actual := postgresExporterConfig(postgresql, exporter, exposeSecrets)
 		assert.Equal(t, "DATA_SOURCE_NAME=postgres:///postgres?connect_timeout=1&host=%2Fvar%2Frun%2Fpostgres&sslmode=disable", actual.Env[0])
 	})
-
-	t.Run("DisabledCollectors", func(t *testing.T) {
-		postgresql.Address = nil
-		postgresql.Port = nil
-		postgresql.Socket = pointer.ToString("/var/run/postgres")
-		exporter.DisabledCollectors = []string{"custom_query.hr", "custom_query.hr.directory"}
-		actual := postgresExporterConfig(postgresql, exporter, exposeSecrets)
-		expected := &agentpb.SetStateRequest_AgentProcess{
-			Type:               inventorypb.AgentType_POSTGRES_EXPORTER,
-			TemplateLeftDelim:  "{{",
-			TemplateRightDelim: "}}",
-			Args: []string{
-				"--collect.custom_query.lr",
-				"--collect.custom_query.lr.directory=/usr/local/percona/pmm2/collectors/custom-queries/postgresql/low-resolution",
-				"--collect.custom_query.mr",
-				"--collect.custom_query.mr.directory=/usr/local/percona/pmm2/collectors/custom-queries/postgresql/medium-resolution",
-				"--web.listen-address=:{{ .listen_port }}",
-			},
-		}
-		requireNoDuplicateFlags(t, actual.Args)
-		require.Equal(t, expected.Args, actual.Args)
-	})
 }

@@ -58,7 +58,6 @@ func (s *ChecksAPIService) GetSecurityCheckResults() (*managementpb.GetSecurityC
 		checkResults = append(checkResults, &managementpb.SecurityCheckResult{
 			Summary:     result.Summary,
 			Description: result.Description,
-			ReadMoreUrl: result.ReadMoreURL,
 			Severity:    managementpb.Severity(result.Severity),
 			Labels:      result.Labels,
 		})

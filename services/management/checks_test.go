@@ -85,7 +85,6 @@ func TestGetSecurityCheckResults(t *testing.T) {
 			{
 				Summary:     "Check summary",
 				Description: "Check Description",
-				ReadMoreURL: "https://www.example.com",
 				Severity:    1,
 				Labels:      map[string]string{"label_key": "label_value"},
 			},
@@ -95,7 +94,6 @@ func TestGetSecurityCheckResults(t *testing.T) {
 				{
 					Summary:     "Check summary",
 					Description: "Check Description",
-					ReadMoreUrl: "https://www.example.com",
 					Severity:    1,
 					Labels:      map[string]string{"label_key": "label_value"},
 				},

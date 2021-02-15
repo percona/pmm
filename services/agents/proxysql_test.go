@@ -72,20 +72,4 @@ func TestProxySQLExporterConfig(t *testing.T) {
 		actual := proxysqlExporterConfig(proxysql, exporter, exposeSecrets)
 		assert.Equal(t, "DATA_SOURCE_NAME=tcp(1.2.3.4:3306)/?timeout=1s", actual.Env[0])
 	})
-
-	t.Run("DisabledCollector", func(t *testing.T) {
-		exporter.DisabledCollectors = []string{"mysql_connection_list", "stats_memory_metrics"}
-		actual := proxysqlExporterConfig(proxysql, exporter, exposeSecrets)
-		expected := &agentpb.SetStateRequest_AgentProcess{
-			Type:               inventorypb.AgentType_PROXYSQL_EXPORTER,
-			TemplateLeftDelim:  "{{",
-			TemplateRightDelim: "}}",
-			Args: []string{
-				"-collect.mysql_connection_pool",
-				"-collect.mysql_status",
-				"-web.listen-address=:{{ .listen_port }}",
-			},
-		}
-		require.Equal(t, expected.Args, actual.Args)
-	})
 }

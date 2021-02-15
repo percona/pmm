@@ -277,7 +277,8 @@ type ReporterAPIServer interface {
 }
 
 // UnimplementedReporterAPIServer can be embedded to have forward compatible implementations.
-type UnimplementedReporterAPIServer struct{}
+type UnimplementedReporterAPIServer struct {
+}
 
 func (*UnimplementedReporterAPIServer) Report(context.Context, *ReportRequest) (*ReportResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Report not implemented")

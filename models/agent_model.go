@@ -27,7 +27,6 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/go-sql-driver/mysql"
-	"github.com/lib/pq"
 	"github.com/percona/pmm/version"
 	"gopkg.in/reform.v1"
 )
@@ -120,10 +119,9 @@ type Agent struct {
 	MetricsPath           *string `reform:"metrics_path"`
 	MetricsScheme         *string `reform:"metrics_scheme"`
 
-	RDSBasicMetricsDisabled    bool           `reform:"rds_basic_metrics_disabled"`
-	RDSEnhancedMetricsDisabled bool           `reform:"rds_enhanced_metrics_disabled"`
-	PushMetrics                bool           `reform:"push_metrics"`
-	DisabledCollectors         pq.StringArray `reform:"disabled_collectors"`
+	RDSBasicMetricsDisabled    bool `reform:"rds_basic_metrics_disabled"`
+	RDSEnhancedMetricsDisabled bool `reform:"rds_enhanced_metrics_disabled"`
+	PushMetrics                bool `reform:"push_metrics"`
 
 	MongoDBOptions *MongoDBOptions `reform:"mongo_db_tls_options"`
 }
@@ -420,7 +418,6 @@ func (s Agent) TemplateDelimiters(svc *Service) *DelimiterPair {
 		}
 	case PostgreSQLServiceType:
 	case ProxySQLServiceType:
-	case HAProxyServiceType:
 	case ExternalServiceType:
 	}
 

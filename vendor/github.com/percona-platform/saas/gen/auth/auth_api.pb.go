@@ -870,7 +870,8 @@ type AuthAPIServer interface {
 }
 
 // UnimplementedAuthAPIServer can be embedded to have forward compatible implementations.
-type UnimplementedAuthAPIServer struct{}
+type UnimplementedAuthAPIServer struct {
+}
 
 func (*UnimplementedAuthAPIServer) SignUp(context.Context, *SignUpRequest) (*SignUpResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SignUp not implemented")

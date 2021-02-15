@@ -1231,36 +1231,6 @@ func (r *Registry) StartPTSummaryAction(ctx context.Context, id, pmmAgentID stri
 	return nil
 }
 
-// StartPTMongoDBSummaryAction starts pt-pg-summary action on the pmm-agent.
-// The pt-mongodb-summary may require some of the following params: host, port, username, password.
-// The function returns nil if ok, otherwise an error code
-func (r *Registry) StartPTMongoDBSummaryAction(ctx context.Context, id, pmmAgentID, address string, port uint16, username, password string) error {
-	// Action request data that'll be sent to agent
-	actionRequest := &agentpb.StartActionRequest{
-		ActionId: id,
-		// Proper params that'll will be passed to the command on the agent's side, even empty, othervise request's marshal fail.
-		Params: &agentpb.StartActionRequest_PtMongodbSummaryParams{
-			PtMongodbSummaryParams: &agentpb.StartActionRequest_PTMongoDBSummaryParams{
-				Host:     address,
-				Port:     uint32(port),
-				Username: username,
-				Password: password,
-			},
-		},
-		Timeout: defaultActionTimeout,
-	}
-
-	// Agent which the action request will be sent to, got by the provided ID
-	pmmAgent, err := r.get(pmmAgentID)
-	if err != nil {
-		return err
-	}
-
-	pmmAgent.channel.SendRequest(actionRequest)
-
-	return nil
-}
-
 // StopAction stops action with given given id.
 // TODO: Extract it from here: https://jira.percona.com/browse/PMM-4932
 func (r *Registry) StopAction(ctx context.Context, actionID string) error {

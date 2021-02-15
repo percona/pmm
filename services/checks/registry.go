@@ -93,7 +93,6 @@ func (r *registry) createAlert(name string, target *target, result *check.Result
 
 	annotations["summary"] = result.Summary
 	annotations["description"] = result.Description
-	annotations["read_more_url"] = result.ReadMoreURL
 
 	endsAt := r.nowF().Add(alertTTL).UTC().Round(0) // strip a monotonic clock reading
 	return &ammodels.PostableAlert{
@@ -113,7 +112,6 @@ func makeID(target *target, result *check.Result) string {
 	fmt.Fprintf(s, "%s\n", target.serviceID)
 	fmt.Fprintf(s, "%s\n", result.Summary)
 	fmt.Fprintf(s, "%s\n", result.Description)
-	fmt.Fprintf(s, "%s\n", result.ReadMoreURL)
 	fmt.Fprintf(s, "%v\n", result.Severity)
 	return alertsPrefix + hex.EncodeToString(s.Sum(nil))
 }

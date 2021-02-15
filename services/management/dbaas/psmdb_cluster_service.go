@@ -97,27 +97,27 @@ func (s PSMDBClusterService) ListPSMDBClusters(ctx context.Context, req *dbaasv1
 	return &dbaasv1beta1.ListPSMDBClustersResponse{Clusters: clusters}, nil
 }
 
-// GetPSMDBClusterCredentials returns a PSMDB cluster credentials by cluster name.
-func (s PSMDBClusterService) GetPSMDBClusterCredentials(ctx context.Context, req *dbaasv1beta1.GetPSMDBClusterCredentialsRequest) (*dbaasv1beta1.GetPSMDBClusterCredentialsResponse, error) {
+// GetPSMDBCluster returns a PSMDB cluster by name.
+func (s PSMDBClusterService) GetPSMDBCluster(ctx context.Context, req *dbaasv1beta1.GetPSMDBClusterRequest) (*dbaasv1beta1.GetPSMDBClusterResponse, error) {
 	kubernetesCluster, err := models.FindKubernetesClusterByName(s.db.Querier, req.KubernetesClusterName)
 	if err != nil {
 		return nil, err
 	}
 
-	in := &dbaascontrollerv1beta1.GetPSMDBClusterCredentialsRequest{
+	in := &dbaascontrollerv1beta1.GetPSMDBClusterRequest{
 		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
 			Kubeconfig: kubernetesCluster.KubeConfig,
 		},
 		Name: req.Name,
 	}
 
-	cluster, err := s.controllerClient.GetPSMDBClusterCredentials(ctx, in)
+	cluster, err := s.controllerClient.GetPSMDBCluster(ctx, in)
 	if err != nil {
 		return nil, err
 	}
 
-	resp := dbaasv1beta1.GetPSMDBClusterCredentialsResponse{
-		ConnectionCredentials: &dbaasv1beta1.GetPSMDBClusterCredentialsResponse_PSMDBCredentials{
+	resp := dbaasv1beta1.GetPSMDBClusterResponse{
+		ConnectionCredentials: &dbaasv1beta1.GetPSMDBClusterResponse_PSMDBCredentials{
 			Username:   cluster.Credentials.Username,
 			Password:   cluster.Credentials.Password,
 			Host:       cluster.Credentials.Host,

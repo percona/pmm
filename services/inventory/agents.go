@@ -179,7 +179,7 @@ func (as *AgentsService) AddPMMAgent(ctx context.Context, req *inventorypb.AddPM
 func (as *AgentsService) AddNodeExporter(ctx context.Context, req *inventorypb.AddNodeExporterRequest) (*inventorypb.NodeExporter, error) {
 	var res *inventorypb.NodeExporter
 	e := as.db.InTransaction(func(tx *reform.TX) error {
-		row, err := models.CreateNodeExporter(tx.Querier, req.PmmAgentId, req.CustomLabels, req.PushMetrics, req.DisableCollectors)
+		row, err := models.CreateNodeExporter(tx.Querier, req.PmmAgentId, req.CustomLabels, req.PushMetrics)
 		if err != nil {
 			return err
 		}
@@ -226,7 +226,6 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, req *inventorypb
 			TLSSkipVerify:                  req.TlsSkipVerify,
 			TableCountTablestatsGroupLimit: req.TablestatsGroupTableLimit,
 			PushMetrics:                    req.PushMetrics,
-			DisableCollectors:              req.DisableCollectors,
 		}
 		var err error
 		row, err = models.CreateAgent(tx.Querier, models.MySQLdExporterType, params)
@@ -276,16 +275,15 @@ func (as *AgentsService) AddMongoDBExporter(ctx context.Context, req *inventoryp
 	var res *inventorypb.MongoDBExporter
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
-			PMMAgentID:        req.PmmAgentId,
-			ServiceID:         req.ServiceId,
-			Username:          req.Username,
-			Password:          req.Password,
-			CustomLabels:      req.CustomLabels,
-			TLS:               req.Tls,
-			TLSSkipVerify:     req.TlsSkipVerify,
-			MongoDBOptions:    models.MongoDBOptionsFromRequest(req),
-			PushMetrics:       req.PushMetrics,
-			DisableCollectors: req.DisableCollectors,
+			PMMAgentID:     req.PmmAgentId,
+			ServiceID:      req.ServiceId,
+			Username:       req.Username,
+			Password:       req.Password,
+			CustomLabels:   req.CustomLabels,
+			TLS:            req.Tls,
+			TLSSkipVerify:  req.TlsSkipVerify,
+			MongoDBOptions: models.MongoDBOptionsFromRequest(req),
+			PushMetrics:    req.PushMetrics,
 		}
 		row, err := models.CreateAgent(tx.Querier, models.MongoDBExporterType, params)
 		if err != nil {
@@ -455,15 +453,14 @@ func (as *AgentsService) AddPostgresExporter(ctx context.Context, req *inventory
 	var res *inventorypb.PostgresExporter
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
-			PMMAgentID:        req.PmmAgentId,
-			ServiceID:         req.ServiceId,
-			Username:          req.Username,
-			Password:          req.Password,
-			CustomLabels:      req.CustomLabels,
-			TLS:               req.Tls,
-			TLSSkipVerify:     req.TlsSkipVerify,
-			PushMetrics:       req.PushMetrics,
-			DisableCollectors: req.DisableCollectors,
+			PMMAgentID:    req.PmmAgentId,
+			ServiceID:     req.ServiceId,
+			Username:      req.Username,
+			Password:      req.Password,
+			CustomLabels:  req.CustomLabels,
+			TLS:           req.Tls,
+			TLSSkipVerify: req.TlsSkipVerify,
+			PushMetrics:   req.PushMetrics,
 		}
 		row, err := models.CreateAgent(tx.Querier, models.PostgresExporterType, params)
 		if err != nil {
@@ -572,15 +569,14 @@ func (as *AgentsService) AddProxySQLExporter(ctx context.Context, req *inventory
 	var res *inventorypb.ProxySQLExporter
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
-			PMMAgentID:        req.PmmAgentId,
-			ServiceID:         req.ServiceId,
-			Username:          req.Username,
-			Password:          req.Password,
-			CustomLabels:      req.CustomLabels,
-			TLS:               req.Tls,
-			TLSSkipVerify:     req.TlsSkipVerify,
-			PushMetrics:       req.PushMetrics,
-			DisableCollectors: req.DisableCollectors,
+			PMMAgentID:    req.PmmAgentId,
+			ServiceID:     req.ServiceId,
+			Username:      req.Username,
+			Password:      req.Password,
+			CustomLabels:  req.CustomLabels,
+			TLS:           req.Tls,
+			TLSSkipVerify: req.TlsSkipVerify,
+			PushMetrics:   req.PushMetrics,
 		}
 		row, err := models.CreateAgent(tx.Querier, models.ProxySQLExporterType, params)
 		if err != nil {

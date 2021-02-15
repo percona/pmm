@@ -82,8 +82,6 @@ type ServiceFilters struct {
 	NodeID string
 	// Return only Services with provided type.
 	ServiceType *ServiceType
-	// Return only Services with given external group.
-	ExternalGroup string
 }
 
 // FindServices returns Services by filters.
@@ -94,11 +92,6 @@ func FindServices(q *reform.Querier, filters ServiceFilters) ([]*Service, error)
 	if filters.NodeID != "" {
 		conditions = append(conditions, fmt.Sprintf("node_id = %s", q.Placeholder(idx)))
 		args = append(args, filters.NodeID)
-		idx++
-	}
-	if filters.ExternalGroup != "" {
-		conditions = append(conditions, fmt.Sprintf("external_group = %s", q.Placeholder(idx)))
-		args = append(args, filters.ExternalGroup)
 		idx++
 	}
 	if filters.ServiceType != nil {
@@ -202,10 +195,6 @@ func AddNewService(q *reform.Querier, serviceType ServiceType, params *AddDBMSSe
 		if err := validateDBConnectionOptions(params.Socket, params.Address, params.Port); err != nil {
 			return nil, err
 		}
-		if params.ExternalGroup != "" {
-			return nil, status.Errorf(codes.InvalidArgument, "The external group is not allowed for service type: %q.", serviceType)
-		}
-	case HAProxyServiceType:
 		if params.ExternalGroup != "" {
 			return nil, status.Errorf(codes.InvalidArgument, "The external group is not allowed for service type: %q.", serviceType)
 		}

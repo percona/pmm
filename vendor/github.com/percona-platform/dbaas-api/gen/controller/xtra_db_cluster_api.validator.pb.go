@@ -51,7 +51,7 @@ func (this *ListXtraDBClustersResponse_Cluster) Validate() error {
 	}
 	return nil
 }
-func (this *GetXtraDBClusterCredentialsRequest) Validate() error {
+func (this *GetXtraDBClusterRequest) Validate() error {
 	if nil == this.KubeAuth {
 		return github_com_mwitkow_go_proto_validators.FieldError("KubeAuth", fmt.Errorf("message must exist"))
 	}
@@ -65,7 +65,7 @@ func (this *GetXtraDBClusterCredentialsRequest) Validate() error {
 	}
 	return nil
 }
-func (this *GetXtraDBClusterCredentialsResponse) Validate() error {
+func (this *GetXtraDBClusterResponse) Validate() error {
 	if this.Credentials != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Credentials); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Credentials", err)

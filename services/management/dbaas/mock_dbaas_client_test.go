@@ -159,8 +159,8 @@ func (_m *mockDbaasClient) DeleteXtraDBCluster(ctx context.Context, in *controll
 	return r0, r1
 }
 
-// GetPSMDBClusterCredentials provides a mock function with given fields: ctx, in, opts
-func (_m *mockDbaasClient) GetPSMDBClusterCredentials(ctx context.Context, in *controllerv1beta1.GetPSMDBClusterCredentialsRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetPSMDBClusterCredentialsResponse, error) {
+// GetPSMDBCluster provides a mock function with given fields: ctx, in, opts
+func (_m *mockDbaasClient) GetPSMDBCluster(ctx context.Context, in *controllerv1beta1.GetPSMDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetPSMDBClusterResponse, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -170,17 +170,17 @@ func (_m *mockDbaasClient) GetPSMDBClusterCredentials(ctx context.Context, in *c
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
-	var r0 *controllerv1beta1.GetPSMDBClusterCredentialsResponse
-	if rf, ok := ret.Get(0).(func(context.Context, *controllerv1beta1.GetPSMDBClusterCredentialsRequest, ...grpc.CallOption) *controllerv1beta1.GetPSMDBClusterCredentialsResponse); ok {
+	var r0 *controllerv1beta1.GetPSMDBClusterResponse
+	if rf, ok := ret.Get(0).(func(context.Context, *controllerv1beta1.GetPSMDBClusterRequest, ...grpc.CallOption) *controllerv1beta1.GetPSMDBClusterResponse); ok {
 		r0 = rf(ctx, in, opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*controllerv1beta1.GetPSMDBClusterCredentialsResponse)
+			r0 = ret.Get(0).(*controllerv1beta1.GetPSMDBClusterResponse)
 		}
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, *controllerv1beta1.GetPSMDBClusterCredentialsRequest, ...grpc.CallOption) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *controllerv1beta1.GetPSMDBClusterRequest, ...grpc.CallOption) error); ok {
 		r1 = rf(ctx, in, opts...)
 	} else {
 		r1 = ret.Error(1)
@@ -189,8 +189,8 @@ func (_m *mockDbaasClient) GetPSMDBClusterCredentials(ctx context.Context, in *c
 	return r0, r1
 }
 
-// GetXtraDBClusterCredentials provides a mock function with given fields: ctx, in, opts
-func (_m *mockDbaasClient) GetXtraDBClusterCredentials(ctx context.Context, in *controllerv1beta1.GetXtraDBClusterCredentialsRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetXtraDBClusterCredentialsResponse, error) {
+// GetXtraDBCluster provides a mock function with given fields: ctx, in, opts
+func (_m *mockDbaasClient) GetXtraDBCluster(ctx context.Context, in *controllerv1beta1.GetXtraDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetXtraDBClusterResponse, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -200,17 +200,17 @@ func (_m *mockDbaasClient) GetXtraDBClusterCredentials(ctx context.Context, in *
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
-	var r0 *controllerv1beta1.GetXtraDBClusterCredentialsResponse
-	if rf, ok := ret.Get(0).(func(context.Context, *controllerv1beta1.GetXtraDBClusterCredentialsRequest, ...grpc.CallOption) *controllerv1beta1.GetXtraDBClusterCredentialsResponse); ok {
+	var r0 *controllerv1beta1.GetXtraDBClusterResponse
+	if rf, ok := ret.Get(0).(func(context.Context, *controllerv1beta1.GetXtraDBClusterRequest, ...grpc.CallOption) *controllerv1beta1.GetXtraDBClusterResponse); ok {
 		r0 = rf(ctx, in, opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*controllerv1beta1.GetXtraDBClusterCredentialsResponse)
+			r0 = ret.Get(0).(*controllerv1beta1.GetXtraDBClusterResponse)
 		}
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, *controllerv1beta1.GetXtraDBClusterCredentialsRequest, ...grpc.CallOption) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *controllerv1beta1.GetXtraDBClusterRequest, ...grpc.CallOption) error); ok {
 		r1 = rf(ctx, in, opts...)
 	} else {
 		r1 = ret.Error(1)

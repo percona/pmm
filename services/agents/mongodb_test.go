@@ -94,25 +94,6 @@ func TestMongodbExporterConfig(t *testing.T) {
 		}
 		assert.Equal(t, expectedFiles, actual.TextFiles)
 	})
-
-	t.Run("DisabledCollectors", func(t *testing.T) {
-		exporter.DisabledCollectors = []string{"topmetrics"}
-		actual := mongodbExporterConfig(mongodb, exporter, exposeSecrets, pmmAgentVersion)
-		expected := &agentpb.SetStateRequest_AgentProcess{
-			Type:               inventorypb.AgentType_MONGODB_EXPORTER,
-			TemplateLeftDelim:  "{{",
-			TemplateRightDelim: "}}",
-			Args: []string{
-				"--collect.collection",
-				"--collect.database",
-				"--no-collect.connpoolstats",
-				"--no-collect.indexusage",
-				"--web.listen-address=:{{ .listen_port }}",
-			},
-		}
-		requireNoDuplicateFlags(t, actual.Args)
-		require.Equal(t, expected.Args, actual.Args)
-	})
 }
 
 func TestNewMongodbExporterConfig(t *testing.T) {

@@ -26,7 +26,6 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 
 	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/utils/collectors"
 )
 
 // mysqldExporterConfig returns desired configuration of mysqld_exporter process.
@@ -40,6 +39,7 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent, redac
 		"--collect.global_variables",
 		"--collect.heartbeat",
 		"--collect.info_schema.clientstats",
+		"--collect.info_schema.innodb_tablespaces",
 		"--collect.info_schema.userstats",
 		"--collect.perf_schema.eventsstatements",
 		"--collect.custom_query.lr",
@@ -77,7 +77,6 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent, redac
 		// keep in sync with Prometheus scrape configs generator
 		tablestatsGroup := []string{
 			// LR
-			"--collect.info_schema.innodb_tablespaces",
 			"--collect.auto_increment.columns",
 			"--collect.info_schema.tables",
 			"--collect.info_schema.tablestats",
@@ -90,8 +89,6 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent, redac
 		}
 		args = append(args, tablestatsGroup...)
 	}
-
-	args = collectors.FilterOutCollectors("--collect.", args, exporter.DisabledCollectors)
 
 	if pointer.GetString(exporter.MetricsPath) != "" {
 		args = append(args, "--web.telemetry-path="+*exporter.MetricsPath)

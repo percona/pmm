@@ -56,7 +56,6 @@ func (v *agentTableType) Columns() []string {
 		"rds_basic_metrics_disabled",
 		"rds_enhanced_metrics_disabled",
 		"push_metrics",
-		"disabled_collectors",
 		"mongo_db_tls_options",
 	}
 }
@@ -110,7 +109,6 @@ var AgentTable = &agentTableType{
 			{Name: "RDSBasicMetricsDisabled", Type: "bool", Column: "rds_basic_metrics_disabled"},
 			{Name: "RDSEnhancedMetricsDisabled", Type: "bool", Column: "rds_enhanced_metrics_disabled"},
 			{Name: "PushMetrics", Type: "bool", Column: "push_metrics"},
-			{Name: "DisabledCollectors", Type: "pq.StringArray", Column: "disabled_collectors"},
 			{Name: "MongoDBOptions", Type: "*MongoDBOptions", Column: "mongo_db_tls_options"},
 		},
 		PKFieldIndex: 0,
@@ -120,7 +118,7 @@ var AgentTable = &agentTableType{
 
 // String returns a string representation of this struct or record.
 func (s Agent) String() string {
-	res := make([]string, 30)
+	res := make([]string, 29)
 	res[0] = "AgentID: " + reform.Inspect(s.AgentID, true)
 	res[1] = "AgentType: " + reform.Inspect(s.AgentType, true)
 	res[2] = "RunsOnNodeID: " + reform.Inspect(s.RunsOnNodeID, true)
@@ -149,8 +147,7 @@ func (s Agent) String() string {
 	res[25] = "RDSBasicMetricsDisabled: " + reform.Inspect(s.RDSBasicMetricsDisabled, true)
 	res[26] = "RDSEnhancedMetricsDisabled: " + reform.Inspect(s.RDSEnhancedMetricsDisabled, true)
 	res[27] = "PushMetrics: " + reform.Inspect(s.PushMetrics, true)
-	res[28] = "DisabledCollectors: " + reform.Inspect(s.DisabledCollectors, true)
-	res[29] = "MongoDBOptions: " + reform.Inspect(s.MongoDBOptions, true)
+	res[28] = "MongoDBOptions: " + reform.Inspect(s.MongoDBOptions, true)
 	return strings.Join(res, ", ")
 }
 
@@ -186,7 +183,6 @@ func (s *Agent) Values() []interface{} {
 		s.RDSBasicMetricsDisabled,
 		s.RDSEnhancedMetricsDisabled,
 		s.PushMetrics,
-		s.DisabledCollectors,
 		s.MongoDBOptions,
 	}
 }
@@ -223,7 +219,6 @@ func (s *Agent) Pointers() []interface{} {
 		&s.RDSBasicMetricsDisabled,
 		&s.RDSEnhancedMetricsDisabled,
 		&s.PushMetrics,
-		&s.DisabledCollectors,
 		&s.MongoDBOptions,
 	}
 }

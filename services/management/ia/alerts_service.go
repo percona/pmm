@@ -19,7 +19,6 @@ package ia
 
 import (
 	"context"
-	"regexp"
 	"strings"
 	"time"
 
@@ -130,58 +129,19 @@ func (s *AlertsService) ListAlerts(ctx context.Context, req *iav1beta1.ListAlert
 			}
 		}
 
-		pass, err := satisfiesFilters(alert, rule.Filters)
-		if err != nil {
-			return nil, err
-		}
-
-		if pass {
-			res = append(res, &iav1beta1.Alert{
-				AlertId:   getAlertID(alert),
-				Summary:   alert.Annotations["summary"],
-				Severity:  managementpb.Severity(common.ParseSeverity(alert.Labels["severity"])),
-				Status:    st,
-				Labels:    alert.Labels,
-				Rule:      rule,
-				CreatedAt: createdAt,
-				UpdatedAt: updatedAt,
-			})
-		}
+		res = append(res, &iav1beta1.Alert{
+			AlertId:   getAlertID(alert),
+			Summary:   alert.Annotations["summary"],
+			Severity:  managementpb.Severity(common.ParseSeverity(alert.Labels["severity"])),
+			Status:    st,
+			Labels:    alert.Labels,
+			Rule:      rule,
+			CreatedAt: createdAt,
+			UpdatedAt: updatedAt,
+		})
 	}
 
 	return &iav1beta1.ListAlertsResponse{Alerts: res}, nil
-}
-
-// satisfiesFilters checks that alert passes filters, returns true in case of success.
-func satisfiesFilters(alert *ammodels.GettableAlert, filters []*iav1beta1.Filter) (bool, error) {
-	for _, filter := range filters {
-		value, ok := alert.Labels[filter.Key]
-		if !ok {
-			return false, nil
-		}
-
-		switch filter.Type {
-		case iav1beta1.FilterType_EQUAL:
-			if filter.Value != value {
-				return false, nil
-			}
-		case iav1beta1.FilterType_REGEX:
-			match, err := regexp.Match(filter.Value, []byte(value))
-			if err != nil {
-				return false, status.Errorf(codes.InvalidArgument, "bad regular expression: +%v", err)
-			}
-
-			if !match {
-				return false, nil
-			}
-		case iav1beta1.FilterType_FILTER_TYPE_INVALID:
-			fallthrough
-		default:
-			return false, status.Error(codes.Internal, "Unexpected filter type.")
-		}
-	}
-
-	return true, nil
 }
 
 func getAlertID(alert *ammodels.GettableAlert) string {

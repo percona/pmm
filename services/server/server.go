@@ -60,7 +60,6 @@ type Server struct {
 	vmalert              vmAlertService
 	vmalertExternalRules vmAlertExternalRules
 	alertmanager         alertmanagerService
-	checksService        checksService
 	supervisord          supervisordService
 	telemetryService     telemetryService
 	platformService      platformService
@@ -88,7 +87,6 @@ type Params struct {
 	VMDB                 prometheusService
 	VMAlert              prometheusService
 	Alertmanager         alertmanagerService
-	ChecksService        checksService
 	VMAlertExternalRules vmAlertExternalRules
 	Supervisord          supervisordService
 	TelemetryService     telemetryService
@@ -111,7 +109,6 @@ func NewServer(params *Params) (*Server, error) {
 		r:                    params.AgentsRegistry,
 		vmalert:              params.VMAlert,
 		alertmanager:         params.Alertmanager,
-		checksService:        params.ChecksService,
 		vmalertExternalRules: params.VMAlertExternalRules,
 		supervisord:          params.Supervisord,
 		telemetryService:     params.TelemetryService,
@@ -523,7 +520,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 		return nil, err
 	}
 
-	var newSettings, oldSettings *models.Settings
+	var settings *models.Settings
 	err := s.db.InTransaction(func(tx *reform.TX) error {
 		metricsRes := req.MetricsResolutions
 		settingsParams := &models.ChangeSettingsParams{
@@ -571,11 +568,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 		}
 
 		var e error
-		if oldSettings, e = models.GetSettings(tx); e != nil {
-			return errors.WithStack(e)
-		}
-
-		if newSettings, e = models.UpdateSettings(tx, settingsParams); e != nil {
+		if settings, e = models.UpdateSettings(tx, settingsParams); e != nil {
 			return status.Error(codes.InvalidArgument, e.Error())
 		}
 
@@ -607,21 +600,6 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 		return nil, err
 	}
 
-	// When STT moved from disabled state to enabled force checks download and execution
-	if !oldSettings.SaaS.STTEnabled && newSettings.SaaS.STTEnabled {
-		go func() {
-			err = s.checksService.StartChecks(context.Background())
-			if err != nil {
-				s.l.Error(err)
-			}
-		}()
-	}
-
-	// When STT moved from enabled state to disabled drop all existing STT alerts.
-	if oldSettings.SaaS.STTEnabled && !newSettings.SaaS.STTEnabled {
-		s.checksService.CleanupAlerts()
-	}
-
 	if isAgentsStateUpdateNeeded(req.MetricsResolutions) {
 		if err := s.r.UpdateAgentsState(ctx); err != nil {
 			return nil, err
@@ -629,7 +607,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 	}
 
 	return &serverpb.ChangeSettingsResponse{
-		Settings: s.convertSettings(newSettings),
+		Settings: s.convertSettings(settings),
 	}, nil
 }
 

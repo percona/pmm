@@ -104,27 +104,27 @@ func (s XtraDBClusterService) ListXtraDBClusters(ctx context.Context, req *dbaas
 	return &dbaasv1beta1.ListXtraDBClustersResponse{Clusters: clusters}, nil
 }
 
-// GetXtraDBClusterCredentials returns a XtraDB cluster credentials.
-func (s XtraDBClusterService) GetXtraDBClusterCredentials(ctx context.Context, req *dbaasv1beta1.GetXtraDBClusterCredentialsRequest) (*dbaasv1beta1.GetXtraDBClusterCredentialsResponse, error) {
+// GetXtraDBCluster returns a XtraDB cluster.
+func (s XtraDBClusterService) GetXtraDBCluster(ctx context.Context, req *dbaasv1beta1.GetXtraDBClusterRequest) (*dbaasv1beta1.GetXtraDBClusterResponse, error) {
 	kubernetesCluster, err := models.FindKubernetesClusterByName(s.db.Querier, req.KubernetesClusterName)
 	if err != nil {
 		return nil, err
 	}
 
-	in := &dbaascontrollerv1beta1.GetXtraDBClusterCredentialsRequest{
+	in := &dbaascontrollerv1beta1.GetXtraDBClusterRequest{
 		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
 			Kubeconfig: kubernetesCluster.KubeConfig,
 		},
 		Name: req.Name,
 	}
 
-	cluster, err := s.controllerClient.GetXtraDBClusterCredentials(ctx, in)
+	cluster, err := s.controllerClient.GetXtraDBCluster(ctx, in)
 	if err != nil {
 		return nil, err
 	}
 
 	_ = kubernetesCluster
-	resp := dbaasv1beta1.GetXtraDBClusterCredentialsResponse{
+	resp := dbaasv1beta1.GetXtraDBClusterResponse{
 		ConnectionCredentials: &dbaasv1beta1.XtraDBClusterConnectionCredentials{
 			Username: cluster.Credentials.Username,
 			Password: cluster.Credentials.Password,
