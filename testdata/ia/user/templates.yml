@@ -2,27 +2,28 @@
 templates:
     - name: test_template
       version: 1
-      summary: MySQL connections in use
+      summary: Test template
       tiers: [anonymous, registered]
       expr: |-
-        max_over_time(mysql_global_status_threads_connected[5m]) / ignoring (job)
-        mysql_global_variables_max_connections
-        * 100
-        > [[ .threshold ]]
+        [[ .param2 ]] * 100 > [[ .param1 ]]
       params:
-        - name: threshold
-          summary: A percentage from configured maximum
-          unit: '%'
+        - name: param1
+          summary: first parameter with default value and defined range
+          unit: "%"
           type: float
           range: [0, 100]
           value: 80
+        - name: param2
+          summary: second parameter without default value and defined range
+          unit: "s"
+          type: float
       for: 5m
       severity: warning
       labels:
         foo: bar
       annotations:
         description: |-
-            More than [[ .threshold ]]% of MySQL connections are in use on {{ $labels.instance }}
+            Test template with param1=[[ .param1 ]] and param2=[[ .param2 ]]
             VALUE = {{ $value }}
             LABELS: {{ $labels }}
-        summary: MySQL too many connections (instance {{ $labels.instance }})
+        summary: Test rule (instance {{ $labels.instance }})

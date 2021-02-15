@@ -20,6 +20,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/brianvoe/gofakeit"
 	"github.com/percona-platform/saas/pkg/alert"
 	"github.com/percona-platform/saas/pkg/common"
@@ -63,12 +64,12 @@ func TestRuleTemplates(t *testing.T) {
 			models.TemplateParams{{
 				Name:    params.Template.Params[0].Name,
 				Summary: params.Template.Params[0].Summary,
-				Unit:    params.Template.Params[0].Unit,
+				Unit:    string(params.Template.Params[0].Unit),
 				Type:    models.Float,
 				FloatParam: &models.FloatParam{
-					Default: params.Template.Params[0].Value.(float64),
-					Min:     params.Template.Params[0].Range[0].(float64),
-					Max:     params.Template.Params[0].Range[1].(float64),
+					Default: pointer.ToFloat64(params.Template.Params[0].Value.(float64)),
+					Min:     pointer.ToFloat64(params.Template.Params[0].Range[0].(float64)),
+					Max:     pointer.ToFloat64(params.Template.Params[0].Range[1].(float64)),
 				},
 			}},
 			created.Params)
@@ -114,12 +115,12 @@ func TestRuleTemplates(t *testing.T) {
 			models.TemplateParams{{
 				Name:    uParams.Template.Params[0].Name,
 				Summary: uParams.Template.Params[0].Summary,
-				Unit:    uParams.Template.Params[0].Unit,
+				Unit:    string(uParams.Template.Params[0].Unit),
 				Type:    models.Float,
 				FloatParam: &models.FloatParam{
-					Default: uParams.Template.Params[0].Value.(float64),
-					Min:     uParams.Template.Params[0].Range[0].(float64),
-					Max:     uParams.Template.Params[0].Range[1].(float64),
+					Default: pointer.ToFloat64(uParams.Template.Params[0].Value.(float64)),
+					Min:     pointer.ToFloat64(uParams.Template.Params[0].Range[0].(float64)),
+					Max:     pointer.ToFloat64(uParams.Template.Params[0].Range[1].(float64)),
 				},
 			}},
 			updated.Params)
@@ -228,7 +229,7 @@ func createTemplateParams(name string) *models.CreateTemplateParams {
 			Params: []alert.Parameter{{
 				Name:    gofakeit.UUID(),
 				Summary: gofakeit.Quote(),
-				Unit:    gofakeit.Letter(),
+				Unit:    alert.Percentage,
 				Type:    alert.Float,
 				Range:   []interface{}{float64(10), float64(100)},
 				Value:   float64(50),
@@ -253,7 +254,7 @@ func changeTemplateParams(name string) *models.ChangeTemplateParams {
 			Params: []alert.Parameter{{
 				Name:    gofakeit.UUID(),
 				Summary: gofakeit.Quote(),
-				Unit:    gofakeit.Letter(),
+				Unit:    alert.Seconds,
 				Type:    alert.Float,
 				Range:   []interface{}{float64(10), float64(100)},
 				Value:   float64(50),

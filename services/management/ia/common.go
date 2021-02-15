@@ -17,6 +17,7 @@
 package ia
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -32,15 +33,17 @@ import (
 
 const dirPerm = os.FileMode(0o775)
 
-func convertParamUnit(u string) iav1beta1.ParamUnit {
+func convertParamUnit(u alert.Unit) iav1beta1.ParamUnit {
 	switch u {
-	case "%":
+	case alert.Percentage:
 		return iav1beta1.ParamUnit_PERCENTAGE
-	case "s":
+	case alert.Seconds:
 		return iav1beta1.ParamUnit_SECONDS
-	default:
-		return iav1beta1.ParamUnit_PARAM_UNIT_INVALID
 	}
+
+	// do not add `default:` to make exhaustive linter do its job
+
+	return iav1beta1.ParamUnit_PARAM_UNIT_INVALID
 }
 
 func convertTemplate(l *logrus.Entry, template templateInfo) (*iav1beta1.Template, error) {
@@ -74,29 +77,30 @@ func convertTemplate(l *logrus.Entry, template templateInfo) (*iav1beta1.Templat
 
 		switch p.Type {
 		case alert.Float:
-			value, err := p.GetValueForFloat()
-			if err != nil {
-				return nil, errors.Wrap(err, "failed to get value for float parameter")
+			var fp iav1beta1.TemplateFloatParam
+			if p.Value != nil {
+				value, err := p.GetValueForFloat()
+				if err != nil {
+					return nil, errors.Wrap(err, "failed to get value for float parameter")
+				}
+				fp.HasDefault = true
+				fp.Default = float32(value) // TODO eliminate conversion
+
 			}
 
-			fp := &iav1beta1.TemplateFloatParam{
-				HasDefault: true,           // TODO remove or fill with valid value.
-				Default:    float32(value), // TODO eliminate conversion.
-			}
-
-			if p.Range != nil {
+			if len(p.Range) != 0 {
 				min, max, err := p.GetRangeForFloat()
 				if err != nil {
 					return nil, errors.Wrap(err, "failed to get range for float parameter")
 				}
 
-				fp.HasMin = true      // TODO remove or fill with valid value.
+				fp.HasMin = true
 				fp.Min = float32(min) // TODO eliminate conversion.,
-				fp.HasMax = true      // TODO remove or fill with valid value.
+				fp.HasMax = true
 				fp.Max = float32(max) // TODO eliminate conversion.,
 			}
 
-			tp.Value = &iav1beta1.TemplateParam_Float{Float: fp}
+			tp.Value = &iav1beta1.TemplateParam_Float{Float: &fp}
 
 			t.Params = append(t.Params, tp)
 
@@ -121,6 +125,27 @@ func convertRule(l *logrus.Entry, rule *models.Rule, template templateInfo, chan
 	r.CreatedAt, err = ptypes.TimestampProto(rule.CreatedAt)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to convert timestamp")
+	}
+
+	params := make(map[string]string, len(rule.Params))
+	for _, p := range rule.Params {
+		var value string
+		switch p.Type {
+		case models.Float:
+			value = fmt.Sprint(p.FloatValue)
+		case models.Bool:
+			value = fmt.Sprint(p.BoolValue)
+		case models.String:
+			value = p.StringValue
+		default:
+			l.Warnf("Invalid parameter type %s", p.Type)
+			continue
+		}
+		params[p.Name] = value
+	}
+	r.Expr, err = templateRuleExpr(template.Expr, params)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to template rule expression")
 	}
 
 	r.Template, err = convertTemplate(l, template)

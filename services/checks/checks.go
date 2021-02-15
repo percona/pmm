@@ -295,6 +295,11 @@ func (s *Service) StartChecks(ctx context.Context) error {
 	return nil
 }
 
+// CleanupAlerts drops all alerts in registry.
+func (s *Service) CleanupAlerts() {
+	s.alertsRegistry.set(nil)
+}
+
 // getMySQLChecks returns available MySQL checks.
 func (s *Service) getMySQLChecks() []check.Check {
 	s.cm.Lock()

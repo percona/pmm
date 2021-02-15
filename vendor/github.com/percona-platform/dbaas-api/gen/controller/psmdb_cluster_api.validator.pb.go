@@ -51,7 +51,7 @@ func (this *ListPSMDBClustersResponse_Cluster) Validate() error {
 	}
 	return nil
 }
-func (this *GetPSMDBClusterRequest) Validate() error {
+func (this *GetPSMDBClusterCredentialsRequest) Validate() error {
 	if nil == this.KubeAuth {
 		return github_com_mwitkow_go_proto_validators.FieldError("KubeAuth", fmt.Errorf("message must exist"))
 	}
@@ -65,7 +65,7 @@ func (this *GetPSMDBClusterRequest) Validate() error {
 	}
 	return nil
 }
-func (this *GetPSMDBClusterResponse) Validate() error {
+func (this *GetPSMDBClusterCredentialsResponse) Validate() error {
 	if this.Credentials != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Credentials); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Credentials", err)

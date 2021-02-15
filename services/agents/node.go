@@ -25,6 +25,7 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 
 	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm-managed/utils/collectors"
 )
 
 func nodeExporterConfig(node *models.Node, exporter *models.Agent) *agentpb.SetStateRequest_AgentProcess {
@@ -117,6 +118,8 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent) *agentpb.SetS
 				"|pgpg(in|out)|pswp(in|out)|pgm?a?j?fault)$",
 		)
 	}
+
+	args = collectors.FilterOutCollectors("--collector.", args, exporter.DisabledCollectors)
 
 	if pointer.GetString(exporter.MetricsPath) != "" {
 		args = append(args, "--web.telemetry-path="+*exporter.MetricsPath)
