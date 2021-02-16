@@ -66,7 +66,7 @@ func TestSlowLogMakeBucketsInvalidUTF8(t *testing.T) {
 				PeriodStartUnixSecs: 1557137220,
 				PeriodLengthSecs:    60,
 				Example:             "SELECT * FROM contacts t0 WHERE t0.person_id = '߿�\ufffd\\ud83d\ufffd'",
-				ExampleFormat:       agentpb.ExampleFormat_EXAMPLE,
+				ExampleFormat:       agentpb.ExampleFormat_EXAMPLE, //nolint:staticcheck
 				ExampleType:         agentpb.ExampleType_RANDOM,
 			},
 			Mysql: &agentpb.MetricsBucket_MySQL{},

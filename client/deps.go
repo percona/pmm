@@ -20,9 +20,18 @@ import (
 )
 
 //go:generate mockery -name=connectionChecker -case=snake -inpkg -testonly
+//go:generate mockery -name=supervisor -case=snake -inpkg -testonly
 
 // connectionChecker is a subset of methods of connectionchecker.ConnectionChecker used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type connectionChecker interface {
 	Check(req *agentpb.CheckConnectionRequest, id uint32) *agentpb.CheckConnectionResponse
+}
+
+// supervisor is a subset of methods of supervisor.Supervisor used by this package.
+// We use it instead of real type for testing and to avoid dependency cycle.
+type supervisor interface {
+	Changes() <-chan *agentpb.StateChangedRequest
+	QANRequests() <-chan *agentpb.QANCollectRequest
+	SetState(*agentpb.SetStateRequest)
 }

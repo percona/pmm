@@ -8,8 +8,9 @@ linters-settings:
     packages:
       # use "github.com/pkg/errors" instead
       - errors
-      # use "github.com/golang/protobuf/proto" instead
+      # we use "github.com/golang/protobuf/proto" for now
       - github.com/gogo/protobuf/proto
+      - google.golang.org/protobuf/proto
       # use only forked parser
       - github.com/percona/go-mysql/log/slow
       # use "gopkg.in/yaml.v3" instead
@@ -21,10 +22,12 @@ linters-settings:
 linters:
   disable-all: true
   enable:
+    # keep sorted
     - depguard
     - goimports
-    - ineffassign
     - govet
+    - ineffassign
+    - nolintlint
     - staticcheck
 
 run:
