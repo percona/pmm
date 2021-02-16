@@ -529,7 +529,7 @@ func (x *AddLocationResponse) GetLocationId() string {
 	return ""
 }
 
-type DeleteLocationRequest struct {
+type RemoveLocationRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -540,8 +540,8 @@ type DeleteLocationRequest struct {
 	Force bool `protobuf:"varint,2,opt,name=force,proto3" json:"force,omitempty"`
 }
 
-func (x *DeleteLocationRequest) Reset() {
-	*x = DeleteLocationRequest{}
+func (x *RemoveLocationRequest) Reset() {
+	*x = RemoveLocationRequest{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_managementpb_backup_locations_proto_msgTypes[8]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -549,13 +549,13 @@ func (x *DeleteLocationRequest) Reset() {
 	}
 }
 
-func (x *DeleteLocationRequest) String() string {
+func (x *RemoveLocationRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*DeleteLocationRequest) ProtoMessage() {}
+func (*RemoveLocationRequest) ProtoMessage() {}
 
-func (x *DeleteLocationRequest) ProtoReflect() protoreflect.Message {
+func (x *RemoveLocationRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_managementpb_backup_locations_proto_msgTypes[8]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -567,33 +567,33 @@ func (x *DeleteLocationRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use DeleteLocationRequest.ProtoReflect.Descriptor instead.
-func (*DeleteLocationRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use RemoveLocationRequest.ProtoReflect.Descriptor instead.
+func (*RemoveLocationRequest) Descriptor() ([]byte, []int) {
 	return file_managementpb_backup_locations_proto_rawDescGZIP(), []int{8}
 }
 
-func (x *DeleteLocationRequest) GetLocationId() string {
+func (x *RemoveLocationRequest) GetLocationId() string {
 	if x != nil {
 		return x.LocationId
 	}
 	return ""
 }
 
-func (x *DeleteLocationRequest) GetForce() bool {
+func (x *RemoveLocationRequest) GetForce() bool {
 	if x != nil {
 		return x.Force
 	}
 	return false
 }
 
-type DeleteLocationResponse struct {
+type RemoveLocationResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 }
 
-func (x *DeleteLocationResponse) Reset() {
-	*x = DeleteLocationResponse{}
+func (x *RemoveLocationResponse) Reset() {
+	*x = RemoveLocationResponse{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_managementpb_backup_locations_proto_msgTypes[9]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -601,13 +601,13 @@ func (x *DeleteLocationResponse) Reset() {
 	}
 }
 
-func (x *DeleteLocationResponse) String() string {
+func (x *RemoveLocationResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*DeleteLocationResponse) ProtoMessage() {}
+func (*RemoveLocationResponse) ProtoMessage() {}
 
-func (x *DeleteLocationResponse) ProtoReflect() protoreflect.Message {
+func (x *RemoveLocationResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_managementpb_backup_locations_proto_msgTypes[9]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -619,8 +619,8 @@ func (x *DeleteLocationResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use DeleteLocationResponse.ProtoReflect.Descriptor instead.
-func (*DeleteLocationResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use RemoveLocationResponse.ProtoReflect.Descriptor instead.
+func (*RemoveLocationResponse) Descriptor() ([]byte, []int) {
 	return file_managementpb_backup_locations_proto_rawDescGZIP(), []int{9}
 }
 
@@ -703,12 +703,12 @@ var file_managementpb_backup_locations_proto_rawDesc = []byte{
 	0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x1f, 0x0a, 0x0b, 0x6c,
 	0x6f, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09,
 	0x52, 0x0a, 0x6c, 0x6f, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x49, 0x64, 0x22, 0x4e, 0x0a, 0x15,
-	0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x4c, 0x6f, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65,
+	0x52, 0x65, 0x6d, 0x6f, 0x76, 0x65, 0x4c, 0x6f, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65,
 	0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x1f, 0x0a, 0x0b, 0x6c, 0x6f, 0x63, 0x61, 0x74, 0x69, 0x6f,
 	0x6e, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0a, 0x6c, 0x6f, 0x63, 0x61,
 	0x74, 0x69, 0x6f, 0x6e, 0x49, 0x64, 0x12, 0x14, 0x0a, 0x05, 0x66, 0x6f, 0x72, 0x63, 0x65, 0x18,
 	0x02, 0x20, 0x01, 0x28, 0x08, 0x52, 0x05, 0x66, 0x6f, 0x72, 0x63, 0x65, 0x22, 0x18, 0x0a, 0x16,
-	0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x4c, 0x6f, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65,
+	0x52, 0x65, 0x6d, 0x6f, 0x76, 0x65, 0x4c, 0x6f, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65,
 	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x32, 0xb9, 0x03, 0x0a, 0x09, 0x4c, 0x6f, 0x63, 0x61, 0x74,
 	0x69, 0x6f, 0x6e, 0x73, 0x12, 0x8d, 0x01, 0x0a, 0x0d, 0x4c, 0x69, 0x73, 0x74, 0x4c, 0x6f, 0x63,
 	0x61, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x12, 0x24, 0x2e, 0x62, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x2e,
@@ -728,11 +728,11 @@ var file_managementpb_backup_locations_proto_rawDesc = []byte{
 	0xd3, 0xe4, 0x93, 0x02, 0x28, 0x22, 0x23, 0x2f, 0x76, 0x31, 0x2f, 0x6d, 0x61, 0x6e, 0x61, 0x67,
 	0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2f, 0x62, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x2f, 0x4c, 0x6f, 0x63,
 	0x61, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x2f, 0x41, 0x64, 0x64, 0x3a, 0x01, 0x2a, 0x12, 0x92, 0x01,
-	0x0a, 0x0e, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x4c, 0x6f, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e,
+	0x0a, 0x0e, 0x52, 0x65, 0x6d, 0x6f, 0x76, 0x65, 0x4c, 0x6f, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e,
 	0x12, 0x25, 0x2e, 0x62, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
-	0x31, 0x2e, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x4c, 0x6f, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e,
+	0x31, 0x2e, 0x52, 0x65, 0x6d, 0x6f, 0x76, 0x65, 0x4c, 0x6f, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e,
 	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x26, 0x2e, 0x62, 0x61, 0x63, 0x6b, 0x75, 0x70,
-	0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x4c,
+	0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x52, 0x65, 0x6d, 0x6f, 0x76, 0x65, 0x4c,
 	0x6f, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22,
 	0x31, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x2b, 0x22, 0x26, 0x2f, 0x76, 0x31, 0x2f, 0x6d, 0x61, 0x6e,
 	0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2f, 0x62, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x2f, 0x4c,
@@ -765,8 +765,8 @@ var file_managementpb_backup_locations_proto_goTypes = []interface{}{
 	(*ListLocationsResponse)(nil),   // 5: backup.v1beta1.ListLocationsResponse
 	(*AddLocationRequest)(nil),      // 6: backup.v1beta1.AddLocationRequest
 	(*AddLocationResponse)(nil),     // 7: backup.v1beta1.AddLocationResponse
-	(*DeleteLocationRequest)(nil),   // 8: backup.v1beta1.DeleteLocationRequest
-	(*DeleteLocationResponse)(nil),  // 9: backup.v1beta1.DeleteLocationResponse
+	(*RemoveLocationRequest)(nil),   // 8: backup.v1beta1.RemoveLocationRequest
+	(*RemoveLocationResponse)(nil),  // 9: backup.v1beta1.RemoveLocationResponse
 }
 var file_managementpb_backup_locations_proto_depIdxs = []int32{
 	1,  // 0: backup.v1beta1.Location.pmm_client_config:type_name -> backup.v1beta1.PMMClientLocationConfig
@@ -778,10 +778,10 @@ var file_managementpb_backup_locations_proto_depIdxs = []int32{
 	2,  // 6: backup.v1beta1.AddLocationRequest.s3_config:type_name -> backup.v1beta1.S3LocationConfig
 	4,  // 7: backup.v1beta1.Locations.ListLocations:input_type -> backup.v1beta1.ListLocationsRequest
 	6,  // 8: backup.v1beta1.Locations.AddLocation:input_type -> backup.v1beta1.AddLocationRequest
-	8,  // 9: backup.v1beta1.Locations.DeleteLocation:input_type -> backup.v1beta1.DeleteLocationRequest
+	8,  // 9: backup.v1beta1.Locations.RemoveLocation:input_type -> backup.v1beta1.RemoveLocationRequest
 	5,  // 10: backup.v1beta1.Locations.ListLocations:output_type -> backup.v1beta1.ListLocationsResponse
 	7,  // 11: backup.v1beta1.Locations.AddLocation:output_type -> backup.v1beta1.AddLocationResponse
-	9,  // 12: backup.v1beta1.Locations.DeleteLocation:output_type -> backup.v1beta1.DeleteLocationResponse
+	9,  // 12: backup.v1beta1.Locations.RemoveLocation:output_type -> backup.v1beta1.RemoveLocationResponse
 	10, // [10:13] is the sub-list for method output_type
 	7,  // [7:10] is the sub-list for method input_type
 	7,  // [7:7] is the sub-list for extension type_name
@@ -892,7 +892,7 @@ func file_managementpb_backup_locations_proto_init() {
 			}
 		}
 		file_managementpb_backup_locations_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*DeleteLocationRequest); i {
+			switch v := v.(*RemoveLocationRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -904,7 +904,7 @@ func file_managementpb_backup_locations_proto_init() {
 			}
 		}
 		file_managementpb_backup_locations_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*DeleteLocationResponse); i {
+			switch v := v.(*RemoveLocationResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -957,8 +957,8 @@ type LocationsClient interface {
 	ListLocations(ctx context.Context, in *ListLocationsRequest, opts ...grpc.CallOption) (*ListLocationsResponse, error)
 	// AddLocation adds backup location.
 	AddLocation(ctx context.Context, in *AddLocationRequest, opts ...grpc.CallOption) (*AddLocationResponse, error)
-	// DeleteLocation deletes existing backup location.
-	DeleteLocation(ctx context.Context, in *DeleteLocationRequest, opts ...grpc.CallOption) (*DeleteLocationResponse, error)
+	// RemoveLocation deletes existing backup location.
+	RemoveLocation(ctx context.Context, in *RemoveLocationRequest, opts ...grpc.CallOption) (*RemoveLocationResponse, error)
 }
 
 type locationsClient struct {
@@ -987,9 +987,9 @@ func (c *locationsClient) AddLocation(ctx context.Context, in *AddLocationReques
 	return out, nil
 }
 
-func (c *locationsClient) DeleteLocation(ctx context.Context, in *DeleteLocationRequest, opts ...grpc.CallOption) (*DeleteLocationResponse, error) {
-	out := new(DeleteLocationResponse)
-	err := c.cc.Invoke(ctx, "/backup.v1beta1.Locations/DeleteLocation", in, out, opts...)
+func (c *locationsClient) RemoveLocation(ctx context.Context, in *RemoveLocationRequest, opts ...grpc.CallOption) (*RemoveLocationResponse, error) {
+	out := new(RemoveLocationResponse)
+	err := c.cc.Invoke(ctx, "/backup.v1beta1.Locations/RemoveLocation", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1002,8 +1002,8 @@ type LocationsServer interface {
 	ListLocations(context.Context, *ListLocationsRequest) (*ListLocationsResponse, error)
 	// AddLocation adds backup location.
 	AddLocation(context.Context, *AddLocationRequest) (*AddLocationResponse, error)
-	// DeleteLocation deletes existing backup location.
-	DeleteLocation(context.Context, *DeleteLocationRequest) (*DeleteLocationResponse, error)
+	// RemoveLocation deletes existing backup location.
+	RemoveLocation(context.Context, *RemoveLocationRequest) (*RemoveLocationResponse, error)
 }
 
 // UnimplementedLocationsServer can be embedded to have forward compatible implementations.
@@ -1016,8 +1016,8 @@ func (*UnimplementedLocationsServer) ListLocations(context.Context, *ListLocatio
 func (*UnimplementedLocationsServer) AddLocation(context.Context, *AddLocationRequest) (*AddLocationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddLocation not implemented")
 }
-func (*UnimplementedLocationsServer) DeleteLocation(context.Context, *DeleteLocationRequest) (*DeleteLocationResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteLocation not implemented")
+func (*UnimplementedLocationsServer) RemoveLocation(context.Context, *RemoveLocationRequest) (*RemoveLocationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveLocation not implemented")
 }
 
 func RegisterLocationsServer(s *grpc.Server, srv LocationsServer) {
@@ -1060,20 +1060,20 @@ func _Locations_AddLocation_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Locations_DeleteLocation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteLocationRequest)
+func _Locations_RemoveLocation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveLocationRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(LocationsServer).DeleteLocation(ctx, in)
+		return srv.(LocationsServer).RemoveLocation(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/backup.v1beta1.Locations/DeleteLocation",
+		FullMethod: "/backup.v1beta1.Locations/RemoveLocation",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(LocationsServer).DeleteLocation(ctx, req.(*DeleteLocationRequest))
+		return srv.(LocationsServer).RemoveLocation(ctx, req.(*RemoveLocationRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1091,8 +1091,8 @@ var _Locations_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Locations_AddLocation_Handler,
 		},
 		{
-			MethodName: "DeleteLocation",
-			Handler:    _Locations_DeleteLocation_Handler,
+			MethodName: "RemoveLocation",
+			Handler:    _Locations_RemoveLocation_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

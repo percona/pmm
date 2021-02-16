@@ -145,8 +145,8 @@
         "tags": [
           "Locations"
         ],
-        "summary": "DeleteLocation deletes existing backup location.",
-        "operationId": "DeleteLocation",
+        "summary": "RemoveLocation deletes existing backup location.",
+        "operationId": "RemoveLocation",
         "parameters": [
           {
             "name": "body",
