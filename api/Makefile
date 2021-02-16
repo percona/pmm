@@ -62,8 +62,7 @@ gen: clean            ## Generate files.
 		managementpb/dbaas/json/dbaas.json \
 		managementpb/ia/json/ia.json \
 		managementpb/backup/json/backup.json \
-		qanpb/json/qanpb.json \
-		managementpb/json/managementpb.json
+		qanpb/json/qanpb.json
 	swagger validate swagger/swagger-dev.json
 
 	swagger-order --output=swagger/swagger-dev.json swagger/swagger-dev.json
