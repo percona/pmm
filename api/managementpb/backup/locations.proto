@@ -86,6 +86,15 @@ message AddLocationResponse {
   string location_id = 1;
 }
 
+message DeleteLocationRequest {
+  // Machine-readable ID.
+  string location_id = 1;
+  // Force mode
+  bool force = 2;
+}
+
+message DeleteLocationResponse {}
+
 // Locations service provides access to Backup Locations.
 service Locations {
   // ListLocations returns a list of all backup locations.
@@ -99,6 +108,13 @@ service Locations {
   rpc AddLocation(AddLocationRequest) returns (AddLocationResponse) {
     option (google.api.http) = {
       post: "/v1/management/backup/Locations/Add"
+      body: "*"
+    };
+  }
+  // DeleteLocation deletes existing backup location.
+  rpc DeleteLocation(DeleteLocationRequest) returns (DeleteLocationResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/backup/Locations/Delete"
       body: "*"
     };
   }

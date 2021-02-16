@@ -27,6 +27,8 @@ type Client struct {
 type ClientService interface {
 	AddLocation(params *AddLocationParams) (*AddLocationOK, error)
 
+	DeleteLocation(params *DeleteLocationParams) (*DeleteLocationOK, error)
+
 	ListLocations(params *ListLocationsParams) (*ListLocationsOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
@@ -62,6 +64,39 @@ func (a *Client) AddLocation(params *AddLocationParams) (*AddLocationOK, error) 
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*AddLocationDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  DeleteLocation deletes location deletes existing backup location
+*/
+func (a *Client) DeleteLocation(params *DeleteLocationParams) (*DeleteLocationOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewDeleteLocationParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "DeleteLocation",
+		Method:             "POST",
+		PathPattern:        "/v1/management/backup/Locations/Delete",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &DeleteLocationReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*DeleteLocationOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*DeleteLocationDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
