@@ -305,6 +305,22 @@ message StartPTPgSummaryActionResponse {
   string pmm_agent_id = 2;
 }
 
+// Message to prepare pt-mongodb-summary data
+message StartPTMongoDBSummaryActionRequest {
+  // pmm-agent ID where to run this Action.
+  string pmm_agent_id = 1;
+  // Service ID for this Action.
+  string service_id = 2;
+}
+
+// Message to retrieve the prepared pt-mongodb-summary data
+message StartPTMongoDBSummaryActionResponse {
+  // Unique Action ID.
+  string action_id = 1;
+  // pmm-agent ID where to this Action was started.
+  string pmm_agent_id = 2;
+}
+
 message CancelActionRequest {
   // Unique Action ID. Required.
   string action_id = 1 [
@@ -399,6 +415,13 @@ service Actions {
   rpc StartPTPgSummaryAction(StartPTPgSummaryActionRequest) returns (StartPTPgSummaryActionResponse) {
     option (google.api.http) = {
       post: "/v1/management/Actions/StartPTPgSummary"
+      body: "*"
+    };
+  }
+  // StartPTMongoDBSummaryAction starts pt-mongodb-summary Action.
+  rpc StartPTMongoDBSummaryAction(StartPTMongoDBSummaryActionRequest) returns (StartPTMongoDBSummaryActionResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/Actions/StartPTMongoDBSummary"
       body: "*"
     };
   }
