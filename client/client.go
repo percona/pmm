@@ -582,8 +582,11 @@ func argListFromPgParams(pParams *agentpb.StartActionRequest_PTPgSummaryParams) 
 		args = append(args, "--username", pParams.Username)
 	}
 
-	if pParams.Password != "" {
-		args = append(args, "--password", pParams.Password)
+	// Spaces at the beginning and end are not desirable
+	pswd := strings.TrimSpace(pParams.Password)
+
+	if pswd != "" {
+		args = append(args, "--password", pswd)
 	}
 
 	return args
@@ -593,15 +596,18 @@ func argListFromPgParams(pParams *agentpb.StartActionRequest_PTPgSummaryParams) 
 func argListFromMongoDBParams(pParams *agentpb.StartActionRequest_PTMongoDBSummaryParams) []string {
 	var args []string
 
-	// Only adds the arguments are valid
+	// Only adds the arguments that are valid
 
 	if pParams.Username != "" {
 		args = append(args, "--username", pParams.Username)
 	}
 
-	if pParams.Password != "" {
+	// Spaces at the beginning and end are not desirable
+	pswd := strings.Trim(pParams.Password, " ")
+
+	if pswd != "" {
 		// TODO change this line when pt-mongodb-summary is updated
-		args = append(args, fmt.Sprintf("--password=%s", pParams.Password))
+		args = append(args, fmt.Sprintf("--password=%s", pswd))
 	}
 
 	if pParams.Host != "" {
