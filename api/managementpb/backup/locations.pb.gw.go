@@ -319,7 +319,7 @@ var (
 
 	pattern_Locations_AddLocation_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "Locations", "Add"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Locations_RemoveLocation_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "Locations", "Delete"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Locations_RemoveLocation_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "Locations", "Remove"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (

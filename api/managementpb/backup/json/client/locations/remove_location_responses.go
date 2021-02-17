@@ -56,7 +56,7 @@ type RemoveLocationOK struct {
 }
 
 func (o *RemoveLocationOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/backup/Locations/Delete][%d] removeLocationOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/backup/Locations/Remove][%d] removeLocationOk  %+v", 200, o.Payload)
 }
 
 func (o *RemoveLocationOK) GetPayload() interface{} {
@@ -96,7 +96,7 @@ func (o *RemoveLocationDefault) Code() int {
 }
 
 func (o *RemoveLocationDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/backup/Locations/Delete][%d] RemoveLocation default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/backup/Locations/Remove][%d] RemoveLocation default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *RemoveLocationDefault) GetPayload() *RemoveLocationDefaultBody {

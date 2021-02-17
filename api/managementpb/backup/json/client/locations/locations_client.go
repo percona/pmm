@@ -101,7 +101,7 @@ func (a *Client) ListLocations(params *ListLocationsParams) (*ListLocationsOK, e
 }
 
 /*
-  RemoveLocation removes location deletes existing backup location
+  RemoveLocation removes location removes existing backup location
 */
 func (a *Client) RemoveLocation(params *RemoveLocationParams) (*RemoveLocationOK, error) {
 	// TODO: Validate the params before sending
@@ -112,7 +112,7 @@ func (a *Client) RemoveLocation(params *RemoveLocationParams) (*RemoveLocationOK
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "RemoveLocation",
 		Method:             "POST",
-		PathPattern:        "/v1/management/backup/Locations/Delete",
+		PathPattern:        "/v1/management/backup/Locations/Remove",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

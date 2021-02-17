@@ -111,10 +111,10 @@ service Locations {
       body: "*"
     };
   }
-  // RemoveLocation deletes existing backup location.
+  // RemoveLocation removes existing backup location.
   rpc RemoveLocation(RemoveLocationRequest) returns (RemoveLocationResponse) {
     option (google.api.http) = {
-      post: "/v1/management/backup/Locations/Delete"
+      post: "/v1/management/backup/Locations/Remove"
       body: "*"
     };
   }
