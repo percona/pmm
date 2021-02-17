@@ -2211,6 +2211,28 @@
                 "remove_pmm_public_address": {
                   "type": "boolean",
                   "x-order": 19
+                },
+                "stt_check_intervals": {
+                  "description": "STTCheckIntervals represents intervals between STT checks.",
+                  "type": "object",
+                  "properties": {
+                    "default_interval": {
+                      "type": "string",
+                      "title": "Default check interval",
+                      "x-order": 0
+                    },
+                    "rare_interval": {
+                      "type": "string",
+                      "title": "Interval for rare checks",
+                      "x-order": 1
+                    },
+                    "frequent_interval": {
+                      "type": "string",
+                      "title": "Interval for frequent checks",
+                      "x-order": 2
+                    }
+                  },
+                  "x-order": 20
                 }
               }
             }
@@ -2361,6 +2383,28 @@
                       "description": "PMM Server public address.",
                       "type": "string",
                       "x-order": 14
+                    },
+                    "stt_check_intervals": {
+                      "description": "STTCheckIntervals represents intervals between STT checks.",
+                      "type": "object",
+                      "properties": {
+                        "default_interval": {
+                          "type": "string",
+                          "title": "Default check interval",
+                          "x-order": 0
+                        },
+                        "rare_interval": {
+                          "type": "string",
+                          "title": "Interval for rare checks",
+                          "x-order": 1
+                        },
+                        "frequent_interval": {
+                          "type": "string",
+                          "title": "Interval for frequent checks",
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 15
                     }
                   },
                   "x-order": 0
@@ -2572,6 +2616,28 @@
                       "description": "PMM Server public address.",
                       "type": "string",
                       "x-order": 14
+                    },
+                    "stt_check_intervals": {
+                      "description": "STTCheckIntervals represents intervals between STT checks.",
+                      "type": "object",
+                      "properties": {
+                        "default_interval": {
+                          "type": "string",
+                          "title": "Default check interval",
+                          "x-order": 0
+                        },
+                        "rare_interval": {
+                          "type": "string",
+                          "title": "Interval for rare checks",
+                          "x-order": 1
+                        },
+                        "frequent_interval": {
+                          "type": "string",
+                          "title": "Interval for frequent checks",
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 15
                     }
                   },
                   "x-order": 0
