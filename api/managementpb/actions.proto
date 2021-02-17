@@ -19,6 +19,7 @@ enum ActionType {
   MONGODB_EXPLAIN = 7;
   PT_SUMMARY = 8;
   PT_PG_SUMMARY = 10;
+  PT_MONGODB_SUMMARY = 11;
 }
 
 message GetActionRequest {
