@@ -96,11 +96,11 @@ func TestClient(t *testing.T) {
 		for _, role := range []role{viewer, editor, admin} {
 			role := role
 
-			t.Run(role.String(), func(t *testing.T) {
+			t.Run(fmt.Sprintf("Basic auth %s", role.String()), func(t *testing.T) {
 				// do not run this test in parallel - they lock Grafana's sqlite3 database
 				// t.Parallel()
 
-				login := fmt.Sprintf("%s-%d", role, time.Now().Nanosecond())
+				login := fmt.Sprintf("basic-%s-%d", role, time.Now().Nanosecond())
 				userID, err := c.testCreateUser(ctx, login, role, authHeaders)
 				require.NoError(t, err)
 				require.NotZero(t, userID)
@@ -117,6 +117,31 @@ func TestClient(t *testing.T) {
 				userAuthHeaders := req.Header
 
 				actualRole, err := c.getRole(ctx, userAuthHeaders)
+				assert.NoError(t, err)
+				assert.Equal(t, role, actualRole)
+				assert.Equal(t, role.String(), actualRole.String())
+			})
+
+			t.Run(fmt.Sprintf("API Key auth %s", role.String()), func(t *testing.T) {
+				// do not run this test in parallel - they lock Grafana's sqlite3 database
+				// t.Parallel()
+
+				login := fmt.Sprintf("api-%s-%d", role, time.Now().Nanosecond())
+				apiKeyID, apiKey, err := c.testCreateAPIKey(ctx, login, role, authHeaders)
+				require.NoError(t, err)
+				require.NotZero(t, apiKeyID)
+				require.NotEmpty(t, apiKey)
+				if err != nil {
+					defer func() {
+						err = c.testDeleteAPIKey(ctx, apiKeyID, authHeaders)
+						require.NoError(t, err)
+					}()
+				}
+
+				apiKeyAuthHeaders := http.Header{}
+				apiKeyAuthHeaders.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
+
+				actualRole, err := c.getRole(ctx, apiKeyAuthHeaders)
 				assert.NoError(t, err)
 				assert.Equal(t, role, actualRole)
 				assert.Equal(t, role.String(), actualRole.String())

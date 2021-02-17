@@ -20,6 +20,7 @@ package grafana
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -179,15 +180,23 @@ func (r role) String() string {
 // Otherwise, it returns a role in the default organization (with ID 1).
 // ctx is used only for cancelation.
 func (c *Client) getRole(ctx context.Context, authHeaders http.Header) (role, error) {
-	// https://grafana.com/docs/http_api/user/#actual-user - works with any authentication
-	var m map[string]interface{}
-	if err := c.do(ctx, "GET", "/api/user", "", authHeaders, nil, &m); err == nil {
-		if a, _ := m["isGrafanaAdmin"].(bool); a {
-			return grafanaAdmin, nil
-		}
+	// Check if it's API Key
+	if c.isAPIKeyAuth(authHeaders.Get("Authorization")) {
+		return c.getRoleForAPIKey(ctx, authHeaders)
 	}
 
-	// https://grafana.com/docs/http_api/user/#organizations-of-the-actual-user - works with any authentication
+	// https://grafana.com/docs/http_api/user/#actual-user - works only with Basic Auth
+	var m map[string]interface{}
+	err := c.do(ctx, "GET", "/api/user", "", authHeaders, nil, &m)
+	if err != nil {
+		return none, err
+	}
+
+	if a, _ := m["isGrafanaAdmin"].(bool); a {
+		return grafanaAdmin, nil
+	}
+
+	// works only with Basic auth
 	var s []interface{}
 	if err := c.do(ctx, "GET", "/api/user/orgs", "", authHeaders, nil, &s); err != nil {
 		return none, err
@@ -202,20 +211,53 @@ func (c *Client) getRole(ctx context.Context, authHeaders http.Header) (role, er
 		// check only default organization (with ID 1)
 		if id, _ := m["orgId"].(float64); id == 1 {
 			role, _ := m["role"].(string)
-			switch role {
-			case "Viewer":
-				return viewer, nil
-			case "Editor":
-				return editor, nil
-			case "Admin":
-				return admin, nil
-			default:
-				return none, nil
-			}
+			return c.convertRole(role), nil
 		}
 	}
 
 	return none, nil
+}
+
+func (c *Client) isAPIKeyAuth(authHeader string) bool {
+	switch {
+	case strings.HasPrefix(authHeader, "Bearer"):
+		return true
+	case strings.HasPrefix(authHeader, "Basic"):
+		h := strings.TrimPrefix(authHeader, "Basic")
+		d, err := base64.StdEncoding.DecodeString(strings.TrimSpace(h))
+		if err != nil {
+			return false
+		}
+		return strings.HasPrefix(string(d), "api_key:")
+	}
+	return false
+}
+
+func (c *Client) convertRole(role string) role {
+	switch role {
+	case "Viewer":
+		return viewer
+	case "Editor":
+		return editor
+	case "Admin":
+		return admin
+	default:
+		return none
+	}
+}
+
+func (c *Client) getRoleForAPIKey(ctx context.Context, authHeaders http.Header) (role, error) {
+	var k map[string]interface{}
+	if err := c.do(ctx, "GET", "/api/auth/key", "", authHeaders, nil, &k); err != nil {
+		return none, err
+	}
+
+	if id, _ := k["orgId"].(float64); id != 1 {
+		return none, nil
+	}
+
+	role, _ := k["role"].(string)
+	return c.convertRole(role), nil
 }
 
 func (c *Client) testCreateUser(ctx context.Context, login string, role role, authHeaders http.Header) (int, error) {
@@ -256,6 +298,38 @@ func (c *Client) testCreateUser(ctx context.Context, login string, role role, au
 func (c *Client) testDeleteUser(ctx context.Context, userID int, authHeaders http.Header) error {
 	// https://grafana.com/docs/http_api/admin/#delete-global-user
 	return c.do(ctx, "DELETE", "/api/admin/users/"+strconv.Itoa(userID), "", authHeaders, nil, nil)
+}
+
+func (c *Client) testCreateAPIKey(ctx context.Context, name string, role role, authHeaders http.Header) (int, string, error) {
+	// https://grafana.com/docs/grafana/latest/http_api/auth/#create-api-key
+	b, err := json.Marshal(map[string]string{
+		"name": name,
+		"role": role.String(),
+	})
+	if err != nil {
+		return 0, "", errors.WithStack(err)
+	}
+	var m map[string]interface{}
+	if err = c.do(ctx, "POST", "/api/auth/keys", "", authHeaders, b, &m); err != nil {
+		return 0, "", err
+	}
+	apiKey := m["key"].(string)
+
+	apiAuthHeaders := http.Header{}
+	apiAuthHeaders.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
+
+	var k map[string]interface{}
+	if err := c.do(ctx, "GET", "/api/auth/key", "", apiAuthHeaders, nil, &k); err != nil {
+		return 0, "", err
+	}
+	apiKeyID := int(k["id"].(float64))
+
+	return apiKeyID, apiKey, nil
+}
+
+func (c *Client) testDeleteAPIKey(ctx context.Context, apiKeyID int, authHeaders http.Header) error {
+	// https://grafana.com/docs/grafana/latest/http_api/auth/#delete-api-key
+	return c.do(ctx, "DELETE", "/api/auth/keys/"+strconv.Itoa(apiKeyID), "", authHeaders, nil, nil)
 }
 
 // Annotation contains grafana annotation response.
