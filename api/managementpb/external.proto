@@ -68,8 +68,8 @@ message AddExternalRequest {
   // Node with registered pmm_agent_id must present at pmm-server
   // in case of push metrics_mode.
   MetricsMode metrics_mode = 17;
-  // Skip connection checks.
-  bool skip_connection_checks = 21;
+  // Skip connection check.
+  bool skip_connection_check = 21;
 }
 
 message AddExternalResponse {

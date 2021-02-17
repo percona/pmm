@@ -1528,8 +1528,8 @@
                   "type": "string",
                   "x-order": 4
                 },
-                "skip_connection_checks": {
-                  "description": "Skip connection checks.",
+                "skip_connection_check": {
+                  "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 17
                 },

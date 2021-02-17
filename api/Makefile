@@ -59,6 +59,7 @@ gen: clean            ## Generate files.
 		swagger/header-dev.json \
 		serverpb/json/serverpb.json \
 		inventorypb/json/inventorypb.json \
+		managementpb/json/managementpb.json \
 		managementpb/dbaas/json/dbaas.json \
 		managementpb/ia/json/ia.json \
 		managementpb/backup/json/backup.json \
