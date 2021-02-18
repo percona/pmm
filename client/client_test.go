@@ -272,7 +272,7 @@ func TestArgListFromMongoDBParams(t *testing.T) {
 		{&agentpb.StartActionRequest_PTMongoDBSummaryParams{Host: "", Port: 0, Username: "王华", Password: `"`},
 			[]string{"--username", "王华", `--password="`}},
 		{&agentpb.StartActionRequest_PTMongoDBSummaryParams{Host: "10.20.30.40", Port: 555, Username: "person",
-			Password: "   "}, []string{"--username", "person", "10.20.30.40:555"}},
+			Password: "   "}, []string{"--username", "person", "--password=   ", "10.20.30.40:555"}},
 	}
 
 	for _, tc := range testCases {
