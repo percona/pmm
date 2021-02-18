@@ -67,7 +67,7 @@ func (cmd *addAgentExternalExporterCommand) Run() (commands.Result, error) {
 		return nil, err
 	}
 
-	if !strings.HasPrefix(cmd.MetricsPath, "/") {
+	if cmd.MetricsPath != "" && !strings.HasPrefix(cmd.MetricsPath, "/") {
 		cmd.MetricsPath = fmt.Sprintf("/%s", cmd.MetricsPath)
 	}
 

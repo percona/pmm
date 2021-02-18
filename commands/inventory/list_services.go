@@ -41,6 +41,7 @@ var acceptableServiceTypes = map[string][]string{
 	types.ServiceTypeMongoDBService:    {types.ServiceTypeName(types.ServiceTypeMongoDBService)},
 	types.ServiceTypePostgreSQLService: {types.ServiceTypeName(types.ServiceTypePostgreSQLService)},
 	types.ServiceTypeProxySQLService:   {types.ServiceTypeName(types.ServiceTypeProxySQLService)},
+	types.ServiceTypeHAProxyService:    {types.ServiceTypeName(types.ServiceTypeHAProxyService)},
 	types.ServiceTypeExternalService:   {types.ServiceTypeName(types.ServiceTypeExternalService)},
 }
 
@@ -132,6 +133,13 @@ func (cmd *listServicesCommand) Run() (commands.Result, error) {
 			ServiceID:   s.ServiceID,
 			ServiceName: s.ServiceName,
 			AddressPort: getAddressPort(s.Socket, s.Address, s.Port),
+		})
+	}
+	for _, s := range result.Payload.Haproxy {
+		servicesList = append(servicesList, listResultService{
+			ServiceType: types.ServiceTypeHAProxyService,
+			ServiceID:   s.ServiceID,
+			ServiceName: s.ServiceName,
 		})
 	}
 	for _, s := range result.Payload.External {

@@ -80,6 +80,7 @@ func main() {
 		management.AddMongoDBC.FullCommand():            management.AddMongoDB,
 		management.AddPostgreSQLC.FullCommand():         management.AddPostgreSQL,
 		management.AddProxySQLC.FullCommand():           management.AddProxySQL,
+		management.AddHAProxyC.FullCommand():            management.AddHAProxy,
 		management.AddExternalC.FullCommand():           management.AddExternal,
 		management.AddExternalServerlessC.FullCommand(): management.AddExternalServerless,
 
@@ -100,6 +101,7 @@ func main() {
 		inventory.AddServiceMongoDBC.FullCommand():    inventory.AddServiceMongoDB,
 		inventory.AddServicePostgreSQLC.FullCommand(): inventory.AddServicePostgreSQL,
 		inventory.AddServiceProxySQLC.FullCommand():   inventory.AddServiceProxySQL,
+		inventory.AddHAProxyServiceC.FullCommand():    inventory.AddHAProxyService,
 		inventory.AddExternalServiceC.FullCommand():   inventory.AddExternalService,
 
 		inventory.RemoveServiceC.FullCommand(): inventory.RemoveService,

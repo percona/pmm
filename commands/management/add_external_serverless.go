@@ -89,7 +89,7 @@ func (cmd *addExternalServerlessCommand) Run() (commands.Result, error) {
 		serviceName = fmt.Sprintf("%s-external", address)
 	}
 
-	if !strings.HasPrefix(cmd.MetricsPath, "/") {
+	if cmd.MetricsPath != "" && !strings.HasPrefix(cmd.MetricsPath, "/") {
 		cmd.MetricsPath = fmt.Sprintf("/%s", cmd.MetricsPath)
 	}
 

@@ -33,10 +33,11 @@ var (
 		"mongodb":    service.RemoveServiceBodyServiceTypeMONGODBSERVICE,
 		"postgresql": service.RemoveServiceBodyServiceTypePOSTGRESQLSERVICE,
 		"proxysql":   service.RemoveServiceBodyServiceTypePROXYSQLSERVICE,
+		"haproxy":    service.RemoveServiceBodyServiceTypeHAPROXYSERVICE,
 		"external":   service.RemoveServiceBodyServiceTypeEXTERNALSERVICE,
 	}
 
-	allServiceTypesKeys = []string{"mysql", "mongodb", "postgresql", "proxysql", "external"}
+	allServiceTypesKeys = []string{"mysql", "mongodb", "postgresql", "proxysql", "haproxy", "external"}
 
 	metricsModes = []string{"auto", "push", "pull"}
 )

@@ -93,7 +93,7 @@ func (cmd *addExternalCommand) Run() (commands.Result, error) {
 		cmd.ServiceName = fmt.Sprintf("%s-%s", strings.TrimSuffix(cmd.ServiceName, defaultServiceNameSuffix), cmd.Group)
 	}
 
-	if !strings.HasPrefix(cmd.MetricsPath, "/") {
+	if cmd.MetricsPath != "" && !strings.HasPrefix(cmd.MetricsPath, "/") {
 		cmd.MetricsPath = fmt.Sprintf("/%s", cmd.MetricsPath)
 	}
 
