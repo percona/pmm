@@ -21,6 +21,7 @@ import (
 	"database/sql"
 	"fmt"
 	"math"
+	"net/http"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -74,6 +75,8 @@ func (cc *ConnectionChecker) Check(msg *agentpb.CheckConnectionRequest, id uint3
 		return cc.checkPostgreSQLConnection(ctx, msg.Dsn)
 	case inventorypb.ServiceType_PROXYSQL_SERVICE:
 		return cc.checkProxySQLConnection(ctx, msg.Dsn)
+	case inventorypb.ServiceType_EXTERNAL_SERVICE:
+		return cc.checkExternalConnection(ctx, msg.Dsn)
 	default:
 		panic(fmt.Sprintf("unhandled service type: %v", msg.Type))
 	}
@@ -202,6 +205,26 @@ func (cc *ConnectionChecker) checkProxySQLConnection(ctx context.Context, dsn st
 
 	if err = cc.sqlPing(ctx, db); err != nil {
 		res.Error = err.Error()
+	}
+
+	return &res
+}
+
+func (cc *ConnectionChecker) checkExternalConnection(ctx context.Context, uri string) *agentpb.CheckConnectionResponse {
+	var res agentpb.CheckConnectionResponse
+
+	req, _ := http.NewRequestWithContext(ctx, "GET", uri, nil)
+	client := &http.Client{}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		res.Error = err.Error()
+		return &res
+	}
+
+	if resp.StatusCode != 200 {
+		res.Error = fmt.Sprintf("Unexpected HTTP status code: %d. Expected: 200", resp.StatusCode)
+		return &res
 	}
 
 	return &res
