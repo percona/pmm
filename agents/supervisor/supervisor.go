@@ -26,7 +26,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/proto" //nolint:staticcheck
 	"github.com/percona/pmm/api/agentlocalpb"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
@@ -51,8 +51,8 @@ type Supervisor struct {
 	paths         *config.Paths
 	serverCfg     *config.Server
 	portsRegistry *portsRegistry
-	changes       chan agentpb.StateChangedRequest
-	qanRequests   chan agentpb.QANCollectRequest
+	changes       chan *agentpb.StateChangedRequest
+	qanRequests   chan *agentpb.QANCollectRequest
 	l             *logrus.Entry
 
 	rw             sync.RWMutex
@@ -89,8 +89,8 @@ func NewSupervisor(ctx context.Context, paths *config.Paths, ports *config.Ports
 		paths:         paths,
 		serverCfg:     server,
 		portsRegistry: newPortsRegistry(ports.Min, ports.Max, nil),
-		changes:       make(chan agentpb.StateChangedRequest, 10),
-		qanRequests:   make(chan agentpb.QANCollectRequest, 10),
+		changes:       make(chan *agentpb.StateChangedRequest, 10),
+		qanRequests:   make(chan *agentpb.QANCollectRequest, 10),
 		l:             logrus.WithField("component", "supervisor"),
 
 		agentProcesses: make(map[string]*agentProcessInfo),
@@ -139,12 +139,12 @@ func (s *Supervisor) AgentsList() []*agentlocalpb.AgentInfo {
 }
 
 // Changes returns channel with Agent's state changes.
-func (s *Supervisor) Changes() <-chan agentpb.StateChangedRequest {
+func (s *Supervisor) Changes() <-chan *agentpb.StateChangedRequest {
 	return s.changes
 }
 
 // QANRequests returns channel with Agent's QAN Collect requests.
-func (s *Supervisor) QANRequests() <-chan agentpb.QANCollectRequest {
+func (s *Supervisor) QANRequests() <-chan *agentpb.QANCollectRequest {
 	return s.qanRequests
 }
 
@@ -350,7 +350,7 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 		for status := range process.Changes() {
 			s.storeLastStatus(agentID, status)
 			l.Infof("Sending status: %s (port %d).", status, port)
-			s.changes <- agentpb.StateChangedRequest{
+			s.changes <- &agentpb.StateChangedRequest{
 				AgentId:    agentID,
 				Status:     status,
 				ListenPort: uint32(port),
@@ -455,14 +455,14 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 			if change.Status != inventorypb.AgentStatus_AGENT_STATUS_INVALID {
 				s.storeLastStatus(agentID, change.Status)
 				l.Infof("Sending status: %s.", change.Status)
-				s.changes <- agentpb.StateChangedRequest{
+				s.changes <- &agentpb.StateChangedRequest{
 					AgentId: agentID,
 					Status:  change.Status,
 				}
 			}
 			if change.MetricsBucket != nil {
 				l.Infof("Sending %d buckets.", len(change.MetricsBucket))
-				s.qanRequests <- agentpb.QANCollectRequest{
+				s.qanRequests <- &agentpb.QANCollectRequest{
 					MetricsBucket: change.MetricsBucket,
 				}
 			}

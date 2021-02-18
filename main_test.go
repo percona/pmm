@@ -16,8 +16,11 @@
 package main
 
 import (
+	"fmt"
 	"go/build"
+	"os"
 	"os/exec"
+	"sort"
 	"strings"
 	"testing"
 
@@ -37,119 +40,154 @@ func TestPackages(t *testing.T) {
 
 func TestImports(t *testing.T) {
 	type constraint struct {
-		blacklistPrefixes []string
+		denyPrefixes  []string
+		allowPrefixes []string
 	}
 
-	for path, c := range map[string]constraint{
-		// agents code should be independent
-		"github.com/percona/pmm-agent/agents/mongodb": {
-			blacklistPrefixes: []string{
-				"github.com/percona/pmm-agent/agentlocal",
-				"github.com/percona/pmm-agent/agents/",
-				"github.com/percona/pmm-agent/client",
-				"github.com/percona/pmm-agent/config",
-			},
-		},
-		"github.com/percona/pmm-agent/agents/mysql/perfschema": {
-			blacklistPrefixes: []string{
-				"github.com/percona/pmm-agent/agentlocal",
-				"github.com/percona/pmm-agent/agents/",
-				"github.com/percona/pmm-agent/client",
-				"github.com/percona/pmm-agent/config",
-			},
-		},
-		"github.com/percona/pmm-agent/agents/mysql/slowlog": {
-			blacklistPrefixes: []string{
-				"github.com/percona/pmm-agent/agentlocal",
-				"github.com/percona/pmm-agent/agents/",
-				"github.com/percona/pmm-agent/client",
-				"github.com/percona/pmm-agent/config",
-			},
-		},
-		"github.com/percona/pmm-agent/agents/postgres/pgstatstatements": {
-			blacklistPrefixes: []string{
-				"github.com/percona/pmm-agent/agentlocal",
-				"github.com/percona/pmm-agent/agents/mongodb",
-				"github.com/percona/pmm-agent/agents/mysql",
-				"github.com/percona/pmm-agent/agents/noop",
-				"github.com/percona/pmm-agent/agents/process",
-				"github.com/percona/pmm-agent/agents/supervisor",
-				"github.com/percona/pmm-agent/client",
-				"github.com/percona/pmm-agent/config",
-			},
-		},
-		"github.com/percona/pmm-agent/agents/noop": {
-			blacklistPrefixes: []string{
-				"github.com/percona/pmm/api/agentpb",
-				"github.com/percona/pmm-agent/agentlocal",
-				"github.com/percona/pmm-agent/agents/",
-				"github.com/percona/pmm-agent/client",
-				"github.com/percona/pmm-agent/config",
-			},
-		},
-		"github.com/percona/pmm-agent/agents/process": {
-			blacklistPrefixes: []string{
-				"github.com/percona/pmm/api/agentpb",
-				"github.com/percona/pmm-agent/agentlocal",
-				"github.com/percona/pmm-agent/agents/",
-				"github.com/percona/pmm-agent/client",
-				"github.com/percona/pmm-agent/config",
-			},
-		},
+	constraints := make(map[string]constraint)
 
-		// agentlocal server, supervisor, and client should be independent
-		"github.com/percona/pmm-agent/agentlocal": {
-			blacklistPrefixes: []string{
-				"github.com/percona/pmm-agent/agents/supervisor",
-				"github.com/percona/pmm-agent/client",
-			},
-		},
-		"github.com/percona/pmm-agent/agents/supervisor": {
-			blacklistPrefixes: []string{
-				"github.com/percona/pmm-agent/agentlocal",
-				"github.com/percona/pmm-agent/client",
-			},
-		},
-		"github.com/percona/pmm-agent/client": {
-			blacklistPrefixes: []string{
-				"github.com/percona/pmm-agent/agentlocal",
-				"github.com/percona/pmm-agent/agents/supervisor",
-			},
-		},
-
-		// slowlog parser should be fully independent
-		"github.com/percona/pmm-agent/agents/mysql/slowlog/parser": {
-			blacklistPrefixes: []string{
-				"github.com/percona/pmm-agent",
-			},
-		},
+	// agents code should be independent
+	for _, a := range []string{
+		"github.com/percona/pmm-agent/agents/mongodb",
+		"github.com/percona/pmm-agent/agents/mysql/perfschema",
+		"github.com/percona/pmm-agent/agents/mysql/slowlog",
+		"github.com/percona/pmm-agent/agents/noop",
+		"github.com/percona/pmm-agent/agents/postgres/pgstatmonitor",
+		"github.com/percona/pmm-agent/agents/postgres/pgstatstatements",
+		"github.com/percona/pmm-agent/agents/process",
 	} {
+		c := constraint{
+			denyPrefixes: []string{
+				"github.com/percona/pmm-agent/agentlocal",
+				"github.com/percona/pmm-agent/agents/",
+				"github.com/percona/pmm-agent/client",
+				"github.com/percona/pmm-agent/config",
+			},
+		}
+
+		// TODO move parser to pgstatstatements/parser unless pgstatmonitor will actually use it
+		if strings.HasSuffix(a, "/pgstatstatements") {
+			c.allowPrefixes = []string{
+				"github.com/percona/pmm-agent/agents/postgres/parser",
+			}
+		}
+
+		constraints[a] = c
+	}
+
+	// slowlog parser should be fully independent
+	constraints["github.com/percona/pmm-agent/agents/mysql/slowlog/parser"] = constraint{
+		denyPrefixes: []string{
+			"github.com/percona/pmm-agent",
+		},
+	}
+
+	// those packages should be independent from each other
+	packs := []string{
+		// TODO "github.com/percona/pmm-agent/actions",
+
+		"github.com/percona/pmm-agent/agentlocal",
+		"github.com/percona/pmm-agent/agents/supervisor",
+		"github.com/percona/pmm-agent/client",
+		"github.com/percona/pmm-agent/connectionchecker",
+	}
+	for _, p := range packs {
+		var c constraint
+		for _, d := range packs {
+			if p == d {
+				continue
+			}
+			c.denyPrefixes = append(c.denyPrefixes, d)
+		}
+
+		constraints[p] = c
+	}
+
+	// just to add them to packages.dot
+	for _, service := range []string{
+		"github.com/percona/pmm-agent/commands",
+	} {
+		constraints[service] = constraint{}
+	}
+
+	allImports := make(map[string]map[string]struct{})
+	for path, c := range constraints {
 		p, err := build.Import(path, ".", build.IgnoreVendor)
 		require.NoError(t, err)
 
-		allImports := make(map[string]struct{})
+		if allImports[path] == nil {
+			allImports[path] = make(map[string]struct{})
+		}
 		for _, i := range p.Imports {
-			allImports[i] = struct{}{}
+			allImports[path][i] = struct{}{}
 		}
 		for _, i := range p.TestImports {
-			allImports[i] = struct{}{}
+			allImports[path][i] = struct{}{}
 		}
 		for _, i := range p.XTestImports {
-			allImports[i] = struct{}{}
+			allImports[path][i] = struct{}{}
 		}
 
-		for _, b := range c.blacklistPrefixes {
-			for i := range allImports {
-				// whitelist own subpackages
+		for _, d := range c.denyPrefixes {
+			for i := range allImports[path] {
+				// allow own subpackages
 				if strings.HasPrefix(i, path) {
 					continue
 				}
 
-				// check blacklist
-				if strings.HasPrefix(i, b) {
-					t.Errorf("Package %q should not import package %q (blacklisted by %q).", path, i, b)
+				// check allowlist
+				var allow bool
+				for _, a := range c.allowPrefixes {
+					if strings.HasPrefix(i, a) {
+						allow = true
+						break
+					}
+				}
+				if allow {
+					continue
+				}
+
+				// check denylist
+				if strings.HasPrefix(i, d) {
+					t.Errorf("Package %q should not import package %q (denied by %q).", path, i, d)
 				}
 			}
 		}
 	}
+
+	f, err := os.Create("packages.dot")
+	require.NoError(t, err)
+	defer func() { require.NoError(t, f.Close()) }()
+
+	fmt.Fprintf(f, "digraph packages {\n")
+
+	packages := make([]string, 0, len(allImports))
+	for p := range allImports {
+		packages = append(packages, p)
+	}
+	sort.Strings(packages)
+
+	for _, p := range packages {
+		imports := make([]string, 0, len(allImports[p]))
+		for p := range allImports[p] {
+			imports = append(imports, p)
+		}
+		sort.Strings(imports)
+
+		p = strings.TrimPrefix(p, "github.com/percona/pmm-agent")
+		if p == "" {
+			p = "/"
+		}
+		for _, i := range imports {
+			if strings.Contains(i, "/utils/") {
+				continue
+			}
+			if strings.HasPrefix(i, "github.com/percona/pmm-agent") {
+				i = strings.TrimPrefix(i, "github.com/percona/pmm-agent")
+				fmt.Fprintf(f, "\t%q -> %q;\n", p, i)
+			}
+		}
+	}
+
+	fmt.Fprintf(f, "}\n")
 }
