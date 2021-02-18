@@ -64,13 +64,14 @@ type addExternalServerlessCommand struct {
 	CustomLabels   string
 	Group          string
 
-	MachineID     string
-	Distro        string
-	ContainerID   string
-	ContainerName string
-	NodeModel     string
-	Region        string
-	Az            string
+	MachineID           string
+	Distro              string
+	ContainerID         string
+	ContainerName       string
+	NodeModel           string
+	Region              string
+	Az                  string
+	SkipConnectionCheck bool
 }
 
 func (cmd *addExternalServerlessCommand) Run() (commands.Result, error) {
@@ -107,19 +108,20 @@ func (cmd *addExternalServerlessCommand) Run() (commands.Result, error) {
 				Az:            cmd.Az,
 				CustomLabels:  customLabels,
 			},
-			Address:        address,
-			ServiceName:    serviceName,
-			Username:       cmd.Username,
-			Password:       cmd.Password,
-			Scheme:         scheme,
-			MetricsPath:    metricsPath,
-			ListenPort:     int64(port),
-			Environment:    cmd.Environment,
-			Cluster:        cmd.Cluster,
-			ReplicationSet: cmd.ReplicationSet,
-			CustomLabels:   customLabels,
-			MetricsMode:    pointer.ToString(external.AddExternalBodyMetricsModePULL),
-			Group:          cmd.Group,
+			Address:             address,
+			ServiceName:         serviceName,
+			Username:            cmd.Username,
+			Password:            cmd.Password,
+			Scheme:              scheme,
+			MetricsPath:         metricsPath,
+			ListenPort:          int64(port),
+			Environment:         cmd.Environment,
+			Cluster:             cmd.Cluster,
+			ReplicationSet:      cmd.ReplicationSet,
+			CustomLabels:        customLabels,
+			MetricsMode:         pointer.ToString(external.AddExternalBodyMetricsModePULL),
+			Group:               cmd.Group,
+			SkipConnectionCheck: cmd.SkipConnectionCheck,
 		},
 		Context: commands.Ctx,
 	}
@@ -205,4 +207,5 @@ func init() {
 	AddExternalServerlessC.Flag("node-model", "Node model").StringVar(&AddExternalServerless.NodeModel)
 	AddExternalServerlessC.Flag("region", "Node region").StringVar(&AddExternalServerless.Region)
 	AddExternalServerlessC.Flag("az", "Node availability zone").StringVar(&AddExternalServerless.Az)
+	AddExternalServerlessC.Flag("skip-connection-check", "Skip exporter connection checks").BoolVar(&AddExternalServerless.SkipConnectionCheck)
 }
