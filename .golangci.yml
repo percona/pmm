@@ -25,7 +25,7 @@ linters-settings:
     check-exported: true
 
   unparam:
-    check-exported: true
+    check-exported: true//
 
 linters:
   enable-all: true
