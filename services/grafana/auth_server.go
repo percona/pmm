@@ -69,7 +69,6 @@ var rules = map[string]role{
 	"/victoriametrics": admin,
 	"/alertmanager":    admin,
 	"/graph":           none,
-	"/qan":             none,
 	"/swagger":         none,
 
 	"/logs.zip": admin,
@@ -86,7 +85,6 @@ var mustSetupRules = []string{
 	"/victoriametrics",
 	"/alertmanager",
 	"/graph",
-	"/qan",
 	"/swagger",
 }
 
