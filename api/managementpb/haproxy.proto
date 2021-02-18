@@ -62,6 +62,8 @@ message AddHAProxyRequest {
   // Node with registered pmm_agent_id must present at pmm-server
   // in case of push metrics_mode.
   MetricsMode metrics_mode = 16;
+  // Skip connection check.
+  bool skip_connection_check = 21;
 }
 
 message AddHAProxyResponse {
