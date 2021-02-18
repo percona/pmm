@@ -309,9 +309,10 @@ message CheckConnectionResponse {
   }
   // Error message if connection check failed.
   string error = 1;
+  // Anaylzed Service statistics.
   Stats stats = 2;
-  // Contains the body of HTTP response of connection check to an exporter.
-  string exporter_response_body = 3;
+  // Raw connection checking result to be analyzed on the server.
+  bytes result = 3;
 }
 
 message AgentMessage {
