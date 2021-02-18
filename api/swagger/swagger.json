@@ -13029,6 +13029,11 @@
                     "PUSH"
                   ],
                   "x-order": 16
+                },
+                "skip_connection_check": {
+                  "description": "Skip connection check.",
+                  "type": "boolean",
+                  "x-order": 17
                 }
               }
             }
