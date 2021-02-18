@@ -310,6 +310,7 @@ message CheckConnectionResponse {
   // Error message if connection check failed.
   string error = 1;
   Stats stats = 2;
+  string body = 3;
 }
 
 message AgentMessage {
