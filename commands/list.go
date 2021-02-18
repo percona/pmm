@@ -16,29 +16,33 @@
 package commands
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"net"
 	"strconv"
 	"strings"
+	"text/tabwriter"
 
 	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/inventorypb/json/client"
 	"github.com/percona/pmm/api/inventorypb/json/client/agents"
 	"github.com/percona/pmm/api/inventorypb/json/client/services"
 	"github.com/percona/pmm/api/inventorypb/types"
+	"github.com/sirupsen/logrus"
 	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/percona/pmm-admin/agentlocal"
 )
 
 var listResultT = ParseTemplate(`
-Service type                Service name                        Address and port       Service ID
+Service type{{"\t"}}Service name{{"\t"}}Address and port{{"\t"}}Service ID
 {{ range .Services }}
-{{- printf "%-27s" .HumanReadableServiceType }} {{ printf "%-35s" .ServiceName }} {{ printf "%-22s" .AddressPort }} {{ .ServiceID }}
+{{- .HumanReadableServiceType }}{{"\t"}}{{ .ServiceName }}{{"\t"}}{{ .AddressPort }}{{"\t"}}{{ .ServiceID }}
 {{ end }}
-Agent type                  Status     Metrics Mode   Agent ID                                      Service ID
+Agent type{{"\t"}}Status{{"\t"}}Metrics Mode{{"\t"}}Agent ID{{"\t"}}Service ID
 {{ range .Agents }}
-{{- printf "%-27s" .HumanReadableAgentType }} {{ printf "%-10s" .NiceAgentStatus }} {{ .MetricsMode }}  {{ .AgentID }} {{ .ServiceID }} 
+{{- .HumanReadableAgentType }}{{"\t"}}{{ .NiceAgentStatus }}{{"\t"}}{{ .MetricsMode }}{{"\t"}}{{ .AgentID }}{{"\t"}}{{ .ServiceID }} 
 {{ end }}
 `)
 
@@ -93,7 +97,24 @@ type listResult struct {
 func (res *listResult) Result() {}
 
 func (res *listResult) String() string {
-	return RenderTemplate(listResultT, res)
+	template := RenderTemplate(listResultT, res)
+	formattedTemplate, err := convertTabs(template)
+	if err != nil {
+		logrus.Panicf("Failed to render response: %s", err)
+	}
+	return formattedTemplate
+}
+
+func convertTabs(template string) (string, error) {
+	var buf bytes.Buffer
+	w := tabwriter.NewWriter(&buf, 4, 4, 8, ' ', tabwriter.TabIndent)
+	if _, err := io.WriteString(w, template); err != nil {
+		return "", err
+	}
+	if err := w.Flush(); err != nil {
+		return "", err
+	}
+	return buf.String(), nil
 }
 
 type listCommand struct {
