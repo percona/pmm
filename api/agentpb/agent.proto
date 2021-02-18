@@ -310,7 +310,8 @@ message CheckConnectionResponse {
   // Error message if connection check failed.
   string error = 1;
   Stats stats = 2;
-  string body = 3;
+  // Contains the body of HTTP response of connection check to an exporter.
+  string exporter_response_body = 3;
 }
 
 message AgentMessage {
