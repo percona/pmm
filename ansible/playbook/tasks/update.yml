@@ -10,7 +10,6 @@
       - percona-prometheus
       - percona-victoriametrics
       - percona-qan-api2
-      - percona-qan-app
       - percona-dashboards
       - percona-alertmanager
       - pmm-server
@@ -69,7 +68,7 @@
       yum:
         state: absent
         name:
-          - mariadb-libs  # https://jira.percona.com/browse/PMM-5215
+          - mariadb-libs # https://jira.percona.com/browse/PMM-5215
 
     # Split download and update to produce a bit more of progress output.
 
@@ -86,11 +85,17 @@
 
     - name: Update system packages
       yum:
-        name: '*'
+        name: "*"
         state: latest
         security: yes
 
     # Fix things that should be fixed before restarts.
+
+    - name: Remove old packages
+      yum:
+        state: absent
+        name:
+          - percona-qan-app # https://jira.percona.com/browse/PMM-6766
 
     - name: Check pg_stat_statements extension
       postgresql_ext:
@@ -102,8 +107,8 @@
       when: not is_container
       replace:
         dest: /var/lib/cloud/scripts/per-boot/resize-xfs
-        regexp: 'set -o errexit'
-        replace: ''
+        regexp: "set -o errexit"
+        replace: ""
 
     - name: Update nginx configuration
       file: name=/etc/nginx/conf.d/default.conf state=absent
@@ -157,7 +162,7 @@
     - name: Restart pmm-managed
       command: supervisorctl {{ item }} pmm-managed
       changed_when: True
-      with_items: ['stop', 'remove', 'add']
+      with_items: ["stop", "remove", "add"]
 
     # give pmm-managed time to update supervisord configuration,
     # and give update UI time to catch up after pmm-managed restart
@@ -184,7 +189,7 @@
           - grafana
           - qan-api2
           - pmm-agent
-        - ['stop', 'remove', 'add']
+        - ["stop", "remove", "add"]
 
     # set folder names of panels to format that's supported by grafana-cli
     - name: Rename Grafana community panels
