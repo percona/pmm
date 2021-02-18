@@ -357,10 +357,40 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 			u.User = url.User(username)
 		}
 		return u.String()
-
 	default:
 		panic(fmt.Errorf("unhandled AgentType %q", s.AgentType))
 	}
+}
+
+func (s *Agent) ExporterURL(q *reform.Querier) (string, error) {
+	scheme := pointer.GetString(s.MetricsScheme)
+	path := pointer.GetString(s.MetricsPath)
+	listenPort := int(pointer.GetUint16(s.ListenPort))
+	username := pointer.GetString(s.Username)
+	password := pointer.GetString(s.Password)
+
+	host := "127.0.0.1"
+	if !s.PushMetrics {
+		node, err := FindNodeByID(q, *s.RunsOnNodeID)
+		if err != nil {
+			return "", err
+		}
+		host = node.Address
+	}
+
+	address := net.JoinHostPort(host, strconv.Itoa(listenPort))
+	u := &url.URL{
+		Scheme: scheme,
+		Host:   address,
+		Path:   path,
+	}
+	switch {
+	case password != "":
+		u.User = url.UserPassword(username, password)
+	case username != "":
+		u.User = url.User(username)
+	}
+	return u.String(), nil
 }
 
 // IsMySQLTablestatsGroupEnabled returns true if mysqld_exporter tablestats group collectors should be enabled.

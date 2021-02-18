@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package models
+package models_test
 
 import (
 	"fmt"
@@ -25,11 +25,16 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"gopkg.in/reform.v1"
+	"gopkg.in/reform.v1/dialects/postgresql"
+
+	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm-managed/utils/testdb"
 )
 
 func TestAgent(t *testing.T) {
 	t.Run("UnifiedLabels", func(t *testing.T) {
-		agent := &Agent{
+		agent := &models.Agent{
 			AgentID:      "agent_id",
 			CustomLabels: []byte(`{"foo": "bar"}`),
 		}
@@ -43,22 +48,22 @@ func TestAgent(t *testing.T) {
 	})
 
 	t.Run("DSN", func(t *testing.T) {
-		agent := &Agent{
+		agent := &models.Agent{
 			Username: pointer.ToString("username"),
 			Password: pointer.ToString("s3cur3 p@$$w0r4."),
 		}
-		service := &Service{
+		service := &models.Service{
 			Address: pointer.ToString("1.2.3.4"),
 			Port:    pointer.ToUint16(12345),
 		}
-		for typ, expected := range map[AgentType]string{
-			MySQLdExporterType:          "username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:12345)/database?timeout=1s",
-			ProxySQLExporterType:        "username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:12345)/database?timeout=1s",
-			QANMySQLPerfSchemaAgentType: "username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:12345)/database?clientFoundRows=true&parseTime=true&timeout=1s",
-			QANMySQLSlowlogAgentType:    "username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:12345)/database?clientFoundRows=true&parseTime=true&timeout=1s",
-			MongoDBExporterType:         "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/database?connectTimeoutMS=1000",
-			QANMongoDBProfilerAgentType: "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/database?connectTimeoutMS=1000",
-			PostgresExporterType:        "postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/database?connect_timeout=1&sslmode=disable",
+		for typ, expected := range map[models.AgentType]string{
+			models.MySQLdExporterType:          "username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:12345)/database?timeout=1s",
+			models.ProxySQLExporterType:        "username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:12345)/database?timeout=1s",
+			models.QANMySQLPerfSchemaAgentType: "username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:12345)/database?clientFoundRows=true&parseTime=true&timeout=1s",
+			models.QANMySQLSlowlogAgentType:    "username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:12345)/database?clientFoundRows=true&parseTime=true&timeout=1s",
+			models.MongoDBExporterType:         "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/database?connectTimeoutMS=1000",
+			models.QANMongoDBProfilerAgentType: "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/database?connectTimeoutMS=1000",
+			models.PostgresExporterType:        "postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/database?connect_timeout=1&sslmode=disable",
 		} {
 			t.Run(string(typ), func(t *testing.T) {
 				agent.AgentType = typ
@@ -67,7 +72,7 @@ func TestAgent(t *testing.T) {
 		}
 
 		t.Run("MongoDBNoDatabase", func(t *testing.T) {
-			agent.AgentType = MongoDBExporterType
+			agent.AgentType = models.MongoDBExporterType
 
 			assert.Equal(t, "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/?connectTimeoutMS=1000", agent.DSN(service, time.Second, "", nil))
 			assert.Equal(t, "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/", agent.DSN(service, 0, "", nil))
@@ -75,18 +80,18 @@ func TestAgent(t *testing.T) {
 	})
 
 	t.Run("DSN socket", func(t *testing.T) {
-		agent := &Agent{
+		agent := &models.Agent{
 			Username: pointer.ToString("username"),
 			Password: pointer.ToString("s3cur3 p@$$w0r4."),
 		}
-		service := &Service{
+		service := &models.Service{
 			Socket: pointer.ToString("/var/run/mysqld/mysqld.sock"),
 		}
-		for typ, expected := range map[AgentType]string{
-			MySQLdExporterType:          "username:s3cur3 p@$$w0r4.@unix(/var/run/mysqld/mysqld.sock)/database?timeout=1s",
-			ProxySQLExporterType:        "username:s3cur3 p@$$w0r4.@unix(/var/run/mysqld/mysqld.sock)/database?timeout=1s",
-			QANMySQLPerfSchemaAgentType: "username:s3cur3 p@$$w0r4.@unix(/var/run/mysqld/mysqld.sock)/database?clientFoundRows=true&parseTime=true&timeout=1s",
-			QANMySQLSlowlogAgentType:    "username:s3cur3 p@$$w0r4.@unix(/var/run/mysqld/mysqld.sock)/database?clientFoundRows=true&parseTime=true&timeout=1s",
+		for typ, expected := range map[models.AgentType]string{
+			models.MySQLdExporterType:          "username:s3cur3 p@$$w0r4.@unix(/var/run/mysqld/mysqld.sock)/database?timeout=1s",
+			models.ProxySQLExporterType:        "username:s3cur3 p@$$w0r4.@unix(/var/run/mysqld/mysqld.sock)/database?timeout=1s",
+			models.QANMySQLPerfSchemaAgentType: "username:s3cur3 p@$$w0r4.@unix(/var/run/mysqld/mysqld.sock)/database?clientFoundRows=true&parseTime=true&timeout=1s",
+			models.QANMySQLSlowlogAgentType:    "username:s3cur3 p@$$w0r4.@unix(/var/run/mysqld/mysqld.sock)/database?clientFoundRows=true&parseTime=true&timeout=1s",
 		} {
 			t.Run(string(typ), func(t *testing.T) {
 				agent.AgentType = typ
@@ -96,29 +101,29 @@ func TestAgent(t *testing.T) {
 	})
 
 	t.Run("DSN ssl", func(t *testing.T) {
-		mongoDBOptions := MongoDBOptions{
+		mongoDBOptions := models.MongoDBOptions{
 			TLSCertificateKey:             "key",
 			TLSCertificateKeyFilePassword: "pass",
 			TLSCa:                         "cert",
 		}
-		agent := &Agent{
+		agent := &models.Agent{
 			Username:       pointer.ToString("username"),
 			Password:       pointer.ToString("s3cur3 p@$$w0r4."),
 			TLS:            true,
 			MongoDBOptions: &mongoDBOptions,
 		}
-		service := &Service{
+		service := &models.Service{
 			Address: pointer.ToString("1.2.3.4"),
 			Port:    pointer.ToUint16(12345),
 		}
-		for typ, expected := range map[AgentType]string{
-			MySQLdExporterType:          "username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:12345)/database?timeout=1s&tls=true",
-			ProxySQLExporterType:        "username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:12345)/database?timeout=1s&tls=true",
-			QANMySQLPerfSchemaAgentType: "username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:12345)/database?clientFoundRows=true&parseTime=true&timeout=1s&tls=true",
-			QANMySQLSlowlogAgentType:    "username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:12345)/database?clientFoundRows=true&parseTime=true&timeout=1s&tls=true",
-			MongoDBExporterType:         "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/database?connectTimeoutMS=1000&ssl=true&tlsCaFile={{.TextFiles.caFilePlaceholder}}&tlsCertificateKeyFile={{.TextFiles.certificateKeyFilePlaceholder}}&tlsCertificateKeyFilePassword=pass",
-			QANMongoDBProfilerAgentType: "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/database?connectTimeoutMS=1000&ssl=true&tlsCaFile={{.TextFiles.caFilePlaceholder}}&tlsCertificateKeyFile={{.TextFiles.certificateKeyFilePlaceholder}}&tlsCertificateKeyFilePassword=pass",
-			PostgresExporterType:        "postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/database?connect_timeout=1&sslmode=verify-full",
+		for typ, expected := range map[models.AgentType]string{
+			models.MySQLdExporterType:          "username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:12345)/database?timeout=1s&tls=true",
+			models.ProxySQLExporterType:        "username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:12345)/database?timeout=1s&tls=true",
+			models.QANMySQLPerfSchemaAgentType: "username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:12345)/database?clientFoundRows=true&parseTime=true&timeout=1s&tls=true",
+			models.QANMySQLSlowlogAgentType:    "username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:12345)/database?clientFoundRows=true&parseTime=true&timeout=1s&tls=true",
+			models.MongoDBExporterType:         "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/database?connectTimeoutMS=1000&ssl=true&tlsCaFile={{.TextFiles.caFilePlaceholder}}&tlsCertificateKeyFile={{.TextFiles.certificateKeyFilePlaceholder}}&tlsCertificateKeyFilePassword=pass",
+			models.QANMongoDBProfilerAgentType: "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/database?connectTimeoutMS=1000&ssl=true&tlsCaFile={{.TextFiles.caFilePlaceholder}}&tlsCertificateKeyFile={{.TextFiles.certificateKeyFilePlaceholder}}&tlsCertificateKeyFilePassword=pass",
+			models.PostgresExporterType:        "postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/database?connect_timeout=1&sslmode=verify-full",
 		} {
 			t.Run(string(typ), func(t *testing.T) {
 				agent.AgentType = typ
@@ -127,7 +132,7 @@ func TestAgent(t *testing.T) {
 		}
 
 		t.Run("MongoDBNoDatabase", func(t *testing.T) {
-			agent.AgentType = MongoDBExporterType
+			agent.AgentType = models.MongoDBExporterType
 			agent.MongoDBOptions.TLSCertificateKeyFilePassword = ""
 
 			assert.Equal(t, "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/?connectTimeoutMS=1000&ssl=true&tlsCaFile={{.TextFiles.caFilePlaceholder}}&tlsCertificateKeyFile={{.TextFiles.certificateKeyFilePlaceholder}}", agent.DSN(service, time.Second, "", nil))
@@ -141,24 +146,24 @@ func TestAgent(t *testing.T) {
 	})
 
 	t.Run("DSN ssl-skip-verify", func(t *testing.T) {
-		agent := &Agent{
+		agent := &models.Agent{
 			Username:      pointer.ToString("username"),
 			Password:      pointer.ToString("s3cur3 p@$$w0r4."),
 			TLS:           true,
 			TLSSkipVerify: true,
 		}
-		service := &Service{
+		service := &models.Service{
 			Address: pointer.ToString("1.2.3.4"),
 			Port:    pointer.ToUint16(12345),
 		}
-		for typ, expected := range map[AgentType]string{
-			MySQLdExporterType:          "username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:12345)/database?timeout=1s&tls=skip-verify",
-			ProxySQLExporterType:        "username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:12345)/database?timeout=1s&tls=skip-verify",
-			QANMySQLPerfSchemaAgentType: "username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:12345)/database?clientFoundRows=true&parseTime=true&timeout=1s&tls=skip-verify",
-			QANMySQLSlowlogAgentType:    "username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:12345)/database?clientFoundRows=true&parseTime=true&timeout=1s&tls=skip-verify",
-			MongoDBExporterType:         "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/database?connectTimeoutMS=1000&ssl=true&tlsInsecure=true",
-			QANMongoDBProfilerAgentType: "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/database?connectTimeoutMS=1000&ssl=true&tlsInsecure=true",
-			PostgresExporterType:        "postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/database?connect_timeout=1&sslmode=require",
+		for typ, expected := range map[models.AgentType]string{
+			models.MySQLdExporterType:          "username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:12345)/database?timeout=1s&tls=skip-verify",
+			models.ProxySQLExporterType:        "username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:12345)/database?timeout=1s&tls=skip-verify",
+			models.QANMySQLPerfSchemaAgentType: "username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:12345)/database?clientFoundRows=true&parseTime=true&timeout=1s&tls=skip-verify",
+			models.QANMySQLSlowlogAgentType:    "username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:12345)/database?clientFoundRows=true&parseTime=true&timeout=1s&tls=skip-verify",
+			models.MongoDBExporterType:         "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/database?connectTimeoutMS=1000&ssl=true&tlsInsecure=true",
+			models.QANMongoDBProfilerAgentType: "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/database?connectTimeoutMS=1000&ssl=true&tlsInsecure=true",
+			models.PostgresExporterType:        "postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/database?connect_timeout=1&sslmode=require",
 		} {
 			t.Run(string(typ), func(t *testing.T) {
 				agent.AgentType = typ
@@ -167,7 +172,7 @@ func TestAgent(t *testing.T) {
 		}
 
 		t.Run("MongoDBNoDatabase", func(t *testing.T) {
-			agent.AgentType = MongoDBExporterType
+			agent.AgentType = models.MongoDBExporterType
 
 			assert.Equal(t, "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/?connectTimeoutMS=1000&ssl=true&tlsInsecure=true", agent.DSN(service, time.Second, "", nil))
 			assert.Equal(t, "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/?ssl=true&tlsInsecure=true", agent.DSN(service, 0, "", nil))
@@ -176,12 +181,12 @@ func TestAgent(t *testing.T) {
 }
 
 func TestPostgresAgentTLS(t *testing.T) {
-	agent := &Agent{
+	agent := &models.Agent{
 		Username:  pointer.ToString("username"),
 		Password:  pointer.ToString("s3cur3 p@$$w0r4."),
-		AgentType: PostgresExporterType,
+		AgentType: models.PostgresExporterType,
 	}
-	service := &Service{
+	service := &models.Service{
 		Address: pointer.ToString("1.2.3.4"),
 		Port:    pointer.ToUint16(12345),
 	}
@@ -207,13 +212,13 @@ func TestPostgresAgentTLS(t *testing.T) {
 
 func TestPostgresWithSocket(t *testing.T) {
 	t.Run("empty-passowrd", func(t *testing.T) {
-		agent := &Agent{
+		agent := &models.Agent{
 			Username:      pointer.ToString("username"),
-			AgentType:     PostgresExporterType,
+			AgentType:     models.PostgresExporterType,
 			TLS:           true,
 			TLSSkipVerify: false,
 		}
-		service := &Service{
+		service := &models.Service{
 			Socket: pointer.ToString("/var/run/postgres"),
 		}
 		expect := "postgres://username@/database?connect_timeout=1&host=%2Fvar%2Frun%2Fpostgres&sslmode=verify-full"
@@ -221,10 +226,10 @@ func TestPostgresWithSocket(t *testing.T) {
 	})
 
 	t.Run("empty-user-passowrd", func(t *testing.T) {
-		agent := &Agent{
-			AgentType: PostgresExporterType,
+		agent := &models.Agent{
+			AgentType: models.PostgresExporterType,
 		}
-		service := &Service{
+		service := &models.Service{
 			Socket: pointer.ToString("/var/run/postgres"),
 		}
 		expect := "postgres:///database?connect_timeout=1&host=%2Fvar%2Frun%2Fpostgres&sslmode=disable"
@@ -232,10 +237,10 @@ func TestPostgresWithSocket(t *testing.T) {
 	})
 
 	t.Run("dir-with-symbols", func(t *testing.T) {
-		agent := &Agent{
-			AgentType: PostgresExporterType,
+		agent := &models.Agent{
+			AgentType: models.PostgresExporterType,
 		}
-		service := &Service{
+		service := &models.Service{
 			Socket: pointer.ToString(`/tmp/123\ A0m\%\$\@\8\,\+\-`),
 		}
 		expect := "postgres:///database?connect_timeout=1&host=%2Ftmp%2F123%5C+A0m%5C%25%5C%24%5C%40%5C8%5C%2C%5C%2B%5C-&sslmode=disable"
@@ -245,13 +250,13 @@ func TestPostgresWithSocket(t *testing.T) {
 
 func TestMongoWithSocket(t *testing.T) {
 	t.Run("empty-passowrd", func(t *testing.T) {
-		agent := &Agent{
+		agent := &models.Agent{
 			Username:      pointer.ToString("username"),
-			AgentType:     MongoDBExporterType,
+			AgentType:     models.MongoDBExporterType,
 			TLS:           true,
 			TLSSkipVerify: false,
 		}
-		service := &Service{
+		service := &models.Service{
 			Socket: pointer.ToString("/tmp/mongodb-27017.sock"),
 		}
 		expect := "mongodb://username@%2Ftmp%2Fmongodb-27017.sock/database?connectTimeoutMS=1000&ssl=true"
@@ -259,10 +264,10 @@ func TestMongoWithSocket(t *testing.T) {
 	})
 
 	t.Run("empty-user-passowrd", func(t *testing.T) {
-		agent := &Agent{
-			AgentType: MongoDBExporterType,
+		agent := &models.Agent{
+			AgentType: models.MongoDBExporterType,
 		}
-		service := &Service{
+		service := &models.Service{
 			Socket: pointer.ToString("/tmp/mongodb-27017.sock"),
 		}
 		expect := "mongodb://%2Ftmp%2Fmongodb-27017.sock/database?connectTimeoutMS=1000"
@@ -270,10 +275,10 @@ func TestMongoWithSocket(t *testing.T) {
 	})
 
 	t.Run("dir-with-symbols", func(t *testing.T) {
-		agent := &Agent{
-			AgentType: MongoDBExporterType,
+		agent := &models.Agent{
+			AgentType: models.MongoDBExporterType,
 		}
-		service := &Service{
+		service := &models.Service{
 			Socket: pointer.ToString(`/tmp/123\ A0m\%\$\@\8\,\+\-/mongodb-27017.sock`),
 		}
 		expect := "mongodb://%2Ftmp%2F123%5C%20A0m%5C%25%5C$%5C%40%5C8%5C,%5C+%5C-%2Fmongodb-27017.sock/database?connectTimeoutMS=1000"
@@ -302,12 +307,127 @@ func TestIsMySQLTablestatsGroupEnabled(t *testing.T) {
 			c = strconv.Itoa(int(*testCase.count))
 		}
 		t.Run(fmt.Sprintf("Count:%s/Limit:%d", c, testCase.limit), func(t *testing.T) {
-			agent := &Agent{
-				AgentType:                      MySQLdExporterType,
+			agent := &models.Agent{
+				AgentType:                      models.MySQLdExporterType,
 				TableCount:                     testCase.count,
 				TableCountTablestatsGroupLimit: testCase.limit,
 			}
 			assert.Equal(t, testCase.expected, agent.IsMySQLTablestatsGroupEnabled())
 		})
 	}
+}
+
+func TestExporterURL(t *testing.T) {
+	now, origNowF := models.Now(), models.Now
+	models.Now = func() time.Time {
+		return now
+	}
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	defer func() {
+		models.Now = origNowF
+		require.NoError(t, sqlDB.Close())
+	}()
+
+	setup := func(t *testing.T) (q *reform.Querier, teardown func(t *testing.T)) {
+		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+		tx, err := db.Begin()
+		require.NoError(t, err)
+		q = tx.Querier
+
+		for _, str := range []reform.Struct{
+			&models.Node{
+				NodeID:    "ExporterNodeID",
+				NodeType:  models.ContainerNodeType,
+				NodeName:  "Node for Exporter",
+				MachineID: pointer.ToString("/machine_id/ExporterNode"),
+				Address:   "172.20.0.4",
+			},
+
+			&models.Node{
+				NodeID:   "ExporterServerlessNodeID",
+				NodeType: models.RemoteNodeType,
+				NodeName: "Node for Serverless Exporter",
+				Address:  "redis_exporter",
+			},
+
+			&models.Service{
+				ServiceID:     "external",
+				ServiceType:   models.ExternalServiceType,
+				ServiceName:   "Service on ExporterNodeID",
+				NodeID:        "ExporterNodeID",
+				ExternalGroup: "redis",
+			},
+
+			&models.Service{
+				ServiceID:     "redis_exporter-external",
+				ServiceType:   models.ExternalServiceType,
+				ServiceName:   "Service on ExporterServerlessNode",
+				NodeID:        "ExporterServerlessNodeID",
+				ExternalGroup: "redis",
+			},
+
+			&models.Agent{
+				AgentID:       "ExporterAgentPush",
+				AgentType:     models.ExternalExporterType,
+				ServiceID:     pointer.ToString("external"),
+				RunsOnNodeID:  pointer.ToString("ExporterNodeID"),
+				MetricsScheme: pointer.ToString("http"),
+				PushMetrics:   true,
+				ListenPort:    pointer.ToUint16(9121),
+				MetricsPath:   pointer.ToString("/metrics"),
+			},
+
+			&models.Agent{
+				AgentID:       "ExporterAgentPull",
+				AgentType:     models.ExternalExporterType,
+				ServiceID:     pointer.ToString("external"),
+				RunsOnNodeID:  pointer.ToString("ExporterNodeID"),
+				MetricsScheme: pointer.ToString("http"),
+				PushMetrics:   false,
+				ListenPort:    pointer.ToUint16(9121),
+				MetricsPath:   pointer.ToString("/metrics"),
+				Username:      pointer.ToString("user"),
+				Password:      pointer.ToString("secret"),
+			},
+
+			&models.Agent{
+				AgentID:       "ExporterServerless",
+				AgentType:     models.ExternalExporterType,
+				RunsOnNodeID:  pointer.ToString("ExporterServerlessNodeID"),
+				ServiceID:     pointer.ToString("redis_exporter-external"),
+				MetricsScheme: pointer.ToString("http"),
+				PushMetrics:   false,
+				ListenPort:    pointer.ToUint16(9121),
+				MetricsPath:   pointer.ToString("/metrics"),
+				Username:      pointer.ToString("user"),
+				Password:      pointer.ToString("secret"),
+			},
+		} {
+			require.NoError(t, q.Insert(str), "failed to INSERT %+v", str)
+		}
+
+		teardown = func(t *testing.T) {
+			require.NoError(t, tx.Rollback())
+		}
+		return
+	}
+
+	t.Run("ExporterURL", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		for agentID, expected := range map[string]string{
+			"ExporterAgentPush":  "http://127.0.0.1:9121/metrics",
+			"ExporterAgentPull":  "http://user:secret@172.20.0.4:9121/metrics",
+			"ExporterServerless": "http://user:secret@redis_exporter:9121/metrics",
+		} {
+			t.Run(agentID, func(t *testing.T) {
+				agent, err := models.FindAgentByID(q, agentID)
+				assert.NoError(t, err)
+				actual, err := agent.ExporterURL(q)
+				assert.NoError(t, err)
+				assert.Equal(t, expected, actual)
+			})
+		}
+	})
 }

@@ -19,15 +19,14 @@ package management
 import (
 	"context"
 
+	"github.com/percona/pmm/api/inventorypb"
+	"github.com/percona/pmm/api/managementpb"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/services"
-
-	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/api/managementpb"
-	"gopkg.in/reform.v1"
 )
 
 // ExternalService External Management Service.
@@ -109,6 +108,12 @@ func (e *ExternalService) AddExternal(ctx context.Context, req *managementpb.Add
 		row, err := models.CreateExternalExporter(tx.Querier, params)
 		if err != nil {
 			return err
+		}
+
+		if !req.SkipConnectionCheck {
+			if err = e.registry.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+				return err
+			}
 		}
 
 		agent, err := services.ToAPIAgent(tx.Querier, row)
