@@ -75,7 +75,7 @@ func (cc *ConnectionChecker) Check(msg *agentpb.CheckConnectionRequest, id uint3
 		return cc.checkPostgreSQLConnection(ctx, msg.Dsn)
 	case inventorypb.ServiceType_PROXYSQL_SERVICE:
 		return cc.checkProxySQLConnection(ctx, msg.Dsn)
-	case inventorypb.ServiceType_EXTERNAL_SERVICE:
+	case inventorypb.ServiceType_EXTERNAL_SERVICE, inventorypb.ServiceType_HAPROXY_SERVICE:
 		return cc.checkExternalConnection(ctx, msg.Dsn)
 	default:
 		panic(fmt.Sprintf("unhandled service type: %v", msg.Type))
