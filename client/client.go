@@ -596,29 +596,19 @@ func argListFromPgParams(pParams *agentpb.StartActionRequest_PTPgSummaryParams) 
 func argListFromMongoDBParams(pParams *agentpb.StartActionRequest_PTMongoDBSummaryParams) []string {
 	var args []string
 
-	// Only adds the arguments that are valid
+	// Only adds the arguments are valid
 
 	if pParams.Username != "" {
 		args = append(args, "--username", pParams.Username)
 	}
 
+	if pParams.Password != "" {
 	// Spaces at the beginning and end are not desirable
 	pswd := strings.Trim(pParams.Password, " ")
 
 	if pswd != "" {
 		// TODO change this line when pt-mongodb-summary is updated
-		args = append(args, fmt.Sprintf("--password=%s", pswd))
-	}
-
-	if pParams.Host != "" {
-		var hostPortStr string = pParams.Host
-
-		// If valid port attaches ':' and the port number after address
-		if pParams.Port > 0 && pParams.Port <= 65535 {
-			hostPortStr += ":" + strconv.Itoa(int(pParams.Port))
-		}
-
-		args = append(args, hostPortStr)
+		args = append(args, fmt.Sprintf("--password=%s", pParams.Password))
 	}
 
 	return args

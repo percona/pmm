@@ -238,7 +238,7 @@ func Test_argListFromPgParams(t *testing.T) {
 		{&agentpb.StartActionRequest_PTPgSummaryParams{Host: "", Port: 0, Username: "王华", Password: `"`},
 			[]string{"--username", "王华", "--password", `"`}},
 		{&agentpb.StartActionRequest_PTPgSummaryParams{Host: "10.20.30.40", Port: 555, Username: "",
-			Password: "   "}, []string{"--host", "10.20.30.40", "--port", "555"}},
+			Password: "   "}, []string{"--username", "person", "--password=   ", "10.20.30.40:555"}},
 	}
 
 	for _, tc := range testCases {
