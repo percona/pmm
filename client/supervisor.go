@@ -13,29 +13,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package tests
+package client
 
 import (
-	"strings"
-	"testing"
-
-	"github.com/golang/protobuf/proto"
 	"github.com/percona/pmm/api/agentpb"
-	"github.com/stretchr/testify/assert"
 )
 
-// AssertBucketsEqual asserts that two MetricsBuckets are equal while providing a good diff.
-func AssertBucketsEqual(t *testing.T, expected, actual *agentpb.MetricsBucket) bool {
-	t.Helper()
+//go:generate mockery -name=supervisor -case=snake -inpkg -testonly
 
-	return assert.Equal(t, proto.MarshalTextString(expected), proto.MarshalTextString(actual))
-}
-
-// FormatBuckets formats MetricsBuckets to string for tests.
-func FormatBuckets(mb []*agentpb.MetricsBucket) string {
-	res := make([]string, len(mb))
-	for i, b := range mb {
-		res[i] = proto.MarshalTextString(b)
-	}
-	return strings.Join(res, "\n")
+// supervisor is a subset of methods of supervisor.Supervisor used by this package.
+// We use it instead of real type for testing and to avoid dependency cycle.
+type supervisor interface {
+	Changes() <-chan agentpb.StateChangedRequest
+	QANRequests() <-chan agentpb.QANCollectRequest
+	SetState(*agentpb.SetStateRequest)
 }

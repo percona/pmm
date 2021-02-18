@@ -18,7 +18,6 @@ package client
 
 import (
 	"context"
-	"fmt"
 	"net"
 	"strconv"
 	"strings"
@@ -222,7 +221,7 @@ func (c *Client) processSupervisorRequests() {
 		defer wg.Done()
 
 		for state := range c.supervisor.Changes() {
-			resp := c.channel.SendRequest(state)
+			resp := c.channel.SendRequest(&state)
 			if resp == nil {
 				c.l.Warn("Failed to send StateChanged request.")
 			}
@@ -235,7 +234,7 @@ func (c *Client) processSupervisorRequests() {
 		defer wg.Done()
 
 		for collect := range c.supervisor.QANRequests() {
-			resp := c.channel.SendRequest(collect)
+			resp := c.channel.SendRequest(&collect)
 			if resp == nil {
 				c.l.Warn("Failed to send QanCollect request.")
 			}
@@ -330,9 +329,6 @@ func (c *Client) processChannelRequests() {
 
 			case *agentpb.StartActionRequest_PtPgSummaryParams:
 				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTPgSummary, argListFromPgParams(params.PtPgSummaryParams))
-
-			case *agentpb.StartActionRequest_PtMongodbSummaryParams:
-				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTMongoDBSummary, argListFromMongoDBParams(params.PtMongodbSummaryParams))
 
 			case nil:
 				// Requests() is not closed, so exit early to break channel
@@ -587,38 +583,6 @@ func argListFromPgParams(pParams *agentpb.StartActionRequest_PTPgSummaryParams) 
 
 	if pswd != "" {
 		args = append(args, "--password", pswd)
-	}
-
-	return args
-}
-
-// argListFromMongoDBParams creates an array of strings from the pointer to the parameters for pt-mongodb-sumamry
-func argListFromMongoDBParams(pParams *agentpb.StartActionRequest_PTMongoDBSummaryParams) []string {
-	var args []string
-
-	// Only adds the arguments that are valid
-
-	if pParams.Username != "" {
-		args = append(args, "--username", pParams.Username)
-	}
-
-	// Spaces at the beginning and end are not desirable
-	pswd := strings.Trim(pParams.Password, " ")
-
-	if pswd != "" {
-		// TODO change this line when pt-mongodb-summary is updated
-		args = append(args, fmt.Sprintf("--password=%s", pswd))
-	}
-
-	if pParams.Host != "" {
-		var hostPortStr string = pParams.Host
-
-		// If valid port attaches ':' and the port number after address
-		if pParams.Port > 0 && pParams.Port <= 65535 {
-			hostPortStr += ":" + strconv.Itoa(int(pParams.Port))
-		}
-
-		args = append(args, hostPortStr)
 	}
 
 	return args

@@ -107,7 +107,6 @@ func TestGet(t *testing.T) {
 				TempDir:          os.TempDir(),
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
 				PTPgSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
-				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
 			},
 			Ports: Ports{
 				Min: 42000,
@@ -152,7 +151,6 @@ func TestGet(t *testing.T) {
 				TempDir:          os.TempDir(),
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
 				PTPgSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
-				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
 			},
 			Ports: Ports{
 				Min: 42000,
@@ -198,7 +196,6 @@ func TestGet(t *testing.T) {
 				TempDir:          os.TempDir(),
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
 				PTPgSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
-				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
 			},
 			Ports: Ports{
 				Min: 42000,
@@ -252,7 +249,6 @@ func TestGet(t *testing.T) {
 				TempDir:          os.TempDir(),
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
 				PTPgSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
-				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
 			},
 			Ports: Ports{
 				Min: 42000,
@@ -289,7 +285,6 @@ func TestGet(t *testing.T) {
 				TempDir:          os.TempDir(),
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
 				PTPgSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
-				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
 			},
 			Ports: Ports{
 				Min: 42000,
