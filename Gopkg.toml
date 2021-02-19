@@ -17,23 +17,13 @@ required = [
   "github.com/grpc-ecosystem/grpc-gateway/runtime",
   "github.com/go-swagger/go-swagger",
   "github.com/sirupsen/logrus",
-  "github.com/stretchr/testify"
+  "github.com/stretchr/testify",
+  "gopkg.in/reform.v1"
 ]
 
-[prune]
-  go-tests = true
-  non-go = true
-  unused-packages = true
 
-# to keep *.proto files
-[[prune.project]]
-  name = "github.com/grpc-ecosystem/grpc-gateway"
-  non-go = false
-  unused-packages = false
-[[prune.project]]
-  name = "github.com/mwitkow/go-proto-validators"
-  non-go = false
-  unused-packages = false
+# Don't [prune] anything - the whole vendor/ is in .gitignore.
+
 
 # We want all PMM components to use the same versions of key dependecies to avoid nasty suprises.
 
@@ -71,3 +61,6 @@ required = [
   # v1.2.0+ uses github.com/cespare/xxhash/v2 module, but dep can't handle v2+ modules
   name = "github.com/prometheus/client_golang"
   version = "=1.1.0"
+[[constraint]]
+  name = "gopkg.in/reform.v1"
+  version = "=1.5.0"

@@ -105,23 +105,73 @@ message MetricsResolutions {
   google.protobuf.Duration lr = 3;
 }
 
+// EmailAlertingSettings represents email (SMTP) configuration for Integrated Alerting.
+message EmailAlertingSettings {
+  // SMTP From header field.
+  string from = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // SMTP host and port.
+  string smarthost = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Hostname to identify to the SMTP server.
+  string hello = 3;
+  // Auth using CRAM-MD5, LOGIN and PLAIN.
+  string username = 4;
+  // Auth using LOGIN and PLAIN.
+  string password = 5;
+  // Auth using PLAIN.
+  string identity = 6;
+  // Auth using CRAM-MD5.
+  string secret = 7;
+}
+
+// SlackAlertingSettings represents Slack configuration for Integrated Alerting.
+message SlackAlertingSettings {
+  // Slack API (webhook) URL.
+  string url = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
+
 // Settings represents PMM Server settings.
 message Settings {
+  // True if updates are disabled.
   bool updates_disabled = 1;
+  // True if telemetry is enabled.
   bool telemetry_enabled = 2;
   MetricsResolutions metrics_resolutions = 3;
   google.protobuf.Duration data_retention = 4;
   string ssh_key = 5;
   repeated string aws_partitions = 6;
-  // Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).
+  // External AlertManager URL (e.g., https://username:password@1.2.3.4/path).
   string alert_manager_url = 7;
+  // alert_manager_rules field name is incorrect
+  // (they never were _Alertmanager_ rules), but we can't rename it for compatibility reasons.
+
+  // Custom alerting or recording rules.
   string alert_manager_rules = 8;
-  // Security Threat Tool enabled
+  // True if Security Threat Tool is enabled.
   bool stt_enabled = 9;
   // Percona Platform user's email, if this PMM instance is linked to the Platform.
   string platform_email = 10;
-  // DBaaS enabled
+  // True if DBaaS is enabled.
   bool dbaas_enabled = 11;
+  // True if Integrated Alerting is enabled.
+  bool alerting_enabled = 12;
+  // Integrated Alerting email (SMTP) settings.
+  EmailAlertingSettings email_alerting_settings = 13;
+  // Integrated Alerting Slack settings.
+  SlackAlertingSettings slack_alerting_settings = 14;
+  // PMM Server public address.
+  string pmm_public_address = 15;
 }
 
 message GetSettingsRequest {}
@@ -138,15 +188,36 @@ message ChangeSettingsRequest {
   google.protobuf.Duration data_retention = 4;
   string ssh_key = 5;
   repeated string aws_partitions = 6;
-  // Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).
+  // External AlertManager URL (e.g., https://username:password@1.2.3.4/path).
   string alert_manager_url = 7;
+  // Remove external AlertManager URL.
   bool remove_alert_manager_url = 8;
+  // alert_manager_rules and remove_alert_manager_rules field names are incorrect
+  // (they never were _Alertmanager_ rules), but we can't rename them for compatibility reasons.
+
+  // Custom alerting or recording rules.
   string alert_manager_rules = 9;
+  // Remove custom alerting or recording rules.
   bool remove_alert_manager_rules = 10;
-  // Enable Security Threat Tool
+  // Enable Security Threat Tool.
   bool enable_stt = 11;
-  // Disable Security Threat Tool
+  // Disable Security Threat Tool.
   bool disable_stt = 12;
+  // Enable Integrated Alerting.
+  bool enable_alerting = 13;
+  // Disable Integrated Alerting.
+  bool disable_alerting = 14;
+  // Change Integrated Alerting email (SMTP) settings, if set.
+  EmailAlertingSettings email_alerting_settings = 15;
+  // If true, removes Integrated Alerting email (SMTP) settings.
+  bool remove_email_alerting_settings = 16;
+  // Change Integrated Alerting Slack settings, if set.
+  SlackAlertingSettings slack_alerting_settings = 17;
+  // If true, removes Integrated Alerting Slack settings.
+  bool remove_slack_alerting_settings = 18;
+  // PMM Server public address.
+  string pmm_public_address = 19;
+  bool remove_pmm_public_address = 20;
 }
 
 message ChangeSettingsResponse {

@@ -25,6 +25,8 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
+	GetKubernetesCluster(params *GetKubernetesClusterParams) (*GetKubernetesClusterOK, error)
+
 	ListKubernetesClusters(params *ListKubernetesClustersParams) (*ListKubernetesClustersOK, error)
 
 	RegisterKubernetesCluster(params *RegisterKubernetesClusterParams) (*RegisterKubernetesClusterOK, error)
@@ -32,6 +34,39 @@ type ClientService interface {
 	UnregisterKubernetesCluster(params *UnregisterKubernetesClusterParams) (*UnregisterKubernetesClusterOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+  GetKubernetesCluster gets kubernetes cluster return kube auth with kubernetes config
+*/
+func (a *Client) GetKubernetesCluster(params *GetKubernetesClusterParams) (*GetKubernetesClusterOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetKubernetesClusterParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "GetKubernetesCluster",
+		Method:             "POST",
+		PathPattern:        "/v1/management/DBaaS/Kubernetes/Get",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &GetKubernetesClusterReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetKubernetesClusterOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*GetKubernetesClusterDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*

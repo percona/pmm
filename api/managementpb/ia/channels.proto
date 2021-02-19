@@ -1,0 +1,195 @@
+syntax = "proto3";
+
+package ia.v1beta1;
+
+option go_package = "api/managementpb/ia;iav1beta1";
+
+import "github.com/mwitkow/go-proto-validators/validator.proto";
+import "google/api/annotations.proto";
+
+// TODO move it to parent directory / package once API is v1-stable
+
+// BasicAuth represents basic HTTP auth configuration.
+message BasicAuth {
+  string username = 1;
+  string password = 2;
+  string password_file = 3;
+}
+
+// TLSConfig represents TLS configuration.
+message TLSConfig {
+  string ca_file = 1;
+  string cert_file = 2;
+  string key_file = 3;
+  string server_name = 4;
+  bool insecure_skip_verify = 5;
+}
+
+// HTTPConfig represents HTTP client configuration.
+message HTTPConfig {
+  // Basic HTTP auth configuration. Zero value will remove it.
+  BasicAuth basic_auth = 1;
+  string bearer_token = 2;
+  string bearer_token_file = 3;
+  // TLS configuration. Zero value will remove it.
+  TLSConfig tls_config = 4;
+  string proxy_url = 5;
+}
+
+// EmailConfig represents email configuration.
+message EmailConfig {
+  bool send_resolved = 1;
+  repeated string to = 2 [
+    (validator.field) = {
+      repeated_count_min: 1
+    }
+  ];
+}
+
+// PagerDutyConfig represents PagerDuty configuration.
+message PagerDutyConfig {
+  bool send_resolved = 1;
+  // The PagerDuty key for "Events API v2" integration type. Exactly one key should be set.
+  string routing_key = 2;
+  // The PagerDuty key for "Prometheus" integration type. Exactly one key should be set.
+  string service_key = 3;
+}
+
+// SlackConfig represents Slack configuration.
+message SlackConfig {
+  bool send_resolved = 1;
+  string channel = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
+
+// WebhookConfig represents webhook configuration.
+message WebhookConfig {
+  bool send_resolved = 1;
+  string url = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  HTTPConfig http_config = 3;
+  int32 max_alerts = 4;
+}
+
+// Channel represents a single Notification Channel.
+message Channel {
+  // reserved channels
+  // pushover_config = 5;
+  // opsgenie_config = 7;
+  // victorops_config = 9;
+  // wechat_config = 10;
+
+  // Machine-readable ID.
+  string channel_id = 1;
+  // Short human-readable summary.
+  string summary = 2;
+  oneof channel {
+    EmailConfig email_config = 3;
+    PagerDutyConfig pagerduty_config = 4;
+    SlackConfig slack_config = 6;
+    WebhookConfig webhook_config = 8;
+  }
+  // True if that channel is disabled.
+  bool disabled = 11;
+}
+
+message ListChannelsRequest {}
+
+message ListChannelsResponse {
+  repeated Channel channels = 1;
+}
+
+message AddChannelRequest {
+  // Short human-readable summary.
+  string summary = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Email configuration. Exactly one config should be set.
+  EmailConfig email_config = 3;
+  // PagerDuty configuration. Exactly one config should be set.
+  PagerDutyConfig pagerduty_config = 4;
+  // Slack configuration. Exactly one config should be set.
+  SlackConfig slack_config = 6;
+  // Webhook configuration. Exactly one config should be set.
+  WebhookConfig webhook_config = 8;
+  // New channel status.
+  bool disabled = 11;
+}
+
+message AddChannelResponse {
+  // Machine-readable ID.
+  string channel_id = 1;
+}
+
+message ChangeChannelRequest {
+  // Machine-readable ID.
+  string channel_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Short human-readable summary. Empty value will not change it.
+  string summary = 2;
+  // Email configuration. Exactly one config should be set.
+  EmailConfig email_config = 3;
+  // PagerDuty configuration. Exactly one config should be set.
+  PagerDutyConfig pagerduty_config = 4;
+  // Slack configuration. Exactly one config should be set.
+  SlackConfig slack_config = 6;
+  // Webhook configuration. Exactly one config should be set.
+  WebhookConfig webhook_config = 8;
+  // Enables or disables that channel. Should be set.
+  bool disabled = 11;
+}
+
+message ChangeChannelResponse {}
+
+message RemoveChannelRequest {
+  string channel_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
+
+message RemoveChannelResponse {}
+
+// Channels service provides access to Notification Channels.
+service Channels {
+  // ListChannels returns a list of all notifation channels.
+  rpc ListChannels(ListChannelsRequest) returns (ListChannelsResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/ia/Channels/List"
+      body: "*"
+    };
+  }
+  // AddChannel adds notification channel.
+  rpc AddChannel(AddChannelRequest) returns (AddChannelResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/ia/Channels/Add"
+      body: "*"
+    };
+  }
+  // ChangeChannel changes notification channel.
+  rpc ChangeChannel(ChangeChannelRequest) returns (ChangeChannelResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/ia/Channels/Change"
+      body: "*"
+    };
+  }
+  // RemoveChannel removes notification channel.
+  rpc RemoveChannel(RemoveChannelRequest) returns (RemoveChannelResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/ia/Channels/Remove"
+      body: "*"
+    };
+  }
+}

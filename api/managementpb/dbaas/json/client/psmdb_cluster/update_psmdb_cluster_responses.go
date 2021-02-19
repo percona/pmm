@@ -255,13 +255,19 @@ func (o *UpdatePSMDBClusterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*UpdatePSMDBClusterParamsBodyParams PSMDBClusterParams represents PSMDB cluster parameters that can be updated.
+/*UpdatePSMDBClusterParamsBodyParams UpdatePSMDBClusterParams represents PSMDB cluster parameters that can be updated.
 swagger:model UpdatePSMDBClusterParamsBodyParams
 */
 type UpdatePSMDBClusterParamsBodyParams struct {
 
 	// Cluster size.
 	ClusterSize int32 `json:"cluster_size,omitempty"`
+
+	// Suspend cluster `pause: true`.
+	Suspend bool `json:"suspend,omitempty"`
+
+	// Resume cluster `pause: false`.
+	Resume bool `json:"resume,omitempty"`
 
 	// replicaset
 	Replicaset *UpdatePSMDBClusterParamsBodyParamsReplicaset `json:"replicaset,omitempty"`

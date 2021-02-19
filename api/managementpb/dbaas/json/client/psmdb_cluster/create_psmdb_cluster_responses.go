@@ -321,9 +321,13 @@ func (o *CreatePSMDBClusterParamsBodyParams) UnmarshalBinary(b []byte) error {
 }
 
 /*CreatePSMDBClusterParamsBodyParamsReplicaset ReplicaSet container parameters.
+// TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model CreatePSMDBClusterParamsBodyParamsReplicaset
 */
 type CreatePSMDBClusterParamsBodyParamsReplicaset struct {
+
+	// Disk size in bytes.
+	DiskSize string `json:"disk_size,omitempty"`
 
 	// compute resources
 	ComputeResources *CreatePSMDBClusterParamsBodyParamsReplicasetComputeResources `json:"compute_resources,omitempty"`

@@ -271,12 +271,15 @@ type ResultsItems0 struct {
 	// description
 	Description string `json:"description,omitempty"`
 
-	// Severity represents severity level of the check result.
+	// Severity represents severity level of the check result or alert.
 	// Enum: [SEVERITY_INVALID SEVERITY_EMERGENCY SEVERITY_ALERT SEVERITY_CRITICAL SEVERITY_ERROR SEVERITY_WARNING SEVERITY_NOTICE SEVERITY_INFO SEVERITY_DEBUG]
 	Severity *string `json:"severity,omitempty"`
 
 	// labels
 	Labels map[string]string `json:"labels,omitempty"`
+
+	// URL containing information on how to resolve an issue detected by an STT check.
+	ReadMoreURL string `json:"read_more_url,omitempty"`
 }
 
 // Validate validates this results items0

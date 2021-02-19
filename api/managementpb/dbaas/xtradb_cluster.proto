@@ -22,6 +22,8 @@ enum XtraDBClusterState {
   XTRA_DB_CLUSTER_STATE_FAILED = 3;
   // XTRA_DB_CLUSTER_STATE_DELETING represents a cluster being deleting.
   XTRA_DB_CLUSTER_STATE_DELETING = 4;
+  // XTRA_DB_CLUSTER_STATE_PAUSED represents a cluster is paused.
+  XTRA_DB_CLUSTER_STATE_PAUSED = 5;
 }
 
 // XtraDBBackupState represents XtraDB backup CR state.
@@ -39,14 +41,28 @@ enum XtraDBBackupState {
 // XtraDBClusterParams represents XtraDB cluster parameters that can be updated.
 message XtraDBClusterParams {
   // PXC container parameters.
+  // TODO Do not use inner messages in all public APIs (for consistency).
   message PXC {
     // Requested compute resources.
     ComputeResources compute_resources = 1;
+    // Disk size in bytes.
+    int64 disk_size = 2 [
+      (validator.field) = {
+        int_gt: 0
+      }
+    ];
   }
   // ProxySQL container parameters.
+  // TODO Do not use inner messages in all public APIs (for consistency).
   message ProxySQL {
     // Requested compute resources.
     ComputeResources compute_resources = 1;
+    // Disk size in bytes.
+    int64 disk_size = 2 [
+      (validator.field) = {
+        int_gt: 0
+      }
+    ];
   }
   // Cluster size.
   int32 cluster_size = 1 [
@@ -79,6 +95,7 @@ message ListXtraDBClustersRequest {
 
 message ListXtraDBClustersResponse {
   // Cluster represents XtraDB cluster information.
+  // TODO Do not use inner messages in all public APIs (for consistency).
   message Cluster {
     // Cluster name.
     string name = 1;
@@ -93,7 +110,7 @@ message ListXtraDBClustersResponse {
   repeated Cluster clusters = 1;
 }
 
-message GetXtraDBClusterRequest {
+message GetXtraDBClusterCredentialsRequest {
   // Kubernetes cluster name.
   string kubernetes_cluster_name = 1 [
     (validator.field) = {
@@ -120,15 +137,9 @@ message XtraDBClusterConnectionCredentials {
   int32 port = 4;
 }
 
-message GetXtraDBClusterResponse {
-  // Cluster state.
-  XtraDBClusterState state = 1;
-  // Currently running operation, if any.
-  RunningOperation operation = 2;
-  // Cluster parameters.
-  XtraDBClusterParams params = 3;
+message GetXtraDBClusterCredentialsResponse {
   // Cluster connection credentials.
-  XtraDBClusterConnectionCredentials connection_credentials = 4;
+  XtraDBClusterConnectionCredentials connection_credentials = 1;
 }
 
 message CreateXtraDBClusterRequest {
@@ -170,12 +181,31 @@ message UpdateXtraDBClusterRequest {
       string_not_empty: true
     }
   ];
-  // Cluster parameters.
-  XtraDBClusterParams params = 3 [
-    (validator.field) = {
-      msg_exists: true
+  // UpdateXtraDBClusterParams represents XtraDB cluster parameters that can be updated.
+  message UpdateXtraDBClusterParams {
+    // PXC container parameters.
+    message PXC {
+      // Requested compute resources.
+      ComputeResources compute_resources = 1;
     }
-  ];
+    // ProxySQL container parameters.
+    message ProxySQL {
+      // Requested compute resources.
+      ComputeResources compute_resources = 1;
+    }
+    // Cluster size.
+    int32 cluster_size = 1;
+    // PXC container parameters.
+    PXC pxc = 2;
+    // ProxySQL container parameters.
+    ProxySQL proxysql = 3;
+    // Suspend cluster `pause: true`.
+    bool suspend = 4;
+    // Resume cluster `pause: false`.
+    bool resume = 5;
+  }
+  // Cluster parameters.
+  UpdateXtraDBClusterParams params = 3;
 }
 
 message UpdateXtraDBClusterResponse {}
@@ -197,6 +227,23 @@ message DeleteXtraDBClusterRequest {
 
 message DeleteXtraDBClusterResponse {}
 
+message RestartXtraDBClusterRequest {
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // XtraDB cluster name.
+  string name = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
+
+message RestartXtraDBClusterResponse {}
+
 // XtraDBCluster service provides public methods for managing XtraDB clusters.
 service XtraDBCluster {
   // ListXtraDBClusters returns a list of XtraDB clusters.
@@ -206,10 +253,10 @@ service XtraDBCluster {
       body: "*"
     };
   }
-  // GetXtraDBCluster returns a XtraDB cluster by name.
-  rpc GetXtraDBCluster(GetXtraDBClusterRequest) returns (GetXtraDBClusterResponse) {
+  // GetXtraDBClusterCredentials returns a XtraDB cluster credentials by cluster name.
+  rpc GetXtraDBClusterCredentials(GetXtraDBClusterCredentialsRequest) returns (GetXtraDBClusterCredentialsResponse) {
     option (google.api.http) = {
-      post: "/v1/management/DBaaS/XtraDBClusters/Get"
+      post: "/v1/management/DBaaS/XtraDBClusters/GetCredentials"
       body: "*"
     };
   }
@@ -231,6 +278,13 @@ service XtraDBCluster {
   rpc DeleteXtraDBCluster(DeleteXtraDBClusterRequest) returns (DeleteXtraDBClusterResponse) {
     option (google.api.http) = {
       post: "/v1/management/DBaaS/XtraDBCluster/Delete"
+      body: "*"
+    };
+  }
+  // RestartXtraDBCluster restarts XtraDB cluster.
+  rpc RestartXtraDBCluster(RestartXtraDBClusterRequest) returns (RestartXtraDBClusterResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/XtraDBCluster/Restart"
       body: "*"
     };
   }

@@ -411,31 +411,117 @@
                   "x-order": 5
                 },
                 "alert_manager_url": {
-                  "description": "Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
+                  "description": "External AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
                   "type": "string",
                   "x-order": 6
                 },
                 "remove_alert_manager_url": {
+                  "description": "Remove external AlertManager URL.",
                   "type": "boolean",
                   "x-order": 7
                 },
                 "alert_manager_rules": {
+                  "description": "Custom alerting or recording rules.",
                   "type": "string",
                   "x-order": 8
                 },
                 "remove_alert_manager_rules": {
+                  "description": "Remove custom alerting or recording rules.",
                   "type": "boolean",
                   "x-order": 9
                 },
                 "enable_stt": {
+                  "description": "Enable Security Threat Tool.",
                   "type": "boolean",
-                  "title": "Enable Security Threat Tool",
                   "x-order": 10
                 },
                 "disable_stt": {
+                  "description": "Disable Security Threat Tool.",
                   "type": "boolean",
-                  "title": "Disable Security Threat Tool",
                   "x-order": 11
+                },
+                "enable_alerting": {
+                  "description": "Enable Integrated Alerting.",
+                  "type": "boolean",
+                  "x-order": 12
+                },
+                "disable_alerting": {
+                  "description": "Disable Integrated Alerting.",
+                  "type": "boolean",
+                  "x-order": 13
+                },
+                "email_alerting_settings": {
+                  "description": "EmailAlertingSettings represents email (SMTP) configuration for Integrated Alerting.",
+                  "type": "object",
+                  "properties": {
+                    "from": {
+                      "description": "SMTP From header field.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "smarthost": {
+                      "description": "SMTP host and port.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "hello": {
+                      "description": "Hostname to identify to the SMTP server.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "username": {
+                      "description": "Auth using CRAM-MD5, LOGIN and PLAIN.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "password": {
+                      "description": "Auth using LOGIN and PLAIN.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "identity": {
+                      "description": "Auth using PLAIN.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "secret": {
+                      "description": "Auth using CRAM-MD5.",
+                      "type": "string",
+                      "x-order": 6
+                    }
+                  },
+                  "x-order": 14
+                },
+                "remove_email_alerting_settings": {
+                  "description": "If true, removes Integrated Alerting email (SMTP) settings.",
+                  "type": "boolean",
+                  "x-order": 15
+                },
+                "slack_alerting_settings": {
+                  "description": "SlackAlertingSettings represents Slack configuration for Integrated Alerting.",
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "description": "Slack API (webhook) URL.",
+                      "type": "string",
+                      "x-order": 0
+                    }
+                  },
+                  "x-order": 16
+                },
+                "remove_slack_alerting_settings": {
+                  "description": "If true, removes Integrated Alerting Slack settings.",
+                  "type": "boolean",
+                  "x-order": 17
+                },
+                "pmm_public_address": {
+                  "description": "PMM Server public address.",
+                  "type": "string",
+                  "x-order": 18
+                },
+                "remove_pmm_public_address": {
+                  "type": "boolean",
+                  "x-order": 19
                 }
               }
             }
@@ -452,10 +538,12 @@
                   "type": "object",
                   "properties": {
                     "updates_disabled": {
+                      "description": "True if updates are disabled.",
                       "type": "boolean",
                       "x-order": 0
                     },
                     "telemetry_enabled": {
+                      "description": "True if telemetry is enabled.",
                       "type": "boolean",
                       "x-order": 1
                     },
@@ -497,17 +585,18 @@
                       "x-order": 5
                     },
                     "alert_manager_url": {
-                      "description": "Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
+                      "description": "External AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
                       "type": "string",
                       "x-order": 6
                     },
                     "alert_manager_rules": {
+                      "description": "Custom alerting or recording rules.",
                       "type": "string",
                       "x-order": 7
                     },
                     "stt_enabled": {
+                      "description": "True if Security Threat Tool is enabled.",
                       "type": "boolean",
-                      "title": "Security Threat Tool enabled",
                       "x-order": 8
                     },
                     "platform_email": {
@@ -516,9 +605,73 @@
                       "x-order": 9
                     },
                     "dbaas_enabled": {
+                      "description": "True if DBaaS is enabled.",
                       "type": "boolean",
-                      "title": "DBaaS enabled",
                       "x-order": 10
+                    },
+                    "alerting_enabled": {
+                      "description": "True if Integrated Alerting is enabled.",
+                      "type": "boolean",
+                      "x-order": 11
+                    },
+                    "email_alerting_settings": {
+                      "description": "EmailAlertingSettings represents email (SMTP) configuration for Integrated Alerting.",
+                      "type": "object",
+                      "properties": {
+                        "from": {
+                          "description": "SMTP From header field.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "smarthost": {
+                          "description": "SMTP host and port.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "hello": {
+                          "description": "Hostname to identify to the SMTP server.",
+                          "type": "string",
+                          "x-order": 2
+                        },
+                        "username": {
+                          "description": "Auth using CRAM-MD5, LOGIN and PLAIN.",
+                          "type": "string",
+                          "x-order": 3
+                        },
+                        "password": {
+                          "description": "Auth using LOGIN and PLAIN.",
+                          "type": "string",
+                          "x-order": 4
+                        },
+                        "identity": {
+                          "description": "Auth using PLAIN.",
+                          "type": "string",
+                          "x-order": 5
+                        },
+                        "secret": {
+                          "description": "Auth using CRAM-MD5.",
+                          "type": "string",
+                          "x-order": 6
+                        }
+                      },
+                      "x-order": 12
+                    },
+                    "slack_alerting_settings": {
+                      "description": "SlackAlertingSettings represents Slack configuration for Integrated Alerting.",
+                      "type": "object",
+                      "properties": {
+                        "url": {
+                          "description": "Slack API (webhook) URL.",
+                          "type": "string",
+                          "x-order": 0
+                        }
+                      },
+                      "x-order": 13
+                    },
+                    "pmm_public_address": {
+                      "description": "PMM Server public address.",
+                      "type": "string",
+                      "x-order": 14
                     }
                   },
                   "x-order": 0
@@ -596,10 +749,12 @@
                   "type": "object",
                   "properties": {
                     "updates_disabled": {
+                      "description": "True if updates are disabled.",
                       "type": "boolean",
                       "x-order": 0
                     },
                     "telemetry_enabled": {
+                      "description": "True if telemetry is enabled.",
                       "type": "boolean",
                       "x-order": 1
                     },
@@ -641,17 +796,18 @@
                       "x-order": 5
                     },
                     "alert_manager_url": {
-                      "description": "Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
+                      "description": "External AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
                       "type": "string",
                       "x-order": 6
                     },
                     "alert_manager_rules": {
+                      "description": "Custom alerting or recording rules.",
                       "type": "string",
                       "x-order": 7
                     },
                     "stt_enabled": {
+                      "description": "True if Security Threat Tool is enabled.",
                       "type": "boolean",
-                      "title": "Security Threat Tool enabled",
                       "x-order": 8
                     },
                     "platform_email": {
@@ -660,9 +816,73 @@
                       "x-order": 9
                     },
                     "dbaas_enabled": {
+                      "description": "True if DBaaS is enabled.",
                       "type": "boolean",
-                      "title": "DBaaS enabled",
                       "x-order": 10
+                    },
+                    "alerting_enabled": {
+                      "description": "True if Integrated Alerting is enabled.",
+                      "type": "boolean",
+                      "x-order": 11
+                    },
+                    "email_alerting_settings": {
+                      "description": "EmailAlertingSettings represents email (SMTP) configuration for Integrated Alerting.",
+                      "type": "object",
+                      "properties": {
+                        "from": {
+                          "description": "SMTP From header field.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "smarthost": {
+                          "description": "SMTP host and port.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "hello": {
+                          "description": "Hostname to identify to the SMTP server.",
+                          "type": "string",
+                          "x-order": 2
+                        },
+                        "username": {
+                          "description": "Auth using CRAM-MD5, LOGIN and PLAIN.",
+                          "type": "string",
+                          "x-order": 3
+                        },
+                        "password": {
+                          "description": "Auth using LOGIN and PLAIN.",
+                          "type": "string",
+                          "x-order": 4
+                        },
+                        "identity": {
+                          "description": "Auth using PLAIN.",
+                          "type": "string",
+                          "x-order": 5
+                        },
+                        "secret": {
+                          "description": "Auth using CRAM-MD5.",
+                          "type": "string",
+                          "x-order": 6
+                        }
+                      },
+                      "x-order": 12
+                    },
+                    "slack_alerting_settings": {
+                      "description": "SlackAlertingSettings represents Slack configuration for Integrated Alerting.",
+                      "type": "object",
+                      "properties": {
+                        "url": {
+                          "description": "Slack API (webhook) URL.",
+                          "type": "string",
+                          "x-order": 0
+                        }
+                      },
+                      "x-order": 13
+                    },
+                    "pmm_public_address": {
+                      "description": "PMM Server public address.",
+                      "type": "string",
+                      "x-order": 14
                     }
                   },
                   "x-order": 0
@@ -1253,23 +1473,46 @@
                   "type": "boolean",
                   "x-order": 5
                 },
+                "tls_certificate_key": {
+                  "description": "Client certificate and key.",
+                  "type": "string",
+                  "x-order": 6
+                },
+                "tls_certificate_key_file_password": {
+                  "description": "Password for decrypting tls_certificate_key.",
+                  "type": "string",
+                  "x-order": 7
+                },
+                "tls_ca": {
+                  "description": "Certificate Authority certificate chain.",
+                  "type": "string",
+                  "x-order": 8
+                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
                   "type": "object",
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 6
+                  "x-order": 9
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "x-order": 7
+                  "x-order": 10
                 },
                 "push_metrics": {
                   "description": "Enables push metrics mode for exporter.",
                   "type": "boolean",
-                  "x-order": 8
+                  "x-order": 11
+                },
+                "disable_collectors": {
+                  "description": "List of collector names to disable in this exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 12
                 }
               }
             }
@@ -1333,6 +1576,14 @@
                       "type": "boolean",
                       "x-order": 8
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -1345,13 +1596,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -1469,6 +1720,14 @@
                   "description": "Enables push metrics mode for exporter.",
                   "type": "boolean",
                   "x-order": 9
+                },
+                "disable_collectors": {
+                  "description": "List of collector names to disable in this exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 10
                 }
               }
             }
@@ -1538,6 +1797,14 @@
                       "type": "boolean",
                       "x-order": 9
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 10
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -1550,18 +1817,18 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 12
+                      "x-order": 13
                     }
                   },
                   "x-order": 0
@@ -1649,6 +1916,14 @@
                   "description": "Enables push metrics mode for exporter.",
                   "type": "boolean",
                   "x-order": 2
+                },
+                "disable_collectors": {
+                  "description": "List of collector names to disable in this exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 3
                 }
               }
             }
@@ -1692,6 +1967,14 @@
                       "type": "boolean",
                       "x-order": 4
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 5
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -1704,13 +1987,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 5
+                      "x-order": 6
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 6
+                      "x-order": 7
                     }
                   },
                   "x-order": 0
@@ -1935,6 +2218,14 @@
                   "description": "Enables push metrics mode for exporter.",
                   "type": "boolean",
                   "x-order": 8
+                },
+                "disable_collectors": {
+                  "description": "List of collector names to disable in this exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 9
                 }
               }
             }
@@ -1998,6 +2289,14 @@
                       "type": "boolean",
                       "x-order": 8
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -2010,13 +2309,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -2128,6 +2427,14 @@
                   "description": "Enables push metrics mode for exporter.",
                   "type": "boolean",
                   "x-order": 8
+                },
+                "disable_collectors": {
+                  "description": "List of collector names to disable in this exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 9
                 }
               }
             }
@@ -2191,6 +2498,14 @@
                       "type": "boolean",
                       "x-order": 8
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -2203,13 +2518,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -2304,18 +2619,33 @@
                   "type": "boolean",
                   "x-order": 5
                 },
+                "tls_certificate_key": {
+                  "description": "Client certificate and key.",
+                  "type": "string",
+                  "x-order": 6
+                },
+                "tls_certificate_key_file_password": {
+                  "description": "Password for decrypting tls_certificate_key.",
+                  "type": "string",
+                  "x-order": 7
+                },
+                "tls_ca": {
+                  "description": "Certificate Authority certificate chain.",
+                  "type": "string",
+                  "x-order": 8
+                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
                   "type": "object",
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 6
+                  "x-order": 9
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "x-order": 7
+                  "x-order": 10
                 }
               }
             }
@@ -3675,6 +4005,14 @@
                       "type": "boolean",
                       "x-order": 8
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -3687,13 +4025,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -3870,6 +4208,14 @@
                       "type": "boolean",
                       "x-order": 9
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 10
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -3882,18 +4228,18 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 12
+                      "x-order": 13
                     }
                   },
                   "x-order": 0
@@ -4044,6 +4390,14 @@
                       "type": "boolean",
                       "x-order": 4
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 5
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -4056,13 +4410,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 5
+                      "x-order": 6
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 6
+                      "x-order": 7
                     }
                   },
                   "x-order": 0
@@ -4233,6 +4587,14 @@
                       "type": "boolean",
                       "x-order": 8
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -4245,13 +4607,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -4422,6 +4784,14 @@
                       "type": "boolean",
                       "x-order": 8
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -4434,13 +4804,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -5713,6 +6083,14 @@
                       "type": "boolean",
                       "x-order": 4
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 5
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -5725,13 +6103,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 5
+                      "x-order": 6
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 6
+                      "x-order": 7
                     }
                   },
                   "x-order": 2
@@ -5794,6 +6172,14 @@
                       "type": "boolean",
                       "x-order": 9
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 10
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -5806,18 +6192,18 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 12
+                      "x-order": 13
                     }
                   },
                   "x-order": 3
@@ -5874,6 +6260,14 @@
                       "type": "boolean",
                       "x-order": 8
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -5886,13 +6280,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 4
@@ -5949,6 +6343,14 @@
                       "type": "boolean",
                       "x-order": 8
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -5961,13 +6363,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 5
@@ -6024,6 +6426,14 @@
                       "type": "boolean",
                       "x-order": 8
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -6036,13 +6446,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 6
@@ -6733,6 +7143,14 @@
                         "type": "boolean",
                         "x-order": 4
                       },
+                      "disabled_collectors": {
+                        "description": "List of disabled collector names.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 5
+                      },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                         "type": "string",
@@ -6745,13 +7163,13 @@
                           "STOPPING",
                           "DONE"
                         ],
-                        "x-order": 5
+                        "x-order": 6
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 6
+                        "x-order": 7
                       }
                     }
                   },
@@ -6817,6 +7235,14 @@
                         "type": "boolean",
                         "x-order": 9
                       },
+                      "disabled_collectors": {
+                        "description": "List of disabled collector names.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 10
+                      },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                         "type": "string",
@@ -6829,18 +7255,18 @@
                           "STOPPING",
                           "DONE"
                         ],
-                        "x-order": 10
+                        "x-order": 11
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 11
+                        "x-order": 12
                       },
                       "tablestats_group_disabled": {
                         "description": "True if tablestats group collectors are currently disabled.",
                         "type": "boolean",
-                        "x-order": 12
+                        "x-order": 13
                       }
                     }
                   },
@@ -6900,6 +7326,14 @@
                         "type": "boolean",
                         "x-order": 8
                       },
+                      "disabled_collectors": {
+                        "description": "List of disabled collector names.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 9
+                      },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                         "type": "string",
@@ -6912,13 +7346,13 @@
                           "STOPPING",
                           "DONE"
                         ],
-                        "x-order": 9
+                        "x-order": 10
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 10
+                        "x-order": 11
                       }
                     }
                   },
@@ -6978,6 +7412,14 @@
                         "type": "boolean",
                         "x-order": 8
                       },
+                      "disabled_collectors": {
+                        "description": "List of disabled collector names.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 9
+                      },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                         "type": "string",
@@ -6990,13 +7432,13 @@
                           "STOPPING",
                           "DONE"
                         ],
-                        "x-order": 9
+                        "x-order": 10
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 10
+                        "x-order": 11
                       }
                     }
                   },
@@ -7056,6 +7498,14 @@
                         "type": "boolean",
                         "x-order": 8
                       },
+                      "disabled_collectors": {
+                        "description": "List of disabled collector names.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 9
+                      },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                         "type": "string",
@@ -7068,13 +7518,13 @@
                           "STOPPING",
                           "DONE"
                         ],
-                        "x-order": 9
+                        "x-order": 10
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 10
+                        "x-order": 11
                       }
                     }
                   },
@@ -9158,6 +9608,154 @@
         }
       }
     },
+    "/v1/inventory/Services/AddHAProxyService": {
+      "post": {
+        "tags": [
+          "Services"
+        ],
+        "summary": "AddHAProxyService adds HAProxy Service.",
+        "operationId": "AddHAProxyService",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "service_name": {
+                  "description": "Unique across all Services user-defined name. Required.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "node_id": {
+                  "description": "Node identifier where this instance runs. Required.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "environment": {
+                  "description": "Environment name.",
+                  "type": "string",
+                  "x-order": 2
+                },
+                "cluster": {
+                  "description": "Cluster name.",
+                  "type": "string",
+                  "x-order": 3
+                },
+                "replication_set": {
+                  "description": "Replication set name.",
+                  "type": "string",
+                  "x-order": 4
+                },
+                "custom_labels": {
+                  "description": "Custom user-assigned labels.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "x-order": 5
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "haproxy": {
+                  "description": "HAProxyService represents a generic HAProxy service instance.",
+                  "type": "object",
+                  "properties": {
+                    "service_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "node_id": {
+                      "description": "Node identifier where this service instance runs.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "cluster": {
+                      "description": "Cluster name.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "replication_set": {
+                      "description": "Replication set name.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 6
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/inventory/Services/AddMongoDB": {
       "post": {
         "tags": [
@@ -10152,6 +10750,51 @@
                   },
                   "x-order": 3
                 },
+                "haproxy": {
+                  "description": "HAProxyService represents a generic HAProxy service instance.",
+                  "type": "object",
+                  "properties": {
+                    "service_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "node_id": {
+                      "description": "Node identifier where this service instance runs.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "cluster": {
+                      "description": "Cluster name.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "replication_set": {
+                      "description": "Replication set name.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 6
+                    }
+                  },
+                  "x-order": 4
+                },
                 "external": {
                   "description": "ExternalService represents a generic External service instance.",
                   "type": "object",
@@ -10200,7 +10843,7 @@
                       "x-order": 7
                     }
                   },
-                  "x-order": 4
+                  "x-order": 5
                 }
               }
             }
@@ -10277,9 +10920,15 @@
                     "MONGODB_SERVICE",
                     "POSTGRESQL_SERVICE",
                     "PROXYSQL_SERVICE",
+                    "HAPROXY_SERVICE",
                     "EXTERNAL_SERVICE"
                   ],
                   "x-order": 1
+                },
+                "external_group": {
+                  "description": "Return only services in this external group.",
+                  "type": "string",
+                  "x-order": 2
                 }
               }
             }
@@ -10547,6 +11196,54 @@
                   },
                   "x-order": 3
                 },
+                "haproxy": {
+                  "type": "array",
+                  "items": {
+                    "description": "HAProxyService represents a generic HAProxy service instance.",
+                    "type": "object",
+                    "properties": {
+                      "service_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "service_name": {
+                        "description": "Unique across all Services user-defined name.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "node_id": {
+                        "description": "Node identifier where this service instance runs.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "environment": {
+                        "description": "Environment name.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "cluster": {
+                        "description": "Cluster name.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "replication_set": {
+                        "description": "Replication set name.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 6
+                      }
+                    }
+                  },
+                  "x-order": 4
+                },
                 "external": {
                   "type": "array",
                   "items": {
@@ -10598,7 +11295,7 @@
                       }
                     }
                   },
-                  "x-order": 4
+                  "x-order": 5
                 }
               }
             }
@@ -11591,13 +12288,22 @@
         }
       }
     },
+<<<<<<< HEAD
     "/v1/management/Actions/StartPTMySQLSummary": {
+=======
+    "/v1/management/Actions/StartPTMongoDBSummary": {
+>>>>>>> PMM-2.0
       "post": {
         "tags": [
           "Actions"
         ],
+<<<<<<< HEAD
         "summary": "StartPTMySQLSummaryAction starts pt--mysql-summary Action.",
         "operationId": "StartPTMySQLSummaryAction",
+=======
+        "summary": "StartPTMongoDBSummaryAction starts pt-mongodb-summary Action.",
+        "operationId": "StartPTMongoDBSummaryAction",
+>>>>>>> PMM-2.0
         "parameters": [
           {
             "name": "body",
@@ -11605,7 +12311,11 @@
             "required": true,
             "schema": {
               "type": "object",
+<<<<<<< HEAD
               "title": "Message to prepare pt-mysql-summary data",
+=======
+              "title": "Message to prepare pt-mongodb-summary data",
+>>>>>>> PMM-2.0
               "properties": {
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
@@ -11626,7 +12336,11 @@
             "description": "A successful response.",
             "schema": {
               "type": "object",
+<<<<<<< HEAD
               "title": "Message to retrieve the prepared pt-mysql-summary data",
+=======
+              "title": "Message to retrieve the prepared pt-mongodb-summary data",
+>>>>>>> PMM-2.0
               "properties": {
                 "action_id": {
                   "description": "Unique Action ID.",
@@ -12084,60 +12798,138 @@
               "type": "object",
               "properties": {
                 "runs_on_node_id": {
-                  "description": "Node identifier on which a external exporter is been running. Required.",
+                  "description": "Node identifier on which an external exporter is been running.\nruns_on_node_id always should be passed with node_id.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
                   "type": "string",
                   "x-order": 0
+                },
+                "node_name": {
+                  "description": "Node name on which a service and node is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "add_node": {
+                  "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
+                  "type": "object",
+                  "properties": {
+                    "node_type": {
+                      "description": "NodeType describes supported Node types.",
+                      "type": "string",
+                      "default": "NODE_TYPE_INVALID",
+                      "enum": [
+                        "NODE_TYPE_INVALID",
+                        "GENERIC_NODE",
+                        "CONTAINER_NODE",
+                        "REMOTE_NODE",
+                        "REMOTE_RDS_NODE"
+                      ],
+                      "x-order": 0
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "machine_id": {
+                      "description": "Linux machine-id.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "distro": {
+                      "description": "Linux distribution name and version.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "container_id": {
+                      "description": "Container identifier. If specified, must be a unique Docker container identifier.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "container_name": {
+                      "description": "Container name.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "node_model": {
+                      "description": "Node model.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels for Node.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    }
+                  },
+                  "x-order": 2
+                },
+                "address": {
+                  "description": "Node and Exporter access address (DNS name or IP).\naddress always should be passed with add_node.",
+                  "type": "string",
+                  "x-order": 3
                 },
                 "service_name": {
                   "description": "Unique across all Services user-defined name. Required.",
                   "type": "string",
-                  "x-order": 1
+                  "x-order": 4
                 },
                 "username": {
                   "description": "HTTP basic auth username for collecting metrics.",
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 5
                 },
                 "password": {
                   "description": "HTTP basic auth password for collecting metrics.",
                   "type": "string",
-                  "x-order": 3
+                  "x-order": 6
                 },
                 "scheme": {
                   "description": "Scheme to generate URI to exporter metrics endpoints.",
                   "type": "string",
-                  "x-order": 4
+                  "x-order": 7
                 },
                 "metrics_path": {
                   "description": "Path under which metrics are exposed, used to generate URI.",
                   "type": "string",
-                  "x-order": 5
+                  "x-order": 8
                 },
                 "listen_port": {
                   "description": "Listen port for scraping metrics.",
                   "type": "integer",
                   "format": "int64",
-                  "x-order": 6
+                  "x-order": 9
                 },
                 "node_id": {
-                  "description": "Node identifier on which a external service is been running. Required.",
+                  "description": "Node identifier on which an external service is been running.\nnode_id always should be passed with runs_on_node_id.",
                   "type": "string",
-                  "x-order": 7
+                  "x-order": 10
                 },
                 "environment": {
                   "description": "Environment name.",
                   "type": "string",
-                  "x-order": 8
+                  "x-order": 11
                 },
                 "cluster": {
                   "description": "Cluster name.",
                   "type": "string",
-                  "x-order": 9
+                  "x-order": 12
                 },
                 "replication_set": {
                   "description": "Replication set name.",
                   "type": "string",
-                  "x-order": 10
+                  "x-order": 13
                 },
                 "custom_labels": {
                   "description": "Custom user-assigned labels for Service.",
@@ -12145,12 +12937,12 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 11
+                  "x-order": 14
                 },
                 "group": {
                   "description": "Group name of external service.",
                   "type": "string",
-                  "x-order": 12
+                  "x-order": 15
                 },
                 "metrics_mode": {
                   "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
@@ -12161,7 +12953,12 @@
                     "PULL",
                     "PUSH"
                   ],
-                  "x-order": 13
+                  "x-order": 16
+                },
+                "skip_connection_check": {
+                  "description": "Skip connection check.",
+                  "type": "boolean",
+                  "x-order": 17
                 }
               }
             }
@@ -12219,6 +13016,335 @@
                       "description": "Group name of external service.",
                       "type": "string",
                       "x-order": 7
+                    }
+                  },
+                  "x-order": 0
+                },
+                "external_exporter": {
+                  "description": "ExternalExporter runs on any Node type, including Remote Node.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "runs_on_node_id": {
+                      "description": "Node identifier where this instance runs.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "If disabled, metrics from this exporter will not be collected.",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "username": {
+                      "description": "HTTP basic auth username for collecting metrics.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "scheme": {
+                      "description": "Scheme to generate URI to exporter metrics endpoints.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "metrics_path": {
+                      "description": "Path under which metrics are exposed, used to generate URI.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 7
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 8
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 9
+                    }
+                  },
+                  "x-order": 1
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/HAProxy/Add": {
+      "post": {
+        "tags": [
+          "HAProxy"
+        ],
+        "summary": "AddHAProxy adds HAProxy service and adds external exporter.\nIt automatically adds a service to inventory, which is running on provided \"node_id\",\nthen adds an \"external exporter\" agent to inventory.",
+        "operationId": "AddHAProxy",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "node_id": {
+                  "description": "Node identifier on which an external exporter is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "node_name": {
+                  "description": "Node name on which a service and node is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "add_node": {
+                  "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
+                  "type": "object",
+                  "properties": {
+                    "node_type": {
+                      "description": "NodeType describes supported Node types.",
+                      "type": "string",
+                      "default": "NODE_TYPE_INVALID",
+                      "enum": [
+                        "NODE_TYPE_INVALID",
+                        "GENERIC_NODE",
+                        "CONTAINER_NODE",
+                        "REMOTE_NODE",
+                        "REMOTE_RDS_NODE"
+                      ],
+                      "x-order": 0
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "machine_id": {
+                      "description": "Linux machine-id.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "distro": {
+                      "description": "Linux distribution name and version.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "container_id": {
+                      "description": "Container identifier. If specified, must be a unique Docker container identifier.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "container_name": {
+                      "description": "Container name.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "node_model": {
+                      "description": "Node model.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels for Node.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    }
+                  },
+                  "x-order": 2
+                },
+                "address": {
+                  "description": "Node and Exporter access address (DNS name or IP).\naddress always should be passed with add_node.",
+                  "type": "string",
+                  "x-order": 3
+                },
+                "service_name": {
+                  "description": "Unique across all Services user-defined name. Required.",
+                  "type": "string",
+                  "x-order": 4
+                },
+                "username": {
+                  "description": "HTTP basic auth username for collecting metrics.",
+                  "type": "string",
+                  "x-order": 5
+                },
+                "password": {
+                  "description": "HTTP basic auth password for collecting metrics.",
+                  "type": "string",
+                  "x-order": 6
+                },
+                "scheme": {
+                  "description": "Scheme to generate URI to exporter metrics endpoints.",
+                  "type": "string",
+                  "x-order": 7
+                },
+                "metrics_path": {
+                  "description": "Path under which metrics are exposed, used to generate URI.",
+                  "type": "string",
+                  "x-order": 8
+                },
+                "listen_port": {
+                  "description": "Listen port for scraping metrics.",
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 9
+                },
+                "environment": {
+                  "description": "Environment name.",
+                  "type": "string",
+                  "x-order": 10
+                },
+                "cluster": {
+                  "description": "Cluster name.",
+                  "type": "string",
+                  "x-order": 11
+                },
+                "replication_set": {
+                  "description": "Replication set name.",
+                  "type": "string",
+                  "x-order": 12
+                },
+                "custom_labels": {
+                  "description": "Custom user-assigned labels for Service.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "x-order": 13
+                },
+                "metrics_mode": {
+                  "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
+                  "type": "string",
+                  "default": "AUTO",
+                  "enum": [
+                    "AUTO",
+                    "PULL",
+                    "PUSH"
+                  ],
+                  "x-order": 14
+                },
+                "skip_connection_check": {
+                  "description": "Skip connection check.",
+                  "type": "boolean",
+                  "x-order": 15
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "service": {
+                  "description": "HAProxyService represents a generic HAProxy service instance.",
+                  "type": "object",
+                  "properties": {
+                    "service_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "node_id": {
+                      "description": "Node identifier where this service instance runs.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "cluster": {
+                      "description": "Cluster name.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "replication_set": {
+                      "description": "Replication set name.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 6
                     }
                   },
                   "x-order": 0
@@ -12501,6 +13627,21 @@
                   "type": "boolean",
                   "x-order": 17
                 },
+                "tls_certificate_key": {
+                  "description": "Client certificate and key.",
+                  "type": "string",
+                  "x-order": 18
+                },
+                "tls_certificate_key_file_password": {
+                  "description": "Password for decrypting tls_certificate_key.",
+                  "type": "string",
+                  "x-order": 19
+                },
+                "tls_ca": {
+                  "description": "Certificate Authority certificate chain.",
+                  "type": "string",
+                  "x-order": 20
+                },
                 "metrics_mode": {
                   "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
                   "type": "string",
@@ -12510,7 +13651,15 @@
                     "PULL",
                     "PUSH"
                   ],
-                  "x-order": 18
+                  "x-order": 21
+                },
+                "disable_collectors": {
+                  "description": "List of collector names to disable in this exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 22
                 }
               }
             }
@@ -12635,6 +13784,14 @@
                       "type": "boolean",
                       "x-order": 8
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -12647,13 +13804,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 1
@@ -12971,6 +14128,14 @@
                     "PUSH"
                   ],
                   "x-order": 22
+                },
+                "disable_collectors": {
+                  "description": "List of collector names to disable in this exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 23
                 }
               }
             }
@@ -13101,6 +14266,14 @@
                       "type": "boolean",
                       "x-order": 9
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 10
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -13113,18 +14286,18 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 12
+                      "x-order": 13
                     }
                   },
                   "x-order": 1
@@ -13420,6 +14593,14 @@
                     "PUSH"
                   ],
                   "x-order": 12
+                },
+                "disable_collectors": {
+                  "description": "List of collector names to disable in this exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 13
                 }
               }
             }
@@ -13813,6 +14994,14 @@
                     "PUSH"
                   ],
                   "x-order": 20
+                },
+                "disable_collectors": {
+                  "description": "List of collector names to disable in this exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 21
                 }
               }
             }
@@ -13937,6 +15126,14 @@
                       "type": "boolean",
                       "x-order": 8
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -13949,13 +15146,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 1
@@ -14315,6 +15512,14 @@
                     "PUSH"
                   ],
                   "x-order": 17
+                },
+                "disable_collectors": {
+                  "description": "List of collector names to disable in this exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 18
                 }
               }
             }
@@ -14439,6 +15644,14 @@
                       "type": "boolean",
                       "x-order": 8
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -14451,13 +15664,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 1
@@ -14922,6 +16135,14 @@
                       "type": "boolean",
                       "x-order": 9
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 10
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -14934,18 +16155,18 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 12
+                      "x-order": 13
                     }
                   },
                   "x-order": 3
@@ -15335,7 +16556,7 @@
                         "x-order": 1
                       },
                       "severity": {
-                        "description": "Severity represents severity level of the check result.",
+                        "description": "Severity represents severity level of the check result or alert.",
                         "type": "string",
                         "default": "SEVERITY_INVALID",
                         "enum": [
@@ -15357,6 +16578,11 @@
                           "type": "string"
                         },
                         "x-order": 3
+                      },
+                      "read_more_url": {
+                        "description": "URL containing information on how to resolve an issue detected by an STT check.",
+                        "type": "string",
+                        "x-order": 4
                       }
                     }
                   },
@@ -15437,16 +16663,24 @@
                     "type": "object",
                     "properties": {
                       "name": {
+                        "description": "Machine-readable name (ID) that is used in expression.",
                         "type": "string",
                         "x-order": 0
                       },
                       "disabled": {
+                        "description": "True if that check is disabled.",
                         "type": "boolean",
                         "x-order": 1
                       },
                       "description": {
+                        "description": "Long human-readable description.",
                         "type": "string",
                         "x-order": 2
+                      },
+                      "summary": {
+                        "description": "Short human-readable summary.",
+                        "type": "string",
+                        "x-order": 3
                       }
                     }
                   },
@@ -15588,6 +16822,7 @@
                     "MONGODB_SERVICE",
                     "POSTGRESQL_SERVICE",
                     "PROXYSQL_SERVICE",
+                    "HAPROXY_SERVICE",
                     "EXTERNAL_SERVICE"
                   ],
                   "x-order": 0

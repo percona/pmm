@@ -142,6 +142,15 @@ type AddMongoDBExporterBody struct {
 	// Skip TLS certificate and hostname validation.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
+	// Client certificate and key.
+	TLSCertificateKey string `json:"tls_certificate_key,omitempty"`
+
+	// Password for decrypting tls_certificate_key.
+	TLSCertificateKeyFilePassword string `json:"tls_certificate_key_file_password,omitempty"`
+
+	// Certificate Authority certificate chain.
+	TLSCa string `json:"tls_ca,omitempty"`
+
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
@@ -150,6 +159,9 @@ type AddMongoDBExporterBody struct {
 
 	// Enables push metrics mode for exporter.
 	PushMetrics bool `json:"push_metrics,omitempty"`
+
+	// List of collector names to disable in this exporter.
+	DisableCollectors []string `json:"disable_collectors"`
 }
 
 // Validate validates this add mongo DB exporter body
@@ -340,6 +352,9 @@ type AddMongoDBExporterOKBodyMongodbExporter struct {
 
 	// True if exporter uses push metrics mode.
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+
+	// List of disabled collector names.
+	DisabledCollectors []string `json:"disabled_collectors"`
 
 	// AgentStatus represents actual Agent status.
 	//

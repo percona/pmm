@@ -20,14 +20,23 @@ enum PSMDBClusterState {
   PSMDB_CLUSTER_STATE_FAILED = 3;
   // PSMDB_CLUSTER_STATE_DELETING represents a cluster being deleting.
   PSMDB_CLUSTER_STATE_DELETING = 4;
+  // PSMDB_CLUSTER_STATE_PAUSED represents a cluster is paused.
+  PSMDB_CLUSTER_STATE_PAUSED = 5;
 }
 
 // PSMDBClusterParams represents PSMDB cluster parameters that can be updated.
 message PSMDBClusterParams {
   // ReplicaSet container parameters.
+  // TODO Do not use inner messages in all public APIs (for consistency).
   message ReplicaSet {
     // Requested compute resources.
     ComputeResources compute_resources = 1;
+    // Disk size in bytes.
+    int64 disk_size = 2 [
+      (validator.field) = {
+        int_gt: 0
+      }
+    ];
   }
   // Cluster size.
   int32 cluster_size = 1 [
@@ -54,6 +63,7 @@ message ListPSMDBClustersRequest {
 
 message ListPSMDBClustersResponse {
   // Cluster represents PSMDB cluster information.
+  // TODO Do not use inner messages in all public APIs (for consistency).
   message Cluster {
     // Cluster name.
     string name = 1;
@@ -68,7 +78,7 @@ message ListPSMDBClustersResponse {
   repeated Cluster clusters = 1;
 }
 
-message GetPSMDBClusterRequest {
+message GetPSMDBClusterCredentialsRequest {
   // Kubernetes cluster name.
   string kubernetes_cluster_name = 1 [
     (validator.field) = {
@@ -83,8 +93,9 @@ message GetPSMDBClusterRequest {
   ];
 }
 
-message GetPSMDBClusterResponse {
+message GetPSMDBClusterCredentialsResponse {
   // PSMDBCredentials is a credentials to connect to PSMDB.
+  // TODO Do not use inner messages in all public APIs (for consistency).
   message PSMDBCredentials {
     // MongoDB username.
     string username = 1;
@@ -97,14 +108,7 @@ message GetPSMDBClusterResponse {
     // Replicaset name.
     string replicaset = 5;
   }
-  // Cluster state.
-  PSMDBClusterState state = 1;
-  // Currently running operation, if any.
-  RunningOperation operation = 2;
-  // Cluster parameters.
-  PSMDBClusterParams params = 3;
-  // Connection credentials.
-  PSMDBCredentials connection_credentials = 4;
+  PSMDBCredentials connection_credentials = 1;
 }
 
 message CreatePSMDBClusterRequest {
@@ -146,12 +150,24 @@ message UpdatePSMDBClusterRequest {
       string_not_empty: true
     }
   ];
-  // Cluster parameters.
-  PSMDBClusterParams params = 3 [
-    (validator.field) = {
-      msg_exists: true
+  // UpdatePSMDBClusterParams represents PSMDB cluster parameters that can be updated.
+  message UpdatePSMDBClusterParams {
+    // ReplicaSet container parameters.
+    message ReplicaSet {
+      // Requested compute resources.
+      ComputeResources compute_resources = 1;
     }
-  ];
+    // Cluster size.
+    int32 cluster_size = 1;
+    // ReplicaSet container parameters.
+    ReplicaSet replicaset = 2;
+    // Suspend cluster `pause: true`.
+    bool suspend = 3;
+    // Resume cluster `pause: false`.
+    bool resume = 4;
+  }
+  // Cluster parameters.
+  UpdatePSMDBClusterParams params = 3;
 }
 
 message UpdatePSMDBClusterResponse {}
@@ -173,6 +189,23 @@ message DeletePSMDBClusterRequest {
 
 message DeletePSMDBClusterResponse {}
 
+message RestartPSMDBClusterRequest {
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // PSMDB cluster name.
+  string name = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
+
+message RestartPSMDBClusterResponse {}
+
 // PSMDBCluster service provides public methods for managing PSMDB clusters.
 service PSMDBCluster {
   // ListPSMDBClusters returns a list of PSMDB clusters.
@@ -182,10 +215,10 @@ service PSMDBCluster {
       body: "*"
     };
   }
-  // GetPSMDBCluster returns a PSMDB cluster by name.
-  rpc GetPSMDBCluster(GetPSMDBClusterRequest) returns (GetPSMDBClusterResponse) {
+  // GetPSMDBClusterCredentials returns a PSMDB cluster credentials by cluster name.
+  rpc GetPSMDBClusterCredentials(GetPSMDBClusterCredentialsRequest) returns (GetPSMDBClusterCredentialsResponse) {
     option (google.api.http) = {
-      post: "/v1/management/DBaaS/PSMDBClusters/Get"
+      post: "/v1/management/DBaaS/PSMDBClusters/GetCredentials"
       body: "*"
     };
   }
@@ -207,6 +240,13 @@ service PSMDBCluster {
   rpc DeletePSMDBCluster(DeletePSMDBClusterRequest) returns (DeletePSMDBClusterResponse) {
     option (google.api.http) = {
       post: "/v1/management/DBaaS/PSMDBCluster/Delete"
+      body: "*"
+    };
+  }
+  // RestartPSMDBCluster restarts PSMDB cluster.
+  rpc RestartPSMDBCluster(RestartPSMDBClusterRequest) returns (RestartPSMDBClusterResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/PSMDBCluster/Restart"
       body: "*"
     };
   }

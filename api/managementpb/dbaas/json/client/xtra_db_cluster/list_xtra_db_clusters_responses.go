@@ -120,6 +120,7 @@ func (o *ListXtraDBClustersDefault) readResponse(response runtime.ClientResponse
 }
 
 /*ClustersItems0 Cluster represents XtraDB cluster information.
+// TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model ClustersItems0
 */
 type ClustersItems0 struct {
@@ -134,7 +135,8 @@ type ClustersItems0 struct {
 	//  - XTRA_DB_CLUSTER_STATE_READY: XTRA_DB_CLUSTER_STATE_READY represents a cluster without pending changes.
 	//  - XTRA_DB_CLUSTER_STATE_FAILED: XTRA_DB_CLUSTER_STATE_FAILED represents a failed cluster.
 	//  - XTRA_DB_CLUSTER_STATE_DELETING: XTRA_DB_CLUSTER_STATE_DELETING represents a cluster being deleting.
-	// Enum: [XTRA_DB_CLUSTER_STATE_INVALID XTRA_DB_CLUSTER_STATE_CHANGING XTRA_DB_CLUSTER_STATE_READY XTRA_DB_CLUSTER_STATE_FAILED XTRA_DB_CLUSTER_STATE_DELETING]
+	//  - XTRA_DB_CLUSTER_STATE_PAUSED: XTRA_DB_CLUSTER_STATE_PAUSED represents a cluster is paused.
+	// Enum: [XTRA_DB_CLUSTER_STATE_INVALID XTRA_DB_CLUSTER_STATE_CHANGING XTRA_DB_CLUSTER_STATE_READY XTRA_DB_CLUSTER_STATE_FAILED XTRA_DB_CLUSTER_STATE_DELETING XTRA_DB_CLUSTER_STATE_PAUSED]
 	State *string `json:"state,omitempty"`
 
 	// operation
@@ -170,7 +172,7 @@ var clustersItems0TypeStatePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["XTRA_DB_CLUSTER_STATE_INVALID","XTRA_DB_CLUSTER_STATE_CHANGING","XTRA_DB_CLUSTER_STATE_READY","XTRA_DB_CLUSTER_STATE_FAILED","XTRA_DB_CLUSTER_STATE_DELETING"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["XTRA_DB_CLUSTER_STATE_INVALID","XTRA_DB_CLUSTER_STATE_CHANGING","XTRA_DB_CLUSTER_STATE_READY","XTRA_DB_CLUSTER_STATE_FAILED","XTRA_DB_CLUSTER_STATE_DELETING","XTRA_DB_CLUSTER_STATE_PAUSED"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -194,6 +196,9 @@ const (
 
 	// ClustersItems0StateXTRADBCLUSTERSTATEDELETING captures enum value "XTRA_DB_CLUSTER_STATE_DELETING"
 	ClustersItems0StateXTRADBCLUSTERSTATEDELETING string = "XTRA_DB_CLUSTER_STATE_DELETING"
+
+	// ClustersItems0StateXTRADBCLUSTERSTATEPAUSED captures enum value "XTRA_DB_CLUSTER_STATE_PAUSED"
+	ClustersItems0StateXTRADBCLUSTERSTATEPAUSED string = "XTRA_DB_CLUSTER_STATE_PAUSED"
 )
 
 // prop value enum
@@ -277,11 +282,14 @@ swagger:model ClustersItems0Operation
 */
 type ClustersItems0Operation struct {
 
-	// Progress from 0.0 to 1.0; can decrease compared to the previous value.
-	Progress float32 `json:"progress,omitempty"`
+	// Finished steps of the operaion; can decrease or increase compared to the previous value.
+	FinishedSteps int32 `json:"finished_steps,omitempty"`
 
 	// Text describing the current operation progress step.
 	Message string `json:"message,omitempty"`
+
+	// Total steps needed to finish the operation; can decrease or increase compared to the previous value.
+	TotalSteps int32 `json:"total_steps,omitempty"`
 }
 
 // Validate validates this clusters items0 operation
@@ -395,9 +403,13 @@ func (o *ClustersItems0Params) UnmarshalBinary(b []byte) error {
 }
 
 /*ClustersItems0ParamsProxysql ProxySQL container parameters.
+// TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model ClustersItems0ParamsProxysql
 */
 type ClustersItems0ParamsProxysql struct {
+
+	// Disk size in bytes.
+	DiskSize string `json:"disk_size,omitempty"`
 
 	// compute resources
 	ComputeResources *ClustersItems0ParamsProxysqlComputeResources `json:"compute_resources,omitempty"`
@@ -489,9 +501,13 @@ func (o *ClustersItems0ParamsProxysqlComputeResources) UnmarshalBinary(b []byte)
 }
 
 /*ClustersItems0ParamsPxc PXC container parameters.
+// TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model ClustersItems0ParamsPxc
 */
 type ClustersItems0ParamsPxc struct {
+
+	// Disk size in bytes.
+	DiskSize string `json:"disk_size,omitempty"`
 
 	// compute resources
 	ComputeResources *ClustersItems0ParamsPxcComputeResources `json:"compute_resources,omitempty"`

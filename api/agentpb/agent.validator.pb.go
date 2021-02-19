@@ -18,6 +18,10 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
+func (this *TextFiles) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
 func (this *Ping) Validate() error {
 	return nil
 }
@@ -58,6 +62,11 @@ func (this *SetStateRequest_AgentProcess) Validate() error {
 	return nil
 }
 func (this *SetStateRequest_BuiltinAgent) Validate() error {
+	if this.TextFiles != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.TextFiles); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("TextFiles", err)
+		}
+	}
 	return nil
 }
 func (this *SetStateResponse) Validate() error {
@@ -175,10 +184,17 @@ func (this *StartActionRequest) Validate() error {
 			}
 		}
 	}
+<<<<<<< HEAD
 	if oneOfNester, ok := this.GetParams().(*StartActionRequest_PtMysqlSummaryParams); ok {
 		if oneOfNester.PtMysqlSummaryParams != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.PtMysqlSummaryParams); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("PtMysqlSummaryParams", err)
+=======
+	if oneOfNester, ok := this.GetParams().(*StartActionRequest_PtMongodbSummaryParams); ok {
+		if oneOfNester.PtMongodbSummaryParams != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.PtMongodbSummaryParams); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("PtMongodbSummaryParams", err)
+>>>>>>> PMM-2.0
 			}
 		}
 	}
@@ -257,12 +273,21 @@ func (this *StartActionRequest_PostgreSQLShowIndexParams) Validate() error {
 	return nil
 }
 func (this *StartActionRequest_MongoDBExplainParams) Validate() error {
+	if this.TextFiles != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.TextFiles); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("TextFiles", err)
+		}
+	}
 	return nil
 }
 func (this *StartActionRequest_PTSummaryParams) Validate() error {
 	return nil
 }
+<<<<<<< HEAD
 func (this *StartActionRequest_PTMySQLSummaryParams) Validate() error {
+=======
+func (this *StartActionRequest_PTMongoDBSummaryParams) Validate() error {
+>>>>>>> PMM-2.0
 	return nil
 }
 func (this *StartActionRequest_MySQLQueryShowParams) Validate() error {
@@ -278,12 +303,27 @@ func (this *StartActionRequest_PostgreSQLQuerySelectParams) Validate() error {
 	return nil
 }
 func (this *StartActionRequest_MongoDBQueryGetParameterParams) Validate() error {
+	if this.TextFiles != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.TextFiles); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("TextFiles", err)
+		}
+	}
 	return nil
 }
 func (this *StartActionRequest_MongoDBQueryBuildInfoParams) Validate() error {
+	if this.TextFiles != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.TextFiles); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("TextFiles", err)
+		}
+	}
 	return nil
 }
 func (this *StartActionRequest_MongoDBQueryGetCmdLineOptsParams) Validate() error {
+	if this.TextFiles != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.TextFiles); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("TextFiles", err)
+		}
+	}
 	return nil
 }
 func (this *StartActionResponse) Validate() error {
@@ -305,6 +345,11 @@ func (this *CheckConnectionRequest) Validate() error {
 	if this.Timeout != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Timeout); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Timeout", err)
+		}
+	}
+	if this.TextFiles != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.TextFiles); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("TextFiles", err)
 		}
 	}
 	return nil

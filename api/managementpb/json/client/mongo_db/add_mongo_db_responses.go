@@ -180,10 +180,22 @@ type AddMongoDBBody struct {
 	// Skip TLS certificate and hostname validation.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
+	// Client certificate and key.
+	TLSCertificateKey string `json:"tls_certificate_key,omitempty"`
+
+	// Password for decrypting tls_certificate_key.
+	TLSCertificateKeyFilePassword string `json:"tls_certificate_key_file_password,omitempty"`
+
+	// Certificate Authority certificate chain.
+	TLSCa string `json:"tls_ca,omitempty"`
+
 	// MetricsMode defines desired metrics mode for agent,
 	// it can be pull, push or auto mode chosen by server.
 	// Enum: [AUTO PULL PUSH]
 	MetricsMode *string `json:"metrics_mode,omitempty"`
+
+	// List of collector names to disable in this exporter.
+	DisableCollectors []string `json:"disable_collectors"`
 
 	// add node
 	AddNode *AddMongoDBParamsBodyAddNode `json:"add_node,omitempty"`
@@ -504,6 +516,9 @@ type AddMongoDBOKBodyMongodbExporter struct {
 
 	// True if exporter uses push metrics mode.
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+
+	// List of disabled collector names.
+	DisabledCollectors []string `json:"disabled_collectors"`
 
 	// AgentStatus represents actual Agent status.
 	//

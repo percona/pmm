@@ -29,9 +29,11 @@ type ClientService interface {
 
 	DeleteXtraDBCluster(params *DeleteXtraDBClusterParams) (*DeleteXtraDBClusterOK, error)
 
-	GetXtraDBCluster(params *GetXtraDBClusterParams) (*GetXtraDBClusterOK, error)
+	GetXtraDBClusterCredentials(params *GetXtraDBClusterCredentialsParams) (*GetXtraDBClusterCredentialsOK, error)
 
 	ListXtraDBClusters(params *ListXtraDBClustersParams) (*ListXtraDBClustersOK, error)
+
+	RestartXtraDBCluster(params *RestartXtraDBClusterParams) (*RestartXtraDBClusterOK, error)
 
 	UpdateXtraDBCluster(params *UpdateXtraDBClusterParams) (*UpdateXtraDBClusterOK, error)
 
@@ -105,35 +107,35 @@ func (a *Client) DeleteXtraDBCluster(params *DeleteXtraDBClusterParams) (*Delete
 }
 
 /*
-  GetXtraDBCluster gets xtra DB cluster returns a xtra DB cluster by name
+  GetXtraDBClusterCredentials gets xtra DB cluster credentials returns a xtra DB cluster credentials by cluster name
 */
-func (a *Client) GetXtraDBCluster(params *GetXtraDBClusterParams) (*GetXtraDBClusterOK, error) {
+func (a *Client) GetXtraDBClusterCredentials(params *GetXtraDBClusterCredentialsParams) (*GetXtraDBClusterCredentialsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewGetXtraDBClusterParams()
+		params = NewGetXtraDBClusterCredentialsParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "GetXtraDBCluster",
+		ID:                 "GetXtraDBClusterCredentials",
 		Method:             "POST",
-		PathPattern:        "/v1/management/DBaaS/XtraDBClusters/Get",
+		PathPattern:        "/v1/management/DBaaS/XtraDBClusters/GetCredentials",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &GetXtraDBClusterReader{formats: a.formats},
+		Reader:             &GetXtraDBClusterCredentialsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*GetXtraDBClusterOK)
+	success, ok := result.(*GetXtraDBClusterCredentialsOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*GetXtraDBClusterDefault)
+	unexpectedSuccess := result.(*GetXtraDBClusterCredentialsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -167,6 +169,39 @@ func (a *Client) ListXtraDBClusters(params *ListXtraDBClustersParams) (*ListXtra
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*ListXtraDBClustersDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  RestartXtraDBCluster restarts xtra DB cluster restarts xtra DB cluster
+*/
+func (a *Client) RestartXtraDBCluster(params *RestartXtraDBClusterParams) (*RestartXtraDBClusterOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewRestartXtraDBClusterParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "RestartXtraDBCluster",
+		Method:             "POST",
+		PathPattern:        "/v1/management/DBaaS/XtraDBCluster/Restart",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &RestartXtraDBClusterReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*RestartXtraDBClusterOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*RestartXtraDBClusterDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

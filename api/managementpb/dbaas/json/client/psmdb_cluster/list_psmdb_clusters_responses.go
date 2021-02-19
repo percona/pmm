@@ -120,6 +120,7 @@ func (o *ListPSMDBClustersDefault) readResponse(response runtime.ClientResponse,
 }
 
 /*ClustersItems0 Cluster represents PSMDB cluster information.
+// TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model ClustersItems0
 */
 type ClustersItems0 struct {
@@ -134,7 +135,8 @@ type ClustersItems0 struct {
 	//  - PSMDB_CLUSTER_STATE_READY: PSMDB_CLUSTER_STATE_READY represents a cluster without pending changes.
 	//  - PSMDB_CLUSTER_STATE_FAILED: PSMDB_CLUSTER_STATE_FAILED represents a failed cluster.
 	//  - PSMDB_CLUSTER_STATE_DELETING: PSMDB_CLUSTER_STATE_DELETING represents a cluster being deleting.
-	// Enum: [PSMDB_CLUSTER_STATE_INVALID PSMDB_CLUSTER_STATE_CHANGING PSMDB_CLUSTER_STATE_READY PSMDB_CLUSTER_STATE_FAILED PSMDB_CLUSTER_STATE_DELETING]
+	//  - PSMDB_CLUSTER_STATE_PAUSED: PSMDB_CLUSTER_STATE_PAUSED represents a cluster is paused.
+	// Enum: [PSMDB_CLUSTER_STATE_INVALID PSMDB_CLUSTER_STATE_CHANGING PSMDB_CLUSTER_STATE_READY PSMDB_CLUSTER_STATE_FAILED PSMDB_CLUSTER_STATE_DELETING PSMDB_CLUSTER_STATE_PAUSED]
 	State *string `json:"state,omitempty"`
 
 	// operation
@@ -170,7 +172,7 @@ var clustersItems0TypeStatePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["PSMDB_CLUSTER_STATE_INVALID","PSMDB_CLUSTER_STATE_CHANGING","PSMDB_CLUSTER_STATE_READY","PSMDB_CLUSTER_STATE_FAILED","PSMDB_CLUSTER_STATE_DELETING"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["PSMDB_CLUSTER_STATE_INVALID","PSMDB_CLUSTER_STATE_CHANGING","PSMDB_CLUSTER_STATE_READY","PSMDB_CLUSTER_STATE_FAILED","PSMDB_CLUSTER_STATE_DELETING","PSMDB_CLUSTER_STATE_PAUSED"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -194,6 +196,9 @@ const (
 
 	// ClustersItems0StatePSMDBCLUSTERSTATEDELETING captures enum value "PSMDB_CLUSTER_STATE_DELETING"
 	ClustersItems0StatePSMDBCLUSTERSTATEDELETING string = "PSMDB_CLUSTER_STATE_DELETING"
+
+	// ClustersItems0StatePSMDBCLUSTERSTATEPAUSED captures enum value "PSMDB_CLUSTER_STATE_PAUSED"
+	ClustersItems0StatePSMDBCLUSTERSTATEPAUSED string = "PSMDB_CLUSTER_STATE_PAUSED"
 )
 
 // prop value enum
@@ -277,11 +282,14 @@ swagger:model ClustersItems0Operation
 */
 type ClustersItems0Operation struct {
 
-	// Progress from 0.0 to 1.0; can decrease compared to the previous value.
-	Progress float32 `json:"progress,omitempty"`
+	// Finished steps of the operaion; can decrease or increase compared to the previous value.
+	FinishedSteps int32 `json:"finished_steps,omitempty"`
 
 	// Text describing the current operation progress step.
 	Message string `json:"message,omitempty"`
+
+	// Total steps needed to finish the operation; can decrease or increase compared to the previous value.
+	TotalSteps int32 `json:"total_steps,omitempty"`
 }
 
 // Validate validates this clusters items0 operation
@@ -370,9 +378,13 @@ func (o *ClustersItems0Params) UnmarshalBinary(b []byte) error {
 }
 
 /*ClustersItems0ParamsReplicaset ReplicaSet container parameters.
+// TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model ClustersItems0ParamsReplicaset
 */
 type ClustersItems0ParamsReplicaset struct {
+
+	// Disk size in bytes.
+	DiskSize string `json:"disk_size,omitempty"`
 
 	// compute resources
 	ComputeResources *ClustersItems0ParamsReplicasetComputeResources `json:"compute_resources,omitempty"`

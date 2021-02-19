@@ -19,8 +19,10 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 func (this *AddExternalRequest) Validate() error {
-	if this.RunsOnNodeId == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("RunsOnNodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.RunsOnNodeId))
+	if this.AddNode != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.AddNode); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("AddNode", err)
+		}
 	}
 	if this.ServiceName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ServiceName", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceName))
@@ -30,9 +32,6 @@ func (this *AddExternalRequest) Validate() error {
 	}
 	if !(this.ListenPort < 65536) {
 		return github_com_mwitkow_go_proto_validators.FieldError("ListenPort", fmt.Errorf(`value '%v' must be less than '65536'`, this.ListenPort))
-	}
-	if this.NodeId == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("NodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeId))
 	}
 	// Validation of proto3 map<> fields is unsupported.
 	return nil

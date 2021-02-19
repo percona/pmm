@@ -216,7 +216,15 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 6
+                  "x-order": 9
+                },
+                "disable_collectors": {
+                  "description": "List of collector names to disable in this exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 12
                 },
                 "password": {
                   "description": "MongoDB password for scraping metrics.",
@@ -231,7 +239,7 @@
                 "push_metrics": {
                   "description": "Enables push metrics mode for exporter.",
                   "type": "boolean",
-                  "x-order": 8
+                  "x-order": 11
                 },
                 "service_id": {
                   "description": "Service identifier.",
@@ -241,12 +249,27 @@
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "x-order": 7
+                  "x-order": 10
                 },
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
                   "x-order": 4
+                },
+                "tls_ca": {
+                  "description": "Certificate Authority certificate chain.",
+                  "type": "string",
+                  "x-order": 8
+                },
+                "tls_certificate_key": {
+                  "description": "Client certificate and key.",
+                  "type": "string",
+                  "x-order": 6
+                },
+                "tls_certificate_key_file_password": {
+                  "description": "Password for decrypting tls_certificate_key.",
+                  "type": "string",
+                  "x-order": 7
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",
@@ -290,11 +313,19 @@
                       "type": "boolean",
                       "x-order": 2
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -323,7 +354,7 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -411,6 +442,14 @@
                   },
                   "x-order": 7
                 },
+                "disable_collectors": {
+                  "description": "List of collector names to disable in this exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 10
+                },
                 "password": {
                   "description": "MySQL password for scraping metrics.",
                   "type": "string",
@@ -489,11 +528,19 @@
                       "type": "boolean",
                       "x-order": 2
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 10
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -522,12 +569,12 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 12
+                      "x-order": 13
                     },
                     "tablestats_group_table_limit": {
                       "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
@@ -627,6 +674,14 @@
                   },
                   "x-order": 1
                 },
+                "disable_collectors": {
+                  "description": "List of collector names to disable in this exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 3
+                },
                 "pmm_agent_id": {
                   "description": "The pmm-agent identifier which runs this instance.",
                   "type": "string",
@@ -669,11 +724,19 @@
                       "type": "boolean",
                       "x-order": 2
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 5
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 6
+                      "x-order": 7
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -697,7 +760,7 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 5
+                      "x-order": 6
                     }
                   },
                   "x-order": 0
@@ -883,6 +946,14 @@
                   },
                   "x-order": 6
                 },
+                "disable_collectors": {
+                  "description": "List of collector names to disable in this exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 9
+                },
                 "password": {
                   "description": "PostgreSQL password for scraping metrics.",
                   "type": "string",
@@ -955,11 +1026,19 @@
                       "type": "boolean",
                       "x-order": 2
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -988,7 +1067,7 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -1076,6 +1155,14 @@
                   },
                   "x-order": 6
                 },
+                "disable_collectors": {
+                  "description": "List of collector names to disable in this exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 9
+                },
                 "password": {
                   "description": "ProxySQL password for scraping metrics.",
                   "type": "string",
@@ -1148,11 +1235,19 @@
                       "type": "boolean",
                       "x-order": 2
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -1181,7 +1276,7 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -1267,7 +1362,7 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 6
+                  "x-order": 9
                 },
                 "password": {
                   "description": "MongoDB password for getting profile data.",
@@ -1287,12 +1382,27 @@
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "x-order": 7
+                  "x-order": 10
                 },
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
                   "x-order": 4
+                },
+                "tls_ca": {
+                  "description": "Certificate Authority certificate chain.",
+                  "type": "string",
+                  "x-order": 8
+                },
+                "tls_certificate_key": {
+                  "description": "Client certificate and key.",
+                  "type": "string",
+                  "x-order": 6
+                },
+                "tls_certificate_key_file_password": {
+                  "description": "Password for decrypting tls_certificate_key.",
+                  "type": "string",
+                  "x-order": 7
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",
@@ -2632,11 +2742,19 @@
                       "type": "boolean",
                       "x-order": 2
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -2665,7 +2783,7 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -2821,11 +2939,19 @@
                       "type": "boolean",
                       "x-order": 2
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 10
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -2854,12 +2980,12 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 12
+                      "x-order": 13
                     },
                     "tablestats_group_table_limit": {
                       "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
@@ -3021,11 +3147,19 @@
                       "type": "boolean",
                       "x-order": 2
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 5
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 6
+                      "x-order": 7
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -3049,7 +3183,7 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 5
+                      "x-order": 6
                     }
                   },
                   "x-order": 0
@@ -3190,11 +3324,19 @@
                       "type": "boolean",
                       "x-order": 2
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -3223,7 +3365,7 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -3379,11 +3521,19 @@
                       "type": "boolean",
                       "x-order": 2
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -3412,7 +3562,7 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -4690,11 +4840,19 @@
                       "type": "boolean",
                       "x-order": 2
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -4723,7 +4881,7 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -4765,11 +4923,19 @@
                       "type": "boolean",
                       "x-order": 2
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 10
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -4798,12 +4964,12 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 12
+                      "x-order": 13
                     },
                     "tablestats_group_table_limit": {
                       "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
@@ -4851,11 +5017,19 @@
                       "type": "boolean",
                       "x-order": 2
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 5
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 6
+                      "x-order": 7
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -4879,7 +5053,7 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 5
+                      "x-order": 6
                     }
                   },
                   "x-order": 2
@@ -4936,11 +5110,19 @@
                       "type": "boolean",
                       "x-order": 2
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -4969,7 +5151,7 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -5011,11 +5193,19 @@
                       "type": "boolean",
                       "x-order": 2
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -5044,7 +5234,7 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -5707,11 +5897,19 @@
                         "type": "boolean",
                         "x-order": 2
                       },
+                      "disabled_collectors": {
+                        "description": "List of disabled collector names.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 9
+                      },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 10
+                        "x-order": 11
                       },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
@@ -5740,7 +5938,7 @@
                           "STOPPING",
                           "DONE"
                         ],
-                        "x-order": 9
+                        "x-order": 10
                       },
                       "tls": {
                         "description": "Use TLS for database connections.",
@@ -5785,11 +5983,19 @@
                         "type": "boolean",
                         "x-order": 2
                       },
+                      "disabled_collectors": {
+                        "description": "List of disabled collector names.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 10
+                      },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 11
+                        "x-order": 12
                       },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
@@ -5818,12 +6024,12 @@
                           "STOPPING",
                           "DONE"
                         ],
-                        "x-order": 10
+                        "x-order": 11
                       },
                       "tablestats_group_disabled": {
                         "description": "True if tablestats group collectors are currently disabled.",
                         "type": "boolean",
-                        "x-order": 12
+                        "x-order": 13
                       },
                       "tablestats_group_table_limit": {
                         "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
@@ -5874,11 +6080,19 @@
                         "type": "boolean",
                         "x-order": 2
                       },
+                      "disabled_collectors": {
+                        "description": "List of disabled collector names.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 5
+                      },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 6
+                        "x-order": 7
                       },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
@@ -5902,7 +6116,7 @@
                           "STOPPING",
                           "DONE"
                         ],
-                        "x-order": 5
+                        "x-order": 6
                       }
                     }
                   },
@@ -5965,11 +6179,19 @@
                         "type": "boolean",
                         "x-order": 2
                       },
+                      "disabled_collectors": {
+                        "description": "List of disabled collector names.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 9
+                      },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 10
+                        "x-order": 11
                       },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
@@ -5998,7 +6220,7 @@
                           "STOPPING",
                           "DONE"
                         ],
-                        "x-order": 9
+                        "x-order": 10
                       },
                       "tls": {
                         "description": "Use TLS for database connections.",
@@ -6043,11 +6265,19 @@
                         "type": "boolean",
                         "x-order": 2
                       },
+                      "disabled_collectors": {
+                        "description": "List of disabled collector names.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 9
+                      },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 10
+                        "x-order": 11
                       },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
@@ -6076,7 +6306,7 @@
                           "STOPPING",
                           "DONE"
                         ],
-                        "x-order": 9
+                        "x-order": 10
                       },
                       "tls": {
                         "description": "Use TLS for database connections.",
@@ -8145,6 +8375,154 @@
         }
       }
     },
+    "/v1/inventory/Services/AddHAProxyService": {
+      "post": {
+        "tags": [
+          "Services"
+        ],
+        "summary": "AddHAProxyService adds HAProxy Service.",
+        "operationId": "AddHAProxyService",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "cluster": {
+                  "description": "Cluster name.",
+                  "type": "string",
+                  "x-order": 3
+                },
+                "custom_labels": {
+                  "description": "Custom user-assigned labels.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "x-order": 5
+                },
+                "environment": {
+                  "description": "Environment name.",
+                  "type": "string",
+                  "x-order": 2
+                },
+                "node_id": {
+                  "description": "Node identifier where this instance runs. Required.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "replication_set": {
+                  "description": "Replication set name.",
+                  "type": "string",
+                  "x-order": 4
+                },
+                "service_name": {
+                  "description": "Unique across all Services user-defined name. Required.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "haproxy": {
+                  "description": "HAProxyService represents a generic HAProxy service instance.",
+                  "type": "object",
+                  "properties": {
+                    "cluster": {
+                      "description": "Cluster name.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 6
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "node_id": {
+                      "description": "Node identifier where this service instance runs.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "replication_set": {
+                      "description": "Replication set name.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "service_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/inventory/Services/AddMongoDB": {
       "post": {
         "tags": [
@@ -8943,6 +9321,51 @@
                       "x-order": 1
                     }
                   },
+                  "x-order": 5
+                },
+                "haproxy": {
+                  "description": "HAProxyService represents a generic HAProxy service instance.",
+                  "type": "object",
+                  "properties": {
+                    "cluster": {
+                      "description": "Cluster name.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 6
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "node_id": {
+                      "description": "Node identifier where this service instance runs.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "replication_set": {
+                      "description": "Replication set name.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "service_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    }
+                  },
                   "x-order": 4
                 },
                 "mongodb": {
@@ -9249,6 +9672,11 @@
             "schema": {
               "type": "object",
               "properties": {
+                "external_group": {
+                  "description": "Return only services in this external group.",
+                  "type": "string",
+                  "x-order": 2
+                },
                 "node_id": {
                   "description": "Return only Services running on that Node.",
                   "type": "string",
@@ -9264,6 +9692,7 @@
                     "MONGODB_SERVICE",
                     "POSTGRESQL_SERVICE",
                     "PROXYSQL_SERVICE",
+                    "HAPROXY_SERVICE",
                     "EXTERNAL_SERVICE"
                   ],
                   "x-order": 1
@@ -9306,6 +9735,54 @@
                         "description": "Group name of external service.",
                         "type": "string",
                         "x-order": 7
+                      },
+                      "node_id": {
+                        "description": "Node identifier where this service instance runs.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "replication_set": {
+                        "description": "Replication set name.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "service_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "service_name": {
+                        "description": "Unique across all Services user-defined name.",
+                        "type": "string",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 5
+                },
+                "haproxy": {
+                  "type": "array",
+                  "items": {
+                    "description": "HAProxyService represents a generic HAProxy service instance.",
+                    "type": "object",
+                    "properties": {
+                      "cluster": {
+                        "description": "Cluster name.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 6
+                      },
+                      "environment": {
+                        "description": "Environment name.",
+                        "type": "string",
+                        "x-order": 3
                       },
                       "node_id": {
                         "description": "Node identifier where this service instance runs.",

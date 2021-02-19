@@ -29,9 +29,11 @@ type ClientService interface {
 
 	DeletePSMDBCluster(params *DeletePSMDBClusterParams) (*DeletePSMDBClusterOK, error)
 
-	GetPSMDBCluster(params *GetPSMDBClusterParams) (*GetPSMDBClusterOK, error)
+	GetPSMDBClusterCredentials(params *GetPSMDBClusterCredentialsParams) (*GetPSMDBClusterCredentialsOK, error)
 
 	ListPSMDBClusters(params *ListPSMDBClustersParams) (*ListPSMDBClustersOK, error)
+
+	RestartPSMDBCluster(params *RestartPSMDBClusterParams) (*RestartPSMDBClusterOK, error)
 
 	UpdatePSMDBCluster(params *UpdatePSMDBClusterParams) (*UpdatePSMDBClusterOK, error)
 
@@ -105,35 +107,35 @@ func (a *Client) DeletePSMDBCluster(params *DeletePSMDBClusterParams) (*DeletePS
 }
 
 /*
-  GetPSMDBCluster gets PSMDB cluster returns a PSMDB cluster by name
+  GetPSMDBClusterCredentials gets PSMDB cluster credentials returns a PSMDB cluster credentials by cluster name
 */
-func (a *Client) GetPSMDBCluster(params *GetPSMDBClusterParams) (*GetPSMDBClusterOK, error) {
+func (a *Client) GetPSMDBClusterCredentials(params *GetPSMDBClusterCredentialsParams) (*GetPSMDBClusterCredentialsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewGetPSMDBClusterParams()
+		params = NewGetPSMDBClusterCredentialsParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "GetPSMDBCluster",
+		ID:                 "GetPSMDBClusterCredentials",
 		Method:             "POST",
-		PathPattern:        "/v1/management/DBaaS/PSMDBClusters/Get",
+		PathPattern:        "/v1/management/DBaaS/PSMDBClusters/GetCredentials",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &GetPSMDBClusterReader{formats: a.formats},
+		Reader:             &GetPSMDBClusterCredentialsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*GetPSMDBClusterOK)
+	success, ok := result.(*GetPSMDBClusterCredentialsOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*GetPSMDBClusterDefault)
+	unexpectedSuccess := result.(*GetPSMDBClusterCredentialsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -167,6 +169,39 @@ func (a *Client) ListPSMDBClusters(params *ListPSMDBClustersParams) (*ListPSMDBC
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*ListPSMDBClustersDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  RestartPSMDBCluster restarts PSMDB cluster restarts PSMDB cluster
+*/
+func (a *Client) RestartPSMDBCluster(params *RestartPSMDBClusterParams) (*RestartPSMDBClusterOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewRestartPSMDBClusterParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "RestartPSMDBCluster",
+		Method:             "POST",
+		PathPattern:        "/v1/management/DBaaS/PSMDBCluster/Restart",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &RestartPSMDBClusterReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*RestartPSMDBClusterOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*RestartPSMDBClusterDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

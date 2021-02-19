@@ -71,6 +71,8 @@ message NodeExporter {
   map<string, string> custom_labels = 4;
   // True if exporter uses push metrics mode.
   bool push_metrics_enabled = 7;
+  // List of disabled collector names.
+  repeated string disabled_collectors = 8;
   //
   // Status fields below.
   //
@@ -105,6 +107,8 @@ message MySQLdExporter {
   map<string, string> custom_labels = 8;
   // True if exporter uses push metrics mode.
   bool push_metrics_enabled = 13;
+  // List of disabled collector names.
+  repeated string disabled_collectors = 14;
   //
   // Status fields below.
   //
@@ -137,6 +141,8 @@ message MongoDBExporter {
   map<string, string> custom_labels = 8;
   // True if exporter uses push metrics mode.
   bool push_metrics_enabled = 11;
+  // List of disabled collector names.
+  repeated string disabled_collectors = 12;
   //
   // Status fields below.
   //
@@ -167,6 +173,8 @@ message PostgresExporter {
   map<string, string> custom_labels = 8;
   // True if exporter uses push metrics mode.
   bool push_metrics_enabled = 11;
+  // List of disabled collector names.
+  repeated string disabled_collectors = 12;
   //
   // Status fields below.
   //
@@ -197,6 +205,8 @@ message ProxySQLExporter {
   map<string, string> custom_labels = 8;
   // True if exporter uses push metrics mode.
   bool push_metrics_enabled = 11;
+  // List of disabled collector names.
+  repeated string disabled_collectors = 12;
   //
   // Status fields below.
   //
@@ -523,6 +533,8 @@ message AddNodeExporterRequest {
   map<string, string> custom_labels = 2;
   // Enables push metrics mode for exporter.
   bool push_metrics = 3;
+  // List of collector names to disable in this exporter.
+  repeated string disable_collectors = 4;
 }
 
 message AddNodeExporterResponse {
@@ -579,6 +591,8 @@ message AddMySQLdExporterRequest {
   bool skip_connection_check = 8;
   // Enables push metrics mode for exporter.
   bool push_metrics = 10;
+  // List of collector names to disable in this exporter.
+  repeated string disable_collectors = 11;
 }
 
 message AddMySQLdExporterResponse {
@@ -623,12 +637,20 @@ message AddMongoDBExporterRequest {
   bool tls = 5;
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 6;
+  // Client certificate and key.
+  string tls_certificate_key = 10;
+  // Password for decrypting tls_certificate_key.
+  string tls_certificate_key_file_password = 11;
+  // Certificate Authority certificate chain.
+  string tls_ca = 12;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 7;
   // Skip connection check.
   bool skip_connection_check = 8;
   // Enables push metrics mode for exporter.
   bool push_metrics = 9;
+  // List of collector names to disable in this exporter.
+  repeated string disable_collectors = 13;
 }
 
 message AddMongoDBExporterResponse {
@@ -681,6 +703,8 @@ message AddPostgresExporterRequest {
   bool skip_connection_check = 8;
   // Enables push metrics mode for exporter.
   bool push_metrics = 9;
+  // List of collector names to disable in this exporter.
+  repeated string disable_collectors = 10;
 }
 
 message AddPostgresExporterResponse {
@@ -733,6 +757,8 @@ message AddProxySQLExporterRequest {
   bool skip_connection_check = 8;
   // Enables push metrics mode for exporter.
   bool push_metrics = 9;
+  // List of collector names to disable in this exporter.
+  repeated string disable_collectors = 10;
 }
 
 message AddProxySQLExporterResponse {
@@ -882,6 +908,12 @@ message AddQANMongoDBProfilerAgentRequest {
   bool tls = 5;
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 6;
+  // Client certificate and key.
+  string tls_certificate_key = 9;
+  // Password for decrypting tls_certificate_key.
+  string tls_certificate_key_file_password = 10;
+  // Certificate Authority certificate chain.
+  string tls_ca = 11;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 7;
   // Skip connection check.

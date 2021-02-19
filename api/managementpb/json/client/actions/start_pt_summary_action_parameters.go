@@ -56,7 +56,7 @@ func NewStartPTSummaryActionParamsWithHTTPClient(client *http.Client) *StartPTSu
 }
 
 /*StartPTSummaryActionParams contains all the parameters to send to the API endpoint
-for the start p t summary action operation typically these are written to a http.Request
+for the start PT summary action operation typically these are written to a http.Request
 */
 type StartPTSummaryActionParams struct {
 
@@ -68,46 +68,46 @@ type StartPTSummaryActionParams struct {
 	HTTPClient *http.Client
 }
 
-// WithTimeout adds the timeout to the start p t summary action params
+// WithTimeout adds the timeout to the start PT summary action params
 func (o *StartPTSummaryActionParams) WithTimeout(timeout time.Duration) *StartPTSummaryActionParams {
 	o.SetTimeout(timeout)
 	return o
 }
 
-// SetTimeout adds the timeout to the start p t summary action params
+// SetTimeout adds the timeout to the start PT summary action params
 func (o *StartPTSummaryActionParams) SetTimeout(timeout time.Duration) {
 	o.timeout = timeout
 }
 
-// WithContext adds the context to the start p t summary action params
+// WithContext adds the context to the start PT summary action params
 func (o *StartPTSummaryActionParams) WithContext(ctx context.Context) *StartPTSummaryActionParams {
 	o.SetContext(ctx)
 	return o
 }
 
-// SetContext adds the context to the start p t summary action params
+// SetContext adds the context to the start PT summary action params
 func (o *StartPTSummaryActionParams) SetContext(ctx context.Context) {
 	o.Context = ctx
 }
 
-// WithHTTPClient adds the HTTPClient to the start p t summary action params
+// WithHTTPClient adds the HTTPClient to the start PT summary action params
 func (o *StartPTSummaryActionParams) WithHTTPClient(client *http.Client) *StartPTSummaryActionParams {
 	o.SetHTTPClient(client)
 	return o
 }
 
-// SetHTTPClient adds the HTTPClient to the start p t summary action params
+// SetHTTPClient adds the HTTPClient to the start PT summary action params
 func (o *StartPTSummaryActionParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithBody adds the body to the start p t summary action params
+// WithBody adds the body to the start PT summary action params
 func (o *StartPTSummaryActionParams) WithBody(body StartPTSummaryActionBody) *StartPTSummaryActionParams {
 	o.SetBody(body)
 	return o
 }
 
-// SetBody adds the body to the start p t summary action params
+// SetBody adds the body to the start PT summary action params
 func (o *StartPTSummaryActionParams) SetBody(body StartPTSummaryActionBody) {
 	o.Body = body
 }

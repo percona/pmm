@@ -365,11 +365,12 @@
               "type": "object",
               "properties": {
                 "alert_manager_rules": {
+                  "description": "Custom alerting or recording rules.",
                   "type": "string",
                   "x-order": 8
                 },
                 "alert_manager_url": {
-                  "description": "Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
+                  "description": "External AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
                   "type": "string",
                   "x-order": 6
                 },
@@ -385,18 +386,70 @@
                   "type": "string",
                   "x-order": 3
                 },
-                "disable_stt": {
+                "disable_alerting": {
+                  "description": "Disable Integrated Alerting.",
                   "type": "boolean",
-                  "title": "Disable Security Threat Tool",
+                  "x-order": 13
+                },
+                "disable_stt": {
+                  "description": "Disable Security Threat Tool.",
+                  "type": "boolean",
                   "x-order": 11
                 },
                 "disable_telemetry": {
                   "type": "boolean",
                   "x-order": 1
                 },
-                "enable_stt": {
+                "email_alerting_settings": {
+                  "description": "EmailAlertingSettings represents email (SMTP) configuration for Integrated Alerting.",
+                  "type": "object",
+                  "properties": {
+                    "from": {
+                      "description": "SMTP From header field.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "hello": {
+                      "description": "Hostname to identify to the SMTP server.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "identity": {
+                      "description": "Auth using PLAIN.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "password": {
+                      "description": "Auth using LOGIN and PLAIN.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "secret": {
+                      "description": "Auth using CRAM-MD5.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "smarthost": {
+                      "description": "SMTP host and port.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "username": {
+                      "description": "Auth using CRAM-MD5, LOGIN and PLAIN.",
+                      "type": "string",
+                      "x-order": 3
+                    }
+                  },
+                  "x-order": 14
+                },
+                "enable_alerting": {
+                  "description": "Enable Integrated Alerting.",
                   "type": "boolean",
-                  "title": "Enable Security Threat Tool",
+                  "x-order": 12
+                },
+                "enable_stt": {
+                  "description": "Enable Security Threat Tool.",
+                  "type": "boolean",
                   "x-order": 10
                 },
                 "enable_telemetry": {
@@ -425,13 +478,46 @@
                   },
                   "x-order": 2
                 },
+                "pmm_public_address": {
+                  "description": "PMM Server public address.",
+                  "type": "string",
+                  "x-order": 18
+                },
                 "remove_alert_manager_rules": {
+                  "description": "Remove custom alerting or recording rules.",
                   "type": "boolean",
                   "x-order": 9
                 },
                 "remove_alert_manager_url": {
+                  "description": "Remove external AlertManager URL.",
                   "type": "boolean",
                   "x-order": 7
+                },
+                "remove_email_alerting_settings": {
+                  "description": "If true, removes Integrated Alerting email (SMTP) settings.",
+                  "type": "boolean",
+                  "x-order": 15
+                },
+                "remove_pmm_public_address": {
+                  "type": "boolean",
+                  "x-order": 19
+                },
+                "remove_slack_alerting_settings": {
+                  "description": "If true, removes Integrated Alerting Slack settings.",
+                  "type": "boolean",
+                  "x-order": 17
+                },
+                "slack_alerting_settings": {
+                  "description": "SlackAlertingSettings represents Slack configuration for Integrated Alerting.",
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "description": "Slack API (webhook) URL.",
+                      "type": "string",
+                      "x-order": 0
+                    }
+                  },
+                  "x-order": 16
                 },
                 "ssh_key": {
                   "type": "string",
@@ -452,13 +538,19 @@
                   "type": "object",
                   "properties": {
                     "alert_manager_rules": {
+                      "description": "Custom alerting or recording rules.",
                       "type": "string",
                       "x-order": 7
                     },
                     "alert_manager_url": {
-                      "description": "Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
+                      "description": "External AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
                       "type": "string",
                       "x-order": 6
+                    },
+                    "alerting_enabled": {
+                      "description": "True if Integrated Alerting is enabled.",
+                      "type": "boolean",
+                      "x-order": 11
                     },
                     "aws_partitions": {
                       "type": "array",
@@ -472,9 +564,51 @@
                       "x-order": 3
                     },
                     "dbaas_enabled": {
+                      "description": "True if DBaaS is enabled.",
                       "type": "boolean",
-                      "title": "DBaaS enabled",
                       "x-order": 10
+                    },
+                    "email_alerting_settings": {
+                      "description": "EmailAlertingSettings represents email (SMTP) configuration for Integrated Alerting.",
+                      "type": "object",
+                      "properties": {
+                        "from": {
+                          "description": "SMTP From header field.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "hello": {
+                          "description": "Hostname to identify to the SMTP server.",
+                          "type": "string",
+                          "x-order": 2
+                        },
+                        "identity": {
+                          "description": "Auth using PLAIN.",
+                          "type": "string",
+                          "x-order": 5
+                        },
+                        "password": {
+                          "description": "Auth using LOGIN and PLAIN.",
+                          "type": "string",
+                          "x-order": 4
+                        },
+                        "secret": {
+                          "description": "Auth using CRAM-MD5.",
+                          "type": "string",
+                          "x-order": 6
+                        },
+                        "smarthost": {
+                          "description": "SMTP host and port.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "username": {
+                          "description": "Auth using CRAM-MD5, LOGIN and PLAIN.",
+                          "type": "string",
+                          "x-order": 3
+                        }
+                      },
+                      "x-order": 12
                     },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -503,20 +637,39 @@
                       "type": "string",
                       "x-order": 9
                     },
+                    "pmm_public_address": {
+                      "description": "PMM Server public address.",
+                      "type": "string",
+                      "x-order": 14
+                    },
+                    "slack_alerting_settings": {
+                      "description": "SlackAlertingSettings represents Slack configuration for Integrated Alerting.",
+                      "type": "object",
+                      "properties": {
+                        "url": {
+                          "description": "Slack API (webhook) URL.",
+                          "type": "string",
+                          "x-order": 0
+                        }
+                      },
+                      "x-order": 13
+                    },
                     "ssh_key": {
                       "type": "string",
                       "x-order": 4
                     },
                     "stt_enabled": {
+                      "description": "True if Security Threat Tool is enabled.",
                       "type": "boolean",
-                      "title": "Security Threat Tool enabled",
                       "x-order": 8
                     },
                     "telemetry_enabled": {
+                      "description": "True if telemetry is enabled.",
                       "type": "boolean",
                       "x-order": 1
                     },
                     "updates_disabled": {
+                      "description": "True if updates are disabled.",
                       "type": "boolean",
                       "x-order": 0
                     }
@@ -596,13 +749,19 @@
                   "type": "object",
                   "properties": {
                     "alert_manager_rules": {
+                      "description": "Custom alerting or recording rules.",
                       "type": "string",
                       "x-order": 7
                     },
                     "alert_manager_url": {
-                      "description": "Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
+                      "description": "External AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
                       "type": "string",
                       "x-order": 6
+                    },
+                    "alerting_enabled": {
+                      "description": "True if Integrated Alerting is enabled.",
+                      "type": "boolean",
+                      "x-order": 11
                     },
                     "aws_partitions": {
                       "type": "array",
@@ -616,9 +775,51 @@
                       "x-order": 3
                     },
                     "dbaas_enabled": {
+                      "description": "True if DBaaS is enabled.",
                       "type": "boolean",
-                      "title": "DBaaS enabled",
                       "x-order": 10
+                    },
+                    "email_alerting_settings": {
+                      "description": "EmailAlertingSettings represents email (SMTP) configuration for Integrated Alerting.",
+                      "type": "object",
+                      "properties": {
+                        "from": {
+                          "description": "SMTP From header field.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "hello": {
+                          "description": "Hostname to identify to the SMTP server.",
+                          "type": "string",
+                          "x-order": 2
+                        },
+                        "identity": {
+                          "description": "Auth using PLAIN.",
+                          "type": "string",
+                          "x-order": 5
+                        },
+                        "password": {
+                          "description": "Auth using LOGIN and PLAIN.",
+                          "type": "string",
+                          "x-order": 4
+                        },
+                        "secret": {
+                          "description": "Auth using CRAM-MD5.",
+                          "type": "string",
+                          "x-order": 6
+                        },
+                        "smarthost": {
+                          "description": "SMTP host and port.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "username": {
+                          "description": "Auth using CRAM-MD5, LOGIN and PLAIN.",
+                          "type": "string",
+                          "x-order": 3
+                        }
+                      },
+                      "x-order": 12
                     },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -647,20 +848,39 @@
                       "type": "string",
                       "x-order": 9
                     },
+                    "pmm_public_address": {
+                      "description": "PMM Server public address.",
+                      "type": "string",
+                      "x-order": 14
+                    },
+                    "slack_alerting_settings": {
+                      "description": "SlackAlertingSettings represents Slack configuration for Integrated Alerting.",
+                      "type": "object",
+                      "properties": {
+                        "url": {
+                          "description": "Slack API (webhook) URL.",
+                          "type": "string",
+                          "x-order": 0
+                        }
+                      },
+                      "x-order": 13
+                    },
                     "ssh_key": {
                       "type": "string",
                       "x-order": 4
                     },
                     "stt_enabled": {
+                      "description": "True if Security Threat Tool is enabled.",
                       "type": "boolean",
-                      "title": "Security Threat Tool enabled",
                       "x-order": 8
                     },
                     "telemetry_enabled": {
+                      "description": "True if telemetry is enabled.",
                       "type": "boolean",
                       "x-order": 1
                     },
                     "updates_disabled": {
+                      "description": "True if updates are disabled.",
                       "type": "boolean",
                       "x-order": 0
                     }

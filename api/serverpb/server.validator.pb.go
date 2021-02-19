@@ -100,6 +100,21 @@ func (this *MetricsResolutions) Validate() error {
 	}
 	return nil
 }
+func (this *EmailAlertingSettings) Validate() error {
+	if this.From == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("From", fmt.Errorf(`value '%v' must not be an empty string`, this.From))
+	}
+	if this.Smarthost == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Smarthost", fmt.Errorf(`value '%v' must not be an empty string`, this.Smarthost))
+	}
+	return nil
+}
+func (this *SlackAlertingSettings) Validate() error {
+	if this.Url == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Url", fmt.Errorf(`value '%v' must not be an empty string`, this.Url))
+	}
+	return nil
+}
 func (this *Settings) Validate() error {
 	if this.MetricsResolutions != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.MetricsResolutions); err != nil {
@@ -109,6 +124,16 @@ func (this *Settings) Validate() error {
 	if this.DataRetention != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.DataRetention); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("DataRetention", err)
+		}
+	}
+	if this.EmailAlertingSettings != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.EmailAlertingSettings); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("EmailAlertingSettings", err)
+		}
+	}
+	if this.SlackAlertingSettings != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.SlackAlertingSettings); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("SlackAlertingSettings", err)
 		}
 	}
 	return nil
@@ -133,6 +158,16 @@ func (this *ChangeSettingsRequest) Validate() error {
 	if this.DataRetention != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.DataRetention); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("DataRetention", err)
+		}
+	}
+	if this.EmailAlertingSettings != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.EmailAlertingSettings); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("EmailAlertingSettings", err)
+		}
+	}
+	if this.SlackAlertingSettings != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.SlackAlertingSettings); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("SlackAlertingSettings", err)
 		}
 	}
 	return nil

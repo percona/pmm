@@ -67,10 +67,18 @@ message AddMongoDBRequest {
   bool tls = 17;
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 18;
+  // Client certificate and key.
+  string tls_certificate_key = 21;
+  // Password for decrypting tls_certificate_key.
+  string tls_certificate_key_file_password = 22;
+  // Certificate Authority certificate chain.
+  string tls_ca = 23;
   // Defines metrics flow model for this exporter.
   // Metrics could be pushed to the server with vmagent,
   // pulled by the server, or the server could choose behavior automatically.
   MetricsMode metrics_mode = 20;
+  // List of collector names to disable in this exporter.
+  repeated string disable_collectors = 24;
 }
 
 message AddMongoDBResponse {
