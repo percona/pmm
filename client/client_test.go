@@ -237,14 +237,15 @@ func Test_argListFromPgParams(t *testing.T) {
 		{&agentpb.StartActionRequest_PTPgSummaryParams{Host: "", Port: 0, Username: "", Password: ""}, []string{}},
 		{&agentpb.StartActionRequest_PTPgSummaryParams{Host: "", Port: 0, Username: "王华", Password: `"`},
 			[]string{"--username", "王华", "--password", `"`}},
-		{&agentpb.StartActionRequest_PTPgSummaryParams{Host: "10.20.30.40", Port: 555, Username: "",
-			Password: "   "}, []string{"--username", "person", "--password=   ", "10.20.30.40:555"}},
+		{&agentpb.StartActionRequest_PTPgSummaryParams{Host: "10.20.30.40", Port: 555, Username: "person",
+			Password: "   "}, []string{"--username", "person", "--port", "555", "--host", "10.20.30.40"}},
 	}
 
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(proto.CompactTextString(tc.req), func(t *testing.T) {
 			actual := argListFromPgParams(tc.req)
+			fmt.Printf("\n%+v\n", actual)
 			assert.ElementsMatch(t, tc.expected, actual)
 		})
 	}

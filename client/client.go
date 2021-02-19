@@ -568,8 +568,6 @@ func (c *Client) Collect(ch chan<- prometheus.Metric) {
 func argListFromPgParams(pParams *agentpb.StartActionRequest_PTPgSummaryParams) []string {
 	var args []string
 
-	// Only adds the arguments are valid
-
 	if pParams.Host != "" {
 		args = append(args, "--host", pParams.Host)
 	}
@@ -582,9 +580,7 @@ func argListFromPgParams(pParams *agentpb.StartActionRequest_PTPgSummaryParams) 
 		args = append(args, "--username", pParams.Username)
 	}
 
-	// Spaces at the beginning and end are not desirable
 	pswd := strings.TrimSpace(pParams.Password)
-
 	if pswd != "" {
 		args = append(args, "--password", pswd)
 	}
