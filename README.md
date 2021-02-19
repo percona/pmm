@@ -83,6 +83,8 @@ Or run the built-in web server.
 
 And view the site at <http://localhost:8000>
 
+([Get more themes.](https://github.com/mkdocs/mkdocs/wiki/MkDocs-Themes))
+
 ## PDF
 
 To generate a PDF version of the documentation:
