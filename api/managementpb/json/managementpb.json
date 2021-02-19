@@ -883,22 +883,13 @@
         }
       }
     },
-<<<<<<< HEAD
-    "/v1/management/Actions/StartPTMySQLSummary": {
-=======
     "/v1/management/Actions/StartPTMongoDBSummary": {
->>>>>>> PMM-2.0
       "post": {
         "tags": [
           "Actions"
         ],
-<<<<<<< HEAD
-        "summary": "StartPTMySQLSummaryAction starts pt--mysql-summary Action.",
-        "operationId": "StartPTMySQLSummaryAction",
-=======
         "summary": "StartPTMongoDBSummaryAction starts pt-mongodb-summary Action.",
         "operationId": "StartPTMongoDBSummaryAction",
->>>>>>> PMM-2.0
         "parameters": [
           {
             "name": "body",
@@ -906,11 +897,7 @@
             "required": true,
             "schema": {
               "type": "object",
-<<<<<<< HEAD
-              "title": "Message to prepare pt-mysql-summary data",
-=======
               "title": "Message to prepare pt-mongodb-summary data",
->>>>>>> PMM-2.0
               "properties": {
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
@@ -931,11 +918,99 @@
             "description": "A successful response.",
             "schema": {
               "type": "object",
-<<<<<<< HEAD
-              "title": "Message to retrieve the prepared pt-mysql-summary data",
-=======
               "title": "Message to retrieve the prepared pt-mongodb-summary data",
->>>>>>> PMM-2.0
+              "properties": {
+                "action_id": {
+                  "description": "Unique Action ID.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "pmm_agent_id": {
+                  "description": "pmm-agent ID where to this Action was started.",
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/Actions/StartPTMySQLSummary": {
+      "post": {
+        "tags": [
+          "Actions"
+        ],
+        "summary": "StartPTMySQLSummaryAction starts pt--mysql-summary Action.",
+        "operationId": "StartPTMySQLSummaryAction",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "title": "Message to prepare pt-mysql-summary data",
+              "properties": {
+                "pmm_agent_id": {
+                  "description": "pmm-agent ID where to run this Action.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "service_id": {
+                  "description": "Service ID for this Action.",
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "title": "Message to retrieve the prepared pt-mysql-summary data",
               "properties": {
                 "action_id": {
                   "description": "Unique Action ID.",

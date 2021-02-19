@@ -13977,14 +13977,13 @@
         }
       }
     },
-<<<<<<< HEAD
-    "/v1/management/Actions/StartPTMySQLSummary": {
+    "/v1/management/Actions/StartPTMongoDBSummary": {
       "post": {
         "tags": [
           "Actions"
         ],
-        "summary": "StartPTMySQLSummaryAction starts pt--mysql-summary Action.",
-        "operationId": "StartPTMySQLSummaryAction",
+        "summary": "StartPTMongoDBSummaryAction starts pt-mongodb-summary Action.",
+        "operationId": "StartPTMongoDBSummaryAction",
         "parameters": [
           {
             "name": "body",
@@ -13992,7 +13991,7 @@
             "required": true,
             "schema": {
               "type": "object",
-              "title": "Message to prepare pt-mysql-summary data",
+              "title": "Message to prepare pt-mongodb-summary data",
               "properties": {
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
@@ -14013,7 +14012,7 @@
             "description": "A successful response.",
             "schema": {
               "type": "object",
-              "title": "Message to retrieve the prepared pt-mysql-summary data",
+              "title": "Message to retrieve the prepared pt-mongodb-summary data",
               "properties": {
                 "action_id": {
                   "description": "Unique Action ID.",
@@ -14070,16 +14069,13 @@
         }
       }
     },
-    "/v1/management/Actions/StartPTSummary": {
-=======
-    "/v1/management/Actions/StartPTMongoDBSummary": {
->>>>>>> PMM-2.0
+    "/v1/management/Actions/StartPTMySQLSummary": {
       "post": {
         "tags": [
           "Actions"
         ],
-        "summary": "StartPTMongoDBSummaryAction starts pt-mongodb-summary Action.",
-        "operationId": "StartPTMongoDBSummaryAction",
+        "summary": "StartPTMySQLSummaryAction starts pt--mysql-summary Action.",
+        "operationId": "StartPTMySQLSummaryAction",
         "parameters": [
           {
             "name": "body",
@@ -14087,7 +14083,7 @@
             "required": true,
             "schema": {
               "type": "object",
-              "title": "Message to prepare pt-mongodb-summary data",
+              "title": "Message to prepare pt-mysql-summary data",
               "properties": {
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
@@ -14108,7 +14104,7 @@
             "description": "A successful response.",
             "schema": {
               "type": "object",
-              "title": "Message to retrieve the prepared pt-mongodb-summary data",
+              "title": "Message to retrieve the prepared pt-mysql-summary data",
               "properties": {
                 "action_id": {
                   "description": "Unique Action ID.",
