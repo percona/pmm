@@ -283,5 +283,4 @@ func Test_argListFromMySqlParams(t *testing.T) {
 			assert.ElementsMatch(t, tc.expected, actual)
 		})
 	}
-
 }
