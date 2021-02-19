@@ -19,7 +19,6 @@ package qan
 
 import (
 	"context"
-	"sort"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -31,6 +30,7 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm-managed/utils/stringset"
 )
 
 // Client represents qan-api client for data collection.
@@ -49,15 +49,6 @@ func NewClient(cc *grpc.ClientConn, db *reform.DB) *Client {
 	}
 }
 
-func setToSlice(set map[string]struct{}) []string {
-	res := make([]string, 0, len(set))
-	for k := range set {
-		res = append(res, k)
-	}
-	sort.Strings(res)
-	return res
-}
-
 // collectAgents returns Agents referenced by metricsBuckets.
 func collectAgents(q *reform.Querier, metricsBuckets []*agentpb.MetricsBucket) (map[string]*models.Agent, error) {
 	agentIDs := make(map[string]struct{})
@@ -67,7 +58,7 @@ func collectAgents(q *reform.Querier, metricsBuckets []*agentpb.MetricsBucket) (
 		}
 	}
 
-	agents, err := models.FindAgentsByIDs(q, setToSlice(agentIDs))
+	agents, err := models.FindAgentsByIDs(q, stringset.ToSlice(agentIDs))
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +79,7 @@ func collectServices(q *reform.Querier, agents map[string]*models.Agent) (map[st
 		}
 	}
 
-	services, err := models.FindServicesByIDs(q, setToSlice(serviceIDs))
+	services, err := models.FindServicesByIDs(q, stringset.ToSlice(serviceIDs))
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +100,7 @@ func collectNodes(q *reform.Querier, services map[string]*models.Service) (map[s
 		}
 	}
 
-	nodes, err := models.FindNodesByIDs(q, setToSlice(nodeIDs))
+	nodes, err := models.FindNodesByIDs(q, stringset.ToSlice(nodeIDs))
 	if err != nil {
 		return nil, err
 	}

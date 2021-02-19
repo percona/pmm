@@ -58,6 +58,31 @@ func FindRules(q *reform.Querier) ([]*Rule, error) {
 	return rules, nil
 }
 
+// FindRulesOnPage returns a page with saved alert rules configuration.
+func FindRulesOnPage(q *reform.Querier, pageIndex, pageSize int) ([]*Rule, error) {
+	rows, err := q.SelectAllFrom(RuleTable, "ORDER BY id LIMIT $1 OFFSET $2", pageSize, pageIndex*pageSize)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to select alert rules")
+	}
+
+	rules := make([]*Rule, len(rows))
+	for i, s := range rows {
+		rules[i] = s.(*Rule)
+	}
+
+	return rules, nil
+}
+
+// CountRules returns number of alert rules.
+func CountRules(q *reform.Querier) (int, error) {
+	count, err := q.Count(RuleTable, "")
+	if err != nil {
+		return 0, errors.Wrap(err, "failed to count alert rules")
+	}
+
+	return count, nil
+}
+
 // FindRuleByID finds Rule by ID.
 func FindRuleByID(q *reform.Querier, id string) (*Rule, error) {
 	if id == "" {

@@ -40,9 +40,13 @@ import (
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/services"
 	"github.com/percona/pmm-managed/utils/dir"
+	"github.com/percona/pmm-managed/utils/stringset"
 )
 
-const rulesDir = "/etc/ia/rules"
+const (
+	rulesDir        = "/etc/ia/rules"
+	defaultPageSize = 20
+)
 
 // RulesService represents API for Integrated Alerting Rules.
 type RulesService struct {
@@ -250,11 +254,97 @@ func (s *RulesService) ListAlertRules(ctx context.Context, req *iav1beta1.ListAl
 		return nil, status.Errorf(codes.FailedPrecondition, "%v.", services.ErrAlertingDisabled)
 	}
 
-	res, err := s.getAlertRules()
+	pageIndex := 0
+	pageSize := defaultPageSize
+	if req.PageParams != nil {
+		pageIndex = int(req.PageParams.Index)
+		pageSize = int(req.PageParams.PageSize)
+	}
+
+	if pageSize <= 0 || pageIndex < 0 {
+		return nil, status.Errorf(codes.InvalidArgument, "Page size (%d) should be positive number and "+
+			"page index (%d) should be non-negative number", req.PageParams.PageSize, req.PageParams.Index)
+	}
+
+	res, pageTotals, err := s.getAlertRulesPage(pageIndex, pageSize)
 	if err != nil {
 		return nil, err
 	}
-	return &iav1beta1.ListAlertRulesResponse{Rules: res}, nil
+	return &iav1beta1.ListAlertRulesResponse{Rules: res, Totals: pageTotals}, nil
+}
+
+func (s *RulesService) convertAlertRules(rules []*models.Rule, channels []*models.Channel) ([]*iav1beta1.Rule, error) {
+	templates := s.templates.getTemplates()
+
+	res := make([]*iav1beta1.Rule, 0, len(rules))
+	for _, rule := range rules {
+		template, ok := templates[rule.TemplateName]
+		if !ok {
+			s.l.Warnf("template %s used by rule %s doesn't exist, skipping that rule", template.Name, rule.ID)
+			continue
+		}
+
+		r, err := convertRule(s.l, rule, template, channels)
+		if err != nil {
+			return nil, errors.WithStack(err)
+		}
+		res = append(res, r)
+	}
+
+	return res, nil
+}
+
+// getAlertRulesPage returns a page with list of available alert rules.
+func (s *RulesService) getAlertRulesPage(pageIndex, pageSize int) ([]*iav1beta1.Rule, *iav1beta1.PageTotals, error) {
+	var rules []*models.Rule
+	var channels []*models.Channel
+	var totalItems int
+	errTx := s.db.InTransaction(func(tx *reform.TX) error {
+		var err error
+		rules, err = models.FindRulesOnPage(tx.Querier, pageIndex, pageSize)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+
+		totalItems, err = models.CountRules(tx.Querier)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+
+		channelsIDs := make(map[string]struct{}, len(rules))
+		for _, rule := range rules {
+			for _, id := range rule.ChannelIDs {
+				channelsIDs[id] = struct{}{}
+			}
+		}
+
+		channels, err = models.FindChannelsByIDs(tx.Querier, stringset.ToSlice(channelsIDs))
+		if err != nil {
+			return errors.WithStack(err)
+		}
+
+		return nil
+	})
+	if errTx != nil {
+		return nil, nil, errors.WithStack(errTx)
+	}
+
+	res, err := s.convertAlertRules(rules, channels)
+	if err != nil {
+		return nil, nil, errors.WithStack(err)
+	}
+
+	totalPages := totalItems / pageSize
+	if totalItems%pageSize > 0 {
+		totalPages++
+	}
+
+	totals := &iav1beta1.PageTotals{
+		TotalItems: int32(totalItems),
+		TotalPages: int32(totalPages),
+	}
+
+	return res, totals, nil
 }
 
 // getAlertRules returns list of available alert rules.
@@ -279,21 +369,9 @@ func (s *RulesService) getAlertRules() ([]*iav1beta1.Rule, error) {
 		return nil, e
 	}
 
-	templates := s.templates.getTemplates()
-
-	res := make([]*iav1beta1.Rule, 0, len(rules))
-	for _, rule := range rules {
-		template, ok := templates[rule.TemplateName]
-		if !ok {
-			s.l.Warnf("Template %s used by rule %s doesn't exist, skipping that rule", template.Name, rule.ID)
-			continue
-		}
-
-		r, err := convertRule(s.l, rule, template, channels)
-		if err != nil {
-			return nil, err
-		}
-		res = append(res, r)
+	res, err := s.convertAlertRules(rules, channels)
+	if err != nil {
+		return nil, errors.WithStack(err)
 	}
 
 	return res, nil
