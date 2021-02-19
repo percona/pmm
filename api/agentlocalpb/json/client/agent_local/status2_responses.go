@@ -203,7 +203,7 @@ type Status2OKBody struct {
 	// runs on node id
 	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 
-	// agents info
+	// Agents information.
 	AgentsInfo []*AgentsInfoItems0 `json:"agents_info"`
 
 	// Config file path if pmm-agent was started with one.
@@ -211,6 +211,9 @@ type Status2OKBody struct {
 
 	// PMM Agent version.
 	AgentVersion string `json:"agent_version,omitempty"`
+
+	// Tunnels information.
+	TunnelsInfo []*TunnelsInfoItems0 `json:"tunnels_info"`
 
 	// server info
 	ServerInfo *Status2OKBodyServerInfo `json:"server_info,omitempty"`
@@ -221,6 +224,10 @@ func (o *Status2OKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateAgentsInfo(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateTunnelsInfo(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -249,6 +256,31 @@ func (o *Status2OKBody) validateAgentsInfo(formats strfmt.Registry) error {
 			if err := o.AgentsInfo[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("status2Ok" + "." + "agents_info" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *Status2OKBody) validateTunnelsInfo(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.TunnelsInfo) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.TunnelsInfo); i++ {
+		if swag.IsZero(o.TunnelsInfo[i]) { // not required
+			continue
+		}
+
+		if o.TunnelsInfo[i] != nil {
+			if err := o.TunnelsInfo[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("status2Ok" + "." + "tunnels_info" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

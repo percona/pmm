@@ -1,11 +1,12 @@
 protoc:
   version: 3.13.0
   includes:
-    # for importing "google/api/annotations.proto"
+    # for importing "google/api/annotations.proto" and "google/rpc/status.proto"
     - ../vendor/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis
 
-    # for importing "protoc-gen-swagger/options/annotations.proto" and
-    - ../vendor/github.com/grpc-ecosystem/grpc-gateway
+    # FIXME do we need it?
+    # # for importing "protoc-gen-swagger/options/annotations.proto"
+    # - ../vendor/github.com/grpc-ecosystem/grpc-gateway
 
     # for importing "github.com/mwitkow/go-proto-validators/validator.proto"
     - ../vendor

@@ -33,14 +33,14 @@ gen: clean            ## Generate files.
 		swagger generate client --with-flatten=expand --with-flatten=remove-unused --spec=$$API/json/$$(basename $$API).json --target=$$API/json \
 			--additional-initialism=aws \
 			--additional-initialism=db \
+			--additional-initialism=ha \
 			--additional-initialism=ok \
 			--additional-initialism=pmm \
 			--additional-initialism=psmdb \
 			--additional-initialism=pt \
 			--additional-initialism=qan \
 			--additional-initialism=rds \
-			--additional-initialism=sql \
-			--additional-initialism=ha ; \
+			--additional-initialism=sql ; \
 	done
 
 	# generate public API spec, omit agentlocalpb (always private),

@@ -10186,6 +10186,289 @@
           }
         }
       }
+    },
+    "/v1/inventory/Tunnels/Add": {
+      "post": {
+        "tags": [
+          "Tunnels"
+        ],
+        "summary": "AddTunnel adds a Tunnel.",
+        "operationId": "AddTunnel",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "connect_agent_id": {
+                  "description": "Agent ID of the connecting pmm-agent.",
+                  "type": "string",
+                  "x-order": 2
+                },
+                "connect_port": {
+                  "description": "Target port of the connecting pmm-agent.",
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 3
+                },
+                "listen_agent_id": {
+                  "description": "Agent ID of the listening pmm-agent.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "listen_port": {
+                  "description": "Listen port of the listening pmm-agent.",
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "tunnel_id": {
+                  "description": "Tunnel ID.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/inventory/Tunnels/List": {
+      "post": {
+        "tags": [
+          "Tunnels"
+        ],
+        "summary": "ListTunnels returns a list of all Tunnels.",
+        "operationId": "ListTunnels",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "agent_id": {
+                  "description": "Return only Tunnels where one (or both) pmm-agent has this ID.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "tunnel": {
+                  "description": "Tunnels.",
+                  "type": "array",
+                  "items": {
+                    "description": "Tunnel represents a single Tunnel configuration.",
+                    "type": "object",
+                    "properties": {
+                      "connect_agent_id": {
+                        "description": "Agent ID of the connecting pmm-agent.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "connect_port": {
+                        "description": "Target port of the connecting pmm-agent.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 4
+                      },
+                      "listen_agent_id": {
+                        "description": "Agent ID of the listening pmm-agent.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "listen_port": {
+                        "description": "Listen port of the listening pmm-agent.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 2
+                      },
+                      "tunnel_id": {
+                        "description": "Tunnel ID.",
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/inventory/Tunnels/Remove": {
+      "post": {
+        "tags": [
+          "Tunnels"
+        ],
+        "summary": "RemoveTunnel removes a Tunnel.",
+        "operationId": "RemoveTunnel",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "tunnel_id": {
+                  "description": "Tunnel ID.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

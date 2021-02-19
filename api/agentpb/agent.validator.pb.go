@@ -8,8 +8,10 @@ import (
 	proto "github.com/golang/protobuf/proto"
 	_ "github.com/golang/protobuf/ptypes/duration"
 	_ "github.com/golang/protobuf/ptypes/timestamp"
+	_ "github.com/mwitkow/go-proto-validators"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "github.com/percona/pmm/api/inventorypb"
+	_ "google.golang.org/genproto/googleapis/rpc/status"
 	math "math"
 )
 
@@ -55,6 +57,7 @@ func (this *StateChangedResponse) Validate() error {
 func (this *SetStateRequest) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	// Validation of proto3 map<> fields is unsupported.
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *SetStateRequest_AgentProcess) Validate() error {
@@ -69,7 +72,17 @@ func (this *SetStateRequest_BuiltinAgent) Validate() error {
 	}
 	return nil
 }
+func (this *SetStateRequest_Tunnel) Validate() error {
+	if !(this.ListenPort < 65536) {
+		return github_com_mwitkow_go_proto_validators.FieldError("ListenPort", fmt.Errorf(`value '%v' must be less than '65536'`, this.ListenPort))
+	}
+	if !(this.ConnectPort < 65536) {
+		return github_com_mwitkow_go_proto_validators.FieldError("ConnectPort", fmt.Errorf(`value '%v' must be less than '65536'`, this.ConnectPort))
+	}
+	return nil
+}
 func (this *SetStateResponse) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *QueryActionValue) Validate() error {
@@ -330,6 +343,23 @@ func (this *ActionResultRequest) Validate() error {
 func (this *ActionResultResponse) Validate() error {
 	return nil
 }
+func (this *TunnelData) Validate() error {
+	if this.TunnelId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("TunnelId", fmt.Errorf(`value '%v' must not be an empty string`, this.TunnelId))
+	}
+	if this.ConnectionId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ConnectionId", fmt.Errorf(`value '%v' must not be an empty string`, this.ConnectionId))
+	}
+	return nil
+}
+func (this *TunnelDataAck) Validate() error {
+	if this.Status != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Status); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Status", err)
+		}
+	}
+	return nil
+}
 func (this *CheckConnectionRequest) Validate() error {
 	if this.Timeout != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Timeout); err != nil {
@@ -383,6 +413,13 @@ func (this *AgentMessage) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetPayload().(*AgentMessage_TunnelData); ok {
+		if oneOfNester.TunnelData != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.TunnelData); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("TunnelData", err)
+			}
+		}
+	}
 	if oneOfNester, ok := this.GetPayload().(*AgentMessage_Pong); ok {
 		if oneOfNester.Pong != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Pong); err != nil {
@@ -418,6 +455,13 @@ func (this *AgentMessage) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetPayload().(*AgentMessage_TunnelDataAck); ok {
+		if oneOfNester.TunnelDataAck != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.TunnelDataAck); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("TunnelDataAck", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *ServerMessage) Validate() error {
@@ -446,6 +490,13 @@ func (this *ServerMessage) Validate() error {
 		if oneOfNester.ActionResult != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.ActionResult); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("ActionResult", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetPayload().(*ServerMessage_TunnelDataAck); ok {
+		if oneOfNester.TunnelDataAck != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.TunnelDataAck); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("TunnelDataAck", err)
 			}
 		}
 	}
@@ -481,6 +532,13 @@ func (this *ServerMessage) Validate() error {
 		if oneOfNester.CheckConnection != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.CheckConnection); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("CheckConnection", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetPayload().(*ServerMessage_TunnelData); ok {
+		if oneOfNester.TunnelData != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.TunnelData); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("TunnelData", err)
 			}
 		}
 	}

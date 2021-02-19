@@ -437,7 +437,7 @@ type StatusOKBody struct {
 	// runs on node id
 	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 
-	// agents info
+	// Agents information.
 	AgentsInfo []*AgentsInfoItems0 `json:"agents_info"`
 
 	// Config file path if pmm-agent was started with one.
@@ -445,6 +445,9 @@ type StatusOKBody struct {
 
 	// PMM Agent version.
 	AgentVersion string `json:"agent_version,omitempty"`
+
+	// Tunnels information.
+	TunnelsInfo []*TunnelsInfoItems0 `json:"tunnels_info"`
 
 	// server info
 	ServerInfo *StatusOKBodyServerInfo `json:"server_info,omitempty"`
@@ -455,6 +458,10 @@ func (o *StatusOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateAgentsInfo(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateTunnelsInfo(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -483,6 +490,31 @@ func (o *StatusOKBody) validateAgentsInfo(formats strfmt.Registry) error {
 			if err := o.AgentsInfo[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("statusOk" + "." + "agents_info" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *StatusOKBody) validateTunnelsInfo(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.TunnelsInfo) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.TunnelsInfo); i++ {
+		if swag.IsZero(o.TunnelsInfo[i]) { // not required
+			continue
+		}
+
+		if o.TunnelsInfo[i] != nil {
+			if err := o.TunnelsInfo[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("statusOk" + "." + "tunnels_info" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -569,6 +601,47 @@ func (o *StatusOKBodyServerInfo) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *StatusOKBodyServerInfo) UnmarshalBinary(b []byte) error {
 	var res StatusOKBodyServerInfo
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*TunnelsInfoItems0 TunnelInfo contains information about Tunnel managed by pmm-agent.
+swagger:model TunnelsInfoItems0
+*/
+type TunnelsInfoItems0 struct {
+
+	// Tunnel ID.
+	TunnelID string `json:"tunnel_id,omitempty"`
+
+	// Listen port of the listening pmm-agent.
+	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Target port of the connecting pmm-agent.
+	ConnectPort int64 `json:"connect_port,omitempty"`
+
+	// The current number of established connections.
+	CurrentConnections int64 `json:"current_connections,omitempty"`
+}
+
+// Validate validates this tunnels info items0
+func (o *TunnelsInfoItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *TunnelsInfoItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *TunnelsInfoItems0) UnmarshalBinary(b []byte) error {
+	var res TunnelsInfoItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

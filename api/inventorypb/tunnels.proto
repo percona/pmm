@@ -1,0 +1,102 @@
+syntax = "proto3";
+
+package inventory;
+
+option go_package = "api/inventorypb;inventorypb";
+
+import "github.com/mwitkow/go-proto-validators/validator.proto";
+import "google/api/annotations.proto";
+
+// Tunnel represents a single Tunnel configuration.
+message Tunnel {
+  // Tunnel ID.
+  string tunnel_id = 1;
+  // Agent ID of the listening pmm-agent.
+  string listen_agent_id = 2;
+  // Listen port of the listening pmm-agent.
+  uint32 listen_port = 3;
+  // Agent ID of the connecting pmm-agent.
+  string connect_agent_id = 4;
+  // Target port of the connecting pmm-agent.
+  uint32 connect_port = 5;
+}
+
+message ListTunnelsRequest {
+  // Return only Tunnels where one (or both) pmm-agent has this ID.
+  string agent_id = 1;
+}
+
+message ListTunnelsResponse {
+  // Tunnels.
+  repeated Tunnel tunnel = 1;
+}
+
+message AddTunnelRequest {
+  // Agent ID of the listening pmm-agent.
+  string listen_agent_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Listen port of the listening pmm-agent.
+  uint32 listen_port = 2 [
+    (validator.field) = {
+      int_gt: 0
+      int_lt: 65536
+    }
+  ];
+  // Agent ID of the connecting pmm-agent.
+  string connect_agent_id = 3 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Target port of the connecting pmm-agent.
+  uint32 connect_port = 4 [
+    (validator.field) = {
+      int_gt: 0
+      int_lt: 65536
+    }
+  ];
+}
+
+message AddTunnelResponse {
+  // Tunnel ID.
+  string tunnel_id = 1;
+}
+
+message RemoveTunnelRequest {
+  // Tunnel ID.
+  string tunnel_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
+
+message RemoveTunnelResponse {}
+
+// Tunnels service provides public methods for managing Tunnels.
+service Tunnels {
+  // ListTunnels returns a list of all Tunnels.
+  rpc ListTunnels(ListTunnelsRequest) returns (ListTunnelsResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Tunnels/List"
+      body: "*"
+    };
+  }
+  // AddTunnel adds a Tunnel.
+  rpc AddTunnel(AddTunnelRequest) returns (AddTunnelResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Tunnels/Add"
+      body: "*"
+    };
+  }
+  // RemoveTunnel removes a Tunnel.
+  rpc RemoveTunnel(RemoveTunnelRequest) returns (RemoveTunnelResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Tunnels/Remove"
+      body: "*"
+    };
+  }
+}

@@ -34,6 +34,9 @@ func (this *ServerInfo) Validate() error {
 func (this *AgentInfo) Validate() error {
 	return nil
 }
+func (this *TunnelInfo) Validate() error {
+	return nil
+}
 func (this *StatusRequest) Validate() error {
 	return nil
 }
@@ -47,6 +50,13 @@ func (this *StatusResponse) Validate() error {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("AgentsInfo", err)
+			}
+		}
+	}
+	for _, item := range this.TunnelsInfo {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("TunnelsInfo", err)
 			}
 		}
 	}

@@ -35,6 +35,18 @@ message AgentInfo {
   uint32 listen_port = 4;
 }
 
+// TunnelInfo contains information about Tunnel managed by pmm-agent.
+message TunnelInfo {
+  // Tunnel ID.
+  string tunnel_id = 1;
+  // Listen port of the listening pmm-agent.
+  uint32 listen_port = 2;
+  // Target port of the connecting pmm-agent.
+  uint32 connect_port = 3;
+  // The current number of established connections.
+  uint32 current_connections = 4;
+}
+
 message StatusRequest {
   // Returns network info (latency and clock_drift) if true.
   bool get_network_info = 1;
@@ -44,11 +56,14 @@ message StatusResponse {
   string agent_id = 1;
   string runs_on_node_id = 2;
   ServerInfo server_info = 3;
+  // Agents information.
   repeated AgentInfo agents_info = 4;
   // Config file path if pmm-agent was started with one.
   string config_filepath = 5;
   // PMM Agent version.
   string agent_version = 6;
+  // Tunnels information.
+  repeated TunnelInfo tunnels_info = 7;
 }
 
 message ReloadRequest {}

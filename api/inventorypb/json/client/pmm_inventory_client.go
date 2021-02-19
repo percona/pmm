@@ -13,6 +13,7 @@ import (
 	"github.com/percona/pmm/api/inventorypb/json/client/agents"
 	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
 	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	"github.com/percona/pmm/api/inventorypb/json/client/tunnels"
 )
 
 // Default PMM inventory HTTP client.
@@ -60,6 +61,7 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMInvento
 	cli.Agents = agents.New(transport, formats)
 	cli.Nodes = nodes.New(transport, formats)
 	cli.Services = services.New(transport, formats)
+	cli.Tunnels = tunnels.New(transport, formats)
 	return cli
 }
 
@@ -110,6 +112,8 @@ type PMMInventory struct {
 
 	Services services.ClientService
 
+	Tunnels tunnels.ClientService
+
 	Transport runtime.ClientTransport
 }
 
@@ -119,4 +123,5 @@ func (c *PMMInventory) SetTransport(transport runtime.ClientTransport) {
 	c.Agents.SetTransport(transport)
 	c.Nodes.SetTransport(transport)
 	c.Services.SetTransport(transport)
+	c.Tunnels.SetTransport(transport)
 }
