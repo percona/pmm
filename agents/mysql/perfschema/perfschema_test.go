@@ -335,7 +335,7 @@ func TestPerfSchema(t *testing.T) {
 				PeriodLengthSecs:    60,
 				AgentType:           inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT,
 				Example:             "SELECT /* Sleep */ sleep(0.1)",
-				ExampleFormat:       agentpb.ExampleFormat_EXAMPLE,
+				ExampleFormat:       agentpb.ExampleFormat_EXAMPLE, //nolint:staticcheck
 				ExampleType:         agentpb.ExampleType_RANDOM,
 				NumQueries:          1,
 				MQueryTimeCnt:       1,
@@ -380,7 +380,7 @@ func TestPerfSchema(t *testing.T) {
 				PeriodLengthSecs:    60,
 				AgentType:           inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT,
 				Example:             "SELECT /* AllCities */ * FROM city",
-				ExampleFormat:       agentpb.ExampleFormat_EXAMPLE,
+				ExampleFormat:       agentpb.ExampleFormat_EXAMPLE, //nolint:staticcheck
 				ExampleType:         agentpb.ExampleType_RANDOM,
 				NumQueries:          1,
 				MQueryTimeCnt:       1,
@@ -451,7 +451,7 @@ func TestPerfSchema(t *testing.T) {
 				PeriodLengthSecs:       60,
 				AgentType:              inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT,
 				Example:                example,
-				ExampleFormat:          agentpb.ExampleFormat_EXAMPLE,
+				ExampleFormat:          agentpb.ExampleFormat_EXAMPLE, //nolint:staticcheck
 				ExampleType:            agentpb.ExampleType_RANDOM,
 				NumQueries:             1,
 				NumQueriesWithWarnings: numQueriesWithWarnings,

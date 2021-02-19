@@ -32,7 +32,7 @@ import (
 type MongoDB struct {
 	agentID string
 	l       *logrus.Entry
-	changes chan Change
+	changes chan agents.Change
 
 	mongoDSN string
 }
@@ -42,9 +42,6 @@ type Params struct {
 	DSN     string
 	AgentID string
 }
-
-// FIXME Replace this alias, replace with agents.Change.
-type Change = agents.Change
 
 // New creates new MongoDB QAN service.
 func New(params *Params, l *logrus.Entry) (*MongoDB, error) {
@@ -63,7 +60,7 @@ func newMongo(mongoDSN string, l *logrus.Entry, params *Params) *MongoDB {
 		mongoDSN: mongoDSN,
 
 		l:       l,
-		changes: make(chan Change, 10),
+		changes: make(chan agents.Change, 10),
 	}
 }
 
@@ -74,34 +71,34 @@ func (m *MongoDB) Run(ctx context.Context) {
 	defer func() {
 		prof.Stop() //nolint:errcheck
 		prof = nil
-		m.changes <- Change{Status: inventorypb.AgentStatus_DONE}
+		m.changes <- agents.Change{Status: inventorypb.AgentStatus_DONE}
 		close(m.changes)
 	}()
 
-	m.changes <- Change{Status: inventorypb.AgentStatus_STARTING}
+	m.changes <- agents.Change{Status: inventorypb.AgentStatus_STARTING}
 
 	prof = profiler.New(m.mongoDSN, m.l, m, m.agentID)
 	if err := prof.Start(); err != nil {
 		m.l.Errorf("can't run profiler, reason: %v", err)
-		m.changes <- Change{Status: inventorypb.AgentStatus_STOPPING}
+		m.changes <- agents.Change{Status: inventorypb.AgentStatus_STOPPING}
 		return
 	}
 
-	m.changes <- Change{Status: inventorypb.AgentStatus_RUNNING}
+	m.changes <- agents.Change{Status: inventorypb.AgentStatus_RUNNING}
 
 	<-ctx.Done()
-	m.changes <- Change{Status: inventorypb.AgentStatus_STOPPING}
+	m.changes <- agents.Change{Status: inventorypb.AgentStatus_STOPPING}
 	return
 }
 
 // Changes returns channel that should be read until it is closed.
-func (m *MongoDB) Changes() <-chan Change {
+func (m *MongoDB) Changes() <-chan agents.Change {
 	return m.changes
 }
 
 // Write writes MetricsBuckets to pmm-managed
 func (m *MongoDB) Write(r *report.Report) error {
-	m.changes <- Change{MetricsBucket: r.Buckets}
+	m.changes <- agents.Change{MetricsBucket: r.Buckets}
 	return nil
 }
 
