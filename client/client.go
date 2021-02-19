@@ -563,16 +563,12 @@ func (c *Client) Collect(ch chan<- prometheus.Metric) {
 // argListFromMySqlParams creates an array of strings from the pointer to the parameters for pt-mysql-sumamry
 func argListFromMySqlParams(pParams *agentpb.StartActionRequest_PTMySQLSummaryParams) []string {
 	var args []string
-
-	// Only adds the arguments are valid
-	// If socket valid, socket will be used. Otherwise it will try host and port.
 	if pParams.Socket != "" {
 		args = append(args, "--socket", pParams.Socket)
 	} else {
 		if pParams.Host != "" {
 			args = append(args, "--host", pParams.Host)
 		}
-
 		if pParams.Port > 0 && pParams.Port <= 65535 {
 			args = append(args, "--port", strconv.FormatUint(uint64(pParams.Port), 10))
 		}
