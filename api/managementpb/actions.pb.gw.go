@@ -407,8 +407,13 @@ func local_request_Actions_StartPTSummaryAction_0(ctx context.Context, marshaler
 
 }
 
+<<<<<<< HEAD
 func request_Actions_StartPTMySQLSummaryAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StartPTMySQLSummaryActionRequest
+=======
+func request_Actions_StartPTMongoDBSummaryAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq StartPTMongoDBSummaryActionRequest
+>>>>>>> PMM-2.0
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -419,13 +424,22 @@ func request_Actions_StartPTMySQLSummaryAction_0(ctx context.Context, marshaler 
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
+<<<<<<< HEAD
 	msg, err := client.StartPTMySQLSummaryAction(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+=======
+	msg, err := client.StartPTMongoDBSummaryAction(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+>>>>>>> PMM-2.0
 	return msg, metadata, err
 
 }
 
+<<<<<<< HEAD
 func local_request_Actions_StartPTMySQLSummaryAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StartPTMySQLSummaryActionRequest
+=======
+func local_request_Actions_StartPTMongoDBSummaryAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq StartPTMongoDBSummaryActionRequest
+>>>>>>> PMM-2.0
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -436,7 +450,11 @@ func local_request_Actions_StartPTMySQLSummaryAction_0(ctx context.Context, mars
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
+<<<<<<< HEAD
 	msg, err := server.StartPTMySQLSummaryAction(ctx, &protoReq)
+=======
+	msg, err := server.StartPTMongoDBSummaryAction(ctx, &protoReq)
+>>>>>>> PMM-2.0
 	return msg, metadata, err
 
 }
@@ -734,7 +752,11 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 
 	})
 
+<<<<<<< HEAD
 	mux.Handle("POST", pattern_Actions_StartPTMySQLSummaryAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+=======
+	mux.Handle("POST", pattern_Actions_StartPTMongoDBSummaryAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+>>>>>>> PMM-2.0
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -745,7 +767,11 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
+<<<<<<< HEAD
 		resp, md, err := local_request_Actions_StartPTMySQLSummaryAction_0(rctx, inboundMarshaler, server, req, pathParams)
+=======
+		resp, md, err := local_request_Actions_StartPTMongoDBSummaryAction_0(rctx, inboundMarshaler, server, req, pathParams)
+>>>>>>> PMM-2.0
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -753,7 +779,11 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
+<<<<<<< HEAD
 		forward_Actions_StartPTMySQLSummaryAction_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+=======
+		forward_Actions_StartPTMongoDBSummaryAction_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+>>>>>>> PMM-2.0
 
 	})
 
@@ -1041,7 +1071,11 @@ func RegisterActionsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 
 	})
 
+<<<<<<< HEAD
 	mux.Handle("POST", pattern_Actions_StartPTMySQLSummaryAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+=======
+	mux.Handle("POST", pattern_Actions_StartPTMongoDBSummaryAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+>>>>>>> PMM-2.0
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -1050,14 +1084,22 @@ func RegisterActionsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
+<<<<<<< HEAD
 		resp, md, err := request_Actions_StartPTMySQLSummaryAction_0(rctx, inboundMarshaler, client, req, pathParams)
+=======
+		resp, md, err := request_Actions_StartPTMongoDBSummaryAction_0(rctx, inboundMarshaler, client, req, pathParams)
+>>>>>>> PMM-2.0
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
+<<<<<<< HEAD
 		forward_Actions_StartPTMySQLSummaryAction_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+=======
+		forward_Actions_StartPTMongoDBSummaryAction_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+>>>>>>> PMM-2.0
 
 	})
 
@@ -1107,7 +1149,11 @@ var (
 
 	pattern_Actions_StartPTSummaryAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartPTSummary"}, "", runtime.AssumeColonVerbOpt(true)))
 
+<<<<<<< HEAD
 	pattern_Actions_StartPTMySQLSummaryAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartPTMySQLSummary"}, "", runtime.AssumeColonVerbOpt(true)))
+=======
+	pattern_Actions_StartPTMongoDBSummaryAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartPTMongoDBSummary"}, "", runtime.AssumeColonVerbOpt(true)))
+>>>>>>> PMM-2.0
 
 	pattern_Actions_CancelAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "Cancel"}, "", runtime.AssumeColonVerbOpt(true)))
 )
@@ -1135,7 +1181,11 @@ var (
 
 	forward_Actions_StartPTSummaryAction_0 = runtime.ForwardResponseMessage
 
+<<<<<<< HEAD
 	forward_Actions_StartPTMySQLSummaryAction_0 = runtime.ForwardResponseMessage
+=======
+	forward_Actions_StartPTMongoDBSummaryAction_0 = runtime.ForwardResponseMessage
+>>>>>>> PMM-2.0
 
 	forward_Actions_CancelAction_0 = runtime.ForwardResponseMessage
 )

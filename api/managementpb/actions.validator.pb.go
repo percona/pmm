@@ -140,10 +140,17 @@ func (this *StartPTSummaryActionRequest) Validate() error {
 func (this *StartPTSummaryActionResponse) Validate() error {
 	return nil
 }
+<<<<<<< HEAD
 func (this *StartPTMySQLSummaryActionRequest) Validate() error {
 	return nil
 }
 func (this *StartPTMySQLSummaryActionResponse) Validate() error {
+=======
+func (this *StartPTMongoDBSummaryActionRequest) Validate() error {
+	return nil
+}
+func (this *StartPTMongoDBSummaryActionResponse) Validate() error {
+>>>>>>> PMM-2.0
 	return nil
 }
 func (this *CancelActionRequest) Validate() error {
