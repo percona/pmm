@@ -36,7 +36,7 @@ type mysqlSummaryAction struct {
 // MySQL Action, it's an abstract Action that can run an external commands.
 // This commands can be a shell script, script written on interpreted language, or binary file.
 func NewMySQLAction(id string, cmd string, arg []string) Action {
-	return &processAction{
+	return &mysqlSummaryAction{
 		id:      id,
 		command: cmd,
 		arg:     arg,
