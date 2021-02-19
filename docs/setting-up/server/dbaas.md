@@ -90,10 +90,10 @@ alias kubectl='minikube kubectl --'
     PMM_PASS_B64="$(echo -n "${PMM_PASS}" | base64)";
 
     # Install the PXC operator
-    curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-xtradb-cluster-operator/pmm-branch/deploy/bundle.yaml \
+    curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-xtradb-cluster-operator/v1.7.0/deploy/bundle.yaml \
     | kubectl apply -f -
-    curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-xtradb-cluster-operator/pmm-branch/deploy/secrets.yaml \
-    | sed "s/pmmserver:.*=/pmmserver: ${PMM_PASS_B64}/g" \
+    curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-xtradb-cluster-operator/v1.7.0/deploy/secrets.yaml \
+    | sed "s/pmmserver:.*=/pmmserver: ${PMM_PASS}/g" \
     | kubectl apply -f -
 
     # Install the PSMDB operator
@@ -140,10 +140,10 @@ alias kubectl='minikube kubectl --'
     PMM_PASS_B64="$(echo -n "${PMM_PASS}" | base64)";
 
     # Install the PXC operator
-    curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-xtradb-cluster-operator/pmm-branch/deploy/bundle.yaml \
+    curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-xtradb-cluster-operator/v1.7.0/deploy/bundle.yaml \
     | kubectl apply -f -
-    curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-xtradb-cluster-operator/pmm-branch/deploy/secrets.yaml \
-    | sed "s/pmmserver:.*=/pmmserver: ${PMM_PASS_B64}/g" \
+    curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-xtradb-cluster-operator/v1.7.0/deploy/secrets.yaml \
+    | sed "s/pmmserver:.*=/pmmserver: ${PMM_PASS}/g" \
     | kubectl apply -f -
 
     # Install the PSMDB operator
