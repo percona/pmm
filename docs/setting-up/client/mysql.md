@@ -65,8 +65,7 @@ version of MySQL:
     log_slow_slave_statements=ON
     ```
 
-!!! caution
-
+!!! alert alert-warning "Caution"
     This may affect the quality of monitoring data gathered by Query Analytics.
 
 
@@ -168,7 +167,7 @@ select * from setup_consumers;
 
     *Performance Schema* instrumentation is enabled by default in MySQL 5.6.6 and later versions. It is not available at all in MySQL versions prior to 5.6.
 
-    If certain instruments are not enabled, you will not see the corresponding graphs in the MySQL Performance Schema dashboard.  To enable full instrumentation, set the option `--performance_schema_instrument` to `'%=on'` when starting the MySQL server.
+    If certain instruments are not enabled, you will not see the corresponding graphs in the MySQL Performance Schema dashboard.  To enable full instrumentation, set the option `--performance_schema_instrument` to `'%=on'` when starting the MySQL server:
 
     ```sh
     mysqld --performance-schema-instrument='%=on'
