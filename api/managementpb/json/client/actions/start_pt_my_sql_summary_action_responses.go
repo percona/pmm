@@ -56,7 +56,7 @@ type StartPTMySQLSummaryActionOK struct {
 }
 
 func (o *StartPTMySQLSummaryActionOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/StartPTMySQLSummary][%d] startPTMySqlSummaryActionOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/Actions/StartPTMySQLSummary][%d] startPtMySqlSummaryActionOk  %+v", 200, o.Payload)
 }
 
 func (o *StartPTMySQLSummaryActionOK) GetPayload() *StartPTMySQLSummaryActionOKBody {
@@ -92,7 +92,7 @@ type StartPTMySQLSummaryActionDefault struct {
 	Payload *StartPTMySQLSummaryActionDefaultBody
 }
 
-// Code gets the status code for the start p t my SQL summary action default response
+// Code gets the status code for the start PT my SQL summary action default response
 func (o *StartPTMySQLSummaryActionDefault) Code() int {
 	return o._statusCode
 }
@@ -129,7 +129,7 @@ type StartPTMySQLSummaryActionBody struct {
 	ServiceID string `json:"service_id,omitempty"`
 }
 
-// Validate validates this start p t my SQL summary action body
+// Validate validates this start PT my SQL summary action body
 func (o *StartPTMySQLSummaryActionBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
@@ -152,7 +152,7 @@ func (o *StartPTMySQLSummaryActionBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*StartPTMySQLSummaryActionDefaultBody start p t my SQL summary action default body
+/*StartPTMySQLSummaryActionDefaultBody start PT my SQL summary action default body
 swagger:model StartPTMySQLSummaryActionDefaultBody
 */
 type StartPTMySQLSummaryActionDefaultBody struct {
@@ -170,7 +170,7 @@ type StartPTMySQLSummaryActionDefaultBody struct {
 	Details []*DetailsItems0 `json:"details"`
 }
 
-// Validate validates this start p t my SQL summary action default body
+// Validate validates this start PT my SQL summary action default body
 func (o *StartPTMySQLSummaryActionDefaultBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -239,7 +239,7 @@ type StartPTMySQLSummaryActionOKBody struct {
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 }
 
-// Validate validates this start p t my SQL summary action OK body
+// Validate validates this start PT my SQL summary action OK body
 func (o *StartPTMySQLSummaryActionOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }

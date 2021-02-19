@@ -56,7 +56,7 @@ func NewStartPTMySQLSummaryActionParamsWithHTTPClient(client *http.Client) *Star
 }
 
 /*StartPTMySQLSummaryActionParams contains all the parameters to send to the API endpoint
-for the start p t my SQL summary action operation typically these are written to a http.Request
+for the start PT my SQL summary action operation typically these are written to a http.Request
 */
 type StartPTMySQLSummaryActionParams struct {
 
@@ -68,46 +68,46 @@ type StartPTMySQLSummaryActionParams struct {
 	HTTPClient *http.Client
 }
 
-// WithTimeout adds the timeout to the start p t my SQL summary action params
+// WithTimeout adds the timeout to the start PT my SQL summary action params
 func (o *StartPTMySQLSummaryActionParams) WithTimeout(timeout time.Duration) *StartPTMySQLSummaryActionParams {
 	o.SetTimeout(timeout)
 	return o
 }
 
-// SetTimeout adds the timeout to the start p t my SQL summary action params
+// SetTimeout adds the timeout to the start PT my SQL summary action params
 func (o *StartPTMySQLSummaryActionParams) SetTimeout(timeout time.Duration) {
 	o.timeout = timeout
 }
 
-// WithContext adds the context to the start p t my SQL summary action params
+// WithContext adds the context to the start PT my SQL summary action params
 func (o *StartPTMySQLSummaryActionParams) WithContext(ctx context.Context) *StartPTMySQLSummaryActionParams {
 	o.SetContext(ctx)
 	return o
 }
 
-// SetContext adds the context to the start p t my SQL summary action params
+// SetContext adds the context to the start PT my SQL summary action params
 func (o *StartPTMySQLSummaryActionParams) SetContext(ctx context.Context) {
 	o.Context = ctx
 }
 
-// WithHTTPClient adds the HTTPClient to the start p t my SQL summary action params
+// WithHTTPClient adds the HTTPClient to the start PT my SQL summary action params
 func (o *StartPTMySQLSummaryActionParams) WithHTTPClient(client *http.Client) *StartPTMySQLSummaryActionParams {
 	o.SetHTTPClient(client)
 	return o
 }
 
-// SetHTTPClient adds the HTTPClient to the start p t my SQL summary action params
+// SetHTTPClient adds the HTTPClient to the start PT my SQL summary action params
 func (o *StartPTMySQLSummaryActionParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithBody adds the body to the start p t my SQL summary action params
+// WithBody adds the body to the start PT my SQL summary action params
 func (o *StartPTMySQLSummaryActionParams) WithBody(body StartPTMySQLSummaryActionBody) *StartPTMySQLSummaryActionParams {
 	o.SetBody(body)
 	return o
 }
 
-// SetBody adds the body to the start p t my SQL summary action params
+// SetBody adds the body to the start PT my SQL summary action params
 func (o *StartPTMySQLSummaryActionParams) SetBody(body StartPTMySQLSummaryActionBody) {
 	o.Body = body
 }
