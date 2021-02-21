@@ -84,7 +84,8 @@ func TestImports(t *testing.T) {
 
 	// those packages should be independent from each other
 	packs := []string{
-		// TODO "github.com/percona/pmm-agent/actions",
+		// TODO https://jira.percona.com/browse/PMM-7206
+		// "github.com/percona/pmm-agent/actions",
 
 		"github.com/percona/pmm-agent/agentlocal",
 		"github.com/percona/pmm-agent/agents/supervisor",

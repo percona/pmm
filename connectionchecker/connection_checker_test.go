@@ -181,10 +181,10 @@ func TestConnectionChecker(t *testing.T) {
 			temp, err := ioutil.TempDir("", "pmm-agent-")
 			require.NoError(t, err)
 
-			c := New(context.Background(), &config.Paths{
+			c := New(&config.Paths{
 				TempDir: temp,
 			})
-			resp := c.Check(tt.req, 0)
+			resp := c.Check(context.Background(), tt.req, 0)
 			require.NotNil(t, resp)
 			if tt.expectedErr == "" {
 				assert.Empty(t, resp.Error)
@@ -199,10 +199,10 @@ func TestConnectionChecker(t *testing.T) {
 		temp, err := ioutil.TempDir("", "pmm-agent-")
 		require.NoError(t, err)
 
-		c := New(context.Background(), &config.Paths{
+		c := New(&config.Paths{
 			TempDir: temp,
 		})
-		resp := c.Check(&agentpb.CheckConnectionRequest{
+		resp := c.Check(context.Background(), &agentpb.CheckConnectionRequest{
 			Dsn:  "root:root-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=1s",
 			Type: inventorypb.ServiceType_MYSQL_SERVICE,
 		}, 0)
@@ -215,10 +215,10 @@ func TestConnectionChecker(t *testing.T) {
 		temp, err := ioutil.TempDir("", "pmm-agent-")
 		require.NoError(t, err)
 
-		c := New(context.Background(), &config.Paths{
+		c := New(&config.Paths{
 			TempDir: temp,
 		})
-		resp := c.Check(&agentpb.CheckConnectionRequest{
+		resp := c.Check(context.Background(), &agentpb.CheckConnectionRequest{
 			Dsn:       mongoDBDSNWithSSL,
 			Type:      inventorypb.ServiceType_MONGODB_SERVICE,
 			Timeout:   ptypes.DurationProto(30 * time.Second),
