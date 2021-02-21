@@ -6,7 +6,9 @@ services:
 
 go:
   - 1.15.x
-  - tip
+  - 1.16.x
+  # TODO enable when 1.15.x is removed
+  # - tip
 
 matrix:
   fast_finish: true

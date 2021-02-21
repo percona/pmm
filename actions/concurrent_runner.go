@@ -84,6 +84,7 @@ func (r *ConcurrentRunner) Start(a Action, timeout time.Duration) {
 	// 5. Add panics with "sync: WaitGroup misuse: Add called concurrently with Wait"
 	// See skipped test (run it in a loop with race detector).
 	// https://jira.percona.com/browse/PMM-4112
+	// https://jira.percona.com/browse/PMM-7206
 	r.runningActions.Add(1)
 	actionID, actionType := a.ID(), a.Type()
 

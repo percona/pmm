@@ -42,23 +42,20 @@ import (
 
 // ConnectionChecker is a struct to check connection to services.
 type ConnectionChecker struct {
-	ctx   context.Context
 	l     *logrus.Entry
 	paths *config.Paths
 }
 
 // New creates new ConnectionChecker.
-func New(ctx context.Context, paths *config.Paths) *ConnectionChecker {
+func New(paths *config.Paths) *ConnectionChecker {
 	return &ConnectionChecker{
-		ctx:   ctx,
 		l:     logrus.WithField("component", "connectionchecker"),
 		paths: paths,
 	}
 }
 
 // Check checks connection to a service. It returns context cancelation/timeout or driver errors as is.
-func (cc *ConnectionChecker) Check(msg *agentpb.CheckConnectionRequest, id uint32) *agentpb.CheckConnectionResponse {
-	ctx := cc.ctx
+func (cc *ConnectionChecker) Check(ctx context.Context, msg *agentpb.CheckConnectionRequest, id uint32) *agentpb.CheckConnectionResponse {
 	timeout, _ := ptypes.Duration(msg.Timeout)
 	if timeout > 0 {
 		var cancel context.CancelFunc

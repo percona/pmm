@@ -33,7 +33,7 @@ import (
 // Run implements `pmm-agent run` default command.
 func Run() {
 	l := logrus.WithField("component", "main")
-	appCtx, appCancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(context.Background())
 	defer l.Info("Done.")
 
 	// handle termination signals
@@ -43,10 +43,10 @@ func Run() {
 		s := <-signals
 		signal.Stop(signals)
 		l.Warnf("Got %s, shutting down...", unix.SignalName(s.(unix.Signal)))
-		appCancel()
+		cancel()
 	}()
 
-	for appCtx.Err() == nil {
+	for {
 		cfg, configFilepath, err := config.Get(l)
 		if err != nil {
 			l.Fatalf("Failed to load configuration: %s.", err)
@@ -54,25 +54,36 @@ func Run() {
 		config.ConfigureLogger(cfg)
 		l.Debugf("Loaded configuration: %+v", cfg)
 
-		for appCtx.Err() == nil {
-			ctx, cancel := context.WithCancel(appCtx)
-			supervisor := supervisor.NewSupervisor(ctx, &cfg.Paths, &cfg.Ports, &cfg.Server)
-			connectionChecker := connectionchecker.New(ctx, &cfg.Paths)
-			client := client.New(cfg, supervisor, connectionChecker)
-			localServer := agentlocal.NewServer(cfg, supervisor, client, configFilepath)
+		run(ctx, cfg, configFilepath)
 
-			go func() {
-				_ = client.Run(ctx)
-				cancel()
-			}()
-
-			err = localServer.Run(ctx)
-			cancel()
-
-			<-client.Done()
-			if err == agentlocal.ErrReload {
-				break
-			}
+		if ctx.Err() != nil {
+			return
 		}
 	}
+}
+
+// run runs all pmm-agent components with given configuration until ctx is cancellled.
+// See documentation for NewXXX, Run, and Done
+func run(ctx context.Context, cfg *config.Config, configFilepath string) {
+	var cancel context.CancelFunc
+	ctx, cancel = context.WithCancel(ctx)
+
+	// Actions runner is currently created inside client.New.
+	// It should be created separately.
+	// TODO https://jira.percona.com/browse/PMM-7206
+
+	supervisor := supervisor.NewSupervisor(ctx, &cfg.Paths, &cfg.Ports, &cfg.Server)
+	connectionChecker := connectionchecker.New(&cfg.Paths)
+	client := client.New(cfg, supervisor, connectionChecker)
+	localServer := agentlocal.NewServer(cfg, supervisor, client, configFilepath)
+
+	go func() {
+		_ = client.Run(ctx)
+		cancel()
+	}()
+
+	localServer.Run(ctx)
+	cancel()
+
+	<-client.Done()
 }
