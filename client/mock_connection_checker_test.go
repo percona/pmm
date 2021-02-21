@@ -3,7 +3,10 @@
 package client
 
 import (
+	context "context"
+
 	agentpb "github.com/percona/pmm/api/agentpb"
+
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -12,13 +15,13 @@ type mockConnectionChecker struct {
 	mock.Mock
 }
 
-// Check provides a mock function with given fields: req, id
-func (_m *mockConnectionChecker) Check(req *agentpb.CheckConnectionRequest, id uint32) *agentpb.CheckConnectionResponse {
-	ret := _m.Called(req, id)
+// Check provides a mock function with given fields: ctx, req, id
+func (_m *mockConnectionChecker) Check(ctx context.Context, req *agentpb.CheckConnectionRequest, id uint32) *agentpb.CheckConnectionResponse {
+	ret := _m.Called(ctx, req, id)
 
 	var r0 *agentpb.CheckConnectionResponse
-	if rf, ok := ret.Get(0).(func(*agentpb.CheckConnectionRequest, uint32) *agentpb.CheckConnectionResponse); ok {
-		r0 = rf(req, id)
+	if rf, ok := ret.Get(0).(func(context.Context, *agentpb.CheckConnectionRequest, uint32) *agentpb.CheckConnectionResponse); ok {
+		r0 = rf(ctx, req, id)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*agentpb.CheckConnectionResponse)
