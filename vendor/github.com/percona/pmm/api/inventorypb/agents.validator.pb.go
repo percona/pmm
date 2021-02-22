@@ -21,6 +21,9 @@ func (this *PMMAgent) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
+func (this *VMAgent) Validate() error {
+	return nil
+}
 func (this *NodeExporter) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
@@ -81,6 +84,13 @@ func (this *ListAgentsResponse) Validate() error {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("PmmAgent", err)
+			}
+		}
+	}
+	for _, item := range this.VmAgent {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("VmAgent", err)
 			}
 		}
 	}
@@ -181,6 +191,13 @@ func (this *GetAgentResponse) Validate() error {
 		if oneOfNester.PmmAgent != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.PmmAgent); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("PmmAgent", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetAgent().(*GetAgentResponse_Vmagent); ok {
+		if oneOfNester.Vmagent != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Vmagent); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Vmagent", err)
 			}
 		}
 	}

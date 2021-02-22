@@ -9,7 +9,7 @@ import (
 // NextRow scans next result row from rows to str. If str implements AfterFinder, it also calls AfterFind().
 // It is caller's responsibility to call rows.Close().
 //
-// If there is no next result row, it returns ErrNoRows. It also may return rows.Next(), rows.Scan()
+// If there is no next result row, it returns ErrNoRows. It also may return rows.Err(), rows.Scan()
 // and AfterFinder errors.
 //
 // See SelectRows example for idiomatic usage.
@@ -214,4 +214,14 @@ func (q *Querier) FindByPrimaryKeyFrom(table Table, pk interface{}) (Record, err
 // Reload is a shortcut for FindByPrimaryKeyTo for given record.
 func (q *Querier) Reload(record Record) error {
 	return q.FindByPrimaryKeyTo(record, record.PKValue())
+}
+
+// Count queries view with tail and args and returns a number (COUNT(*)) of matching rows.
+func (q *Querier) Count(view View, tail string, args ...interface{}) (int, error) {
+	query := fmt.Sprintf("%s COUNT(*) FROM %s %s", q.startQuery("SELECT"), q.QualifiedView(view), tail)
+	var count int
+	if err := q.QueryRow(query, args...).Scan(&count); err != nil {
+		return 0, err
+	}
+	return count, nil
 }
