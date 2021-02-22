@@ -116,7 +116,8 @@ type CreateRuleParams struct {
 // CreateRule persists alert Rule.
 func CreateRule(q *reform.Querier, params *CreateRuleParams) (*Rule, error) {
 	id := "/rule_id/" + uuid.New().String()
-	if err := checkUniqueRuleID(q, id); err != nil {
+	var err error
+	if err = checkUniqueRuleID(q, id); err != nil {
 		return nil, err
 	}
 
@@ -146,13 +147,11 @@ func CreateRule(q *reform.Querier, params *CreateRuleParams) (*Rule, error) {
 		row.ChannelIDs = channelIDs
 	}
 
-	err := row.SetCustomLabels(params.CustomLabels)
-	if err != nil {
+	if err = row.SetCustomLabels(params.CustomLabels); err != nil {
 		return nil, err
 	}
 
-	err = q.Insert(row)
-	if err != nil {
+	if err = q.Insert(row); err != nil {
 		return nil, errors.Wrap(err, "failed to create alert rule")
 	}
 
@@ -235,12 +234,12 @@ func ToggleRule(q *reform.Querier, ruleID string, params *ToggleRuleParams) (*Ru
 
 // RemoveRule removes alert Rule with specified id.
 func RemoveRule(q *reform.Querier, id string) error {
-	if _, err := FindRuleByID(q, id); err != nil {
+	var err error
+	if _, err = FindRuleByID(q, id); err != nil {
 		return err
 	}
 
-	err := q.Delete(&Rule{ID: id})
-	if err != nil {
+	if err = q.Delete(&Rule{ID: id}); err != nil {
 		return errors.Wrap(err, "failed to delete alert Rule")
 	}
 	return nil

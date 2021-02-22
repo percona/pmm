@@ -175,7 +175,6 @@ func (ss *ServicesService) AddProxySQL(ctx context.Context, params *models.AddDB
 }
 
 // AddHAProxyService inserts HAProxy Service with given parameters.
-//nolint:dupl,unparam
 func (ss *ServicesService) AddHAProxyService(ctx context.Context, params *models.AddDBMSServiceParams) (*inventorypb.HAProxyService, error) {
 	service := new(models.Service)
 	e := ss.db.InTransaction(func(tx *reform.TX) error {

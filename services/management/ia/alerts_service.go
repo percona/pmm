@@ -116,12 +116,20 @@ func (s *AlertsService) ListAlerts(ctx context.Context, req *iav1beta1.ListAlert
 				return err
 			})
 			if e != nil {
+				// The codes.NotFound code can be returned just only by the FindRulesByID func
+				// from the transaction above.
+				if st, ok := status.FromError(e); ok && st.Code() == codes.NotFound {
+					s.l.Warnf("The related alert rule was most likely removed: %s", st.Message())
+					continue
+				}
+
 				return nil, e
 			}
 
 			template, ok := s.templatesService.getTemplates()[r.TemplateName]
 			if !ok {
-				return nil, status.Errorf(codes.NotFound, "Failed to find template with name: %s", r.TemplateName)
+				s.l.Warnf("Failed to find template with name: %s", r.TemplateName)
+				continue
 			}
 
 			rule, err = convertRule(s.l, r, template, channels)

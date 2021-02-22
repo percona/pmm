@@ -228,8 +228,7 @@ func CreateChannel(q *reform.Querier, params *CreateChannelParams) (*Channel, er
 		return nil, status.Error(codes.InvalidArgument, "Missing channel configuration.")
 	}
 
-	err := q.Insert(row)
-	if err != nil {
+	if err := q.Insert(row); err != nil {
 		return nil, errors.Wrap(err, "failed to create notifications channel")
 	}
 
@@ -310,8 +309,7 @@ func ChangeChannel(q *reform.Querier, channelID string, params *ChangeChannelPar
 
 	row.Disabled = params.Disabled
 
-	err = q.Update(row)
-	if err != nil {
+	if err = q.Update(row); err != nil {
 		return nil, errors.Wrap(err, "failed to update notifications channel")
 	}
 
@@ -324,9 +322,30 @@ func RemoveChannel(q *reform.Querier, id string) error {
 		return err
 	}
 
-	err := q.Delete(&Channel{ID: id})
+	inUse, err := channelInUse(q, id)
 	if err != nil {
+		return err
+	}
+
+	if inUse {
+		return status.Errorf(codes.FailedPrecondition, "Failed to delete notification channel %s, as it is being used by some rule.", id)
+	}
+
+	if err = q.Delete(&Channel{ID: id}); err != nil {
 		return errors.Wrap(err, "failed to delete notification channel")
 	}
+
 	return nil
+}
+
+func channelInUse(q *reform.Querier, id string) (bool, error) {
+	_, err := q.SelectOneFrom(RuleTable, "WHERE channel_ids ? $1", id)
+	switch err {
+	case nil:
+		return true, nil
+	case reform.ErrNoRows:
+		return false, nil
+	default:
+		return false, errors.WithStack(err)
+	}
 }

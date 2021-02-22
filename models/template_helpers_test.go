@@ -170,15 +170,17 @@ func TestRuleTemplates(t *testing.T) {
 
 		q := tx.Querier
 
-		name := gofakeit.UUID()
+		templateName := gofakeit.UUID()
 
-		_, err = models.CreateTemplate(q, createTemplateParams(name))
+		_, err = models.CreateTemplate(q, createTemplateParams(templateName))
 		require.NoError(t, err)
 
-		_ = createRule(t, q, name)
+		channelID := createChannel(t, q)
 
-		err = models.RemoveTemplate(q, name)
-		tests.AssertGRPCError(t, status.Newf(codes.FailedPrecondition, "Failed to delete rule template %s, as it is being used by some rule.", name), err)
+		_ = createRule(t, q, channelID, templateName)
+
+		err = models.RemoveTemplate(q, templateName)
+		tests.AssertGRPCError(t, status.Newf(codes.FailedPrecondition, "Failed to delete rule template %s, as it is being used by some rule.", templateName), err)
 
 		templates, err := models.FindTemplates(q)
 		require.NoError(t, err)
@@ -267,17 +269,9 @@ func changeTemplateParams(name string) *models.ChangeTemplateParams {
 	}
 }
 
-func createRule(t *testing.T, q *reform.Querier, name string) string {
-	ch, err := models.CreateChannel(q, &models.CreateChannelParams{
-		Summary: "some summary",
-		EmailConfig: &models.EmailConfig{
-			To: []string{"test@test.test"},
-		},
-		Disabled: false,
-	})
-	require.NoError(t, err)
+func createRule(t *testing.T, q *reform.Querier, channelID, templateName string) string {
 	rule, err := models.CreateRule(q, &models.CreateRuleParams{
-		TemplateName: name,
+		TemplateName: templateName,
 		Disabled:     true,
 		RuleParams: []models.RuleParam{
 			{
@@ -290,7 +284,7 @@ func createRule(t *testing.T, q *reform.Querier, name string) string {
 		Severity:     models.Severity(common.Warning),
 		CustomLabels: map[string]string{"foo": "bar"},
 		Filters:      []models.Filter{{Type: models.Equal, Key: "value", Val: "10"}},
-		ChannelIDs:   []string{ch.ID},
+		ChannelIDs:   []string{channelID},
 	})
 	require.NoError(t, err)
 	return rule.ID

@@ -121,8 +121,7 @@ func CreateTemplate(q *reform.Querier, params *CreateTemplateParams) (*Template,
 		return nil, err
 	}
 
-	err = q.Insert(row)
-	if err != nil {
+	if err = q.Insert(row); err != nil {
 		return nil, errors.Wrap(err, "failed to create rule template")
 	}
 
@@ -162,16 +161,15 @@ func ChangeTemplate(q *reform.Querier, params *ChangeTemplateParams) (*Template,
 	row.Severity = Severity(template.Severity)
 	row.Yaml = params.Yaml
 
-	if err := row.SetLabels(template.Labels); err != nil {
+	if err = row.SetLabels(template.Labels); err != nil {
 		return nil, err
 	}
 
-	if err := row.SetAnnotations(template.Annotations); err != nil {
+	if err = row.SetAnnotations(template.Annotations); err != nil {
 		return nil, err
 	}
 
-	err = q.Update(row)
-	if err != nil {
+	if err = q.Update(row); err != nil {
 		return nil, errors.Wrap(err, "failed to update rule template")
 	}
 
@@ -193,8 +191,7 @@ func RemoveTemplate(q *reform.Querier, name string) error {
 		return status.Errorf(codes.FailedPrecondition, "Failed to delete rule template %s, as it is being used by some rule.", name)
 	}
 
-	err = q.Delete(&Template{Name: name})
-	if err != nil {
+	if err = q.Delete(&Template{Name: name}); err != nil {
 		return errors.Wrap(err, "failed to delete rule template")
 	}
 	return nil

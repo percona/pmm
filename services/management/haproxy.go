@@ -30,7 +30,6 @@ import (
 )
 
 // HAProxyService HAProxy Management Service.
-//nolint:unused
 type HAProxyService struct {
 	db       *reform.DB
 	registry agentsRegistry
