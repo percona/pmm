@@ -384,11 +384,11 @@
 
 [[projects]]
   branch = "main"
-  digest = "1:a7d0b2cedb16e5aaa117dd3ea42166b40abc941f12c9cf0c1f87bad1a995f829"
+  digest = "1:c60754f36f889a8cb8ad9174d040c090e258f5277a0462b930dd196d5f72c57e"
   name = "github.com/percona-platform/dbaas-api"
   packages = ["gen/controller"]
   pruneopts = "NUT"
-  revision = "eb2f85b7f9b8b6c60da225dd7de285b069888809"
+  revision = "41f004193c1ac2e6614d8eaac641b18899334d91"
 
 [[projects]]
   branch = "main"
