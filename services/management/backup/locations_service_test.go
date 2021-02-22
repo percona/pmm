@@ -264,3 +264,59 @@ func TestChangeBackupLocation(t *testing.T) {
 		tests.AssertGRPCError(t, status.New(codes.AlreadyExists, fmt.Sprintf(`Location with name "%s" already exists.`, name)), err)
 	})
 }
+
+func TestRemoveBackupLocation(t *testing.T) {
+	ctx := context.Background()
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	svc := NewLocationsService(db)
+
+	req := &backupv1beta1.AddLocationRequest{
+		Name: gofakeit.Name(),
+		PmmClientConfig: &backupv1beta1.PMMClientLocationConfig{
+			Path: "/tmp",
+		},
+	}
+	res1, err := svc.AddLocation(ctx, req)
+	require.NoError(t, err)
+	req.Name = gofakeit.Name()
+	res2, err := svc.AddLocation(ctx, req)
+	require.NoError(t, err)
+	req.Name = gofakeit.Name()
+	res3, err := svc.AddLocation(ctx, req)
+	require.NoError(t, err)
+
+	foundLocation := func(id string, locations []*backupv1beta1.Location) bool {
+		for _, loc := range locations {
+			if loc.LocationId == id {
+				return true
+			}
+		}
+		return false
+	}
+
+	_, err = svc.RemoveLocation(ctx, &backupv1beta1.RemoveLocationRequest{
+		LocationId: res1.LocationId,
+	})
+	assert.NoError(t, err)
+
+	_, err = svc.RemoveLocation(ctx, &backupv1beta1.RemoveLocationRequest{
+		LocationId: res3.LocationId,
+	})
+	assert.NoError(t, err)
+
+	res, err := svc.ListLocations(ctx, &backupv1beta1.ListLocationsRequest{})
+	require.NoError(t, err)
+
+	assert.False(t, foundLocation(res1.LocationId, res.Locations))
+	assert.False(t, foundLocation(res3.LocationId, res.Locations))
+	assert.True(t, foundLocation(res2.LocationId, res.Locations))
+
+	// Try to remove non-existing location
+	_, err = svc.RemoveLocation(ctx, &backupv1beta1.RemoveLocationRequest{
+		LocationId: "non-existing",
+	})
+	assert.EqualError(t, err, `rpc error: code = NotFound desc = Backup location with ID "non-existing" not found.`)
+
+}

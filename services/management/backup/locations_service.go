@@ -164,6 +164,18 @@ func convertLocation(location *models.BackupLocation) (*backupv1beta1.Location, 
 	return loc, nil
 }
 
+// RemoveLocation removes backup location.
+func (s *LocationsService) RemoveLocation(ctx context.Context, req *backupv1beta1.RemoveLocationRequest) (*backupv1beta1.RemoveLocationResponse, error) {
+	mode := models.RemoveRestrict
+	if req.Force {
+		mode = models.RemoveCascade
+	}
+	if err := models.RemoveBackupLocation(s.db.Querier, req.LocationId, mode); err != nil {
+		return nil, err
+	}
+	return &backupv1beta1.RemoveLocationResponse{}, nil
+}
+
 // Check interfaces.
 var (
 	_ backupv1beta1.LocationsServer = (*LocationsService)(nil)

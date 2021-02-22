@@ -269,3 +269,16 @@ func ChangeBackupLocation(q *reform.Querier, locationID string, params ChangeBac
 
 	return row, nil
 }
+
+// RemoveBackupLocation removes BackupLocation by ID.
+func RemoveBackupLocation(q *reform.Querier, id string, mode RemoveMode) error {
+	if _, err := FindBackupLocationByID(q, id); err != nil {
+		return err
+	}
+
+	// @TODO - force delete https://jira.percona.com/browse/PMM-7475
+	if err := q.Delete(&BackupLocation{ID: id}); err != nil {
+		return errors.Wrap(err, "failed to delete BackupLocation")
+	}
+	return nil
+}

@@ -224,10 +224,40 @@ func TestBackupLocations(t *testing.T) {
 		assert.Equal(t, updatedLoc.Type, models.PMMServerBackupLocationType)
 
 		findLoc, err := models.FindBackupLocationByID(q, location.ID)
-
 		require.NoError(t, err)
 
 		assert.Equal(t, updatedLoc, findLoc)
+
+	})
+
+	t.Run("remove", func(t *testing.T) {
+		tx, err := db.Begin()
+		require.NoError(t, err)
+		defer func() {
+			require.NoError(t, tx.Rollback())
+		}()
+
+		q := tx.Querier
+
+		params := models.CreateBackupLocationParams{
+			Name:        "some name",
+			Description: "some desc",
+			BackupLocationConfig: models.BackupLocationConfig{
+				PMMClientConfig: &models.PMMClientLocationConfig{
+					Path: "/tmp",
+				},
+			},
+		}
+
+		loc, err := models.CreateBackupLocation(q, params)
+		require.NoError(t, err)
+
+		err = models.RemoveBackupLocation(q, loc.ID, models.RemoveRestrict)
+		require.NoError(t, err)
+
+		locations, err := models.FindBackupLocations(q)
+		require.NoError(t, err)
+		assert.Empty(t, locations)
 	})
 }
 

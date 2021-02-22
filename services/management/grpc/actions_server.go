@@ -38,7 +38,8 @@ type actionsServer struct {
 	l  *logrus.Entry
 }
 
-var pmmAgent2100 = version.MustParse("2.10.0-HEAD") // TODO: Remove HEAD later once 2.11.0 is released.
+var pmmAgent2100 = version.MustParse("2.10.0")
+var pmmAgent2150 = version.MustParse("2.15.0-HEAD") // TODO: Remove HEAD later once 2.16.0 is released.
 
 // NewActionsServer creates Management Actions Server.
 func NewActionsServer(r *agents.Registry, db *reform.DB) managementpb.ActionsServer {
@@ -338,6 +339,70 @@ func (s *actionsServer) StartPTSummaryAction(ctx context.Context, req *managemen
 
 func pointerToAgentType(agentType models.AgentType) *models.AgentType {
 	return &agentType
+}
+
+// StartPTPgSummaryAction starts pt-pg-summary (PostgreSQL) action and returns the pointer to the response message
+//nolint:lll
+func (s *actionsServer) StartPTPgSummaryAction(ctx context.Context, req *managementpb.StartPTPgSummaryActionRequest) (*managementpb.StartPTPgSummaryActionResponse, error) {
+	service, err := models.FindServiceByID(s.db.Querier, req.ServiceId)
+	if err != nil {
+		return nil, err
+	}
+
+	node, err := models.FindNodeByID(s.db.Querier, service.NodeID)
+	if err != nil {
+		return nil, err
+	}
+
+	var pmmAgentID string
+	switch node.NodeType {
+	case models.RemoteNodeType:
+		pmmAgentID = models.PMMServerAgentID
+	default:
+		pmmAgents, err := models.FindPMMAgentsRunningOnNode(s.db.Querier, service.NodeID)
+		if err != nil {
+			return nil, status.Errorf(codes.NotFound, "No pmm-agent running node %s", service.NodeID)
+		}
+		pmmAgents = models.FindPMMAgentsForVersion(s.l, pmmAgents, pmmAgent2150)
+		if len(pmmAgents) == 0 {
+			return nil, status.Error(codes.FailedPrecondition, "all available agents are outdated")
+		}
+		pmmAgentID, err = models.FindPmmAgentIDToRunAction(req.PmmAgentId, pmmAgents)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	res, err := models.CreateActionResult(s.db.Querier, pmmAgentID)
+	if err != nil {
+		return nil, err
+	}
+
+	agentFilter := models.AgentFilters{ServiceID: req.ServiceId, AgentType: pointerToAgentType(models.PostgresExporterType)}
+	postgresExporters, err := models.FindAgents(s.db.Querier, agentFilter)
+	if err != nil {
+		return nil, err
+	}
+
+	exportersCount := len(postgresExporters)
+	if exportersCount < 1 {
+		return nil, status.Errorf(codes.FailedPrecondition, "No postgres exporter")
+	}
+	if exportersCount > 1 {
+		return nil, status.Errorf(codes.FailedPrecondition, "Found more than one postgres exporter")
+	}
+
+	if pointer.GetString(service.Socket) != "" {
+		service.Address = service.Socket
+	}
+
+	err = s.r.StartPTPgSummaryAction(ctx, res.ID, pmmAgentID, pointer.GetString(service.Address), pointer.GetUint16(service.Port),
+		pointer.GetString(postgresExporters[0].Username), pointer.GetString(postgresExporters[0].Password))
+	if err != nil {
+		return nil, err
+	}
+
+	return &managementpb.StartPTPgSummaryActionResponse{PmmAgentId: pmmAgentID, ActionId: res.ID}, nil
 }
 
 // StartPTMongoDBSummaryAction starts pt-mongodb-summary action and returns the pointer to the response message
