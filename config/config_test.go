@@ -106,6 +106,7 @@ func TestGet(t *testing.T) {
 				VMAgent:          "/usr/local/percona/pmm2/exporters/vmagent",
 				TempDir:          os.TempDir(),
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
+				PTPgSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
 				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
 			},
 			Ports: Ports{
@@ -150,6 +151,7 @@ func TestGet(t *testing.T) {
 				VMAgent:          "/usr/local/percona/pmm2/exporters/vmagent",
 				TempDir:          os.TempDir(),
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
+				PTPgSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
 				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
 			},
 			Ports: Ports{
@@ -195,6 +197,7 @@ func TestGet(t *testing.T) {
 				VMAgent:          "/usr/local/percona/pmm2/exporters/vmagent",
 				TempDir:          os.TempDir(),
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
+				PTPgSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
 				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
 			},
 			Ports: Ports{
@@ -248,6 +251,7 @@ func TestGet(t *testing.T) {
 				VMAgent:          "/base/vmagent",          // default value
 				TempDir:          os.TempDir(),
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
+				PTPgSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
 				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
 			},
 			Ports: Ports{
@@ -284,6 +288,7 @@ func TestGet(t *testing.T) {
 				VMAgent:          "/usr/local/percona/pmm2/exporters/vmagent",
 				TempDir:          os.TempDir(),
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
+				PTPgSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
 				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
 			},
 			Ports: Ports{

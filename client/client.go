@@ -328,6 +328,9 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 			case *agentpb.StartActionRequest_PtSummaryParams:
 				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTSummary, []string{})
 
+			case *agentpb.StartActionRequest_PtPgSummaryParams:
+				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTPgSummary, argListFromPgParams(params.PtPgSummaryParams))
+
 			case *agentpb.StartActionRequest_PtMongodbSummaryParams:
 				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTMongoDBSummary, argListFromMongoDBParams(params.PtMongodbSummaryParams))
 
@@ -559,6 +562,30 @@ func (c *Client) Collect(ch chan<- prometheus.Metric) {
 	} else {
 		ch <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue, 0)
 	}
+}
+
+// argListFromPgParams creates an array of strings from the pointer to the parameters for pt-pg-sumamry
+func argListFromPgParams(pParams *agentpb.StartActionRequest_PTPgSummaryParams) []string {
+	var args []string
+
+	if pParams.Host != "" {
+		args = append(args, "--host", pParams.Host)
+	}
+
+	if pParams.Port > 0 && pParams.Port <= 65535 {
+		args = append(args, "--port", strconv.Itoa(int(pParams.Port)))
+	}
+
+	if pParams.Username != "" {
+		args = append(args, "--username", pParams.Username)
+	}
+
+	pswd := strings.TrimSpace(pParams.Password)
+	if pswd != "" {
+		args = append(args, "--password", pswd)
+	}
+
+	return args
 }
 
 // argListFromMongoDBParams creates an array of strings from the pointer to the parameters for pt-mongodb-sumamry
