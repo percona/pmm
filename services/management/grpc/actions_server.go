@@ -461,6 +461,71 @@ func (s *actionsServer) StartPTMongoDBSummaryAction(ctx context.Context, req *ma
 	return &managementpb.StartPTMongoDBSummaryActionResponse{PmmAgentId: pmmAgentID, ActionId: res.ID}, nil
 }
 
+// StartPTMySQLSummaryAction starts pt-mysql-summary action and returns the pointer to the response message
+//nolint:lll
+func (s *actionsServer) StartPTMySQLSummaryAction(ctx context.Context, req *managementpb.StartPTMySQLSummaryActionRequest) (*managementpb.StartPTMySQLSummaryActionResponse, error) {
+	service, err := models.FindServiceByID(s.db.Querier, req.ServiceId)
+	if err != nil {
+		return nil, err
+	}
+
+	node, err := models.FindNodeByID(s.db.Querier, service.NodeID)
+	if err != nil {
+		return nil, err
+	}
+
+	var pmmAgentID string
+	switch node.NodeType {
+	case models.RemoteNodeType:
+		// Remove this error after: https://jira.percona.com/browse/PMM-7562
+		return nil, status.Errorf(codes.FailedPrecondition, "PTMySQL Summary doesnt working with remote node yet")
+
+		//pmmAgentID = models.PMMServerAgentID
+	default:
+		pmmAgents, err := models.FindPMMAgentsRunningOnNode(s.db.Querier, service.NodeID)
+		if err != nil {
+			return nil, status.Errorf(codes.NotFound, "No pmm-agent running node %s", service.NodeID)
+		}
+		pmmAgents = models.FindPMMAgentsForVersion(s.l, pmmAgents, pmmAgent2150)
+		if len(pmmAgents) == 0 {
+			return nil, status.Error(codes.FailedPrecondition, "all available agents are outdated")
+		}
+		pmmAgentID, err = models.FindPmmAgentIDToRunAction(req.PmmAgentId, pmmAgents)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	res, err := models.CreateActionResult(s.db.Querier, pmmAgentID)
+	if err != nil {
+		return nil, err
+	}
+
+	agentFilter := models.AgentFilters{PMMAgentID: "", NodeID: "",
+		ServiceID: req.ServiceId, AgentType: pointerToAgentType(models.MySQLdExporterType)}
+	mysqldExporters, err := models.FindAgents(s.db.Querier, agentFilter)
+	if err != nil {
+		return nil, err
+	}
+
+	exportersCount := len(mysqldExporters)
+	if exportersCount < 1 {
+		return nil, status.Errorf(codes.FailedPrecondition, "No mysql exporter")
+	}
+	if exportersCount > 1 {
+		return nil, status.Errorf(codes.FailedPrecondition, "Found more than one mysql exporter")
+	}
+
+	err = s.r.StartPTMySQLSummaryAction(ctx, res.ID, pmmAgentID, pointer.GetString(service.Address), pointer.GetUint16(service.Port),
+		pointer.GetString(service.Socket), pointer.GetString(mysqldExporters[0].Username),
+		pointer.GetString(mysqldExporters[0].Password))
+	if err != nil {
+		return nil, err
+	}
+
+	return &managementpb.StartPTMySQLSummaryActionResponse{PmmAgentId: pmmAgentID, ActionId: res.ID}, nil
+}
+
 // CancelAction stops an Action.
 func (s *actionsServer) CancelAction(ctx context.Context, req *managementpb.CancelActionRequest) (*managementpb.CancelActionResponse, error) {
 	ar, err := models.FindActionResultByID(s.db.Querier, req.ActionId)
