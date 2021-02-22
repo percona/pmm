@@ -27,6 +27,8 @@ type Client struct {
 type ClientService interface {
 	AddLocation(params *AddLocationParams) (*AddLocationOK, error)
 
+	ChangeLocation(params *ChangeLocationParams) (*ChangeLocationOK, error)
+
 	ListLocations(params *ListLocationsParams) (*ListLocationsOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
@@ -62,6 +64,39 @@ func (a *Client) AddLocation(params *AddLocationParams) (*AddLocationOK, error) 
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*AddLocationDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  ChangeLocation changes location changes backup location
+*/
+func (a *Client) ChangeLocation(params *ChangeLocationParams) (*ChangeLocationOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewChangeLocationParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "ChangeLocation",
+		Method:             "POST",
+		PathPattern:        "/v1/management/backup/Locations/Change",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ChangeLocationReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ChangeLocationOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ChangeLocationDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
