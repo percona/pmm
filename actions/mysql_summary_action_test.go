@@ -55,7 +55,7 @@ func TestPTMySQLSummaryActionRunAndCancel(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func Test_ListFromMySqlParams(t *testing.T) {
+func TestListFromMySqlParams(t *testing.T) {
 	type testParams struct {
 		Params   *agentpb.StartActionRequest_PTMySQLSummaryParams
 		Expected []string
@@ -100,7 +100,7 @@ func Test_ListFromMySqlParams(t *testing.T) {
 		a := mysqlSummaryAction{
 			params: tc.Params,
 		}
-		t.Run(fmt.Sprintf("Test_ListFromMySqlParams %d", i), func(t *testing.T) {
+		t.Run(fmt.Sprintf("TestListFromMySqlParams %d", i), func(t *testing.T) {
 			assert.ElementsMatch(t, tc.Expected, a.ListFromMySQLParams())
 		})
 	}
