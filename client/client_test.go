@@ -216,7 +216,7 @@ func TestGetActionTimeout(t *testing.T) {
 	}
 }
 
-func Test_argListFromPgParams(t *testing.T) {
+func TestArgListFromPgParams(t *testing.T) {
 	type testParams struct {
 		req      *agentpb.StartActionRequest_PTPgSummaryParams
 		expected []string
