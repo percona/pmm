@@ -357,7 +357,7 @@
   version = "v3.2.1"
 
 [[projects]]
-  branch = "PMM-2.0"
+  branch = "release/2.16"
   digest = "1:c25026699386ed5538bf3421a67cf6120f8245129a4726b416489fe6a83c4485"
   name = "github.com/percona/pmm"
   packages = [
