@@ -249,38 +249,3 @@ func TestArgListFromMongoDBParams(t *testing.T) {
 		})
 	}
 }
-
-func Test_argListFromMySqlParams(t *testing.T) {
-	type testParams struct {
-		req      *agentpb.StartActionRequest_PTMySQLSummaryParams
-		expected []string
-	}
-
-	testCases := []*testParams{
-		{&agentpb.StartActionRequest_PTMySQLSummaryParams{Host: "10.20.30.40", Port: 555, Socket: "10",
-			Username: "person", Password: "secret"}, []string{"--socket", "10", "--user", "person", "--password", "secret"}},
-		{&agentpb.StartActionRequest_PTMySQLSummaryParams{Host: "10.20.30.40", Port: 555, Socket: "",
-			Username: "person", Password: "secret"}, []string{"--host", "10.20.30.40", "--port", "555", "--user", "person", "--password", "secret"}},
-		{&agentpb.StartActionRequest_PTMySQLSummaryParams{Host: "10.20.30.40", Port: 555, Socket: "10",
-			Username: "person", Password: ""}, []string{"--socket", "10", "--user", "person"}},
-		{&agentpb.StartActionRequest_PTMySQLSummaryParams{Host: "10.20.30.40", Port: 555, Socket: "",
-			Username: "", Password: "secret"}, []string{"--host", "10.20.30.40", "--port", "555", "--password", "secret"}},
-		{&agentpb.StartActionRequest_PTMySQLSummaryParams{Host: "10.20.30.40", Port: 65536, Socket: "",
-			Username: "", Password: "secret"}, []string{"--host", "10.20.30.40", "--password", "secret"}},
-		{&agentpb.StartActionRequest_PTMySQLSummaryParams{Host: "", Port: 555, Socket: "",
-			Username: "", Password: "secret"}, []string{"--port", "555", "--password", "secret"}},
-
-		{&agentpb.StartActionRequest_PTMySQLSummaryParams{Host: "", Port: 0, Socket: "",
-			Username: "", Password: ""}, []string{}},
-		{&agentpb.StartActionRequest_PTMySQLSummaryParams{Host: "", Port: 0, Socket: "",
-			Username: "王华", Password: `"`}, []string{"--user", "王华", "--password", `"`}},
-	}
-
-	for _, tc := range testCases {
-		tc := tc
-		t.Run(proto.CompactTextString(tc.req), func(t *testing.T) {
-			actual := argListFromMySqlParams(tc.req)
-			assert.ElementsMatch(t, tc.expected, actual)
-		})
-	}
-}

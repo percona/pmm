@@ -30,7 +30,7 @@ import (
 type mysqlSummaryAction struct {
 	id      string
 	command string
-	arg     []string
+	params  *agentpb.StartActionRequest_PTMySQLSummaryParams
 }
 
 // NewPTMySQLSummaryAction creates a new process Action.
@@ -41,7 +41,7 @@ func NewPTMySQLSummaryAction(id string, cmd string, params *agentpb.StartActionR
 	return &mysqlSummaryAction{
 		id:      id,
 		command: cmd,
-		arg:     argListFromMySqlParams(params),
+		params:  params,
 	}
 }
 
@@ -57,7 +57,7 @@ func (p *mysqlSummaryAction) Type() string {
 
 // Run runs an Action and returns output and error.
 func (p *mysqlSummaryAction) Run(ctx context.Context) ([]byte, error) {
-	cmd := exec.CommandContext(ctx, p.command, p.arg...) //nolint:gosec
+	cmd := exec.CommandContext(ctx, p.command, p.ListFromMySQLParams()...) //nolint:gosec
 	cmd.Env = []string{fmt.Sprintf("PATH=%s", os.Getenv("PATH"))}
 	cmd.Dir = "/"
 	pdeathsig.Set(cmd, unix.SIGKILL)
@@ -65,29 +65,33 @@ func (p *mysqlSummaryAction) Run(ctx context.Context) ([]byte, error) {
 	return cmd.CombinedOutput()
 }
 
-func (*mysqlSummaryAction) sealed() {}
+// Creates an array of strings from parameters.
+func (p *mysqlSummaryAction) ListFromMySQLParams() []string {
+	if p.params == nil {
+		return []string{}
+	}
 
-// argListFromMySqlParams creates an array of strings from the pointer to the parameters for pt-mysql-sumamry
-func argListFromMySqlParams(params *agentpb.StartActionRequest_PTMySQLSummaryParams) []string {
 	var args []string
-	if params.Socket != "" {
-		args = append(args, "--socket", params.Socket)
+	if p.params.Socket != "" {
+		args = append(args, "--socket", p.params.Socket)
 	} else {
-		if params.Host != "" {
-			args = append(args, "--host", params.Host)
+		if p.params.Host != "" {
+			args = append(args, "--host", p.params.Host)
 		}
-		if params.Port > 0 && params.Port <= 65535 {
-			args = append(args, "--port", strconv.FormatUint(uint64(params.Port), 10))
+		if p.params.Port > 0 && p.params.Port <= 65535 {
+			args = append(args, "--port", strconv.FormatUint(uint64(p.params.Port), 10))
 		}
 	}
 
-	if params.Username != "" {
-		args = append(args, "--user", params.Username)
+	if p.params.Username != "" {
+		args = append(args, "--user", p.params.Username)
 	}
 
-	if params.Password != "" {
-		args = append(args, "--password", params.Password)
+	if p.params.Password != "" {
+		args = append(args, "--password", p.params.Password)
 	}
 
 	return args
 }
+
+func (*mysqlSummaryAction) sealed() {}
