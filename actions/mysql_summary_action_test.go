@@ -24,13 +24,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestMySQLSummaryActionRun(t *testing.T) {
+func TestPTMySQLSummaryActionRun(t *testing.T) {
 	t.Parallel()
 
 	// setup
 	id := "/action_id/6a479303-5081-46d0-baa0-87d6248c987b"
 	cmd := "echo"
-	p := NewMySQLAction(id, cmd, nil)
+	p := NewPTMySQLSummaryAction(id, cmd, nil)
 
 	// run
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -44,11 +44,11 @@ func TestMySQLSummaryActionRun(t *testing.T) {
 	assert.Equal(t, cmd, p.Type())
 }
 
-func TestMySQLSummaryActionRunAndCancel(t *testing.T) {
+func TestPTMySQLSummaryActionRunAndCancel(t *testing.T) {
 	t.Parallel()
 
 	// setup
-	p := NewMySQLAction("/action_id/14b2422d-32ec-44fb-9019-8b70e3cc8a3a", "sleep", []string{"10"})
+	p := NewPTMySQLSummaryAction("/action_id/14b2422d-32ec-44fb-9019-8b70e3cc8a3a", "sleep", []string{"10"})
 
 	ctx, cancel := context.WithCancel(context.Background())
 	// run

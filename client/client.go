@@ -329,7 +329,7 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTSummary, []string{})
 
 			case *agentpb.StartActionRequest_PtMysqlSummaryParams:
-				action = actions.NewMySQLAction(p.ActionId, c.cfg.Paths.PTMySqlSummary, argListFromMySqlParams(params.PtMysqlSummaryParams))
+				action = actions.NewPTMySQLSummaryAction(p.ActionId, c.cfg.Paths.PTMySqlSummary, params.PtMysqlSummaryParams)
 
 			case *agentpb.StartActionRequest_PtMongodbSummaryParams:
 				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTMongoDBSummary, argListFromMongoDBParams(params.PtMongodbSummaryParams))
@@ -562,31 +562,6 @@ func (c *Client) Collect(ch chan<- prometheus.Metric) {
 	} else {
 		ch <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue, 0)
 	}
-}
-
-// argListFromMySqlParams creates an array of strings from the pointer to the parameters for pt-mysql-sumamry
-func argListFromMySqlParams(pParams *agentpb.StartActionRequest_PTMySQLSummaryParams) []string {
-	var args []string
-	if pParams.Socket != "" {
-		args = append(args, "--socket", pParams.Socket)
-	} else {
-		if pParams.Host != "" {
-			args = append(args, "--host", pParams.Host)
-		}
-		if pParams.Port > 0 && pParams.Port <= 65535 {
-			args = append(args, "--port", strconv.FormatUint(uint64(pParams.Port), 10))
-		}
-	}
-
-	if pParams.Username != "" {
-		args = append(args, "--user", pParams.Username)
-	}
-
-	if pParams.Password != "" {
-		args = append(args, "--password", pParams.Password)
-	}
-
-	return args
 }
 
 // argListFromMongoDBParams creates an array of strings from the pointer to the parameters for pt-mongodb-sumamry
