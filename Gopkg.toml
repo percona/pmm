@@ -21,20 +21,9 @@ required = [
   "gopkg.in/reform.v1"
 ]
 
-[prune]
-  go-tests = true
-  non-go = true
-  unused-packages = true
 
-# to keep *.proto files
-[[prune.project]]
-  name = "github.com/grpc-ecosystem/grpc-gateway"
-  non-go = false
-  unused-packages = false
-[[prune.project]]
-  name = "github.com/mwitkow/go-proto-validators"
-  non-go = false
-  unused-packages = false
+# Don't [prune] anything - the whole vendor/ is in .gitignore.
+
 
 # We want all PMM components to use the same versions of key dependecies to avoid nasty suprises.
 
