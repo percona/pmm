@@ -362,6 +362,7 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 	}
 }
 
+// ExporterURL composes URL to an external exporter.
 func (s *Agent) ExporterURL(q *reform.Querier) (string, error) {
 	scheme := pointer.GetString(s.MetricsScheme)
 	path := pointer.GetString(s.MetricsPath)
