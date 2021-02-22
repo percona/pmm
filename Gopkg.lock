@@ -383,7 +383,7 @@
   version = "v0.3.0"
 
 [[projects]]
-  branch = "main"
+  branch = "pmm-2.16"
   digest = "1:c60754f36f889a8cb8ad9174d040c090e258f5277a0462b930dd196d5f72c57e"
   name = "github.com/percona-platform/dbaas-api"
   packages = ["gen/controller"]
@@ -408,7 +408,7 @@
   revision = "c158e23a172f892cc389233858238449efec1dbb"
 
 [[projects]]
-  branch = "PMM-2.0"
+  branch = "release/2.16"
   digest = "1:6c29de38d29e6cc13676f607480696885a4be1c835045336cde345eb90642500"
   name = "github.com/percona/pmm"
   packages = [
