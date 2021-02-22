@@ -93,6 +93,41 @@ func (s *LocationsService) AddLocation(ctx context.Context, req *backupv1beta1.A
 	}, nil
 }
 
+// ChangeLocation changes existing backup location.
+func (s *LocationsService) ChangeLocation(ctx context.Context, req *backupv1beta1.ChangeLocationRequest) (*backupv1beta1.ChangeLocationResponse, error) {
+	params := models.ChangeBackupLocationParams{
+		Name:        req.Name,
+		Description: req.Description,
+	}
+
+	if req.S3Config != nil {
+		params.S3Config = &models.S3LocationConfig{
+			Endpoint:  req.S3Config.Endpoint,
+			AccessKey: req.S3Config.AccessKey,
+			SecretKey: req.S3Config.SecretKey,
+		}
+	}
+
+	if req.PmmServerConfig != nil {
+		params.PMMServerConfig = &models.PMMServerLocationConfig{
+			Path: req.PmmServerConfig.Path,
+		}
+	}
+
+	if req.PmmClientConfig != nil {
+		params.PMMClientConfig = &models.PMMClientLocationConfig{
+			Path: req.PmmClientConfig.Path,
+		}
+	}
+
+	_, err := models.ChangeBackupLocation(s.db.Querier, req.LocationId, params)
+	if err != nil {
+		return nil, err
+	}
+
+	return &backupv1beta1.ChangeLocationResponse{}, nil
+}
+
 func convertLocation(location *models.BackupLocation) (*backupv1beta1.Location, error) {
 	loc := &backupv1beta1.Location{
 		LocationId:  location.ID,

@@ -52,8 +52,10 @@ func TestBackupLocations(t *testing.T) {
 		params := models.CreateBackupLocationParams{
 			Name:        "some name",
 			Description: "some desc",
-			PMMClientConfig: &models.PMMClientLocationConfig{
-				Path: "/tmp",
+			BackupLocationConfig: models.BackupLocationConfig{
+				PMMClientConfig: &models.PMMClientLocationConfig{
+					Path: "/tmp",
+				},
 			},
 		}
 
@@ -78,10 +80,12 @@ func TestBackupLocations(t *testing.T) {
 		params := models.CreateBackupLocationParams{
 			Name:        "some name",
 			Description: "some desc",
-			S3Config: &models.S3LocationConfig{
-				Endpoint:  "https://example.com/bucket",
-				AccessKey: "access_key",
-				SecretKey: "secret_key",
+			BackupLocationConfig: models.BackupLocationConfig{
+				S3Config: &models.S3LocationConfig{
+					Endpoint:  "https://example.com/bucket",
+					AccessKey: "access_key",
+					SecretKey: "secret_key",
+				},
 			},
 		}
 
@@ -109,13 +113,15 @@ func TestBackupLocations(t *testing.T) {
 		params := models.CreateBackupLocationParams{
 			Name:        "some name",
 			Description: "some desc",
-			PMMClientConfig: &models.PMMClientLocationConfig{
-				Path: "/tmp",
-			},
-			S3Config: &models.S3LocationConfig{
-				Endpoint:  "https://example.com/bucket",
-				AccessKey: "access_key",
-				SecretKey: "secret_key",
+			BackupLocationConfig: models.BackupLocationConfig{
+				PMMClientConfig: &models.PMMClientLocationConfig{
+					Path: "/tmp",
+				},
+				S3Config: &models.S3LocationConfig{
+					Endpoint:  "https://example.com/bucket",
+					AccessKey: "access_key",
+					SecretKey: "secret_key",
+				},
 			},
 		}
 
@@ -135,17 +141,21 @@ func TestBackupLocations(t *testing.T) {
 		params1 := models.CreateBackupLocationParams{
 			Name:        "some name",
 			Description: "some desc",
-			PMMClientConfig: &models.PMMClientLocationConfig{
-				Path: "/tmp",
+			BackupLocationConfig: models.BackupLocationConfig{
+				PMMClientConfig: &models.PMMClientLocationConfig{
+					Path: "/tmp",
+				},
 			},
 		}
 		params2 := models.CreateBackupLocationParams{
 			Name:        "some name2",
 			Description: "some desc2",
-			S3Config: &models.S3LocationConfig{
-				Endpoint:  "https://example.com/bucket",
-				AccessKey: "access_key",
-				SecretKey: "secret_key",
+			BackupLocationConfig: models.BackupLocationConfig{
+				S3Config: &models.S3LocationConfig{
+					Endpoint:  "https://example.com/bucket",
+					AccessKey: "access_key",
+					SecretKey: "secret_key",
+				},
 			},
 		}
 
@@ -170,7 +180,54 @@ func TestBackupLocations(t *testing.T) {
 
 		assert.Condition(t, findLocID(loc1.ID), "First location not found")
 		assert.Condition(t, findLocID(loc2.ID), "Second location not found")
+	})
 
+	t.Run("update", func(t *testing.T) {
+		tx, err := db.Begin()
+		require.NoError(t, err)
+		defer func() {
+			require.NoError(t, tx.Rollback())
+		}()
+
+		q := tx.Querier
+
+		createParams := models.CreateBackupLocationParams{
+			Name:        "some name",
+			Description: "some desc",
+			BackupLocationConfig: models.BackupLocationConfig{
+				PMMClientConfig: &models.PMMClientLocationConfig{
+					Path: "/tmp",
+				},
+			},
+		}
+
+		location, err := models.CreateBackupLocation(q, createParams)
+		require.NoError(t, err)
+
+		changeParams := models.ChangeBackupLocationParams{
+			Name:        "some name modified",
+			Description: "",
+			BackupLocationConfig: models.BackupLocationConfig{
+				PMMServerConfig: &models.PMMServerLocationConfig{
+					Path: "/tmp/nested",
+				},
+			},
+		}
+
+		updatedLoc, err := models.ChangeBackupLocation(q, location.ID, changeParams)
+		require.NoError(t, err)
+		assert.Equal(t, changeParams.Name, updatedLoc.Name)
+		// empty description in request, we expect no change
+		assert.Equal(t, createParams.Description, updatedLoc.Description)
+		assert.Nil(t, updatedLoc.PMMClientConfig)
+		assert.Equal(t, changeParams.PMMServerConfig.Path, updatedLoc.PMMServerConfig.Path)
+		assert.Equal(t, updatedLoc.Type, models.PMMServerBackupLocationType)
+
+		findLoc, err := models.FindBackupLocationByID(q, location.ID)
+
+		require.NoError(t, err)
+
+		assert.Equal(t, updatedLoc, findLoc)
 	})
 }
 
@@ -190,8 +247,10 @@ func TestBackupLocationValidation(t *testing.T) {
 			name: "normal client config",
 			location: models.CreateBackupLocationParams{
 				Name: "client-1",
-				PMMClientConfig: &models.PMMClientLocationConfig{
-					Path: "/tmp",
+				BackupLocationConfig: models.BackupLocationConfig{
+					PMMClientConfig: &models.PMMClientLocationConfig{
+						Path: "/tmp",
+					},
 				},
 			},
 			errorMsg: "",
@@ -200,8 +259,10 @@ func TestBackupLocationValidation(t *testing.T) {
 			name: "client config - missing path",
 			location: models.CreateBackupLocationParams{
 				Name: "client-2",
-				PMMClientConfig: &models.PMMClientLocationConfig{
-					Path: "",
+				BackupLocationConfig: models.BackupLocationConfig{
+					PMMClientConfig: &models.PMMClientLocationConfig{
+						Path: "",
+					},
 				},
 			},
 			errorMsg: "rpc error: code = InvalidArgument desc = PMM client config path field is empty.",
@@ -210,10 +271,12 @@ func TestBackupLocationValidation(t *testing.T) {
 			name: "normal s3 config",
 			location: models.CreateBackupLocationParams{
 				Name: "s3-1",
-				S3Config: &models.S3LocationConfig{
-					Endpoint:  "https://s3.us-west-2.amazonaws.com/mybucket",
-					AccessKey: "access_key",
-					SecretKey: "secret_key",
+				BackupLocationConfig: models.BackupLocationConfig{
+					S3Config: &models.S3LocationConfig{
+						Endpoint:  "https://s3.us-west-2.amazonaws.com/mybucket",
+						AccessKey: "access_key",
+						SecretKey: "secret_key",
+					},
 				},
 			},
 			errorMsg: "",
@@ -222,10 +285,12 @@ func TestBackupLocationValidation(t *testing.T) {
 			name: "s3 config - missing endpoint",
 			location: models.CreateBackupLocationParams{
 				Name: "s3-2",
-				S3Config: &models.S3LocationConfig{
-					Endpoint:  "",
-					AccessKey: "access_key",
-					SecretKey: "secret_key",
+				BackupLocationConfig: models.BackupLocationConfig{
+					S3Config: &models.S3LocationConfig{
+						Endpoint:  "",
+						AccessKey: "access_key",
+						SecretKey: "secret_key",
+					},
 				},
 			},
 			errorMsg: "rpc error: code = InvalidArgument desc = S3 endpoint field is empty.",
@@ -234,10 +299,12 @@ func TestBackupLocationValidation(t *testing.T) {
 			name: "s3 config - missing access key",
 			location: models.CreateBackupLocationParams{
 				Name: "s3-3",
-				S3Config: &models.S3LocationConfig{
-					Endpoint:  "https://s3.us-west-2.amazonaws.com/mybucket",
-					AccessKey: "",
-					SecretKey: "secret_key",
+				BackupLocationConfig: models.BackupLocationConfig{
+					S3Config: &models.S3LocationConfig{
+						Endpoint:  "https://s3.us-west-2.amazonaws.com/mybucket",
+						AccessKey: "",
+						SecretKey: "secret_key",
+					},
 				},
 			},
 			errorMsg: "rpc error: code = InvalidArgument desc = S3 accessKey field is empty.",
@@ -246,10 +313,12 @@ func TestBackupLocationValidation(t *testing.T) {
 			name: "s3 config - missing secret key",
 			location: models.CreateBackupLocationParams{
 				Name: "s3-4",
-				S3Config: &models.S3LocationConfig{
-					Endpoint:  "https://s3.us-west-2.amazonaws.com/mybucket",
-					AccessKey: "secret_key",
-					SecretKey: "",
+				BackupLocationConfig: models.BackupLocationConfig{
+					S3Config: &models.S3LocationConfig{
+						Endpoint:  "https://s3.us-west-2.amazonaws.com/mybucket",
+						AccessKey: "secret_key",
+						SecretKey: "",
+					},
 				},
 			},
 			errorMsg: "rpc error: code = InvalidArgument desc = S3 secretKey field is empty.",

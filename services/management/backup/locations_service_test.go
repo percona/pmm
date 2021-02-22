@@ -18,6 +18,7 @@ package backup
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/brianvoe/gofakeit"
@@ -167,5 +168,99 @@ func TestListBackupLocations(t *testing.T) {
 		assert.Condition(t, checkLocation(res2.LocationId, req2))
 
 	})
+}
 
+func TestChangeBackupLocation(t *testing.T) {
+	ctx := context.Background()
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	svc := NewLocationsService(db)
+	t.Run("update existing config", func(t *testing.T) {
+		loc, err := svc.AddLocation(ctx, &backupv1beta1.AddLocationRequest{
+			Name: gofakeit.Name(),
+			PmmServerConfig: &backupv1beta1.PMMServerLocationConfig{
+				Path: "/tmp",
+			},
+		})
+		require.NoError(t, err)
+		require.NotEmpty(t, loc.LocationId)
+
+		updateReq := &backupv1beta1.ChangeLocationRequest{
+			LocationId:  loc.LocationId,
+			Name:        gofakeit.Name(),
+			Description: gofakeit.Quote(),
+			S3Config: &backupv1beta1.S3LocationConfig{
+				Endpoint:  "https://example.com",
+				AccessKey: "access_key",
+				SecretKey: "secret_key",
+			},
+		}
+		_, err = svc.ChangeLocation(ctx, updateReq)
+		require.NoError(t, err)
+
+		updatedLocation, err := models.FindBackupLocationByID(db.Querier, loc.LocationId)
+		require.NoError(t, err)
+		assert.Equal(t, updateReq.Name, updatedLocation.Name)
+		assert.Equal(t, updateReq.Description, updatedLocation.Description)
+		assert.Nil(t, updatedLocation.PMMServerConfig)
+		require.NotNil(t, updatedLocation.S3Config)
+		assert.Equal(t, updateReq.S3Config.Endpoint, updatedLocation.S3Config.Endpoint)
+		assert.Equal(t, updateReq.S3Config.SecretKey, updatedLocation.S3Config.SecretKey)
+		assert.Equal(t, updateReq.S3Config.AccessKey, updatedLocation.S3Config.AccessKey)
+	})
+
+	t.Run("update only name", func(t *testing.T) {
+		addReq := &backupv1beta1.AddLocationRequest{
+			Name: gofakeit.Name(),
+			PmmServerConfig: &backupv1beta1.PMMServerLocationConfig{
+				Path: "/tmp",
+			},
+		}
+		loc, err := svc.AddLocation(ctx, addReq)
+		require.NoError(t, err)
+		require.NotEmpty(t, loc.LocationId)
+
+		updateReq := &backupv1beta1.ChangeLocationRequest{
+			LocationId: loc.LocationId,
+			Name:       gofakeit.Name(),
+		}
+		_, err = svc.ChangeLocation(ctx, updateReq)
+		require.NoError(t, err)
+
+		updatedLocation, err := models.FindBackupLocationByID(db.Querier, loc.LocationId)
+		require.NoError(t, err)
+		assert.Equal(t, updateReq.Name, updatedLocation.Name)
+		require.NotNil(t, updatedLocation.PMMServerConfig)
+		assert.Equal(t, addReq.PmmServerConfig.Path, updatedLocation.PMMServerConfig.Path)
+	})
+
+	t.Run("update to existing name", func(t *testing.T) {
+		name := gofakeit.Name()
+		_, err := svc.AddLocation(ctx, &backupv1beta1.AddLocationRequest{
+			Name: name,
+			PmmServerConfig: &backupv1beta1.PMMServerLocationConfig{
+				Path: "/tmp",
+			},
+		})
+		require.NoError(t, err)
+
+		loc2, err := svc.AddLocation(ctx, &backupv1beta1.AddLocationRequest{
+			Name: gofakeit.Name(),
+			PmmServerConfig: &backupv1beta1.PMMServerLocationConfig{
+				Path: "/tmp",
+			},
+		})
+		require.NoError(t, err)
+
+		updateReq := &backupv1beta1.ChangeLocationRequest{
+			LocationId: loc2.LocationId,
+			Name:       name,
+			PmmServerConfig: &backupv1beta1.PMMServerLocationConfig{
+				Path: "/tmp",
+			},
+		}
+		_, err = svc.ChangeLocation(ctx, updateReq)
+		tests.AssertGRPCError(t, status.New(codes.AlreadyExists, fmt.Sprintf(`Location with name "%s" already exists.`, name)), err)
+	})
 }
