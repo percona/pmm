@@ -95,6 +95,7 @@ type Paths struct {
 
 	PTSummary        string `yaml:"pt_summary"`
 	PTPgSummary      string `yaml:"pt_pg_summary"`
+	PTMySqlSummary   string `yaml:"pt_mysql_summary"`
 	PTMongoDBSummary string `yaml:"pt_mongodb_summary"`
 
 	SlowLogFilePrefix string `yaml:"slowlog_file_prefix,omitempty"` // for development and testing
@@ -197,6 +198,7 @@ func get(args []string, l *logrus.Entry) (cfg *Config, configFileF string, err e
 			&cfg.Paths.PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
 			&cfg.Paths.PTPgSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
 			&cfg.Paths.PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
+			&cfg.Paths.PTMySqlSummary:   "/usr/local/percona/pmm2/tools/pt-mysql-summary",
 		} {
 			if *sp == "" {
 				*sp = v
@@ -322,6 +324,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_PATHS_PT_PG_SUMMARY").StringVar(&cfg.Paths.PTPgSummary)
 	app.Flag("paths-pt-mongodb-summary", "Path to pt mongodb summary to use [PMM_AGENT_PATHS_PT_MONGODB_SUMMARY]").
 		Envar("PMM_AGENT_PATHS_PT_MONGODB_SUMMARY").StringVar(&cfg.Paths.PTMongoDBSummary)
+	app.Flag("paths-pt-mysql-summary", "Path to pt my sql summary to use [PMM_AGENT_PATHS_PT_MYSQL_SUMMARY]").
+		Envar("PMM_AGENT_PATHS_PT_MYSQL_SUMMARY").StringVar(&cfg.Paths.PTMySqlSummary)
 	app.Flag("paths-tempdir", "Temporary directory for exporters [PMM_AGENT_PATHS_TEMPDIR]").
 		Envar("PMM_AGENT_PATHS_TEMPDIR").StringVar(&cfg.Paths.TempDir)
 	// no flag for SlowLogFilePrefix - it is only for development and testing
