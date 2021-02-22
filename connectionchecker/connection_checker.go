@@ -20,6 +20,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"io/ioutil"
 	"math"
 	"net/http"
 	"path/filepath"
@@ -31,6 +32,7 @@ import (
 	"github.com/lib/pq"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
+	"github.com/prometheus/common/expfmt"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -218,9 +220,22 @@ func (cc *ConnectionChecker) checkExternalConnection(ctx context.Context, uri st
 		res.Error = err.Error()
 		return &res
 	}
-
 	if resp.StatusCode != 200 {
 		res.Error = fmt.Sprintf("Unexpected HTTP status code: %d. Expected: 200", resp.StatusCode)
+		return &res
+	}
+
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		res.Error = fmt.Sprintf("Cannot read body of exporter's response: %v", err)
+		return &res
+	}
+
+	var parser expfmt.TextParser
+	_, err = parser.TextToMetricFamilies(strings.NewReader(string(body)))
+	if err != nil {
+		res.Error = fmt.Sprintf("Unexpected exporter's response format: %v", err)
 		return &res
 	}
 

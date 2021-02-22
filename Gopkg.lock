@@ -859,6 +859,7 @@
     "github.com/pkg/errors",
     "github.com/prometheus/client_golang/prometheus",
     "github.com/prometheus/client_golang/prometheus/promhttp",
+    "github.com/prometheus/common/expfmt",
     "github.com/sirupsen/logrus",
     "github.com/stretchr/objx",
     "github.com/stretchr/testify/assert",
