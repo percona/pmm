@@ -97,7 +97,7 @@ func TestListFromMySqlParams(t *testing.T) {
 	}
 
 	for i, tc := range testCases {
-		a := mysqlSummaryAction{
+		a := ptMySQLSummaryAction{
 			params: tc.Params,
 		}
 		t.Run(fmt.Sprintf("TestListFromMySqlParams %d", i), func(t *testing.T) {

@@ -27,7 +27,7 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-type mysqlSummaryAction struct {
+type ptMySQLSummaryAction struct {
 	id      string
 	command string
 	params  *agentpb.StartActionRequest_PTMySQLSummaryParams
@@ -38,7 +38,7 @@ type mysqlSummaryAction struct {
 // PTMySQL Summary Action, it's an abstract Action that can run an external commands.
 // This commands can be a shell script, script written on interpreted language, or binary file.
 func NewPTMySQLSummaryAction(id string, cmd string, params *agentpb.StartActionRequest_PTMySQLSummaryParams) Action {
-	return &mysqlSummaryAction{
+	return &ptMySQLSummaryAction{
 		id:      id,
 		command: cmd,
 		params:  params,
@@ -46,17 +46,17 @@ func NewPTMySQLSummaryAction(id string, cmd string, params *agentpb.StartActionR
 }
 
 // ID returns an Action ID.
-func (p *mysqlSummaryAction) ID() string {
+func (p *ptMySQLSummaryAction) ID() string {
 	return p.id
 }
 
 // Type returns an Action type.
-func (p *mysqlSummaryAction) Type() string {
+func (p *ptMySQLSummaryAction) Type() string {
 	return p.command
 }
 
 // Run runs an Action and returns output and error.
-func (p *mysqlSummaryAction) Run(ctx context.Context) ([]byte, error) {
+func (p *ptMySQLSummaryAction) Run(ctx context.Context) ([]byte, error) {
 	cmd := exec.CommandContext(ctx, p.command, p.ListFromMySQLParams()...) //nolint:gosec
 	cmd.Env = []string{fmt.Sprintf("PATH=%s", os.Getenv("PATH"))}
 	cmd.Dir = "/"
@@ -66,7 +66,7 @@ func (p *mysqlSummaryAction) Run(ctx context.Context) ([]byte, error) {
 }
 
 // Creates an array of strings from parameters.
-func (p *mysqlSummaryAction) ListFromMySQLParams() []string {
+func (p *ptMySQLSummaryAction) ListFromMySQLParams() []string {
 	if p.params == nil {
 		return []string{}
 	}
@@ -94,4 +94,4 @@ func (p *mysqlSummaryAction) ListFromMySQLParams() []string {
 	return args
 }
 
-func (*mysqlSummaryAction) sealed() {}
+func (*ptMySQLSummaryAction) sealed() {}
