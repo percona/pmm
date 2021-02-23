@@ -23763,6 +23763,11 @@
                     "type": "string"
                   },
                   "x-order": 7
+                },
+                "summary": {
+                  "description": "Rule human-readable summary.",
+                  "type": "string",
+                  "x-order": 8
                 }
               }
             }

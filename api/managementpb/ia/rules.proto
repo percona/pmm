@@ -146,6 +146,8 @@ message UpdateAlertRuleRequest {
   repeated Filter filters = 10;
   // Channels. Should be set.
   repeated string channel_ids = 11;
+  // Rule human-readable summary.
+  string summary = 12;
 }
 
 message UpdateAlertRuleResponse {}
