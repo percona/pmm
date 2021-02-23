@@ -174,29 +174,60 @@ func (cmd *addExternalServerlessCommand) processURLFlags() (scheme, metricsPath,
 	return scheme, metricsPath, address, port, nil
 }
 
-// register command
+const (
+	serverlessHelp = `Add External Service on Remote node to monitoring.
+
+Usage example:
+sudo pmm-admin add external-serverless --url=http://1.2.3.4:9093/metrics
+
+Also, individual parameters can be set instead of --url like:
+sudo pmm-admin add external-serverless --scheme=http --host=1.2.3.4 --listen-port=9093 --metrics-path=/metrics --container-name=ddd --external-name=e125
+
+Notice that some parameters are mandatory depending on the context. 
+For example, if you specify --url, --schema and other related parameters are not mandatory but,
+if you specify --host you must provide all other parameters needed to build the destination URL 
+or even you can specify --address instead of host and port as individual parameters.
+`
+)
+
+// register command.
 var (
 	AddExternalServerless  = new(addExternalServerlessCommand)
-	AddExternalServerlessC = AddC.Command("external-serverless", "Add External Service on Remote node to monitoring")
+	AddExternalServerlessC = AddC.Command("external-serverless", serverlessHelp)
 )
 
 func init() {
 	AddExternalServerlessC.Flag("external-name", "Service name").StringVar(&AddExternalServerless.Name)
 
+	AddExternalServerlessC.Flag("url", "Full URL to exporter metrics endpoints").StringVar(&AddExternalServerless.URL)
+	AddExternalServerlessC.Flag("scheme", "Scheme to generate URL to exporter metrics endpoints").
+		PlaceHolder("https").StringVar(&AddExternalServerless.Scheme)
+
 	AddExternalServerlessC.Flag("username", "External username").StringVar(&AddExternalServerless.Username)
 	AddExternalServerlessC.Flag("password", "External password").StringVar(&AddExternalServerless.Password)
 
-	AddExternalServerlessC.Flag("scheme", "Scheme to generate URL to exporter metrics endpoints (http, https)").StringVar(&AddExternalServerless.Scheme)
-	AddExternalServerlessC.Flag("url", "Full URL to exporter metrics endpoints").StringVar(&AddExternalServerless.URL)
-	AddExternalServerlessC.Flag("address", "External exporter address and port").StringVar(&AddExternalServerless.Address)
-	AddExternalServerlessC.Flag("host", "External exporters hostname or IP address").StringVar(&AddExternalServerless.Host)
-	AddExternalServerlessC.Flag("listen-port", "Listen port of external exporter for scraping metrics.").Uint16Var(&AddExternalServerless.ListenPort)
-	AddExternalServerlessC.Flag("metrics-path", "Path under which metrics are exposed, used to generate URL.").StringVar(&AddExternalServerless.MetricsPath)
+	AddExternalServerlessC.Flag("address", "External exporter address and port").
+		PlaceHolder("1.2.3.4:9000").StringVar(&AddExternalServerless.Address)
 
-	AddExternalServerlessC.Flag("environment", "Environment name").StringVar(&AddExternalServerless.Environment)
+	AddExternalServerlessC.Flag("host", "External exporters hostname or IP address").
+		PlaceHolder("1.2.3.4").StringVar(&AddExternalServerless.Host)
+
+	AddExternalServerlessC.Flag("listen-port", "Listen port of external exporter for scraping metrics.").
+		PlaceHolder("9999").Uint16Var(&AddExternalServerless.ListenPort)
+
+	AddExternalServerlessC.Flag("metrics-path", "Path under which metrics are exposed, used to generate URL.").
+		PlaceHolder("/metrics").StringVar(&AddExternalServerless.MetricsPath)
+
+	AddExternalServerlessC.Flag("environment", "Environment name").
+		PlaceHolder("testing").StringVar(&AddExternalServerless.Environment)
+
 	AddExternalServerlessC.Flag("cluster", "Cluster name").StringVar(&AddExternalServerless.Cluster)
-	AddExternalServerlessC.Flag("replication-set", "Replication set name").StringVar(&AddExternalServerless.ReplicationSet)
-	AddExternalServerlessC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddExternalServerless.CustomLabels)
+	AddExternalServerlessC.Flag("replication-set", "Replication set name").
+		PlaceHolder("rs1").StringVar(&AddExternalServerless.ReplicationSet)
+
+	AddExternalServerlessC.Flag("custom-labels", "Custom user-assigned labels").
+		PlaceHolder("'app=myapp,region=s1'").StringVar(&AddExternalServerless.CustomLabels)
+
 	groupHelp := fmt.Sprintf("Group name of external service (default: %s)", defaultGroupExternalExporter)
 	AddExternalServerlessC.Flag("group", groupHelp).Default(defaultGroupExternalExporter).StringVar(&AddExternalServerless.Group)
 
