@@ -21,7 +21,6 @@ The Docker tags used here are for the latest version of PMM 2 ({{release}}) but 
 1. Pull the image.
 
     ```sh
-    # Pull the latest 2.x image
     docker pull percona/pmm-server:2
     ```
 
@@ -68,8 +67,11 @@ The Docker tags used here are for the latest version of PMM 2 ({{release}}) but 
     ```sh
     docker inspect pmm-data | grep Destination
     docker inspect pmm-server | grep Destination
+    ```
 
-    # With jq
+    With `jq`:
+    
+    ```sh
     docker inspect pmm-data | jq '.[].Mounts[].Destination'
     docker inspect pmm-server | jq '.[].Mounts[].Destination'
     ```
