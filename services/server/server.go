@@ -66,6 +66,7 @@ type Server struct {
 	platformService      platformService
 	awsInstanceChecker   *AWSInstanceChecker
 	grafanaClient        grafanaClient
+	rulesService         rulesService
 	l                    *logrus.Entry
 
 	pmmUpdateAuthFileM sync.Mutex
@@ -95,6 +96,7 @@ type Params struct {
 	PlatformService      platformService
 	AwsInstanceChecker   *AWSInstanceChecker
 	GrafanaClient        grafanaClient
+	RulesService         rulesService
 }
 
 // NewServer returns new server for Server service.
@@ -118,6 +120,7 @@ func NewServer(params *Params) (*Server, error) {
 		platformService:      params.PlatformService,
 		awsInstanceChecker:   params.AwsInstanceChecker,
 		grafanaClient:        params.GrafanaClient,
+		rulesService:         params.RulesService,
 		l:                    logrus.WithField("component", "server"),
 		pmmUpdateAuthFile:    path,
 		envSettings:          new(models.ChangeSettingsParams),
@@ -525,6 +528,12 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 
 	var newSettings, oldSettings *models.Settings
 	err := s.db.InTransaction(func(tx *reform.TX) error {
+		var e error
+
+		if oldSettings, e = models.GetSettings(tx); e != nil {
+			return errors.WithStack(e)
+		}
+
 		metricsRes := req.MetricsResolutions
 		settingsParams := &models.ChangeSettingsParams{
 			DisableTelemetry: req.DisableTelemetry,
@@ -570,11 +579,6 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 			}
 		}
 
-		var e error
-		if oldSettings, e = models.GetSettings(tx); e != nil {
-			return errors.WithStack(e)
-		}
-
 		if newSettings, e = models.UpdateSettings(tx, settingsParams); e != nil {
 			return status.Error(codes.InvalidArgument, e.Error())
 		}
@@ -605,6 +609,18 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 
 	if err := s.UpdateConfigurations(); err != nil {
 		return nil, err
+	}
+
+	// When IA moved from disabled state to enabled create rules files.
+	if !oldSettings.IntegratedAlerting.Enabled && req.EnableAlerting {
+		s.rulesService.WriteVMAlertRulesFiles()
+	}
+
+	// When IA moved from enabled state to disables cleanup rules files.
+	if oldSettings.IntegratedAlerting.Enabled && req.DisableAlerting {
+		if err := s.rulesService.RemoveVMAlertRulesFiles(); err != nil {
+			s.l.Errorf("Failed to clean old alert rule files: %+v", err)
+		}
 	}
 
 	// When STT moved from disabled state to enabled force checks download and execution

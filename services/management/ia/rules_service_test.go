@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -113,7 +114,7 @@ func TestCreateAlertRule(t *testing.T) {
 		ruleID := resp.RuleId
 
 		// Write vmAlert rules files
-		rules.writeVMAlertRulesFiles()
+		rules.WriteVMAlertRulesFiles()
 
 		file, err := ioutil.ReadFile(ruleFileName(testDir, ruleID))
 		require.NoError(t, err)
@@ -142,6 +143,15 @@ groups:
 `, ruleID, ruleID)
 
 		assert.Equal(t, expected, string(file))
+
+		// Removes the rules files
+		err = rules.RemoveVMAlertRulesFiles()
+		require.NoError(t, err)
+
+		matches, err := filepath.Glob(testDir + "/*.yml")
+
+		assert.Empty(t, matches)
+		assert.NoError(t, err)
 	})
 
 	t.Run("wrong parameter", func(t *testing.T) {
@@ -334,7 +344,7 @@ groups:
 		ruleID := resp.RuleId
 
 		// Write vmAlert rules files
-		rules.writeVMAlertRulesFiles()
+		rules.WriteVMAlertRulesFiles()
 
 		filename := ruleFileName(testDir, ruleID)
 		_, err = os.Stat(filename)

@@ -96,8 +96,23 @@ type rule struct {
 	Annotations map[string]string   `yaml:"annotations,omitempty"`
 }
 
+// RemoveVMAlertRulesFiles removes all generated rules files (*.yml) on the ia path.
+func (s *RulesService) RemoveVMAlertRulesFiles() error {
+	matches, err := filepath.Glob(s.rulesPath + "/*.yml")
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	for _, match := range matches {
+		if err = os.RemoveAll(match); err != nil {
+			return errors.WithStack(err)
+		}
+	}
+
+	return nil
+}
+
 // writeVMAlertRulesFiles converts all available rules to VMAlert rule files.
-func (s *RulesService) writeVMAlertRulesFiles() {
+func (s *RulesService) WriteVMAlertRulesFiles() {
 	rules, err := s.getAlertRules()
 	if err != nil {
 		s.l.Errorf("Failed to get available alert rules: %+v", err)
@@ -110,16 +125,9 @@ func (s *RulesService) writeVMAlertRulesFiles() {
 		return
 	}
 
-	matches, err := filepath.Glob(s.rulesPath + "/*.yml")
-	if err != nil {
+	if err = s.RemoveVMAlertRulesFiles(); err != nil {
 		s.l.Errorf("Failed to clean old alert rule files: %+v", err)
 		return
-	}
-
-	for _, match := range matches {
-		if err = os.RemoveAll(match); err != nil {
-			s.l.Errorf("Failed to remove old rule file: %+v", err)
-		}
 	}
 
 	for _, file := range ruleFiles {
@@ -418,7 +426,7 @@ func (s *RulesService) CreateAlertRule(ctx context.Context, req *iav1beta1.Creat
 		return nil, e
 	}
 
-	s.writeVMAlertRulesFiles()
+	s.WriteVMAlertRulesFiles()
 	s.vmalert.RequestConfigurationUpdate()
 	s.alertManager.RequestConfigurationUpdate()
 
@@ -550,7 +558,7 @@ func (s *RulesService) UpdateAlertRule(ctx context.Context, req *iav1beta1.Updat
 		return nil, e
 	}
 
-	s.writeVMAlertRulesFiles()
+	s.WriteVMAlertRulesFiles()
 	s.vmalert.RequestConfigurationUpdate()
 	s.alertManager.RequestConfigurationUpdate()
 
@@ -588,7 +596,7 @@ func (s *RulesService) ToggleAlertRule(ctx context.Context, req *iav1beta1.Toggl
 		return nil, e
 	}
 
-	s.writeVMAlertRulesFiles()
+	s.WriteVMAlertRulesFiles()
 	s.vmalert.RequestConfigurationUpdate()
 	s.alertManager.RequestConfigurationUpdate()
 
@@ -613,7 +621,7 @@ func (s *RulesService) DeleteAlertRule(ctx context.Context, req *iav1beta1.Delet
 		return nil, e
 	}
 
-	s.writeVMAlertRulesFiles()
+	s.WriteVMAlertRulesFiles()
 	s.vmalert.RequestConfigurationUpdate()
 	s.alertManager.RequestConfigurationUpdate()
 
