@@ -1290,9 +1290,10 @@ type ChangeSettingsRequest struct {
 	// If true, removes Integrated Alerting Slack settings.
 	RemoveSlackAlertingSettings bool `protobuf:"varint,18,opt,name=remove_slack_alerting_settings,json=removeSlackAlertingSettings,proto3" json:"remove_slack_alerting_settings,omitempty"`
 	// PMM Server public address.
-	PmmPublicAddress       string             `protobuf:"bytes,19,opt,name=pmm_public_address,json=pmmPublicAddress,proto3" json:"pmm_public_address,omitempty"`
-	RemovePmmPublicAddress bool               `protobuf:"varint,20,opt,name=remove_pmm_public_address,json=removePmmPublicAddress,proto3" json:"remove_pmm_public_address,omitempty"`
-	SttCheckIntervals      *STTCheckIntervals `protobuf:"bytes,21,opt,name=stt_check_intervals,json=sttCheckIntervals,proto3" json:"stt_check_intervals,omitempty"`
+	PmmPublicAddress       string `protobuf:"bytes,19,opt,name=pmm_public_address,json=pmmPublicAddress,proto3" json:"pmm_public_address,omitempty"`
+	RemovePmmPublicAddress bool   `protobuf:"varint,20,opt,name=remove_pmm_public_address,json=removePmmPublicAddress,proto3" json:"remove_pmm_public_address,omitempty"`
+	// Intervals between STT checks
+	SttCheckIntervals *STTCheckIntervals `protobuf:"bytes,21,opt,name=stt_check_intervals,json=sttCheckIntervals,proto3" json:"stt_check_intervals,omitempty"`
 }
 
 func (x *ChangeSettingsRequest) Reset() {
