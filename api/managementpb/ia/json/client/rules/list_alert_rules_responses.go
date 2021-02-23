@@ -119,6 +119,65 @@ func (o *ListAlertRulesDefault) readResponse(response runtime.ClientResponse, co
 	return nil
 }
 
+/*ListAlertRulesBody list alert rules body
+swagger:model ListAlertRulesBody
+*/
+type ListAlertRulesBody struct {
+
+	// page params
+	PageParams *ListAlertRulesParamsBodyPageParams `json:"page_params,omitempty"`
+}
+
+// Validate validates this list alert rules body
+func (o *ListAlertRulesBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validatePageParams(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListAlertRulesBody) validatePageParams(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.PageParams) { // not required
+		return nil
+	}
+
+	if o.PageParams != nil {
+		if err := o.PageParams.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "page_params")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAlertRulesBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAlertRulesBody) UnmarshalBinary(b []byte) error {
+	var res ListAlertRulesBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*ListAlertRulesDefaultBody list alert rules default body
 swagger:model ListAlertRulesDefaultBody
 */
@@ -201,6 +260,9 @@ type ListAlertRulesOKBody struct {
 
 	// rules
 	Rules []*RulesItems0 `json:"rules"`
+
+	// totals
+	Totals *ListAlertRulesOKBodyTotals `json:"totals,omitempty"`
 }
 
 // Validate validates this list alert rules OK body
@@ -208,6 +270,10 @@ func (o *ListAlertRulesOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateRules(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateTotals(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -242,6 +308,24 @@ func (o *ListAlertRulesOKBody) validateRules(formats strfmt.Registry) error {
 	return nil
 }
 
+func (o *ListAlertRulesOKBody) validateTotals(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Totals) { // not required
+		return nil
+	}
+
+	if o.Totals != nil {
+		if err := o.Totals.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("listAlertRulesOk" + "." + "totals")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *ListAlertRulesOKBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -253,6 +337,76 @@ func (o *ListAlertRulesOKBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ListAlertRulesOKBody) UnmarshalBinary(b []byte) error {
 	var res ListAlertRulesOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ListAlertRulesOKBodyTotals PageTotals represents total values for pagination.
+swagger:model ListAlertRulesOKBodyTotals
+*/
+type ListAlertRulesOKBodyTotals struct {
+
+	// Total number of results.
+	TotalItems int32 `json:"total_items,omitempty"`
+
+	// Total number of pages.
+	TotalPages int32 `json:"total_pages,omitempty"`
+}
+
+// Validate validates this list alert rules OK body totals
+func (o *ListAlertRulesOKBodyTotals) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAlertRulesOKBodyTotals) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAlertRulesOKBodyTotals) UnmarshalBinary(b []byte) error {
+	var res ListAlertRulesOKBodyTotals
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ListAlertRulesParamsBodyPageParams PageParams represents page request parameters for pagination.
+swagger:model ListAlertRulesParamsBodyPageParams
+*/
+type ListAlertRulesParamsBodyPageParams struct {
+
+	// Maximum number of results per page.
+	PageSize int32 `json:"page_size,omitempty"`
+
+	// Index of the requested page, starts from 0.
+	Index int32 `json:"index,omitempty"`
+}
+
+// Validate validates this list alert rules params body page params
+func (o *ListAlertRulesParamsBodyPageParams) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAlertRulesParamsBodyPageParams) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAlertRulesParamsBodyPageParams) UnmarshalBinary(b []byte) error {
+	var res ListAlertRulesParamsBodyPageParams
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

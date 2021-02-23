@@ -204,12 +204,27 @@ message StartActionRequest {
   // PTSummaryParams describes parameters for PT summary.
   message PTSummaryParams {}
 
+  // PTPgSummaryParams describes parameters for PT PG summary.
+  message PTPgSummaryParams {
+    string host = 1;
+    uint32 port = 2;
+    string username = 3;
+    string password = 4;
+  }
   // PTMongoDBSummaryParams describes parameters for PT MongoDB summary.
   message PTMongoDBSummaryParams {
     string host = 1;
     uint32 port = 2;
     string username = 3;
     string password = 4;
+  }
+  // PTMySQLSummaryParams describes parameters for PT MySQL summary.
+  message PTMySQLSummaryParams {
+    string host = 1;
+    uint32 port = 2;
+    string socket = 3;
+    string username = 4;
+    string password = 5;
   }
   // MySQLQueryShowParams describes MySQL SHOW query action parameters.
   message MySQLQueryShowParams {
@@ -271,7 +286,9 @@ message StartActionRequest {
     PostgreSQLShowIndexParams postgresql_show_index_params = 7;
     MongoDBExplainParams mongodb_explain_params = 8;
     PTSummaryParams pt_summary_params = 10;
+    PTPgSummaryParams pt_pg_summary_params = 12;
     PTMongoDBSummaryParams pt_mongodb_summary_params = 13;
+    PTMySQLSummaryParams pt_mysql_summary_params = 11;
     MySQLQueryShowParams mysql_query_show_params = 50;
     MySQLQuerySelectParams mysql_query_select_params = 51;
     PostgreSQLQueryShowParams postgresql_query_show_params = 52;
