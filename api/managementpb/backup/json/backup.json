@@ -69,6 +69,10 @@
                       "type": "string",
                       "x-order": 1
                     },
+                    "bucket_name": {
+                      "type": "string",
+                      "x-order": 3
+                    },
                     "endpoint": {
                       "type": "string",
                       "x-order": 0
@@ -198,6 +202,10 @@
                     "access_key": {
                       "type": "string",
                       "x-order": 1
+                    },
+                    "bucket_name": {
+                      "type": "string",
+                      "x-order": 3
                     },
                     "endpoint": {
                       "type": "string",
@@ -336,6 +344,10 @@
                           "access_key": {
                             "type": "string",
                             "x-order": 1
+                          },
+                          "bucket_name": {
+                            "type": "string",
+                            "x-order": 3
                           },
                           "endpoint": {
                             "type": "string",
