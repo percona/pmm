@@ -1,10 +1,4 @@
----
-TODO:
-- How to stop Docker image
-- How to run 'pmm-admin add' and other client commands via Docker
----
-
-# Docker (Client)
+# Docker
 
 Avoid installing the PMM Client package by using our [PMM Client Docker image](https://hub.docker.com/r/percona/pmm-client/tags/).
 
