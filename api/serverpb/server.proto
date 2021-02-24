@@ -145,9 +145,9 @@ message SlackAlertingSettings {
 message STTCheckIntervals {
   // Default check interval
   google.protobuf.Duration default_interval = 1;
-  // Interval for rare checks
+  // Interval for rare check runs
   google.protobuf.Duration rare_interval = 2;
-  // Interval for frequent checks
+  // Interval for frequent check runs
   google.protobuf.Duration frequent_interval = 3;
 }
 
@@ -182,7 +182,7 @@ message Settings {
   SlackAlertingSettings slack_alerting_settings = 14;
   // PMM Server public address.
   string pmm_public_address = 15;
-  // Intervals between STT checks
+  // Intervals between STT check runs.
   STTCheckIntervals stt_check_intervals = 16;
 }
 
@@ -230,7 +230,7 @@ message ChangeSettingsRequest {
   // PMM Server public address.
   string pmm_public_address = 19;
   bool remove_pmm_public_address = 20;
-  // Intervals between STT checks
+  // Intervals between STT check runs.
   STTCheckIntervals stt_check_intervals = 21;
 }
 
