@@ -929,9 +929,9 @@ type STTCheckIntervals struct {
 
 	// Default check interval
 	DefaultInterval *duration.Duration `protobuf:"bytes,1,opt,name=default_interval,json=defaultInterval,proto3" json:"default_interval,omitempty"`
-	// Interval for rare checks
+	// Interval for rare check runs
 	RareInterval *duration.Duration `protobuf:"bytes,2,opt,name=rare_interval,json=rareInterval,proto3" json:"rare_interval,omitempty"`
-	// Interval for frequent checks
+	// Interval for frequent check runs
 	FrequentInterval *duration.Duration `protobuf:"bytes,3,opt,name=frequent_interval,json=frequentInterval,proto3" json:"frequent_interval,omitempty"`
 }
 
@@ -1020,7 +1020,7 @@ type Settings struct {
 	SlackAlertingSettings *SlackAlertingSettings `protobuf:"bytes,14,opt,name=slack_alerting_settings,json=slackAlertingSettings,proto3" json:"slack_alerting_settings,omitempty"`
 	// PMM Server public address.
 	PmmPublicAddress string `protobuf:"bytes,15,opt,name=pmm_public_address,json=pmmPublicAddress,proto3" json:"pmm_public_address,omitempty"`
-	// Intervals between STT checks
+	// Intervals between STT check runs.
 	SttCheckIntervals *STTCheckIntervals `protobuf:"bytes,16,opt,name=stt_check_intervals,json=sttCheckIntervals,proto3" json:"stt_check_intervals,omitempty"`
 }
 
@@ -1292,7 +1292,7 @@ type ChangeSettingsRequest struct {
 	// PMM Server public address.
 	PmmPublicAddress       string `protobuf:"bytes,19,opt,name=pmm_public_address,json=pmmPublicAddress,proto3" json:"pmm_public_address,omitempty"`
 	RemovePmmPublicAddress bool   `protobuf:"varint,20,opt,name=remove_pmm_public_address,json=removePmmPublicAddress,proto3" json:"remove_pmm_public_address,omitempty"`
-	// Intervals between STT checks
+	// Intervals between STT check runs.
 	SttCheckIntervals *STTCheckIntervals `protobuf:"bytes,21,opt,name=stt_check_intervals,json=sttCheckIntervals,proto3" json:"stt_check_intervals,omitempty"`
 }
 

@@ -2223,12 +2223,12 @@
                     },
                     "rare_interval": {
                       "type": "string",
-                      "title": "Interval for rare checks",
+                      "title": "Interval for rare check runs",
                       "x-order": 1
                     },
                     "frequent_interval": {
                       "type": "string",
-                      "title": "Interval for frequent checks",
+                      "title": "Interval for frequent check runs",
                       "x-order": 2
                     }
                   },
@@ -2395,12 +2395,12 @@
                         },
                         "rare_interval": {
                           "type": "string",
-                          "title": "Interval for rare checks",
+                          "title": "Interval for rare check runs",
                           "x-order": 1
                         },
                         "frequent_interval": {
                           "type": "string",
-                          "title": "Interval for frequent checks",
+                          "title": "Interval for frequent check runs",
                           "x-order": 2
                         }
                       },
@@ -2628,12 +2628,12 @@
                         },
                         "rare_interval": {
                           "type": "string",
-                          "title": "Interval for rare checks",
+                          "title": "Interval for rare check runs",
                           "x-order": 1
                         },
                         "frequent_interval": {
                           "type": "string",
-                          "title": "Interval for frequent checks",
+                          "title": "Interval for frequent check runs",
                           "x-order": 2
                         }
                       },

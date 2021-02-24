@@ -549,10 +549,10 @@ type GetSettingsOKBodySettingsSttCheckIntervals struct {
 	// Default check interval
 	DefaultInterval string `json:"default_interval,omitempty"`
 
-	// Interval for rare checks
+	// Interval for rare check runs
 	RareInterval string `json:"rare_interval,omitempty"`
 
-	// Interval for frequent checks
+	// Interval for frequent check runs
 	FrequentInterval string `json:"frequent_interval,omitempty"`
 }
 
