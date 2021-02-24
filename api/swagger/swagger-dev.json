@@ -23765,7 +23765,7 @@
                   "x-order": 7
                 },
                 "summary": {
-                  "description": "Rule human-readable summary.",
+                  "description": "Rule human-readable summary. Should be set.",
                   "type": "string",
                   "x-order": 8
                 }

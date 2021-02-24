@@ -709,7 +709,7 @@ type UpdateAlertRuleRequest struct {
 	Filters []*Filter `protobuf:"bytes,10,rep,name=filters,proto3" json:"filters,omitempty"`
 	// Channels. Should be set.
 	ChannelIds []string `protobuf:"bytes,11,rep,name=channel_ids,json=channelIds,proto3" json:"channel_ids,omitempty"`
-	// Rule human-readable summary.
+	// Rule human-readable summary. Should be set.
 	Summary string `protobuf:"bytes,12,opt,name=summary,proto3" json:"summary,omitempty"`
 }
 
