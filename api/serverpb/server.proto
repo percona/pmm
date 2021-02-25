@@ -144,7 +144,7 @@ message SlackAlertingSettings {
 // STTCheckIntervals represents intervals between STT checks.
 message STTCheckIntervals {
   // Default check interval
-  google.protobuf.Duration default_interval = 1;
+  google.protobuf.Duration standard_interval = 1;
   // Interval for rare check runs
   google.protobuf.Duration rare_interval = 2;
   // Interval for frequent check runs
