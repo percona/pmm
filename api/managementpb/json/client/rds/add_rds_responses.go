@@ -211,7 +211,7 @@ type AddRDSBody struct {
 	MetricsMode *string `json:"metrics_mode,omitempty"`
 
 	// If true, add qan-pgstatements
-	QANPostgrePgstatement bool `json:"qan_postgre_pgstatement,omitempty"`
+	QANPostgresqlPgstatements bool `json:"qan_postgresql_pgstatements,omitempty"`
 }
 
 // Validate validates this add RDS body

@@ -19713,7 +19713,7 @@
                   ],
                   "x-order": 26
                 },
-                "qan_postgre_pgstatement": {
+                "qan_postgresql_pgstatements": {
                   "type": "boolean",
                   "title": "If true, add qan-pgstatements",
                   "x-order": 27

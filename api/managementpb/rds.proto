@@ -128,7 +128,7 @@ message AddRDSRequest {
   // Push metrics mode is not allowed.
   MetricsMode metrics_mode = 27;
   // If true, add qan-pgstatements
-  bool qan_postgre_pgstatement = 28;
+  bool qan_postgresql_pgstatements = 28;
 }
 
 message AddRDSResponse {
