@@ -54,6 +54,10 @@ func TestServer(t *testing.T) {
 		mvmalert.Test(t)
 		mvmalert.On("RequestConfigurationUpdate").Return(nil)
 
+		malertmanager := new(mockAlertmanagerService)
+		malertmanager.Test(t)
+		malertmanager.On("RequestConfigurationUpdate").Return(nil)
+
 		par := new(mockVmAlertExternalRules)
 		par.Test(t)
 		par.On("ReadRules").Return("", nil)
@@ -68,6 +72,7 @@ func TestServer(t *testing.T) {
 			DB:                   reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)),
 			VMDB:                 mvmdb,
 			VMAlert:              mvmalert,
+			Alertmanager:         malertmanager,
 			AgentsRegistry:       mAgents,
 			Supervisord:          r,
 			VMAlertExternalRules: par,
