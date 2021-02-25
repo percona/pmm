@@ -927,11 +927,11 @@ type STTCheckIntervals struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// Default check interval
+	// Standard check interval.
 	StandardInterval *duration.Duration `protobuf:"bytes,1,opt,name=standard_interval,json=standardInterval,proto3" json:"standard_interval,omitempty"`
-	// Interval for rare check runs
+	// Interval for rare check runs.
 	RareInterval *duration.Duration `protobuf:"bytes,2,opt,name=rare_interval,json=rareInterval,proto3" json:"rare_interval,omitempty"`
-	// Interval for frequent check runs
+	// Interval for frequent check runs.
 	FrequentInterval *duration.Duration `protobuf:"bytes,3,opt,name=frequent_interval,json=frequentInterval,proto3" json:"frequent_interval,omitempty"`
 }
 

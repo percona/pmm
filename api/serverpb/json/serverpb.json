@@ -528,18 +528,18 @@
                   "type": "object",
                   "properties": {
                     "frequent_interval": {
+                      "description": "Interval for frequent check runs.",
                       "type": "string",
-                      "title": "Interval for frequent check runs",
                       "x-order": 2
                     },
                     "rare_interval": {
+                      "description": "Interval for rare check runs.",
                       "type": "string",
-                      "title": "Interval for rare check runs",
                       "x-order": 1
                     },
                     "standard_interval": {
+                      "description": "Standard check interval.",
                       "type": "string",
-                      "title": "Default check interval",
                       "x-order": 0
                     }
                   },
@@ -685,18 +685,18 @@
                       "type": "object",
                       "properties": {
                         "frequent_interval": {
+                          "description": "Interval for frequent check runs.",
                           "type": "string",
-                          "title": "Interval for frequent check runs",
                           "x-order": 2
                         },
                         "rare_interval": {
+                          "description": "Interval for rare check runs.",
                           "type": "string",
-                          "title": "Interval for rare check runs",
                           "x-order": 1
                         },
                         "standard_interval": {
+                          "description": "Standard check interval.",
                           "type": "string",
-                          "title": "Default check interval",
                           "x-order": 0
                         }
                       },
@@ -918,18 +918,18 @@
                       "type": "object",
                       "properties": {
                         "frequent_interval": {
+                          "description": "Interval for frequent check runs.",
                           "type": "string",
-                          "title": "Interval for frequent check runs",
                           "x-order": 2
                         },
                         "rare_interval": {
+                          "description": "Interval for rare check runs.",
                           "type": "string",
-                          "title": "Interval for rare check runs",
                           "x-order": 1
                         },
                         "standard_interval": {
+                          "description": "Standard check interval.",
                           "type": "string",
-                          "title": "Default check interval",
                           "x-order": 0
                         }
                       },

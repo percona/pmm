@@ -546,13 +546,13 @@ swagger:model GetSettingsOKBodySettingsSttCheckIntervals
 */
 type GetSettingsOKBodySettingsSttCheckIntervals struct {
 
-	// Default check interval
+	// Standard check interval.
 	StandardInterval string `json:"standard_interval,omitempty"`
 
-	// Interval for rare check runs
+	// Interval for rare check runs.
 	RareInterval string `json:"rare_interval,omitempty"`
 
-	// Interval for frequent check runs
+	// Interval for frequent check runs.
 	FrequentInterval string `json:"frequent_interval,omitempty"`
 }
 
