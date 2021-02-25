@@ -4,6 +4,7 @@ package management;
 
 option go_package = "api/managementpb;managementpb";
 
+import "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options/annotations.proto";
 import "google/api/annotations.proto";
 import "managementpb/severity.proto";
 
@@ -43,7 +44,10 @@ message GetSecurityCheckResultsResponse {
   repeated SecurityCheckResult results = 1;
 }
 
-message StartSecurityChecksRequest {}
+message StartSecurityChecksRequest {
+  // Names of the checks that should be started.
+  repeated string names = 1;
+}
 
 message StartSecurityChecksResponse {}
 
@@ -73,6 +77,9 @@ service SecurityChecks {
     option (google.api.http) = {
       post: "/v1/management/SecurityChecks/Start"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      description: "If no checks names specified all available checks will be started."
     };
   }
   // ListSecurityChecks returns a list of available Security Thread Tool checks.
