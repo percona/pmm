@@ -129,6 +129,8 @@ message AddRDSRequest {
   MetricsMode metrics_mode = 27;
   // If true, add qan-pgstatements
   bool qan_postgresql_pgstatements = 28;
+  // If true, add qan-pgstatmonitor
+  bool qan_postgresql_pgstatmonitor = 29;
 }
 
 message AddRDSResponse {
@@ -139,9 +141,10 @@ message AddRDSResponse {
   inventory.QANMySQLPerfSchemaAgent qan_mysql_perfschema = 5;
   // Actual table count at the moment of adding.
   int32 table_count = 6;
-  inventory.PostgreSQLService postgres = 7;
+  inventory.PostgreSQLService postgresql = 7;
   inventory.PostgresExporter postgresql_exporter = 8;
-  inventory.QANPostgreSQLPgStatementsAgent qan_postgre_pgstatement = 9;
+  inventory.QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements = 9;
+  inventory.QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor = 10;
 }
 
 // RDS service provides Node and Service Discovery APIs.

@@ -212,6 +212,9 @@ type AddRDSBody struct {
 
 	// If true, add qan-pgstatements
 	QANPostgresqlPgstatements bool `json:"qan_postgresql_pgstatements,omitempty"`
+
+	// If true, add qan-pgstatmonitor
+	QANPostgresqlPgstatmonitor bool `json:"qan_postgresql_pgstatmonitor,omitempty"`
 }
 
 // Validate validates this add RDS body
@@ -434,8 +437,8 @@ type AddRDSOKBody struct {
 	// node
 	Node *AddRDSOKBodyNode `json:"node,omitempty"`
 
-	// postgres
-	Postgres *AddRDSOKBodyPostgres `json:"postgres,omitempty"`
+	// postgresql
+	Postgresql *AddRDSOKBodyPostgresql `json:"postgresql,omitempty"`
 
 	// postgresql exporter
 	PostgresqlExporter *AddRDSOKBodyPostgresqlExporter `json:"postgresql_exporter,omitempty"`
@@ -443,8 +446,11 @@ type AddRDSOKBody struct {
 	// qan mysql perfschema
 	QANMysqlPerfschema *AddRDSOKBodyQANMysqlPerfschema `json:"qan_mysql_perfschema,omitempty"`
 
-	// qan postgre pgstatement
-	QANPostgrePgstatement *AddRDSOKBodyQANPostgrePgstatement `json:"qan_postgre_pgstatement,omitempty"`
+	// qan postgresql pgstatements
+	QANPostgresqlPgstatements *AddRDSOKBodyQANPostgresqlPgstatements `json:"qan_postgresql_pgstatements,omitempty"`
+
+	// qan postgresql pgstatmonitor
+	QANPostgresqlPgstatmonitor *AddRDSOKBodyQANPostgresqlPgstatmonitor `json:"qan_postgresql_pgstatmonitor,omitempty"`
 
 	// rds exporter
 	RDSExporter *AddRDSOKBodyRDSExporter `json:"rds_exporter,omitempty"`
@@ -466,7 +472,7 @@ func (o *AddRDSOKBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := o.validatePostgres(formats); err != nil {
+	if err := o.validatePostgresql(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -478,7 +484,11 @@ func (o *AddRDSOKBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := o.validateQANPostgrePgstatement(formats); err != nil {
+	if err := o.validateQANPostgresqlPgstatements(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateQANPostgresqlPgstatmonitor(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -546,16 +556,16 @@ func (o *AddRDSOKBody) validateNode(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *AddRDSOKBody) validatePostgres(formats strfmt.Registry) error {
+func (o *AddRDSOKBody) validatePostgresql(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.Postgres) { // not required
+	if swag.IsZero(o.Postgresql) { // not required
 		return nil
 	}
 
-	if o.Postgres != nil {
-		if err := o.Postgres.Validate(formats); err != nil {
+	if o.Postgresql != nil {
+		if err := o.Postgresql.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addRdsOk" + "." + "postgres")
+				return ve.ValidateName("addRdsOk" + "." + "postgresql")
 			}
 			return err
 		}
@@ -600,16 +610,34 @@ func (o *AddRDSOKBody) validateQANMysqlPerfschema(formats strfmt.Registry) error
 	return nil
 }
 
-func (o *AddRDSOKBody) validateQANPostgrePgstatement(formats strfmt.Registry) error {
+func (o *AddRDSOKBody) validateQANPostgresqlPgstatements(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.QANPostgrePgstatement) { // not required
+	if swag.IsZero(o.QANPostgresqlPgstatements) { // not required
 		return nil
 	}
 
-	if o.QANPostgrePgstatement != nil {
-		if err := o.QANPostgrePgstatement.Validate(formats); err != nil {
+	if o.QANPostgresqlPgstatements != nil {
+		if err := o.QANPostgresqlPgstatements.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addRdsOk" + "." + "qan_postgre_pgstatement")
+				return ve.ValidateName("addRdsOk" + "." + "qan_postgresql_pgstatements")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddRDSOKBody) validateQANPostgresqlPgstatmonitor(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.QANPostgresqlPgstatmonitor) { // not required
+		return nil
+	}
+
+	if o.QANPostgresqlPgstatmonitor != nil {
+		if err := o.QANPostgresqlPgstatmonitor.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addRdsOk" + "." + "qan_postgresql_pgstatmonitor")
 			}
 			return err
 		}
@@ -910,10 +938,10 @@ func (o *AddRDSOKBodyNode) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddRDSOKBodyPostgres PostgreSQLService represents a generic PostgreSQL instance.
-swagger:model AddRDSOKBodyPostgres
+/*AddRDSOKBodyPostgresql PostgreSQLService represents a generic PostgreSQL instance.
+swagger:model AddRDSOKBodyPostgresql
 */
-type AddRDSOKBodyPostgres struct {
+type AddRDSOKBodyPostgresql struct {
 
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
@@ -949,13 +977,13 @@ type AddRDSOKBodyPostgres struct {
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
-// Validate validates this add RDS OK body postgres
-func (o *AddRDSOKBodyPostgres) Validate(formats strfmt.Registry) error {
+// Validate validates this add RDS OK body postgresql
+func (o *AddRDSOKBodyPostgresql) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *AddRDSOKBodyPostgres) MarshalBinary() ([]byte, error) {
+func (o *AddRDSOKBodyPostgresql) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -963,8 +991,8 @@ func (o *AddRDSOKBodyPostgres) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddRDSOKBodyPostgres) UnmarshalBinary(b []byte) error {
-	var res AddRDSOKBodyPostgres
+func (o *AddRDSOKBodyPostgresql) UnmarshalBinary(b []byte) error {
+	var res AddRDSOKBodyPostgresql
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1238,10 +1266,10 @@ func (o *AddRDSOKBodyQANMysqlPerfschema) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddRDSOKBodyQANPostgrePgstatement QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
-swagger:model AddRDSOKBodyQANPostgrePgstatement
+/*AddRDSOKBodyQANPostgresqlPgstatements QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
+swagger:model AddRDSOKBodyQANPostgresqlPgstatements
 */
-type AddRDSOKBodyQANPostgrePgstatement struct {
+type AddRDSOKBodyQANPostgresqlPgstatements struct {
 
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
@@ -1278,8 +1306,8 @@ type AddRDSOKBodyQANPostgrePgstatement struct {
 	Status *string `json:"status,omitempty"`
 }
 
-// Validate validates this add RDS OK body QAN postgre pgstatement
-func (o *AddRDSOKBodyQANPostgrePgstatement) Validate(formats strfmt.Registry) error {
+// Validate validates this add RDS OK body QAN postgresql pgstatements
+func (o *AddRDSOKBodyQANPostgresqlPgstatements) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
@@ -1292,7 +1320,7 @@ func (o *AddRDSOKBodyQANPostgrePgstatement) Validate(formats strfmt.Registry) er
 	return nil
 }
 
-var addRdsOkBodyQanPostgrePgstatementTypeStatusPropEnum []interface{}
+var addRdsOkBodyQanPostgresqlPgstatementsTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -1300,47 +1328,47 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		addRdsOkBodyQanPostgrePgstatementTypeStatusPropEnum = append(addRdsOkBodyQanPostgrePgstatementTypeStatusPropEnum, v)
+		addRdsOkBodyQanPostgresqlPgstatementsTypeStatusPropEnum = append(addRdsOkBodyQanPostgresqlPgstatementsTypeStatusPropEnum, v)
 	}
 }
 
 const (
 
-	// AddRDSOKBodyQANPostgrePgstatementStatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
-	AddRDSOKBodyQANPostgrePgstatementStatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+	// AddRDSOKBodyQANPostgresqlPgstatementsStatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	AddRDSOKBodyQANPostgresqlPgstatementsStatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
 
-	// AddRDSOKBodyQANPostgrePgstatementStatusSTARTING captures enum value "STARTING"
-	AddRDSOKBodyQANPostgrePgstatementStatusSTARTING string = "STARTING"
+	// AddRDSOKBodyQANPostgresqlPgstatementsStatusSTARTING captures enum value "STARTING"
+	AddRDSOKBodyQANPostgresqlPgstatementsStatusSTARTING string = "STARTING"
 
-	// AddRDSOKBodyQANPostgrePgstatementStatusRUNNING captures enum value "RUNNING"
-	AddRDSOKBodyQANPostgrePgstatementStatusRUNNING string = "RUNNING"
+	// AddRDSOKBodyQANPostgresqlPgstatementsStatusRUNNING captures enum value "RUNNING"
+	AddRDSOKBodyQANPostgresqlPgstatementsStatusRUNNING string = "RUNNING"
 
-	// AddRDSOKBodyQANPostgrePgstatementStatusWAITING captures enum value "WAITING"
-	AddRDSOKBodyQANPostgrePgstatementStatusWAITING string = "WAITING"
+	// AddRDSOKBodyQANPostgresqlPgstatementsStatusWAITING captures enum value "WAITING"
+	AddRDSOKBodyQANPostgresqlPgstatementsStatusWAITING string = "WAITING"
 
-	// AddRDSOKBodyQANPostgrePgstatementStatusSTOPPING captures enum value "STOPPING"
-	AddRDSOKBodyQANPostgrePgstatementStatusSTOPPING string = "STOPPING"
+	// AddRDSOKBodyQANPostgresqlPgstatementsStatusSTOPPING captures enum value "STOPPING"
+	AddRDSOKBodyQANPostgresqlPgstatementsStatusSTOPPING string = "STOPPING"
 
-	// AddRDSOKBodyQANPostgrePgstatementStatusDONE captures enum value "DONE"
-	AddRDSOKBodyQANPostgrePgstatementStatusDONE string = "DONE"
+	// AddRDSOKBodyQANPostgresqlPgstatementsStatusDONE captures enum value "DONE"
+	AddRDSOKBodyQANPostgresqlPgstatementsStatusDONE string = "DONE"
 )
 
 // prop value enum
-func (o *AddRDSOKBodyQANPostgrePgstatement) validateStatusEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addRdsOkBodyQanPostgrePgstatementTypeStatusPropEnum, true); err != nil {
+func (o *AddRDSOKBodyQANPostgresqlPgstatements) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addRdsOkBodyQanPostgresqlPgstatementsTypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *AddRDSOKBodyQANPostgrePgstatement) validateStatus(formats strfmt.Registry) error {
+func (o *AddRDSOKBodyQANPostgresqlPgstatements) validateStatus(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addRdsOk"+"."+"qan_postgre_pgstatement"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addRdsOk"+"."+"qan_postgresql_pgstatements"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -1348,7 +1376,7 @@ func (o *AddRDSOKBodyQANPostgrePgstatement) validateStatus(formats strfmt.Regist
 }
 
 // MarshalBinary interface implementation
-func (o *AddRDSOKBodyQANPostgrePgstatement) MarshalBinary() ([]byte, error) {
+func (o *AddRDSOKBodyQANPostgresqlPgstatements) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -1356,8 +1384,138 @@ func (o *AddRDSOKBodyQANPostgrePgstatement) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddRDSOKBodyQANPostgrePgstatement) UnmarshalBinary(b []byte) error {
-	var res AddRDSOKBodyQANPostgrePgstatement
+func (o *AddRDSOKBodyQANPostgresqlPgstatements) UnmarshalBinary(b []byte) error {
+	var res AddRDSOKBodyQANPostgresqlPgstatements
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddRDSOKBodyQANPostgresqlPgstatmonitor QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
+swagger:model AddRDSOKBodyQANPostgresqlPgstatmonitor
+*/
+type AddRDSOKBodyQANPostgresqlPgstatmonitor struct {
+
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// PostgreSQL username for getting pg stat monitor data.
+	Username string `json:"username,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// True if query examples are disabled.
+	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	Status *string `json:"status,omitempty"`
+}
+
+// Validate validates this add RDS OK body QAN postgresql pgstatmonitor
+func (o *AddRDSOKBodyQANPostgresqlPgstatmonitor) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var addRdsOkBodyQanPostgresqlPgstatmonitorTypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addRdsOkBodyQanPostgresqlPgstatmonitorTypeStatusPropEnum = append(addRdsOkBodyQanPostgresqlPgstatmonitorTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// AddRDSOKBodyQANPostgresqlPgstatmonitorStatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	AddRDSOKBodyQANPostgresqlPgstatmonitorStatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+
+	// AddRDSOKBodyQANPostgresqlPgstatmonitorStatusSTARTING captures enum value "STARTING"
+	AddRDSOKBodyQANPostgresqlPgstatmonitorStatusSTARTING string = "STARTING"
+
+	// AddRDSOKBodyQANPostgresqlPgstatmonitorStatusRUNNING captures enum value "RUNNING"
+	AddRDSOKBodyQANPostgresqlPgstatmonitorStatusRUNNING string = "RUNNING"
+
+	// AddRDSOKBodyQANPostgresqlPgstatmonitorStatusWAITING captures enum value "WAITING"
+	AddRDSOKBodyQANPostgresqlPgstatmonitorStatusWAITING string = "WAITING"
+
+	// AddRDSOKBodyQANPostgresqlPgstatmonitorStatusSTOPPING captures enum value "STOPPING"
+	AddRDSOKBodyQANPostgresqlPgstatmonitorStatusSTOPPING string = "STOPPING"
+
+	// AddRDSOKBodyQANPostgresqlPgstatmonitorStatusDONE captures enum value "DONE"
+	AddRDSOKBodyQANPostgresqlPgstatmonitorStatusDONE string = "DONE"
+)
+
+// prop value enum
+func (o *AddRDSOKBodyQANPostgresqlPgstatmonitor) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addRdsOkBodyQanPostgresqlPgstatmonitorTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddRDSOKBodyQANPostgresqlPgstatmonitor) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("addRdsOk"+"."+"qan_postgresql_pgstatmonitor"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddRDSOKBodyQANPostgresqlPgstatmonitor) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddRDSOKBodyQANPostgresqlPgstatmonitor) UnmarshalBinary(b []byte) error {
+	var res AddRDSOKBodyQANPostgresqlPgstatmonitor
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
