@@ -19712,6 +19712,11 @@
                     "PUSH"
                   ],
                   "x-order": 26
+                },
+                "qan_postgre_pgstatement": {
+                  "type": "boolean",
+                  "title": "If true, add qan-pgstatements",
+                  "x-order": 27
                 }
               }
             }

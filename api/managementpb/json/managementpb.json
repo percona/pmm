@@ -4603,6 +4603,11 @@
                   "type": "boolean",
                   "x-order": 17
                 },
+                "qan_postgre_pgstatement": {
+                  "type": "boolean",
+                  "title": "If true, add qan-pgstatements",
+                  "x-order": 27
+                },
                 "rds_exporter": {
                   "description": "If true, adds rds_exporter.",
                   "type": "boolean",

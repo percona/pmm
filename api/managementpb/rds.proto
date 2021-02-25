@@ -127,6 +127,8 @@ message AddRDSRequest {
   // Defines metrics flow model for this exporter.
   // Push metrics mode is not allowed.
   MetricsMode metrics_mode = 27;
+  // If true, add qan-pgstatements
+  bool qan_postgre_pgstatement = 28;
 }
 
 message AddRDSResponse {

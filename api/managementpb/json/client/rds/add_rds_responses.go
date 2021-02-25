@@ -209,6 +209,9 @@ type AddRDSBody struct {
 	// it can be pull, push or auto mode chosen by server.
 	// Enum: [AUTO PULL PUSH]
 	MetricsMode *string `json:"metrics_mode,omitempty"`
+
+	// If true, add qan-pgstatements
+	QANPostgrePgstatement bool `json:"qan_postgre_pgstatement,omitempty"`
 }
 
 // Validate validates this add RDS body
