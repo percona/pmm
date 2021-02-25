@@ -116,9 +116,9 @@ func (this *SlackAlertingSettings) Validate() error {
 	return nil
 }
 func (this *STTCheckIntervals) Validate() error {
-	if this.DefaultInterval != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.DefaultInterval); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("DefaultInterval", err)
+	if this.StandardInterval != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.StandardInterval); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("StandardInterval", err)
 		}
 	}
 	if this.RareInterval != nil {

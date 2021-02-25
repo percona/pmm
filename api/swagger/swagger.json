@@ -527,7 +527,7 @@
                   "description": "STTCheckIntervals represents intervals between STT checks.",
                   "type": "object",
                   "properties": {
-                    "default_interval": {
+                    "standard_interval": {
                       "type": "string",
                       "title": "Default check interval",
                       "x-order": 0
@@ -699,7 +699,7 @@
                       "description": "STTCheckIntervals represents intervals between STT checks.",
                       "type": "object",
                       "properties": {
-                        "default_interval": {
+                        "standard_interval": {
                           "type": "string",
                           "title": "Default check interval",
                           "x-order": 0
@@ -932,7 +932,7 @@
                       "description": "STTCheckIntervals represents intervals between STT checks.",
                       "type": "object",
                       "properties": {
-                        "default_interval": {
+                        "standard_interval": {
                           "type": "string",
                           "title": "Default check interval",
                           "x-order": 0
