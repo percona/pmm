@@ -20878,6 +20878,10 @@
                     "secret_key": {
                       "type": "string",
                       "x-order": 2
+                    },
+                    "bucket_name": {
+                      "type": "string",
+                      "x-order": 3
                     }
                   },
                   "x-order": 4
@@ -21008,6 +21012,10 @@
                     "secret_key": {
                       "type": "string",
                       "x-order": 2
+                    },
+                    "bucket_name": {
+                      "type": "string",
+                      "x-order": 3
                     }
                   },
                   "x-order": 5
@@ -21146,6 +21154,10 @@
                           "secret_key": {
                             "type": "string",
                             "x-order": 2
+                          },
+                          "bucket_name": {
+                            "type": "string",
+                            "x-order": 3
                           }
                         },
                         "x-order": 5
