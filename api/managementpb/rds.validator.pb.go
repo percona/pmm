@@ -94,10 +94,5 @@ func (this *AddRDSResponse) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("QanPostgresqlPgstatements", err)
 		}
 	}
-	if this.QanPostgresqlPgstatmonitor != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.QanPostgresqlPgstatmonitor); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("QanPostgresqlPgstatmonitor", err)
-		}
-	}
 	return nil
 }

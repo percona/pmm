@@ -142,7 +142,6 @@ message AddRDSResponse {
   inventory.PostgreSQLService postgresql = 7;
   inventory.PostgresExporter postgresql_exporter = 8;
   inventory.QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements = 9;
-  inventory.QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor = 10;
 }
 
 // RDS service provides Node and Service Discovery APIs.
