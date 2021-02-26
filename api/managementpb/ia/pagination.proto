@@ -4,12 +4,22 @@ package ia.v1beta1;
 
 option go_package = "api/managementpb/ia;iav1beta1";
 
+import "github.com/mwitkow/go-proto-validators/validator.proto";
+
 // PageParams represents page request parameters for pagination.
 message PageParams {
   // Maximum number of results per page.
-  int32 page_size = 1;
+  int32 page_size = 1 [
+    (validator.field) = {
+      int_gt: -1
+    }
+  ];
   // Index of the requested page, starts from 0.
-  int32 index = 2;
+  int32 index = 2 [
+    (validator.field) = {
+      int_gt: -1
+    }
+  ];
 }
 
 // PageTotals represents total values for pagination.
