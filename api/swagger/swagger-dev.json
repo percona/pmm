@@ -385,14 +385,18 @@
                     "description": "Row define metrics for selected dimention.",
                     "type": "object",
                     "properties": {
+                      "database": {
+                        "type": "string",
+                        "x-order": 0
+                      },
                       "rank": {
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 0
+                        "x-order": 1
                       },
                       "dimension": {
                         "type": "string",
-                        "x-order": 1
+                        "x-order": 2
                       },
                       "metrics": {
                         "type": "object",
@@ -449,7 +453,7 @@
                             }
                           }
                         },
-                        "x-order": 2
+                        "x-order": 3
                       },
                       "sparkline": {
                         "type": "array",
@@ -800,26 +804,26 @@
                             }
                           }
                         },
-                        "x-order": 3
+                        "x-order": 4
                       },
                       "fingerprint": {
                         "type": "string",
-                        "x-order": 4
+                        "x-order": 5
                       },
                       "num_queries": {
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 5
+                        "x-order": 6
                       },
                       "qps": {
                         "type": "number",
                         "format": "float",
-                        "x-order": 6
+                        "x-order": 7
                       },
                       "load": {
                         "type": "number",
                         "format": "float",
-                        "x-order": 7
+                        "x-order": 8
                       }
                     }
                   },

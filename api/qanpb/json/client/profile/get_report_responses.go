@@ -473,6 +473,9 @@ swagger:model RowsItems0
 */
 type RowsItems0 struct {
 
+	// database
+	Database string `json:"database,omitempty"`
+
 	// rank
 	Rank int64 `json:"rank,omitempty"`
 

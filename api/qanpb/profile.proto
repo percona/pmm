@@ -49,6 +49,7 @@ message ReportReply {
 
 // Row define metrics for selected dimention.
 message Row {
+  string database = 9;
   uint32 rank = 1;
   string dimension = 2;
   map<string, Metric> metrics = 3;
