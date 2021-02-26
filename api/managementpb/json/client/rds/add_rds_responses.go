@@ -212,9 +212,6 @@ type AddRDSBody struct {
 
 	// If true, add qan-pgstatements
 	QANPostgresqlPgstatements bool `json:"qan_postgresql_pgstatements,omitempty"`
-
-	// If true, add qan-pgstatmonitor
-	QANPostgresqlPgstatmonitor bool `json:"qan_postgresql_pgstatmonitor,omitempty"`
 }
 
 // Validate validates this add RDS body

@@ -19717,11 +19717,6 @@
                   "type": "boolean",
                   "title": "If true, add qan-pgstatements",
                   "x-order": 27
-                },
-                "qan_postgresql_pgstatmonitor": {
-                  "type": "boolean",
-                  "title": "If true, add qan-pgstatmonitor",
-                  "x-order": 28
                 }
               }
             }
