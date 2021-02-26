@@ -49,7 +49,7 @@ func TestCreateBackupLocation(t *testing.T) {
 				Path: "/tmp",
 			},
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		assert.NotEmpty(t, loc.LocationId)
 	})
@@ -61,7 +61,7 @@ func TestCreateBackupLocation(t *testing.T) {
 				Path: "/tmp",
 			},
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		assert.NotEmpty(t, loc.LocationId)
 	})
@@ -70,12 +70,13 @@ func TestCreateBackupLocation(t *testing.T) {
 		loc, err := svc.AddLocation(ctx, &backupv1beta1.AddLocationRequest{
 			Name: gofakeit.Name(),
 			S3Config: &backupv1beta1.S3LocationConfig{
-				Endpoint:  gofakeit.URL(),
-				AccessKey: "access_key",
-				SecretKey: "secret_key",
+				Endpoint:   gofakeit.URL(),
+				AccessKey:  "access_key",
+				SecretKey:  "secret_key",
+				BucketName: "example_bucket",
 			},
 		})
-		assert.Nil(t, err)
+		require.NoError(t, err)
 
 		assert.NotEmpty(t, loc.LocationId)
 	})
@@ -87,13 +88,13 @@ func TestCreateBackupLocation(t *testing.T) {
 				Path: "/tmp",
 			},
 			S3Config: &backupv1beta1.S3LocationConfig{
-				Endpoint:  gofakeit.URL(),
-				AccessKey: "access_key",
-				SecretKey: "secret_key",
+				Endpoint:   gofakeit.URL(),
+				AccessKey:  "access_key",
+				SecretKey:  "secret_key",
+				BucketName: "example_bucket",
 			},
 		})
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Only one config is allowed."), err)
-
 	})
 }
 
@@ -115,9 +116,10 @@ func TestListBackupLocations(t *testing.T) {
 	req2 := &backupv1beta1.AddLocationRequest{
 		Name: gofakeit.Name(),
 		S3Config: &backupv1beta1.S3LocationConfig{
-			Endpoint:  gofakeit.URL(),
-			AccessKey: "access_key",
-			SecretKey: "secret_key",
+			Endpoint:   gofakeit.URL(),
+			AccessKey:  "access_key",
+			SecretKey:  "secret_key",
+			BucketName: "example_bucket",
 		},
 	}
 	res2, err := svc.AddLocation(ctx, req2)
@@ -125,7 +127,7 @@ func TestListBackupLocations(t *testing.T) {
 
 	t.Run("list", func(t *testing.T) {
 		res, err := svc.ListLocations(ctx, &backupv1beta1.ListLocationsRequest{})
-		assert.Nil(t, err)
+		require.Nil(t, err)
 
 		checkLocation := func(id string, req *backupv1beta1.AddLocationRequest) func() bool {
 			return func() bool {
@@ -138,7 +140,8 @@ func TestListBackupLocations(t *testing.T) {
 							cfg := loc.Config.(*backupv1beta1.Location_S3Config)
 							if req.S3Config.Endpoint != cfg.S3Config.Endpoint ||
 								req.S3Config.AccessKey != cfg.S3Config.AccessKey ||
-								req.S3Config.SecretKey != cfg.S3Config.SecretKey {
+								req.S3Config.SecretKey != cfg.S3Config.SecretKey ||
+								req.S3Config.BucketName != cfg.S3Config.BucketName {
 								return false
 							}
 
@@ -166,7 +169,6 @@ func TestListBackupLocations(t *testing.T) {
 
 		assert.Condition(t, checkLocation(res1.LocationId, req1))
 		assert.Condition(t, checkLocation(res2.LocationId, req2))
-
 	})
 }
 
@@ -191,9 +193,10 @@ func TestChangeBackupLocation(t *testing.T) {
 			Name:        gofakeit.Name(),
 			Description: gofakeit.Quote(),
 			S3Config: &backupv1beta1.S3LocationConfig{
-				Endpoint:  "https://example.com",
-				AccessKey: "access_key",
-				SecretKey: "secret_key",
+				Endpoint:   "https://example.com",
+				AccessKey:  "access_key",
+				SecretKey:  "secret_key",
+				BucketName: "example_bucket",
 			},
 		}
 		_, err = svc.ChangeLocation(ctx, updateReq)
@@ -208,6 +211,7 @@ func TestChangeBackupLocation(t *testing.T) {
 		assert.Equal(t, updateReq.S3Config.Endpoint, updatedLocation.S3Config.Endpoint)
 		assert.Equal(t, updateReq.S3Config.SecretKey, updatedLocation.S3Config.SecretKey)
 		assert.Equal(t, updateReq.S3Config.AccessKey, updatedLocation.S3Config.AccessKey)
+		assert.Equal(t, updateReq.S3Config.BucketName, updatedLocation.S3Config.BucketName)
 	})
 
 	t.Run("update only name", func(t *testing.T) {
@@ -318,5 +322,4 @@ func TestRemoveBackupLocation(t *testing.T) {
 		LocationId: "non-existing",
 	})
 	assert.EqualError(t, err, `rpc error: code = NotFound desc = Backup location with ID "non-existing" not found.`)
-
 }

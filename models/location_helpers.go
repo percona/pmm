@@ -93,6 +93,10 @@ func checkS3Config(c *S3LocationConfig) error {
 		return status.Error(codes.InvalidArgument, "S3 secretKey field is empty.")
 	}
 
+	if c.BucketName == "" {
+		return status.Error(codes.InvalidArgument, "S3 bucketName field is empty.")
+	}
+
 	return nil
 }
 

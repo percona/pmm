@@ -82,9 +82,10 @@ func TestBackupLocations(t *testing.T) {
 			Description: "some desc",
 			BackupLocationConfig: models.BackupLocationConfig{
 				S3Config: &models.S3LocationConfig{
-					Endpoint:  "https://example.com/bucket",
-					AccessKey: "access_key",
-					SecretKey: "secret_key",
+					Endpoint:   "https://example.com/",
+					AccessKey:  "access_key",
+					SecretKey:  "secret_key",
+					BucketName: "example_bucket",
 				},
 			},
 		}
@@ -97,6 +98,7 @@ func TestBackupLocations(t *testing.T) {
 		assert.Equal(t, params.S3Config.Endpoint, location.S3Config.Endpoint)
 		assert.Equal(t, params.S3Config.AccessKey, location.S3Config.AccessKey)
 		assert.Equal(t, params.S3Config.SecretKey, location.S3Config.SecretKey)
+		assert.Equal(t, params.S3Config.BucketName, location.S3Config.BucketName)
 
 		assert.NotEmpty(t, location.ID)
 	})
@@ -118,9 +120,10 @@ func TestBackupLocations(t *testing.T) {
 					Path: "/tmp",
 				},
 				S3Config: &models.S3LocationConfig{
-					Endpoint:  "https://example.com/bucket",
-					AccessKey: "access_key",
-					SecretKey: "secret_key",
+					Endpoint:   "https://example.com/",
+					AccessKey:  "access_key",
+					SecretKey:  "secret_key",
+					BucketName: "example_bucket",
 				},
 			},
 		}
@@ -152,9 +155,10 @@ func TestBackupLocations(t *testing.T) {
 			Description: "some desc2",
 			BackupLocationConfig: models.BackupLocationConfig{
 				S3Config: &models.S3LocationConfig{
-					Endpoint:  "https://example.com/bucket",
-					AccessKey: "access_key",
-					SecretKey: "secret_key",
+					Endpoint:   "https://example.com/bucket",
+					AccessKey:  "access_key",
+					SecretKey:  "secret_key",
+					BucketName: "example_bucket",
 				},
 			},
 		}
@@ -303,9 +307,10 @@ func TestBackupLocationValidation(t *testing.T) {
 				Name: "s3-1",
 				BackupLocationConfig: models.BackupLocationConfig{
 					S3Config: &models.S3LocationConfig{
-						Endpoint:  "https://s3.us-west-2.amazonaws.com/mybucket",
-						AccessKey: "access_key",
-						SecretKey: "secret_key",
+						Endpoint:   "https://s3.us-west-2.amazonaws.com/mybucket",
+						AccessKey:  "access_key",
+						SecretKey:  "secret_key",
+						BucketName: "example_bucket",
 					},
 				},
 			},
@@ -317,9 +322,10 @@ func TestBackupLocationValidation(t *testing.T) {
 				Name: "s3-2",
 				BackupLocationConfig: models.BackupLocationConfig{
 					S3Config: &models.S3LocationConfig{
-						Endpoint:  "",
-						AccessKey: "access_key",
-						SecretKey: "secret_key",
+						Endpoint:   "",
+						AccessKey:  "access_key",
+						SecretKey:  "secret_key",
+						BucketName: "example_bucket",
 					},
 				},
 			},
@@ -331,9 +337,10 @@ func TestBackupLocationValidation(t *testing.T) {
 				Name: "s3-3",
 				BackupLocationConfig: models.BackupLocationConfig{
 					S3Config: &models.S3LocationConfig{
-						Endpoint:  "https://s3.us-west-2.amazonaws.com/mybucket",
-						AccessKey: "",
-						SecretKey: "secret_key",
+						Endpoint:   "https://s3.us-west-2.amazonaws.com/mybucket",
+						AccessKey:  "",
+						SecretKey:  "secret_key",
+						BucketName: "example_bucket",
 					},
 				},
 			},
@@ -345,13 +352,29 @@ func TestBackupLocationValidation(t *testing.T) {
 				Name: "s3-4",
 				BackupLocationConfig: models.BackupLocationConfig{
 					S3Config: &models.S3LocationConfig{
-						Endpoint:  "https://s3.us-west-2.amazonaws.com/mybucket",
-						AccessKey: "secret_key",
-						SecretKey: "",
+						Endpoint:   "https://s3.us-west-2.amazonaws.com/mybucket",
+						AccessKey:  "secret_key",
+						SecretKey:  "",
+						BucketName: "example_bucket",
 					},
 				},
 			},
 			errorMsg: "rpc error: code = InvalidArgument desc = S3 secretKey field is empty.",
+		},
+		{
+			name: "s3 config - missing bucket name",
+			location: models.CreateBackupLocationParams{
+				Name: "s3-4",
+				BackupLocationConfig: models.BackupLocationConfig{
+					S3Config: &models.S3LocationConfig{
+						Endpoint:   "https://s3.us-west-2.amazonaws.com/mybucket",
+						AccessKey:  "secret_key",
+						SecretKey:  "example_key",
+						BucketName: "",
+					},
+				},
+			},
+			errorMsg: "rpc error: code = InvalidArgument desc = S3 bucketName field is empty.",
 		},
 	}
 

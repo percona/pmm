@@ -66,9 +66,10 @@ func (s *LocationsService) AddLocation(ctx context.Context, req *backupv1beta1.A
 
 	if req.S3Config != nil {
 		params.S3Config = &models.S3LocationConfig{
-			Endpoint:  req.S3Config.Endpoint,
-			AccessKey: req.S3Config.AccessKey,
-			SecretKey: req.S3Config.SecretKey,
+			Endpoint:   req.S3Config.Endpoint,
+			AccessKey:  req.S3Config.AccessKey,
+			SecretKey:  req.S3Config.SecretKey,
+			BucketName: req.S3Config.BucketName,
 		}
 	}
 	if req.PmmServerConfig != nil {
@@ -102,9 +103,10 @@ func (s *LocationsService) ChangeLocation(ctx context.Context, req *backupv1beta
 
 	if req.S3Config != nil {
 		params.S3Config = &models.S3LocationConfig{
-			Endpoint:  req.S3Config.Endpoint,
-			AccessKey: req.S3Config.AccessKey,
-			SecretKey: req.S3Config.SecretKey,
+			Endpoint:   req.S3Config.Endpoint,
+			AccessKey:  req.S3Config.AccessKey,
+			SecretKey:  req.S3Config.SecretKey,
+			BucketName: req.S3Config.BucketName,
 		}
 	}
 
@@ -153,9 +155,10 @@ func convertLocation(location *models.BackupLocation) (*backupv1beta1.Location, 
 		config := location.S3Config
 		loc.Config = &backupv1beta1.Location_S3Config{
 			S3Config: &backupv1beta1.S3LocationConfig{
-				Endpoint:  config.Endpoint,
-				AccessKey: config.AccessKey,
-				SecretKey: config.SecretKey,
+				Endpoint:   config.Endpoint,
+				AccessKey:  config.AccessKey,
+				SecretKey:  config.SecretKey,
+				BucketName: config.BucketName,
 			},
 		}
 	default:
