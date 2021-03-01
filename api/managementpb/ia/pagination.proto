@@ -11,7 +11,7 @@ message PageParams {
   // Maximum number of results per page.
   int32 page_size = 1 [
     (validator.field) = {
-      int_gt: -1
+      int_gt: 0
     }
   ];
   // Index of the requested page, starts from 0.
