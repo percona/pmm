@@ -383,6 +383,9 @@ swagger:model QueryExamplesItems0
 */
 type QueryExamplesItems0 struct {
 
+	// database
+	Database string `json:"database,omitempty"`
+
 	// example
 	Example string `json:"example,omitempty"`
 
