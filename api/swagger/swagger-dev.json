@@ -1642,13 +1642,9 @@
                     "description": "QueryExample shows query examples and their metrics.",
                     "type": "object",
                     "properties": {
-                      "database": {
-                        "type": "string",
-                        "x-order": 0
-                      },
                       "example": {
                         "type": "string",
-                        "x-order": 1
+                        "x-order": 0
                       },
                       "example_format": {
                         "description": "ExampleFormat is format of query example: real or query without values.\n\nDeprecated: is not used, should not be used, should be removed.",
@@ -1659,7 +1655,7 @@
                           "EXAMPLE",
                           "FINGERPRINT"
                         ],
-                        "x-order": 2
+                        "x-order": 1
                       },
                       "example_type": {
                         "description": "ExampleType is a type of query example selected for this query class in given period of time.",
@@ -1672,35 +1668,35 @@
                           "FASTEST",
                           "WITH_ERROR"
                         ],
-                        "x-order": 3
+                        "x-order": 2
                       },
                       "is_truncated": {
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 4
+                        "x-order": 3
                       },
                       "example_metrics": {
                         "type": "string",
-                        "x-order": 5
+                        "x-order": 4
                       },
                       "service_id": {
                         "type": "string",
-                        "x-order": 6
+                        "x-order": 5
                       },
                       "service_type": {
                         "type": "string",
-                        "x-order": 7
+                        "x-order": 6
                       },
                       "schema": {
                         "type": "string",
-                        "x-order": 8
+                        "x-order": 7
                       },
                       "tables": {
                         "type": "array",
                         "items": {
                           "type": "string"
                         },
-                        "x-order": 9
+                        "x-order": 8
                       }
                     }
                   },

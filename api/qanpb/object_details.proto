@@ -92,7 +92,6 @@ message QueryExampleReply {
 
 // QueryExample shows query examples and their metrics.
 message QueryExample {
-  string database = 10;
   string example = 1;
   // Deprecated: should not be used, should be removed.
   ExampleFormat example_format = 2 [deprecated = true];
