@@ -42,6 +42,11 @@ message S3LocationConfig {
       string_not_empty: true
     }
   ];
+  string bucket_name = 4 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
 }
 
 // Location represents single Backup Location.

@@ -453,6 +453,9 @@ type LocationsItems0S3Config struct {
 
 	// secret key
 	SecretKey string `json:"secret_key,omitempty"`
+
+	// bucket name
+	BucketName string `json:"bucket_name,omitempty"`
 }
 
 // Validate validates this locations items0 s3 config

@@ -416,6 +416,9 @@ type AddLocationParamsBodyS3Config struct {
 
 	// secret key
 	SecretKey string `json:"secret_key,omitempty"`
+
+	// bucket name
+	BucketName string `json:"bucket_name,omitempty"`
 }
 
 // Validate validates this add location params body s3 config
