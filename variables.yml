@@ -1,7 +1,7 @@
 # PMM Version for HTML
 # See also mkdocs.yml plugins.with-pdf.cover_subtitle and output_path
-release: '2.14.0'
-version: '2.14'
+release: '2.15.0'
+version: '2.15'
 
 # Miscellaneous values
 extra:

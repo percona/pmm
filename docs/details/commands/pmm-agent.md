@@ -53,6 +53,8 @@ Most options can be set via environment variables (shown in parentheses).
 | `--paths-postgres_exporter=PATH`       | `PMM_AGENT_PATHS_POSTGRES_EXPORTER` | Path to `postgres_exporter`.
 | `--paths-proxysql_exporter=PATH`       | `PMM_AGENT_PATHS_PROXYSQL_EXPORTER` | Path to `proxysql_exporter`.
 | `--paths-pt-summary=PATH`              | `PMM_AGENT_PATHS_PT_SUMMARY`        | Path to `pt-summary`.
+| `--paths-pt-mysql-summary=PATH`        | `PMM_AGENT_PATHS_PT_MYSQL_SUMMARY`  | Path to `pt-mysql-summary`.
+| `--paths-pt-pg-summary=PATH`           | `PMM_AGENT_PATHS_PT_PG_SUMMARY`     | Path to `pt-pg-summary`.
 | `--paths-tempdir=PATH`                 | `PMM_AGENT_PATHS_TEMPDIR`           | Temporary directory for exporters.
 | `--ports-max=PORTS-MAX`                | `PMM_AGENT_PORTS_MAX`               | Highest allowed port number for listening sockets.
 | `--ports-min=PORTS-MIN`                | `PMM_AGENT_PORTS_MIN`               | Lowest allowed port number for listening sockets.

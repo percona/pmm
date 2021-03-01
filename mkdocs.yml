@@ -56,9 +56,9 @@ plugins:
         glob:
           - setting-up/server/dbaas-gke.md # Included file
   - with-pdf: # https://github.com/orzih/mkdocs-with-pdf
-        output_path: '_pdf/PerconaMonitoringAndManagement-2.14.0.pdf'
+        output_path: '_pdf/PerconaMonitoringAndManagement-2.15.0.pdf'
         cover_title: 'Documentation'
-        cover_subtitle: 2.14.0 (January 28, 2021)
+        cover_subtitle: 2.15.0 (March 01, 2021)
         author: 'Percona Technical Documentation Team'
         cover_logo: docs/_images/PMM_Logo.svg
         debug_html: false
@@ -97,6 +97,7 @@ nav:
           - setting-up/client/aws.md
           - setting-up/client/linux.md
           - setting-up/client/external.md
+          - setting-up/client/haproxy.md
   - Using:
       - using/index.md
       - using/interface.md
@@ -179,6 +180,7 @@ nav:
               - details/dashboards/dashboard-pxc-galera-node-summary.md
               - details/dashboards/dashboard-pxc-galera-cluster-summary.md
               - details/dashboards/dashboard-pxc-galera-nodes-compare.md
+              - details/dashboards/dashboard-haproxy-instance-summary.md
       - Commands:
           - details/commands/pmm-admin.md
           - details/commands/pmm-agent.md
@@ -187,6 +189,7 @@ nav:
       - details/glossary.md
   - faq.md
   - Release Notes:
+      - release-notes/2.15.0.md
       - release-notes/2.14.0.md
       - release-notes/2.13.0.md
       - release-notes/2.12.0.md

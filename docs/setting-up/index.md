@@ -22,3 +22,4 @@
 - [Amazon RDS](client/aws.md)
 - [Linux](client/linux.md)
 - [External services](client/external.md)
+- [HAProxy](client/haproxy.md)
