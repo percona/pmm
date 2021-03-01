@@ -36,6 +36,10 @@ You need at least 2 GB for one monitored database node.
 
     The increase in memory usage is not proportional to the number of nodes.  For example, data from 20 nodes should be easily handled with 16 GB.
 
+!!! alert alert-info "Note"
+
+    Your CPU must support the SSE4.2 instruction set, a requirement of ClickHouse, a third-party column-oriented database used by Query Analytics. If your CPU is lacking this instruction set you won't be able to use QAN.
+
 **PMM Client**
 
 Any modern 64-bit Linux distribution. It is tested on the latest versions of Debian, Ubuntu, CentOS, and Red Hat Enterprise Linux.
