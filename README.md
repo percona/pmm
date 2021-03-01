@@ -73,6 +73,7 @@ and point your browser to [http://localhost:8000](http://localhost:8000).
 
 		mkdocs build -t material
 		# mkdocs build -t readthedocs
+		# mkdocs build -t mkdocs
 
 4. Open `site/index.html`
 
