@@ -53,6 +53,7 @@ wbsDiagram {
 			+_ [[$base/setting-up/client/aws.html Amazon RDS]]
 			+_ [[$base/setting-up/client/linux.html Linux]]
 			+_ [[$base/setting-up/client/external.html External\nServices]]
+			+_ [[$base/setting-up/client/haproxy.html HAProxy]]
 
 	+ <&wrench> [[$base/using/ Using]]
 		+_ [[$base/using/interface.html User\ninterface]]
