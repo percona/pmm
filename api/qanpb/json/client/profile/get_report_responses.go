@@ -473,14 +473,14 @@ swagger:model RowsItems0
 */
 type RowsItems0 struct {
 
-	// database
-	Database string `json:"database,omitempty"`
-
 	// rank
 	Rank int64 `json:"rank,omitempty"`
 
 	// dimension
 	Dimension string `json:"dimension,omitempty"`
+
+	// database
+	Database string `json:"database,omitempty"`
 
 	// metrics
 	Metrics map[string]RowsItems0MetricsAnon `json:"metrics,omitempty"`

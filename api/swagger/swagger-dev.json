@@ -385,16 +385,16 @@
                     "description": "Row define metrics for selected dimention.",
                     "type": "object",
                     "properties": {
-                      "database": {
-                        "type": "string",
-                        "x-order": 0
-                      },
                       "rank": {
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 1
+                        "x-order": 0
                       },
                       "dimension": {
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "database": {
                         "type": "string",
                         "x-order": 2
                       },
