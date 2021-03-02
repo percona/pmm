@@ -168,9 +168,9 @@ To check all files:
 
 	mdspell --report --en-us --ignore-acronyms --ignore-numbers "docs/**/*.md"
 
-Add any custom dictionary words to `.spelling`. If spell checking fails, the GitHub action will fail too, but after the MkDocs build. The `publish` branch will still have the latest build and can be used. Meanwhile, see what the spelling error is and either fix it or add the word to `.spelling`.
+Add any custom dictionary words to `.spelling`. If spell checking fails, the GitHub action will fail too, but after the MkDocs build and so can be safely ignored. The `publish` branch will still have the latest build and can be used. Meanwhile, see what the spelling error is and either fix it or add the word to `.spelling`.
 
-Grammar is checked using [`write-good`](https://github.com/btford/write-good).
+Grammar is checked using [`write-good`](https://github.com/btford/write-good). (The results of this check are ignored and don't affect the GitHub action.)
 
 	npm i write-good -g
 	write-good docs/<path to file>.md
