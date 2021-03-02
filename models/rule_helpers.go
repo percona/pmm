@@ -160,6 +160,7 @@ func CreateRule(q *reform.Querier, params *CreateRuleParams) (*Rule, error) {
 
 // ChangeRuleParams is params for updating existing Rule.
 type ChangeRuleParams struct {
+	Summary      string
 	Disabled     bool
 	RuleParams   RuleParams
 	For          time.Duration
@@ -192,6 +193,7 @@ func ChangeRule(q *reform.Querier, ruleID string, params *ChangeRuleParams) (*Ru
 	row.Severity = params.Severity
 	row.Filters = params.Filters
 	row.Params = params.RuleParams
+	row.Summary = params.Summary
 
 	labels, err := json.Marshal(params.CustomLabels)
 	if err != nil {

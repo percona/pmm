@@ -138,6 +138,7 @@ func TestRules(t *testing.T) {
 			newChannelID := createChannel(t, q)
 
 			params := &models.ChangeRuleParams{
+				Summary:      "summary",
 				Disabled:     false,
 				RuleParams:   nil,
 				For:          3 * time.Second,
@@ -152,6 +153,7 @@ func TestRules(t *testing.T) {
 
 			assert.NotEmpty(t, rule.ID, updated.ID)
 			assert.Equal(t, templateName, updated.TemplateName)
+			assert.Equal(t, params.Summary, updated.Summary)
 			assert.Equal(t, params.Disabled, updated.Disabled)
 			assert.Equal(t, params.RuleParams, updated.Params)
 			assert.Equal(t, params.For, updated.For)

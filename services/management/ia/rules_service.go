@@ -523,6 +523,7 @@ func (s *RulesService) UpdateAlertRule(ctx context.Context, req *iav1beta1.Updat
 	}
 
 	params := &models.ChangeRuleParams{
+		Summary:      req.Summary,
 		Disabled:     req.Disabled,
 		For:          req.For.AsDuration(),
 		Severity:     models.Severity(req.Severity),
