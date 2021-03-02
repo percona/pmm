@@ -2602,6 +2602,11 @@
                     "SEVERITY_DEBUG"
                   ],
                   "x-order": 4
+                },
+                "summary": {
+                  "description": "Rule human-readable summary. Should be set.",
+                  "type": "string",
+                  "x-order": 8
                 }
               }
             }
