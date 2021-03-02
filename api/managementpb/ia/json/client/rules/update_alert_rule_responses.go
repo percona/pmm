@@ -146,6 +146,9 @@ type UpdateAlertRuleBody struct {
 
 	// Channels. Should be set.
 	ChannelIds []string `json:"channel_ids"`
+
+	// Rule human-readable summary. Should be set.
+	Summary string `json:"summary,omitempty"`
 }
 
 // Validate validates this update alert rule body
