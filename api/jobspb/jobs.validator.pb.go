@@ -61,6 +61,13 @@ func (this *JobResult) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("Timestamp", err)
 		}
 	}
+	if oneOfNester, ok := this.GetResult().(*JobResult_Echo_); ok {
+		if oneOfNester.Echo != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Echo); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Echo", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *JobResult_Echo) Validate() error {

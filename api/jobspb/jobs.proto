@@ -44,6 +44,9 @@ message JobResult {
   }
   string job_id = 1;
   google.protobuf.Timestamp timestamp = 2;
+  oneof result {
+    Echo echo = 10;
+  }
 }
 
 // AgentMessage is a container for the agent messages.
@@ -69,8 +72,8 @@ message ServerMessage {
   }
 }
 
-// Jobs provides asynchronous API for long running jobs execution on pmm-agent side.
-service Jobs {
+// JobsAPI provides asynchronous API for long running jobs execution on pmm-agent side.
+service JobsAPI {
   // Connect establishes two-way communication channel between pmm-agent and pmm-managed.
   rpc Connect(stream AgentMessage) returns (stream ServerMessage);
 }
