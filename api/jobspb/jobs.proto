@@ -1,0 +1,76 @@
+syntax = "proto3";
+
+package jobs;
+
+option go_package = "api/jobspb;jobspb";
+
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+import "google/rpc/status.proto";
+
+// Ping is a AgentMessage/ServerMessage for checking connectivity, latency and clock drift.
+message Ping {}
+
+// Pong is an AgentMessage/ServerMessage with current time for measuring clock drift.
+message Pong {
+  google.protobuf.Timestamp timestamp = 1;
+}
+
+// StartJob asks pmm-agent to start job.
+message StartJob {
+  // Echo is a simple echo job that can be delayed.
+  message Echo {
+    string message = 1;
+    google.protobuf.Duration delay = 2;
+  }
+  string job_id = 1;
+  // Timeout for the job.
+  google.protobuf.Duration timeout = 2;
+  oneof job {
+    Echo echo = 10;
+  }
+}
+
+// StopJob asks pmm-agent to stop job.
+message StopJob {
+  string job_id = 1;
+}
+
+// JobResult represents job result.
+message JobResult {
+  // Echo contains result for echo job.
+  message Echo {
+    string message = 1;
+  }
+  string job_id = 1;
+  google.protobuf.Timestamp timestamp = 2;
+}
+
+// AgentMessage is a container for the agent messages.
+message AgentMessage {
+  string id = 1;
+  google.rpc.Status status = 2;
+  oneof payload {
+    Ping ping = 10;
+    Pong pong = 11;
+    JobResult job_result = 12;
+  }
+}
+
+// ServerMessage is a container for the server messages.
+message ServerMessage {
+  string id = 1;
+  google.rpc.Status status = 2;
+  oneof payload {
+    Ping ping = 10;
+    Pong pong = 11;
+    StartJob start_job = 12;
+    StopJob stop_job = 13;
+  }
+}
+
+// Jobs provides asynchronous API for long running jobs execution on pmm-agent side.
+service Jobs {
+  // Connect establishes two-way communication channel between pmm-agent and pmm-managed.
+  rpc Connect(stream AgentMessage) returns (stream ServerMessage);
+}
