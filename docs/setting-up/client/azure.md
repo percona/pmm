@@ -1,4 +1,4 @@
-# Azure
+# Microsoft Azure
 
 ## Required settings
 
@@ -6,7 +6,7 @@ It is possible to use PMM for monitoring [Azure](https://azure.microsoft.com) da
 
 First of all, ensure that there is the minimal latency between PMM Server and the Azure instance.
 
-Second, add a firewall rule to enable access from PMM-client like this:
+Second, add a firewall rule to enable access from PMM Client like this:
 
 ![image](../../_images/azure-firewall.png)
 
@@ -28,7 +28,7 @@ GRANT SELECT, UPDATE, DELETE, DROP ON performance_schema.* TO 'pmm'@'%';
 
 Follow the instructions for remotes instances explained [here](aws.md).
 
-Example:  
+Example:
 
 ![image](../../_images/azure-add-mysql-1.png)
 

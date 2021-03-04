@@ -20,6 +20,7 @@
 - [PostgreSQL](client/postgresql.md)
 - [ProxySQL](client/proxysql.md)
 - [Amazon RDS](client/aws.md)
+- [Microsoft Azure](client/azure.md)
 - [Linux](client/linux.md)
 - [External services](client/external.md)
 - [HAProxy](client/haproxy.md)

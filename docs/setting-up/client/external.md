@@ -21,17 +21,17 @@ pmm-admin add external-serverless --external-name=<external-service-name> --host
 
 There two ways to get metrics from other exporters:
 
-- `external` will collect metrics from the exporter that is run on the same host as pmm-client connection to it by a port. (See more details with `pmm-admin add external --help`.)
+- `external` will collect metrics from the exporter that is run on the same host as PMM Client's connection to it by a port. (See more details with `pmm-admin add external --help`.)
 
 - `external-serverless` is useful for collecting metrics from cloud services. You need a host and port number to add it to PMM Server. (See more details with `pmm-admin add external-serverless --help`.)
 
 Here are the differences between `external` and `external-serverless` types.
 
-Connection schema of exernal exporter:
+Connection schema of external exporter:
 
 ![](../../_images/PMM_External_Exporter_Schema.jpg)
 
-Connection schema of exernal serverless exporter:
+Connection schema of external serverless exporter:
 
 ![](../../_images/PMM_External_Serverless_Exporter_Schema.jpg)
 
