@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package backup.v1beta1;
+
+option go_package = "api/managementpb/backup;backupv1beta1";
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+// Backup represents single Backup Location.
+message Backup {
+  // Machine-readable ID.
+  string backup_id = 1;
+  // Backup name
+  string name = 2;
+  // Backup location name.
+  string location_name = 3;
+  // Backup creation time.
+  google.protobuf.Timestamp created_at = 4;
+}
+
+message ListBackupsRequest {}
+
+message ListBackupsResponse {
+  repeated Backup backups = 1;
+}
+
+// Backups service provides public methods for managing Backups.
+service Backups {
+  // ListBackups returns a list of all backups.
+  rpc ListBackups(ListBackupsRequest) returns (ListBackupsResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/backup/Backups/List"
+      body: "*"
+    };
+  }
+}
