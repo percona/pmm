@@ -300,6 +300,9 @@ type GetSettingsOKBodySettings struct {
 
 	// slack alerting settings
 	SlackAlertingSettings *GetSettingsOKBodySettingsSlackAlertingSettings `json:"slack_alerting_settings,omitempty"`
+
+	// stt check intervals
+	SttCheckIntervals *GetSettingsOKBodySettingsSttCheckIntervals `json:"stt_check_intervals,omitempty"`
 }
 
 // Validate validates this get settings OK body settings
@@ -315,6 +318,10 @@ func (o *GetSettingsOKBodySettings) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateSlackAlertingSettings(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateSttCheckIntervals(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -370,6 +377,24 @@ func (o *GetSettingsOKBodySettings) validateSlackAlertingSettings(formats strfmt
 		if err := o.SlackAlertingSettings.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getSettingsOk" + "." + "settings" + "." + "slack_alerting_settings")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetSettingsOKBodySettings) validateSttCheckIntervals(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.SttCheckIntervals) { // not required
+		return nil
+	}
+
+	if o.SttCheckIntervals != nil {
+		if err := o.SttCheckIntervals.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getSettingsOk" + "." + "settings" + "." + "stt_check_intervals")
 			}
 			return err
 		}
@@ -509,6 +534,44 @@ func (o *GetSettingsOKBodySettingsSlackAlertingSettings) MarshalBinary() ([]byte
 // UnmarshalBinary interface implementation
 func (o *GetSettingsOKBodySettingsSlackAlertingSettings) UnmarshalBinary(b []byte) error {
 	var res GetSettingsOKBodySettingsSlackAlertingSettings
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetSettingsOKBodySettingsSttCheckIntervals STTCheckIntervals represents intervals between STT checks.
+swagger:model GetSettingsOKBodySettingsSttCheckIntervals
+*/
+type GetSettingsOKBodySettingsSttCheckIntervals struct {
+
+	// Standard check interval.
+	StandardInterval string `json:"standard_interval,omitempty"`
+
+	// Interval for rare check runs.
+	RareInterval string `json:"rare_interval,omitempty"`
+
+	// Interval for frequent check runs.
+	FrequentInterval string `json:"frequent_interval,omitempty"`
+}
+
+// Validate validates this get settings OK body settings stt check intervals
+func (o *GetSettingsOKBodySettingsSttCheckIntervals) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetSettingsOKBodySettingsSttCheckIntervals) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetSettingsOKBodySettingsSttCheckIntervals) UnmarshalBinary(b []byte) error {
+	var res GetSettingsOKBodySettingsSttCheckIntervals
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
