@@ -29,6 +29,10 @@ const (
 	MetricsResolutionMin = time.Second
 	// MetricsResolutionMultipleOf is value metrics resolution should be multiple of.
 	MetricsResolutionMultipleOf = time.Second
+	// STTCheckIntervalMin is the smallest value STT check intervals can accept.
+	STTCheckIntervalMin = time.Second
+	// STTCheckIntervalMultipleOf is value STT check intervals should be multiple of.
+	STTCheckIntervalMultipleOf = time.Second
 	// DataRetentionMin is the smallest value data retention can accept.
 	DataRetentionMin = 24 * time.Hour
 	// DataRetentionMultipleOf is a value of data retention should be multiple of.
@@ -60,6 +64,11 @@ func validateDuration(d, min, multipleOf time.Duration) (time.Duration, error) {
 		return d, DurationNotAllowedError{fmt.Sprintf("%v is not multiple of %v", d, multipleOf)}
 	}
 	return d, nil
+}
+
+// ValidateSTTCheckInterval validate STT check interval.
+func ValidateSTTCheckInterval(value time.Duration) (time.Duration, error) {
+	return validateDuration(value, STTCheckIntervalMin, STTCheckIntervalMultipleOf)
 }
 
 // ValidateMetricResolution validate metric resolution.

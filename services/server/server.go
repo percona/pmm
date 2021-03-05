@@ -403,6 +403,11 @@ func (s *Server) convertSettings(settings *models.Settings) *serverpb.Settings {
 			Mr: ptypes.DurationProto(settings.MetricsResolutions.MR),
 			Lr: ptypes.DurationProto(settings.MetricsResolutions.LR),
 		},
+		SttCheckIntervals: &serverpb.STTCheckIntervals{
+			RareInterval:     ptypes.DurationProto(settings.SaaS.STTCheckIntervals.RareInterval),
+			StandardInterval: ptypes.DurationProto(settings.SaaS.STTCheckIntervals.StandardInterval),
+			FrequentInterval: ptypes.DurationProto(settings.SaaS.STTCheckIntervals.FrequentInterval),
+		},
 		DataRetention:    ptypes.DurationProto(settings.DataRetention),
 		SshKey:           settings.SSHKey,
 		AwsPartitions:    settings.AWSPartitions,
@@ -535,9 +540,15 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 		}
 
 		metricsRes := req.MetricsResolutions
+		sttCheckIntervals := req.SttCheckIntervals
 		settingsParams := &models.ChangeSettingsParams{
 			DisableTelemetry: req.DisableTelemetry,
 			EnableTelemetry:  req.EnableTelemetry,
+			STTCheckIntervals: models.STTCheckIntervals{
+				RareInterval:     getDuration(sttCheckIntervals.GetRareInterval()),
+				StandardInterval: getDuration(sttCheckIntervals.GetStandardInterval()),
+				FrequentInterval: getDuration(sttCheckIntervals.GetFrequentInterval()),
+			},
 			MetricsResolutions: models.MetricsResolutions{
 				HR: getDuration(metricsRes.GetHr()),
 				MR: getDuration(metricsRes.GetMr()),

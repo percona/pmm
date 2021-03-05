@@ -74,6 +74,8 @@ type ChangeSettingsParams struct {
 	DisableSTTChecks []string
 	// List of STT checks to enable
 	EnableSTTChecks []string
+	// STT check intevals
+	STTCheckIntervals STTCheckIntervals
 
 	// Enable DBaaS features.
 	EnableDBaaS bool
@@ -166,6 +168,16 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	}
 	if params.EnableSTT {
 		settings.SaaS.STTEnabled = true
+	}
+
+	if params.STTCheckIntervals.RareInterval != 0 {
+		settings.SaaS.STTCheckIntervals.RareInterval = params.STTCheckIntervals.RareInterval
+	}
+	if params.STTCheckIntervals.StandardInterval != 0 {
+		settings.SaaS.STTCheckIntervals.StandardInterval = params.STTCheckIntervals.StandardInterval
+	}
+	if params.STTCheckIntervals.FrequentInterval != 0 {
+		settings.SaaS.STTCheckIntervals.FrequentInterval = params.STTCheckIntervals.FrequentInterval
 	}
 
 	if len(params.DisableSTTChecks) != 0 {
@@ -267,6 +279,7 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 		return fmt.Errorf("Both enable_alerting and disable_alerting are present.") //nolint:golint,stylecheck
 	}
 
+	// TODO: consider refactoring this and the validation for STT check intervals
 	checkCases := []struct {
 		dur       time.Duration
 		fieldName string
@@ -281,6 +294,31 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 		}
 
 		if _, err := validators.ValidateMetricResolution(v.dur); err != nil {
+			switch err.(type) {
+			case validators.DurationNotAllowedError:
+				return fmt.Errorf("%s: should be a natural number of seconds", v.fieldName)
+			case validators.MinDurationError:
+				return fmt.Errorf("%s: minimal resolution is 1s", v.fieldName)
+			default:
+				return fmt.Errorf("%s: unknown error for", v.fieldName)
+			}
+		}
+	}
+
+	checkCases = []struct {
+		dur       time.Duration
+		fieldName string
+	}{
+		{params.STTCheckIntervals.RareInterval, "rare_interval"},
+		{params.STTCheckIntervals.StandardInterval, "standard_interval"},
+		{params.STTCheckIntervals.FrequentInterval, "frequent_interval"},
+	}
+	for _, v := range checkCases {
+		if v.dur == 0 {
+			continue
+		}
+
+		if _, err := validators.ValidateSTTCheckInterval(v.dur); err != nil {
 			switch err.(type) {
 			case validators.DurationNotAllowedError:
 				return fmt.Errorf("%s: should be a natural number of seconds", v.fieldName)
