@@ -181,6 +181,9 @@ type ChangeSettingsBody struct {
 
 	// slack alerting settings
 	SlackAlertingSettings *ChangeSettingsParamsBodySlackAlertingSettings `json:"slack_alerting_settings,omitempty"`
+
+	// stt check intervals
+	SttCheckIntervals *ChangeSettingsParamsBodySttCheckIntervals `json:"stt_check_intervals,omitempty"`
 }
 
 // Validate validates this change settings body
@@ -196,6 +199,10 @@ func (o *ChangeSettingsBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateSlackAlertingSettings(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateSttCheckIntervals(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -251,6 +258,24 @@ func (o *ChangeSettingsBody) validateSlackAlertingSettings(formats strfmt.Regist
 		if err := o.SlackAlertingSettings.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "slack_alerting_settings")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeSettingsBody) validateSttCheckIntervals(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.SttCheckIntervals) { // not required
+		return nil
+	}
+
+	if o.SttCheckIntervals != nil {
+		if err := o.SttCheckIntervals.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "stt_check_intervals")
 			}
 			return err
 		}
@@ -460,6 +485,9 @@ type ChangeSettingsOKBodySettings struct {
 
 	// slack alerting settings
 	SlackAlertingSettings *ChangeSettingsOKBodySettingsSlackAlertingSettings `json:"slack_alerting_settings,omitempty"`
+
+	// stt check intervals
+	SttCheckIntervals *ChangeSettingsOKBodySettingsSttCheckIntervals `json:"stt_check_intervals,omitempty"`
 }
 
 // Validate validates this change settings OK body settings
@@ -475,6 +503,10 @@ func (o *ChangeSettingsOKBodySettings) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateSlackAlertingSettings(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateSttCheckIntervals(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -530,6 +562,24 @@ func (o *ChangeSettingsOKBodySettings) validateSlackAlertingSettings(formats str
 		if err := o.SlackAlertingSettings.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changeSettingsOk" + "." + "settings" + "." + "slack_alerting_settings")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeSettingsOKBodySettings) validateSttCheckIntervals(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.SttCheckIntervals) { // not required
+		return nil
+	}
+
+	if o.SttCheckIntervals != nil {
+		if err := o.SttCheckIntervals.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeSettingsOk" + "." + "settings" + "." + "stt_check_intervals")
 			}
 			return err
 		}
@@ -676,6 +726,44 @@ func (o *ChangeSettingsOKBodySettingsSlackAlertingSettings) UnmarshalBinary(b []
 	return nil
 }
 
+/*ChangeSettingsOKBodySettingsSttCheckIntervals STTCheckIntervals represents intervals between STT checks.
+swagger:model ChangeSettingsOKBodySettingsSttCheckIntervals
+*/
+type ChangeSettingsOKBodySettingsSttCheckIntervals struct {
+
+	// Standard check interval.
+	StandardInterval string `json:"standard_interval,omitempty"`
+
+	// Interval for rare check runs.
+	RareInterval string `json:"rare_interval,omitempty"`
+
+	// Interval for frequent check runs.
+	FrequentInterval string `json:"frequent_interval,omitempty"`
+}
+
+// Validate validates this change settings OK body settings stt check intervals
+func (o *ChangeSettingsOKBodySettingsSttCheckIntervals) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeSettingsOKBodySettingsSttCheckIntervals) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeSettingsOKBodySettingsSttCheckIntervals) UnmarshalBinary(b []byte) error {
+	var res ChangeSettingsOKBodySettingsSttCheckIntervals
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*ChangeSettingsParamsBodyEmailAlertingSettings EmailAlertingSettings represents email (SMTP) configuration for Integrated Alerting.
 swagger:model ChangeSettingsParamsBodyEmailAlertingSettings
 */
@@ -789,6 +877,44 @@ func (o *ChangeSettingsParamsBodySlackAlertingSettings) MarshalBinary() ([]byte,
 // UnmarshalBinary interface implementation
 func (o *ChangeSettingsParamsBodySlackAlertingSettings) UnmarshalBinary(b []byte) error {
 	var res ChangeSettingsParamsBodySlackAlertingSettings
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ChangeSettingsParamsBodySttCheckIntervals STTCheckIntervals represents intervals between STT checks.
+swagger:model ChangeSettingsParamsBodySttCheckIntervals
+*/
+type ChangeSettingsParamsBodySttCheckIntervals struct {
+
+	// Standard check interval.
+	StandardInterval string `json:"standard_interval,omitempty"`
+
+	// Interval for rare check runs.
+	RareInterval string `json:"rare_interval,omitempty"`
+
+	// Interval for frequent check runs.
+	FrequentInterval string `json:"frequent_interval,omitempty"`
+}
+
+// Validate validates this change settings params body stt check intervals
+func (o *ChangeSettingsParamsBodySttCheckIntervals) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeSettingsParamsBodySttCheckIntervals) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeSettingsParamsBodySttCheckIntervals) UnmarshalBinary(b []byte) error {
+	var res ChangeSettingsParamsBodySttCheckIntervals
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
