@@ -115,6 +115,24 @@ func (this *SlackAlertingSettings) Validate() error {
 	}
 	return nil
 }
+func (this *STTCheckIntervals) Validate() error {
+	if this.StandardInterval != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.StandardInterval); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("StandardInterval", err)
+		}
+	}
+	if this.RareInterval != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.RareInterval); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("RareInterval", err)
+		}
+	}
+	if this.FrequentInterval != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.FrequentInterval); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("FrequentInterval", err)
+		}
+	}
+	return nil
+}
 func (this *Settings) Validate() error {
 	if this.MetricsResolutions != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.MetricsResolutions); err != nil {
@@ -134,6 +152,11 @@ func (this *Settings) Validate() error {
 	if this.SlackAlertingSettings != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.SlackAlertingSettings); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("SlackAlertingSettings", err)
+		}
+	}
+	if this.SttCheckIntervals != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.SttCheckIntervals); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("SttCheckIntervals", err)
 		}
 	}
 	return nil
@@ -168,6 +191,11 @@ func (this *ChangeSettingsRequest) Validate() error {
 	if this.SlackAlertingSettings != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.SlackAlertingSettings); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("SlackAlertingSettings", err)
+		}
+	}
+	if this.SttCheckIntervals != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.SttCheckIntervals); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("SttCheckIntervals", err)
 		}
 	}
 	return nil
