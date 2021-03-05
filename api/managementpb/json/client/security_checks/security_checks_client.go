@@ -138,7 +138,7 @@ func (a *Client) ListSecurityChecks(params *ListSecurityChecksParams) (*ListSecu
 /*
   StartSecurityChecks starts security checks executes security thread tool checks and returns when all checks are executed
 
-  If no checks names specified all available checks will be started.
+  All the available checks will be started if check names weren't specified.
 */
 func (a *Client) StartSecurityChecks(params *StartSecurityChecksParams) (*StartSecurityChecksOK, error) {
 	// TODO: Validate the params before sending

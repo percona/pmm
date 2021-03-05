@@ -16984,7 +16984,7 @@
     },
     "/v1/management/SecurityChecks/Start": {
       "post": {
-        "description": "If no checks names specified all available checks will be started.",
+        "description": "All the available checks will be started if check names weren't specified.",
         "tags": [
           "SecurityChecks"
         ],
