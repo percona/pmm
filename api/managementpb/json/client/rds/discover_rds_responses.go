@@ -319,7 +319,7 @@ type RDSInstancesItems0 struct {
 	Port int64 `json:"port,omitempty"`
 
 	// DiscoverRDSEngine describes supported RDS instance engines.
-	// Enum: [DISCOVER_RDS_ENGINE_INVALID DISCOVER_RDS_MYSQL]
+	// Enum: [DISCOVER_RDS_ENGINE_INVALID DISCOVER_RDS_MYSQL DISCOVER_RDS_POSTGRESQL]
 	Engine *string `json:"engine,omitempty"`
 
 	// Engine version.
@@ -344,7 +344,7 @@ var rdsInstancesItems0TypeEnginePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DISCOVER_RDS_ENGINE_INVALID","DISCOVER_RDS_MYSQL"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DISCOVER_RDS_ENGINE_INVALID","DISCOVER_RDS_MYSQL","DISCOVER_RDS_POSTGRESQL"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -359,6 +359,9 @@ const (
 
 	// RDSInstancesItems0EngineDISCOVERRDSMYSQL captures enum value "DISCOVER_RDS_MYSQL"
 	RDSInstancesItems0EngineDISCOVERRDSMYSQL string = "DISCOVER_RDS_MYSQL"
+
+	// RDSInstancesItems0EngineDISCOVERRDSPOSTGRESQL captures enum value "DISCOVER_RDS_POSTGRESQL"
+	RDSInstancesItems0EngineDISCOVERRDSPOSTGRESQL string = "DISCOVER_RDS_POSTGRESQL"
 )
 
 // prop value enum
