@@ -147,6 +147,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 		row := &qanpb.Row{
 			Rank:        uint32(i) + in.Offset,
 			Dimension:   res["dimension"].(string),
+			Database:    res["database_name"].(string),
 			Fingerprint: res["fingerprint"].(string),
 			NumQueries:  uint32(numQueries),                                                       // TODO: deprecated, remove it when UI stop use it.
 			Qps:         numQueries / float32(periodDurationSec),                                  // TODO: deprecated, remove it when UI stop use it.
