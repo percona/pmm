@@ -185,42 +185,51 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 }
 
 func makeStats(metricNameRoot string, total, res models.M, numQueries float32, periodDurationSec int64) *qanpb.Stat {
-	if metricNameRoot == "load" {
-		return &qanpb.Stat{
-			SumPerSec: interfaceToFloat32(res["load"]),
+	var stat qanpb.Stat
+	durSec := float32(periodDurationSec)
+	switch metricNameRoot {
+	case "load":
+		stat.SumPerSec = interfaceToFloat32(res["load"])
+	case "num_queries":
+		stat.Sum = numQueries
+		stat.SumPerSec = numQueries / durSec
+	case "num_queries_with_errors":
+		stat.Sum = interfaceToFloat32(res["num_queries_with_errors"])
+		stat.SumPerSec = interfaceToFloat32(res["num_queries_with_errors"]) / durSec
+	case "num_queries_with_warnings":
+		stat.Sum = interfaceToFloat32(res["num_queries_with_warnings"])
+		stat.SumPerSec = interfaceToFloat32(res["num_queries_with_warnings"]) / durSec
+	default:
+		rate := float32(0)
+		divider := interfaceToFloat32(total["m_"+metricNameRoot+"_sum"])
+		sum := interfaceToFloat32(res["m_"+metricNameRoot+"_sum"])
+		if divider != 0 {
+			rate = sum / divider
+		}
+
+		stat.Rate = rate
+		stat.Cnt = interfaceToFloat32(res["m_"+metricNameRoot+"_cnt"])
+		stat.Sum = sum
+		stat.SumPerSec = sum / durSec
+
+		if val, ok := res["m_"+metricNameRoot+"_min"]; ok {
+			stat.Min = interfaceToFloat32(val)
+		}
+
+		if val, ok := res["m_"+metricNameRoot+"_max"]; ok {
+			stat.Max = interfaceToFloat32(val)
+		}
+
+		if val, ok := res["m_"+metricNameRoot+"_avg"]; ok {
+			stat.Avg = interfaceToFloat32(val)
+		}
+
+		if val, ok := res["m_"+metricNameRoot+"_p99"]; ok {
+			stat.P99 = interfaceToFloat32(val)
 		}
 	}
-	if metricNameRoot == "num_queries" {
-		return &qanpb.Stat{
-			Sum:       numQueries,
-			SumPerSec: numQueries / float32(periodDurationSec),
-		}
-	}
-	rate := float32(0)
-	divider := interfaceToFloat32(total["m_"+metricNameRoot+"_sum"])
-	sum := interfaceToFloat32(res["m_"+metricNameRoot+"_sum"])
-	if divider != 0 {
-		rate = sum / divider
-	}
-	stat := &qanpb.Stat{
-		Rate:      rate,
-		Cnt:       interfaceToFloat32(res["m_"+metricNameRoot+"_cnt"]),
-		Sum:       sum,
-		SumPerSec: sum / float32(periodDurationSec),
-	}
-	if val, ok := res["m_"+metricNameRoot+"_min"]; ok {
-		stat.Min = interfaceToFloat32(val)
-	}
-	if val, ok := res["m_"+metricNameRoot+"_max"]; ok {
-		stat.Max = interfaceToFloat32(val)
-	}
-	if val, ok := res["m_"+metricNameRoot+"_avg"]; ok {
-		stat.Avg = interfaceToFloat32(val)
-	}
-	if val, ok := res["m_"+metricNameRoot+"_p99"]; ok {
-		stat.P99 = interfaceToFloat32(val)
-	}
-	return stat
+
+	return &stat
 }
 
 // getOrderBy creates an order by string to use in query and column name to check if it in select column list.
