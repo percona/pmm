@@ -78,7 +78,7 @@ func TestNotificationChannels(t *testing.T) {
 
 		q := tx.Querier
 
-		cParams := &models.CreateChannelParams{
+		createParams := &models.CreateChannelParams{
 			Summary: "some summary",
 			EmailConfig: &models.EmailConfig{
 				To:           []string{"test@test.test"},
@@ -87,10 +87,10 @@ func TestNotificationChannels(t *testing.T) {
 			Disabled: false,
 		}
 
-		created, err := models.CreateChannel(q, cParams)
+		created, err := models.CreateChannel(q, createParams)
 		require.NoError(t, err)
 
-		uParams := &models.ChangeChannelParams{
+		updateParams := &models.ChangeChannelParams{
 			Summary: "completely new summary",
 			SlackConfig: &models.SlackConfig{
 				SendResolved: true,
@@ -99,14 +99,14 @@ func TestNotificationChannels(t *testing.T) {
 			Disabled: true,
 		}
 
-		updated, err := models.ChangeChannel(q, created.ID, uParams)
+		updated, err := models.ChangeChannel(q, created.ID, updateParams)
 		require.NoError(t, err)
 		assert.Equal(t, models.Slack, updated.Type)
-		assert.Equal(t, uParams.Summary, updated.Summary)
-		assert.Equal(t, uParams.Disabled, updated.Disabled)
+		assert.Equal(t, updateParams.Summary, updated.Summary)
+		assert.Equal(t, updateParams.Disabled, updated.Disabled)
 		assert.Nil(t, updated.EmailConfig)
-		assert.Equal(t, uParams.SlackConfig.Channel, updated.SlackConfig.Channel)
-		assert.EqualValues(t, uParams.SlackConfig.SendResolved, updated.SlackConfig.SendResolved)
+		assert.Equal(t, updateParams.SlackConfig.Channel, updated.SlackConfig.Channel)
+		assert.EqualValues(t, updateParams.SlackConfig.SendResolved, updated.SlackConfig.SendResolved)
 
 		actual, err := models.FindChannelByID(q, created.ID)
 		require.NoError(t, err)

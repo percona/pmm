@@ -98,44 +98,65 @@ func TestRuleTemplates(t *testing.T) {
 
 		name := gofakeit.UUID()
 
-		cParams := createTemplateParams(name)
-		_, err = models.CreateTemplate(q, cParams)
+		createParams := createTemplateParams(name)
+		_, err = models.CreateTemplate(q, createParams)
 		require.NoError(t, err)
 
-		uParams := changeTemplateParams(name)
-		updated, err := models.ChangeTemplate(q, uParams)
+		updateParams := changeTemplateParams(name)
+		updated, err := models.ChangeTemplate(q, updateParams)
 		require.NoError(t, err)
 
-		assert.Equal(t, uParams.Template.Name, updated.Name)
-		assert.Equal(t, uParams.Template.Version, updated.Version)
-		assert.Equal(t, uParams.Template.Summary, updated.Summary)
-		assert.ElementsMatch(t, uParams.Template.Tiers, updated.Tiers)
-		assert.Equal(t, uParams.Template.Expr, updated.Expr)
+		assert.Equal(t, updateParams.Template.Name, updated.Name)
+		assert.Equal(t, updateParams.Template.Version, updated.Version)
+		assert.Equal(t, updateParams.Template.Summary, updated.Summary)
+		assert.ElementsMatch(t, updateParams.Template.Tiers, updated.Tiers)
+		assert.Equal(t, updateParams.Template.Expr, updated.Expr)
 		assert.Equal(t,
 			models.TemplateParams{{
-				Name:    uParams.Template.Params[0].Name,
-				Summary: uParams.Template.Params[0].Summary,
-				Unit:    string(uParams.Template.Params[0].Unit),
+				Name:    updateParams.Template.Params[0].Name,
+				Summary: updateParams.Template.Params[0].Summary,
+				Unit:    string(updateParams.Template.Params[0].Unit),
 				Type:    models.Float,
 				FloatParam: &models.FloatParam{
-					Default: pointer.ToFloat64(uParams.Template.Params[0].Value.(float64)),
-					Min:     pointer.ToFloat64(uParams.Template.Params[0].Range[0].(float64)),
-					Max:     pointer.ToFloat64(uParams.Template.Params[0].Range[1].(float64)),
+					Default: pointer.ToFloat64(updateParams.Template.Params[0].Value.(float64)),
+					Min:     pointer.ToFloat64(updateParams.Template.Params[0].Range[0].(float64)),
+					Max:     pointer.ToFloat64(updateParams.Template.Params[0].Range[1].(float64)),
 				},
 			}},
 			updated.Params)
-		assert.EqualValues(t, uParams.Template.For, updated.For)
+		assert.EqualValues(t, updateParams.Template.For, updated.For)
 		assert.Equal(t, models.Severity(common.Warning), updated.Severity)
 
 		labels, err := updated.GetLabels()
 		require.NoError(t, err)
-		assert.Equal(t, uParams.Template.Labels, labels)
+		assert.Equal(t, updateParams.Template.Labels, labels)
 
 		annotations, err := updated.GetAnnotations()
 		require.NoError(t, err)
-		assert.Equal(t, uParams.Template.Annotations, annotations)
+		assert.Equal(t, updateParams.Template.Annotations, annotations)
 
-		assert.Equal(t, cParams.Source, updated.Source)
+		assert.Equal(t, createParams.Source, updated.Source)
+	})
+
+	t.Run("change err - mismatch names", func(t *testing.T) {
+		tx, err := db.Begin()
+		require.NoError(t, err)
+		defer func() {
+			require.NoError(t, tx.Rollback())
+		}()
+
+		q := tx.Querier
+
+		name := gofakeit.UUID()
+
+		createParams := createTemplateParams(name)
+		_, err = models.CreateTemplate(q, createParams)
+		require.NoError(t, err)
+
+		updateParams := changeTemplateParams(name)
+		updateParams.Name = gofakeit.UUID()
+		_, err = models.ChangeTemplate(q, updateParams)
+		require.NotNil(t, err)
 	})
 
 	t.Run("remove", func(t *testing.T) {
@@ -247,6 +268,7 @@ func createTemplateParams(name string) *models.CreateTemplateParams {
 
 func changeTemplateParams(name string) *models.ChangeTemplateParams {
 	return &models.ChangeTemplateParams{
+		Name: name,
 		Template: &alert.Template{
 			Name:    name,
 			Version: 1,

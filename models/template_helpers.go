@@ -131,12 +131,17 @@ func CreateTemplate(q *reform.Querier, params *CreateTemplateParams) (*Template,
 // ChangeTemplateParams is params for changing existing rule template.
 type ChangeTemplateParams struct {
 	Template *alert.Template
+	Name     string
 	Yaml     string
 }
 
 // ChangeTemplate updates existing rule template.
 func ChangeTemplate(q *reform.Querier, params *ChangeTemplateParams) (*Template, error) {
-	row, err := FindTemplateByName(q, params.Template.Name)
+	if params.Name != params.Template.Name {
+		return nil, status.Errorf(codes.InvalidArgument, "Mismatch names.")
+	}
+
+	row, err := FindTemplateByName(q, params.Name)
 	if err != nil {
 		return nil, err
 	}
