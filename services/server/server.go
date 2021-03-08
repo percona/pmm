@@ -671,6 +671,7 @@ func (s *Server) UpdateConfigurations() error {
 	}
 	s.vmdb.RequestConfigurationUpdate()
 	s.vmalert.RequestConfigurationUpdate()
+	s.alertmanager.RequestConfigurationUpdate()
 	return nil
 }
 

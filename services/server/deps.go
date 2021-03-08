@@ -61,6 +61,7 @@ type prometheusService interface {
 // alertmanagerService is a subset of methods of alertmanager.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type alertmanagerService interface {
+	RequestConfigurationUpdate()
 	healthChecker
 }
 
