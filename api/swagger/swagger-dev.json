@@ -24341,10 +24341,15 @@
             "schema": {
               "type": "object",
               "properties": {
+                "name": {
+                  "description": "Machine-readable name (ID).",
+                  "type": "string",
+                  "x-order": 0
+                },
                 "yaml": {
                   "description": "YAML (or JSON) template file content.",
                   "type": "string",
-                  "x-order": 0
+                  "x-order": 1
                 }
               }
             }

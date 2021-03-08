@@ -13,6 +13,7 @@ import "managementpb/ia/params.proto";
 import "managementpb/severity.proto";
 
 // TODO move it to parent directory / package once API is v1-stable
+// https://jira.percona.com/browse/PMM-7001
 
 // TemplateBoolParam represents boolean parameter's default value.
 message TemplateBoolParam {
@@ -132,8 +133,14 @@ message CreateTemplateRequest {
 message CreateTemplateResponse {}
 
 message UpdateTemplateRequest {
+  // Machine-readable name (ID).
+  string name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
   // YAML (or JSON) template file content.
-  string yaml = 1 [
+  string yaml = 2 [
     (validator.field) = {
       string_not_empty: true
     }
