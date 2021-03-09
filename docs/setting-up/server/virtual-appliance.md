@@ -2,15 +2,12 @@
 
 Run PMM Server as a virtual machine by downloading and importing the [PMM {{release}}][OVA] Open Virtual Appliance (OVA) file into any virtualization software supporting the [OVF standard][OVF].
 
-This section shows this for these popular free desktop hypervisors:
-
-- [VMware Workstation Player][VMware]
-- [Oracle VM VirtualBox][VirtualBox]
-
-Most steps can be done with either a user interface or on the command line, but some steps can only be done in one or the other. Sections are marked with **UI {{icon.mouse}}** for user interface or **CLI {{icon.keyboard}}** for command line instructions.
+This page shows how to set up PMM Server as a virtual machine in [VMware Workstation Player][VMware] and [Oracle VM VirtualBox][VirtualBox].
 
 ```plantuml source="_resources/diagrams/Setting-Up_Server_Virtual-Appliance.puml"
 ```
+
+Most steps can be done with either a user interface or on the command line, but some steps can only be done in one or the other. Sections are marked with **UI {{icon.mouse}}** for user interface or **CLI {{icon.keyboard}}** for command line instructions.
 
 **Terminology**
 
