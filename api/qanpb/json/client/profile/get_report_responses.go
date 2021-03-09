@@ -479,6 +479,9 @@ type RowsItems0 struct {
 	// dimension
 	Dimension string `json:"dimension,omitempty"`
 
+	// database
+	Database string `json:"database,omitempty"`
+
 	// metrics
 	Metrics map[string]RowsItems0MetricsAnon `json:"metrics,omitempty"`
 

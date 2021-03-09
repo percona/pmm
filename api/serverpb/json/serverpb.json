@@ -522,6 +522,28 @@
                 "ssh_key": {
                   "type": "string",
                   "x-order": 4
+                },
+                "stt_check_intervals": {
+                  "description": "STTCheckIntervals represents intervals between STT checks.",
+                  "type": "object",
+                  "properties": {
+                    "frequent_interval": {
+                      "description": "Interval for frequent check runs.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "rare_interval": {
+                      "description": "Interval for rare check runs.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "standard_interval": {
+                      "description": "Standard check interval.",
+                      "type": "string",
+                      "x-order": 0
+                    }
+                  },
+                  "x-order": 20
                 }
               }
             }
@@ -657,6 +679,28 @@
                     "ssh_key": {
                       "type": "string",
                       "x-order": 4
+                    },
+                    "stt_check_intervals": {
+                      "description": "STTCheckIntervals represents intervals between STT checks.",
+                      "type": "object",
+                      "properties": {
+                        "frequent_interval": {
+                          "description": "Interval for frequent check runs.",
+                          "type": "string",
+                          "x-order": 2
+                        },
+                        "rare_interval": {
+                          "description": "Interval for rare check runs.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "standard_interval": {
+                          "description": "Standard check interval.",
+                          "type": "string",
+                          "x-order": 0
+                        }
+                      },
+                      "x-order": 15
                     },
                     "stt_enabled": {
                       "description": "True if Security Threat Tool is enabled.",
@@ -868,6 +912,28 @@
                     "ssh_key": {
                       "type": "string",
                       "x-order": 4
+                    },
+                    "stt_check_intervals": {
+                      "description": "STTCheckIntervals represents intervals between STT checks.",
+                      "type": "object",
+                      "properties": {
+                        "frequent_interval": {
+                          "description": "Interval for frequent check runs.",
+                          "type": "string",
+                          "x-order": 2
+                        },
+                        "rare_interval": {
+                          "description": "Interval for rare check runs.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "standard_interval": {
+                          "description": "Standard check interval.",
+                          "type": "string",
+                          "x-order": 0
+                        }
+                      },
+                      "x-order": 15
                     },
                     "stt_enabled": {
                       "description": "True if Security Threat Tool is enabled.",
