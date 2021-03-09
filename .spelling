@@ -9120,6 +9120,7 @@ pmmdemo.percona.com
 postgres_exporter
 PostgreSQL
 postgresql.org
+preconfigured
 profiler
 PromQL
 ProxySQL
