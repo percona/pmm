@@ -436,6 +436,131 @@
         }
       }
     },
+    "/v1/management/DBaaS/Kubernetes/Resources/Get": {
+      "post": {
+        "tags": [
+          "Kubernetes"
+        ],
+        "summary": "GetResources returns all and available resources of a Kubernetes cluster.\nNOTE: The user defined in kubeconfig for the cluster has to have rights to\n      list and get Pods from all Namespaces. Also getting and listing Nodes\n      has to be allowed.",
+        "operationId": "GetResources",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "kubernetes_cluster_name": {
+                  "description": "Kubernetes cluster name.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "all": {
+                  "description": "Resources contains Kubernetes cluster resources.",
+                  "type": "object",
+                  "properties": {
+                    "cpu_m": {
+                      "description": "CPU in millicpus. For example 0.1 of CPU is equivalent to 100 millicpus.\nSee https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#meaning-of-cpu.",
+                      "type": "string",
+                      "format": "int64",
+                      "x-order": 1
+                    },
+                    "disk_size": {
+                      "description": "Disk size in bytes.",
+                      "type": "string",
+                      "format": "int64",
+                      "x-order": 2
+                    },
+                    "memory_bytes": {
+                      "description": "Memory in bytes.",
+                      "type": "string",
+                      "format": "int64",
+                      "x-order": 0
+                    }
+                  },
+                  "x-order": 0
+                },
+                "available": {
+                  "description": "Resources contains Kubernetes cluster resources.",
+                  "type": "object",
+                  "properties": {
+                    "cpu_m": {
+                      "description": "CPU in millicpus. For example 0.1 of CPU is equivalent to 100 millicpus.\nSee https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#meaning-of-cpu.",
+                      "type": "string",
+                      "format": "int64",
+                      "x-order": 1
+                    },
+                    "disk_size": {
+                      "description": "Disk size in bytes.",
+                      "type": "string",
+                      "format": "int64",
+                      "x-order": 2
+                    },
+                    "memory_bytes": {
+                      "description": "Memory in bytes.",
+                      "type": "string",
+                      "format": "int64",
+                      "x-order": 0
+                    }
+                  },
+                  "x-order": 1
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/DBaaS/Kubernetes/Unregister": {
       "post": {
         "tags": [

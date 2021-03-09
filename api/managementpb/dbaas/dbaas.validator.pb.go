@@ -20,3 +20,6 @@ func (this *RunningOperation) Validate() error {
 func (this *ComputeResources) Validate() error {
 	return nil
 }
+func (this *Resources) Validate() error {
+	return nil
+}
