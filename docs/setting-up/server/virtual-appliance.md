@@ -113,7 +113,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 1. If started, shut down the virtual machine.
 2. In the VMware main window, select the imported virtual machine.
 3. Click *Virtual Machine --> Settings...*
-4. Click *Network Adaptor*.
+4. Click *Network Adapter*.
 5. In the *Bridged Networking* section, select *Autodetect*.
 6. Close the settings window.
 
@@ -178,7 +178,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 
 1. Click *Settings*.
 2. Click *Network*.
-3. In the *Adaptor 1* field, click *Attached to* and change to *Bridged Adaptor*.
+3. In the *Adapter 1* field, click *Attached to* and change to *Bridged Adapter*.
 4. In the *Name* field, select your host's active network interface (e.g. `en0: Wi-Fi (Wireless)`).
 5. Click *OK*.
 
@@ -189,7 +189,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 	VBoxManage list bridgedifs
 	```
 2. Find the name of the active interface you want to bridge to (one with *Status: Up* and a valid IP address). Example: `en0: Wi-Fi (Wireless)`
-3. Bridge the virtual machine's first interface (`nic1`) to the host's `en0` ethernet adaptor.
+3. Bridge the virtual machine's first interface (`nic1`) to the host's `en0` ethernet adapter.
 	```sh
 	VBoxManage modifyvm 'PMM Server'\
 	--nic1 bridged --bridgeadapter1 'en0: Wi-Fi (Wireless)'
@@ -306,5 +306,4 @@ When the guest OS starts, it will get an IP address from the hypervisor's DHCP s
 [OVF]: https://www.dmtf.org/standards/ovf
 [VirtualBox]: https://www.virtualbox.org/
 [VMware]: https://www.vmware.com/products/workstation-player/
-[VMwareDownload]: https://www.vmware.com/go/downloadworkstationplayer
 [OVFTool]: https://code.vmware.com/tool/ovf

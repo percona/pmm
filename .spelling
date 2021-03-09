@@ -9,6 +9,7 @@ Alertmanager
 Alexandre
 analytics
 Analytics
+autodetect
 autovacuum
 Barth
 Beata
@@ -36,6 +37,7 @@ defragmentation
 e.g.
 ElasticSearch
 ESXi
+ethernet
 Fedorov
 freeable
 fsync
@@ -98,6 +100,7 @@ node_exporter
 non-DBAs
 non-UTF-8
 oplog
+ovftool
 pagecache
 PagerDuty
 parallelization
