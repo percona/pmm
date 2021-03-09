@@ -19,7 +19,7 @@ You will need root access on the database host where you install PMM Client (eit
 
 ## Supported platforms
 
-PMM Client should run on any modern Red Hat or Debian-based 64-bit Linux distribution. For a complete list of supported platforms, see the [Percona Release Lifecycle Overview page](https://www.percona.com/services/policies/percona-software-support-lifecycle#pt).
+PMM Client should run on any modern Red Hat or Debian-based 64-bit Linux distribution. For a complete list of supported platforms, look in the *PMM2* column of the *Percona Tools* table at the <a href='https://www.percona.com/services/policies/percona-software-support-lifecycle#pt' target='_blank'>Percona Release Lifecycle Overview page</a>
 
 We recommended installing PMM Client via your system's package management tool, using the software repository provided by Percona for popular Linux distributions.
 
