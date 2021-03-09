@@ -5,7 +5,7 @@
 ' Text: https://plantuml.com/creole
 @startuml "setting-up_server_virtual-appliance"
 skinparam ArrowHeadColor none
-title Running PMM Server as a virtual appliance\Overview\n
+title Running PMM Server as a virtual appliance\nOverview\n
 :1. Download;
 :2. Verify;
 split
