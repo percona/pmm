@@ -39,6 +39,9 @@ func (this *S3LocationConfig) Validate() error {
 	if this.SecretKey == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("SecretKey", fmt.Errorf(`value '%v' must not be an empty string`, this.SecretKey))
 	}
+	if this.BucketName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("BucketName", fmt.Errorf(`value '%v' must not be an empty string`, this.BucketName))
+	}
 	return nil
 }
 func (this *Location) Validate() error {

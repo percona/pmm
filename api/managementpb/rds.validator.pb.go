@@ -79,5 +79,20 @@ func (this *AddRDSResponse) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("QanMysqlPerfschema", err)
 		}
 	}
+	if this.Postgresql != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Postgresql); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Postgresql", err)
+		}
+	}
+	if this.PostgresqlExporter != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PostgresqlExporter); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("PostgresqlExporter", err)
+		}
+	}
+	if this.QanPostgresqlPgstatements != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.QanPostgresqlPgstatements); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("QanPostgresqlPgstatements", err)
+		}
+	}
 	return nil
 }

@@ -114,6 +114,9 @@ func (this *CreateTemplateResponse) Validate() error {
 	return nil
 }
 func (this *UpdateTemplateRequest) Validate() error {
+	if this.Name == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+	}
 	if this.Yaml == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Yaml", fmt.Errorf(`value '%v' must not be an empty string`, this.Yaml))
 	}
