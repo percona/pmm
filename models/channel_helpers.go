@@ -110,6 +110,31 @@ func FindChannels(q *reform.Querier) ([]*Channel, error) {
 	return channels, nil
 }
 
+// FindChannelsOnPage returns a page with saved notification channels.
+func FindChannelsOnPage(q *reform.Querier, pageIndex, pageSize int) ([]*Channel, error) {
+	rows, err := q.SelectAllFrom(ChannelTable, "ORDER BY id LIMIT $1 OFFSET $2", pageSize, pageIndex*pageSize)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to select notification channels")
+	}
+
+	channels := make([]*Channel, len(rows))
+	for i, s := range rows {
+		channels[i] = s.(*Channel)
+	}
+
+	return channels, nil
+}
+
+// CountChannels returns number of notification channels.
+func CountChannels(q *reform.Querier) (int, error) {
+	count, err := q.Count(ChannelTable, "")
+	if err != nil {
+		return 0, errors.Wrap(err, "failed to count notification channels")
+	}
+
+	return count, nil
+}
+
 // FindChannelByID finds Channel by ID.
 func FindChannelByID(q *reform.Querier, id string) (*Channel, error) {
 	if id == "" {
