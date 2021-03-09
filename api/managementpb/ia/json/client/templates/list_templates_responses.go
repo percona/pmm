@@ -126,10 +126,40 @@ type ListTemplatesBody struct {
 
 	// If true, template files will be re-read from disk.
 	Reload bool `json:"reload,omitempty"`
+
+	// page params
+	PageParams *ListTemplatesParamsBodyPageParams `json:"page_params,omitempty"`
 }
 
 // Validate validates this list templates body
 func (o *ListTemplatesBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validatePageParams(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListTemplatesBody) validatePageParams(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.PageParams) { // not required
+		return nil
+	}
+
+	if o.PageParams != nil {
+		if err := o.PageParams.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "page_params")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -233,6 +263,9 @@ type ListTemplatesOKBody struct {
 
 	// templates
 	Templates []*TemplatesItems0 `json:"templates"`
+
+	// totals
+	Totals *ListTemplatesOKBodyTotals `json:"totals,omitempty"`
 }
 
 // Validate validates this list templates OK body
@@ -240,6 +273,10 @@ func (o *ListTemplatesOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateTemplates(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateTotals(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -274,6 +311,24 @@ func (o *ListTemplatesOKBody) validateTemplates(formats strfmt.Registry) error {
 	return nil
 }
 
+func (o *ListTemplatesOKBody) validateTotals(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Totals) { // not required
+		return nil
+	}
+
+	if o.Totals != nil {
+		if err := o.Totals.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("listTemplatesOk" + "." + "totals")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *ListTemplatesOKBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -285,6 +340,76 @@ func (o *ListTemplatesOKBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ListTemplatesOKBody) UnmarshalBinary(b []byte) error {
 	var res ListTemplatesOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ListTemplatesOKBodyTotals PageTotals represents total values for pagination.
+swagger:model ListTemplatesOKBodyTotals
+*/
+type ListTemplatesOKBodyTotals struct {
+
+	// Total number of results.
+	TotalItems int32 `json:"total_items,omitempty"`
+
+	// Total number of pages.
+	TotalPages int32 `json:"total_pages,omitempty"`
+}
+
+// Validate validates this list templates OK body totals
+func (o *ListTemplatesOKBodyTotals) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListTemplatesOKBodyTotals) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListTemplatesOKBodyTotals) UnmarshalBinary(b []byte) error {
+	var res ListTemplatesOKBodyTotals
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ListTemplatesParamsBodyPageParams PageParams represents page request parameters for pagination.
+swagger:model ListTemplatesParamsBodyPageParams
+*/
+type ListTemplatesParamsBodyPageParams struct {
+
+	// Maximum number of results per page.
+	PageSize int32 `json:"page_size,omitempty"`
+
+	// Index of the requested page, starts from 0.
+	Index int32 `json:"index,omitempty"`
+}
+
+// Validate validates this list templates params body page params
+func (o *ListTemplatesParamsBodyPageParams) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListTemplatesParamsBodyPageParams) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListTemplatesParamsBodyPageParams) UnmarshalBinary(b []byte) error {
+	var res ListTemplatesParamsBodyPageParams
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
