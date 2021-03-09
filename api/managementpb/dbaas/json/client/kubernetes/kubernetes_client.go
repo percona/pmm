@@ -27,6 +27,8 @@ type Client struct {
 type ClientService interface {
 	GetKubernetesCluster(params *GetKubernetesClusterParams) (*GetKubernetesClusterOK, error)
 
+	GetResources(params *GetResourcesParams) (*GetResourcesOK, error)
+
 	ListKubernetesClusters(params *ListKubernetesClustersParams) (*ListKubernetesClustersOK, error)
 
 	RegisterKubernetesCluster(params *RegisterKubernetesClusterParams) (*RegisterKubernetesClusterOK, error)
@@ -66,6 +68,39 @@ func (a *Client) GetKubernetesCluster(params *GetKubernetesClusterParams) (*GetK
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*GetKubernetesClusterDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  GetResources gets resources returns all and available resources of a kubernetes cluster n o t e the user defined in kubeconfig for the cluster has to have rights to list and get pods from all namespaces also getting and listing nodes has to be allowed
+*/
+func (a *Client) GetResources(params *GetResourcesParams) (*GetResourcesOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetResourcesParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "GetResources",
+		Method:             "POST",
+		PathPattern:        "/v1/management/DBaaS/Kubernetes/Resources/Get",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &GetResourcesReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetResourcesOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*GetResourcesDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
