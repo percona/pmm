@@ -1,0 +1,28 @@
+' Diagram showing sequence of tasks to set up Virtual Appliance
+' Syntax: https://plantuml.com/activity-diagram-beta
+' Icons: https://plantuml.com/openiconic
+' Colour: https://plantuml.com/color
+' Text: https://plantuml.com/creole
+@startuml "setting-up_server_virtual-appliance"
+skinparam ArrowHeadColor none
+title Running PMM Server as a virtual appliance\nSection overview\n
+:1. Download;
+:2. Verify;
+split
+partition "3. VMware" {
+	:3.1. Import;
+	:3.2. Reconfigure interface;
+	:3.3. Start guest and get IP address;
+}
+split again
+partition "4. VirtualBox" {
+	:4.1. Import;
+	:4.2. Reconfigure interface;
+	:4.3. Start guest and get IP address;
+}
+end split
+:5. Log in to PMM user interface;
+#lightgrey:6. (Optional) Change root password;
+#lightgrey:7. (Optional) Set up SSH;
+#lightgrey:8. (Optional) Set up static IP;
+@enduml
