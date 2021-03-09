@@ -21,8 +21,8 @@ You will need root access on the database host where you install PMM Client (eit
 
 PMM Client should run on any modern Red Hat or Debian-based 64-bit Linux distribution, but is only tested on:
 
-- RHEL/CentOS 6, 7, 8
-- Debian 8, 9, 10
+- RHEL/CentOS 7, 8
+- Debian 9, 10
 - Ubuntu 16.04, 18.04, 20.04
 
 We recommended installing PMM Client via your system's package management tool, using the software repository provided by Percona for popular Linux distributions.
