@@ -9,6 +9,9 @@ This section shows this for these popular free desktop hypervisors:
 
 Most steps can be done with either a user interface or on the command line, but some steps can only be done in one or the other. Sections are marked with **UI {{icon.mouse}}** for user interface or **CLI {{icon.keyboard}}** for command line instructions.
 
+```plantuml source="_resources/diagrams/Setting-Up_Server_Virtual-Appliance.puml"
+```
+
 **Terminology**
 
 - *Host* is the desktop or server machine running the hypervisor.
@@ -29,9 +32,6 @@ Most steps can be done with either a user interface or on the command line, but 
 	- Username/default password:
 		- `root`/`percona`
     	- `admin`/`admin`
-
-```plantuml source="_resources/diagrams/Setting-Up_Server_Virtual-Appliance.puml"
-```
 
 ## 1. Download
 
