@@ -184,19 +184,6 @@ select * from setup_consumers;
 
     This option can cause additional overhead and should be used with care.
 
-If the instance is already running, configure the QAN agent to collect data
-from *Performance Schema*:
-
-1. Open the *PMM Query Analytics* dashboard.
-
-2. Click the *Settings* button.
-
-3. Open the *Settings* section.
-
-4. Select `Performance Schema` in the *Collect from* drop-down list.
-
-5. Click *Apply* to save changes.
-
 If you are adding a new monitoring instance with the `pmm-admin` tool, use the
 `--query-source='perfschema'` option:
 
