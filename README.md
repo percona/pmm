@@ -92,7 +92,7 @@ To generate a PDF version of the documentation:
 
 with Docker:
 
-	docker run --rm -v $(pwd):/docs perconalab/pmm-doc-md -e ENABLE_PDF_EXPORT=1 mkdocs build -t material
+	docker run --rm -v $(pwd):/docs -e ENABLE_PDF_EXPORT=1 perconalab/pmm-doc-md mkdocs build -t material
 
 without:
 
