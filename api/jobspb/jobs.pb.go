@@ -906,13 +906,13 @@ var file_jobspb_jobs_proto_rawDesc = []byte{
 	0x0a, 0x08, 0x73, 0x74, 0x6f, 0x70, 0x5f, 0x6a, 0x6f, 0x62, 0x18, 0x0c, 0x20, 0x01, 0x28, 0x0b,
 	0x32, 0x0d, 0x2e, 0x6a, 0x6f, 0x62, 0x73, 0x2e, 0x53, 0x74, 0x6f, 0x70, 0x4a, 0x6f, 0x62, 0x48,
 	0x00, 0x52, 0x07, 0x73, 0x74, 0x6f, 0x70, 0x4a, 0x6f, 0x62, 0x1a, 0x06, 0x0a, 0x04, 0x50, 0x69,
-	0x6e, 0x67, 0x42, 0x09, 0x0a, 0x07, 0x70, 0x61, 0x79, 0x6c, 0x6f, 0x61, 0x64, 0x32, 0x41, 0x0a,
-	0x07, 0x4a, 0x6f, 0x62, 0x73, 0x41, 0x50, 0x49, 0x12, 0x36, 0x0a, 0x07, 0x43, 0x6f, 0x6e, 0x6e,
-	0x65, 0x63, 0x74, 0x12, 0x12, 0x2e, 0x6a, 0x6f, 0x62, 0x73, 0x2e, 0x41, 0x67, 0x65, 0x6e, 0x74,
-	0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x1a, 0x13, 0x2e, 0x6a, 0x6f, 0x62, 0x73, 0x2e, 0x53,
-	0x65, 0x72, 0x76, 0x65, 0x72, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x28, 0x01, 0x30, 0x01,
-	0x42, 0x13, 0x5a, 0x11, 0x61, 0x70, 0x69, 0x2f, 0x6a, 0x6f, 0x62, 0x73, 0x70, 0x62, 0x3b, 0x6a,
-	0x6f, 0x62, 0x73, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x6e, 0x67, 0x42, 0x09, 0x0a, 0x07, 0x70, 0x61, 0x79, 0x6c, 0x6f, 0x61, 0x64, 0x32, 0x3e, 0x0a,
+	0x04, 0x4a, 0x6f, 0x62, 0x73, 0x12, 0x36, 0x0a, 0x07, 0x43, 0x6f, 0x6e, 0x6e, 0x65, 0x63, 0x74,
+	0x12, 0x12, 0x2e, 0x6a, 0x6f, 0x62, 0x73, 0x2e, 0x41, 0x67, 0x65, 0x6e, 0x74, 0x4d, 0x65, 0x73,
+	0x73, 0x61, 0x67, 0x65, 0x1a, 0x13, 0x2e, 0x6a, 0x6f, 0x62, 0x73, 0x2e, 0x53, 0x65, 0x72, 0x76,
+	0x65, 0x72, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x28, 0x01, 0x30, 0x01, 0x42, 0x13, 0x5a,
+	0x11, 0x61, 0x70, 0x69, 0x2f, 0x6a, 0x6f, 0x62, 0x73, 0x70, 0x62, 0x3b, 0x6a, 0x6f, 0x62, 0x73,
+	0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -961,8 +961,8 @@ var file_jobspb_jobs_proto_depIdxs = []int32{
 	1,  // 12: jobs.ServerMessage.stop_job:type_name -> jobs.StopJob
 	12, // 13: jobs.StartJob.Echo.delay:type_name -> google.protobuf.Duration
 	13, // 14: jobs.AgentMessage.Pong.timestamp:type_name -> google.protobuf.Timestamp
-	4,  // 15: jobs.JobsAPI.Connect:input_type -> jobs.AgentMessage
-	5,  // 16: jobs.JobsAPI.Connect:output_type -> jobs.ServerMessage
+	4,  // 15: jobs.Jobs.Connect:input_type -> jobs.AgentMessage
+	5,  // 16: jobs.Jobs.Connect:output_type -> jobs.ServerMessage
 	16, // [16:17] is the sub-list for method output_type
 	15, // [15:16] is the sub-list for method input_type
 	15, // [15:15] is the sub-list for extension type_name
@@ -1167,46 +1167,46 @@ var _ grpc.ClientConnInterface
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion6
 
-// JobsAPIClient is the client API for JobsAPI service.
+// JobsClient is the client API for Jobs service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
-type JobsAPIClient interface {
+type JobsClient interface {
 	// Connect establishes two-way communication channel between pmm-agent and pmm-managed.
-	Connect(ctx context.Context, opts ...grpc.CallOption) (JobsAPI_ConnectClient, error)
+	Connect(ctx context.Context, opts ...grpc.CallOption) (Jobs_ConnectClient, error)
 }
 
-type jobsAPIClient struct {
+type jobsClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewJobsAPIClient(cc grpc.ClientConnInterface) JobsAPIClient {
-	return &jobsAPIClient{cc}
+func NewJobsClient(cc grpc.ClientConnInterface) JobsClient {
+	return &jobsClient{cc}
 }
 
-func (c *jobsAPIClient) Connect(ctx context.Context, opts ...grpc.CallOption) (JobsAPI_ConnectClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_JobsAPI_serviceDesc.Streams[0], "/jobs.JobsAPI/Connect", opts...)
+func (c *jobsClient) Connect(ctx context.Context, opts ...grpc.CallOption) (Jobs_ConnectClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_Jobs_serviceDesc.Streams[0], "/jobs.Jobs/Connect", opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &jobsAPIConnectClient{stream}
+	x := &jobsConnectClient{stream}
 	return x, nil
 }
 
-type JobsAPI_ConnectClient interface {
+type Jobs_ConnectClient interface {
 	Send(*AgentMessage) error
 	Recv() (*ServerMessage, error)
 	grpc.ClientStream
 }
 
-type jobsAPIConnectClient struct {
+type jobsConnectClient struct {
 	grpc.ClientStream
 }
 
-func (x *jobsAPIConnectClient) Send(m *AgentMessage) error {
+func (x *jobsConnectClient) Send(m *AgentMessage) error {
 	return x.ClientStream.SendMsg(m)
 }
 
-func (x *jobsAPIConnectClient) Recv() (*ServerMessage, error) {
+func (x *jobsConnectClient) Recv() (*ServerMessage, error) {
 	m := new(ServerMessage)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -1214,43 +1214,43 @@ func (x *jobsAPIConnectClient) Recv() (*ServerMessage, error) {
 	return m, nil
 }
 
-// JobsAPIServer is the server API for JobsAPI service.
-type JobsAPIServer interface {
+// JobsServer is the server API for Jobs service.
+type JobsServer interface {
 	// Connect establishes two-way communication channel between pmm-agent and pmm-managed.
-	Connect(JobsAPI_ConnectServer) error
+	Connect(Jobs_ConnectServer) error
 }
 
-// UnimplementedJobsAPIServer can be embedded to have forward compatible implementations.
-type UnimplementedJobsAPIServer struct {
+// UnimplementedJobsServer can be embedded to have forward compatible implementations.
+type UnimplementedJobsServer struct {
 }
 
-func (*UnimplementedJobsAPIServer) Connect(JobsAPI_ConnectServer) error {
+func (*UnimplementedJobsServer) Connect(Jobs_ConnectServer) error {
 	return status1.Errorf(codes.Unimplemented, "method Connect not implemented")
 }
 
-func RegisterJobsAPIServer(s *grpc.Server, srv JobsAPIServer) {
-	s.RegisterService(&_JobsAPI_serviceDesc, srv)
+func RegisterJobsServer(s *grpc.Server, srv JobsServer) {
+	s.RegisterService(&_Jobs_serviceDesc, srv)
 }
 
-func _JobsAPI_Connect_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(JobsAPIServer).Connect(&jobsAPIConnectServer{stream})
+func _Jobs_Connect_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(JobsServer).Connect(&jobsConnectServer{stream})
 }
 
-type JobsAPI_ConnectServer interface {
+type Jobs_ConnectServer interface {
 	Send(*ServerMessage) error
 	Recv() (*AgentMessage, error)
 	grpc.ServerStream
 }
 
-type jobsAPIConnectServer struct {
+type jobsConnectServer struct {
 	grpc.ServerStream
 }
 
-func (x *jobsAPIConnectServer) Send(m *ServerMessage) error {
+func (x *jobsConnectServer) Send(m *ServerMessage) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func (x *jobsAPIConnectServer) Recv() (*AgentMessage, error) {
+func (x *jobsConnectServer) Recv() (*AgentMessage, error) {
 	m := new(AgentMessage)
 	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -1258,14 +1258,14 @@ func (x *jobsAPIConnectServer) Recv() (*AgentMessage, error) {
 	return m, nil
 }
 
-var _JobsAPI_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "jobs.JobsAPI",
-	HandlerType: (*JobsAPIServer)(nil),
+var _Jobs_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "jobs.Jobs",
+	HandlerType: (*JobsServer)(nil),
 	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "Connect",
-			Handler:       _JobsAPI_Connect_Handler,
+			Handler:       _Jobs_Connect_Handler,
 			ServerStreams: true,
 			ClientStreams: true,
 		},

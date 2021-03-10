@@ -86,8 +86,8 @@ message ServerMessage {
   }
 }
 
-// JobsAPI provides asynchronous API for long running jobs execution on pmm-agent side.
-service JobsAPI {
+// Jobs provides asynchronous API for long running jobs execution on pmm-agent side.
+service Jobs {
   // Connect establishes two-way communication channel between pmm-agent and pmm-managed.
   rpc Connect(stream AgentMessage) returns (stream ServerMessage);
 }
