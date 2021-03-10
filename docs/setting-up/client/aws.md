@@ -126,13 +126,13 @@ If you have Amazon RDS with a MySQL version prior to 5.5, `REPLICATION CLIENT` p
     `node_exporter`, used in versions of PMM prior to 1.8.0, was not able to monitor general system metrics remotely.
 
 
-# Adding an Amazon RDS MySQL, Aurora MySQL, or Remote Instance
+## Adding an Amazon RDS MySQL, Aurora MySQL or Remote Instance
 
-The *PMM Add Instance* is now a preferred method of adding an Amazon RDS
-database instance to PMM. This method supports Amazon RDS database instances
-that use Amazon Aurora, MySQL, or MariaDB engines, as well as any remote PostgreSQL, ProxySQL, MySQL and MongoDB instances.
+The preferred method of adding an Amazon RDS database instance to PMM is via the *PMM --> PMM Add Instance* menu option. 
 
-Following steps are needed to add an Amazon RDS database instance to PMM:
+This method supports Amazon RDS database instances that use Amazon Aurora, MySQL, or MariaDB engines, as well as any remote PostgreSQL, ProxySQL, MySQL and MongoDB instances.
+
+The following steps are needed to add an Amazon RDS database instance to PMM:
 
 1. In the PMM web interface, go to *PMM > PMM Add Instance*.
 
@@ -153,24 +153,46 @@ instances.
 
     ![image](../../_images/metrics-monitor.add-instance.rds-instances.1.png)
 
-    The *Main details* section allows to specify the DNS hostname of your instance,
-    service name to use within PMM, the port your service is listening on, the
+    The *Main details* section allows you to specify the DNS hostname of your instance,
+    the service name to use within PMM, the port your service is listening on, and the
     database user name and password.
 
     ![image](../../_images/metrics-monitor.add-instance.rds-instances.3.png)
 
-    The *Labels* section allows specifying labels for the environment, the AWS region and availability zone to be used, the Replication set and Cluster names and also it allows to set the list of custom labels in a key:value format.
+    The *Labels* section allows you to specify labels for the environment, the AWS region and availability zone to be used, the Replication set and Cluster names and also it allows you to set the list of custom labels in a key:value format.
 
     ![image](../../_images/metrics-monitor.add-instance.rds-instances.4.png)
 
-    The *Additional options* section contains specific flags which allow to tune the RDS monitoring. They can allow you to skip connection check, to use TLS for the database connection, not to validate the TLS certificate and the hostname, as well as to disable basic and/or enhanced metrics collection for the RDS instance to reduce costs.
+    The *Additional options* section contains specific flags which allow you to tune the RDS monitoring. They can allow you to skip connection check, to use TLS for the database connection, not to validate the TLS certificate and the hostname, as well as to disable basic and/or enhanced metrics collection for the RDS instance to reduce costs.
 
     Also this section contains a database-specific flag, which would allow Query Analytics for the selected remote database:
 
-    * when adding some remote MySQL, AWS RDS MySQL or Aurora MySQL instance, you will be able to choose using performance schema for the database monitoring
+    * when adding some remote MySQL, AWS RDS MySQL or Aurora MySQL instance, you will be able to choose using performance schema for the database monitoring;
 
-    * when adding a PostgreSQL instance, you will be able to activate using `pg_stat_statements` extension
+    * when adding a PostgreSQL instance, you will be able to activate using `pg_stat_statements` extension;
 
-    * when adding a MongoDB instance, you will be able to choose using Query Analytics MongoDB profiler
+    * when adding a MongoDB instance, you will be able to choose using Query Analytics MongoDB profiler.
+
 
 6. Finally press the *Add service* button to start monitoring your instance.
+
+## Adding an Amazon RDS PostgreSQL instance
+
+For PostgreSQL, use the same method described above.
+
+1. In the PMM web interface, go to *PMM > PMM Add Instance*.
+
+2. Select *AWS RDS MySQL or Aurora MySQL -- Add a remote instance*.
+    *At the moment of writing this guide, the Add button doesn't mention PostgreSQL but the discovery function already supports it.*
+
+    ![image](../../_images/PMM_rds_postgre_02_discover.png)
+
+4. Follow steps 4 to 6 as in the previous section. Fill the form and remember to select `PG Stat Statement` to enable Query Analytics.
+    To get queries for Query Analytics, you need to enable `pg_stat_statements` in your instance by running:
+    
+    ```
+    CREATE EXTENSION pg_stat_statements SCHEMA public;
+    ```
+
+    ![image](../../_images/PMM_rds_postgre_03_form_1.png)  
+    ![image](../../_images/PMM_rds_postgre_04_add_btn.png)
