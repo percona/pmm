@@ -22,11 +22,10 @@
 
 ' Absolute links - can be useful for exporting map as stand-alone image
 '!$base = "https://www.percona.com/doc/percona-monitoring-and-management/2.x"
-' relative links make testing easier but must be changed for local vs hosting
-# Hosted
+' relative links make testing easier but must be changed for local vs hosting' Hosted
 !$base = "../2.x"
-# Local
-#!$base = ".."
+' Local
+' !$base = ".."
 
 <style>
 wbsDiagram {

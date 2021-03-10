@@ -66,5 +66,5 @@ To get PMM running, you must:
 
 ## PMM documentation site map
 
-```plantuml format="svg_inline" source="_resources/diagrams/Map.puml"
+```plantuml format="svg_inline" width="80%" height="80%" source="_resources/diagrams/Map.puml"
 ```
