@@ -15,6 +15,7 @@ import "managementpb/metrics.proto";
 enum DiscoverRDSEngine {
   DISCOVER_RDS_ENGINE_INVALID = 0;
   DISCOVER_RDS_MYSQL = 1;
+  DISCOVER_RDS_POSTGRESQL = 2;
 }
 
 // DiscoverRDSInstance models an unique RDS instance for the list of instances returned by Discovery.
@@ -126,6 +127,8 @@ message AddRDSRequest {
   // Defines metrics flow model for this exporter.
   // Push metrics mode is not allowed.
   MetricsMode metrics_mode = 27;
+  // If true, add qan-pgstatements
+  bool qan_postgresql_pgstatements = 28;
 }
 
 message AddRDSResponse {
@@ -136,6 +139,9 @@ message AddRDSResponse {
   inventory.QANMySQLPerfSchemaAgent qan_mysql_perfschema = 5;
   // Actual table count at the moment of adding.
   int32 table_count = 6;
+  inventory.PostgreSQLService postgresql = 7;
+  inventory.PostgresExporter postgresql_exporter = 8;
+  inventory.QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements = 9;
 }
 
 // RDS service provides Node and Service Discovery APIs.
