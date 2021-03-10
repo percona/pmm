@@ -18,17 +18,6 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
-func (this *Ping) Validate() error {
-	return nil
-}
-func (this *Pong) Validate() error {
-	if this.Timestamp != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Timestamp); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Timestamp", err)
-		}
-	}
-	return nil
-}
 func (this *StartJob) Validate() error {
 	if this.Timeout != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Timeout); err != nil {
@@ -70,7 +59,28 @@ func (this *JobResult) Validate() error {
 	}
 	return nil
 }
+func (this *JobResult_Error) Validate() error {
+	return nil
+}
 func (this *JobResult_Echo) Validate() error {
+	return nil
+}
+func (this *JobProgress) Validate() error {
+	if this.Timestamp != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Timestamp); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Timestamp", err)
+		}
+	}
+	if oneOfNester, ok := this.GetResult().(*JobProgress_Echo_); ok {
+		if oneOfNester.Echo != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Echo); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Echo", err)
+			}
+		}
+	}
+	return nil
+}
+func (this *JobProgress_Echo) Validate() error {
 	return nil
 }
 func (this *AgentMessage) Validate() error {
@@ -79,14 +89,7 @@ func (this *AgentMessage) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("Status", err)
 		}
 	}
-	if oneOfNester, ok := this.GetPayload().(*AgentMessage_Ping); ok {
-		if oneOfNester.Ping != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Ping); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("Ping", err)
-			}
-		}
-	}
-	if oneOfNester, ok := this.GetPayload().(*AgentMessage_Pong); ok {
+	if oneOfNester, ok := this.GetPayload().(*AgentMessage_Pong_); ok {
 		if oneOfNester.Pong != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Pong); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("Pong", err)
@@ -102,23 +105,24 @@ func (this *AgentMessage) Validate() error {
 	}
 	return nil
 }
+func (this *AgentMessage_Pong) Validate() error {
+	if this.Timestamp != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Timestamp); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Timestamp", err)
+		}
+	}
+	return nil
+}
 func (this *ServerMessage) Validate() error {
 	if this.Status != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Status); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Status", err)
 		}
 	}
-	if oneOfNester, ok := this.GetPayload().(*ServerMessage_Ping); ok {
+	if oneOfNester, ok := this.GetPayload().(*ServerMessage_Ping_); ok {
 		if oneOfNester.Ping != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Ping); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("Ping", err)
-			}
-		}
-	}
-	if oneOfNester, ok := this.GetPayload().(*ServerMessage_Pong); ok {
-		if oneOfNester.Pong != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Pong); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("Pong", err)
 			}
 		}
 	}
@@ -136,5 +140,8 @@ func (this *ServerMessage) Validate() error {
 			}
 		}
 	}
+	return nil
+}
+func (this *ServerMessage_Ping) Validate() error {
 	return nil
 }

@@ -8,14 +8,6 @@ import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "google/rpc/status.proto";
 
-// Ping is a AgentMessage/ServerMessage for checking connectivity, latency and clock drift.
-message Ping {}
-
-// Pong is an AgentMessage/ServerMessage with current time for measuring clock drift.
-message Pong {
-  google.protobuf.Timestamp timestamp = 1;
-}
-
 // StartJob asks pmm-agent to start job.
 message StartJob {
   // Echo is a simple echo job that can be delayed.
@@ -38,6 +30,10 @@ message StopJob {
 
 // JobResult represents job result.
 message JobResult {
+  // Error contains job error message.
+  message Error {
+    string message = 1;
+  }
   // Echo contains result for echo job.
   message Echo {
     string message = 1;
@@ -49,26 +45,44 @@ message JobResult {
   }
 }
 
+// JobProgress represents job progress messages like percentage of completion, status updates, etc.
+message JobProgress {
+  // Echo contains echo job status update.
+  message Echo {
+    string status = 1;
+  }
+  string job_id = 1;
+  google.protobuf.Timestamp timestamp = 2;
+  oneof result {
+    Echo echo = 10;
+  }
+}
+
 // AgentMessage is a container for the agent messages.
 message AgentMessage {
+  // Pong is a message with current time.
+  message Pong {
+    google.protobuf.Timestamp timestamp = 1;
+  }
   string id = 1;
   google.rpc.Status status = 2;
   oneof payload {
-    Ping ping = 10;
-    Pong pong = 11;
-    JobResult job_result = 12;
+    Pong pong = 10;
+    JobResult job_result = 11;
   }
 }
 
 // ServerMessage is a container for the server messages.
 message ServerMessage {
+  // Ping is a message for checking connectivity.
+  message Ping {}
+
   string id = 1;
   google.rpc.Status status = 2;
   oneof payload {
     Ping ping = 10;
-    Pong pong = 11;
-    StartJob start_job = 12;
-    StopJob stop_job = 13;
+    StartJob start_job = 11;
+    StopJob stop_job = 12;
   }
 }
 
