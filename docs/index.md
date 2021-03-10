@@ -64,7 +64,7 @@ To get PMM running, you must:
 
 	The PMM Client package provides exporters for different database and system types, and administration tools and agents.
 
-## PMM documentation site map
+## Documentation site map
 
 ```plantuml format="svg_object" width="90%" height="90%" source="_resources/diagrams/Map.puml"
 ```
