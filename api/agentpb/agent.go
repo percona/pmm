@@ -71,6 +71,12 @@ func (m *StopActionResponse) AgentMessageResponsePayload() isAgentMessage_Payloa
 func (m *CheckConnectionResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
 	return &AgentMessage_CheckConnection{CheckConnection: m}
 }
+func (m *JobProgress) AgentMessageResponsePayload() isAgentMessage_Payload {
+	return &AgentMessage_JobProgress{JobProgress: m}
+}
+func (m *JobResult) AgentMessageResponsePayload() isAgentMessage_Payload {
+	return &AgentMessage_JobResult{JobResult: m}
+}
 
 // ServerMessage response payloads
 func (m *Pong) ServerMessageResponsePayload() isServerMessage_Payload {
@@ -102,12 +108,20 @@ func (m *StopActionRequest) ServerMessageRequestPayload() isServerMessage_Payloa
 func (m *CheckConnectionRequest) ServerMessageRequestPayload() isServerMessage_Payload {
 	return &ServerMessage_CheckConnection{CheckConnection: m}
 }
+func (m *StartJob) ServerMessageRequestPayload() isServerMessage_Payload {
+	return &ServerMessage_StartJob{StartJob: m}
+}
+func (m *StopJob) ServerMessageRequestPayload() isServerMessage_Payload {
+	return &ServerMessage_StopJob{StopJob: m}
+}
 
 // in alphabetical order
 func (*ActionResultRequest) sealed()     {}
 func (*ActionResultResponse) sealed()    {}
 func (*CheckConnectionRequest) sealed()  {}
 func (*CheckConnectionResponse) sealed() {}
+func (*JobProgress) sealed()             {}
+func (*JobResult) sealed()               {}
 func (*Ping) sealed()                    {}
 func (*Pong) sealed()                    {}
 func (*QANCollectRequest) sealed()       {}
@@ -116,10 +130,12 @@ func (*SetStateRequest) sealed()         {}
 func (*SetStateResponse) sealed()        {}
 func (*StartActionRequest) sealed()      {}
 func (*StartActionResponse) sealed()     {}
+func (*StartJob) sealed()                {}
 func (*StateChangedRequest) sealed()     {}
 func (*StateChangedResponse) sealed()    {}
 func (*StopActionRequest) sealed()       {}
 func (*StopActionResponse) sealed()      {}
+func (*StopJob) sealed()                 {}
 
 // check interfaces
 var (
@@ -135,6 +151,8 @@ var (
 	_ AgentResponsePayload = (*StartActionResponse)(nil)
 	_ AgentResponsePayload = (*StopActionResponse)(nil)
 	_ AgentResponsePayload = (*CheckConnectionResponse)(nil)
+	_ AgentResponsePayload = (*JobProgress)(nil)
+	_ AgentResponsePayload = (*JobResult)(nil)
 
 	// ServerMessage response payloads
 	_ ServerResponsePayload = (*Pong)(nil)
@@ -148,9 +166,11 @@ var (
 	_ ServerRequestPayload = (*StartActionRequest)(nil)
 	_ ServerRequestPayload = (*StopActionRequest)(nil)
 	_ ServerRequestPayload = (*CheckConnectionRequest)(nil)
+	_ ServerRequestPayload = (*StartJob)(nil)
+	_ ServerRequestPayload = (*StopJob)(nil)
 )
 
-//go-sumtype:decl AgentParams
+// go-sumtype:decl AgentParams
 
 // AgentParams is a common interface for AgentProcess and BuiltinAgent parameters.
 type AgentParams interface {
