@@ -51,6 +51,8 @@ plugins:
   - git-revision-date
   - bootstrap-tables
   - section-index
+  - htmlproofer:
+      raise_error: True
   - macros:
         include_yaml:
           - 'variables.yml' # Use in markdown as '{{ VAR }}'
