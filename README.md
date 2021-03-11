@@ -45,8 +45,6 @@ Before you start, you'll need to know:
 	- [Use Docker](#use-docker)
 	- [Install MkDocs and dependencies](#install-mkdocs-and-dependencies)
 
-> The `mkdocs-htmlproofer-plugin` link checking plugin increases build time significantly (~10-50x). You can temporarily enable it by uncommenting the line with `htmlproofer` in the `plugins` section of `mkdocs.yml`.
-
 ### Use Docker
 
 1. [Get Docker](https://docs.docker.com/get-docker/)
@@ -180,6 +178,16 @@ Grammar is checked using [`write-good`](https://github.com/btford/write-good). (
 To check all files:
 
 	write-good docs/**/*.md
+
+## Link checking
+
+We're using the `mkdocs-htmlproofer-plugin` link checking plugin to detect broken URLs.
+
+It works great but increases the build time significantly (~10-50x).
+
+It is installed in the Docker image and GitHub actions but is commented out in `mkdocs.yml`.
+
+You can enable it for local builds by uncommenting the line with `htmlproofer` in the `plugins` section of `mkdocs.yml` and parse the build output for warnings.
 
 ## License
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fpercona%2Fpmm-doc.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fpercona%2Fpmm-doc?ref=badge_large)
