@@ -186,6 +186,7 @@ nav:
               - details/dashboards/dashboard-pxc-galera-nodes-compare.md
               - details/dashboards/dashboard-haproxy-instance-summary.md
       - Commands:
+          - details/commands/index.md
           - details/commands/pmm-admin.md
           - details/commands/pmm-agent.md
       - details/api.md
