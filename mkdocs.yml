@@ -49,6 +49,7 @@ plugins:
   - search
   - git-revision-date
   - bootstrap-tables
+  - section-index
   - macros:
         include_yaml:
           - 'variables.yml' # Use in markdown as '{{ VAR }}'
@@ -190,6 +191,7 @@ nav:
       - details/glossary.md
   - faq.md
   - Release Notes:
+      - release-notes/index.md
       - release-notes/2.15.0.md
       - release-notes/2.14.0.md
       - release-notes/2.13.0.md

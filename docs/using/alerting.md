@@ -5,14 +5,7 @@
 !!! alert alert-warning "Warning"
     Integrated Alerting is a technical preview and is subject to change.
 
-
 **To activate *Integrated Alerting***, select *PMM-->PMM Settings-->Advanced Settings*, turn on *Integrated Alerting* and click *Apply changes*.
-
----
-
-[TOC]
-
----
 
 ## Definitions
 

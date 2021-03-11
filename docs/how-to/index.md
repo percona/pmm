@@ -1,10 +1,10 @@
-# How to: Overview
+# How to
 
-- [Configure](configure.md)
-    - The [PMM Settings page](configure.md)
-- [Secure](secure.md)
-    - Securing your PMM installation
-- [Upgrade](upgrade.md)
-    - Upgrading PMM Server via the user interface
-- [Optimize](optimize.md)
-    - Improving PMM performance
+- [Configure](configure.md) via the PMM Settings page
+- [Upgrade](upgrade.md) PMM Server via the user interface
+- [Secure](secure.md) your PMM installation
+- [Optimize](optimize.md) the performance of your PMM installation
+- [Annotate](annotate.md) charts to mark significant events
+- [Render dashboard images](render-dashboard-images.md) to save or share
+- [Troubleshoot](troubleshoot.md):
+	- [Integrated Alerting](troubleshoot.md#integrated-alerting)

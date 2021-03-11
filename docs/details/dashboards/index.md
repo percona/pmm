@@ -1,10 +1,4 @@
-# Dashboards Index
-
----
-
-[TOC]
-
----
+# Dashboards
 
 ## Insight
 

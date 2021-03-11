@@ -1,9 +1,5 @@
 # Setting up PMM Clients
 
-[TOC]
-
----
-
 PMM Client is a package of agents and exporters installed on the host you wish to monitor.
 
 Before installing, know your PMM Server's IP address and make sure that it is accessible.

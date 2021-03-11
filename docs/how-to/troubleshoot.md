@@ -1,11 +1,5 @@
 # Troubleshoot
 
----
-
-[TOC]
-
----
-
 ## Integrated Alerting
 
 ### No {{icon.bell}} Integrated Alerting icon

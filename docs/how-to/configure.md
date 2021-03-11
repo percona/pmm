@@ -2,12 +2,6 @@
 
 The *PMM Settings* page lets you configure a number of PMM options.
 
----
-
-[TOC]
-
----
-
 Open the *PMM Settings* page with one of:
 
 - the main menu: choose *PMM-->PMM Settings*
