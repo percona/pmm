@@ -4,7 +4,8 @@
 ' Colour: https://plantuml.com/color
 ' Text: https://plantuml.com/creole
 @startuml "setting-up_client_docker"
-skinparam ArrowHeadColor none
+!include _resources/diagrams/plantuml_styles.puml
+
 title Running PMM Client as a Docker container\nOverview\n
 :1. Pull Docker image;
 :2. Create persistent data store;

@@ -2,6 +2,7 @@
 skinparam {
   roundcorner 20
   defaultFontName Chivo
-  defaultFontSize 16
+  defaultFontSize 14
   defaultTextAlignment center
+  ArrowHeadColor none
 }

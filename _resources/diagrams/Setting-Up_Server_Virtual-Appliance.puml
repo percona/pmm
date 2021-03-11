@@ -4,7 +4,8 @@
 ' Colour: https://plantuml.com/color
 ' Text: https://plantuml.com/creole
 @startuml "setting-up_server_virtual-appliance"
-skinparam ArrowHeadColor none
+!include _resources/diagrams/plantuml_styles.puml
+
 title Running PMM Server as a virtual appliance\nOverview\n
 :1. Download;
 :2. Verify;

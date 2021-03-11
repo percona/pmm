@@ -5,6 +5,8 @@
 ' Colour: https://plantuml.com/color
 ' Text: https://plantuml.com/creole
 @startwbs "PMM_Documentation_Map"
+!include _resources/diagrams/plantuml_styles.puml
+
 ' Absolute links - can be useful for exporting map as stand-alone image
 ' relative links make testing easier but must be changed for local vs hosting' Hosted
 !$base = "https://www.percona.com/doc/percona-monitoring-and-management/2.x"

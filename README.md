@@ -45,7 +45,7 @@ Before you start, you'll need to know:
 	- [Use Docker](#use-docker)
 	- [Install MkDocs and dependencies](#install-mkdocs-and-dependencies)
 
-> The `mkdocs-htmlproofer-plugin` link checking plugin increases build time significantly (~10-50x). You can temporarily disable it by commenting out the line with `htmlproofer` in `plugins` section of `mkdocs.yml`.
+> The `mkdocs-htmlproofer-plugin` link checking plugin increases build time significantly (~10-50x). You can temporarily enable it by uncommenting the line with `htmlproofer` in the `plugins` section of `mkdocs.yml`.
 
 ### Use Docker
 
