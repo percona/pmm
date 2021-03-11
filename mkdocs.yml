@@ -53,7 +53,7 @@ plugins:
   - section-index
   - htmlproofer:
       raise_error: True
-      raise_error_excludes: ['https://github.com/percona/pmm-doc/issues/new']
+      raise_error_excludes: ['https://github.com/percona/pmm-doc/issues/new?title=PMM2:']
   - macros:
         include_yaml:
           - 'variables.yml' # Use in markdown as '{{ VAR }}'
