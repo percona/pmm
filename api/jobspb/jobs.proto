@@ -15,18 +15,15 @@ message StartJob {
     string message = 1;
     google.protobuf.Duration delay = 2;
   }
-  string job_id = 1;
   // Timeout for the job.
-  google.protobuf.Duration timeout = 2;
+  google.protobuf.Duration timeout = 1;
   oneof job {
     Echo echo = 10;
   }
 }
 
 // StopJob asks pmm-agent to stop job.
-message StopJob {
-  string job_id = 1;
-}
+message StopJob {}
 
 // JobResult represents job result.
 message JobResult {
@@ -38,8 +35,7 @@ message JobResult {
   message Echo {
     string message = 1;
   }
-  string job_id = 1;
-  google.protobuf.Timestamp timestamp = 2;
+  google.protobuf.Timestamp timestamp = 1;
   oneof result {
     Echo echo = 10;
   }
@@ -51,8 +47,7 @@ message JobProgress {
   message Echo {
     string status = 1;
   }
-  string job_id = 1;
-  google.protobuf.Timestamp timestamp = 2;
+  google.protobuf.Timestamp timestamp = 1;
   oneof result {
     Echo echo = 10;
   }
@@ -60,27 +55,19 @@ message JobProgress {
 
 // AgentMessage is a container for the agent messages.
 message AgentMessage {
-  // Pong is a message with current time.
-  message Pong {
-    google.protobuf.Timestamp timestamp = 1;
-  }
-  string id = 1;
+  string job_id = 1;
   google.rpc.Status status = 2;
   oneof payload {
-    Pong pong = 10;
-    JobResult job_result = 11;
+    JobResult job_result = 10;
+    JobProgress job_progress = 11;
   }
 }
 
 // ServerMessage is a container for the server messages.
 message ServerMessage {
-  // Ping is a message for checking connectivity.
-  message Ping {}
-
-  string id = 1;
+  string job_id = 1;
   google.rpc.Status status = 2;
   oneof payload {
-    Ping ping = 10;
     StartJob start_job = 11;
     StopJob stop_job = 12;
   }

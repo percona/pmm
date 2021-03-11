@@ -89,13 +89,6 @@ func (this *AgentMessage) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("Status", err)
 		}
 	}
-	if oneOfNester, ok := this.GetPayload().(*AgentMessage_Pong_); ok {
-		if oneOfNester.Pong != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Pong); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("Pong", err)
-			}
-		}
-	}
 	if oneOfNester, ok := this.GetPayload().(*AgentMessage_JobResult); ok {
 		if oneOfNester.JobResult != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.JobResult); err != nil {
@@ -103,12 +96,11 @@ func (this *AgentMessage) Validate() error {
 			}
 		}
 	}
-	return nil
-}
-func (this *AgentMessage_Pong) Validate() error {
-	if this.Timestamp != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Timestamp); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Timestamp", err)
+	if oneOfNester, ok := this.GetPayload().(*AgentMessage_JobProgress); ok {
+		if oneOfNester.JobProgress != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.JobProgress); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("JobProgress", err)
+			}
 		}
 	}
 	return nil
@@ -117,13 +109,6 @@ func (this *ServerMessage) Validate() error {
 	if this.Status != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Status); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Status", err)
-		}
-	}
-	if oneOfNester, ok := this.GetPayload().(*ServerMessage_Ping_); ok {
-		if oneOfNester.Ping != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Ping); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("Ping", err)
-			}
 		}
 	}
 	if oneOfNester, ok := this.GetPayload().(*ServerMessage_StartJob); ok {
@@ -140,8 +125,5 @@ func (this *ServerMessage) Validate() error {
 			}
 		}
 	}
-	return nil
-}
-func (this *ServerMessage_Ping) Validate() error {
 	return nil
 }
