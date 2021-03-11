@@ -59,7 +59,8 @@ jobs:
       - name: Spelling
         run: |
           sudo npm i markdown-spellcheck -g
-          mdspell --report --en-us --ignore-acronyms --ignore-numbers "docs/**/*.md"
+          mdspell --report --en-us --ignore-acronyms --ignore-numbers "docs/**/*.md" || true
+          # Ignore errors, just inspect results
 
       - name: Grammar
         run: |
