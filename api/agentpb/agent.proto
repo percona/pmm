@@ -329,6 +329,57 @@ message CheckConnectionResponse {
   Stats stats = 2;
 }
 
+// StartJob asks pmm-agent to start job.
+message StartJob {
+  // Echo is a simple echo job that can be delayed.
+  message Echo {
+    string message = 1;
+    google.protobuf.Duration delay = 2;
+  }
+  string job_id = 1;
+  // Timeout for the job.
+  google.protobuf.Duration timeout = 2;
+  oneof job {
+    Echo echo = 10;
+  }
+}
+
+// StopJob asks pmm-agent to stop job.
+message StopJob {
+  string job_id = 1;
+}
+
+// JobResult represents job result.
+message JobResult {
+  // Error contains job error message.
+  message Error {
+    string message = 1;
+  }
+  // Echo contains result for echo job.
+  message Echo {
+    string message = 1;
+  }
+  string job_id = 1;
+  google.protobuf.Timestamp timestamp = 2;
+  oneof result {
+    Error error = 10;
+    Echo echo = 11;
+  }
+}
+
+// JobProgress represents job progress messages like percentage of completion, status updates, etc.
+message JobProgress {
+  // Echo contains echo job status update.
+  message Echo {
+    string status = 1;
+  }
+  string job_id = 1;
+  google.protobuf.Timestamp timestamp = 2;
+  oneof result {
+    Echo echo = 10;
+  }
+}
+
 message AgentMessage {
   // TODO https://jira.percona.com/browse/PMM-3449
 
@@ -345,6 +396,8 @@ message AgentMessage {
     StartActionResponse start_action = 10;
     StopActionResponse stop_action = 11;
     CheckConnectionResponse check_connection = 12;
+    JobResult job_result = 13;
+    JobProgress job_progress = 14;
   }
 }
 
@@ -364,6 +417,8 @@ message ServerMessage {
     StartActionRequest start_action = 10;
     StopActionRequest stop_action = 11;
     CheckConnectionRequest check_connection = 12;
+    StartJob start_job = 13;
+    StopJob stop_job = 14;
   }
 }
 

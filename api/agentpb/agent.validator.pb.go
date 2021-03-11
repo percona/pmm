@@ -374,6 +374,78 @@ func (this *CheckConnectionResponse) Validate() error {
 func (this *CheckConnectionResponse_Stats) Validate() error {
 	return nil
 }
+func (this *StartJob) Validate() error {
+	if this.Timeout != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Timeout); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Timeout", err)
+		}
+	}
+	if oneOfNester, ok := this.GetJob().(*StartJob_Echo_); ok {
+		if oneOfNester.Echo != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Echo); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Echo", err)
+			}
+		}
+	}
+	return nil
+}
+func (this *StartJob_Echo) Validate() error {
+	if this.Delay != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Delay); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Delay", err)
+		}
+	}
+	return nil
+}
+func (this *StopJob) Validate() error {
+	return nil
+}
+func (this *JobResult) Validate() error {
+	if this.Timestamp != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Timestamp); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Timestamp", err)
+		}
+	}
+	if oneOfNester, ok := this.GetResult().(*JobResult_Error_); ok {
+		if oneOfNester.Error != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Error); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Error", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetResult().(*JobResult_Echo_); ok {
+		if oneOfNester.Echo != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Echo); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Echo", err)
+			}
+		}
+	}
+	return nil
+}
+func (this *JobResult_Error) Validate() error {
+	return nil
+}
+func (this *JobResult_Echo) Validate() error {
+	return nil
+}
+func (this *JobProgress) Validate() error {
+	if this.Timestamp != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Timestamp); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Timestamp", err)
+		}
+	}
+	if oneOfNester, ok := this.GetResult().(*JobProgress_Echo_); ok {
+		if oneOfNester.Echo != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Echo); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Echo", err)
+			}
+		}
+	}
+	return nil
+}
+func (this *JobProgress_Echo) Validate() error {
+	return nil
+}
 func (this *AgentMessage) Validate() error {
 	if oneOfNester, ok := this.GetPayload().(*AgentMessage_Ping); ok {
 		if oneOfNester.Ping != nil {
@@ -435,6 +507,20 @@ func (this *AgentMessage) Validate() error {
 		if oneOfNester.CheckConnection != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.CheckConnection); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("CheckConnection", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetPayload().(*AgentMessage_JobResult); ok {
+		if oneOfNester.JobResult != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.JobResult); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("JobResult", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetPayload().(*AgentMessage_JobProgress); ok {
+		if oneOfNester.JobProgress != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.JobProgress); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("JobProgress", err)
 			}
 		}
 	}
@@ -501,6 +587,20 @@ func (this *ServerMessage) Validate() error {
 		if oneOfNester.CheckConnection != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.CheckConnection); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("CheckConnection", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetPayload().(*ServerMessage_StartJob); ok {
+		if oneOfNester.StartJob != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.StartJob); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("StartJob", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetPayload().(*ServerMessage_StopJob); ok {
+		if oneOfNester.StopJob != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.StopJob); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("StopJob", err)
 			}
 		}
 	}
