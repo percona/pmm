@@ -2,9 +2,9 @@
 
 - [Architecture](architecture.md): high-level architecture and main components.
 
-- [Dashboards reference](dashboards/index.md): A complete list of dashboards by category, with screenshots
-
 - [User interface components](interface.md): Descriptions of the main menus and icons
+
+- [Dashboards reference](dashboards/index.md): A complete list of dashboards by category, with screenshots
 
 - Commands:
     - [pmm-admin](commands/pmm-admin.md): The manual page for the PMM administration tool
