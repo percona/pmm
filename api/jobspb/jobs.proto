@@ -37,7 +37,8 @@ message JobResult {
   }
   google.protobuf.Timestamp timestamp = 1;
   oneof result {
-    Echo echo = 10;
+    Error error = 10;
+    Echo echo = 11;
   }
 }
 
