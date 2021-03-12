@@ -206,6 +206,20 @@ message RestartPSMDBClusterRequest {
 
 message RestartPSMDBClusterResponse {}
 
+message GetPSMDBClusterResourcesRequest {
+  // Cluster parameters.
+  PSMDBClusterParams params = 1 [
+    (validator.field) = {
+      msg_exists: true
+    }
+  ];
+}
+
+message GetPSMDBClusterResourcesResponse {
+  // Expected resources to be consumed by the cluster.
+  Resources expected = 1;
+}
+
 // PSMDBCluster service provides public methods for managing PSMDB clusters.
 service PSMDBCluster {
   // ListPSMDBClusters returns a list of PSMDB clusters.
@@ -247,6 +261,13 @@ service PSMDBCluster {
   rpc RestartPSMDBCluster(RestartPSMDBClusterRequest) returns (RestartPSMDBClusterResponse) {
     option (google.api.http) = {
       post: "/v1/management/DBaaS/PSMDBCluster/Restart"
+      body: "*"
+    };
+  }
+  // GetPSMDBClusterResources returns expected resources to be consumed by the cluster.
+  rpc GetPSMDBClusterResources(GetPSMDBClusterResourcesRequest) returns (GetPSMDBClusterResourcesResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/PSMDBCluster/Resources/Get"
       body: "*"
     };
   }
