@@ -287,6 +287,32 @@ func (s XtraDBClusterService) RestartXtraDBCluster(ctx context.Context, req *dba
 	return &dbaasv1beta1.RestartXtraDBClusterResponse{}, nil
 }
 
+// GetXtraDBClusterResources returns expected resources to be consumed by the cluster.
+func (s XtraDBClusterService) GetXtraDBClusterResources(ctx context.Context, req *dbaasv1beta1.GetXtraDBClusterResourcesRequest) (*dbaasv1beta1.GetXtraDBClusterResourcesResponse, error) {
+	settings, err := models.GetSettings(s.db.Querier)
+	if err != nil {
+		return nil, err
+	}
+
+	clusterSize := int64(req.Params.ClusterSize)
+	memory := (req.Params.Pxc.ComputeResources.MemoryBytes + req.Params.Proxysql.ComputeResources.MemoryBytes) * clusterSize
+	cpu := int64(req.Params.Pxc.ComputeResources.CpuM+req.Params.Proxysql.ComputeResources.CpuM) * clusterSize
+	disk := (req.Params.Pxc.DiskSize + req.Params.Proxysql.DiskSize) * clusterSize
+
+	if settings.PMMPublicAddress != "" {
+		memory += 1000000000 * clusterSize
+		cpu += 1000 * clusterSize
+	}
+
+	return &dbaasv1beta1.GetXtraDBClusterResourcesResponse{
+		Expected: &dbaasv1beta1.Resources{
+			CpuM:        cpu,
+			MemoryBytes: memory,
+			DiskSize:    disk,
+		},
+	}, nil
+}
+
 func pxcStates() map[dbaascontrollerv1beta1.XtraDBClusterState]dbaasv1beta1.XtraDBClusterState {
 	return map[dbaascontrollerv1beta1.XtraDBClusterState]dbaasv1beta1.XtraDBClusterState{
 		dbaascontrollerv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_INVALID:  dbaasv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_INVALID,

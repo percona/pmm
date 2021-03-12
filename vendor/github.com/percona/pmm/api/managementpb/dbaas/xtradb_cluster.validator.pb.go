@@ -204,3 +204,22 @@ func (this *RestartXtraDBClusterRequest) Validate() error {
 func (this *RestartXtraDBClusterResponse) Validate() error {
 	return nil
 }
+func (this *GetXtraDBClusterResourcesRequest) Validate() error {
+	if nil == this.Params {
+		return github_com_mwitkow_go_proto_validators.FieldError("Params", fmt.Errorf("message must exist"))
+	}
+	if this.Params != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Params); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Params", err)
+		}
+	}
+	return nil
+}
+func (this *GetXtraDBClusterResourcesResponse) Validate() error {
+	if this.Expected != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Expected); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Expected", err)
+		}
+	}
+	return nil
+}
