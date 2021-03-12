@@ -374,13 +374,19 @@ func (this *CheckConnectionResponse) Validate() error {
 func (this *CheckConnectionResponse_Stats) Validate() error {
 	return nil
 }
-func (this *StartJob) Validate() error {
+func (this *JobStatusRequest) Validate() error {
+	return nil
+}
+func (this *JobStatusResponse) Validate() error {
+	return nil
+}
+func (this *StartJobRequest) Validate() error {
 	if this.Timeout != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Timeout); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Timeout", err)
 		}
 	}
-	if oneOfNester, ok := this.GetJob().(*StartJob_Echo_); ok {
+	if oneOfNester, ok := this.GetJob().(*StartJobRequest_Echo_); ok {
 		if oneOfNester.Echo != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Echo); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("Echo", err)
@@ -389,7 +395,7 @@ func (this *StartJob) Validate() error {
 	}
 	return nil
 }
-func (this *StartJob_Echo) Validate() error {
+func (this *StartJobRequest_Echo) Validate() error {
 	if this.Delay != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Delay); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Delay", err)
@@ -397,7 +403,13 @@ func (this *StartJob_Echo) Validate() error {
 	}
 	return nil
 }
-func (this *StopJob) Validate() error {
+func (this *StartJobResponse) Validate() error {
+	return nil
+}
+func (this *StopJobRequest) Validate() error {
+	return nil
+}
+func (this *StopJobResponse) Validate() error {
 	return nil
 }
 func (this *JobResult) Validate() error {
@@ -510,6 +522,27 @@ func (this *AgentMessage) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetPayload().(*AgentMessage_StartJob); ok {
+		if oneOfNester.StartJob != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.StartJob); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("StartJob", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetPayload().(*AgentMessage_StopJob); ok {
+		if oneOfNester.StopJob != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.StopJob); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("StopJob", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetPayload().(*AgentMessage_JobStatus); ok {
+		if oneOfNester.JobStatus != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.JobStatus); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("JobStatus", err)
+			}
+		}
+	}
 	if oneOfNester, ok := this.GetPayload().(*AgentMessage_JobResult); ok {
 		if oneOfNester.JobResult != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.JobResult); err != nil {
@@ -601,6 +634,13 @@ func (this *ServerMessage) Validate() error {
 		if oneOfNester.StopJob != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.StopJob); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("StopJob", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetPayload().(*ServerMessage_JobStatus); ok {
+		if oneOfNester.JobStatus != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.JobStatus); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("JobStatus", err)
 			}
 		}
 	}
