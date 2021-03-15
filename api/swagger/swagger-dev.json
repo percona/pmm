@@ -15533,6 +15533,146 @@
         }
       }
     },
+    "/v1/management/DBaaS/PSMDBCluster/Resources/Get": {
+      "post": {
+        "tags": [
+          "PSMDBCluster"
+        ],
+        "summary": "GetPSMDBClusterResources returns expected resources to be consumed by the cluster.",
+        "operationId": "GetPSMDBClusterResources",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "params": {
+                  "description": "PSMDBClusterParams represents PSMDB cluster parameters that can be updated.",
+                  "type": "object",
+                  "properties": {
+                    "cluster_size": {
+                      "description": "Cluster size.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 0
+                    },
+                    "replicaset": {
+                      "description": "ReplicaSet container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
+                      "type": "object",
+                      "properties": {
+                        "compute_resources": {
+                          "description": "ComputeResources represents container computer resources requests or limits.",
+                          "type": "object",
+                          "properties": {
+                            "cpu_m": {
+                              "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 0
+                            },
+                            "memory_bytes": {
+                              "description": "Memory in bytes.",
+                              "type": "string",
+                              "format": "int64",
+                              "x-order": 1
+                            }
+                          },
+                          "x-order": 0
+                        },
+                        "disk_size": {
+                          "description": "Disk size in bytes.",
+                          "type": "string",
+                          "format": "int64",
+                          "x-order": 1
+                        }
+                      },
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "expected": {
+                  "description": "Resources contains Kubernetes cluster resources.",
+                  "type": "object",
+                  "properties": {
+                    "memory_bytes": {
+                      "description": "Memory in bytes.",
+                      "type": "string",
+                      "format": "int64",
+                      "x-order": 0
+                    },
+                    "cpu_m": {
+                      "description": "CPU in millicpus. For example 0.1 of CPU is equivalent to 100 millicpus.\nSee https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#meaning-of-cpu.",
+                      "type": "string",
+                      "format": "int64",
+                      "x-order": 1
+                    },
+                    "disk_size": {
+                      "description": "Disk size in bytes.",
+                      "type": "string",
+                      "format": "int64",
+                      "x-order": 2
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/DBaaS/PSMDBCluster/Restart": {
       "post": {
         "tags": [
@@ -16214,6 +16354,178 @@
             "description": "A successful response.",
             "schema": {
               "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/DBaaS/XtraDBCluster/Resources/Get": {
+      "post": {
+        "tags": [
+          "XtraDBCluster"
+        ],
+        "summary": "GetXtraDBClusterResources returns expected resources to be consumed by the cluster.",
+        "operationId": "GetXtraDBClusterResources",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "params": {
+                  "description": "XtraDBClusterParams represents XtraDB cluster parameters that can be updated.",
+                  "type": "object",
+                  "properties": {
+                    "cluster_size": {
+                      "description": "Cluster size.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 0
+                    },
+                    "pxc": {
+                      "description": "PXC container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
+                      "type": "object",
+                      "properties": {
+                        "compute_resources": {
+                          "description": "ComputeResources represents container computer resources requests or limits.",
+                          "type": "object",
+                          "properties": {
+                            "cpu_m": {
+                              "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 0
+                            },
+                            "memory_bytes": {
+                              "description": "Memory in bytes.",
+                              "type": "string",
+                              "format": "int64",
+                              "x-order": 1
+                            }
+                          },
+                          "x-order": 0
+                        },
+                        "disk_size": {
+                          "description": "Disk size in bytes.",
+                          "type": "string",
+                          "format": "int64",
+                          "x-order": 1
+                        }
+                      },
+                      "x-order": 1
+                    },
+                    "proxysql": {
+                      "description": "ProxySQL container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
+                      "type": "object",
+                      "properties": {
+                        "compute_resources": {
+                          "description": "ComputeResources represents container computer resources requests or limits.",
+                          "type": "object",
+                          "properties": {
+                            "cpu_m": {
+                              "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 0
+                            },
+                            "memory_bytes": {
+                              "description": "Memory in bytes.",
+                              "type": "string",
+                              "format": "int64",
+                              "x-order": 1
+                            }
+                          },
+                          "x-order": 0
+                        },
+                        "disk_size": {
+                          "description": "Disk size in bytes.",
+                          "type": "string",
+                          "format": "int64",
+                          "x-order": 1
+                        }
+                      },
+                      "x-order": 2
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "expected": {
+                  "description": "Resources contains Kubernetes cluster resources.",
+                  "type": "object",
+                  "properties": {
+                    "memory_bytes": {
+                      "description": "Memory in bytes.",
+                      "type": "string",
+                      "format": "int64",
+                      "x-order": 0
+                    },
+                    "cpu_m": {
+                      "description": "CPU in millicpus. For example 0.1 of CPU is equivalent to 100 millicpus.\nSee https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#meaning-of-cpu.",
+                      "type": "string",
+                      "format": "int64",
+                      "x-order": 1
+                    },
+                    "disk_size": {
+                      "description": "Disk size in bytes.",
+                      "type": "string",
+                      "format": "int64",
+                      "x-order": 2
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
             }
           },
           "default": {
@@ -22882,7 +23194,28 @@
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "page_params": {
+                  "description": "PageParams represents page request parameters for pagination.",
+                  "type": "object",
+                  "properties": {
+                    "page_size": {
+                      "description": "Maximum number of results per page.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 0
+                    },
+                    "index": {
+                      "description": "Index of the requested page, starts from 0.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
             }
           }
         ],
@@ -23055,6 +23388,25 @@
                     }
                   },
                   "x-order": 0
+                },
+                "totals": {
+                  "description": "PageTotals represents total values for pagination.",
+                  "type": "object",
+                  "properties": {
+                    "total_items": {
+                      "description": "Total number of results.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 0
+                    },
+                    "total_pages": {
+                      "description": "Total number of pages.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 1
                 }
               }
             }
@@ -24507,6 +24859,25 @@
                   "description": "If true, template files will be re-read from disk.",
                   "type": "boolean",
                   "x-order": 0
+                },
+                "page_params": {
+                  "description": "PageParams represents page request parameters for pagination.",
+                  "type": "object",
+                  "properties": {
+                    "page_size": {
+                      "description": "Maximum number of results per page.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 0
+                    },
+                    "index": {
+                      "description": "Index of the requested page, starts from 0.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 1
                 }
               }
             }
@@ -24723,6 +25094,25 @@
                     }
                   },
                   "x-order": 0
+                },
+                "totals": {
+                  "description": "PageTotals represents total values for pagination.",
+                  "type": "object",
+                  "properties": {
+                    "total_items": {
+                      "description": "Total number of results.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 0
+                    },
+                    "total_pages": {
+                      "description": "Total number of pages.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 1
                 }
               }
             }
