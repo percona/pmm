@@ -31,6 +31,8 @@ type ClientService interface {
 
 	GetPSMDBClusterCredentials(params *GetPSMDBClusterCredentialsParams) (*GetPSMDBClusterCredentialsOK, error)
 
+	GetPSMDBClusterResources(params *GetPSMDBClusterResourcesParams) (*GetPSMDBClusterResourcesOK, error)
+
 	ListPSMDBClusters(params *ListPSMDBClustersParams) (*ListPSMDBClustersOK, error)
 
 	RestartPSMDBCluster(params *RestartPSMDBClusterParams) (*RestartPSMDBClusterOK, error)
@@ -136,6 +138,39 @@ func (a *Client) GetPSMDBClusterCredentials(params *GetPSMDBClusterCredentialsPa
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*GetPSMDBClusterCredentialsDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  GetPSMDBClusterResources gets PSMDB cluster resources returns expected resources to be consumed by the cluster
+*/
+func (a *Client) GetPSMDBClusterResources(params *GetPSMDBClusterResourcesParams) (*GetPSMDBClusterResourcesOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetPSMDBClusterResourcesParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "GetPSMDBClusterResources",
+		Method:             "POST",
+		PathPattern:        "/v1/management/DBaaS/PSMDBCluster/Resources/Get",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &GetPSMDBClusterResourcesReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetPSMDBClusterResourcesOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*GetPSMDBClusterResourcesDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

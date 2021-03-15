@@ -120,6 +120,9 @@ swagger:model UpdateTemplateBody
 */
 type UpdateTemplateBody struct {
 
+	// Machine-readable name (ID).
+	Name string `json:"name,omitempty"`
+
 	// YAML (or JSON) template file content.
 	Yaml string `json:"yaml,omitempty"`
 }

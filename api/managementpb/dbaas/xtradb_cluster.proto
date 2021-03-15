@@ -244,6 +244,20 @@ message RestartXtraDBClusterRequest {
 
 message RestartXtraDBClusterResponse {}
 
+message GetXtraDBClusterResourcesRequest {
+  // Cluster parameters.
+  XtraDBClusterParams params = 1 [
+    (validator.field) = {
+      msg_exists: true
+    }
+  ];
+}
+
+message GetXtraDBClusterResourcesResponse {
+  // Expected resources to be consumed by the cluster.
+  Resources expected = 1;
+}
+
 // XtraDBCluster service provides public methods for managing XtraDB clusters.
 service XtraDBCluster {
   // ListXtraDBClusters returns a list of XtraDB clusters.
@@ -285,6 +299,13 @@ service XtraDBCluster {
   rpc RestartXtraDBCluster(RestartXtraDBClusterRequest) returns (RestartXtraDBClusterResponse) {
     option (google.api.http) = {
       post: "/v1/management/DBaaS/XtraDBCluster/Restart"
+      body: "*"
+    };
+  }
+  // GetXtraDBClusterResources returns expected resources to be consumed by the cluster.
+  rpc GetXtraDBClusterResources(GetXtraDBClusterResourcesRequest) returns (GetXtraDBClusterResourcesResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/XtraDBCluster/Resources/Get"
       body: "*"
     };
   }
