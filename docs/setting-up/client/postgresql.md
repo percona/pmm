@@ -63,10 +63,8 @@ If a bucket fills before its expiration time is reached, data is discarded.
 
 `pg_stat_monitor` has been tested with:
 
-- PostgreSQL versions 11, 12.
-- Percona Distribution for PostgreSQL versions 11, 12.
-
-(It should also work with versions 13 of both, but hasn't been tested.)
+- PostgreSQL versions 11, 12, 13.
+- Percona Distribution for PostgreSQL versions 11, 12, 13.
 
 ### Install
 
