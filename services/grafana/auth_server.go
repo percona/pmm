@@ -18,11 +18,13 @@ package grafana
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httputil"
 	"strings"
+	"sync"
 	"time"
 	"unicode/utf8"
 
@@ -94,10 +96,18 @@ var mustSetupRules = []string{
 // as this code is reserved for auth_request.
 const authenticationErrorCode = 401
 
+// cacheInvalidationPeriod is and period when cache for grafana response should be invalidated.
+const cacheInvalidationPeriod = 3 * time.Second
+
 // clientError contains authentication error response details.
 type authError struct {
 	code    codes.Code // error code for API client; not mapped to HTTP status code
 	message string
+}
+
+type cacheItem struct {
+	r       role
+	created time.Time
 }
 
 // clientInterface exist only to make fuzzing simpler.
@@ -111,6 +121,9 @@ type AuthServer struct {
 	checker awsInstanceChecker
 	l       *logrus.Entry
 
+	cache map[string]cacheItem
+	rw    sync.RWMutex
+
 	// TODO server metrics should be provided by middleware https://jira.percona.com/browse/PMM-4326
 }
 
@@ -120,6 +133,29 @@ func NewAuthServer(c clientInterface, checker awsInstanceChecker) *AuthServer {
 		c:       c,
 		checker: checker,
 		l:       logrus.WithField("component", "grafana/auth"),
+		cache:   make(map[string]cacheItem),
+	}
+}
+
+// Run runs cache invalidator which removes expired cache items.
+func (s *AuthServer) Run(ctx context.Context) {
+	t := time.NewTicker(cacheInvalidationPeriod)
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+
+		case <-t.C:
+			now := time.Now()
+			s.rw.Lock()
+			for key, item := range s.cache {
+				if now.Add(-cacheInvalidationPeriod).After(item.created) {
+					delete(s.cache, key)
+				}
+			}
+			s.rw.Unlock()
+		}
 	}
 }
 
@@ -296,18 +332,39 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *log
 			authHeaders.Set(k, v)
 		}
 	}
-	role, err := s.c.getRole(ctx, authHeaders)
+	j, err := json.Marshal(authHeaders)
 	if err != nil {
 		l.Warnf("%s", err)
-		if cErr, ok := errors.Cause(err).(*clientError); ok {
-			code := codes.Internal
-			if cErr.Code == 401 || cErr.Code == 403 {
-				code = codes.Unauthenticated
-			}
-			return &authError{code: code, message: cErr.ErrorMessage}
-		}
 		return &authError{code: codes.Internal, message: "Internal server error."}
 	}
+	hash := base64.StdEncoding.EncodeToString(j)
+	var role role
+	s.rw.RLock()
+	item, ok := s.cache[hash]
+	s.rw.RUnlock()
+	if ok {
+		role = item.r
+	} else {
+		role, err = s.c.getRole(ctx, authHeaders)
+		if err != nil {
+			l.Warnf("%s", err)
+			if cErr, ok := errors.Cause(err).(*clientError); ok {
+				code := codes.Internal
+				if cErr.Code == 401 || cErr.Code == 403 {
+					code = codes.Unauthenticated
+				}
+				return &authError{code: code, message: cErr.ErrorMessage}
+			}
+			return &authError{code: codes.Internal, message: "Internal server error."}
+		}
+		s.rw.Lock()
+		s.cache[hash] = cacheItem{
+			r:       role,
+			created: time.Now(),
+		}
+		s.rw.Unlock()
+	}
+
 	l = l.WithField("role", role.String())
 
 	if role == grafanaAdmin {
