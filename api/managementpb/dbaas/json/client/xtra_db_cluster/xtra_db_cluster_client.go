@@ -31,6 +31,8 @@ type ClientService interface {
 
 	GetXtraDBClusterCredentials(params *GetXtraDBClusterCredentialsParams) (*GetXtraDBClusterCredentialsOK, error)
 
+	GetXtraDBClusterResources(params *GetXtraDBClusterResourcesParams) (*GetXtraDBClusterResourcesOK, error)
+
 	ListXtraDBClusters(params *ListXtraDBClustersParams) (*ListXtraDBClustersOK, error)
 
 	RestartXtraDBCluster(params *RestartXtraDBClusterParams) (*RestartXtraDBClusterOK, error)
@@ -136,6 +138,39 @@ func (a *Client) GetXtraDBClusterCredentials(params *GetXtraDBClusterCredentials
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*GetXtraDBClusterCredentialsDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  GetXtraDBClusterResources gets xtra DB cluster resources returns expected resources to be consumed by the cluster
+*/
+func (a *Client) GetXtraDBClusterResources(params *GetXtraDBClusterResourcesParams) (*GetXtraDBClusterResourcesOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetXtraDBClusterResourcesParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "GetXtraDBClusterResources",
+		Method:             "POST",
+		PathPattern:        "/v1/management/DBaaS/XtraDBCluster/Resources/Get",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &GetXtraDBClusterResourcesReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetXtraDBClusterResourcesOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*GetXtraDBClusterResourcesDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

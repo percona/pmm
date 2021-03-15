@@ -172,3 +172,22 @@ func (this *RestartPSMDBClusterRequest) Validate() error {
 func (this *RestartPSMDBClusterResponse) Validate() error {
 	return nil
 }
+func (this *GetPSMDBClusterResourcesRequest) Validate() error {
+	if nil == this.Params {
+		return github_com_mwitkow_go_proto_validators.FieldError("Params", fmt.Errorf("message must exist"))
+	}
+	if this.Params != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Params); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Params", err)
+		}
+	}
+	return nil
+}
+func (this *GetPSMDBClusterResourcesResponse) Validate() error {
+	if this.Expected != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Expected); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Expected", err)
+		}
+	}
+	return nil
+}

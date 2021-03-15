@@ -755,6 +755,102 @@ func (*RestartPSMDBClusterResponse) Descriptor() ([]byte, []int) {
 	return file_managementpb_dbaas_psmdb_cluster_proto_rawDescGZIP(), []int{12}
 }
 
+type GetPSMDBClusterResourcesRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Cluster parameters.
+	Params *PSMDBClusterParams `protobuf:"bytes,1,opt,name=params,proto3" json:"params,omitempty"`
+}
+
+func (x *GetPSMDBClusterResourcesRequest) Reset() {
+	*x = GetPSMDBClusterResourcesRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_managementpb_dbaas_psmdb_cluster_proto_msgTypes[13]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetPSMDBClusterResourcesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetPSMDBClusterResourcesRequest) ProtoMessage() {}
+
+func (x *GetPSMDBClusterResourcesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_managementpb_dbaas_psmdb_cluster_proto_msgTypes[13]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetPSMDBClusterResourcesRequest.ProtoReflect.Descriptor instead.
+func (*GetPSMDBClusterResourcesRequest) Descriptor() ([]byte, []int) {
+	return file_managementpb_dbaas_psmdb_cluster_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *GetPSMDBClusterResourcesRequest) GetParams() *PSMDBClusterParams {
+	if x != nil {
+		return x.Params
+	}
+	return nil
+}
+
+type GetPSMDBClusterResourcesResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Expected resources to be consumed by the cluster.
+	Expected *Resources `protobuf:"bytes,1,opt,name=expected,proto3" json:"expected,omitempty"`
+}
+
+func (x *GetPSMDBClusterResourcesResponse) Reset() {
+	*x = GetPSMDBClusterResourcesResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_managementpb_dbaas_psmdb_cluster_proto_msgTypes[14]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetPSMDBClusterResourcesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetPSMDBClusterResourcesResponse) ProtoMessage() {}
+
+func (x *GetPSMDBClusterResourcesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_managementpb_dbaas_psmdb_cluster_proto_msgTypes[14]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetPSMDBClusterResourcesResponse.ProtoReflect.Descriptor instead.
+func (*GetPSMDBClusterResourcesResponse) Descriptor() ([]byte, []int) {
+	return file_managementpb_dbaas_psmdb_cluster_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *GetPSMDBClusterResourcesResponse) GetExpected() *Resources {
+	if x != nil {
+		return x.Expected
+	}
+	return nil
+}
+
 // ReplicaSet container parameters.
 // TODO Do not use inner messages in all public APIs (for consistency).
 type PSMDBClusterParams_ReplicaSet struct {
@@ -771,7 +867,7 @@ type PSMDBClusterParams_ReplicaSet struct {
 func (x *PSMDBClusterParams_ReplicaSet) Reset() {
 	*x = PSMDBClusterParams_ReplicaSet{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_managementpb_dbaas_psmdb_cluster_proto_msgTypes[13]
+		mi := &file_managementpb_dbaas_psmdb_cluster_proto_msgTypes[15]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -784,7 +880,7 @@ func (x *PSMDBClusterParams_ReplicaSet) String() string {
 func (*PSMDBClusterParams_ReplicaSet) ProtoMessage() {}
 
 func (x *PSMDBClusterParams_ReplicaSet) ProtoReflect() protoreflect.Message {
-	mi := &file_managementpb_dbaas_psmdb_cluster_proto_msgTypes[13]
+	mi := &file_managementpb_dbaas_psmdb_cluster_proto_msgTypes[15]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -834,7 +930,7 @@ type ListPSMDBClustersResponse_Cluster struct {
 func (x *ListPSMDBClustersResponse_Cluster) Reset() {
 	*x = ListPSMDBClustersResponse_Cluster{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_managementpb_dbaas_psmdb_cluster_proto_msgTypes[14]
+		mi := &file_managementpb_dbaas_psmdb_cluster_proto_msgTypes[16]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -847,7 +943,7 @@ func (x *ListPSMDBClustersResponse_Cluster) String() string {
 func (*ListPSMDBClustersResponse_Cluster) ProtoMessage() {}
 
 func (x *ListPSMDBClustersResponse_Cluster) ProtoReflect() protoreflect.Message {
-	mi := &file_managementpb_dbaas_psmdb_cluster_proto_msgTypes[14]
+	mi := &file_managementpb_dbaas_psmdb_cluster_proto_msgTypes[16]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -913,7 +1009,7 @@ type GetPSMDBClusterCredentialsResponse_PSMDBCredentials struct {
 func (x *GetPSMDBClusterCredentialsResponse_PSMDBCredentials) Reset() {
 	*x = GetPSMDBClusterCredentialsResponse_PSMDBCredentials{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_managementpb_dbaas_psmdb_cluster_proto_msgTypes[15]
+		mi := &file_managementpb_dbaas_psmdb_cluster_proto_msgTypes[17]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -926,7 +1022,7 @@ func (x *GetPSMDBClusterCredentialsResponse_PSMDBCredentials) String() string {
 func (*GetPSMDBClusterCredentialsResponse_PSMDBCredentials) ProtoMessage() {}
 
 func (x *GetPSMDBClusterCredentialsResponse_PSMDBCredentials) ProtoReflect() protoreflect.Message {
-	mi := &file_managementpb_dbaas_psmdb_cluster_proto_msgTypes[15]
+	mi := &file_managementpb_dbaas_psmdb_cluster_proto_msgTypes[17]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -996,7 +1092,7 @@ type UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams struct {
 func (x *UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams) Reset() {
 	*x = UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_managementpb_dbaas_psmdb_cluster_proto_msgTypes[16]
+		mi := &file_managementpb_dbaas_psmdb_cluster_proto_msgTypes[18]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1009,7 +1105,7 @@ func (x *UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams) String() string {
 func (*UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams) ProtoMessage() {}
 
 func (x *UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams) ProtoReflect() protoreflect.Message {
-	mi := &file_managementpb_dbaas_psmdb_cluster_proto_msgTypes[16]
+	mi := &file_managementpb_dbaas_psmdb_cluster_proto_msgTypes[18]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1066,7 +1162,7 @@ type UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams_ReplicaSet struct {
 func (x *UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams_ReplicaSet) Reset() {
 	*x = UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams_ReplicaSet{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_managementpb_dbaas_psmdb_cluster_proto_msgTypes[17]
+		mi := &file_managementpb_dbaas_psmdb_cluster_proto_msgTypes[19]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1079,7 +1175,7 @@ func (x *UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams_ReplicaSet) String()
 func (*UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams_ReplicaSet) ProtoMessage() {}
 
 func (x *UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams_ReplicaSet) ProtoReflect() protoreflect.Message {
-	mi := &file_managementpb_dbaas_psmdb_cluster_proto_msgTypes[17]
+	mi := &file_managementpb_dbaas_psmdb_cluster_proto_msgTypes[19]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1255,7 +1351,19 @@ var file_managementpb_dbaas_psmdb_cluster_proto_rawDesc = []byte{
 	0x61, 0x6d, 0x65, 0x12, 0x1a, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28,
 	0x09, 0x42, 0x06, 0xe2, 0xdf, 0x1f, 0x02, 0x58, 0x01, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x22,
 	0x1d, 0x0a, 0x1b, 0x52, 0x65, 0x73, 0x74, 0x61, 0x72, 0x74, 0x50, 0x53, 0x4d, 0x44, 0x42, 0x43,
-	0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x2a, 0xd7,
+	0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x64,
+	0x0a, 0x1f, 0x47, 0x65, 0x74, 0x50, 0x53, 0x4d, 0x44, 0x42, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65,
+	0x72, 0x52, 0x65, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
+	0x74, 0x12, 0x41, 0x0a, 0x06, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x0b, 0x32, 0x21, 0x2e, 0x64, 0x62, 0x61, 0x61, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
+	0x31, 0x2e, 0x50, 0x53, 0x4d, 0x44, 0x42, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x50, 0x61,
+	0x72, 0x61, 0x6d, 0x73, 0x42, 0x06, 0xe2, 0xdf, 0x1f, 0x02, 0x20, 0x01, 0x52, 0x06, 0x70, 0x61,
+	0x72, 0x61, 0x6d, 0x73, 0x22, 0x58, 0x0a, 0x20, 0x47, 0x65, 0x74, 0x50, 0x53, 0x4d, 0x44, 0x42,
+	0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x73,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x34, 0x0a, 0x08, 0x65, 0x78, 0x70, 0x65,
+	0x63, 0x74, 0x65, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x18, 0x2e, 0x64, 0x62, 0x61,
+	0x61, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x52, 0x65, 0x73, 0x6f, 0x75,
+	0x72, 0x63, 0x65, 0x73, 0x52, 0x08, 0x65, 0x78, 0x70, 0x65, 0x63, 0x74, 0x65, 0x64, 0x2a, 0xd7,
 	0x01, 0x0a, 0x11, 0x50, 0x53, 0x4d, 0x44, 0x42, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x53,
 	0x74, 0x61, 0x74, 0x65, 0x12, 0x1f, 0x0a, 0x1b, 0x50, 0x53, 0x4d, 0x44, 0x42, 0x5f, 0x43, 0x4c,
 	0x55, 0x53, 0x54, 0x45, 0x52, 0x5f, 0x53, 0x54, 0x41, 0x54, 0x45, 0x5f, 0x49, 0x4e, 0x56, 0x41,
@@ -1269,7 +1377,7 @@ var file_managementpb_dbaas_psmdb_cluster_proto_rawDesc = []byte{
 	0x43, 0x4c, 0x55, 0x53, 0x54, 0x45, 0x52, 0x5f, 0x53, 0x54, 0x41, 0x54, 0x45, 0x5f, 0x44, 0x45,
 	0x4c, 0x45, 0x54, 0x49, 0x4e, 0x47, 0x10, 0x04, 0x12, 0x1e, 0x0a, 0x1a, 0x50, 0x53, 0x4d, 0x44,
 	0x42, 0x5f, 0x43, 0x4c, 0x55, 0x53, 0x54, 0x45, 0x52, 0x5f, 0x53, 0x54, 0x41, 0x54, 0x45, 0x5f,
-	0x50, 0x41, 0x55, 0x53, 0x45, 0x44, 0x10, 0x05, 0x32, 0xf5, 0x07, 0x0a, 0x0c, 0x50, 0x53, 0x4d,
+	0x50, 0x41, 0x55, 0x53, 0x45, 0x44, 0x10, 0x05, 0x32, 0xaf, 0x09, 0x0a, 0x0c, 0x50, 0x53, 0x4d,
 	0x44, 0x42, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x12, 0x9a, 0x01, 0x0a, 0x11, 0x4c, 0x69,
 	0x73, 0x74, 0x50, 0x53, 0x4d, 0x44, 0x42, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x73, 0x12,
 	0x27, 0x2e, 0x64, 0x62, 0x61, 0x61, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e,
@@ -1333,9 +1441,21 @@ var file_managementpb_dbaas_psmdb_cluster_proto_rawDesc = []byte{
 	0x02, 0x2e, 0x22, 0x29, 0x2f, 0x76, 0x31, 0x2f, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65,
 	0x6e, 0x74, 0x2f, 0x44, 0x42, 0x61, 0x61, 0x53, 0x2f, 0x50, 0x53, 0x4d, 0x44, 0x42, 0x43, 0x6c,
 	0x75, 0x73, 0x74, 0x65, 0x72, 0x2f, 0x52, 0x65, 0x73, 0x74, 0x61, 0x72, 0x74, 0x3a, 0x01, 0x2a,
-	0x42, 0x25, 0x5a, 0x23, 0x61, 0x70, 0x69, 0x2f, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65,
-	0x6e, 0x74, 0x70, 0x62, 0x2f, 0x64, 0x62, 0x61, 0x61, 0x73, 0x3b, 0x64, 0x62, 0x61, 0x61, 0x73,
-	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x12, 0xb7, 0x01, 0x0a, 0x18, 0x47, 0x65, 0x74, 0x50, 0x53, 0x4d, 0x44, 0x42, 0x43, 0x6c, 0x75,
+	0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x73, 0x12, 0x2e, 0x2e,
+	0x64, 0x62, 0x61, 0x61, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x47, 0x65,
+	0x74, 0x50, 0x53, 0x4d, 0x44, 0x42, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x73,
+	0x6f, 0x75, 0x72, 0x63, 0x65, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x2f, 0x2e,
+	0x64, 0x62, 0x61, 0x61, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x47, 0x65,
+	0x74, 0x50, 0x53, 0x4d, 0x44, 0x42, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x73,
+	0x6f, 0x75, 0x72, 0x63, 0x65, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x3a,
+	0x82, 0xd3, 0xe4, 0x93, 0x02, 0x34, 0x22, 0x2f, 0x2f, 0x76, 0x31, 0x2f, 0x6d, 0x61, 0x6e, 0x61,
+	0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2f, 0x44, 0x42, 0x61, 0x61, 0x53, 0x2f, 0x50, 0x53, 0x4d,
+	0x44, 0x42, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x2f, 0x52, 0x65, 0x73, 0x6f, 0x75, 0x72,
+	0x63, 0x65, 0x73, 0x2f, 0x47, 0x65, 0x74, 0x3a, 0x01, 0x2a, 0x42, 0x25, 0x5a, 0x23, 0x61, 0x70,
+	0x69, 0x2f, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x70, 0x62, 0x2f, 0x64,
+	0x62, 0x61, 0x61, 0x73, 0x3b, 0x64, 0x62, 0x61, 0x61, 0x73, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
+	0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -1351,7 +1471,7 @@ func file_managementpb_dbaas_psmdb_cluster_proto_rawDescGZIP() []byte {
 }
 
 var file_managementpb_dbaas_psmdb_cluster_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_managementpb_dbaas_psmdb_cluster_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_managementpb_dbaas_psmdb_cluster_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
 var file_managementpb_dbaas_psmdb_cluster_proto_goTypes = []interface{}{
 	(PSMDBClusterState)(0),                                                // 0: dbaas.v1beta1.PSMDBClusterState
 	(*PSMDBClusterParams)(nil),                                            // 1: dbaas.v1beta1.PSMDBClusterParams
@@ -1367,43 +1487,50 @@ var file_managementpb_dbaas_psmdb_cluster_proto_goTypes = []interface{}{
 	(*DeletePSMDBClusterResponse)(nil),                                    // 11: dbaas.v1beta1.DeletePSMDBClusterResponse
 	(*RestartPSMDBClusterRequest)(nil),                                    // 12: dbaas.v1beta1.RestartPSMDBClusterRequest
 	(*RestartPSMDBClusterResponse)(nil),                                   // 13: dbaas.v1beta1.RestartPSMDBClusterResponse
-	(*PSMDBClusterParams_ReplicaSet)(nil),                                 // 14: dbaas.v1beta1.PSMDBClusterParams.ReplicaSet
-	(*ListPSMDBClustersResponse_Cluster)(nil),                             // 15: dbaas.v1beta1.ListPSMDBClustersResponse.Cluster
-	(*GetPSMDBClusterCredentialsResponse_PSMDBCredentials)(nil),           // 16: dbaas.v1beta1.GetPSMDBClusterCredentialsResponse.PSMDBCredentials
-	(*UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams)(nil),            // 17: dbaas.v1beta1.UpdatePSMDBClusterRequest.UpdatePSMDBClusterParams
-	(*UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams_ReplicaSet)(nil), // 18: dbaas.v1beta1.UpdatePSMDBClusterRequest.UpdatePSMDBClusterParams.ReplicaSet
-	(*ComputeResources)(nil),                                              // 19: dbaas.v1beta1.ComputeResources
-	(*RunningOperation)(nil),                                              // 20: dbaas.v1beta1.RunningOperation
+	(*GetPSMDBClusterResourcesRequest)(nil),                               // 14: dbaas.v1beta1.GetPSMDBClusterResourcesRequest
+	(*GetPSMDBClusterResourcesResponse)(nil),                              // 15: dbaas.v1beta1.GetPSMDBClusterResourcesResponse
+	(*PSMDBClusterParams_ReplicaSet)(nil),                                 // 16: dbaas.v1beta1.PSMDBClusterParams.ReplicaSet
+	(*ListPSMDBClustersResponse_Cluster)(nil),                             // 17: dbaas.v1beta1.ListPSMDBClustersResponse.Cluster
+	(*GetPSMDBClusterCredentialsResponse_PSMDBCredentials)(nil),           // 18: dbaas.v1beta1.GetPSMDBClusterCredentialsResponse.PSMDBCredentials
+	(*UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams)(nil),            // 19: dbaas.v1beta1.UpdatePSMDBClusterRequest.UpdatePSMDBClusterParams
+	(*UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams_ReplicaSet)(nil), // 20: dbaas.v1beta1.UpdatePSMDBClusterRequest.UpdatePSMDBClusterParams.ReplicaSet
+	(*Resources)(nil),                                                     // 21: dbaas.v1beta1.Resources
+	(*ComputeResources)(nil),                                              // 22: dbaas.v1beta1.ComputeResources
+	(*RunningOperation)(nil),                                              // 23: dbaas.v1beta1.RunningOperation
 }
 var file_managementpb_dbaas_psmdb_cluster_proto_depIdxs = []int32{
-	14, // 0: dbaas.v1beta1.PSMDBClusterParams.replicaset:type_name -> dbaas.v1beta1.PSMDBClusterParams.ReplicaSet
-	15, // 1: dbaas.v1beta1.ListPSMDBClustersResponse.clusters:type_name -> dbaas.v1beta1.ListPSMDBClustersResponse.Cluster
-	16, // 2: dbaas.v1beta1.GetPSMDBClusterCredentialsResponse.connection_credentials:type_name -> dbaas.v1beta1.GetPSMDBClusterCredentialsResponse.PSMDBCredentials
+	16, // 0: dbaas.v1beta1.PSMDBClusterParams.replicaset:type_name -> dbaas.v1beta1.PSMDBClusterParams.ReplicaSet
+	17, // 1: dbaas.v1beta1.ListPSMDBClustersResponse.clusters:type_name -> dbaas.v1beta1.ListPSMDBClustersResponse.Cluster
+	18, // 2: dbaas.v1beta1.GetPSMDBClusterCredentialsResponse.connection_credentials:type_name -> dbaas.v1beta1.GetPSMDBClusterCredentialsResponse.PSMDBCredentials
 	1,  // 3: dbaas.v1beta1.CreatePSMDBClusterRequest.params:type_name -> dbaas.v1beta1.PSMDBClusterParams
-	17, // 4: dbaas.v1beta1.UpdatePSMDBClusterRequest.params:type_name -> dbaas.v1beta1.UpdatePSMDBClusterRequest.UpdatePSMDBClusterParams
-	19, // 5: dbaas.v1beta1.PSMDBClusterParams.ReplicaSet.compute_resources:type_name -> dbaas.v1beta1.ComputeResources
-	0,  // 6: dbaas.v1beta1.ListPSMDBClustersResponse.Cluster.state:type_name -> dbaas.v1beta1.PSMDBClusterState
-	20, // 7: dbaas.v1beta1.ListPSMDBClustersResponse.Cluster.operation:type_name -> dbaas.v1beta1.RunningOperation
-	1,  // 8: dbaas.v1beta1.ListPSMDBClustersResponse.Cluster.params:type_name -> dbaas.v1beta1.PSMDBClusterParams
-	18, // 9: dbaas.v1beta1.UpdatePSMDBClusterRequest.UpdatePSMDBClusterParams.replicaset:type_name -> dbaas.v1beta1.UpdatePSMDBClusterRequest.UpdatePSMDBClusterParams.ReplicaSet
-	19, // 10: dbaas.v1beta1.UpdatePSMDBClusterRequest.UpdatePSMDBClusterParams.ReplicaSet.compute_resources:type_name -> dbaas.v1beta1.ComputeResources
-	2,  // 11: dbaas.v1beta1.PSMDBCluster.ListPSMDBClusters:input_type -> dbaas.v1beta1.ListPSMDBClustersRequest
-	4,  // 12: dbaas.v1beta1.PSMDBCluster.GetPSMDBClusterCredentials:input_type -> dbaas.v1beta1.GetPSMDBClusterCredentialsRequest
-	6,  // 13: dbaas.v1beta1.PSMDBCluster.CreatePSMDBCluster:input_type -> dbaas.v1beta1.CreatePSMDBClusterRequest
-	8,  // 14: dbaas.v1beta1.PSMDBCluster.UpdatePSMDBCluster:input_type -> dbaas.v1beta1.UpdatePSMDBClusterRequest
-	10, // 15: dbaas.v1beta1.PSMDBCluster.DeletePSMDBCluster:input_type -> dbaas.v1beta1.DeletePSMDBClusterRequest
-	12, // 16: dbaas.v1beta1.PSMDBCluster.RestartPSMDBCluster:input_type -> dbaas.v1beta1.RestartPSMDBClusterRequest
-	3,  // 17: dbaas.v1beta1.PSMDBCluster.ListPSMDBClusters:output_type -> dbaas.v1beta1.ListPSMDBClustersResponse
-	5,  // 18: dbaas.v1beta1.PSMDBCluster.GetPSMDBClusterCredentials:output_type -> dbaas.v1beta1.GetPSMDBClusterCredentialsResponse
-	7,  // 19: dbaas.v1beta1.PSMDBCluster.CreatePSMDBCluster:output_type -> dbaas.v1beta1.CreatePSMDBClusterResponse
-	9,  // 20: dbaas.v1beta1.PSMDBCluster.UpdatePSMDBCluster:output_type -> dbaas.v1beta1.UpdatePSMDBClusterResponse
-	11, // 21: dbaas.v1beta1.PSMDBCluster.DeletePSMDBCluster:output_type -> dbaas.v1beta1.DeletePSMDBClusterResponse
-	13, // 22: dbaas.v1beta1.PSMDBCluster.RestartPSMDBCluster:output_type -> dbaas.v1beta1.RestartPSMDBClusterResponse
-	17, // [17:23] is the sub-list for method output_type
-	11, // [11:17] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	19, // 4: dbaas.v1beta1.UpdatePSMDBClusterRequest.params:type_name -> dbaas.v1beta1.UpdatePSMDBClusterRequest.UpdatePSMDBClusterParams
+	1,  // 5: dbaas.v1beta1.GetPSMDBClusterResourcesRequest.params:type_name -> dbaas.v1beta1.PSMDBClusterParams
+	21, // 6: dbaas.v1beta1.GetPSMDBClusterResourcesResponse.expected:type_name -> dbaas.v1beta1.Resources
+	22, // 7: dbaas.v1beta1.PSMDBClusterParams.ReplicaSet.compute_resources:type_name -> dbaas.v1beta1.ComputeResources
+	0,  // 8: dbaas.v1beta1.ListPSMDBClustersResponse.Cluster.state:type_name -> dbaas.v1beta1.PSMDBClusterState
+	23, // 9: dbaas.v1beta1.ListPSMDBClustersResponse.Cluster.operation:type_name -> dbaas.v1beta1.RunningOperation
+	1,  // 10: dbaas.v1beta1.ListPSMDBClustersResponse.Cluster.params:type_name -> dbaas.v1beta1.PSMDBClusterParams
+	20, // 11: dbaas.v1beta1.UpdatePSMDBClusterRequest.UpdatePSMDBClusterParams.replicaset:type_name -> dbaas.v1beta1.UpdatePSMDBClusterRequest.UpdatePSMDBClusterParams.ReplicaSet
+	22, // 12: dbaas.v1beta1.UpdatePSMDBClusterRequest.UpdatePSMDBClusterParams.ReplicaSet.compute_resources:type_name -> dbaas.v1beta1.ComputeResources
+	2,  // 13: dbaas.v1beta1.PSMDBCluster.ListPSMDBClusters:input_type -> dbaas.v1beta1.ListPSMDBClustersRequest
+	4,  // 14: dbaas.v1beta1.PSMDBCluster.GetPSMDBClusterCredentials:input_type -> dbaas.v1beta1.GetPSMDBClusterCredentialsRequest
+	6,  // 15: dbaas.v1beta1.PSMDBCluster.CreatePSMDBCluster:input_type -> dbaas.v1beta1.CreatePSMDBClusterRequest
+	8,  // 16: dbaas.v1beta1.PSMDBCluster.UpdatePSMDBCluster:input_type -> dbaas.v1beta1.UpdatePSMDBClusterRequest
+	10, // 17: dbaas.v1beta1.PSMDBCluster.DeletePSMDBCluster:input_type -> dbaas.v1beta1.DeletePSMDBClusterRequest
+	12, // 18: dbaas.v1beta1.PSMDBCluster.RestartPSMDBCluster:input_type -> dbaas.v1beta1.RestartPSMDBClusterRequest
+	14, // 19: dbaas.v1beta1.PSMDBCluster.GetPSMDBClusterResources:input_type -> dbaas.v1beta1.GetPSMDBClusterResourcesRequest
+	3,  // 20: dbaas.v1beta1.PSMDBCluster.ListPSMDBClusters:output_type -> dbaas.v1beta1.ListPSMDBClustersResponse
+	5,  // 21: dbaas.v1beta1.PSMDBCluster.GetPSMDBClusterCredentials:output_type -> dbaas.v1beta1.GetPSMDBClusterCredentialsResponse
+	7,  // 22: dbaas.v1beta1.PSMDBCluster.CreatePSMDBCluster:output_type -> dbaas.v1beta1.CreatePSMDBClusterResponse
+	9,  // 23: dbaas.v1beta1.PSMDBCluster.UpdatePSMDBCluster:output_type -> dbaas.v1beta1.UpdatePSMDBClusterResponse
+	11, // 24: dbaas.v1beta1.PSMDBCluster.DeletePSMDBCluster:output_type -> dbaas.v1beta1.DeletePSMDBClusterResponse
+	13, // 25: dbaas.v1beta1.PSMDBCluster.RestartPSMDBCluster:output_type -> dbaas.v1beta1.RestartPSMDBClusterResponse
+	15, // 26: dbaas.v1beta1.PSMDBCluster.GetPSMDBClusterResources:output_type -> dbaas.v1beta1.GetPSMDBClusterResourcesResponse
+	20, // [20:27] is the sub-list for method output_type
+	13, // [13:20] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_managementpb_dbaas_psmdb_cluster_proto_init() }
@@ -1570,7 +1697,7 @@ func file_managementpb_dbaas_psmdb_cluster_proto_init() {
 			}
 		}
 		file_managementpb_dbaas_psmdb_cluster_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*PSMDBClusterParams_ReplicaSet); i {
+			switch v := v.(*GetPSMDBClusterResourcesRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1582,7 +1709,7 @@ func file_managementpb_dbaas_psmdb_cluster_proto_init() {
 			}
 		}
 		file_managementpb_dbaas_psmdb_cluster_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ListPSMDBClustersResponse_Cluster); i {
+			switch v := v.(*GetPSMDBClusterResourcesResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1594,7 +1721,7 @@ func file_managementpb_dbaas_psmdb_cluster_proto_init() {
 			}
 		}
 		file_managementpb_dbaas_psmdb_cluster_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetPSMDBClusterCredentialsResponse_PSMDBCredentials); i {
+			switch v := v.(*PSMDBClusterParams_ReplicaSet); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1606,7 +1733,7 @@ func file_managementpb_dbaas_psmdb_cluster_proto_init() {
 			}
 		}
 		file_managementpb_dbaas_psmdb_cluster_proto_msgTypes[16].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams); i {
+			switch v := v.(*ListPSMDBClustersResponse_Cluster); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1618,6 +1745,30 @@ func file_managementpb_dbaas_psmdb_cluster_proto_init() {
 			}
 		}
 		file_managementpb_dbaas_psmdb_cluster_proto_msgTypes[17].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetPSMDBClusterCredentialsResponse_PSMDBCredentials); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_managementpb_dbaas_psmdb_cluster_proto_msgTypes[18].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_managementpb_dbaas_psmdb_cluster_proto_msgTypes[19].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams_ReplicaSet); i {
 			case 0:
 				return &v.state
@@ -1636,7 +1787,7 @@ func file_managementpb_dbaas_psmdb_cluster_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_managementpb_dbaas_psmdb_cluster_proto_rawDesc,
 			NumEnums:      1,
-			NumMessages:   18,
+			NumMessages:   20,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
@@ -1675,6 +1826,8 @@ type PSMDBClusterClient interface {
 	DeletePSMDBCluster(ctx context.Context, in *DeletePSMDBClusterRequest, opts ...grpc.CallOption) (*DeletePSMDBClusterResponse, error)
 	// RestartPSMDBCluster restarts PSMDB cluster.
 	RestartPSMDBCluster(ctx context.Context, in *RestartPSMDBClusterRequest, opts ...grpc.CallOption) (*RestartPSMDBClusterResponse, error)
+	// GetPSMDBClusterResources returns expected resources to be consumed by the cluster.
+	GetPSMDBClusterResources(ctx context.Context, in *GetPSMDBClusterResourcesRequest, opts ...grpc.CallOption) (*GetPSMDBClusterResourcesResponse, error)
 }
 
 type pSMDBClusterClient struct {
@@ -1739,6 +1892,15 @@ func (c *pSMDBClusterClient) RestartPSMDBCluster(ctx context.Context, in *Restar
 	return out, nil
 }
 
+func (c *pSMDBClusterClient) GetPSMDBClusterResources(ctx context.Context, in *GetPSMDBClusterResourcesRequest, opts ...grpc.CallOption) (*GetPSMDBClusterResourcesResponse, error) {
+	out := new(GetPSMDBClusterResourcesResponse)
+	err := c.cc.Invoke(ctx, "/dbaas.v1beta1.PSMDBCluster/GetPSMDBClusterResources", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PSMDBClusterServer is the server API for PSMDBCluster service.
 type PSMDBClusterServer interface {
 	// ListPSMDBClusters returns a list of PSMDB clusters.
@@ -1753,6 +1915,8 @@ type PSMDBClusterServer interface {
 	DeletePSMDBCluster(context.Context, *DeletePSMDBClusterRequest) (*DeletePSMDBClusterResponse, error)
 	// RestartPSMDBCluster restarts PSMDB cluster.
 	RestartPSMDBCluster(context.Context, *RestartPSMDBClusterRequest) (*RestartPSMDBClusterResponse, error)
+	// GetPSMDBClusterResources returns expected resources to be consumed by the cluster.
+	GetPSMDBClusterResources(context.Context, *GetPSMDBClusterResourcesRequest) (*GetPSMDBClusterResourcesResponse, error)
 }
 
 // UnimplementedPSMDBClusterServer can be embedded to have forward compatible implementations.
@@ -1776,6 +1940,9 @@ func (*UnimplementedPSMDBClusterServer) DeletePSMDBCluster(context.Context, *Del
 }
 func (*UnimplementedPSMDBClusterServer) RestartPSMDBCluster(context.Context, *RestartPSMDBClusterRequest) (*RestartPSMDBClusterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RestartPSMDBCluster not implemented")
+}
+func (*UnimplementedPSMDBClusterServer) GetPSMDBClusterResources(context.Context, *GetPSMDBClusterResourcesRequest) (*GetPSMDBClusterResourcesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPSMDBClusterResources not implemented")
 }
 
 func RegisterPSMDBClusterServer(s *grpc.Server, srv PSMDBClusterServer) {
@@ -1890,6 +2057,24 @@ func _PSMDBCluster_RestartPSMDBCluster_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PSMDBCluster_GetPSMDBClusterResources_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPSMDBClusterResourcesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PSMDBClusterServer).GetPSMDBClusterResources(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/dbaas.v1beta1.PSMDBCluster/GetPSMDBClusterResources",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PSMDBClusterServer).GetPSMDBClusterResources(ctx, req.(*GetPSMDBClusterResourcesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _PSMDBCluster_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "dbaas.v1beta1.PSMDBCluster",
 	HandlerType: (*PSMDBClusterServer)(nil),
@@ -1917,6 +2102,10 @@ var _PSMDBCluster_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RestartPSMDBCluster",
 			Handler:    _PSMDBCluster_RestartPSMDBCluster_Handler,
+		},
+		{
+			MethodName: "GetPSMDBClusterResources",
+			Handler:    _PSMDBCluster_GetPSMDBClusterResources_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

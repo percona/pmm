@@ -61,7 +61,7 @@ for the list channels operation typically these are written to a http.Request
 type ListChannelsParams struct {
 
 	/*Body*/
-	Body interface{}
+	Body ListChannelsBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -102,13 +102,13 @@ func (o *ListChannelsParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the list channels params
-func (o *ListChannelsParams) WithBody(body interface{}) *ListChannelsParams {
+func (o *ListChannelsParams) WithBody(body ListChannelsBody) *ListChannelsParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the list channels params
-func (o *ListChannelsParams) SetBody(body interface{}) {
+func (o *ListChannelsParams) SetBody(body ListChannelsBody) {
 	o.Body = body
 }
 
@@ -120,10 +120,8 @@ func (o *ListChannelsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.
 	}
 	var res []error
 
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
+	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
 	}
 
 	if len(res) > 0 {
