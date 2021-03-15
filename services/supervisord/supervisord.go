@@ -583,6 +583,7 @@ command =
 		--search.maxQueueDuration=30s
 		--search.logSlowQueryDuration=30s
 		--search.maxQueryDuration=60s
+		--promscrape.streamParse=true
 		--prometheusDataPath=/srv/prometheus/data
 		--http.pathPrefix=/prometheus
 user = pmm
