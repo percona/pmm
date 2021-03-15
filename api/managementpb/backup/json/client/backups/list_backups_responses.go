@@ -6,6 +6,7 @@ package backups
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -129,8 +130,18 @@ type BackupsItems0 struct {
 	// Backup name
 	Name string `json:"name,omitempty"`
 
+	// Database vendor e.g. PostgreSQL, MongoDB, MySQL.
+	Vendor string `json:"vendor,omitempty"`
+
+	// Machine-readable location ID.
+	LocationID string `json:"location_id,omitempty"`
+
 	// Backup location name.
 	LocationName string `json:"location_name,omitempty"`
+
+	// Status shows current status of Backup.
+	// Enum: [STATUS_INVALID PENDING IN_PROGRESS PAUSED SUCCESS ERROR]
+	Status *string `json:"status,omitempty"`
 
 	// Backup creation time.
 	// Format: date-time
@@ -141,6 +152,10 @@ type BackupsItems0 struct {
 func (o *BackupsItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.validateCreatedAt(formats); err != nil {
 		res = append(res, err)
 	}
@@ -148,6 +163,61 @@ func (o *BackupsItems0) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+var backupsItems0TypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["STATUS_INVALID","PENDING","IN_PROGRESS","PAUSED","SUCCESS","ERROR"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		backupsItems0TypeStatusPropEnum = append(backupsItems0TypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// BackupsItems0StatusSTATUSINVALID captures enum value "STATUS_INVALID"
+	BackupsItems0StatusSTATUSINVALID string = "STATUS_INVALID"
+
+	// BackupsItems0StatusPENDING captures enum value "PENDING"
+	BackupsItems0StatusPENDING string = "PENDING"
+
+	// BackupsItems0StatusINPROGRESS captures enum value "IN_PROGRESS"
+	BackupsItems0StatusINPROGRESS string = "IN_PROGRESS"
+
+	// BackupsItems0StatusPAUSED captures enum value "PAUSED"
+	BackupsItems0StatusPAUSED string = "PAUSED"
+
+	// BackupsItems0StatusSUCCESS captures enum value "SUCCESS"
+	BackupsItems0StatusSUCCESS string = "SUCCESS"
+
+	// BackupsItems0StatusERROR captures enum value "ERROR"
+	BackupsItems0StatusERROR string = "ERROR"
+)
+
+// prop value enum
+func (o *BackupsItems0) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, backupsItems0TypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *BackupsItems0) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("status", "body", *o.Status); err != nil {
+		return err
+	}
+
 	return nil
 }
 

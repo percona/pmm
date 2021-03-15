@@ -21477,16 +21477,40 @@
                         "title": "Backup name",
                         "x-order": 1
                       },
+                      "vendor": {
+                        "description": "Database vendor e.g. PostgreSQL, MongoDB, MySQL.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "location_id": {
+                        "description": "Machine-readable location ID.",
+                        "type": "string",
+                        "x-order": 3
+                      },
                       "location_name": {
                         "description": "Backup location name.",
                         "type": "string",
-                        "x-order": 2
+                        "x-order": 4
+                      },
+                      "status": {
+                        "description": "Status shows current status of Backup.",
+                        "type": "string",
+                        "default": "STATUS_INVALID",
+                        "enum": [
+                          "STATUS_INVALID",
+                          "PENDING",
+                          "IN_PROGRESS",
+                          "PAUSED",
+                          "SUCCESS",
+                          "ERROR"
+                        ],
+                        "x-order": 5
                       },
                       "created_at": {
                         "description": "Backup creation time.",
                         "type": "string",
                         "format": "date-time",
-                        "x-order": 3
+                        "x-order": 6
                       }
                     }
                   },
