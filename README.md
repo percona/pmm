@@ -90,15 +90,23 @@ And view the site at <http://localhost:8000>
 
 To generate a PDF version of the documentation:
 
-with Docker:
+1. Edit `mkdocs.yml` and comment out the `section-index` plugin.
 
+2. Build the PDF.
+
+	With Docker:
+
+	```sh
 	docker run --rm -v $(pwd):/docs -e ENABLE_PDF_EXPORT=1 perconalab/pmm-doc-md mkdocs build -t material
+	```
 
-without:
+	Without:
 
+	```sh
 	ENABLE_PDF_EXPORT=1 mkdocs build -t material
+	```
 
-You'll find the PDF in `site/_pdf`.
+3. The PDF is in `site/_pdf`.
 
 ## Directories and files
 
@@ -116,10 +124,11 @@ You'll find the PDF in `site/_pdf`.
 		- `plantuml`: Wrapper script for running PlantUML.
 	- `diagrams`:
 		- `*.puml`: [PlantUML](https://plantuml.com) diagrams (see comments inside each).
+		- `plantuml_styles.uml`: Global style for PlantUML diagrams.
 	- `templates`: Stylesheet for PDF output (used by [mkdocs-with-pdf](https://github.com/orzih/mkdocs-with-pdf) extension).
 	- `theme`: MkDocs templates that produce HTML output for percona.com hosting.
-- `variables.yml`: Values used throughout the Markdown, including the current PMM version/release number.
 - `requirements.txt`: Python package dependencies.
+- `variables.yml`: Values used throughout the Markdown, including the current PMM version/release number.
 
 ## Version switching
 
