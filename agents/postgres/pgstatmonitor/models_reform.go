@@ -172,23 +172,23 @@ var (
 	_ fmt.Stringer  = (*pgUser)(nil)
 )
 
-type pgStatMonitorViewType struct {
+type pgStatMonitorDefaultViewType struct {
 	s parse.StructInfo
 	z []interface{}
 }
 
 // Schema returns a schema name in SQL database ("").
-func (v *pgStatMonitorViewType) Schema() string {
+func (v *pgStatMonitorDefaultViewType) Schema() string {
 	return v.s.SQLSchema
 }
 
 // Name returns a view or table name in SQL database ("pg_stat_monitor").
-func (v *pgStatMonitorViewType) Name() string {
+func (v *pgStatMonitorDefaultViewType) Name() string {
 	return v.s.SQLName
 }
 
 // Columns returns a new slice of column names for that view or table in SQL database.
-func (v *pgStatMonitorViewType) Columns() []string {
+func (v *pgStatMonitorDefaultViewType) Columns() []string {
 	return []string{
 		"bucket",
 		"bucket_start_time",
@@ -220,14 +220,14 @@ func (v *pgStatMonitorViewType) Columns() []string {
 }
 
 // NewStruct makes a new struct for that view or table.
-func (v *pgStatMonitorViewType) NewStruct() reform.Struct {
-	return new(pgStatMonitor)
+func (v *pgStatMonitorDefaultViewType) NewStruct() reform.Struct {
+	return new(pgStatMonitorDefault)
 }
 
-// pgStatMonitorView represents pg_stat_monitor view or table in SQL database.
-var pgStatMonitorView = &pgStatMonitorViewType{
+// pgStatMonitorDefaultView represents pg_stat_monitor view or table in SQL database.
+var pgStatMonitorDefaultView = &pgStatMonitorDefaultViewType{
 	s: parse.StructInfo{
-		Type:    "pgStatMonitor",
+		Type:    "pgStatMonitorDefault",
 		SQLName: "pg_stat_monitor",
 		Fields: []parse.FieldInfo{
 			{Name: "Bucket", Type: "int64", Column: "bucket"},
@@ -259,11 +259,11 @@ var pgStatMonitorView = &pgStatMonitorViewType{
 		},
 		PKFieldIndex: -1,
 	},
-	z: new(pgStatMonitor).Values(),
+	z: new(pgStatMonitorDefault).Values(),
 }
 
 // String returns a string representation of this struct or record.
-func (s pgStatMonitor) String() string {
+func (s pgStatMonitorDefault) String() string {
 	res := make([]string, 26)
 	res[0] = "Bucket: " + reform.Inspect(s.Bucket, true)
 	res[1] = "BucketStartTime: " + reform.Inspect(s.BucketStartTime, true)
@@ -296,7 +296,7 @@ func (s pgStatMonitor) String() string {
 
 // Values returns a slice of struct or record field values.
 // Returned interface{} values are never untyped nils.
-func (s *pgStatMonitor) Values() []interface{} {
+func (s *pgStatMonitorDefault) Values() []interface{} {
 	return []interface{}{
 		s.Bucket,
 		s.BucketStartTime,
@@ -329,7 +329,7 @@ func (s *pgStatMonitor) Values() []interface{} {
 
 // Pointers returns a slice of pointers to struct or record fields.
 // Returned interface{} values are never untyped nils.
-func (s *pgStatMonitor) Pointers() []interface{} {
+func (s *pgStatMonitorDefault) Pointers() []interface{} {
 	return []interface{}{
 		&s.Bucket,
 		&s.BucketStartTime,
@@ -361,15 +361,215 @@ func (s *pgStatMonitor) Pointers() []interface{} {
 }
 
 // View returns View object for that struct.
-func (s *pgStatMonitor) View() reform.View {
-	return pgStatMonitorView
+func (s *pgStatMonitorDefault) View() reform.View {
+	return pgStatMonitorDefaultView
 }
 
 // check interfaces
 var (
-	_ reform.View   = pgStatMonitorView
-	_ reform.Struct = (*pgStatMonitor)(nil)
-	_ fmt.Stringer  = (*pgStatMonitor)(nil)
+	_ reform.View   = pgStatMonitorDefaultView
+	_ reform.Struct = (*pgStatMonitorDefault)(nil)
+	_ fmt.Stringer  = (*pgStatMonitorDefault)(nil)
+)
+
+type pgStatMonitor08ViewType struct {
+	s parse.StructInfo
+	z []interface{}
+}
+
+// Schema returns a schema name in SQL database ("").
+func (v *pgStatMonitor08ViewType) Schema() string {
+	return v.s.SQLSchema
+}
+
+// Name returns a view or table name in SQL database ("pg_stat_monitor").
+func (v *pgStatMonitor08ViewType) Name() string {
+	return v.s.SQLName
+}
+
+// Columns returns a new slice of column names for that view or table in SQL database.
+func (v *pgStatMonitor08ViewType) Columns() []string {
+	return []string{
+		"bucket",
+		"bucket_start_time",
+		"userid",
+		"datname",
+		"queryid",
+		"query",
+		"calls",
+		"total_time",
+		"rows",
+		"shared_blks_hit",
+		"shared_blks_read",
+		"shared_blks_dirtied",
+		"shared_blks_written",
+		"local_blks_hit",
+		"local_blks_read",
+		"local_blks_dirtied",
+		"local_blks_written",
+		"temp_blks_read",
+		"temp_blks_written",
+		"blk_read_time",
+		"blk_write_time",
+		"client_ip",
+		"resp_calls",
+		"cpu_user_time",
+		"cpu_sys_time",
+		"relations",
+	}
+}
+
+// NewStruct makes a new struct for that view or table.
+func (v *pgStatMonitor08ViewType) NewStruct() reform.Struct {
+	return new(pgStatMonitor08)
+}
+
+// pgStatMonitor08View represents pg_stat_monitor view or table in SQL database.
+var pgStatMonitor08View = &pgStatMonitor08ViewType{
+	s: parse.StructInfo{
+		Type:    "pgStatMonitor08",
+		SQLName: "pg_stat_monitor",
+		Fields: []parse.FieldInfo{
+			{Name: "Bucket", Type: "int64", Column: "bucket"},
+			{Name: "BucketStartTime", Type: "string", Column: "bucket_start_time"},
+			{Name: "User", Type: "string", Column: "userid"},
+			{Name: "DatName", Type: "string", Column: "datname"},
+			{Name: "QueryID", Type: "string", Column: "queryid"},
+			{Name: "Query", Type: "string", Column: "query"},
+			{Name: "Calls", Type: "int64", Column: "calls"},
+			{Name: "TotalTime", Type: "float64", Column: "total_time"},
+			{Name: "Rows", Type: "int64", Column: "rows"},
+			{Name: "SharedBlksHit", Type: "int64", Column: "shared_blks_hit"},
+			{Name: "SharedBlksRead", Type: "int64", Column: "shared_blks_read"},
+			{Name: "SharedBlksDirtied", Type: "int64", Column: "shared_blks_dirtied"},
+			{Name: "SharedBlksWritten", Type: "int64", Column: "shared_blks_written"},
+			{Name: "LocalBlksHit", Type: "int64", Column: "local_blks_hit"},
+			{Name: "LocalBlksRead", Type: "int64", Column: "local_blks_read"},
+			{Name: "LocalBlksDirtied", Type: "int64", Column: "local_blks_dirtied"},
+			{Name: "LocalBlksWritten", Type: "int64", Column: "local_blks_written"},
+			{Name: "TempBlksRead", Type: "int64", Column: "temp_blks_read"},
+			{Name: "TempBlksWritten", Type: "int64", Column: "temp_blks_written"},
+			{Name: "BlkReadTime", Type: "float64", Column: "blk_read_time"},
+			{Name: "BlkWriteTime", Type: "float64", Column: "blk_write_time"},
+			{Name: "ClientIP", Type: "string", Column: "client_ip"},
+			{Name: "RespCalls", Type: "pq.StringArray", Column: "resp_calls"},
+			{Name: "CPUUserTime", Type: "float64", Column: "cpu_user_time"},
+			{Name: "CPUSysTime", Type: "float64", Column: "cpu_sys_time"},
+			{Name: "Relations", Type: "pq.StringArray", Column: "relations"},
+		},
+		PKFieldIndex: -1,
+	},
+	z: new(pgStatMonitor08).Values(),
+}
+
+// String returns a string representation of this struct or record.
+func (s pgStatMonitor08) String() string {
+	res := make([]string, 26)
+	res[0] = "Bucket: " + reform.Inspect(s.Bucket, true)
+	res[1] = "BucketStartTime: " + reform.Inspect(s.BucketStartTime, true)
+	res[2] = "User: " + reform.Inspect(s.User, true)
+	res[3] = "DatName: " + reform.Inspect(s.DatName, true)
+	res[4] = "QueryID: " + reform.Inspect(s.QueryID, true)
+	res[5] = "Query: " + reform.Inspect(s.Query, true)
+	res[6] = "Calls: " + reform.Inspect(s.Calls, true)
+	res[7] = "TotalTime: " + reform.Inspect(s.TotalTime, true)
+	res[8] = "Rows: " + reform.Inspect(s.Rows, true)
+	res[9] = "SharedBlksHit: " + reform.Inspect(s.SharedBlksHit, true)
+	res[10] = "SharedBlksRead: " + reform.Inspect(s.SharedBlksRead, true)
+	res[11] = "SharedBlksDirtied: " + reform.Inspect(s.SharedBlksDirtied, true)
+	res[12] = "SharedBlksWritten: " + reform.Inspect(s.SharedBlksWritten, true)
+	res[13] = "LocalBlksHit: " + reform.Inspect(s.LocalBlksHit, true)
+	res[14] = "LocalBlksRead: " + reform.Inspect(s.LocalBlksRead, true)
+	res[15] = "LocalBlksDirtied: " + reform.Inspect(s.LocalBlksDirtied, true)
+	res[16] = "LocalBlksWritten: " + reform.Inspect(s.LocalBlksWritten, true)
+	res[17] = "TempBlksRead: " + reform.Inspect(s.TempBlksRead, true)
+	res[18] = "TempBlksWritten: " + reform.Inspect(s.TempBlksWritten, true)
+	res[19] = "BlkReadTime: " + reform.Inspect(s.BlkReadTime, true)
+	res[20] = "BlkWriteTime: " + reform.Inspect(s.BlkWriteTime, true)
+	res[21] = "ClientIP: " + reform.Inspect(s.ClientIP, true)
+	res[22] = "RespCalls: " + reform.Inspect(s.RespCalls, true)
+	res[23] = "CPUUserTime: " + reform.Inspect(s.CPUUserTime, true)
+	res[24] = "CPUSysTime: " + reform.Inspect(s.CPUSysTime, true)
+	res[25] = "Relations: " + reform.Inspect(s.Relations, true)
+	return strings.Join(res, ", ")
+}
+
+// Values returns a slice of struct or record field values.
+// Returned interface{} values are never untyped nils.
+func (s *pgStatMonitor08) Values() []interface{} {
+	return []interface{}{
+		s.Bucket,
+		s.BucketStartTime,
+		s.User,
+		s.DatName,
+		s.QueryID,
+		s.Query,
+		s.Calls,
+		s.TotalTime,
+		s.Rows,
+		s.SharedBlksHit,
+		s.SharedBlksRead,
+		s.SharedBlksDirtied,
+		s.SharedBlksWritten,
+		s.LocalBlksHit,
+		s.LocalBlksRead,
+		s.LocalBlksDirtied,
+		s.LocalBlksWritten,
+		s.TempBlksRead,
+		s.TempBlksWritten,
+		s.BlkReadTime,
+		s.BlkWriteTime,
+		s.ClientIP,
+		s.RespCalls,
+		s.CPUUserTime,
+		s.CPUSysTime,
+		s.Relations,
+	}
+}
+
+// Pointers returns a slice of pointers to struct or record fields.
+// Returned interface{} values are never untyped nils.
+func (s *pgStatMonitor08) Pointers() []interface{} {
+	return []interface{}{
+		&s.Bucket,
+		&s.BucketStartTime,
+		&s.User,
+		&s.DatName,
+		&s.QueryID,
+		&s.Query,
+		&s.Calls,
+		&s.TotalTime,
+		&s.Rows,
+		&s.SharedBlksHit,
+		&s.SharedBlksRead,
+		&s.SharedBlksDirtied,
+		&s.SharedBlksWritten,
+		&s.LocalBlksHit,
+		&s.LocalBlksRead,
+		&s.LocalBlksDirtied,
+		&s.LocalBlksWritten,
+		&s.TempBlksRead,
+		&s.TempBlksWritten,
+		&s.BlkReadTime,
+		&s.BlkWriteTime,
+		&s.ClientIP,
+		&s.RespCalls,
+		&s.CPUUserTime,
+		&s.CPUSysTime,
+		&s.Relations,
+	}
+}
+
+// View returns View object for that struct.
+func (s *pgStatMonitor08) View() reform.View {
+	return pgStatMonitor08View
+}
+
+// check interfaces
+var (
+	_ reform.View   = pgStatMonitor08View
+	_ reform.Struct = (*pgStatMonitor08)(nil)
+	_ fmt.Stringer  = (*pgStatMonitor08)(nil)
 )
 
 type pgStatMonitorSettingsViewType struct {
@@ -455,6 +655,7 @@ var (
 func init() {
 	parse.AssertUpToDate(&pgStatDatabaseView.s, new(pgStatDatabase))
 	parse.AssertUpToDate(&pgUserView.s, new(pgUser))
-	parse.AssertUpToDate(&pgStatMonitorView.s, new(pgStatMonitor))
+	parse.AssertUpToDate(&pgStatMonitorDefaultView.s, new(pgStatMonitorDefault))
+	parse.AssertUpToDate(&pgStatMonitor08View.s, new(pgStatMonitor08))
 	parse.AssertUpToDate(&pgStatMonitorSettingsView.s, new(pgStatMonitorSettings))
 }

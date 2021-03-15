@@ -38,9 +38,10 @@ type pgUser struct {
 	UserName *string `reform:"usename"`
 }
 
-// pgStatMonitor represents a row in pg_stat_monitor view.
+// pgStatMonitorDefault represents a row in pg_stat_monitor
+// view in version lower than 0.8.
 //reform:pg_stat_monitor
-type pgStatMonitor struct {
+type pgStatMonitorDefault struct {
 	Bucket            int64          `reform:"bucket"`
 	BucketStartTime   time.Time      `reform:"bucket_start_time"`
 	UserID            int64          `reform:"userid"`
@@ -67,6 +68,137 @@ type pgStatMonitor struct {
 	CPUUserTime       float64        `reform:"cpu_user_time"`
 	CPUSysTime        float64        `reform:"cpu_sys_time"`
 	Relations         pq.StringArray `reform:"relations"`
+}
+
+func (m pgStatMonitorDefault) ToPgStatMonitor() pgStatMonitor {
+	return pgStatMonitor{
+		Bucket:            m.Bucket,
+		BucketStartTime:   m.BucketStartTime,
+		UserID:            m.UserID,
+		DBID:              m.DBID,
+		QueryID:           m.QueryID,
+		Query:             m.Query,
+		Calls:             m.Calls,
+		TotalTime:         m.TotalTime,
+		Rows:              m.Rows,
+		SharedBlksHit:     m.SharedBlksHit,
+		SharedBlksRead:    m.SharedBlksRead,
+		SharedBlksDirtied: m.SharedBlksDirtied,
+		SharedBlksWritten: m.SharedBlksWritten,
+		LocalBlksHit:      m.LocalBlksHit,
+		LocalBlksRead:     m.LocalBlksRead,
+		LocalBlksDirtied:  m.LocalBlksDirtied,
+		LocalBlksWritten:  m.LocalBlksWritten,
+		TempBlksRead:      m.TempBlksRead,
+		TempBlksWritten:   m.TempBlksWritten,
+		BlkReadTime:       m.BlkReadTime,
+		BlkWriteTime:      m.BlkWriteTime,
+		ClientIP:          m.ClientIP,
+		RespCalls:         m.RespCalls,
+		CPUUserTime:       m.CPUUserTime,
+		CPUSysTime:        m.CPUSysTime,
+		Relations:         m.Relations,
+	}
+}
+
+// pgStatMonitor08 represents a row in pg_stat_monitor
+// view in version 0.8 and higher.
+//reform:pg_stat_monitor
+type pgStatMonitor08 struct {
+	Bucket            int64          `reform:"bucket"`
+	BucketStartTime   string         `reform:"bucket_start_time"`
+	User              string         `reform:"userid"`
+	DatName           string         `reform:"datname"`
+	QueryID           string         `reform:"queryid"` // we select only non-NULL rows
+	Query             string         `reform:"query"`   // we select only non-NULL rows
+	Calls             int64          `reform:"calls"`
+	TotalTime         float64        `reform:"total_time"`
+	Rows              int64          `reform:"rows"`
+	SharedBlksHit     int64          `reform:"shared_blks_hit"`
+	SharedBlksRead    int64          `reform:"shared_blks_read"`
+	SharedBlksDirtied int64          `reform:"shared_blks_dirtied"`
+	SharedBlksWritten int64          `reform:"shared_blks_written"`
+	LocalBlksHit      int64          `reform:"local_blks_hit"`
+	LocalBlksRead     int64          `reform:"local_blks_read"`
+	LocalBlksDirtied  int64          `reform:"local_blks_dirtied"`
+	LocalBlksWritten  int64          `reform:"local_blks_written"`
+	TempBlksRead      int64          `reform:"temp_blks_read"`
+	TempBlksWritten   int64          `reform:"temp_blks_written"`
+	BlkReadTime       float64        `reform:"blk_read_time"`
+	BlkWriteTime      float64        `reform:"blk_write_time"`
+	ClientIP          string         `reform:"client_ip"`
+	RespCalls         pq.StringArray `reform:"resp_calls"`
+	CPUUserTime       float64        `reform:"cpu_user_time"`
+	CPUSysTime        float64        `reform:"cpu_sys_time"`
+	Relations         pq.StringArray `reform:"relations"`
+}
+
+func (m pgStatMonitor08) ToPgStatMonitor() (pgStatMonitor, error) {
+	bucketStartTime, err := time.Parse("2006-01-02 15:04:05", m.BucketStartTime)
+	if err != nil {
+		return pgStatMonitor{}, err
+	}
+
+	return pgStatMonitor{
+		Bucket:            m.Bucket,
+		BucketStartTime:   bucketStartTime,
+		User:              m.User,
+		DatName:           m.DatName,
+		QueryID:           m.QueryID,
+		Query:             m.Query,
+		Calls:             m.Calls,
+		TotalTime:         m.TotalTime,
+		Rows:              m.Rows,
+		SharedBlksHit:     m.SharedBlksHit,
+		SharedBlksRead:    m.SharedBlksRead,
+		SharedBlksDirtied: m.SharedBlksDirtied,
+		SharedBlksWritten: m.SharedBlksWritten,
+		LocalBlksHit:      m.LocalBlksHit,
+		LocalBlksRead:     m.LocalBlksRead,
+		LocalBlksDirtied:  m.LocalBlksDirtied,
+		LocalBlksWritten:  m.LocalBlksWritten,
+		TempBlksRead:      m.TempBlksRead,
+		TempBlksWritten:   m.TempBlksWritten,
+		BlkReadTime:       m.BlkReadTime,
+		BlkWriteTime:      m.BlkWriteTime,
+		ClientIP:          m.ClientIP,
+		RespCalls:         m.RespCalls,
+		CPUUserTime:       m.CPUUserTime,
+		CPUSysTime:        m.CPUSysTime,
+		Relations:         m.Relations,
+	}, nil
+}
+
+// pgStatMonitor represents a row in pg_stat_monitor view.
+type pgStatMonitor struct {
+	Bucket            int64
+	BucketStartTime   time.Time
+	UserID            int64
+	User              string
+	DBID              int64
+	DatName           string
+	QueryID           string
+	Query             string
+	Calls             int64
+	TotalTime         float64
+	Rows              int64
+	SharedBlksHit     int64
+	SharedBlksRead    int64
+	SharedBlksDirtied int64
+	SharedBlksWritten int64
+	LocalBlksHit      int64
+	LocalBlksRead     int64
+	LocalBlksDirtied  int64
+	LocalBlksWritten  int64
+	TempBlksRead      int64
+	TempBlksWritten   int64
+	BlkReadTime       float64
+	BlkWriteTime      float64
+	ClientIP          string
+	RespCalls         pq.StringArray
+	CPUUserTime       float64
+	CPUSysTime        float64
+	Relations         pq.StringArray
 }
 
 // pgStatMonitorSettings represents a row in pg_stat_monitor_settings view.

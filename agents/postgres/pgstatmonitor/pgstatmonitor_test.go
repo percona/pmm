@@ -106,7 +106,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		assert.NoError(t, err)
 	}()
 
-	structs, err := db.SelectAllFrom(pgStatMonitorView, "")
+	structs, err := db.SelectAllFrom(pgStatMonitorDefaultView, "")
 	require.NoError(t, err)
 	tests.LogTable(t, structs)
 
