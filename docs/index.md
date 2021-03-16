@@ -2,7 +2,7 @@
 
 !!! alert alert-success "This is the technical documentation for the latest release: [PMM {{release}}](release-notes/{{release}}.md)"
 
-Percona Monitoring and Management (PMM) is a free, open-source database and system monitoring tool for MySQL, PostgreSQL, MongoDB, and ProxySQL, and the servers they run on.
+**Percona Monitoring and Management (PMM) is a free, open-source database and system monitoring tool for MySQL, PostgreSQL, MongoDB, and ProxySQL, and the servers they run on.**
 
 PMM helps you improve the performance of database instances, simplify their management, and strengthen their security. With it, you can:
 
@@ -16,12 +16,12 @@ PMM is efficient, quick to set up and easy to use. It runs in cloud, on-prem, or
 
 !!! alert alert-info "Try the online demo at <a href='https://pmmdemo.percona.com/' target='_blank'>pmmdemo.percona.com</a>"
 
-PMM is a client/server application built by Percona with their own and third-party open-source tools. We provide packages for both PMM Server and PMM Client.
+## How it works
+
+PMM is a client/server application built by Percona with their own and third-party open-source tools. We provide packages for both PMM Server and PMM Client. (Read more in [Architecture](details/architecture.md).)
 
 ```plantuml source="_resources/diagrams/1_PMM_Context.puml"
 ```
-
-(See more in [Architecture](details/architecture.md).)
 
 **PMM Server**
 
