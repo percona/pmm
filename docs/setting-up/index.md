@@ -32,7 +32,7 @@ You can do this:
 
 ## 3. Configure and add services {: #configure-add-services}
 
-You must configure your services and adding them to PMM Server's inventory of monitored systems. This is different for each type of service:
+You must configure your services and add them to PMM Server's inventory of monitored systems. This is different for each type of service:
 
 - [MySQL and variants (Percona Server for MySQL, Percona XtraDB Cluster, MariaDB)](client/mysql.md)
 - [MongoDB](client/mongodb.md)
