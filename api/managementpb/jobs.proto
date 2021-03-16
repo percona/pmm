@@ -29,11 +29,24 @@ message GetJobResponse {
 }
 
 message StartEchoJobRequest {
-  string message = 1;
-  google.protobuf.Duration delay = 2;
+  // pmm-agent ID where to run this Action.
+  string pmm_agent_id = 1;
+  // Service ID for this Action. Required.
+  string service_id = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  string message = 3;
+  google.protobuf.Duration delay = 4;
 }
 
-message StartEchoJobResponse {}
+message StartEchoJobResponse {
+  // Unique Job ID.
+  string job_id = 1;
+  // pmm-agent ID where to this Action was started.
+  string pmm_agent_id = 2;
+}
 
 message CancelJobRequest {
   // Unique Job ID. Required.

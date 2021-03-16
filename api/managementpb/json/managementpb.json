@@ -2380,11 +2380,21 @@
               "properties": {
                 "delay": {
                   "type": "string",
-                  "x-order": 1
+                  "x-order": 3
                 },
                 "message": {
                   "type": "string",
+                  "x-order": 2
+                },
+                "pmm_agent_id": {
+                  "description": "pmm-agent ID where to run this Action.",
+                  "type": "string",
                   "x-order": 0
+                },
+                "service_id": {
+                  "description": "Service ID for this Action. Required.",
+                  "type": "string",
+                  "x-order": 1
                 }
               }
             }
@@ -2394,7 +2404,19 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "job_id": {
+                  "description": "Unique Job ID.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "pmm_agent_id": {
+                  "description": "pmm-agent ID where to this Action was started.",
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
             }
           },
           "default": {

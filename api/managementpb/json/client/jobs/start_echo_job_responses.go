@@ -52,21 +52,23 @@ func NewStartEchoJobOK() *StartEchoJobOK {
 A successful response.
 */
 type StartEchoJobOK struct {
-	Payload interface{}
+	Payload *StartEchoJobOKBody
 }
 
 func (o *StartEchoJobOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Jobs/StartEcho][%d] startEchoJobOk  %+v", 200, o.Payload)
 }
 
-func (o *StartEchoJobOK) GetPayload() interface{} {
+func (o *StartEchoJobOK) GetPayload() *StartEchoJobOKBody {
 	return o.Payload
 }
 
 func (o *StartEchoJobOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(StartEchoJobOKBody)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -119,6 +121,12 @@ func (o *StartEchoJobDefault) readResponse(response runtime.ClientResponse, cons
 swagger:model StartEchoJobBody
 */
 type StartEchoJobBody struct {
+
+	// pmm-agent ID where to run this Action.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Service ID for this Action. Required.
+	ServiceID string `json:"service_id,omitempty"`
 
 	// message
 	Message string `json:"message,omitempty"`
@@ -218,6 +226,41 @@ func (o *StartEchoJobDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *StartEchoJobDefaultBody) UnmarshalBinary(b []byte) error {
 	var res StartEchoJobDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*StartEchoJobOKBody start echo job OK body
+swagger:model StartEchoJobOKBody
+*/
+type StartEchoJobOKBody struct {
+
+	// Unique Job ID.
+	JobID string `json:"job_id,omitempty"`
+
+	// pmm-agent ID where to this Action was started.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+}
+
+// Validate validates this start echo job OK body
+func (o *StartEchoJobOKBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *StartEchoJobOKBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *StartEchoJobOKBody) UnmarshalBinary(b []byte) error {
+	var res StartEchoJobOKBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
