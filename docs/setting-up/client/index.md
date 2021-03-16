@@ -110,13 +110,13 @@ Here are the download page links for each supported platform.
 ### Install on Debian-based distributions
 
 ```sh
-dpkg -i *.deb
+sudo dpkg -i *.deb
 ```
 
 ### Install on Red Hat-based distributions
 
 ```sh
-dnf localinstall *.rpm
+sudo dnf localinstall *.rpm
 ```
 
 ## Download and unpack generic Linux binary package {: #binary-package }
