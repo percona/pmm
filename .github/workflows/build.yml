@@ -31,7 +31,9 @@ jobs:
       - name: Setup PlantUML
         run: |
           sudo apt install -y graphviz
-          sudo mkdir -p /opt/plantuml && wget -O /opt/plantuml/plantuml.jar https://downloads.sourceforge.net/project/plantuml/plantuml.jar
+          sudo mkdir -p /opt/plantuml
+          sudo wget -O /opt/plantuml/plantuml.jar https://downloads.sourceforge.net/project/plantuml/plantuml.jar
+          sudo chmod +x /opt/plantuml/plantuml.jar
           sudo cp $GITHUB_WORKSPACE/_resources/bin/plantuml /usr/local/bin
           sudo chmod +x /usr/local/bin/plantuml
 
