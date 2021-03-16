@@ -59,7 +59,7 @@ docker cp dhparam.pem pmm-server:/srv/nginx/dhparam.pem
 ### Enabling SSL when connecting PMM Client to PMM Server
 
 ```
-pmm-admin config --server-url=https://<user>:<password>@<server IP> --server-insecure-tls
+pmm-admin config --server-url=https://<user>:<password>@<server IP>
 ```
 
 ## Grafana HTTPS secure cookies
