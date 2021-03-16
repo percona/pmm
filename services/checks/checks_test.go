@@ -342,8 +342,22 @@ func TestStartChecks(t *testing.T) {
 	t.Run("stt disabled", func(t *testing.T) {
 		s, err := New(nil, nil, db)
 		require.NoError(t, err)
-		err = s.StartChecks(context.Background())
+		err = s.StartChecks(context.Background(), "")
 		assert.EqualError(t, err, services.ErrSTTDisabled.Error())
+	})
+
+	t.Run("unknown interval", func(t *testing.T) {
+		s, err := New(nil, nil, db)
+		require.NoError(t, err)
+		settings, err := models.GetSettings(db)
+		require.NoError(t, err)
+
+		settings.SaaS.STTEnabled = true
+		err = models.SaveSettings(db, settings)
+		require.NoError(t, err)
+
+		err = s.StartChecks(context.Background(), check.Interval("unknown"))
+		assert.EqualError(t, err, "unknown check interval: unknown")
 	})
 
 	t.Run("stt enabled", func(t *testing.T) {
@@ -359,7 +373,7 @@ func TestStartChecks(t *testing.T) {
 		err = models.SaveSettings(db, settings)
 		require.NoError(t, err)
 
-		err = s.StartChecks(context.Background())
+		err = s.StartChecks(context.Background(), "")
 		require.NoError(t, err)
 	})
 }
@@ -501,4 +515,24 @@ func TestFindTargets(t *testing.T) {
 			})
 		}
 	})
+}
+
+func TestFilterChecksByInterval(t *testing.T) {
+	t.Parallel()
+
+	rareCheck := check.Check{Name: "rareCheck", Interval: check.Rare}
+	standardCheck := check.Check{Name: "standardCheck", Interval: check.Standard}
+	frequentCheck := check.Check{Name: "frequentCheck", Interval: check.Frequent}
+	emptyCheck := check.Check{Name: "emptyCheck"}
+
+	checks := []check.Check{rareCheck, standardCheck, frequentCheck, emptyCheck}
+
+	rareChecks := filterChecksByInterval(checks, check.Rare)
+	assert.ElementsMatch(t, []check.Check{rareCheck}, rareChecks)
+
+	standardChecks := filterChecksByInterval(checks, check.Standard)
+	assert.ElementsMatch(t, []check.Check{standardCheck, emptyCheck}, standardChecks)
+
+	frequentChecks := filterChecksByInterval(checks, check.Frequent)
+	assert.ElementsMatch(t, []check.Check{frequentCheck}, frequentChecks)
 }
