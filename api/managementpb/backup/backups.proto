@@ -17,9 +17,16 @@ enum Status {
   ERROR = 5;
 }
 
+// DataModel is a model used for performing a backup.
+enum DataModel {
+  DATA_MODEL_INVALID = 0;
+  PHYSICAL = 1;
+  LOGICAL = 2;
+}
+
 // Backup represents single Backup Location.
 message Backup {
-  // Machine-readable ID.
+  // Machine-readable backup ID.
   string backup_id = 1;
   // Backup name
   string name = 2;
@@ -29,10 +36,16 @@ message Backup {
   string location_id = 4;
   // Backup location name.
   string location_name = 5;
+  // Machine-readable backup service ID.
+  string service_id = 6;
+  // Backup service name.
+  string service_name = 7;
+  // Backup data model.
+  DataModel data_model = 8;
   // Backup status.
-  Status status = 6;
+  Status status = 9;
   // Backup creation time.
-  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp created_at = 10;
 }
 
 message ListBackupsRequest {}

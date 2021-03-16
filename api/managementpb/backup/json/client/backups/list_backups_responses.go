@@ -124,7 +124,7 @@ swagger:model BackupsItems0
 */
 type BackupsItems0 struct {
 
-	// Machine-readable ID.
+	// Machine-readable backup ID.
 	BackupID string `json:"backup_id,omitempty"`
 
 	// Backup name
@@ -139,6 +139,16 @@ type BackupsItems0 struct {
 	// Backup location name.
 	LocationName string `json:"location_name,omitempty"`
 
+	// Machine-readable backup service ID.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// Backup service name.
+	ServiceName string `json:"service_name,omitempty"`
+
+	// DataModel is a model used for performing a backup.
+	// Enum: [DATA_MODEL_INVALID PHYSICAL LOGICAL]
+	DataModel *string `json:"data_model,omitempty"`
+
 	// Status shows current status of Backup.
 	// Enum: [STATUS_INVALID PENDING IN_PROGRESS PAUSED SUCCESS ERROR]
 	Status *string `json:"status,omitempty"`
@@ -152,6 +162,10 @@ type BackupsItems0 struct {
 func (o *BackupsItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := o.validateDataModel(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
@@ -163,6 +177,52 @@ func (o *BackupsItems0) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+var backupsItems0TypeDataModelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["DATA_MODEL_INVALID","PHYSICAL","LOGICAL"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		backupsItems0TypeDataModelPropEnum = append(backupsItems0TypeDataModelPropEnum, v)
+	}
+}
+
+const (
+
+	// BackupsItems0DataModelDATAMODELINVALID captures enum value "DATA_MODEL_INVALID"
+	BackupsItems0DataModelDATAMODELINVALID string = "DATA_MODEL_INVALID"
+
+	// BackupsItems0DataModelPHYSICAL captures enum value "PHYSICAL"
+	BackupsItems0DataModelPHYSICAL string = "PHYSICAL"
+
+	// BackupsItems0DataModelLOGICAL captures enum value "LOGICAL"
+	BackupsItems0DataModelLOGICAL string = "LOGICAL"
+)
+
+// prop value enum
+func (o *BackupsItems0) validateDataModelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, backupsItems0TypeDataModelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *BackupsItems0) validateDataModel(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.DataModel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateDataModelEnum("data_model", "body", *o.DataModel); err != nil {
+		return err
+	}
+
 	return nil
 }
 

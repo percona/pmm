@@ -21468,7 +21468,7 @@
                     "type": "object",
                     "properties": {
                       "backup_id": {
-                        "description": "Machine-readable ID.",
+                        "description": "Machine-readable backup ID.",
                         "type": "string",
                         "x-order": 0
                       },
@@ -21492,6 +21492,27 @@
                         "type": "string",
                         "x-order": 4
                       },
+                      "service_id": {
+                        "description": "Machine-readable backup service ID.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "service_name": {
+                        "description": "Backup service name.",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "data_model": {
+                        "description": "DataModel is a model used for performing a backup.",
+                        "type": "string",
+                        "default": "DATA_MODEL_INVALID",
+                        "enum": [
+                          "DATA_MODEL_INVALID",
+                          "PHYSICAL",
+                          "LOGICAL"
+                        ],
+                        "x-order": 7
+                      },
                       "status": {
                         "description": "Status shows current status of Backup.",
                         "type": "string",
@@ -21504,13 +21525,13 @@
                           "SUCCESS",
                           "ERROR"
                         ],
-                        "x-order": 5
+                        "x-order": 8
                       },
                       "created_at": {
                         "description": "Backup creation time.",
                         "type": "string",
                         "format": "date-time",
-                        "x-order": 6
+                        "x-order": 9
                       }
                     }
                   },
