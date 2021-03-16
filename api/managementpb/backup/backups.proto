@@ -24,42 +24,42 @@ enum DataModel {
   LOGICAL = 2;
 }
 
-// Backup represents single Backup Location.
-message Backup {
-  // Machine-readable backup ID.
-  string backup_id = 1;
-  // Backup name
+// Artifact represents single Backup Artifact.
+message Artifact {
+  // Machine-readable artifact ID.
+  string artifact_id = 1;
+  // Artifact name
   string name = 2;
   // Database vendor e.g. PostgreSQL, MongoDB, MySQL.
   string vendor = 3;
   // Machine-readable location ID.
   string location_id = 4;
-  // Backup location name.
+  // Location name.
   string location_name = 5;
-  // Machine-readable backup service ID.
+  // Machine-readable service ID.
   string service_id = 6;
-  // Backup service name.
+  // Service name.
   string service_name = 7;
   // Backup data model.
   DataModel data_model = 8;
   // Backup status.
   Status status = 9;
-  // Backup creation time.
+  // Artifact creation time.
   google.protobuf.Timestamp created_at = 10;
 }
 
-message ListBackupsRequest {}
+message ListArtifactsRequest {}
 
-message ListBackupsResponse {
-  repeated Backup backups = 1;
+message ListArtifactsResponse {
+  repeated Artifact artifacts = 1;
 }
 
-// Backups service provides public methods for managing Backups.
-service Backups {
-  // ListBackups returns a list of all backups.
-  rpc ListBackups(ListBackupsRequest) returns (ListBackupsResponse) {
+// Artifacts service provides public methods for managing Backup Artifacts.
+service Artifacts {
+  // ListArtifacts returns a list of all backup artifacts.
+  rpc ListArtifacts(ListArtifactsRequest) returns (ListArtifactsResponse) {
     option (google.api.http) = {
-      post: "/v1/management/backup/Backups/List"
+      post: "/v1/management/backup/Artifacts/List"
       body: "*"
     };
   }

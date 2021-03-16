@@ -21438,13 +21438,13 @@
         }
       }
     },
-    "/v1/management/backup/Backups/List": {
+    "/v1/management/backup/Artifacts/List": {
       "post": {
         "tags": [
-          "Backups"
+          "Artifacts"
         ],
-        "summary": "ListBackups returns a list of all backups.",
-        "operationId": "ListBackups",
+        "summary": "ListArtifacts returns a list of all backup artifacts.",
+        "operationId": "ListArtifacts",
         "parameters": [
           {
             "name": "body",
@@ -21461,20 +21461,20 @@
             "schema": {
               "type": "object",
               "properties": {
-                "backups": {
+                "artifacts": {
                   "type": "array",
                   "items": {
-                    "description": "Backup represents single Backup Location.",
+                    "description": "Artifact represents single Backup Artifact.",
                     "type": "object",
                     "properties": {
-                      "backup_id": {
-                        "description": "Machine-readable backup ID.",
+                      "artifact_id": {
+                        "description": "Machine-readable artifact ID.",
                         "type": "string",
                         "x-order": 0
                       },
                       "name": {
                         "type": "string",
-                        "title": "Backup name",
+                        "title": "Artifact name",
                         "x-order": 1
                       },
                       "vendor": {
@@ -21488,17 +21488,17 @@
                         "x-order": 3
                       },
                       "location_name": {
-                        "description": "Backup location name.",
+                        "description": "Location name.",
                         "type": "string",
                         "x-order": 4
                       },
                       "service_id": {
-                        "description": "Machine-readable backup service ID.",
+                        "description": "Machine-readable service ID.",
                         "type": "string",
                         "x-order": 5
                       },
                       "service_name": {
-                        "description": "Backup service name.",
+                        "description": "Service name.",
                         "type": "string",
                         "x-order": 6
                       },
@@ -21528,7 +21528,7 @@
                         "x-order": 8
                       },
                       "created_at": {
-                        "description": "Backup creation time.",
+                        "description": "Artifact creation time.",
                         "type": "string",
                         "format": "date-time",
                         "x-order": 9
