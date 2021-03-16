@@ -14638,6 +14638,345 @@
         }
       }
     },
+    "/v1/management/AzureDatabase/Add": {
+      "post": {
+        "tags": [
+          "AzureDatabase"
+        ],
+        "summary": "AddAzureDatabase adds Azure Database instance.",
+        "operationId": "AddAzureDatabase",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "region": {
+                  "description": "Azure region.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "az": {
+                  "description": "AWS availability zone.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "instance_id": {
+                  "description": "AWS instance ID.",
+                  "type": "string",
+                  "x-order": 2
+                },
+                "node_model": {
+                  "description": "Azure instance class.",
+                  "type": "string",
+                  "x-order": 3
+                },
+                "address": {
+                  "description": "Address used to connect to it.",
+                  "type": "string",
+                  "x-order": 4
+                },
+                "port": {
+                  "description": "Access port.",
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 5
+                },
+                "node_name": {
+                  "description": "Unique across all Nodes user-defined name. Defaults to Azure Database instance ID.",
+                  "type": "string",
+                  "x-order": 6
+                },
+                "service_name": {
+                  "description": "Unique across all Services user-defined name. Defaults to Azure Database instance ID.",
+                  "type": "string",
+                  "x-order": 7
+                },
+                "environment": {
+                  "description": "Environment name.",
+                  "type": "string",
+                  "x-order": 8
+                },
+                "username": {
+                  "description": "Username for scraping metrics.",
+                  "type": "string",
+                  "x-order": 9
+                },
+                "password": {
+                  "description": "Password for scraping metrics.",
+                  "type": "string",
+                  "x-order": 10
+                },
+                "rds_exporter": {
+                  "description": "If true, adds rds_exporter.",
+                  "type": "boolean",
+                  "x-order": 11
+                },
+                "qan_mysql_perfschema": {
+                  "description": "If true, adds qan-mysql-perfschema-agent.",
+                  "type": "boolean",
+                  "x-order": 12
+                },
+                "custom_labels": {
+                  "description": "Custom user-assigned labels for Node and Service.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "x-order": 13
+                },
+                "skip_connection_check": {
+                  "description": "Skip connection check.",
+                  "type": "boolean",
+                  "x-order": 14
+                },
+                "tls": {
+                  "description": "Use TLS for database connections.",
+                  "type": "boolean",
+                  "x-order": 15
+                },
+                "tls_skip_verify": {
+                  "description": "Skip TLS certificate and hostname validation.",
+                  "type": "boolean",
+                  "x-order": 16
+                },
+                "disable_query_examples": {
+                  "description": "Disable query examples.",
+                  "type": "boolean",
+                  "x-order": 17
+                },
+                "tablestats_group_table_limit": {
+                  "description": "Tablestats group collectors will be disabled if there are more than that number of tables.\nIf zero, server's default value is used.\nUse negative value to disable them.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 18
+                },
+                "disable_basic_metrics": {
+                  "description": "Disable basic metrics.",
+                  "type": "boolean",
+                  "x-order": 19
+                },
+                "disable_enhanced_metrics": {
+                  "description": "Disable enhanced metrics.",
+                  "type": "boolean",
+                  "x-order": 20
+                },
+                "metrics_mode": {
+                  "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
+                  "type": "string",
+                  "default": "AUTO",
+                  "enum": [
+                    "AUTO",
+                    "PULL",
+                    "PUSH"
+                  ],
+                  "x-order": 21
+                },
+                "type": {
+                  "description": "DiscoverAzureDatabaseType describes supported RDS instance engines.\n\n - DISCOVER_AZURE_DATABASE_TYPE_MYSQL: MySQL type: microsoft.dbformysql/servers\n - DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL: PostgreSQL type: microsoft.dbformysql/servers",
+                  "type": "string",
+                  "default": "DISCOVER_AZURE_DATABASE_TYPE_INVALID",
+                  "enum": [
+                    "DISCOVER_AZURE_DATABASE_TYPE_INVALID",
+                    "DISCOVER_AZURE_DATABASE_TYPE_MYSQL",
+                    "DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL"
+                  ],
+                  "x-order": 22
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/AzureDatabase/Discover": {
+      "post": {
+        "tags": [
+          "AzureDatabase"
+        ],
+        "summary": "DiscoverAzureDatabase discovers Azure Database for MySQL and PostgreSQL Server instances.",
+        "operationId": "DiscoverAzureDatabase",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "client_id": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "client_secret": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "tenant_id": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "subscription_id": {
+                  "type": "string",
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "azure_database_instance": {
+                  "type": "array",
+                  "items": {
+                    "description": "DiscoverAzureDatabaseInstance models an unique Azure Database instance for the list of instances returned by Discovery.",
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "location": {
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "name": {
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "administrator_login": {
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "fully_qualified_domain_name": {
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "resource_group": {
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "environment": {
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "type": {
+                        "description": "DiscoverAzureDatabaseType describes supported RDS instance engines.\n\n - DISCOVER_AZURE_DATABASE_TYPE_MYSQL: MySQL type: microsoft.dbformysql/servers\n - DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL: PostgreSQL type: microsoft.dbformysql/servers",
+                        "type": "string",
+                        "default": "DISCOVER_AZURE_DATABASE_TYPE_INVALID",
+                        "enum": [
+                          "DISCOVER_AZURE_DATABASE_TYPE_INVALID",
+                          "DISCOVER_AZURE_DATABASE_TYPE_MYSQL",
+                          "DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL"
+                        ],
+                        "x-order": 7
+                      },
+                      "zones": {
+                        "type": "string",
+                        "x-order": 8
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/DBaaS/GetLogs": {
       "post": {
         "tags": [
