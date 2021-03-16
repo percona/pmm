@@ -7,7 +7,7 @@ option go_package = "api/managementpb/backup;backupv1beta1";
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 
-// Status shows current status of Backup.
+// Status shows current status of backup.
 enum Status {
   STATUS_INVALID = 0;
   PENDING = 1;
@@ -24,7 +24,7 @@ enum DataModel {
   LOGICAL = 2;
 }
 
-// Artifact represents single Backup Artifact.
+// Artifact represents single backup artifact.
 message Artifact {
   // Machine-readable artifact ID.
   string artifact_id = 1;
@@ -54,7 +54,7 @@ message ListArtifactsResponse {
   repeated Artifact artifacts = 1;
 }
 
-// Artifacts service provides public methods for managing Backup Artifacts.
+// Artifacts service provides public methods for managing backup artifacts.
 service Artifacts {
   // ListArtifacts returns a list of all backup artifacts.
   rpc ListArtifacts(ListArtifactsRequest) returns (ListArtifactsResponse) {

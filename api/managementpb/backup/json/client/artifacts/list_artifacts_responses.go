@@ -119,7 +119,7 @@ func (o *ListArtifactsDefault) readResponse(response runtime.ClientResponse, con
 	return nil
 }
 
-/*ArtifactsItems0 Artifact represents single Backup Artifact.
+/*ArtifactsItems0 Artifact represents single backup artifact.
 swagger:model ArtifactsItems0
 */
 type ArtifactsItems0 struct {
@@ -149,7 +149,7 @@ type ArtifactsItems0 struct {
 	// Enum: [DATA_MODEL_INVALID PHYSICAL LOGICAL]
 	DataModel *string `json:"data_model,omitempty"`
 
-	// Status shows current status of Backup.
+	// Status shows current status of backup.
 	// Enum: [STATUS_INVALID PENDING IN_PROGRESS PAUSED SUCCESS ERROR]
 	Status *string `json:"status,omitempty"`
 

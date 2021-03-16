@@ -21464,7 +21464,7 @@
                 "artifacts": {
                   "type": "array",
                   "items": {
-                    "description": "Artifact represents single Backup Artifact.",
+                    "description": "Artifact represents single backup artifact.",
                     "type": "object",
                     "properties": {
                       "artifact_id": {
@@ -21514,7 +21514,7 @@
                         "x-order": 7
                       },
                       "status": {
-                        "description": "Status shows current status of Backup.",
+                        "description": "Status shows current status of backup.",
                         "type": "string",
                         "default": "STATUS_INVALID",
                         "enum": [

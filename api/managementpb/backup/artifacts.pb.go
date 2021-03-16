@@ -31,7 +31,7 @@ const (
 // of the legacy proto package is being used.
 const _ = proto.ProtoPackageIsVersion4
 
-// Status shows current status of Backup.
+// Status shows current status of backup.
 type Status int32
 
 const (
@@ -140,7 +140,7 @@ func (DataModel) EnumDescriptor() ([]byte, []int) {
 	return file_managementpb_backup_artifacts_proto_rawDescGZIP(), []int{1}
 }
 
-// Artifact represents single Backup Artifact.
+// Artifact represents single backup artifact.
 type Artifact struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
