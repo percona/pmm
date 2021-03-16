@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package management;
+
+option go_package = "api/managementpb;managementpb";
+
+import "github.com/mwitkow/go-proto-validators/validator.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/duration.proto";
+
+// JobType represents Job type.
+enum JobType {
+  JOB_TYPE_INVALID = 0;
+  ECHO = 1;
+}
+
+message GetJobRequest {
+  // Unique Job ID.
+  string job_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
+
+message GetJobResponse {
+  // TODO
+
+}
+
+message StartEchoJobRequest {
+  string message = 1;
+  google.protobuf.Duration delay = 2;
+}
+
+message StartEchoJobResponse {}
+
+message CancelJobRequest {
+  // Unique Job ID. Required.
+  string job_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
+
+message CancelJobResponse {}
+
+// Jobs service provides public Management API methods for Jobs.
+service Jobs {
+  // GetAction gets an result of given Action.
+  rpc GetAction(GetJobRequest) returns (GetJobResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/Jobs/Get"
+      body: "*"
+    };
+  }
+  // StartEchoJob starts echo job.
+  rpc StartEchoJob(StartEchoJobRequest) returns (StartEchoJobResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/Jobs/StartEcho"
+      body: "*"
+    };
+  }
+  // CancelAction stops a Job.
+  rpc CancelAction(CancelJobRequest) returns (CancelJobResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/Jobs/Cancel"
+      body: "*"
+    };
+  }
+}
