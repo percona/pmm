@@ -1,18 +1,17 @@
 # Percona Monitoring and Management (PMM) Documentation
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fpercona%2Fpmm-doc.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fpercona%2Fpmm-doc?ref=badge_shield)
 
-[Percona Monitoring and Management (PMM)](https://www.percona.com/software/database-tools/percona-monitoring-and-management) is a free, open-source, database monitoring solution.
+[Percona Monitoring and Management (PMM)](https://www.percona.com/software/database-tools/percona-monitoring-and-management) is a database monitoring solution that is free and open-source.
 
 This repo holds the source files for the PMM technical documentation published at <https://www.percona.com/doc/percona-monitoring-and-management/>.
 
-
-To contribute to the documentation, you can:
+To contribute to that documentation, you can:
 
 - **report a general problem** -- open an [Issue in this repo](https://github.com/percona/pmm-doc/issues/new?title=PMM%20doc%20issue&body=Please%20describe%20the%20issue%20here) or use [Percona's Jira](https://jira.percona.com/browse/PMM).
 
-- **report a problem on a page** -- on every page of our documentation is a link, *Report a problem with this page*, a shortcut to this repo's *Issues*. (The link pre-fills the issue's subject so we know what page you're on.) Click, explain, and we'll fix it.
+- **report a problem on a page** -- every page of our documentation has a link, *Report a problem with this page*, a shortcut to this repo's *Issues*. (The link pre-fills the issue's subject so we know what page you're on.) Click it, explain it, and we'll fix it.
 
-- **fix a problem yourself** -- there is also an *Edit this page* link that will bring you to this repo to edit the Markdown source file for that page. Make your changes (you'll have to fork the repo unless you're Percona staff) and submit a PR which we'll review and adjust where necessary before merging and publishing. If the changes are more than a few lines, you might want to build the website locally to see how it looks in context. To do that, read on.
+- **fix a problem yourself** -- there is also an *Edit this page* link that will bring you to this repo to edit the Markdown source file for that page. Make your changes (you'll have to fork the repo unless you're Percona staff) and submit a PR which we'll review and adjust where necessary before merging and publishing. If the changes are more than a few lines, you might want to build the website locally to see how it looks in context. That's what the rest of this README covers.
 
 > ![PMM Technical Documentation links](docs/_images/pmm-links.png)
 >
@@ -22,69 +21,63 @@ To contribute to the documentation, you can:
 
 We use [MkDocs](https://www.mkdocs.org/) to convert [Markdown](https://daringfireball.net/projects/markdown/) files into a static HTML website (or [PDF](#pdf)). This process is called [*building the documentation*](#building-the-documentation).
 
-The documentation is in the `docs` directory. To know about other files in this repo, jump to [Directories and files](#directories-and-files).
+The documentation source files are in the `docs` directory. (Other files in this repo are explained in [Directories and files](#directories-and-files).)
 
-We use different branches for PMM versions:
+We use different branches for two major PMM versions:
 
-- `main` is for PMM 2 (latest)
-- `1.x` is for PMM 1
+- `main` is for PMM 2.x (latest)
+- `1.x` is for PMM 1.x
 
-Before you start, you'll need to know:
-
-- what [git](https://git-scm.com), [Python 3](https://www.python.org/downloads/) and [Docker](https://docs.docker.com/get-docker/) are;
-- what [Markdown](https://daringfireball.net/projects/markdown/) is and how to write it;
-- how to install and run those things on the command line.
-
-(If you don't, open an [Issue](https://github.com/percona/pmm-doc/issues/new?title=PMM%20doc%20issue&body=Please%20describe%20the%20issue%20here) instead.)
+Before you start, it helps to know what [git](https://git-scm.com), [Python 3](https://www.python.org/downloads/) and [Docker](https://docs.docker.com/get-docker/) are, what [Markdown](https://daringfireball.net/projects/markdown/) is and how to write it, and how to install and use those things on the command line. (If you don't, consider opening an [Issue](https://github.com/percona/pmm-doc/issues/new?title=PMM%20doc%20issue&body=Please%20describe%20the%20issue%20here) instead.)
 
 ## Building the documentation
 
-1. Clone this repository
-2. Change directory to `pmm-doc`
-3. Either:
-	- [Use Docker](#use-docker)
-	- [Install MkDocs and dependencies](#install-mkdocs-and-dependencies)
-
-### Use Docker
+If you'd like to have a local copy of PMM documentation, or are thinking about contributing, it helps if you can build the documentation to see how it will look when published. The easiest way is to use Docker, as this avoids having to install MkDocs and its dependencies.
 
 1. [Get Docker](https://docs.docker.com/get-docker/)
+2. Clone this repository
+3. Change directory to `pmm-doc`
+4. Use [our Docker image](https://hub.docker.com/repository/docker/perconalab/pmm-doc-md) to *build the documentation*:
 
-2. Use [our Docker image](https://hub.docker.com/repository/docker/perconalab/pmm-doc-md) to *build the documentation* (create a static web site in the `site` subdirectory):
+	```sh
+	docker run --rm -v $(pwd):/docs perconalab/pmm-doc-md mkdocs build -t material
+	```
 
-		docker run --rm -v $(pwd):/docs perconalab/pmm-doc-md mkdocs build -t material
+5. Find the `site` directory, open `index.html` in a browser to view the first page of documentation.
 
-3. Find the `site` directory, open `index.html` in a browser to view the first page of documentation.
+If you want to see how things look as you edit, MkDocs has a built-in server for live previewing. After (or instead of) building, run:
 
-If you'd like to see how things look as you edit, MkDocs has a built-in server for live previewing. After (or instead of) building, run:
-
-	docker run --rm -v $(pwd):/docs -p 8000:8000 perconalab/pmm-doc-md mkdocs serve -t material --dev-addr=0.0.0.0:8000
+```sh
+docker run --rm -v $(pwd):/docs -p 8000:8000 perconalab/pmm-doc-md mkdocs serve -t material --dev-addr=0.0.0.0:8000
+```
 
 and point your browser to [http://localhost:8000](http://localhost:8000).
 
-### Install MkDocs and dependencies
+If you prefer not to use Docker, you'll have to install MkDocs and all its dependencies.
 
 1. Install [Python 3](https://www.python.org/downloads/)
 
 2. Install MkDocs and required extensions:
 
-        pip install -r requirements.txt
+	```sh
+	pip install -r requirements.txt
+	```
 
-3. Build the site with your choice of theme:
+3. Build the site with your choice of theme (choose one of `mkdocs`, `readthedocs`, `material`, `gitbook` or `bootstrap4`):
 
-		mkdocs build -t material
-		# mkdocs build -t readthedocs
-		# mkdocs build -t mkdocs
+	```sh
+	mkdocs build -t material
+	```
 
 4. Open `site/index.html`
 
-Or run the built-in web server.
+Or, to run the built-in web server:
 
-    mkdocs serve -t material
-    # mkdocs serve -t readthedocs
+```sh
+mkdocs serve -t material
+```
 
 And view the site at <http://localhost:8000>
-
-([Get more themes.](https://github.com/mkdocs/mkdocs/wiki/MkDocs-Themes))
 
 ## PDF
 
@@ -126,15 +119,16 @@ To generate a PDF version of the documentation:
 		- `*.puml`: [PlantUML](https://plantuml.com) diagrams (see comments inside each).
 		- `plantuml_styles.uml`: Global style for PlantUML diagrams.
 	- `templates`: Stylesheet for PDF output (used by [mkdocs-with-pdf](https://github.com/orzih/mkdocs-with-pdf) extension).
-	- `theme`: MkDocs templates that produce HTML output for percona.com hosting.
+	- `theme`: MkDocs template for HTML intended for publishing on percona.com.
 - `requirements.txt`: Python package dependencies.
 - `variables.yml`: Values used throughout the Markdown, including the current PMM version/release number.
+- `.spelling`: Words regarded as correct by `mdspell` (See [Spelling and grammar](#spelling-and-grammar).)
 
 ## Version switching
 
 We are trialing the use of [mike](https://github.com/jimporter/mike) to build different versions.
 
-With this, a GitHUb action workflow runs `mike` (which runs `mkdocs`). The HTML is committed and pushed to the `publish` branch. The whole branch is then copied (by us, naturally) to our web server.
+With this, a [GitHub actions](https://github.com/percona/pmm-doc/actions) workflow runs `mike` (which runs `mkdocs`). The HTML is committed and pushed to the `publish` branch. The whole branch is then copied (by us, naturally) to our web server.
 
 ## Image overlays
 
@@ -190,13 +184,11 @@ To check all files:
 
 ## Link checking
 
-We're using the `mkdocs-htmlproofer-plugin` link checking plugin to detect broken URLs.
+We're using the `mkdocs-htmlproofer-plugin` link checking plugin to detect broken URLs. It works great but increases the build time significantly (by between 10 and 50 times longer).
 
-It works great but increases the build time significantly (~10-50x).
+The plugin is installed in [our Docker image](https://hub.docker.com/repository/docker/perconalab/pmm-doc-md) and by the GitHub action but it is commented out in `mkdocs.yml`.
 
-It is installed in the Docker image and GitHub actions but is commented out in `mkdocs.yml`.
-
-You can enable it for local builds by uncommenting the line with `htmlproofer` in the `plugins` section of `mkdocs.yml` and parse the build output for warnings.
+To enable it for local builds, uncomment the line with `htmlproofer` in the `plugins` section of `mkdocs.yml` and parse the build output for warnings.
 
 ## License
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fpercona%2Fpmm-doc.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fpercona%2Fpmm-doc?ref=badge_large)
