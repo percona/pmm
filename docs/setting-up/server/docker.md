@@ -1,18 +1,16 @@
 # Docker
 
-Percona maintain a Docker image for PMM Server at <https://hub.docker.com/r/percona/pmm-server>.
-
-The Docker tags used here are for the latest version of PMM 2 ({{release}}) but you can specify any available tag to use the corresponding version of PMM Server.
+Percona maintains a [Docker image for PMM Server][DOCKERHUB]. This section shows how to run PMM Server as a Docker container. (The tags used here are for the latest version of PMM 2 ({{release}}). [Other tags are available][TAGS].)
 
 ## Before you start
 
-- [Install Docker](https://docs.docker.com/get-docker/) 1.12.6 or higher.
+1. You need [Docker](https://docs.docker.com/get-docker/) 1.12.6 or higher.
 
-- Check disk space: PMM needs approximately 1GB of storage for each monitored database node with data retention set to one week. (By default, data retention is 30 days.) To reduce the size of the VictoriaMetrics database, you can consider disabling table statistics.
+1. Your system needs approximately 1GB of storage for each monitored database node with data retention set to one week. (By default, data retention is 30 days.) To reduce the size of the VictoriaMetrics database, you can consider disabling table statistics.
 
-- Check RAM: The minimum amount of memory is 2 GB for one monitored database node. (Memory usage does not grow in proportion to the number of nodes. For example, 16GB is adequate for 20 nodes.)
+1. The minimum amount of memory is 2 GB for one monitored database node. (Memory usage does not grow in proportion to the number of nodes. For example, 16GB is adequate for 20 nodes.)
 
-## Run PMM Server as a Docker image
+## Running PMM Client as a Docker container
 
 1. Pull the image.
 
@@ -20,7 +18,7 @@ The Docker tags used here are for the latest version of PMM 2 ({{release}}) but 
     docker pull percona/pmm-server:2
     ```
 
-2. Create a persistent data container.
+1. Create a persistent data container.
 
     ```sh
     docker create --volume /srv \
@@ -29,7 +27,7 @@ The Docker tags used here are for the latest version of PMM 2 ({{release}}) but 
 
     PMM Server expects the data volume (specified with `--volume`) to be `/srv`.  **Using any other value will result in data loss when upgrading.**
 
-3. Run the image to start PMM Server.
+1. Run the image to start PMM Server.
 
     ```sh
     docker run --detach --restart always \
@@ -40,7 +38,7 @@ The Docker tags used here are for the latest version of PMM 2 ({{release}}) but 
 
     You can disable manual updates via the Home Dashboard *PMM Upgrade* panel by adding `-e DISABLE_UPDATES=true` to the `docker run` command.
 
-4. In a web browser, visit *server hostname*:80 or *server hostname*:443 to see the PMM user interface.
+1. In a web browser, visit *server hostname*:80 or *server hostname*:443 to see the PMM user interface.
 
 ## Backup and upgrade
 
@@ -132,3 +130,7 @@ The Docker tags used here are for the latest version of PMM 2 ({{release}}) but 
     ```sh
     docker start pmm-server
     ```
+
+
+[TAGS]: https://hub.docker.com/r/percona/pmm-server/tags
+[DOCKERHUB]: https://hub.docker.com/r/percona/pmm-server

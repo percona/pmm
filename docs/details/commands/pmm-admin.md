@@ -18,6 +18,10 @@
 
 `pmm-admin add DATABASE [FLAGS] [NAME] [ADDRESS]`
 
+DATABASE:= [[MongoDB](#mongodb) | [MySQL](#mysql) | [PostgreSQL](#postgresql) | [ProxySQL](#proxysql)]
+
+`pmm-admin add external [FLAGS] [NAME] [ADDRESS]` (CAUTION: Technical preview feature)
+
 `pmm-admin add haproxy [FLAGS] [NAME]`
 
 `pmm-admin add external [FLAGS] [NAME] [ADDRESS]`
@@ -136,9 +140,6 @@ PMM communicates with the PMM Server via a PMM agent process.
     `--az=availability-zone`
     : Node availability zone
 
-    `--force`
-    : Remove Node with that name with all dependent Services and Agents if one exist
-
     `--metrics-mode=mode`
     : Metrics flow mode for agents node-exporter. Allowed values:
         - `auto`: chosen by server (default)
@@ -177,8 +178,6 @@ PMM communicates with the PMM Server via a PMM agent process.
     `--custom-labels=labels`
     : Custom user-assigned labels.
 
-    `--force`
-    : Remove Node with that name with all dependent Services and Agents if one exists.
 
 #### `pmm-admin remove`
 
@@ -187,6 +186,11 @@ PMM communicates with the PMM Server via a PMM agent process.
 
     `--service-id=service-id`
     : Service ID.
+
+    `--force`
+    : Remove service with that name or ID and all dependent services and agents.
+
+When you remove a service, collected data remains on PMM Server for the specified [retention period](../../faq.md#how-to-control-data-retention-for-pmm).
 
 #### `pmm-admin annotate`
 
@@ -328,7 +332,7 @@ PMM communicates with the PMM Server via a PMM agent process.
     : MySQL address and port (default: 127.0.0.1:3306).
 
     `--socket=socket`
-    : Path to MySQL socket.
+    : Path to MySQL socket. (Find the socket path with `mysql -u root -p -e "select @@socket"`.)
 
     `--node-id=node-id`
     : Node ID (default is auto-detected).
@@ -346,7 +350,10 @@ PMM communicates with the PMM Server via a PMM agent process.
     : Source of SQL queries, one of: `slowlog`, `perfschema`, `none` (default: `slowlog`).
 
     `--size-slow-logs=N`
-    : Rotate slow log file at this size (default: server-defined; negative value disables rotation).
+    : Rotate slow log file at this size. If `0`, use server-defined default. Negative values disable log rotation. A unit suffix must be appended to the number and can be one of:
+
+		- `KB`, `kB`, `MB`, `mB`, `GB`, `gB`, `TB`, `tB` for base 10 units (1000, 1000000, etc);
+		- `KiB`, `MiB`, `GiB`, `TiB` for base 2 units (1024, 1048576, etc).
 
     `--disable-queryexamples`
     : Disable collection of query examples.
@@ -369,7 +376,7 @@ PMM communicates with the PMM Server via a PMM agent process.
 
     `--disable-tablestats-limit=disable-tablestats-limit`
     : Table statistics collection will be disabled if there are more than specified number of tables
-        (default: server-defined).
+        (default: server-defined). 0=no limit. Negative value disables collection.
 
     `--environment=environment`
     : Environment name.
@@ -554,22 +561,22 @@ PMM communicates with the PMM Server via a PMM agent process.
 : Add External source of data (like a custom exporter running on a port) to the monitoring
 
     FLAGS:
-    
+
     `--service-name="current-hostname"`
     : Service name (autodetected defaults to the hostname where pmm-admin is running)
-    
+
     `--agent-node-id=AGENT-NODE-ID`
     : Node ID where agent runs (default is autodetected)
 
     `--username=USERNAME`
     : External username
-      
+
     `--password=PASSWORD`
     : External password
-      
+
     `--scheme=http or https`
     : Scheme to generate URI to exporter metrics endpoints
-      
+
     `--metrics-path=/metrics`
     : Path under which metrics are exposed, used to generate URI.
 
@@ -581,19 +588,19 @@ PMM communicates with the PMM Server via a PMM agent process.
 
     `--environment=prod`
     : Environment name like 'production' or 'qa'
-      
+
     `--cluster=east-cluster`
     : Cluster name
-      
+
     `--replication-set=rs1`
     : Replication set name
 
     `--custom-labels=CUSTOM-LABELS`
     : Custom user-assigned labels. Example: region=east,app=app1
-      
+
     `--metrics-mode=auto`
     : Metrics flow mode, can be `push`: agent will push metrics, `pull`: server scrape metrics from agent or `auto`: chosen by server.
-     
+
     `--group="external"`
     : Group name of external service (default: external)
 

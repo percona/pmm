@@ -1,8 +1,7 @@
 ' Diagram showing sequence of tasks to set up Integrated Alerting
 ' Not published (WIP)
 @startuml
-skinparam Shadowing false
-skinparam ConditionEndStyle hline
+!include _resources/diagrams/plantuml_styles.puml
 
 |//PMM Settings//|
 start

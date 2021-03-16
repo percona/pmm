@@ -1,8 +1,12 @@
-' Styles for PlantUML created C4 diagrams
+' Styles for PlantUML created diagrams
 skinparam {
-  roundcorner 20
+  roundcorner 15
   defaultFontName Chivo
   defaultFontSize 14
   defaultTextAlignment center
   ArrowHeadColor none
+  BackgroundColor #fff
+  ActivityBackgroundColor #cce6ff
+  activityDiamondBackgroundColor #cce6ff
+  legendBackgroundColor #0000
 }

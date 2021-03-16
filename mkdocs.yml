@@ -35,6 +35,7 @@ markdown_extensions:
   - admonition
   - def_list
   - meta
+  - attr_list
   - smarty:
         smart_angled_quotes: true
   - pymdownx.mark
@@ -58,6 +59,7 @@ plugins:
   - exclude: # Don't process these files
         glob:
           - setting-up/server/dbaas-gke.md # Included file
+          - setting-up/client/docker.md # Moved to setting-up/client/index.md
   - with-pdf: # https://github.com/orzih/mkdocs-with-pdf
         output_path: '_pdf/PerconaMonitoringAndManagement-2.15.0.pdf'
         cover_title: 'Documentation'
@@ -76,8 +78,6 @@ extra: # Used in main.html template and can't be externalised
     open_issue_tooltip: 'Report an issue with this page on GitHub'
     edit_page_text: '<i class="uil uil-pen"></i> <b>Edit this page</b>'
     updated_text: '<i class="uil uil-refresh"></i> Page updated'
-    version:
-       method: mike
 
 nav:
   - Welcome: index.md
@@ -91,9 +91,7 @@ nav:
 #            - setting-up/server/dbaas.md
       - Client:
           - setting-up/client/index.md
-          - setting-up/client/docker.md
           - setting-up/client/mysql.md
-          - setting-up/client/percona-server.md
           - setting-up/client/mongodb.md
           - setting-up/client/postgresql.md
           - setting-up/client/proxysql.md

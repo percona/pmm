@@ -51,8 +51,7 @@ To get PMM running, you must:
 	- An [Amazon AWS EC2 instance](setting-up/server/aws.md).
 - [Set up PMM Client](setting-up/client/index.md) on all hosts you want to monitor according to the type of system:
 	- Databases
-		- [MySQL](setting-up/client/mysql.md)
-		- [Percona Server for MySQL](setting-up/client/percona-server.md)
+		- [MySQL, Percona Server, MariaDB](setting-up/client/mysql.md)
 		- [MongoDB](setting-up/client/mongodb.md)
 		- [PostgreSQL](setting-up/client/postgresql.md)
 		- [Amazon RDS](setting-up/client/aws.md)

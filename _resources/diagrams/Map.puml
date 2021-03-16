@@ -6,23 +6,21 @@
 ' Text: https://plantuml.com/creole
 @startwbs "PMM_Documentation_Map"
 !include _resources/diagrams/plantuml_styles.puml
+<style>
+wbsDiagram {
+  node {
+	BackgroundColor #cce6ff
+    Padding 5
+    Margin 5
+  }
+}
+</style>
 
 ' Absolute links - can be useful for exporting map as stand-alone image
 ' relative links make testing easier but must be changed for local vs hosting' Hosted
 !$base = "https://www.percona.com/doc/percona-monitoring-and-management/2.x"
 '!$base = "../2.x"
 ' !$base = ".."
-
-<style>
-wbsDiagram {
-  node {
-    BackgroundColor #FFB500
-    RoundCorner 10
-    Padding 5
-    Margin 5
-  }
-}
-</style>
 
 + <&home> [[$base/index.html Welcome]]
 	+ <&power-standby> [[$base/setting-up/ Setting up]]
