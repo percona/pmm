@@ -119,10 +119,10 @@ func (o *ListAgentsDefault) readResponse(response runtime.ClientResponse, consum
 	return nil
 }
 
-/*AzureExporterItems0 AzureExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.
-swagger:model AzureExporterItems0
+/*AzureDatabaseExporterItems0 AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.
+swagger:model AzureDatabaseExporterItems0
 */
-type AzureExporterItems0 struct {
+type AzureDatabaseExporterItems0 struct {
 
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
@@ -137,7 +137,7 @@ type AzureExporterItems0 struct {
 	NodeID string `json:"node_id,omitempty"`
 
 	// Azure subscription ID.
-	SubscriptionID string `json:"subscription_id,omitempty"`
+	AzureSubscriptionID string `json:"azure_subscription_id,omitempty"`
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
@@ -159,8 +159,8 @@ type AzureExporterItems0 struct {
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 }
 
-// Validate validates this azure exporter items0
-func (o *AzureExporterItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this azure database exporter items0
+func (o *AzureDatabaseExporterItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
@@ -173,7 +173,7 @@ func (o *AzureExporterItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var azureExporterItems0TypeStatusPropEnum []interface{}
+var azureDatabaseExporterItems0TypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -181,40 +181,40 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		azureExporterItems0TypeStatusPropEnum = append(azureExporterItems0TypeStatusPropEnum, v)
+		azureDatabaseExporterItems0TypeStatusPropEnum = append(azureDatabaseExporterItems0TypeStatusPropEnum, v)
 	}
 }
 
 const (
 
-	// AzureExporterItems0StatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
-	AzureExporterItems0StatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+	// AzureDatabaseExporterItems0StatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	AzureDatabaseExporterItems0StatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
 
-	// AzureExporterItems0StatusSTARTING captures enum value "STARTING"
-	AzureExporterItems0StatusSTARTING string = "STARTING"
+	// AzureDatabaseExporterItems0StatusSTARTING captures enum value "STARTING"
+	AzureDatabaseExporterItems0StatusSTARTING string = "STARTING"
 
-	// AzureExporterItems0StatusRUNNING captures enum value "RUNNING"
-	AzureExporterItems0StatusRUNNING string = "RUNNING"
+	// AzureDatabaseExporterItems0StatusRUNNING captures enum value "RUNNING"
+	AzureDatabaseExporterItems0StatusRUNNING string = "RUNNING"
 
-	// AzureExporterItems0StatusWAITING captures enum value "WAITING"
-	AzureExporterItems0StatusWAITING string = "WAITING"
+	// AzureDatabaseExporterItems0StatusWAITING captures enum value "WAITING"
+	AzureDatabaseExporterItems0StatusWAITING string = "WAITING"
 
-	// AzureExporterItems0StatusSTOPPING captures enum value "STOPPING"
-	AzureExporterItems0StatusSTOPPING string = "STOPPING"
+	// AzureDatabaseExporterItems0StatusSTOPPING captures enum value "STOPPING"
+	AzureDatabaseExporterItems0StatusSTOPPING string = "STOPPING"
 
-	// AzureExporterItems0StatusDONE captures enum value "DONE"
-	AzureExporterItems0StatusDONE string = "DONE"
+	// AzureDatabaseExporterItems0StatusDONE captures enum value "DONE"
+	AzureDatabaseExporterItems0StatusDONE string = "DONE"
 )
 
 // prop value enum
-func (o *AzureExporterItems0) validateStatusEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, azureExporterItems0TypeStatusPropEnum, true); err != nil {
+func (o *AzureDatabaseExporterItems0) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, azureDatabaseExporterItems0TypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *AzureExporterItems0) validateStatus(formats strfmt.Registry) error {
+func (o *AzureDatabaseExporterItems0) validateStatus(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Status) { // not required
 		return nil
@@ -229,7 +229,7 @@ func (o *AzureExporterItems0) validateStatus(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (o *AzureExporterItems0) MarshalBinary() ([]byte, error) {
+func (o *AzureDatabaseExporterItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -237,8 +237,8 @@ func (o *AzureExporterItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AzureExporterItems0) UnmarshalBinary(b []byte) error {
-	var res AzureExporterItems0
+func (o *AzureDatabaseExporterItems0) UnmarshalBinary(b []byte) error {
+	var res AzureDatabaseExporterItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -323,7 +323,7 @@ type ListAgentsBody struct {
 	ServiceID string `json:"service_id,omitempty"`
 
 	// AgentType describes supported Agent types.
-	// Enum: [AGENT_TYPE_INVALID PMM_AGENT VM_AGENT NODE_EXPORTER MYSQLD_EXPORTER MONGODB_EXPORTER POSTGRES_EXPORTER PROXYSQL_EXPORTER QAN_MYSQL_PERFSCHEMA_AGENT QAN_MYSQL_SLOWLOG_AGENT QAN_MONGODB_PROFILER_AGENT QAN_POSTGRESQL_PGSTATEMENTS_AGENT QAN_POSTGRESQL_PGSTATMONITOR_AGENT RDS_EXPORTER EXTERNAL_EXPORTER AZURE_EXPORTER]
+	// Enum: [AGENT_TYPE_INVALID PMM_AGENT VM_AGENT NODE_EXPORTER MYSQLD_EXPORTER MONGODB_EXPORTER POSTGRES_EXPORTER PROXYSQL_EXPORTER QAN_MYSQL_PERFSCHEMA_AGENT QAN_MYSQL_SLOWLOG_AGENT QAN_MONGODB_PROFILER_AGENT QAN_POSTGRESQL_PGSTATEMENTS_AGENT QAN_POSTGRESQL_PGSTATMONITOR_AGENT RDS_EXPORTER EXTERNAL_EXPORTER AZURE_DATABASE_EXPORTER]
 	AgentType *string `json:"agent_type,omitempty"`
 }
 
@@ -345,7 +345,7 @@ var listAgentsBodyTypeAgentTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_TYPE_INVALID","PMM_AGENT","VM_AGENT","NODE_EXPORTER","MYSQLD_EXPORTER","MONGODB_EXPORTER","POSTGRES_EXPORTER","PROXYSQL_EXPORTER","QAN_MYSQL_PERFSCHEMA_AGENT","QAN_MYSQL_SLOWLOG_AGENT","QAN_MONGODB_PROFILER_AGENT","QAN_POSTGRESQL_PGSTATEMENTS_AGENT","QAN_POSTGRESQL_PGSTATMONITOR_AGENT","RDS_EXPORTER","EXTERNAL_EXPORTER","AZURE_EXPORTER"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_TYPE_INVALID","PMM_AGENT","VM_AGENT","NODE_EXPORTER","MYSQLD_EXPORTER","MONGODB_EXPORTER","POSTGRES_EXPORTER","PROXYSQL_EXPORTER","QAN_MYSQL_PERFSCHEMA_AGENT","QAN_MYSQL_SLOWLOG_AGENT","QAN_MONGODB_PROFILER_AGENT","QAN_POSTGRESQL_PGSTATEMENTS_AGENT","QAN_POSTGRESQL_PGSTATMONITOR_AGENT","RDS_EXPORTER","EXTERNAL_EXPORTER","AZURE_DATABASE_EXPORTER"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -400,8 +400,8 @@ const (
 	// ListAgentsBodyAgentTypeEXTERNALEXPORTER captures enum value "EXTERNAL_EXPORTER"
 	ListAgentsBodyAgentTypeEXTERNALEXPORTER string = "EXTERNAL_EXPORTER"
 
-	// ListAgentsBodyAgentTypeAZUREEXPORTER captures enum value "AZURE_EXPORTER"
-	ListAgentsBodyAgentTypeAZUREEXPORTER string = "AZURE_EXPORTER"
+	// ListAgentsBodyAgentTypeAZUREDATABASEEXPORTER captures enum value "AZURE_DATABASE_EXPORTER"
+	ListAgentsBodyAgentTypeAZUREDATABASEEXPORTER string = "AZURE_DATABASE_EXPORTER"
 )
 
 // prop value enum
@@ -566,8 +566,8 @@ type ListAgentsOKBody struct {
 	// external exporter
 	ExternalExporter []*ExternalExporterItems0 `json:"external_exporter"`
 
-	// azure exporter
-	AzureExporter []*AzureExporterItems0 `json:"azure_exporter"`
+	// azure database exporter
+	AzureDatabaseExporter []*AzureDatabaseExporterItems0 `json:"azure_database_exporter"`
 }
 
 // Validate validates this list agents OK body
@@ -630,7 +630,7 @@ func (o *ListAgentsOKBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := o.validateAzureExporter(formats); err != nil {
+	if err := o.validateAzureDatabaseExporter(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -990,21 +990,21 @@ func (o *ListAgentsOKBody) validateExternalExporter(formats strfmt.Registry) err
 	return nil
 }
 
-func (o *ListAgentsOKBody) validateAzureExporter(formats strfmt.Registry) error {
+func (o *ListAgentsOKBody) validateAzureDatabaseExporter(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.AzureExporter) { // not required
+	if swag.IsZero(o.AzureDatabaseExporter) { // not required
 		return nil
 	}
 
-	for i := 0; i < len(o.AzureExporter); i++ {
-		if swag.IsZero(o.AzureExporter[i]) { // not required
+	for i := 0; i < len(o.AzureDatabaseExporter); i++ {
+		if swag.IsZero(o.AzureDatabaseExporter[i]) { // not required
 			continue
 		}
 
-		if o.AzureExporter[i] != nil {
-			if err := o.AzureExporter[i].Validate(formats); err != nil {
+		if o.AzureDatabaseExporter[i] != nil {
+			if err := o.AzureDatabaseExporter[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listAgentsOk" + "." + "azure_exporter" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listAgentsOk" + "." + "azure_database_exporter" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

@@ -231,8 +231,8 @@ swagger:model GetAgentOKBody
 */
 type GetAgentOKBody struct {
 
-	// azure exporter
-	AzureExporter *GetAgentOKBodyAzureExporter `json:"azure_exporter,omitempty"`
+	// azure database exporter
+	AzureDatabaseExporter *GetAgentOKBodyAzureDatabaseExporter `json:"azure_database_exporter,omitempty"`
 
 	// external exporter
 	ExternalExporter *GetAgentOKBodyExternalExporter `json:"external_exporter,omitempty"`
@@ -281,7 +281,7 @@ type GetAgentOKBody struct {
 func (o *GetAgentOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateAzureExporter(formats); err != nil {
+	if err := o.validateAzureDatabaseExporter(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -347,16 +347,16 @@ func (o *GetAgentOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *GetAgentOKBody) validateAzureExporter(formats strfmt.Registry) error {
+func (o *GetAgentOKBody) validateAzureDatabaseExporter(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.AzureExporter) { // not required
+	if swag.IsZero(o.AzureDatabaseExporter) { // not required
 		return nil
 	}
 
-	if o.AzureExporter != nil {
-		if err := o.AzureExporter.Validate(formats); err != nil {
+	if o.AzureDatabaseExporter != nil {
+		if err := o.AzureDatabaseExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getAgentOk" + "." + "azure_exporter")
+				return ve.ValidateName("getAgentOk" + "." + "azure_database_exporter")
 			}
 			return err
 		}
@@ -635,10 +635,10 @@ func (o *GetAgentOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetAgentOKBodyAzureExporter AzureExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.
-swagger:model GetAgentOKBodyAzureExporter
+/*GetAgentOKBodyAzureDatabaseExporter AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.
+swagger:model GetAgentOKBodyAzureDatabaseExporter
 */
-type GetAgentOKBodyAzureExporter struct {
+type GetAgentOKBodyAzureDatabaseExporter struct {
 
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
@@ -653,7 +653,7 @@ type GetAgentOKBodyAzureExporter struct {
 	NodeID string `json:"node_id,omitempty"`
 
 	// Azure subscription ID.
-	SubscriptionID string `json:"subscription_id,omitempty"`
+	AzureSubscriptionID string `json:"azure_subscription_id,omitempty"`
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
@@ -675,8 +675,8 @@ type GetAgentOKBodyAzureExporter struct {
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 }
 
-// Validate validates this get agent OK body azure exporter
-func (o *GetAgentOKBodyAzureExporter) Validate(formats strfmt.Registry) error {
+// Validate validates this get agent OK body azure database exporter
+func (o *GetAgentOKBodyAzureDatabaseExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
@@ -689,7 +689,7 @@ func (o *GetAgentOKBodyAzureExporter) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var getAgentOkBodyAzureExporterTypeStatusPropEnum []interface{}
+var getAgentOkBodyAzureDatabaseExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -697,47 +697,47 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		getAgentOkBodyAzureExporterTypeStatusPropEnum = append(getAgentOkBodyAzureExporterTypeStatusPropEnum, v)
+		getAgentOkBodyAzureDatabaseExporterTypeStatusPropEnum = append(getAgentOkBodyAzureDatabaseExporterTypeStatusPropEnum, v)
 	}
 }
 
 const (
 
-	// GetAgentOKBodyAzureExporterStatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
-	GetAgentOKBodyAzureExporterStatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+	// GetAgentOKBodyAzureDatabaseExporterStatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	GetAgentOKBodyAzureDatabaseExporterStatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
 
-	// GetAgentOKBodyAzureExporterStatusSTARTING captures enum value "STARTING"
-	GetAgentOKBodyAzureExporterStatusSTARTING string = "STARTING"
+	// GetAgentOKBodyAzureDatabaseExporterStatusSTARTING captures enum value "STARTING"
+	GetAgentOKBodyAzureDatabaseExporterStatusSTARTING string = "STARTING"
 
-	// GetAgentOKBodyAzureExporterStatusRUNNING captures enum value "RUNNING"
-	GetAgentOKBodyAzureExporterStatusRUNNING string = "RUNNING"
+	// GetAgentOKBodyAzureDatabaseExporterStatusRUNNING captures enum value "RUNNING"
+	GetAgentOKBodyAzureDatabaseExporterStatusRUNNING string = "RUNNING"
 
-	// GetAgentOKBodyAzureExporterStatusWAITING captures enum value "WAITING"
-	GetAgentOKBodyAzureExporterStatusWAITING string = "WAITING"
+	// GetAgentOKBodyAzureDatabaseExporterStatusWAITING captures enum value "WAITING"
+	GetAgentOKBodyAzureDatabaseExporterStatusWAITING string = "WAITING"
 
-	// GetAgentOKBodyAzureExporterStatusSTOPPING captures enum value "STOPPING"
-	GetAgentOKBodyAzureExporterStatusSTOPPING string = "STOPPING"
+	// GetAgentOKBodyAzureDatabaseExporterStatusSTOPPING captures enum value "STOPPING"
+	GetAgentOKBodyAzureDatabaseExporterStatusSTOPPING string = "STOPPING"
 
-	// GetAgentOKBodyAzureExporterStatusDONE captures enum value "DONE"
-	GetAgentOKBodyAzureExporterStatusDONE string = "DONE"
+	// GetAgentOKBodyAzureDatabaseExporterStatusDONE captures enum value "DONE"
+	GetAgentOKBodyAzureDatabaseExporterStatusDONE string = "DONE"
 )
 
 // prop value enum
-func (o *GetAgentOKBodyAzureExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, getAgentOkBodyAzureExporterTypeStatusPropEnum, true); err != nil {
+func (o *GetAgentOKBodyAzureDatabaseExporter) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, getAgentOkBodyAzureDatabaseExporterTypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *GetAgentOKBodyAzureExporter) validateStatus(formats strfmt.Registry) error {
+func (o *GetAgentOKBodyAzureDatabaseExporter) validateStatus(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("getAgentOk"+"."+"azure_exporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("getAgentOk"+"."+"azure_database_exporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -745,7 +745,7 @@ func (o *GetAgentOKBodyAzureExporter) validateStatus(formats strfmt.Registry) er
 }
 
 // MarshalBinary interface implementation
-func (o *GetAgentOKBodyAzureExporter) MarshalBinary() ([]byte, error) {
+func (o *GetAgentOKBodyAzureDatabaseExporter) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -753,8 +753,8 @@ func (o *GetAgentOKBodyAzureExporter) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *GetAgentOKBodyAzureExporter) UnmarshalBinary(b []byte) error {
-	var res GetAgentOKBodyAzureExporter
+func (o *GetAgentOKBodyAzureDatabaseExporter) UnmarshalBinary(b []byte) error {
+	var res GetAgentOKBodyAzureDatabaseExporter
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -142,7 +142,7 @@
                           "QAN_POSTGRESQL_PGSTATMONITOR_AGENT",
                           "RDS_EXPORTER",
                           "EXTERNAL_EXPORTER",
-                          "AZURE_EXPORTER"
+                          "AZURE_DATABASE_EXPORTER"
                         ],
                         "x-order": 1
                       },
@@ -328,7 +328,7 @@
                           "QAN_POSTGRESQL_PGSTATMONITOR_AGENT",
                           "RDS_EXPORTER",
                           "EXTERNAL_EXPORTER",
-                          "AZURE_EXPORTER"
+                          "AZURE_DATABASE_EXPORTER"
                         ],
                         "x-order": 1
                       },

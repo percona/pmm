@@ -155,9 +155,6 @@ type AddAzureDatabaseBody struct {
 	// Password for scraping metrics.
 	Password string `json:"password,omitempty"`
 
-	// If true, adds rds_exporter.
-	AzureDatabaseExporter bool `json:"azure_database_exporter,omitempty"`
-
 	// azure client id
 	AzureClientID string `json:"azure_client_id,omitempty"`
 
@@ -169,6 +166,9 @@ type AddAzureDatabaseBody struct {
 
 	// azure subscription id
 	AzureSubscriptionID string `json:"azure_subscription_id,omitempty"`
+
+	// If true, adds azure_exporter.
+	AzureExporter bool `json:"azure_exporter,omitempty"`
 
 	// If true, adds qan-mysql-perfschema-agent.
 	QANMysqlPerfschema bool `json:"qan_mysql_perfschema,omitempty"`
@@ -206,10 +206,9 @@ type AddAzureDatabaseBody struct {
 
 	// DiscoverAzureDatabaseType describes supported RDS instance engines.
 	//
-	//  - DISCOVER_AZURE_DATABASE_TYPE_MYSQL: MySQL type: microsoft.dbformysql
-	//  - DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL: PostgreSQL type: microsoft.dbformysql
-	//  - DISCOVER_AZURE_DATABASE_TYPE_MARIADB: MariaDB type: microsoft.dbformariadb
-	// Enum: [DISCOVER_AZURE_DATABASE_TYPE_INVALID DISCOVER_AZURE_DATABASE_TYPE_MYSQL DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL DISCOVER_AZURE_DATABASE_TYPE_MARIADB]
+	//  - DISCOVER_AZURE_DATABASE_TYPE_MYSQL: MySQL type: microsoft.dbformysql/servers
+	//  - DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL: PostgreSQL type: microsoft.dbformysql/servers
+	// Enum: [DISCOVER_AZURE_DATABASE_TYPE_INVALID DISCOVER_AZURE_DATABASE_TYPE_MYSQL DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL]
 	Type *string `json:"type,omitempty"`
 }
 
@@ -281,7 +280,7 @@ var addAzureDatabaseBodyTypeTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DISCOVER_AZURE_DATABASE_TYPE_INVALID","DISCOVER_AZURE_DATABASE_TYPE_MYSQL","DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL","DISCOVER_AZURE_DATABASE_TYPE_MARIADB"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DISCOVER_AZURE_DATABASE_TYPE_INVALID","DISCOVER_AZURE_DATABASE_TYPE_MYSQL","DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -299,9 +298,6 @@ const (
 
 	// AddAzureDatabaseBodyTypeDISCOVERAZUREDATABASETYPEPOSTGRESQL captures enum value "DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL"
 	AddAzureDatabaseBodyTypeDISCOVERAZUREDATABASETYPEPOSTGRESQL string = "DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL"
-
-	// AddAzureDatabaseBodyTypeDISCOVERAZUREDATABASETYPEMARIADB captures enum value "DISCOVER_AZURE_DATABASE_TYPE_MARIADB"
-	AddAzureDatabaseBodyTypeDISCOVERAZUREDATABASETYPEMARIADB string = "DISCOVER_AZURE_DATABASE_TYPE_MARIADB"
 )
 
 // prop value enum

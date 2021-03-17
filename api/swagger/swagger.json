@@ -1344,13 +1344,13 @@
         }
       }
     },
-    "/v1/inventory/Agents/AddAzureExporter": {
+    "/v1/inventory/Agents/AddAzureDatabaseExporter": {
       "post": {
         "tags": [
           "Agents"
         ],
-        "summary": "AddAzureExporter adds azure_exporter Agent.",
-        "operationId": "AddAzureExporter",
+        "summary": "AddAzureDatabaseExporter adds azure_database_exporter Agent.",
+        "operationId": "AddAzureDatabaseExporter",
         "parameters": [
           {
             "name": "body",
@@ -1369,22 +1369,22 @@
                   "type": "string",
                   "x-order": 1
                 },
-                "client_id": {
+                "azure_client_id": {
                   "type": "string",
                   "title": "Azure client ID",
                   "x-order": 2
                 },
-                "client_secret": {
+                "azure_client_secret": {
                   "type": "string",
                   "title": "Azure client secret",
                   "x-order": 3
                 },
-                "tenant_id": {
+                "azure_tenant_id": {
                   "type": "string",
                   "title": "Azure tanant ID",
                   "x-order": 4
                 },
-                "subscription_id": {
+                "azure_subscription_id": {
                   "type": "string",
                   "title": "Azure subscription ID",
                   "x-order": 5
@@ -1417,8 +1417,8 @@
             "schema": {
               "type": "object",
               "properties": {
-                "azure_exporter": {
-                  "description": "AzureExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.",
+                "azure_database_exporter": {
+                  "description": "AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -1441,7 +1441,7 @@
                       "type": "string",
                       "x-order": 3
                     },
-                    "subscription_id": {
+                    "azure_subscription_id": {
                       "description": "Azure subscription ID.",
                       "type": "string",
                       "x-order": 4
@@ -3988,13 +3988,13 @@
         }
       }
     },
-    "/v1/inventory/Agents/ChangeAzureExporter": {
+    "/v1/inventory/Agents/ChangeAzureDatabaseExporter": {
       "post": {
         "tags": [
           "Agents"
         ],
-        "summary": "ChangeAzureExporter changes azure_exporter Agent.",
-        "operationId": "ChangeAzureExporter",
+        "summary": "ChangeAzureDatabaseExporter changes_database azure_exporter Agent.",
+        "operationId": "ChangeAzureDatabaseExporter",
         "parameters": [
           {
             "name": "body",
@@ -4057,8 +4057,8 @@
             "schema": {
               "type": "object",
               "properties": {
-                "azure_exporter": {
-                  "description": "AzureExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.",
+                "azure_database_exporter": {
+                  "description": "AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -4081,7 +4081,7 @@
                       "type": "string",
                       "x-order": 3
                     },
-                    "subscription_id": {
+                    "azure_subscription_id": {
                       "description": "Azure subscription ID.",
                       "type": "string",
                       "x-order": 4
@@ -7392,8 +7392,8 @@
                   },
                   "x-order": 13
                 },
-                "azure_exporter": {
-                  "description": "AzureExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.",
+                "azure_database_exporter": {
+                  "description": "AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -7416,7 +7416,7 @@
                       "type": "string",
                       "x-order": 3
                     },
-                    "subscription_id": {
+                    "azure_subscription_id": {
                       "description": "Azure subscription ID.",
                       "type": "string",
                       "x-order": 4
@@ -7552,7 +7552,7 @@
                     "QAN_POSTGRESQL_PGSTATMONITOR_AGENT",
                     "RDS_EXPORTER",
                     "EXTERNAL_EXPORTER",
-                    "AZURE_EXPORTER"
+                    "AZURE_DATABASE_EXPORTER"
                   ],
                   "x-order": 3
                 }
@@ -8552,10 +8552,10 @@
                   },
                   "x-order": 13
                 },
-                "azure_exporter": {
+                "azure_database_exporter": {
                   "type": "array",
                   "items": {
-                    "description": "AzureExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.",
+                    "description": "AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.",
                     "type": "object",
                     "properties": {
                       "agent_id": {
@@ -8578,7 +8578,7 @@
                         "type": "string",
                         "x-order": 3
                       },
-                      "subscription_id": {
+                      "azure_subscription_id": {
                         "description": "Azure subscription ID.",
                         "type": "string",
                         "x-order": 4
@@ -13660,25 +13660,25 @@
                   "type": "string",
                   "x-order": 10
                 },
-                "azure_database_exporter": {
-                  "description": "If true, adds rds_exporter.",
-                  "type": "boolean",
-                  "x-order": 11
-                },
                 "azure_client_id": {
                   "type": "string",
-                  "x-order": 12
+                  "x-order": 11
                 },
                 "azure_client_secret": {
                   "type": "string",
-                  "x-order": 13
+                  "x-order": 12
                 },
                 "azure_tenant_id": {
                   "type": "string",
-                  "x-order": 14
+                  "x-order": 13
                 },
                 "azure_subscription_id": {
                   "type": "string",
+                  "x-order": 14
+                },
+                "azure_exporter": {
+                  "description": "If true, adds azure_exporter.",
+                  "type": "boolean",
                   "x-order": 15
                 },
                 "qan_mysql_perfschema": {
@@ -13742,14 +13742,13 @@
                   "x-order": 25
                 },
                 "type": {
-                  "description": "DiscoverAzureDatabaseType describes supported RDS instance engines.\n\n - DISCOVER_AZURE_DATABASE_TYPE_MYSQL: MySQL type: microsoft.dbformysql\n - DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL: PostgreSQL type: microsoft.dbformysql\n - DISCOVER_AZURE_DATABASE_TYPE_MARIADB: MariaDB type: microsoft.dbformariadb",
+                  "description": "DiscoverAzureDatabaseType describes supported RDS instance engines.\n\n - DISCOVER_AZURE_DATABASE_TYPE_MYSQL: MySQL type: microsoft.dbformysql/servers\n - DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL: PostgreSQL type: microsoft.dbformysql/servers",
                   "type": "string",
                   "default": "DISCOVER_AZURE_DATABASE_TYPE_INVALID",
                   "enum": [
                     "DISCOVER_AZURE_DATABASE_TYPE_INVALID",
                     "DISCOVER_AZURE_DATABASE_TYPE_MYSQL",
-                    "DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL",
-                    "DISCOVER_AZURE_DATABASE_TYPE_MARIADB"
+                    "DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL"
                   ],
                   "x-order": 26
                 }
@@ -13885,14 +13884,13 @@
                         "x-order": 6
                       },
                       "type": {
-                        "description": "DiscoverAzureDatabaseType describes supported RDS instance engines.\n\n - DISCOVER_AZURE_DATABASE_TYPE_MYSQL: MySQL type: microsoft.dbformysql\n - DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL: PostgreSQL type: microsoft.dbformysql\n - DISCOVER_AZURE_DATABASE_TYPE_MARIADB: MariaDB type: microsoft.dbformariadb",
+                        "description": "DiscoverAzureDatabaseType describes supported RDS instance engines.\n\n - DISCOVER_AZURE_DATABASE_TYPE_MYSQL: MySQL type: microsoft.dbformysql/servers\n - DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL: PostgreSQL type: microsoft.dbformysql/servers",
                         "type": "string",
                         "default": "DISCOVER_AZURE_DATABASE_TYPE_INVALID",
                         "enum": [
                           "DISCOVER_AZURE_DATABASE_TYPE_INVALID",
                           "DISCOVER_AZURE_DATABASE_TYPE_MYSQL",
-                          "DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL",
-                          "DISCOVER_AZURE_DATABASE_TYPE_MARIADB"
+                          "DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL"
                         ],
                         "x-order": 7
                       },

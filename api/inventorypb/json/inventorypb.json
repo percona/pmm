@@ -15,13 +15,13 @@
     "version": "v1"
   },
   "paths": {
-    "/v1/inventory/Agents/AddAzureExporter": {
+    "/v1/inventory/Agents/AddAzureDatabaseExporter": {
       "post": {
         "tags": [
           "Agents"
         ],
-        "summary": "AddAzureExporter adds azure_exporter Agent.",
-        "operationId": "AddAzureExporter",
+        "summary": "AddAzureDatabaseExporter adds azure_database_exporter Agent.",
+        "operationId": "AddAzureDatabaseExporter",
         "parameters": [
           {
             "name": "body",
@@ -30,15 +30,25 @@
             "schema": {
               "type": "object",
               "properties": {
-                "client_id": {
+                "azure_client_id": {
                   "type": "string",
                   "title": "Azure client ID",
                   "x-order": 2
                 },
-                "client_secret": {
+                "azure_client_secret": {
                   "type": "string",
                   "title": "Azure client secret",
                   "x-order": 3
+                },
+                "azure_subscription_id": {
+                  "type": "string",
+                  "title": "Azure subscription ID",
+                  "x-order": 5
+                },
+                "azure_tenant_id": {
+                  "type": "string",
+                  "title": "Azure tanant ID",
+                  "x-order": 4
                 },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
@@ -67,16 +77,6 @@
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 7
-                },
-                "subscription_id": {
-                  "type": "string",
-                  "title": "Azure subscription ID",
-                  "x-order": 5
-                },
-                "tenant_id": {
-                  "type": "string",
-                  "title": "Azure tanant ID",
-                  "x-order": 4
                 }
               }
             }
@@ -88,14 +88,19 @@
             "schema": {
               "type": "object",
               "properties": {
-                "azure_exporter": {
-                  "description": "AzureExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.",
+                "azure_database_exporter": {
+                  "description": "AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
+                    },
+                    "azure_subscription_id": {
+                      "description": "Azure subscription ID.",
+                      "type": "string",
+                      "x-order": 4
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -144,11 +149,6 @@
                         "DONE"
                       ],
                       "x-order": 6
-                    },
-                    "subscription_id": {
-                      "description": "Azure subscription ID.",
-                      "type": "string",
-                      "x-order": 4
                     }
                   },
                   "x-order": 0
@@ -2659,13 +2659,13 @@
         }
       }
     },
-    "/v1/inventory/Agents/ChangeAzureExporter": {
+    "/v1/inventory/Agents/ChangeAzureDatabaseExporter": {
       "post": {
         "tags": [
           "Agents"
         ],
-        "summary": "ChangeAzureExporter changes azure_exporter Agent.",
-        "operationId": "ChangeAzureExporter",
+        "summary": "ChangeAzureDatabaseExporter changes_database azure_exporter Agent.",
+        "operationId": "ChangeAzureDatabaseExporter",
         "parameters": [
           {
             "name": "body",
@@ -2728,14 +2728,19 @@
             "schema": {
               "type": "object",
               "properties": {
-                "azure_exporter": {
-                  "description": "AzureExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.",
+                "azure_database_exporter": {
+                  "description": "AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
+                    },
+                    "azure_subscription_id": {
+                      "description": "Azure subscription ID.",
+                      "type": "string",
+                      "x-order": 4
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -2784,11 +2789,6 @@
                         "DONE"
                       ],
                       "x-order": 6
-                    },
-                    "subscription_id": {
-                      "description": "Azure subscription ID.",
-                      "type": "string",
-                      "x-order": 4
                     }
                   },
                   "x-order": 0
@@ -5119,14 +5119,19 @@
             "schema": {
               "type": "object",
               "properties": {
-                "azure_exporter": {
-                  "description": "AzureExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.",
+                "azure_database_exporter": {
+                  "description": "AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
+                    },
+                    "azure_subscription_id": {
+                      "description": "Azure subscription ID.",
+                      "type": "string",
+                      "x-order": 4
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -5175,11 +5180,6 @@
                         "DONE"
                       ],
                       "x-order": 6
-                    },
-                    "subscription_id": {
-                      "description": "Azure subscription ID.",
-                      "type": "string",
-                      "x-order": 4
                     }
                   },
                   "x-order": 14
@@ -6208,7 +6208,7 @@
                     "QAN_POSTGRESQL_PGSTATMONITOR_AGENT",
                     "RDS_EXPORTER",
                     "EXTERNAL_EXPORTER",
-                    "AZURE_EXPORTER"
+                    "AZURE_DATABASE_EXPORTER"
                   ],
                   "x-order": 3
                 },
@@ -6237,16 +6237,21 @@
             "schema": {
               "type": "object",
               "properties": {
-                "azure_exporter": {
+                "azure_database_exporter": {
                   "type": "array",
                   "items": {
-                    "description": "AzureExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.",
+                    "description": "AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.",
                     "type": "object",
                     "properties": {
                       "agent_id": {
                         "description": "Unique randomly generated instance identifier.",
                         "type": "string",
                         "x-order": 0
+                      },
+                      "azure_subscription_id": {
+                        "description": "Azure subscription ID.",
+                        "type": "string",
+                        "x-order": 4
                       },
                       "custom_labels": {
                         "description": "Custom user-assigned labels.",
@@ -6295,11 +6300,6 @@
                           "DONE"
                         ],
                         "x-order": 6
-                      },
-                      "subscription_id": {
-                        "description": "Azure subscription ID.",
-                        "type": "string",
-                        "x-order": 4
                       }
                     }
                   },
