@@ -8,39 +8,6 @@ import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "managementpb/metrics.proto";
 
-message DiscoverAzureDatabaseRequest {
-  string client_id = 1;
-  string client_secret = 2;
-  string tenant_id = 3;
-  string subscription_id = 4;
-}
-
-// DiscoverAzureDatabaseType describes supported RDS instance engines.
-enum DiscoverAzureDatabaseType {
-  DISCOVER_AZURE_DATABASE_TYPE_INVALID = 0;
-  // MySQL type: microsoft.dbformysql/servers
-  DISCOVER_AZURE_DATABASE_TYPE_MYSQL = 1;
-  // PostgreSQL type: microsoft.dbformysql/servers
-  DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL = 2;
-}
-
-// DiscoverAzureDatabaseInstance models an unique Azure Database instance for the list of instances returned by Discovery.
-message DiscoverAzureDatabaseInstance {
-  string id = 1;
-  string location = 2;
-  string name = 3;
-  string administrator_login = 4;
-  string fully_qualified_domain_name = 5;
-  string resource_group = 6;
-  string environment = 7;
-  DiscoverAzureDatabaseType type = 8;
-  string zones = 9;
-}
-
-message DiscoverAzureDatabaseResponse {
-  repeated DiscoverAzureDatabaseInstance azure_database_instance = 1;
-}
-
 message AddAzureDatabaseRequest {
   // Azure region.
   string region = 1 [
@@ -117,20 +84,12 @@ message AddAzureDatabaseRequest {
   // Defines metrics flow model for this exporter.
   // Push metrics mode is not allowed.
   MetricsMode metrics_mode = 27;
-  DiscoverAzureDatabaseType type = 28;
 }
 
 message AddAzureDatabaseResponse {}
 
 // AzureDatabase service provides Service Discovery APIs.
 service AzureDatabase {
-  // DiscoverAzureDatabase discovers Azure Database for MySQL and PostgreSQL Server instances.
-  rpc DiscoverAzureDatabase(DiscoverAzureDatabaseRequest) returns (DiscoverAzureDatabaseResponse) {
-    option (google.api.http) = {
-      post: "/v1/management/AzureDatabase/Discover"
-      body: "*"
-    };
-  }
   // AddAzureDatabase adds Azure Database instance.
   rpc AddAzureDatabase(AddAzureDatabaseRequest) returns (AddAzureDatabaseResponse) {
     option (google.api.http) = {

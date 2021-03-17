@@ -203,13 +203,6 @@ type AddAzureDatabaseBody struct {
 	// it can be pull, push or auto mode chosen by server.
 	// Enum: [AUTO PULL PUSH]
 	MetricsMode *string `json:"metrics_mode,omitempty"`
-
-	// DiscoverAzureDatabaseType describes supported RDS instance engines.
-	//
-	//  - DISCOVER_AZURE_DATABASE_TYPE_MYSQL: MySQL type: microsoft.dbformysql/servers
-	//  - DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL: PostgreSQL type: microsoft.dbformysql/servers
-	// Enum: [DISCOVER_AZURE_DATABASE_TYPE_INVALID DISCOVER_AZURE_DATABASE_TYPE_MYSQL DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL]
-	Type *string `json:"type,omitempty"`
 }
 
 // Validate validates this add azure database body
@@ -217,10 +210,6 @@ func (o *AddAzureDatabaseBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateMetricsMode(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -270,52 +259,6 @@ func (o *AddAzureDatabaseBody) validateMetricsMode(formats strfmt.Registry) erro
 
 	// value enum
 	if err := o.validateMetricsModeEnum("body"+"."+"metrics_mode", "body", *o.MetricsMode); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-var addAzureDatabaseBodyTypeTypePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["DISCOVER_AZURE_DATABASE_TYPE_INVALID","DISCOVER_AZURE_DATABASE_TYPE_MYSQL","DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		addAzureDatabaseBodyTypeTypePropEnum = append(addAzureDatabaseBodyTypeTypePropEnum, v)
-	}
-}
-
-const (
-
-	// AddAzureDatabaseBodyTypeDISCOVERAZUREDATABASETYPEINVALID captures enum value "DISCOVER_AZURE_DATABASE_TYPE_INVALID"
-	AddAzureDatabaseBodyTypeDISCOVERAZUREDATABASETYPEINVALID string = "DISCOVER_AZURE_DATABASE_TYPE_INVALID"
-
-	// AddAzureDatabaseBodyTypeDISCOVERAZUREDATABASETYPEMYSQL captures enum value "DISCOVER_AZURE_DATABASE_TYPE_MYSQL"
-	AddAzureDatabaseBodyTypeDISCOVERAZUREDATABASETYPEMYSQL string = "DISCOVER_AZURE_DATABASE_TYPE_MYSQL"
-
-	// AddAzureDatabaseBodyTypeDISCOVERAZUREDATABASETYPEPOSTGRESQL captures enum value "DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL"
-	AddAzureDatabaseBodyTypeDISCOVERAZUREDATABASETYPEPOSTGRESQL string = "DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL"
-)
-
-// prop value enum
-func (o *AddAzureDatabaseBody) validateTypeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addAzureDatabaseBodyTypeTypePropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *AddAzureDatabaseBody) validateType(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Type) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateTypeEnum("body"+"."+"type", "body", *o.Type); err != nil {
 		return err
 	}
 
