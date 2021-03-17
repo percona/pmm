@@ -84,10 +84,14 @@ message AddAzureDatabaseRequest {
   ];
   // Password for scraping metrics.
   string password = 14;
-  string azure_client_id = 29;
-  string azure_client_secret = 30;
-  string azure_tenant_id = 31;
-  string azure_subscription_id = 32;
+  // Azure database client ID
+  string azure_database_client_id = 29;
+  // Azure database client secret
+  string azure_database_client_secret = 30;
+  // Azure database tanant ID
+  string azure_database_tenant_id = 31;
+  // Azure database subscription ID
+  string azure_database_subscription_id = 32;
   // If true, adds azure_exporter.
   bool azure_exporter = 17;
   // If true, adds qan-mysql-perfschema-agent.
