@@ -1,4 +1,4 @@
-<!-- CREATED BY make_glossary_md.pl - DO NOT EDIT! -->
+<!-- CREATED BY make_glossary.pl - DO NOT EDIT! -->
 
 <!-- Local style adjustments -->
 <style>div.section dl.glossary dt {font-weight: bold; font-size: 1.3em;}
@@ -50,6 +50,10 @@ Component of PMM Server that enables you to analyze MySQL query performance over
 ## STT
 
 Security Threat Tool.
+
+## Technical Preview
+
+Releases intended for public preview and feedback but with no support or SLAs. Should not be used on production or business-critical systems. May contain breaking changes to UI, API, CLI. ([Read more](https://www.percona.com/services/policies/percona-release-lifecycle-overview).)
 
 ## VG
 

@@ -4,7 +4,7 @@
 # Master copy: https://docs.google.com/spreadsheets/d/1KUL-dcfBrR3bWsFUcugy5SsJcR5ot-P4Bt27z3ka0x0/edit#gid=0
 # Export this sheet as tab-separated values into source/_res/glossary.tsv
 # Usage:
-# sort source/_res/glossary.tsv | bin/make_glossary_md.pl > source/glossary-terminology.md
+# sort _resources/bin/glossary.tsv | _resources/bin/make_glossary_md.pl > docs/details/glossary.md
 
 use File::Basename;
 my $prog = basename($0);

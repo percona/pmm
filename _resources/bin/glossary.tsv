@@ -10,3 +10,4 @@ PEM	Privacy Enhanced Mail.
 IAM	Identity and Access Management (for Amazon AWS).
 QPS	Queries Per Second. A measure of the rate of queries being monitored.
 NUMA	Non-Uniform Memory Access.
+Technical Preview	Releases intended for public preview and feedback but not suitable for use on production or business-critical systems. ([Read more](https://www.percona.com/services/policies/percona-release-lifecycle-overview).)
