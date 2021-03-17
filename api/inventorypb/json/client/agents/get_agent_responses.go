@@ -231,6 +231,9 @@ swagger:model GetAgentOKBody
 */
 type GetAgentOKBody struct {
 
+	// azure exporter
+	AzureExporter *GetAgentOKBodyAzureExporter `json:"azure_exporter,omitempty"`
+
 	// external exporter
 	ExternalExporter *GetAgentOKBodyExternalExporter `json:"external_exporter,omitempty"`
 
@@ -277,6 +280,10 @@ type GetAgentOKBody struct {
 // Validate validates this get agent OK body
 func (o *GetAgentOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := o.validateAzureExporter(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := o.validateExternalExporter(formats); err != nil {
 		res = append(res, err)
@@ -337,6 +344,24 @@ func (o *GetAgentOKBody) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *GetAgentOKBody) validateAzureExporter(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.AzureExporter) { // not required
+		return nil
+	}
+
+	if o.AzureExporter != nil {
+		if err := o.AzureExporter.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getAgentOk" + "." + "azure_exporter")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -603,6 +628,133 @@ func (o *GetAgentOKBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetAgentOKBody) UnmarshalBinary(b []byte) error {
 	var res GetAgentOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetAgentOKBodyAzureExporter AzureExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.
+swagger:model GetAgentOKBodyAzureExporter
+*/
+type GetAgentOKBodyAzureExporter struct {
+
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
+	// Node identifier.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Azure subscription ID.
+	SubscriptionID string `json:"subscription_id,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	Status *string `json:"status,omitempty"`
+
+	// Listen port for scraping metrics (the same for several configurations).
+	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// True if exporter uses push metrics mode.
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+}
+
+// Validate validates this get agent OK body azure exporter
+func (o *GetAgentOKBodyAzureExporter) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var getAgentOkBodyAzureExporterTypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getAgentOkBodyAzureExporterTypeStatusPropEnum = append(getAgentOkBodyAzureExporterTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// GetAgentOKBodyAzureExporterStatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	GetAgentOKBodyAzureExporterStatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+
+	// GetAgentOKBodyAzureExporterStatusSTARTING captures enum value "STARTING"
+	GetAgentOKBodyAzureExporterStatusSTARTING string = "STARTING"
+
+	// GetAgentOKBodyAzureExporterStatusRUNNING captures enum value "RUNNING"
+	GetAgentOKBodyAzureExporterStatusRUNNING string = "RUNNING"
+
+	// GetAgentOKBodyAzureExporterStatusWAITING captures enum value "WAITING"
+	GetAgentOKBodyAzureExporterStatusWAITING string = "WAITING"
+
+	// GetAgentOKBodyAzureExporterStatusSTOPPING captures enum value "STOPPING"
+	GetAgentOKBodyAzureExporterStatusSTOPPING string = "STOPPING"
+
+	// GetAgentOKBodyAzureExporterStatusDONE captures enum value "DONE"
+	GetAgentOKBodyAzureExporterStatusDONE string = "DONE"
+)
+
+// prop value enum
+func (o *GetAgentOKBodyAzureExporter) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, getAgentOkBodyAzureExporterTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyAzureExporter) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("getAgentOk"+"."+"azure_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetAgentOKBodyAzureExporter) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetAgentOKBodyAzureExporter) UnmarshalBinary(b []byte) error {
+	var res GetAgentOKBodyAzureExporter
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
