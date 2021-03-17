@@ -17,22 +17,6 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
-func (this *DiscoverAzureDatabaseRequest) Validate() error {
-	return nil
-}
-func (this *DiscoverAzureDatabaseInstance) Validate() error {
-	return nil
-}
-func (this *DiscoverAzureDatabaseResponse) Validate() error {
-	for _, item := range this.AzureDatabaseInstance {
-		if item != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("AzureDatabaseInstance", err)
-			}
-		}
-	}
-	return nil
-}
 func (this *AddAzureDatabaseRequest) Validate() error {
 	if this.Region == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Region", fmt.Errorf(`value '%v' must not be an empty string`, this.Region))
