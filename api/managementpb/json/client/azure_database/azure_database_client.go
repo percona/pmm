@@ -27,8 +27,6 @@ type Client struct {
 type ClientService interface {
 	AddAzureDatabase(params *AddAzureDatabaseParams) (*AddAzureDatabaseOK, error)
 
-	DiscoverAzureDatabase(params *DiscoverAzureDatabaseParams) (*DiscoverAzureDatabaseOK, error)
-
 	SetTransport(transport runtime.ClientTransport)
 }
 
@@ -62,39 +60,6 @@ func (a *Client) AddAzureDatabase(params *AddAzureDatabaseParams) (*AddAzureData
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*AddAzureDatabaseDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-  DiscoverAzureDatabase discovers azure database discovers azure database for my SQL and postgre SQL server instances
-*/
-func (a *Client) DiscoverAzureDatabase(params *DiscoverAzureDatabaseParams) (*DiscoverAzureDatabaseOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewDiscoverAzureDatabaseParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "DiscoverAzureDatabase",
-		Method:             "POST",
-		PathPattern:        "/v1/management/AzureDatabase/Discover",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &DiscoverAzureDatabaseReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*DiscoverAzureDatabaseOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*DiscoverAzureDatabaseDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
