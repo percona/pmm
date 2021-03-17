@@ -326,8 +326,8 @@ type AddAzureDatabaseExporterOKBodyAzureDatabaseExporter struct {
 	// Node identifier.
 	NodeID string `json:"node_id,omitempty"`
 
-	// Azure subscription ID.
-	AzureSubscriptionID string `json:"azure_subscription_id,omitempty"`
+	// Azure database subscription ID.
+	AzureDatabaseSubscriptionID string `json:"azure_database_subscription_id,omitempty"`
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`

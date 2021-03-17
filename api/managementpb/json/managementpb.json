@@ -1569,10 +1569,30 @@
                   "type": "string",
                   "x-order": 1
                 },
+                "azure_database_client_id": {
+                  "type": "string",
+                  "title": "Azure database client ID",
+                  "x-order": 11
+                },
+                "azure_database_client_secret": {
+                  "type": "string",
+                  "title": "Azure database client secret",
+                  "x-order": 12
+                },
+                "azure_database_subscription_id": {
+                  "type": "string",
+                  "title": "Azure database subscription ID",
+                  "x-order": 14
+                },
+                "azure_database_tenant_id": {
+                  "type": "string",
+                  "title": "Azure database tanant ID",
+                  "x-order": 13
+                },
                 "azure_exporter": {
                   "description": "If true, adds azure_exporter.",
                   "type": "boolean",
-                  "x-order": 11
+                  "x-order": 15
                 },
                 "custom_labels": {
                   "description": "Custom user-assigned labels for Node and Service.",
@@ -1580,22 +1600,22 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 13
+                  "x-order": 17
                 },
                 "disable_basic_metrics": {
                   "description": "Disable basic metrics.",
                   "type": "boolean",
-                  "x-order": 19
+                  "x-order": 23
                 },
                 "disable_enhanced_metrics": {
                   "description": "Disable enhanced metrics.",
                   "type": "boolean",
-                  "x-order": 20
+                  "x-order": 24
                 },
                 "disable_query_examples": {
                   "description": "Disable query examples.",
                   "type": "boolean",
-                  "x-order": 17
+                  "x-order": 21
                 },
                 "environment": {
                   "description": "Environment name.",
@@ -1616,7 +1636,7 @@
                     "PULL",
                     "PUSH"
                   ],
-                  "x-order": 21
+                  "x-order": 25
                 },
                 "node_model": {
                   "description": "Azure instance class.",
@@ -1642,7 +1662,7 @@
                 "qan_mysql_perfschema": {
                   "description": "If true, adds qan-mysql-perfschema-agent.",
                   "type": "boolean",
-                  "x-order": 12
+                  "x-order": 16
                 },
                 "region": {
                   "description": "Azure region.",
@@ -1657,23 +1677,23 @@
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "x-order": 14
+                  "x-order": 18
                 },
                 "tablestats_group_table_limit": {
                   "description": "Tablestats group collectors will be disabled if there are more than that number of tables.\nIf zero, server's default value is used.\nUse negative value to disable them.",
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 18
+                  "x-order": 22
                 },
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
-                  "x-order": 15
+                  "x-order": 19
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",
                   "type": "boolean",
-                  "x-order": 16
+                  "x-order": 20
                 },
                 "type": {
                   "description": "DiscoverAzureDatabaseType describes supported RDS instance engines.\n\n - DISCOVER_AZURE_DATABASE_TYPE_MYSQL: MySQL type: microsoft.dbformysql/servers\n - DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL: PostgreSQL type: microsoft.dbformysql/servers",
@@ -1684,7 +1704,7 @@
                     "DISCOVER_AZURE_DATABASE_TYPE_MYSQL",
                     "DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL"
                   ],
-                  "x-order": 22
+                  "x-order": 26
                 },
                 "username": {
                   "description": "Username for scraping metrics.",

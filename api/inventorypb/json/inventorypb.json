@@ -97,8 +97,8 @@
                       "type": "string",
                       "x-order": 0
                     },
-                    "azure_subscription_id": {
-                      "description": "Azure subscription ID.",
+                    "azure_database_subscription_id": {
+                      "description": "Azure database subscription ID.",
                       "type": "string",
                       "x-order": 4
                     },
@@ -2737,8 +2737,8 @@
                       "type": "string",
                       "x-order": 0
                     },
-                    "azure_subscription_id": {
-                      "description": "Azure subscription ID.",
+                    "azure_database_subscription_id": {
+                      "description": "Azure database subscription ID.",
                       "type": "string",
                       "x-order": 4
                     },
@@ -5128,8 +5128,8 @@
                       "type": "string",
                       "x-order": 0
                     },
-                    "azure_subscription_id": {
-                      "description": "Azure subscription ID.",
+                    "azure_database_subscription_id": {
+                      "description": "Azure database subscription ID.",
                       "type": "string",
                       "x-order": 4
                     },
@@ -6248,8 +6248,8 @@
                         "type": "string",
                         "x-order": 0
                       },
-                      "azure_subscription_id": {
-                        "description": "Azure subscription ID.",
+                      "azure_database_subscription_id": {
+                        "description": "Azure database subscription ID.",
                         "type": "string",
                         "x-order": 4
                       },

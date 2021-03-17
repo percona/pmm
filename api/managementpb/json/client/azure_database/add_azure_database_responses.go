@@ -155,6 +155,18 @@ type AddAzureDatabaseBody struct {
 	// Password for scraping metrics.
 	Password string `json:"password,omitempty"`
 
+	// Azure database client ID
+	AzureDatabaseClientID string `json:"azure_database_client_id,omitempty"`
+
+	// Azure database client secret
+	AzureDatabaseClientSecret string `json:"azure_database_client_secret,omitempty"`
+
+	// Azure database tanant ID
+	AzureDatabaseTenantID string `json:"azure_database_tenant_id,omitempty"`
+
+	// Azure database subscription ID
+	AzureDatabaseSubscriptionID string `json:"azure_database_subscription_id,omitempty"`
+
 	// If true, adds azure_exporter.
 	AzureExporter bool `json:"azure_exporter,omitempty"`
 

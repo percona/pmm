@@ -427,8 +427,8 @@ message AzureDatabaseExporter {
   bool disabled = 3;
   // Node identifier.
   string node_id = 4;
-  // Azure subscription ID.
-  string azure_subscription_id = 5;
+  // Azure database subscription ID.
+  string azure_database_subscription_id = 5;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 6;
   //
