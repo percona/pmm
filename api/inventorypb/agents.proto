@@ -1435,7 +1435,7 @@ service Agents {
       body: "*"
     };
   }
-  // ChangeAzureDatabaseExporter changes_database azure_database_exporter Agent.
+  // ChangeAzureDatabaseExporter changes_database azure_exporter Agent.
   rpc ChangeAzureDatabaseExporter(ChangeAzureDatabaseExporterRequest) returns (ChangeAzureDatabaseExporterResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/ChangeAzureDatabaseExporter"

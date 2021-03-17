@@ -551,7 +551,7 @@ func (a *Client) AddRDSExporter(params *AddRDSExporterParams) (*AddRDSExporterOK
 }
 
 /*
-  ChangeAzureDatabaseExporter changes azure database exporter changes database azure database exporter agent
+  ChangeAzureDatabaseExporter changes azure database exporter changes database azure exporter agent
 */
 func (a *Client) ChangeAzureDatabaseExporter(params *ChangeAzureDatabaseExporterParams) (*ChangeAzureDatabaseExporterOK, error) {
 	// TODO: Validate the params before sending
