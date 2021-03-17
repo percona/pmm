@@ -70,7 +70,7 @@ func TestCreateBackupLocation(t *testing.T) {
 		loc, err := svc.AddLocation(ctx, &backupv1beta1.AddLocationRequest{
 			Name: gofakeit.Name(),
 			S3Config: &backupv1beta1.S3LocationConfig{
-				Endpoint:   gofakeit.URL(),
+				Endpoint:   "https://s3.us-west-2.amazonaws.com/",
 				AccessKey:  "access_key",
 				SecretKey:  "secret_key",
 				BucketName: "example_bucket",
@@ -88,7 +88,7 @@ func TestCreateBackupLocation(t *testing.T) {
 				Path: "/tmp",
 			},
 			S3Config: &backupv1beta1.S3LocationConfig{
-				Endpoint:   gofakeit.URL(),
+				Endpoint:   "https://s3.us-west-2.amazonaws.com/",
 				AccessKey:  "access_key",
 				SecretKey:  "secret_key",
 				BucketName: "example_bucket",
@@ -116,7 +116,7 @@ func TestListBackupLocations(t *testing.T) {
 	req2 := &backupv1beta1.AddLocationRequest{
 		Name: gofakeit.Name(),
 		S3Config: &backupv1beta1.S3LocationConfig{
-			Endpoint:   gofakeit.URL(),
+			Endpoint:   "https://s3.us-west-2.amazonaws.com/",
 			AccessKey:  "access_key",
 			SecretKey:  "secret_key",
 			BucketName: "example_bucket",
