@@ -54,6 +54,12 @@ func (m *QANCollectRequest) AgentMessageRequestPayload() isAgentMessage_Payload 
 func (m *ActionResultRequest) AgentMessageRequestPayload() isAgentMessage_Payload {
 	return &AgentMessage_ActionResult{ActionResult: m}
 }
+func (m *JobProgress) AgentMessageRequestPayload() isAgentMessage_Payload {
+	return &AgentMessage_JobProgress{JobProgress: m}
+}
+func (m *JobResult) AgentMessageRequestPayload() isAgentMessage_Payload {
+	return &AgentMessage_JobResult{JobResult: m}
+}
 
 // AgentMessage response payloads
 func (m *Pong) AgentMessageResponsePayload() isAgentMessage_Payload {
