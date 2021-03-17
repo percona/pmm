@@ -21438,6 +21438,118 @@
         }
       }
     },
+    "/v1/management/backup/Backups/PerformBackup": {
+      "post": {
+        "tags": [
+          "Backups"
+        ],
+        "summary": "PerformBackup request backup specified service to location.",
+        "operationId": "PerformBackup",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "service_id": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "location_id": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "database_names": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 2
+                },
+                "name": {
+                  "type": "string",
+                  "x-order": 3
+                },
+                "description": {
+                  "type": "string",
+                  "x-order": 4
+                },
+                "retry_mode": {
+                  "description": "RetryMode specifies how backup should retry in case of failure.",
+                  "type": "string",
+                  "default": "RETRY_MODE_INVALID",
+                  "enum": [
+                    "RETRY_MODE_INVALID",
+                    "AUTO",
+                    "MANUAL"
+                  ],
+                  "x-order": 5
+                },
+                "retry_interval": {
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 6
+                },
+                "retry_times": {
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 7
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/backup/Locations/Add": {
       "post": {
         "tags": [
