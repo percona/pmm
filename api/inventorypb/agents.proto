@@ -25,7 +25,7 @@ enum AgentType {
   QAN_POSTGRESQL_PGSTATMONITOR_AGENT = 13;
   RDS_EXPORTER = 11;
   EXTERNAL_EXPORTER = 12;
-  AZURE_EXPORTER = 15;
+  AZURE_DATABASE_EXPORTER = 15;
 }
 
 // PMMAgent runs on Generic or Container Node.
@@ -417,8 +417,8 @@ message ExternalExporter {
   bool push_metrics_enabled = 11;
 }
 
-// AzureExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.
-message AzureExporter {
+// AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.
+message AzureDatabaseExporter {
   // Unique randomly generated instance identifier.
   string agent_id = 1;
   // The pmm-agent identifier which runs this instance.
@@ -428,7 +428,7 @@ message AzureExporter {
   // Node identifier.
   string node_id = 4;
   // Azure subscription ID.
-  string subscription_id = 5;
+  string azure_subscription_id = 5;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 6;
   //
@@ -492,7 +492,7 @@ message ListAgentsResponse {
   repeated QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 13;
   repeated RDSExporter rds_exporter = 11;
   repeated ExternalExporter external_exporter = 12;
-  repeated AzureExporter azure_exporter = 15;
+  repeated AzureDatabaseExporter azure_database_exporter = 15;
 }
 
 // Get
@@ -522,7 +522,7 @@ message GetAgentResponse {
     QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 13;
     RDSExporter rds_exporter = 11;
     ExternalExporter external_exporter = 12;
-    AzureExporter azure_exporter = 15;
+    AzureDatabaseExporter azure_database_exporter = 15;
   }
 }
 
@@ -1165,9 +1165,9 @@ message ChangeExternalExporterResponse {
   ExternalExporter external_exporter = 1;
 }
 
-// Add/Change AzureExporter
+// Add/Change AzureDatabaseExporter
 
-message AddAzureExporterRequest {
+message AddAzureDatabaseExporterRequest {
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 1 [
     (validator.field) = {
@@ -1181,13 +1181,13 @@ message AddAzureExporterRequest {
     }
   ];
   // Azure client ID
-  string client_id = 3;
+  string azure_client_id = 3;
   // Azure client secret
-  string client_secret = 4;
+  string azure_client_secret = 4;
   // Azure tanant ID
-  string tenant_id = 5;
+  string azure_tenant_id = 5;
   // Azure subscription ID
-  string subscription_id = 6;
+  string azure_subscription_id = 6;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 7;
   // Skip connection check.
@@ -1196,11 +1196,11 @@ message AddAzureExporterRequest {
   bool push_metrics = 9;
 }
 
-message AddAzureExporterResponse {
-  AzureExporter azure_exporter = 1;
+message AddAzureDatabaseExporterResponse {
+  AzureDatabaseExporter azure_database_exporter = 1;
 }
 
-message ChangeAzureExporterRequest {
+message ChangeAzureDatabaseExporterRequest {
   string agent_id = 1 [
     (validator.field) = {
       string_not_empty: true
@@ -1209,8 +1209,8 @@ message ChangeAzureExporterRequest {
   ChangeCommonAgentParams common = 2;
 }
 
-message ChangeAzureExporterResponse {
-  AzureExporter azure_exporter = 1;
+message ChangeAzureDatabaseExporterResponse {
+  AzureDatabaseExporter azure_database_exporter = 1;
 }
 
 // Remove
@@ -1418,17 +1418,17 @@ service Agents {
       body: "*"
     };
   }
-  // AddAzureExporter adds azure_exporter Agent.
-  rpc AddAzureExporter(AddAzureExporterRequest) returns (AddAzureExporterResponse) {
+  // AddAzureDatabaseExporter adds azure_database_exporter Agent.
+  rpc AddAzureDatabaseExporter(AddAzureDatabaseExporterRequest) returns (AddAzureDatabaseExporterResponse) {
     option (google.api.http) = {
-      post: "/v1/inventory/Agents/AddAzureExporter"
+      post: "/v1/inventory/Agents/AddAzureDatabaseExporter"
       body: "*"
     };
   }
-  // ChangeAzureExporter changes azure_exporter Agent.
-  rpc ChangeAzureExporter(ChangeAzureExporterRequest) returns (ChangeAzureExporterResponse) {
+  // ChangeAzureDatabaseExporter changes_database azure_exporter Agent.
+  rpc ChangeAzureDatabaseExporter(ChangeAzureDatabaseExporterRequest) returns (ChangeAzureDatabaseExporterResponse) {
     option (google.api.http) = {
-      post: "/v1/inventory/Agents/ChangeAzureExporter"
+      post: "/v1/inventory/Agents/ChangeAzureDatabaseExporter"
       body: "*"
     };
   }

@@ -72,7 +72,7 @@ func (this *ExternalExporter) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-func (this *AzureExporter) Validate() error {
+func (this *AzureDatabaseExporter) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
@@ -182,10 +182,10 @@ func (this *ListAgentsResponse) Validate() error {
 			}
 		}
 	}
-	for _, item := range this.AzureExporter {
+	for _, item := range this.AzureDatabaseExporter {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("AzureExporter", err)
+				return github_com_mwitkow_go_proto_validators.FieldError("AzureDatabaseExporter", err)
 			}
 		}
 	}
@@ -296,10 +296,10 @@ func (this *GetAgentResponse) Validate() error {
 			}
 		}
 	}
-	if oneOfNester, ok := this.GetAgent().(*GetAgentResponse_AzureExporter); ok {
-		if oneOfNester.AzureExporter != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.AzureExporter); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("AzureExporter", err)
+	if oneOfNester, ok := this.GetAgent().(*GetAgentResponse_AzureDatabaseExporter); ok {
+		if oneOfNester.AzureDatabaseExporter != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.AzureDatabaseExporter); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("AzureDatabaseExporter", err)
 			}
 		}
 	}
@@ -785,7 +785,7 @@ func (this *ChangeExternalExporterResponse) Validate() error {
 	}
 	return nil
 }
-func (this *AddAzureExporterRequest) Validate() error {
+func (this *AddAzureDatabaseExporterRequest) Validate() error {
 	if this.PmmAgentId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("PmmAgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.PmmAgentId))
 	}
@@ -795,15 +795,15 @@ func (this *AddAzureExporterRequest) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-func (this *AddAzureExporterResponse) Validate() error {
-	if this.AzureExporter != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.AzureExporter); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("AzureExporter", err)
+func (this *AddAzureDatabaseExporterResponse) Validate() error {
+	if this.AzureDatabaseExporter != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.AzureDatabaseExporter); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("AzureDatabaseExporter", err)
 		}
 	}
 	return nil
 }
-func (this *ChangeAzureExporterRequest) Validate() error {
+func (this *ChangeAzureDatabaseExporterRequest) Validate() error {
 	if this.AgentId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("AgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.AgentId))
 	}
@@ -814,10 +814,10 @@ func (this *ChangeAzureExporterRequest) Validate() error {
 	}
 	return nil
 }
-func (this *ChangeAzureExporterResponse) Validate() error {
-	if this.AzureExporter != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.AzureExporter); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("AzureExporter", err)
+func (this *ChangeAzureDatabaseExporterResponse) Validate() error {
+	if this.AzureDatabaseExporter != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.AzureDatabaseExporter); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("AzureDatabaseExporter", err)
 		}
 	}
 	return nil

@@ -25,7 +25,7 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	AddAzureExporter(params *AddAzureExporterParams) (*AddAzureExporterOK, error)
+	AddAzureDatabaseExporter(params *AddAzureDatabaseExporterParams) (*AddAzureDatabaseExporterOK, error)
 
 	AddExternalExporter(params *AddExternalExporterParams) (*AddExternalExporterOK, error)
 
@@ -53,7 +53,7 @@ type ClientService interface {
 
 	AddRDSExporter(params *AddRDSExporterParams) (*AddRDSExporterOK, error)
 
-	ChangeAzureExporter(params *ChangeAzureExporterParams) (*ChangeAzureExporterOK, error)
+	ChangeAzureDatabaseExporter(params *ChangeAzureDatabaseExporterParams) (*ChangeAzureDatabaseExporterOK, error)
 
 	ChangeExternalExporter(params *ChangeExternalExporterParams) (*ChangeExternalExporterOK, error)
 
@@ -89,35 +89,35 @@ type ClientService interface {
 }
 
 /*
-  AddAzureExporter adds azure exporter adds azure exporter agent
+  AddAzureDatabaseExporter adds azure database exporter adds azure database exporter agent
 */
-func (a *Client) AddAzureExporter(params *AddAzureExporterParams) (*AddAzureExporterOK, error) {
+func (a *Client) AddAzureDatabaseExporter(params *AddAzureDatabaseExporterParams) (*AddAzureDatabaseExporterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAddAzureExporterParams()
+		params = NewAddAzureDatabaseExporterParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "AddAzureExporter",
+		ID:                 "AddAzureDatabaseExporter",
 		Method:             "POST",
-		PathPattern:        "/v1/inventory/Agents/AddAzureExporter",
+		PathPattern:        "/v1/inventory/Agents/AddAzureDatabaseExporter",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AddAzureExporterReader{formats: a.formats},
+		Reader:             &AddAzureDatabaseExporterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AddAzureExporterOK)
+	success, ok := result.(*AddAzureDatabaseExporterOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AddAzureExporterDefault)
+	unexpectedSuccess := result.(*AddAzureDatabaseExporterDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -551,35 +551,35 @@ func (a *Client) AddRDSExporter(params *AddRDSExporterParams) (*AddRDSExporterOK
 }
 
 /*
-  ChangeAzureExporter changes azure exporter changes azure exporter agent
+  ChangeAzureDatabaseExporter changes azure database exporter changes database azure exporter agent
 */
-func (a *Client) ChangeAzureExporter(params *ChangeAzureExporterParams) (*ChangeAzureExporterOK, error) {
+func (a *Client) ChangeAzureDatabaseExporter(params *ChangeAzureDatabaseExporterParams) (*ChangeAzureDatabaseExporterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewChangeAzureExporterParams()
+		params = NewChangeAzureDatabaseExporterParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "ChangeAzureExporter",
+		ID:                 "ChangeAzureDatabaseExporter",
 		Method:             "POST",
-		PathPattern:        "/v1/inventory/Agents/ChangeAzureExporter",
+		PathPattern:        "/v1/inventory/Agents/ChangeAzureDatabaseExporter",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ChangeAzureExporterReader{formats: a.formats},
+		Reader:             &ChangeAzureDatabaseExporterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ChangeAzureExporterOK)
+	success, ok := result.(*ChangeAzureDatabaseExporterOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ChangeAzureExporterDefault)
+	unexpectedSuccess := result.(*ChangeAzureDatabaseExporterDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
