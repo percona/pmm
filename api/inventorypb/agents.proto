@@ -1180,14 +1180,14 @@ message AddAzureDatabaseExporterRequest {
       string_not_empty: true
     }
   ];
-  // Azure client ID
-  string azure_client_id = 3;
-  // Azure client secret
-  string azure_client_secret = 4;
-  // Azure tanant ID
-  string azure_tenant_id = 5;
-  // Azure subscription ID
-  string azure_subscription_id = 6;
+  // Azure database client ID
+  string azure_database_client_id = 3;
+  // Azure database client secret
+  string azure_database_client_secret = 4;
+  // Azure database tanant ID
+  string azure_database_tenant_id = 5;
+  // Azure database subscription ID
+  string azure_database_subscription_id = 6;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 7;
   // Skip connection check.
