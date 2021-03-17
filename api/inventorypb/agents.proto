@@ -25,6 +25,7 @@ enum AgentType {
   QAN_POSTGRESQL_PGSTATMONITOR_AGENT = 13;
   RDS_EXPORTER = 11;
   EXTERNAL_EXPORTER = 12;
+  AZURE_EXPORTER = 15;
 }
 
 // PMMAgent runs on Generic or Container Node.
@@ -416,6 +417,32 @@ message ExternalExporter {
   bool push_metrics_enabled = 11;
 }
 
+// AzureExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.
+message AzureExporter {
+  // Unique randomly generated instance identifier.
+  string agent_id = 1;
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 2;
+  // Desired Agent status: enabled (false) or disabled (true).
+  bool disabled = 3;
+  // Node identifier.
+  string node_id = 4;
+  // Azure subscription ID.
+  string subscription_id = 5;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 6;
+  //
+  // Status fields below.
+  //
+
+  // Actual Agent status (the same for several configurations).
+  AgentStatus status = 7;
+  // Listen port for scraping metrics (the same for several configurations).
+  uint32 listen_port = 8;
+  // True if exporter uses push metrics mode.
+  bool push_metrics_enabled = 9;
+}
+
 // ChangeCommonAgentParams contains parameters that can be changed for all Agents.
 message ChangeCommonAgentParams {
   // Enable this Agent. Can't be used with disabled.
@@ -465,6 +492,7 @@ message ListAgentsResponse {
   repeated QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 13;
   repeated RDSExporter rds_exporter = 11;
   repeated ExternalExporter external_exporter = 12;
+  repeated AzureExporter azure_exporter = 15;
 }
 
 // Get
@@ -494,6 +522,7 @@ message GetAgentResponse {
     QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 13;
     RDSExporter rds_exporter = 11;
     ExternalExporter external_exporter = 12;
+    AzureExporter azure_exporter = 15;
   }
 }
 
@@ -1136,6 +1165,54 @@ message ChangeExternalExporterResponse {
   ExternalExporter external_exporter = 1;
 }
 
+// Add/Change AzureExporter
+
+message AddAzureExporterRequest {
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Node identifier.
+  string node_id = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Azure client ID
+  string client_id = 3;
+  // Azure client secret
+  string client_secret = 4;
+  // Azure tanant ID
+  string tenant_id = 5;
+  // Azure subscription ID
+  string subscription_id = 6;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 7;
+  // Skip connection check.
+  bool skip_connection_check = 8;
+  // Enables push metrics mode for exporter.
+  bool push_metrics = 9;
+}
+
+message AddAzureExporterResponse {
+  AzureExporter azure_exporter = 1;
+}
+
+message ChangeAzureExporterRequest {
+  string agent_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  ChangeCommonAgentParams common = 2;
+}
+
+message ChangeAzureExporterResponse {
+  AzureExporter azure_exporter = 1;
+}
+
 // Remove
 
 message RemoveAgentRequest {
@@ -1338,6 +1415,20 @@ service Agents {
   rpc ChangeExternalExporter(ChangeExternalExporterRequest) returns (ChangeExternalExporterResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/ChangeExternalExporter"
+      body: "*"
+    };
+  }
+  // AddAzureExporter adds azure_exporter Agent.
+  rpc AddAzureExporter(AddAzureExporterRequest) returns (AddAzureExporterResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/AddAzureExporter"
+      body: "*"
+    };
+  }
+  // ChangeAzureExporter changes azure_exporter Agent.
+  rpc ChangeAzureExporter(ChangeAzureExporterRequest) returns (ChangeAzureExporterResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/ChangeAzureExporter"
       body: "*"
     };
   }

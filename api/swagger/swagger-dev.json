@@ -3037,6 +3037,189 @@
         }
       }
     },
+    "/v1/inventory/Agents/AddAzureExporter": {
+      "post": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "AddAzureExporter adds azure_exporter Agent.",
+        "operationId": "AddAzureExporter",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "pmm_agent_id": {
+                  "description": "The pmm-agent identifier which runs this instance.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "node_id": {
+                  "description": "Node identifier.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "client_id": {
+                  "type": "string",
+                  "title": "Azure client ID",
+                  "x-order": 2
+                },
+                "client_secret": {
+                  "type": "string",
+                  "title": "Azure client secret",
+                  "x-order": 3
+                },
+                "tenant_id": {
+                  "type": "string",
+                  "title": "Azure tanant ID",
+                  "x-order": 4
+                },
+                "subscription_id": {
+                  "type": "string",
+                  "title": "Azure subscription ID",
+                  "x-order": 5
+                },
+                "custom_labels": {
+                  "description": "Custom user-assigned labels.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "x-order": 6
+                },
+                "skip_connection_check": {
+                  "description": "Skip connection check.",
+                  "type": "boolean",
+                  "x-order": 7
+                },
+                "push_metrics": {
+                  "description": "Enables push metrics mode for exporter.",
+                  "type": "boolean",
+                  "x-order": 8
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "azure_exporter": {
+                  "description": "AzureExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "node_id": {
+                      "description": "Node identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "subscription_id": {
+                      "description": "Azure subscription ID.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 5
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 6
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics (the same for several configurations).",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 7
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 8
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/inventory/Agents/AddExternalExporter": {
       "post": {
         "tags": [
@@ -5449,6 +5632,185 @@
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 10
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/inventory/Agents/ChangeAzureExporter": {
+      "post": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "ChangeAzureExporter changes azure_exporter Agent.",
+        "operationId": "ChangeAzureExporter",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "agent_id": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "common": {
+                  "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
+                  "type": "object",
+                  "properties": {
+                    "enable": {
+                      "description": "Enable this Agent. Can't be used with disabled.",
+                      "type": "boolean",
+                      "x-order": 0
+                    },
+                    "disable": {
+                      "description": "Disable this Agent. Can't be used with enabled.",
+                      "type": "boolean",
+                      "x-order": 1
+                    },
+                    "custom_labels": {
+                      "description": "Replace all custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 2
+                    },
+                    "remove_custom_labels": {
+                      "description": "Remove all custom user-assigned labels.",
+                      "type": "boolean",
+                      "x-order": 3
+                    },
+                    "enable_push_metrics": {
+                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
+                      "type": "boolean",
+                      "x-order": 4
+                    },
+                    "disable_push_metrics": {
+                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                      "type": "boolean",
+                      "x-order": 5
+                    }
+                  },
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "azure_exporter": {
+                  "description": "AzureExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "node_id": {
+                      "description": "Node identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "subscription_id": {
+                      "description": "Azure subscription ID.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 5
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 6
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics (the same for several configurations).",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 7
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 8
                     }
                   },
                   "x-order": 0
@@ -8722,6 +9084,71 @@
                     }
                   },
                   "x-order": 13
+                },
+                "azure_exporter": {
+                  "description": "AzureExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "node_id": {
+                      "description": "Node identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "subscription_id": {
+                      "description": "Azure subscription ID.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 5
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 6
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics (the same for several configurations).",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 7
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 8
+                    }
+                  },
+                  "x-order": 14
                 }
               }
             }
@@ -8817,7 +9244,8 @@
                     "QAN_POSTGRESQL_PGSTATEMENTS_AGENT",
                     "QAN_POSTGRESQL_PGSTATMONITOR_AGENT",
                     "RDS_EXPORTER",
-                    "EXTERNAL_EXPORTER"
+                    "EXTERNAL_EXPORTER",
+                    "AZURE_EXPORTER"
                   ],
                   "x-order": 3
                 }
@@ -9816,6 +10244,74 @@
                     }
                   },
                   "x-order": 13
+                },
+                "azure_exporter": {
+                  "type": "array",
+                  "items": {
+                    "description": "AzureExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.",
+                    "type": "object",
+                    "properties": {
+                      "agent_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "pmm_agent_id": {
+                        "description": "The pmm-agent identifier which runs this instance.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "disabled": {
+                        "description": "Desired Agent status: enabled (false) or disabled (true).",
+                        "type": "boolean",
+                        "x-order": 2
+                      },
+                      "node_id": {
+                        "description": "Node identifier.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "subscription_id": {
+                        "description": "Azure subscription ID.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 5
+                      },
+                      "status": {
+                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                        "type": "string",
+                        "default": "AGENT_STATUS_INVALID",
+                        "enum": [
+                          "AGENT_STATUS_INVALID",
+                          "STARTING",
+                          "RUNNING",
+                          "WAITING",
+                          "STOPPING",
+                          "DONE"
+                        ],
+                        "x-order": 6
+                      },
+                      "listen_port": {
+                        "description": "Listen port for scraping metrics (the same for several configurations).",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 7
+                      },
+                      "push_metrics_enabled": {
+                        "description": "True if exporter uses push metrics mode.",
+                        "type": "boolean",
+                        "x-order": 8
+                      }
+                    }
+                  },
+                  "x-order": 14
                 }
               }
             }
