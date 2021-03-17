@@ -3032,24 +3032,24 @@
                   "type": "string",
                   "x-order": 1
                 },
-                "azure_client_id": {
+                "azure_database_client_id": {
                   "type": "string",
-                  "title": "Azure client ID",
+                  "title": "Azure database client ID",
                   "x-order": 2
                 },
-                "azure_client_secret": {
+                "azure_database_client_secret": {
                   "type": "string",
-                  "title": "Azure client secret",
+                  "title": "Azure database client secret",
                   "x-order": 3
                 },
-                "azure_tenant_id": {
+                "azure_database_tenant_id": {
                   "type": "string",
-                  "title": "Azure tanant ID",
+                  "title": "Azure database tanant ID",
                   "x-order": 4
                 },
-                "azure_subscription_id": {
+                "azure_database_subscription_id": {
                   "type": "string",
-                  "title": "Azure subscription ID",
+                  "title": "Azure database subscription ID",
                   "x-order": 5
                 },
                 "custom_labels": {
