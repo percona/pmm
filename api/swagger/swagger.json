@@ -13952,25 +13952,29 @@
                   "type": "string",
                   "x-order": 10
                 },
-                "azure_database_exporter": {
-                  "description": "If true, adds rds_exporter.",
-                  "type": "boolean",
+                "azure_database_client_id": {
+                  "type": "string",
+                  "title": "Azure database client ID",
                   "x-order": 11
                 },
-                "azure_client_id": {
+                "azure_database_client_secret": {
                   "type": "string",
+                  "title": "Azure database client secret",
                   "x-order": 12
                 },
-                "azure_client_secret": {
+                "azure_database_tenant_id": {
                   "type": "string",
+                  "title": "Azure database tanant ID",
                   "x-order": 13
                 },
-                "azure_tenant_id": {
+                "azure_database_subscription_id": {
                   "type": "string",
+                  "title": "Azure database subscription ID",
                   "x-order": 14
                 },
-                "azure_subscription_id": {
-                  "type": "string",
+                "azure_exporter": {
+                  "description": "If true, adds azure_exporter.",
+                  "type": "boolean",
                   "x-order": 15
                 },
                 "qan_mysql_perfschema": {
