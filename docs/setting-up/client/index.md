@@ -18,10 +18,6 @@ These sections cover the different ways to install PMM Client on a Linux node an
 
 4. If you use [Docker][GETDOCKER], [run PMM Client as a Docker container](#docker).
 
-<!-- TODO
-- Download the PMM Client source code, compile and install it (not covered here)
--->
-
 When you have installed PMM Client, you must:
 
 - [Register the node with PMM Server](#register);
@@ -244,7 +240,7 @@ pmm-admin config --server-insecure-tls --server-url=https://admin:admin@X.X.X.X:
 
 ## Configure and add services {: #configure-add-services }
 
-You should continue by adding services with `pmm-admin add` according to the service type.
+You should continue by adding services according to the service type.
 
 - [MySQL and variants (Percona Server for MySQL, Percona XtraDB Cluster, MariaDB)](mysql.md)
 - [MongoDB](mongodb.md)
@@ -256,28 +252,8 @@ You should continue by adding services with `pmm-admin add` according to the ser
 - [External services](external.md)
 - [HAProxy](haproxy.md)
 
-
-
-<!--
-`pmm-admin` won't add a client if it already exists in the PMM Server inventory database.
-If you need to re-add an already existing client (e.g. after full reinstall, hostname changes, etc.), you can
-use the `--force` option.
-
-This will remove an existing node with the same name, if any, and all its dependent services.
--->
-
-
-
-
-
-
-
-
-
 !!! seealso "See also"
 	- [Percona release][PERCONA_RELEASE]
-
-
 
 [GETDOCKER]: https://docs.docker.com/get-docker/
 [DOWNLOAD]: https://www.percona.com/downloads/pmm2/

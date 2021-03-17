@@ -556,6 +556,7 @@ When you remove a service, collected data remains on PMM Server for the specifie
     : Skip connection check.
 
 ### OTHER COMMANDS
+
 `pmm-admin add external [FLAGS]`
 
 : Add External source of data (like a custom exporter running on a port) to the monitoring
