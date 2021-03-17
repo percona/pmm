@@ -54,21 +54,23 @@ func NewPerformBackupOK() *PerformBackupOK {
 A successful response.
 */
 type PerformBackupOK struct {
-	Payload interface{}
+	Payload *PerformBackupOKBody
 }
 
 func (o *PerformBackupOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/PerformBackup][%d] performBackupOk  %+v", 200, o.Payload)
 }
 
-func (o *PerformBackupOK) GetPayload() interface{} {
+func (o *PerformBackupOK) GetPayload() *PerformBackupOKBody {
 	return o.Payload
 }
 
 func (o *PerformBackupOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(PerformBackupOKBody)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -158,29 +160,29 @@ swagger:model PerformBackupBody
 */
 type PerformBackupBody struct {
 
-	// service id
+	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
-	// location id
+	// Machine-readable location ID.
 	LocationID string `json:"location_id,omitempty"`
 
-	// database names
+	// Database names to backup, If empty then each database is backed up.
 	DatabaseNames []string `json:"database_names"`
 
-	// name
+	// If empty then name is auto-generated.
 	Name string `json:"name,omitempty"`
 
-	// description
+	// Human-readable description.
 	Description string `json:"description,omitempty"`
 
 	// RetryMode specifies how backup should retry in case of failure.
 	// Enum: [RETRY_MODE_INVALID AUTO MANUAL]
 	RetryMode *string `json:"retry_mode,omitempty"`
 
-	// retry interval
+	// Retry interval in seconds. Default 30s.
 	RetryInterval int64 `json:"retry_interval,omitempty"`
 
-	// retry times
+	// How many times should backup be retried in case of failure. Default 2 times.
 	RetryTimes int64 `json:"retry_times,omitempty"`
 }
 
@@ -330,6 +332,38 @@ func (o *PerformBackupDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *PerformBackupDefaultBody) UnmarshalBinary(b []byte) error {
 	var res PerformBackupDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*PerformBackupOKBody perform backup OK body
+swagger:model PerformBackupOKBody
+*/
+type PerformBackupOKBody struct {
+
+	// Unique identifier.
+	BackupID string `json:"backup_id,omitempty"`
+}
+
+// Validate validates this perform backup OK body
+func (o *PerformBackupOKBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *PerformBackupOKBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *PerformBackupOKBody) UnmarshalBinary(b []byte) error {
+	var res PerformBackupOKBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

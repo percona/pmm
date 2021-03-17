@@ -15,25 +15,35 @@ enum RetryMode {
 }
 
 message PerformBackupRequest {
+  // Service identifier.
   string service_id = 1 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
+  // Machine-readable location ID.
   string location_id = 2 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
+  // Database names to backup, If empty then each database is backed up.
   repeated string database_names = 3;
+  // If empty then name is auto-generated.
   string name = 4;
+  // Human-readable description.
   string description = 5;
   RetryMode retry_mode = 6;
+  // Retry interval in seconds. Default 30s.
   uint32 retry_interval = 7;
+  // How many times should backup be retried in case of failure. Default 2 times.
   uint32 retry_times = 8;
 }
 
-message PerformBackupResponse {}
+message PerformBackupResponse {
+  // Unique identifier.
+  string backup_id = 1;
+}
 
 // Backups service handles backup operations to DB.
 service Backups {

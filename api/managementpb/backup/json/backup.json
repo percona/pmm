@@ -31,6 +31,7 @@
               "type": "object",
               "properties": {
                 "database_names": {
+                  "description": "Database names to backup, If empty then each database is backed up.",
                   "type": "array",
                   "items": {
                     "type": "string"
@@ -38,18 +39,22 @@
                   "x-order": 2
                 },
                 "description": {
+                  "description": "Human-readable description.",
                   "type": "string",
                   "x-order": 4
                 },
                 "location_id": {
+                  "description": "Machine-readable location ID.",
                   "type": "string",
                   "x-order": 1
                 },
                 "name": {
+                  "description": "If empty then name is auto-generated.",
                   "type": "string",
                   "x-order": 3
                 },
                 "retry_interval": {
+                  "description": "Retry interval in seconds. Default 30s.",
                   "type": "integer",
                   "format": "int64",
                   "x-order": 6
@@ -66,11 +71,13 @@
                   "x-order": 5
                 },
                 "retry_times": {
+                  "description": "How many times should backup be retried in case of failure. Default 2 times.",
                   "type": "integer",
                   "format": "int64",
                   "x-order": 7
                 },
                 "service_id": {
+                  "description": "Service identifier.",
                   "type": "string",
                   "x-order": 0
                 }
@@ -82,7 +89,14 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "backup_id": {
+                  "description": "Unique identifier.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
             }
           },
           "default": {
