@@ -3963,7 +3963,7 @@
         "tags": [
           "Agents"
         ],
-        "summary": "ChangeAzureDatabaseExporter changes_database azure_exporter Agent.",
+        "summary": "ChangeAzureDatabaseExporter changes_database azure_database_exporter Agent.",
         "operationId": "ChangeAzureDatabaseExporter",
         "parameters": [
           {

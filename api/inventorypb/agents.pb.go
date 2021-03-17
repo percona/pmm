@@ -9489,7 +9489,7 @@ type AgentsClient interface {
 	ChangeExternalExporter(ctx context.Context, in *ChangeExternalExporterRequest, opts ...grpc.CallOption) (*ChangeExternalExporterResponse, error)
 	// AddAzureDatabaseExporter adds azure_database_exporter Agent.
 	AddAzureDatabaseExporter(ctx context.Context, in *AddAzureDatabaseExporterRequest, opts ...grpc.CallOption) (*AddAzureDatabaseExporterResponse, error)
-	// ChangeAzureDatabaseExporter changes_database azure_exporter Agent.
+	// ChangeAzureDatabaseExporter changes_database azure_database_exporter Agent.
 	ChangeAzureDatabaseExporter(ctx context.Context, in *ChangeAzureDatabaseExporterRequest, opts ...grpc.CallOption) (*ChangeAzureDatabaseExporterResponse, error)
 	// RemoveAgent removes Agent.
 	RemoveAgent(ctx context.Context, in *RemoveAgentRequest, opts ...grpc.CallOption) (*RemoveAgentResponse, error)
@@ -9831,7 +9831,7 @@ type AgentsServer interface {
 	ChangeExternalExporter(context.Context, *ChangeExternalExporterRequest) (*ChangeExternalExporterResponse, error)
 	// AddAzureDatabaseExporter adds azure_database_exporter Agent.
 	AddAzureDatabaseExporter(context.Context, *AddAzureDatabaseExporterRequest) (*AddAzureDatabaseExporterResponse, error)
-	// ChangeAzureDatabaseExporter changes_database azure_exporter Agent.
+	// ChangeAzureDatabaseExporter changes_database azure_database_exporter Agent.
 	ChangeAzureDatabaseExporter(context.Context, *ChangeAzureDatabaseExporterRequest) (*ChangeAzureDatabaseExporterResponse, error)
 	// RemoveAgent removes Agent.
 	RemoveAgent(context.Context, *RemoveAgentRequest) (*RemoveAgentResponse, error)
