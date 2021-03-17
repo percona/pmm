@@ -30,18 +30,10 @@
             "schema": {
               "type": "object",
               "properties": {
-                "database_names": {
-                  "description": "Database names to backup, If empty then each database is backed up.",
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  },
-                  "x-order": 2
-                },
                 "description": {
                   "description": "Human-readable description.",
                   "type": "string",
-                  "x-order": 4
+                  "x-order": 3
                 },
                 "location_id": {
                   "description": "Machine-readable location ID.",
@@ -49,32 +41,9 @@
                   "x-order": 1
                 },
                 "name": {
-                  "description": "If empty then name is auto-generated.",
+                  "description": "Database names to backup, If empty then each database is backed up.\nrepeated string database_names = 3;\nIf empty then name is auto-generated.",
                   "type": "string",
-                  "x-order": 3
-                },
-                "retry_interval": {
-                  "description": "Retry interval in seconds. Default 30s.",
-                  "type": "integer",
-                  "format": "int64",
-                  "x-order": 6
-                },
-                "retry_mode": {
-                  "description": "RetryMode specifies how backup should retry in case of failure.",
-                  "type": "string",
-                  "default": "RETRY_MODE_INVALID",
-                  "enum": [
-                    "RETRY_MODE_INVALID",
-                    "AUTO",
-                    "MANUAL"
-                  ],
-                  "x-order": 5
-                },
-                "retry_times": {
-                  "description": "How many times should backup be retried in case of failure. Default 2 times.",
-                  "type": "integer",
-                  "format": "int64",
-                  "x-order": 7
+                  "x-order": 2
                 },
                 "service_id": {
                   "description": "Service identifier.",

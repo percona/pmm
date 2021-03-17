@@ -6,7 +6,6 @@ package backups
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -15,7 +14,6 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
 // PerformBackupReader is a Reader for the PerformBackup structure.
@@ -167,82 +165,16 @@ type PerformBackupBody struct {
 	LocationID string `json:"location_id,omitempty"`
 
 	// Database names to backup, If empty then each database is backed up.
-	DatabaseNames []string `json:"database_names"`
-
+	// repeated string database_names = 3;
 	// If empty then name is auto-generated.
 	Name string `json:"name,omitempty"`
 
 	// Human-readable description.
 	Description string `json:"description,omitempty"`
-
-	// RetryMode specifies how backup should retry in case of failure.
-	// Enum: [RETRY_MODE_INVALID AUTO MANUAL]
-	RetryMode *string `json:"retry_mode,omitempty"`
-
-	// Retry interval in seconds. Default 30s.
-	RetryInterval int64 `json:"retry_interval,omitempty"`
-
-	// How many times should backup be retried in case of failure. Default 2 times.
-	RetryTimes int64 `json:"retry_times,omitempty"`
 }
 
 // Validate validates this perform backup body
 func (o *PerformBackupBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateRetryMode(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-var performBackupBodyTypeRetryModePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["RETRY_MODE_INVALID","AUTO","MANUAL"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		performBackupBodyTypeRetryModePropEnum = append(performBackupBodyTypeRetryModePropEnum, v)
-	}
-}
-
-const (
-
-	// PerformBackupBodyRetryModeRETRYMODEINVALID captures enum value "RETRY_MODE_INVALID"
-	PerformBackupBodyRetryModeRETRYMODEINVALID string = "RETRY_MODE_INVALID"
-
-	// PerformBackupBodyRetryModeAUTO captures enum value "AUTO"
-	PerformBackupBodyRetryModeAUTO string = "AUTO"
-
-	// PerformBackupBodyRetryModeMANUAL captures enum value "MANUAL"
-	PerformBackupBodyRetryModeMANUAL string = "MANUAL"
-)
-
-// prop value enum
-func (o *PerformBackupBody) validateRetryModeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, performBackupBodyTypeRetryModePropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *PerformBackupBody) validateRetryMode(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.RetryMode) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateRetryModeEnum("body"+"."+"retry_mode", "body", *o.RetryMode); err != nil {
-		return err
-	}
-
 	return nil
 }
 
