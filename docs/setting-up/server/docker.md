@@ -42,7 +42,9 @@ Percona maintains a [Docker image for PMM Server][DOCKERHUB]. This section shows
 
 ## Backup and upgrade
 
-1. Find out which version is installed.
+You can test a new release of the PMM Server Docker image by making backups of your current `pmm-server` and `pmm-data` containers which you can restore if you need to.
+
+1. Find out which release you have now.
 
     ```sh
     docker exec -it pmm-server curl -u admin:admin http://localhost/v1/version
@@ -56,7 +58,7 @@ Percona maintains a [Docker image for PMM Server][DOCKERHUB]. This section shows
         docker exec -it pmm-server curl -u admin:admin http://localhost/v1/version | jq .version
         ```
 
-2. Check container mount points are the same (`/srv`).
+2. Check the container mount points are the same (`/srv`).
 
     ```sh
     docker inspect pmm-data | grep Destination
@@ -94,7 +96,7 @@ Percona maintains a [Docker image for PMM Server][DOCKERHUB]. This section shows
 
 5. (Optional) Repeat step 1 to confirm the version, or check the *PMM Upgrade* panel on the *Home Dashboard*.
 
-## Downgrade and restore
+## Restore
 
 1. Stop and remove the running version.
 

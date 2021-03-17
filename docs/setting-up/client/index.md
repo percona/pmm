@@ -20,8 +20,8 @@ These sections cover the different ways to install PMM Client on a Linux node an
 
 When you have installed PMM Client, you must:
 
-- [Register the node with PMM Server](#register);
-- [Configure and add services according to type](#configure-add-services).
+- [Register the node with PMM Server](#register)
+- [Configure and add services according to type](#configure-add-services)
 
 ## Before you start
 
