@@ -15,20 +15,31 @@ Most steps can be done with either a user interface or on the command line, but 
 - *Hypervisor* is software (e.g. VirtualBox, VMware) that runs the guest OS as a virtual machine.
 - *Guest* is the CentOS virtual machine that runs PMM Server.
 
-!!! alert alert-info "OVA file details"
-	- Download page: <https://www.percona.com/downloads/pmm2/{{release}}/ova>
-	- File name: `pmm-server-{{release}}.ova`
-	- VM name: `PMM2-Server-{{release_date}}-N` (`N`=build number)
-	- VM specifications:
-		- CentOS 7.9 (64-bit)
-		- CPU: 1
-		- Base memory: 4096 MB
-		- Disks: LVM, 2 physical volumes
-			- Disk 1 (sda): VMDK (SCSI, 40 GB)
-			- Disk 2 (sdb): VMDK (SCSI, 400 GB)
-	- Username/default password:
-		- `root`/`percona`
-    	- `admin`/`admin`
+**OVA file details**
+
+| Item          | Value
+|---------------|-----------------------------------------------------------
+| Download page | <https://www.percona.com/downloads/pmm2/{{release}}/ova>
+| File name     | `pmm-server-{{release}}.ova`
+| VM name       | `PMM2-Server-{{release_date}}-N` (`N`=build number)
+
+**VM specifications**
+
+| Component         | Value
+|-------------------|-------------------------------
+| OS                | CentOS 7.9 (64-bit)
+| CPU               | 1
+| Base memory       | 4096 MB
+| Disks             | LVM, 2 physical volumes
+| Disk 1 (sda)      | VMDK (SCSI, 40 GB)
+| Disk 2 (sdb)      | VMDK (SCSI, 400 GB)
+
+**Users**
+
+| Default Username | Default password
+|------------------|-----------------------
+| `root`           | `percona`
+| `admin`          | `admin`
 
 ## 1. Download
 
@@ -102,8 +113,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 
 ### 3.2. Reconfigure interface
 
-!!! alert alert-info "Notes"
-	When using the command line, the interface is remapped during import.
+> **Note** When using the command line, the interface is remapped during import.
 
 **UI {{icon.mouse}}**
 

@@ -50,13 +50,11 @@ You can test a new release of the PMM Server Docker image by making backups of y
     docker exec -it pmm-server curl -u admin:admin http://localhost/v1/version
     ```
 
-    !!! alert alert-success "Tip"
-        Use `jq` to extract the quoted string value.
-
-        ```sh
-        sudo apt install jq # Example for Debian, Ubuntu
-        docker exec -it pmm-server curl -u admin:admin http://localhost/v1/version | jq .version
-        ```
+	> **Tip:** Use `jq` to extract the quoted string value.
+	> ```sh
+	> sudo apt install jq # Example for Debian, Ubuntu
+	> docker exec -it pmm-server curl -u admin:admin http://localhost/v1/version | jq .version
+	> ```
 
 2. Check the container mount points are the same (`/srv`).
 
