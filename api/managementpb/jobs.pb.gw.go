@@ -33,7 +33,7 @@ var _ = utilities.NewDoubleArray
 var _ = descriptor.ForMessage
 var _ = metadata.Join
 
-func request_Jobs_GetAction_0(ctx context.Context, marshaler runtime.Marshaler, client JobsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_Jobs_GetJob_0(ctx context.Context, marshaler runtime.Marshaler, client JobsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq GetJobRequest
 	var metadata runtime.ServerMetadata
 
@@ -45,12 +45,12 @@ func request_Jobs_GetAction_0(ctx context.Context, marshaler runtime.Marshaler, 
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := client.GetAction(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.GetJob(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_Jobs_GetAction_0(ctx context.Context, marshaler runtime.Marshaler, server JobsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_Jobs_GetJob_0(ctx context.Context, marshaler runtime.Marshaler, server JobsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq GetJobRequest
 	var metadata runtime.ServerMetadata
 
@@ -62,7 +62,7 @@ func local_request_Jobs_GetAction_0(ctx context.Context, marshaler runtime.Marsh
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := server.GetAction(ctx, &protoReq)
+	msg, err := server.GetJob(ctx, &protoReq)
 	return msg, metadata, err
 
 }
@@ -101,7 +101,7 @@ func local_request_Jobs_StartEchoJob_0(ctx context.Context, marshaler runtime.Ma
 
 }
 
-func request_Jobs_CancelAction_0(ctx context.Context, marshaler runtime.Marshaler, client JobsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_Jobs_CancelJob_0(ctx context.Context, marshaler runtime.Marshaler, client JobsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq CancelJobRequest
 	var metadata runtime.ServerMetadata
 
@@ -113,12 +113,12 @@ func request_Jobs_CancelAction_0(ctx context.Context, marshaler runtime.Marshale
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := client.CancelAction(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.CancelJob(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_Jobs_CancelAction_0(ctx context.Context, marshaler runtime.Marshaler, server JobsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_Jobs_CancelJob_0(ctx context.Context, marshaler runtime.Marshaler, server JobsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq CancelJobRequest
 	var metadata runtime.ServerMetadata
 
@@ -130,7 +130,7 @@ func local_request_Jobs_CancelAction_0(ctx context.Context, marshaler runtime.Ma
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := server.CancelAction(ctx, &protoReq)
+	msg, err := server.CancelJob(ctx, &protoReq)
 	return msg, metadata, err
 
 }
@@ -141,7 +141,7 @@ func local_request_Jobs_CancelAction_0(ctx context.Context, marshaler runtime.Ma
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterJobsHandlerFromEndpoint instead.
 func RegisterJobsHandlerServer(ctx context.Context, mux *runtime.ServeMux, server JobsServer) error {
 
-	mux.Handle("POST", pattern_Jobs_GetAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_Jobs_GetJob_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -152,7 +152,7 @@ func RegisterJobsHandlerServer(ctx context.Context, mux *runtime.ServeMux, serve
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Jobs_GetAction_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Jobs_GetJob_0(rctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -160,7 +160,7 @@ func RegisterJobsHandlerServer(ctx context.Context, mux *runtime.ServeMux, serve
 			return
 		}
 
-		forward_Jobs_GetAction_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Jobs_GetJob_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -187,7 +187,7 @@ func RegisterJobsHandlerServer(ctx context.Context, mux *runtime.ServeMux, serve
 
 	})
 
-	mux.Handle("POST", pattern_Jobs_CancelAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_Jobs_CancelJob_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -198,7 +198,7 @@ func RegisterJobsHandlerServer(ctx context.Context, mux *runtime.ServeMux, serve
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Jobs_CancelAction_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Jobs_CancelJob_0(rctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -206,7 +206,7 @@ func RegisterJobsHandlerServer(ctx context.Context, mux *runtime.ServeMux, serve
 			return
 		}
 
-		forward_Jobs_CancelAction_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Jobs_CancelJob_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -251,7 +251,7 @@ func RegisterJobsHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.
 // "JobsClient" to call the correct interceptors.
 func RegisterJobsHandlerClient(ctx context.Context, mux *runtime.ServeMux, client JobsClient) error {
 
-	mux.Handle("POST", pattern_Jobs_GetAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_Jobs_GetJob_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -260,14 +260,14 @@ func RegisterJobsHandlerClient(ctx context.Context, mux *runtime.ServeMux, clien
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Jobs_GetAction_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Jobs_GetJob_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Jobs_GetAction_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Jobs_GetJob_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -291,7 +291,7 @@ func RegisterJobsHandlerClient(ctx context.Context, mux *runtime.ServeMux, clien
 
 	})
 
-	mux.Handle("POST", pattern_Jobs_CancelAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_Jobs_CancelJob_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -300,14 +300,14 @@ func RegisterJobsHandlerClient(ctx context.Context, mux *runtime.ServeMux, clien
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Jobs_CancelAction_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Jobs_CancelJob_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Jobs_CancelAction_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Jobs_CancelJob_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -315,17 +315,17 @@ func RegisterJobsHandlerClient(ctx context.Context, mux *runtime.ServeMux, clien
 }
 
 var (
-	pattern_Jobs_GetAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Jobs", "Get"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Jobs_GetJob_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Jobs", "Get"}, "", runtime.AssumeColonVerbOpt(true)))
 
 	pattern_Jobs_StartEchoJob_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Jobs", "StartEcho"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Jobs_CancelAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Jobs", "Cancel"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Jobs_CancelJob_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Jobs", "Cancel"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (
-	forward_Jobs_GetAction_0 = runtime.ForwardResponseMessage
+	forward_Jobs_GetJob_0 = runtime.ForwardResponseMessage
 
 	forward_Jobs_StartEchoJob_0 = runtime.ForwardResponseMessage
 
-	forward_Jobs_CancelAction_0 = runtime.ForwardResponseMessage
+	forward_Jobs_CancelJob_0 = runtime.ForwardResponseMessage
 )

@@ -25,9 +25,9 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	CancelActionMixin5(params *CancelActionMixin5Params) (*CancelActionMixin5OK, error)
+	CancelJob(params *CancelJobParams) (*CancelJobOK, error)
 
-	GetActionMixin5(params *GetActionMixin5Params) (*GetActionMixin5OK, error)
+	GetJob(params *GetJobParams) (*GetJobOK, error)
 
 	StartEchoJob(params *StartEchoJobParams) (*StartEchoJobOK, error)
 
@@ -35,68 +35,68 @@ type ClientService interface {
 }
 
 /*
-  CancelActionMixin5 cancels action stops a job
+  CancelJob cancels job stops a job
 */
-func (a *Client) CancelActionMixin5(params *CancelActionMixin5Params) (*CancelActionMixin5OK, error) {
+func (a *Client) CancelJob(params *CancelJobParams) (*CancelJobOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewCancelActionMixin5Params()
+		params = NewCancelJobParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "CancelActionMixin5",
+		ID:                 "CancelJob",
 		Method:             "POST",
 		PathPattern:        "/v1/management/Jobs/Cancel",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &CancelActionMixin5Reader{formats: a.formats},
+		Reader:             &CancelJobReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*CancelActionMixin5OK)
+	success, ok := result.(*CancelJobOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*CancelActionMixin5Default)
+	unexpectedSuccess := result.(*CancelJobDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  GetActionMixin5 gets action gets an result of given action
+  GetJob gets job gets an result of given action
 */
-func (a *Client) GetActionMixin5(params *GetActionMixin5Params) (*GetActionMixin5OK, error) {
+func (a *Client) GetJob(params *GetJobParams) (*GetJobOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewGetActionMixin5Params()
+		params = NewGetJobParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "GetActionMixin5",
+		ID:                 "GetJob",
 		Method:             "POST",
 		PathPattern:        "/v1/management/Jobs/Get",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &GetActionMixin5Reader{formats: a.formats},
+		Reader:             &GetJobReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*GetActionMixin5OK)
+	success, ok := result.(*GetJobOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*GetActionMixin5Default)
+	unexpectedSuccess := result.(*GetJobDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

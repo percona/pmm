@@ -17793,8 +17793,8 @@
         "tags": [
           "Jobs"
         ],
-        "summary": "CancelAction stops a Job.",
-        "operationId": "CancelActionMixin5",
+        "summary": "CancelJob stops a Job.",
+        "operationId": "CancelJob",
         "parameters": [
           {
             "name": "body",
@@ -17866,8 +17866,8 @@
         "tags": [
           "Jobs"
         ],
-        "summary": "GetAction gets an result of given Action.",
-        "operationId": "GetActionMixin5",
+        "summary": "GetJob gets an result of given Action.",
+        "operationId": "GetJob",
         "parameters": [
           {
             "name": "body",

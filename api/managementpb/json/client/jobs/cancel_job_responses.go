@@ -16,22 +16,22 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// CancelActionMixin5Reader is a Reader for the CancelActionMixin5 structure.
-type CancelActionMixin5Reader struct {
+// CancelJobReader is a Reader for the CancelJob structure.
+type CancelJobReader struct {
 	formats strfmt.Registry
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *CancelActionMixin5Reader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *CancelJobReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 	case 200:
-		result := NewCancelActionMixin5OK()
+		result := NewCancelJobOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
 	default:
-		result := NewCancelActionMixin5Default(response.Code())
+		result := NewCancelJobDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
@@ -42,28 +42,28 @@ func (o *CancelActionMixin5Reader) ReadResponse(response runtime.ClientResponse,
 	}
 }
 
-// NewCancelActionMixin5OK creates a CancelActionMixin5OK with default headers values
-func NewCancelActionMixin5OK() *CancelActionMixin5OK {
-	return &CancelActionMixin5OK{}
+// NewCancelJobOK creates a CancelJobOK with default headers values
+func NewCancelJobOK() *CancelJobOK {
+	return &CancelJobOK{}
 }
 
-/*CancelActionMixin5OK handles this case with default header values.
+/*CancelJobOK handles this case with default header values.
 
 A successful response.
 */
-type CancelActionMixin5OK struct {
+type CancelJobOK struct {
 	Payload interface{}
 }
 
-func (o *CancelActionMixin5OK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Jobs/Cancel][%d] cancelActionMixin5Ok  %+v", 200, o.Payload)
+func (o *CancelJobOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/Jobs/Cancel][%d] cancelJobOk  %+v", 200, o.Payload)
 }
 
-func (o *CancelActionMixin5OK) GetPayload() interface{} {
+func (o *CancelJobOK) GetPayload() interface{} {
 	return o.Payload
 }
 
-func (o *CancelActionMixin5OK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *CancelJobOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
@@ -73,39 +73,39 @@ func (o *CancelActionMixin5OK) readResponse(response runtime.ClientResponse, con
 	return nil
 }
 
-// NewCancelActionMixin5Default creates a CancelActionMixin5Default with default headers values
-func NewCancelActionMixin5Default(code int) *CancelActionMixin5Default {
-	return &CancelActionMixin5Default{
+// NewCancelJobDefault creates a CancelJobDefault with default headers values
+func NewCancelJobDefault(code int) *CancelJobDefault {
+	return &CancelJobDefault{
 		_statusCode: code,
 	}
 }
 
-/*CancelActionMixin5Default handles this case with default header values.
+/*CancelJobDefault handles this case with default header values.
 
 An unexpected error response.
 */
-type CancelActionMixin5Default struct {
+type CancelJobDefault struct {
 	_statusCode int
 
-	Payload *CancelActionMixin5DefaultBody
+	Payload *CancelJobDefaultBody
 }
 
-// Code gets the status code for the cancel action mixin5 default response
-func (o *CancelActionMixin5Default) Code() int {
+// Code gets the status code for the cancel job default response
+func (o *CancelJobDefault) Code() int {
 	return o._statusCode
 }
 
-func (o *CancelActionMixin5Default) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Jobs/Cancel][%d] CancelActionMixin5 default  %+v", o._statusCode, o.Payload)
+func (o *CancelJobDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/Jobs/Cancel][%d] CancelJob default  %+v", o._statusCode, o.Payload)
 }
 
-func (o *CancelActionMixin5Default) GetPayload() *CancelActionMixin5DefaultBody {
+func (o *CancelJobDefault) GetPayload() *CancelJobDefaultBody {
 	return o.Payload
 }
 
-func (o *CancelActionMixin5Default) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *CancelJobDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(CancelActionMixin5DefaultBody)
+	o.Payload = new(CancelJobDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -115,22 +115,22 @@ func (o *CancelActionMixin5Default) readResponse(response runtime.ClientResponse
 	return nil
 }
 
-/*CancelActionMixin5Body cancel action mixin5 body
-swagger:model CancelActionMixin5Body
+/*CancelJobBody cancel job body
+swagger:model CancelJobBody
 */
-type CancelActionMixin5Body struct {
+type CancelJobBody struct {
 
 	// Unique Job ID. Required.
 	JobID string `json:"job_id,omitempty"`
 }
 
-// Validate validates this cancel action mixin5 body
-func (o *CancelActionMixin5Body) Validate(formats strfmt.Registry) error {
+// Validate validates this cancel job body
+func (o *CancelJobBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *CancelActionMixin5Body) MarshalBinary() ([]byte, error) {
+func (o *CancelJobBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -138,8 +138,8 @@ func (o *CancelActionMixin5Body) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *CancelActionMixin5Body) UnmarshalBinary(b []byte) error {
-	var res CancelActionMixin5Body
+func (o *CancelJobBody) UnmarshalBinary(b []byte) error {
+	var res CancelJobBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -147,10 +147,10 @@ func (o *CancelActionMixin5Body) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*CancelActionMixin5DefaultBody cancel action mixin5 default body
-swagger:model CancelActionMixin5DefaultBody
+/*CancelJobDefaultBody cancel job default body
+swagger:model CancelJobDefaultBody
 */
-type CancelActionMixin5DefaultBody struct {
+type CancelJobDefaultBody struct {
 
 	// error
 	Error string `json:"error,omitempty"`
@@ -165,8 +165,8 @@ type CancelActionMixin5DefaultBody struct {
 	Details []*DetailsItems0 `json:"details"`
 }
 
-// Validate validates this cancel action mixin5 default body
-func (o *CancelActionMixin5DefaultBody) Validate(formats strfmt.Registry) error {
+// Validate validates this cancel job default body
+func (o *CancelJobDefaultBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateDetails(formats); err != nil {
@@ -179,7 +179,7 @@ func (o *CancelActionMixin5DefaultBody) Validate(formats strfmt.Registry) error 
 	return nil
 }
 
-func (o *CancelActionMixin5DefaultBody) validateDetails(formats strfmt.Registry) error {
+func (o *CancelJobDefaultBody) validateDetails(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Details) { // not required
 		return nil
@@ -193,7 +193,7 @@ func (o *CancelActionMixin5DefaultBody) validateDetails(formats strfmt.Registry)
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("CancelActionMixin5 default" + "." + "details" + "." + strconv.Itoa(i))
+					return ve.ValidateName("CancelJob default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -205,7 +205,7 @@ func (o *CancelActionMixin5DefaultBody) validateDetails(formats strfmt.Registry)
 }
 
 // MarshalBinary interface implementation
-func (o *CancelActionMixin5DefaultBody) MarshalBinary() ([]byte, error) {
+func (o *CancelJobDefaultBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -213,8 +213,8 @@ func (o *CancelActionMixin5DefaultBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *CancelActionMixin5DefaultBody) UnmarshalBinary(b []byte) error {
-	var res CancelActionMixin5DefaultBody
+func (o *CancelJobDefaultBody) UnmarshalBinary(b []byte) error {
+	var res CancelJobDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

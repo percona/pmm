@@ -61,8 +61,8 @@ message CancelJobResponse {}
 
 // Jobs service provides public Management API methods for Jobs.
 service Jobs {
-  // GetAction gets an result of given Action.
-  rpc GetAction(GetJobRequest) returns (GetJobResponse) {
+  // GetJob gets an result of given Action.
+  rpc GetJob(GetJobRequest) returns (GetJobResponse) {
     option (google.api.http) = {
       post: "/v1/management/Jobs/Get"
       body: "*"
@@ -75,8 +75,8 @@ service Jobs {
       body: "*"
     };
   }
-  // CancelAction stops a Job.
-  rpc CancelAction(CancelJobRequest) returns (CancelJobResponse) {
+  // CancelJob stops a Job.
+  rpc CancelJob(CancelJobRequest) returns (CancelJobResponse) {
     option (google.api.http) = {
       post: "/v1/management/Jobs/Cancel"
       body: "*"
