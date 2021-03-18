@@ -429,18 +429,20 @@ message AzureDatabaseExporter {
   string node_id = 4;
   // Azure database subscription ID.
   string azure_database_subscription_id = 5;
+  // Azure database resource type (mysql, maria, postgres)
+  string azure_database_resource_type = 6;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 6;
+  map<string, string> custom_labels = 7;
   //
   // Status fields below.
   //
 
   // Actual Agent status (the same for several configurations).
-  AgentStatus status = 7;
+  AgentStatus status = 8;
   // Listen port for scraping metrics (the same for several configurations).
-  uint32 listen_port = 8;
+  uint32 listen_port = 9;
   // True if exporter uses push metrics mode.
-  bool push_metrics_enabled = 9;
+  bool push_metrics_enabled = 10;
 }
 
 // ChangeCommonAgentParams contains parameters that can be changed for all Agents.
@@ -1188,12 +1190,14 @@ message AddAzureDatabaseExporterRequest {
   string azure_database_tenant_id = 5;
   // Azure database subscription ID
   string azure_database_subscription_id = 6;
+  // Azure resource type (mysql, maria, postgres)
+  string azure_resource_type = 7;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 7;
+  map<string, string> custom_labels = 8;
   // Skip connection check.
-  bool skip_connection_check = 8;
+  bool skip_connection_check = 9;
   // Enables push metrics mode for exporter.
-  bool push_metrics = 9;
+  bool push_metrics = 10;
 }
 
 message AddAzureDatabaseExporterResponse {

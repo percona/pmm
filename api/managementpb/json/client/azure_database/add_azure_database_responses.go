@@ -167,8 +167,11 @@ type AddAzureDatabaseBody struct {
 	// Azure database subscription ID
 	AzureDatabaseSubscriptionID string `json:"azure_database_subscription_id,omitempty"`
 
-	// If true, adds azure_exporter.
-	AzureExporter bool `json:"azure_exporter,omitempty"`
+	// Azure database resource type (mysql, maria, postgres)
+	AzureDatabaseResourceType string `json:"azure_database_resource_type,omitempty"`
+
+	// If true, adds azure_database_exporter.
+	AzureDatabaseExporter bool `json:"azure_database_exporter,omitempty"`
 
 	// If true, adds qan-mysql-perfschema-agent.
 	QANMysqlPerfschema bool `json:"qan_mysql_perfschema,omitempty"`
