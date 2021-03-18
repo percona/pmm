@@ -9236,6 +9236,154 @@
         }
       }
     },
+    "/v1/inventory/Nodes/AddRemoteAzureDatabase": {
+      "post": {
+        "tags": [
+          "Nodes"
+        ],
+        "summary": "AddRemoteAzureDatabaseNode adds remote Azure database Node.",
+        "operationId": "AddRemoteAzureDatabaseNode",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "node_name": {
+                  "description": "Unique across all Nodes user-defined name.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "address": {
+                  "description": "DB instance identifier.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "node_model": {
+                  "description": "Node model.",
+                  "type": "string",
+                  "x-order": 2
+                },
+                "region": {
+                  "description": "Node region.",
+                  "type": "string",
+                  "x-order": 3
+                },
+                "az": {
+                  "description": "Node availability zone.",
+                  "type": "string",
+                  "x-order": 4
+                },
+                "custom_labels": {
+                  "description": "Custom user-assigned labels.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "x-order": 5
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "remote_azure_database": {
+                  "description": "RemoteAzureDatabaseNode represents remote AzureDatabase Node. Agents can't run on Remote AzureDatabase Nodes.",
+                  "type": "object",
+                  "properties": {
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "address": {
+                      "description": "DB instance identifier.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "node_model": {
+                      "description": "Node model.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 6
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/inventory/Nodes/AddRemoteRDS": {
       "post": {
         "tags": [
@@ -9618,6 +9766,51 @@
                     }
                   },
                   "x-order": 3
+                },
+                "remote_azure_database": {
+                  "description": "RemoteAzureDatabaseNode represents remote AzureDatabase Node. Agents can't run on Remote AzureDatabase Nodes.",
+                  "type": "object",
+                  "properties": {
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "address": {
+                      "description": "DB instance identifier.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "node_model": {
+                      "description": "Node model.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 6
+                    }
+                  },
+                  "x-order": 4
                 }
               }
             }
@@ -9688,7 +9881,8 @@
                     "GENERIC_NODE",
                     "CONTAINER_NODE",
                     "REMOTE_NODE",
-                    "REMOTE_RDS_NODE"
+                    "REMOTE_RDS_NODE",
+                    "REMOTE_AZURE_DATABASE_NODE"
                   ],
                   "x-order": 0
                 }
@@ -9918,6 +10112,54 @@
                     }
                   },
                   "x-order": 3
+                },
+                "remote_azure_database": {
+                  "type": "array",
+                  "items": {
+                    "description": "RemoteAzureDatabaseNode represents remote AzureDatabase Node. Agents can't run on Remote AzureDatabase Nodes.",
+                    "type": "object",
+                    "properties": {
+                      "node_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "node_name": {
+                        "description": "Unique across all Nodes user-defined name.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "address": {
+                        "description": "DB instance identifier.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "node_model": {
+                        "description": "Node model.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "region": {
+                        "description": "Node region.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "az": {
+                        "description": "Node availability zone.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 6
+                      }
+                    }
+                  },
+                  "x-order": 4
                 }
               }
             }
@@ -13839,7 +14081,8 @@
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
                         "REMOTE_NODE",
-                        "REMOTE_RDS_NODE"
+                        "REMOTE_RDS_NODE",
+                        "REMOTE_AZURE_DATABASE_NODE"
                       ],
                       "x-order": 0
                     },
@@ -14186,7 +14429,8 @@
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
                         "REMOTE_NODE",
-                        "REMOTE_RDS_NODE"
+                        "REMOTE_RDS_NODE",
+                        "REMOTE_AZURE_DATABASE_NODE"
                       ],
                       "x-order": 0
                     },
@@ -14518,7 +14762,8 @@
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
                         "REMOTE_NODE",
-                        "REMOTE_RDS_NODE"
+                        "REMOTE_RDS_NODE",
+                        "REMOTE_AZURE_DATABASE_NODE"
                       ],
                       "x-order": 0
                     },
@@ -14990,7 +15235,8 @@
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
                         "REMOTE_NODE",
-                        "REMOTE_RDS_NODE"
+                        "REMOTE_RDS_NODE",
+                        "REMOTE_AZURE_DATABASE_NODE"
                       ],
                       "x-order": 0
                     },
@@ -15552,7 +15798,8 @@
                     "GENERIC_NODE",
                     "CONTAINER_NODE",
                     "REMOTE_NODE",
-                    "REMOTE_RDS_NODE"
+                    "REMOTE_RDS_NODE",
+                    "REMOTE_AZURE_DATABASE_NODE"
                   ],
                   "x-order": 0
                 },
@@ -15874,7 +16121,8 @@
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
                         "REMOTE_NODE",
-                        "REMOTE_RDS_NODE"
+                        "REMOTE_RDS_NODE",
+                        "REMOTE_AZURE_DATABASE_NODE"
                       ],
                       "x-order": 0
                     },
@@ -16410,7 +16658,8 @@
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
                         "REMOTE_NODE",
-                        "REMOTE_RDS_NODE"
+                        "REMOTE_RDS_NODE",
+                        "REMOTE_AZURE_DATABASE_NODE"
                       ],
                       "x-order": 0
                     },

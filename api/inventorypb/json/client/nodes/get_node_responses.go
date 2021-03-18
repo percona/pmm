@@ -238,6 +238,9 @@ type GetNodeOKBody struct {
 	// remote
 	Remote *GetNodeOKBodyRemote `json:"remote,omitempty"`
 
+	// remote azure database
+	RemoteAzureDatabase *GetNodeOKBodyRemoteAzureDatabase `json:"remote_azure_database,omitempty"`
+
 	// remote rds
 	RemoteRDS *GetNodeOKBodyRemoteRDS `json:"remote_rds,omitempty"`
 }
@@ -255,6 +258,10 @@ func (o *GetNodeOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateRemote(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateRemoteAzureDatabase(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -314,6 +321,24 @@ func (o *GetNodeOKBody) validateRemote(formats strfmt.Registry) error {
 		if err := o.Remote.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getNodeOk" + "." + "remote")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetNodeOKBody) validateRemoteAzureDatabase(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.RemoteAzureDatabase) { // not required
+		return nil
+	}
+
+	if o.RemoteAzureDatabase != nil {
+		if err := o.RemoteAzureDatabase.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getNodeOk" + "." + "remote_azure_database")
 			}
 			return err
 		}
@@ -516,6 +541,56 @@ func (o *GetNodeOKBodyRemote) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetNodeOKBodyRemote) UnmarshalBinary(b []byte) error {
 	var res GetNodeOKBodyRemote
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetNodeOKBodyRemoteAzureDatabase RemoteAzureDatabaseNode represents remote AzureDatabase Node. Agents can't run on Remote AzureDatabase Nodes.
+swagger:model GetNodeOKBodyRemoteAzureDatabase
+*/
+type GetNodeOKBodyRemoteAzureDatabase struct {
+
+	// Unique randomly generated instance identifier.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Unique across all Nodes user-defined name.
+	NodeName string `json:"node_name,omitempty"`
+
+	// DB instance identifier.
+	Address string `json:"address,omitempty"`
+
+	// Node model.
+	NodeModel string `json:"node_model,omitempty"`
+
+	// Node region.
+	Region string `json:"region,omitempty"`
+
+	// Node availability zone.
+	Az string `json:"az,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+}
+
+// Validate validates this get node OK body remote azure database
+func (o *GetNodeOKBodyRemoteAzureDatabase) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetNodeOKBodyRemoteAzureDatabase) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetNodeOKBodyRemoteAzureDatabase) UnmarshalBinary(b []byte) error {
+	var res GetNodeOKBodyRemoteAzureDatabase
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
