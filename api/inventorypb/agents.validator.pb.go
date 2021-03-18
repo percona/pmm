@@ -792,6 +792,9 @@ func (this *AddAzureDatabaseExporterRequest) Validate() error {
 	if this.NodeId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("NodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeId))
 	}
+	if this.AzureResourceType == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("AzureResourceType", fmt.Errorf(`value '%v' must not be an empty string`, this.AzureResourceType))
+	}
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }

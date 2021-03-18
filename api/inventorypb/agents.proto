@@ -1191,7 +1191,11 @@ message AddAzureDatabaseExporterRequest {
   // Azure database subscription ID
   string azure_database_subscription_id = 6;
   // Azure resource type (mysql, maria, postgres)
-  string azure_resource_type = 7;
+  string azure_resource_type = 7 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
   // Custom user-assigned labels.
   map<string, string> custom_labels = 8;
   // Skip connection check.
