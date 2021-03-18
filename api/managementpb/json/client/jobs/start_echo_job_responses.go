@@ -128,6 +128,9 @@ type StartEchoJobBody struct {
 	// Service ID for this Action. Required.
 	ServiceID string `json:"service_id,omitempty"`
 
+	// timeout
+	Timeout string `json:"timeout,omitempty"`
+
 	// message
 	Message string `json:"message,omitempty"`
 

@@ -37,8 +37,9 @@ message StartEchoJobRequest {
       string_not_empty: true
     }
   ];
-  string message = 3;
-  google.protobuf.Duration delay = 4;
+  google.protobuf.Duration timeout = 3;
+  string message = 4;
+  google.protobuf.Duration delay = 5;
 }
 
 message StartEchoJobResponse {
