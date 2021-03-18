@@ -59,8 +59,10 @@ message AddAzureDatabaseRequest {
   string azure_database_tenant_id = 31;
   // Azure database subscription ID
   string azure_database_subscription_id = 32;
-  // If true, adds azure_exporter.
-  bool azure_exporter = 17;
+  // Azure database resource type (mysql, maria, postgres)
+  string azure_database_resource_type = 33;
+  // If true, adds azure_database_exporter.
+  bool azure_database_exporter = 17;
   // If true, adds qan-mysql-perfschema-agent.
   bool qan_mysql_perfschema = 18;
   // Custom user-assigned labels for Node and Service.
