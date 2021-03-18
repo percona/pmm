@@ -28,14 +28,15 @@ extra_javascript:
   - js/toctree.js
 
 markdown_extensions:
+  - attr_list
   - toc:
-        baselevel: 1
-        toc_depth: "2-3"
-        anchorlink: true
+      permalink: True
+#      anchorlink: True # Causes blank headings in PDF
+#        baselevel: 1
+#        toc_depth: "2-3"
   - admonition
   - def_list
   - meta
-  - attr_list
   - smarty:
         smart_angled_quotes: true
   - pymdownx.mark
