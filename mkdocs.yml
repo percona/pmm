@@ -61,9 +61,9 @@ plugins:
           - setting-up/server/dbaas-gke.md # Included file
           - setting-up/client/docker.md # Moved to setting-up/client/index.md
   - with-pdf: # https://github.com/orzih/mkdocs-with-pdf
-        output_path: '_pdf/PerconaMonitoringAndManagement-2.15.0.pdf'
+        output_path: '_pdf/PerconaMonitoringAndManagement-2.15.1.pdf'
         cover_title: 'Documentation'
-        cover_subtitle: 2.15.0 (March 01, 2021)
+        cover_subtitle: 2.15.1 (March 18, 2021)
         author: 'Percona Technical Documentation Team'
         cover_logo: docs/_images/PMM_Logo.svg
         debug_html: false
@@ -193,6 +193,7 @@ nav:
   - faq.md
   - Release Notes:
       - release-notes/index.md
+      - release-notes/2.15.1.md
       - release-notes/2.15.0.md
       - release-notes/2.14.0.md
       - release-notes/2.13.0.md
