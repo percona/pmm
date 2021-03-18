@@ -33,9 +33,6 @@ func (this *AddAzureDatabaseRequest) Validate() error {
 	if this.Username == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Username", fmt.Errorf(`value '%v' must not be an empty string`, this.Username))
 	}
-	if this.AzureDatabaseResourceType == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("AzureDatabaseResourceType", fmt.Errorf(`value '%v' must not be an empty string`, this.AzureDatabaseResourceType))
-	}
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
