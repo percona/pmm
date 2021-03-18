@@ -1,7 +1,6 @@
 ---
 TODO:
 - Examples of panel items (graph, chart, set, table)
-
 ---
 
 # User Interface
@@ -9,16 +8,6 @@ TODO:
 PMM's user interface is a browser application based on [Grafana][Grafana]. This page explains how to log in, how the user interface is laid out, and what the controls do.
 
 [Grafana]: https://grafana.com/docs/grafana/latest/
-
----
-
-- [Logging in](#logging-in)
-- [Dashboards](#dashboards)
-- [Controls](#controls)
-- [Navigation](#navigation)
-- [Panels](#panels)
-
----
 
 ## Logging in
 
@@ -63,9 +52,6 @@ These menus and controls appear on all dashboards:
 
 ![](../_images/PMM_Home_Dashboard_TALL_Numbered.png)
 
-!!! seealso "See also"
-	[User interface components](../details/interface.md)
-
 ## Navigation
 
 **Search for a dashboard by name**
@@ -103,12 +89,11 @@ At the top of each panel and to the right of the panel name is the *panel menu*.
 ![image](../_images/PMM_Common_Panel_Menu_Open.jpg)
 
 
-!!! alert alert-success "Tip"
-    The menu is hidden until you mouse over it. Look for the {{icon.angledown}} symbol in the title bar of a panel.
+> **Tip** The menu is hidden until you mouse over it. Look for the {{icon.angledown}} symbol in the title bar of a panel.
 
 
 | Item                          | Description                                                                         |
-| ----------------------------- | ----------------------------------------------------------------------------------- |
+|:-----------------------------:| ----------------------------------------------------------------------------------- |
 | {{icon.eye}} View             | Open the panel in full window mode                                                  |
 | {{icon.share}} Share          | [Render the panel's image for sharing](#rendering-dashboard-images)                 |
 | {{icon.compass}} Explore      | Run [PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/) queries |
@@ -130,6 +115,10 @@ Exit a panel's full window mode by pressing *Escape* or clicking the left arrow 
 
 
 
-!!! seealso "See also"
-	- [How to render dashboard images](../how-to/render-dashboard-images.md)
-	- [How to annotate special events](../how-to/annotate.md)
+> **See also**
+>
+> - [How to render dashboard images](../how-to/render-dashboard-images.md)
+>
+> - [How to annotate special events](../how-to/annotate.md)
+>
+> - [User interface components](../details/interface.md)

@@ -2,8 +2,7 @@
 
 *Integrated Alerting* lets you know when certain system events occur.
 
-!!! alert alert-warning "Warning"
-    Integrated Alerting is a technical preview and is subject to change.
+> <b style="color:goldenrod">Caution</b> Integrated Alerting is a [technical preview](../../../details/glossary.md#technical-preview) and is subject to change.
 
 **To activate *Integrated Alerting***, select *PMM-->PMM Settings-->Advanced Settings*, turn on *Integrated Alerting* and click *Apply changes*.
 
@@ -12,8 +11,7 @@
 - Alerts are generated when their criteria (*alert rules*) are met; an *alert* is the result of an *alert rule* expression evaluating to *true*.
 - Alert rules are based on *alert rule templates*. We provide a default set of templates. You can also create your own.
 
-!!! alert alert-info "Note"
-    PMM's *Integrated Alerting* is a customized and separate instance of the Prometheus Alertmanager, and distinct from Grafana's alerting functionality.
+> **Note** PMM's *Integrated Alerting* is a customized and separate instance of the Prometheus Alertmanager, and distinct from Grafana's alerting functionality.
 
 ## Prerequisites
 
@@ -23,8 +21,7 @@ Set up a communication channel: When the *Communication* tab appears, select it.
 
 - From the left menu, select {{ icon.bell }} *Alerting*, {{ icon.listul }} *Integrated Alerting*
 
-!!! alert alert-info "Note"
-    The *Alerting* menu also lists {{ icon.listul }} *Alert Rules* and {{ icon.commentshare }} *Notification Channels*. These are for Grafana's alerting functionality.
+> **Note** The *Alerting* menu also lists {{ icon.listul }} *Alert Rules* and {{ icon.commentshare }} *Notification Channels*. These are for Grafana's alerting functionality.
 
 This page has four tabs.
 
