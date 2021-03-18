@@ -18,10 +18,12 @@ message DiscoverAzureDatabaseRequest {
 // DiscoverAzureDatabaseType describes supported RDS instance engines.
 enum DiscoverAzureDatabaseType {
   DISCOVER_AZURE_DATABASE_TYPE_INVALID = 0;
-  // MySQL type: microsoft.dbformysql/servers
+  // MySQL type: microsoft.dbformysql
   DISCOVER_AZURE_DATABASE_TYPE_MYSQL = 1;
-  // PostgreSQL type: microsoft.dbformysql/servers
+  // PostgreSQL type: microsoft.dbformysql
   DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL = 2;
+  // MariaDB type: microsoft.dbformariadb
+  DISCOVER_AZURE_DATABASE_TYPE_MARIADB = 3;
 }
 
 // DiscoverAzureDatabaseInstance models an unique Azure Database instance for the list of instances returned by Discovery.
@@ -85,7 +87,11 @@ message AddAzureDatabaseRequest {
   // Password for scraping metrics.
   string password = 14;
   // If true, adds rds_exporter.
-  bool rds_exporter = 17;
+  bool azure_database_exporter = 17;
+  string azure_client_id = 29;
+  string azure_client_secret = 30;
+  string azure_tenant_id = 31;
+  string azure_subscription_id = 32;
   // If true, adds qan-mysql-perfschema-agent.
   bool qan_mysql_perfschema = 18;
   // Custom user-assigned labels for Node and Service.
