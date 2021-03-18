@@ -60,7 +60,11 @@ message AddAzureDatabaseRequest {
   // Azure database subscription ID
   string azure_database_subscription_id = 32;
   // Azure database resource type (mysql, maria, postgres)
-  string azure_database_resource_type = 33;
+  string azure_database_resource_type = 33 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
   // If true, adds azure_database_exporter.
   bool azure_database_exporter = 17;
   // If true, adds qan-mysql-perfschema-agent.
