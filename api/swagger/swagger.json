@@ -1389,23 +1389,28 @@
                   "title": "Azure database subscription ID",
                   "x-order": 5
                 },
+                "azure_resource_type": {
+                  "type": "string",
+                  "title": "Azure resource type (mysql, maria, postgres)",
+                  "x-order": 6
+                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
                   "type": "object",
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 6
+                  "x-order": 7
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "x-order": 7
+                  "x-order": 8
                 },
                 "push_metrics": {
                   "description": "Enables push metrics mode for exporter.",
                   "type": "boolean",
-                  "x-order": 8
+                  "x-order": 9
                 }
               }
             }
@@ -1446,13 +1451,18 @@
                       "type": "string",
                       "x-order": 4
                     },
+                    "azure_database_resource_type": {
+                      "type": "string",
+                      "title": "Azure database resource type (mysql, maria, postgres)",
+                      "x-order": 5
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 5
+                      "x-order": 6
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -1466,18 +1476,18 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 6
+                      "x-order": 7
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics (the same for several configurations).",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 8
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -4086,13 +4096,18 @@
                       "type": "string",
                       "x-order": 4
                     },
+                    "azure_database_resource_type": {
+                      "type": "string",
+                      "title": "Azure database resource type (mysql, maria, postgres)",
+                      "x-order": 5
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 5
+                      "x-order": 6
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -4106,18 +4121,18 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 6
+                      "x-order": 7
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics (the same for several configurations).",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 8
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -7421,13 +7436,18 @@
                       "type": "string",
                       "x-order": 4
                     },
+                    "azure_database_resource_type": {
+                      "type": "string",
+                      "title": "Azure database resource type (mysql, maria, postgres)",
+                      "x-order": 5
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 5
+                      "x-order": 6
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -7441,18 +7461,18 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 6
+                      "x-order": 7
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics (the same for several configurations).",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 8
+                      "x-order": 9
                     }
                   },
                   "x-order": 14
@@ -8583,13 +8603,18 @@
                         "type": "string",
                         "x-order": 4
                       },
+                      "azure_database_resource_type": {
+                        "type": "string",
+                        "title": "Azure database resource type (mysql, maria, postgres)",
+                        "x-order": 5
+                      },
                       "custom_labels": {
                         "description": "Custom user-assigned labels.",
                         "type": "object",
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 5
+                        "x-order": 6
                       },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -8603,18 +8628,18 @@
                           "STOPPING",
                           "DONE"
                         ],
-                        "x-order": 6
+                        "x-order": 7
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics (the same for several configurations).",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 7
+                        "x-order": 8
                       },
                       "push_metrics_enabled": {
                         "description": "True if exporter uses push metrics mode.",
                         "type": "boolean",
-                        "x-order": 8
+                        "x-order": 9
                       }
                     }
                   },
@@ -13922,15 +13947,20 @@
                   "title": "Azure database subscription ID",
                   "x-order": 14
                 },
-                "azure_exporter": {
-                  "description": "If true, adds azure_exporter.",
-                  "type": "boolean",
+                "azure_database_resource_type": {
+                  "type": "string",
+                  "title": "Azure database resource type (mysql, maria, postgres)",
                   "x-order": 15
+                },
+                "azure_database_exporter": {
+                  "description": "If true, adds azure_database_exporter.",
+                  "type": "boolean",
+                  "x-order": 16
                 },
                 "qan_mysql_perfschema": {
                   "description": "If true, adds qan-mysql-perfschema-agent.",
                   "type": "boolean",
-                  "x-order": 16
+                  "x-order": 17
                 },
                 "custom_labels": {
                   "description": "Custom user-assigned labels for Node and Service.",
@@ -13938,43 +13968,43 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 17
+                  "x-order": 18
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "x-order": 18
+                  "x-order": 19
                 },
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
-                  "x-order": 19
+                  "x-order": 20
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",
                   "type": "boolean",
-                  "x-order": 20
+                  "x-order": 21
                 },
                 "disable_query_examples": {
                   "description": "Disable query examples.",
                   "type": "boolean",
-                  "x-order": 21
+                  "x-order": 22
                 },
                 "tablestats_group_table_limit": {
                   "description": "Tablestats group collectors will be disabled if there are more than that number of tables.\nIf zero, server's default value is used.\nUse negative value to disable them.",
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 22
+                  "x-order": 23
                 },
                 "disable_basic_metrics": {
                   "description": "Disable basic metrics.",
                   "type": "boolean",
-                  "x-order": 23
+                  "x-order": 24
                 },
                 "disable_enhanced_metrics": {
                   "description": "Disable enhanced metrics.",
                   "type": "boolean",
-                  "x-order": 24
+                  "x-order": 25
                 },
                 "metrics_mode": {
                   "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
@@ -13985,7 +14015,7 @@
                     "PULL",
                     "PUSH"
                   ],
-                  "x-order": 25
+                  "x-order": 26
                 }
               }
             }
