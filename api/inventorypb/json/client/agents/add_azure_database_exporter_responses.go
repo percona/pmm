@@ -143,7 +143,7 @@ type AddAzureDatabaseExporterBody struct {
 	AzureDatabaseSubscriptionID string `json:"azure_database_subscription_id,omitempty"`
 
 	// Azure resource type (mysql, maria, postgres)
-	AzureResourceType string `json:"azure_resource_type,omitempty"`
+	AzureDatabaseResourceType string `json:"azure_database_resource_type,omitempty"`
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`

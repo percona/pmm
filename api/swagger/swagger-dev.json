@@ -3052,7 +3052,7 @@
                   "title": "Azure database subscription ID",
                   "x-order": 5
                 },
-                "azure_resource_type": {
+                "azure_database_resource_type": {
                   "type": "string",
                   "title": "Azure resource type (mysql, maria, postgres)",
                   "x-order": 6
