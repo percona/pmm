@@ -27,7 +27,7 @@ PMM Client runs on all hosts you want to monitor according to the type of system
 
 ## How it works
 
-PMM is a client/server application built by Percona with their own and third-party open-source tools. (Read more in [Architecture](details/architecture.md).)
+PMM is a client/server application built by Percona with our own and third-party open-source tools. (Read more in [Architecture](details/architecture.md).)
 
 ```plantuml source="_resources/diagrams/1_PMM_Context.puml"
 ```
