@@ -6,8 +6,6 @@ release_date: 2021-03-01
 
 # Miscellaneous values
 extra:
-  # Link to quickstart landing page
-  quickstart: 'https://www.percona.com/software/pmm/quickstart'
   # Link to AWS Marketplace for PMM Server
   server_aws: 'https://aws.amazon.com/marketplace/pp/B077J7FYGX'
   # Code block includes
