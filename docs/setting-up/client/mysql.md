@@ -439,16 +439,25 @@ If query response time plugin was installed, check for data in the *MySQL Query 
 Open the [*PXC/Galera Cluster Summary* dashboard][DASH_PXCGALERACLUSTER].
 
 
-!!! seealso "See also"
-	- [Percona Server for MySQL -- Slow Query Log Extended][ps_slow_query_ext]
-	- [Percona Server for MySQL -- User Statistics][ps_userstats]
-	- [MariaDB -- Slow Query Log Overview][mariadb_slow_query_log]
-	- [MariaDB -- Slow Query Log Extended Statistics][mariadb_slow_query_ext]
-	- [MariaDB -- User Statistics][mariadb_userstats]
-	- [Percona Blog -- PERFORMANCE_SCHEMA vs Slow Query Log][BLOG_PS_VS_SLOW]
-	- [Percona Blog -- MySQL's INNODB_METRICS table][BLOG_INNODB_METRICS]
-	- [Percona Blog -- Rotating MySQL Slow Logs Safely][BLOG_LOG_ROTATION]
-	- [Percona Blog -- Impact of logging on MySQL's performance][BLOG_LOGGING]
+> **See also**
+>
+> - [Percona Server for MySQL -- Slow Query Log Extended][ps_slow_query_ext]
+>
+> - [Percona Server for MySQL -- User Statistics][ps_userstats]
+>
+> - [MariaDB -- Slow Query Log Overview][mariadb_slow_query_log]
+>
+> - [MariaDB -- Slow Query Log Extended Statistics][mariadb_slow_query_ext]
+>
+> - [MariaDB -- User Statistics][mariadb_userstats]
+>
+> - [Percona Blog -- PERFORMANCE_SCHEMA vs Slow Query Log][BLOG_PS_VS_SLOW]
+>
+> - [Percona Blog -- MySQL's INNODB_METRICS table][BLOG_INNODB_METRICS]
+>
+> - [Percona Blog -- Rotating MySQL Slow Logs Safely][BLOG_LOG_ROTATION]
+>
+> - [Percona Blog -- Impact of logging on MySQL's performance][BLOG_LOGGING]
 
 
 [DASH_MYSQLUSERDETAILS]: ../../details/dashboards/dashboard-mysql-user-details.md

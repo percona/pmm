@@ -73,13 +73,11 @@ When you have installed PMM Client, you must:
     sudo yum install -y pmm2-client
     ```
 
-!!! alert alert-success "Tip"
-	If you have used `percona-release` before, disable and reenable the repository like this:
-
-	```sh
-	sudo percona-release disable all
-	sudo percona-release enable original release
-	```
+> **Tip** If you have used `percona-release` before, disable and reenable the repository:
+> ```sh
+> sudo percona-release disable all
+> sudo percona-release enable original release
+> ```
 
 ## Download and install PMM Client packages manually {: #manual-package }
 
@@ -219,12 +217,13 @@ The [PMM Client Docker image](https://hub.docker.com/r/percona/pmm-client/tags/)
 
 You can now add services with [`pmm-admin`](../../details/commands/pmm-admin.md) by prefixing commands with `docker exec pmm-client`.
 
-!!! alert alert-success "Tips"
-    - Adjust host firewall and routing rules to allow Docker communications. ([Read more in the FAQ.](../../faq.md#how-do-i-troubleshoot-communication-issues-between-pmm-client-and-pmm-server))
-	- For help:
-		```sh
-		docker run --rm percona/pmm-client:2 --help
-		```
+> **Tip**
+>
+> - Adjust host firewall and routing rules to allow Docker communications. ([Read more in the FAQ.](../../faq.d#how-do-i-troubleshoot-communication-issues-between-pmm-client-and-pmm-server))
+> - For help:
+> ```sh
+> docker run --rm percona/pmm-client:2 --help
+> ```
 
 ## Register node with PMM Server {: #register }
 
@@ -252,8 +251,8 @@ You should continue by adding services according to the service type.
 - [External services](external.md)
 - [HAProxy](haproxy.md)
 
-!!! seealso "See also"
-	- [Percona release][PERCONA_RELEASE]
+> **See also**
+> - [Percona release][PERCONA_RELEASE]
 
 [GETDOCKER]: https://docs.docker.com/get-docker/
 [DOWNLOAD]: https://www.percona.com/downloads/pmm2/
