@@ -9,7 +9,8 @@ type Node interface {
 
 // in order of NodeType enum
 
-func (*GenericNode) sealedNode()   {}
-func (*ContainerNode) sealedNode() {}
-func (*RemoteNode) sealedNode()    {}
-func (*RemoteRDSNode) sealedNode() {}
+func (*GenericNode) sealedNode()             {}
+func (*ContainerNode) sealedNode()           {}
+func (*RemoteNode) sealedNode()              {}
+func (*RemoteRDSNode) sealedNode()           {}
+func (*RemoteAzureDatabaseNode) sealedNode() {}
