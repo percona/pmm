@@ -8,12 +8,6 @@ import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
 
-// JobType represents Job type.
-enum JobType {
-  JOB_TYPE_INVALID = 0;
-  ECHO = 1;
-}
-
 message GetJobRequest {
   // Unique Job ID.
   string job_id = 1 [
@@ -24,8 +18,26 @@ message GetJobRequest {
 }
 
 message GetJobResponse {
-  // TODO
-
+  // Error contains job error message.
+  message Error {
+    string message = 1;
+  }
+  // Echo contains result for echo job.
+  message Echo {
+    string message = 1;
+  }
+  // Unique Action ID.
+  string job_id = 1;
+  // pmm-agent ID where this Action is running / was run.
+  string pmm_agent_id = 2;
+  // True if Action is finished.
+  bool done = 4;
+  oneof result {
+    // Error result.
+    Error error = 10;
+    // Echo job result.
+    Echo echo = 11;
+  }
 }
 
 message StartEchoJobRequest {

@@ -25,6 +25,26 @@ func (this *GetJobRequest) Validate() error {
 	return nil
 }
 func (this *GetJobResponse) Validate() error {
+	if oneOfNester, ok := this.GetResult().(*GetJobResponse_Error_); ok {
+		if oneOfNester.Error != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Error); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Error", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetResult().(*GetJobResponse_Echo_); ok {
+		if oneOfNester.Echo != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Echo); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Echo", err)
+			}
+		}
+	}
+	return nil
+}
+func (this *GetJobResponse_Error) Validate() error {
+	return nil
+}
+func (this *GetJobResponse_Echo) Validate() error {
 	return nil
 }
 func (this *StartEchoJobRequest) Validate() error {

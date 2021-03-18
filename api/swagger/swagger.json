@@ -13789,7 +13789,46 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "job_id": {
+                  "description": "Unique Action ID.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "pmm_agent_id": {
+                  "description": "pmm-agent ID where this Action is running / was run.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "done": {
+                  "description": "True if Action is finished.",
+                  "type": "boolean",
+                  "x-order": 2
+                },
+                "error": {
+                  "description": "Error contains job error message.",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "x-order": 0
+                    }
+                  },
+                  "x-order": 3
+                },
+                "echo": {
+                  "description": "Echo contains result for echo job.",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "x-order": 0
+                    }
+                  },
+                  "x-order": 4
+                }
+              }
             }
           },
           "default": {

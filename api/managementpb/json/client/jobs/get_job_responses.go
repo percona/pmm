@@ -52,21 +52,23 @@ func NewGetJobOK() *GetJobOK {
 A successful response.
 */
 type GetJobOK struct {
-	Payload interface{}
+	Payload *GetJobOKBody
 }
 
 func (o *GetJobOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Jobs/Get][%d] getJobOk  %+v", 200, o.Payload)
 }
 
-func (o *GetJobOK) GetPayload() interface{} {
+func (o *GetJobOK) GetPayload() *GetJobOKBody {
 	return o.Payload
 }
 
 func (o *GetJobOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(GetJobOKBody)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -215,6 +217,163 @@ func (o *GetJobDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetJobDefaultBody) UnmarshalBinary(b []byte) error {
 	var res GetJobDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetJobOKBody get job OK body
+swagger:model GetJobOKBody
+*/
+type GetJobOKBody struct {
+
+	// Unique Action ID.
+	JobID string `json:"job_id,omitempty"`
+
+	// pmm-agent ID where this Action is running / was run.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// True if Action is finished.
+	Done bool `json:"done,omitempty"`
+
+	// echo
+	Echo *GetJobOKBodyEcho `json:"echo,omitempty"`
+
+	// error
+	Error *GetJobOKBodyError `json:"error,omitempty"`
+}
+
+// Validate validates this get job OK body
+func (o *GetJobOKBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateEcho(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateError(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetJobOKBody) validateEcho(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Echo) { // not required
+		return nil
+	}
+
+	if o.Echo != nil {
+		if err := o.Echo.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getJobOk" + "." + "echo")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetJobOKBody) validateError(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Error) { // not required
+		return nil
+	}
+
+	if o.Error != nil {
+		if err := o.Error.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getJobOk" + "." + "error")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetJobOKBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetJobOKBody) UnmarshalBinary(b []byte) error {
+	var res GetJobOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetJobOKBodyEcho Echo contains result for echo job.
+swagger:model GetJobOKBodyEcho
+*/
+type GetJobOKBodyEcho struct {
+
+	// message
+	Message string `json:"message,omitempty"`
+}
+
+// Validate validates this get job OK body echo
+func (o *GetJobOKBodyEcho) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetJobOKBodyEcho) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetJobOKBodyEcho) UnmarshalBinary(b []byte) error {
+	var res GetJobOKBodyEcho
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetJobOKBodyError Error contains job error message.
+swagger:model GetJobOKBodyError
+*/
+type GetJobOKBodyError struct {
+
+	// message
+	Message string `json:"message,omitempty"`
+}
+
+// Validate validates this get job OK body error
+func (o *GetJobOKBodyError) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetJobOKBodyError) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetJobOKBodyError) UnmarshalBinary(b []byte) error {
+	var res GetJobOKBodyError
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
