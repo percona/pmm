@@ -9,7 +9,7 @@ skinparam partitionWidth 400
 
 title Setting up PMM\nOverview\n
 
-partition "1. Set up PMM Server as one of: " {
+partition "Set up PMM Server as one of: " {
 	split
 		-[hidden]->
 		:Docker container;
@@ -21,7 +21,7 @@ partition "1. Set up PMM Server as one of: " {
 		:Amazon AWS marketplace;
 	end split
 }
-partition "2. Set up PMM Client for each node via: " {
+partition "Set up PMM Client for each node via: " {
 	split
 		partition "Package manager" {
 			:Set up ""percona-release"";
@@ -53,5 +53,5 @@ partition "2. Set up PMM Client for each node via: " {
 		}
 	end split
 }
-:3. Configure and add service;
+:Configure and add service;
 @enduml
