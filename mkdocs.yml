@@ -59,7 +59,6 @@ plugins:
           - 'variables.yml' # Use in markdown as '{{ VAR }}'
   - exclude: # Don't process these files
         glob:
-          - setting-up/server/dbaas-gke.md # Included file
           - setting-up/client/docker.md # Moved to setting-up/client/index.md
   - with-pdf: # https://github.com/orzih/mkdocs-with-pdf
         output_path: '_pdf/PerconaMonitoringAndManagement-2.15.1.pdf'
