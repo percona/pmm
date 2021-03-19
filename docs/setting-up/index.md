@@ -36,6 +36,7 @@ You must configure your services and add them to PMM Server's inventory of monit
 - [ProxySQL](client/proxysql.md)
 - [Amazon RDS](client/aws.md)
 - [Microsoft Azure](client/azure.md)
+- [Google Cloud Platform (MySQL and PostgreSQL)](client/google.md)
 - [Linux](client/linux.md)
 - [External services](client/external.md)
 - [HAProxy](client/haproxy.md)

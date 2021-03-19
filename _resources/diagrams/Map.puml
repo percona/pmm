@@ -38,6 +38,7 @@ wbsDiagram {
 			+_ [[$base/setting-up/client/proxysql.html ProxySQL]]
 			+_ [[$base/setting-up/client/aws.html Amazon RDS]]
 			+_ [[$base/setting-up/client/azure.html Microsoft Azure]]
+			+_ [[$base/setting-up/client/google.html Google Cloud Platform]]
 			+_ [[$base/setting-up/client/linux.html Linux]]
 			+_ [[$base/setting-up/client/external.html External\nServices]]
 			+_ [[$base/setting-up/client/haproxy.html HAProxy]]

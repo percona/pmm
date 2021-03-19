@@ -241,6 +241,7 @@ You should continue by adding services according to the service type.
 - [ProxySQL](proxysql.md)
 - [Amazon RDS](aws.md)
 - [Microsoft Azure](azure.md)
+- [Google Cloud Platform (MySQL and PostgreSQL)](google.md)
 - [Linux](linux.md)
 - [External services](external.md)
 - [HAProxy](haproxy.md)

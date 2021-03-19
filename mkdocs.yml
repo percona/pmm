@@ -97,6 +97,7 @@ nav:
           - setting-up/client/proxysql.md
           - setting-up/client/aws.md
           - setting-up/client/azure.md
+          - setting-up/client/google.md
           - setting-up/client/linux.md
           - setting-up/client/external.md
           - setting-up/client/haproxy.md
