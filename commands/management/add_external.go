@@ -128,10 +128,10 @@ func (cmd *addExternalCommand) Run() (commands.Result, error) {
 	}, nil
 }
 
-// register command
+// register command.
 var (
 	AddExternal  = new(addExternalCommand)
-	AddExternalC = AddC.Command("external", "Add External to monitoring")
+	AddExternalC = AddC.Command("external", "Add External source of data (like a custom exporter running on a port) to the monitoring")
 )
 
 func init() {
@@ -145,19 +145,24 @@ func init() {
 	AddExternalC.Flag("username", "External username").StringVar(&AddExternal.Username)
 	AddExternalC.Flag("password", "External password").StringVar(&AddExternal.Password)
 
-	AddExternalC.Flag("scheme", "Scheme to generate URI to exporter metrics endpoints (http, https)").StringVar(&AddExternal.Scheme)
-	AddExternalC.Flag("metrics-path", "Path under which metrics are exposed, used to generate URI.").StringVar(&AddExternal.MetricsPath)
-	AddExternalC.Flag("listen-port", "Listen port of external exporter for scraping metrics.").Required().Uint16Var(&AddExternal.ListenPort)
+	AddExternalC.Flag("scheme", "Scheme to generate URI to exporter metrics endpoints").
+		PlaceHolder("http or https").StringVar(&AddExternal.Scheme)
+	AddExternalC.Flag("metrics-path", "Path under which metrics are exposed, used to generate URI.").
+		PlaceHolder("/metrics").StringVar(&AddExternal.MetricsPath)
+	AddExternalC.Flag("listen-port", "Listen port of external exporter for scraping metrics. (Required)").Required().Uint16Var(&AddExternal.ListenPort)
 
 	AddExternalC.Flag("service-node-id", "Node ID where service runs (default is autodetected)").StringVar(&AddExternal.NodeID)
-	AddExternalC.Flag("environment", "Environment name").StringVar(&AddExternal.Environment)
-	AddExternalC.Flag("cluster", "Cluster name").StringVar(&AddExternal.Cluster)
-	AddExternalC.Flag("replication-set", "Replication set name").StringVar(&AddExternal.ReplicationSet)
-	AddExternalC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddExternal.CustomLabels)
+	AddExternalC.Flag("environment", "Environment name like 'production' or 'qa'").
+		PlaceHolder("prod").StringVar(&AddExternal.Environment)
+	AddExternalC.Flag("cluster", "Cluster name").PlaceHolder("east-cluster").StringVar(&AddExternal.Cluster)
+	AddExternalC.Flag("replication-set", "Replication set name").
+		PlaceHolder("rs1").StringVar(&AddExternal.ReplicationSet)
+	AddExternalC.Flag("custom-labels", "Custom user-assigned labels. Example: region=east,app=app1").StringVar(&AddExternal.CustomLabels)
 	AddExternalC.Flag("metrics-mode", "Metrics flow mode, can be push - agent will push metrics,"+
 		" pull - server scrape metrics from agent  or auto - chosen by server.").
 		Default("auto").
 		EnumVar(&AddExternal.MetricsMode, metricsModes...)
+
 	groupHelp := fmt.Sprintf("Group name of external service (default: %s)", defaultGroupExternalExporter)
 	AddExternalC.Flag("group", groupHelp).Default(defaultGroupExternalExporter).StringVar(&AddExternal.Group)
 	AddExternalC.Flag("skip-connection-check", "Skip exporter connection checks").BoolVar(&AddExternal.SkipConnectionCheck)
