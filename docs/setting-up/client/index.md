@@ -11,11 +11,8 @@ PMM Client is a collection of agents and exporters that run on the host being mo
 These sections cover the different ways to install PMM Client on a Linux node and register it with PMM Server. The options are:
 
 1. For Debian- or Red Hat-based distributions, install [`percona-release`][PERCONA_RELEASE] and [use a Linux package manager](#package-manager) (`apt`/`dnf`) to install PMM Client.
-
 2. For Debian- or Red Hat-based distributions, [download `.deb`/`.rpm` PMM Client packages and install them](#manual-package).
-
 3. For other Linux distributions, [download and unpack generic PMM Client Linux binaries](#binary-package).
-
 4. If you use [Docker][GETDOCKER], [run PMM Client as a Docker container](#docker).
 
 When you have installed PMM Client, you must:
