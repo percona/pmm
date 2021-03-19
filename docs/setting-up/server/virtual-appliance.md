@@ -41,7 +41,7 @@ Most steps can be done with either a user interface or on the command line, but 
 | `root`           | `percona`
 | `admin`          | `admin`
 
-## 1. Download
+## Download
 
 **U**
 
@@ -61,7 +61,7 @@ wget https://www.percona.com/downloads/pmm2/{{release}}/ova/pmm-server-{{release
 wget https://www.percona.com/downloads/pmm2/{{release}}/ova/pmm-server-{{release}}.sha256sum
 ```
 
-## 2. Verify
+## Verify
 
 **CLI**
 
@@ -71,9 +71,9 @@ wget https://www.percona.com/downloads/pmm2/{{release}}/ova/pmm-server-{{release
 shasum -ca 256 pmm-server-{{release}}.sha256sum
 ```
 
-## 3. VMware Workstation Player
+## PMM Server as a virtual appliance on VMware Workstation Player {: #vmware }
 
-### 3.1. Import
+### Import
 
 **U**
 
@@ -111,7 +111,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 		pmm-server.vmx
 		```
 
-### 3.2. Reconfigure interface
+### Reconfigure interface
 
 > **Note** When using the command line, the interface is remapped during import.
 
@@ -124,7 +124,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 5. In the *Bridged Networking* section, select *Autodetect*.
 6. Close the settings window.
 
-### 3.3. Start guest and get IP address
+### Start guest and get IP address
 
 **U**
 
@@ -147,9 +147,9 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 	pmm-server.vmx nogui
 	```
 
-## 4. Oracle VM VirtualBox
+## PMM Server as a virtual appliance on Oracle VM VirtualBox {: #virtualbox }
 
-### 4.1. Import
+### Import
 
 **U**
 
@@ -179,7 +179,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
     	--cpus 2 --memory 8192 pmm-server-{{release}}.ova
 		```
 
-### 4.2. Reconfigure interface
+### Reconfigure interface
 
 **U**
 
@@ -207,7 +207,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 	--uart1 0x3F8 4 --uartmode1 file /tmp/pmm-server-console.log
 	```
 
-### 4.3. Start guest and get IP address
+### Start guest and get IP address
 
 **U**
 
@@ -237,7 +237,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 		VBoxManage controlvm "PMM Server" poweroff
 		```
 
-## 5. Log into PMM user interface
+## Log into PMM user interface
 
 **U**
 
@@ -251,7 +251,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 5. The PMM Home Dashboard appears.
 	![image](../../_images/PMM_Home_Dashboard.jpg)
 
-## 6. (Optional) Change root password
+## (Optional) Change root password
 
 **U**
 
@@ -261,7 +261,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 	- Password: `percona`
 3. Follow the prompts to change the password.
 
-## 7. (Optional) Set up SSH
+## (Optional) Set up SSH
 
 **UI/CL**
 
@@ -278,7 +278,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 	ssh -i admin admin@N.N.N.N
 	```
 
-## 8. (Optional) Set up static IP
+## (Optional) Set up static IP
 
 When the guest OS starts, it will get an IP address from the hypervisor's DHCP server. This IP can change each time the guest OS is restarted. Setting a static IP for the guest OS avoids having to check the IP address whenever the guest is restarted.
 

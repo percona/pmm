@@ -7,23 +7,23 @@
 !include _resources/diagrams/plantuml_styles.puml
 
 title Running PMM Server as a virtual appliance\nOverview\n
-:1. Download;
-:2. Verify;
+:Download;
+:Verify;
 split
-partition "3. VMware" {
-	:3.1. Import;
-	:3.2. Reconfigure interface;
-	:3.3. Start guest and get IP address;
+partition "VMware" {
+	:Import;
+	:Reconfigure interface;
+	:Start guest and get IP address;
 }
 split again
-partition "4. VirtualBox" {
-	:4.1. Import;
-	:4.2. Reconfigure interface;
-	:4.3. Start guest and get IP address;
+partition "VirtualBox" {
+	:Import;
+	:Reconfigure interface;
+	:Start guest and get IP address;
 }
 end split
-:5. Log in to PMM user interface;
-#lightgrey:6. (Optional) Change root password;
-#lightgrey:7. (Optional) Set up SSH;
-#lightgrey:8. (Optional) Set up static IP;
+:Log in to PMM user interface;
+#lightgrey:(Optional) Change root password;
+#lightgrey:(Optional) Set up SSH;
+#lightgrey:(Optional) Set up static IP;
 @enduml
