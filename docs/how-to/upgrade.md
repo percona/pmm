@@ -1,5 +1,7 @@
 # Upgrade
 
+> Upgrade PMM Server before upgrading PMM Clients.
+
 ## Updating a Server
 
 Client and server components are installed and updated separately.
