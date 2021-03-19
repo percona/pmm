@@ -68,13 +68,13 @@ func (q *Querier) insert(str Struct, columns []string, values []interface{}) err
 
 	// make query
 	query := q.startQuery("INSERT") + " INTO " + q.QualifiedView(view)
-	if len(columns) != 0 || defaultValuesMethod == EmptyLists {
+	if len(columns) > 0 || defaultValuesMethod == EmptyLists {
 		query += " (" + strings.Join(columns, ", ") + ")"
 	}
 	if record != nil && lastInsertIdMethod == OutputInserted {
 		query += fmt.Sprintf(" OUTPUT INSERTED.%s", q.QuoteIdentifier(view.Columns()[pk]))
 	}
-	if len(placeholders) != 0 || defaultValuesMethod == EmptyLists {
+	if len(placeholders) > 0 || defaultValuesMethod == EmptyLists {
 		query += fmt.Sprintf(" VALUES (%s)", strings.Join(placeholders, ", "))
 	} else {
 		query += " DEFAULT VALUES"
@@ -94,7 +94,11 @@ func (q *Querier) insert(str Struct, columns []string, values []interface{}) err
 			if err != nil {
 				return err
 			}
-			record.SetPK(id)
+
+			// TODO optimize to avoid using reflection
+			// https://github.com/go-reform/reform/issues/269
+			// record.SetPK(id)
+			SetPK(record, id) //nolint:staticcheck
 		}
 		return nil
 

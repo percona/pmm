@@ -89,7 +89,7 @@
   version = "v3.5.4"
 
 [[projects]]
-  digest = "1:01a7dad6a8aacd6269a61fd08c0fe9e3ce0c57e45f2e4270aec5a284fb178936"
+  digest = "1:5c33f5bfab7e87b5d6243f713208ae953aa708eeb83d23642c608edd7d526f49"
   name = "github.com/golang/protobuf"
   packages = [
     "descriptor",
@@ -103,8 +103,8 @@
     "ptypes/wrappers",
   ]
   pruneopts = "NUT"
-  revision = "d04d7b157bb510b1e0c10132224b616ac0e26b17"
-  version = "v1.4.2"
+  revision = "4846b58453b3708320bdb524f25cc5a1d9cda4d4"
+  version = "v1.4.3"
 
 [[projects]]
   digest = "1:ab3ec1fe3e39bac4b3ab63390767766622be35b7cab03f47f787f9ec60522a53"
@@ -206,7 +206,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:b261889d188978db062a87973996128609fe86aa862a3fe32f7bc1c78bae4088"
+  digest = "1:3a0c18241b277214c13b37aca2e3470687ef3095b9f9b295cf833fe07fa227cb"
   name = "github.com/percona/pmm"
   packages = [
     "api/inventorypb",
@@ -215,7 +215,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "db6af09ffa6edb0ae36c25a2cc963e2a5b12625b"
+  revision = "bbf8e9314afd5a9742b935b09be78310af0812de"
 
 [[projects]]
   digest = "1:4047c378584616813d610c9f993bf90dd0d07aed8d94bd3bc299cd35ececdcba"
@@ -508,12 +508,12 @@
   version = "v2.2.6"
 
 [[projects]]
-  digest = "1:3cf761410719ed8da203acc7e2ba83a3a1d29100989eabac361227bb5093275a"
+  digest = "1:95b96af1eb162b6fd5318b14a2e76730cac363c34d9b0367fd25522e2ce18b49"
   name = "gopkg.in/reform.v1"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "d180de3a658d1bd73a5473b48cc635263dac2320"
-  version = "v1.3.4"
+  revision = "be1c9e20a895a055b71875afe38f593d8f0623b9"
+  version = "v1.5.0"
 
 [[projects]]
   branch = "v3"
