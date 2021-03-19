@@ -33,6 +33,8 @@ type ClientService interface {
 
 	RemoveLocation(params *RemoveLocationParams) (*RemoveLocationOK, error)
 
+	TestLocationConfig(params *TestLocationConfigParams) (*TestLocationConfigOK, error)
+
 	SetTransport(transport runtime.ClientTransport)
 }
 
@@ -165,6 +167,39 @@ func (a *Client) RemoveLocation(params *RemoveLocationParams) (*RemoveLocationOK
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*RemoveLocationDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  TestLocationConfig tests location config tests backup location and credentials
+*/
+func (a *Client) TestLocationConfig(params *TestLocationConfigParams) (*TestLocationConfigOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewTestLocationConfigParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "TestLocationConfig",
+		Method:             "POST",
+		PathPattern:        "/v1/management/backup/Locations/TestConfig",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &TestLocationConfigReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*TestLocationConfigOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*TestLocationConfigDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
