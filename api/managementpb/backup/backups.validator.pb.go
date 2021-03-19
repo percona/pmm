@@ -17,7 +17,7 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
-func (this *PerformBackupRequest) Validate() error {
+func (this *StartBackupRequest) Validate() error {
 	if this.ServiceId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
 	}
@@ -26,6 +26,6 @@ func (this *PerformBackupRequest) Validate() error {
 	}
 	return nil
 }
-func (this *PerformBackupResponse) Validate() error {
+func (this *StartBackupResponse) Validate() error {
 	return nil
 }

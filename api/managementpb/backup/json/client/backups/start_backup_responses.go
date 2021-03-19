@@ -16,22 +16,22 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// PerformBackupReader is a Reader for the PerformBackup structure.
-type PerformBackupReader struct {
+// StartBackupReader is a Reader for the StartBackup structure.
+type StartBackupReader struct {
 	formats strfmt.Registry
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *PerformBackupReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *StartBackupReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 	case 200:
-		result := NewPerformBackupOK()
+		result := NewStartBackupOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
 	default:
-		result := NewPerformBackupDefault(response.Code())
+		result := NewStartBackupDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
@@ -42,30 +42,30 @@ func (o *PerformBackupReader) ReadResponse(response runtime.ClientResponse, cons
 	}
 }
 
-// NewPerformBackupOK creates a PerformBackupOK with default headers values
-func NewPerformBackupOK() *PerformBackupOK {
-	return &PerformBackupOK{}
+// NewStartBackupOK creates a StartBackupOK with default headers values
+func NewStartBackupOK() *StartBackupOK {
+	return &StartBackupOK{}
 }
 
-/*PerformBackupOK handles this case with default header values.
+/*StartBackupOK handles this case with default header values.
 
 A successful response.
 */
-type PerformBackupOK struct {
-	Payload *PerformBackupOKBody
+type StartBackupOK struct {
+	Payload *StartBackupOKBody
 }
 
-func (o *PerformBackupOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/backup/Backups/PerformBackup][%d] performBackupOk  %+v", 200, o.Payload)
+func (o *StartBackupOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/backup/Backups/StartBackup][%d] startBackupOk  %+v", 200, o.Payload)
 }
 
-func (o *PerformBackupOK) GetPayload() *PerformBackupOKBody {
+func (o *StartBackupOK) GetPayload() *StartBackupOKBody {
 	return o.Payload
 }
 
-func (o *PerformBackupOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *StartBackupOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(PerformBackupOKBody)
+	o.Payload = new(StartBackupOKBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -75,39 +75,39 @@ func (o *PerformBackupOK) readResponse(response runtime.ClientResponse, consumer
 	return nil
 }
 
-// NewPerformBackupDefault creates a PerformBackupDefault with default headers values
-func NewPerformBackupDefault(code int) *PerformBackupDefault {
-	return &PerformBackupDefault{
+// NewStartBackupDefault creates a StartBackupDefault with default headers values
+func NewStartBackupDefault(code int) *StartBackupDefault {
+	return &StartBackupDefault{
 		_statusCode: code,
 	}
 }
 
-/*PerformBackupDefault handles this case with default header values.
+/*StartBackupDefault handles this case with default header values.
 
 An unexpected error response.
 */
-type PerformBackupDefault struct {
+type StartBackupDefault struct {
 	_statusCode int
 
-	Payload *PerformBackupDefaultBody
+	Payload *StartBackupDefaultBody
 }
 
-// Code gets the status code for the perform backup default response
-func (o *PerformBackupDefault) Code() int {
+// Code gets the status code for the start backup default response
+func (o *StartBackupDefault) Code() int {
 	return o._statusCode
 }
 
-func (o *PerformBackupDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/backup/Backups/PerformBackup][%d] PerformBackup default  %+v", o._statusCode, o.Payload)
+func (o *StartBackupDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/backup/Backups/StartBackup][%d] StartBackup default  %+v", o._statusCode, o.Payload)
 }
 
-func (o *PerformBackupDefault) GetPayload() *PerformBackupDefaultBody {
+func (o *StartBackupDefault) GetPayload() *StartBackupDefaultBody {
 	return o.Payload
 }
 
-func (o *PerformBackupDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *StartBackupDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(PerformBackupDefaultBody)
+	o.Payload = new(StartBackupDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -153,10 +153,10 @@ func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*PerformBackupBody perform backup body
-swagger:model PerformBackupBody
+/*StartBackupBody start backup body
+swagger:model StartBackupBody
 */
-type PerformBackupBody struct {
+type StartBackupBody struct {
 
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
@@ -173,13 +173,13 @@ type PerformBackupBody struct {
 	Description string `json:"description,omitempty"`
 }
 
-// Validate validates this perform backup body
-func (o *PerformBackupBody) Validate(formats strfmt.Registry) error {
+// Validate validates this start backup body
+func (o *StartBackupBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *PerformBackupBody) MarshalBinary() ([]byte, error) {
+func (o *StartBackupBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -187,8 +187,8 @@ func (o *PerformBackupBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *PerformBackupBody) UnmarshalBinary(b []byte) error {
-	var res PerformBackupBody
+func (o *StartBackupBody) UnmarshalBinary(b []byte) error {
+	var res StartBackupBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -196,10 +196,10 @@ func (o *PerformBackupBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*PerformBackupDefaultBody perform backup default body
-swagger:model PerformBackupDefaultBody
+/*StartBackupDefaultBody start backup default body
+swagger:model StartBackupDefaultBody
 */
-type PerformBackupDefaultBody struct {
+type StartBackupDefaultBody struct {
 
 	// error
 	Error string `json:"error,omitempty"`
@@ -214,8 +214,8 @@ type PerformBackupDefaultBody struct {
 	Details []*DetailsItems0 `json:"details"`
 }
 
-// Validate validates this perform backup default body
-func (o *PerformBackupDefaultBody) Validate(formats strfmt.Registry) error {
+// Validate validates this start backup default body
+func (o *StartBackupDefaultBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateDetails(formats); err != nil {
@@ -228,7 +228,7 @@ func (o *PerformBackupDefaultBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *PerformBackupDefaultBody) validateDetails(formats strfmt.Registry) error {
+func (o *StartBackupDefaultBody) validateDetails(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Details) { // not required
 		return nil
@@ -242,7 +242,7 @@ func (o *PerformBackupDefaultBody) validateDetails(formats strfmt.Registry) erro
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("PerformBackup default" + "." + "details" + "." + strconv.Itoa(i))
+					return ve.ValidateName("StartBackup default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -254,7 +254,7 @@ func (o *PerformBackupDefaultBody) validateDetails(formats strfmt.Registry) erro
 }
 
 // MarshalBinary interface implementation
-func (o *PerformBackupDefaultBody) MarshalBinary() ([]byte, error) {
+func (o *StartBackupDefaultBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -262,8 +262,8 @@ func (o *PerformBackupDefaultBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *PerformBackupDefaultBody) UnmarshalBinary(b []byte) error {
-	var res PerformBackupDefaultBody
+func (o *StartBackupDefaultBody) UnmarshalBinary(b []byte) error {
+	var res StartBackupDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -271,22 +271,22 @@ func (o *PerformBackupDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*PerformBackupOKBody perform backup OK body
-swagger:model PerformBackupOKBody
+/*StartBackupOKBody start backup OK body
+swagger:model StartBackupOKBody
 */
-type PerformBackupOKBody struct {
+type StartBackupOKBody struct {
 
 	// Unique identifier.
 	BackupID string `json:"backup_id,omitempty"`
 }
 
-// Validate validates this perform backup OK body
-func (o *PerformBackupOKBody) Validate(formats strfmt.Registry) error {
+// Validate validates this start backup OK body
+func (o *StartBackupOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *PerformBackupOKBody) MarshalBinary() ([]byte, error) {
+func (o *StartBackupOKBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -294,8 +294,8 @@ func (o *PerformBackupOKBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *PerformBackupOKBody) UnmarshalBinary(b []byte) error {
-	var res PerformBackupOKBody
+func (o *StartBackupOKBody) UnmarshalBinary(b []byte) error {
+	var res StartBackupOKBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

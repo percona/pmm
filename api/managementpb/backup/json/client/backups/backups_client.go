@@ -25,41 +25,41 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	PerformBackup(params *PerformBackupParams) (*PerformBackupOK, error)
+	StartBackup(params *StartBackupParams) (*StartBackupOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  PerformBackup performs backup request backup specified service to location
+  StartBackup starts backup request backup specified service to location
 */
-func (a *Client) PerformBackup(params *PerformBackupParams) (*PerformBackupOK, error) {
+func (a *Client) StartBackup(params *StartBackupParams) (*StartBackupOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewPerformBackupParams()
+		params = NewStartBackupParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "PerformBackup",
+		ID:                 "StartBackup",
 		Method:             "POST",
-		PathPattern:        "/v1/management/backup/Backups/PerformBackup",
+		PathPattern:        "/v1/management/backup/Backups/StartBackup",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &PerformBackupReader{formats: a.formats},
+		Reader:             &StartBackupReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*PerformBackupOK)
+	success, ok := result.(*StartBackupOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*PerformBackupDefault)
+	unexpectedSuccess := result.(*StartBackupDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

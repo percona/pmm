@@ -14,7 +14,7 @@ enum RetryMode {
   MANUAL = 2;
 }
 
-message PerformBackupRequest {
+message StartBackupRequest {
   // Service identifier.
   string service_id = 1 [
     (validator.field) = {
@@ -41,17 +41,17 @@ message PerformBackupRequest {
 
 }
 
-message PerformBackupResponse {
+message StartBackupResponse {
   // Unique identifier.
   string backup_id = 1;
 }
 
 // Backups service handles backup operations to DB.
 service Backups {
-  // PerformBackup request backup specified service to location.
-  rpc PerformBackup(PerformBackupRequest) returns (PerformBackupResponse) {
+  // StartBackup request backup specified service to location.
+  rpc StartBackup(StartBackupRequest) returns (StartBackupResponse) {
     option (google.api.http) = {
-      post: "/v1/management/backup/Backups/PerformBackup"
+      post: "/v1/management/backup/Backups/StartBackup"
       body: "*"
     };
   }

@@ -159,13 +159,13 @@
         }
       }
     },
-    "/v1/management/backup/Backups/PerformBackup": {
+    "/v1/management/backup/Backups/StartBackup": {
       "post": {
         "tags": [
           "Backups"
         ],
-        "summary": "PerformBackup request backup specified service to location.",
-        "operationId": "PerformBackup",
+        "summary": "StartBackup request backup specified service to location.",
+        "operationId": "StartBackup",
         "parameters": [
           {
             "name": "body",
