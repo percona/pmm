@@ -17,45 +17,18 @@ Is it free/how much does it cost:
 
 ## What are the minimum system requirements for PMM?
 
-**PMM Server**
+See:
 
-Any system which can run Docker version 1.12.6 or later.
-
-It needs roughly 1 GB of storage for each monitored database node with data retention set to one week.
-
-> By default, [retention](#how-to-control-data-retention-for-pmm) is set to 30 days for Metrics Monitor and for Query Analytics.  You can consider [disabling table statistics](how-to/optimize.md) to decrease the VictoriaMetrics database size.
-
-You need at least 2 GB for one monitored database node. The increase in memory usage is not proportional to the number of nodes.  For example, data from 20 nodes should be easily handled with 16 GB.
-
-Your CPU must support the SSE4.2 instruction set, a requirement of ClickHouse, a third-party column-oriented database used by Query Analytics. If your CPU is lacking this instruction set you won't be able to use QAN.
-
-**PMM Client**
-
-Any modern 64-bit Linux distribution. It is tested on the latest versions of Debian, Ubuntu, CentOS, and Red Hat Enterprise Linux.
-
-A minimum of 100 MB of storage is required for installing the PMM Client package.  With a good connection to PMM Server, additional storage is not required.  However, the client needs to store any collected data that it cannot dispatch immediately, so additional storage may be required if the connection is unstable or the throughput is low.
-(Caching only applies to Query Analytics data; VictoriaMetrics data is never cached on the client side.)
+- [PMM Server](setting-up/server/index.md#system-requirements)
+- [PMM Client](setting-up/client/index.md#system-requirements)
 
 ## How can I upgrade from PMM version 1?
 
-Because of the significant architectural changes between PMM1 and PMM2, there is no direct upgrade path.  The approach to making the switch from PMM version 1 to 2 is a gradual transition, outlined [in this blog post](https://www.percona.com/blog/2019/11/27/running-pmm1-and-pmm2-clients-on-the-same-host/).
-
-In short, it involves first standing up a new PMM2 server on a new host and connecting clients to it.  As new data is reported to the PMM2 server, old metrics will age out during the course of the retention period (30 days, by default), at which point you'll be able to shut down your existing PMM1 server.
-
-Any alerts configured through the Grafana UI will have to be recreated due to the target dashboard id's not matching between PMM1 and PMM2.  In this instance we recommend moving to Alertmanager recipes in PMM2 for alerting which, for the time being, requires a separate Alertmanager instance. However, we are working on integrating this natively into PMM2 Server and expect to support your existing Alertmanager rules.
+See [Upgrade from PMM1](how-to/upgrade.md#upgrade-from-pmm1).
 
 ## How to control data retention for PMM?
 
-By default, PMM stores time-series data for 30 days.
-Depending on your available disk space and requirements, you may need to adjust the data retention time:
-
-1. Go to *PMM > PMM Settings > Advanced Settings*.
-
-2. Change the data retention value.
-
-    ![image](./_images/PMM_Settings_Advanced_Settings.jpg)
-
-3. Click *Apply changes*.
+See [How to configure Data retention](how-to/configure.md#data-retention).
 
 ## How often are NGINX logs in PMM Server rotated?
 

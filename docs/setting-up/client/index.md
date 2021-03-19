@@ -20,12 +20,37 @@ When you have installed PMM Client, you must:
 - [Register the node with PMM Server](#register)
 - [Configure and add services according to type](#configure-add-services)
 
+## System requirements
+
+**Operating system**
+
+PMM Client runs on any modern 64-bit Linux distribution. It is tested on the latest versions of Debian, Ubuntu, CentOS, and Red Hat Enterprise Linux.
+
+**Disk**
+
+A minimum of 100 MB of storage is required for installing the PMM Client package.
+
+With a good connection to PMM Server, additional storage is not required.
+
+However, the client needs to store any collected data that it cannot dispatch immediately, so additional storage may be required if the connection is unstable or the throughput is low.
+
+(Caching only applies to Query Analytics data; VictoriaMetrics data is never cached on the client side.)
+
 ## Before you start
+
 
 - PMM Server is installed and running with a known IP address accessible from the client node.
 - You have superuser (root) access on the client host.
 - You have superuser access to any database servers that you want to monitor.
 - These Linux packages are installed: `curl`, `gnupg`, `sudo`, `wget`.
+
+
+
+
+
+
+
+
 
 
 <!--

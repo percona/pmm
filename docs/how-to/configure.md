@@ -53,7 +53,7 @@ Values for the *Custom* preset can be entered as values, or changed with the arr
 
 ### Data Retention
 
-*Data retention* specifies how long data is stored by PMM Server.
+*Data retention* specifies how long data is stored by PMM Server. By default, PMM stores time-series data for 30 days. Depending on your available disk space and requirements, you may need to adjust the data retention time.
 
 ### Telemetry
 
