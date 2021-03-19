@@ -250,7 +250,6 @@ You must also install the plugins.
 *Session*
 
 1. Check that `/usr/lib/mysql/plugin/query_response_time.so` exists.
-
 2. Install the plugins and activate.
 
 	For [MariaDB 10.3][mariadb_query_response_time]:
@@ -319,9 +318,7 @@ With the PMM user interface, you select *Use performance schema*, or deselect it
 ### With the user interface
 
 1. Select *PMM --> PMM Add Instance*.
-
 2. Select *MySQL -- Add a remote instance*.
-
 3. Enter values for these fields.
 
 	| Section                  | Field                                          | Required | Description                             | Default  | `pmm-admin` parameter
