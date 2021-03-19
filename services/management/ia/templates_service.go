@@ -371,6 +371,13 @@ func (s *TemplatesService) ListTemplates(ctx context.Context, req *iav1beta1.Lis
 		return nil, status.Errorf(codes.FailedPrecondition, "%v.", services.ErrAlertingDisabled)
 	}
 
+	var pageIndex int
+	var pageSize int
+	if req.PageParams != nil {
+		pageIndex = int(req.PageParams.Index)
+		pageSize = int(req.PageParams.PageSize)
+	}
+
 	if req.Reload {
 		s.Collect(ctx)
 	}
@@ -378,9 +385,32 @@ func (s *TemplatesService) ListTemplates(ctx context.Context, req *iav1beta1.Lis
 	templates := s.getTemplates()
 	res := &iav1beta1.ListTemplatesResponse{
 		Templates: make([]*iav1beta1.Template, 0, len(templates)),
+		Totals: &iav1beta1.PageTotals{
+			TotalItems: int32(len(templates)),
+			TotalPages: 1,
+		},
 	}
-	for _, template := range templates {
-		t, err := convertTemplate(s.l, template)
+
+	if pageSize > 0 {
+		res.Totals.TotalPages = int32(len(templates) / pageSize)
+		if len(templates)%pageSize > 0 {
+			res.Totals.TotalPages++
+		}
+	}
+
+	names := make([]string, 0, len(templates))
+	for name := range templates {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+
+	from, to := pageIndex*pageSize, (pageIndex+1)*pageSize
+	if to > len(names) || to == 0 {
+		to = len(names)
+	}
+
+	for _, name := range names[from:to] {
+		t, err := convertTemplate(s.l, templates[name])
 		if err != nil {
 			return nil, err
 		}
@@ -388,7 +418,6 @@ func (s *TemplatesService) ListTemplates(ctx context.Context, req *iav1beta1.Lis
 		res.Templates = append(res.Templates, t)
 	}
 
-	sort.Slice(res.Templates, func(i, j int) bool { return res.Templates[i].Name < res.Templates[j].Name })
 	return res, nil
 }
 
@@ -455,12 +484,12 @@ func (s *TemplatesService) UpdateTemplate(ctx context.Context, req *iav1beta1.Up
 		return nil, status.Errorf(codes.FailedPrecondition, "%v.", services.ErrAlertingDisabled)
 	}
 
-	pParams := &alert.ParseParams{
+	parseParams := &alert.ParseParams{
 		DisallowUnknownFields:    true,
 		DisallowInvalidTemplates: true,
 	}
 
-	templates, err := alert.Parse(strings.NewReader(req.Yaml), pParams)
+	templates, err := alert.Parse(strings.NewReader(req.Yaml), parseParams)
 	if err != nil {
 		s.l.Errorf("failed to parse rule template form request: +%v", err)
 		return nil, status.Error(codes.InvalidArgument, "Failed to parse rule template.")
@@ -470,20 +499,21 @@ func (s *TemplatesService) UpdateTemplate(ctx context.Context, req *iav1beta1.Up
 		return nil, status.Error(codes.InvalidArgument, "Request should contain exactly one rule template.")
 	}
 
-	for _, t := range templates {
-		if err = validateUserTemplate(&t); err != nil { //nolint:gosec
-			return nil, status.Errorf(codes.InvalidArgument, "%s.", err)
-		}
+	tmpl := templates[0]
+
+	if err = validateUserTemplate(&tmpl); err != nil { //nolint:gosec
+		return nil, status.Errorf(codes.InvalidArgument, "%s.", err)
 	}
 
-	params := &models.ChangeTemplateParams{
-		Template: &templates[0],
+	changeParams := &models.ChangeTemplateParams{
+		Template: &tmpl,
+		Name:     req.Name,
 		Yaml:     req.Yaml,
 	}
 
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		var err error
-		_, err = models.ChangeTemplate(tx.Querier, params)
+		_, err = models.ChangeTemplate(tx.Querier, changeParams)
 		return err
 	})
 	if e != nil {

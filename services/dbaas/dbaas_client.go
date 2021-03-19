@@ -113,3 +113,8 @@ func (c *Client) GetPSMDBClusterCredentials(ctx context.Context, in *controllerv
 func (c *Client) GetLogs(ctx context.Context, in *controllerv1beta1.GetLogsRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetLogsResponse, error) {
 	return c.logsClient.GetLogs(ctx, in, opts...)
 }
+
+// GetResources returns all and available resources of a Kubernetes cluster.
+func (c *Client) GetResources(ctx context.Context, in *controllerv1beta1.GetResourcesRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetResourcesResponse, error) {
+	return c.kubernetesClient.GetResources(ctx, in, opts...)
+}

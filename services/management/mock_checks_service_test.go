@@ -105,13 +105,13 @@ func (_m *mockChecksService) GetSecurityCheckResults() ([]check.Result, error) {
 	return r0, r1
 }
 
-// StartChecks provides a mock function with given fields: ctx
-func (_m *mockChecksService) StartChecks(ctx context.Context) error {
-	ret := _m.Called(ctx)
+// StartChecks provides a mock function with given fields: ctx, interval
+func (_m *mockChecksService) StartChecks(ctx context.Context, interval check.Interval) error {
+	ret := _m.Called(ctx, interval)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
-		r0 = rf(ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, check.Interval) error); ok {
+		r0 = rf(ctx, interval)
 	} else {
 		r0 = ret.Error(0)
 	}

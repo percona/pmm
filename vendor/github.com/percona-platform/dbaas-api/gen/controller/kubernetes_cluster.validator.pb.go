@@ -32,3 +32,6 @@ func (this *Operators) Validate() error {
 	}
 	return nil
 }
+func (this *Resources) Validate() error {
+	return nil
+}

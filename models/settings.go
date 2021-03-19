@@ -29,6 +29,20 @@ type MetricsResolutions struct {
 	LR time.Duration `json:"lr"`
 }
 
+// SaaS contains settings related to the SaaS platform.
+type SaaS struct {
+	// Percona Platform user email
+	Email string `json:"email"`
+	// Percona Platform session Id
+	SessionID string `json:"session_id"`
+	// Security Threat Tool enabled
+	STTEnabled bool `json:"stt_enabled"`
+	// List of disabled STT checks
+	DisabledSTTChecks []string `json:"disabled_stt_checks"`
+	// STT check intervals
+	STTCheckIntervals STTCheckIntervals `json:"stt_check_intervals"`
+}
+
 // Settings contains PMM Server settings.
 type Settings struct {
 	PMMPublicAddress string `json:"pmm_public_address"`
@@ -55,17 +69,7 @@ type Settings struct {
 		CacheEnabled bool `json:"cache_enabled"`
 	} `json:"victoria_metrics"`
 
-	// Saas config options
-	SaaS struct {
-		// Percona Platform user email
-		Email string `json:"email"`
-		// Percona Platform session Id
-		SessionID string `json:"session_id"`
-		// Security Threat Tool enabled
-		STTEnabled bool `json:"stt_enabled"`
-		// List of disabled STT checks
-		DisabledSTTChecks []string `json:"disabled_stt_checks"`
-	} `json:"sass"` // sic :(
+	SaaS SaaS `json:"sass"` // sic :(
 
 	// DBaaS config options
 	DBaaS struct {
@@ -95,6 +99,13 @@ type SlackAlertingSettings struct {
 	URL string `json:"url"`
 }
 
+// STTCheckIntervals represents intervals between STT checks.
+type STTCheckIntervals struct {
+	StandardInterval time.Duration `json:"standard_interval"`
+	RareInterval     time.Duration `json:"rare_interval"`
+	FrequentInterval time.Duration `json:"frequent_interval"`
+}
+
 // fillDefaults sets zero values to their default values.
 // Used for migrating settings to the newer version.
 func (s *Settings) fillDefaults() {
@@ -116,6 +127,18 @@ func (s *Settings) fillDefaults() {
 
 	if len(s.AWSPartitions) == 0 {
 		s.AWSPartitions = []string{endpoints.AwsPartitionID}
+	}
+
+	if s.SaaS.STTCheckIntervals.RareInterval == 0 {
+		s.SaaS.STTCheckIntervals.RareInterval = 78 * time.Hour
+	}
+
+	if s.SaaS.STTCheckIntervals.StandardInterval == 0 {
+		s.SaaS.STTCheckIntervals.StandardInterval = 24 * time.Hour
+	}
+
+	if s.SaaS.STTCheckIntervals.FrequentInterval == 0 {
+		s.SaaS.STTCheckIntervals.FrequentInterval = 4 * time.Hour
 	}
 
 	// AWSInstanceChecked is false by default

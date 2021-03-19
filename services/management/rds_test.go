@@ -280,4 +280,86 @@ func TestRDSService(t *testing.T) {
 		}
 		assert.Equal(t, proto.MarshalTextString(expected), proto.MarshalTextString(resp)) // for better diffs
 	})
+
+	t.Run("AddRDSPostgreSQL", func(t *testing.T) {
+		ctx := logger.Set(context.Background(), t.Name())
+		accessKey, secretKey := "AKIAIOSFODNN7EXAMPLE", "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY" //nolint:gosec
+
+		req := &managementpb.AddRDSRequest{
+			Region:                    "us-east-1",
+			Az:                        "us-east-1b",
+			InstanceId:                "rds-postgresql",
+			NodeModel:                 "db.t3.micro",
+			Address:                   "rds-postgresql-renaming.xyzzy.us-east-1.rds.amazonaws.com",
+			Port:                      3306,
+			Engine:                    managementpb.DiscoverRDSEngine_DISCOVER_RDS_POSTGRESQL,
+			Environment:               "production",
+			Cluster:                   "c-01",
+			ReplicationSet:            "rs-01",
+			Username:                  "username",
+			Password:                  "password",
+			AwsAccessKey:              accessKey,
+			AwsSecretKey:              secretKey,
+			RdsExporter:               true,
+			QanPostgresqlPgstatements: true,
+			CustomLabels: map[string]string{
+				"foo": "bar",
+			},
+			SkipConnectionCheck:       true,
+			Tls:                       false,
+			TlsSkipVerify:             false,
+			DisableQueryExamples:      true,
+			TablestatsGroupTableLimit: 0,
+		}
+
+		r.On("RequestStateUpdate", ctx, "pmm-server")
+		resp, err := s.AddRDS(ctx, req)
+		require.NoError(t, err)
+
+		expected := &managementpb.AddRDSResponse{
+			Node: &inventorypb.RemoteRDSNode{
+				NodeId:    "/node_id/00000000-0000-4000-8000-00000000000a",
+				NodeName:  "rds-postgresql",
+				Address:   "rds-postgresql",
+				NodeModel: "db.t3.micro",
+				Region:    "us-east-1",
+				Az:        "us-east-1b",
+				CustomLabels: map[string]string{
+					"foo": "bar",
+				},
+			},
+			RdsExporter: &inventorypb.RDSExporter{
+				AgentId:      "/agent_id/00000000-0000-4000-8000-00000000000b",
+				PmmAgentId:   "pmm-server",
+				NodeId:       "/node_id/00000000-0000-4000-8000-00000000000a",
+				AwsAccessKey: "AKIAIOSFODNN7EXAMPLE",
+			},
+			Postgresql: &inventorypb.PostgreSQLService{
+				ServiceId:      "/service_id/00000000-0000-4000-8000-00000000000c",
+				NodeId:         "/node_id/00000000-0000-4000-8000-00000000000a",
+				Address:        "rds-postgresql-renaming.xyzzy.us-east-1.rds.amazonaws.com",
+				Port:           3306,
+				Environment:    "production",
+				Cluster:        "c-01",
+				ReplicationSet: "rs-01",
+				ServiceName:    "rds-postgresql",
+				CustomLabels: map[string]string{
+					"foo": "bar",
+				},
+			},
+			PostgresqlExporter: &inventorypb.PostgresExporter{
+				AgentId:    "/agent_id/00000000-0000-4000-8000-00000000000d",
+				PmmAgentId: "pmm-server",
+				ServiceId:  "/service_id/00000000-0000-4000-8000-00000000000c",
+				Username:   "username",
+			},
+			QanPostgresqlPgstatements: &inventorypb.QANPostgreSQLPgStatementsAgent{
+				AgentId:    "/agent_id/00000000-0000-4000-8000-00000000000e",
+				PmmAgentId: "pmm-server",
+				ServiceId:  "/service_id/00000000-0000-4000-8000-00000000000c",
+				Username:   "username",
+			},
+		}
+		assert.Equal(t, proto.MarshalTextString(expected), proto.MarshalTextString(resp)) // for better diffs
+	})
 }

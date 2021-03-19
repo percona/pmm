@@ -69,7 +69,7 @@ func (s *ChecksAPIService) GetSecurityCheckResults() (*managementpb.GetSecurityC
 
 // StartSecurityChecks executes Security Thread Tool checks and returns when all checks are executed.
 func (s *ChecksAPIService) StartSecurityChecks(ctx context.Context) (*managementpb.StartSecurityChecksResponse, error) {
-	err := s.checksService.StartChecks(ctx)
+	err := s.checksService.StartChecks(ctx, "")
 	if err != nil {
 		if err == services.ErrSTTDisabled {
 			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)

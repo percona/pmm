@@ -413,4 +413,36 @@ func TestXtraDBClusterService(t *testing.T) {
 		_, err := s.DeleteXtraDBCluster(ctx, &in)
 		assert.NoError(t, err)
 	})
+
+	t.Run("BasicGetXtraDBClusterResources", func(t *testing.T) {
+		s := NewXtraDBClusterService(db, dbaasClient)
+		v := int64(1000000000)
+		r := int64(2000000000)
+
+		in := dbaasv1beta1.GetXtraDBClusterResourcesRequest{
+			Params: &dbaasv1beta1.XtraDBClusterParams{
+				ClusterSize: 1,
+				Pxc: &dbaasv1beta1.XtraDBClusterParams_PXC{
+					ComputeResources: &dbaasv1beta1.ComputeResources{
+						CpuM:        1000,
+						MemoryBytes: v,
+					},
+					DiskSize: v,
+				},
+				Proxysql: &dbaasv1beta1.XtraDBClusterParams_ProxySQL{
+					ComputeResources: &dbaasv1beta1.ComputeResources{
+						CpuM:        1000,
+						MemoryBytes: v,
+					},
+					DiskSize: v,
+				},
+			},
+		}
+
+		actual, err := s.GetXtraDBClusterResources(ctx, &in)
+		assert.NoError(t, err)
+		assert.Equal(t, r, actual.Expected.MemoryBytes)
+		assert.Equal(t, int64(2000), actual.Expected.CpuM)
+		assert.Equal(t, r, actual.Expected.DiskSize)
+	})
 }

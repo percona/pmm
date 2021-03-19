@@ -17,9 +17,11 @@
 package alertmanager
 
 import (
+	"bytes"
 	"context"
 	"strings"
 	"testing"
+	"text/template"
 	"time"
 
 	"github.com/percona-platform/saas/pkg/alert"
@@ -88,6 +90,7 @@ route:
     continue: false
 receivers:
     - name: empty
+    - name: disabled
 templates: []
 		`) + "\n"
 		assert.Equal(t, expected, actual, "actual:\n%s", actual)
@@ -117,6 +120,15 @@ templates: []
 		})
 		require.NoError(t, err)
 
+		channel3, err := models.CreateChannel(db.Querier, &models.CreateChannelParams{
+			Summary: "channel3",
+			PagerDutyConfig: &models.PagerDutyConfig{
+				RoutingKey: "ms-pagerduty-dev",
+			},
+			Disabled: true,
+		})
+		require.NoError(t, err)
+
 		_, err = models.CreateTemplate(db.Querier, &models.CreateTemplateParams{
 			Template: &alert.Template{
 				Name:    "test_template",
@@ -141,7 +153,7 @@ templates: []
 		})
 		require.NoError(t, err)
 
-		_, err = models.CreateRule(db.Querier, &models.CreateRuleParams{
+		rule1, err := models.CreateRule(db.Querier, &models.CreateRuleParams{
 			TemplateName: "test_template",
 			Disabled:     true,
 			RuleParams: []models.RuleParam{{
@@ -164,7 +176,7 @@ templates: []
 		require.NoError(t, err)
 
 		// create another rule with same channelIDs to check for redundant receivers.
-		_, err = models.CreateRule(db.Querier, &models.CreateRuleParams{
+		rule2, err := models.CreateRule(db.Querier, &models.CreateRuleParams{
 			TemplateName: "test_template",
 			Disabled:     true,
 			RuleParams: []models.RuleParam{{
@@ -182,12 +194,12 @@ templates: []
 				Key:  "service_name",
 				Val:  "mysql2",
 			}},
-			ChannelIDs: []string{channel1.ID, channel2.ID},
+			ChannelIDs: []string{channel1.ID, channel2.ID, channel3.ID},
 		})
 		require.NoError(t, err)
 
 		// create another rule without channelID and check if it is absent in the config.
-		_, err = models.CreateRule(db.Querier, &models.CreateRuleParams{
+		rule3, err := models.CreateRule(db.Querier, &models.CreateRuleParams{
 			TemplateName: "test_template",
 			Disabled:     true,
 			RuleParams: []models.RuleParam{{
@@ -200,6 +212,29 @@ templates: []
 			CustomLabels: map[string]string{
 				"foo": "baz",
 			},
+		})
+		require.NoError(t, err)
+
+		// CreateRule with disabled channel
+		rule4, err := models.CreateRule(db.Querier, &models.CreateRuleParams{
+			TemplateName: "test_template",
+			Disabled:     true,
+			RuleParams: []models.RuleParam{{
+				Name:       "test",
+				Type:       models.Float,
+				FloatValue: 3.14,
+			}},
+			Filters: []models.Filter{{
+				Type: models.Equal,
+				Key:  "service_name",
+				Val:  "mysql3",
+			}},
+			For:      5 * time.Second,
+			Severity: models.Severity(common.Warning),
+			CustomLabels: map[string]string{
+				"foo": "baz",
+			},
+			ChannelIDs: []string{channel3.ID},
 		})
 		require.NoError(t, err)
 
@@ -238,19 +273,25 @@ route:
     receiver: empty
     continue: false
     routes:
-        - receiver: /channel_id/00000000-0000-4000-8000-000000000001 + /channel_id/00000000-0000-4000-8000-000000000002
+        - receiver: {{ .channel1ID }} + {{ .channel2ID }}
           match:
-            rule_id: /rule_id/00000000-0000-4000-8000-000000000003
+            rule_id: {{ .rule1ID }}
             service_name: mysql1
           continue: false
-        - receiver: /channel_id/00000000-0000-4000-8000-000000000001 + /channel_id/00000000-0000-4000-8000-000000000002
+        - receiver: {{ .channel1ID }} + {{ .channel2ID }}
           match:
-            rule_id: /rule_id/00000000-0000-4000-8000-000000000004
+            rule_id: {{ .rule2ID }}
             service_name: mysql2
+          continue: false
+        - receiver: disabled
+          match:
+            rule_id: {{ .rule4ID }}
+            service_name: mysql3
           continue: false
 receivers:
     - name: empty
-    - name: /channel_id/00000000-0000-4000-8000-000000000001 + /channel_id/00000000-0000-4000-8000-000000000002
+    - name: disabled
+    - name: {{ .channel1ID }} + {{ .channel2ID }}
       email_configs:
         - send_resolved: false
           to: test@test.test
@@ -261,27 +302,48 @@ receivers:
           routing_key: ms-pagerduty-dev
 templates: []
 `) + "\n"
-		assert.Equal(t, expected, actual, "actual:\n%s", actual)
+		tmpl, err := template.New("").Parse(expected)
+		require.NoError(t, err)
+		var b bytes.Buffer
+		err = tmpl.Execute(&b, map[string]string{
+			"rule1ID":    rule1.ID,
+			"rule2ID":    rule2.ID,
+			"rule3ID":    rule3.ID,
+			"rule4ID":    rule4.ID,
+			"channel1ID": channel1.ID,
+			"channel2ID": channel2.ID,
+			"channel3ID": channel3.ID,
+		})
+		require.NoError(t, err)
+		assert.Equal(t, b.String(), actual, "actual:\n%s", actual)
 	})
 }
 
 func TestGenerateReceivers(t *testing.T) {
 	t.Parallel()
 
-	chanMap := []*models.Channel{
-		{
+	chanMap := map[string]*models.Channel{
+		"1": {
 			ID:   "1",
 			Type: models.Slack,
 			SlackConfig: &models.SlackConfig{
 				Channel: "channel1",
 			},
 		},
-		{
+		"2": {
 			ID:   "2",
 			Type: models.Slack,
 			SlackConfig: &models.SlackConfig{
 				Channel: "channel2",
 			},
+		},
+		"3": {
+			ID:   "3",
+			Type: models.Slack,
+			SlackConfig: &models.SlackConfig{
+				Channel: "channel3",
+			},
+			Disabled: true,
 		},
 	}
 	recvSet := map[string]models.ChannelIDs{

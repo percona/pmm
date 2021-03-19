@@ -44,8 +44,7 @@ import (
 )
 
 const (
-	rulesDir        = "/etc/ia/rules"
-	defaultPageSize = 20
+	rulesDir = "/etc/ia/rules"
 )
 
 // RulesService represents API for Integrated Alerting Rules.
@@ -96,8 +95,23 @@ type rule struct {
 	Annotations map[string]string   `yaml:"annotations,omitempty"`
 }
 
+// RemoveVMAlertRulesFiles removes all generated rules files (*.yml) on the ia path.
+func (s *RulesService) RemoveVMAlertRulesFiles() error {
+	matches, err := filepath.Glob(s.rulesPath + "/*.yml")
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	for _, match := range matches {
+		if err = os.RemoveAll(match); err != nil {
+			return errors.WithStack(err)
+		}
+	}
+
+	return nil
+}
+
 // writeVMAlertRulesFiles converts all available rules to VMAlert rule files.
-func (s *RulesService) writeVMAlertRulesFiles() {
+func (s *RulesService) WriteVMAlertRulesFiles() {
 	rules, err := s.getAlertRules()
 	if err != nil {
 		s.l.Errorf("Failed to get available alert rules: %+v", err)
@@ -110,16 +124,9 @@ func (s *RulesService) writeVMAlertRulesFiles() {
 		return
 	}
 
-	matches, err := filepath.Glob(s.rulesPath + "/*.yml")
-	if err != nil {
+	if err = s.RemoveVMAlertRulesFiles(); err != nil {
 		s.l.Errorf("Failed to clean old alert rule files: %+v", err)
 		return
-	}
-
-	for _, match := range matches {
-		if err = os.RemoveAll(match); err != nil {
-			s.l.Errorf("Failed to remove old rule file: %+v", err)
-		}
 	}
 
 	for _, file := range ruleFiles {
@@ -254,23 +261,28 @@ func (s *RulesService) ListAlertRules(ctx context.Context, req *iav1beta1.ListAl
 		return nil, status.Errorf(codes.FailedPrecondition, "%v.", services.ErrAlertingDisabled)
 	}
 
-	pageIndex := 0
-	pageSize := defaultPageSize
+	var pageIndex int
+	var pageSize int
 	if req.PageParams != nil {
 		pageIndex = int(req.PageParams.Index)
 		pageSize = int(req.PageParams.PageSize)
 	}
 
-	if pageSize <= 0 || pageIndex < 0 {
-		return nil, status.Errorf(codes.InvalidArgument, "Page size (%d) should be positive number and "+
-			"page index (%d) should be non-negative number", req.PageParams.PageSize, req.PageParams.Index)
+	var rules []*iav1beta1.Rule
+	pageTotals := &iav1beta1.PageTotals{
+		TotalPages: 1,
 	}
-
-	res, pageTotals, err := s.getAlertRulesPage(pageIndex, pageSize)
+	if pageSize == 0 {
+		rules, err = s.getAlertRules()
+		pageTotals.TotalItems = int32(len(rules))
+	} else {
+		rules, pageTotals, err = s.getAlertRulesPage(pageIndex, pageSize)
+	}
 	if err != nil {
 		return nil, err
 	}
-	return &iav1beta1.ListAlertRulesResponse{Rules: res, Totals: pageTotals}, nil
+
+	return &iav1beta1.ListAlertRulesResponse{Rules: rules, Totals: pageTotals}, nil
 }
 
 func (s *RulesService) convertAlertRules(rules []*models.Rule, channels []*models.Channel) ([]*iav1beta1.Rule, error) {
@@ -418,7 +430,7 @@ func (s *RulesService) CreateAlertRule(ctx context.Context, req *iav1beta1.Creat
 		return nil, e
 	}
 
-	s.writeVMAlertRulesFiles()
+	s.WriteVMAlertRulesFiles()
 	s.vmalert.RequestConfigurationUpdate()
 	s.alertManager.RequestConfigurationUpdate()
 
@@ -515,6 +527,7 @@ func (s *RulesService) UpdateAlertRule(ctx context.Context, req *iav1beta1.Updat
 	}
 
 	params := &models.ChangeRuleParams{
+		Summary:      req.Summary,
 		Disabled:     req.Disabled,
 		For:          req.For.AsDuration(),
 		Severity:     models.Severity(req.Severity),
@@ -550,7 +563,7 @@ func (s *RulesService) UpdateAlertRule(ctx context.Context, req *iav1beta1.Updat
 		return nil, e
 	}
 
-	s.writeVMAlertRulesFiles()
+	s.WriteVMAlertRulesFiles()
 	s.vmalert.RequestConfigurationUpdate()
 	s.alertManager.RequestConfigurationUpdate()
 
@@ -588,7 +601,7 @@ func (s *RulesService) ToggleAlertRule(ctx context.Context, req *iav1beta1.Toggl
 		return nil, e
 	}
 
-	s.writeVMAlertRulesFiles()
+	s.WriteVMAlertRulesFiles()
 	s.vmalert.RequestConfigurationUpdate()
 	s.alertManager.RequestConfigurationUpdate()
 
@@ -613,7 +626,7 @@ func (s *RulesService) DeleteAlertRule(ctx context.Context, req *iav1beta1.Delet
 		return nil, e
 	}
 
-	s.writeVMAlertRulesFiles()
+	s.WriteVMAlertRulesFiles()
 	s.vmalert.RequestConfigurationUpdate()
 	s.alertManager.RequestConfigurationUpdate()
 

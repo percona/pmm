@@ -32,7 +32,7 @@ import (
 // registry stores alerts and delay information by IDs.
 type registry struct {
 	rw           sync.RWMutex
-	checkResults []sttCheckResult
+	checkResults map[check.Interval][]sttCheckResult
 	alertTTL     time.Duration
 	nowF         func() time.Time // for tests
 }
@@ -40,18 +40,27 @@ type registry struct {
 // newRegistry creates a new registry.
 func newRegistry(alertTTL time.Duration) *registry {
 	return &registry{
-		alertTTL: alertTTL,
-		nowF:     time.Now,
+		checkResults: make(map[check.Interval][]sttCheckResult),
+		alertTTL:     alertTTL,
+		nowF:         time.Now,
 	}
 }
 
-// set replaces stored checkResults with a copy of given ones.
-func (r *registry) set(checkResults []sttCheckResult) {
+// set replaces stored checkResults with a copy of given ones for specified interval.
+func (r *registry) set(interval check.Interval, checkResults []sttCheckResult) {
 	r.rw.Lock()
 	defer r.rw.Unlock()
 
-	r.checkResults = make([]sttCheckResult, len(checkResults))
-	copy(r.checkResults, checkResults)
+	r.checkResults[interval] = make([]sttCheckResult, len(checkResults))
+	copy(r.checkResults[interval], checkResults)
+}
+
+// cleanup removes all stt results form registry.
+func (r *registry) cleanup() {
+	r.rw.Lock()
+	defer r.rw.Unlock()
+
+	r.checkResults = make(map[check.Interval][]sttCheckResult)
 }
 
 // collect returns a slice of alerts created from the stored check results.
@@ -59,9 +68,11 @@ func (r *registry) collect() ammodels.PostableAlerts {
 	r.rw.RLock()
 	defer r.rw.RUnlock()
 
-	alerts := make(ammodels.PostableAlerts, len(r.checkResults))
-	for i, checkResult := range r.checkResults {
-		alerts[i] = r.createAlert(checkResult.checkName, &checkResult.target, &checkResult.result, r.alertTTL)
+	var alerts ammodels.PostableAlerts
+	for _, group := range r.checkResults {
+		for _, checkResult := range group {
+			alerts = append(alerts, r.createAlert(checkResult.checkName, &checkResult.target, &checkResult.result, r.alertTTL))
+		}
 	}
 	return alerts
 }
@@ -70,8 +81,10 @@ func (r *registry) getCheckResults() []sttCheckResult {
 	r.rw.RLock()
 	defer r.rw.RUnlock()
 
-	checkResults := make([]sttCheckResult, 0, len(r.checkResults))
-	checkResults = append(checkResults, r.checkResults...)
+	var checkResults []sttCheckResult
+	for _, group := range r.checkResults {
+		checkResults = append(checkResults, group...)
+	}
 
 	return checkResults
 }

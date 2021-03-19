@@ -188,3 +188,32 @@ func accessError(err error) bool {
 	}
 	return false
 }
+
+// GetResources returns all and available resources of a Kubernetes cluster.
+func (k kubernetesServer) GetResources(ctx context.Context, req *dbaasv1beta1.GetResourcesRequest) (*dbaasv1beta1.GetResourcesResponse, error) {
+	kubernetesCluster, err := models.FindKubernetesClusterByName(k.db.Querier, req.KubernetesClusterName)
+	if err != nil {
+		return nil, err
+	}
+	in := &dbaascontrollerv1beta1.GetResourcesRequest{
+		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
+			Kubeconfig: kubernetesCluster.KubeConfig,
+		},
+	}
+	response, err := k.dbaasClient.GetResources(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+	return &dbaasv1beta1.GetResourcesResponse{
+		All: &dbaasv1beta1.Resources{
+			CpuM:        response.All.CpuM,
+			MemoryBytes: response.All.MemoryBytes,
+			DiskSize:    response.All.DiskSize,
+		},
+		Available: &dbaasv1beta1.Resources{
+			CpuM:        response.Available.CpuM,
+			MemoryBytes: response.Available.MemoryBytes,
+			DiskSize:    response.Available.DiskSize,
+		},
+	}, nil
+}

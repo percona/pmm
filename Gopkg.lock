@@ -133,6 +133,14 @@
   version = "v1.1.1"
 
 [[projects]]
+  digest = "1:b7ffca49e9cfd3dfb04a8e0a59347708c6f78f68476a32c5e0a0edca5d1b258c"
+  name = "github.com/dustin/go-humanize"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "9f541cc9db5d55bce703bd99987c9d5cb8eea45e"
+  version = "v1.0.0"
+
+[[projects]]
   digest = "1:82ebaeef8f2da43f9c4544f05d1b0dd987189a11e444e013e6c9e529235b7504"
   name = "github.com/go-openapi/analysis"
   packages = [
@@ -367,6 +375,29 @@
   version = "v1.0.1"
 
 [[projects]]
+  digest = "1:962215f00d3e3d8624d15c042552f0abc2b0c9ae541da47a7bab496dc9a76b57"
+  name = "github.com/minio/minio-go"
+  packages = [
+    ".",
+    "pkg/credentials",
+    "pkg/encrypt",
+    "pkg/s3signer",
+    "pkg/s3utils",
+    "pkg/set",
+  ]
+  pruneopts = "NUT"
+  revision = "c6c2912aa5522e5f5a505e6cba30e95f0d8456fa"
+  version = "v6.0.25"
+
+[[projects]]
+  digest = "1:f9f72e583aaacf1d1ac5d6121abd4afd3c690baa9e14e1d009df26bf831ba347"
+  name = "github.com/mitchellh/go-homedir"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "af06845cf3004701891bf4fdb884bfe4920b3727"
+  version = "v1.1.0"
+
+[[projects]]
   digest = "1:40709da827caf66d1421f7e7251ed840c1c04423597041332d01797403280e49"
   name = "github.com/mitchellh/mapstructure"
   packages = ["."]
@@ -384,15 +415,15 @@
 
 [[projects]]
   branch = "main"
-  digest = "1:c60754f36f889a8cb8ad9174d040c090e258f5277a0462b930dd196d5f72c57e"
+  digest = "1:3a3456315d8c3f9f75569955fe5fd6fada00369ab99c90c8acf752143b80c2d7"
   name = "github.com/percona-platform/dbaas-api"
   packages = ["gen/controller"]
   pruneopts = "NUT"
-  revision = "41f004193c1ac2e6614d8eaac641b18899334d91"
+  revision = "0d16006be75233517f1bc89eef1e0b40d2fe3924"
 
 [[projects]]
   branch = "main"
-  digest = "1:adfc8f23176169e0c810abf12615f8303ffbc5d669cd11f73b145e635634f5c5"
+  digest = "1:8a1d4fb2211a1d0d2aa24a066bed9518a61118e899c465b93bab02781091c26c"
   name = "github.com/percona-platform/saas"
   packages = [
     "gen/auth",
@@ -405,11 +436,11 @@
     "pkg/starlark",
   ]
   pruneopts = "NUT"
-  revision = "c158e23a172f892cc389233858238449efec1dbb"
+  revision = "d0e2249b531c97d9ef898c2401dac14fc2da0006"
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:6c29de38d29e6cc13676f607480696885a4be1c835045336cde345eb90642500"
+  digest = "1:c1de8b3790a227d59bad75fb9cde07e1680f238a52315a259d7e60b1abea38ee"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentpb",
@@ -433,7 +464,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "37c694d4aa243ce9f1345bec9da75462e1c2a074"
+  revision = "bbf8e9314afd5a9742b935b09be78310af0812de"
 
 [[projects]]
   digest = "1:65230c46134944510adb8844cf4098b5c9fdd1dd11992c3980afc1d3e0c8e4bd"
@@ -577,6 +608,17 @@
   revision = "be5394c419b6941c14d194a98925a71512f8f979"
 
 [[projects]]
+  branch = "master"
+  digest = "1:51a061980fcdcafce0694cae0d88eda777769603c4861f461f061f40fe0894ce"
+  name = "golang.org/x/crypto"
+  packages = [
+    "argon2",
+    "blake2b",
+  ]
+  pruneopts = "NUT"
+  revision = "5ea612d1eb830b38bc4e914e37f55311eb58adce"
+
+[[projects]]
   digest = "1:467bb8fb8fa786448b8d486cd0bb7c1a5577dcd7310441aa02a20110cd9f727d"
   name = "golang.org/x/mod"
   packages = [
@@ -589,7 +631,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:9c0ed55b7bc9a2400d14b8ce55758ea861b0d5fc1767804a07b7f76b27716f46"
+  digest = "1:78df8a69e79026f901a068e8de50773458ce8a7ebad8f2200335955e9979f614"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -598,6 +640,7 @@
     "http2/hpack",
     "idna",
     "internal/timeseries",
+    "publicsuffix",
     "trace",
   ]
   pruneopts = "NUT"
@@ -613,9 +656,10 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:13facccf077775bc11bba13a7efb3457e6eebd16a54c2fd2ac92d3ad73d5dda4"
+  digest = "1:19ed82cf6677772270f1cf405c2ea6cc868bbe0264cbda5a67d3d5f0f6318787"
   name = "golang.org/x/sys"
   packages = [
+    "cpu",
     "internal/unsafeheader",
     "unix",
     "windows",
@@ -808,6 +852,14 @@
   version = "v2.2.6"
 
 [[projects]]
+  digest = "1:e084e01838f4c361fa2f03d2e227c059df3127efcebc958450a9d618524c8e38"
+  name = "gopkg.in/ini.v1"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "5e97220809ffaa826f787728501264e9114cb834"
+  version = "v1.62.0"
+
+[[projects]]
   digest = "1:666e94676a94cb3351be105e21b8579039a6306ec050191333fb931ef4baab64"
   name = "gopkg.in/reform.v1"
   packages = [
@@ -865,6 +917,7 @@
     "github.com/grpc-ecosystem/grpc-gateway/runtime",
     "github.com/kevinburke/go-bindata/go-bindata",
     "github.com/lib/pq",
+    "github.com/minio/minio-go",
     "github.com/percona-platform/dbaas-api/gen/controller",
     "github.com/percona-platform/saas/gen/auth",
     "github.com/percona-platform/saas/gen/check/retrieval",

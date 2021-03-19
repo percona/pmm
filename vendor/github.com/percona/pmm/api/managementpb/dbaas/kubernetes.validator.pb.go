@@ -100,3 +100,22 @@ func (this *GetKubernetesClusterResponse) Validate() error {
 	}
 	return nil
 }
+func (this *GetResourcesRequest) Validate() error {
+	if this.KubernetesClusterName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
+	}
+	return nil
+}
+func (this *GetResourcesResponse) Validate() error {
+	if this.All != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.All); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("All", err)
+		}
+	}
+	if this.Available != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Available); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Available", err)
+		}
+	}
+	return nil
+}

@@ -66,9 +66,10 @@ func (s *LocationsService) AddLocation(ctx context.Context, req *backupv1beta1.A
 
 	if req.S3Config != nil {
 		params.S3Config = &models.S3LocationConfig{
-			Endpoint:  req.S3Config.Endpoint,
-			AccessKey: req.S3Config.AccessKey,
-			SecretKey: req.S3Config.SecretKey,
+			Endpoint:   req.S3Config.Endpoint,
+			AccessKey:  req.S3Config.AccessKey,
+			SecretKey:  req.S3Config.SecretKey,
+			BucketName: req.S3Config.BucketName,
 		}
 	}
 	if req.PmmServerConfig != nil {
@@ -102,9 +103,10 @@ func (s *LocationsService) ChangeLocation(ctx context.Context, req *backupv1beta
 
 	if req.S3Config != nil {
 		params.S3Config = &models.S3LocationConfig{
-			Endpoint:  req.S3Config.Endpoint,
-			AccessKey: req.S3Config.AccessKey,
-			SecretKey: req.S3Config.SecretKey,
+			Endpoint:   req.S3Config.Endpoint,
+			AccessKey:  req.S3Config.AccessKey,
+			SecretKey:  req.S3Config.SecretKey,
+			BucketName: req.S3Config.BucketName,
 		}
 	}
 
@@ -126,6 +128,41 @@ func (s *LocationsService) ChangeLocation(ctx context.Context, req *backupv1beta
 	}
 
 	return &backupv1beta1.ChangeLocationResponse{}, nil
+}
+
+// TestLocationConfig tests backup location and credentials.
+func (s *LocationsService) TestLocationConfig(
+	_ context.Context,
+	req *backupv1beta1.TestLocationConfigRequest,
+) (*backupv1beta1.TestLocationConfigResponse, error) {
+	var params models.VerifyBackupLocationParams
+
+	if req.S3Config != nil {
+		params.S3Config = &models.S3LocationConfig{
+			Endpoint:   req.S3Config.Endpoint,
+			AccessKey:  req.S3Config.AccessKey,
+			SecretKey:  req.S3Config.SecretKey,
+			BucketName: req.S3Config.BucketName,
+		}
+	}
+
+	if req.PmmServerConfig != nil {
+		params.PMMServerConfig = &models.PMMServerLocationConfig{
+			Path: req.PmmServerConfig.Path,
+		}
+	}
+
+	if req.PmmClientConfig != nil {
+		params.PMMClientConfig = &models.PMMClientLocationConfig{
+			Path: req.PmmClientConfig.Path,
+		}
+	}
+
+	if err := models.VerifyBackupLocationConfig(&params); err != nil {
+		return nil, err
+	}
+
+	return &backupv1beta1.TestLocationConfigResponse{}, nil
 }
 
 func convertLocation(location *models.BackupLocation) (*backupv1beta1.Location, error) {
@@ -153,9 +190,10 @@ func convertLocation(location *models.BackupLocation) (*backupv1beta1.Location, 
 		config := location.S3Config
 		loc.Config = &backupv1beta1.Location_S3Config{
 			S3Config: &backupv1beta1.S3LocationConfig{
-				Endpoint:  config.Endpoint,
-				AccessKey: config.AccessKey,
-				SecretKey: config.SecretKey,
+				Endpoint:   config.Endpoint,
+				AccessKey:  config.AccessKey,
+				SecretKey:  config.SecretKey,
+				BucketName: config.BucketName,
 			},
 		}
 	default:

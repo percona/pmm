@@ -143,14 +143,41 @@ func (t Type) Validate() error {
 	}
 }
 
+// Supported check intervals.
+const (
+	Standard = Interval("standard")
+	Frequent = Interval("frequent")
+	Rare     = Interval("rare")
+)
+
+// Interval represents check execution interval.
+type Interval string
+
+// Validate validates check interval.
+func (i Interval) Validate() error {
+	switch i {
+	case Standard:
+		fallthrough
+	case Frequent:
+		fallthrough
+	case Rare:
+		fallthrough
+	case "":
+		return nil
+	default:
+		return errors.Errorf("unknown check interval: %s", i)
+	}
+}
+
 // Check represents security check structure.
 type Check struct {
 	Version     uint32        `yaml:"version"`
 	Name        string        `yaml:"name"`
 	Summary     string        `yaml:"summary"`
 	Description string        `yaml:"description"`
-	Tiers       []common.Tier `yaml:"tiers,flow,omitempty"`
 	Type        Type          `yaml:"type"`
+	Tiers       []common.Tier `yaml:"tiers,flow,omitempty"`
+	Interval    Interval      `yaml:"interval,omitempty"`
 	Query       string        `yaml:"query,omitempty"`
 	Script      string        `yaml:"script"`
 }
@@ -171,6 +198,10 @@ func (c *Check) Validate() error {
 	}
 
 	if err = common.ValidateTiers(c.Tiers); err != nil {
+		return err
+	}
+
+	if err = c.Interval.Validate(); err != nil {
 		return err
 	}
 

@@ -66,6 +66,7 @@ type Server struct {
 	platformService      platformService
 	awsInstanceChecker   *AWSInstanceChecker
 	grafanaClient        grafanaClient
+	rulesService         rulesService
 	l                    *logrus.Entry
 
 	pmmUpdateAuthFileM sync.Mutex
@@ -95,6 +96,7 @@ type Params struct {
 	PlatformService      platformService
 	AwsInstanceChecker   *AWSInstanceChecker
 	GrafanaClient        grafanaClient
+	RulesService         rulesService
 }
 
 // NewServer returns new server for Server service.
@@ -118,6 +120,7 @@ func NewServer(params *Params) (*Server, error) {
 		platformService:      params.PlatformService,
 		awsInstanceChecker:   params.AwsInstanceChecker,
 		grafanaClient:        params.GrafanaClient,
+		rulesService:         params.RulesService,
 		l:                    logrus.WithField("component", "server"),
 		pmmUpdateAuthFile:    path,
 		envSettings:          new(models.ChangeSettingsParams),
@@ -400,6 +403,11 @@ func (s *Server) convertSettings(settings *models.Settings) *serverpb.Settings {
 			Mr: ptypes.DurationProto(settings.MetricsResolutions.MR),
 			Lr: ptypes.DurationProto(settings.MetricsResolutions.LR),
 		},
+		SttCheckIntervals: &serverpb.STTCheckIntervals{
+			RareInterval:     ptypes.DurationProto(settings.SaaS.STTCheckIntervals.RareInterval),
+			StandardInterval: ptypes.DurationProto(settings.SaaS.STTCheckIntervals.StandardInterval),
+			FrequentInterval: ptypes.DurationProto(settings.SaaS.STTCheckIntervals.FrequentInterval),
+		},
 		DataRetention:    ptypes.DurationProto(settings.DataRetention),
 		SshKey:           settings.SSHKey,
 		AwsPartitions:    settings.AWSPartitions,
@@ -525,10 +533,22 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 
 	var newSettings, oldSettings *models.Settings
 	err := s.db.InTransaction(func(tx *reform.TX) error {
+		var e error
+
+		if oldSettings, e = models.GetSettings(tx); e != nil {
+			return errors.WithStack(e)
+		}
+
 		metricsRes := req.MetricsResolutions
+		sttCheckIntervals := req.SttCheckIntervals
 		settingsParams := &models.ChangeSettingsParams{
 			DisableTelemetry: req.DisableTelemetry,
 			EnableTelemetry:  req.EnableTelemetry,
+			STTCheckIntervals: models.STTCheckIntervals{
+				RareInterval:     getDuration(sttCheckIntervals.GetRareInterval()),
+				StandardInterval: getDuration(sttCheckIntervals.GetStandardInterval()),
+				FrequentInterval: getDuration(sttCheckIntervals.GetFrequentInterval()),
+			},
 			MetricsResolutions: models.MetricsResolutions{
 				HR: getDuration(metricsRes.GetHr()),
 				MR: getDuration(metricsRes.GetMr()),
@@ -570,11 +590,6 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 			}
 		}
 
-		var e error
-		if oldSettings, e = models.GetSettings(tx); e != nil {
-			return errors.WithStack(e)
-		}
-
 		if newSettings, e = models.UpdateSettings(tx, settingsParams); e != nil {
 			return status.Error(codes.InvalidArgument, e.Error())
 		}
@@ -607,10 +622,30 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 		return nil, err
 	}
 
-	// When STT moved from disabled state to enabled force checks download and execution
+	// When IA moved from disabled state to enabled create rules files.
+	if !oldSettings.IntegratedAlerting.Enabled && req.EnableAlerting {
+		s.rulesService.WriteVMAlertRulesFiles()
+	}
+
+	// When IA moved from enabled state to disables cleanup rules files.
+	if oldSettings.IntegratedAlerting.Enabled && req.DisableAlerting {
+		if err := s.rulesService.RemoveVMAlertRulesFiles(); err != nil {
+			s.l.Errorf("Failed to clean old alert rule files: %+v", err)
+		}
+	}
+
+	// If STT intervals are changed reset timers.
+	if oldSettings.SaaS.STTCheckIntervals != newSettings.SaaS.STTCheckIntervals {
+		s.checksService.UpdateIntervals(
+			newSettings.SaaS.STTCheckIntervals.RareInterval,
+			newSettings.SaaS.STTCheckIntervals.StandardInterval,
+			newSettings.SaaS.STTCheckIntervals.FrequentInterval)
+	}
+
+	// When STT moved from disabled state to enabled force checks download and execution.
 	if !oldSettings.SaaS.STTEnabled && newSettings.SaaS.STTEnabled {
 		go func() {
-			err = s.checksService.StartChecks(context.Background())
+			err = s.checksService.StartChecks(context.Background(), "")
 			if err != nil {
 				s.l.Error(err)
 			}

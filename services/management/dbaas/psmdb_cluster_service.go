@@ -255,6 +255,32 @@ func (s PSMDBClusterService) RestartPSMDBCluster(ctx context.Context, req *dbaas
 	return &dbaasv1beta1.RestartPSMDBClusterResponse{}, nil
 }
 
+// GetPSMDBClusterResources returns expected resources to be consumed by the cluster.
+func (s PSMDBClusterService) GetPSMDBClusterResources(ctx context.Context, req *dbaasv1beta1.GetPSMDBClusterResourcesRequest) (*dbaasv1beta1.GetPSMDBClusterResourcesResponse, error) {
+	settings, err := models.GetSettings(s.db.Querier)
+	if err != nil {
+		return nil, err
+	}
+
+	clusterSize := int64(req.Params.ClusterSize)
+	memory := req.Params.Replicaset.ComputeResources.MemoryBytes * 2 * clusterSize
+	cpu := int64(req.Params.Replicaset.ComputeResources.CpuM) * 2 * clusterSize
+	disk := req.Params.Replicaset.DiskSize*3 + req.Params.Replicaset.DiskSize*clusterSize
+
+	if settings.PMMPublicAddress != "" {
+		memory += (3 + 2*clusterSize) * 500000000
+		cpu += (3 + 2*clusterSize) * 500
+	}
+
+	return &dbaasv1beta1.GetPSMDBClusterResourcesResponse{
+		Expected: &dbaasv1beta1.Resources{
+			CpuM:        cpu,
+			MemoryBytes: memory,
+			DiskSize:    disk,
+		},
+	}, nil
+}
+
 func psmdbStates() map[dbaascontrollerv1beta1.PSMDBClusterState]dbaasv1beta1.PSMDBClusterState {
 	return map[dbaascontrollerv1beta1.PSMDBClusterState]dbaasv1beta1.PSMDBClusterState{
 		dbaascontrollerv1beta1.PSMDBClusterState_PSMDB_CLUSTER_STATE_INVALID:  dbaasv1beta1.PSMDBClusterState_PSMDB_CLUSTER_STATE_INVALID,

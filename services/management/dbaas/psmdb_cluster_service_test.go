@@ -324,4 +324,27 @@ func TestPSMDBClusterService(t *testing.T) {
 		_, err := s.DeletePSMDBCluster(ctx, &in)
 		assert.NoError(t, err)
 	})
+
+	t.Run("BasicGetPSMDBClusterResources", func(t *testing.T) {
+		s := NewPSMDBClusterService(db, dbaasClient)
+
+		in := dbaasv1beta1.GetPSMDBClusterResourcesRequest{
+			Params: &dbaasv1beta1.PSMDBClusterParams{
+				ClusterSize: 4,
+				Replicaset: &dbaasv1beta1.PSMDBClusterParams_ReplicaSet{
+					ComputeResources: &dbaasv1beta1.ComputeResources{
+						CpuM:        2000,
+						MemoryBytes: 2000000000,
+					},
+					DiskSize: 2000000000,
+				},
+			},
+		}
+
+		actual, err := s.GetPSMDBClusterResources(ctx, &in)
+		assert.NoError(t, err)
+		assert.Equal(t, int64(16000000000), actual.Expected.MemoryBytes)
+		assert.Equal(t, int64(16000), actual.Expected.CpuM)
+		assert.Equal(t, int64(14000000000), actual.Expected.DiskSize)
+	})
 }

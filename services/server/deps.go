@@ -20,6 +20,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/percona-platform/saas/pkg/check"
 	"github.com/percona/pmm/api/serverpb"
 	"github.com/percona/pmm/version"
 
@@ -35,6 +36,7 @@ import (
 //go:generate mockery -name=telemetryService -case=snake -inpkg -testonly
 //go:generate mockery -name=platformService -case=snake -inpkg -testonly
 //go:generate mockery -name=agentsRegistry -case=snake -inpkg -testonly
+//go:generate mockery -name=rulesService -case=snake -inpkg -testonly
 
 // healthChecker interface wraps all services that implements the IsReady method to report the
 // service health for the Readiness check.
@@ -67,8 +69,9 @@ type alertmanagerService interface {
 // checksService is a subset of methods of checks.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type checksService interface {
-	StartChecks(ctx context.Context) error
+	StartChecks(ctx context.Context, interval check.Interval) error
 	CleanupAlerts()
+	UpdateIntervals(rare, standard, frequent time.Duration)
 }
 
 // vmAlertService is a subset of methods of vmalert.Service used by this package.
@@ -119,4 +122,11 @@ type platformService interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type agentsRegistry interface {
 	UpdateAgentsState(ctx context.Context) error
+}
+
+// rulesService is a subset of methods of ia.RulesService used by this package.
+// We use it instead of real type for testing and to avoid dependency cycle.
+type rulesService interface {
+	WriteVMAlertRulesFiles()
+	RemoveVMAlertRulesFiles() error
 }
