@@ -11,7 +11,7 @@
 - Alerts are generated when their criteria (*alert rules*) are met; an *alert* is the result of an *alert rule* expression evaluating to *true*.
 - Alert rules are based on *alert rule templates*. We provide a default set of templates. You can also create your own.
 
-> **Note** PMM's *Integrated Alerting* is a customized and separate instance of the Prometheus Alertmanager, and distinct from Grafana's alerting functionality.
+> PMM's *Integrated Alerting* is a customized and separate instance of the Prometheus Alertmanager, and distinct from Grafana's alerting functionality.
 
 ## Prerequisites
 
@@ -21,7 +21,7 @@ Set up a communication channel: When the *Communication* tab appears, select it.
 
 - From the left menu, select {{ icon.bell }} *Alerting*, {{ icon.listul }} *Integrated Alerting*
 
-> **Note** The *Alerting* menu also lists {{ icon.listul }} *Alert Rules* and {{ icon.commentshare }} *Notification Channels*. These are for Grafana's alerting functionality.
+> The *Alerting* menu also lists {{ icon.listul }} *Alert Rules* and {{ icon.commentshare }} *Notification Channels*. These are for Grafana's alerting functionality.
 
 This page has four tabs.
 
@@ -40,7 +40,6 @@ This page has four tabs.
 4. *Notification Channels*: Lists notification channels.
 
     ![](../_images/PMM_Integrated_Alerting_Notification_Channels.jpg)
-
 
 ## Add a Notification Channel
 
