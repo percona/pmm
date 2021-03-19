@@ -1,7 +1,7 @@
 # Contributing notes
 
 ## Pre-requirements: 
-git, make, curl, go, [dep](https://github.com/golang/dep), gcc, pmm-server, pmm-agent
+git, make, curl, go, gcc, pmm-server, pmm-agent
 
 ## Local setup  
 Run `make init` to install dependencies.
@@ -37,6 +37,3 @@ It means that everything works.
 pmm-admin doesn't require setting-up environment.  
 Run `make test` to run tests. 
 
-## Vendoring
-
-We use [dep](https://github.com/golang/dep) to vendor dependencies.
