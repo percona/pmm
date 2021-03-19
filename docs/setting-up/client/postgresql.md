@@ -5,20 +5,16 @@ PMM follows the [postgresql.org EOL policy](https://www.postgresql.org/support/v
 For specific details on supported platforms and versions, see
 [Percona’s Software Platform Lifecycle page](https://www.percona.com/services/policies/percona-software-platform-lifecycle/).
 
-
 To monitor PostgreSQL queries, you must install a database extension. There are two choices:
 
 - `pg_stat_monitor`, a new extension created by Percona, based on `pg_stat_statements` and compatible with it.
-
 - `pg_stat_statements`, the original extension created by PostgreSQL, part of the `postgres-contrib` package available on Linux.
+
+(We recommend using only one. If you use both, you will get duplicate metrics.)
 
 `pg_stat_monitor` provides all the features of `pg_stat_statements`, but extends it to provide bucket-based data aggregation, a feature missing from `pg_stat_statements`. (`pg_stat_statements` accumulates data without providing aggregated statistics or histogram information.)
 
-> <b style="color:goldenrod">Caution</b> `pg_stat_monitor` is beta software and currently unsupported.
->
-> - `pg_stat_monitor` is the recommended option.
->
-> - Although nothing prevents you from installing and using both, we don't recommend this as you will get duplicate metrics.
+> <b style="color:goldenrod">Important</b> While we recommend use of the newer `pg_stat_monitor` extension, be aware that it is currently beta status and unsupported."
 
 ## Prerequisites
 
