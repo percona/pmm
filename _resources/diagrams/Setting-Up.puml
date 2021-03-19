@@ -21,7 +21,7 @@ partition "1. Set up PMM Server as one of: " {
 		:Amazon AWS marketplace;
 	end split
 }
-partition "2. Set up PMM Client for each node " {
+partition "2. Set up PMM Client for each node via: " {
 	split
 		partition "Package manager" {
 			:Set up ""percona-release"";
