@@ -17,7 +17,9 @@
 package models
 
 import (
+	"fmt"
 	"net/url"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/minio/minio-go"
@@ -183,6 +185,32 @@ func FindBackupLocationByID(q *reform.Querier, id string) (*BackupLocation, erro
 	default:
 		return nil, errors.WithStack(err)
 	}
+}
+
+// FindBackupLocationsByIDs finds backup locations by IDs.
+func FindBackupLocationsByIDs(q *reform.Querier, ids []string) (map[string]*BackupLocation, error) {
+	if len(ids) == 0 {
+		return map[string]*BackupLocation{}, nil
+	}
+
+	p := strings.Join(q.Placeholders(1, len(ids)), ", ")
+	tail := fmt.Sprintf("WHERE id IN (%s)", p) //nolint:gosec
+	args := make([]interface{}, 0, len(ids))
+	for _, id := range ids {
+		args = append(args, id)
+	}
+
+	all, err := q.SelectAllFrom(BackupLocationTable, tail, args...)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	locations := make(map[string]*BackupLocation, len(all))
+	for _, l := range all {
+		location := l.(*BackupLocation)
+		locations[location.ID] = location
+	}
+	return locations, nil
 }
 
 // BackupLocationConfig groups all backup locations configs.

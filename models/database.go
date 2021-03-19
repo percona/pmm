@@ -439,6 +439,20 @@ var databaseSchema = [][]string{
 	28: {
 		`ALTER TABLE agents ADD COLUMN disabled_collectors VARCHAR[]`,
 	},
+	29: {
+		`CREATE TABLE artifacts (
+			id VARCHAR NOT NULL,
+			name VARCHAR NOT NULL CHECK (name <> ''),
+			vendor VARCHAR NOT NULL CHECK (vendor <> ''),
+			location_id VARCHAR NOT NULL CHECK (location_id <> ''),
+			service_id VARCHAR NOT NULL CHECK (service_id <> ''),
+			data_model VARCHAR NOT NULL CHECK (data_model <> ''),
+			status VARCHAR NOT NULL CHECK (status <> ''),
+			created_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (id)
+		)`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

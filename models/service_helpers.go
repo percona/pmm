@@ -140,9 +140,9 @@ func FindServiceByID(q *reform.Querier, id string) (*Service, error) {
 }
 
 // FindServicesByIDs finds Services by IDs.
-func FindServicesByIDs(q *reform.Querier, ids []string) ([]*Service, error) {
+func FindServicesByIDs(q *reform.Querier, ids []string) (map[string]*Service, error) {
 	if len(ids) == 0 {
-		return []*Service{}, nil
+		return map[string]*Service{}, nil
 	}
 
 	p := strings.Join(q.Placeholders(1, len(ids)), ", ")
@@ -151,16 +151,19 @@ func FindServicesByIDs(q *reform.Querier, ids []string) ([]*Service, error) {
 	for i, id := range ids {
 		args[i] = id
 	}
-	structs, err := q.SelectAllFrom(ServiceTable, tail, args...)
+
+	all, err := q.SelectAllFrom(ServiceTable, tail, args...)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	res := make([]*Service, len(structs))
-	for i, s := range structs {
-		res[i] = s.(*Service)
+	services := make(map[string]*Service, len(all))
+	for _, s := range all {
+		service := s.(*Service)
+		services[service.ServiceID] = service
 	}
-	return res, nil
+
+	return services, nil
 }
 
 // FindServiceByName finds Service by Name.
