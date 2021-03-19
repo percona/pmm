@@ -17,7 +17,7 @@ On the left of the page is a set of sub-page selector tabs.
 
 ## Diagnostics
 
-Common to all sections is *Diagnostics*. PMM can generate a set of diagnostics data which can be examined and/or shared with Percona Support in case of some issue to solve it faster.  You can get collected logs from PMM Server by clicking *Download server diagnostics*.
+Common to all sections is *Diagnostics*. PMM can generate a set of diagnostics data which can be examined and/or shared with our support team in case of some issue to solve it faster.  You can get collected logs from PMM Server by clicking *Download server diagnostics*.
 
 ## Metrics resolution
 

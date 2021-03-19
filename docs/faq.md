@@ -114,7 +114,7 @@ Alerting in Grafana allows attaching rules to your dashboard panels.  Grafana Al
 
 Alertmanager allows the creation of more sophisticated alerting rules and can be easier to manage installations with a large number of hosts. This additional flexibility comes at the expense of simplicity.
 
-We only offer support for creating custom rules to Percona customers, so you should already have a working Alertmanager instance prior to using this feature.
+We only offer support for creating custom rules to our customers, so you should already have a working Alertmanager instance prior to using this feature.
 
 > **See also** [PMM Alerting with Grafana: Working with Templated Dashboards](https://www.percona.com/blog/2017/02/02/pmm-alerting-with-grafana-working-with-templated-dashboards/)
 

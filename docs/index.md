@@ -15,7 +15,7 @@ With PMM, you can:
 
 > Try the live demo: <a href='https://pmmdemo.percona.com/' target='_blank'>pmmdemo.percona.com</a>
 
-PMM is efficient, quick to set up and easy to use. It runs in cloud, on-prem, or across hybrid platforms. It is supported by [Percona's legendary expertise][PERCONA_SERVICES] in open source databases, and by a [vibrant developer and user community][PMM_FORUM].
+PMM is efficient, quick to set up and easy to use. It runs in cloud, on-prem, or across hybrid platforms. It is supported by [our legendary expertise][PERCONA_SERVICES] in open source databases, and by a [vibrant developer and user community][PMM_FORUM].
 
 ## Setting up
 
@@ -27,7 +27,7 @@ PMM is efficient, quick to set up and easy to use. It runs in cloud, on-prem, or
 
 ## How it works
 
-PMM is a client/server application built by Percona with our own and third-party open-source tools. (Read more in [Architecture](details/architecture.md).)
+PMM is a client/server application built by us with our own and third-party open-source tools. (Read more in [Architecture](details/architecture.md).)
 
 
 ```plantuml source="_resources/diagrams/1_PMM_Context.puml"
