@@ -18,6 +18,7 @@ const (
 	AgentTypeQANPostgreSQLPgStatMonitorAgent = "QAN_POSTGRESQL_PGSTATMONITOR_AGENT"
 	AgentTypeRDSExporter                     = "RDS_EXPORTER"
 	AgentTypeExternalExporter                = "EXTERNAL_EXPORTER"
+	AgentTypeAzureDatabaseExporter           = "AZURE_DATABASE_EXPORTER"
 )
 
 var agentTypeNames = map[string]string{
@@ -36,6 +37,7 @@ var agentTypeNames = map[string]string{
 	AgentTypeQANPostgreSQLPgStatMonitorAgent: "postgresql_pgstatmonitor_agent",
 	AgentTypeRDSExporter:                     "rds_exporter",
 	AgentTypeExternalExporter:                "external-exporter",
+	AgentTypeAzureDatabaseExporter:           "azure_database_exporter",
 }
 
 // AgentTypeName returns human friendly agent type to be used in reports

@@ -29,6 +29,8 @@ type ClientService interface {
 
 	AddGenericNode(params *AddGenericNodeParams) (*AddGenericNodeOK, error)
 
+	AddRemoteAzureDatabaseNode(params *AddRemoteAzureDatabaseNodeParams) (*AddRemoteAzureDatabaseNodeOK, error)
+
 	AddRemoteNode(params *AddRemoteNodeParams) (*AddRemoteNodeOK, error)
 
 	AddRemoteRDSNode(params *AddRemoteRDSNodeParams) (*AddRemoteRDSNodeOK, error)
@@ -105,6 +107,39 @@ func (a *Client) AddGenericNode(params *AddGenericNodeParams) (*AddGenericNodeOK
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*AddGenericNodeDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  AddRemoteAzureDatabaseNode adds remote azure database node adds remote azure database node
+*/
+func (a *Client) AddRemoteAzureDatabaseNode(params *AddRemoteAzureDatabaseNodeParams) (*AddRemoteAzureDatabaseNodeOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAddRemoteAzureDatabaseNodeParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "AddRemoteAzureDatabaseNode",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Nodes/AddRemoteAzureDatabase",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &AddRemoteAzureDatabaseNodeReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*AddRemoteAzureDatabaseNodeOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AddRemoteAzureDatabaseNodeDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

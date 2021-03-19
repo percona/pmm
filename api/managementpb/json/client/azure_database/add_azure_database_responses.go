@@ -155,20 +155,20 @@ type AddAzureDatabaseBody struct {
 	// Password for scraping metrics.
 	Password string `json:"password,omitempty"`
 
-	// If true, adds rds_exporter.
+	// Azure database client ID
+	AzureDatabaseClientID string `json:"azure_database_client_id,omitempty"`
+
+	// Azure database client secret
+	AzureDatabaseClientSecret string `json:"azure_database_client_secret,omitempty"`
+
+	// Azure database tanant ID
+	AzureDatabaseTenantID string `json:"azure_database_tenant_id,omitempty"`
+
+	// Azure database subscription ID
+	AzureDatabaseSubscriptionID string `json:"azure_database_subscription_id,omitempty"`
+
+	// If true, adds azure_database_exporter.
 	AzureDatabaseExporter bool `json:"azure_database_exporter,omitempty"`
-
-	// azure client id
-	AzureClientID string `json:"azure_client_id,omitempty"`
-
-	// azure client secret
-	AzureClientSecret string `json:"azure_client_secret,omitempty"`
-
-	// azure tenant id
-	AzureTenantID string `json:"azure_tenant_id,omitempty"`
-
-	// azure subscription id
-	AzureSubscriptionID string `json:"azure_subscription_id,omitempty"`
 
 	// If true, adds qan-mysql-perfschema-agent.
 	QANMysqlPerfschema bool `json:"qan_mysql_perfschema,omitempty"`
