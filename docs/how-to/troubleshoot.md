@@ -1,5 +1,38 @@
 # Troubleshoot
 
+## Update {: #troubleshoot-update }
+
+If PMM server wasn't updated properly, or if you have concerns about the release, you can force the update process in 2 ways:
+
+1. From the UI  -  Home panel: click with the Alt key on the reload icon in the Update panel (IMG needed) to make the Update Button visible even if you are on the same version as available for update. Pressing this button will force the system to rerun the update so that any broken or not installed components can be installed. In this case, you'll go through the usual update process with update logs and successful messages at the end.
+
+2. By  API  call (if UI not available): You can call the Update API directly with:
+
+    ```sh
+    curl --user admin:admin --request POST 'http://PMM_SERVER/v1/Updates/Start'
+    ```
+
+    Replace `admin:admin` with your username/password, and replace `PMM_SERVER` with your server address.
+
+    > You will not see the logs using this method.
+
+Refresh The Home page in 2-5 min and you should see that PMM was updated.
+
+## PMM Server/PMM Client connection {: #troubleshoot-connection }
+
+Broken network connectivity may be due to many reasons.  Particularly, when [using Docker](../setting-up/server/docker.md), the container is constrained by the host-level routing and firewall rules. For example, your hosting provider might have default `iptables` rules on their hosts that block communication between PMM Server and PMM Client, resulting in *DOWN* targets in VictoriaMetrics. If this happens, check the firewall and routing settings on the Docker host.
+
+PMM is also able to generate diagnostics data which can be examined and/or shared with Percona Support to help quickly solve an issue. You can get collected logs from PMM Client using the `pmm-admin summary` command.
+
+Logs obtained in this way includes PMM Client logs and logs which were received from the PMM Server, stored separately in the `client` and `server` folders. The `server` folder also contains its own `client` subfolder with the self-monitoring client information collected on the PMM Server.
+
+Beginning with PMM version 2.4.0, there is an additional flag that enables the fetching of [`pprof`](https://github.com/google/pprof) debug profiles and adds them to the diagnostics data. To enable, run `pmm-admin summary --pprof`.
+
+You can get PMM Server logs in two ways:
+
+- In a browser, visit `https://<address-of-your-pmm-server>/logs.zip`.
+- Go to *PMM > PMM Settings* and click *Download server diagnostics*. (See [Diagnostics in PMM Settings](configure.md#diagnostics).)
+
 ## Integrated Alerting
 
 ### No {{icon.bell}} Integrated Alerting icon

@@ -16,7 +16,7 @@ Here is an overview of the steps involved.
 - You have superuser (root) access on the client host.
 - You have superuser access to any database servers that you want to monitor.
 
-## Create a database account for PMM
+## Create a database account for PMM {: #setting-up-client-user}
 
 It is good practice to use a non-superuser account to connect PMM Client to the monitored database instance. This example creates a database user with name `pmm`, password `pass`, and the necessary permissions.
 
