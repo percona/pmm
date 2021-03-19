@@ -196,7 +196,7 @@ var (
 	_ ServerRequestPayload = (*JobStatusRequest)(nil)
 )
 
-// go-sumtype:decl AgentParams
+//go-sumtype:decl AgentParams
 
 // AgentParams is a common interface for AgentProcess and BuiltinAgent parameters.
 type AgentParams interface {
