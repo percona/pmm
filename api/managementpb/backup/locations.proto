@@ -42,6 +42,11 @@ message S3LocationConfig {
       string_not_empty: true
     }
   ];
+  string bucket_name = 4 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
 }
 
 // Location represents single Backup Location.
@@ -115,6 +120,17 @@ message RemoveLocationRequest {
 
 message RemoveLocationResponse {}
 
+message TestLocationConfigRequest {
+  // PMM-client file system configuration. Exactly one config should be set.
+  PMMClientLocationConfig pmm_client_config = 1;
+  // PMM-server file system configuration. Exactly one config should be set.
+  PMMServerLocationConfig pmm_server_config = 2;
+  // S3 Bucket configuration. Exactly one config should be set.
+  S3LocationConfig s3_config = 3;
+}
+
+message TestLocationConfigResponse {}
+
 // Locations service provides access to Backup Locations.
 service Locations {
   // ListLocations returns a list of all backup locations.
@@ -142,6 +158,13 @@ service Locations {
   rpc RemoveLocation(RemoveLocationRequest) returns (RemoveLocationResponse) {
     option (google.api.http) = {
       post: "/v1/management/backup/Locations/Remove"
+      body: "*"
+    };
+  }
+  // TestLocationConfig tests backup location and credentials.
+  rpc TestLocationConfig(TestLocationConfigRequest) returns (TestLocationConfigResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/backup/Locations/TestConfig"
       body: "*"
     };
   }

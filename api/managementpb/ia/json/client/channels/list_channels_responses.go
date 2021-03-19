@@ -611,6 +611,65 @@ func (o *ChannelsItems0WebhookConfigHTTPConfigTLSConfig) UnmarshalBinary(b []byt
 	return nil
 }
 
+/*ListChannelsBody list channels body
+swagger:model ListChannelsBody
+*/
+type ListChannelsBody struct {
+
+	// page params
+	PageParams *ListChannelsParamsBodyPageParams `json:"page_params,omitempty"`
+}
+
+// Validate validates this list channels body
+func (o *ListChannelsBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validatePageParams(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListChannelsBody) validatePageParams(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.PageParams) { // not required
+		return nil
+	}
+
+	if o.PageParams != nil {
+		if err := o.PageParams.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "page_params")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListChannelsBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListChannelsBody) UnmarshalBinary(b []byte) error {
+	var res ListChannelsBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*ListChannelsDefaultBody list channels default body
 swagger:model ListChannelsDefaultBody
 */
@@ -693,6 +752,9 @@ type ListChannelsOKBody struct {
 
 	// channels
 	Channels []*ChannelsItems0 `json:"channels"`
+
+	// totals
+	Totals *ListChannelsOKBodyTotals `json:"totals,omitempty"`
 }
 
 // Validate validates this list channels OK body
@@ -700,6 +762,10 @@ func (o *ListChannelsOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateChannels(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateTotals(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -734,6 +800,24 @@ func (o *ListChannelsOKBody) validateChannels(formats strfmt.Registry) error {
 	return nil
 }
 
+func (o *ListChannelsOKBody) validateTotals(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Totals) { // not required
+		return nil
+	}
+
+	if o.Totals != nil {
+		if err := o.Totals.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("listChannelsOk" + "." + "totals")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *ListChannelsOKBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -745,6 +829,76 @@ func (o *ListChannelsOKBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ListChannelsOKBody) UnmarshalBinary(b []byte) error {
 	var res ListChannelsOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ListChannelsOKBodyTotals PageTotals represents total values for pagination.
+swagger:model ListChannelsOKBodyTotals
+*/
+type ListChannelsOKBodyTotals struct {
+
+	// Total number of results.
+	TotalItems int32 `json:"total_items,omitempty"`
+
+	// Total number of pages.
+	TotalPages int32 `json:"total_pages,omitempty"`
+}
+
+// Validate validates this list channels OK body totals
+func (o *ListChannelsOKBodyTotals) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListChannelsOKBodyTotals) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListChannelsOKBodyTotals) UnmarshalBinary(b []byte) error {
+	var res ListChannelsOKBodyTotals
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ListChannelsParamsBodyPageParams PageParams represents page request parameters for pagination.
+swagger:model ListChannelsParamsBodyPageParams
+*/
+type ListChannelsParamsBodyPageParams struct {
+
+	// Maximum number of results per page.
+	PageSize int32 `json:"page_size,omitempty"`
+
+	// Index of the requested page, starts from 0.
+	Index int32 `json:"index,omitempty"`
+}
+
+// Validate validates this list channels params body page params
+func (o *ListChannelsParamsBodyPageParams) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListChannelsParamsBodyPageParams) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListChannelsParamsBodyPageParams) UnmarshalBinary(b []byte) error {
+	var res ListChannelsParamsBodyPageParams
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
