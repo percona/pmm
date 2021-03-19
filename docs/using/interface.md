@@ -12,22 +12,15 @@ PMM's user interface is a browser application based on [Grafana][Grafana]. This 
 ## Logging in
 
 1. Start a web browser and in the address bar enter the server name or IP address of the PMM server host.
-
 2. The page loads showing the PMM login screen.
 
     ![](../_images/PMM_Login.jpg)
 
-3. Enter the username and password given to you by your system administrator.
-
-    The defaults are:
-
+3. Enter the username and password given to you by your system administrator. The defaults are:
     - Username: `admin`
     - Password: `admin`
-
 4. Click *Log in*
-
 5. If this is your first time logging in, you'll be asked to set a new password. (We recommend you do.) Enter a new password in both fields and click *Submit*. You can click *Skip* to carry on with the default password.
-
 6. The PMM Home dashboard loads. (This is an example taken from <https://pmmdemo.percona.com/>. Yours may be different.)
 
     ![PMM Home dashboard](../_images/PMM_Home_Dashboard_TALL.jpg)
@@ -88,9 +81,7 @@ At the top of each panel and to the right of the panel name is the *panel menu*.
 
 ![image](../_images/PMM_Common_Panel_Menu_Open.jpg)
 
-
 > **Tip** The menu is hidden until you mouse over it. Look for the {{icon.angledown}} symbol in the title bar of a panel.
-
 
 | Item                          | Description                                                                         |
 |:-----------------------------:| ----------------------------------------------------------------------------------- |
@@ -105,15 +96,6 @@ At the top of each panel and to the right of the panel name is the *panel menu*.
 The *View* menu items opens panels in full-window mode. This is useful for graphs with several metrics.
 
 Exit a panel's full window mode by pressing *Escape* or clicking the left arrow {{icon.arrowleft}} next to the dashboard name.
-
-
-
-
-
-
-
-
-
 
 > **See also**
 >
