@@ -83,16 +83,30 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 	databases := queryDatabases(q)
 	usernames := queryUsernames(q)
 
-	rows, err := q.SelectRows(pgStatMonitorView, "WHERE queryid IS NOT NULL AND query IS NOT NULL")
-	if err != nil {
-		err = errors.Wrap(err, "failed to query pg_stat_monitor")
+	pgMonitorVersion, e := getPGMonitorVersion(q)
+	if e != nil {
+		err = errors.Wrap(e, "failed to get pg_stat_monitor version")
+		return
+	}
+
+	var view reform.View
+	var row reform.Struct
+	view = pgStatMonitorDefaultView
+	row = &pgStatMonitorDefault{}
+	if pgMonitorVersion >= 0.8 {
+		view = pgStatMonitor08View
+		row = &pgStatMonitor08{}
+	}
+
+	rows, e := q.SelectRows(view, "WHERE queryid IS NOT NULL AND query IS NOT NULL")
+	if e != nil {
+		err = errors.Wrap(e, "failed to query pg_stat_monitor")
 		return
 	}
 	defer rows.Close() //nolint:errcheck
 
 	for ctx.Err() == nil {
-		var row pgStatMonitor
-		if err = q.NextRow(&row, rows); err != nil {
+		if err = q.NextRow(row, rows); err != nil {
 			if errors.Is(err, reform.ErrNoRows) {
 				err = nil
 			}
@@ -100,24 +114,36 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 		}
 		totalN++
 
-		c := &pgStatMonitorExtended{
-			pgStatMonitor: row,
-			Database:      databases[row.DBID],
-			Username:      usernames[row.UserID],
+		var c pgStatMonitorExtended
+		switch r := row.(type) {
+		case *pgStatMonitorDefault:
+			c.pgStatMonitor = r.ToPgStatMonitor()
+			c.Database = databases[r.DBID]
+			c.Username = usernames[r.UserID]
+		case *pgStatMonitor08:
+			m, e := r.ToPgStatMonitor()
+			if e != nil {
+				err = e
+				break
+			}
+
+			c.pgStatMonitor = m
+			c.Database = r.DatName
+			c.Username = r.User
 		}
+
 		for _, m := range cache {
 			if p, ok := m[c.QueryID]; ok {
 				oldN++
-
 				c.Fingerprint = p.Fingerprint
 				c.Example = p.Example
 				c.IsQueryTruncated = p.IsQueryTruncated
 				break
 			}
 		}
+
 		if c.Fingerprint == "" {
 			newN++
-
 			fingerprint := c.Query
 			example := ""
 			if !normalizedQuery {
@@ -125,7 +151,6 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 				fingerprint = ssc.generateFingerprint(c.Query)
 			}
 			var isTruncated bool
-
 			c.Fingerprint, isTruncated = truncate.Query(fingerprint)
 			if isTruncated {
 				c.IsQueryTruncated = isTruncated
@@ -139,9 +164,9 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 		if current[c.BucketStartTime] == nil {
 			current[c.BucketStartTime] = make(map[string]*pgStatMonitorExtended)
 		}
-
-		current[c.BucketStartTime][c.QueryID] = c
+		current[c.BucketStartTime][c.QueryID] = &c
 	}
+
 	if ctx.Err() != nil {
 		err = ctx.Err()
 	}
@@ -149,6 +174,7 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 	if err != nil {
 		err = errors.Wrap(err, "failed to fetch pg_stat_monitor")
 	}
+
 	return current, cache, err
 }
 

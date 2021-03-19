@@ -19,7 +19,10 @@ package pgstatmonitor
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"io"
+	"strconv"
+	"strings"
 	"time"
 
 	_ "github.com/lib/pq" // register SQL driver.
@@ -111,6 +114,16 @@ func newPgStatMonitorQAN(q *reform.Querier, dbCloser io.Closer, agentID string, 
 		waitTime:             waitTime,
 		disableQueryExamples: disableQueryExamples,
 	}, nil
+}
+
+func getPGMonitorVersion(q *reform.Querier) (pgMonitorVersion float64, err error) {
+	var v string
+	err = q.QueryRow(fmt.Sprintf("SELECT /* %s */ pg_stat_monitor_version()", queryTag)).Scan(&v)
+	if err != nil {
+		return
+	}
+	split := strings.Split(v, ".")
+	return strconv.ParseFloat(fmt.Sprintf("%s.%s%s", split[0], split[1], split[2]), 64)
 }
 
 // Run extracts stats data and sends it to the channel until ctx is canceled.
