@@ -1,7 +1,6 @@
 # Setting up a development environment for DBaaS
 
-!!! alert alert-warning "Caution"
-    DBaaS functionality is Alpha. The information on this page is subject to change and may be inaccurate.
+> <b style="color:goldenrod">Caution</b> DBaaS functionality is Alpha. The information on this page is subject to change and may be inaccurate.
 
 ---
 
@@ -33,7 +32,7 @@ systemctl start docker
 
 ### minikube
 
-!!! alert alert-info "Please install minikube 1.16.0"
+> Please install minikube 1.16.0
 
 **Red Hat, CentOS**
 
@@ -47,12 +46,15 @@ alias kubectl='minikube kubectl --'
 
 ## Start PMM server with DBaaS activated
 
-!!! alert alert-info "Notes"
-    - To start a fully-working 3 node XtraDB cluster, consisting of sets of 3x ProxySQL, 3x PXC and 6x PMM Client containers, you will need at least 9 vCPU available for minikube. (1x vCPU for ProxySQL and PXC and 0.5vCPU for each pmm-client containers).
-    - DBaaS does not depend on PMM Client.
-    - Setting the environment variable `PERCONA_TEST_DBAAS=1` enables DBaaS functionality.
-    - Add the option `--network minikube` if you run PMM Server and minikube in the same Docker instance. (This will share a single network and the kubeconfig will work.)
-    - Add the options `--env PMM_DEBUG=1` and/or `--env PMM_TRACE=1` if you need extended debug details
+> - To start a fully-working 3 node XtraDB cluster, consisting of sets of 3x ProxySQL, 3x PXC and 6x PMM Client containers, you will need at least 9 vCPU available for minikube. (1x vCPU for ProxySQL and PXC and 0.5vCPU for each pmm-client containers).
+>
+> - DBaaS does not depend on PMM Client.
+>
+> - Setting the environment variable `PERCONA_TEST_DBAAS=1` enables DBaaS functionality.
+>
+> - Add the option `--network minikube` if you run PMM Server and minikube in the same Docker instance. (This will share a single network and the kubeconfig will work.)
+>
+> - Add the options `--env PMM_DEBUG=1` and/or `--env PMM_TRACE=1` if you need extended debug details
 
 1. Start PMM server:
 
@@ -118,8 +120,7 @@ alias kubectl='minikube kubectl --'
     ```sh
     minikube kubectl -- config view --flatten --minify
     ```
-!!! alert alert-info "Note"
-    You will need to copy this output to your clipboard and continue with [add a Kubernetes cluster to PMM](../../using/platform/dbaas.md#add-a-kubernetes-cluster).
+	> You will need to copy this output to your clipboard and continue with [add a Kubernetes cluster to PMM](../../using/platform/dbaas.md#add-a-kubernetes-cluster).
 
 ## Installing Percona operators in AWS EKS (Kubernetes)
 
@@ -225,10 +226,7 @@ alias kubectl='minikube kubectl --'
 
 4. Follow the instructions for [Add a Kubernetes cluster](../../using/platform/dbaas.md#add-a-kubernetes-cluster).
 
-!!! alert alert-info "Note"
-    If possible, the connection details will show the cluster's external IP (not possible with minikube).
-
-
+	> If possible, the connection details will show the cluster's external IP (not possible with minikube).
 
 {% include 'setting-up/server/dbaas-gke.md' %}
 
@@ -310,14 +308,15 @@ eksctl delete cluster --name=your-cluster-name
     docker run --detach --name pmm-server --publish 80:80 --publish 443:443 --env PERCONA_TEST_DBAAS=1  percona/pmm-server:2;
     ```
 
-    !!! alert alert-warning "Important"
-        - Use `--network minikube` if running PMM Server and minikube in the same Docker instance. This way they will share single network and the kubeconfig will work.
-        - Use Docker variables `--env PMM_DEBUG=1 --env PMM_TRACE=1` to see extended debug details.
+	> <b style="color:goldenrod">Important</b>
+	>
+	> - Use `--network minikube` if running PMM Server and minikube in the same Docker instance. This way they will share single network and the kubeconfig will work.
+	>
+	> - Use Docker variables `--env PMM_DEBUG=1 --env PMM_TRACE=1` to see extended debug details.
 
 2. Change the default administrator credentials:
 
-    !!! alert alert-info "Note"
-        This step is optional, because the same can be done from the web interface of PMM on the first login.
+	> This step is optional, because the same can be done from the web interface of PMM on the first login.
 
     ```sh
     docker exec -t pmm-server bash -c 'ln -s /srv/grafana /usr/share/grafana/data; chown -R grafana:grafana /usr/share/grafana/data; grafana-cli --homepath /usr/share/grafana admin reset-admin-password <RANDOM_PASS_GOES_IN_HERE>'
@@ -343,9 +342,14 @@ To make services visible externally, you create a LoadBalancer service or manual
 kubectl expose deployment hello-world --type=NodePort.
 ```
 
-!!! seealso "See also"
-    - [DBaaS Dashboard](../../using/platform/dbaas.md)
-    - [Install minikube](https://minikube.sigs.k8s.io/docs/start/)
-    - [Setting up a Standalone MYSQL Instance on Kubernetes & exposing it using Nginx Ingress Controller](https://medium.com/@chrisedrego/setting-up-a-standalone-mysql-instance-on-kubernetes-exposing-it-using-nginx-ingress-controller-262fc7af593a)
-    - [Use a Service to Access an Application in a Cluster.](https://kubernetes.io/docs/tasks/access-application-cluster/service-access-application-cluster/)
-    - [Exposing applications using services.](https://cloud.google.com/kubernetes-engine/docs/how-to/exposing-apps)
+> **See also**
+>
+> - [DBaaS Dashboard](../../using/platform/dbaas.md)
+>
+> - [Install minikube](https://minikube.sigs.k8s.io/docs/start/)
+>
+> - [Setting up a Standalone MYSQL Instance on Kubernetes & exposing it using Nginx Ingress Controller](https://medium.com/@chrisedrego/setting-up-a-standalone-mysql-instance-on-kubernetes-exposing-it-using-nginx-ingress-controller-262fc7af593a)
+>
+> - [Use a Service to Access an Application in a Cluster.](https://kubernetes.io/docs/tasks/access-application-cluster/service-access-application-cluster/)
+>
+> - [Exposing applications using services.](https://cloud.google.com/kubernetes-engine/docs/how-to/exposing-apps)

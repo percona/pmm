@@ -6,9 +6,7 @@
 
 VictoriaMetrics allows metrics data to be 'pushed' to the server in addition to it being 'pulled' by the server. When setting up services, you can decide which mode to use.
 
-!!! alert alert-info "Note"
-
-    For PMM 2.12.0 the default mode is 'pull'. Later releases will use the 'push' mode by default for newly-added services.
+> For PMM 2.12.0 the default mode is 'pull'. Later releases will use the 'push' mode by default for newly-added services.
 
 The mode (push/pull) is controlled by the `--metrics-mode` flag for the `pmm-admin config` and `pmm-admin add` commands.
 

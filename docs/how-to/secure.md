@@ -12,8 +12,7 @@ To see which security features are enabled:
 pmm-admin status
 ```
 
-!!! tip
-    You can gain an extra level of security by keeping PMM Server isolated from the internet, if possible.
+> **Tip** You can gain an extra level of security by keeping PMM Server isolated from the internet, if possible.
 
 ## SSL encryption
 
@@ -24,7 +23,6 @@ With our Docker, OVF and AMI images, self-signed certificates are in `/srv/nginx
 To use your own, you can either:
 
 - mount the local certificate directory to the same location, or,
-
 - copy your certificates to a running PMM Server container.
 
 ### Mounting certificates
@@ -37,12 +35,13 @@ docker run -d -p 443:443 --volumes-from pmm-data \
   --restart always percona/pmm-server:2
 ```
 
-!!! alert alert-info "Note"
-    - The certificates must be owned by root. You can do this with: `sudo chown 0:0 /etc/pmm-certs/*`
-
-    - The mounted certificate directory (`/etc/pmm-certs` in this example) must contain the files `certificate.crt`, `certificate.key`, `ca-certs.pem` and `dhparam.pem`.
-
-    - For SSL encryption, the container must publish on port 443 instead of 80.
+> **Note**
+>
+> - The certificates must be owned by root. You can do this with: `sudo chown 0:0 /etc/pmm-certs/*`
+>
+> - The mounted certificate directory (`/etc/pmm-certs` in this example) must contain the files `certificate.crt`, `certificate.key`, `ca-certs.pem` and `dhparam.pem`.
+>
+> - For SSL encryption, the container must publish on port 443 instead of 80.
 
 ### Copying certificates
 
@@ -55,10 +54,9 @@ docker cp ca-certs.pem pmm-server:/srv/nginx/ca-certs.pem
 docker cp dhparam.pem pmm-server:/srv/nginx/dhparam.pem
 ```
 
-
 ### Enabling SSL when connecting PMM Client to PMM Server
 
-```
+```sh
 pmm-admin config --server-url=https://<user>:<password>@<server IP>
 ```
 
@@ -67,9 +65,6 @@ pmm-admin config --server-url=https://<user>:<password>@<server IP>
 To enable:
 
 1. Start a shell within the Docker container: `docker exec -it pmm-server bash`
-
 2. Edit `/etc/grafana/grafana.ini`
-
 3. Enable `cookie_secure` and set the value to `true`
-
 4. Restart Grafana: `supervisorctl restart grafana`

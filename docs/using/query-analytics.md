@@ -4,14 +4,15 @@ The *Query Analytics* dashboard shows how queries are executed and where they sp
 
 ![image](../_images/PMM_Query_Analytics.jpg)
 
-!!! alert alert-info "Note"
-
-    * Query Analytics supports MySQL, MongoDB and PostgreSQL. The minimum requirements for MySQL are:
-
-        * MySQL 5.1 or later (if using the slow query log)
-        * MySQL 5.6.9 or later (if using Performance Schema)
-
-    * Query Analytics data retrieval is not instantaneous and can be delayed due to network conditions. In such situations *no data* is reported and a gap appears in the sparkline.
+> **Note**
+>
+> Query Analytics supports MySQL, MongoDB and PostgreSQL. The minimum requirements for MySQL are:
+>
+> - MySQL 5.1 or later (if using the slow query log)
+>
+> - MySQL 5.6.9 or later (if using Performance Schema)
+>
+> Query Analytics data retrieval is not instantaneous and can be delayed due to network conditions. In such situations *no data* is reported and a gap appears in the sparkline.
 
 Query Analytics displays metrics in both visual and numeric form. Performance-related characteristics appear as plotted graphics with summaries.
 
@@ -185,3 +186,6 @@ Relational database management systems store data in tables that represent singl
 In contrast, MongoDB uses the concept of a document where all essential information for a complex object is stored in one place.
 
 Query Analytics can monitor MongoDB queries. Although MongoDB is not a relational database management system, you analyze its databases and collections in the same interface using the same tools.
+
+[SLOW_QUERY_LOG]: ../setting-up/client/mysql.md#slow-query-log
+[PERFORMANCE_SCHEMA]: ../setting-up/client/mysql.md#performance-schema

@@ -27,8 +27,7 @@ The main menu is part of the Grafana framework and is visible on every page.
 [Folders]: https://grafana.com/docs/grafana/latest/dashboards/dashboard_folders/
 [PromQL]: https://grafana.com/blog/2020/02/04/introduction-to-promql-the-prometheus-query-language/
 
-!!! alert alert-info "Note"
-    The DBaaS icon appears only if a server feature flag has been set.
+> The DBaaS icon appears only if a server feature flag has been set.
 
 | Icon (Bottom)            | Description          |
 |:------------------------:| ---------            |
@@ -90,8 +89,7 @@ This menu contains shortcuts to other dashboards. The list changes according to 
 | {{icon.bars}} Services        | Services menu                    |
 | {{icon.bars}} PMM             | PMM menu                         |
 
-!!! alert alert-info "Note"
-    The *Compare* menu links to the Instances Overview dashboard for the current service type.
+> The *Compare* menu links to the Instances Overview dashboard for the current service type.
 
 ##### Services menu
 

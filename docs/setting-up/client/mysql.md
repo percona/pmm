@@ -50,7 +50,7 @@ Here are the benefits and drawbacks of *Slow query log* and *Performance Schema*
 | Percona Server for MySQL | 5.7, 8.0       | Slow query log     |
 | Percona XtraDB Cluster   | 5.6, 5.7, 8.0  | Slow query log     |
 
-### Slow query log
+### Slow query log {: #slow-query-log}
 
 This section covers how to configure a MySQL-based database server to use the *slow query log* as a source of metrics.
 
@@ -163,7 +163,7 @@ Only one `.old` file is kept. Older ones are deleted.
 
 You can manage log rotation yourself, for example, with [`logrotate`][LOGROTATE]. If you do, you can disable PMM Client's log rotation with the `--slow-log-rotation=false` option when adding a service with `pmm-admin add`.
 
-### Performance Schema
+### Performance Schema {: #performance-schema}
 
 This section covers how to configure a MySQL-based database server to use *Performance Schema* as a source of metrics.
 

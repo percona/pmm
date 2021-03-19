@@ -1,4 +1,4 @@
-# pmm-admin - Administration Tool
+# pmm-admin - PMM Administration Tool
 
 ---
 
@@ -258,8 +258,7 @@ When you remove a service, collected data remains on PMM Server for the specifie
     `--service --service-name -node-name`
     : service with name and node with name
 
-    !!! alert alert-info "Note"
-        If node or service name is specified, they are used instead of other parameters.
+    > If node or service name is specified, they are used instead of other parameters.
 
 ### DATABASE COMMANDS
 

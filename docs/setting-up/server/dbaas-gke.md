@@ -1,8 +1,5 @@
 ## Install Operators on GKE
 
-!!! alert alert-warning "Caution"
-    These instructions are still in development.
-
 **Prerequisites**
 
 You should have an account on GCP [https://cloud.google.com/](https://cloud.google.com/).
@@ -152,8 +149,7 @@ You should have an account on GCP [https://cloud.google.com/](https://cloud.goog
 
 15. Register your GKE using kubeconfig from step 12.
 
-    !!! alert alert-warning "Important"
-        Please make sure there are no stray new lines in the kubeconfig, especially in long lines like certificate or token.
+	> <b style="color:goldenrod">Important</b> Ensure there are no stray new lines in the kubeconfig, especially in long lines like certificate or token.
 
     ![](../../_images/PMM_DBaaS_GKE_17.png)
 

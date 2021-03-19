@@ -1,10 +1,9 @@
 # DBaaS Dashboard
 
-!!! alert alert-warning "Caution"
-    DBaaS functionality is Alpha. The information on this page is subject to change and may be inaccurate.
+> <b style="color:goldenrod">Caution</b> DBaaS functionality is Alpha. The information on this page is subject to change and may be inaccurate.
 
-!!! alert alert-info "Note"
-    You must run PMM Server with a DBaaS feature flag to activate the features described here.
+
+> You must run PMM Server with a DBaaS feature flag to activate the features described here.
 
 ---
 
@@ -39,8 +38,7 @@ To open the DBaaS dashboard:
 
 ### Unregister a Kubernetes cluster
 
-!!! alert alert-info "Note"
-    You can't unregister a Kubernetes cluster if there DB clusters associated with it.
+> You can't unregister a Kubernetes cluster if there DB clusters associated with it.
 
 1. Click *Unregister*.
 
@@ -60,16 +58,17 @@ You must create at least one Kubernetes cluster to create a DB cluster.
 
 To monitor a DB cluster, set up a [public address](../../how-to/configure.md#public-address) for PMM Server first.
 
-!!! alert alert-success "Tip"
-    Resource consumption in Kubernetes can cause problems. Use this formula to ensure your nodes have enough resources to start the requested configuration:
-
-    > ( 2 * # of nodes in DB cluster * CPU per node ) + (.5 * # of nodes in db cluster) = total # of CPUs that must be free for cluster to start
-
-	The first part of the equation is resources for the cluster. It is doubled because each DB cluster member must also have a proxy started with it.
-
-    The second part is to start the container(s) that automatically monitor each member of the DB cluster.
-
-	(You can also specify CPU in decimal tenths, e.g. `.1` CPUs or `1.5` CPUs.)
+> <b style="color:green">Tip</b>
+>
+> Resource consumption in Kubernetes can cause problems. Use this formula to ensure your nodes have enough resources to start the requested configuration:
+>
+> ( 2 * # of nodes in DB cluster * CPU per node ) + (.5 * # of nodes in db cluster) = total # of CPUs that must be free for cluster to start
+>
+> The first part of the equation is resources for the cluster. It is doubled because each DB cluster member must also have a proxy started with it.
+>
+> The second part is to start the container(s) that automatically monitor each member of the DB cluster.
+>
+> (You can also specify CPU in decimal tenths, e.g. `.1` CPUs or `1.5` CPUs.)
 
 1. Select the *DB Cluster* tab.
 
@@ -172,5 +171,6 @@ A paused cluster can't be edited.
         ![DBaaS Resume](../../_images/PMM_DBaaS_DB_Cluster_Resume.gif)
 
 
-!!! seealso "See also"
-    [Setting up a development environment for DBaaS](../../setting-up/server/dbaas.md)
+> **See also**
+>
+> [Setting up a development environment for DBaaS](../../setting-up/server/dbaas.md)

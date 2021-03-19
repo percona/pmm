@@ -47,15 +47,7 @@ db.getSiblingDB("admin").createUser({
 
 ## Enabling Profiling
 
-For [MongoDB](https://www.mongodb.com) to work correctly with Query Analytics, you need to enable profiling
-in your `mongod` configuration. When started without profiling enabled, Query Analytics
-displays the following warning:
-
-!!! alert alert-info "Note"
-
-    **A warning message is displayed when profiling is not enabled**
-
-    It is required that profiling of the monitored MongoDB databases be enabled, however profiling is not enabled by default because it may reduce the performance of your MongoDB server.
+For [MongoDB](https://www.mongodb.com) to work correctly with Query Analytics, you need to enable profiling in your `mongod` configuration. (Profiling is not enabled by default because it may reduce the performance of your MongoDB server.)
 
 ### Enabling Profiling on Command Line
 
@@ -135,14 +127,11 @@ Beside positional arguments shown above you can specify service name and service
 pmm-admin add mongodb --username=pmm --password=pmm --service-name=mongo --host=127.0.0.1 --port=27017
 ```
 
-!!! alert alert-info "Note"
-
-    It is also possible to add a MongoDB instance using a UNIX socket with just the `--socket` flag followed by the path to a socket:
-
-    ```sh
-    pmm-admin add mongodb --socket=/tmp/mongodb-27017.sock
-    ```
-
+> You can add a MongoDB instance using a UNIX socket with the `--socket` option:
+>
+> ```sh
+> pmm-admin add mongodb --socket=/tmp/mongodb-27017.sock
+> ```
 
 ## Passing SSL parameters to the MongoDB monitoring service
 

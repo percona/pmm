@@ -32,9 +32,6 @@ When you have installed PMM Client, you must:
 
 
 <!--
-
-!!! alert alert-info "Note"
-
     Credentials used in communication between the exporters and the PMM Server are the following ones:
 
     * login is `pmm`
@@ -252,7 +249,10 @@ You should continue by adding services according to the service type.
 - [HAProxy](haproxy.md)
 
 > **See also**
+>
 > - [Percona release][PERCONA_RELEASE]
+>
+> - [PMM Client architecture](../../details/architecture.md#pmm-client)
 
 [GETDOCKER]: https://docs.docker.com/get-docker/
 [DOWNLOAD]: https://www.percona.com/downloads/pmm2/

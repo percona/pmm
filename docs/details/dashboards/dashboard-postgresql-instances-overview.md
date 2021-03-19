@@ -68,9 +68,7 @@ Number of Temp Files
 Size of Temp files
 :   The total amount of data written to temporary files by queries in bytes.
 
-!!! alert alert-info "Note"
-
-    All temporary files are taken into account by these two gauges, regardless of why the temporary file was created (e.g., sorting or hashing), and regardless of the `log_temp_files` setting.
+> All temporary files are taken into account by these two gauges, regardless of why the temporary file was created (e.g., sorting or hashing), and regardless of the `log_temp_files` setting.
 
 ## Conflicts and Locks
 
@@ -85,9 +83,7 @@ Number of Locks
 Operations with Blocks
 :   The time spent reading and writing data file blocks by back ends, in milliseconds.
 
-!!! alert alert-info "Note"
-
-    Capturing read and write time statistics is possible only if `track_io_timing` setting is enabled. This can be done either in configuration file or with the following query executed on the running system:
+> Capturing read and write time statistics is possible only if `track_io_timing` setting is enabled. This can be done either in configuration file or with the following query executed on the running system:
 
 ```sql
 ALTER SYSTEM SET track_io_timing=ON;
@@ -101,16 +97,13 @@ Buffers
 
 The number of queries that have been canceled due to dropped tablespaces, lock timeouts, old snapshots, pinned buffers, and deadlocks.
 
-!!! alert alert-info "Note"
-
-    Data shown by this gauge are based on the `pg_stat_database_conflicts` view.
+> Data shown by this gauge are based on the `pg_stat_database_conflicts` view.
 
 ## Cache Hit Ratio
 
 The number of times disk blocks were found already in the buffer cache, so that a read was not necessary.
 
-!!! alert alert-info "Note"
-    This only includes hits in the PostgreSQL buffer cache, not the operating system’s file system cache.
+> This only includes hits in the PostgreSQL buffer cache, not the operating system’s file system cache.
 
 ## Checkpoint Stats
 
