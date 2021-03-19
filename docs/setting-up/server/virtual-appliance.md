@@ -7,7 +7,7 @@ This page shows how to set up PMM Server as a virtual machine in [VMware Worksta
 ```plantuml source="_resources/diagrams/Setting-Up_Server_Virtual-Appliance.puml"
 ```
 
-Most steps can be done with either a user interface or on the command line, but some steps can only be done in one or the other. Sections are marked with **UI {{icon.mouse}}** for user interface or **CLI {{icon.keyboard}}** for command line instructions.
+Most steps can be done with either a user interface or on the command line, but some steps can only be done in one or the other. Sections are labeled **UI** for user interface or **CLI** for command line instructions.
 
 **Terminology**
 
@@ -43,7 +43,7 @@ Most steps can be done with either a user interface or on the command line, but 
 
 ## 1. Download
 
-**UI {{icon.mouse}}**
+**U**
 
 1. Open a web browser.
 2. [Visit the PMM Server download page][OVA].
@@ -52,7 +52,7 @@ Most steps can be done with either a user interface or on the command line, but 
 5. Right click the link for `pmm-server-{{release}}.sha256sum` and save it in the same place as the `.ova` file.
 6. (Optional) [Verify](#verify).
 
-**CLI {{icon.keyboard}}**
+**CLI**
 
 *Download the latest PMM Server OVA and checksum files*
 
@@ -63,7 +63,7 @@ wget https://www.percona.com/downloads/pmm2/{{release}}/ova/pmm-server-{{release
 
 ## 2. Verify
 
-**CLI {{icon.keyboard}}**
+**CLI**
 
 *Verify the checksum of the downloaded .ova file*
 
@@ -75,7 +75,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 
 ### 3.1. Import
 
-**UI {{icon.mouse}}**
+**U**
 
 1. Select *File --> Import*.
 2. Click *Choose file...*.
@@ -92,7 +92,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 	- (Optional) Click *Finish*. This starts the virtual machine.
 	- (Recommended) Click *Customize Settings*. This opens the VM's settings page without starting the machine.
 
-**CLI {{icon.keyboard}}**
+**CLI**
 
 1. Install [`ovftool`][OVFTool]. (You need to register.)
 2. Import and convert the OVA file. (`ovftool` can't change CPU or memory settings during import but it can set the default interface.)
@@ -115,7 +115,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 
 > **Note** When using the command line, the interface is remapped during import.
 
-**UI {{icon.mouse}}**
+**U**
 
 1. If started, shut down the virtual machine.
 2. In the VMware main window, select the imported virtual machine.
@@ -126,13 +126,13 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 
 ### 3.3. Start guest and get IP address
 
-**UI {{icon.mouse}}**
+**U**
 
 1. In the VMware main window, select the imported virtual machine.
 2. Click the play button {{icon.caretright}} or select *Virtual Machine --> Start Up*.
 3. When the instance has booted, note the IP address in the guest console.
 
-**CLI/UI {{icon.keyboard}} {{icon.mouse}}**
+**CLI/UI**
 
 1. Start the virtual machine in GUI mode. (There's no way to redirect a VMware VM's console to the host.)
 	```sh
@@ -151,7 +151,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 
 ### 4.1. Import
 
-**UI {{icon.mouse}}**
+**U**
 
 1. Select *File --> Import appliance...*.
 2. In the *File* field, type the path to the downloaded `.ova` file, or click the folder icon to navigate and open it.
@@ -160,7 +160,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 5. Click *Start*.
 6. When the guest has booted, note the IP address in the guest console.
 
-**CLI {{icon.keyboard}}**
+**CLI**
 
 1. Open a terminal and change directory to where the downloaded `.ova` file is.
 2. (Optional) Do a 'dry run' import to see what values will be used.
@@ -181,7 +181,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 
 ### 4.2. Reconfigure interface
 
-**UI {{icon.mouse}}**
+**U**
 
 1. Click *Settings*.
 2. Click *Network*.
@@ -189,7 +189,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 4. In the *Name* field, select your host's active network interface (e.g. `en0: Wi-Fi (Wireless)`).
 5. Click *OK*.
 
-**CLI {{icon.keyboard}}**
+**CLI**
 
 1. Show the list of available bridge interfaces.
 	```sh
@@ -209,13 +209,13 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 
 ### 4.3. Start guest and get IP address
 
-**UI {{icon.mouse}}**
+**U**
 
 1. Select the *PMM Server* virtual machine in the list.
 2. Click *Start*.
 3. When the guest has booted, note the IP address in the guest console.
 
-**CLI {{icon.keyboard}}**
+**CLI**
 
 1. Start the guest.
 	```sh
@@ -239,7 +239,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 
 ## 5. Log into PMM user interface
 
-**UI {{icon.mouse}}**
+**U**
 
 1. Open a web browser and visit the guest IP address.
 2. The PMM login screen appears.
@@ -253,7 +253,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 
 ## 6. (Optional) Change root password
 
-**UI {{icon.mouse}}**
+**U**
 
 1. Start the virtual machine in GUI mode.
 2. Log in with the default superuser credentials:
@@ -263,7 +263,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 
 ## 7. (Optional) Set up SSH
 
-**UI/CLI {{icon.mouse}} {{icon.keyboard}}**
+**UI/CL**
 
 1. Create a key pair for the `admin` user.
 	```sh
@@ -282,7 +282,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 
 When the guest OS starts, it will get an IP address from the hypervisor's DHCP server. This IP can change each time the guest OS is restarted. Setting a static IP for the guest OS avoids having to check the IP address whenever the guest is restarted.
 
-**CLI {{icon.keyboard}}**
+**CLI**
 
 1. Start the virtual machine in non-headless (GUI) mode.
 2. Log in as `root`.

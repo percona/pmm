@@ -11,9 +11,7 @@ The PMM setting-up process can be broken into three key stages:
 
 ## 1. Setting up PMM Server {: #setting-up-pmm-server}
 
-You must set up at least one PMM Server.
-
-A server can run as:
+You must set up at least one PMM Server. A server can run as:
 
 - [a Docker container](server/docker.md)
 - [a virtual appliance](server/virtual-appliance.md)
@@ -21,9 +19,7 @@ A server can run as:
 
 ## 2. Setting up PMM Client {: #setting-up-pmm-client}
 
-You must [set up PMM Client](client/index.md) on each node where there is a service to be monitored.
-
-You can do this:
+You must [set up PMM Client](client/index.md) on each node where there is a service to be monitored. You can do this:
 
 1. [with a package manager (`apt`, `apt-get`, `dnf`, `yum`)](client/index.md#package-manager)
 1. [by manually downloading and installing `.deb` or `.rpm` packages](client/index.md#manual-package)
