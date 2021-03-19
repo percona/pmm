@@ -12,14 +12,9 @@ The *Failed security checks* panel on the *Home Dashboard* shows the number of f
 
 ![Failed security checks panel](../../_images/PMM_Home_Dashboard_Panels_Failed_Security_Checks.jpg)
 
-<div class="panel panel-default">
-  <div class="panel-heading">
-    <h3 class="panel-title">Key</h3>
-  </div>
-  <div class="panel-body">
-    <b style="color:#e02f44;">Critical</b> / <b style="color:#e36526;">Major</b> / <b style="color:#5794f2;">Trivial</b>
-  </div>
-</div>
+> **Key**
+>
+> <b style="color:#e02f44;">Critical</b> / <b style="color:#e36526;">Major</b> / <b style="color:#5794f2;">Trivial</b>
 
 Details are in the *PMM Database Checks* dashboard (select *PMM-->PMM Database Checks*).
 

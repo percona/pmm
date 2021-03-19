@@ -113,7 +113,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 
 ### Reconfigure interface
 
-> **Note** When using the command line, the interface is remapped during import.
+> When using the command line, the interface is remapped during import.
 
 **U**
 

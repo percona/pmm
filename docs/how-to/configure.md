@@ -13,7 +13,7 @@ On the left of the page is a set of sub-page selector tabs.
 
 (The [Communication](#communication) tab remains hidden until [Integrated Alerting](#integrated-alerting) is activated.)
 
-> **Tip** Click *Apply changes* after changing settings.
+> Click *Apply changes* after changing settings.
 
 ## Diagnostics
 
@@ -45,7 +45,7 @@ The default values (in seconds) for the fixed presets and their resolution names
 
 Values for the *Custom* preset can be entered as values, or changed with the arrows.
 
-> **Note** If there is poor network connectivity between PMM Server and PMM Client, or between PMM Client and the database server it is monitoring, scraping every second may not be possible when the network latency is greater than 1 second.
+> If there is poor network connectivity between PMM Server and PMM Client, or between PMM Client and the database server it is monitoring, scraping every second may not be possible when the network latency is greater than 1 second.
 
 ## Advanced Settings
 
@@ -79,8 +79,6 @@ Grafana’s [anonymous usage statistics](https://grafana.com/docs/grafana/latest
 
 As well as via the *PMM Settings* page, you can also disable telemetry with the `-e DISABLE_TELEMETRY=1` option in your docker run statement for the PMM Server.
 
-> **Note**
->
 > - If the Security Threat Tool is enabled in PMM Settings, Telemetry is automatically enabled.
 >
 > - Telemetry is sent immediately; the 24-hour grace period is not honored.
@@ -162,13 +160,13 @@ To create a *Percona Platform* account:
 
 A brief message will confirm the creation of your new account and you may now log in with these credentials.
 
-> **Note** Your Percona Platform account is separate from your PMM User account.
+> Your Percona Platform account is separate from your PMM User account.
 
 ## Communication
 
 Global communications settings for [Integrated Alerting](../using/alerting.md).
 
-**This tab appears only when *Advanced Settings* --> *Integrated Alerting* is on.**
+> This tab appears only when *Advanced Settings* --> *Integrated Alerting* is on.
 
 ![](../_images/PMM_Settings_Communication.jpg)
 

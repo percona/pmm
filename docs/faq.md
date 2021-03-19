@@ -26,8 +26,6 @@ Any system which can run Docker version 1.12.6 or later.
 
 It needs roughly 1 GB of storage for each monitored database node with data retention set to one week.
 
-> **Note**
->
 > By default, [retention](#how-to-control-data-retention-for-pmm) is set to 30 days for Metrics Monitor and for Query Analytics.  You can consider [disabling table statistics](how-to/optimize.md) to decrease the VictoriaMetrics database size.
 
 You need at least 2 GB for one monitored database node. The increase in memory usage is not proportional to the number of nodes.  For example, data from 20 nodes should be easily handled with 16 GB.
