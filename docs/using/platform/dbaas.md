@@ -2,14 +2,7 @@
 
 > <b style="color:goldenrod">Caution</b> DBaaS functionality is Alpha. The information on this page is subject to change and may be inaccurate.
 
-
 > You must run PMM Server with a DBaaS feature flag to activate the features described here.
-
----
-
-[TOC]
-
----
 
 The DBaaS dashboard is where you add, remove, and operate on Kubernetes and database clusters.
 

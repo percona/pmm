@@ -1,11 +1,5 @@
 # pmm-admin - PMM Administration Tool
 
----
-
-[TOC]
-
----
-
 ## NAME
 
 `pmm-admin` - Administer PMM

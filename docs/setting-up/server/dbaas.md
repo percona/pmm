@@ -2,12 +2,6 @@
 
 > <b style="color:goldenrod">Caution</b> DBaaS functionality is Alpha. The information on this page is subject to change and may be inaccurate.
 
----
-
-[TOC]
-
----
-
 ## Software prerequisites
 
 ### Docker
