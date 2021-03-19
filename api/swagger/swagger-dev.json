@@ -21438,6 +21438,150 @@
         }
       }
     },
+    "/v1/management/backup/Artifacts/List": {
+      "post": {
+        "tags": [
+          "Artifacts"
+        ],
+        "summary": "ListArtifacts returns a list of all backup artifacts.",
+        "operationId": "ListArtifacts",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "artifacts": {
+                  "type": "array",
+                  "items": {
+                    "description": "Artifact represents single backup artifact.",
+                    "type": "object",
+                    "properties": {
+                      "artifact_id": {
+                        "description": "Machine-readable artifact ID.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "name": {
+                        "type": "string",
+                        "title": "Artifact name",
+                        "x-order": 1
+                      },
+                      "vendor": {
+                        "description": "Database vendor e.g. PostgreSQL, MongoDB, MySQL.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "location_id": {
+                        "description": "Machine-readable location ID.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "location_name": {
+                        "description": "Location name.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "service_id": {
+                        "description": "Machine-readable service ID.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "service_name": {
+                        "description": "Service name.",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "data_model": {
+                        "description": "DataModel is a model used for performing a backup.",
+                        "type": "string",
+                        "default": "DATA_MODEL_INVALID",
+                        "enum": [
+                          "DATA_MODEL_INVALID",
+                          "PHYSICAL",
+                          "LOGICAL"
+                        ],
+                        "x-order": 7
+                      },
+                      "status": {
+                        "description": "Status shows current status of backup.",
+                        "type": "string",
+                        "default": "STATUS_INVALID",
+                        "enum": [
+                          "STATUS_INVALID",
+                          "PENDING",
+                          "IN_PROGRESS",
+                          "PAUSED",
+                          "SUCCESS",
+                          "ERROR"
+                        ],
+                        "x-order": 8
+                      },
+                      "created_at": {
+                        "description": "Artifact creation time.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 9
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/backup/Backups/PerformBackup": {
       "post": {
         "tags": [
