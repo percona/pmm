@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package dbaas.v1beta1;
+
+option go_package = "api/managementpb/dbaas;dbaasv1beta1";
+
+import "google/api/annotations.proto";
+
+// TODO move it to parent directory / package once API is v1-stable
+
+message GetComponentsRequest {
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1;
+  // Version of DB.
+  string db_version = 2;
+}
+
+message GetComponentsResponse {
+  // Component contains information about component.
+  message Component {
+    string image_path = 1;
+    string image_hash = 2;
+    string status = 3;
+    bool critical = 4;
+  }
+  // Matrix contains all available components.
+  message Matrix {
+    map<string, Component> mongod = 1;
+    map<string, Component> pxc = 2;
+    map<string, Component> pmm = 3;
+    map<string, Component> proxysql = 4;
+    map<string, Component> haproxy = 5;
+    map<string, Component> backup = 6;
+    map<string, Component> operator = 7;
+    map<string, Component> log_collector = 8;
+  }
+  // Version contains information about operator and components matrix.
+  message Version {
+    string product = 1;
+    string operator = 2;
+    Matrix matrix = 3;
+  }
+  repeated Version versions = 1;
+}
+
+// Components service provides public methods for managing components.
+service Components {
+  // GetPSMDBComponents returns list of available components for PSMDB Clusters.
+  rpc GetPSMDBComponents(GetComponentsRequest) returns (GetComponentsResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/Components/GetPSMDB"
+      body: "*"
+    };
+  }
+}

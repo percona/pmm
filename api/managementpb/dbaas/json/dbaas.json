@@ -15,6 +15,319 @@
     "version": "v1beta1"
   },
   "paths": {
+    "/v1/management/DBaaS/Components/GetPSMDB": {
+      "post": {
+        "tags": [
+          "Components"
+        ],
+        "summary": "GetPSMDBComponents returns list of available components for PSMDB Clusters.",
+        "operationId": "GetPSMDBComponents",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "db_version": {
+                  "description": "Version of DB.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "kubernetes_cluster_name": {
+                  "description": "Kubernetes cluster name.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "versions": {
+                  "type": "array",
+                  "items": {
+                    "description": "Version contains information about operator and components matrix.",
+                    "type": "object",
+                    "properties": {
+                      "matrix": {
+                        "description": "Matrix contains all available components.",
+                        "type": "object",
+                        "properties": {
+                          "backup": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "description": "Component contains information about component.",
+                              "type": "object",
+                              "properties": {
+                                "critical": {
+                                  "type": "boolean",
+                                  "x-order": 3
+                                },
+                                "image_hash": {
+                                  "type": "string",
+                                  "x-order": 1
+                                },
+                                "image_path": {
+                                  "type": "string",
+                                  "x-order": 0
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "x-order": 2
+                                }
+                              }
+                            },
+                            "x-order": 5
+                          },
+                          "haproxy": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "description": "Component contains information about component.",
+                              "type": "object",
+                              "properties": {
+                                "critical": {
+                                  "type": "boolean",
+                                  "x-order": 3
+                                },
+                                "image_hash": {
+                                  "type": "string",
+                                  "x-order": 1
+                                },
+                                "image_path": {
+                                  "type": "string",
+                                  "x-order": 0
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "x-order": 2
+                                }
+                              }
+                            },
+                            "x-order": 4
+                          },
+                          "log_collector": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "description": "Component contains information about component.",
+                              "type": "object",
+                              "properties": {
+                                "critical": {
+                                  "type": "boolean",
+                                  "x-order": 3
+                                },
+                                "image_hash": {
+                                  "type": "string",
+                                  "x-order": 1
+                                },
+                                "image_path": {
+                                  "type": "string",
+                                  "x-order": 0
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "x-order": 2
+                                }
+                              }
+                            },
+                            "x-order": 7
+                          },
+                          "mongod": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "description": "Component contains information about component.",
+                              "type": "object",
+                              "properties": {
+                                "critical": {
+                                  "type": "boolean",
+                                  "x-order": 3
+                                },
+                                "image_hash": {
+                                  "type": "string",
+                                  "x-order": 1
+                                },
+                                "image_path": {
+                                  "type": "string",
+                                  "x-order": 0
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "x-order": 2
+                                }
+                              }
+                            },
+                            "x-order": 0
+                          },
+                          "operator": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "description": "Component contains information about component.",
+                              "type": "object",
+                              "properties": {
+                                "critical": {
+                                  "type": "boolean",
+                                  "x-order": 3
+                                },
+                                "image_hash": {
+                                  "type": "string",
+                                  "x-order": 1
+                                },
+                                "image_path": {
+                                  "type": "string",
+                                  "x-order": 0
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "x-order": 2
+                                }
+                              }
+                            },
+                            "x-order": 6
+                          },
+                          "pmm": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "description": "Component contains information about component.",
+                              "type": "object",
+                              "properties": {
+                                "critical": {
+                                  "type": "boolean",
+                                  "x-order": 3
+                                },
+                                "image_hash": {
+                                  "type": "string",
+                                  "x-order": 1
+                                },
+                                "image_path": {
+                                  "type": "string",
+                                  "x-order": 0
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "x-order": 2
+                                }
+                              }
+                            },
+                            "x-order": 2
+                          },
+                          "proxysql": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "description": "Component contains information about component.",
+                              "type": "object",
+                              "properties": {
+                                "critical": {
+                                  "type": "boolean",
+                                  "x-order": 3
+                                },
+                                "image_hash": {
+                                  "type": "string",
+                                  "x-order": 1
+                                },
+                                "image_path": {
+                                  "type": "string",
+                                  "x-order": 0
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "x-order": 2
+                                }
+                              }
+                            },
+                            "x-order": 3
+                          },
+                          "pxc": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "description": "Component contains information about component.",
+                              "type": "object",
+                              "properties": {
+                                "critical": {
+                                  "type": "boolean",
+                                  "x-order": 3
+                                },
+                                "image_hash": {
+                                  "type": "string",
+                                  "x-order": 1
+                                },
+                                "image_path": {
+                                  "type": "string",
+                                  "x-order": 0
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "x-order": 2
+                                }
+                              }
+                            },
+                            "x-order": 1
+                          }
+                        },
+                        "x-order": 2
+                      },
+                      "operator": {
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "product": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/DBaaS/GetLogs": {
       "post": {
         "tags": [
@@ -674,6 +987,11 @@
                       "format": "int32",
                       "x-order": 0
                     },
+                    "image": {
+                      "description": "Docker image used for PSMDB.",
+                      "type": "string",
+                      "x-order": 2
+                    },
                     "replicaset": {
                       "description": "ReplicaSet container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
                       "type": "object",
@@ -864,6 +1182,11 @@
                       "type": "integer",
                       "format": "int32",
                       "x-order": 0
+                    },
+                    "image": {
+                      "description": "Docker image used for PSMDB.",
+                      "type": "string",
+                      "x-order": 2
                     },
                     "replicaset": {
                       "description": "ReplicaSet container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
@@ -1374,6 +1697,11 @@
                             "format": "int32",
                             "x-order": 0
                           },
+                          "image": {
+                            "description": "Docker image used for PSMDB.",
+                            "type": "string",
+                            "x-order": 2
+                          },
                           "replicaset": {
                             "description": "ReplicaSet container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
                             "type": "object",
@@ -1528,13 +1856,18 @@
                               "x-order": 1
                             }
                           },
-                          "x-order": 0
+                          "x-order": 1
                         },
                         "disk_size": {
                           "description": "Disk size in bytes.",
                           "type": "string",
                           "format": "int64",
-                          "x-order": 1
+                          "x-order": 2
+                        },
+                        "image": {
+                          "description": "Docker image used for ProxySQL.",
+                          "type": "string",
+                          "x-order": 0
                         }
                       },
                       "x-order": 2
@@ -1560,13 +1893,18 @@
                               "x-order": 1
                             }
                           },
-                          "x-order": 0
+                          "x-order": 1
                         },
                         "disk_size": {
                           "description": "Disk size in bytes.",
                           "type": "string",
                           "format": "int64",
-                          "x-order": 1
+                          "x-order": 2
+                        },
+                        "image": {
+                          "description": "Docker image used for PXC.",
+                          "type": "string",
+                          "x-order": 0
                         }
                       },
                       "x-order": 1
@@ -1751,13 +2089,18 @@
                               "x-order": 1
                             }
                           },
-                          "x-order": 0
+                          "x-order": 1
                         },
                         "disk_size": {
                           "description": "Disk size in bytes.",
                           "type": "string",
                           "format": "int64",
-                          "x-order": 1
+                          "x-order": 2
+                        },
+                        "image": {
+                          "description": "Docker image used for ProxySQL.",
+                          "type": "string",
+                          "x-order": 0
                         }
                       },
                       "x-order": 2
@@ -1783,13 +2126,18 @@
                               "x-order": 1
                             }
                           },
-                          "x-order": 0
+                          "x-order": 1
                         },
                         "disk_size": {
                           "description": "Disk size in bytes.",
                           "type": "string",
                           "format": "int64",
-                          "x-order": 1
+                          "x-order": 2
+                        },
+                        "image": {
+                          "description": "Docker image used for PXC.",
+                          "type": "string",
+                          "x-order": 0
                         }
                       },
                       "x-order": 1
@@ -2313,13 +2661,18 @@
                                     "x-order": 1
                                   }
                                 },
-                                "x-order": 0
+                                "x-order": 1
                               },
                               "disk_size": {
                                 "description": "Disk size in bytes.",
                                 "type": "string",
                                 "format": "int64",
-                                "x-order": 1
+                                "x-order": 2
+                              },
+                              "image": {
+                                "description": "Docker image used for ProxySQL.",
+                                "type": "string",
+                                "x-order": 0
                               }
                             },
                             "x-order": 2
@@ -2345,13 +2698,18 @@
                                     "x-order": 1
                                   }
                                 },
-                                "x-order": 0
+                                "x-order": 1
                               },
                               "disk_size": {
                                 "description": "Disk size in bytes.",
                                 "type": "string",
                                 "format": "int64",
-                                "x-order": 1
+                                "x-order": 2
+                              },
+                              "image": {
+                                "description": "Docker image used for PXC.",
+                                "type": "string",
+                                "x-order": 0
                               }
                             },
                             "x-order": 1
