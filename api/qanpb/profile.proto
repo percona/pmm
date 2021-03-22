@@ -51,6 +51,7 @@ message ReportReply {
 message Row {
   uint32 rank = 1;
   string dimension = 2;
+  string database = 9;
   map<string, Metric> metrics = 3;
   repeated Point sparkline = 4;
   string fingerprint = 5;
