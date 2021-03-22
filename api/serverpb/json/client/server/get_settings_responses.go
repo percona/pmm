@@ -292,6 +292,9 @@ type GetSettingsOKBodySettings struct {
 	// PMM Server public address.
 	PMMPublicAddress string `json:"pmm_public_address,omitempty"`
 
+	// True if Backup Management is enabled.
+	BackupManagementEnabled bool `json:"backup_management_enabled,omitempty"`
+
 	// email alerting settings
 	EmailAlertingSettings *GetSettingsOKBodySettingsEmailAlertingSettings `json:"email_alerting_settings,omitempty"`
 

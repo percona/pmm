@@ -173,6 +173,12 @@ type ChangeSettingsBody struct {
 	// remove pmm public address
 	RemovePMMPublicAddress bool `json:"remove_pmm_public_address,omitempty"`
 
+	// Enable Backup Management.
+	EnableBackupManagement bool `json:"enable_backup_management,omitempty"`
+
+	// Disable Backup Management.
+	DisableBackupManagement bool `json:"disable_backup_management,omitempty"`
+
 	// email alerting settings
 	EmailAlertingSettings *ChangeSettingsParamsBodyEmailAlertingSettings `json:"email_alerting_settings,omitempty"`
 
@@ -476,6 +482,9 @@ type ChangeSettingsOKBodySettings struct {
 
 	// PMM Server public address.
 	PMMPublicAddress string `json:"pmm_public_address,omitempty"`
+
+	// True if Backup Management is enabled.
+	BackupManagementEnabled bool `json:"backup_management_enabled,omitempty"`
 
 	// email alerting settings
 	EmailAlertingSettings *ChangeSettingsOKBodySettingsEmailAlertingSettings `json:"email_alerting_settings,omitempty"`

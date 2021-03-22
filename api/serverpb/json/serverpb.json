@@ -391,6 +391,11 @@
                   "type": "boolean",
                   "x-order": 13
                 },
+                "disable_backup_management": {
+                  "description": "Disable Backup Management.",
+                  "type": "boolean",
+                  "x-order": 22
+                },
                 "disable_stt": {
                   "description": "Disable Security Threat Tool.",
                   "type": "boolean",
@@ -446,6 +451,11 @@
                   "description": "Enable Integrated Alerting.",
                   "type": "boolean",
                   "x-order": 12
+                },
+                "enable_backup_management": {
+                  "description": "Enable Backup Management.",
+                  "type": "boolean",
+                  "x-order": 21
                 },
                 "enable_stt": {
                   "description": "Enable Security Threat Tool.",
@@ -580,6 +590,11 @@
                         "type": "string"
                       },
                       "x-order": 5
+                    },
+                    "backup_management_enabled": {
+                      "description": "True if Backup Management is enabled.",
+                      "type": "boolean",
+                      "x-order": 16
                     },
                     "data_retention": {
                       "type": "string",
@@ -813,6 +828,11 @@
                         "type": "string"
                       },
                       "x-order": 5
+                    },
+                    "backup_management_enabled": {
+                      "description": "True if Backup Management is enabled.",
+                      "type": "boolean",
+                      "x-order": 16
                     },
                     "data_retention": {
                       "type": "string",

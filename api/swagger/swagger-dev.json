@@ -2237,6 +2237,16 @@
                     }
                   },
                   "x-order": 20
+                },
+                "enable_backup_management": {
+                  "description": "Enable Backup Management.",
+                  "type": "boolean",
+                  "x-order": 21
+                },
+                "disable_backup_management": {
+                  "description": "Disable Backup Management.",
+                  "type": "boolean",
+                  "x-order": 22
                 }
               }
             }
@@ -2409,6 +2419,11 @@
                         }
                       },
                       "x-order": 15
+                    },
+                    "backup_management_enabled": {
+                      "description": "True if Backup Management is enabled.",
+                      "type": "boolean",
+                      "x-order": 16
                     }
                   },
                   "x-order": 0
@@ -2642,6 +2657,11 @@
                         }
                       },
                       "x-order": 15
+                    },
+                    "backup_management_enabled": {
+                      "description": "True if Backup Management is enabled.",
+                      "type": "boolean",
+                      "x-order": 16
                     }
                   },
                   "x-order": 0

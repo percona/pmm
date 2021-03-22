@@ -184,6 +184,8 @@ message Settings {
   string pmm_public_address = 15;
   // Intervals between STT check runs.
   STTCheckIntervals stt_check_intervals = 16;
+  // True if Backup Management is enabled.
+  bool backup_management_enabled = 17;
 }
 
 message GetSettingsRequest {}
@@ -232,6 +234,10 @@ message ChangeSettingsRequest {
   bool remove_pmm_public_address = 20;
   // Intervals between STT check runs.
   STTCheckIntervals stt_check_intervals = 21;
+  // Enable Backup Management.
+  bool enable_backup_management = 22;
+  // Disable Backup Management.
+  bool disable_backup_management = 23;
 }
 
 message ChangeSettingsResponse {
