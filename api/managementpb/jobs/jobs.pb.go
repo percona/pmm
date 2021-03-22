@@ -85,11 +85,11 @@ type GetJobResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// Unique Action ID.
+	// Unique Job ID.
 	JobId string `protobuf:"bytes,1,opt,name=job_id,json=jobId,proto3" json:"job_id,omitempty"`
-	// pmm-agent ID where this Action is running / was run.
+	// pmm-agent ID where this Job is running / was run.
 	PmmAgentId string `protobuf:"bytes,2,opt,name=pmm_agent_id,json=pmmAgentId,proto3" json:"pmm_agent_id,omitempty"`
-	// True if Action is finished.
+	// True if Job is finished.
 	Done bool `protobuf:"varint,4,opt,name=done,proto3" json:"done,omitempty"`
 	// Types that are assignable to Result:
 	//	*GetJobResponse_Error_
@@ -194,9 +194,9 @@ type StartEchoJobRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// pmm-agent ID where to run this Action.
+	// pmm-agent ID where to run this Job.
 	PmmAgentId string `protobuf:"bytes,1,opt,name=pmm_agent_id,json=pmmAgentId,proto3" json:"pmm_agent_id,omitempty"`
-	// Service ID for this Action. Required.
+	// Service ID for this Job. Required.
 	ServiceId string             `protobuf:"bytes,2,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
 	Timeout   *duration.Duration `protobuf:"bytes,3,opt,name=timeout,proto3" json:"timeout,omitempty"`
 	Message   string             `protobuf:"bytes,4,opt,name=message,proto3" json:"message,omitempty"`
@@ -277,7 +277,7 @@ type StartEchoJobResponse struct {
 
 	// Unique Job ID.
 	JobId string `protobuf:"bytes,1,opt,name=job_id,json=jobId,proto3" json:"job_id,omitempty"`
-	// pmm-agent ID where to this Action was started.
+	// pmm-agent ID where to this Job was started.
 	PmmAgentId string `protobuf:"bytes,2,opt,name=pmm_agent_id,json=pmmAgentId,proto3" json:"pmm_agent_id,omitempty"`
 }
 
@@ -776,7 +776,7 @@ const _ = grpc.SupportPackageIsVersion6
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type JobsClient interface {
-	// GetJob gets an result of given Action.
+	// GetJob gets an result of given Job.
 	GetJob(ctx context.Context, in *GetJobRequest, opts ...grpc.CallOption) (*GetJobResponse, error)
 	// StartEchoJob starts echo job.
 	StartEchoJob(ctx context.Context, in *StartEchoJobRequest, opts ...grpc.CallOption) (*StartEchoJobResponse, error)
@@ -821,7 +821,7 @@ func (c *jobsClient) CancelJob(ctx context.Context, in *CancelJobRequest, opts .
 
 // JobsServer is the server API for Jobs service.
 type JobsServer interface {
-	// GetJob gets an result of given Action.
+	// GetJob gets an result of given Job.
 	GetJob(context.Context, *GetJobRequest) (*GetJobResponse, error)
 	// StartEchoJob starts echo job.
 	StartEchoJob(context.Context, *StartEchoJobRequest) (*StartEchoJobResponse, error)

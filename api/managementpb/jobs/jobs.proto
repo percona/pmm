@@ -26,11 +26,11 @@ message GetJobResponse {
   message Echo {
     string message = 1;
   }
-  // Unique Action ID.
+  // Unique Job ID.
   string job_id = 1;
-  // pmm-agent ID where this Action is running / was run.
+  // pmm-agent ID where this Job is running / was run.
   string pmm_agent_id = 2;
-  // True if Action is finished.
+  // True if Job is finished.
   bool done = 4;
   oneof result {
     // Error result.
@@ -41,9 +41,9 @@ message GetJobResponse {
 }
 
 message StartEchoJobRequest {
-  // pmm-agent ID where to run this Action.
+  // pmm-agent ID where to run this Job.
   string pmm_agent_id = 1;
-  // Service ID for this Action. Required.
+  // Service ID for this Job. Required.
   string service_id = 2 [
     (validator.field) = {
       string_not_empty: true
@@ -57,7 +57,7 @@ message StartEchoJobRequest {
 message StartEchoJobResponse {
   // Unique Job ID.
   string job_id = 1;
-  // pmm-agent ID where to this Action was started.
+  // pmm-agent ID where to this Job was started.
   string pmm_agent_id = 2;
 }
 
@@ -74,7 +74,7 @@ message CancelJobResponse {}
 
 // Jobs service provides public Management API methods for Jobs.
 service Jobs {
-  // GetJob gets an result of given Action.
+  // GetJob gets an result of given Job.
   rpc GetJob(GetJobRequest) returns (GetJobResponse) {
     option (google.api.http) = {
       post: "/v1/management/Jobs/Get"
