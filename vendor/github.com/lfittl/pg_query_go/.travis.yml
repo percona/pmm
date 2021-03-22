@@ -1,7 +1,0 @@
-language: go
-
-go:
-  - 1.12.x
-  - master
-
-go_import_path: github.com/lfittl/pg_query_go

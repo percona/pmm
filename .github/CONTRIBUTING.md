@@ -1,7 +1,7 @@
 # Contributing notes
 
 ## Pre-requirements: 
-git, make, curl, go, [dep](https://github.com/golang/dep), gcc, docker, docker-compose, pmm-server
+git, make, curl, go, gcc, docker, docker-compose, pmm-server
 
 ## Local setup  
 Install exporters: 
@@ -26,7 +26,3 @@ Run `make test` to run tests.
 
 ## Code style
 Before making PR, please run `make check-all` locally to run all checkers and linters.
-
-## Vendoring
-
-We use [dep](https://github.com/golang/dep) to vendor dependencies.

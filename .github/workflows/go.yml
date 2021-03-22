@@ -28,7 +28,6 @@ jobs:
     env:
       GOPATH: ${{ github.workspace }}
       WORKING_DIR: ${{ github.workspace }}/src/github.com/percona/pmm-agent
-      GO111MODULE: off #TODO: remove once we move to go modules https://jira.percona.com/browse/PMM-7106
 
     defaults:
       run:
@@ -60,6 +59,14 @@ jobs:
         run: |
           go version
           echo "GO_VERSION=$(go version)" >> $GITHUB_ENV
+
+      - name: Enable Go modules cache
+        uses: percona-platform/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ matrix.os }}-go-${{ matrix.go-version }}-modules-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ matrix.os }}-go-${{ matrix.go-version }}-modules-
 
       - name: Prepare
         run: make init
@@ -133,7 +140,6 @@ jobs:
     env:
       GOPATH: ${{ github.workspace }}
       WORKING_DIR: ${{ github.workspace }}/src/github.com/percona/pmm-agent
-      GO111MODULE: off #TODO: remove once we move to go modules https://jira.percona.com/browse/PMM-7106
       MYSQL_IMAGE: ${{ matrix.images.mysql }}
       MONGO_IMAGE: ${{ matrix.images.mongo }}
       POSTGRES_IMAGE: ${{ matrix.images.postgres }}
@@ -145,70 +151,78 @@ jobs:
         working-directory: ${{ env.WORKING_DIR }}
 
     steps:
-    - name: Check out code into the working directory under the GOPATH
-      uses: percona-platform/checkout@v2
-      with:
-        fetch-depth: 1
-        path: ${{ env.WORKING_DIR }}
+      - name: Check out code into the working directory under the GOPATH
+        uses: percona-platform/checkout@v2
+        with:
+          fetch-depth: 1
+          path: ${{ env.WORKING_DIR }}
 
-    - name: Set up Go release
-      if: matrix.go.version != 'tip'
-      uses: percona-platform/setup-go@v2
-      with:
-        go-version: ${{ matrix.go.version }}
+      - name: Set up Go release
+        if: matrix.go.version != 'tip'
+        uses: percona-platform/setup-go@v2
+        with:
+          go-version: ${{ matrix.go.version }}
 
-    - name: Set up Go tip
-      if: matrix.go.version == 'tip'
-      run: |
-        git clone --depth=1 https://go.googlesource.com/go $HOME/gotip
-        cd $HOME/gotip/src
-        ./make.bash
-        echo "GOROOT=$HOME/gotip" >> $GITHUB_ENV
-        echo "$HOME/gotip/bin" >> $GITHUB_PATH
-    
-    - name: Set GO_VERSION environment variable
-      run: |
-        go version
-        echo "GO_VERSION=$(go version)" >> $GITHUB_ENV
+      - name: Set up Go tip
+        if: matrix.go.version == 'tip'
+        run: |
+          git clone --depth=1 https://go.googlesource.com/go $HOME/gotip
+          cd $HOME/gotip/src
+          ./make.bash
+          echo "GOROOT=$HOME/gotip" >> $GITHUB_ENV
+          echo "$HOME/gotip/bin" >> $GITHUB_PATH
 
-    - name: Docker-compose
-      env:
-        ENV_UP_FLAGS: "--detach"
-      run: make env-up
-      
-    - name: Prepare
-      run: make install
+      - name: Set GO_VERSION environment variable
+        run: |
+          go version
+          echo "GO_VERSION=$(go version)" >> $GITHUB_ENV
 
-    - name: Test race
-      run: make test-race
+      - name: Enable Go modules cache
+        uses: percona-platform/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ matrix.os }}-go-${{ matrix.go-version }}-modules-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ matrix.os }}-go-${{ matrix.go-version }}-modules-
 
-    - name: Test cover
-      run: make test-cover
+      - name: Docker-compose
+        env:
+          ENV_UP_FLAGS: "--detach"
+        run: make env-up
 
-    - name: Test crosscover
-      run: make test-crosscover
+      - name: Prepare
+        run: make install
 
-    - name: Upload coverage results
-      uses: percona-platform/codecov-action@v1
-      with:
-        file: cover.out
-        flags: cover
-        env_vars: GO_VERSION,MYSQL_IMAGE,MONGO_IMAGE,POSTGRES_IMAGE,PMM_SERVER_IMAGE
-        fail_ci_if_error: false
+      - name: Test race
+        run: make test-race
 
-    - name: Upload coverage results
-      uses: percona-platform/codecov-action@v1
-      with:
-        file: crosscover.out
-        flags: crosscover
-        env_vars: GO_VERSION,MYSQL_IMAGE,MONGO_IMAGE,POSTGRES_IMAGE,PMM_SERVER_IMAGE
-        fail_ci_if_error: false
+      - name: Test cover
+        run: make test-cover
 
-    - name: Run debug commands on failure
-      if: ${{ failure() }}
-      run: |
-        env
-        go version
-        go env
-        pwd
-        git status
+      - name: Test crosscover
+        run: make test-crosscover
+
+      - name: Upload coverage results
+        uses: percona-platform/codecov-action@v1
+        with:
+          file: cover.out
+          flags: cover
+          env_vars: GO_VERSION,MYSQL_IMAGE,MONGO_IMAGE,POSTGRES_IMAGE,PMM_SERVER_IMAGE
+          fail_ci_if_error: false
+
+      - name: Upload coverage results
+        uses: percona-platform/codecov-action@v1
+        with:
+          file: crosscover.out
+          flags: crosscover
+          env_vars: GO_VERSION,MYSQL_IMAGE,MONGO_IMAGE,POSTGRES_IMAGE,PMM_SERVER_IMAGE
+          fail_ci_if_error: false
+
+      - name: Run debug commands on failure
+        if: ${{ failure() }}
+        run: |
+          env
+          go version
+          go env
+          pwd
+          git status

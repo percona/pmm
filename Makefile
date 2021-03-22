@@ -1,3 +1,8 @@
+BASE_PATH = $(shell pwd)
+BIN_PATH := $(BASE_PATH)/bin
+
+export PATH := $(BIN_PATH):$(PATH)
+
 help:                           ## Display this help message.
 	@echo "Please use \`make <target>\` where <target> is one of:"
 	@grep '^[a-zA-Z]' $(MAKEFILE_LIST) | \
@@ -11,29 +16,25 @@ PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
 PMM_RELEASE_BRANCH ?= $(shell git describe --always --contains --all)
 PMM_DEV_SERVER_PORT ?= 443
 
-VERSION_FLAGS = -X 'github.com/percona/pmm-agent/vendor/github.com/percona/pmm/version.ProjectName=pmm-agent' \
-				-X 'github.com/percona/pmm-agent/vendor/github.com/percona/pmm/version.Version=$(PMM_RELEASE_VERSION)' \
-				-X 'github.com/percona/pmm-agent/vendor/github.com/percona/pmm/version.PMMVersion=$(PMM_RELEASE_VERSION)' \
-				-X 'github.com/percona/pmm-agent/vendor/github.com/percona/pmm/version.Timestamp=$(PMM_RELEASE_TIMESTAMP)' \
-				-X 'github.com/percona/pmm-agent/vendor/github.com/percona/pmm/version.FullCommit=$(PMM_RELEASE_FULLCOMMIT)' \
-				-X 'github.com/percona/pmm-agent/vendor/github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)'
+VERSION_FLAGS = -X 'github.com/percona/pmm/version.ProjectName=pmm-agent' \
+				-X 'github.com/percona/pmm/version.Version=$(PMM_RELEASE_VERSION)' \
+				-X 'github.com/percona/pmm/version.PMMVersion=$(PMM_RELEASE_VERSION)' \
+				-X 'github.com/percona/pmm/version.Timestamp=$(PMM_RELEASE_TIMESTAMP)' \
+				-X 'github.com/percona/pmm/version.FullCommit=$(PMM_RELEASE_FULLCOMMIT)' \
+				-X 'github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)'
 
 release:                        ## Build static pmm-agent release binary (Linux only).
 	env CGO_ENABLED=1 go build -v -ldflags "-extldflags '-static' $(VERSION_FLAGS)" -tags 'osusergo netgo static_build' -o $(PMM_RELEASE_PATH)/pmm-agent
 	$(PMM_RELEASE_PATH)/pmm-agent --version
 	-ldd $(PMM_RELEASE_PATH)/pmm-agent
 
-init:                           ## Installs tools to $GOPATH/bin (which is expected to be in $PATH).
-	curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh -s -- -b $(GOPATH)/bin
-	curl https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOPATH)/bin
-
-	go install ./vendor/github.com/BurntSushi/go-sumtype \
-				./vendor/github.com/vektra/mockery/cmd/mockery \
-				./vendor/golang.org/x/perf/cmd/benchstat \
-				./vendor/golang.org/x/tools/cmd/goimports \
-				./vendor/gopkg.in/reform.v1/reform
-
-	curl -sfL https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh | sh -s v0.10.2 -- -b $(GOPATH)/bin
+init:                           ## Installs development tools
+	go build -modfile=tools/go.mod -o $(BIN_PATH)/golangci-lint github.com/golangci/golangci-lint/cmd/golangci-lint
+	go build -modfile=tools/go.mod -o $(BIN_PATH)/mockery github.com/vektra/mockery/cmd/mockery
+	go build -modfile=tools/go.mod -o $(BIN_PATH)/benchstat golang.org/x/perf/cmd/benchstat
+	go build -modfile=tools/go.mod -o $(BIN_PATH)/goimports golang.org/x/tools/cmd/goimports
+	go build -modfile=tools/go.mod -o $(BIN_PATH)/reviewdog github.com/reviewdog/reviewdog/cmd/reviewdog
+	go build -modfile=tools/go.mod -o $(BIN_PATH)/reform gopkg.in/reform.v1/reform
 
 gen:                            ## Generate files.
 	go generate ./...
@@ -41,9 +42,9 @@ gen:                            ## Generate files.
 
 # generate stub models for perfschema QAN agent; hidden from help as it is not generally useful
 gen-init:
-	go install ./vendor/gopkg.in/reform.v1/reform-db
+	go build -modfile=tools/go.mod -o $(BIN_PATH)/reform-db gopkg.in/reform.v1/reform-db
 	mkdir tmp-mysql
-	reform-db -db-driver=mysql -db-source='root:root-password@tcp(127.0.0.1:3306)/performance_schema' init tmp-mysql
+	$(BIN_PATH)/reform-db -db-driver=mysql -db-source='root:root-password@tcp(127.0.0.1:3306)/performance_schema' init tmp-mysql
 
 install:                        ## Install pmm-agent binary.
 	go install -ldflags "$(VERSION_FLAGS)" ./...
@@ -88,25 +89,23 @@ fuzz-postgres-parser:   ## Run fuzzer for agents/postgres/parser package.
 
 bench:                          ## Run benchmarks.
 	go test -bench=. -benchtime=1s -count=5 -cpu=1 -timeout=30m -failfast github.com/percona/pmm-agent/agents/mysql/slowlog/parser | tee slowlog_parser_new.bench
-	benchstat slowlog_parser_old.bench slowlog_parser_new.bench
+	$(BIN_PATH)/benchstat slowlog_parser_old.bench slowlog_parser_new.bench
 
 	go test -bench=. -benchtime=1s -count=5 -cpu=1 -timeout=30m -failfast github.com/percona/pmm-agent/agents/postgres/parser | tee postgres_parser_new.bench
-	benchstat postgres_parser_old.bench postgres_parser_new.bench
+	$(BIN_PATH)/benchstat postgres_parser_old.bench postgres_parser_new.bench
 
 check:                          ## Run required checkers and linters.
 	go run .github/check-license.go
-	dep check
-	go-sumtype ./vendor/... ./...
-	golangci-lint run -c=.golangci-required.yml
+	$(BIN_PATH)/golangci-lint run -c=.golangci-required.yml
 
 check-all: check                ## Run golang ci linter to check new changes from master.
-	golangci-lint run -c=.golangci.yml --new-from-rev=master
+	$(BIN_PATH)/golangci-lint run -c=.golangci.yml --new-from-rev=master
 
 FILES = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 
 format:                         ## Format source code.
 	gofmt -w -s $(FILES)
-	goimports -local github.com/percona/pmm-agent -l -w $(FILES)
+	$(BIN_PATH)/goimports -local github.com/percona/pmm-agent -l -w $(FILES)
 
 RUN_FLAGS = --config-file=pmm-agent-dev.yaml
 
@@ -162,5 +161,5 @@ env-sysbench-run:
 		--tables=1 --scale=10  --use_fk=0 --enable_purge=yes run
 
 ci-reviewdog:                   ## Runs reviewdog checks.
-	golangci-lint run -c=.golangci-required.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -level=error -reporter=github-pr-check
-	golangci-lint run -c=.golangci.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -level=error -reporter=github-pr-review
+	$(BIN_PATH)/golangci-lint run -c=.golangci-required.yml --out-format=line-number | $(BIN_PATH)/reviewdog -f=golangci-lint -level=error -reporter=github-pr-check
+	$(BIN_PATH)/golangci-lint run -c=.golangci.yml --out-format=line-number | $(BIN_PATH)/reviewdog -f=golangci-lint -level=error -reporter=github-pr-review
