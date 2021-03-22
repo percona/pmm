@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+package backup.v1beta1;
+
+option go_package = "api/managementpb/backup;backupv1beta1";
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+// Status shows current status of backup.
+enum Status {
+  STATUS_INVALID = 0;
+  PENDING = 1;
+  IN_PROGRESS = 2;
+  PAUSED = 3;
+  SUCCESS = 4;
+  ERROR = 5;
+}
+
+// DataModel is a model used for performing a backup.
+enum DataModel {
+  DATA_MODEL_INVALID = 0;
+  PHYSICAL = 1;
+  LOGICAL = 2;
+}
+
+// Artifact represents single backup artifact.
+message Artifact {
+  // Machine-readable artifact ID.
+  string artifact_id = 1;
+  // Artifact name
+  string name = 2;
+  // Database vendor e.g. PostgreSQL, MongoDB, MySQL.
+  string vendor = 3;
+  // Machine-readable location ID.
+  string location_id = 4;
+  // Location name.
+  string location_name = 5;
+  // Machine-readable service ID.
+  string service_id = 6;
+  // Service name.
+  string service_name = 7;
+  // Backup data model.
+  DataModel data_model = 8;
+  // Backup status.
+  Status status = 9;
+  // Artifact creation time.
+  google.protobuf.Timestamp created_at = 10;
+}
+
+message ListArtifactsRequest {}
+
+message ListArtifactsResponse {
+  repeated Artifact artifacts = 1;
+}
+
+// Artifacts service provides public methods for managing backup artifacts.
+service Artifacts {
+  // ListArtifacts returns a list of all backup artifacts.
+  rpc ListArtifacts(ListArtifactsRequest) returns (ListArtifactsResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/backup/Artifacts/List"
+      body: "*"
+    };
+  }
+}
