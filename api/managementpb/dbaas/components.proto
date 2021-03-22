@@ -22,6 +22,7 @@ message GetComponentsResponse {
     string image_hash = 2;
     string status = 3;
     bool critical = 4;
+    bool default = 5;
   }
   // Matrix contains all available components.
   message Matrix {

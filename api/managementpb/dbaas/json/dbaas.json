@@ -70,6 +70,10 @@
                                   "type": "boolean",
                                   "x-order": 3
                                 },
+                                "default": {
+                                  "type": "boolean",
+                                  "x-order": 4
+                                },
                                 "image_hash": {
                                   "type": "string",
                                   "x-order": 1
@@ -95,6 +99,10 @@
                                 "critical": {
                                   "type": "boolean",
                                   "x-order": 3
+                                },
+                                "default": {
+                                  "type": "boolean",
+                                  "x-order": 4
                                 },
                                 "image_hash": {
                                   "type": "string",
@@ -122,6 +130,10 @@
                                   "type": "boolean",
                                   "x-order": 3
                                 },
+                                "default": {
+                                  "type": "boolean",
+                                  "x-order": 4
+                                },
                                 "image_hash": {
                                   "type": "string",
                                   "x-order": 1
@@ -147,6 +159,10 @@
                                 "critical": {
                                   "type": "boolean",
                                   "x-order": 3
+                                },
+                                "default": {
+                                  "type": "boolean",
+                                  "x-order": 4
                                 },
                                 "image_hash": {
                                   "type": "string",
@@ -174,6 +190,10 @@
                                   "type": "boolean",
                                   "x-order": 3
                                 },
+                                "default": {
+                                  "type": "boolean",
+                                  "x-order": 4
+                                },
                                 "image_hash": {
                                   "type": "string",
                                   "x-order": 1
@@ -199,6 +219,10 @@
                                 "critical": {
                                   "type": "boolean",
                                   "x-order": 3
+                                },
+                                "default": {
+                                  "type": "boolean",
+                                  "x-order": 4
                                 },
                                 "image_hash": {
                                   "type": "string",
@@ -226,6 +250,10 @@
                                   "type": "boolean",
                                   "x-order": 3
                                 },
+                                "default": {
+                                  "type": "boolean",
+                                  "x-order": 4
+                                },
                                 "image_hash": {
                                   "type": "string",
                                   "x-order": 1
@@ -251,6 +279,10 @@
                                 "critical": {
                                   "type": "boolean",
                                   "x-order": 3
+                                },
+                                "default": {
+                                  "type": "boolean",
+                                  "x-order": 4
                                 },
                                 "image_hash": {
                                   "type": "string",
