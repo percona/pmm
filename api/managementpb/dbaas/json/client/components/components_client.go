@@ -27,6 +27,8 @@ type Client struct {
 type ClientService interface {
 	GetPSMDBComponents(params *GetPSMDBComponentsParams) (*GetPSMDBComponentsOK, error)
 
+	GetPXCComponents(params *GetPXCComponentsParams) (*GetPXCComponentsOK, error)
+
 	SetTransport(transport runtime.ClientTransport)
 }
 
@@ -60,6 +62,39 @@ func (a *Client) GetPSMDBComponents(params *GetPSMDBComponentsParams) (*GetPSMDB
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*GetPSMDBComponentsDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  GetPXCComponents gets p x c components returns list of available components for p x c clusters
+*/
+func (a *Client) GetPXCComponents(params *GetPXCComponentsParams) (*GetPXCComponentsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetPXCComponentsParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "GetPXCComponents",
+		Method:             "POST",
+		PathPattern:        "/v1/management/DBaaS/Components/GetPXC",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &GetPXCComponentsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetPXCComponentsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*GetPXCComponentsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

@@ -16,10 +16,32 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
-func (this *GetComponentsRequest) Validate() error {
+func (this *Component) Validate() error {
 	return nil
 }
-func (this *GetComponentsResponse) Validate() error {
+func (this *Matrix) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
+	// Validation of proto3 map<> fields is unsupported.
+	// Validation of proto3 map<> fields is unsupported.
+	// Validation of proto3 map<> fields is unsupported.
+	// Validation of proto3 map<> fields is unsupported.
+	// Validation of proto3 map<> fields is unsupported.
+	// Validation of proto3 map<> fields is unsupported.
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
+func (this *Version) Validate() error {
+	if this.Matrix != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Matrix); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Matrix", err)
+		}
+	}
+	return nil
+}
+func (this *GetPSMDBComponentsRequest) Validate() error {
+	return nil
+}
+func (this *GetPSMDBComponentsResponse) Validate() error {
 	for _, item := range this.Versions {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
@@ -29,24 +51,15 @@ func (this *GetComponentsResponse) Validate() error {
 	}
 	return nil
 }
-func (this *GetComponentsResponse_Component) Validate() error {
+func (this *GetPXCComponentsRequest) Validate() error {
 	return nil
 }
-func (this *GetComponentsResponse_Matrix) Validate() error {
-	// Validation of proto3 map<> fields is unsupported.
-	// Validation of proto3 map<> fields is unsupported.
-	// Validation of proto3 map<> fields is unsupported.
-	// Validation of proto3 map<> fields is unsupported.
-	// Validation of proto3 map<> fields is unsupported.
-	// Validation of proto3 map<> fields is unsupported.
-	// Validation of proto3 map<> fields is unsupported.
-	// Validation of proto3 map<> fields is unsupported.
-	return nil
-}
-func (this *GetComponentsResponse_Version) Validate() error {
-	if this.Matrix != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Matrix); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Matrix", err)
+func (this *GetPXCComponentsResponse) Validate() error {
+	for _, item := range this.Versions {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Versions", err)
+			}
 		}
 	}
 	return nil
