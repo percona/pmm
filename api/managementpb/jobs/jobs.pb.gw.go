@@ -2,11 +2,11 @@
 // source: managementpb/jobs/jobs.proto
 
 /*
-Package iav1beta1 is a reverse proxy.
+Package jobs1beta1 is a reverse proxy.
 
 It translates gRPC into RESTful JSON APIs.
 */
-package iav1beta1
+package jobs1beta1
 
 import (
 	"context"
