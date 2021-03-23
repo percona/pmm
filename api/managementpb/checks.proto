@@ -79,7 +79,7 @@ service SecurityChecks {
       body: "*"
     };
     option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-      description: "All the available checks will be started if check names weren't specified."
+      description: "All the available checks will be started if check names aren't specified."
     };
   }
   // ListSecurityChecks returns a list of available Security Thread Tool checks.
