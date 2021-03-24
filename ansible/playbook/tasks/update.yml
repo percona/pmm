@@ -189,6 +189,7 @@
           - grafana
           - qan-api2
           - pmm-agent
+          - dbaas-controller
         - ["stop", "remove", "add"]
 
     # set folder names of panels to format that's supported by grafana-cli
