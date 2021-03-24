@@ -42,16 +42,14 @@ message GetJobResponse {
 
 message StartEchoJobRequest {
   // pmm-agent ID where to run this Job.
-  string pmm_agent_id = 1;
-  // Service ID for this Job. Required.
-  string service_id = 2 [
+  string pmm_agent_id = 1 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  google.protobuf.Duration timeout = 3;
-  string message = 4;
-  google.protobuf.Duration delay = 5;
+  google.protobuf.Duration timeout = 2;
+  string message = 3;
+  google.protobuf.Duration delay = 4;
 }
 
 message StartEchoJobResponse {
