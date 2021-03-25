@@ -45,12 +45,14 @@ func TestPostgresExporterConfig(t *testing.T) {
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
+			"--auto-discover-databases",
 			"--collect.custom_query.hr",
 			"--collect.custom_query.hr.directory=/usr/local/percona/pmm2/collectors/custom-queries/postgresql/high-resolution",
 			"--collect.custom_query.lr",
 			"--collect.custom_query.lr.directory=/usr/local/percona/pmm2/collectors/custom-queries/postgresql/low-resolution",
 			"--collect.custom_query.mr",
 			"--collect.custom_query.mr.directory=/usr/local/percona/pmm2/collectors/custom-queries/postgresql/medium-resolution",
+			"--exclude-databases=template0,template1,postgres",
 			"--web.listen-address=:{{ .listen_port }}",
 		},
 		Env: []string{
@@ -95,10 +97,12 @@ func TestPostgresExporterConfig(t *testing.T) {
 			TemplateLeftDelim:  "{{",
 			TemplateRightDelim: "}}",
 			Args: []string{
+				"--auto-discover-databases",
 				"--collect.custom_query.lr",
 				"--collect.custom_query.lr.directory=/usr/local/percona/pmm2/collectors/custom-queries/postgresql/low-resolution",
 				"--collect.custom_query.mr",
 				"--collect.custom_query.mr.directory=/usr/local/percona/pmm2/collectors/custom-queries/postgresql/medium-resolution",
+				"--exclude-databases=template0,template1,postgres",
 				"--web.listen-address=:{{ .listen_port }}",
 			},
 		}

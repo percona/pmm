@@ -47,6 +47,8 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent, red
 		"--collect.custom_query.mr.directory=/usr/local/percona/pmm2/collectors/custom-queries/postgresql/medium-resolution",
 		"--collect.custom_query.hr.directory=/usr/local/percona/pmm2/collectors/custom-queries/postgresql/high-resolution",
 
+		"--auto-discover-databases",
+		"--exclude-databases=template0,template1,postgres",
 		"--web.listen-address=:" + tdp.Left + " .listen_port " + tdp.Right,
 	}
 
