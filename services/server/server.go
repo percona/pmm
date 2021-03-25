@@ -758,7 +758,7 @@ func (s *Server) AWSInstanceCheck(ctx context.Context, req *serverpb.AWSInstance
 func (s *Server) PlatformSignUp(ctx context.Context, req *serverpb.PlatformSignUpRequest) (*serverpb.PlatformSignUpResponse, error) {
 	nCtx, cancel := context.WithTimeout(ctx, platformAPITimeout)
 	defer cancel()
-	if err := s.platformService.SignUp(nCtx, req.Email, req.Password); err != nil {
+	if err := s.platformService.SignUp(nCtx, req.Email, req.FirstName, req.LastName); err != nil {
 		return nil, err
 	}
 

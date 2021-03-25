@@ -41,13 +41,13 @@ func (_m *mockPlatformService) SignOut(ctx context.Context) error {
 	return r0
 }
 
-// SignUp provides a mock function with given fields: ctx, email, password
-func (_m *mockPlatformService) SignUp(ctx context.Context, email string, password string) error {
-	ret := _m.Called(ctx, email, password)
+// SignUp provides a mock function with given fields: ctx, email, firstName, lastName
+func (_m *mockPlatformService) SignUp(ctx context.Context, email string, firstName string, lastName string) error {
+	ret := _m.Called(ctx, email, firstName, lastName)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string) error); ok {
-		r0 = rf(ctx, email, password)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string) error); ok {
+		r0 = rf(ctx, email, firstName, lastName)
 	} else {
 		r0 = ret.Error(0)
 	}

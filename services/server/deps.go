@@ -113,7 +113,7 @@ type telemetryService interface {
 // platformService is a subset of methods of platform.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type platformService interface {
-	SignUp(ctx context.Context, email, password string) error
+	SignUp(ctx context.Context, email, firstName, lastName string) error
 	SignIn(ctx context.Context, email, password string) error
 	SignOut(ctx context.Context) error
 }

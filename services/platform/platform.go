@@ -97,14 +97,14 @@ func (s *Service) Run(ctx context.Context) {
 }
 
 // SignUp creates new Percona Platform user with given email and password.
-func (s *Service) SignUp(ctx context.Context, email, password string) error {
+func (s *Service) SignUp(ctx context.Context, email, firstName, lastName string) error {
 	cc, err := saasdial.Dial(ctx, "", s.host)
 	if err != nil {
 		return errors.Wrap(err, "failed establish connection with Percona")
 	}
 	defer cc.Close() //nolint:errcheck
 
-	_, err = api.NewAuthAPIClient(cc).SignUp(ctx, &api.SignUpRequest{Email: email, Password: password})
+	_, err = api.NewAuthAPIClient(cc).SignUp(ctx, &api.SignUpRequest{Email: email, FirstName: firstName, LastName: lastName})
 	if err != nil {
 		return err
 	}
