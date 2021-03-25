@@ -189,7 +189,13 @@
           - grafana
           - qan-api2
           - pmm-agent
-          - dbaas-controller
+        - ["stop", "remove", "add"]
+
+    - name: Restart dbaas-controller
+      command: supervisorctl {{ item.0 }} dbaas-controller
+      changed_when: True
+      when: "{{ lookup('env', 'PERCONA_TEST_DBAAS') == '1' }}"
+      with_nested:
         - ["stop", "remove", "add"]
 
     # set folder names of panels to format that's supported by grafana-cli
