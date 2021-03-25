@@ -355,7 +355,9 @@ message StartJobRequest {
 }
 
 // StartJobResponse is an AgentMessage for StartJobRequest acceptance.
-message StartJobResponse {}
+message StartJobResponse {
+  string error = 1;
+}
 
 // StopJobRequest is a ServerMessage asking pmm-agent to stop job.
 message StopJobRequest {
