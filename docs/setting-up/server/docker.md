@@ -8,7 +8,7 @@ We maintain a [Docker image for PMM Server][DOCKERHUB]. This section shows how t
 
 - [Docker](https://docs.docker.com/get-docker/) 1.12.6 or higher.
 
-## Running PMM Client as a Docker container
+## Running PMM Server as a Docker container
 
 1. Pull the image.
 
