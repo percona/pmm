@@ -148,6 +148,7 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 		},
 		Name: req.Name,
 		Params: &dbaascontrollerv1beta1.PSMDBClusterParams{
+			Image:       req.Params.Image,
 			ClusterSize: req.Params.ClusterSize,
 			Replicaset: &dbaascontrollerv1beta1.PSMDBClusterParams_ReplicaSet{
 				ComputeResources: &dbaascontrollerv1beta1.ComputeResources{

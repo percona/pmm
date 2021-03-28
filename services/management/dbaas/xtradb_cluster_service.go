@@ -158,10 +158,12 @@ func (s XtraDBClusterService) CreateXtraDBCluster(ctx context.Context, req *dbaa
 		Params: &dbaascontrollerv1beta1.XtraDBClusterParams{
 			ClusterSize: req.Params.ClusterSize,
 			Pxc: &dbaascontrollerv1beta1.XtraDBClusterParams_PXC{
+				Image:            req.Params.Pxc.Image,
 				ComputeResources: new(dbaascontrollerv1beta1.ComputeResources),
 				DiskSize:         req.Params.Pxc.DiskSize,
 			},
 			Proxysql: &dbaascontrollerv1beta1.XtraDBClusterParams_ProxySQL{
+				Image:            req.Params.Proxysql.Image,
 				ComputeResources: new(dbaascontrollerv1beta1.ComputeResources),
 				DiskSize:         req.Params.Proxysql.DiskSize,
 			},

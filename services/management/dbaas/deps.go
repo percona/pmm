@@ -25,6 +25,7 @@ import (
 )
 
 //go:generate mockery -name=dbaasClient -case=snake -inpkg -testonly
+//go:generate mockery -name=versionService -case=snake -inpkg -testonly
 
 type dbaasClient interface {
 	// CheckKubernetesClusterConnection checks connection to Kubernetes cluster and returns statuses of the cluster and operators.
@@ -57,4 +58,9 @@ type dbaasClient interface {
 	GetLogs(ctx context.Context, in *controllerv1beta1.GetLogsRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetLogsResponse, error)
 	// GetResources returns all and available resources of a Kubernetes cluster.
 	GetResources(ctx context.Context, in *controllerv1beta1.GetResourcesRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetResourcesResponse, error)
+}
+
+type versionService interface {
+	// Matrix calls version service with given params and returns components matrix.
+	Matrix(ctx context.Context, params componentsParams) (*VersionServiceResponse, error)
 }

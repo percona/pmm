@@ -132,6 +132,7 @@ type gRPCServerDeps struct {
 	alertsService         *ia.AlertsService
 	templatesService      *ia.TemplatesService
 	rulesService          *ia.RulesService
+	versionServiceClient  *managementdbaas.VersionServiceClient
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -200,6 +201,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 		dbaasv1beta1.RegisterXtraDBClusterServer(gRPCServer, managementdbaas.NewXtraDBClusterService(deps.db, deps.dbaasControllerClient))
 		dbaasv1beta1.RegisterPSMDBClusterServer(gRPCServer, managementdbaas.NewPSMDBClusterService(deps.db, deps.dbaasControllerClient))
 		dbaasv1beta1.RegisterLogsAPIServer(gRPCServer, managementdbaas.NewLogsService(deps.db, deps.dbaasControllerClient))
+		dbaasv1beta1.RegisterComponentsServer(gRPCServer, managementdbaas.NewComponentsService(deps.db, deps.dbaasControllerClient, deps.versionServiceClient))
 	}
 
 	if l.Logger.GetLevel() >= logrus.DebugLevel {
@@ -306,6 +308,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		dbaasv1beta1.RegisterXtraDBClusterHandlerFromEndpoint,
 		dbaasv1beta1.RegisterPSMDBClusterHandlerFromEndpoint,
 		dbaasv1beta1.RegisterLogsAPIHandlerFromEndpoint,
+		dbaasv1beta1.RegisterComponentsHandlerFromEndpoint,
 	} {
 		if err := r(ctx, proxyMux, gRPCAddr, opts); err != nil {
 			l.Panic(err)
@@ -541,6 +544,8 @@ func main() {
 	qanAPIAddrF := kingpin.Flag("qan-api-addr", "QAN API gRPC API address").Default("127.0.0.1:9911").String()
 	dbaasControllerAPIAddrF := kingpin.Flag("dbaas-controller-api-addr", "DBaaS Controller gRPC API address").Default("127.0.0.1:20201").String()
 
+	versionServiceAPIURLF := kingpin.Flag("version-service-api-url", "Version Service API URL").Default("https://check.percona.com/versions/v1").String()
+
 	postgresAddrF := kingpin.Flag("postgres-addr", "PostgreSQL address").Default("127.0.0.1:5432").String()
 	postgresDBNameF := kingpin.Flag("postgres-name", "PostgreSQL database name").Required().String()
 	postgresDBUsernameF := kingpin.Flag("postgres-username", "PostgreSQL database username").Default("pmm-managed").String()
@@ -636,6 +641,8 @@ func main() {
 	templatesSvc := ia.NewTemplatesService(db)
 	rulesSvc := ia.NewRulesService(db, templatesSvc, vmalert, alertmanager)
 	alertsSvc := ia.NewAlertsService(db, alertmanager, templatesSvc)
+
+	versionService := managementdbaas.NewVersionServiceClient(*versionServiceAPIURLF)
 
 	serverParams := &server.Params{
 		DB:                   db,
@@ -790,6 +797,7 @@ func main() {
 			alertsService:         alertsSvc,
 			templatesService:      templatesSvc,
 			rulesService:          rulesSvc,
+			versionServiceClient:  versionService,
 		})
 	}()
 
