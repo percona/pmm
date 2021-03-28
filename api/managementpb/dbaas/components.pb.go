@@ -486,6 +486,282 @@ func (x *GetPXCComponentsResponse) GetVersions() []*Version {
 	return nil
 }
 
+// SetComponent contains fields to manage components.
+type SetComponent struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	DefaultVersion   string   `protobuf:"bytes,1,opt,name=default_version,json=defaultVersion,proto3" json:"default_version,omitempty"`
+	DisabledVersions []string `protobuf:"bytes,2,rep,name=disabled_versions,json=disabledVersions,proto3" json:"disabled_versions,omitempty"`
+}
+
+func (x *SetComponent) Reset() {
+	*x = SetComponent{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_managementpb_dbaas_components_proto_msgTypes[7]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SetComponent) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetComponent) ProtoMessage() {}
+
+func (x *SetComponent) ProtoReflect() protoreflect.Message {
+	mi := &file_managementpb_dbaas_components_proto_msgTypes[7]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetComponent.ProtoReflect.Descriptor instead.
+func (*SetComponent) Descriptor() ([]byte, []int) {
+	return file_managementpb_dbaas_components_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *SetComponent) GetDefaultVersion() string {
+	if x != nil {
+		return x.DefaultVersion
+	}
+	return ""
+}
+
+func (x *SetComponent) GetDisabledVersions() []string {
+	if x != nil {
+		return x.DisabledVersions
+	}
+	return nil
+}
+
+type SetPSMDBComponentsRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Kubernetes cluster name.
+	KubernetesClusterName string        `protobuf:"bytes,1,opt,name=kubernetes_cluster_name,json=kubernetesClusterName,proto3" json:"kubernetes_cluster_name,omitempty"`
+	Mongod                *SetComponent `protobuf:"bytes,2,opt,name=mongod,proto3" json:"mongod,omitempty"`
+	Backup                *SetComponent `protobuf:"bytes,3,opt,name=backup,proto3" json:"backup,omitempty"`
+}
+
+func (x *SetPSMDBComponentsRequest) Reset() {
+	*x = SetPSMDBComponentsRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_managementpb_dbaas_components_proto_msgTypes[8]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SetPSMDBComponentsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetPSMDBComponentsRequest) ProtoMessage() {}
+
+func (x *SetPSMDBComponentsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_managementpb_dbaas_components_proto_msgTypes[8]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetPSMDBComponentsRequest.ProtoReflect.Descriptor instead.
+func (*SetPSMDBComponentsRequest) Descriptor() ([]byte, []int) {
+	return file_managementpb_dbaas_components_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *SetPSMDBComponentsRequest) GetKubernetesClusterName() string {
+	if x != nil {
+		return x.KubernetesClusterName
+	}
+	return ""
+}
+
+func (x *SetPSMDBComponentsRequest) GetMongod() *SetComponent {
+	if x != nil {
+		return x.Mongod
+	}
+	return nil
+}
+
+func (x *SetPSMDBComponentsRequest) GetBackup() *SetComponent {
+	if x != nil {
+		return x.Backup
+	}
+	return nil
+}
+
+type SetPSMDBComponentsResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *SetPSMDBComponentsResponse) Reset() {
+	*x = SetPSMDBComponentsResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_managementpb_dbaas_components_proto_msgTypes[9]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SetPSMDBComponentsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetPSMDBComponentsResponse) ProtoMessage() {}
+
+func (x *SetPSMDBComponentsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_managementpb_dbaas_components_proto_msgTypes[9]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetPSMDBComponentsResponse.ProtoReflect.Descriptor instead.
+func (*SetPSMDBComponentsResponse) Descriptor() ([]byte, []int) {
+	return file_managementpb_dbaas_components_proto_rawDescGZIP(), []int{9}
+}
+
+type SetPXCComponentsRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Kubernetes cluster name.
+	KubernetesClusterName string        `protobuf:"bytes,1,opt,name=kubernetes_cluster_name,json=kubernetesClusterName,proto3" json:"kubernetes_cluster_name,omitempty"`
+	Pxc                   *SetComponent `protobuf:"bytes,2,opt,name=pxc,proto3" json:"pxc,omitempty"`
+	Proxysql              *SetComponent `protobuf:"bytes,3,opt,name=proxysql,proto3" json:"proxysql,omitempty"`
+	Haproxy               *SetComponent `protobuf:"bytes,4,opt,name=haproxy,proto3" json:"haproxy,omitempty"`
+	Backup                *SetComponent `protobuf:"bytes,5,opt,name=backup,proto3" json:"backup,omitempty"`
+}
+
+func (x *SetPXCComponentsRequest) Reset() {
+	*x = SetPXCComponentsRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_managementpb_dbaas_components_proto_msgTypes[10]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SetPXCComponentsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetPXCComponentsRequest) ProtoMessage() {}
+
+func (x *SetPXCComponentsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_managementpb_dbaas_components_proto_msgTypes[10]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetPXCComponentsRequest.ProtoReflect.Descriptor instead.
+func (*SetPXCComponentsRequest) Descriptor() ([]byte, []int) {
+	return file_managementpb_dbaas_components_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *SetPXCComponentsRequest) GetKubernetesClusterName() string {
+	if x != nil {
+		return x.KubernetesClusterName
+	}
+	return ""
+}
+
+func (x *SetPXCComponentsRequest) GetPxc() *SetComponent {
+	if x != nil {
+		return x.Pxc
+	}
+	return nil
+}
+
+func (x *SetPXCComponentsRequest) GetProxysql() *SetComponent {
+	if x != nil {
+		return x.Proxysql
+	}
+	return nil
+}
+
+func (x *SetPXCComponentsRequest) GetHaproxy() *SetComponent {
+	if x != nil {
+		return x.Haproxy
+	}
+	return nil
+}
+
+func (x *SetPXCComponentsRequest) GetBackup() *SetComponent {
+	if x != nil {
+		return x.Backup
+	}
+	return nil
+}
+
+type SetPXCComponentsResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *SetPXCComponentsResponse) Reset() {
+	*x = SetPXCComponentsResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_managementpb_dbaas_components_proto_msgTypes[11]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SetPXCComponentsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetPXCComponentsResponse) ProtoMessage() {}
+
+func (x *SetPXCComponentsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_managementpb_dbaas_components_proto_msgTypes[11]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetPXCComponentsResponse.ProtoReflect.Descriptor instead.
+func (*SetPXCComponentsResponse) Descriptor() ([]byte, []int) {
+	return file_managementpb_dbaas_components_proto_rawDescGZIP(), []int{11}
+}
+
 var File_managementpb_dbaas_components_proto protoreflect.FileDescriptor
 
 var file_managementpb_dbaas_components_proto_rawDesc = []byte{
@@ -609,30 +885,90 @@ var file_managementpb_dbaas_components_proto_rawDesc = []byte{
 	0x12, 0x32, 0x0a, 0x08, 0x76, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x73, 0x18, 0x01, 0x20, 0x03,
 	0x28, 0x0b, 0x32, 0x16, 0x2e, 0x64, 0x62, 0x61, 0x61, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74,
 	0x61, 0x31, 0x2e, 0x56, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x52, 0x08, 0x76, 0x65, 0x72, 0x73,
-	0x69, 0x6f, 0x6e, 0x73, 0x32, 0xc6, 0x02, 0x0a, 0x0a, 0x43, 0x6f, 0x6d, 0x70, 0x6f, 0x6e, 0x65,
-	0x6e, 0x74, 0x73, 0x12, 0x9e, 0x01, 0x0a, 0x12, 0x47, 0x65, 0x74, 0x50, 0x53, 0x4d, 0x44, 0x42,
-	0x43, 0x6f, 0x6d, 0x70, 0x6f, 0x6e, 0x65, 0x6e, 0x74, 0x73, 0x12, 0x28, 0x2e, 0x64, 0x62, 0x61,
-	0x61, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x47, 0x65, 0x74, 0x50, 0x53,
-	0x4d, 0x44, 0x42, 0x43, 0x6f, 0x6d, 0x70, 0x6f, 0x6e, 0x65, 0x6e, 0x74, 0x73, 0x52, 0x65, 0x71,
-	0x75, 0x65, 0x73, 0x74, 0x1a, 0x29, 0x2e, 0x64, 0x62, 0x61, 0x61, 0x73, 0x2e, 0x76, 0x31, 0x62,
-	0x65, 0x74, 0x61, 0x31, 0x2e, 0x47, 0x65, 0x74, 0x50, 0x53, 0x4d, 0x44, 0x42, 0x43, 0x6f, 0x6d,
-	0x70, 0x6f, 0x6e, 0x65, 0x6e, 0x74, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22,
-	0x33, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x2d, 0x22, 0x28, 0x2f, 0x76, 0x31, 0x2f, 0x6d, 0x61, 0x6e,
-	0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2f, 0x44, 0x42, 0x61, 0x61, 0x53, 0x2f, 0x43, 0x6f,
-	0x6d, 0x70, 0x6f, 0x6e, 0x65, 0x6e, 0x74, 0x73, 0x2f, 0x47, 0x65, 0x74, 0x50, 0x53, 0x4d, 0x44,
-	0x42, 0x3a, 0x01, 0x2a, 0x12, 0x96, 0x01, 0x0a, 0x10, 0x47, 0x65, 0x74, 0x50, 0x58, 0x43, 0x43,
-	0x6f, 0x6d, 0x70, 0x6f, 0x6e, 0x65, 0x6e, 0x74, 0x73, 0x12, 0x26, 0x2e, 0x64, 0x62, 0x61, 0x61,
-	0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x47, 0x65, 0x74, 0x50, 0x58, 0x43,
-	0x43, 0x6f, 0x6d, 0x70, 0x6f, 0x6e, 0x65, 0x6e, 0x74, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
-	0x74, 0x1a, 0x27, 0x2e, 0x64, 0x62, 0x61, 0x61, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
+	0x69, 0x6f, 0x6e, 0x73, 0x22, 0x64, 0x0a, 0x0c, 0x53, 0x65, 0x74, 0x43, 0x6f, 0x6d, 0x70, 0x6f,
+	0x6e, 0x65, 0x6e, 0x74, 0x12, 0x27, 0x0a, 0x0f, 0x64, 0x65, 0x66, 0x61, 0x75, 0x6c, 0x74, 0x5f,
+	0x76, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0e, 0x64,
+	0x65, 0x66, 0x61, 0x75, 0x6c, 0x74, 0x56, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x12, 0x2b, 0x0a,
+	0x11, 0x64, 0x69, 0x73, 0x61, 0x62, 0x6c, 0x65, 0x64, 0x5f, 0x76, 0x65, 0x72, 0x73, 0x69, 0x6f,
+	0x6e, 0x73, 0x18, 0x02, 0x20, 0x03, 0x28, 0x09, 0x52, 0x10, 0x64, 0x69, 0x73, 0x61, 0x62, 0x6c,
+	0x65, 0x64, 0x56, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x73, 0x22, 0xbd, 0x01, 0x0a, 0x19, 0x53,
+	0x65, 0x74, 0x50, 0x53, 0x4d, 0x44, 0x42, 0x43, 0x6f, 0x6d, 0x70, 0x6f, 0x6e, 0x65, 0x6e, 0x74,
+	0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x36, 0x0a, 0x17, 0x6b, 0x75, 0x62, 0x65,
+	0x72, 0x6e, 0x65, 0x74, 0x65, 0x73, 0x5f, 0x63, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x5f, 0x6e,
+	0x61, 0x6d, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x15, 0x6b, 0x75, 0x62, 0x65, 0x72,
+	0x6e, 0x65, 0x74, 0x65, 0x73, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x4e, 0x61, 0x6d, 0x65,
+	0x12, 0x33, 0x0a, 0x06, 0x6d, 0x6f, 0x6e, 0x67, 0x6f, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b,
+	0x32, 0x1b, 0x2e, 0x64, 0x62, 0x61, 0x61, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
+	0x2e, 0x53, 0x65, 0x74, 0x43, 0x6f, 0x6d, 0x70, 0x6f, 0x6e, 0x65, 0x6e, 0x74, 0x52, 0x06, 0x6d,
+	0x6f, 0x6e, 0x67, 0x6f, 0x64, 0x12, 0x33, 0x0a, 0x06, 0x62, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x18,
+	0x03, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1b, 0x2e, 0x64, 0x62, 0x61, 0x61, 0x73, 0x2e, 0x76, 0x31,
+	0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x53, 0x65, 0x74, 0x43, 0x6f, 0x6d, 0x70, 0x6f, 0x6e, 0x65,
+	0x6e, 0x74, 0x52, 0x06, 0x62, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x22, 0x1c, 0x0a, 0x1a, 0x53, 0x65,
+	0x74, 0x50, 0x53, 0x4d, 0x44, 0x42, 0x43, 0x6f, 0x6d, 0x70, 0x6f, 0x6e, 0x65, 0x6e, 0x74, 0x73,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0xa5, 0x02, 0x0a, 0x17, 0x53, 0x65, 0x74,
+	0x50, 0x58, 0x43, 0x43, 0x6f, 0x6d, 0x70, 0x6f, 0x6e, 0x65, 0x6e, 0x74, 0x73, 0x52, 0x65, 0x71,
+	0x75, 0x65, 0x73, 0x74, 0x12, 0x36, 0x0a, 0x17, 0x6b, 0x75, 0x62, 0x65, 0x72, 0x6e, 0x65, 0x74,
+	0x65, 0x73, 0x5f, 0x63, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x5f, 0x6e, 0x61, 0x6d, 0x65, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x15, 0x6b, 0x75, 0x62, 0x65, 0x72, 0x6e, 0x65, 0x74, 0x65,
+	0x73, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x4e, 0x61, 0x6d, 0x65, 0x12, 0x2d, 0x0a, 0x03,
+	0x70, 0x78, 0x63, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1b, 0x2e, 0x64, 0x62, 0x61, 0x61,
+	0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x53, 0x65, 0x74, 0x43, 0x6f, 0x6d,
+	0x70, 0x6f, 0x6e, 0x65, 0x6e, 0x74, 0x52, 0x03, 0x70, 0x78, 0x63, 0x12, 0x37, 0x0a, 0x08, 0x70,
+	0x72, 0x6f, 0x78, 0x79, 0x73, 0x71, 0x6c, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1b, 0x2e,
+	0x64, 0x62, 0x61, 0x61, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x53, 0x65,
+	0x74, 0x43, 0x6f, 0x6d, 0x70, 0x6f, 0x6e, 0x65, 0x6e, 0x74, 0x52, 0x08, 0x70, 0x72, 0x6f, 0x78,
+	0x79, 0x73, 0x71, 0x6c, 0x12, 0x35, 0x0a, 0x07, 0x68, 0x61, 0x70, 0x72, 0x6f, 0x78, 0x79, 0x18,
+	0x04, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1b, 0x2e, 0x64, 0x62, 0x61, 0x61, 0x73, 0x2e, 0x76, 0x31,
+	0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x53, 0x65, 0x74, 0x43, 0x6f, 0x6d, 0x70, 0x6f, 0x6e, 0x65,
+	0x6e, 0x74, 0x52, 0x07, 0x68, 0x61, 0x70, 0x72, 0x6f, 0x78, 0x79, 0x12, 0x33, 0x0a, 0x06, 0x62,
+	0x61, 0x63, 0x6b, 0x75, 0x70, 0x18, 0x05, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1b, 0x2e, 0x64, 0x62,
+	0x61, 0x61, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x53, 0x65, 0x74, 0x43,
+	0x6f, 0x6d, 0x70, 0x6f, 0x6e, 0x65, 0x6e, 0x74, 0x52, 0x06, 0x62, 0x61, 0x63, 0x6b, 0x75, 0x70,
+	0x22, 0x1a, 0x0a, 0x18, 0x53, 0x65, 0x74, 0x50, 0x58, 0x43, 0x43, 0x6f, 0x6d, 0x70, 0x6f, 0x6e,
+	0x65, 0x6e, 0x74, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x32, 0x80, 0x05, 0x0a,
+	0x0a, 0x43, 0x6f, 0x6d, 0x70, 0x6f, 0x6e, 0x65, 0x6e, 0x74, 0x73, 0x12, 0x9e, 0x01, 0x0a, 0x12,
+	0x47, 0x65, 0x74, 0x50, 0x53, 0x4d, 0x44, 0x42, 0x43, 0x6f, 0x6d, 0x70, 0x6f, 0x6e, 0x65, 0x6e,
+	0x74, 0x73, 0x12, 0x28, 0x2e, 0x64, 0x62, 0x61, 0x61, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74,
+	0x61, 0x31, 0x2e, 0x47, 0x65, 0x74, 0x50, 0x53, 0x4d, 0x44, 0x42, 0x43, 0x6f, 0x6d, 0x70, 0x6f,
+	0x6e, 0x65, 0x6e, 0x74, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x29, 0x2e, 0x64,
+	0x62, 0x61, 0x61, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x47, 0x65, 0x74,
+	0x50, 0x53, 0x4d, 0x44, 0x42, 0x43, 0x6f, 0x6d, 0x70, 0x6f, 0x6e, 0x65, 0x6e, 0x74, 0x73, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x33, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x2d, 0x22,
+	0x28, 0x2f, 0x76, 0x31, 0x2f, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2f,
+	0x44, 0x42, 0x61, 0x61, 0x53, 0x2f, 0x43, 0x6f, 0x6d, 0x70, 0x6f, 0x6e, 0x65, 0x6e, 0x74, 0x73,
+	0x2f, 0x47, 0x65, 0x74, 0x50, 0x53, 0x4d, 0x44, 0x42, 0x3a, 0x01, 0x2a, 0x12, 0x96, 0x01, 0x0a,
+	0x10, 0x47, 0x65, 0x74, 0x50, 0x58, 0x43, 0x43, 0x6f, 0x6d, 0x70, 0x6f, 0x6e, 0x65, 0x6e, 0x74,
+	0x73, 0x12, 0x26, 0x2e, 0x64, 0x62, 0x61, 0x61, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
 	0x31, 0x2e, 0x47, 0x65, 0x74, 0x50, 0x58, 0x43, 0x43, 0x6f, 0x6d, 0x70, 0x6f, 0x6e, 0x65, 0x6e,
-	0x74, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x31, 0x82, 0xd3, 0xe4, 0x93,
-	0x02, 0x2b, 0x22, 0x26, 0x2f, 0x76, 0x31, 0x2f, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65,
-	0x6e, 0x74, 0x2f, 0x44, 0x42, 0x61, 0x61, 0x53, 0x2f, 0x43, 0x6f, 0x6d, 0x70, 0x6f, 0x6e, 0x65,
-	0x6e, 0x74, 0x73, 0x2f, 0x47, 0x65, 0x74, 0x50, 0x58, 0x43, 0x3a, 0x01, 0x2a, 0x42, 0x25, 0x5a,
-	0x23, 0x61, 0x70, 0x69, 0x2f, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x70,
-	0x62, 0x2f, 0x64, 0x62, 0x61, 0x61, 0x73, 0x3b, 0x64, 0x62, 0x61, 0x61, 0x73, 0x76, 0x31, 0x62,
-	0x65, 0x74, 0x61, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x74, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x27, 0x2e, 0x64, 0x62, 0x61, 0x61,
+	0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x47, 0x65, 0x74, 0x50, 0x58, 0x43,
+	0x43, 0x6f, 0x6d, 0x70, 0x6f, 0x6e, 0x65, 0x6e, 0x74, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x22, 0x31, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x2b, 0x22, 0x26, 0x2f, 0x76, 0x31, 0x2f,
+	0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2f, 0x44, 0x42, 0x61, 0x61, 0x53,
+	0x2f, 0x43, 0x6f, 0x6d, 0x70, 0x6f, 0x6e, 0x65, 0x6e, 0x74, 0x73, 0x2f, 0x47, 0x65, 0x74, 0x50,
+	0x58, 0x43, 0x3a, 0x01, 0x2a, 0x12, 0x9e, 0x01, 0x0a, 0x12, 0x53, 0x65, 0x74, 0x50, 0x53, 0x4d,
+	0x44, 0x42, 0x43, 0x6f, 0x6d, 0x70, 0x6f, 0x6e, 0x65, 0x6e, 0x74, 0x73, 0x12, 0x28, 0x2e, 0x64,
+	0x62, 0x61, 0x61, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x53, 0x65, 0x74,
+	0x50, 0x53, 0x4d, 0x44, 0x42, 0x43, 0x6f, 0x6d, 0x70, 0x6f, 0x6e, 0x65, 0x6e, 0x74, 0x73, 0x52,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x29, 0x2e, 0x64, 0x62, 0x61, 0x61, 0x73, 0x2e, 0x76,
+	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x53, 0x65, 0x74, 0x50, 0x53, 0x4d, 0x44, 0x42, 0x43,
+	0x6f, 0x6d, 0x70, 0x6f, 0x6e, 0x65, 0x6e, 0x74, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x22, 0x33, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x2d, 0x22, 0x28, 0x2f, 0x76, 0x31, 0x2f, 0x6d,
+	0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2f, 0x44, 0x42, 0x61, 0x61, 0x53, 0x2f,
+	0x43, 0x6f, 0x6d, 0x70, 0x6f, 0x6e, 0x65, 0x6e, 0x74, 0x73, 0x2f, 0x53, 0x65, 0x74, 0x50, 0x53,
+	0x4d, 0x44, 0x42, 0x3a, 0x01, 0x2a, 0x12, 0x96, 0x01, 0x0a, 0x10, 0x53, 0x65, 0x74, 0x50, 0x58,
+	0x43, 0x43, 0x6f, 0x6d, 0x70, 0x6f, 0x6e, 0x65, 0x6e, 0x74, 0x73, 0x12, 0x26, 0x2e, 0x64, 0x62,
+	0x61, 0x61, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x53, 0x65, 0x74, 0x50,
+	0x58, 0x43, 0x43, 0x6f, 0x6d, 0x70, 0x6f, 0x6e, 0x65, 0x6e, 0x74, 0x73, 0x52, 0x65, 0x71, 0x75,
+	0x65, 0x73, 0x74, 0x1a, 0x27, 0x2e, 0x64, 0x62, 0x61, 0x61, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65,
+	0x74, 0x61, 0x31, 0x2e, 0x53, 0x65, 0x74, 0x50, 0x58, 0x43, 0x43, 0x6f, 0x6d, 0x70, 0x6f, 0x6e,
+	0x65, 0x6e, 0x74, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x31, 0x82, 0xd3,
+	0xe4, 0x93, 0x02, 0x2b, 0x22, 0x26, 0x2f, 0x76, 0x31, 0x2f, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65,
+	0x6d, 0x65, 0x6e, 0x74, 0x2f, 0x44, 0x42, 0x61, 0x61, 0x53, 0x2f, 0x43, 0x6f, 0x6d, 0x70, 0x6f,
+	0x6e, 0x65, 0x6e, 0x74, 0x73, 0x2f, 0x53, 0x65, 0x74, 0x50, 0x58, 0x43, 0x3a, 0x01, 0x2a, 0x42,
+	0x25, 0x5a, 0x23, 0x61, 0x70, 0x69, 0x2f, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e,
+	0x74, 0x70, 0x62, 0x2f, 0x64, 0x62, 0x61, 0x61, 0x73, 0x3b, 0x64, 0x62, 0x61, 0x61, 0x73, 0x76,
+	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -647,7 +983,7 @@ func file_managementpb_dbaas_components_proto_rawDescGZIP() []byte {
 	return file_managementpb_dbaas_components_proto_rawDescData
 }
 
-var file_managementpb_dbaas_components_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_managementpb_dbaas_components_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
 var file_managementpb_dbaas_components_proto_goTypes = []interface{}{
 	(*Component)(nil),                  // 0: dbaas.v1beta1.Component
 	(*Matrix)(nil),                     // 1: dbaas.v1beta1.Matrix
@@ -656,44 +992,59 @@ var file_managementpb_dbaas_components_proto_goTypes = []interface{}{
 	(*GetPSMDBComponentsResponse)(nil), // 4: dbaas.v1beta1.GetPSMDBComponentsResponse
 	(*GetPXCComponentsRequest)(nil),    // 5: dbaas.v1beta1.GetPXCComponentsRequest
 	(*GetPXCComponentsResponse)(nil),   // 6: dbaas.v1beta1.GetPXCComponentsResponse
-	nil,                                // 7: dbaas.v1beta1.Matrix.MongodEntry
-	nil,                                // 8: dbaas.v1beta1.Matrix.PxcEntry
-	nil,                                // 9: dbaas.v1beta1.Matrix.PmmEntry
-	nil,                                // 10: dbaas.v1beta1.Matrix.ProxysqlEntry
-	nil,                                // 11: dbaas.v1beta1.Matrix.HaproxyEntry
-	nil,                                // 12: dbaas.v1beta1.Matrix.BackupEntry
-	nil,                                // 13: dbaas.v1beta1.Matrix.OperatorEntry
-	nil,                                // 14: dbaas.v1beta1.Matrix.LogCollectorEntry
+	(*SetComponent)(nil),               // 7: dbaas.v1beta1.SetComponent
+	(*SetPSMDBComponentsRequest)(nil),  // 8: dbaas.v1beta1.SetPSMDBComponentsRequest
+	(*SetPSMDBComponentsResponse)(nil), // 9: dbaas.v1beta1.SetPSMDBComponentsResponse
+	(*SetPXCComponentsRequest)(nil),    // 10: dbaas.v1beta1.SetPXCComponentsRequest
+	(*SetPXCComponentsResponse)(nil),   // 11: dbaas.v1beta1.SetPXCComponentsResponse
+	nil,                                // 12: dbaas.v1beta1.Matrix.MongodEntry
+	nil,                                // 13: dbaas.v1beta1.Matrix.PxcEntry
+	nil,                                // 14: dbaas.v1beta1.Matrix.PmmEntry
+	nil,                                // 15: dbaas.v1beta1.Matrix.ProxysqlEntry
+	nil,                                // 16: dbaas.v1beta1.Matrix.HaproxyEntry
+	nil,                                // 17: dbaas.v1beta1.Matrix.BackupEntry
+	nil,                                // 18: dbaas.v1beta1.Matrix.OperatorEntry
+	nil,                                // 19: dbaas.v1beta1.Matrix.LogCollectorEntry
 }
 var file_managementpb_dbaas_components_proto_depIdxs = []int32{
-	7,  // 0: dbaas.v1beta1.Matrix.mongod:type_name -> dbaas.v1beta1.Matrix.MongodEntry
-	8,  // 1: dbaas.v1beta1.Matrix.pxc:type_name -> dbaas.v1beta1.Matrix.PxcEntry
-	9,  // 2: dbaas.v1beta1.Matrix.pmm:type_name -> dbaas.v1beta1.Matrix.PmmEntry
-	10, // 3: dbaas.v1beta1.Matrix.proxysql:type_name -> dbaas.v1beta1.Matrix.ProxysqlEntry
-	11, // 4: dbaas.v1beta1.Matrix.haproxy:type_name -> dbaas.v1beta1.Matrix.HaproxyEntry
-	12, // 5: dbaas.v1beta1.Matrix.backup:type_name -> dbaas.v1beta1.Matrix.BackupEntry
-	13, // 6: dbaas.v1beta1.Matrix.operator:type_name -> dbaas.v1beta1.Matrix.OperatorEntry
-	14, // 7: dbaas.v1beta1.Matrix.log_collector:type_name -> dbaas.v1beta1.Matrix.LogCollectorEntry
+	12, // 0: dbaas.v1beta1.Matrix.mongod:type_name -> dbaas.v1beta1.Matrix.MongodEntry
+	13, // 1: dbaas.v1beta1.Matrix.pxc:type_name -> dbaas.v1beta1.Matrix.PxcEntry
+	14, // 2: dbaas.v1beta1.Matrix.pmm:type_name -> dbaas.v1beta1.Matrix.PmmEntry
+	15, // 3: dbaas.v1beta1.Matrix.proxysql:type_name -> dbaas.v1beta1.Matrix.ProxysqlEntry
+	16, // 4: dbaas.v1beta1.Matrix.haproxy:type_name -> dbaas.v1beta1.Matrix.HaproxyEntry
+	17, // 5: dbaas.v1beta1.Matrix.backup:type_name -> dbaas.v1beta1.Matrix.BackupEntry
+	18, // 6: dbaas.v1beta1.Matrix.operator:type_name -> dbaas.v1beta1.Matrix.OperatorEntry
+	19, // 7: dbaas.v1beta1.Matrix.log_collector:type_name -> dbaas.v1beta1.Matrix.LogCollectorEntry
 	1,  // 8: dbaas.v1beta1.Version.matrix:type_name -> dbaas.v1beta1.Matrix
 	2,  // 9: dbaas.v1beta1.GetPSMDBComponentsResponse.versions:type_name -> dbaas.v1beta1.Version
 	2,  // 10: dbaas.v1beta1.GetPXCComponentsResponse.versions:type_name -> dbaas.v1beta1.Version
-	0,  // 11: dbaas.v1beta1.Matrix.MongodEntry.value:type_name -> dbaas.v1beta1.Component
-	0,  // 12: dbaas.v1beta1.Matrix.PxcEntry.value:type_name -> dbaas.v1beta1.Component
-	0,  // 13: dbaas.v1beta1.Matrix.PmmEntry.value:type_name -> dbaas.v1beta1.Component
-	0,  // 14: dbaas.v1beta1.Matrix.ProxysqlEntry.value:type_name -> dbaas.v1beta1.Component
-	0,  // 15: dbaas.v1beta1.Matrix.HaproxyEntry.value:type_name -> dbaas.v1beta1.Component
-	0,  // 16: dbaas.v1beta1.Matrix.BackupEntry.value:type_name -> dbaas.v1beta1.Component
-	0,  // 17: dbaas.v1beta1.Matrix.OperatorEntry.value:type_name -> dbaas.v1beta1.Component
-	0,  // 18: dbaas.v1beta1.Matrix.LogCollectorEntry.value:type_name -> dbaas.v1beta1.Component
-	3,  // 19: dbaas.v1beta1.Components.GetPSMDBComponents:input_type -> dbaas.v1beta1.GetPSMDBComponentsRequest
-	5,  // 20: dbaas.v1beta1.Components.GetPXCComponents:input_type -> dbaas.v1beta1.GetPXCComponentsRequest
-	4,  // 21: dbaas.v1beta1.Components.GetPSMDBComponents:output_type -> dbaas.v1beta1.GetPSMDBComponentsResponse
-	6,  // 22: dbaas.v1beta1.Components.GetPXCComponents:output_type -> dbaas.v1beta1.GetPXCComponentsResponse
-	21, // [21:23] is the sub-list for method output_type
-	19, // [19:21] is the sub-list for method input_type
-	19, // [19:19] is the sub-list for extension type_name
-	19, // [19:19] is the sub-list for extension extendee
-	0,  // [0:19] is the sub-list for field type_name
+	7,  // 11: dbaas.v1beta1.SetPSMDBComponentsRequest.mongod:type_name -> dbaas.v1beta1.SetComponent
+	7,  // 12: dbaas.v1beta1.SetPSMDBComponentsRequest.backup:type_name -> dbaas.v1beta1.SetComponent
+	7,  // 13: dbaas.v1beta1.SetPXCComponentsRequest.pxc:type_name -> dbaas.v1beta1.SetComponent
+	7,  // 14: dbaas.v1beta1.SetPXCComponentsRequest.proxysql:type_name -> dbaas.v1beta1.SetComponent
+	7,  // 15: dbaas.v1beta1.SetPXCComponentsRequest.haproxy:type_name -> dbaas.v1beta1.SetComponent
+	7,  // 16: dbaas.v1beta1.SetPXCComponentsRequest.backup:type_name -> dbaas.v1beta1.SetComponent
+	0,  // 17: dbaas.v1beta1.Matrix.MongodEntry.value:type_name -> dbaas.v1beta1.Component
+	0,  // 18: dbaas.v1beta1.Matrix.PxcEntry.value:type_name -> dbaas.v1beta1.Component
+	0,  // 19: dbaas.v1beta1.Matrix.PmmEntry.value:type_name -> dbaas.v1beta1.Component
+	0,  // 20: dbaas.v1beta1.Matrix.ProxysqlEntry.value:type_name -> dbaas.v1beta1.Component
+	0,  // 21: dbaas.v1beta1.Matrix.HaproxyEntry.value:type_name -> dbaas.v1beta1.Component
+	0,  // 22: dbaas.v1beta1.Matrix.BackupEntry.value:type_name -> dbaas.v1beta1.Component
+	0,  // 23: dbaas.v1beta1.Matrix.OperatorEntry.value:type_name -> dbaas.v1beta1.Component
+	0,  // 24: dbaas.v1beta1.Matrix.LogCollectorEntry.value:type_name -> dbaas.v1beta1.Component
+	3,  // 25: dbaas.v1beta1.Components.GetPSMDBComponents:input_type -> dbaas.v1beta1.GetPSMDBComponentsRequest
+	5,  // 26: dbaas.v1beta1.Components.GetPXCComponents:input_type -> dbaas.v1beta1.GetPXCComponentsRequest
+	8,  // 27: dbaas.v1beta1.Components.SetPSMDBComponents:input_type -> dbaas.v1beta1.SetPSMDBComponentsRequest
+	10, // 28: dbaas.v1beta1.Components.SetPXCComponents:input_type -> dbaas.v1beta1.SetPXCComponentsRequest
+	4,  // 29: dbaas.v1beta1.Components.GetPSMDBComponents:output_type -> dbaas.v1beta1.GetPSMDBComponentsResponse
+	6,  // 30: dbaas.v1beta1.Components.GetPXCComponents:output_type -> dbaas.v1beta1.GetPXCComponentsResponse
+	9,  // 31: dbaas.v1beta1.Components.SetPSMDBComponents:output_type -> dbaas.v1beta1.SetPSMDBComponentsResponse
+	11, // 32: dbaas.v1beta1.Components.SetPXCComponents:output_type -> dbaas.v1beta1.SetPXCComponentsResponse
+	29, // [29:33] is the sub-list for method output_type
+	25, // [25:29] is the sub-list for method input_type
+	25, // [25:25] is the sub-list for extension type_name
+	25, // [25:25] is the sub-list for extension extendee
+	0,  // [0:25] is the sub-list for field type_name
 }
 
 func init() { file_managementpb_dbaas_components_proto_init() }
@@ -786,6 +1137,66 @@ func file_managementpb_dbaas_components_proto_init() {
 				return nil
 			}
 		}
+		file_managementpb_dbaas_components_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*SetComponent); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_managementpb_dbaas_components_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*SetPSMDBComponentsRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_managementpb_dbaas_components_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*SetPSMDBComponentsResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_managementpb_dbaas_components_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*SetPXCComponentsRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_managementpb_dbaas_components_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*SetPXCComponentsResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -793,7 +1204,7 @@ func file_managementpb_dbaas_components_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_managementpb_dbaas_components_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   15,
+			NumMessages:   20,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
@@ -823,6 +1234,10 @@ type ComponentsClient interface {
 	GetPSMDBComponents(ctx context.Context, in *GetPSMDBComponentsRequest, opts ...grpc.CallOption) (*GetPSMDBComponentsResponse, error)
 	// GetPXCComponents returns list of available components for PXC Clusters.
 	GetPXCComponents(ctx context.Context, in *GetPXCComponentsRequest, opts ...grpc.CallOption) (*GetPXCComponentsResponse, error)
+	// SetPSMDBComponents manages PSMDB related components.
+	SetPSMDBComponents(ctx context.Context, in *SetPSMDBComponentsRequest, opts ...grpc.CallOption) (*SetPSMDBComponentsResponse, error)
+	// SetPXCComponents manages PXC related components.
+	SetPXCComponents(ctx context.Context, in *SetPXCComponentsRequest, opts ...grpc.CallOption) (*SetPXCComponentsResponse, error)
 }
 
 type componentsClient struct {
@@ -851,12 +1266,34 @@ func (c *componentsClient) GetPXCComponents(ctx context.Context, in *GetPXCCompo
 	return out, nil
 }
 
+func (c *componentsClient) SetPSMDBComponents(ctx context.Context, in *SetPSMDBComponentsRequest, opts ...grpc.CallOption) (*SetPSMDBComponentsResponse, error) {
+	out := new(SetPSMDBComponentsResponse)
+	err := c.cc.Invoke(ctx, "/dbaas.v1beta1.Components/SetPSMDBComponents", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *componentsClient) SetPXCComponents(ctx context.Context, in *SetPXCComponentsRequest, opts ...grpc.CallOption) (*SetPXCComponentsResponse, error) {
+	out := new(SetPXCComponentsResponse)
+	err := c.cc.Invoke(ctx, "/dbaas.v1beta1.Components/SetPXCComponents", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ComponentsServer is the server API for Components service.
 type ComponentsServer interface {
 	// GetPSMDBComponents returns list of available components for PSMDB Clusters.
 	GetPSMDBComponents(context.Context, *GetPSMDBComponentsRequest) (*GetPSMDBComponentsResponse, error)
 	// GetPXCComponents returns list of available components for PXC Clusters.
 	GetPXCComponents(context.Context, *GetPXCComponentsRequest) (*GetPXCComponentsResponse, error)
+	// SetPSMDBComponents manages PSMDB related components.
+	SetPSMDBComponents(context.Context, *SetPSMDBComponentsRequest) (*SetPSMDBComponentsResponse, error)
+	// SetPXCComponents manages PXC related components.
+	SetPXCComponents(context.Context, *SetPXCComponentsRequest) (*SetPXCComponentsResponse, error)
 }
 
 // UnimplementedComponentsServer can be embedded to have forward compatible implementations.
@@ -868,6 +1305,12 @@ func (*UnimplementedComponentsServer) GetPSMDBComponents(context.Context, *GetPS
 }
 func (*UnimplementedComponentsServer) GetPXCComponents(context.Context, *GetPXCComponentsRequest) (*GetPXCComponentsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPXCComponents not implemented")
+}
+func (*UnimplementedComponentsServer) SetPSMDBComponents(context.Context, *SetPSMDBComponentsRequest) (*SetPSMDBComponentsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetPSMDBComponents not implemented")
+}
+func (*UnimplementedComponentsServer) SetPXCComponents(context.Context, *SetPXCComponentsRequest) (*SetPXCComponentsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetPXCComponents not implemented")
 }
 
 func RegisterComponentsServer(s *grpc.Server, srv ComponentsServer) {
@@ -910,6 +1353,42 @@ func _Components_GetPXCComponents_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Components_SetPSMDBComponents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetPSMDBComponentsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ComponentsServer).SetPSMDBComponents(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/dbaas.v1beta1.Components/SetPSMDBComponents",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ComponentsServer).SetPSMDBComponents(ctx, req.(*SetPSMDBComponentsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Components_SetPXCComponents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetPXCComponentsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ComponentsServer).SetPXCComponents(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/dbaas.v1beta1.Components/SetPXCComponents",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ComponentsServer).SetPXCComponents(ctx, req.(*SetPXCComponentsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Components_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "dbaas.v1beta1.Components",
 	HandlerType: (*ComponentsServer)(nil),
@@ -921,6 +1400,14 @@ var _Components_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetPXCComponents",
 			Handler:    _Components_GetPXCComponents_Handler,
+		},
+		{
+			MethodName: "SetPSMDBComponents",
+			Handler:    _Components_SetPSMDBComponents_Handler,
+		},
+		{
+			MethodName: "SetPXCComponents",
+			Handler:    _Components_SetPXCComponents_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

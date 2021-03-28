@@ -64,3 +64,48 @@ func (this *GetPXCComponentsResponse) Validate() error {
 	}
 	return nil
 }
+func (this *SetComponent) Validate() error {
+	return nil
+}
+func (this *SetPSMDBComponentsRequest) Validate() error {
+	if this.Mongod != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Mongod); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Mongod", err)
+		}
+	}
+	if this.Backup != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Backup); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Backup", err)
+		}
+	}
+	return nil
+}
+func (this *SetPSMDBComponentsResponse) Validate() error {
+	return nil
+}
+func (this *SetPXCComponentsRequest) Validate() error {
+	if this.Pxc != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Pxc); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Pxc", err)
+		}
+	}
+	if this.Proxysql != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Proxysql); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Proxysql", err)
+		}
+	}
+	if this.Haproxy != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Haproxy); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Haproxy", err)
+		}
+	}
+	if this.Backup != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Backup); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Backup", err)
+		}
+	}
+	return nil
+}
+func (this *SetPXCComponentsResponse) Validate() error {
+	return nil
+}

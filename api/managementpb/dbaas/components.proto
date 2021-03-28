@@ -58,6 +58,32 @@ message GetPXCComponentsResponse {
   repeated Version versions = 1;
 }
 
+// SetComponent contains fields to manage components.
+message SetComponent {
+  string default_version = 1;
+  repeated string disabled_versions = 2;
+}
+
+message SetPSMDBComponentsRequest {
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1;
+  SetComponent mongod = 2;
+  SetComponent backup = 3;
+}
+
+message SetPSMDBComponentsResponse {}
+
+message SetPXCComponentsRequest {
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1;
+  SetComponent pxc = 2;
+  SetComponent proxysql = 3;
+  SetComponent haproxy = 4;
+  SetComponent backup = 5;
+}
+
+message SetPXCComponentsResponse {}
+
 // Components service provides public methods for managing components.
 service Components {
   // GetPSMDBComponents returns list of available components for PSMDB Clusters.
@@ -71,6 +97,20 @@ service Components {
   rpc GetPXCComponents(GetPXCComponentsRequest) returns (GetPXCComponentsResponse) {
     option (google.api.http) = {
       post: "/v1/management/DBaaS/Components/GetPXC"
+      body: "*"
+    };
+  }
+  // SetPSMDBComponents manages PSMDB related components.
+  rpc SetPSMDBComponents(SetPSMDBComponentsRequest) returns (SetPSMDBComponentsResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/Components/SetPSMDB"
+      body: "*"
+    };
+  }
+  // SetPXCComponents manages PXC related components.
+  rpc SetPXCComponents(SetPXCComponentsRequest) returns (SetPXCComponentsResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/Components/SetPXC"
       body: "*"
     };
   }
