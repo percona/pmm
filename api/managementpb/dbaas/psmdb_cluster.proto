@@ -50,6 +50,8 @@ message PSMDBClusterParams {
       msg_exists: true
     }
   ];
+  // Docker image used for PSMDB.
+  string image = 3;
 }
 
 message ListPSMDBClustersRequest {
