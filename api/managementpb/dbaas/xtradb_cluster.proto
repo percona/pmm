@@ -43,6 +43,8 @@ message XtraDBClusterParams {
   // PXC container parameters.
   // TODO Do not use inner messages in all public APIs (for consistency).
   message PXC {
+    // Docker image used for PXC.
+    string image = 3;
     // Requested compute resources.
     ComputeResources compute_resources = 1;
     // Disk size in bytes.
@@ -55,6 +57,8 @@ message XtraDBClusterParams {
   // ProxySQL container parameters.
   // TODO Do not use inner messages in all public APIs (for consistency).
   message ProxySQL {
+    // Docker image used for ProxySQL.
+    string image = 3;
     // Requested compute resources.
     ComputeResources compute_resources = 1;
     // Disk size in bytes.
