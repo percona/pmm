@@ -408,6 +408,9 @@ swagger:model ClustersItems0ParamsProxysql
 */
 type ClustersItems0ParamsProxysql struct {
 
+	// Docker image used for ProxySQL.
+	Image string `json:"image,omitempty"`
+
 	// Disk size in bytes.
 	DiskSize string `json:"disk_size,omitempty"`
 
@@ -505,6 +508,9 @@ func (o *ClustersItems0ParamsProxysqlComputeResources) UnmarshalBinary(b []byte)
 swagger:model ClustersItems0ParamsPxc
 */
 type ClustersItems0ParamsPxc struct {
+
+	// Docker image used for PXC.
+	Image string `json:"image,omitempty"`
 
 	// Disk size in bytes.
 	DiskSize string `json:"disk_size,omitempty"`
