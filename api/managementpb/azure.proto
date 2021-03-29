@@ -117,8 +117,8 @@ message AddAzureDatabaseRequest {
   string azure_resource_group = 16;
   // If true, adds azure_database_exporter.
   bool azure_database_exporter = 17;
-  // If true, adds qan-mysql-perfschema-agent.
-  bool qan_mysql_perfschema = 18;
+  // If true, adds qan-mysql-perfschema-agent or qan-postgresql-pgstatements-agent.
+  bool qan = 18;
   // Custom user-assigned labels for Node and Service.
   map<string, string> custom_labels = 19;
   // Skip connection check.

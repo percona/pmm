@@ -174,8 +174,8 @@ type AddAzureDatabaseBody struct {
 	// If true, adds azure_database_exporter.
 	AzureDatabaseExporter bool `json:"azure_database_exporter,omitempty"`
 
-	// If true, adds qan-mysql-perfschema-agent.
-	QANMysqlPerfschema bool `json:"qan_mysql_perfschema,omitempty"`
+	// If true, adds qan-mysql-perfschema-agent or qan-postgresql-pgstatements-agent.
+	QAN bool `json:"qan,omitempty"`
 
 	// Custom user-assigned labels for Node and Service.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
