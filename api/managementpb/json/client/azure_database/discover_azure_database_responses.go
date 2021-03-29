@@ -124,25 +124,25 @@ swagger:model AzureDatabaseInstanceItems0
 */
 type AzureDatabaseInstanceItems0 struct {
 
-	// id
-	ID string `json:"id,omitempty"`
+	// Azure database instance ID.
+	InstanceID string `json:"instance_id,omitempty"`
 
-	// location
-	Location string `json:"location,omitempty"`
+	// Azure database location.
+	Region string `json:"region,omitempty"`
 
-	// name
+	// Azure database server name.
 	Name string `json:"name,omitempty"`
 
-	// administrator login
-	AdministratorLogin string `json:"administrator_login,omitempty"`
+	// Database username.
+	Username string `json:"username,omitempty"`
 
-	// fully qualified domain name
-	FullyQualifiedDomainName string `json:"fully_qualified_domain_name,omitempty"`
+	// Address used to connect to it.
+	Address string `json:"address,omitempty"`
 
-	// resource group
+	// Azure Resource group.
 	ResourceGroup string `json:"resource_group,omitempty"`
 
-	// environment
+	// Environment tag.
 	Environment string `json:"environment,omitempty"`
 
 	// DiscoverAzureDatabaseType describes supported RDS instance engines.
@@ -153,8 +153,8 @@ type AzureDatabaseInstanceItems0 struct {
 	// Enum: [DISCOVER_AZURE_DATABASE_TYPE_INVALID DISCOVER_AZURE_DATABASE_TYPE_MYSQL DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL DISCOVER_AZURE_DATABASE_TYPE_MARIADB]
 	Type *string `json:"type,omitempty"`
 
-	// zones
-	Zones string `json:"zones,omitempty"`
+	// Azure database availability zone.
+	Az string `json:"az,omitempty"`
 }
 
 // Validate validates this azure database instance items0
@@ -238,22 +238,22 @@ func (o *AzureDatabaseInstanceItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*DiscoverAzureDatabaseBody discover azure database body
+/*DiscoverAzureDatabaseBody DiscoverAzureDatabaseRequest discover azure databases request.
 swagger:model DiscoverAzureDatabaseBody
 */
 type DiscoverAzureDatabaseBody struct {
 
-	// client id
-	ClientID string `json:"client_id,omitempty"`
+	// Azure client ID.
+	AzureClientID string `json:"azure_client_id,omitempty"`
 
-	// client secret
-	ClientSecret string `json:"client_secret,omitempty"`
+	// Azure client secret.
+	AzureClientSecret string `json:"azure_client_secret,omitempty"`
 
-	// tenant id
-	TenantID string `json:"tenant_id,omitempty"`
+	// Azure tanant ID.
+	AzureTenantID string `json:"azure_tenant_id,omitempty"`
 
-	// subscription id
-	SubscriptionID string `json:"subscription_id,omitempty"`
+	// Azure subscription ID.
+	AzureSubscriptionID string `json:"azure_subscription_id,omitempty"`
 }
 
 // Validate validates this discover azure database body
@@ -354,7 +354,7 @@ func (o *DiscoverAzureDatabaseDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*DiscoverAzureDatabaseOKBody discover azure database OK body
+/*DiscoverAzureDatabaseOKBody DiscoverAzureDatabaseResponse discover azure databases response.
 swagger:model DiscoverAzureDatabaseOKBody
 */
 type DiscoverAzureDatabaseOKBody struct {

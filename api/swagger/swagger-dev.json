@@ -15487,17 +15487,17 @@
               "type": "object",
               "properties": {
                 "region": {
-                  "description": "Azure region.",
+                  "description": "Azure database location.",
                   "type": "string",
                   "x-order": 0
                 },
                 "az": {
-                  "description": "AWS availability zone.",
+                  "description": "Azure database availability zone.",
                   "type": "string",
                   "x-order": 1
                 },
                 "instance_id": {
-                  "description": "AWS instance ID.",
+                  "description": "Azure database instance ID.",
                   "type": "string",
                   "x-order": 2
                 },
@@ -15542,35 +15542,40 @@
                   "type": "string",
                   "x-order": 10
                 },
-                "azure_database_client_id": {
+                "azure_client_id": {
+                  "description": "Azure client ID.",
                   "type": "string",
-                  "title": "Azure database client ID",
                   "x-order": 11
                 },
-                "azure_database_client_secret": {
+                "azure_client_secret": {
+                  "description": "Azure client secret.",
                   "type": "string",
-                  "title": "Azure database client secret",
                   "x-order": 12
                 },
-                "azure_database_tenant_id": {
+                "azure_tenant_id": {
+                  "description": "Azure tanant ID.",
                   "type": "string",
-                  "title": "Azure database tanant ID",
                   "x-order": 13
                 },
-                "azure_database_subscription_id": {
+                "azure_subscription_id": {
+                  "description": "Azure subscription ID.",
                   "type": "string",
-                  "title": "Azure database subscription ID",
                   "x-order": 14
+                },
+                "azure_resource_group": {
+                  "description": "Azure resource group.",
+                  "type": "string",
+                  "x-order": 15
                 },
                 "azure_database_exporter": {
                   "description": "If true, adds azure_database_exporter.",
                   "type": "boolean",
-                  "x-order": 15
+                  "x-order": 16
                 },
                 "qan_mysql_perfschema": {
                   "description": "If true, adds qan-mysql-perfschema-agent.",
                   "type": "boolean",
-                  "x-order": 16
+                  "x-order": 17
                 },
                 "custom_labels": {
                   "description": "Custom user-assigned labels for Node and Service.",
@@ -15578,43 +15583,33 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 17
+                  "x-order": 18
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "x-order": 18
+                  "x-order": 19
                 },
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
-                  "x-order": 19
+                  "x-order": 20
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",
                   "type": "boolean",
-                  "x-order": 20
+                  "x-order": 21
                 },
                 "disable_query_examples": {
                   "description": "Disable query examples.",
                   "type": "boolean",
-                  "x-order": 21
+                  "x-order": 22
                 },
                 "tablestats_group_table_limit": {
                   "description": "Tablestats group collectors will be disabled if there are more than that number of tables.\nIf zero, server's default value is used.\nUse negative value to disable them.",
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 22
-                },
-                "disable_basic_metrics": {
-                  "description": "Disable basic metrics.",
-                  "type": "boolean",
                   "x-order": 23
-                },
-                "disable_enhanced_metrics": {
-                  "description": "Disable enhanced metrics.",
-                  "type": "boolean",
-                  "x-order": 24
                 },
                 "metrics_mode": {
                   "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
@@ -15625,7 +15620,7 @@
                     "PULL",
                     "PUSH"
                   ],
-                  "x-order": 25
+                  "x-order": 24
                 },
                 "type": {
                   "description": "DiscoverAzureDatabaseType describes supported RDS instance engines.\n\n - DISCOVER_AZURE_DATABASE_TYPE_MYSQL: MySQL type: microsoft.dbformysql\n - DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL: PostgreSQL type: microsoft.dbformysql\n - DISCOVER_AZURE_DATABASE_TYPE_MARIADB: MariaDB type: microsoft.dbformariadb",
@@ -15637,7 +15632,7 @@
                     "DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL",
                     "DISCOVER_AZURE_DATABASE_TYPE_MARIADB"
                   ],
-                  "x-order": 26
+                  "x-order": 25
                 }
               }
             }
@@ -15705,21 +15700,26 @@
             "in": "body",
             "required": true,
             "schema": {
+              "description": "DiscoverAzureDatabaseRequest discover azure databases request.",
               "type": "object",
               "properties": {
-                "client_id": {
+                "azure_client_id": {
+                  "description": "Azure client ID.",
                   "type": "string",
                   "x-order": 0
                 },
-                "client_secret": {
+                "azure_client_secret": {
+                  "description": "Azure client secret.",
                   "type": "string",
                   "x-order": 1
                 },
-                "tenant_id": {
+                "azure_tenant_id": {
+                  "description": "Azure tanant ID.",
                   "type": "string",
                   "x-order": 2
                 },
-                "subscription_id": {
+                "azure_subscription_id": {
+                  "description": "Azure subscription ID.",
                   "type": "string",
                   "x-order": 3
                 }
@@ -15731,6 +15731,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
+              "description": "DiscoverAzureDatabaseResponse discover azure databases response.",
               "type": "object",
               "properties": {
                 "azure_database_instance": {
@@ -15739,31 +15740,38 @@
                     "description": "DiscoverAzureDatabaseInstance models an unique Azure Database instance for the list of instances returned by Discovery.",
                     "type": "object",
                     "properties": {
-                      "id": {
+                      "instance_id": {
+                        "description": "Azure database instance ID.",
                         "type": "string",
                         "x-order": 0
                       },
-                      "location": {
+                      "region": {
+                        "description": "Azure database location.",
                         "type": "string",
                         "x-order": 1
                       },
                       "name": {
+                        "description": "Azure database server name.",
                         "type": "string",
                         "x-order": 2
                       },
-                      "administrator_login": {
+                      "username": {
+                        "description": "Database username.",
                         "type": "string",
                         "x-order": 3
                       },
-                      "fully_qualified_domain_name": {
+                      "address": {
+                        "description": "Address used to connect to it.",
                         "type": "string",
                         "x-order": 4
                       },
                       "resource_group": {
+                        "description": "Azure Resource group.",
                         "type": "string",
                         "x-order": 5
                       },
                       "environment": {
+                        "description": "Environment tag.",
                         "type": "string",
                         "x-order": 6
                       },
@@ -15779,7 +15787,8 @@
                         ],
                         "x-order": 7
                       },
-                      "zones": {
+                      "az": {
+                        "description": "Azure database availability zone.",
                         "type": "string",
                         "x-order": 8
                       }

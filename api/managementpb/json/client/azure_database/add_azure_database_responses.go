@@ -122,13 +122,13 @@ swagger:model AddAzureDatabaseBody
 */
 type AddAzureDatabaseBody struct {
 
-	// Azure region.
+	// Azure database location.
 	Region string `json:"region,omitempty"`
 
-	// AWS availability zone.
+	// Azure database availability zone.
 	Az string `json:"az,omitempty"`
 
-	// AWS instance ID.
+	// Azure database instance ID.
 	InstanceID string `json:"instance_id,omitempty"`
 
 	// Azure instance class.
@@ -155,17 +155,20 @@ type AddAzureDatabaseBody struct {
 	// Password for scraping metrics.
 	Password string `json:"password,omitempty"`
 
-	// Azure database client ID
-	AzureDatabaseClientID string `json:"azure_database_client_id,omitempty"`
+	// Azure client ID.
+	AzureClientID string `json:"azure_client_id,omitempty"`
 
-	// Azure database client secret
-	AzureDatabaseClientSecret string `json:"azure_database_client_secret,omitempty"`
+	// Azure client secret.
+	AzureClientSecret string `json:"azure_client_secret,omitempty"`
 
-	// Azure database tanant ID
-	AzureDatabaseTenantID string `json:"azure_database_tenant_id,omitempty"`
+	// Azure tanant ID.
+	AzureTenantID string `json:"azure_tenant_id,omitempty"`
 
-	// Azure database subscription ID
-	AzureDatabaseSubscriptionID string `json:"azure_database_subscription_id,omitempty"`
+	// Azure subscription ID.
+	AzureSubscriptionID string `json:"azure_subscription_id,omitempty"`
+
+	// Azure resource group.
+	AzureResourceGroup string `json:"azure_resource_group,omitempty"`
 
 	// If true, adds azure_database_exporter.
 	AzureDatabaseExporter bool `json:"azure_database_exporter,omitempty"`
@@ -192,12 +195,6 @@ type AddAzureDatabaseBody struct {
 	// If zero, server's default value is used.
 	// Use negative value to disable them.
 	TablestatsGroupTableLimit int32 `json:"tablestats_group_table_limit,omitempty"`
-
-	// Disable basic metrics.
-	DisableBasicMetrics bool `json:"disable_basic_metrics,omitempty"`
-
-	// Disable enhanced metrics.
-	DisableEnhancedMetrics bool `json:"disable_enhanced_metrics,omitempty"`
 
 	// MetricsMode defines desired metrics mode for agent,
 	// it can be pull, push or auto mode chosen by server.
