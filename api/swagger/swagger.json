@@ -13872,17 +13872,17 @@
               "type": "object",
               "properties": {
                 "region": {
-                  "description": "Azure region.",
+                  "description": "Azure database location.",
                   "type": "string",
                   "x-order": 0
                 },
                 "az": {
-                  "description": "AWS availability zone.",
+                  "description": "Azure database availability zone.",
                   "type": "string",
                   "x-order": 1
                 },
                 "instance_id": {
-                  "description": "AWS instance ID.",
+                  "description": "Azure database instance ID.",
                   "type": "string",
                   "x-order": 2
                 },
@@ -13927,29 +13927,29 @@
                   "type": "string",
                   "x-order": 10
                 },
-                "azure_database_client_id": {
+                "azure_client_id": {
+                  "description": "Azure client ID.",
                   "type": "string",
-                  "title": "Azure database client ID",
                   "x-order": 11
                 },
-                "azure_database_client_secret": {
+                "azure_client_secret": {
+                  "description": "Azure client secret.",
                   "type": "string",
-                  "title": "Azure database client secret",
                   "x-order": 12
                 },
-                "azure_database_tenant_id": {
+                "azure_tenant_id": {
+                  "description": "Azure tanant ID.",
                   "type": "string",
-                  "title": "Azure database tanant ID",
                   "x-order": 13
                 },
-                "azure_database_subscription_id": {
+                "azure_subscription_id": {
+                  "description": "Azure subscription ID.",
                   "type": "string",
-                  "title": "Azure database subscription ID",
                   "x-order": 14
                 },
-                "azure_database_resource_type": {
+                "azure_resource_group": {
+                  "description": "Azure resource group.",
                   "type": "string",
-                  "title": "Azure database resource type (mysql, maria, postgres)",
                   "x-order": 15
                 },
                 "azure_database_exporter": {
@@ -13996,16 +13996,6 @@
                   "format": "int32",
                   "x-order": 23
                 },
-                "disable_basic_metrics": {
-                  "description": "Disable basic metrics.",
-                  "type": "boolean",
-                  "x-order": 24
-                },
-                "disable_enhanced_metrics": {
-                  "description": "Disable enhanced metrics.",
-                  "type": "boolean",
-                  "x-order": 25
-                },
                 "metrics_mode": {
                   "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
                   "type": "string",
@@ -14015,7 +14005,19 @@
                     "PULL",
                     "PUSH"
                   ],
-                  "x-order": 26
+                  "x-order": 24
+                },
+                "type": {
+                  "description": "DiscoverAzureDatabaseType describes supported RDS instance engines.\n\n - DISCOVER_AZURE_DATABASE_TYPE_MYSQL: MySQL type: microsoft.dbformysql\n - DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL: PostgreSQL type: microsoft.dbformysql\n - DISCOVER_AZURE_DATABASE_TYPE_MARIADB: MariaDB type: microsoft.dbformariadb",
+                  "type": "string",
+                  "default": "DISCOVER_AZURE_DATABASE_TYPE_INVALID",
+                  "enum": [
+                    "DISCOVER_AZURE_DATABASE_TYPE_INVALID",
+                    "DISCOVER_AZURE_DATABASE_TYPE_MYSQL",
+                    "DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL",
+                    "DISCOVER_AZURE_DATABASE_TYPE_MARIADB"
+                  ],
+                  "x-order": 25
                 }
               }
             }
