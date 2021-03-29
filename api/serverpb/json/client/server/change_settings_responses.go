@@ -179,6 +179,12 @@ type ChangeSettingsBody struct {
 	// Disable Backup Management.
 	DisableBackupManagement bool `json:"disable_backup_management,omitempty"`
 
+	// Enable Azure Discover.
+	EnableAzurediscover bool `json:"enable_azurediscover,omitempty"`
+
+	// Disable Azure Discover.
+	DisableAzurediscover bool `json:"disable_azurediscover,omitempty"`
+
 	// email alerting settings
 	EmailAlertingSettings *ChangeSettingsParamsBodyEmailAlertingSettings `json:"email_alerting_settings,omitempty"`
 
@@ -485,6 +491,9 @@ type ChangeSettingsOKBodySettings struct {
 
 	// True if Backup Management is enabled.
 	BackupManagementEnabled bool `json:"backup_management_enabled,omitempty"`
+
+	// True if Azure Discover is enabled.
+	AzurediscoverEnabled bool `json:"azurediscover_enabled,omitempty"`
 
 	// email alerting settings
 	EmailAlertingSettings *ChangeSettingsOKBodySettingsEmailAlertingSettings `json:"email_alerting_settings,omitempty"`

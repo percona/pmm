@@ -401,6 +401,11 @@
                   "type": "boolean",
                   "x-order": 13
                 },
+                "disable_azurediscover": {
+                  "description": "Disable Azure Discover.",
+                  "type": "boolean",
+                  "x-order": 24
+                },
                 "disable_backup_management": {
                   "description": "Disable Backup Management.",
                   "type": "boolean",
@@ -461,6 +466,11 @@
                   "description": "Enable Integrated Alerting.",
                   "type": "boolean",
                   "x-order": 12
+                },
+                "enable_azurediscover": {
+                  "description": "Enable Azure Discover.",
+                  "type": "boolean",
+                  "x-order": 23
                 },
                 "enable_backup_management": {
                   "description": "Enable Backup Management.",
@@ -600,6 +610,11 @@
                         "type": "string"
                       },
                       "x-order": 5
+                    },
+                    "azurediscover_enabled": {
+                      "description": "True if Azure Discover is enabled.",
+                      "type": "boolean",
+                      "x-order": 17
                     },
                     "backup_management_enabled": {
                       "description": "True if Backup Management is enabled.",
@@ -838,6 +853,11 @@
                         "type": "string"
                       },
                       "x-order": 5
+                    },
+                    "azurediscover_enabled": {
+                      "description": "True if Azure Discover is enabled.",
+                      "type": "boolean",
+                      "x-order": 17
                     },
                     "backup_management_enabled": {
                       "description": "True if Backup Management is enabled.",

@@ -2257,6 +2257,16 @@
                   "description": "Disable Backup Management.",
                   "type": "boolean",
                   "x-order": 22
+                },
+                "enable_azurediscover": {
+                  "description": "Enable Azure Discover.",
+                  "type": "boolean",
+                  "x-order": 23
+                },
+                "disable_azurediscover": {
+                  "description": "Disable Azure Discover.",
+                  "type": "boolean",
+                  "x-order": 24
                 }
               }
             }
@@ -2434,6 +2444,11 @@
                       "description": "True if Backup Management is enabled.",
                       "type": "boolean",
                       "x-order": 16
+                    },
+                    "azurediscover_enabled": {
+                      "description": "True if Azure Discover is enabled.",
+                      "type": "boolean",
+                      "x-order": 17
                     }
                   },
                   "x-order": 0
@@ -2672,6 +2687,11 @@
                       "description": "True if Backup Management is enabled.",
                       "type": "boolean",
                       "x-order": 16
+                    },
+                    "azurediscover_enabled": {
+                      "description": "True if Azure Discover is enabled.",
+                      "type": "boolean",
+                      "x-order": 17
                     }
                   },
                   "x-order": 0

@@ -186,6 +186,8 @@ message Settings {
   STTCheckIntervals stt_check_intervals = 16;
   // True if Backup Management is enabled.
   bool backup_management_enabled = 17;
+  // True if Azure Discover is enabled.
+  bool azurediscover_enabled = 18;
 }
 
 message GetSettingsRequest {}
@@ -238,6 +240,10 @@ message ChangeSettingsRequest {
   bool enable_backup_management = 22;
   // Disable Backup Management.
   bool disable_backup_management = 23;
+  // Enable Azure Discover.
+  bool enable_azurediscover = 24;
+  // Disable Azure Discover.
+  bool disable_azurediscover = 25;
 }
 
 message ChangeSettingsResponse {
