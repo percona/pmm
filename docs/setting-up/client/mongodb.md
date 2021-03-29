@@ -127,11 +127,20 @@ Beside positional arguments shown above you can specify service name and service
 pmm-admin add mongodb --username=pmm --password=pmm --service-name=mongo --host=127.0.0.1 --port=27017
 ```
 
-> You can add a MongoDB instance using a UNIX socket with the `--socket` option:
+You can add a MongoDB instance using a UNIX socket with the `--socket` option:
+
+```sh
+pmm-admin add mongodb --socket=/tmp/mongodb-27017.sock
+```
+
+> If the password contains special symbols like the 'at' (`@`) symbol, the host might not be detected correctly. Make sure that you insert the password with special characters replaced with their escape sequences. The simplest way is to use the [`encodeURIComponent`][ENCODE_URI] JavaScript function in your browser's web console (usually found under *Development Tools*). Evaluate the function with your password as the parameter. For example:
 >
-> ```sh
-> pmm-admin add mongodb --socket=/tmp/mongodb-27017.sock
+> ```javascript
+> encodeURIComponent('$ecRet_pas$w@rd')
+> "%24ecRet_pas%24w%40rd"
 > ```
+
+[ENCODE_URI]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent
 
 ## Passing SSL parameters to the MongoDB monitoring service
 
