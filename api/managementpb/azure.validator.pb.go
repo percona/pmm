@@ -18,6 +18,18 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 func (this *DiscoverAzureDatabaseRequest) Validate() error {
+	if this.AzureClientId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("AzureClientId", fmt.Errorf(`value '%v' must not be an empty string`, this.AzureClientId))
+	}
+	if this.AzureClientSecret == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("AzureClientSecret", fmt.Errorf(`value '%v' must not be an empty string`, this.AzureClientSecret))
+	}
+	if this.AzureTenantId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("AzureTenantId", fmt.Errorf(`value '%v' must not be an empty string`, this.AzureTenantId))
+	}
+	if this.AzureSubscriptionId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("AzureSubscriptionId", fmt.Errorf(`value '%v' must not be an empty string`, this.AzureSubscriptionId))
+	}
 	return nil
 }
 func (this *DiscoverAzureDatabaseInstance) Validate() error {
@@ -48,6 +60,21 @@ func (this *AddAzureDatabaseRequest) Validate() error {
 	}
 	if this.Username == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Username", fmt.Errorf(`value '%v' must not be an empty string`, this.Username))
+	}
+	if this.AzureClientId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("AzureClientId", fmt.Errorf(`value '%v' must not be an empty string`, this.AzureClientId))
+	}
+	if this.AzureClientSecret == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("AzureClientSecret", fmt.Errorf(`value '%v' must not be an empty string`, this.AzureClientSecret))
+	}
+	if this.AzureTenantId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("AzureTenantId", fmt.Errorf(`value '%v' must not be an empty string`, this.AzureTenantId))
+	}
+	if this.AzureSubscriptionId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("AzureSubscriptionId", fmt.Errorf(`value '%v' must not be an empty string`, this.AzureSubscriptionId))
+	}
+	if this.AzureResourceGroup == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("AzureResourceGroup", fmt.Errorf(`value '%v' must not be an empty string`, this.AzureResourceGroup))
 	}
 	// Validation of proto3 map<> fields is unsupported.
 	return nil

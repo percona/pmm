@@ -10,13 +10,29 @@ import "google/api/annotations.proto";
 // DiscoverAzureDatabaseRequest discover azure databases request.
 message DiscoverAzureDatabaseRequest {
   // Azure client ID.
-  string azure_client_id = 1;
+  string azure_client_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
   // Azure client secret.
-  string azure_client_secret = 2;
+  string azure_client_secret = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
   // Azure tanant ID.
-  string azure_tenant_id = 3;
+  string azure_tenant_id = 3 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
   // Azure subscription ID.
-  string azure_subscription_id = 4;
+  string azure_subscription_id = 4 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
 }
 
 // DiscoverAzureDatabaseType describes supported RDS instance engines.
@@ -105,15 +121,35 @@ message AddAzureDatabaseRequest {
   // Password for scraping metrics.
   string password = 11;
   // Azure client ID.
-  string azure_client_id = 12;
+  string azure_client_id = 12 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
   // Azure client secret.
-  string azure_client_secret = 13;
+  string azure_client_secret = 13 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
   // Azure tanant ID.
-  string azure_tenant_id = 14;
+  string azure_tenant_id = 14 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
   // Azure subscription ID.
-  string azure_subscription_id = 15;
+  string azure_subscription_id = 15 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
   // Azure resource group.
-  string azure_resource_group = 16;
+  string azure_resource_group = 16 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
   // If true, adds azure_database_exporter.
   bool azure_database_exporter = 17;
   // If true, adds qan-mysql-perfschema-agent or qan-postgresql-pgstatements-agent.
