@@ -8,16 +8,66 @@ import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "managementpb/metrics.proto";
 
+// DiscoverAzureDatabaseRequest discover azure databases request.
+message DiscoverAzureDatabaseRequest {
+  // Azure client ID.
+  string azure_client_id = 1;
+  // Azure client secret.
+  string azure_client_secret = 2;
+  // Azure tanant ID.
+  string azure_tenant_id = 3;
+  // Azure subscription ID.
+  string azure_subscription_id = 4;
+}
+
+// DiscoverAzureDatabaseType describes supported RDS instance engines.
+enum DiscoverAzureDatabaseType {
+  DISCOVER_AZURE_DATABASE_TYPE_INVALID = 0;
+  // MySQL type: microsoft.dbformysql
+  DISCOVER_AZURE_DATABASE_TYPE_MYSQL = 1;
+  // PostgreSQL type: microsoft.dbformysql
+  DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL = 2;
+  // MariaDB type: microsoft.dbformariadb
+  DISCOVER_AZURE_DATABASE_TYPE_MARIADB = 3;
+}
+
+// DiscoverAzureDatabaseInstance models an unique Azure Database instance for the list of instances returned by Discovery.
+message DiscoverAzureDatabaseInstance {
+  // Azure database instance ID.
+  string instance_id = 1;
+  // Azure database location.
+  string region = 2;
+  // Azure database server name.
+  string name = 3;
+  // Database username.
+  string username = 4;
+  // Address used to connect to it.
+  string address = 5;
+  // Azure Resource group.
+  string resource_group = 6;
+  // Environment tag.
+  string environment = 7;
+  // Database type.
+  DiscoverAzureDatabaseType type = 8;
+  // Azure database availability zone.
+  string az = 9;
+}
+
+// DiscoverAzureDatabaseResponse discover azure databases response.
+message DiscoverAzureDatabaseResponse {
+  repeated DiscoverAzureDatabaseInstance azure_database_instance = 1;
+}
+
 message AddAzureDatabaseRequest {
-  // Azure region.
+  // Azure database location.
   string region = 1 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // AWS availability zone.
+  // Azure database availability zone.
   string az = 2;
-  // AWS instance ID.
+  // Azure database instance ID.
   string instance_id = 3 [
     (validator.field) = {
       string_not_empty: true
@@ -38,29 +88,29 @@ message AddAzureDatabaseRequest {
     }
   ];
   // Unique across all Nodes user-defined name. Defaults to Azure Database instance ID.
-  string node_name = 8;
+  string node_name = 7;
   // Unique across all Services user-defined name. Defaults to Azure Database instance ID.
-  string service_name = 9;
+  string service_name = 8;
   // Environment name.
-  string environment = 10;
+  string environment = 9;
   // Username for scraping metrics.
-  string username = 13 [
+  string username = 10 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // Password for scraping metrics.
-  string password = 14;
-  // Azure database client ID
-  string azure_database_client_id = 29;
-  // Azure database client secret
-  string azure_database_client_secret = 30;
-  // Azure database tanant ID
-  string azure_database_tenant_id = 31;
-  // Azure database subscription ID
-  string azure_database_subscription_id = 32;
-  // Azure database resource type (mysql, maria, postgres)
-  string azure_database_resource_type = 33;
+  string password = 11;
+  // Azure client ID.
+  string azure_client_id = 12;
+  // Azure client secret.
+  string azure_client_secret = 13;
+  // Azure tanant ID.
+  string azure_tenant_id = 14;
+  // Azure subscription ID.
+  string azure_subscription_id = 15;
+  // Azure resource group.
+  string azure_resource_group = 16;
   // If true, adds azure_database_exporter.
   bool azure_database_exporter = 17;
   // If true, adds qan-mysql-perfschema-agent.
@@ -79,13 +129,11 @@ message AddAzureDatabaseRequest {
   // If zero, server's default value is used.
   // Use negative value to disable them.
   int32 tablestats_group_table_limit = 24;
-  // Disable basic metrics.
-  bool disable_basic_metrics = 25;
-  // Disable enhanced metrics.
-  bool disable_enhanced_metrics = 26;
   // Defines metrics flow model for this exporter.
   // Push metrics mode is not allowed.
-  MetricsMode metrics_mode = 27;
+  MetricsMode metrics_mode = 25;
+  // Azure database resource type (mysql, maria, postgres)
+  DiscoverAzureDatabaseType type = 26;
 }
 
 message AddAzureDatabaseResponse {}
