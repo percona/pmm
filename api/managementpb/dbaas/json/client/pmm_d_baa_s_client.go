@@ -10,6 +10,7 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
+	"github.com/percona/pmm/api/managementpb/dbaas/json/client/components"
 	"github.com/percona/pmm/api/managementpb/dbaas/json/client/kubernetes"
 	"github.com/percona/pmm/api/managementpb/dbaas/json/client/logs_api"
 	"github.com/percona/pmm/api/managementpb/dbaas/json/client/psmdb_cluster"
@@ -58,6 +59,7 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMDBaaS {
 
 	cli := new(PMMDBaaS)
 	cli.Transport = transport
+	cli.Components = components.New(transport, formats)
 	cli.Kubernetes = kubernetes.New(transport, formats)
 	cli.LogsAPI = logs_api.New(transport, formats)
 	cli.PSMDBCluster = psmdb_cluster.New(transport, formats)
@@ -106,6 +108,8 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 
 // PMMDBaaS is a client for PMM d baa s
 type PMMDBaaS struct {
+	Components components.ClientService
+
 	Kubernetes kubernetes.ClientService
 
 	LogsAPI logs_api.ClientService
@@ -120,6 +124,7 @@ type PMMDBaaS struct {
 // SetTransport changes the transport on the client and all its subresources
 func (c *PMMDBaaS) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
+	c.Components.SetTransport(transport)
 	c.Kubernetes.SetTransport(transport)
 	c.LogsAPI.SetTransport(transport)
 	c.PSMDBCluster.SetTransport(transport)

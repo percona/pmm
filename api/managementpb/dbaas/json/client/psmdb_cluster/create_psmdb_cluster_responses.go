@@ -266,6 +266,9 @@ type CreatePSMDBClusterParamsBodyParams struct {
 	// Cluster size.
 	ClusterSize int32 `json:"cluster_size,omitempty"`
 
+	// Docker image used for PSMDB.
+	Image string `json:"image,omitempty"`
+
 	// replicaset
 	Replicaset *CreatePSMDBClusterParamsBodyParamsReplicaset `json:"replicaset,omitempty"`
 }
