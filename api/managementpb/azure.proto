@@ -6,7 +6,6 @@ option go_package = "api/managementpb;managementpb";
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
-import "managementpb/metrics.proto";
 
 // DiscoverAzureDatabaseRequest discover azure databases request.
 message DiscoverAzureDatabaseRequest {
@@ -38,13 +37,13 @@ message DiscoverAzureDatabaseInstance {
   // Azure database location.
   string region = 2;
   // Azure database server name.
-  string name = 3;
+  string service_name = 3;
   // Database username.
   string username = 4;
   // Address used to connect to it.
   string address = 5;
   // Azure Resource group.
-  string resource_group = 6;
+  string azure_resource_group = 6;
   // Environment tag.
   string environment = 7;
   // Database type.
@@ -133,11 +132,8 @@ message AddAzureDatabaseRequest {
   // If zero, server's default value is used.
   // Use negative value to disable them.
   int32 tablestats_group_table_limit = 24;
-  // Defines metrics flow model for this exporter.
-  // Push metrics mode is not allowed.
-  MetricsMode metrics_mode = 25;
   // Azure database resource type (mysql, maria, postgres)
-  DiscoverAzureDatabaseType type = 26;
+  DiscoverAzureDatabaseType type = 25;
 }
 
 message AddAzureDatabaseResponse {}
