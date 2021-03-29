@@ -1485,7 +1485,7 @@
                       "x-order": 8
                     },
                     "push_metrics_enabled": {
-                      "description": "True if exporter uses push metrics mode.",
+                      "description": "True if the exporter operates in push metrics mode.",
                       "type": "boolean",
                       "x-order": 9
                     }
@@ -4130,7 +4130,7 @@
                       "x-order": 8
                     },
                     "push_metrics_enabled": {
-                      "description": "True if exporter uses push metrics mode.",
+                      "description": "True if the exporter operates in push metrics mode.",
                       "type": "boolean",
                       "x-order": 9
                     }
@@ -7470,7 +7470,7 @@
                       "x-order": 8
                     },
                     "push_metrics_enabled": {
-                      "description": "True if exporter uses push metrics mode.",
+                      "description": "True if the exporter operates in push metrics mode.",
                       "type": "boolean",
                       "x-order": 9
                     }
@@ -8637,7 +8637,7 @@
                         "x-order": 8
                       },
                       "push_metrics_enabled": {
-                        "description": "True if exporter uses push metrics mode.",
+                        "description": "True if the exporter operates in push metrics mode.",
                         "type": "boolean",
                         "x-order": 9
                       }
@@ -13996,17 +13996,6 @@
                   "format": "int32",
                   "x-order": 23
                 },
-                "metrics_mode": {
-                  "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
-                  "type": "string",
-                  "default": "AUTO",
-                  "enum": [
-                    "AUTO",
-                    "PULL",
-                    "PUSH"
-                  ],
-                  "x-order": 24
-                },
                 "type": {
                   "description": "DiscoverAzureDatabaseType describes supported RDS instance engines.\n\n - DISCOVER_AZURE_DATABASE_TYPE_MYSQL: MySQL type: microsoft.dbformysql\n - DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL: PostgreSQL type: microsoft.dbformysql\n - DISCOVER_AZURE_DATABASE_TYPE_MARIADB: MariaDB type: microsoft.dbformariadb",
                   "type": "string",
@@ -14017,7 +14006,7 @@
                     "DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL",
                     "DISCOVER_AZURE_DATABASE_TYPE_MARIADB"
                   ],
-                  "x-order": 25
+                  "x-order": 24
                 }
               }
             }

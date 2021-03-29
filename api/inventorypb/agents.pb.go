@@ -1923,7 +1923,7 @@ type AzureDatabaseExporter struct {
 	Status AgentStatus `protobuf:"varint,8,opt,name=status,proto3,enum=inventory.AgentStatus" json:"status,omitempty"`
 	// Listen port for scraping metrics (the same for several configurations).
 	ListenPort uint32 `protobuf:"varint,9,opt,name=listen_port,json=listenPort,proto3" json:"listen_port,omitempty"`
-	// True if exporter uses push metrics mode.
+	// True if the exporter operates in push metrics mode.
 	PushMetricsEnabled bool `protobuf:"varint,10,opt,name=push_metrics_enabled,json=pushMetricsEnabled,proto3" json:"push_metrics_enabled,omitempty"`
 }
 

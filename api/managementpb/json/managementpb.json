@@ -1670,17 +1670,6 @@
                   "type": "string",
                   "x-order": 2
                 },
-                "metrics_mode": {
-                  "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
-                  "type": "string",
-                  "default": "AUTO",
-                  "enum": [
-                    "AUTO",
-                    "PULL",
-                    "PUSH"
-                  ],
-                  "x-order": 24
-                },
                 "node_model": {
                   "description": "Represents a purchasable Stock Keeping Unit (SKU) under a product.\nhttps://docs.microsoft.com/en-us/partner-center/develop/product-resources#sku.",
                   "type": "string",
@@ -1748,7 +1737,7 @@
                     "DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL",
                     "DISCOVER_AZURE_DATABASE_TYPE_MARIADB"
                   ],
-                  "x-order": 25
+                  "x-order": 24
                 },
                 "username": {
                   "description": "Username for scraping metrics.",
