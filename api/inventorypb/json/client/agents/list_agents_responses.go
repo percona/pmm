@@ -158,7 +158,7 @@ type AzureDatabaseExporterItems0 struct {
 	// Listen port for scraping metrics (the same for several configurations).
 	ListenPort int64 `json:"listen_port,omitempty"`
 
-	// True if exporter uses push metrics mode.
+	// True if the exporter operates in push metrics mode.
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 }
 

@@ -131,7 +131,7 @@ type AzureDatabaseInstanceItems0 struct {
 	Region string `json:"region,omitempty"`
 
 	// Azure database server name.
-	Name string `json:"name,omitempty"`
+	ServiceName string `json:"service_name,omitempty"`
 
 	// Database username.
 	Username string `json:"username,omitempty"`
@@ -140,7 +140,7 @@ type AzureDatabaseInstanceItems0 struct {
 	Address string `json:"address,omitempty"`
 
 	// Azure Resource group.
-	ResourceGroup string `json:"resource_group,omitempty"`
+	AzureResourceGroup string `json:"azure_resource_group,omitempty"`
 
 	// Environment tag.
 	Environment string `json:"environment,omitempty"`
