@@ -13912,7 +13912,7 @@
                   "x-order": 2
                 },
                 "node_model": {
-                  "description": "Azure instance class.",
+                  "description": "Represents a purchasable Stock Keeping Unit (SKU) under a product.\nhttps://docs.microsoft.com/en-us/partner-center/develop/product-resources#sku.",
                   "type": "string",
                   "x-order": 3
                 },
