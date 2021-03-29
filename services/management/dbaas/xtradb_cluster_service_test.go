@@ -441,8 +441,8 @@ func TestXtraDBClusterService(t *testing.T) {
 
 		actual, err := s.GetXtraDBClusterResources(ctx, &in)
 		assert.NoError(t, err)
-		assert.Equal(t, r, actual.Expected.MemoryBytes)
-		assert.Equal(t, int64(2000), actual.Expected.CpuM)
-		assert.Equal(t, r, actual.Expected.DiskSize)
+		assert.Equal(t, uint64(r), actual.Expected.MemoryBytes)
+		assert.Equal(t, uint64(2000), actual.Expected.CpuM)
+		assert.Equal(t, uint64(r), actual.Expected.DiskSize)
 	})
 }

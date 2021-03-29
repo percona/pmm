@@ -263,10 +263,10 @@ func (s PSMDBClusterService) GetPSMDBClusterResources(ctx context.Context, req *
 		return nil, err
 	}
 
-	clusterSize := int64(req.Params.ClusterSize)
-	memory := req.Params.Replicaset.ComputeResources.MemoryBytes * 2 * clusterSize
-	cpu := int64(req.Params.Replicaset.ComputeResources.CpuM) * 2 * clusterSize
-	disk := req.Params.Replicaset.DiskSize*3 + req.Params.Replicaset.DiskSize*clusterSize
+	clusterSize := uint64(req.Params.ClusterSize)
+	memory := uint64(req.Params.Replicaset.ComputeResources.MemoryBytes) * 2 * clusterSize
+	cpu := uint64(req.Params.Replicaset.ComputeResources.CpuM) * 2 * clusterSize
+	disk := uint64(req.Params.Replicaset.DiskSize)*3 + uint64(req.Params.Replicaset.DiskSize)*clusterSize
 
 	if settings.PMMPublicAddress != "" {
 		memory += (3 + 2*clusterSize) * 500000000

@@ -343,8 +343,8 @@ func TestPSMDBClusterService(t *testing.T) {
 
 		actual, err := s.GetPSMDBClusterResources(ctx, &in)
 		assert.NoError(t, err)
-		assert.Equal(t, int64(16000000000), actual.Expected.MemoryBytes)
-		assert.Equal(t, int64(16000), actual.Expected.CpuM)
-		assert.Equal(t, int64(14000000000), actual.Expected.DiskSize)
+		assert.Equal(t, uint64(16000000000), actual.Expected.MemoryBytes)
+		assert.Equal(t, uint64(16000), actual.Expected.CpuM)
+		assert.Equal(t, uint64(14000000000), actual.Expected.DiskSize)
 	})
 }
