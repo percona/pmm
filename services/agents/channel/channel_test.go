@@ -110,7 +110,7 @@ func TestAgentRequest(t *testing.T) {
 			assert.Equal(t, i, req.ID)
 			assert.IsType(t, new(agentpb.QANCollectRequest), req.Payload)
 
-			ch.SendResponse(&ServerResponse{
+			ch.Send(&ServerResponse{
 				ID:      i,
 				Payload: new(agentpb.QANCollectResponse),
 			})
@@ -153,7 +153,7 @@ func TestServerRequest(t *testing.T) {
 
 	connect := func(ch *Channel) error {
 		for i := uint32(1); i <= count; i++ {
-			resp := ch.SendRequest(new(agentpb.Ping))
+			resp := ch.SendAndWaitResponse(new(agentpb.Ping))
 			pong := resp.(*agentpb.Pong)
 			ts, err := ptypes.Timestamp(pong.CurrentTime)
 			assert.NoError(t, err)
@@ -235,7 +235,7 @@ func TestServerExitsWithUnknownErrorIntercepted(t *testing.T) {
 
 func TestAgentClosesStream(t *testing.T) {
 	connect := func(ch *Channel) error {
-		resp := ch.SendRequest(new(agentpb.Ping))
+		resp := ch.SendAndWaitResponse(new(agentpb.Ping))
 		assert.Nil(t, resp)
 
 		assert.Nil(t, <-ch.Requests())
@@ -255,7 +255,7 @@ func TestAgentClosesStream(t *testing.T) {
 
 func TestAgentClosesConnection(t *testing.T) {
 	connect := func(ch *Channel) error {
-		resp := ch.SendRequest(new(agentpb.Ping))
+		resp := ch.SendAndWaitResponse(new(agentpb.Ping))
 		assert.Nil(t, resp)
 
 		assert.Nil(t, <-ch.Requests())
@@ -276,11 +276,11 @@ func TestAgentClosesConnection(t *testing.T) {
 func TestUnexpectedResponseFromAgent(t *testing.T) {
 	connect := func(ch *Channel) error {
 		// after receiving unexpected response, channel is closed
-		resp := ch.SendRequest(new(agentpb.Ping))
+		resp := ch.SendAndWaitResponse(new(agentpb.Ping))
 		assert.Nil(t, resp)
 
 		// future requests are ignored
-		resp = ch.SendRequest(new(agentpb.Ping))
+		resp = ch.SendAndWaitResponse(new(agentpb.Ping))
 		assert.Nil(t, resp)
 
 		return nil

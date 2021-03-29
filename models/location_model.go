@@ -28,7 +28,7 @@ import (
 // BackupLocationType represents BackupLocation type as stored in database.
 type BackupLocationType string
 
-// BackupLocation types
+// BackupLocation types.
 const (
 	S3BackupLocationType        BackupLocationType = "s3"
 	PMMServerBackupLocationType BackupLocationType = "pmm-server"
@@ -71,7 +71,7 @@ func (s *BackupLocation) AfterFind() error {
 	return nil
 }
 
-// S3LocationConfig contains required properties for accessing S3 Bucket
+// S3LocationConfig contains required properties for accessing S3 Bucket.
 type S3LocationConfig struct {
 	Endpoint   string `json:"endpoint"`
 	AccessKey  string `json:"access_key"`
@@ -107,7 +107,7 @@ func (c PMMClientLocationConfig) Value() (driver.Value, error) { return jsonValu
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *PMMClientLocationConfig) Scan(src interface{}) error { return jsonScan(c, src) }
 
-// check interfaces
+// check interfaces.
 var (
 	_ reform.BeforeInserter = (*BackupLocation)(nil)
 	_ reform.BeforeUpdater  = (*BackupLocation)(nil)

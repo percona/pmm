@@ -229,7 +229,6 @@ func TestBackupLocations(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.Equal(t, updatedLoc, findLoc)
-
 	})
 
 	t.Run("remove", func(t *testing.T) {

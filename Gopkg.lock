@@ -440,7 +440,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:fd20d678e1f69b7ee92eaa1f70002365fe0a549fa9bc13e33953d49e30e9309f"
+  digest = "1:d45d56679cf15697061303d8d4e8ec94078258f709f24456caeed8712cf6a85f"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentpb",
@@ -456,6 +456,7 @@
     "api/managementpb/backup",
     "api/managementpb/dbaas",
     "api/managementpb/ia",
+    "api/managementpb/jobs",
     "api/qanpb",
     "api/serverpb",
     "utils/pdeathsig",
@@ -464,7 +465,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "280b01d591568e6dabfb3d784739ac29ade69ff1"
+  revision = "a75447706c45982e880062d0ca4d985020a75ded"
 
 [[projects]]
   digest = "1:65230c46134944510adb8844cf4098b5c9fdd1dd11992c3980afc1d3e0c8e4bd"
@@ -937,6 +938,7 @@
     "github.com/percona/pmm/api/managementpb/backup",
     "github.com/percona/pmm/api/managementpb/dbaas",
     "github.com/percona/pmm/api/managementpb/ia",
+    "github.com/percona/pmm/api/managementpb/jobs",
     "github.com/percona/pmm/api/qanpb",
     "github.com/percona/pmm/api/serverpb",
     "github.com/percona/pmm/utils/pdeathsig",

@@ -39,6 +39,8 @@ linters:
     - gochecknoglobals  # mostly useless
     - gomnd             # we are using numbers in many cases
     - gomodguard        # we are not using modules
+    - interfacer        # deprecated
+    - maligned          # deprecated
     - nlreturn          # too annoying
     - scopelint         # too many false positives
     - wsl               # too annoying

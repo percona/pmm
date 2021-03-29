@@ -30,6 +30,7 @@ import (
 //go:generate mockery -name=prometheusService -case=snake -inpkg -testonly
 //go:generate mockery -name=checksService -case=snake -inpkg -testonly
 //go:generate mockery -name=grafanaClient -case=snake -inpkg -testonly
+//go:generate mockery -name=jobsService -case=snake -inpkg -testonly
 
 // agentsRegistry is a subset of methods of agents.Registry used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
@@ -63,4 +64,11 @@ type checksService interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type grafanaClient interface {
 	CreateAnnotation(context.Context, []string, time.Time, string, string) (string, error)
+}
+
+// jobsService is a subset of methods of agents.JobsService used by this package.
+// We use it instead of real type for testing and to avoid dependency cycle.
+type jobsService interface {
+	StopJob(jobID string) error
+	StartEchoJob(id, pmmAgentID string, timeout time.Duration, message string, delay time.Duration) error
 }

@@ -221,7 +221,7 @@ func (r *Registry) Run(stream agentpb.Agent_ConnectServer) error {
 
 			switch p := req.Payload.(type) {
 			case *agentpb.Ping:
-				agent.channel.SendResponse(&channel.ServerResponse{
+				agent.channel.Send(&channel.ServerResponse{
 					ID: req.ID,
 					Payload: &agentpb.Pong{
 						CurrentTime: ptypes.TimestampNow(),
@@ -234,7 +234,7 @@ func (r *Registry) Run(stream agentpb.Agent_ConnectServer) error {
 						l.Errorf("%+v", err)
 					}
 
-					agent.channel.SendResponse(&channel.ServerResponse{
+					agent.channel.Send(&channel.ServerResponse{
 						ID:      req.ID,
 						Payload: new(agentpb.StateChangedResponse),
 					})
@@ -246,7 +246,7 @@ func (r *Registry) Run(stream agentpb.Agent_ConnectServer) error {
 						l.Errorf("%+v", err)
 					}
 
-					agent.channel.SendResponse(&channel.ServerResponse{
+					agent.channel.Send(&channel.ServerResponse{
 						ID:      req.ID,
 						Payload: new(agentpb.QANCollectResponse),
 					})
@@ -263,17 +263,51 @@ func (r *Registry) Run(stream agentpb.Agent_ConnectServer) error {
 					l.Warnf("Action was done with an error: %v.", p.Error)
 				}
 
-				agent.channel.SendResponse(&channel.ServerResponse{
+				agent.channel.Send(&channel.ServerResponse{
 					ID:      req.ID,
 					Payload: new(agentpb.ActionResultResponse),
 				})
 
+			case *agentpb.JobResult:
+				r.handleJobResult(l, p)
+			case *agentpb.JobProgress:
+				// TODO Handle job progress messages https://jira.percona.com/browse/PMM-7756
+
 			case nil:
-				l.Warnf("Unexpected request: %v.", req)
+				l.Warnf("Unexpected request: %+v.", req)
 				disconnectReason = "unimplemented"
 				return status.Error(codes.Unimplemented, "Unexpected request payload.")
 			}
 		}
+	}
+}
+
+func (r *Registry) handleJobResult(l *logrus.Entry, result *agentpb.JobResult) {
+	if e := r.db.InTransaction(func(t *reform.TX) error {
+		res, err := models.FindJobResultByID(t.Querier, result.JobId)
+		if err != nil {
+			return err
+		}
+
+		switch r := result.Result.(type) {
+		case *agentpb.JobResult_Error_:
+			res.Error = r.Error.Message
+		case *agentpb.JobResult_Echo_:
+			if res.Type != models.Echo {
+				return errors.Errorf("Result type echo doesn't match job type %s", res.Type)
+			}
+			res.Result = &models.JobResultData{
+				Echo: &models.EchoJobResult{
+					Message: r.Echo.Message,
+				},
+			}
+		default:
+			return errors.Errorf("unexpected job result type: %T", r)
+		}
+		res.Done = true
+		return t.Update(res)
+	}); e != nil {
+		l.Errorf("Failed to save job result: %+v", e)
 	}
 }
 
@@ -468,7 +502,7 @@ func (r *Registry) Kick(ctx context.Context, pmmAgentID string) {
 func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) {
 	l := logger.Get(ctx)
 	start := time.Now()
-	resp := agent.channel.SendRequest(new(agentpb.Ping))
+	resp := agent.channel.SendAndWaitResponse(new(agentpb.Ping))
 	if resp == nil {
 		return
 	}
@@ -748,8 +782,8 @@ func (r *Registry) sendSetStateRequest(ctx context.Context, agent *pmmAgentInfo)
 		AgentProcesses: agentProcesses,
 		BuiltinAgents:  builtinAgents,
 	}
-	l.Infof("sendSetStateRequest:\n%s", proto.MarshalTextString(state))
-	resp := agent.channel.SendRequest(state)
+	l.Debugf("sendSetStateRequest:\n%s", proto.MarshalTextString(state))
+	resp := agent.channel.SendAndWaitResponse(state)
 	l.Infof("SetState response: %+v.", resp)
 }
 
@@ -861,7 +895,7 @@ func (r *Registry) CheckConnectionToService(ctx context.Context, q *reform.Queri
 	}
 
 	l.Infof("CheckConnectionRequest: %+v.", request)
-	resp := pmmAgent.channel.SendRequest(request)
+	resp := pmmAgent.channel.SendAndWaitResponse(request)
 	l.Infof("CheckConnection response: %+v.", resp)
 
 	switch service.ServiceType {
@@ -958,7 +992,7 @@ func (r *Registry) StartMySQLExplainAction(ctx context.Context, id, pmmAgentID, 
 		return err
 	}
 
-	agent.channel.SendRequest(aRequest)
+	agent.channel.SendAndWaitResponse(aRequest)
 	return nil
 }
 
@@ -981,7 +1015,7 @@ func (r *Registry) StartMySQLShowCreateTableAction(ctx context.Context, id, pmmA
 		return err
 	}
 
-	agent.channel.SendRequest(aRequest)
+	agent.channel.SendAndWaitResponse(aRequest)
 	return nil
 }
 
@@ -1004,7 +1038,7 @@ func (r *Registry) StartMySQLShowTableStatusAction(ctx context.Context, id, pmmA
 		return err
 	}
 
-	agent.channel.SendRequest(aRequest)
+	agent.channel.SendAndWaitResponse(aRequest)
 	return nil
 }
 
@@ -1027,7 +1061,7 @@ func (r *Registry) StartMySQLShowIndexAction(ctx context.Context, id, pmmAgentID
 		return err
 	}
 
-	agent.channel.SendRequest(aRequest)
+	agent.channel.SendAndWaitResponse(aRequest)
 	return nil
 }
 
@@ -1050,7 +1084,7 @@ func (r *Registry) StartPostgreSQLShowCreateTableAction(ctx context.Context, id,
 		return err
 	}
 
-	agent.channel.SendRequest(aRequest)
+	agent.channel.SendAndWaitResponse(aRequest)
 	return nil
 }
 
@@ -1073,7 +1107,7 @@ func (r *Registry) StartPostgreSQLShowIndexAction(ctx context.Context, id, pmmAg
 		return err
 	}
 
-	agent.channel.SendRequest(aRequest)
+	agent.channel.SendAndWaitResponse(aRequest)
 	return nil
 }
 
@@ -1100,7 +1134,7 @@ func (r *Registry) StartMongoDBExplainAction(ctx context.Context, id, pmmAgentID
 		return err
 	}
 
-	agent.channel.SendRequest(aRequest)
+	agent.channel.SendAndWaitResponse(aRequest)
 	return nil
 }
 
@@ -1122,7 +1156,7 @@ func (r *Registry) StartMySQLQueryShowAction(ctx context.Context, id, pmmAgentID
 		return err
 	}
 
-	agent.channel.SendRequest(aRequest)
+	agent.channel.SendAndWaitResponse(aRequest)
 	return nil
 }
 
@@ -1144,7 +1178,7 @@ func (r *Registry) StartMySQLQuerySelectAction(ctx context.Context, id, pmmAgent
 		return err
 	}
 
-	agent.channel.SendRequest(aRequest)
+	agent.channel.SendAndWaitResponse(aRequest)
 	return nil
 }
 
@@ -1165,7 +1199,7 @@ func (r *Registry) StartPostgreSQLQueryShowAction(ctx context.Context, id, pmmAg
 		return err
 	}
 
-	agent.channel.SendRequest(aRequest)
+	agent.channel.SendAndWaitResponse(aRequest)
 	return nil
 }
 
@@ -1187,7 +1221,7 @@ func (r *Registry) StartPostgreSQLQuerySelectAction(ctx context.Context, id, pmm
 		return err
 	}
 
-	agent.channel.SendRequest(aRequest)
+	agent.channel.SendAndWaitResponse(aRequest)
 	return nil
 }
 
@@ -1213,7 +1247,7 @@ func (r *Registry) StartMongoDBQueryGetParameterAction(ctx context.Context, id, 
 		return err
 	}
 
-	agent.channel.SendRequest(aRequest)
+	agent.channel.SendAndWaitResponse(aRequest)
 	return nil
 }
 
@@ -1239,7 +1273,7 @@ func (r *Registry) StartMongoDBQueryBuildInfoAction(ctx context.Context, id, pmm
 		return err
 	}
 
-	agent.channel.SendRequest(aRequest)
+	agent.channel.SendAndWaitResponse(aRequest)
 	return nil
 }
 
@@ -1265,7 +1299,7 @@ func (r *Registry) StartMongoDBQueryGetCmdLineOptsAction(ctx context.Context, id
 		return err
 	}
 
-	agent.channel.SendRequest(aRequest)
+	agent.channel.SendAndWaitResponse(aRequest)
 	return nil
 }
 
@@ -1285,7 +1319,7 @@ func (r *Registry) StartPTSummaryAction(ctx context.Context, id, pmmAgentID stri
 		return err
 	}
 
-	agent.channel.SendRequest(aRequest)
+	agent.channel.SendAndWaitResponse(aRequest)
 	return nil
 }
 
@@ -1309,7 +1343,7 @@ func (r *Registry) StartPTPgSummaryAction(ctx context.Context, id, pmmAgentID, a
 	if err != nil {
 		return err
 	}
-	pmmAgent.channel.SendRequest(actionRequest)
+	pmmAgent.channel.SendAndWaitResponse(actionRequest)
 
 	return nil
 }
@@ -1338,7 +1372,7 @@ func (r *Registry) StartPTMongoDBSummaryAction(ctx context.Context, id, pmmAgent
 		return err
 	}
 
-	pmmAgent.channel.SendRequest(actionRequest)
+	pmmAgent.channel.SendAndWaitResponse(actionRequest)
 
 	return nil
 }
@@ -1365,7 +1399,7 @@ func (r *Registry) StartPTMySQLSummaryAction(ctx context.Context, id, pmmAgentID
 	if err != nil {
 		return err
 	}
-	pmmAgent.channel.SendRequest(actionRequest)
+	pmmAgent.channel.SendAndWaitResponse(actionRequest)
 
 	return nil
 }
@@ -1373,12 +1407,13 @@ func (r *Registry) StartPTMySQLSummaryAction(ctx context.Context, id, pmmAgentID
 // StopAction stops action with given given id.
 // TODO: Extract it from here: https://jira.percona.com/browse/PMM-4932
 func (r *Registry) StopAction(ctx context.Context, actionID string) error {
+	// TODO Seems that we have a bug here, we passing actionID to the method that expects pmmAgentID
 	agent, err := r.get(actionID)
 	if err != nil {
 		return err
 	}
 
-	agent.channel.SendRequest(&agentpb.StopActionRequest{ActionId: actionID})
+	agent.channel.SendAndWaitResponse(&agentpb.StopActionRequest{ActionId: actionID})
 	return nil
 }
 

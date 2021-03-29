@@ -27,9 +27,7 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-var (
-	invalidConfigurationError = status.Error(codes.InvalidArgument, "Channel should contain only one type of channel configuration.")
-)
+var invalidConfigurationError = status.Error(codes.InvalidArgument, "Channel should contain only one type of channel configuration.")
 
 func checkUniqueChannelID(q *reform.Querier, id string) error {
 	if id == "" {

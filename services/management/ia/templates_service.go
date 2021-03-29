@@ -501,7 +501,7 @@ func (s *TemplatesService) UpdateTemplate(ctx context.Context, req *iav1beta1.Up
 
 	tmpl := templates[0]
 
-	if err = validateUserTemplate(&tmpl); err != nil { //nolint:gosec
+	if err = validateUserTemplate(&tmpl); err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "%s.", err)
 	}
 

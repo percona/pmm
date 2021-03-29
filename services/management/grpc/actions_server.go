@@ -38,8 +38,10 @@ type actionsServer struct {
 	l  *logrus.Entry
 }
 
-var pmmAgent2100 = version.MustParse("2.10.0")
-var pmmAgent2150 = version.MustParse("2.15.0-HEAD") // TODO: Remove HEAD later once 2.16.0 is released.
+var (
+	pmmAgent2100 = version.MustParse("2.10.0")
+	pmmAgent2150 = version.MustParse("2.15.0-HEAD") // TODO: Remove HEAD later once 2.16.0 is released.
+)
 
 // NewActionsServer creates Management Actions Server.
 func NewActionsServer(r *agents.Registry, db *reform.DB) managementpb.ActionsServer {
@@ -72,7 +74,7 @@ func (s *actionsServer) prepareServiceAction(serviceID, pmmAgentID, database str
 			return err
 		}
 
-		if pmmAgentID, err = models.FindPmmAgentIDToRunAction(pmmAgentID, agents); err != nil {
+		if pmmAgentID, err = models.FindPmmAgentIDToRunActionOrJob(pmmAgentID, agents); err != nil {
 			return err
 		}
 
@@ -105,7 +107,7 @@ func (s *actionsServer) prepareServiceActionWithFiles(serviceID, pmmAgentID, dat
 			return err
 		}
 
-		if pmmAgentID, err = models.FindPmmAgentIDToRunAction(pmmAgentID, pmmAgents); err != nil {
+		if pmmAgentID, err = models.FindPmmAgentIDToRunActionOrJob(pmmAgentID, pmmAgents); err != nil {
 			return err
 		}
 
@@ -316,7 +318,7 @@ func (s *actionsServer) StartPTSummaryAction(ctx context.Context, req *managemen
 		return nil, status.Error(codes.NotFound, "all available agents are outdated")
 	}
 
-	agentID, err := models.FindPmmAgentIDToRunAction(req.PmmAgentId, agents)
+	agentID, err := models.FindPmmAgentIDToRunActionOrJob(req.PmmAgentId, agents)
 	if err != nil {
 		return nil, err
 	}
@@ -367,7 +369,7 @@ func (s *actionsServer) StartPTPgSummaryAction(ctx context.Context, req *managem
 		if len(pmmAgents) == 0 {
 			return nil, status.Error(codes.FailedPrecondition, "all available agents are outdated")
 		}
-		pmmAgentID, err = models.FindPmmAgentIDToRunAction(req.PmmAgentId, pmmAgents)
+		pmmAgentID, err = models.FindPmmAgentIDToRunActionOrJob(req.PmmAgentId, pmmAgents)
 		if err != nil {
 			return nil, err
 		}
@@ -420,7 +422,7 @@ func (s *actionsServer) StartPTMongoDBSummaryAction(ctx context.Context, req *ma
 		return nil, status.Errorf(codes.NotFound, "No pmm-agent running on this node")
 	}
 
-	pmmAgentID, err := models.FindPmmAgentIDToRunAction(req.PmmAgentId, pmmAgents)
+	pmmAgentID, err := models.FindPmmAgentIDToRunActionOrJob(req.PmmAgentId, pmmAgents)
 	if err != nil {
 		return nil, err
 	}
@@ -431,8 +433,10 @@ func (s *actionsServer) StartPTMongoDBSummaryAction(ctx context.Context, req *ma
 	}
 
 	// Exporters to be filtered by service ID and agent type
-	agentFilter := models.AgentFilters{PMMAgentID: "", NodeID: "",
-		ServiceID: req.ServiceId, AgentType: pointerToAgentType(models.MongoDBExporterType)}
+	agentFilter := models.AgentFilters{
+		PMMAgentID: "", NodeID: "",
+		ServiceID: req.ServiceId, AgentType: pointerToAgentType(models.MongoDBExporterType),
+	}
 
 	// Need to get the mongoDB exporters to get the username and password therefrom
 	mongoDBExporters, err := models.FindAgents(s.db.Querier, agentFilter)
@@ -480,7 +484,7 @@ func (s *actionsServer) StartPTMySQLSummaryAction(ctx context.Context, req *mana
 		// Remove this error after: https://jira.percona.com/browse/PMM-7562
 		return nil, status.Errorf(codes.FailedPrecondition, "PTMySQL Summary doesnt working with remote node yet")
 
-		//pmmAgentID = models.PMMServerAgentID
+		// pmmAgentID = models.PMMServerAgentID
 	default:
 		pmmAgents, err := models.FindPMMAgentsRunningOnNode(s.db.Querier, service.NodeID)
 		if err != nil {
@@ -490,7 +494,7 @@ func (s *actionsServer) StartPTMySQLSummaryAction(ctx context.Context, req *mana
 		if len(pmmAgents) == 0 {
 			return nil, status.Error(codes.FailedPrecondition, "all available agents are outdated")
 		}
-		pmmAgentID, err = models.FindPmmAgentIDToRunAction(req.PmmAgentId, pmmAgents)
+		pmmAgentID, err = models.FindPmmAgentIDToRunActionOrJob(req.PmmAgentId, pmmAgents)
 		if err != nil {
 			return nil, err
 		}
@@ -501,8 +505,10 @@ func (s *actionsServer) StartPTMySQLSummaryAction(ctx context.Context, req *mana
 		return nil, err
 	}
 
-	agentFilter := models.AgentFilters{PMMAgentID: "", NodeID: "",
-		ServiceID: req.ServiceId, AgentType: pointerToAgentType(models.MySQLdExporterType)}
+	agentFilter := models.AgentFilters{
+		PMMAgentID: "", NodeID: "",
+		ServiceID: req.ServiceId, AgentType: pointerToAgentType(models.MySQLdExporterType),
+	}
 	mysqldExporters, err := models.FindAgents(s.db.Querier, agentFilter)
 	if err != nil {
 		return nil, err

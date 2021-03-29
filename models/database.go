@@ -453,6 +453,21 @@ var databaseSchema = [][]string{
 			PRIMARY KEY (id)
 		)`,
 	},
+	30: {
+		`CREATE TABLE job_results (
+			id VARCHAR NOT NULL,
+			pmm_agent_id VARCHAR CHECK (pmm_agent_id <> ''),
+			type VARCHAR NOT NULL,
+			done BOOLEAN NOT NULL,
+			error VARCHAR NOT NULL,
+			result JSONB,
+
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (id)
+		)`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

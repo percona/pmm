@@ -105,8 +105,8 @@ func (s *ChannelsService) getNotificationChannels() ([]*iav1beta1.Channel, error
 	}
 
 	return res, nil
-
 }
+
 func (s *ChannelsService) getNotificationChannelsPage(pageIndex, pageSize int) ([]*iav1beta1.Channel, *iav1beta1.PageTotals, error) {
 	var channels []*models.Channel
 	var totalItems int
@@ -130,7 +130,7 @@ func (s *ChannelsService) getNotificationChannelsPage(pageIndex, pageSize int) (
 
 	res := make([]*iav1beta1.Channel, len(channels))
 	for i, channel := range channels {
-		c, err := convertChannel(channel) //nolint:gosec
+		c, err := convertChannel(channel)
 		if err != nil {
 			return nil, nil, err
 		}

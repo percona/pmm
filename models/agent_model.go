@@ -38,8 +38,10 @@ import (
 // pmm-managed's PostgreSQL, qan-api's ClickHouse, and VictoriaMetrics.
 type AgentType string
 
-const certificateKeyFilePlaceholder = "certificateKeyFilePlaceholder"
-const caFilePlaceholder = "caFilePlaceholder"
+const (
+	certificateKeyFilePlaceholder = "certificateKeyFilePlaceholder"
+	caFilePlaceholder             = "caFilePlaceholder"
+)
 
 // Agent types (in the same order as in agents.proto).
 const (

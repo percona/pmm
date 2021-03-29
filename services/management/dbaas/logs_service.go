@@ -69,5 +69,4 @@ func (s LogsService) GetLogs(ctx context.Context, in *dbaasv1beta1.GetLogsReques
 	return &dbaasv1beta1.GetLogsResponse{
 		Logs: logs,
 	}, nil
-
 }

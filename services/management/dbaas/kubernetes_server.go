@@ -31,8 +31,10 @@ import (
 	"github.com/percona/pmm-managed/models"
 )
 
-var operatorIsForbiddenRegexp = regexp.MustCompile(`.*\.percona\.com is forbidden`)
-var resourceDoesntExistsRegexp = regexp.MustCompile(`the server doesn't have a resource type "(PerconaXtraDBCluster|PerconaServerMongoDB)"`)
+var (
+	operatorIsForbiddenRegexp  = regexp.MustCompile(`.*\.percona\.com is forbidden`)
+	resourceDoesntExistsRegexp = regexp.MustCompile(`the server doesn't have a resource type "(PerconaXtraDBCluster|PerconaServerMongoDB)"`)
+)
 
 type kubernetesServer struct {
 	l           *logrus.Entry

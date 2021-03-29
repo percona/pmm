@@ -72,7 +72,7 @@ func TestCleaner(t *testing.T) {
 		require.NoError(t, q.Insert(str))
 
 		teardown = func(t *testing.T) {
-			assert.NoError(t, models.CleanupOldResults(db.Querier, models.Now()))
+			assert.NoError(t, models.CleanupOldActionResults(db.Querier, models.Now()))
 		}
 		return
 	}

@@ -98,7 +98,7 @@ func (s *Artifact) AfterFind() error {
 	return nil
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ reform.BeforeInserter = (*Artifact)(nil)
 	_ reform.AfterFinder    = (*Artifact)(nil)

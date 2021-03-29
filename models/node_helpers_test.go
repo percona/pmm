@@ -206,14 +206,15 @@ func TestNodeHelpers(t *testing.T) {
 		nodes, err := models.FindNodes(q, models.NodeFilters{NodeType: pointerToNodeType(models.ContainerNodeType)})
 		require.NoError(t, err)
 
-		expected := []*models.Node{{
-			NodeID:    "MySQLNode",
-			NodeType:  models.ContainerNodeType,
-			NodeName:  "Node for MySQL Service",
-			MachineID: pointer.ToString("/machine_id/MySQLNode"),
-			CreatedAt: now,
-			UpdatedAt: now,
-		},
+		expected := []*models.Node{
+			{
+				NodeID:    "MySQLNode",
+				NodeType:  models.ContainerNodeType,
+				NodeName:  "Node for MySQL Service",
+				MachineID: pointer.ToString("/machine_id/MySQLNode"),
+				CreatedAt: now,
+				UpdatedAt: now,
+			},
 		}
 		require.Equal(t, expected, nodes)
 	})

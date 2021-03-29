@@ -375,7 +375,7 @@ func (c *Client) CreateAnnotation(ctx context.Context, tags []string, from time.
 		return "", errors.Wrap(err, "failed to marshal request")
 	}
 
-	var headers = make(http.Header)
+	headers := make(http.Header)
 	headers.Add("Authorization", authorization)
 
 	var response struct {
@@ -392,7 +392,7 @@ func (c *Client) CreateAnnotation(ctx context.Context, tags []string, from time.
 func (c *Client) findAnnotations(ctx context.Context, from, to time.Time, authorization string) ([]annotation, error) {
 	// http://docs.grafana.org/http_api/annotations/#find-annotations
 
-	var headers = make(http.Header)
+	headers := make(http.Header)
 	headers.Add("Authorization", authorization)
 
 	params := url.Values{

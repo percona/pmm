@@ -182,7 +182,8 @@ groups:
 					Value: &iav1beta1.RuleParam_Float{
 						Float: 1.22,
 					},
-				}},
+				},
+			},
 			For:      durationpb.New(2 * time.Second),
 			Severity: managementpb.Severity_SEVERITY_INFO,
 			CustomLabels: map[string]string{

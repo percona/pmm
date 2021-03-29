@@ -45,6 +45,7 @@ import (
 	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
+	jobs1beta1 "github.com/percona/pmm/api/managementpb/jobs"
 	"github.com/percona/pmm/api/serverpb"
 	"github.com/percona/pmm/utils/sqlmetrics"
 	"github.com/percona/pmm/version"
@@ -132,6 +133,7 @@ type gRPCServerDeps struct {
 	alertsService         *ia.AlertsService
 	templatesService      *ia.TemplatesService
 	rulesService          *ia.RulesService
+	jobsService           *agents.JobsService
 	versionServiceClient  *managementdbaas.VersionServiceClient
 }
 
@@ -185,6 +187,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	managementpb.RegisterExternalServer(gRPCServer, management.NewExternalService(deps.db, deps.agentsRegistry, deps.vmdb))
 	managementpb.RegisterAnnotationServer(gRPCServer, managementgrpc.NewAnnotationServer(deps.db, deps.grafanaClient))
 	managementpb.RegisterSecurityChecksServer(gRPCServer, managementgrpc.NewChecksServer(checksSvc))
+	jobs1beta1.RegisterJobsServer(gRPCServer, management.NewJobsAPIServer(deps.db, deps.jobsService))
 
 	iav1beta1.RegisterChannelsServer(gRPCServer, ia.NewChannelsService(deps.db, deps.alertmanager))
 	deps.templatesService.Collect(ctx)
@@ -303,6 +306,8 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 
 		backupv1beta1.RegisterLocationsHandlerFromEndpoint,
 		backupv1beta1.RegisterArtifactsHandlerFromEndpoint,
+
+		jobs1beta1.RegisterJobsHandlerFromEndpoint,
 
 		dbaasv1beta1.RegisterKubernetesHandlerFromEndpoint,
 		dbaasv1beta1.RegisterXtraDBClusterHandlerFromEndpoint,
@@ -637,10 +642,12 @@ func main() {
 		l.Fatalf("Could not create platform service: %s", err)
 	}
 
+	jobsService := agents.NewJobsService(db, agentsRegistry)
+
 	// Integrated alerts services
-	templatesSvc := ia.NewTemplatesService(db)
-	rulesSvc := ia.NewRulesService(db, templatesSvc, vmalert, alertmanager)
-	alertsSvc := ia.NewAlertsService(db, alertmanager, templatesSvc)
+	templatesService := ia.NewTemplatesService(db)
+	rulesService := ia.NewRulesService(db, templatesService, vmalert, alertmanager)
+	alertsService := ia.NewAlertsService(db, alertmanager, templatesService)
 
 	versionService := managementdbaas.NewVersionServiceClient(*versionServiceAPIURLF)
 
@@ -657,7 +664,7 @@ func main() {
 		AwsInstanceChecker:   awsInstanceChecker,
 		GrafanaClient:        grafanaClient,
 		VMAlertExternalRules: externalRules,
-		RulesService:         rulesSvc,
+		RulesService:         rulesService,
 	}
 
 	server, err := server.NewServer(serverParams)
@@ -794,9 +801,10 @@ func main() {
 			alertmanager:          alertmanager,
 			vmalert:               vmalert,
 			settings:              settings,
-			alertsService:         alertsSvc,
-			templatesService:      templatesSvc,
-			rulesService:          rulesSvc,
+			alertsService:         alertsService,
+			templatesService:      templatesService,
+			rulesService:          rulesService,
+			jobsService:           jobsService,
 			versionServiceClient:  versionService,
 		})
 	}()

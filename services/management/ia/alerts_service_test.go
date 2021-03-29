@@ -119,60 +119,66 @@ func TestSatisfiesFilters(t *testing.T) {
 			filters []*iav1beta1.Filter
 			result  bool
 			errMsg  string
-		}{{
-			name: "normal multiple filters",
-			filters: []*iav1beta1.Filter{{
-				Type:  iav1beta1.FilterType_EQUAL,
-				Key:   "label1",
-				Value: "value1",
+		}{
+			{
+				name: "normal multiple filters",
+				filters: []*iav1beta1.Filter{{
+					Type:  iav1beta1.FilterType_EQUAL,
+					Key:   "label1",
+					Value: "value1",
+				}, {
+					Type:  iav1beta1.FilterType_REGEX,
+					Key:   "label2",
+					Value: "v.*2",
+				}},
+				result: true,
+				errMsg: "",
 			}, {
-				Type:  iav1beta1.FilterType_REGEX,
-				Key:   "label2",
-				Value: "v.*2",
-			}},
-			result: true,
-			errMsg: "",
-		}, {
-			name: "normal simple filter",
-			filters: []*iav1beta1.Filter{{
-				Type:  iav1beta1.FilterType_EQUAL,
-				Key:   "label1",
-				Value: "value1"}},
-			result: true,
-			errMsg: "",
-		}, {
-			name: "normal regex filter",
-			filters: []*iav1beta1.Filter{{
-				Type:  iav1beta1.FilterType_REGEX,
-				Key:   "label2",
-				Value: "v.*2"}},
-			result: true,
-			errMsg: "",
-		}, {
-			name: "invalid type",
-			filters: []*iav1beta1.Filter{{
-				Type:  iav1beta1.FilterType_FILTER_TYPE_INVALID,
-				Key:   "label1",
-				Value: "value1"}},
-			result: false,
-			errMsg: "rpc error: code = Internal desc = Unexpected filter type.",
-		}, {
-			name: "unknown type",
-			filters: []*iav1beta1.Filter{{
-				Type:  iav1beta1.FilterType(12),
-				Key:   "label1",
-				Value: "value1"}},
-			result: false,
-			errMsg: "rpc error: code = Internal desc = Unexpected filter type.",
-		}, {
-			name: "bad regexp",
-			filters: []*iav1beta1.Filter{{
-				Type:  iav1beta1.FilterType_REGEX,
-				Key:   "label2",
-				Value: ".***"}},
-			result: false,
-			errMsg: "rpc error: code = InvalidArgument desc = bad regular expression: +error parsing regexp: invalid nested repetition operator: `**`",
-		},
+				name: "normal simple filter",
+				filters: []*iav1beta1.Filter{{
+					Type:  iav1beta1.FilterType_EQUAL,
+					Key:   "label1",
+					Value: "value1",
+				}},
+				result: true,
+				errMsg: "",
+			}, {
+				name: "normal regex filter",
+				filters: []*iav1beta1.Filter{{
+					Type:  iav1beta1.FilterType_REGEX,
+					Key:   "label2",
+					Value: "v.*2",
+				}},
+				result: true,
+				errMsg: "",
+			}, {
+				name: "invalid type",
+				filters: []*iav1beta1.Filter{{
+					Type:  iav1beta1.FilterType_FILTER_TYPE_INVALID,
+					Key:   "label1",
+					Value: "value1",
+				}},
+				result: false,
+				errMsg: "rpc error: code = Internal desc = Unexpected filter type.",
+			}, {
+				name: "unknown type",
+				filters: []*iav1beta1.Filter{{
+					Type:  iav1beta1.FilterType(12),
+					Key:   "label1",
+					Value: "value1",
+				}},
+				result: false,
+				errMsg: "rpc error: code = Internal desc = Unexpected filter type.",
+			}, {
+				name: "bad regexp",
+				filters: []*iav1beta1.Filter{{
+					Type:  iav1beta1.FilterType_REGEX,
+					Key:   "label2",
+					Value: ".***",
+				}},
+				result: false,
+				errMsg: "rpc error: code = InvalidArgument desc = bad regular expression: +error parsing regexp: invalid nested repetition operator: `**`",
+			},
 		}
 
 		alert := &ammodels.GettableAlert{

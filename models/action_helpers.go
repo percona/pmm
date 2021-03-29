@@ -43,27 +43,6 @@ func FindActionResultByID(q *reform.Querier, id string) (*ActionResult, error) {
 	}
 }
 
-// FindPmmAgentIDToRunAction finds pmm-agent-id to run action.
-func FindPmmAgentIDToRunAction(pmmAgentID string, agents []*Agent) (string, error) {
-	// no explicit ID is given, and there is only one
-	if pmmAgentID == "" && len(agents) == 1 {
-		return agents[0].AgentID, nil
-	}
-
-	// no explicit ID is given, and there are zero or several
-	if pmmAgentID == "" {
-		return "", status.Errorf(codes.InvalidArgument, "Couldn't find pmm-agent-id to run action")
-	}
-
-	// check that explicit agent id is correct
-	for _, a := range agents {
-		if a.AgentID == pmmAgentID {
-			return a.AgentID, nil
-		}
-	}
-	return "", status.Errorf(codes.FailedPrecondition, "Couldn't find pmm-agent-id to run action")
-}
-
 // CreateActionResult stores an action result in action results storage.
 func CreateActionResult(q *reform.Querier, pmmAgentID string) (*ActionResult, error) {
 	result := &ActionResult{ID: "/action_id/" + uuid.New().String(), PMMAgentID: pmmAgentID}
@@ -88,8 +67,8 @@ func ChangeActionResult(q *reform.Querier, actionID, pmmAgentID, aError, output 
 	return nil
 }
 
-// CleanupOldResults deletes action results older than a specified date.
-func CleanupOldResults(q *reform.Querier, olderThan time.Time) error {
+// CleanupOldActionResults deletes action results older than a specified date.
+func CleanupOldActionResults(q *reform.Querier, olderThan time.Time) error {
 	_, err := q.DeleteFrom(ActionResultTable, " WHERE updated_at <= $1", olderThan)
 	return err
 }

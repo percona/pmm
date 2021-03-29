@@ -73,13 +73,13 @@ func TestActionHelpers(t *testing.T) {
 		require.Error(t, err)
 	})
 
-	t.Run("FindPmmAgentIDToRunAction", func(t *testing.T) {
+	t.Run("FindPmmAgentIDToRunActionOrJob", func(t *testing.T) {
 		a := []*models.Agent{
 			{AgentID: "A1", AgentType: models.PMMAgentType},
 			{AgentID: "A2", AgentType: models.MySQLdExporterType, PMMAgentID: pointer.ToString("A1")},
 		}
 
-		id, err := models.FindPmmAgentIDToRunAction("A1", a)
+		id, err := models.FindPmmAgentIDToRunActionOrJob("A1", a)
 		require.NoError(t, err)
 		assert.Equal(t, "A1", id)
 
@@ -89,15 +89,15 @@ func TestActionHelpers(t *testing.T) {
 			{AgentID: "A3", AgentType: models.MySQLdExporterType, PMMAgentID: pointer.ToString("A1")},
 		}
 
-		id, err = models.FindPmmAgentIDToRunAction("A3", a2)
+		id, err = models.FindPmmAgentIDToRunActionOrJob("A3", a2)
 		require.NoError(t, err)
 		assert.Equal(t, "A3", id)
 
-		_, err = models.FindPmmAgentIDToRunAction("A4", a2)
+		_, err = models.FindPmmAgentIDToRunActionOrJob("A4", a2)
 		require.Error(t, err)
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "Couldn't find pmm-agent-id to run action"), err)
 
-		_, err = models.FindPmmAgentIDToRunAction("", a2)
+		_, err = models.FindPmmAgentIDToRunActionOrJob("", a2)
 		require.Error(t, err)
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Couldn't find pmm-agent-id to run action"), err)
 	})
@@ -162,7 +162,7 @@ func TestCleanupResults(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
 
-		err := models.CleanupOldResults(q, models.Now().Add(-1*time.Second))
+		err := models.CleanupOldActionResults(q, models.Now().Add(-1*time.Second))
 		assert.NoError(t, err)
 
 		_, err = models.FindActionResultByID(q, "A1")

@@ -873,7 +873,7 @@ func (s *Service) groupChecksByDB(checks []check.Check) (mySQLChecks, postgreSQL
 	return
 }
 
-// filterChecksByInterval filters checks according to their interval buckets
+// filterChecksByInterval filters checks according to their interval buckets.
 func filterChecksByInterval(checks []check.Check, interval check.Interval) []check.Check {
 	if interval == "" { // all checks
 		return checks

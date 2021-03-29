@@ -331,6 +331,27 @@ func FindPMMAgentsIDsWithPushMetrics(q *reform.Querier) ([]string, error) {
 	return res, nil
 }
 
+// FindPmmAgentIDToRunActionOrJob finds pmm-agent-id to run action.
+func FindPmmAgentIDToRunActionOrJob(pmmAgentID string, agents []*Agent) (string, error) {
+	// no explicit ID is given, and there is only one
+	if pmmAgentID == "" && len(agents) == 1 {
+		return agents[0].AgentID, nil
+	}
+
+	// no explicit ID is given, and there are zero or several
+	if pmmAgentID == "" {
+		return "", status.Errorf(codes.InvalidArgument, "Couldn't find pmm-agent-id to run action")
+	}
+
+	// check that explicit agent id is correct
+	for _, a := range agents {
+		if a.AgentID == pmmAgentID {
+			return a.AgentID, nil
+		}
+	}
+	return "", status.Errorf(codes.FailedPrecondition, "Couldn't find pmm-agent-id to run action")
+}
+
 // createPMMAgentWithID creates PMMAgent with given ID.
 func createPMMAgentWithID(q *reform.Querier, id, runsOnNodeID string, customLabels map[string]string) (*Agent, error) {
 	if err := checkUniqueAgentID(q, id); err != nil {
