@@ -54,6 +54,12 @@ func (m *QANCollectRequest) AgentMessageRequestPayload() isAgentMessage_Payload 
 func (m *ActionResultRequest) AgentMessageRequestPayload() isAgentMessage_Payload {
 	return &AgentMessage_ActionResult{ActionResult: m}
 }
+func (m *JobProgress) AgentMessageRequestPayload() isAgentMessage_Payload {
+	return &AgentMessage_JobProgress{JobProgress: m}
+}
+func (m *JobResult) AgentMessageRequestPayload() isAgentMessage_Payload {
+	return &AgentMessage_JobResult{JobResult: m}
+}
 
 // AgentMessage response payloads
 func (m *Pong) AgentMessageResponsePayload() isAgentMessage_Payload {
@@ -70,6 +76,21 @@ func (m *StopActionResponse) AgentMessageResponsePayload() isAgentMessage_Payloa
 }
 func (m *CheckConnectionResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
 	return &AgentMessage_CheckConnection{CheckConnection: m}
+}
+func (m *JobStatusResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
+	return &AgentMessage_JobStatus{JobStatus: m}
+}
+func (m *StartJobResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
+	return &AgentMessage_StartJob{StartJob: m}
+}
+func (m *StopJobResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
+	return &AgentMessage_StopJob{StopJob: m}
+}
+func (m *JobProgress) AgentMessageResponsePayload() isAgentMessage_Payload {
+	return &AgentMessage_JobProgress{JobProgress: m}
+}
+func (m *JobResult) AgentMessageResponsePayload() isAgentMessage_Payload {
+	return &AgentMessage_JobResult{JobResult: m}
 }
 
 // ServerMessage response payloads
@@ -102,12 +123,25 @@ func (m *StopActionRequest) ServerMessageRequestPayload() isServerMessage_Payloa
 func (m *CheckConnectionRequest) ServerMessageRequestPayload() isServerMessage_Payload {
 	return &ServerMessage_CheckConnection{CheckConnection: m}
 }
+func (m *StartJobRequest) ServerMessageRequestPayload() isServerMessage_Payload {
+	return &ServerMessage_StartJob{StartJob: m}
+}
+func (m *StopJobRequest) ServerMessageRequestPayload() isServerMessage_Payload {
+	return &ServerMessage_StopJob{StopJob: m}
+}
+func (m *JobStatusRequest) ServerMessageRequestPayload() isServerMessage_Payload {
+	return &ServerMessage_JobStatus{JobStatus: m}
+}
 
 // in alphabetical order
 func (*ActionResultRequest) sealed()     {}
 func (*ActionResultResponse) sealed()    {}
 func (*CheckConnectionRequest) sealed()  {}
 func (*CheckConnectionResponse) sealed() {}
+func (*JobProgress) sealed()             {}
+func (*JobResult) sealed()               {}
+func (*JobStatusRequest) sealed()        {}
+func (*JobStatusResponse) sealed()       {}
 func (*Ping) sealed()                    {}
 func (*Pong) sealed()                    {}
 func (*QANCollectRequest) sealed()       {}
@@ -116,10 +150,14 @@ func (*SetStateRequest) sealed()         {}
 func (*SetStateResponse) sealed()        {}
 func (*StartActionRequest) sealed()      {}
 func (*StartActionResponse) sealed()     {}
+func (*StartJobRequest) sealed()         {}
+func (*StartJobResponse) sealed()        {}
 func (*StateChangedRequest) sealed()     {}
 func (*StateChangedResponse) sealed()    {}
 func (*StopActionRequest) sealed()       {}
 func (*StopActionResponse) sealed()      {}
+func (*StopJobRequest) sealed()          {}
+func (*StopJobResponse) sealed()         {}
 
 // check interfaces
 var (
@@ -135,6 +173,11 @@ var (
 	_ AgentResponsePayload = (*StartActionResponse)(nil)
 	_ AgentResponsePayload = (*StopActionResponse)(nil)
 	_ AgentResponsePayload = (*CheckConnectionResponse)(nil)
+	_ AgentResponsePayload = (*JobProgress)(nil)
+	_ AgentResponsePayload = (*JobResult)(nil)
+	_ AgentResponsePayload = (*StartJobResponse)(nil)
+	_ AgentResponsePayload = (*StopJobResponse)(nil)
+	_ AgentResponsePayload = (*JobStatusResponse)(nil)
 
 	// ServerMessage response payloads
 	_ ServerResponsePayload = (*Pong)(nil)
@@ -148,6 +191,9 @@ var (
 	_ ServerRequestPayload = (*StartActionRequest)(nil)
 	_ ServerRequestPayload = (*StopActionRequest)(nil)
 	_ ServerRequestPayload = (*CheckConnectionRequest)(nil)
+	_ ServerRequestPayload = (*StartJobRequest)(nil)
+	_ ServerRequestPayload = (*StopJobRequest)(nil)
+	_ ServerRequestPayload = (*JobStatusRequest)(nil)
 )
 
 //go-sumtype:decl AgentParams
