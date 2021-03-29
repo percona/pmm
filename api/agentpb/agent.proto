@@ -329,6 +329,75 @@ message CheckConnectionResponse {
   Stats stats = 2;
 }
 
+// JobStatusRequest is a ServerMessage asking pmm-agent for job status.
+message JobStatusRequest {
+  string job_id = 1;
+}
+
+// JobStatusResponse is an AgentMessage containing job status.
+message JobStatusResponse {
+  bool alive = 1;
+}
+
+// StartJobRequest is a ServerMessage asking pmm-agent to start job.
+message StartJobRequest {
+  // Echo is a simple echo job that can be delayed.
+  message Echo {
+    string message = 1;
+    google.protobuf.Duration delay = 2;
+  }
+  string job_id = 1;
+  // Timeout for the job.
+  google.protobuf.Duration timeout = 2;
+  oneof job {
+    Echo echo = 10;
+  }
+}
+
+// StartJobResponse is an AgentMessage for StartJobRequest acceptance.
+message StartJobResponse {
+  string error = 1;
+}
+
+// StopJobRequest is a ServerMessage asking pmm-agent to stop job.
+message StopJobRequest {
+  string job_id = 1;
+}
+
+// StopJobResponse is an AgentMessage for StopJobRequest acceptance.
+message StopJobResponse {}
+
+// JobResult represents job result.
+message JobResult {
+  // Error contains job error message.
+  message Error {
+    string message = 1;
+  }
+  // Echo contains result for echo job.
+  message Echo {
+    string message = 1;
+  }
+  string job_id = 1;
+  google.protobuf.Timestamp timestamp = 2;
+  oneof result {
+    Error error = 10;
+    Echo echo = 11;
+  }
+}
+
+// JobProgress represents job progress messages like percentage of completion, status updates, etc.
+message JobProgress {
+  // Echo contains echo job status update.
+  message Echo {
+    string status = 1;
+  }
+  string job_id = 1;
+  google.protobuf.Timestamp timestamp = 2;
+  oneof result {
+    Echo echo = 10;
+  }
+}
+
 message AgentMessage {
   // TODO https://jira.percona.com/browse/PMM-3449
 
@@ -345,6 +414,11 @@ message AgentMessage {
     StartActionResponse start_action = 10;
     StopActionResponse stop_action = 11;
     CheckConnectionResponse check_connection = 12;
+    StartJobResponse start_job = 13;
+    StopJobResponse stop_job = 14;
+    JobStatusResponse job_status = 15;
+    JobResult job_result = 16;
+    JobProgress job_progress = 17;
   }
 }
 
@@ -364,6 +438,9 @@ message ServerMessage {
     StartActionRequest start_action = 10;
     StopActionRequest stop_action = 11;
     CheckConnectionRequest check_connection = 12;
+    StartJobRequest start_job = 13;
+    StopJobRequest stop_job = 14;
+    JobStatusRequest job_status = 15;
   }
 }
 
