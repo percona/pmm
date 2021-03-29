@@ -292,6 +292,9 @@ type GetSettingsOKBodySettings struct {
 	// PMM Server public address.
 	PMMPublicAddress string `json:"pmm_public_address,omitempty"`
 
+	// True if Azure Discover is enabled.
+	AzurediscoverEnabled bool `json:"azurediscover_enabled,omitempty"`
+
 	// email alerting settings
 	EmailAlertingSettings *GetSettingsOKBodySettingsEmailAlertingSettings `json:"email_alerting_settings,omitempty"`
 

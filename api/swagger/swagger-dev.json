@@ -2247,6 +2247,16 @@
                     }
                   },
                   "x-order": 20
+                },
+                "enable_azurediscover": {
+                  "description": "Enable Azure Discover.",
+                  "type": "boolean",
+                  "x-order": 21
+                },
+                "disable_azurediscover": {
+                  "description": "Disable Azure Discover.",
+                  "type": "boolean",
+                  "x-order": 22
                 }
               }
             }
@@ -2419,6 +2429,11 @@
                         }
                       },
                       "x-order": 15
+                    },
+                    "azurediscover_enabled": {
+                      "description": "True if Azure Discover is enabled.",
+                      "type": "boolean",
+                      "x-order": 16
                     }
                   },
                   "x-order": 0
@@ -2652,6 +2667,11 @@
                         }
                       },
                       "x-order": 15
+                    },
+                    "azurediscover_enabled": {
+                      "description": "True if Azure Discover is enabled.",
+                      "type": "boolean",
+                      "x-order": 16
                     }
                   },
                   "x-order": 0
