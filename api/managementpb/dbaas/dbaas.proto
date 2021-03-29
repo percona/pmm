@@ -27,10 +27,10 @@ message ComputeResources {
 // Resources contains Kubernetes cluster resources.
 message Resources {
   // Memory in bytes.
-  int64 memory_bytes = 1;
+  uint64 memory_bytes = 1;
   // CPU in millicpus. For example 0.1 of CPU is equivalent to 100 millicpus.
   // See https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#meaning-of-cpu.
-  int64 cpu_m = 2;
+  uint64 cpu_m = 2;
   // Disk size in bytes.
-  int64 disk_size = 3;
+  uint64 disk_size = 3;
 }
