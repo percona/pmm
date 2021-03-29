@@ -358,6 +358,10 @@ message StartJobRequest {
   message MySQLBackup {
     // DSN for the service.
     string dsn = 1;
+    // Where to store backup.
+    oneof location_config {
+      S3LocationConfig s3_config = 10;
+    }
   }
   string job_id = 1;
   // Timeout for the job.
