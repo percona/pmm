@@ -131,7 +131,8 @@ type AddAzureDatabaseBody struct {
 	// Azure database instance ID.
 	InstanceID string `json:"instance_id,omitempty"`
 
-	// Azure instance class.
+	// Represents a purchasable Stock Keeping Unit (SKU) under a product.
+	// https://docs.microsoft.com/en-us/partner-center/develop/product-resources#sku.
 	NodeModel string `json:"node_model,omitempty"`
 
 	// Address used to connect to it.

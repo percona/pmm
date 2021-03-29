@@ -155,6 +155,10 @@ type AzureDatabaseInstanceItems0 struct {
 
 	// Azure database availability zone.
 	Az string `json:"az,omitempty"`
+
+	// Represents a purchasable Stock Keeping Unit (SKU) under a product.
+	// https://docs.microsoft.com/en-us/partner-center/develop/product-resources#sku.
+	NodeModel string `json:"node_model,omitempty"`
 }
 
 // Validate validates this azure database instance items0

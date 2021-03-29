@@ -51,6 +51,9 @@ message DiscoverAzureDatabaseInstance {
   DiscoverAzureDatabaseType type = 8;
   // Azure database availability zone.
   string az = 9;
+  // Represents a purchasable Stock Keeping Unit (SKU) under a product.
+  // https://docs.microsoft.com/en-us/partner-center/develop/product-resources#sku.
+  string node_model = 10;
 }
 
 // DiscoverAzureDatabaseResponse discover azure databases response.
@@ -73,7 +76,8 @@ message AddAzureDatabaseRequest {
       string_not_empty: true
     }
   ];
-  // Azure instance class.
+  // Represents a purchasable Stock Keeping Unit (SKU) under a product.
+  // https://docs.microsoft.com/en-us/partner-center/develop/product-resources#sku.
   string node_model = 4;
   // Address used to connect to it.
   string address = 5 [
