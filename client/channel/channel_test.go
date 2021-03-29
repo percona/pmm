@@ -124,7 +124,7 @@ func TestAgentRequestWithTruncatedInvalidUTF8(t *testing.T) {
 		},
 		Mysql: &agentpb.MetricsBucket_MySQL{},
 	}}
-	resp := channel.SendRequest(rq)
+	resp := channel.SendAndWaitResponse(rq)
 	assert.NotNil(t, resp)
 
 	// Testing that it was failing with invalid query
@@ -135,7 +135,7 @@ func TestAgentRequestWithTruncatedInvalidUTF8(t *testing.T) {
 		},
 		Mysql: &agentpb.MetricsBucket_MySQL{},
 	}}
-	resp = channel.SendRequest(rq)
+	resp = channel.SendAndWaitResponse(rq)
 	assert.Nil(t, resp)
 }
 
@@ -164,7 +164,7 @@ func TestAgentRequest(t *testing.T) {
 	defer teardown()
 
 	for i := uint32(1); i <= count; i++ {
-		resp := channel.SendRequest(new(agentpb.QANCollectRequest))
+		resp := channel.SendAndWaitResponse(new(agentpb.QANCollectRequest))
 		assert.NotNil(t, resp)
 	}
 
@@ -235,7 +235,7 @@ func TestServerRequest(t *testing.T) {
 	for req := range channel.Requests() {
 		assert.IsType(t, new(agentpb.Ping), req.Payload)
 
-		channel.SendResponse(&AgentResponse{
+		channel.Send(&AgentResponse{
 			ID: req.ID,
 			Payload: &agentpb.Pong{
 				CurrentTime: ptypes.TimestampNow(),
@@ -258,7 +258,7 @@ func TestServerExitsWithGRPCError(t *testing.T) {
 	channel, _, teardown := setup(t, connect, errUnimplemented)
 	defer teardown()
 
-	resp := channel.SendRequest(new(agentpb.QANCollectRequest))
+	resp := channel.SendAndWaitResponse(new(agentpb.QANCollectRequest))
 	assert.Nil(t, resp)
 }
 
@@ -275,7 +275,7 @@ func TestServerExitsWithUnknownError(t *testing.T) {
 	channel, _, teardown := setup(t, connect, status.Error(codes.Unknown, "EOF"))
 	defer teardown()
 
-	resp := channel.SendRequest(new(agentpb.QANCollectRequest))
+	resp := channel.SendAndWaitResponse(new(agentpb.QANCollectRequest))
 	assert.Nil(t, resp)
 }
 
@@ -358,13 +358,13 @@ func TestUnexpectedResponseFromServer(t *testing.T) {
 	defer teardown()
 
 	// after receiving unexpected response, channel is closed
-	resp := channel.SendRequest(new(agentpb.QANCollectRequest))
+	resp := channel.SendAndWaitResponse(new(agentpb.QANCollectRequest))
 	assert.Nil(t, resp)
 	msg := <-channel.Requests()
 	assert.Nil(t, msg)
 
 	// future requests are ignored
-	resp = channel.SendRequest(new(agentpb.QANCollectRequest))
+	resp = channel.SendAndWaitResponse(new(agentpb.QANCollectRequest))
 	assert.Nil(t, resp)
 	msg = <-channel.Requests()
 	assert.Nil(t, msg)

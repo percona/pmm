@@ -31,6 +31,7 @@ linters:
   enable-all: true
   disable:
     # keep sorted
+    - exhaustivestruct  # too annoying
     - gochecknoglobals  # mostly useless
     - gomodguard        # we are not using modules
     - ifshort           # false positives: https://github.com/esimonov/ifshort/issues/6, 7

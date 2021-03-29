@@ -22,6 +22,7 @@ digraph packages {
 	"/client" -> "/actions";
 	"/client" -> "/client/channel";
 	"/client" -> "/config";
+	"/client" -> "/jobs";
 	"/commands" -> "/agentlocal";
 	"/commands" -> "/agents/supervisor";
 	"/commands" -> "/client";

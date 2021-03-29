@@ -39,6 +39,7 @@ import (
 	"github.com/percona/pmm-agent/actions" // TODO https://jira.percona.com/browse/PMM-7206
 	"github.com/percona/pmm-agent/client/channel"
 	"github.com/percona/pmm-agent/config"
+	"github.com/percona/pmm-agent/jobs"
 	"github.com/percona/pmm-agent/utils/backoff"
 )
 
@@ -63,7 +64,8 @@ type Client struct {
 	// for unit tests only
 	dialTimeout time.Duration
 
-	runner *actions.ConcurrentRunner
+	actionsRunner *actions.ConcurrentRunner
+	jobsRunner    *jobs.Runner
 
 	rw      sync.RWMutex
 	md      *agentpb.ServerConnectMetadata
@@ -95,7 +97,8 @@ func New(cfg *config.Config, supervisor supervisor, connectionChecker connection
 func (c *Client) Run(ctx context.Context) error {
 	c.l.Info("Starting...")
 
-	c.runner = actions.NewConcurrentRunner(ctx)
+	c.actionsRunner = actions.NewConcurrentRunner(ctx)
+	c.jobsRunner = jobs.NewRunner()
 
 	// do nothing until ctx is canceled if config misses critical info
 	var missing string
@@ -153,7 +156,7 @@ func (c *Client) Run(ctx context.Context) error {
 
 	// Once the client is connected, ctx cancellation is ignored by it.
 	//
-	// We start three goroutines, and terminate the gRPC connection and exit Run when any of them exits:
+	// We start goroutines, and terminate the gRPC connection and exit Run when any of them exits:
 	//
 	// 1. processActionResults reads action results from action runner and sends them to the channel.
 	//    It exits when the action runner is stopped by cancelling ctx.
@@ -171,9 +174,17 @@ func (c *Client) Run(ctx context.Context) error {
 	// TODO Make 2 and 3 behave more like 1 - that seems to be simpler.
 	// https://jira.percona.com/browse/PMM-4245
 
-	oneDone := make(chan struct{}, 3)
+	oneDone := make(chan struct{}, 5)
+	go func() {
+		c.jobsRunner.Run(ctx)
+		oneDone <- struct{}{}
+	}()
 	go func() {
 		c.processActionResults()
+		oneDone <- struct{}{}
+	}()
+	go func() {
+		c.processJobsResults()
 		oneDone <- struct{}{}
 	}()
 	go func() {
@@ -184,8 +195,11 @@ func (c *Client) Run(ctx context.Context) error {
 		c.processChannelRequests(ctx)
 		oneDone <- struct{}{}
 	}()
+
 	<-oneDone
 	go func() {
+		<-oneDone
+		<-oneDone
 		<-oneDone
 		<-oneDone
 		c.l.Info("Done.")
@@ -200,8 +214,8 @@ func (c *Client) Done() <-chan struct{} {
 }
 
 func (c *Client) processActionResults() {
-	for result := range c.runner.Results() {
-		resp := c.channel.SendRequest(&agentpb.ActionResultRequest{
+	for result := range c.actionsRunner.Results() {
+		resp := c.channel.SendAndWaitResponse(&agentpb.ActionResultRequest{
 			ActionId: result.ID,
 			Output:   result.Output,
 			Done:     true,
@@ -211,7 +225,14 @@ func (c *Client) processActionResults() {
 			c.l.Warn("Failed to send ActionResult request.")
 		}
 	}
-	c.l.Debugf("Runner Results() channel drained.")
+	c.l.Debugf("Actions runner Results() channel drained.")
+}
+
+func (c *Client) processJobsResults() {
+	for message := range c.jobsRunner.Messages() {
+		c.channel.Send(message)
+	}
+	c.l.Debugf("Jobs runner Messages() channel drained.")
 }
 
 func (c *Client) processSupervisorRequests() {
@@ -222,7 +243,7 @@ func (c *Client) processSupervisorRequests() {
 		defer wg.Done()
 
 		for state := range c.supervisor.Changes() {
-			resp := c.channel.SendRequest(state)
+			resp := c.channel.SendAndWaitResponse(state)
 			if resp == nil {
 				c.l.Warn("Failed to send StateChanged request.")
 			}
@@ -235,7 +256,7 @@ func (c *Client) processSupervisorRequests() {
 		defer wg.Done()
 
 		for collect := range c.supervisor.QANRequests() {
-			resp := c.channel.SendRequest(collect)
+			resp := c.channel.SendAndWaitResponse(collect)
 			if resp == nil {
 				c.l.Warn("Failed to send QanCollect request.")
 			}
@@ -343,15 +364,30 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 				return
 			}
 
-			c.runner.Start(action, c.getActionTimeout(p))
+			c.actionsRunner.Start(action, c.getActionTimeout(p))
 			responsePayload = new(agentpb.StartActionResponse)
 
 		case *agentpb.StopActionRequest:
-			c.runner.Stop(p.ActionId)
+			c.actionsRunner.Stop(p.ActionId)
 			responsePayload = new(agentpb.StopActionResponse)
 
 		case *agentpb.CheckConnectionRequest:
 			responsePayload = c.connectionChecker.Check(ctx, p, req.ID)
+
+		case *agentpb.StartJobRequest:
+			var resp agentpb.StartJobResponse
+			if err := c.handleStartJobRequest(p); err != nil {
+				resp.Error = err.Error()
+			}
+			responsePayload = &resp
+
+		case *agentpb.StopJobRequest:
+			c.jobsRunner.Stop(p.JobId)
+			responsePayload = new(agentpb.StopJobResponse)
+
+		case *agentpb.JobStatusRequest:
+			alive := c.jobsRunner.IsRunning(p.JobId)
+			responsePayload = &agentpb.JobStatusResponse{Alive: alive}
 
 		case nil:
 			// Requests() is not closed, so exit early to break channel
@@ -359,7 +395,7 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 			return
 		}
 
-		c.channel.SendResponse(&channel.AgentResponse{
+		c.channel.Send(&channel.AgentResponse{
 			ID:      req.ID,
 			Payload: responsePayload,
 		})
@@ -370,6 +406,30 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 		return
 	}
 	c.l.Debug("Channel closed.")
+}
+
+func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
+	timeout, err := ptypes.Duration(p.Timeout)
+	if err != nil {
+		return err
+	}
+
+	var job jobs.Job
+	switch j := p.Job.(type) {
+	case *agentpb.StartJobRequest_Echo_:
+		delay, err := ptypes.Duration(j.Echo.Delay)
+		if err != nil {
+			return err
+		}
+
+		job = jobs.NewEchoJob(p.JobId, timeout, j.Echo.Message, delay)
+	default:
+		return errors.Errorf("unknown job type: %T", j)
+	}
+
+	c.jobsRunner.Start(job)
+
+	return nil
 }
 
 func (c *Client) getActionTimeout(req *agentpb.StartActionRequest) time.Duration {
@@ -502,12 +562,16 @@ func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) (*dialRe
 	l.Logf(level, "Two-way communication channel established in %s. Estimated clock drift: %s.",
 		time.Since(start), clockDrift)
 
-	return &dialResult{conn, streamCancel, channel, md}, nil
+	return &dialResult{
+		conn:         conn,
+		streamCancel: streamCancel,
+		channel:      channel,
+		md:           md}, nil
 }
 
 func getNetworkInformation(channel *channel.Channel) (latency, clockDrift time.Duration, err error) {
 	start := time.Now()
-	resp := channel.SendRequest(new(agentpb.Ping))
+	resp := channel.SendAndWaitResponse(new(agentpb.Ping))
 	if resp == nil {
 		err = channel.Wait()
 		return
