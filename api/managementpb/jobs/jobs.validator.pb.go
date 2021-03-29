@@ -66,6 +66,40 @@ func (this *StartEchoJobRequest) Validate() error {
 func (this *StartEchoJobResponse) Validate() error {
 	return nil
 }
+func (this *S3LocationConfig) Validate() error {
+	if this.Endpoint == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Endpoint", fmt.Errorf(`value '%v' must not be an empty string`, this.Endpoint))
+	}
+	if this.AccessKey == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("AccessKey", fmt.Errorf(`value '%v' must not be an empty string`, this.AccessKey))
+	}
+	if this.SecretKey == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("SecretKey", fmt.Errorf(`value '%v' must not be an empty string`, this.SecretKey))
+	}
+	if this.BucketName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("BucketName", fmt.Errorf(`value '%v' must not be an empty string`, this.BucketName))
+	}
+	return nil
+}
+func (this *StartMySQLBackupJobRequest) Validate() error {
+	if this.PmmAgentId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("PmmAgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.PmmAgentId))
+	}
+	if this.Dsn == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Dsn", fmt.Errorf(`value '%v' must not be an empty string`, this.Dsn))
+	}
+	if oneOfNester, ok := this.GetLocationConfig().(*StartMySQLBackupJobRequest_S3Config); ok {
+		if oneOfNester.S3Config != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.S3Config); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("S3Config", err)
+			}
+		}
+	}
+	return nil
+}
+func (this *StartMySQLBackupJobResponse) Validate() error {
+	return nil
+}
 func (this *CancelJobRequest) Validate() error {
 	if this.JobId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("JobId", fmt.Errorf(`value '%v' must not be an empty string`, this.JobId))
