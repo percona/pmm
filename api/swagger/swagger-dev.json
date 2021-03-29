@@ -16993,19 +16993,19 @@
                     "memory_bytes": {
                       "description": "Memory in bytes.",
                       "type": "string",
-                      "format": "int64",
+                      "format": "uint64",
                       "x-order": 0
                     },
                     "cpu_m": {
                       "description": "CPU in millicpus. For example 0.1 of CPU is equivalent to 100 millicpus.\nSee https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#meaning-of-cpu.",
                       "type": "string",
-                      "format": "int64",
+                      "format": "uint64",
                       "x-order": 1
                     },
                     "disk_size": {
                       "description": "Disk size in bytes.",
                       "type": "string",
-                      "format": "int64",
+                      "format": "uint64",
                       "x-order": 2
                     }
                   },
@@ -17018,19 +17018,19 @@
                     "memory_bytes": {
                       "description": "Memory in bytes.",
                       "type": "string",
-                      "format": "int64",
+                      "format": "uint64",
                       "x-order": 0
                     },
                     "cpu_m": {
                       "description": "CPU in millicpus. For example 0.1 of CPU is equivalent to 100 millicpus.\nSee https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#meaning-of-cpu.",
                       "type": "string",
-                      "format": "int64",
+                      "format": "uint64",
                       "x-order": 1
                     },
                     "disk_size": {
                       "description": "Disk size in bytes.",
                       "type": "string",
-                      "format": "int64",
+                      "format": "uint64",
                       "x-order": 2
                     }
                   },
@@ -17447,19 +17447,19 @@
                     "memory_bytes": {
                       "description": "Memory in bytes.",
                       "type": "string",
-                      "format": "int64",
+                      "format": "uint64",
                       "x-order": 0
                     },
                     "cpu_m": {
                       "description": "CPU in millicpus. For example 0.1 of CPU is equivalent to 100 millicpus.\nSee https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#meaning-of-cpu.",
                       "type": "string",
-                      "format": "int64",
+                      "format": "uint64",
                       "x-order": 1
                     },
                     "disk_size": {
                       "description": "Disk size in bytes.",
                       "type": "string",
-                      "format": "int64",
+                      "format": "uint64",
                       "x-order": 2
                     }
                   },
@@ -18369,19 +18369,19 @@
                     "memory_bytes": {
                       "description": "Memory in bytes.",
                       "type": "string",
-                      "format": "int64",
+                      "format": "uint64",
                       "x-order": 0
                     },
                     "cpu_m": {
                       "description": "CPU in millicpus. For example 0.1 of CPU is equivalent to 100 millicpus.\nSee https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#meaning-of-cpu.",
                       "type": "string",
-                      "format": "int64",
+                      "format": "uint64",
                       "x-order": 1
                     },
                     "disk_size": {
                       "description": "Disk size in bytes.",
                       "type": "string",
-                      "format": "int64",
+                      "format": "uint64",
                       "x-order": 2
                     }
                   },
