@@ -166,28 +166,33 @@ A brief message will confirm the creation of your new account and you may now lo
 
 Global communications settings for [Integrated Alerting](../using/alerting.md).
 
-> This tab appears only when *Advanced Settings* --> *Integrated Alerting* is on.
+> If there is no *Communication* tab, go to the *Advanced Settings* tab and activate *Integrated Alerting*.
 
 ![](../_images/PMM_Settings_Communication.jpg)
 
-Integrated Alerting uses a separate instance of Alertmanager run by `pmm-managed`.
-
-The descriptions for the settings here are reproduced from [Prometheus Alertmanager configuration](https://prometheus.io/docs/alerting/latest/configuration/).
+(Integrated Alerting uses a separate instance of Alertmanager run by `pmm-managed`.)
 
 ### Email
 
 Settings for the SMTP email server:
 
 - *Server Address*: The default SMTP smarthost used for sending emails, including port number.
-- *From*: The default SMTP From header field.
-- *Username*: SMTP Auth using CRAM-MD5, LOGIN and PLAIN.
-- *Password*: SMTP Auth using LOGIN and PLAIN.
 - *Hello*: The default hostname to identify to the SMTP server.
-- *Identity*: SMTP Auth using PLAIN.
-- *Secret*: SMTP Auth using CRAM-MD5.
+- *From*: The sender's email address.
+- *Auth type*: Authentication type. Choose from:
+    - *None*
+    - *Plain*
+    - *Login*
+    - *CRAM-MD5*
+- *Username*: SMTP Auth using CRAM-MD5, LOGIN and PLAIN.
+- *Password*: SMTP Auth using CRAM-MD5, LOGIN and PLAIN.
 
 ### Slack
 
 Settings for Slack notifications:
 
 - *URL*: The Slack webhook URL to use for Slack notifications.
+
+> **See also**
+>
+> [Prometheus Alertmanager configuration](https://prometheus.io/docs/alerting/latest/configuration/)
