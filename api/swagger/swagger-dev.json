@@ -15650,8 +15650,8 @@
                   "type": "boolean",
                   "x-order": 16
                 },
-                "qan_mysql_perfschema": {
-                  "description": "If true, adds qan-mysql-perfschema-agent.",
+                "qan": {
+                  "description": "If true, adds qan-mysql-perfschema-agent or qan-postgresql-pgstatements-agent.",
                   "type": "boolean",
                   "x-order": 17
                 },
