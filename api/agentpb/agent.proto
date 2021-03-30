@@ -358,6 +358,8 @@ message StartJobRequest {
   message MySQLBackup {
     // DSN for the service.
     string dsn = 1;
+    // Backup artifact of actual job.
+    string artifact_id = 2;
     // Where to store backup.
     oneof location_config {
       S3LocationConfig s3_config = 10;
@@ -397,7 +399,7 @@ message JobResult {
   }
   // MySQLBackup contains result for MySQL backup job.
   message MySQLBackup {
-    bool done = 1;
+    string artifact_id = 1;
   }
   string job_id = 1;
   google.protobuf.Timestamp timestamp = 2;
