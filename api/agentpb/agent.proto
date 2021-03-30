@@ -345,6 +345,7 @@ message S3LocationConfig {
   string access_key = 2;
   string secret_key = 3;
   string bucket_name = 4;
+  string bucket_region = 5;
 }
 
 // StartJobRequest is a ServerMessage asking pmm-agent to start job.
@@ -358,8 +359,8 @@ message StartJobRequest {
   message MySQLBackup {
     // DSN for the service.
     string dsn = 1;
-    // Backup artifact of actual job.
-    string artifact_id = 2;
+    // Backup name.
+    string name = 2;
     // Where to store backup.
     oneof location_config {
       S3LocationConfig s3_config = 10;
@@ -398,9 +399,8 @@ message JobResult {
     string message = 1;
   }
   // MySQLBackup contains result for MySQL backup job.
-  message MySQLBackup {
-    string artifact_id = 1;
-  }
+  message MySQLBackup {}
+
   string job_id = 1;
   google.protobuf.Timestamp timestamp = 2;
   oneof result {
