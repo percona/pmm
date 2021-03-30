@@ -73,11 +73,6 @@ func (this *SetPSMDBComponentsRequest) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("Mongod", err)
 		}
 	}
-	if this.Backup != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Backup); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Backup", err)
-		}
-	}
 	return nil
 }
 func (this *SetPSMDBComponentsResponse) Validate() error {
@@ -92,16 +87,6 @@ func (this *SetPXCComponentsRequest) Validate() error {
 	if this.Proxysql != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Proxysql); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Proxysql", err)
-		}
-	}
-	if this.Haproxy != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Haproxy); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Haproxy", err)
-		}
-	}
-	if this.Backup != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Backup); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Backup", err)
 		}
 	}
 	return nil

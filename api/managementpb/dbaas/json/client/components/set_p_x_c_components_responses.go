@@ -123,12 +123,6 @@ type SetPXCComponentsBody struct {
 	// Kubernetes cluster name.
 	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
 
-	// backup
-	Backup *SetPXCComponentsParamsBodyBackup `json:"backup,omitempty"`
-
-	// haproxy
-	Haproxy *SetPXCComponentsParamsBodyHaproxy `json:"haproxy,omitempty"`
-
 	// proxysql
 	Proxysql *SetPXCComponentsParamsBodyProxysql `json:"proxysql,omitempty"`
 
@@ -139,14 +133,6 @@ type SetPXCComponentsBody struct {
 // Validate validates this set p x c components body
 func (o *SetPXCComponentsBody) Validate(formats strfmt.Registry) error {
 	var res []error
-
-	if err := o.validateBackup(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateHaproxy(formats); err != nil {
-		res = append(res, err)
-	}
 
 	if err := o.validateProxysql(formats); err != nil {
 		res = append(res, err)
@@ -159,42 +145,6 @@ func (o *SetPXCComponentsBody) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (o *SetPXCComponentsBody) validateBackup(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Backup) { // not required
-		return nil
-	}
-
-	if o.Backup != nil {
-		if err := o.Backup.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "backup")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (o *SetPXCComponentsBody) validateHaproxy(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Haproxy) { // not required
-		return nil
-	}
-
-	if o.Haproxy != nil {
-		if err := o.Haproxy.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "haproxy")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -320,82 +270,6 @@ func (o *SetPXCComponentsDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *SetPXCComponentsDefaultBody) UnmarshalBinary(b []byte) error {
 	var res SetPXCComponentsDefaultBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*SetPXCComponentsParamsBodyBackup SetComponent contains fields to manage components.
-swagger:model SetPXCComponentsParamsBodyBackup
-*/
-type SetPXCComponentsParamsBodyBackup struct {
-
-	// default version
-	DefaultVersion string `json:"default_version,omitempty"`
-
-	// disable versions
-	DisableVersions []string `json:"disable_versions"`
-
-	// enable versions
-	EnableVersions []string `json:"enable_versions"`
-}
-
-// Validate validates this set p x c components params body backup
-func (o *SetPXCComponentsParamsBodyBackup) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *SetPXCComponentsParamsBodyBackup) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *SetPXCComponentsParamsBodyBackup) UnmarshalBinary(b []byte) error {
-	var res SetPXCComponentsParamsBodyBackup
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*SetPXCComponentsParamsBodyHaproxy SetComponent contains fields to manage components.
-swagger:model SetPXCComponentsParamsBodyHaproxy
-*/
-type SetPXCComponentsParamsBodyHaproxy struct {
-
-	// default version
-	DefaultVersion string `json:"default_version,omitempty"`
-
-	// disable versions
-	DisableVersions []string `json:"disable_versions"`
-
-	// enable versions
-	EnableVersions []string `json:"enable_versions"`
-}
-
-// Validate validates this set p x c components params body haproxy
-func (o *SetPXCComponentsParamsBodyHaproxy) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *SetPXCComponentsParamsBodyHaproxy) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *SetPXCComponentsParamsBodyHaproxy) UnmarshalBinary(b []byte) error {
-	var res SetPXCComponentsParamsBodyHaproxy
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

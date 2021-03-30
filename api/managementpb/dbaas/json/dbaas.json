@@ -784,31 +784,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "backup": {
-                  "description": "SetComponent contains fields to manage components.",
-                  "type": "object",
-                  "properties": {
-                    "default_version": {
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "disable_versions": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      },
-                      "x-order": 1
-                    },
-                    "enable_versions": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      },
-                      "x-order": 2
-                    }
-                  },
-                  "x-order": 2
-                },
                 "kubernetes_cluster_name": {
                   "description": "Kubernetes cluster name.",
                   "type": "string",
@@ -907,56 +882,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "backup": {
-                  "description": "SetComponent contains fields to manage components.",
-                  "type": "object",
-                  "properties": {
-                    "default_version": {
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "disable_versions": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      },
-                      "x-order": 1
-                    },
-                    "enable_versions": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      },
-                      "x-order": 2
-                    }
-                  },
-                  "x-order": 4
-                },
-                "haproxy": {
-                  "description": "SetComponent contains fields to manage components.",
-                  "type": "object",
-                  "properties": {
-                    "default_version": {
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "disable_versions": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      },
-                      "x-order": 1
-                    },
-                    "enable_versions": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      },
-                      "x-order": 2
-                    }
-                  },
-                  "x-order": 3
-                },
                 "kubernetes_cluster_name": {
                   "description": "Kubernetes cluster name.",
                   "type": "string",

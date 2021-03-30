@@ -123,9 +123,6 @@ type SetPSMDBComponentsBody struct {
 	// Kubernetes cluster name.
 	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
 
-	// backup
-	Backup *SetPSMDBComponentsParamsBodyBackup `json:"backup,omitempty"`
-
 	// mongod
 	Mongod *SetPSMDBComponentsParamsBodyMongod `json:"mongod,omitempty"`
 }
@@ -134,10 +131,6 @@ type SetPSMDBComponentsBody struct {
 func (o *SetPSMDBComponentsBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateBackup(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := o.validateMongod(formats); err != nil {
 		res = append(res, err)
 	}
@@ -145,24 +138,6 @@ func (o *SetPSMDBComponentsBody) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (o *SetPSMDBComponentsBody) validateBackup(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Backup) { // not required
-		return nil
-	}
-
-	if o.Backup != nil {
-		if err := o.Backup.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "backup")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -270,44 +245,6 @@ func (o *SetPSMDBComponentsDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *SetPSMDBComponentsDefaultBody) UnmarshalBinary(b []byte) error {
 	var res SetPSMDBComponentsDefaultBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*SetPSMDBComponentsParamsBodyBackup SetComponent contains fields to manage components.
-swagger:model SetPSMDBComponentsParamsBodyBackup
-*/
-type SetPSMDBComponentsParamsBodyBackup struct {
-
-	// default version
-	DefaultVersion string `json:"default_version,omitempty"`
-
-	// disable versions
-	DisableVersions []string `json:"disable_versions"`
-
-	// enable versions
-	EnableVersions []string `json:"enable_versions"`
-}
-
-// Validate validates this set PSMDB components params body backup
-func (o *SetPSMDBComponentsParamsBodyBackup) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *SetPSMDBComponentsParamsBodyBackup) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *SetPSMDBComponentsParamsBodyBackup) UnmarshalBinary(b []byte) error {
-	var res SetPSMDBComponentsParamsBodyBackup
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

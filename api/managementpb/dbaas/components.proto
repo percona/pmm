@@ -70,7 +70,6 @@ message SetPSMDBComponentsRequest {
   // Kubernetes cluster name.
   string kubernetes_cluster_name = 1;
   SetComponent mongod = 2;
-  SetComponent backup = 3;
 }
 
 message SetPSMDBComponentsResponse {}
@@ -80,8 +79,6 @@ message SetPXCComponentsRequest {
   string kubernetes_cluster_name = 1;
   SetComponent pxc = 2;
   SetComponent proxysql = 3;
-  SetComponent haproxy = 4;
-  SetComponent backup = 5;
 }
 
 message SetPXCComponentsResponse {}
