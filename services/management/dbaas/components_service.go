@@ -87,7 +87,7 @@ func (c componentsService) GetPXCComponents(ctx context.Context, req *dbaasv1bet
 			return nil, e
 		}
 
-		params.operatorVersion = checkResponse.Operators.Psmdb.Version
+		params.operatorVersion = checkResponse.Operators.Xtradb.Version
 	}
 
 	versions, err := c.versions(ctx, params)
