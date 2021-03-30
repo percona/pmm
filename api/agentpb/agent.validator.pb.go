@@ -380,6 +380,9 @@ func (this *JobStatusRequest) Validate() error {
 func (this *JobStatusResponse) Validate() error {
 	return nil
 }
+func (this *S3LocationConfig) Validate() error {
+	return nil
+}
 func (this *StartJobRequest) Validate() error {
 	if this.Timeout != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Timeout); err != nil {
@@ -393,12 +396,29 @@ func (this *StartJobRequest) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetJob().(*StartJobRequest_MysqlBackupRestore); ok {
+		if oneOfNester.MysqlBackupRestore != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.MysqlBackupRestore); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("MysqlBackupRestore", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *StartJobRequest_Echo) Validate() error {
 	if this.Delay != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Delay); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Delay", err)
+		}
+	}
+	return nil
+}
+func (this *StartJobRequest_MySQLBackupRestore) Validate() error {
+	if oneOfNester, ok := this.GetLocationConfig().(*StartJobRequest_MySQLBackupRestore_S3Config); ok {
+		if oneOfNester.S3Config != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.S3Config); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("S3Config", err)
+			}
 		}
 	}
 	return nil
@@ -432,12 +452,22 @@ func (this *JobResult) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetResult().(*JobResult_MysqlBackupRestore); ok {
+		if oneOfNester.MysqlBackupRestore != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.MysqlBackupRestore); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("MysqlBackupRestore", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *JobResult_Error) Validate() error {
 	return nil
 }
 func (this *JobResult_Echo) Validate() error {
+	return nil
+}
+func (this *JobResult_MySQLBackupRestore) Validate() error {
 	return nil
 }
 func (this *JobProgress) Validate() error {
@@ -453,9 +483,19 @@ func (this *JobProgress) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetResult().(*JobProgress_MysqlBackupRestore); ok {
+		if oneOfNester.MysqlBackupRestore != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.MysqlBackupRestore); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("MysqlBackupRestore", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *JobProgress_Echo) Validate() error {
+	return nil
+}
+func (this *JobProgress_MySQLBackupRestore) Validate() error {
 	return nil
 }
 func (this *AgentMessage) Validate() error {

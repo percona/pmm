@@ -339,6 +339,15 @@ message JobStatusResponse {
   bool alive = 1;
 }
 
+// S3LocationConfig represents S3 bucket configuration.
+message S3LocationConfig {
+  string endpoint = 1;
+  string access_key = 2;
+  string secret_key = 3;
+  string bucket_name = 4;
+  string bucket_region = 5;
+}
+
 // StartJobRequest is a ServerMessage asking pmm-agent to start job.
 message StartJobRequest {
   // Echo is a simple echo job that can be delayed.
@@ -346,11 +355,23 @@ message StartJobRequest {
     string message = 1;
     google.protobuf.Duration delay = 2;
   }
+  // MySQLBackupRestore is job for MySQL backup restore service.
+  message MySQLBackupRestore {
+    // Service identifier where the backup should be restored.
+    string service_id = 1;
+    // Backup name.
+    string name = 2;
+    // Where backup is stored.
+    oneof location_config {
+      S3LocationConfig s3_config = 10;
+    }
+  }
   string job_id = 1;
   // Timeout for the job.
   google.protobuf.Duration timeout = 2;
   oneof job {
     Echo echo = 10;
+    MySQLBackupRestore mysql_backup_restore = 12;
   }
 }
 
@@ -377,11 +398,15 @@ message JobResult {
   message Echo {
     string message = 1;
   }
+  // MySQLBackupRestore contains result for MySQL backup restore job.
+  message MySQLBackupRestore {}
+
   string job_id = 1;
   google.protobuf.Timestamp timestamp = 2;
   oneof result {
     Error error = 10;
     Echo echo = 11;
+    MySQLBackupRestore mysql_backup_restore = 13;
   }
 }
 
@@ -391,10 +416,14 @@ message JobProgress {
   message Echo {
     string status = 1;
   }
+  // MySQLBackupRestore contains backup restore job status update.
+  message MySQLBackupRestore {}
+
   string job_id = 1;
   google.protobuf.Timestamp timestamp = 2;
   oneof result {
     Echo echo = 10;
+    MySQLBackupRestore mysql_backup_restore = 12;
   }
 }
 
