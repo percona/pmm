@@ -13934,14 +13934,13 @@
                   "x-order": 23
                 },
                 "type": {
-                  "description": "DiscoverAzureDatabaseType describes supported RDS instance engines.\n\n - DISCOVER_AZURE_DATABASE_TYPE_MYSQL: MySQL type: microsoft.dbformysql\n - DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL: PostgreSQL type: microsoft.dbformysql\n - DISCOVER_AZURE_DATABASE_TYPE_MARIADB: MariaDB type: microsoft.dbformariadb",
+                  "description": "DiscoverAzureDatabaseType describes supported RDS instance engines.\n\n - DISCOVER_AZURE_DATABASE_TYPE_MYSQL: MySQL type: microsoft.dbformysql or MariaDB type: microsoft.dbformariadb\n - DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL: PostgreSQL type: microsoft.dbformysql",
                   "type": "string",
                   "default": "DISCOVER_AZURE_DATABASE_TYPE_INVALID",
                   "enum": [
                     "DISCOVER_AZURE_DATABASE_TYPE_INVALID",
                     "DISCOVER_AZURE_DATABASE_TYPE_MYSQL",
-                    "DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL",
-                    "DISCOVER_AZURE_DATABASE_TYPE_MARIADB"
+                    "DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL"
                   ],
                   "x-order": 24
                 }
@@ -14087,14 +14086,13 @@
                         "x-order": 6
                       },
                       "type": {
-                        "description": "DiscoverAzureDatabaseType describes supported RDS instance engines.\n\n - DISCOVER_AZURE_DATABASE_TYPE_MYSQL: MySQL type: microsoft.dbformysql\n - DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL: PostgreSQL type: microsoft.dbformysql\n - DISCOVER_AZURE_DATABASE_TYPE_MARIADB: MariaDB type: microsoft.dbformariadb",
+                        "description": "DiscoverAzureDatabaseType describes supported RDS instance engines.\n\n - DISCOVER_AZURE_DATABASE_TYPE_MYSQL: MySQL type: microsoft.dbformysql or MariaDB type: microsoft.dbformariadb\n - DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL: PostgreSQL type: microsoft.dbformysql",
                         "type": "string",
                         "default": "DISCOVER_AZURE_DATABASE_TYPE_INVALID",
                         "enum": [
                           "DISCOVER_AZURE_DATABASE_TYPE_INVALID",
                           "DISCOVER_AZURE_DATABASE_TYPE_MYSQL",
-                          "DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL",
-                          "DISCOVER_AZURE_DATABASE_TYPE_MARIADB"
+                          "DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL"
                         ],
                         "x-order": 7
                       },
