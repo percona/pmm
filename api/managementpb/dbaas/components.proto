@@ -15,6 +15,7 @@ message Component {
   string status = 3;
   bool critical = 4;
   bool default = 5;
+  bool disabled = 6;
 }
 
 // Matrix contains all available components.
@@ -61,7 +62,8 @@ message GetPXCComponentsResponse {
 // SetComponent contains fields to manage components.
 message SetComponent {
   string default_version = 1;
-  repeated string disabled_versions = 2;
+  repeated string disable_versions = 2;
+  repeated string enable_versions = 3;
 }
 
 message SetPSMDBComponentsRequest {

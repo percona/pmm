@@ -335,8 +335,11 @@ type SetPXCComponentsParamsBodyBackup struct {
 	// default version
 	DefaultVersion string `json:"default_version,omitempty"`
 
-	// disabled versions
-	DisabledVersions []string `json:"disabled_versions"`
+	// disable versions
+	DisableVersions []string `json:"disable_versions"`
+
+	// enable versions
+	EnableVersions []string `json:"enable_versions"`
 }
 
 // Validate validates this set p x c components params body backup
@@ -370,8 +373,11 @@ type SetPXCComponentsParamsBodyHaproxy struct {
 	// default version
 	DefaultVersion string `json:"default_version,omitempty"`
 
-	// disabled versions
-	DisabledVersions []string `json:"disabled_versions"`
+	// disable versions
+	DisableVersions []string `json:"disable_versions"`
+
+	// enable versions
+	EnableVersions []string `json:"enable_versions"`
 }
 
 // Validate validates this set p x c components params body haproxy
@@ -405,8 +411,11 @@ type SetPXCComponentsParamsBodyProxysql struct {
 	// default version
 	DefaultVersion string `json:"default_version,omitempty"`
 
-	// disabled versions
-	DisabledVersions []string `json:"disabled_versions"`
+	// disable versions
+	DisableVersions []string `json:"disable_versions"`
+
+	// enable versions
+	EnableVersions []string `json:"enable_versions"`
 }
 
 // Validate validates this set p x c components params body proxysql
@@ -440,8 +449,11 @@ type SetPXCComponentsParamsBodyPxc struct {
 	// default version
 	DefaultVersion string `json:"default_version,omitempty"`
 
-	// disabled versions
-	DisabledVersions []string `json:"disabled_versions"`
+	// disable versions
+	DisableVersions []string `json:"disable_versions"`
+
+	// enable versions
+	EnableVersions []string `json:"enable_versions"`
 }
 
 // Validate validates this set p x c components params body pxc

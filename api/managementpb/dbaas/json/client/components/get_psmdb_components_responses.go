@@ -679,6 +679,9 @@ type VersionsItems0MatrixBackupAnon struct {
 
 	// default
 	Default bool `json:"default,omitempty"`
+
+	// disabled
+	Disabled bool `json:"disabled,omitempty"`
 }
 
 // Validate validates this versions items0 matrix backup anon
@@ -723,6 +726,9 @@ type VersionsItems0MatrixHaproxyAnon struct {
 
 	// default
 	Default bool `json:"default,omitempty"`
+
+	// disabled
+	Disabled bool `json:"disabled,omitempty"`
 }
 
 // Validate validates this versions items0 matrix haproxy anon
@@ -767,6 +773,9 @@ type VersionsItems0MatrixLogCollectorAnon struct {
 
 	// default
 	Default bool `json:"default,omitempty"`
+
+	// disabled
+	Disabled bool `json:"disabled,omitempty"`
 }
 
 // Validate validates this versions items0 matrix log collector anon
@@ -811,6 +820,9 @@ type VersionsItems0MatrixMongodAnon struct {
 
 	// default
 	Default bool `json:"default,omitempty"`
+
+	// disabled
+	Disabled bool `json:"disabled,omitempty"`
 }
 
 // Validate validates this versions items0 matrix mongod anon
@@ -855,6 +867,9 @@ type VersionsItems0MatrixOperatorAnon struct {
 
 	// default
 	Default bool `json:"default,omitempty"`
+
+	// disabled
+	Disabled bool `json:"disabled,omitempty"`
 }
 
 // Validate validates this versions items0 matrix operator anon
@@ -899,6 +914,9 @@ type VersionsItems0MatrixPMMAnon struct {
 
 	// default
 	Default bool `json:"default,omitempty"`
+
+	// disabled
+	Disabled bool `json:"disabled,omitempty"`
 }
 
 // Validate validates this versions items0 matrix PMM anon
@@ -943,6 +961,9 @@ type VersionsItems0MatrixProxysqlAnon struct {
 
 	// default
 	Default bool `json:"default,omitempty"`
+
+	// disabled
+	Disabled bool `json:"disabled,omitempty"`
 }
 
 // Validate validates this versions items0 matrix proxysql anon
@@ -987,6 +1008,9 @@ type VersionsItems0MatrixPxcAnon struct {
 
 	// default
 	Default bool `json:"default,omitempty"`
+
+	// disabled
+	Disabled bool `json:"disabled,omitempty"`
 }
 
 // Validate validates this versions items0 matrix pxc anon
