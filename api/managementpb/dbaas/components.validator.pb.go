@@ -6,6 +6,7 @@ package dbaasv1beta1
 import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
+	_ "github.com/mwitkow/go-proto-validators"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	math "math"
@@ -68,6 +69,9 @@ func (this *SetComponent) Validate() error {
 	return nil
 }
 func (this *SetPSMDBComponentsRequest) Validate() error {
+	if this.KubernetesClusterName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
+	}
 	if this.Mongod != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Mongod); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Mongod", err)
@@ -79,6 +83,9 @@ func (this *SetPSMDBComponentsResponse) Validate() error {
 	return nil
 }
 func (this *SetPXCComponentsRequest) Validate() error {
+	if this.KubernetesClusterName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
+	}
 	if this.Pxc != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Pxc); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Pxc", err)
