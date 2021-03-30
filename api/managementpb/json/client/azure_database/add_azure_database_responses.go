@@ -199,10 +199,9 @@ type AddAzureDatabaseBody struct {
 
 	// DiscoverAzureDatabaseType describes supported RDS instance engines.
 	//
-	//  - DISCOVER_AZURE_DATABASE_TYPE_MYSQL: MySQL type: microsoft.dbformysql
+	//  - DISCOVER_AZURE_DATABASE_TYPE_MYSQL: MySQL type: microsoft.dbformysql or MariaDB type: microsoft.dbformariadb
 	//  - DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL: PostgreSQL type: microsoft.dbformysql
-	//  - DISCOVER_AZURE_DATABASE_TYPE_MARIADB: MariaDB type: microsoft.dbformariadb
-	// Enum: [DISCOVER_AZURE_DATABASE_TYPE_INVALID DISCOVER_AZURE_DATABASE_TYPE_MYSQL DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL DISCOVER_AZURE_DATABASE_TYPE_MARIADB]
+	// Enum: [DISCOVER_AZURE_DATABASE_TYPE_INVALID DISCOVER_AZURE_DATABASE_TYPE_MYSQL DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL]
 	Type *string `json:"type,omitempty"`
 }
 
@@ -224,7 +223,7 @@ var addAzureDatabaseBodyTypeTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DISCOVER_AZURE_DATABASE_TYPE_INVALID","DISCOVER_AZURE_DATABASE_TYPE_MYSQL","DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL","DISCOVER_AZURE_DATABASE_TYPE_MARIADB"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DISCOVER_AZURE_DATABASE_TYPE_INVALID","DISCOVER_AZURE_DATABASE_TYPE_MYSQL","DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -242,9 +241,6 @@ const (
 
 	// AddAzureDatabaseBodyTypeDISCOVERAZUREDATABASETYPEPOSTGRESQL captures enum value "DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL"
 	AddAzureDatabaseBodyTypeDISCOVERAZUREDATABASETYPEPOSTGRESQL string = "DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL"
-
-	// AddAzureDatabaseBodyTypeDISCOVERAZUREDATABASETYPEMARIADB captures enum value "DISCOVER_AZURE_DATABASE_TYPE_MARIADB"
-	AddAzureDatabaseBodyTypeDISCOVERAZUREDATABASETYPEMARIADB string = "DISCOVER_AZURE_DATABASE_TYPE_MARIADB"
 )
 
 // prop value enum
