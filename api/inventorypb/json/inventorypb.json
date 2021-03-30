@@ -43,6 +43,11 @@
                 "azure_database_resource_type": {
                   "type": "string",
                   "title": "Azure resource type (mysql, maria, postgres)",
+                  "x-order": 7
+                },
+                "azure_resource_group": {
+                  "description": "Azure resource group.",
+                  "type": "string",
                   "x-order": 6
                 },
                 "azure_subscription_id": {
@@ -61,7 +66,7 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 7
+                  "x-order": 8
                 },
                 "node_id": {
                   "description": "Node identifier.",
@@ -76,12 +81,12 @@
                 "push_metrics": {
                   "description": "Enables push metrics mode for exporter.",
                   "type": "boolean",
-                  "x-order": 9
+                  "x-order": 10
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "x-order": 8
+                  "x-order": 9
                 }
               }
             }

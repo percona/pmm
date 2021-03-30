@@ -1190,6 +1190,8 @@ message AddAzureDatabaseExporterRequest {
   string azure_tenant_id = 5;
   // Azure subscription ID
   string azure_subscription_id = 6;
+  // Azure resource group.
+  string azure_resource_group = 11;
   // Azure resource type (mysql, maria, postgres)
   string azure_database_resource_type = 7 [
     (validator.field) = {

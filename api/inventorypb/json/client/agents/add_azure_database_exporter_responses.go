@@ -142,6 +142,9 @@ type AddAzureDatabaseExporterBody struct {
 	// Azure subscription ID
 	AzureSubscriptionID string `json:"azure_subscription_id,omitempty"`
 
+	// Azure resource group.
+	AzureResourceGroup string `json:"azure_resource_group,omitempty"`
+
 	// Azure resource type (mysql, maria, postgres)
 	AzureDatabaseResourceType string `json:"azure_database_resource_type,omitempty"`
 
