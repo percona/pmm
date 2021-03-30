@@ -130,17 +130,17 @@ type AddAzureDatabaseExporterBody struct {
 	// Node identifier.
 	NodeID string `json:"node_id,omitempty"`
 
-	// Azure database client ID
-	AzureDatabaseClientID string `json:"azure_database_client_id,omitempty"`
+	// Azure client ID
+	AzureClientID string `json:"azure_client_id,omitempty"`
 
-	// Azure database client secret
-	AzureDatabaseClientSecret string `json:"azure_database_client_secret,omitempty"`
+	// Azure client secret
+	AzureClientSecret string `json:"azure_client_secret,omitempty"`
 
-	// Azure database tanant ID
-	AzureDatabaseTenantID string `json:"azure_database_tenant_id,omitempty"`
+	// Azure tanant ID
+	AzureTenantID string `json:"azure_tenant_id,omitempty"`
 
-	// Azure database subscription ID
-	AzureDatabaseSubscriptionID string `json:"azure_database_subscription_id,omitempty"`
+	// Azure subscription ID
+	AzureSubscriptionID string `json:"azure_subscription_id,omitempty"`
 
 	// Azure resource type (mysql, maria, postgres)
 	AzureDatabaseResourceType string `json:"azure_database_resource_type,omitempty"`
