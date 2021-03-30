@@ -59,55 +59,6 @@ message StartEchoJobResponse {
   string pmm_agent_id = 2;
 }
 
-// S3LocationConfig represents S3 bucket configuration.
-message S3LocationConfig {
-  string endpoint = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  string access_key = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  string secret_key = 3 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  string bucket_name = 4 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-}
-
-message StartMySQLBackupJobRequest {
-  // pmm-agent ID where to run this Job.
-  string pmm_agent_id = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  string dsn = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  string name = 3;
-  oneof location_config {
-    S3LocationConfig s3_config = 10;
-  }
-}
-
-message StartMySQLBackupJobResponse {
-  // Unique Job ID.
-  string job_id = 1;
-  // pmm-agent ID where to this Job was started.
-  string pmm_agent_id = 2;
-}
-
 message CancelJobRequest {
   // Unique Job ID. Required.
   string job_id = 1 [
@@ -132,13 +83,6 @@ service Jobs {
   rpc StartEchoJob(StartEchoJobRequest) returns (StartEchoJobResponse) {
     option (google.api.http) = {
       post: "/v1/management/Jobs/StartEcho"
-      body: "*"
-    };
-  }
-  // StartMySQLBackupJob starts MySQL backup job.
-  rpc StartMySQLBackupJob(StartMySQLBackupJobRequest) returns (StartMySQLBackupJobResponse) {
-    option (google.api.http) = {
-      post: "/v1/management/Jobs/StartMySQLBackup"
       body: "*"
     };
   }
