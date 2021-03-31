@@ -17,10 +17,15 @@
 package dbaas
 
 import (
+	"context"
 	"testing"
+	"time"
 
+	goversion "github.com/hashicorp/go-version"
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestComponentService(t *testing.T) {
@@ -41,7 +46,7 @@ func TestComponentService(t *testing.T) {
 			"8.0.20-11.2":    {ImagePath: "percona/percona-xtradb-cluster:8.0.20-11.2", ImageHash: "feda5612db18da824e971891d6084465aa9cdc9918c18001cd95ba30916da78b", Status: "available", Critical: false},
 			"8.0.21-12.1":    {ImagePath: "percona/percona-xtradb-cluster:8.0.21-12.1", ImageHash: "d95cf39a58f09759408a00b519fe0d0b19c1b28332ece94349dd5e9cdbda017e", Status: "recommended", Critical: false},
 		}
-		m := cs.matrix(input)
+		m := cs.matrix(input, nil)
 
 		expected := map[string]*dbaasv1beta1.Component{
 			"5.7.26-31.37":   {ImagePath: "percona/percona-xtradb-cluster:5.7.26-31.37", ImageHash: "9d43d8e435e4aca5c694f726cc736667cb938158635c5f01a0e9412905f1327f", Status: "available", Critical: false},
@@ -63,7 +68,61 @@ func TestComponentService(t *testing.T) {
 
 	t.Run("EmptyMatrix", func(t *testing.T) {
 		cs := &componentsService{}
-		m := cs.matrix(map[string]component{})
+		m := cs.matrix(map[string]component{}, nil)
 		assert.Equal(t, map[string]*dbaasv1beta1.Component{}, m)
+	})
+}
+
+func TestFilteringOutOfDisabledVersions(t *testing.T) {
+	t.Parallel()
+	c := &componentsService{
+		l:                    logrus.WithField("component", "components_service"),
+		db:                   nil,
+		dbaasClient:          dbaasClient(nil),
+		versionServiceClient: NewVersionServiceClient("https://check.percona.com/versions/v1"),
+	}
+
+	t.Run("mongod", func(t *testing.T) {
+		t.Parallel()
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
+		defer cancel()
+
+		params := componentsParams{
+			operator:        psmdbOperator,
+			operatorVersion: "1.6.0",
+		}
+		versions, err := c.versions(ctx, params)
+		require.NoError(t, err)
+		parsedDisabledVersion, err := goversion.NewVersion("4.2.0")
+		require.NoError(t, err)
+		for _, v := range versions {
+			for version := range v.Matrix.Mongod {
+				parsedVersion, err := goversion.NewVersion(version)
+				require.NoError(t, err)
+				assert.Truef(t, parsedVersion.GreaterThanOrEqual(parsedDisabledVersion), "%s is not greater or equal to 4.2.0", version)
+			}
+		}
+	})
+
+	t.Run("pxc", func(t *testing.T) {
+		t.Parallel()
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
+		defer cancel()
+
+		params := componentsParams{
+			operator:        pxcOperator,
+			operatorVersion: "1.7.0",
+		}
+		versions, err := c.versions(ctx, params)
+		require.NoError(t, err)
+		parsedDisabledVersion, err := goversion.NewVersion("8.0.0")
+		require.NoError(t, err)
+		for _, v := range versions {
+			for version := range v.Matrix.Pxc {
+				parsedVersion, err := goversion.NewVersion(version)
+				require.NoError(t, err)
+				assert.True(t, parsedVersion.GreaterThanOrEqual(parsedDisabledVersion), "%s is not greater or equal to 8.0.0", version)
+			}
+		}
 	})
 }

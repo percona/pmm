@@ -317,6 +317,14 @@
   version = "v1.15.0"
 
 [[projects]]
+  digest = "1:62e9b669cad3ce17f72f6a24a6f60eee419015c205c0dbdc36d08c2815f83c1f"
+  name = "github.com/hashicorp/go-version"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "59da58cfd357de719a4d16dac30481391a56c002"
+  version = "v1.2.1"
+
+[[projects]]
   digest = "1:1f2aebae7e7c856562355ec0198d8ca2fa222fb05e5b1b66632a1fce39631885"
   name = "github.com/jmespath/go-jmespath"
   packages = ["."]
@@ -916,6 +924,7 @@
     "github.com/grpc-ecosystem/go-grpc-middleware/validator",
     "github.com/grpc-ecosystem/go-grpc-prometheus",
     "github.com/grpc-ecosystem/grpc-gateway/runtime",
+    "github.com/hashicorp/go-version",
     "github.com/kevinburke/go-bindata/go-bindata",
     "github.com/lib/pq",
     "github.com/minio/minio-go",

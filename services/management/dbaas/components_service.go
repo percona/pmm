@@ -19,8 +19,8 @@ package dbaas
 import (
 	"context"
 
+	goversion "github.com/hashicorp/go-version"
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
-	"github.com/percona/pmm/version"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
@@ -104,19 +104,21 @@ func (c componentsService) versions(ctx context.Context, params componentsParams
 	}
 
 	versions := make([]*dbaasv1beta1.Version, 0, len(components.Versions))
+	mongodMinimalVersion, _ := goversion.NewVersion("4.2.0")
+	pxcMinimalVersion, _ := goversion.NewVersion("8.0.0")
 	for _, v := range components.Versions {
 		respVersion := &dbaasv1beta1.Version{
 			Product:  v.Product,
 			Operator: v.Operator,
 			Matrix: &dbaasv1beta1.Matrix{
-				Mongod:       c.matrix(v.Matrix.Mongod),
-				Pxc:          c.matrix(v.Matrix.Pxc),
-				Pmm:          c.matrix(v.Matrix.Pmm),
-				Proxysql:     c.matrix(v.Matrix.Proxysql),
-				Haproxy:      c.matrix(v.Matrix.Haproxy),
-				Backup:       c.matrix(v.Matrix.Backup),
-				Operator:     c.matrix(v.Matrix.Operator),
-				LogCollector: c.matrix(v.Matrix.LogCollector),
+				Mongod:       c.matrix(v.Matrix.Mongod, mongodMinimalVersion),
+				Pxc:          c.matrix(v.Matrix.Pxc, pxcMinimalVersion),
+				Pmm:          c.matrix(v.Matrix.Pmm, nil),
+				Proxysql:     c.matrix(v.Matrix.Proxysql, nil),
+				Haproxy:      c.matrix(v.Matrix.Haproxy, nil),
+				Backup:       c.matrix(v.Matrix.Backup, nil),
+				Operator:     c.matrix(v.Matrix.Operator, nil),
+				LogCollector: c.matrix(v.Matrix.LogCollector, nil),
 			},
 		}
 		versions = append(versions, respVersion)
@@ -125,23 +127,27 @@ func (c componentsService) versions(ctx context.Context, params componentsParams
 	return versions, nil
 }
 
-func (c componentsService) matrix(m map[string]component) map[string]*dbaasv1beta1.Component {
+func (c componentsService) matrix(m map[string]component, minimalVersion *goversion.Version) map[string]*dbaasv1beta1.Component {
 	result := make(map[string]*dbaasv1beta1.Component)
 
 	var lastVersion string
-	lastVersionParsed := version.MustParse("0.0.0")
+	lastVersionParsed, _ := goversion.NewVersion("0.0.0")
 	for v, component := range m {
+		parsedVersion, err := goversion.NewVersion(v)
+		if err != nil {
+			c.l.Warnf("couldn't parse version %s: %s", v, err.Error())
+			continue
+		}
+		if minimalVersion != nil && parsedVersion.LessThan(minimalVersion) {
+			continue
+		}
 		result[v] = &dbaasv1beta1.Component{
 			ImagePath: component.ImagePath,
 			ImageHash: component.ImageHash,
 			Status:    component.Status,
 			Critical:  component.Critical,
 		}
-		parsedVersion, err := version.Parse(v)
-		if err != nil {
-			c.l.Warnf("couldn't parse version %s: %s", v, err.Error())
-		}
-		if lastVersionParsed.Less(parsedVersion) && component.Status == "recommended" {
+		if lastVersionParsed.LessThan(parsedVersion) && component.Status == "recommended" {
 			lastVersionParsed = parsedVersion
 			lastVersion = v
 		}
