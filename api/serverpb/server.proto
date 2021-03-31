@@ -185,9 +185,9 @@ message Settings {
   // Intervals between STT check runs.
   STTCheckIntervals stt_check_intervals = 16;
   // True if Backup Management is enabled.
-  bool backup_management_enabled = 17;
+  bool backup_management_enabled = 18;
   // True if Azure Discover is enabled.
-  bool azurediscover_enabled = 18;
+  bool azurediscover_enabled = 17;
 }
 
 message GetSettingsRequest {}
@@ -236,14 +236,14 @@ message ChangeSettingsRequest {
   bool remove_pmm_public_address = 20;
   // Intervals between STT check runs.
   STTCheckIntervals stt_check_intervals = 21;
-  // Enable Backup Management.
-  bool enable_backup_management = 22;
-  // Disable Backup Management.
-  bool disable_backup_management = 23;
   // Enable Azure Discover.
-  bool enable_azurediscover = 24;
+  bool enable_azurediscover = 22;
   // Disable Azure Discover.
-  bool disable_azurediscover = 25;
+  bool disable_azurediscover = 23;
+  // Enable Backup Management.
+  bool enable_backup_management = 24;
+  // Disable Backup Management.
+  bool disable_backup_management = 25;
 }
 
 message ChangeSettingsResponse {

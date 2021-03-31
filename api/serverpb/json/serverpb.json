@@ -404,12 +404,12 @@
                 "disable_azurediscover": {
                   "description": "Disable Azure Discover.",
                   "type": "boolean",
-                  "x-order": 24
+                  "x-order": 22
                 },
                 "disable_backup_management": {
                   "description": "Disable Backup Management.",
                   "type": "boolean",
-                  "x-order": 22
+                  "x-order": 24
                 },
                 "disable_stt": {
                   "description": "Disable Security Threat Tool.",
@@ -470,12 +470,12 @@
                 "enable_azurediscover": {
                   "description": "Enable Azure Discover.",
                   "type": "boolean",
-                  "x-order": 23
+                  "x-order": 21
                 },
                 "enable_backup_management": {
                   "description": "Enable Backup Management.",
                   "type": "boolean",
-                  "x-order": 21
+                  "x-order": 23
                 },
                 "enable_stt": {
                   "description": "Enable Security Threat Tool.",

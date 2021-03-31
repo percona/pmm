@@ -173,17 +173,17 @@ type ChangeSettingsBody struct {
 	// remove pmm public address
 	RemovePMMPublicAddress bool `json:"remove_pmm_public_address,omitempty"`
 
-	// Enable Backup Management.
-	EnableBackupManagement bool `json:"enable_backup_management,omitempty"`
-
-	// Disable Backup Management.
-	DisableBackupManagement bool `json:"disable_backup_management,omitempty"`
-
 	// Enable Azure Discover.
 	EnableAzurediscover bool `json:"enable_azurediscover,omitempty"`
 
 	// Disable Azure Discover.
 	DisableAzurediscover bool `json:"disable_azurediscover,omitempty"`
+
+	// Enable Backup Management.
+	EnableBackupManagement bool `json:"enable_backup_management,omitempty"`
+
+	// Disable Backup Management.
+	DisableBackupManagement bool `json:"disable_backup_management,omitempty"`
 
 	// email alerting settings
 	EmailAlertingSettings *ChangeSettingsParamsBodyEmailAlertingSettings `json:"email_alerting_settings,omitempty"`
