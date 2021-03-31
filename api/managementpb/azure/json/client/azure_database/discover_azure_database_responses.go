@@ -145,7 +145,7 @@ type AzureDatabaseInstanceItems0 struct {
 	// Environment tag.
 	Environment string `json:"environment,omitempty"`
 
-	// DiscoverAzureDatabaseType describes supported RDS instance engines.
+	// DiscoverAzureDatabaseType describes supported Azure Database instance engines.
 	//
 	//  - DISCOVER_AZURE_DATABASE_TYPE_MYSQL: MySQL type: microsoft.dbformysql or MariaDB type: microsoft.dbformariadb
 	//  - DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL: PostgreSQL type: microsoft.dbformysql

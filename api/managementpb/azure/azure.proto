@@ -35,7 +35,7 @@ message DiscoverAzureDatabaseRequest {
   ];
 }
 
-// DiscoverAzureDatabaseType describes supported RDS instance engines.
+// DiscoverAzureDatabaseType describes supported Azure Database instance engines.
 enum DiscoverAzureDatabaseType {
   DISCOVER_AZURE_DATABASE_TYPE_INVALID = 0;
   // MySQL type: microsoft.dbformysql or MariaDB type: microsoft.dbformariadb
@@ -174,7 +174,7 @@ message AddAzureDatabaseResponse {}
 
 // AzureDatabase service provides Service Discovery APIs.
 service AzureDatabase {
-  // DiscoverAzureDatabase discovers Azure Database for MySQL and PostgreSQL Server instances.
+  // DiscoverAzureDatabase discovers Azure Database for MySQL, MariaDB and PostgreSQL Server instances.
   rpc DiscoverAzureDatabase(DiscoverAzureDatabaseRequest) returns (DiscoverAzureDatabaseResponse) {
     option (google.api.http) = {
       post: "/v1/management/azure/AzureDatabase/Discover"

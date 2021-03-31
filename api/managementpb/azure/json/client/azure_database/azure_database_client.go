@@ -66,7 +66,7 @@ func (a *Client) AddAzureDatabase(params *AddAzureDatabaseParams) (*AddAzureData
 }
 
 /*
-  DiscoverAzureDatabase discovers azure database discovers azure database for my SQL and postgre SQL server instances
+  DiscoverAzureDatabase discovers azure database discovers azure database for my SQL maria DB and postgre SQL server instances
 */
 func (a *Client) DiscoverAzureDatabase(params *DiscoverAzureDatabaseParams) (*DiscoverAzureDatabaseOK, error) {
 	// TODO: Validate the params before sending

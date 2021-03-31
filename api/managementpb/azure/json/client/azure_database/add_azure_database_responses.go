@@ -197,7 +197,7 @@ type AddAzureDatabaseBody struct {
 	// Use negative value to disable them.
 	TablestatsGroupTableLimit int32 `json:"tablestats_group_table_limit,omitempty"`
 
-	// DiscoverAzureDatabaseType describes supported RDS instance engines.
+	// DiscoverAzureDatabaseType describes supported Azure Database instance engines.
 	//
 	//  - DISCOVER_AZURE_DATABASE_TYPE_MYSQL: MySQL type: microsoft.dbformysql or MariaDB type: microsoft.dbformariadb
 	//  - DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL: PostgreSQL type: microsoft.dbformysql

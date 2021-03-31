@@ -23240,7 +23240,7 @@
                   "x-order": 23
                 },
                 "type": {
-                  "description": "DiscoverAzureDatabaseType describes supported RDS instance engines.\n\n - DISCOVER_AZURE_DATABASE_TYPE_MYSQL: MySQL type: microsoft.dbformysql or MariaDB type: microsoft.dbformariadb\n - DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL: PostgreSQL type: microsoft.dbformysql",
+                  "description": "DiscoverAzureDatabaseType describes supported Azure Database instance engines.\n\n - DISCOVER_AZURE_DATABASE_TYPE_MYSQL: MySQL type: microsoft.dbformysql or MariaDB type: microsoft.dbformariadb\n - DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL: PostgreSQL type: microsoft.dbformysql",
                   "type": "string",
                   "default": "DISCOVER_AZURE_DATABASE_TYPE_INVALID",
                   "enum": [
@@ -23308,7 +23308,7 @@
         "tags": [
           "AzureDatabase"
         ],
-        "summary": "DiscoverAzureDatabase discovers Azure Database for MySQL and PostgreSQL Server instances.",
+        "summary": "DiscoverAzureDatabase discovers Azure Database for MySQL, MariaDB and PostgreSQL Server instances.",
         "operationId": "DiscoverAzureDatabase",
         "parameters": [
           {
@@ -23392,7 +23392,7 @@
                         "x-order": 6
                       },
                       "type": {
-                        "description": "DiscoverAzureDatabaseType describes supported RDS instance engines.\n\n - DISCOVER_AZURE_DATABASE_TYPE_MYSQL: MySQL type: microsoft.dbformysql or MariaDB type: microsoft.dbformariadb\n - DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL: PostgreSQL type: microsoft.dbformysql",
+                        "description": "DiscoverAzureDatabaseType describes supported Azure Database instance engines.\n\n - DISCOVER_AZURE_DATABASE_TYPE_MYSQL: MySQL type: microsoft.dbformysql or MariaDB type: microsoft.dbformariadb\n - DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL: PostgreSQL type: microsoft.dbformysql",
                         "type": "string",
                         "default": "DISCOVER_AZURE_DATABASE_TYPE_INVALID",
                         "enum": [

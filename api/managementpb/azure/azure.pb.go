@@ -31,7 +31,7 @@ const (
 // of the legacy proto package is being used.
 const _ = proto.ProtoPackageIsVersion4
 
-// DiscoverAzureDatabaseType describes supported RDS instance engines.
+// DiscoverAzureDatabaseType describes supported Azure Database instance engines.
 type DiscoverAzureDatabaseType int32
 
 const (
@@ -952,7 +952,7 @@ const _ = grpc.SupportPackageIsVersion6
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type AzureDatabaseClient interface {
-	// DiscoverAzureDatabase discovers Azure Database for MySQL and PostgreSQL Server instances.
+	// DiscoverAzureDatabase discovers Azure Database for MySQL, MariaDB and PostgreSQL Server instances.
 	DiscoverAzureDatabase(ctx context.Context, in *DiscoverAzureDatabaseRequest, opts ...grpc.CallOption) (*DiscoverAzureDatabaseResponse, error)
 	// AddAzureDatabase adds Azure Database instance.
 	AddAzureDatabase(ctx context.Context, in *AddAzureDatabaseRequest, opts ...grpc.CallOption) (*AddAzureDatabaseResponse, error)
@@ -986,7 +986,7 @@ func (c *azureDatabaseClient) AddAzureDatabase(ctx context.Context, in *AddAzure
 
 // AzureDatabaseServer is the server API for AzureDatabase service.
 type AzureDatabaseServer interface {
-	// DiscoverAzureDatabase discovers Azure Database for MySQL and PostgreSQL Server instances.
+	// DiscoverAzureDatabase discovers Azure Database for MySQL, MariaDB and PostgreSQL Server instances.
 	DiscoverAzureDatabase(context.Context, *DiscoverAzureDatabaseRequest) (*DiscoverAzureDatabaseResponse, error)
 	// AddAzureDatabase adds Azure Database instance.
 	AddAzureDatabase(context.Context, *AddAzureDatabaseRequest) (*AddAzureDatabaseResponse, error)
