@@ -32,6 +32,8 @@ icon:
   cube: '<i class="uil uil-cube"></i>'
   database: '<i class="uil uil-database"></i>'
   ellipsisv: '<i class="uil uil-ellipsis-v"></i>'
+  exclamationtriangle: '<i class="uil uil-exclamation-triangle"></i>'
+  exclamationtrianglered: '<i style="color: red" class="uil uil-exclamation-triangle"></i>'
   eye: '<i class="uil uil-eye"></i>'
   filealt: '<i class="uil uil-file-alt"></i>'
   graphbar: '<i class="uil uil-graph-bar"></i>'

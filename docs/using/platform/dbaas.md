@@ -51,21 +51,7 @@ You must create at least one Kubernetes cluster to create a DB cluster.
 
 To monitor a DB cluster, set up a [public address](../../how-to/configure.md#public-address) for PMM Server first.
 
-> <b style="color:green">Tip</b>
->
-> Resource consumption in Kubernetes can cause problems. Use this formula to ensure your nodes have enough resources to start the requested configuration:
->
-> ( 2 * # of nodes in DB cluster * CPU per node ) + (.5 * # of nodes in db cluster) = total # of CPUs that must be free for cluster to start
->
-> The first part of the equation is resources for the cluster. It is doubled because each DB cluster member must also have a proxy started with it.
->
-> The second part is to start the container(s) that automatically monitor each member of the DB cluster.
->
-> (You can also specify CPU in decimal tenths, e.g. `.1` CPUs or `1.5` CPUs.)
-
 1. Select the *DB Cluster* tab.
-
-    ![](../../_images/PMM_DBaaS_DB_Cluster_Panel.jpg)
 
 2. Click *Create DB Cluster*.
 
@@ -91,7 +77,9 @@ To monitor a DB cluster, set up a [public address](../../how-to/configure.md#pub
 
         Values for the *Custom* preset can be edited.
 
-        ![](../../_images/PMM_DBaaS_DB_Cluster_Advanced_Options.jpg)
+		Beside each resource type is an estimate of the required and available resources represented numerically in absolute and percentage values, and graphically as a colored, segmented bar showing the projected ratio of used to available resources. A red warning triangle {{ icon.exclamationtrianglered }} is shown if the requested resources exceed those available.
+
+        ![](../../_images/PMM_DBaaS_DB_Cluster_Advanced_Options.png)
 
 5. When both *Basic Options* and *Advanced Options* section icons are green, the *Create Cluster* button becomes active. (If inactive, check the values for fields in sections whose icon is red.)
 
@@ -165,5 +153,4 @@ A paused cluster can't be edited.
 
 
 > **See also**
->
 > [Setting up a development environment for DBaaS](../../setting-up/server/dbaas.md)
