@@ -43,7 +43,7 @@ message StartBackupRequest {
 
 message StartBackupResponse {
   // Unique identifier.
-  string backup_id = 1;
+  string artifact_id = 1;
 }
 
 // Backups service handles backup operations to DB.

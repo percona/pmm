@@ -277,7 +277,7 @@ swagger:model StartBackupOKBody
 type StartBackupOKBody struct {
 
 	// Unique identifier.
-	BackupID string `json:"backup_id,omitempty"`
+	ArtifactID string `json:"artifact_id,omitempty"`
 }
 
 // Validate validates this start backup OK body

@@ -204,7 +204,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "backup_id": {
+                "artifact_id": {
                   "description": "Unique identifier.",
                   "type": "string",
                   "x-order": 0
