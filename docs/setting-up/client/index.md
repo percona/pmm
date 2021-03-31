@@ -92,7 +92,7 @@ However, the client needs to store any collected data that it cannot dispatch im
     sudo yum install -y pmm2-client
     ```
 
-> **Tip** If you have used `percona-release` before, disable and reenable the repository:
+> **Tip** If you have used `percona-release` before, disable and re-enable the repository:
 > ```sh
 > sudo percona-release disable all
 > sudo percona-release enable original release

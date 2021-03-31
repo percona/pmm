@@ -23,6 +23,7 @@ checkpointing
 checksum
 checksums
 ClickHouse
+CloudWatch
 comms
 CPUs
 CRAM-MD5
@@ -33,6 +34,7 @@ CVE-2020-7920
 datagram
 datagrams
 DBaaS
+debian
 defragmentation
 e.g.
 ElasticSearch
@@ -96,6 +98,7 @@ mysqld
 mysqld_exporter
 natively
 netstat
+nginx
 node_exporter
 non-DBAs
 non-UTF-8
@@ -9115,6 +9118,7 @@ PMM-9998
 PMM-9999
 pmm-admin
 pmm-agent
+pmm-client
 pmm-managed
 pmm-server
 pmm-update
@@ -9133,7 +9137,7 @@ quickstart
 ReadAhead
 recalc
 Reddit
-RedHat
+redhat
 Redis
 reenabled
 replicaset
@@ -9173,6 +9177,7 @@ substring
 SYS-V-IPC
 tablespace
 tablespaces
+tablestats
 templated
 timespan
 timestamp
@@ -9193,14 +9198,17 @@ uptime
 v1
 v2
 v4
+vcpu
 VictoriaMetrics
-VirtualBox
+virtualbox
 virtualization
 virtualized
-VMware
+vmware
 webhook
 WiredTiger
 Writeset
+Xenial
+Xerus
 XtraDB
 Zaitzev
 zlib
