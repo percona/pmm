@@ -68,6 +68,14 @@ message XtraDBClusterParams {
       }
     ];
   }
+  // HAProxy container parameters.
+  // NOTE: HAProxy does not need disk size as ProxySQL because the container does not require it.
+  message HAProxy {
+    // Docker image used for HAProxy.
+    string image = 1;
+    // Requested compute resources.
+    ComputeResources compute_resources = 2;
+  }
   // Cluster size.
   int32 cluster_size = 1 [
     (validator.field) = {
@@ -80,12 +88,11 @@ message XtraDBClusterParams {
       msg_exists: true
     }
   ];
+  // NOTE: Only one of fields proxysql or haproxy has to be set, we check this in the code.
   // ProxySQL container parameters.
-  ProxySQL proxysql = 3 [
-    (validator.field) = {
-      msg_exists: true
-    }
-  ];
+  ProxySQL proxysql = 3;
+  // HAProxy container parameters.
+  HAProxy haproxy = 4;
 }
 
 message ListXtraDBClustersRequest {
@@ -131,13 +138,13 @@ message GetXtraDBClusterCredentialsRequest {
 
 // XtraDBClusterConnectionCredentials is cluster connection credentials.
 message XtraDBClusterConnectionCredentials {
-  // ProxySQL username.
+  // PXC username.
   string username = 1;
-  // ProxySQL password.
+  // PXC password.
   string password = 2;
-  // ProxySQL host.
+  // PXC host.
   string host = 3;
-  // ProxySQL port.
+  // PXC port.
   int32 port = 4;
 }
 
@@ -197,6 +204,11 @@ message UpdateXtraDBClusterRequest {
       // Requested compute resources.
       ComputeResources compute_resources = 1;
     }
+    // HAProxy container parameters.
+    message HAProxy {
+      // Requested compute resources.
+      ComputeResources compute_resources = 1;
+    }
     // Cluster size.
     int32 cluster_size = 1;
     // PXC container parameters.
@@ -207,6 +219,8 @@ message UpdateXtraDBClusterRequest {
     bool suspend = 4;
     // Resume cluster `pause: false`.
     bool resume = 5;
+    // HAProxy container parameters.
+    HAProxy haproxy = 6;
   }
   // Cluster parameters.
   UpdateXtraDBClusterParams params = 3;

@@ -266,6 +266,9 @@ type CreateXtraDBClusterParamsBodyParams struct {
 	// Cluster size.
 	ClusterSize int32 `json:"cluster_size,omitempty"`
 
+	// haproxy
+	Haproxy *CreateXtraDBClusterParamsBodyParamsHaproxy `json:"haproxy,omitempty"`
+
 	// proxysql
 	Proxysql *CreateXtraDBClusterParamsBodyParamsProxysql `json:"proxysql,omitempty"`
 
@@ -276,6 +279,10 @@ type CreateXtraDBClusterParamsBodyParams struct {
 // Validate validates this create xtra DB cluster params body params
 func (o *CreateXtraDBClusterParamsBodyParams) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := o.validateHaproxy(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := o.validateProxysql(formats); err != nil {
 		res = append(res, err)
@@ -288,6 +295,24 @@ func (o *CreateXtraDBClusterParamsBodyParams) Validate(formats strfmt.Registry) 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *CreateXtraDBClusterParamsBodyParams) validateHaproxy(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Haproxy) { // not required
+		return nil
+	}
+
+	if o.Haproxy != nil {
+		if err := o.Haproxy.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "params" + "." + "haproxy")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -338,6 +363,104 @@ func (o *CreateXtraDBClusterParamsBodyParams) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *CreateXtraDBClusterParamsBodyParams) UnmarshalBinary(b []byte) error {
 	var res CreateXtraDBClusterParamsBodyParams
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*CreateXtraDBClusterParamsBodyParamsHaproxy HAProxy container parameters.
+// NOTE: HAProxy does not need disk size as ProxySQL because the container does not require it.
+swagger:model CreateXtraDBClusterParamsBodyParamsHaproxy
+*/
+type CreateXtraDBClusterParamsBodyParamsHaproxy struct {
+
+	// Docker image used for HAProxy.
+	Image string `json:"image,omitempty"`
+
+	// compute resources
+	ComputeResources *CreateXtraDBClusterParamsBodyParamsHaproxyComputeResources `json:"compute_resources,omitempty"`
+}
+
+// Validate validates this create xtra DB cluster params body params haproxy
+func (o *CreateXtraDBClusterParamsBodyParamsHaproxy) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateComputeResources(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *CreateXtraDBClusterParamsBodyParamsHaproxy) validateComputeResources(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.ComputeResources) { // not required
+		return nil
+	}
+
+	if o.ComputeResources != nil {
+		if err := o.ComputeResources.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "params" + "." + "haproxy" + "." + "compute_resources")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *CreateXtraDBClusterParamsBodyParamsHaproxy) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *CreateXtraDBClusterParamsBodyParamsHaproxy) UnmarshalBinary(b []byte) error {
+	var res CreateXtraDBClusterParamsBodyParamsHaproxy
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*CreateXtraDBClusterParamsBodyParamsHaproxyComputeResources ComputeResources represents container computer resources requests or limits.
+swagger:model CreateXtraDBClusterParamsBodyParamsHaproxyComputeResources
+*/
+type CreateXtraDBClusterParamsBodyParamsHaproxyComputeResources struct {
+
+	// CPUs in milliCPUs; 1000m = 1 vCPU.
+	CPUm int32 `json:"cpu_m,omitempty"`
+
+	// Memory in bytes.
+	MemoryBytes string `json:"memory_bytes,omitempty"`
+}
+
+// Validate validates this create xtra DB cluster params body params haproxy compute resources
+func (o *CreateXtraDBClusterParamsBodyParamsHaproxyComputeResources) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *CreateXtraDBClusterParamsBodyParamsHaproxyComputeResources) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *CreateXtraDBClusterParamsBodyParamsHaproxyComputeResources) UnmarshalBinary(b []byte) error {
+	var res CreateXtraDBClusterParamsBodyParamsHaproxyComputeResources
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

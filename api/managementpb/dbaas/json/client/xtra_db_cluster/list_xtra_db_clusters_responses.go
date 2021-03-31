@@ -323,6 +323,9 @@ type ClustersItems0Params struct {
 	// Cluster size.
 	ClusterSize int32 `json:"cluster_size,omitempty"`
 
+	// haproxy
+	Haproxy *ClustersItems0ParamsHaproxy `json:"haproxy,omitempty"`
+
 	// proxysql
 	Proxysql *ClustersItems0ParamsProxysql `json:"proxysql,omitempty"`
 
@@ -333,6 +336,10 @@ type ClustersItems0Params struct {
 // Validate validates this clusters items0 params
 func (o *ClustersItems0Params) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := o.validateHaproxy(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := o.validateProxysql(formats); err != nil {
 		res = append(res, err)
@@ -345,6 +352,24 @@ func (o *ClustersItems0Params) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *ClustersItems0Params) validateHaproxy(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Haproxy) { // not required
+		return nil
+	}
+
+	if o.Haproxy != nil {
+		if err := o.Haproxy.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("params" + "." + "haproxy")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -395,6 +420,104 @@ func (o *ClustersItems0Params) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ClustersItems0Params) UnmarshalBinary(b []byte) error {
 	var res ClustersItems0Params
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ClustersItems0ParamsHaproxy HAProxy container parameters.
+// NOTE: HAProxy does not need disk size as ProxySQL because the container does not require it.
+swagger:model ClustersItems0ParamsHaproxy
+*/
+type ClustersItems0ParamsHaproxy struct {
+
+	// Docker image used for HAProxy.
+	Image string `json:"image,omitempty"`
+
+	// compute resources
+	ComputeResources *ClustersItems0ParamsHaproxyComputeResources `json:"compute_resources,omitempty"`
+}
+
+// Validate validates this clusters items0 params haproxy
+func (o *ClustersItems0ParamsHaproxy) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateComputeResources(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ClustersItems0ParamsHaproxy) validateComputeResources(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.ComputeResources) { // not required
+		return nil
+	}
+
+	if o.ComputeResources != nil {
+		if err := o.ComputeResources.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("params" + "." + "haproxy" + "." + "compute_resources")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ClustersItems0ParamsHaproxy) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ClustersItems0ParamsHaproxy) UnmarshalBinary(b []byte) error {
+	var res ClustersItems0ParamsHaproxy
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ClustersItems0ParamsHaproxyComputeResources ComputeResources represents container computer resources requests or limits.
+swagger:model ClustersItems0ParamsHaproxyComputeResources
+*/
+type ClustersItems0ParamsHaproxyComputeResources struct {
+
+	// CPUs in milliCPUs; 1000m = 1 vCPU.
+	CPUm int32 `json:"cpu_m,omitempty"`
+
+	// Memory in bytes.
+	MemoryBytes string `json:"memory_bytes,omitempty"`
+}
+
+// Validate validates this clusters items0 params haproxy compute resources
+func (o *ClustersItems0ParamsHaproxyComputeResources) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ClustersItems0ParamsHaproxyComputeResources) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ClustersItems0ParamsHaproxyComputeResources) UnmarshalBinary(b []byte) error {
+	var res ClustersItems0ParamsHaproxyComputeResources
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

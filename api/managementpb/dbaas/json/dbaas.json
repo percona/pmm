@@ -2212,6 +2212,37 @@
                       "format": "int32",
                       "x-order": 0
                     },
+                    "haproxy": {
+                      "description": "HAProxy container parameters.\nNOTE: HAProxy does not need disk size as ProxySQL because the container does not require it.",
+                      "type": "object",
+                      "properties": {
+                        "compute_resources": {
+                          "description": "ComputeResources represents container computer resources requests or limits.",
+                          "type": "object",
+                          "properties": {
+                            "cpu_m": {
+                              "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 0
+                            },
+                            "memory_bytes": {
+                              "description": "Memory in bytes.",
+                              "type": "string",
+                              "format": "int64",
+                              "x-order": 1
+                            }
+                          },
+                          "x-order": 1
+                        },
+                        "image": {
+                          "description": "Docker image used for HAProxy.",
+                          "type": "string",
+                          "x-order": 0
+                        }
+                      },
+                      "x-order": 3
+                    },
                     "proxysql": {
                       "description": "ProxySQL container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
                       "type": "object",
@@ -2444,6 +2475,37 @@
                       "type": "integer",
                       "format": "int32",
                       "x-order": 0
+                    },
+                    "haproxy": {
+                      "description": "HAProxy container parameters.\nNOTE: HAProxy does not need disk size as ProxySQL because the container does not require it.",
+                      "type": "object",
+                      "properties": {
+                        "compute_resources": {
+                          "description": "ComputeResources represents container computer resources requests or limits.",
+                          "type": "object",
+                          "properties": {
+                            "cpu_m": {
+                              "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 0
+                            },
+                            "memory_bytes": {
+                              "description": "Memory in bytes.",
+                              "type": "string",
+                              "format": "int64",
+                              "x-order": 1
+                            }
+                          },
+                          "x-order": 1
+                        },
+                        "image": {
+                          "description": "Docker image used for HAProxy.",
+                          "type": "string",
+                          "x-order": 0
+                        }
+                      },
+                      "x-order": 3
                     },
                     "proxysql": {
                       "description": "ProxySQL container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
@@ -2715,6 +2777,32 @@
                       "format": "int32",
                       "x-order": 0
                     },
+                    "haproxy": {
+                      "description": "HAProxy container parameters.",
+                      "type": "object",
+                      "properties": {
+                        "compute_resources": {
+                          "description": "ComputeResources represents container computer resources requests or limits.",
+                          "type": "object",
+                          "properties": {
+                            "cpu_m": {
+                              "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 0
+                            },
+                            "memory_bytes": {
+                              "description": "Memory in bytes.",
+                              "type": "string",
+                              "format": "int64",
+                              "x-order": 1
+                            }
+                          },
+                          "x-order": 0
+                        }
+                      },
+                      "x-order": 5
+                    },
                     "proxysql": {
                       "description": "ProxySQL container parameters.",
                       "type": "object",
@@ -2873,23 +2961,23 @@
                   "type": "object",
                   "properties": {
                     "host": {
-                      "description": "ProxySQL host.",
+                      "description": "PXC host.",
                       "type": "string",
                       "x-order": 2
                     },
                     "password": {
-                      "description": "ProxySQL password.",
+                      "description": "PXC password.",
                       "type": "string",
                       "x-order": 1
                     },
                     "port": {
-                      "description": "ProxySQL port.",
+                      "description": "PXC port.",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 3
                     },
                     "username": {
-                      "description": "ProxySQL username.",
+                      "description": "PXC username.",
                       "type": "string",
                       "x-order": 0
                     }
@@ -3016,6 +3104,37 @@
                             "type": "integer",
                             "format": "int32",
                             "x-order": 0
+                          },
+                          "haproxy": {
+                            "description": "HAProxy container parameters.\nNOTE: HAProxy does not need disk size as ProxySQL because the container does not require it.",
+                            "type": "object",
+                            "properties": {
+                              "compute_resources": {
+                                "description": "ComputeResources represents container computer resources requests or limits.",
+                                "type": "object",
+                                "properties": {
+                                  "cpu_m": {
+                                    "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
+                                    "type": "integer",
+                                    "format": "int32",
+                                    "x-order": 0
+                                  },
+                                  "memory_bytes": {
+                                    "description": "Memory in bytes.",
+                                    "type": "string",
+                                    "format": "int64",
+                                    "x-order": 1
+                                  }
+                                },
+                                "x-order": 1
+                              },
+                              "image": {
+                                "description": "Docker image used for HAProxy.",
+                                "type": "string",
+                                "x-order": 0
+                              }
+                            },
+                            "x-order": 3
                           },
                           "proxysql": {
                             "description": "ProxySQL container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
