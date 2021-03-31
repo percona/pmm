@@ -81,6 +81,10 @@ type Settings struct {
 		EmailAlertingSettings *EmailAlertingSettings `json:"email_settings"`
 		SlackAlertingSettings *SlackAlertingSettings `json:"slack_settings"`
 	} `json:"ia"`
+
+	BackupManagement struct {
+		Enabled bool `json:"enabled"`
+	} `json:"backup_management"`
 }
 
 // EmailAlertingSettings represents email settings for Integrated Alerting.

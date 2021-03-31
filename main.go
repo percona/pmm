@@ -147,10 +147,12 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			interceptors.Unary,
+			interceptors.UnaryServiceEnabledInterceptor(),
 			grpc_validator.UnaryServerInterceptor(),
 		)),
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
 			interceptors.Stream,
+			interceptors.StreamServiceEnabledInterceptor(),
 			grpc_validator.StreamServerInterceptor(),
 		)),
 	)

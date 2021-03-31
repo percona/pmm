@@ -21,16 +21,15 @@ import (
 
 	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
 	"github.com/pkg/errors"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
+	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/services"
 )
 
 // ChannelsService represents integrated alerting channels API.
 type ChannelsService struct {
+	l            *logrus.Entry
 	db           *reform.DB
 	alertManager alertManager
 }
@@ -38,22 +37,24 @@ type ChannelsService struct {
 // NewChannelsService creates new channels API service.
 func NewChannelsService(db *reform.DB, alertManager alertManager) *ChannelsService {
 	return &ChannelsService{
+		l:            logrus.WithField("component", "management/ia/channels"),
 		db:           db,
 		alertManager: alertManager,
 	}
 }
 
-// ListChannels returns list of available channels.
-func (s *ChannelsService) ListChannels(ctx context.Context, req *iav1beta1.ListChannelsRequest) (*iav1beta1.ListChannelsResponse, error) {
+// Enabled returns if service is enabled and can be used.
+func (s *ChannelsService) Enabled() bool {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
-		return nil, err
+		s.l.WithError(err).Error("can't get settings")
+		return false
 	}
+	return settings.IntegratedAlerting.Enabled
+}
 
-	if !settings.IntegratedAlerting.Enabled {
-		return nil, status.Errorf(codes.FailedPrecondition, "%v.", services.ErrAlertingDisabled)
-	}
-
+// ListChannels returns list of available channels.
+func (s *ChannelsService) ListChannels(ctx context.Context, req *iav1beta1.ListChannelsRequest) (*iav1beta1.ListChannelsResponse, error) {
 	var pageIndex int
 	var pageSize int
 	if req.PageParams != nil {
@@ -66,6 +67,7 @@ func (s *ChannelsService) ListChannels(ctx context.Context, req *iav1beta1.ListC
 		TotalPages: 1,
 	}
 
+	var err error
 	if pageSize == 0 {
 		channels, err = s.getNotificationChannels()
 		pageTotals.TotalItems = int32(len(channels))
@@ -152,15 +154,6 @@ func (s *ChannelsService) getNotificationChannelsPage(pageIndex, pageSize int) (
 
 // AddChannel adds new notification channel.
 func (s *ChannelsService) AddChannel(ctx context.Context, req *iav1beta1.AddChannelRequest) (*iav1beta1.AddChannelResponse, error) {
-	settings, err := models.GetSettings(s.db)
-	if err != nil {
-		return nil, err
-	}
-
-	if !settings.IntegratedAlerting.Enabled {
-		return nil, status.Errorf(codes.FailedPrecondition, "%v.", services.ErrAlertingDisabled)
-	}
-
 	params := &models.CreateChannelParams{
 		Summary:  req.Summary,
 		Disabled: req.Disabled,
@@ -211,15 +204,6 @@ func (s *ChannelsService) AddChannel(ctx context.Context, req *iav1beta1.AddChan
 
 // ChangeChannel changes existing notification channel.
 func (s *ChannelsService) ChangeChannel(ctx context.Context, req *iav1beta1.ChangeChannelRequest) (*iav1beta1.ChangeChannelResponse, error) {
-	settings, err := models.GetSettings(s.db)
-	if err != nil {
-		return nil, err
-	}
-
-	if !settings.IntegratedAlerting.Enabled {
-		return nil, status.Errorf(codes.FailedPrecondition, "%v.", services.ErrAlertingDisabled)
-	}
-
 	params := &models.ChangeChannelParams{
 		Summary:  req.Summary,
 		Disabled: req.Disabled,
@@ -268,15 +252,6 @@ func (s *ChannelsService) ChangeChannel(ctx context.Context, req *iav1beta1.Chan
 
 // RemoveChannel removes notification channel.
 func (s *ChannelsService) RemoveChannel(ctx context.Context, req *iav1beta1.RemoveChannelRequest) (*iav1beta1.RemoveChannelResponse, error) {
-	settings, err := models.GetSettings(s.db)
-	if err != nil {
-		return nil, err
-	}
-
-	if !settings.IntegratedAlerting.Enabled {
-		return nil, status.Errorf(codes.FailedPrecondition, "%v.", services.ErrAlertingDisabled)
-	}
-
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		return models.RemoveChannel(tx.Querier, req.ChannelId)
 	})

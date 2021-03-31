@@ -23,6 +23,7 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
@@ -30,14 +31,26 @@ import (
 
 // ArtifactsService represents artifacts API.
 type ArtifactsService struct {
+	l  *logrus.Entry
 	db *reform.DB
 }
 
 // NewArtifactsService creates new artifacts API service.
 func NewArtifactsService(db *reform.DB) *ArtifactsService {
 	return &ArtifactsService{
+		l:  logrus.WithField("component", "management/backup/artifacts"),
 		db: db,
 	}
+}
+
+// Enabled returns if service is enabled and can be used.
+func (s *ArtifactsService) Enabled() bool {
+	settings, err := models.GetSettings(s.db)
+	if err != nil {
+		s.l.WithError(err).Error("can't get settings")
+		return false
+	}
+	return settings.BackupManagement.Enabled
 }
 
 // ListArtifacts returns a list of all artifacts.

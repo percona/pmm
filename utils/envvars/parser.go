@@ -124,6 +124,11 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 			if err != nil {
 				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
 			}
+		case "ENABLE_BACKUP_MANAGEMENT":
+			envSettings.EnableBackupManagement, err = strconv.ParseBool(v)
+			if err != nil {
+				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+			}
 
 		case "PERCONA_TEST_AUTH_HOST", "PERCONA_TEST_CHECKS_HOST", "PERCONA_TEST_TELEMETRY_HOST":
 			err = fmt.Errorf("environment variable %q is removed and replaced by %q", k, envSaaSHost)

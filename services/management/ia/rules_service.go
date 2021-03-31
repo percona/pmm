@@ -38,7 +38,6 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/services"
 	"github.com/percona/pmm-managed/utils/dir"
 	"github.com/percona/pmm-managed/utils/stringset"
 )
@@ -74,6 +73,16 @@ func NewRulesService(db *reform.DB, templates *TemplatesService, vmalert vmAlert
 		alertManager: alertManager,
 		rulesPath:    rulesDir,
 	}
+}
+
+// Enabled returns if service is enabled and can be used.
+func (s *RulesService) Enabled() bool {
+	settings, err := models.GetSettings(s.db)
+	if err != nil {
+		s.l.WithError(err).Error("can't get settings")
+		return false
+	}
+	return settings.IntegratedAlerting.Enabled
 }
 
 // TODO Move this and related types to https://github.com/percona/promconfig
@@ -252,22 +261,13 @@ func (s *RulesService) writeRuleFile(rule *ruleFile) error {
 
 // ListAlertRules returns a list of all Integrated Alerting rules.
 func (s *RulesService) ListAlertRules(ctx context.Context, req *iav1beta1.ListAlertRulesRequest) (*iav1beta1.ListAlertRulesResponse, error) {
-	settings, err := models.GetSettings(s.db)
-	if err != nil {
-		return nil, err
-	}
-
-	if !settings.IntegratedAlerting.Enabled {
-		return nil, status.Errorf(codes.FailedPrecondition, "%v.", services.ErrAlertingDisabled)
-	}
-
 	var pageIndex int
 	var pageSize int
 	if req.PageParams != nil {
 		pageIndex = int(req.PageParams.Index)
 		pageSize = int(req.PageParams.PageSize)
 	}
-
+	var err error
 	var rules []*iav1beta1.Rule
 	pageTotals := &iav1beta1.PageTotals{
 		TotalPages: 1,
@@ -391,15 +391,6 @@ func (s *RulesService) getAlertRules() ([]*iav1beta1.Rule, error) {
 
 // CreateAlertRule creates Integrated Alerting rule.
 func (s *RulesService) CreateAlertRule(ctx context.Context, req *iav1beta1.CreateAlertRuleRequest) (*iav1beta1.CreateAlertRuleResponse, error) {
-	settings, err := models.GetSettings(s.db)
-	if err != nil {
-		return nil, err
-	}
-
-	if !settings.IntegratedAlerting.Enabled {
-		return nil, status.Errorf(codes.FailedPrecondition, "%v.", services.ErrAlertingDisabled)
-	}
-
 	params := &models.CreateRuleParams{
 		TemplateName: req.TemplateName,
 		Summary:      req.Summary,
@@ -410,6 +401,7 @@ func (s *RulesService) CreateAlertRule(ctx context.Context, req *iav1beta1.Creat
 		ChannelIDs:   req.ChannelIds,
 	}
 
+	var err error
 	params.Filters, err = convertFiltersToModel(req.Filters)
 	if err != nil {
 		return nil, err
@@ -517,15 +509,6 @@ func (s *RulesService) processRuleParameters(param []*iav1beta1.RuleParam, templ
 
 // UpdateAlertRule updates Integrated Alerting rule.
 func (s *RulesService) UpdateAlertRule(ctx context.Context, req *iav1beta1.UpdateAlertRuleRequest) (*iav1beta1.UpdateAlertRuleResponse, error) {
-	settings, err := models.GetSettings(s.db)
-	if err != nil {
-		return nil, err
-	}
-
-	if !settings.IntegratedAlerting.Enabled {
-		return nil, status.Errorf(codes.FailedPrecondition, "%v.", services.ErrAlertingDisabled)
-	}
-
 	params := &models.ChangeRuleParams{
 		Summary:      req.Summary,
 		Disabled:     req.Disabled,
@@ -572,15 +555,6 @@ func (s *RulesService) UpdateAlertRule(ctx context.Context, req *iav1beta1.Updat
 
 // ToggleAlertRule allows to switch between disabled and enabled states of an Alert Rule.
 func (s *RulesService) ToggleAlertRule(ctx context.Context, req *iav1beta1.ToggleAlertRuleRequest) (*iav1beta1.ToggleAlertRuleResponse, error) {
-	settings, err := models.GetSettings(s.db)
-	if err != nil {
-		return nil, err
-	}
-
-	if !settings.IntegratedAlerting.Enabled {
-		return nil, status.Errorf(codes.FailedPrecondition, "%v.", services.ErrAlertingDisabled)
-	}
-
 	var params models.ToggleRuleParams
 	switch req.Disabled {
 	case iav1beta1.BooleanFlag_TRUE:
@@ -610,15 +584,6 @@ func (s *RulesService) ToggleAlertRule(ctx context.Context, req *iav1beta1.Toggl
 
 // DeleteAlertRule deletes Integrated Alerting rule.
 func (s *RulesService) DeleteAlertRule(ctx context.Context, req *iav1beta1.DeleteAlertRuleRequest) (*iav1beta1.DeleteAlertRuleResponse, error) {
-	settings, err := models.GetSettings(s.db)
-	if err != nil {
-		return nil, err
-	}
-
-	if !settings.IntegratedAlerting.Enabled {
-		return nil, status.Errorf(codes.FailedPrecondition, "%v.", services.ErrAlertingDisabled)
-	}
-
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		return models.RemoveRule(tx.Querier, req.RuleId)
 	})

@@ -39,7 +39,6 @@ import (
 
 	"github.com/percona/pmm-managed/data"
 	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/services"
 	"github.com/percona/pmm-managed/utils/dir"
 )
 
@@ -81,6 +80,16 @@ func NewTemplatesService(db *reform.DB) *TemplatesService {
 		userTemplatesPath: templatesDir + "/*.yml",
 		templates:         make(map[string]templateInfo),
 	}
+}
+
+// Enabled returns if service is enabled and can be used.
+func (s *TemplatesService) Enabled() bool {
+	settings, err := models.GetSettings(s.db)
+	if err != nil {
+		s.l.WithError(err).Error("can't get settings")
+		return false
+	}
+	return settings.IntegratedAlerting.Enabled
 }
 
 func newParamTemplate() *template.Template {
@@ -362,15 +371,6 @@ func convertParamType(t alert.Type) iav1beta1.ParamType {
 
 // ListTemplates returns a list of all collected Alert Rule Templates.
 func (s *TemplatesService) ListTemplates(ctx context.Context, req *iav1beta1.ListTemplatesRequest) (*iav1beta1.ListTemplatesResponse, error) {
-	settings, err := models.GetSettings(s.db)
-	if err != nil {
-		return nil, err
-	}
-
-	if !settings.IntegratedAlerting.Enabled {
-		return nil, status.Errorf(codes.FailedPrecondition, "%v.", services.ErrAlertingDisabled)
-	}
-
 	var pageIndex int
 	var pageSize int
 	if req.PageParams != nil {
@@ -423,15 +423,6 @@ func (s *TemplatesService) ListTemplates(ctx context.Context, req *iav1beta1.Lis
 
 // CreateTemplate creates a new template.
 func (s *TemplatesService) CreateTemplate(ctx context.Context, req *iav1beta1.CreateTemplateRequest) (*iav1beta1.CreateTemplateResponse, error) {
-	settings, err := models.GetSettings(s.db)
-	if err != nil {
-		return nil, err
-	}
-
-	if !settings.IntegratedAlerting.Enabled {
-		return nil, status.Errorf(codes.FailedPrecondition, "%v.", services.ErrAlertingDisabled)
-	}
-
 	pParams := &alert.ParseParams{
 		DisallowUnknownFields:    true,
 		DisallowInvalidTemplates: true,
@@ -475,15 +466,6 @@ func (s *TemplatesService) CreateTemplate(ctx context.Context, req *iav1beta1.Cr
 
 // UpdateTemplate updates existing template, previously created via API.
 func (s *TemplatesService) UpdateTemplate(ctx context.Context, req *iav1beta1.UpdateTemplateRequest) (*iav1beta1.UpdateTemplateResponse, error) {
-	settings, err := models.GetSettings(s.db)
-	if err != nil {
-		return nil, err
-	}
-
-	if !settings.IntegratedAlerting.Enabled {
-		return nil, status.Errorf(codes.FailedPrecondition, "%v.", services.ErrAlertingDisabled)
-	}
-
 	parseParams := &alert.ParseParams{
 		DisallowUnknownFields:    true,
 		DisallowInvalidTemplates: true,
@@ -527,15 +509,6 @@ func (s *TemplatesService) UpdateTemplate(ctx context.Context, req *iav1beta1.Up
 
 // DeleteTemplate deletes existing, previously created via API.
 func (s *TemplatesService) DeleteTemplate(ctx context.Context, req *iav1beta1.DeleteTemplateRequest) (*iav1beta1.DeleteTemplateResponse, error) {
-	settings, err := models.GetSettings(s.db)
-	if err != nil {
-		return nil, err
-	}
-
-	if !settings.IntegratedAlerting.Enabled {
-		return nil, status.Errorf(codes.FailedPrecondition, "%v.", services.ErrAlertingDisabled)
-	}
-
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		return models.RemoveTemplate(tx.Querier, req.Name)
 	})
