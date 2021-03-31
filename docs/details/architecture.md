@@ -52,4 +52,6 @@ The PMM Client package consist of the following:
 - `proxysql_exporter` is an exporter that collects ProxySQL performance metrics.
 - `rds_exporter` is an exporter that collects Amazon RDS performance metrics.
 
+- `azure_database_exporter` is an exporter that collects Azure database performance metrics.
+
 To make data transfer from PMM Client to PMM Server secure, all exporters are able to use SSL/TLS encrypted connections, and their communication with the PMM server is protected by the HTTP basic authentication.
