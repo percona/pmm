@@ -123,8 +123,14 @@ type PlatformSignUpBody struct {
 	// New Percona Platform user's email.
 	Email string `json:"email,omitempty"`
 
-	// New Percona Platform user's password.
+	// Existing Percona Platform user's password.
 	Password string `json:"password,omitempty"`
+
+	// New Percona Platform user's first name.
+	FirstName string `json:"first_name,omitempty"`
+
+	// New Percona Platform user's last name.
+	LastName string `json:"last_name,omitempty"`
 }
 
 // Validate validates this platform sign up body

@@ -262,8 +262,12 @@ message PlatformSignUpRequest {
       string_not_empty: true
     }
   ];
-  // New Percona Platform user's password.
-  string password = 2;
+  // Existing Percona Platform user's password.
+  string password = 2 [deprecated = true];
+  // New Percona Platform user's first name.
+  string first_name = 3;
+  // New Percona Platform user's last name.
+  string last_name = 4;
 }
 
 message PlatformSignUpResponse {}

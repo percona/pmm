@@ -357,6 +357,9 @@ type GetPSMDBClusterResourcesParamsBodyParams struct {
 	// Cluster size.
 	ClusterSize int32 `json:"cluster_size,omitempty"`
 
+	// Docker image used for PSMDB.
+	Image string `json:"image,omitempty"`
+
 	// replicaset
 	Replicaset *GetPSMDBClusterResourcesParamsBodyParamsReplicaset `json:"replicaset,omitempty"`
 }
