@@ -12,7 +12,6 @@ import (
 
 	"github.com/percona/pmm/api/managementpb/json/client/actions"
 	"github.com/percona/pmm/api/managementpb/json/client/annotation"
-	"github.com/percona/pmm/api/managementpb/json/client/azure_database"
 	"github.com/percona/pmm/api/managementpb/json/client/external"
 	"github.com/percona/pmm/api/managementpb/json/client/ha_proxy"
 	"github.com/percona/pmm/api/managementpb/json/client/mongo_db"
@@ -69,7 +68,6 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMManagem
 	cli.Transport = transport
 	cli.Actions = actions.New(transport, formats)
 	cli.Annotation = annotation.New(transport, formats)
-	cli.AzureDatabase = azure_database.New(transport, formats)
 	cli.External = external.New(transport, formats)
 	cli.HAProxy = ha_proxy.New(transport, formats)
 	cli.MongoDB = mongo_db.New(transport, formats)
@@ -128,8 +126,6 @@ type PMMManagement struct {
 
 	Annotation annotation.ClientService
 
-	AzureDatabase azure_database.ClientService
-
 	External external.ClientService
 
 	HAProxy ha_proxy.ClientService
@@ -158,7 +154,6 @@ func (c *PMMManagement) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
 	c.Actions.SetTransport(transport)
 	c.Annotation.SetTransport(transport)
-	c.AzureDatabase.SetTransport(transport)
 	c.External.SetTransport(transport)
 	c.HAProxy.SetTransport(transport)
 	c.MongoDB.SetTransport(transport)
