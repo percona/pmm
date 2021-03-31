@@ -351,6 +351,9 @@ swagger:model CreateXtraDBClusterParamsBodyParamsProxysql
 */
 type CreateXtraDBClusterParamsBodyParamsProxysql struct {
 
+	// Docker image used for ProxySQL.
+	Image string `json:"image,omitempty"`
+
 	// Disk size in bytes.
 	DiskSize string `json:"disk_size,omitempty"`
 
@@ -448,6 +451,9 @@ func (o *CreateXtraDBClusterParamsBodyParamsProxysqlComputeResources) UnmarshalB
 swagger:model CreateXtraDBClusterParamsBodyParamsPxc
 */
 type CreateXtraDBClusterParamsBodyParamsPxc struct {
+
+	// Docker image used for PXC.
+	Image string `json:"image,omitempty"`
 
 	// Disk size in bytes.
 	DiskSize string `json:"disk_size,omitempty"`
