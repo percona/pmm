@@ -31,7 +31,7 @@ func (this *Matrix) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-func (this *Version) Validate() error {
+func (this *OperatorVersion) Validate() error {
 	if this.Matrix != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Matrix); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Matrix", err)
@@ -65,10 +65,20 @@ func (this *GetPXCComponentsResponse) Validate() error {
 	}
 	return nil
 }
-func (this *SetComponent) Validate() error {
+func (this *ChangeComponent) Validate() error {
+	for _, item := range this.Versions {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Versions", err)
+			}
+		}
+	}
 	return nil
 }
-func (this *SetPSMDBComponentsRequest) Validate() error {
+func (this *ChangeComponent_ComponentVersion) Validate() error {
+	return nil
+}
+func (this *ChangePSMDBComponentsRequest) Validate() error {
 	if this.KubernetesClusterName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
 	}
@@ -79,10 +89,10 @@ func (this *SetPSMDBComponentsRequest) Validate() error {
 	}
 	return nil
 }
-func (this *SetPSMDBComponentsResponse) Validate() error {
+func (this *ChangePSMDBComponentsResponse) Validate() error {
 	return nil
 }
-func (this *SetPXCComponentsRequest) Validate() error {
+func (this *ChangePXCComponentsRequest) Validate() error {
 	if this.KubernetesClusterName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
 	}
@@ -98,6 +108,6 @@ func (this *SetPXCComponentsRequest) Validate() error {
 	}
 	return nil
 }
-func (this *SetPXCComponentsResponse) Validate() error {
+func (this *ChangePXCComponentsResponse) Validate() error {
 	return nil
 }
