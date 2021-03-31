@@ -400,7 +400,7 @@ sudo pmm-admin add mysql --query-source=perfschema --username=pmm --password=pas
 
 **Examples -- Identifying services**
 
-Default query source (`slowlog`), environment labelled `test`, custom labels setting `source` to `slowlog`. (This example uses positional parameters for service name and service address.)
+Default query source (`slowlog`), environment labeled `test`, custom labels setting `source` to `slowlog`. (This example uses positional parameters for service name and service address.)
 
 ```sh
 pmm-admin add mysql --environment=test --custom-labels='source=slowlog'  --username=root --password=password --query-source=slowlog MySQLSlowLog localhost:3306
