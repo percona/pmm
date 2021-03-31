@@ -47,3 +47,9 @@ won't receive any query data.
 For PostgreSQL follow the same methods used for MySQL and MariaDB and enable `track_io_timing` in the instance configuration to enable Query Analytics.
 
 ![image](../../_images/azure-postgresql-config.png)
+
+For Query Analytics, set the server parameter:
+
+```ini
+pg_stat_statements.track = all
+```
