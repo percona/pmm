@@ -76,6 +76,9 @@ func (this *ChangeComponent) Validate() error {
 	return nil
 }
 func (this *ChangeComponent_ComponentVersion) Validate() error {
+	if this.Version == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Version", fmt.Errorf(`value '%v' must not be an empty string`, this.Version))
+	}
 	return nil
 }
 func (this *ChangePSMDBComponentsRequest) Validate() error {

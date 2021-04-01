@@ -65,7 +65,11 @@ message ChangeComponent {
   string default_version = 1;
   // ComponentVersion contains operations which should be done with component version.
   message ComponentVersion {
-    string version = 1;
+    string version = 1 [
+      (validator.field) = {
+        string_not_empty: true
+      }
+    ];
     bool disable = 2;
     bool enable = 3;
   }
