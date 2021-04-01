@@ -69,7 +69,7 @@ type alertmanagerService interface {
 // checksService is a subset of methods of checks.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type checksService interface {
-	StartChecks(ctx context.Context, interval check.Interval) error
+	StartChecks(ctx context.Context, group check.Interval, checkNames []string) error
 	CleanupAlerts()
 	UpdateIntervals(rare, standard, frequent time.Duration)
 }

@@ -31,28 +31,59 @@ import (
 
 // registry stores alerts and delay information by IDs.
 type registry struct {
-	rw           sync.RWMutex
-	checkResults map[check.Interval][]sttCheckResult
-	alertTTL     time.Duration
-	nowF         func() time.Time // for tests
+	rw sync.RWMutex
+	// Results stored grouped by interval and by check name. It allows us to remove results for specific group.
+	checkResults map[check.Interval]map[string][]sttCheckResult
+
+	alertTTL time.Duration
+	nowF     func() time.Time // for tests
 }
 
 // newRegistry creates a new registry.
 func newRegistry(alertTTL time.Duration) *registry {
 	return &registry{
-		checkResults: make(map[check.Interval][]sttCheckResult),
+		checkResults: make(map[check.Interval]map[string][]sttCheckResult),
 		alertTTL:     alertTTL,
 		nowF:         time.Now,
 	}
 }
 
-// set replaces stored checkResults with a copy of given ones for specified interval.
-func (r *registry) set(interval check.Interval, checkResults []sttCheckResult) {
+// set adds check results.
+func (r *registry) set(checkResults []sttCheckResult) {
 	r.rw.Lock()
 	defer r.rw.Unlock()
 
-	r.checkResults[interval] = make([]sttCheckResult, len(checkResults))
-	copy(r.checkResults[interval], checkResults)
+	for _, result := range checkResults {
+		// Empty interval means standard.
+		if result.interval == "" {
+			result.interval = check.Standard
+		}
+
+		if _, ok := r.checkResults[result.interval]; !ok {
+			r.checkResults[result.interval] = make(map[string][]sttCheckResult)
+		}
+
+		r.checkResults[result.interval][result.checkName] = append(r.checkResults[result.interval][result.checkName], result)
+	}
+}
+
+// deleteByName removes results for specified checks.
+func (r *registry) deleteByName(checkNames []string) {
+	r.rw.Lock()
+	defer r.rw.Unlock()
+	for _, intervalGroup := range r.checkResults {
+		for _, name := range checkNames {
+			delete(intervalGroup, name)
+		}
+	}
+}
+
+// deleteByInterval removes results for specified interval.
+func (r *registry) deleteByInterval(interval check.Interval) {
+	r.rw.Lock()
+	defer r.rw.Unlock()
+
+	delete(r.checkResults, interval)
 }
 
 // cleanup removes all stt results form registry.
@@ -60,7 +91,7 @@ func (r *registry) cleanup() {
 	r.rw.Lock()
 	defer r.rw.Unlock()
 
-	r.checkResults = make(map[check.Interval][]sttCheckResult)
+	r.checkResults = make(map[check.Interval]map[string][]sttCheckResult)
 }
 
 // collect returns a slice of alerts created from the stored check results.
@@ -69,9 +100,11 @@ func (r *registry) collect() ammodels.PostableAlerts {
 	defer r.rw.RUnlock()
 
 	var alerts ammodels.PostableAlerts
-	for _, group := range r.checkResults {
-		for _, checkResult := range group {
-			alerts = append(alerts, r.createAlert(checkResult.checkName, &checkResult.target, &checkResult.result, r.alertTTL))
+	for _, intervalGroup := range r.checkResults {
+		for _, checkNameGroup := range intervalGroup {
+			for _, checkResult := range checkNameGroup {
+				alerts = append(alerts, r.createAlert(checkResult.checkName, &checkResult.target, &checkResult.result, r.alertTTL))
+			}
 		}
 	}
 	return alerts
@@ -81,12 +114,14 @@ func (r *registry) getCheckResults() []sttCheckResult {
 	r.rw.RLock()
 	defer r.rw.RUnlock()
 
-	var checkResults []sttCheckResult
-	for _, group := range r.checkResults {
-		checkResults = append(checkResults, group...)
+	var results []sttCheckResult
+	for _, intervalGroup := range r.checkResults {
+		for _, checkNameGroup := range intervalGroup {
+			results = append(results, checkNameGroup...)
+		}
 	}
 
-	return checkResults
+	return results
 }
 
 func (r *registry) createAlert(name string, target *target, result *check.Result, alertTTL time.Duration) *ammodels.PostableAlert {

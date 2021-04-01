@@ -260,7 +260,7 @@
   version = "v1.3.1"
 
 [[projects]]
-  digest = "1:5c33f5bfab7e87b5d6243f713208ae953aa708eeb83d23642c608edd7d526f49"
+  digest = "1:e3ac40cb5056345c277e16b24cb36407718e9fb6f0d48b3cae4eaec6d7f8e008"
   name = "github.com/golang/protobuf"
   packages = [
     "descriptor",
@@ -270,6 +270,7 @@
     "ptypes",
     "ptypes/any",
     "ptypes/duration",
+    "ptypes/struct",
     "ptypes/timestamp",
     "ptypes/wrappers",
   ]
@@ -305,10 +306,11 @@
   version = "v1.2.0"
 
 [[projects]]
-  digest = "1:2a682a0b8b991a25578a6a7cd7f6cc6350c127732e8e58bec530f2f0dff236cf"
+  digest = "1:bdaff8ba3ebb58f2debf644055a3bb9f14938f3b22bfacfbe543102e52f359b7"
   name = "github.com/grpc-ecosystem/grpc-gateway"
   packages = [
     "internal",
+    "protoc-gen-swagger/options",
     "runtime",
     "utilities",
   ]
@@ -448,7 +450,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:ce5c6a61db5604be15776af8e699bb9091240f57abc3c170a72cdf25fef7e54d"
+  digest = "1:a260506501a97c66b1a0f10fcc8f4698823e12b979dcf430554f4b8ed55a9637"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentpb",
@@ -473,7 +475,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "9c58412d1b42b2996e6e042fbd80516706cabd6e"
+  revision = "94fed37f0118fe963ee5dd67fed1087b030f7dbc"
 
 [[projects]]
   digest = "1:65230c46134944510adb8844cf4098b5c9fdd1dd11992c3980afc1d3e0c8e4bd"
@@ -810,7 +812,7 @@
   version = "v1.32.0"
 
 [[projects]]
-  digest = "1:a6bca15378a84c9edbc6a46779f626103e13cc7504d66a113a211f407720f840"
+  digest = "1:648f512fb65061c60482c7475d8ce146785e2e527f1b0b01d7187563e2d82129"
   name = "google.golang.org/protobuf"
   packages = [
     "encoding/protojson",
@@ -845,6 +847,7 @@
     "types/descriptorpb",
     "types/known/anypb",
     "types/known/durationpb",
+    "types/known/structpb",
     "types/known/timestamppb",
     "types/known/wrapperspb",
   ]

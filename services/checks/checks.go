@@ -242,8 +242,8 @@ func (s *Service) resendAlerts(ctx context.Context) {
 
 // restartChecks restarts checks until ctx is canceled.
 func (s *Service) restartChecks(ctx context.Context) {
-	// First checks run.
-	err := s.StartChecks(ctx, "") // start all checks
+	// First checks run, start all checks from all groups.
+	err := s.StartChecks(ctx, "", nil) // start all checks
 
 	for {
 		switch err {
@@ -259,11 +259,14 @@ func (s *Service) restartChecks(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-s.rareTicker.C:
-			err = s.StartChecks(ctx, check.Rare)
+			// Start all checks from rare group.
+			err = s.StartChecks(ctx, check.Rare, nil)
 		case <-s.standardTicker.C:
-			err = s.StartChecks(ctx, check.Standard)
+			// Start all checks from standard group.
+			err = s.StartChecks(ctx, check.Standard, nil)
 		case <-s.frequentTicker.C:
-			err = s.StartChecks(ctx, check.Frequent)
+			// Start all checks from frequent group.
+			err = s.StartChecks(ctx, check.Frequent, nil)
 		}
 	}
 }
@@ -288,9 +291,9 @@ func (s *Service) GetSecurityCheckResults() ([]check.Result, error) {
 	return checkResults, nil
 }
 
-// StartChecks triggers STT checks downloading and execution. Interval specifies what checks group to start, empty
-// interval means "start everything". It returns services.ErrSTTDisabled if STT is disabled.
-func (s *Service) StartChecks(ctx context.Context, interval check.Interval) error {
+// StartChecks triggers STT checks downloading and execution. If intervalGroup specified only checks from that group
+// will be executed. If checkNames specified then only matched checks will be executed.
+func (s *Service) StartChecks(ctx context.Context, intervalGroup check.Interval, checkNames []string) error {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
 		return errors.WithStack(err)
@@ -300,7 +303,7 @@ func (s *Service) StartChecks(ctx context.Context, interval check.Interval) erro
 		return services.ErrSTTDisabled
 	}
 
-	if err = interval.Validate(); err != nil {
+	if err = intervalGroup.Validate(); err != nil {
 		return errors.WithStack(err)
 	}
 
@@ -309,7 +312,7 @@ func (s *Service) StartChecks(ctx context.Context, interval check.Interval) erro
 
 	s.collectChecks(nCtx)
 
-	if err = s.executeChecks(nCtx, interval); err != nil {
+	if err = s.executeChecks(nCtx, intervalGroup, checkNames); err != nil {
 		return errors.WithStack(err)
 	}
 
@@ -474,11 +477,46 @@ func (s *Service) minPMMAgentVersion(t check.Type) *version.Parsed {
 	}
 }
 
-// executeChecks runs all available checks for all reachable services. Interval specifies from what
-// group to execute checks, empty interval means "execute everything".
-func (s *Service) executeChecks(ctx context.Context, interval check.Interval) error {
-	s.l.Infof("Executing %s checks...", interval)
+// filterChecks filters checks by several parameters. If group specified then only matched checks will be returned,
+// empty group means `any interval`. If enable slice is specified then only matched checks will be returned, empty
+// enable slice means `all enabled`. Checks specified in disabled slice are skipped, empty `disabled` slice means
+// `nothing disabled`.
+func (s *Service) filterChecks(checks []check.Check, group check.Interval, disable, enable []string) []check.Check {
+	var res []check.Check
+	disableMap := make(map[string]struct{}, len(disable))
+	for _, e := range disable {
+		disableMap[e] = struct{}{}
+	}
 
+	enableMap := make(map[string]struct{}, len(enable))
+	for _, e := range enable {
+		enableMap[e] = struct{}{}
+	}
+
+	for _, c := range checks {
+		// If empty group passed, which means `any group`
+		// or check has required interval
+		// or check has empty interval and required interval is `standard`.
+		if group == "" || c.Interval == group || (group == check.Standard && c.Interval == "") {
+			// If check enabled explicitly or all checks enabled by passing empty `enable` slice.
+			if _, ok := enableMap[c.Name]; ok || len(enableMap) == 0 {
+				// Filter disabled checks.
+				if _, ok := disableMap[c.Name]; ok {
+					s.l.Warnf("Check %s is disabled, skipping it.", c.Name)
+					continue
+				}
+
+				res = append(res, c)
+			}
+		}
+	}
+
+	return res
+}
+
+// executeChecks runs checks for all reachable services. If intervalGroup specified only checks from that group will be
+// executed. If checkNames specified then only matched checks will be executed.
+func (s *Service) executeChecks(ctx context.Context, intervalGroup check.Interval, checkNames []string) error {
 	disabledChecks, err := s.GetDisabledChecks()
 	if err != nil {
 		return errors.WithStack(err)
@@ -486,37 +524,39 @@ func (s *Service) executeChecks(ctx context.Context, interval check.Interval) er
 
 	var checkResults []sttCheckResult
 
-	mySQLCheckResults := s.executeMySQLChecks(ctx, interval, disabledChecks)
+	mySQLChecks := s.filterChecks(s.getMySQLChecks(), intervalGroup, disabledChecks, checkNames)
+	mySQLCheckResults := s.executeMySQLChecks(ctx, mySQLChecks)
 	checkResults = append(checkResults, mySQLCheckResults...)
 
-	postgreSQLCheckResults := s.executePostgreSQLChecks(ctx, interval, disabledChecks)
+	postgreSQLChecks := s.filterChecks(s.getPostgreSQLChecks(), intervalGroup, disabledChecks, checkNames)
+	postgreSQLCheckResults := s.executePostgreSQLChecks(ctx, postgreSQLChecks)
 	checkResults = append(checkResults, postgreSQLCheckResults...)
 
-	mongoDBCheckResults := s.executeMongoDBChecks(ctx, interval, disabledChecks)
+	mongoDBChecks := s.filterChecks(s.getMongoDBChecks(), intervalGroup, disabledChecks, checkNames)
+	mongoDBCheckResults := s.executeMongoDBChecks(ctx, mongoDBChecks)
 	checkResults = append(checkResults, mongoDBCheckResults...)
 
-	s.alertsRegistry.set(interval, checkResults)
+	switch {
+	case len(checkNames) != 0:
+		// If we run some specific checks, delete previous results for them.
+		s.alertsRegistry.deleteByName(checkNames)
+	case intervalGroup != "":
+		// If we run whole interval group, delete previous results for that group.
+		s.alertsRegistry.deleteByInterval(intervalGroup)
+	default:
+		// If we run all checks, delete all previous results.
+		s.alertsRegistry.cleanup()
+	}
+
+	s.alertsRegistry.set(checkResults)
 
 	return nil
 }
 
-// executeMySQLChecks runs MySQL checks for available MySQL services. Interval specifies from what
-// group to execute checks, empty interval means "execute everything".
-func (s *Service) executeMySQLChecks(ctx context.Context, interval check.Interval, except []string) []sttCheckResult {
-	m := make(map[string]struct{}, len(except))
-	for _, e := range except {
-		m[e] = struct{}{}
-	}
-
-	checks := filterChecksByInterval(s.getMySQLChecks(), interval)
-
+// executeMySQLChecks runs specified checks for available MySQL service.
+func (s *Service) executeMySQLChecks(ctx context.Context, checks []check.Check) []sttCheckResult {
 	var res []sttCheckResult
 	for _, c := range checks {
-		if _, ok := m[c.Name]; ok {
-			s.l.Debugf("Skipping disabled mySQL check %s", c.Name)
-			continue
-		}
-
 		pmmAgentVersion := s.minPMMAgentVersion(c.Type)
 		targets, err := s.findTargets(models.MySQLServiceType, pmmAgentVersion)
 		if err != nil {
@@ -563,23 +603,10 @@ func (s *Service) executeMySQLChecks(ctx context.Context, interval check.Interva
 	return res
 }
 
-// executePostgreSQLChecks runs PostgreSQL checks for available PostgreSQL services. Interval specifies from what
-// group to execute checks, empty interval means "execute everything".
-func (s *Service) executePostgreSQLChecks(ctx context.Context, interval check.Interval, except []string) []sttCheckResult {
-	m := make(map[string]struct{}, len(except))
-	for _, e := range except {
-		m[e] = struct{}{}
-	}
-
-	checks := filterChecksByInterval(s.getPostgreSQLChecks(), interval)
-
+// executePostgreSQLChecks runs specified PostgreSQL checks for available PostgreSQL services.
+func (s *Service) executePostgreSQLChecks(ctx context.Context, checks []check.Check) []sttCheckResult {
 	var res []sttCheckResult
 	for _, c := range checks {
-		if _, ok := m[c.Name]; ok {
-			s.l.Debugf("Skipping disabled postgreSQL check %s", c.Name)
-			continue
-		}
-
 		pmmAgentVersion := s.minPMMAgentVersion(c.Type)
 		targets, err := s.findTargets(models.PostgreSQLServiceType, pmmAgentVersion)
 		if err != nil {
@@ -626,22 +653,10 @@ func (s *Service) executePostgreSQLChecks(ctx context.Context, interval check.In
 	return res
 }
 
-// executeMongoDBChecks runs MongoDB checks for available MongoDB services.
-func (s *Service) executeMongoDBChecks(ctx context.Context, interval check.Interval, except []string) []sttCheckResult {
-	m := make(map[string]struct{}, len(except))
-	for _, e := range except {
-		m[e] = struct{}{}
-	}
-
-	checks := filterChecksByInterval(s.getMongoDBChecks(), interval)
-
+// executeMongoDBChecks runs specified MongoDB checks for available MongoDB services.
+func (s *Service) executeMongoDBChecks(ctx context.Context, checks []check.Check) []sttCheckResult {
 	var res []sttCheckResult
 	for _, c := range checks {
-		if _, ok := m[c.Name]; ok {
-			s.l.Debugf("Skipping disabled mongoDB check %s", c.Name)
-			continue
-		}
-
 		pmmAgentVersion := s.minPMMAgentVersion(c.Type)
 		targets, err := s.findTargets(models.MongoDBServiceType, pmmAgentVersion)
 		if err != nil {
@@ -696,6 +711,7 @@ func (s *Service) executeMongoDBChecks(ctx context.Context, interval check.Inter
 
 type sttCheckResult struct {
 	checkName string
+	interval  check.Interval
 	target    target
 	result    check.Result
 }
@@ -764,6 +780,7 @@ func (s *Service) processResults(ctx context.Context, sttCheck check.Check, targ
 	for i, result := range results {
 		checkResults[i] = sttCheckResult{
 			checkName: sttCheck.Name,
+			interval:  sttCheck.Interval,
 			target:    target,
 			result:    result,
 		}

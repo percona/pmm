@@ -36,22 +36,22 @@ import (
 func TestStartSecurityChecks(t *testing.T) {
 	t.Run("internal error", func(t *testing.T) {
 		var checksService mockChecksService
-		checksService.On("StartChecks", mock.Anything, check.Interval("")).Return(errors.New("random error"))
+		checksService.On("StartChecks", mock.Anything, check.Interval(""), []string(nil)).Return(errors.New("random error"))
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.StartSecurityChecks(context.Background())
+		resp, err := s.StartSecurityChecks(context.Background(), &managementpb.StartSecurityChecksRequest{})
 		assert.EqualError(t, err, "failed to start security checks: random error")
 		assert.Nil(t, resp)
 	})
 
 	t.Run("STT disabled error", func(t *testing.T) {
 		var checksService mockChecksService
-		checksService.On("StartChecks", mock.Anything, check.Interval("")).Return(services.ErrSTTDisabled)
+		checksService.On("StartChecks", mock.Anything, check.Interval(""), []string(nil)).Return(services.ErrSTTDisabled)
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.StartSecurityChecks(context.Background())
+		resp, err := s.StartSecurityChecks(context.Background(), &managementpb.StartSecurityChecksRequest{})
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "STT is disabled."), err)
 		assert.Nil(t, resp)
 	})
@@ -64,7 +64,7 @@ func TestGetSecurityCheckResults(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.GetSecurityCheckResults()
+		resp, err := s.GetSecurityCheckResults(context.Background(), nil)
 		assert.EqualError(t, err, "failed to get security check results: random error")
 		assert.Nil(t, resp)
 	})
@@ -75,7 +75,7 @@ func TestGetSecurityCheckResults(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.GetSecurityCheckResults()
+		resp, err := s.GetSecurityCheckResults(context.Background(), nil)
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "STT is disabled."), err)
 		assert.Nil(t, resp)
 	})
@@ -106,7 +106,7 @@ func TestGetSecurityCheckResults(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.GetSecurityCheckResults()
+		resp, err := s.GetSecurityCheckResults(context.Background(), nil)
 		require.NoError(t, err)
 		assert.Equal(t, resp, response)
 	})
@@ -121,7 +121,7 @@ func TestListSecurityChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ListSecurityChecks()
+		resp, err := s.ListSecurityChecks(context.Background(), nil)
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 
@@ -140,7 +140,7 @@ func TestListSecurityChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ListSecurityChecks()
+		resp, err := s.ListSecurityChecks(context.Background(), nil)
 		assert.EqualError(t, err, "failed to get disabled checks list: random error")
 		assert.Nil(t, resp)
 	})
@@ -153,7 +153,7 @@ func TestUpdateSecurityChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ChangeSecurityChecks(&managementpb.ChangeSecurityChecksRequest{})
+		resp, err := s.ChangeSecurityChecks(context.Background(), &managementpb.ChangeSecurityChecksRequest{})
 		assert.EqualError(t, err, "failed to enable disabled security checks: random error")
 		assert.Nil(t, resp)
 	})
@@ -165,7 +165,7 @@ func TestUpdateSecurityChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ChangeSecurityChecks(&managementpb.ChangeSecurityChecksRequest{})
+		resp, err := s.ChangeSecurityChecks(context.Background(), &managementpb.ChangeSecurityChecksRequest{})
 		assert.EqualError(t, err, "failed to disable security checks: random error")
 		assert.Nil(t, resp)
 	})
