@@ -38,18 +38,18 @@ and all API definitions (including technical preview, development and testing AP
 
 ### APIs
 
-* [percona/pmm](https://github.com/percona/pmm/tree/PMM-2.0)
+* [percona/pmm](https://github.com/percona/pmm)
 * [percona-platform/saas](https://github.com/percona-platform/saas)
 * [percona-platform/dbaas-api](https://github.com/percona-platform/dbaas-api)
 
 ### PMM Server
 
-* [percona/pmm-managed](https://github.com/percona/pmm-managed/tree/PMM-2.0)
+* [percona/pmm-managed](https://github.com/percona/pmm-managed)
 * [percona-platform/dbaas-controller](https://github.com/percona-platform/dbaas-controller)
 * [percona/qan-api2](https://github.com/percona/qan-api2)
-* [percona/pmm-update](https://github.com/percona/pmm-update/tree/PMM-2.0)
-* [percona/percona-toolkit](https://github.com/percona/percona-toolkit/tree/3.0)
-* [percona/grafana-dashboards](https://github.com/percona/grafana-dashboards/tree/PMM-2.0)
+* [percona/pmm-update](https://github.com/percona/pmm-update)
+* [percona/percona-toolkit](https://github.com/percona/percona-toolkit)
+* [percona/grafana-dashboards](https://github.com/percona/grafana-dashboards)
 * [percona-platform/grafana](https://github.com/percona-platform/grafana)
 
 ### PMM Client
@@ -62,12 +62,13 @@ and all API definitions (including technical preview, development and testing AP
 * [percona/postgres_exporter](https://github.com/percona/postgres_exporter)
 * [percona/proxysql_exporter](https://github.com/percona/proxysql_exporter)
 * [percona/rds_exporter](https://github.com/percona/rds_exporter)
+* [percona/azure_exporter](https://github.com/percona/azure_metrics_exporter)
 * [Percona-Lab/clickhouse_exporter](https://github.com/Percona-Lab/clickhouse_exporter)
 
 ### Building and Packaging
 
-* [percona/pmm-server](https://github.com/percona/pmm-server/tree/PMM-2.0)
-* [Percona-Lab/pmm-submodules](https://github.com/Percona-Lab/pmm-submodules/tree/PMM-2.0)
+* [percona/pmm-server](https://github.com/percona/pmm-server)
+* [Percona-Lab/pmm-submodules](https://github.com/Percona-Lab/pmm-submodules)
 * [Percona-Lab/jenkins-pipelines](https://github.com/Percona-Lab/jenkins-pipelines)
 * [Percona-Lab/percona-images](https://github.com/Percona-Lab/percona-images)
 
