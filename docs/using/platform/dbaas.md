@@ -43,6 +43,12 @@ To open the DBaaS dashboard:
 
 2. In the *Actions* column, open the {{ icon.ellipsisv }} menu and click *Show configuration*.
 
+### Kubernetes operator status
+
+The Kubernetes Cluster tab shows the status of operators.
+
+![](../../_images/PMM_DBaaS_Kubernetes_Cluster_Operator_Status.png)
+
 ## DB clusters
 
 ### Add a DB Cluster
