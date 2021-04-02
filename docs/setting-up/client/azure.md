@@ -53,3 +53,64 @@ For Query Analytics, set the server parameter:
 ```ini
 pg_stat_statements.track = all
 ```
+
+## To discover databases on Azure
+
+You need to get the Client ID, Client Secret, Tenant ID and Subscription ID.
+
+![](../../_images/PMM_Add_Instance_Azure_1.png)
+
+You can follow the steps here: <https://www.inkoop.io/blog/how-to-get-azure-api-credentials/>
+
+Navigate to:
+
+- Create an application in Azure Active directory. <https://portal.azure.com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/Overview>
+- Get the subscription ID.
+- Get the tenant ID.
+- Get the client ID.
+- Get the client secret.
+
+When you fill in all fields press the *Discover* button and you will see a list of available databases for monitoring.
+
+![](../../_images/PMM_Add_Instance_Azure_2.png)
+
+You can monitor 6 types of databases:
+
+- Microsoft.DBforMySQL/servers
+- Microsoft.DBforMySQL/flexibleServers
+- Microsoft.DBforMariaDB/servers
+- Microsoft.DBforPostgreSQL/servers
+- Microsoft.DBforPostgreSQL/flexibleServers
+- Microsoft.DBforPostgreSQL/serversv2
+
+You can find more details on how to create DB on Azure at:
+
+- <https://docs.microsoft.com/en-us/azure/postgresql/>
+- <https://docs.microsoft.com/en-us/azure/mysql/>
+
+> You will need to set `pg_stat_statements.track = all` in you PostgreSQL Server settings to use PMM Query Analytics
+
+![](../../_images/PMM_Add_Instance_Azure_3.png)
+
+In the list of databases on the Discovery page click *Start Monitoring* to add the selected Azure Database to PMM.
+
+Fill in all required fields and click *Add service*.
+
+![](../../_images/PMM_Add_Instance_Azure_4.png)
+
+PMM can use 3 exporters to collect metrics:
+
+- Azure Metrics Exporter – collect "system" metrics related to DB.
+
+    - `node_cpu_average`
+    - `azure_resource_info`
+    - `node_filesystem_size_bytes`
+    - `azure_memory_percent_average`
+    - `azure_storage_percent_average`
+    - `azure_storage_used_bytes_average`
+    - `node_network_receive_bytes_total`
+    - `node_network_transmit_bytes_total`
+
+- `mysql_exporter` or `postgres_exporter` – to collect database related metrics.
+
+- PMM Agent to collect queries related metrics using pg_stat_statements for PostgreSQL or Performance Schema for MySQL (MariaDB)
