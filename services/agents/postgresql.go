@@ -24,13 +24,17 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
+	"github.com/percona/pmm/version"
 
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/utils/collectors"
 )
 
+var postgresExporterAutodiscoveryVersion = version.MustParse("2.15.99")
+
 // postgresExporterConfig returns desired configuration of postgres_exporter process.
-func postgresExporterConfig(service *models.Service, exporter *models.Agent, redactMode redactMode) *agentpb.SetStateRequest_AgentProcess {
+func postgresExporterConfig(service *models.Service, exporter *models.Agent, redactMode redactMode,
+	pmmAgentVersion *version.Parsed) *agentpb.SetStateRequest_AgentProcess {
 	tdp := exporter.TemplateDelimiters(service)
 
 	args := []string{
@@ -47,9 +51,14 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent, red
 		"--collect.custom_query.mr.directory=/usr/local/percona/pmm2/collectors/custom-queries/postgresql/medium-resolution",
 		"--collect.custom_query.hr.directory=/usr/local/percona/pmm2/collectors/custom-queries/postgresql/high-resolution",
 
-		"--auto-discover-databases",
-		"--exclude-databases=template0,template1,postgres,pmm-managed-dev",
 		"--web.listen-address=:" + tdp.Left + " .listen_port " + tdp.Right,
+	}
+
+	if !pmmAgentVersion.Less(postgresExporterAutodiscoveryVersion) {
+		args = append(args,
+			"--auto-discover-databases",
+			"--exclude-databases=template0,template1,postgres,pmm-managed-dev",
+		)
 	}
 
 	if pointer.GetString(exporter.MetricsPath) != "" {

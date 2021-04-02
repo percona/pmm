@@ -743,7 +743,7 @@ func (r *Registry) sendSetStateRequest(ctx context.Context, agent *pmmAgentInfo)
 			case models.MongoDBExporterType:
 				agentProcesses[row.AgentID] = mongodbExporterConfig(service, row, redactMode, pmmAgentVersion)
 			case models.PostgresExporterType:
-				agentProcesses[row.AgentID] = postgresExporterConfig(service, row, redactMode)
+				agentProcesses[row.AgentID] = postgresExporterConfig(service, row, redactMode, pmmAgentVersion)
 			case models.ProxySQLExporterType:
 				agentProcesses[row.AgentID] = proxysqlExporterConfig(service, row, redactMode)
 			case models.QANMySQLPerfSchemaAgentType:

@@ -22,6 +22,7 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
+	"github.com/percona/pmm/version"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -29,6 +30,7 @@ import (
 )
 
 func TestPostgresExporterConfig(t *testing.T) {
+	pmmAgentVersion := version.MustParse("2.15.1")
 	postgresql := &models.Service{
 		Address: pointer.ToString("1.2.3.4"),
 		Port:    pointer.ToUint16(5432),
@@ -39,20 +41,18 @@ func TestPostgresExporterConfig(t *testing.T) {
 		Username:  pointer.ToString("username"),
 		Password:  pointer.ToString("s3cur3 p@$$w0r4."),
 	}
-	actual := postgresExporterConfig(postgresql, exporter, redactSecrets)
+	actual := postgresExporterConfig(postgresql, exporter, redactSecrets, pmmAgentVersion)
 	expected := &agentpb.SetStateRequest_AgentProcess{
 		Type:               inventorypb.AgentType_POSTGRES_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
-			"--auto-discover-databases",
 			"--collect.custom_query.hr",
 			"--collect.custom_query.hr.directory=/usr/local/percona/pmm2/collectors/custom-queries/postgresql/high-resolution",
 			"--collect.custom_query.lr",
 			"--collect.custom_query.lr.directory=/usr/local/percona/pmm2/collectors/custom-queries/postgresql/low-resolution",
 			"--collect.custom_query.mr",
 			"--collect.custom_query.mr.directory=/usr/local/percona/pmm2/collectors/custom-queries/postgresql/medium-resolution",
-			"--exclude-databases=template0,template1,postgres,pmm-managed-dev",
 			"--web.listen-address=:{{ .listen_port }}",
 		},
 		Env: []string{
@@ -68,13 +68,13 @@ func TestPostgresExporterConfig(t *testing.T) {
 
 	t.Run("EmptyPassword", func(t *testing.T) {
 		exporter.Password = nil
-		actual := postgresExporterConfig(postgresql, exporter, exposeSecrets)
+		actual := postgresExporterConfig(postgresql, exporter, exposeSecrets, pmmAgentVersion)
 		assert.Equal(t, "DATA_SOURCE_NAME=postgres://username@1.2.3.4:5432/postgres?connect_timeout=1&sslmode=disable", actual.Env[0])
 	})
 
 	t.Run("EmptyUsername", func(t *testing.T) {
 		exporter.Username = nil
-		actual := postgresExporterConfig(postgresql, exporter, exposeSecrets)
+		actual := postgresExporterConfig(postgresql, exporter, exposeSecrets, pmmAgentVersion)
 		assert.Equal(t, "DATA_SOURCE_NAME=postgres://1.2.3.4:5432/postgres?connect_timeout=1&sslmode=disable", actual.Env[0])
 	})
 
@@ -82,7 +82,7 @@ func TestPostgresExporterConfig(t *testing.T) {
 		postgresql.Address = nil
 		postgresql.Port = nil
 		postgresql.Socket = pointer.ToString("/var/run/postgres")
-		actual := postgresExporterConfig(postgresql, exporter, exposeSecrets)
+		actual := postgresExporterConfig(postgresql, exporter, exposeSecrets, pmmAgentVersion)
 		assert.Equal(t, "DATA_SOURCE_NAME=postgres:///postgres?connect_timeout=1&host=%2Fvar%2Frun%2Fpostgres&sslmode=disable", actual.Env[0])
 	})
 
@@ -91,13 +91,46 @@ func TestPostgresExporterConfig(t *testing.T) {
 		postgresql.Port = nil
 		postgresql.Socket = pointer.ToString("/var/run/postgres")
 		exporter.DisabledCollectors = []string{"custom_query.hr", "custom_query.hr.directory"}
-		actual := postgresExporterConfig(postgresql, exporter, exposeSecrets)
+		actual := postgresExporterConfig(postgresql, exporter, exposeSecrets, pmmAgentVersion)
 		expected := &agentpb.SetStateRequest_AgentProcess{
 			Type:               inventorypb.AgentType_POSTGRES_EXPORTER,
 			TemplateLeftDelim:  "{{",
 			TemplateRightDelim: "}}",
 			Args: []string{
+				"--collect.custom_query.lr",
+				"--collect.custom_query.lr.directory=/usr/local/percona/pmm2/collectors/custom-queries/postgresql/low-resolution",
+				"--collect.custom_query.mr",
+				"--collect.custom_query.mr.directory=/usr/local/percona/pmm2/collectors/custom-queries/postgresql/medium-resolution",
+				"--web.listen-address=:{{ .listen_port }}",
+			},
+		}
+		requireNoDuplicateFlags(t, actual.Args)
+		require.Equal(t, expected.Args, actual.Args)
+	})
+
+	t.Run("AutoDiscovery", func(t *testing.T) {
+		pmmAgentVersion := version.MustParse("2.16.0")
+
+		postgresql := &models.Service{
+			Address: pointer.ToString("1.2.3.4"),
+			Port:    pointer.ToUint16(5432),
+		}
+		exporter := &models.Agent{
+			AgentID:   "agent-id",
+			AgentType: models.PostgresExporterType,
+			Username:  pointer.ToString("username"),
+			Password:  pointer.ToString("s3cur3 p@$$w0r4."),
+		}
+
+		actual = postgresExporterConfig(postgresql, exporter, redactSecrets, pmmAgentVersion)
+		expected = &agentpb.SetStateRequest_AgentProcess{
+			Type:               inventorypb.AgentType_POSTGRES_EXPORTER,
+			TemplateLeftDelim:  "{{",
+			TemplateRightDelim: "}}",
+			Args: []string{
 				"--auto-discover-databases",
+				"--collect.custom_query.hr",
+				"--collect.custom_query.hr.directory=/usr/local/percona/pmm2/collectors/custom-queries/postgresql/high-resolution",
 				"--collect.custom_query.lr",
 				"--collect.custom_query.lr.directory=/usr/local/percona/pmm2/collectors/custom-queries/postgresql/low-resolution",
 				"--collect.custom_query.mr",
@@ -105,8 +138,15 @@ func TestPostgresExporterConfig(t *testing.T) {
 				"--exclude-databases=template0,template1,postgres,pmm-managed-dev",
 				"--web.listen-address=:{{ .listen_port }}",
 			},
+			Env: []string{
+				"DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=1&sslmode=disable",
+				"HTTP_AUTH=pmm:agent-id",
+			},
+			RedactWords: []string{"s3cur3 p@$$w0r4."},
 		}
 		requireNoDuplicateFlags(t, actual.Args)
 		require.Equal(t, expected.Args, actual.Args)
+		require.Equal(t, expected.Env, actual.Env)
+		require.Equal(t, expected, actual)
 	})
 }
