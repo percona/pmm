@@ -27,6 +27,8 @@ type Client struct {
 type ClientService interface {
 	ChangeSecurityChecks(params *ChangeSecurityChecksParams) (*ChangeSecurityChecksOK, error)
 
+	ChangeSecurityChecksInterval(params *ChangeSecurityChecksIntervalParams) (*ChangeSecurityChecksIntervalOK, error)
+
 	GetSecurityCheckResults(params *GetSecurityCheckResultsParams) (*GetSecurityCheckResultsOK, error)
 
 	ListSecurityChecks(params *ListSecurityChecksParams) (*ListSecurityChecksOK, error)
@@ -66,6 +68,39 @@ func (a *Client) ChangeSecurityChecks(params *ChangeSecurityChecksParams) (*Chan
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*ChangeSecurityChecksDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  ChangeSecurityChecksInterval changes security checks interval changes check execution interval by check name
+*/
+func (a *Client) ChangeSecurityChecksInterval(params *ChangeSecurityChecksIntervalParams) (*ChangeSecurityChecksIntervalOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewChangeSecurityChecksIntervalParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "ChangeSecurityChecksInterval",
+		Method:             "POST",
+		PathPattern:        "/v1/management/SecurityChecks/ChangeInterval",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ChangeSecurityChecksIntervalReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ChangeSecurityChecksIntervalOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ChangeSecurityChecksIntervalDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
