@@ -72,9 +72,3 @@ func (this *ChangeSecurityChecksRequest) Validate() error {
 func (this *ChangeSecurityChecksResponse) Validate() error {
 	return nil
 }
-func (this *ChangeSecurityChecksIntervalRequest) Validate() error {
-	return nil
-}
-func (this *ChangeSecurityChecksIntervalResponse) Validate() error {
-	return nil
-}

@@ -46,6 +46,8 @@ message ChangeSecurityCheckParams {
   string name = 1;
   bool enable = 2;
   bool disable = 3;
+  // check execution interval.
+  SecurityCheckInterval interval = 4;
 }
 
 message GetSecurityCheckResultsRequest {}
@@ -73,15 +75,6 @@ message ChangeSecurityChecksRequest {
 
 message ChangeSecurityChecksResponse {}
 
-message ChangeSecurityChecksIntervalRequest {
-  // The name of the check to change interval of.
-  string name = 1;
-  // The desired interval to change the check interval to.
-  SecurityCheckInterval interval = 2;
-}
-
-message ChangeSecurityChecksIntervalResponse {}
-
 // SecurityChecks service provides public Management API methods for Security Checks Service.
 service SecurityChecks {
   // GetSecurityCheckResults returns Security Thread Tool's latest checks results.
@@ -108,17 +101,10 @@ service SecurityChecks {
       body: "*"
     };
   }
-  // ChangeSecurityChecks enables/disables Security Thread Tool checks by names.
+  // ChangeSecurityChecks enables/disables Security Thread Tool checks or changes their interval by names.
   rpc ChangeSecurityChecks(ChangeSecurityChecksRequest) returns (ChangeSecurityChecksResponse) {
     option (google.api.http) = {
       post: "/v1/management/SecurityChecks/Change"
-      body: "*"
-    };
-  }
-  // ChangeSecurityChecksInterval changes check execution interval by check name.
-  rpc ChangeSecurityChecksInterval(ChangeSecurityChecksIntervalRequest) returns (ChangeSecurityChecksIntervalResponse) {
-    option (google.api.http) = {
-      post: "/v1/management/SecurityChecks/ChangeInterval"
       body: "*"
     };
   }
