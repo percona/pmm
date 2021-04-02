@@ -357,11 +357,11 @@ message StartJobRequest {
   }
   // MySQLBackup is job for backup MySQL service.
   message MySQLBackup {
-    // DSN for the service.
+    // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
     // Backup name.
     string name = 2;
-    // Where to store backup.
+    // Backup target location.
     oneof location_config {
       S3LocationConfig s3_config = 10;
     }

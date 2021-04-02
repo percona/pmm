@@ -4040,11 +4040,11 @@ type StartJobRequest_MySQLBackup struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// DSN for the service.
+	// DSN for the service. May contain connection (dial) timeout.
 	Dsn string `protobuf:"bytes,1,opt,name=dsn,proto3" json:"dsn,omitempty"`
 	// Backup name.
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	// Where to store backup.
+	// Backup target location.
 	//
 	// Types that are assignable to LocationConfig:
 	//	*StartJobRequest_MySQLBackup_S3Config
