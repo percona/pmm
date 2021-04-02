@@ -115,6 +115,38 @@ func (o *StartSecurityChecksDefault) readResponse(response runtime.ClientRespons
 	return nil
 }
 
+/*StartSecurityChecksBody start security checks body
+swagger:model StartSecurityChecksBody
+*/
+type StartSecurityChecksBody struct {
+
+	// Names of the checks that should be started.
+	Names []string `json:"names"`
+}
+
+// Validate validates this start security checks body
+func (o *StartSecurityChecksBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *StartSecurityChecksBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *StartSecurityChecksBody) UnmarshalBinary(b []byte) error {
+	var res StartSecurityChecksBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*StartSecurityChecksDefaultBody start security checks default body
 swagger:model StartSecurityChecksDefaultBody
 */
