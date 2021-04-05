@@ -4,7 +4,7 @@ The Security Threat Tool runs regular checks against connected databases, alerti
 
 All checks run on the PMM Client side. Results are sent to PMM Server where a summary count is shown on the *Home Dashboard*, with details in the *PMM Database Checks* dashboard.
 
-Checks are automatically downloaded from Percona Enterprise Platform and run every 24 hours. (This period is not configurable.)
+Checks are automatically downloaded from Percona Platform and run every 24 hours. (This period is not configurable.)
 
 **Check results data *always* remains on the PMM Server.** It is not related to anonymous data sent for Telemetry purposes.
 

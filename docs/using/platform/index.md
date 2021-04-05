@@ -1,6 +1,6 @@
-# About Percona Enterprise Platform
+# About Percona Platform
 
-Percona Enterprise Platform provides value-added services to PMM.
+Percona Platform provides value-added services to PMM.
 
 The services comprise:
 
