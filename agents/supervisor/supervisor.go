@@ -499,8 +499,9 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentpb.SetStat
 	case inventorypb.AgentType_PROXYSQL_EXPORTER:
 		processParams.Path = s.paths.ProxySQLExporter
 	case inventorypb.AgentType_RDS_EXPORTER:
-
 		processParams.Path = s.paths.RDSExporter
+	case inventorypb.AgentType_AZURE_DATABASE_EXPORTER:
+		processParams.Path = s.paths.AzureExporter
 	case type_TEST_SLEEP:
 		processParams.Path = "sleep"
 	case inventorypb.AgentType_VM_AGENT:

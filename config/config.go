@@ -88,6 +88,7 @@ type Paths struct {
 	PostgresExporter string `yaml:"postgres_exporter"`
 	ProxySQLExporter string `yaml:"proxysql_exporter"`
 	RDSExporter      string `yaml:"rds_exporter"`
+	AzureExporter    string `yaml:"azure_exporter"`
 
 	VMAgent string `yaml:"vmagent"`
 
@@ -193,6 +194,7 @@ func get(args []string, l *logrus.Entry) (cfg *Config, configFileF string, err e
 			&cfg.Paths.PostgresExporter: "postgres_exporter",
 			&cfg.Paths.ProxySQLExporter: "proxysql_exporter",
 			&cfg.Paths.RDSExporter:      "rds_exporter",
+			&cfg.Paths.AzureExporter:    "azure_exporter",
 			&cfg.Paths.VMAgent:          "vmagent",
 			&cfg.Paths.TempDir:          os.TempDir(),
 			&cfg.Paths.PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
@@ -218,6 +220,7 @@ func get(args []string, l *logrus.Entry) (cfg *Config, configFileF string, err e
 			&cfg.Paths.PostgresExporter,
 			&cfg.Paths.ProxySQLExporter,
 			&cfg.Paths.RDSExporter,
+			&cfg.Paths.AzureExporter,
 			&cfg.Paths.VMAgent,
 		} {
 			if cfg.Paths.ExportersBase != "" && !filepath.IsAbs(*sp) {
@@ -318,6 +321,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_PATHS_POSTGRES_EXPORTER").StringVar(&cfg.Paths.PostgresExporter)
 	app.Flag("paths-proxysql_exporter", "Path to proxysql_exporter to use [PMM_AGENT_PATHS_PROXYSQL_EXPORTER]").
 		Envar("PMM_AGENT_PATHS_PROXYSQL_EXPORTER").StringVar(&cfg.Paths.ProxySQLExporter)
+	app.Flag("paths-azure_exporter", "Path to azure_exporter to use [PMM_AGENT_PATHS_AZURE_EXPORTER]").
+		Envar("PMM_AGENT_PATHS_AZURE_EXPORTER").StringVar(&cfg.Paths.AzureExporter)
 	app.Flag("paths-pt-summary", "Path to pt summary to use [PMM_AGENT_PATHS_PT_SUMMARY]").
 		Envar("PMM_AGENT_PATHS_PT_SUMMARY").StringVar(&cfg.Paths.PTSummary)
 	app.Flag("paths-pt-pg-summary", "Path to pt-pg-summary to use [PMM_AGENT_PATHS_PT_PG_SUMMARY]").

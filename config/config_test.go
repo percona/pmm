@@ -103,6 +103,7 @@ func TestGet(t *testing.T) {
 				PostgresExporter: "/usr/local/percona/pmm2/exporters/postgres_exporter",
 				ProxySQLExporter: "/usr/local/percona/pmm2/exporters/proxysql_exporter",
 				RDSExporter:      "/usr/local/percona/pmm2/exporters/rds_exporter",
+				AzureExporter:    "/usr/local/percona/pmm2/exporters/azure_exporter",
 				VMAgent:          "/usr/local/percona/pmm2/exporters/vmagent",
 				TempDir:          os.TempDir(),
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
@@ -149,6 +150,7 @@ func TestGet(t *testing.T) {
 				PostgresExporter: "/usr/local/percona/pmm2/exporters/postgres_exporter",
 				ProxySQLExporter: "/usr/local/percona/pmm2/exporters/proxysql_exporter",
 				RDSExporter:      "/usr/local/percona/pmm2/exporters/rds_exporter",
+				AzureExporter:    "/usr/local/percona/pmm2/exporters/azure_exporter",
 				VMAgent:          "/usr/local/percona/pmm2/exporters/vmagent",
 				TempDir:          os.TempDir(),
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
@@ -196,6 +198,7 @@ func TestGet(t *testing.T) {
 				PostgresExporter: "/usr/local/percona/pmm2/exporters/postgres_exporter",
 				ProxySQLExporter: "/usr/local/percona/pmm2/exporters/proxysql_exporter",
 				RDSExporter:      "/usr/local/percona/pmm2/exporters/rds_exporter",
+				AzureExporter:    "/usr/local/percona/pmm2/exporters/azure_exporter",
 				VMAgent:          "/usr/local/percona/pmm2/exporters/vmagent",
 				TempDir:          os.TempDir(),
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
@@ -251,6 +254,7 @@ func TestGet(t *testing.T) {
 				PostgresExporter: "/bar/postgres_exporter", // respect absolute value from config file
 				ProxySQLExporter: "/base/pro_exporter",     // respect relative value from config file
 				RDSExporter:      "/base/rds_exporter",     // default value
+				AzureExporter:    "/base/azure_exporter",   // default value
 				VMAgent:          "/base/vmagent",          // default value
 				TempDir:          os.TempDir(),
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
@@ -289,6 +293,7 @@ func TestGet(t *testing.T) {
 				PostgresExporter: "/usr/local/percona/pmm2/exporters/postgres_exporter",
 				ProxySQLExporter: "/usr/local/percona/pmm2/exporters/proxysql_exporter",
 				RDSExporter:      "/usr/local/percona/pmm2/exporters/rds_exporter",
+				AzureExporter:    "/usr/local/percona/pmm2/exporters/azure_exporter",
 				VMAgent:          "/usr/local/percona/pmm2/exporters/vmagent",
 				TempDir:          os.TempDir(),
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
