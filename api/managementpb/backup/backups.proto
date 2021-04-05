@@ -27,18 +27,10 @@ message StartBackupRequest {
       string_not_empty: true
     }
   ];
-  // Database names to backup, If empty then each database is backed up.
-  // repeated string database_names = 3;
   // If empty then name is auto-generated.
-  string name = 4;
+  string name = 3;
   // Human-readable description.
-  string description = 5;
-  // RetryMode retry_mode = 6;
-  // Retry interval in seconds. Default 30s.
-  // uint32 retry_interval = 7;
-  // How many times should backup be retried in case of failure. Default 2 times.
-  // uint32 retry_times = 8;
-
+  string description = 4;
 }
 
 message StartBackupResponse {

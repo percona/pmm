@@ -22474,7 +22474,7 @@
                   "x-order": 1
                 },
                 "name": {
-                  "description": "Database names to backup, If empty then each database is backed up.\nrepeated string database_names = 3;\nIf empty then name is auto-generated.",
+                  "description": "If empty then name is auto-generated.",
                   "type": "string",
                   "x-order": 2
                 },

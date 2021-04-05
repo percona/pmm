@@ -164,8 +164,6 @@ type StartBackupBody struct {
 	// Machine-readable location ID.
 	LocationID string `json:"location_id,omitempty"`
 
-	// Database names to backup, If empty then each database is backed up.
-	// repeated string database_names = 3;
 	// If empty then name is auto-generated.
 	Name string `json:"name,omitempty"`
 
