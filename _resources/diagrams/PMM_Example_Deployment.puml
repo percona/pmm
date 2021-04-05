@@ -8,7 +8,7 @@ LAYOUT_WITH_LEGEND()
 ' LAYOUT_TOP_DOWN()
 LAYOUT_LEFT_RIGHT()
 
-Enterprise_Boundary(platform, "Percona Enterprise Platform") {
+Enterprise_Boundary(platform, "Percona Platform") {
     System(stt, "Security Threat Tool")
     System(dbaas, "DB as a Service")
 }

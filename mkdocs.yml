@@ -106,7 +106,7 @@ nav:
       - using/interface.md
       - using/alerting.md
       - using/query-analytics.md
-      - Percona Enterprise Platform:
+      - Percona Platform:
           - using/platform/index.md
           - using/platform/security-threat-tool.md
 #            - using/platform/dbaas.md

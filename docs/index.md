@@ -60,9 +60,9 @@ This is the home dashboard from [pmmdemo][PMMDEMO]:
 
 PMM Client runs on every database host or node you want to monitor. The client collects server metrics, general system metrics, and query analytics data, and sends it to the server.
 
-**Percona Enterprise Platform**
+**Percona Platform**
 
-[Percona Enterprise Platform](using/platform/) (in development) provides value-added services for PMM.
+[Percona Platform](using/platform/) (in development) provides value-added services for PMM.
 
 ## Documentation site map
 

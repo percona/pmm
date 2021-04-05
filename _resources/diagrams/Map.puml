@@ -47,7 +47,7 @@ wbsDiagram {
 		+_ [[$base/using/interface.html User\ninterface]]
 		+_ [[$base/using/alerting.html Integrated\nAlerting]]
 		+_ [[$base/using/query-analytics.html Query\nAnalytics]]
-		+ [[$base/using/platform/  Percona\nEnterprise\nPlatform]]
+		+ [[$base/using/platform/  Percona\nPlatform]]
 			+_ [[$base/using/platform/security-threat-tool.html Security\nThreat Tool]]
 
 	+ <&task> [[$base/how-to/ How to]]
