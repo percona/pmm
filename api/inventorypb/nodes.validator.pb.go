@@ -33,6 +33,10 @@ func (this *RemoteRDSNode) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
+func (this *RemoteAzureDatabaseNode) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
 func (this *ListNodesRequest) Validate() error {
 	return nil
 }
@@ -62,6 +66,13 @@ func (this *ListNodesResponse) Validate() error {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("RemoteRds", err)
+			}
+		}
+	}
+	for _, item := range this.RemoteAzureDatabase {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("RemoteAzureDatabase", err)
 			}
 		}
 	}
@@ -99,6 +110,13 @@ func (this *GetNodeResponse) Validate() error {
 		if oneOfNester.RemoteRds != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.RemoteRds); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("RemoteRds", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetNode().(*GetNodeResponse_RemoteAzureDatabase); ok {
+		if oneOfNester.RemoteAzureDatabase != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.RemoteAzureDatabase); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("RemoteAzureDatabase", err)
 			}
 		}
 	}
@@ -175,6 +193,27 @@ func (this *AddRemoteRDSNodeResponse) Validate() error {
 	if this.RemoteRds != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.RemoteRds); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("RemoteRds", err)
+		}
+	}
+	return nil
+}
+func (this *AddRemoteAzureDatabaseNodeRequest) Validate() error {
+	if this.NodeName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("NodeName", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeName))
+	}
+	if this.Address == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Address", fmt.Errorf(`value '%v' must not be an empty string`, this.Address))
+	}
+	if this.Region == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Region", fmt.Errorf(`value '%v' must not be an empty string`, this.Region))
+	}
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
+func (this *AddRemoteAzureDatabaseNodeResponse) Validate() error {
+	if this.RemoteAzureDatabase != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.RemoteAzureDatabase); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("RemoteAzureDatabase", err)
 		}
 	}
 	return nil

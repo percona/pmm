@@ -25,7 +25,7 @@ gen: clean            ## Generate files.
 
 	./prototool all
 
-	for API in agentlocalpb serverpb inventorypb managementpb managementpb/dbaas managementpb/ia managementpb/backup qanpb ; do \
+	for API in agentlocalpb serverpb inventorypb managementpb managementpb/dbaas managementpb/ia managementpb/backup managementpb/azure qanpb ; do \
 		set -x ; \
 		swagger mixin $$API/json/header.json $$API/*.swagger.json --output=$$API/json/$$(basename $$API).json --keep-spec-order; \
 		swagger flatten --with-flatten=expand --with-flatten=remove-unused $$API/json/$$(basename $$API).json --output=$$API/json/$$(basename $$API).json ; \
@@ -44,7 +44,7 @@ gen: clean            ## Generate files.
 	done
 
 	# generate public API spec, omit agentlocalpb (always private),
-	# and managementpb/dbaas, managementpb/ia, managementpb/backup and qanpb (not v1 yet)
+	# and managementpb/dbaas, managementpb/ia, managementpb/backup , managementpb/azure and qanpb (not v1 yet)
 	swagger mixin --output=swagger/swagger.json \
 		swagger/header.json \
 		serverpb/json/serverpb.json \
@@ -63,6 +63,7 @@ gen: clean            ## Generate files.
 		managementpb/dbaas/json/dbaas.json \
 		managementpb/ia/json/ia.json \
 		managementpb/backup/json/backup.json \
+		managementpb/azure/json/azure.json \
 		qanpb/json/qanpb.json
 	swagger validate swagger/swagger-dev.json
 
