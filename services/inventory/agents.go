@@ -847,6 +847,53 @@ func (as *AgentsService) ChangeExternalExporter(req *inventorypb.ChangeExternalE
 	return res, nil
 }
 
+// AddAzureDatabaseExporter inserts azure_exporter Agent with given parameters.
+func (as *AgentsService) AddAzureDatabaseExporter(ctx context.Context, req *inventorypb.AddAzureDatabaseExporterRequest) (*inventorypb.AzureDatabaseExporter, error) {
+	var res *inventorypb.AzureDatabaseExporter
+
+	e := as.db.InTransaction(func(tx *reform.TX) error {
+		params := &models.CreateAgentParams{
+			PMMAgentID:   req.PmmAgentId,
+			NodeID:       req.NodeId,
+			AzureOptions: models.AzureOptionsFromRequest(req),
+			CustomLabels: req.CustomLabels,
+			PushMetrics:  req.PushMetrics,
+		}
+		row, err := models.CreateAgent(tx.Querier, models.AzureDatabaseExporterType, params)
+		if err != nil {
+			return err
+		}
+
+		agent, err := services.ToAPIAgent(tx.Querier, row)
+		if err != nil {
+			return err
+		}
+		res = agent.(*inventorypb.AzureDatabaseExporter)
+		return nil
+	})
+	if e != nil {
+		return nil, e
+	}
+
+	as.r.RequestStateUpdate(ctx, req.PmmAgentId)
+	return res, nil
+}
+
+// ChangeAzureDatabaseExporter updates azure_exporter Agent with given parameters.
+func (as *AgentsService) ChangeAzureDatabaseExporter(
+	ctx context.Context,
+	req *inventorypb.ChangeAzureDatabaseExporterRequest,
+) (*inventorypb.AzureDatabaseExporter, error) {
+	agent, err := as.changeAgent(req.AgentId, req.Common)
+	if err != nil {
+		return nil, err
+	}
+
+	res := agent.(*inventorypb.AzureDatabaseExporter)
+	as.r.RequestStateUpdate(ctx, res.PmmAgentId)
+	return res, nil
+}
+
 // Remove removes Agent, and sends state update to pmm-agent, or kicks it.
 func (as *AgentsService) Remove(ctx context.Context, id string, force bool) error {
 	var removedAgent *models.Agent

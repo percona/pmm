@@ -85,6 +85,17 @@ func ToAPINode(node *models.Node) (inventorypb.Node, error) {
 			Address:      node.Address,
 		}, nil
 
+	case models.RemoteAzureDatabaseNodeType:
+		return &inventorypb.RemoteAzureDatabaseNode{
+			NodeId:       node.NodeID,
+			NodeName:     node.NodeName,
+			NodeModel:    node.NodeModel,
+			Region:       pointer.GetString(node.Region),
+			Az:           node.AZ,
+			CustomLabels: labels,
+			Address:      node.Address,
+		}, nil
+
 	default:
 		panic(fmt.Errorf("unhandled Node type %s", node.NodeType))
 	}
@@ -396,6 +407,19 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			CustomLabels:       labels,
 			PushMetricsEnabled: agent.PushMetrics,
 		}, nil
+
+	case models.AzureDatabaseExporterType:
+		return &inventorypb.AzureDatabaseExporter{
+			AgentId:                     agent.AgentID,
+			PmmAgentId:                  pointer.GetString(agent.PMMAgentID),
+			NodeId:                      nodeID,
+			Disabled:                    agent.Disabled,
+			AzureDatabaseSubscriptionId: agent.AzureOptions.SubscriptionID,
+			Status:                      inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			ListenPort:                  uint32(pointer.GetUint16(agent.ListenPort)),
+			CustomLabels:                labels,
+		}, nil
+
 	case models.VMAgentType:
 		return &inventorypb.VMAgent{
 			AgentId:    agent.AgentID,

@@ -408,14 +408,15 @@ func (s *Server) convertSettings(settings *models.Settings) *serverpb.Settings {
 			StandardInterval: ptypes.DurationProto(settings.SaaS.STTCheckIntervals.StandardInterval),
 			FrequentInterval: ptypes.DurationProto(settings.SaaS.STTCheckIntervals.FrequentInterval),
 		},
-		DataRetention:    ptypes.DurationProto(settings.DataRetention),
-		SshKey:           settings.SSHKey,
-		AwsPartitions:    settings.AWSPartitions,
-		AlertManagerUrl:  settings.AlertManagerURL,
-		SttEnabled:       settings.SaaS.STTEnabled,
-		PlatformEmail:    settings.SaaS.Email,
-		DbaasEnabled:     settings.DBaaS.Enabled,
-		PmmPublicAddress: settings.PMMPublicAddress,
+		DataRetention:        ptypes.DurationProto(settings.DataRetention),
+		SshKey:               settings.SSHKey,
+		AwsPartitions:        settings.AWSPartitions,
+		AlertManagerUrl:      settings.AlertManagerURL,
+		SttEnabled:           settings.SaaS.STTEnabled,
+		PlatformEmail:        settings.SaaS.Email,
+		DbaasEnabled:         settings.DBaaS.Enabled,
+		AzurediscoverEnabled: settings.Azurediscover.Enabled,
+		PmmPublicAddress:     settings.PMMPublicAddress,
 
 		AlertingEnabled:         settings.IntegratedAlerting.Enabled,
 		BackupManagementEnabled: settings.BackupManagement.Enabled,
@@ -506,6 +507,11 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverp
 		return status.Error(codes.FailedPrecondition, "Alerting is enabled via ENABLE_ALERTING environment variable.")
 	}
 
+	// ignore req.DisableAzurediscover even if they are present since that will not change anything
+	if req.DisableAzurediscover && s.envSettings.EnableAzurediscover {
+		return status.Error(codes.FailedPrecondition, "Azure Discover is enabled via ENABLE_AZUREDISCOVER environment variable.")
+	}
+
 	if getDuration(metricsRes.GetHr()) != 0 && s.envSettings.MetricsResolutions.HR != 0 {
 		return status.Error(codes.FailedPrecondition, "High resolution for metrics is set via METRICS_RESOLUTION_HR (or METRICS_RESOLUTION) environment variable.")
 	}
@@ -562,6 +568,8 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 			SSHKey:                 req.SshKey,
 			EnableSTT:              req.EnableStt,
 			DisableSTT:             req.DisableStt,
+			EnableAzurediscover:    req.EnableAzurediscover,
+			DisableAzurediscover:   req.DisableAzurediscover,
 			PMMPublicAddress:       req.PmmPublicAddress,
 			RemovePMMPublicAddress: req.RemovePmmPublicAddress,
 

@@ -82,6 +82,10 @@ type Settings struct {
 		SlackAlertingSettings *SlackAlertingSettings `json:"slack_settings"`
 	} `json:"ia"`
 
+	Azurediscover struct {
+		Enabled bool `json:"enabled"`
+	} `json:"azure"`
+
 	BackupManagement struct {
 		Enabled bool `json:"enabled"`
 	} `json:"backup_management"`
@@ -153,4 +157,5 @@ func (s *Settings) fillDefaults() {
 	// IntegratedAlerting.Enabled is false by default
 	// VictoriaMetrics CacheEnable is false by default
 	// PMMPublicAddress is empty by default
+	// Azurediscover.Enabled is false by default
 }

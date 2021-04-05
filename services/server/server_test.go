@@ -213,6 +213,7 @@ func TestServer(t *testing.T) {
 		server.UpdateSettingsFromEnv([]string{
 			"PERCONA_TEST_DBAAS=1",
 			"ENABLE_ALERTING=1",
+			"ENABLE_AZUREDISCOVER=1",
 		})
 
 		ctx := context.TODO()
@@ -228,6 +229,7 @@ func TestServer(t *testing.T) {
 		require.NoError(t, err)
 		assert.True(t, settings.Settings.DbaasEnabled)
 		assert.True(t, settings.Settings.AlertingEnabled)
+		assert.True(t, settings.Settings.AzurediscoverEnabled)
 	})
 
 	t.Run("ChangeSettings IA", func(t *testing.T) {

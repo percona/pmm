@@ -322,6 +322,15 @@ func TestSettings(t *testing.T) {
 			assert.ElementsMatch(t, ns.SaaS.DisabledSTTChecks, []string{"one", "three"})
 		})
 
+		t.Run("enable azure discover", func(t *testing.T) {
+			_, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{DisableAzurediscover: true})
+			require.NoError(t, err)
+
+			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableAzurediscover: true})
+			assert.NoError(t, err)
+			assert.True(t, ns.Azurediscover.Enabled)
+		})
+
 		t.Run("Integrated Alerting settings validation", func(t *testing.T) {
 			emailSettings := &models.EmailAlertingSettings{
 				From:      tests.GenEmail(t),

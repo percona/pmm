@@ -228,6 +228,39 @@ func (s *NodesService) AddRemoteRDSNode(ctx context.Context, req *inventorypb.Ad
 	return invNode.(*inventorypb.RemoteRDSNode), nil
 }
 
+// AddRemoteAzureDatabaseNode adds a new Azure database node
+//nolint:unparam,dupl
+func (s *NodesService) AddRemoteAzureDatabaseNode(ctx context.Context, req *inventorypb.AddRemoteAzureDatabaseNodeRequest) (*inventorypb.RemoteAzureDatabaseNode, error) {
+	params := &models.CreateNodeParams{
+		NodeName:     req.NodeName,
+		Address:      req.Address,
+		NodeModel:    req.NodeModel,
+		Region:       pointer.ToStringOrNil(req.Region),
+		AZ:           req.Az,
+		CustomLabels: req.CustomLabels,
+	}
+
+	node := new(models.Node)
+	e := s.db.InTransaction(func(tx *reform.TX) error {
+		var err error
+		node, err = models.CreateNode(tx.Querier, models.RemoteAzureDatabaseNodeType, params)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if e != nil {
+		return nil, e
+	}
+
+	invNode, err := services.ToAPINode(node)
+	if err != nil {
+		return nil, err
+	}
+
+	return invNode.(*inventorypb.RemoteAzureDatabaseNode), nil
+}
+
 // Remove removes Node without any Agents and Services.
 // Removes Node with the Agents and Services if force == true.
 // Returns an error if force == false and Node has Agents or Services.

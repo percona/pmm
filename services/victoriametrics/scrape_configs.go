@@ -463,6 +463,33 @@ func scrapeConfigsForRDSExporter(s *models.MetricsResolutions, params []*scrapeC
 	return r
 }
 
+func scrapeConfigsForAzureDatabase(s *models.MetricsResolutions, params *scrapeConfigParams) ([]*config.ScrapeConfig, error) {
+	labels, err := mergeLabels(params.node, params.service, params.agent)
+	if err != nil {
+		return nil, err
+	}
+
+	interval := s.MR
+	cfg := &config.ScrapeConfig{
+		JobName:        jobName(params.agent, "mr", interval),
+		ScrapeInterval: config.Duration(interval),
+		ScrapeTimeout:  scrapeTimeout(interval),
+		MetricsPath:    "/metrics",
+	}
+
+	port := int(*params.agent.ListenPort)
+	hostport := net.JoinHostPort(params.host, strconv.Itoa(port))
+
+	cfg.ServiceDiscoveryConfig = config.ServiceDiscoveryConfig{
+		StaticConfigs: []*config.Group{{
+			Targets: []string{hostport},
+			Labels:  labels,
+		}},
+	}
+
+	return []*config.ScrapeConfig{cfg}, nil
+}
+
 func scrapeConfigsForExternalExporter(s *models.MetricsResolutions, params *scrapeConfigParams) ([]*config.ScrapeConfig, error) {
 	labels, err := mergeLabels(params.node, params.service, params.agent)
 	if err != nil {

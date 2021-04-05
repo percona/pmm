@@ -54,6 +54,7 @@ func (e InvalidDurationError) Error() string { return string(e) }
 //  - METRICS_RESOLUTION, METRICS_RESOLUTION, METRICS_RESOLUTION_HR, METRICS_RESOLUTION_LR are durations of metrics resolution;
 //  - DATA_RETENTION is the duration of how long keep time-series data in ClickHouse;
 //  - ENABLE_ALERTING enables Integrated Alerting;
+//  - ENABLE_AZUREDISCOVER enables Azure Discover;
 //  - the environment variables prefixed with GF_ passed as related to Grafana.
 func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs []error, warns []string) {
 	envSettings = new(models.ChangeSettingsParams)
@@ -121,6 +122,11 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 			fallthrough
 		case "ENABLE_ALERTING":
 			envSettings.EnableAlerting, err = strconv.ParseBool(v)
+			if err != nil {
+				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+			}
+		case "ENABLE_AZUREDISCOVER":
+			envSettings.EnableAzurediscover, err = strconv.ParseBool(v)
 			if err != nil {
 				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
 			}

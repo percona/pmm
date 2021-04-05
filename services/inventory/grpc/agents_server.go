@@ -49,6 +49,7 @@ var agentTypes = map[inventorypb.AgentType]models.AgentType{
 	inventorypb.AgentType_QAN_POSTGRESQL_PGSTATMONITOR_AGENT: models.QANPostgreSQLPgStatMonitorAgentType,
 	inventorypb.AgentType_RDS_EXPORTER:                       models.RDSExporterType,
 	inventorypb.AgentType_EXTERNAL_EXPORTER:                  models.ExternalExporterType,
+	inventorypb.AgentType_AZURE_DATABASE_EXPORTER:            models.AzureDatabaseExporterType,
 	inventorypb.AgentType_VM_AGENT:                           models.VMAgentType,
 }
 
@@ -102,6 +103,8 @@ func (s *agentsServer) ListAgents(ctx context.Context, req *inventorypb.ListAgen
 			res.RdsExporter = append(res.RdsExporter, agent)
 		case *inventorypb.ExternalExporter:
 			res.ExternalExporter = append(res.ExternalExporter, agent)
+		case *inventorypb.AzureDatabaseExporter:
+			res.AzureDatabaseExporter = append(res.AzureDatabaseExporter, agent)
 		case *inventorypb.VMAgent:
 			res.VmAgent = append(res.VmAgent, agent)
 		default:
@@ -146,6 +149,8 @@ func (s *agentsServer) GetAgent(ctx context.Context, req *inventorypb.GetAgentRe
 		res.Agent = &inventorypb.GetAgentResponse_RdsExporter{RdsExporter: agent}
 	case *inventorypb.ExternalExporter:
 		res.Agent = &inventorypb.GetAgentResponse_ExternalExporter{ExternalExporter: agent}
+	case *inventorypb.AzureDatabaseExporter:
+		res.Agent = &inventorypb.GetAgentResponse_AzureDatabaseExporter{AzureDatabaseExporter: agent}
 	case *inventorypb.VMAgent:
 		// skip it, fix later if needed.
 	default:
@@ -483,6 +488,38 @@ func (s *agentsServer) ChangeExternalExporter(ctx context.Context, req *inventor
 
 	res := &inventorypb.ChangeExternalExporterResponse{
 		ExternalExporter: agent,
+	}
+	return res, nil
+}
+
+// AddAzureDatabaseExporter adds azure_database_exporter Agent.
+func (s *agentsServer) AddAzureDatabaseExporter(
+	ctx context.Context,
+	req *inventorypb.AddAzureDatabaseExporterRequest,
+) (*inventorypb.AddAzureDatabaseExporterResponse, error) {
+	agent, err := s.s.AddAzureDatabaseExporter(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &inventorypb.AddAzureDatabaseExporterResponse{
+		AzureDatabaseExporter: agent,
+	}
+	return res, nil
+}
+
+// ChangeAzureDatabaseExporter changes disabled flag and custom labels of azure_database_exporter Agent.
+func (s *agentsServer) ChangeAzureDatabaseExporter(
+	ctx context.Context,
+	req *inventorypb.ChangeAzureDatabaseExporterRequest,
+) (*inventorypb.ChangeAzureDatabaseExporterResponse, error) {
+	agent, err := s.s.ChangeAzureDatabaseExporter(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &inventorypb.ChangeAzureDatabaseExporterResponse{
+		AzureDatabaseExporter: agent,
 	}
 	return res, nil
 }

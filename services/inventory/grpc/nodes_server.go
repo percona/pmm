@@ -36,10 +36,11 @@ func NewNodesServer(svc *inventory.NodesService) inventorypb.NodesServer {
 }
 
 var nodeTypes = map[inventorypb.NodeType]models.NodeType{
-	inventorypb.NodeType_GENERIC_NODE:    models.GenericNodeType,
-	inventorypb.NodeType_CONTAINER_NODE:  models.ContainerNodeType,
-	inventorypb.NodeType_REMOTE_NODE:     models.RemoteNodeType,
-	inventorypb.NodeType_REMOTE_RDS_NODE: models.RemoteRDSNodeType,
+	inventorypb.NodeType_GENERIC_NODE:               models.GenericNodeType,
+	inventorypb.NodeType_CONTAINER_NODE:             models.ContainerNodeType,
+	inventorypb.NodeType_REMOTE_NODE:                models.RemoteNodeType,
+	inventorypb.NodeType_REMOTE_RDS_NODE:            models.RemoteRDSNodeType,
+	inventorypb.NodeType_REMOTE_AZURE_DATABASE_NODE: models.RemoteAzureDatabaseNodeType,
 }
 
 func nodeType(nodeType inventorypb.NodeType) *models.NodeType {
@@ -71,6 +72,8 @@ func (s *nodesServer) ListNodes(ctx context.Context, req *inventorypb.ListNodesR
 			res.Remote = append(res.Remote, node)
 		case *inventorypb.RemoteRDSNode:
 			res.RemoteRds = append(res.RemoteRds, node)
+		case *inventorypb.RemoteAzureDatabaseNode:
+			res.RemoteAzureDatabase = append(res.RemoteAzureDatabase, node)
 		default:
 			panic(fmt.Errorf("unhandled inventory Node type %T", node))
 		}
@@ -95,6 +98,8 @@ func (s *nodesServer) GetNode(ctx context.Context, req *inventorypb.GetNodeReque
 		res.Node = &inventorypb.GetNodeResponse_Remote{Remote: node}
 	case *inventorypb.RemoteRDSNode:
 		res.Node = &inventorypb.GetNodeResponse_RemoteRds{RemoteRds: node}
+	case *inventorypb.RemoteAzureDatabaseNode:
+		res.Node = &inventorypb.GetNodeResponse_RemoteAzureDatabase{RemoteAzureDatabase: node}
 	default:
 		panic(fmt.Errorf("unhandled inventory Node type %T", node))
 	}
@@ -142,6 +147,20 @@ func (s *nodesServer) AddRemoteRDSNode(ctx context.Context, req *inventorypb.Add
 	}
 
 	res := &inventorypb.AddRemoteRDSNodeResponse{RemoteRds: node}
+	return res, nil
+}
+
+// AddRemoteAzureDatabaseNode adds Remote Azure database Node.
+func (s *nodesServer) AddRemoteAzureDatabaseNode(
+	ctx context.Context,
+	req *inventorypb.AddRemoteAzureDatabaseNodeRequest,
+) (*inventorypb.AddRemoteAzureDatabaseNodeResponse, error) {
+	node, err := s.svc.AddRemoteAzureDatabaseNode(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &inventorypb.AddRemoteAzureDatabaseNodeResponse{RemoteAzureDatabase: node}
 	return res, nil
 }
 

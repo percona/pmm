@@ -49,6 +49,30 @@ func MongoDBOptionsFromRequest(params MongoDBOptionsParams) *MongoDBOptions {
 	return nil
 }
 
+// AzureOptionsParams contains methods to create AzureOptions object.
+type AzureOptionsParams interface {
+	GetAzureSubscriptionId() string
+	GetAzureClientId() string
+	GetAzureClientSecret() string
+	GetAzureTenantId() string
+	GetAzureResourceGroup() string
+}
+
+// AzureOptionsFromRequest creates AzureOptions object from request.
+func AzureOptionsFromRequest(params AzureOptionsParams) *AzureOptions {
+	if params.GetAzureSubscriptionId() != "" || params.GetAzureClientId() != "" || params.GetAzureClientSecret() != "" ||
+		params.GetAzureTenantId() != "" || params.GetAzureResourceGroup() != "" {
+		return &AzureOptions{
+			SubscriptionID: params.GetAzureSubscriptionId(),
+			ClientID:       params.GetAzureClientId(),
+			ClientSecret:   params.GetAzureClientSecret(),
+			TenantID:       params.GetAzureTenantId(),
+			ResourceGroup:  params.GetAzureResourceGroup(),
+		}
+	}
+	return nil
+}
+
 func checkUniqueAgentID(q *reform.Querier, id string) error {
 	if id == "" {
 		panic("empty Agent ID")
@@ -524,6 +548,7 @@ type CreateAgentParams struct {
 	AWSSecretKey                   string
 	RDSBasicMetricsDisabled        bool
 	RDSEnhancedMetricsDisabled     bool
+	AzureOptions                   *AzureOptions
 	PushMetrics                    bool
 	DisableCollectors              []string
 }
@@ -577,6 +602,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		AWSSecretKey:                   pointer.ToStringOrNil(params.AWSSecretKey),
 		RDSBasicMetricsDisabled:        params.RDSBasicMetricsDisabled,
 		RDSEnhancedMetricsDisabled:     params.RDSEnhancedMetricsDisabled,
+		AzureOptions:                   params.AzureOptions,
 		PushMetrics:                    params.PushMetrics,
 		DisabledCollectors:             params.DisableCollectors,
 	}

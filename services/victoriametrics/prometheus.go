@@ -162,11 +162,20 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, s 
 				service: paramsService,
 				agent:   agent,
 			})
+
 		case models.VMAgentType:
 			scfgs, err = scrapeConfigsForVMAgent(s, &scrapeConfigParams{
 				host:    paramsHost,
 				node:    paramsNode,
 				service: nil,
+				agent:   agent,
+			})
+
+		case models.AzureDatabaseExporterType:
+			scfgs, err = scrapeConfigsForAzureDatabase(s, &scrapeConfigParams{
+				host:    paramsHost,
+				node:    paramsNode,
+				service: paramsService,
 				agent:   agent,
 			})
 

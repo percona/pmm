@@ -52,6 +52,7 @@ const (
 	PostgresExporterType                AgentType = "postgres_exporter"
 	ProxySQLExporterType                AgentType = "proxysql_exporter"
 	RDSExporterType                     AgentType = "rds_exporter"
+	AzureDatabaseExporterType           AgentType = "azure_database_exporter"
 	QANMySQLPerfSchemaAgentType         AgentType = "qan-mysql-perfschema-agent"
 	QANMySQLSlowlogAgentType            AgentType = "qan-mysql-slowlog-agent"
 	QANMongoDBProfilerAgentType         AgentType = "qan-mongodb-profiler-agent"
@@ -76,6 +77,21 @@ func (c MongoDBOptions) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *MongoDBOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+
+// AzureOptions represents structure for special Azure options.
+type AzureOptions struct {
+	SubscriptionID string `json:"subscription_id"`
+	ClientID       string `json:"client_id"`
+	ClientSecret   string `json:"client_secret"`
+	TenantID       string `json:"tenant_id"`
+	ResourceGroup  string `json:"resource_group"`
+}
+
+// Value implements database/sql/driver.Valuer interface. Should be defined on the value.
+func (c AzureOptions) Value() (driver.Value, error) { return jsonValue(c) }
+
+// Scan implements database/sql.Scanner interface. Should be defined on the pointer.
+func (c *AzureOptions) Scan(src interface{}) error { return jsonScan(c, src) }
 
 // PMMAgentWithPushMetricsSupport - version of pmmAgent,
 // that support vmagent and push metrics mode
@@ -107,6 +123,8 @@ type Agent struct {
 
 	AWSAccessKey *string `reform:"aws_access_key"`
 	AWSSecretKey *string `reform:"aws_secret_key"`
+
+	AzureOptions *AzureOptions `reform:"azure_options"`
 
 	// TableCount stores last known table count. NULL if unknown.
 	TableCount *int32 `reform:"table_count"`
