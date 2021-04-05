@@ -295,6 +295,9 @@ type GetSettingsOKBodySettings struct {
 	// True if Backup Management is enabled.
 	BackupManagementEnabled bool `json:"backup_management_enabled,omitempty"`
 
+	// True if Azure Discover is enabled.
+	AzurediscoverEnabled bool `json:"azurediscover_enabled,omitempty"`
+
 	// email alerting settings
 	EmailAlertingSettings *GetSettingsOKBodySettingsEmailAlertingSettings `json:"email_alerting_settings,omitempty"`
 
