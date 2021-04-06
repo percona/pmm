@@ -26,7 +26,7 @@ split again
         split
             -[hidden]->Option 3;
             :""docker pull percona/pmm-client:2"";
-            :Create persistent\ndata store;
+            :Create persistent data store;
             :""docker run ..."";
             :Check status;
         split again
