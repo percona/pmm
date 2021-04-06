@@ -25,6 +25,8 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
+	AddAzureDatabaseExporter(params *AddAzureDatabaseExporterParams) (*AddAzureDatabaseExporterOK, error)
+
 	AddExternalExporter(params *AddExternalExporterParams) (*AddExternalExporterOK, error)
 
 	AddMongoDBExporter(params *AddMongoDBExporterParams) (*AddMongoDBExporterOK, error)
@@ -50,6 +52,8 @@ type ClientService interface {
 	AddQANPostgreSQLPgStatementsAgent(params *AddQANPostgreSQLPgStatementsAgentParams) (*AddQANPostgreSQLPgStatementsAgentOK, error)
 
 	AddRDSExporter(params *AddRDSExporterParams) (*AddRDSExporterOK, error)
+
+	ChangeAzureDatabaseExporter(params *ChangeAzureDatabaseExporterParams) (*ChangeAzureDatabaseExporterOK, error)
 
 	ChangeExternalExporter(params *ChangeExternalExporterParams) (*ChangeExternalExporterOK, error)
 
@@ -82,6 +86,39 @@ type ClientService interface {
 	RemoveAgent(params *RemoveAgentParams) (*RemoveAgentOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+  AddAzureDatabaseExporter adds azure database exporter adds azure database exporter agent
+*/
+func (a *Client) AddAzureDatabaseExporter(params *AddAzureDatabaseExporterParams) (*AddAzureDatabaseExporterOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAddAzureDatabaseExporterParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "AddAzureDatabaseExporter",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Agents/AddAzureDatabaseExporter",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &AddAzureDatabaseExporterReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*AddAzureDatabaseExporterOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AddAzureDatabaseExporterDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -510,6 +547,39 @@ func (a *Client) AddRDSExporter(params *AddRDSExporterParams) (*AddRDSExporterOK
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*AddRDSExporterDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  ChangeAzureDatabaseExporter changes azure database exporter changes database azure database exporter agent
+*/
+func (a *Client) ChangeAzureDatabaseExporter(params *ChangeAzureDatabaseExporterParams) (*ChangeAzureDatabaseExporterOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewChangeAzureDatabaseExporterParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "ChangeAzureDatabaseExporter",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Agents/ChangeAzureDatabaseExporter",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ChangeAzureDatabaseExporterReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ChangeAzureDatabaseExporterOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ChangeAzureDatabaseExporterDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

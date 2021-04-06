@@ -240,7 +240,7 @@ swagger:model ListNodesBody
 type ListNodesBody struct {
 
 	// NodeType describes supported Node types.
-	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE]
+	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE REMOTE_AZURE_DATABASE_NODE]
 	NodeType *string `json:"node_type,omitempty"`
 }
 
@@ -262,7 +262,7 @@ var listNodesBodyTypeNodeTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["NODE_TYPE_INVALID","GENERIC_NODE","CONTAINER_NODE","REMOTE_NODE","REMOTE_RDS_NODE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["NODE_TYPE_INVALID","GENERIC_NODE","CONTAINER_NODE","REMOTE_NODE","REMOTE_RDS_NODE","REMOTE_AZURE_DATABASE_NODE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -286,6 +286,9 @@ const (
 
 	// ListNodesBodyNodeTypeREMOTERDSNODE captures enum value "REMOTE_RDS_NODE"
 	ListNodesBodyNodeTypeREMOTERDSNODE string = "REMOTE_RDS_NODE"
+
+	// ListNodesBodyNodeTypeREMOTEAZUREDATABASENODE captures enum value "REMOTE_AZURE_DATABASE_NODE"
+	ListNodesBodyNodeTypeREMOTEAZUREDATABASENODE string = "REMOTE_AZURE_DATABASE_NODE"
 )
 
 // prop value enum
@@ -419,6 +422,9 @@ type ListNodesOKBody struct {
 
 	// remote rds
 	RemoteRDS []*RemoteRDSItems0 `json:"remote_rds"`
+
+	// remote azure database
+	RemoteAzureDatabase []*RemoteAzureDatabaseItems0 `json:"remote_azure_database"`
 }
 
 // Validate validates this list nodes OK body
@@ -438,6 +444,10 @@ func (o *ListNodesOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateRemoteRDS(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateRemoteAzureDatabase(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -547,6 +557,31 @@ func (o *ListNodesOKBody) validateRemoteRDS(formats strfmt.Registry) error {
 	return nil
 }
 
+func (o *ListNodesOKBody) validateRemoteAzureDatabase(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.RemoteAzureDatabase) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.RemoteAzureDatabase); i++ {
+		if swag.IsZero(o.RemoteAzureDatabase[i]) { // not required
+			continue
+		}
+
+		if o.RemoteAzureDatabase[i] != nil {
+			if err := o.RemoteAzureDatabase[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listNodesOk" + "." + "remote_azure_database" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *ListNodesOKBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -558,6 +593,56 @@ func (o *ListNodesOKBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ListNodesOKBody) UnmarshalBinary(b []byte) error {
 	var res ListNodesOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*RemoteAzureDatabaseItems0 RemoteAzureDatabaseNode represents remote AzureDatabase Node. Agents can't run on Remote AzureDatabase Nodes.
+swagger:model RemoteAzureDatabaseItems0
+*/
+type RemoteAzureDatabaseItems0 struct {
+
+	// Unique randomly generated instance identifier.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Unique across all Nodes user-defined name.
+	NodeName string `json:"node_name,omitempty"`
+
+	// DB instance identifier.
+	Address string `json:"address,omitempty"`
+
+	// Node model.
+	NodeModel string `json:"node_model,omitempty"`
+
+	// Node region.
+	Region string `json:"region,omitempty"`
+
+	// Node availability zone.
+	Az string `json:"az,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+}
+
+// Validate validates this remote azure database items0
+func (o *RemoteAzureDatabaseItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *RemoteAzureDatabaseItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *RemoteAzureDatabaseItems0) UnmarshalBinary(b []byte) error {
+	var res RemoteAzureDatabaseItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
