@@ -20,11 +20,16 @@ When you have installed PMM Client, you must:
 - [Register the node with PMM Server](#register)
 - [Configure and add services according to type](#configure-add-services)
 
+Here is an overview of the steps involved for each option.
+
+```plantuml source="_resources/diagrams/Setting-Up_Client.puml"
+```
+
 ## System requirements
 
 **Operating system**
 
-PMM Client runs on any modern 64-bit Linux distribution. It is tested on the latest versions of Debian, Ubuntu, CentOS, and Red Hat Enterprise Linux.
+PMM Client runs on any modern 64-bit Linux distribution. It is tested on [supported versions of Debian, Ubuntu, CentOS, and Red Hat Enterprise Linux][PERCONA_TOOLS].
 
 **Disk**
 

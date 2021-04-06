@@ -11,11 +11,11 @@ The PMM setting-up process can be broken into three key stages:
 
 ## Setting up PMM Server {: #setting-up-pmm-server}
 
-You must set up at least one PMM Server. A server can run as:
+You must set up at least one PMM Server. A server can run:
 
-- [a Docker container](server/docker.md)
-- [a virtual appliance](server/virtual-appliance.md)
-- [an Amazon AWS EC2 instance](server/aws.md)
+- [with Docker](server/docker.md)
+- [as a virtual appliance](server/virtual-appliance.md)
+- [on an Amazon AWS EC2 instance](server/aws.md)
 
 ## Setting up PMM Client {: #setting-up-pmm-client}
 
