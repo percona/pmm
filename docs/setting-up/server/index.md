@@ -24,8 +24,8 @@ Your CPU must support the SSE4.2 instruction set, a requirement of ClickHouse, a
 
 Choose how you want to run PMM Server:
 
-- as a [Docker container](docker.md)
-- as a [virtual appliance](virtual-appliance.md)
-- on an [Amazon AWS instance](aws.md)
+- [with Docker](docker.md)
+- [as a virtual appliance](virtual-appliance.md)
+- [on an Amazon AWS EC2 instance](sws.md)
 
 When PMM Server is running, set up [PMM Client](../client/index.md) for each node or service.

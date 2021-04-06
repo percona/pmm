@@ -370,4 +370,4 @@ You should continue by adding services according to the service type.
 [PERCONA_RELEASE]: https://www.percona.com/doc/percona-repo-config/percona-release.html
 [PERCONA_TOOLS]: https://www.percona.com/services/policies/percona-software-support-lifecycle#pt
 [PASKAL]: https://gist.github.com/paskal/48f10a0a584f4849be6b0889ede9262b
-[PMMS_COMPOSE]: ../server/docker.md#setting-up-server-docker-compose
+[PMMS_COMPOSE]: ../server/docker.md#docker-compose
