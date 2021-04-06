@@ -3,6 +3,7 @@
 # See https://code.visualstudio.com/docs/remote/remote-overview
 # and https://code.visualstudio.com/docs/remote/containers.
 
+set -m
 set -o errexit
 set -o xtrace
 
@@ -35,8 +36,6 @@ update-alternatives --set gofmt /usr/local/go/bin/gofmt
 mkdir /root/go/bin
 go env
 
-curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-
 # use modules to install (in the background) tagged releases
 cd $(mktemp -d)
 go mod init tools
@@ -45,7 +44,6 @@ env GOPROXY=https://proxy.golang.org go get -v \
     golang.org/x/tools/gopls@latest &
 
 cd /root/go/src/github.com/percona/pmm-update
-curl https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh| sh -s
 make init
 
 fg || true

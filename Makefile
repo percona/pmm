@@ -1,3 +1,8 @@
+BASE_PATH = $(shell pwd)
+BIN_PATH := $(BASE_PATH)/bin
+
+export PATH := $(BIN_PATH):$(PATH)
+
 help:                           ## Display this help message.
 	@echo "Please use \`make <target>\` where <target> is one of:"
 	@grep '^[a-zA-Z]' $(MAKEFILE_LIST) | \
@@ -11,24 +16,21 @@ PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
 PMM_RELEASE_BRANCH ?= $(shell git describe --always --contains --all)
 
 LD_FLAGS = -ldflags " \
-			-X 'github.com/percona/pmm-update/vendor/github.com/percona/pmm/version.ProjectName=pmm-update' \
-			-X 'github.com/percona/pmm-update/vendor/github.com/percona/pmm/version.Version=$(PMM_RELEASE_VERSION)' \
-			-X 'github.com/percona/pmm-update/vendor/github.com/percona/pmm/version.PMMVersion=$(PMM_RELEASE_VERSION)' \
-			-X 'github.com/percona/pmm-update/vendor/github.com/percona/pmm/version.Timestamp=$(PMM_RELEASE_TIMESTAMP)' \
-			-X 'github.com/percona/pmm-update/vendor/github.com/percona/pmm/version.FullCommit=$(PMM_RELEASE_FULLCOMMIT)' \
-			-X 'github.com/percona/pmm-update/vendor/github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)' \
+			-X 'github.com/percona/pmm/version.ProjectName=pmm-update' \
+			-X 'github.com/percona/pmm/version.Version=$(PMM_RELEASE_VERSION)' \
+			-X 'github.com/percona/pmm/version.PMMVersion=$(PMM_RELEASE_VERSION)' \
+			-X 'github.com/percona/pmm/version.Timestamp=$(PMM_RELEASE_TIMESTAMP)' \
+			-X 'github.com/percona/pmm/version.FullCommit=$(PMM_RELEASE_FULLCOMMIT)' \
+			-X 'github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)' \
 			"
 
 release:                        ## Build pmm-update release binary.
 	env CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-update
 
-init:                           ## Installs tools to $GOPATH/bin (which is expected to be in $PATH).
-	curl https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOPATH)/bin
-
-	go install ./vendor/golang.org/x/tools/cmd/goimports
-
-	go test -i ./...
-	go test -race -i ./...
+init:                           ## Installs development tools
+	go build -modfile=tools/go.mod -o $(BIN_PATH)/golangci-lint github.com/golangci/golangci-lint/cmd/golangci-lint
+	go build -modfile=tools/go.mod -o $(BIN_PATH)/goimports golang.org/x/tools/cmd/goimports
+	go build -modfile=tools/go.mod -o $(BIN_PATH)/reviewdog github.com/reviewdog/reviewdog/cmd/reviewdog
 
 install:                        ## Install pmm-update binary.
 	go install $(LD_FLAGS) ./...
@@ -55,13 +57,13 @@ check:                          ## Run required checkers and linters.
 	ansible-lint ansible/playbook/tasks/update.yml
 
 check-all: check                ## Run all linters for new code.
-	golangci-lint run -c=.golangci.yml --new-from-rev=PMM-2.0
+	$(BIN_PATH)/golangci-lint run -c=.golangci.yml --new-from-rev=PMM-2.0
 
 FILES = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 
 format:                         ## Format source code.
 	gofmt -w -s $(FILES)
-	goimports -local github.com/percona/pmm-update -l -w $(FILES)
+	$(BIN_PATH)/goimports -local github.com/percona/pmm-update -l -w $(FILES)
 
 RUN_FLAGS ?=
 
@@ -87,5 +89,5 @@ env-down:                       ## Stop development environment.
 	docker-compose down --volumes --remove-orphans
 
 ci-reviewdog:                   ## Runs reviewdog checks.
-	golangci-lint run -c=.golangci-required.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -level=error -reporter=github-pr-check
-	golangci-lint run -c=.golangci.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -level=error -reporter=github-pr-review
+	$(BIN_PATH)/golangci-lint run -c=.golangci-required.yml --out-format=line-number | $(BIN_PATH)/reviewdog -f=golangci-lint -level=error -reporter=github-pr-check
+	$(BIN_PATH)/golangci-lint run -c=.golangci.yml --out-format=line-number | $(BIN_PATH)/reviewdog -f=golangci-lint -level=error -reporter=github-pr-review

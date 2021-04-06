@@ -14,15 +14,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-//go:build maincover
-// +build maincover
+//go:build tools
+// +build tools
 
-package main
+package tools
 
 import (
-	"testing"
+	_ "github.com/golangci/golangci-lint/cmd/golangci-lint"
+	_ "github.com/reviewdog/reviewdog/cmd/reviewdog"
+	_ "golang.org/x/tools/cmd/goimports"
 )
-
-func TestMainCover(*testing.T) {
-	main()
-}

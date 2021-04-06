@@ -45,13 +45,10 @@ before_install:
   - docker-compose up -d
   - docker exec pmm-update-server /root/go/src/github.com/percona/pmm-update/.devcontainer/install-dev-tools.sh
 
-install:
-  # ensure that vendor/ is in sync with code and Gopkg.toml/lock
-  - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-  - dep check
+install: skip
 
 before_script:
-  - make init
+  #- make init It-s already run from install-dev-tools.sh
   - make format
   - git status
   - git diff --exit-code
