@@ -7,7 +7,7 @@ We maintain a [Docker image for PMM Server][DOCKERHUB]. This section shows how t
 **Software**
 
 - [Docker](https://docs.docker.com/get-docker/) 1.12.6 or higher.
-- (Optional) [`docker-compose`](https://docs.docker.com/compose/install/)
+- (Optional) [Docker compose](https://docs.docker.com/compose/install/)
 
 ## Running PMM Server with Docker {: #docker }
 
