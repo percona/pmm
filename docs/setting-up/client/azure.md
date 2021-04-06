@@ -54,6 +54,7 @@ For Query Analytics, set the server parameter:
 pg_stat_statements.track = all
 ```
 
+<!--
 ## To discover databases on Azure
 
 You need to get the Client ID, Client Secret, Tenant ID and Subscription ID.
@@ -114,3 +115,4 @@ PMM can use 3 exporters to collect metrics:
 - `mysql_exporter` or `postgres_exporter` – to collect database related metrics.
 
 - PMM Agent to collect queries related metrics using pg_stat_statements for PostgreSQL or Performance Schema for MySQL (MariaDB)
+-->
