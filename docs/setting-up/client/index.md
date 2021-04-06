@@ -14,7 +14,7 @@ These sections cover the different ways to install PMM Client on a Linux node an
 - [Option 2](#manual-package) -- For Debian- or Red Hat-based distributions, download `.deb`/`.rpm` PMM Client packages and install them
 - [Option 3](#binary-package) -- For other Linux distributions, download and unpack generic PMM Client Linux binaries
 - [Option 4](#docker) -- run PMM Client as a Docker container
-- [Option 5](#docker-compose) --run PMM Client with Docker compose
+- [Option 5](#docker-compose) -- run PMM Client with Docker compose
 
 When you have installed PMM Client, you must:
 
