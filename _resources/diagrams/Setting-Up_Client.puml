@@ -32,6 +32,7 @@ split
         :Download & verify;
         :Unpack;
         :Install;
+        :Set ""$PATH"";
         }
     end split
     :Set up pmm-agent;
