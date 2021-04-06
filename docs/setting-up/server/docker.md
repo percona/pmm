@@ -1,6 +1,6 @@
 # Docker
 
-We maintain a [Docker image for PMM Server][DOCKERHUB]. This section shows how to run PMM Server as a Docker container, directly and with Docker compose. (The tags used here are for the latest version of PMM 2 ({{release}}). [Other tags are available][TAGS].)
+We maintain a [Docker image for PMM Server][DOCKERHUB]. This section shows how to run PMM Server as a Docker container, directly and with [Docker compose](#docker-compose). (The tags used here are for the latest version of PMM 2 ({{release}}). [Other tags are available][TAGS].)
 
 ## System requirements
 
