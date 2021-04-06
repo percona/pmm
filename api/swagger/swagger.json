@@ -555,15 +555,25 @@
                   },
                   "x-order": 20
                 },
+                "enable_azurediscover": {
+                  "description": "Enable Azure Discover.",
+                  "type": "boolean",
+                  "x-order": 21
+                },
+                "disable_azurediscover": {
+                  "description": "Disable Azure Discover.",
+                  "type": "boolean",
+                  "x-order": 22
+                },
                 "enable_backup_management": {
                   "description": "Enable Backup Management.",
                   "type": "boolean",
-                  "x-order": 21
+                  "x-order": 23
                 },
                 "disable_backup_management": {
                   "description": "Disable Backup Management.",
                   "type": "boolean",
-                  "x-order": 22
+                  "x-order": 24
                 }
               }
             }
@@ -741,6 +751,11 @@
                       "description": "True if Backup Management is enabled.",
                       "type": "boolean",
                       "x-order": 16
+                    },
+                    "azurediscover_enabled": {
+                      "description": "True if Azure Discover is enabled.",
+                      "type": "boolean",
+                      "x-order": 17
                     }
                   },
                   "x-order": 0
@@ -979,6 +994,11 @@
                       "description": "True if Backup Management is enabled.",
                       "type": "boolean",
                       "x-order": 16
+                    },
+                    "azurediscover_enabled": {
+                      "description": "True if Azure Discover is enabled.",
+                      "type": "boolean",
+                      "x-order": 17
                     }
                   },
                   "x-order": 0
@@ -1298,6 +1318,204 @@
                   "description": "True when update is done.",
                   "type": "boolean",
                   "x-order": 2
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/inventory/Agents/AddAzureDatabaseExporter": {
+      "post": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "AddAzureDatabaseExporter adds azure_database_exporter Agent.",
+        "operationId": "AddAzureDatabaseExporter",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "pmm_agent_id": {
+                  "description": "The pmm-agent identifier which runs this instance.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "node_id": {
+                  "description": "Node identifier.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "azure_client_id": {
+                  "type": "string",
+                  "title": "Azure client ID",
+                  "x-order": 2
+                },
+                "azure_client_secret": {
+                  "type": "string",
+                  "title": "Azure client secret",
+                  "x-order": 3
+                },
+                "azure_tenant_id": {
+                  "type": "string",
+                  "title": "Azure tanant ID",
+                  "x-order": 4
+                },
+                "azure_subscription_id": {
+                  "type": "string",
+                  "title": "Azure subscription ID",
+                  "x-order": 5
+                },
+                "azure_resource_group": {
+                  "description": "Azure resource group.",
+                  "type": "string",
+                  "x-order": 6
+                },
+                "azure_database_resource_type": {
+                  "type": "string",
+                  "title": "Azure resource type (mysql, maria, postgres)",
+                  "x-order": 7
+                },
+                "custom_labels": {
+                  "description": "Custom user-assigned labels.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "x-order": 8
+                },
+                "skip_connection_check": {
+                  "description": "Skip connection check.",
+                  "type": "boolean",
+                  "x-order": 9
+                },
+                "push_metrics": {
+                  "description": "Enables push metrics mode for exporter.",
+                  "type": "boolean",
+                  "x-order": 10
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "azure_database_exporter": {
+                  "description": "AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "node_id": {
+                      "description": "Node identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "azure_database_subscription_id": {
+                      "description": "Azure database subscription ID.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "azure_database_resource_type": {
+                      "type": "string",
+                      "title": "Azure database resource type (mysql, maria, postgres)",
+                      "x-order": 5
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 6
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 7
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics (the same for several configurations).",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 8
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if the exporter operates in push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 9
+                    }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -3756,6 +3974,190 @@
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 10
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/inventory/Agents/ChangeAzureDatabaseExporter": {
+      "post": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "ChangeAzureDatabaseExporter changes_database azure_database_exporter Agent.",
+        "operationId": "ChangeAzureDatabaseExporter",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "agent_id": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "common": {
+                  "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
+                  "type": "object",
+                  "properties": {
+                    "enable": {
+                      "description": "Enable this Agent. Can't be used with disabled.",
+                      "type": "boolean",
+                      "x-order": 0
+                    },
+                    "disable": {
+                      "description": "Disable this Agent. Can't be used with enabled.",
+                      "type": "boolean",
+                      "x-order": 1
+                    },
+                    "custom_labels": {
+                      "description": "Replace all custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 2
+                    },
+                    "remove_custom_labels": {
+                      "description": "Remove all custom user-assigned labels.",
+                      "type": "boolean",
+                      "x-order": 3
+                    },
+                    "enable_push_metrics": {
+                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
+                      "type": "boolean",
+                      "x-order": 4
+                    },
+                    "disable_push_metrics": {
+                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                      "type": "boolean",
+                      "x-order": 5
+                    }
+                  },
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "azure_database_exporter": {
+                  "description": "AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "node_id": {
+                      "description": "Node identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "azure_database_subscription_id": {
+                      "description": "Azure database subscription ID.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "azure_database_resource_type": {
+                      "type": "string",
+                      "title": "Azure database resource type (mysql, maria, postgres)",
+                      "x-order": 5
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 6
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 7
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics (the same for several configurations).",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 8
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if the exporter operates in push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -7029,6 +7431,76 @@
                     }
                   },
                   "x-order": 13
+                },
+                "azure_database_exporter": {
+                  "description": "AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "node_id": {
+                      "description": "Node identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "azure_database_subscription_id": {
+                      "description": "Azure database subscription ID.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "azure_database_resource_type": {
+                      "type": "string",
+                      "title": "Azure database resource type (mysql, maria, postgres)",
+                      "x-order": 5
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 6
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 7
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics (the same for several configurations).",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 8
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if the exporter operates in push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 9
+                    }
+                  },
+                  "x-order": 14
                 }
               }
             }
@@ -7124,7 +7596,8 @@
                     "QAN_POSTGRESQL_PGSTATEMENTS_AGENT",
                     "QAN_POSTGRESQL_PGSTATMONITOR_AGENT",
                     "RDS_EXPORTER",
-                    "EXTERNAL_EXPORTER"
+                    "EXTERNAL_EXPORTER",
+                    "AZURE_DATABASE_EXPORTER"
                   ],
                   "x-order": 3
                 }
@@ -8123,6 +8596,79 @@
                     }
                   },
                   "x-order": 13
+                },
+                "azure_database_exporter": {
+                  "type": "array",
+                  "items": {
+                    "description": "AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.",
+                    "type": "object",
+                    "properties": {
+                      "agent_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "pmm_agent_id": {
+                        "description": "The pmm-agent identifier which runs this instance.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "disabled": {
+                        "description": "Desired Agent status: enabled (false) or disabled (true).",
+                        "type": "boolean",
+                        "x-order": 2
+                      },
+                      "node_id": {
+                        "description": "Node identifier.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "azure_database_subscription_id": {
+                        "description": "Azure database subscription ID.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "azure_database_resource_type": {
+                        "type": "string",
+                        "title": "Azure database resource type (mysql, maria, postgres)",
+                        "x-order": 5
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 6
+                      },
+                      "status": {
+                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                        "type": "string",
+                        "default": "AGENT_STATUS_INVALID",
+                        "enum": [
+                          "AGENT_STATUS_INVALID",
+                          "STARTING",
+                          "RUNNING",
+                          "WAITING",
+                          "STOPPING",
+                          "DONE"
+                        ],
+                        "x-order": 7
+                      },
+                      "listen_port": {
+                        "description": "Listen port for scraping metrics (the same for several configurations).",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 8
+                      },
+                      "push_metrics_enabled": {
+                        "description": "True if the exporter operates in push metrics mode.",
+                        "type": "boolean",
+                        "x-order": 9
+                      }
+                    }
+                  },
+                  "x-order": 14
                 }
               }
             }
@@ -8740,6 +9286,154 @@
         }
       }
     },
+    "/v1/inventory/Nodes/AddRemoteAzureDatabase": {
+      "post": {
+        "tags": [
+          "Nodes"
+        ],
+        "summary": "AddRemoteAzureDatabaseNode adds remote Azure database Node.",
+        "operationId": "AddRemoteAzureDatabaseNode",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "node_name": {
+                  "description": "Unique across all Nodes user-defined name.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "address": {
+                  "description": "DB instance identifier.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "node_model": {
+                  "description": "Node model.",
+                  "type": "string",
+                  "x-order": 2
+                },
+                "region": {
+                  "description": "Node region.",
+                  "type": "string",
+                  "x-order": 3
+                },
+                "az": {
+                  "description": "Node availability zone.",
+                  "type": "string",
+                  "x-order": 4
+                },
+                "custom_labels": {
+                  "description": "Custom user-assigned labels.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "x-order": 5
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "remote_azure_database": {
+                  "description": "RemoteAzureDatabaseNode represents remote AzureDatabase Node. Agents can't run on Remote AzureDatabase Nodes.",
+                  "type": "object",
+                  "properties": {
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "address": {
+                      "description": "DB instance identifier.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "node_model": {
+                      "description": "Node model.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 6
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/inventory/Nodes/AddRemoteRDS": {
       "post": {
         "tags": [
@@ -9122,6 +9816,51 @@
                     }
                   },
                   "x-order": 3
+                },
+                "remote_azure_database": {
+                  "description": "RemoteAzureDatabaseNode represents remote AzureDatabase Node. Agents can't run on Remote AzureDatabase Nodes.",
+                  "type": "object",
+                  "properties": {
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "address": {
+                      "description": "DB instance identifier.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "node_model": {
+                      "description": "Node model.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 6
+                    }
+                  },
+                  "x-order": 4
                 }
               }
             }
@@ -9192,7 +9931,8 @@
                     "GENERIC_NODE",
                     "CONTAINER_NODE",
                     "REMOTE_NODE",
-                    "REMOTE_RDS_NODE"
+                    "REMOTE_RDS_NODE",
+                    "REMOTE_AZURE_DATABASE_NODE"
                   ],
                   "x-order": 0
                 }
@@ -9422,6 +10162,54 @@
                     }
                   },
                   "x-order": 3
+                },
+                "remote_azure_database": {
+                  "type": "array",
+                  "items": {
+                    "description": "RemoteAzureDatabaseNode represents remote AzureDatabase Node. Agents can't run on Remote AzureDatabase Nodes.",
+                    "type": "object",
+                    "properties": {
+                      "node_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "node_name": {
+                        "description": "Unique across all Nodes user-defined name.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "address": {
+                        "description": "DB instance identifier.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "node_model": {
+                        "description": "Node model.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "region": {
+                        "description": "Node region.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "az": {
+                        "description": "Node availability zone.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 6
+                      }
+                    }
+                  },
+                  "x-order": 4
                 }
               }
             }
@@ -13131,7 +13919,8 @@
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
                         "REMOTE_NODE",
-                        "REMOTE_RDS_NODE"
+                        "REMOTE_RDS_NODE",
+                        "REMOTE_AZURE_DATABASE_NODE"
                       ],
                       "x-order": 0
                     },
@@ -13478,7 +14267,8 @@
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
                         "REMOTE_NODE",
-                        "REMOTE_RDS_NODE"
+                        "REMOTE_RDS_NODE",
+                        "REMOTE_AZURE_DATABASE_NODE"
                       ],
                       "x-order": 0
                     },
@@ -13810,7 +14600,8 @@
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
                         "REMOTE_NODE",
-                        "REMOTE_RDS_NODE"
+                        "REMOTE_RDS_NODE",
+                        "REMOTE_AZURE_DATABASE_NODE"
                       ],
                       "x-order": 0
                     },
@@ -14282,7 +15073,8 @@
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
                         "REMOTE_NODE",
-                        "REMOTE_RDS_NODE"
+                        "REMOTE_RDS_NODE",
+                        "REMOTE_AZURE_DATABASE_NODE"
                       ],
                       "x-order": 0
                     },
@@ -14844,7 +15636,8 @@
                     "GENERIC_NODE",
                     "CONTAINER_NODE",
                     "REMOTE_NODE",
-                    "REMOTE_RDS_NODE"
+                    "REMOTE_RDS_NODE",
+                    "REMOTE_AZURE_DATABASE_NODE"
                   ],
                   "x-order": 0
                 },
@@ -15166,7 +15959,8 @@
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
                         "REMOTE_NODE",
-                        "REMOTE_RDS_NODE"
+                        "REMOTE_RDS_NODE",
+                        "REMOTE_AZURE_DATABASE_NODE"
                       ],
                       "x-order": 0
                     },
@@ -15702,7 +16496,8 @@
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
                         "REMOTE_NODE",
-                        "REMOTE_RDS_NODE"
+                        "REMOTE_RDS_NODE",
+                        "REMOTE_AZURE_DATABASE_NODE"
                       ],
                       "x-order": 0
                     },

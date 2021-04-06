@@ -25,6 +25,7 @@ enum AgentType {
   QAN_POSTGRESQL_PGSTATMONITOR_AGENT = 13;
   RDS_EXPORTER = 11;
   EXTERNAL_EXPORTER = 12;
+  AZURE_DATABASE_EXPORTER = 15;
 }
 
 // PMMAgent runs on Generic or Container Node.
@@ -416,6 +417,34 @@ message ExternalExporter {
   bool push_metrics_enabled = 11;
 }
 
+// AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.
+message AzureDatabaseExporter {
+  // Unique randomly generated instance identifier.
+  string agent_id = 1;
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 2;
+  // Desired Agent status: enabled (false) or disabled (true).
+  bool disabled = 3;
+  // Node identifier.
+  string node_id = 4;
+  // Azure database subscription ID.
+  string azure_database_subscription_id = 5;
+  // Azure database resource type (mysql, maria, postgres)
+  string azure_database_resource_type = 6;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 7;
+  //
+  // Status fields below.
+  //
+
+  // Actual Agent status (the same for several configurations).
+  AgentStatus status = 8;
+  // Listen port for scraping metrics (the same for several configurations).
+  uint32 listen_port = 9;
+  // True if the exporter operates in push metrics mode.
+  bool push_metrics_enabled = 10;
+}
+
 // ChangeCommonAgentParams contains parameters that can be changed for all Agents.
 message ChangeCommonAgentParams {
   // Enable this Agent. Can't be used with disabled.
@@ -465,6 +494,7 @@ message ListAgentsResponse {
   repeated QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 13;
   repeated RDSExporter rds_exporter = 11;
   repeated ExternalExporter external_exporter = 12;
+  repeated AzureDatabaseExporter azure_database_exporter = 15;
 }
 
 // Get
@@ -494,6 +524,7 @@ message GetAgentResponse {
     QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 13;
     RDSExporter rds_exporter = 11;
     ExternalExporter external_exporter = 12;
+    AzureDatabaseExporter azure_database_exporter = 15;
   }
 }
 
@@ -1136,6 +1167,62 @@ message ChangeExternalExporterResponse {
   ExternalExporter external_exporter = 1;
 }
 
+// Add/Change AzureDatabaseExporter
+
+message AddAzureDatabaseExporterRequest {
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Node identifier.
+  string node_id = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Azure client ID
+  string azure_client_id = 3;
+  // Azure client secret
+  string azure_client_secret = 4;
+  // Azure tanant ID
+  string azure_tenant_id = 5;
+  // Azure subscription ID
+  string azure_subscription_id = 6;
+  // Azure resource group.
+  string azure_resource_group = 11;
+  // Azure resource type (mysql, maria, postgres)
+  string azure_database_resource_type = 7 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 8;
+  // Skip connection check.
+  bool skip_connection_check = 9;
+  // Enables push metrics mode for exporter.
+  bool push_metrics = 10;
+}
+
+message AddAzureDatabaseExporterResponse {
+  AzureDatabaseExporter azure_database_exporter = 1;
+}
+
+message ChangeAzureDatabaseExporterRequest {
+  string agent_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  ChangeCommonAgentParams common = 2;
+}
+
+message ChangeAzureDatabaseExporterResponse {
+  AzureDatabaseExporter azure_database_exporter = 1;
+}
+
 // Remove
 
 message RemoveAgentRequest {
@@ -1338,6 +1425,20 @@ service Agents {
   rpc ChangeExternalExporter(ChangeExternalExporterRequest) returns (ChangeExternalExporterResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/ChangeExternalExporter"
+      body: "*"
+    };
+  }
+  // AddAzureDatabaseExporter adds azure_database_exporter Agent.
+  rpc AddAzureDatabaseExporter(AddAzureDatabaseExporterRequest) returns (AddAzureDatabaseExporterResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/AddAzureDatabaseExporter"
+      body: "*"
+    };
+  }
+  // ChangeAzureDatabaseExporter changes_database azure_database_exporter Agent.
+  rpc ChangeAzureDatabaseExporter(ChangeAzureDatabaseExporterRequest) returns (ChangeAzureDatabaseExporterResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/ChangeAzureDatabaseExporter"
       body: "*"
     };
   }

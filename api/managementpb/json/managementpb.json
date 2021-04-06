@@ -1663,7 +1663,8 @@
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
                         "REMOTE_NODE",
-                        "REMOTE_RDS_NODE"
+                        "REMOTE_RDS_NODE",
+                        "REMOTE_AZURE_DATABASE_NODE"
                       ],
                       "x-order": 0
                     },
@@ -2010,7 +2011,8 @@
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
                         "REMOTE_NODE",
-                        "REMOTE_RDS_NODE"
+                        "REMOTE_RDS_NODE",
+                        "REMOTE_AZURE_DATABASE_NODE"
                       ],
                       "x-order": 0
                     },
@@ -2342,7 +2344,8 @@
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
                         "REMOTE_NODE",
-                        "REMOTE_RDS_NODE"
+                        "REMOTE_RDS_NODE",
+                        "REMOTE_AZURE_DATABASE_NODE"
                       ],
                       "x-order": 0
                     },
@@ -2814,7 +2817,8 @@
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
                         "REMOTE_NODE",
-                        "REMOTE_RDS_NODE"
+                        "REMOTE_RDS_NODE",
+                        "REMOTE_AZURE_DATABASE_NODE"
                       ],
                       "x-order": 0
                     },
@@ -3410,7 +3414,8 @@
                     "GENERIC_NODE",
                     "CONTAINER_NODE",
                     "REMOTE_NODE",
-                    "REMOTE_RDS_NODE"
+                    "REMOTE_RDS_NODE",
+                    "REMOTE_AZURE_DATABASE_NODE"
                   ],
                   "x-order": 0
                 },
@@ -3698,7 +3703,8 @@
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
                         "REMOTE_NODE",
-                        "REMOTE_RDS_NODE"
+                        "REMOTE_RDS_NODE",
+                        "REMOTE_AZURE_DATABASE_NODE"
                       ],
                       "x-order": 0
                     },
@@ -4234,7 +4240,8 @@
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
                         "REMOTE_NODE",
-                        "REMOTE_RDS_NODE"
+                        "REMOTE_RDS_NODE",
+                        "REMOTE_AZURE_DATABASE_NODE"
                       ],
                       "x-order": 0
                     },
