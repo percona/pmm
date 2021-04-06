@@ -6,31 +6,47 @@
 @startuml "setting-up_client_docker"
 !include _resources/diagrams/plantuml_styles.puml
 
-title Running PMM Client\nOverview\n
+title Running PMM Client\nOverview of options\n
+
 split
     -[hidden]->
-    partition "Package manager" {
-        split
-            -[hidden]-> Option 1;
-            :Set up ""percona-release"";
-            :""apt install pmm-client"";
-        split again
-            -[hidden]-> Option 2;
-            :Download "".deb""/"".rpm"";
-            :""dpkg -i *.deb""\n""dnf localinstall *.rpm"";
-        end split
-    }
+    split
+        -[hidden]->
+        partition "Package manager" {
+            split
+                -[hidden]->
+                (1)
+                :Set up ""percona-release"";
+                :""apt install pmm-client"";
+            split again
+                -[hidden]->
+                (2)
+                :Download "".deb""/"".rpm"";
+                :""dpkg -i *.deb""\n""dnf localinstall *.rpm"";
+            end split
+        }
+    split again
+        partition "Binary package" {
+        -[hidden]->
+        (3)
+        :Download & verify;
+        :Unpack;
+        :Install;
+        }
+    end split
+    :Set up pmm-agent;
 split again
     -[hidden]->
     partition "Docker" {
         split
-            -[hidden]->Option 3;
+            -[hidden]->
+            (4)
             :""docker pull percona/pmm-client:2"";
             :Create persistent data store;
             :""docker run ..."";
-            :Check status;
         split again
-            -[hidden]-> Option 4;
+            -[hidden]->
+            (5)
             :Create ""docker-compose.yml"";
             :""docker-compose up"";
         end split

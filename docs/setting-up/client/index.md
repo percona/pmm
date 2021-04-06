@@ -10,10 +10,11 @@ PMM Client is a collection of agents and exporters that run on the host being mo
 
 These sections cover the different ways to install PMM Client on a Linux node and register it with PMM Server. The options are:
 
-1. For Debian- or Red Hat-based distributions, install [`percona-release`][PERCONA_RELEASE] and [use a Linux package manager](#package-manager) (`apt`/`dnf`) to install PMM Client.
-2. For Debian- or Red Hat-based distributions, [download `.deb`/`.rpm` PMM Client packages and install them](#manual-package).
-3. For other Linux distributions, [download and unpack generic PMM Client Linux binaries](#binary-package).
-4. If you use [Docker][GETDOCKER], [run PMM Client as a Docker container](#docker) or use [Docker compose](#docker-compose).
+- [Option 1](#package-manager) -- For Debian- or Red Hat-based distributions, install `percona-release` and use a Linux package manager (`apt`/`dnf`) to install PMM Client.
+- [Option 2](#manual-package) -- For Debian- or Red Hat-based distributions, download `.deb`/`.rpm` PMM Client packages and install them
+- [Option 3](#binary-package) -- For other Linux distributions, download and unpack generic PMM Client Linux binaries
+- [Option 4](#docker) -- run PMM Client as a Docker container
+- [Option 5](#docker-compose) --run PMM Client with Docker compose
 
 When you have installed PMM Client, you must:
 
@@ -25,37 +26,16 @@ Here is an overview of the steps involved for each option.
 ```plantuml source="_resources/diagrams/Setting-Up_Client.puml"
 ```
 
-## System requirements
-
-**Operating system**
-
-PMM Client runs on any modern 64-bit Linux distribution. It is tested on [supported versions of Debian, Ubuntu, CentOS, and Red Hat Enterprise Linux][PERCONA_TOOLS].
-
-**Disk**
-
-A minimum of 100 MB of storage is required for installing the PMM Client package.
-
-With a good connection to PMM Server, additional storage is not required.
-
-However, the client needs to store any collected data that it cannot dispatch immediately, so additional storage may be required if the connection is unstable or the throughput is low.
-
-(Caching only applies to Query Analytics data; VictoriaMetrics data is never cached on the client side.)
-
 ## Before you start
-
 
 - PMM Server is installed and running with a known IP address accessible from the client node.
 - You have superuser (root) access on the client host.
 - You have superuser access to any database servers that you want to monitor.
 - These Linux packages are installed: `curl`, `gnupg`, `sudo`, `wget`.
 - If using Docker, [install it][GETDOCKER].
-
-
-
-
-
-
-
+- System requirements
+    - Operating system -- PMM Client runs on any modern 64-bit Linux distribution. It is tested on [supported versions of Debian, Ubuntu, CentOS, and Red Hat Enterprise Linux][PERCONA_TOOLS].
+    - Disk -- A minimum of 100 MB of storage is required for installing the PMM Client package. With a good connection to PMM Server, additional storage is not required. However, the client needs to store any collected data that it cannot dispatch immediately, so additional storage may be required if the connection is unstable or the throughput is low. (Caching only applies to Query Analytics data; VictoriaMetrics data is never cached on the client side.)
 
 
 <!--
