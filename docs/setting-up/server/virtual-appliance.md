@@ -310,7 +310,7 @@ When the guest OS starts, it will get an IP address from the hypervisor's DHCP s
 
 
 [OVA]: https://www.percona.com/downloads/pmm2/{{release}}/ova
-[OVF]: https://www.dmtf.org/standards/ovf
+[OVF]: https://wikipedia.org/wiki/Open_Virtualization_Format
 [VirtualBox]: https://www.virtualbox.org/
 [VMware]: https://www.vmware.com/products/workstation-player/
 [OVFTool]: https://code.vmware.com/tool/ovf
