@@ -43,7 +43,7 @@ Most steps can be done with either a user interface or on the command line, but 
 
 ## Download
 
-**U**
+**UI**
 
 1. Open a web browser.
 2. [Visit the PMM Server download page][OVA].
@@ -75,7 +75,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 
 ### Import
 
-**U**
+**UI**
 
 1. Select *File --> Import*.
 2. Click *Choose file...*.
@@ -115,7 +115,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 
 > When using the command line, the interface is remapped during import.
 
-**U**
+**UI**
 
 1. If started, shut down the virtual machine.
 2. In the VMware main window, select the imported virtual machine.
@@ -126,7 +126,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 
 ### Start guest and get IP address
 
-**U**
+**UI**
 
 1. In the VMware main window, select the imported virtual machine.
 2. Click the play button {{icon.caretright}} or select *Virtual Machine --> Start Up*.
@@ -151,7 +151,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 
 ### Import
 
-**U**
+**UI**
 
 1. Select *File --> Import appliance...*.
 2. In the *File* field, type the path to the downloaded `.ova` file, or click the folder icon to navigate and open it.
@@ -181,7 +181,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 
 ### Reconfigure interface
 
-**U**
+**UI**
 
 1. Click *Settings*.
 2. Click *Network*.
@@ -209,7 +209,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 
 ### Start guest and get IP address
 
-**U**
+**UI**
 
 1. Select the *PMM Server* virtual machine in the list.
 2. Click *Start*.
@@ -239,7 +239,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 
 ## Log into PMM user interface
 
-**U**
+**UI**
 
 1. Open a web browser and visit the guest IP address.
 2. The PMM login screen appears.
@@ -253,7 +253,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 
 ## (Optional) Change root password
 
-**U**
+**UI**
 
 1. Start the virtual machine in GUI mode.
 2. Log in with the default superuser credentials:
@@ -263,7 +263,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 
 ## (Optional) Set up SSH
 
-**UI/CL**
+**UI/CLI**
 
 1. Create a key pair for the `admin` user.
 	```sh
