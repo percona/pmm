@@ -1,7 +1,3 @@
----
-TODO: Explain pros/cons of each
----
-
 # Setting up PMM Server
 
 ## System requirements

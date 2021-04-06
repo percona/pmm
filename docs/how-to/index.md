@@ -1,8 +1,3 @@
----
-TODO1: migrate from OVA to Docker https://forums.percona.com/t/migrating-pmm2-data-from-ova-to-docker/8102/6
-TODO2: migrate from Docker to Azure https://forums.percona.com/t/migrate-ppm-to-azure-cloud/7934
----
-
 # How to
 
 - [Configure](configure.md) via the PMM Settings page

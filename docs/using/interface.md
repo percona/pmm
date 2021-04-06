@@ -1,8 +1,3 @@
----
-TODO:
-- Examples of panel items (graph, chart, set, table)
----
-
 # User Interface
 
 PMM's user interface is a browser application based on [Grafana][Grafana]. This page explains how to log in, how the user interface is laid out, and what the controls do.

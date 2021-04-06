@@ -1,13 +1,3 @@
----
-TODO: New questions (answers or links to existing)
-What is PMM:
-What does it do:
-How can it help me:
-How does it work:
-What do I need to run it:
-Is it free/how much does it cost:
----
-
 # FAQ
 
 ## How can I contact the developers?

@@ -1,8 +1,3 @@
----
-TODO1: How to build PMM Client from source code
-TODO2: Examples of using Docker
----
-
 # Setting up PMM Client
 
 PMM Client is a collection of agents and exporters that run on the host being monitored.
