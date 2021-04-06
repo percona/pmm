@@ -1,7 +1,6 @@
 ---
-TODO:
-- How to build PMM Client from source code
-- Examples of using Docker
+TODO: How to build PMM Client from source code
+TODO: Examples of using Docker
 ---
 
 # Setting up PMM Client
