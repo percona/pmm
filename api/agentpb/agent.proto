@@ -357,14 +357,18 @@ message StartJobRequest {
   }
   // MySQLBackup is job for backup MySQL service.
   message MySQLBackup {
+    // Database user;
+    string user = 1;
+    // Database password.
+    string password = 2;
     // Database address. Can't be specified with socket.
-    string address = 1;
+    string address = 3;
     // Database port. Can't be specified with socket.
-    int32 port = 2;
+    int32 port = 4;
     // Database unix socket. Can't be specified with address/port.
-    string socket = 3;
+    string socket = 5;
     // Backup name.
-    string name = 4;
+    string name = 6;
     // Backup target location.
     oneof location_config {
       S3LocationConfig s3_config = 10;
