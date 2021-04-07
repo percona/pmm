@@ -61,7 +61,7 @@ for the start security checks operation typically these are written to a http.Re
 type StartSecurityChecksParams struct {
 
 	/*Body*/
-	Body interface{}
+	Body StartSecurityChecksBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -102,13 +102,13 @@ func (o *StartSecurityChecksParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the start security checks params
-func (o *StartSecurityChecksParams) WithBody(body interface{}) *StartSecurityChecksParams {
+func (o *StartSecurityChecksParams) WithBody(body StartSecurityChecksBody) *StartSecurityChecksParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the start security checks params
-func (o *StartSecurityChecksParams) SetBody(body interface{}) {
+func (o *StartSecurityChecksParams) SetBody(body StartSecurityChecksBody) {
 	o.Body = body
 }
 
@@ -120,10 +120,8 @@ func (o *StartSecurityChecksParams) WriteToRequest(r runtime.ClientRequest, reg 
 	}
 	var res []error
 
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
+	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
 	}
 
 	if len(res) > 0 {
