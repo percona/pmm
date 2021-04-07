@@ -116,7 +116,7 @@ alias kubectl='minikube kubectl --'
     ```
 	> You will need to copy this output to your clipboard and continue with [add a Kubernetes cluster to PMM](../../using/platform/dbaas.md#add-a-kubernetes-cluster).
 
-## Installing Percona operators in AWS EKS (Kubernetes)
+## Installing Percona operators on Amazon AWS EKS {: #operators-aws-eks }
 
 1. Create your cluster via `eksctl` or the Amazon AWS interface. For example:
 
@@ -222,7 +222,7 @@ alias kubectl='minikube kubectl --'
 
 	> If possible, the connection details will show the cluster's external IP (not possible with minikube).
 
-## Install Operators on GKE
+## Install Percona operators on Google GKE {: #operators-google-gke }
 
 **Prerequisites**
 
