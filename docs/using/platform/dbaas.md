@@ -1,10 +1,12 @@
 # DBaaS Dashboard
 
-> <b style="color:goldenrod">Caution</b> DBaaS functionality is Alpha. The information on this page is subject to change and may be inaccurate.
-
-> You must run PMM Server with a DBaaS feature flag to activate the features described here.
+> <b style="color:goldenrod">Caution</b> **DBaaS functionality is currently in [Alpha status][ALPHA]**.
+>
+> The information on this page is subject to change and may be inaccurate.
 
 The DBaaS dashboard is where you add, remove, and operate on Kubernetes and database clusters.
+
+> You must run PMM Server with a DBaaS feature flag to activate the features described here.
 
 To open the DBaaS dashboard:
 
@@ -160,3 +162,6 @@ A paused cluster can't be edited.
 
 > **See also**
 > [Setting up a development environment for DBaaS](../../setting-up/server/dbaas.md)
+
+
+[ALPHA]: https://en.wikipedia.org/wiki/Software_release_life_cycle#Alpha
