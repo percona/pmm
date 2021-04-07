@@ -35,7 +35,7 @@ markdown_extensions:
 #        baselevel: 1
 #        toc_depth: "2-3"
   - admonition
-  - def_list
+  - def_list   # https://michelf.ca/projects/php-markdown/extra/#def-list
   - meta
   - smarty:
         smart_angled_quotes: true
