@@ -1,4 +1,4 @@
-# DBaaS Dashboard
+# DBaaS Dashboard (Alpha)
 
 > <b style="color:goldenrod">Caution</b> **DBaaS functionality is currently in [Alpha status][ALPHA]**.
 >
