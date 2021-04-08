@@ -173,21 +173,21 @@ You can test a new release of the PMM Server Docker image by making backups of y
 
 1. Stop pmm-server container.
 
-   ```sh
-   docker stop pmm-server
-   ```
+    ```sh
+    docker stop pmm-server
+    ```
 
 2. Remove containers.
 
-   ```sh
-   docker rm pmm-server pmm-data
-   ```
+    ```sh
+    docker rm pmm-server pmm-data
+    ```
 
 3. Remove the image.
 
-   ```sh
-   docker rmi $(docker images | grep "percona/pmm-server" | awk {'print $3'})
-   ```
+    ```sh
+    docker rmi $(docker images | grep "percona/pmm-server" | awk {'print $3'})
+    ```
 
 [TAGS]: https://hub.docker.com/r/percona/pmm-server/tags
 [DOCKERHUB]: https://hub.docker.com/r/percona/pmm-server
