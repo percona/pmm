@@ -167,10 +167,34 @@ sudo dnf localinstall *.rpm
 	pmm-admin status
 	```
 
+## Remove PMM Client with a package manager {: #remove-package-manager }
 
+### Remove on Debian-based distributions
 
+1. Deinstall the PMM Client package.
 
+    ```sh
+    sudo apt remove -y pmm2-client
+    ```
+2. Remove the Percona repository
 
+    ```sh
+    sudo dpkg -r percona-release
+    ```
+
+### Remove on Red Hat-based distributions
+
+1. Deinstall the PMM Client package.
+
+    ```sh
+    sudo yum remove -y pmm2-client
+    ```
+
+2. Remove the Percona repository
+
+    ```sh
+    sudo yum remove -y percona-release
+    ```
 
 
 
@@ -229,6 +253,26 @@ You can now add services with [`pmm-admin`](../../details/commands/pmm-admin.md)
 > ```sh
 > docker run --rm percona/pmm-client:2 --help
 > ```
+
+## Remove PMM Client as a Docker container {: #remove-docker }
+
+1. Stop pmm-client container.
+
+    ```sh
+    docker stop pmm-client
+    ```
+
+2. Remove containers.
+
+    ```sh
+    docker rm pmm-client
+    ```
+
+3. Remove the image.
+
+    ```sh
+    docker rmi $(docker images | grep "percona/pmm-client" | awk {'print $3'})
+    ```
 
 ## Run PMM Client with Docker compose {: #docker-compose }
 
@@ -340,6 +384,16 @@ You should continue by adding services according to the service type.
 - [Linux](linux.md)
 - [External services](external.md)
 - [HAProxy](haproxy.md)
+
+
+## Remove services from monitoring {: #remove-services }
+
+You should specify service type and service name for removing from monitoring
+One of next types has to be set: mysql, mongodb, postgresql, proxysql, haproxy, external
+
+```sh
+pmm-admin remove <service-type> <service-name>
+```
 
 > **See also**
 >

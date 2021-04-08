@@ -307,3 +307,17 @@ To expand the existing EBS volume for increased capacity, follow these steps.
     Filesystem                 Size Used Avail Use% Mounted on
     /dev/mapper/DataVG-DataLV   32G 254M   32G   1% /srv
     ```
+
+## Remove PMM Server
+
+1. Find the instance in the EC2 Console
+
+![image](../../_images/aws-marketplace.pmm.ec2.remove1.png)
+
+2. Select "Instance state" menu and "Terminate instance"
+
+![image](../../_images/aws-marketplace.pmm.ec2.remove2.png)
+
+3. Confirm termination operation
+
+![image](../../_images/aws-marketplace.pmm.ec2.remove3.png)
