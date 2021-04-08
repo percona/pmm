@@ -386,6 +386,8 @@ You should continue by adding services according to the service type.
 - [External services](external.md)
 - [HAProxy](haproxy.md)
 
+> **Note**
+> To change the parameters of a previously-added service, remove the service and re-add it with new parameters.
 
 ## Remove services from monitoring {: #remove-services }
 
