@@ -28,6 +28,10 @@ jobs:
           pip install wheel
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
+      - name: Setup PlantUML dependencies
+        run: |
+          sudo apt install -y graphviz
+
       - name: Configure git
         env:
           ROBOT_TOKEN: ${{ secrets.ROBOT_TOKEN }}
