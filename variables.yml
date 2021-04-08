@@ -1,8 +1,8 @@
 # PMM Version for HTML
 # See also mkdocs.yml plugins.with-pdf.cover_subtitle and output_path
-release: '2.15.1'
-version: '2.15'
-release_date: 2021-03-18
+release: '2.16.0'
+version: '2.16'
+release_date: 2021-04-12
 
 # Setting Up/Server/DBaaS operator versions
 op:
