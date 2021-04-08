@@ -1,4 +1,4 @@
-# Setting up a development environment for DBaaS
+# DBaaS (Alpha)
 
 > <b style="color:goldenrod">Caution</b> **DBaaS functionality is currently in [Alpha status][ALPHA]**.
 >
