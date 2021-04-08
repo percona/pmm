@@ -26,6 +26,18 @@ The Security Threat Tool (STT) is disabled by default. Enable it in [*PMM Settin
 
 Enabling STT in the settings also causes the PMM server to download STT checks from Percona Platform and run them once. This operation runs in the background so even though the settings update finishes instantly it might take some time for the checks to complete download and execution and the results (if any) to be visible in the *PMM Database Checks* dashboard.
 
+## Change a check's interval
+
+1. Navigate to *PMM-->PMM Database Checks*
+
+2. Activate the *All Checks* tab
+
+3. In the *Actions* column for a chosen check, click the {{icon.history}} *Interval* icon
+
+4. Chose an interval from the options
+
+5. Click *Save*
+
 ## List of checks made
 
 | Check ID                | Description

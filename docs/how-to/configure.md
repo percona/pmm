@@ -95,9 +95,17 @@ It is disabled by default.
 
 It can be enabled in *PMM-->PMM Settings-->Settings-->Advanced Settings-->Security Threat Tool*.
 
-The checks are re-fetched and re-run every 24 hours.
+The results of checks can be viewed in *PMM-->PMM Database Checks*.
 
-The results can be viewed in *PMM-->PMM Database Checks*.
+Checks are re-fetched and re-run at intervals. There are three named intervals with preset periods:
+
+- Rare: 78 hours
+- Standard: 24 hours
+- Frequent: 4 hours
+
+![](../_images/PMM_Settings_Advanced_Settings_Intervals.png)
+
+Checks use the Standard interval by default. To change a check's interval, see [Security Threat Tool](../using/platform/security-threat-tool.md).
 
 ### DBaaS
 
