@@ -37,7 +37,7 @@ type ClientService interface {
 }
 
 /*
-  ChangeSecurityChecks changes security checks enables disables security thread tool checks by names
+  ChangeSecurityChecks changes security checks enables disables security thread tool checks or changes their interval by names
 */
 func (a *Client) ChangeSecurityChecks(params *ChangeSecurityChecksParams) (*ChangeSecurityChecksOK, error) {
 	// TODO: Validate the params before sending
