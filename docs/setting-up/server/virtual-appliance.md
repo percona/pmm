@@ -306,7 +306,14 @@ When the guest OS starts, it will get an IP address from the hypervisor's DHCP s
 	ip addr show eth0
 	```
 
+## Remove PMM Server
 
+**UI**
+
+1. Stop the virtual machine.
+   Select Close --> Power Off
+2. Remove the virtual machine.
+   Select Remove --> Delete all files
 
 
 [OVA]: https://www.percona.com/downloads/pmm2/{{release}}/ova

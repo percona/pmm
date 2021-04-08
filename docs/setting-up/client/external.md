@@ -61,7 +61,7 @@ You can write a custom external exporter or extend your application to expose me
 
 Please see more details here: https://prometheus.io/docs/instrumenting/writing_exporters/
 
-### Examples 
+### Examples
 
 ```sh
 root@mysql1:~# pmm-admin add external --group=processess  --listen-port=9256

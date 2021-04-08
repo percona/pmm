@@ -169,6 +169,26 @@ You can test a new release of the PMM Server Docker image by making backups of y
 
 > **See also** [Run PMM Client with Docker compose][PMMC_COMPOSE]
 
+## Removing PMM Server
+
+1. Stop pmm-server container.
+
+   ```sh
+   docker stop pmm-server
+   ```
+
+2. Remove containers.
+
+   ```sh
+   docker rm pmm-server pmm-data
+   ```
+
+3. Remove the image.
+
+   ```sh
+   docker rmi $(docker images | grep "percona/pmm-server" | awk {'print $3'})
+   ```
+
 [TAGS]: https://hub.docker.com/r/percona/pmm-server/tags
 [DOCKERHUB]: https://hub.docker.com/r/percona/pmm-server
 [DOCKER_COMPOSE]: https://docs.docker.com/compose/

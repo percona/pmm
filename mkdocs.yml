@@ -10,11 +10,9 @@ edit_uri: edit/main/docs/
 use_directory_urls: false
 
 # Custom theme for uploading to percona.com website
-# Override on command line with 'mkdocs build -t <theme>'
-# See https://github.com/mkdocs/mkdocs/wiki/MkDocs-Themes
 theme:
-    name: material
-    custom_dir: _resources/theme
+  name: material
+  custom_dir: _resources/theme
 
 extra_css:
   - https://unicons.iconscout.com/release/v3.0.3/css/line.css
@@ -31,11 +29,8 @@ markdown_extensions:
   - attr_list
   - toc:
       permalink: True
-#      anchorlink: True # Causes blank headings in PDF
-#        baselevel: 1
-#        toc_depth: "2-3"
   - admonition
-  - def_list
+  - def_list   # https://michelf.ca/projects/php-markdown/extra/#def-list
   - meta
   - smarty:
         smart_angled_quotes: true
@@ -79,6 +74,10 @@ extra: # Used in main.html template and can't be externalised
     edit_page_text: '<i class="uil uil-pen"></i> <b>Edit this page</b>'
     updated_text: '<i class="uil uil-refresh"></i> Page updated'
 
+
+
+
+
 nav:
   - Welcome: index.md
   - Setting up:
@@ -88,7 +87,7 @@ nav:
           - setting-up/server/docker.md
           - setting-up/server/virtual-appliance.md
           - setting-up/server/aws.md
-#            - setting-up/server/dbaas.md
+          - setting-up/server/dbaas.md
       - Client:
           - setting-up/client/index.md
           - setting-up/client/mysql.md
@@ -109,7 +108,7 @@ nav:
       - Percona Platform:
           - using/platform/index.md
           - using/platform/security-threat-tool.md
-#            - using/platform/dbaas.md
+          - using/platform/dbaas.md
   - How to:
       - how-to/index.md
       - how-to/configure.md

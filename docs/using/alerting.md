@@ -128,5 +128,16 @@ This page has four tabs.
     {% endraw %}
 
     ![](../_images/PMM_Integrated_Alerting_Alert_Rule_Templates_Add_Form.jpg)
+    
+    > **Alert Rule Template parameters**
+    >
+    > The parameters used in the template follow a format and might include different fields depending on their `type`:
+    >
+    > - `name` (required): the name of the parameter. Spaces and special characters not allowed.
+    > - `summary` (required): a short description of what this parameter represents.
+    > - `type` (required): PMM currently supports the `float` type. (More will be available in the future, such as `string` or `bool`.)
+    > - `unit` (optional): PMM currently supports either `s` (seconds) or `%` (percentage).
+    > - `value` (optional): the parameter value itself.
+    > - `range` (optional): only for `float` parameters, defining the boundaries for the value.
 
 4. Click *Add* to add the alert rule template, or *Cancel* to abort the operation.

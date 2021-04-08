@@ -104,6 +104,7 @@ To generate a PDF version of the documentation:
 ## Directories and files
 
 - `mkdocs.yml`: Main MkDocs configuration file
+- `nav.yml`: Navigation (`nav`) element in separate file defining table of contents
 - `docs`:
 	- `*.md`: Markdown files
 	- `_images/*`: Images

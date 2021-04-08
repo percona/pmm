@@ -1,6 +1,8 @@
-# Setting up a development environment for DBaaS
+# DBaaS (Alpha)
 
-> <b style="color:goldenrod">Caution</b> DBaaS functionality is Alpha. The information on this page is subject to change and may be inaccurate.
+> <b style="color:goldenrod">Caution</b> **DBaaS functionality is currently in [Alpha status][ALPHA]**.
+>
+> The information on this page is subject to change and may be inaccurate.
 
 ## Software prerequisites
 
@@ -116,7 +118,7 @@ alias kubectl='minikube kubectl --'
     ```
 	> You will need to copy this output to your clipboard and continue with [add a Kubernetes cluster to PMM](../../using/platform/dbaas.md#add-a-kubernetes-cluster).
 
-## Installing Percona operators in AWS EKS (Kubernetes)
+## Installing Percona operators on Amazon AWS EKS {: #operators-aws-eks }
 
 1. Create your cluster via `eksctl` or the Amazon AWS interface. For example:
 
@@ -222,7 +224,7 @@ alias kubectl='minikube kubectl --'
 
 	> If possible, the connection details will show the cluster's external IP (not possible with minikube).
 
-## Install Operators on GKE
+## Install Percona operators on Google GKE {: #operators-google-gke }
 
 **Prerequisites**
 
@@ -497,8 +499,14 @@ kubectl expose deployment hello-world --type=NodePort.
 >
 > - [Install minikube](https://minikube.sigs.k8s.io/docs/start/)
 >
-> - [Setting up a Standalone MYSQL Instance on Kubernetes & exposing it using Nginx Ingress Controller](https://medium.com/@chrisedrego/setting-up-a-standalone-mysql-instance-on-kubernetes-exposing-it-using-nginx-ingress-controller-262fc7af593a)
+> - [Setting up a Standalone MYSQL Instance on Kubernetes & exposing it using Nginx Ingress Controller][STANDALONE_MYSQL_K8S]
 >
-> - [Use a Service to Access an Application in a Cluster.](https://kubernetes.io/docs/tasks/access-application-cluster/service-access-application-cluster/)
+> - [Use a Service to Access an Application in a Cluster][KUBERNETES_ACCESS_APP]
 >
-> - [Exposing applications using services.](https://cloud.google.com/kubernetes-engine/docs/how-to/exposing-apps)
+> - [Exposing applications using services][GOOGLE_EXPOSING_APPS]
+
+
+[ALPHA]: https://en.wikipedia.org/wiki/Software_release_life_cycle#Alpha
+[GOOGLE_EXPOSING_APPS]: https://cloud.google.com/kubernetes-engine/docs/how-to/exposing-apps
+[KUBERNETES_ACCESS_APP]: https://kubernetes.io/docs/tasks/access-application-cluster/service-access-application-cluster/
+[STANDALONE_MYSQL_K8S]: https://medium.com/@chrisedrego/setting-up-a-standalone-mysql-instance-on-kubernetes-exposing-it-using-nginx-ingress-controller-262fc7af593a

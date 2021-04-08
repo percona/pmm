@@ -28,14 +28,9 @@ jobs:
           pip install wheel
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Setup PlantUML
+      - name: Setup PlantUML dependencies
         run: |
           sudo apt install -y graphviz
-          sudo mkdir -p /opt/plantuml
-          sudo wget -O /opt/plantuml/plantuml.jar https://downloads.sourceforge.net/project/plantuml/plantuml.jar
-          sudo chmod +x /opt/plantuml/plantuml.jar
-          sudo cp $GITHUB_WORKSPACE/_resources/bin/plantuml /usr/local/bin
-          sudo chmod +x /usr/local/bin/plantuml
 
       - name: Configure git
         env:
@@ -50,7 +45,7 @@ jobs:
       - name: Run MkDocs (2.x)
         if: github.ref == 'refs/heads/main'
         run: |
-          mike deploy 2.x -b publish -p
+          PATH=$PATH:_resources/bin mike deploy 2.x -b publish -p
           mike retitle 2.x "PMM2 (LATEST)" -b publish -p
 
       - name: Install Node.js 14.x
