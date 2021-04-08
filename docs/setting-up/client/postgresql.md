@@ -8,7 +8,7 @@ For specific details on supported platforms and versions, see
 To monitor PostgreSQL queries, you must install a database extension. There are two choices:
 
 - `pg_stat_monitor`, a new extension created by Percona, based on `pg_stat_statements` and compatible with it.
-- `pg_stat_statements`, the original extension created by PostgreSQL, part of the `postgres-contrib` package available on Linux.
+- `pg_stat_statements`, the original extension created by PostgreSQL, part of the `postgresql-contrib` package available on Linux.
 
 (We recommend using only one. If you use both, you will get duplicate metrics.)
 
