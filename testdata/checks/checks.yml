@@ -6,6 +6,7 @@ checks:
     description: Good check for PostgreSQL.
     type: POSTGRESQL_SELECT
     query: rolpassword FROM pg_authid WHERE rolcanlogin
+    interval: standard
     script: |
       results = []
       return results
@@ -17,6 +18,7 @@ checks:
     description: Bad check for MYSQL.
     type: MYSQL_SHOW
     query: VARIABLES LIKE 'version%'
+    interval: standard
     script: |
       def check_context(rows, context):
           results = []
@@ -40,6 +42,7 @@ checks:
     description: Good check for MongoDB.
     type: MONGODB_BUILDINFO
     query: ""
+    interval: standard
     script: |
       results = []
       return results

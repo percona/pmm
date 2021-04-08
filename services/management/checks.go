@@ -19,6 +19,7 @@ package management
 import (
 	"context"
 
+	"github.com/percona-platform/saas/pkg/check"
 	"github.com/percona/pmm/api/managementpb"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -103,18 +104,28 @@ func (s *ChecksAPIService) ListSecurityChecks(ctx context.Context, req *manageme
 			Disabled:    disabled,
 			Summary:     c.Summary,
 			Description: c.Description,
+			Interval:    convertInterval(c.Interval),
 		})
 	}
 
 	return &managementpb.ListSecurityChecksResponse{Checks: res}, nil
 }
 
-// ChangeSecurityChecks enables/disables Security Thread Tool checks by names.
+// ChangeSecurityChecks enables/disables Security Thread Tool checks by names or changes its execution interval.
 func (s *ChecksAPIService) ChangeSecurityChecks(ctx context.Context, req *managementpb.ChangeSecurityChecksRequest) (*managementpb.ChangeSecurityChecksResponse, error) {
 	var enableChecks, disableChecks []string
+	changeIntervalParams := make(map[string]check.Interval)
 	for _, check := range req.Params {
 		if check.Enable && check.Disable {
 			return nil, status.Errorf(codes.InvalidArgument, "Check %s has enable and disable parameters set to the true.", check.Name)
+		}
+
+		if check.Interval != managementpb.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_INVALID {
+			interval, err := convertAPIInterval(check.Interval)
+			if err != nil {
+				return nil, errors.Wrap(err, "failed to change security check interval")
+			}
+			changeIntervalParams[check.Name] = interval
 		}
 
 		if check.Enable {
@@ -123,6 +134,13 @@ func (s *ChecksAPIService) ChangeSecurityChecks(ctx context.Context, req *manage
 
 		if check.Disable {
 			disableChecks = append(disableChecks, check.Name)
+		}
+	}
+
+	if len(changeIntervalParams) != 0 {
+		err := s.checksService.ChangeInterval(changeIntervalParams)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to change security check interval")
 		}
 	}
 
@@ -137,4 +155,34 @@ func (s *ChecksAPIService) ChangeSecurityChecks(ctx context.Context, req *manage
 	}
 
 	return &managementpb.ChangeSecurityChecksResponse{}, nil
+}
+
+// convertInterval converts check.Interval type to managementpb.SecurityCheckInterval.
+func convertInterval(interval check.Interval) managementpb.SecurityCheckInterval {
+	switch interval {
+	case check.Standard:
+		return managementpb.SecurityCheckInterval_STANDARD
+	case check.Frequent:
+		return managementpb.SecurityCheckInterval_FREQUENT
+	case check.Rare:
+		return managementpb.SecurityCheckInterval_RARE
+	default:
+		return managementpb.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_INVALID
+	}
+}
+
+// convertAPIInterval converts managementpb.SecurityCheckInterval type to check.Interval.
+func convertAPIInterval(interval managementpb.SecurityCheckInterval) (check.Interval, error) {
+	switch interval {
+	case managementpb.SecurityCheckInterval_STANDARD:
+		return check.Standard, nil
+	case managementpb.SecurityCheckInterval_FREQUENT:
+		return check.Frequent, nil
+	case managementpb.SecurityCheckInterval_RARE:
+		return check.Rare, nil
+	case managementpb.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_INVALID:
+		return check.Interval(""), errors.New("invalid security check interval")
+	default:
+		return check.Interval(""), errors.New("unknown security check interval")
+	}
 }

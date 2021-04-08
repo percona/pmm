@@ -117,7 +117,11 @@ func TestListSecurityChecks(t *testing.T) {
 		var checksService mockChecksService
 		checksService.On("GetDisabledChecks", mock.Anything).Return([]string{"two"}, nil)
 		checksService.On("GetAllChecks", mock.Anything).
-			Return([]check.Check{{Name: "one"}, {Name: "two"}, {Name: "three"}})
+			Return(map[string]check.Check{
+				"one":   {Name: "one"},
+				"two":   {Name: "two"},
+				"three": {Name: "three"},
+			})
 
 		s := NewChecksAPIService(&checksService)
 
@@ -168,5 +172,39 @@ func TestUpdateSecurityChecks(t *testing.T) {
 		resp, err := s.ChangeSecurityChecks(context.Background(), &managementpb.ChangeSecurityChecksRequest{})
 		assert.EqualError(t, err, "failed to disable security checks: random error")
 		assert.Nil(t, resp)
+	})
+
+	t.Run("change interval error", func(t *testing.T) {
+		var checksService mockChecksService
+		checksService.On("ChangeInterval", mock.Anything).Return(errors.New("random error"))
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.ChangeSecurityChecks(context.Background(), &managementpb.ChangeSecurityChecksRequest{
+			Params: []*managementpb.ChangeSecurityCheckParams{{
+				Name:     "check-name",
+				Interval: managementpb.SecurityCheckInterval_STANDARD,
+			}},
+		})
+		assert.EqualError(t, err, "failed to change security check interval: random error")
+		assert.Nil(t, resp)
+	})
+
+	t.Run("ChangeInterval success", func(t *testing.T) {
+		var checksService mockChecksService
+		checksService.On("ChangeInterval", mock.Anything).Return(nil)
+		checksService.On("EnableChecks", mock.Anything).Return(nil)
+		checksService.On("DisableChecks", mock.Anything).Return(nil)
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.ChangeSecurityChecks(context.Background(), &managementpb.ChangeSecurityChecksRequest{
+			Params: []*managementpb.ChangeSecurityCheckParams{{
+				Name:     "check-name",
+				Interval: managementpb.SecurityCheckInterval_STANDARD,
+			}},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, &managementpb.ChangeSecurityChecksResponse{}, resp)
 	})
 }

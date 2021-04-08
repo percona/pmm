@@ -472,6 +472,13 @@ var databaseSchema = [][]string{
 		`ALTER TABLE agents
 			ADD COLUMN azure_options VARCHAR`,
 	},
+	32: {
+		`CREATE TABLE check_settings (
+			name VARCHAR NOT NULL,
+			interval VARCHAR NOT NULL,
+			PRIMARY KEY (name)
+		)`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
