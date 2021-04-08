@@ -79,6 +79,10 @@ message AddMongoDBRequest {
   MetricsMode metrics_mode = 20;
   // List of collector names to disable in this exporter.
   repeated string disable_collectors = 24;
+  // Authentication mechanism.
+  // See https://docs.mongodb.com/manual/reference/parameters/#mongodb-parameter-param.authenticationMechanisms
+  // for details.
+  string authentication_mechanism = 25;
 }
 
 message AddMongoDBResponse {

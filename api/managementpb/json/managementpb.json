@@ -2362,6 +2362,11 @@
                   "type": "string",
                   "x-order": 4
                 },
+                "authentication_mechanism": {
+                  "description": "Authentication mechanism.\nSee https://docs.mongodb.com/manual/reference/parameters/#mongodb-parameter-param.authenticationMechanisms\nfor details.",
+                  "type": "string",
+                  "x-order": 23
+                },
                 "cluster": {
                   "description": "Cluster name.",
                   "type": "string",
