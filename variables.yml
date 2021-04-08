@@ -42,6 +42,7 @@ icon:
   eye: '<i class="uil uil-eye"></i>'
   filealt: '<i class="uil uil-file-alt"></i>'
   graphbar: '<i class="uil uil-graph-bar"></i>'
+  history: '<i class="uil uil-history"></i>'
   info: '<i class="fa fa-info"></i>'
   infocircle: '<i class="fa fa-info-circle"></i>'
   keyboard: '<i class="uil uil-keyboard"></i>'

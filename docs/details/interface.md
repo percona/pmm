@@ -23,11 +23,15 @@ The main menu is part of the Grafana framework and is visible on every page.
 | {{icon.cog}}        | Configuration        |
 | {{icon.shield}}     | Server Admin         |
 | {{icon.database}}   | DBaaS                |
+| {{icon.history}}    | Backup Management    | [Backup management and storage location configuration][BACKUP]
 
 [Folders]: https://grafana.com/docs/grafana/latest/dashboards/dashboard_folders/
 [PromQL]: https://grafana.com/blog/2020/02/04/introduction-to-promql-the-prometheus-query-language/
+[BACKUP]: ../how-to/backup.md
 
 > The DBaaS icon appears only if a server feature flag has been set.
+>
+> The Backup Management icon appears when *Backup Management* is activated in *PMM Settings-->Advanced Settings*.
 
 | Icon (Bottom)            | Description          |
 |:------------------------:| ---------            |
