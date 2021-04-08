@@ -1,4 +1,4 @@
-site_name: Percona Monitoring and Management
+site_name: Percona Monitoring and Management (Preview)
 site_description: Documentation
 site_author: Percona LLC
 copyright: Percona LLC, &#169; 2021
@@ -15,7 +15,8 @@ theme:
   logo: _images/percona-logo.svg
   favicon: _images/percona_favicon.ico
   palette:
-    primary: orange
+    scheme: slate
+    primary: amber
 
 extra_css:
   - https://unicons.iconscout.com/release/v3.0.3/css/line.css
@@ -55,7 +56,6 @@ plugins:
   - macros:
         include_yaml:
           - 'variables.yml' # Use in markdown as '{{ VAR }}'
-          - 'nav.yml'       # Navigation (table of contents)
   - exclude: # Don't process these files
         glob:
           - setting-up/client/docker.md # Moved to setting-up/client/index.md
