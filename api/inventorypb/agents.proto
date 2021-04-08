@@ -860,6 +860,12 @@ message AddQANMySQLPerfSchemaAgentRequest {
   bool tls = 5;
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 6;
+  // Certificate Authority certificate chain.
+  string tls_ca = 10;
+  // Client certificate.
+  string tls_cert = 11;
+  // Password for decrypting tls_cert.
+  string tls_key = 12;
   // Disable query examples.
   bool disable_query_examples = 7;
   // Custom user-assigned labels.
@@ -912,6 +918,12 @@ message AddQANMySQLSlowlogAgentRequest {
   bool tls = 5;
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 6;
+  // Certificate Authority certificate chain.
+  string tls_ca = 11;
+  // Client certificate.
+  string tls_cert = 12;
+  // Password for decrypting tls_cert.
+  string tls_key = 13;
   // Disable query examples.
   bool disable_query_examples = 7;
   // Rotate slowlog file at this size if > 0.

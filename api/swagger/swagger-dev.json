@@ -4848,10 +4848,25 @@
                   "type": "boolean",
                   "x-order": 5
                 },
+                "tls_ca": {
+                  "description": "Certificate Authority certificate chain.",
+                  "type": "string",
+                  "x-order": 6
+                },
+                "tls_cert": {
+                  "description": "Client certificate.",
+                  "type": "string",
+                  "x-order": 7
+                },
+                "tls_key": {
+                  "description": "Password for decrypting tls_cert.",
+                  "type": "string",
+                  "x-order": 8
+                },
                 "disable_query_examples": {
                   "description": "Disable query examples.",
                   "type": "boolean",
-                  "x-order": 6
+                  "x-order": 9
                 },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
@@ -4859,12 +4874,12 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 7
+                  "x-order": 10
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "x-order": 8
+                  "x-order": 11
                 }
               }
             }
@@ -5050,16 +5065,31 @@
                   "type": "boolean",
                   "x-order": 5
                 },
+                "tls_ca": {
+                  "description": "Certificate Authority certificate chain.",
+                  "type": "string",
+                  "x-order": 6
+                },
+                "tls_cert": {
+                  "description": "Client certificate.",
+                  "type": "string",
+                  "x-order": 7
+                },
+                "tls_key": {
+                  "description": "Password for decrypting tls_cert.",
+                  "type": "string",
+                  "x-order": 8
+                },
                 "disable_query_examples": {
                   "description": "Disable query examples.",
                   "type": "boolean",
-                  "x-order": 6
+                  "x-order": 9
                 },
                 "max_slowlog_file_size": {
                   "description": "Rotate slowlog file at this size if \u003e 0.\nUse zero or negative value to disable rotation.",
                   "type": "string",
                   "format": "int64",
-                  "x-order": 7
+                  "x-order": 10
                 },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
@@ -5067,12 +5097,12 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 8
+                  "x-order": 11
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "x-order": 9
+                  "x-order": 12
                 }
               }
             }

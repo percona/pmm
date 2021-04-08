@@ -1782,12 +1782,12 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 7
+                  "x-order": 10
                 },
                 "disable_query_examples": {
                   "description": "Disable query examples.",
                   "type": "boolean",
-                  "x-order": 6
+                  "x-order": 9
                 },
                 "password": {
                   "description": "MySQL password for getting performance data.",
@@ -1807,12 +1807,27 @@
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "x-order": 8
+                  "x-order": 11
                 },
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
                   "x-order": 4
+                },
+                "tls_ca": {
+                  "description": "Certificate Authority certificate chain.",
+                  "type": "string",
+                  "x-order": 6
+                },
+                "tls_cert": {
+                  "description": "Client certificate.",
+                  "type": "string",
+                  "x-order": 7
+                },
+                "tls_key": {
+                  "description": "Password for decrypting tls_cert.",
+                  "type": "string",
+                  "x-order": 8
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",
@@ -1984,18 +1999,18 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 8
+                  "x-order": 11
                 },
                 "disable_query_examples": {
                   "description": "Disable query examples.",
                   "type": "boolean",
-                  "x-order": 6
+                  "x-order": 9
                 },
                 "max_slowlog_file_size": {
                   "description": "Rotate slowlog file at this size if \u003e 0.\nUse zero or negative value to disable rotation.",
                   "type": "string",
                   "format": "int64",
-                  "x-order": 7
+                  "x-order": 10
                 },
                 "password": {
                   "description": "MySQL password for getting slowlog data.",
@@ -2015,12 +2030,27 @@
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "x-order": 9
+                  "x-order": 12
                 },
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
                   "x-order": 4
+                },
+                "tls_ca": {
+                  "description": "Certificate Authority certificate chain.",
+                  "type": "string",
+                  "x-order": 6
+                },
+                "tls_cert": {
+                  "description": "Client certificate.",
+                  "type": "string",
+                  "x-order": 7
+                },
+                "tls_key": {
+                  "description": "Password for decrypting tls_cert.",
+                  "type": "string",
+                  "x-order": 8
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",
