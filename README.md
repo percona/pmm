@@ -146,7 +146,6 @@ With this, a [GitHub actions](https://github.com/percona/pmm-doc/actions) workfl
 	5. Click File --> Export as --> PNG
 	6. In the *Image settings* dialog, use these settings:
 		- *Zoom*: 100%, Border Width: 0
-		- *Selection Only:* OFF
 		- *Size:* Page
 		- *Transparent Background:* ON
 		- *Shadow:* OFF
@@ -159,7 +158,9 @@ With this, a [GitHub actions](https://github.com/percona/pmm-doc/actions) workfl
 
 The overlay image is merged with a copy of the latest home dashboard using [`composite`](https://imagemagick.org/script/composite.php), one of the ImageMagick tools.
 
-	composite _resources/diagrams/PMM_Home_Dashboard_TALL_Overlay.png docs/_images/PMM_Home_Dashboard_TALL.jpg docs/_images/PMM_Home_Dashboard_TALL_Numbered.png
+```sh
+composite _resources/diagrams/PMM_Home_Dashboard_TALL_Overlay.png docs/_images/PMM_Home_Dashboard_TALL.jpg docs/_images/PMM_Home_Dashboard_TALL_Numbered.png
+```
 
 ## Spelling and grammar
 

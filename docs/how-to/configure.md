@@ -1,47 +1,50 @@
 # Configure
 
-The *PMM Settings* page lets you configure a number of PMM options.
+The *Settings* page is where you configure PMM.
 
-Open the *PMM Settings* page with one of:
-
-- the main menu: choose *PMM-->PMM Settings*
-- search dashboards by name: type *PMM Settings* and click the search result
-
-On the left of the page is a set of sub-page selector tabs.
-
-![](../_images/PMM_Settings_Menu.jpg)
-
-(The [Communication](#communication) tab remains hidden until [Integrated Alerting](#integrated-alerting) is activated.)
-
-> Click *Apply changes* after changing settings.
-
-## Diagnostics
-
-Common to all sections is *Diagnostics*. PMM can generate a set of diagnostics data which can be examined and/or shared with our support team in case of some issue to solve it faster.  You can get collected logs from PMM Server by clicking *Download server diagnostics*.
-
-## Metrics resolution
-
-Metrics are collected at three intervals representing low, medium and high resolutions. Short time intervals are regarded as high resolution metrics, while those at longer time intervals are low resolution.
+Open the *Settings* page from the [main menu](../details/interface.md#main-menu) with {{icon.cog}} *Configuration-->Settings*. The page opens with the *Metrics Resolution* settings tab selected.
 
 ![image](../_images/PMM_Settings_Metrics_Resolution.jpg)
 
-The *Metrics Resolution* radio button lets you select one of four presets.
+On the left are the selector tabs:
 
-- *Rare*, *Standard* and *Frequent* are fixed presets.
-- *Custom* is an editable preset.
+- [Metrics Resolution](#metrics-resolution)
+- [Advanced Settings](#advanced-settings)
+- [SSH Key](#ssh-key)
+- [Alertmanager Integration](#alertmanager-integration)
+- [Percona Platform](#percona-platform)
+- [Communication](#communication) (This tab remains hidden until [Integrated Alerting](#integrated-alerting) is activated in the *Advanced Settings* tab.)
 
-Each preset is a group of Low, Medium and High metrics resolution values.
+> <b style="color:goldenrod">Important</b> Click *Apply changes* to save any changes made here.
 
-- A low resolution interval *increases* the time between collection, resulting in low-resolution metrics and lower disk usage.
-- A high resolution interval *decreases* the time between collection, resulting in high-resolution metrics and higher disk usage.
+**Diagnostics**
+
+On all tabs is a *Diagnostics* section (top-right). Click *Download server diagnostics* to retrieve PMM diagnostics data which can be examined and/or shared with our support team should you need help.
+
+## Metrics resolution
+
+Metrics are collected at three intervals representing low, medium and high resolutions.
+
+The *Metrics Resolution* settings tab contains a radio button with three fixed presets (*Rare*, *Standard* and *Frequent*) and one editable custom preset (*Custom*).
+
+![image](../_images/PMM_Settings_Metrics_Resolution.jpg)
+
+Each preset is a group of low, medium and high resolutions. The values are in seconds.
+
+> Short time intervals are *high* resolution metrics. Longer time intervals are *low* resolution. So:
+>
+> - A low resolution interval *increases* the time between collection, resulting in low-resolution metrics and lower disk usage.
+>
+> - A high resolution interval *decreases* the time between collection, resulting in high-resolution metrics and higher disk usage.
 
 The default values (in seconds) for the fixed presets and their resolution names are:
 
-| Preset    | Low  | Medium | High |
-| --------- | ---- | ------ | ---- |
-| Rare      | 300  | 180    | 60   |
-| Standard  | 60   | 10     | 5    |
-| Frequent  | 30   | 5      | 1    |
+| Editable? | Preset            | Low  | Medium | High |
+|:---------:|-------------------|:----:|:------:|:----:|
+| No        | Rare              | 300  | 180    | 60   |
+| No        | Standard          | 60   | 10     | 5    |
+| No        | Frequent          | 30   | 5      | 1    |
+| Yes       | Custom (defaults) | 60   | 10     | 5    |
 
 Values for the *Custom* preset can be entered as values, or changed with the arrows.
 
@@ -49,11 +52,11 @@ Values for the *Custom* preset can be entered as values, or changed with the arr
 
 ## Advanced Settings
 
-![](../_images/PMM_Settings_Advanced_Settings.jpg)
+![](../_images/PMM_Settings_Advanced_Settings.png)
 
 ### Data Retention
 
-*Data retention* specifies how long data is stored by PMM Server. By default, PMM stores time-series data for 30 days. Depending on your available disk space and requirements, you may need to adjust the data retention time.
+*Data retention* specifies how long data is stored by PMM Server. By default, time-series data is stored for 30 days. You can adjust the data retention time to balance your system's available disk space with your metrics history requirements.
 
 ### Telemetry
 
@@ -85,41 +88,61 @@ As well as via the *PMM Settings* page, you can also disable telemetry with the 
 
 ### Check for updates
 
-When active, PMM will automatically check for updates and put a notification in the *Updates* dashboard if any are available.
+When active, PMM will automatically check for updates and put a notification in the home page *Updates* dashboard if any are available.
 
 ### Security Threat Tool
 
-The Security Threat Tool performs a range of security-related checks on a registered instance and reports the findings.
+The [Security Threat Tool](../using/platform/security-threat-tool.md) performs a range of security-related checks on a registered instance and reports the findings. It is off by default.
 
-It is disabled by default.
+> To see the results of checks, select {{icon.checks}} *PMM Database Checks* to open the *Security Checks/Failed Checks* dashboard, and select the *Failed Checks* tab.
 
-It can be enabled in *PMM-->PMM Settings-->Settings-->Advanced Settings-->Security Threat Tool*.
+Checks are re-fetched and re-run at intervals. There are three named intervals:
 
-The results of checks can be viewed in *PMM-->PMM Database Checks*.
+| Interval name                 | Value (hours)  |
+|------------------------------ |:--------------:|
+| *Rare interval*               | 78             |
+| *Standard interval* (default) | 24             |
+| *Frequent interval*           | 4              |
 
-Checks are re-fetched and re-run at intervals. There are three named intervals with preset periods:
+> The values for each named interval are fixed.
 
-- Rare: 78 hours
-- Standard: 24 hours
-- Frequent: 4 hours
+Checks use the *Standard* interval by default. To change a check's interval:
 
-![](../_images/PMM_Settings_Advanced_Settings_Intervals.png)
+- Go to {{icon.checks}} *PMM Database Checks*
+- Select *All Checks*
+- In the *Actions* column, select the {{icon.history}} icon
 
-Checks use the Standard interval by default. To change a check's interval, see [Security Threat Tool](../using/platform/security-threat-tool.md).
+    ![](../_images/PMM_Security_Checks_Actions.png)
+
+- Select an interval and click *Save*
+
+    ![](../_images/PMM_Security_Checks_Actions_Set_Interval.png)
+
+(Read more at [Security Threat Tool](../using/platform/security-threat-tool.md).)
+
+## Public address
+
+The address or hostname PMM Server will be accessible at. Click *Get from browser* to have your browser detect and populate this field automatically.
 
 ### DBaaS
 
 A read-only setting that shows whether DBaaS features are activated on this server.
 
-> <b style="color:goldenrod">Caution</b> DBaaS functionality is a technical preview that must be turned on with a server feature flag. See [Setting up a development environment for DBaaS](../setting-up/server/dbaas.md).
+> <b style="color:goldenrod">Caution</b> DBaaS functionality is a technical preview that must be turned on with a server feature flag. See [DBaaS](../setting-up/server/dbaas.md).
 
 ### Integrated Alerting
 
 Enables [Integrated Alerting](../using/alerting.md) and reveals the [Communication](#communication) tab.
 
+### Microsoft Azure Monitoring
+
+> <b style="color:goldenrod">Caution</b> This is a technical preview feature.
+
+Activates Microsoft Azure monitoring.
+
 ### Backup Management {: #backup-management }
 
-> <b style="color:goldenrod">Caution</b> Backup functionality is a technical preview feature.
+> <b style="color:goldenrod">Caution</b> This is a technical preview feature.
 
 Activates backup management.
 
@@ -142,7 +165,7 @@ Alertmanager manages alerts, de-duplicating, grouping, and routing them to the a
 This section lets you configure integration of VictoriaMetrics with an external Alertmanager.
 
 - The *Alertmanager URL* field should contain the URL of the Alertmanager which would serve your PMM alerts.
-- The *Alerting rules* field is used to specify alerting rules in the YAML configuration format.
+- The *Prometheus Alerting rules* field is used to specify alerting rules in the YAML configuration format.
 
 ![](../_images/PMM_Settings_Alertmanager_Integration.jpg)
 
@@ -182,7 +205,7 @@ Global communications settings for [Integrated Alerting](../using/alerting.md).
 
 > If there is no *Communication* tab, go to the *Advanced Settings* tab and activate *Integrated Alerting*.
 
-![](../_images/PMM_Settings_Communication.jpg)
+![](../_images/PMM_Settings_Communication.png)
 
 (Integrated Alerting uses a separate instance of Alertmanager run by `pmm-managed`.)
 
@@ -202,6 +225,8 @@ Settings for the SMTP email server:
 - *Password*: SMTP Auth using CRAM-MD5, LOGIN and PLAIN.
 
 ### Slack
+
+![](../_images/PMM_Settings_Communication_Slack.png)
 
 Settings for Slack notifications:
 

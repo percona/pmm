@@ -1,4 +1,4 @@
-# User Interface components
+# UI components
 
 1. [Main menu](#main-menu) (also *Grafana menu*, *side menu*)
 2. [Navigation bar](#navigation-bar)
@@ -8,22 +8,25 @@
 
 ![](../_images/PMM_Home_Dashboard_TALL_Numbered.png)
 
+
 ## Main menu
 
 The main menu is part of the Grafana framework and is visible on every page.
 
 | Item (Top)          | Name                 | Description
-| ------------------- | -------------------- | ------------------------------
+|:-------------------:| -------------------- | ------------------------------
 | {{icon.percona}}    | Home                 | Link to home dashboard
 | {{icon.search}}     | Search               | Search dashboards by name
 | {{icon.plus}}       | Create               | Create dashboards or [folders][Folders], import dashboards
 | {{icon.apps}}       | Dashboards           | Manage dashboards, create playlists, manage snapshots
+| {{icon.dashboards}} | PMM Dashboards       | Replacement for [shortcut menu](#shortcut-menu)
 | {{icon.compass}}    | Explore              | Run queries with [PromQL][PromQL]
 | {{icon.bell}}       | Alerting             | Alerting, [Integrated Alerting](../using/alerting.md), Alert Rules, Notification Channels
 | {{icon.cog}}        | Configuration        |
 | {{icon.shield}}     | Server Admin         |
-| {{icon.database}}   | DBaaS                |
 | {{icon.history}}    | Backup Management    | [Backup management and storage location configuration][BACKUP]
+| {{icon.checks}}     | PMM Database Checks  |
+| {{icon.database}}   | DBaaS                |
 
 [Folders]: https://grafana.com/docs/grafana/latest/dashboards/dashboard_folders/
 [PromQL]: https://grafana.com/blog/2020/02/04/introduction-to-promql-the-prometheus-query-language/
@@ -82,6 +85,8 @@ This menu bar is context sensitive; it changes according to the page you are on.
 ### Shortcut menu
 
 This menu contains shortcuts to other dashboards. The list changes according to the page you're on.
+
+> <b style="color:goldenrod">Important</b> This menu will be removed in future releases. Its function will be replaced by the {{icon.dashboards}} *PMM Dashboards* main menu entry.
 
 | Item                          | Description                      |
 | ----------------------------- | -------------------------------- |
