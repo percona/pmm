@@ -6,6 +6,7 @@ package security_checks
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -14,6 +15,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // ListSecurityChecksReader is a Reader for the ListSecurityChecks structure.
@@ -133,10 +135,72 @@ type ChecksItems0 struct {
 
 	// Short human-readable summary.
 	Summary string `json:"summary,omitempty"`
+
+	// SecurityCheckInterval represents possible execution interval values for checks.
+	// Enum: [SECURITY_CHECK_INTERVAL_INVALID STANDARD FREQUENT RARE]
+	Interval *string `json:"interval,omitempty"`
 }
 
 // Validate validates this checks items0
 func (o *ChecksItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateInterval(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var checksItems0TypeIntervalPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["SECURITY_CHECK_INTERVAL_INVALID","STANDARD","FREQUENT","RARE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		checksItems0TypeIntervalPropEnum = append(checksItems0TypeIntervalPropEnum, v)
+	}
+}
+
+const (
+
+	// ChecksItems0IntervalSECURITYCHECKINTERVALINVALID captures enum value "SECURITY_CHECK_INTERVAL_INVALID"
+	ChecksItems0IntervalSECURITYCHECKINTERVALINVALID string = "SECURITY_CHECK_INTERVAL_INVALID"
+
+	// ChecksItems0IntervalSTANDARD captures enum value "STANDARD"
+	ChecksItems0IntervalSTANDARD string = "STANDARD"
+
+	// ChecksItems0IntervalFREQUENT captures enum value "FREQUENT"
+	ChecksItems0IntervalFREQUENT string = "FREQUENT"
+
+	// ChecksItems0IntervalRARE captures enum value "RARE"
+	ChecksItems0IntervalRARE string = "RARE"
+)
+
+// prop value enum
+func (o *ChecksItems0) validateIntervalEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, checksItems0TypeIntervalPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ChecksItems0) validateInterval(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Interval) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateIntervalEnum("interval", "body", *o.Interval); err != nil {
+		return err
+	}
+
 	return nil
 }
 

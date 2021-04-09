@@ -17780,7 +17780,7 @@
         "tags": [
           "SecurityChecks"
         ],
-        "summary": "ChangeSecurityChecks enables/disables Security Thread Tool checks by names.",
+        "summary": "ChangeSecurityChecks enables/disables Security Thread Tool checks or changes their interval by names.",
         "operationId": "ChangeSecurityChecks",
         "parameters": [
           {
@@ -17808,6 +17808,18 @@
                       "disable": {
                         "type": "boolean",
                         "x-order": 2
+                      },
+                      "interval": {
+                        "description": "SecurityCheckInterval represents possible execution interval values for checks.",
+                        "type": "string",
+                        "default": "SECURITY_CHECK_INTERVAL_INVALID",
+                        "enum": [
+                          "SECURITY_CHECK_INTERVAL_INVALID",
+                          "STANDARD",
+                          "FREQUENT",
+                          "RARE"
+                        ],
+                        "x-order": 3
                       }
                     }
                   },
@@ -18035,6 +18047,18 @@
                         "description": "Short human-readable summary.",
                         "type": "string",
                         "x-order": 3
+                      },
+                      "interval": {
+                        "description": "SecurityCheckInterval represents possible execution interval values for checks.",
+                        "type": "string",
+                        "default": "SECURITY_CHECK_INTERVAL_INVALID",
+                        "enum": [
+                          "SECURITY_CHECK_INTERVAL_INVALID",
+                          "STANDARD",
+                          "FREQUENT",
+                          "RARE"
+                        ],
+                        "x-order": 4
                       }
                     }
                   },
