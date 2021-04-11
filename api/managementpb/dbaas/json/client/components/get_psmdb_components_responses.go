@@ -117,42 +117,6 @@ func (o *GetPSMDBComponentsDefault) readResponse(response runtime.ClientResponse
 	return nil
 }
 
-/*DetailsItems0 details items0
-swagger:model DetailsItems0
-*/
-type DetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
-}
-
-// Validate validates this details items0
-func (o *DetailsItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
-	var res DetailsItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
 /*GetPSMDBComponentsBody get PSMDB components body
 swagger:model GetPSMDBComponentsBody
 */
@@ -329,7 +293,7 @@ func (o *GetPSMDBComponentsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*VersionsItems0 Version contains information about operator and components matrix.
+/*VersionsItems0 OperatorVersion contains information about operator and components matrix.
 swagger:model VersionsItems0
 */
 type VersionsItems0 struct {
@@ -679,6 +643,9 @@ type VersionsItems0MatrixBackupAnon struct {
 
 	// default
 	Default bool `json:"default,omitempty"`
+
+	// disabled
+	Disabled bool `json:"disabled,omitempty"`
 }
 
 // Validate validates this versions items0 matrix backup anon
@@ -723,6 +690,9 @@ type VersionsItems0MatrixHaproxyAnon struct {
 
 	// default
 	Default bool `json:"default,omitempty"`
+
+	// disabled
+	Disabled bool `json:"disabled,omitempty"`
 }
 
 // Validate validates this versions items0 matrix haproxy anon
@@ -767,6 +737,9 @@ type VersionsItems0MatrixLogCollectorAnon struct {
 
 	// default
 	Default bool `json:"default,omitempty"`
+
+	// disabled
+	Disabled bool `json:"disabled,omitempty"`
 }
 
 // Validate validates this versions items0 matrix log collector anon
@@ -811,6 +784,9 @@ type VersionsItems0MatrixMongodAnon struct {
 
 	// default
 	Default bool `json:"default,omitempty"`
+
+	// disabled
+	Disabled bool `json:"disabled,omitempty"`
 }
 
 // Validate validates this versions items0 matrix mongod anon
@@ -855,6 +831,9 @@ type VersionsItems0MatrixOperatorAnon struct {
 
 	// default
 	Default bool `json:"default,omitempty"`
+
+	// disabled
+	Disabled bool `json:"disabled,omitempty"`
 }
 
 // Validate validates this versions items0 matrix operator anon
@@ -899,6 +878,9 @@ type VersionsItems0MatrixPMMAnon struct {
 
 	// default
 	Default bool `json:"default,omitempty"`
+
+	// disabled
+	Disabled bool `json:"disabled,omitempty"`
 }
 
 // Validate validates this versions items0 matrix PMM anon
@@ -943,6 +925,9 @@ type VersionsItems0MatrixProxysqlAnon struct {
 
 	// default
 	Default bool `json:"default,omitempty"`
+
+	// disabled
+	Disabled bool `json:"disabled,omitempty"`
 }
 
 // Validate validates this versions items0 matrix proxysql anon
@@ -987,6 +972,9 @@ type VersionsItems0MatrixPxcAnon struct {
 
 	// default
 	Default bool `json:"default,omitempty"`
+
+	// disabled
+	Disabled bool `json:"disabled,omitempty"`
 }
 
 // Validate validates this versions items0 matrix pxc anon
