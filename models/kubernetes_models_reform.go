@@ -31,6 +31,9 @@ func (v *kubernetesClusterTableType) Columns() []string {
 		"id",
 		"kubernetes_cluster_name",
 		"kube_config",
+		"pxc",
+		"proxysql",
+		"mongod",
 		"created_at",
 		"updated_at",
 	}
@@ -60,6 +63,9 @@ var KubernetesClusterTable = &kubernetesClusterTableType{
 			{Name: "ID", Type: "string", Column: "id"},
 			{Name: "KubernetesClusterName", Type: "string", Column: "kubernetes_cluster_name"},
 			{Name: "KubeConfig", Type: "string", Column: "kube_config"},
+			{Name: "PXC", Type: "*Component", Column: "pxc"},
+			{Name: "ProxySQL", Type: "*Component", Column: "proxysql"},
+			{Name: "Mongod", Type: "*Component", Column: "mongod"},
 			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
 			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},
 		},
@@ -70,12 +76,15 @@ var KubernetesClusterTable = &kubernetesClusterTableType{
 
 // String returns a string representation of this struct or record.
 func (s KubernetesCluster) String() string {
-	res := make([]string, 5)
+	res := make([]string, 8)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "KubernetesClusterName: " + reform.Inspect(s.KubernetesClusterName, true)
 	res[2] = "KubeConfig: " + reform.Inspect(s.KubeConfig, true)
-	res[3] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
-	res[4] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
+	res[3] = "PXC: " + reform.Inspect(s.PXC, true)
+	res[4] = "ProxySQL: " + reform.Inspect(s.ProxySQL, true)
+	res[5] = "Mongod: " + reform.Inspect(s.Mongod, true)
+	res[6] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
+	res[7] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
 	return strings.Join(res, ", ")
 }
 
@@ -86,6 +95,9 @@ func (s *KubernetesCluster) Values() []interface{} {
 		s.ID,
 		s.KubernetesClusterName,
 		s.KubeConfig,
+		s.PXC,
+		s.ProxySQL,
+		s.Mongod,
 		s.CreatedAt,
 		s.UpdatedAt,
 	}
@@ -98,6 +110,9 @@ func (s *KubernetesCluster) Pointers() []interface{} {
 		&s.ID,
 		&s.KubernetesClusterName,
 		&s.KubeConfig,
+		&s.PXC,
+		&s.ProxySQL,
+		&s.Mongod,
 		&s.CreatedAt,
 		&s.UpdatedAt,
 	}

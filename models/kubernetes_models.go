@@ -17,6 +17,7 @@
 package models
 
 import (
+	"database/sql/driver"
 	"time"
 
 	"gopkg.in/reform.v1"
@@ -24,14 +25,29 @@ import (
 
 //go:generate reform
 
+// Component stores info about DBaaS Component
+type Component struct {
+	DisabledVersions []string
+	DefaultVersion   string
+}
+
+// Value implements database/sql/driver.Valuer interface. Should be defined on the value.
+func (c Component) Value() (driver.Value, error) { return jsonValue(c) }
+
+// Scan implements database/sql.Scanner interface. Should be defined on the pointer.
+func (c *Component) Scan(src interface{}) error { return jsonScan(c, src) }
+
 // KubernetesCluster represents a Kubernetes cluster as stored in database.
 //reform:kubernetes_clusters
 type KubernetesCluster struct {
-	ID                    string    `reform:"id,pk"`
-	KubernetesClusterName string    `reform:"kubernetes_cluster_name"`
-	KubeConfig            string    `reform:"kube_config"`
-	CreatedAt             time.Time `reform:"created_at"`
-	UpdatedAt             time.Time `reform:"updated_at"`
+	ID                    string     `reform:"id,pk"`
+	KubernetesClusterName string     `reform:"kubernetes_cluster_name"`
+	KubeConfig            string     `reform:"kube_config"`
+	PXC                   *Component `reform:"pxc"`
+	ProxySQL              *Component `reform:"proxysql"`
+	Mongod                *Component `reform:"mongod"`
+	CreatedAt             time.Time  `reform:"created_at"`
+	UpdatedAt             time.Time  `reform:"updated_at"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.

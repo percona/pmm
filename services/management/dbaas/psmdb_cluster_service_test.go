@@ -25,7 +25,7 @@ import (
 	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/stretchr/testify/assert"
-	mock "github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
@@ -85,6 +85,7 @@ func TestPSMDBClusterService(t *testing.T) {
 		teardown = func(t *testing.T) {
 			uuid.SetRand(nil)
 			dbaasClient.AssertExpectations(t)
+			require.NoError(t, sqlDB.Close())
 		}
 
 		return

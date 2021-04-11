@@ -41,6 +41,9 @@ func TestKubernetesHelpers(t *testing.T) {
 	defer func() {
 		models.Now = origNowF
 	}()
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
 
 	setup := func(t *testing.T) (q *reform.Querier, teardown func(t *testing.T)) {
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
@@ -53,6 +56,18 @@ func TestKubernetesHelpers(t *testing.T) {
 				ID:                    "KC1",
 				KubernetesClusterName: "Kubernetes Cluster 1",
 				KubeConfig:            `{"kind": "Config", "apiVersion": "v1"}`,
+				PXC: &models.Component{
+					DisabledVersions: []string{"8.0.0"},
+					DefaultVersion:   "8.0.1-20",
+				},
+				ProxySQL: &models.Component{
+					DisabledVersions: []string{"8.0.0"},
+					DefaultVersion:   "8.0.1-19",
+				},
+				Mongod: &models.Component{
+					DisabledVersions: []string{"3.4.0", "3.6.0"},
+					DefaultVersion:   "4.4.3-8",
+				},
 			},
 			&models.KubernetesCluster{
 				ID:                    "KC2",
@@ -78,8 +93,20 @@ func TestKubernetesHelpers(t *testing.T) {
 				ID:                    "KC1",
 				KubernetesClusterName: "Kubernetes Cluster 1",
 				KubeConfig:            `{"kind": "Config", "apiVersion": "v1"}`,
-				CreatedAt:             now,
-				UpdatedAt:             now,
+				PXC: &models.Component{
+					DisabledVersions: []string{"8.0.0"},
+					DefaultVersion:   "8.0.1-20",
+				},
+				ProxySQL: &models.Component{
+					DisabledVersions: []string{"8.0.0"},
+					DefaultVersion:   "8.0.1-19",
+				},
+				Mongod: &models.Component{
+					DisabledVersions: []string{"3.4.0", "3.6.0"},
+					DefaultVersion:   "4.4.3-8",
+				},
+				CreatedAt: now,
+				UpdatedAt: now,
 			},
 			{
 				ID:                    "KC2",

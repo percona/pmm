@@ -18,13 +18,17 @@ package dbaas
 
 import (
 	"context"
+	"fmt"
 
 	goversion "github.com/hashicorp/go-version"
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm-managed/utils/stringset"
 )
 
 type componentsService struct {
@@ -46,12 +50,14 @@ func NewComponentsService(db *reform.DB, dbaasClient dbaasClient, versionService
 }
 
 func (c componentsService) GetPSMDBComponents(ctx context.Context, req *dbaasv1beta1.GetPSMDBComponentsRequest) (*dbaasv1beta1.GetPSMDBComponentsResponse, error) {
+	var kubernetesCluster *models.KubernetesCluster
 	params := componentsParams{
 		operator:  psmdbOperator,
 		dbVersion: req.DbVersion,
 	}
 	if req.KubernetesClusterName != "" {
-		kubernetesCluster, err := models.FindKubernetesClusterByName(c.db.Querier, req.KubernetesClusterName)
+		var err error
+		kubernetesCluster, err = models.FindKubernetesClusterByName(c.db.Querier, req.KubernetesClusterName)
 		if err != nil {
 			return nil, err
 		}
@@ -61,10 +67,12 @@ func (c componentsService) GetPSMDBComponents(ctx context.Context, req *dbaasv1b
 			return nil, e
 		}
 
-		params.operatorVersion = checkResponse.Operators.Psmdb.Version
+		if checkResponse.Operators.Psmdb != nil {
+			params.operatorVersion = checkResponse.Operators.Psmdb.Version
+		}
 	}
 
-	versions, err := c.versions(ctx, params)
+	versions, err := c.versions(ctx, params, kubernetesCluster)
 	if err != nil {
 		return nil, err
 	}
@@ -72,12 +80,14 @@ func (c componentsService) GetPSMDBComponents(ctx context.Context, req *dbaasv1b
 }
 
 func (c componentsService) GetPXCComponents(ctx context.Context, req *dbaasv1beta1.GetPXCComponentsRequest) (*dbaasv1beta1.GetPXCComponentsResponse, error) {
+	var kubernetesCluster *models.KubernetesCluster
 	params := componentsParams{
 		operator:  pxcOperator,
 		dbVersion: req.DbVersion,
 	}
 	if req.KubernetesClusterName != "" {
-		kubernetesCluster, err := models.FindKubernetesClusterByName(c.db.Querier, req.KubernetesClusterName)
+		var err error
+		kubernetesCluster, err = models.FindKubernetesClusterByName(c.db.Querier, req.KubernetesClusterName)
 		if err != nil {
 			return nil, err
 		}
@@ -87,38 +97,113 @@ func (c componentsService) GetPXCComponents(ctx context.Context, req *dbaasv1bet
 			return nil, e
 		}
 
-		params.operatorVersion = checkResponse.Operators.Xtradb.Version
+		if checkResponse.Operators.Xtradb != nil {
+			params.operatorVersion = checkResponse.Operators.Xtradb.Version
+		}
 	}
 
-	versions, err := c.versions(ctx, params)
+	versions, err := c.versions(ctx, params, kubernetesCluster)
 	if err != nil {
 		return nil, err
 	}
 	return &dbaasv1beta1.GetPXCComponentsResponse{Versions: versions}, nil
 }
 
-func (c componentsService) versions(ctx context.Context, params componentsParams) ([]*dbaasv1beta1.Version, error) {
+func (c componentsService) ChangePSMDBComponents(ctx context.Context, req *dbaasv1beta1.ChangePSMDBComponentsRequest) (*dbaasv1beta1.ChangePSMDBComponentsResponse, error) {
+	err := c.db.InTransaction(func(tx *reform.TX) error {
+		kubernetesCluster, e := models.FindKubernetesClusterByName(tx.Querier, req.KubernetesClusterName)
+		if e != nil {
+			return e
+		}
+
+		if req.Mongod != nil {
+			kubernetesCluster.Mongod, e = setComponent(kubernetesCluster.Mongod, req.Mongod)
+			if e != nil {
+				message := fmt.Sprintf("%s, cluster: %s, component: mongod", e.Error(), kubernetesCluster.KubernetesClusterName)
+				return status.Errorf(codes.InvalidArgument, message)
+			}
+		}
+
+		e = tx.Save(kubernetesCluster)
+		if e != nil {
+			return e
+		}
+
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &dbaasv1beta1.ChangePSMDBComponentsResponse{}, nil
+}
+
+func (c componentsService) ChangePXCComponents(ctx context.Context, req *dbaasv1beta1.ChangePXCComponentsRequest) (*dbaasv1beta1.ChangePXCComponentsResponse, error) {
+	err := c.db.InTransaction(func(tx *reform.TX) error {
+		kubernetesCluster, e := models.FindKubernetesClusterByName(tx.Querier, req.KubernetesClusterName)
+		if e != nil {
+			return e
+		}
+
+		if req.Pxc != nil {
+			kubernetesCluster.PXC, e = setComponent(kubernetesCluster.PXC, req.Pxc)
+			if e != nil {
+				message := fmt.Sprintf("%s, cluster: %s, component: pxc", e.Error(), kubernetesCluster.KubernetesClusterName)
+				return status.Errorf(codes.InvalidArgument, message)
+			}
+		}
+
+		if req.Proxysql != nil {
+			kubernetesCluster.ProxySQL, e = setComponent(kubernetesCluster.ProxySQL, req.Proxysql)
+			if e != nil {
+				message := fmt.Sprintf("%s, cluster: %s, component: proxySQL", e.Error(), kubernetesCluster.KubernetesClusterName)
+				return status.Errorf(codes.InvalidArgument, message)
+			}
+		}
+
+		e = tx.Save(kubernetesCluster)
+		if e != nil {
+			return e
+		}
+
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &dbaasv1beta1.ChangePXCComponentsResponse{}, nil
+}
+
+func (c componentsService) versions(ctx context.Context, params componentsParams, cluster *models.KubernetesCluster) ([]*dbaasv1beta1.OperatorVersion, error) {
 	components, err := c.versionServiceClient.Matrix(ctx, params)
 	if err != nil {
 		return nil, err
 	}
 
-	versions := make([]*dbaasv1beta1.Version, 0, len(components.Versions))
+	var mongod, pxc, proxySQL *models.Component
+	if cluster != nil {
+		mongod = cluster.Mongod
+		pxc = cluster.PXC
+		proxySQL = cluster.ProxySQL
+	}
+
+	versions := make([]*dbaasv1beta1.OperatorVersion, 0, len(components.Versions))
 	mongodMinimalVersion, _ := goversion.NewVersion("4.2.0")
 	pxcMinimalVersion, _ := goversion.NewVersion("8.0.0")
 	for _, v := range components.Versions {
-		respVersion := &dbaasv1beta1.Version{
+		respVersion := &dbaasv1beta1.OperatorVersion{
 			Product:  v.Product,
 			Operator: v.Operator,
 			Matrix: &dbaasv1beta1.Matrix{
-				Mongod:       c.matrix(v.Matrix.Mongod, mongodMinimalVersion),
-				Pxc:          c.matrix(v.Matrix.Pxc, pxcMinimalVersion),
-				Pmm:          c.matrix(v.Matrix.Pmm, nil),
-				Proxysql:     c.matrix(v.Matrix.Proxysql, nil),
-				Haproxy:      c.matrix(v.Matrix.Haproxy, nil),
-				Backup:       c.matrix(v.Matrix.Backup, nil),
-				Operator:     c.matrix(v.Matrix.Operator, nil),
-				LogCollector: c.matrix(v.Matrix.LogCollector, nil),
+				Mongod:       c.matrix(v.Matrix.Mongod, mongodMinimalVersion, mongod),
+				Pxc:          c.matrix(v.Matrix.Pxc, pxcMinimalVersion, pxc),
+				Pmm:          c.matrix(v.Matrix.Pmm, nil, nil),
+				Proxysql:     c.matrix(v.Matrix.Proxysql, nil, proxySQL),
+				Haproxy:      c.matrix(v.Matrix.Haproxy, nil, nil),
+				Backup:       c.matrix(v.Matrix.Backup, nil, nil),
+				Operator:     c.matrix(v.Matrix.Operator, nil, nil),
+				LogCollector: c.matrix(v.Matrix.LogCollector, nil, nil),
 			},
 		}
 		versions = append(versions, respVersion)
@@ -127,7 +212,7 @@ func (c componentsService) versions(ctx context.Context, params componentsParams
 	return versions, nil
 }
 
-func (c componentsService) matrix(m map[string]component, minimalVersion *goversion.Version) map[string]*dbaasv1beta1.Component {
+func (c componentsService) matrix(m map[string]componentVersion, minimalVersion *goversion.Version, kc *models.Component) map[string]*dbaasv1beta1.Component {
 	result := make(map[string]*dbaasv1beta1.Component)
 
 	var lastVersion string
@@ -152,8 +237,51 @@ func (c componentsService) matrix(m map[string]component, minimalVersion *govers
 			lastVersion = v
 		}
 	}
-	if lastVersion != "" {
+
+	defaultVersionSet := false
+	if kc != nil {
+		if _, ok := result[kc.DefaultVersion]; ok {
+			result[kc.DefaultVersion].Default = true
+			defaultVersionSet = true
+		}
+		for _, v := range kc.DisabledVersions {
+			if _, ok := result[v]; ok {
+				result[v].Disabled = true
+			}
+		}
+	}
+	if lastVersion != "" && !defaultVersionSet {
 		result[lastVersion].Default = true
 	}
 	return result
+}
+
+func setComponent(kc *models.Component, rc *dbaasv1beta1.ChangeComponent) (*models.Component, error) {
+	if kc == nil {
+		kc = new(models.Component)
+	}
+	if rc.DefaultVersion != "" {
+		kc.DefaultVersion = rc.DefaultVersion
+	}
+
+	disabledVersions := make(map[string]struct{})
+	for _, v := range kc.DisabledVersions {
+		disabledVersions[v] = struct{}{}
+	}
+	for _, v := range rc.Versions {
+		if v.Enable && v.Disable {
+			return nil, fmt.Errorf("enable and disable for version %s can't be passed together", v.Version)
+		}
+		if v.Enable {
+			delete(disabledVersions, v.Version)
+		}
+		if v.Disable {
+			disabledVersions[v.Version] = struct{}{}
+		}
+	}
+	if _, ok := disabledVersions[kc.DefaultVersion]; ok {
+		return nil, fmt.Errorf("default version can't be disabled")
+	}
+	kc.DisabledVersions = stringset.ToSlice(disabledVersions)
+	return kc, nil
 }

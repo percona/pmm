@@ -51,6 +51,7 @@ func TestKubernetesServer(t *testing.T) {
 		teardown = func(t *testing.T) {
 			uuid.SetRand(nil)
 			dbaasClient.AssertExpectations(t)
+			require.NoError(t, sqlDB.Close())
 		}
 
 		ks = NewKubernetesServer(db, dbaasClient)

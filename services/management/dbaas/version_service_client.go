@@ -36,21 +36,23 @@ const (
 	pxcOperator   = "pxc-operator"
 )
 
-type component struct {
+// componentVersion contains info about exact component version.
+type componentVersion struct {
 	ImagePath string `json:"imagePath"`
 	ImageHash string `json:"imageHash"`
 	Status    string `json:"status"`
 	Critical  bool   `json:"critical"`
 }
+
 type matrix struct {
-	Mongod       map[string]component `json:"mongod"`
-	Pxc          map[string]component `json:"pxc"`
-	Pmm          map[string]component `json:"pmm"`
-	Proxysql     map[string]component `json:"proxysql"`
-	Haproxy      map[string]component `json:"haproxy"`
-	Backup       map[string]component `json:"backup"`
-	Operator     map[string]component `json:"operator"`
-	LogCollector map[string]component `json:"logCollector"`
+	Mongod       map[string]componentVersion `json:"mongod"`
+	Pxc          map[string]componentVersion `json:"pxc"`
+	Pmm          map[string]componentVersion `json:"pmm"`
+	Proxysql     map[string]componentVersion `json:"proxysql"`
+	Haproxy      map[string]componentVersion `json:"haproxy"`
+	Backup       map[string]componentVersion `json:"backup"`
+	Operator     map[string]componentVersion `json:"operator"`
+	LogCollector map[string]componentVersion `json:"logCollector"`
 }
 
 // VersionServiceResponse represents response from version service API.
@@ -62,6 +64,7 @@ type VersionServiceResponse struct {
 	} `json:"versions"`
 }
 
+// componentsParams contains params to filter components in version service API.
 type componentsParams struct {
 	operator        string
 	operatorVersion string
