@@ -953,6 +953,10 @@ message AddQANMongoDBProfilerAgentRequest {
   map<string, string> custom_labels = 7;
   // Skip connection check.
   bool skip_connection_check = 8;
+  // Authentication mechanism.
+  // See https://docs.mongodb.com/manual/reference/parameters/#mongodb-parameter-param.authenticationMechanisms
+  // for details.
+  string authentication_mechanism = 12;
 }
 
 message AddQANMongoDBProfilerAgentResponse {
