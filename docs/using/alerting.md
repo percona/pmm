@@ -128,7 +128,7 @@ This page has four tabs.
     {% endraw %}
 
     ![](../_images/PMM_Integrated_Alerting_Alert_Rule_Templates_Add_Form.jpg)
-    
+
     > **Alert Rule Template parameters**
     >
     > The parameters used in the template follow a format and might include different fields depending on their `type`:
@@ -141,3 +141,13 @@ This page has four tabs.
     > - `range` (optional): only for `float` parameters, defining the boundaries for the value.
 
 4. Click *Add* to add the alert rule template, or *Cancel* to abort the operation.
+
+
+## Video
+
+This short (3:36) video shows how to activate and configure Integrated Alerting.
+
+<video width="100%" controls>
+  <source src="../_videos/Integrated-Alerting.mp4" type="video/mp4">
+  Your browser does not support playing this video.
+</video>
