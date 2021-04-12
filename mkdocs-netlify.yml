@@ -15,8 +15,24 @@ theme:
   logo: _images/percona-logo.svg
   favicon: _images/percona_favicon.ico
   palette:
-    scheme: slate
-    primary: amber
+
+    # Light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: amber
+      accent: indigo
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to dark mode
+
+    # Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to light mode
 
 extra_css:
   - https://unicons.iconscout.com/release/v3.0.3/css/line.css
