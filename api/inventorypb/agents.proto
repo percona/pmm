@@ -682,6 +682,10 @@ message AddMongoDBExporterRequest {
   bool push_metrics = 9;
   // List of collector names to disable in this exporter.
   repeated string disable_collectors = 13;
+  // Authentication mechanism.
+  // See https://docs.mongodb.com/manual/reference/parameters/#mongodb-parameter-param.authenticationMechanisms
+  // for details.
+  string authentication_mechanism = 14;
 }
 
 message AddMongoDBExporterResponse {

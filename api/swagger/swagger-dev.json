@@ -3520,6 +3520,11 @@
                     "type": "string"
                   },
                   "x-order": 12
+                },
+                "authentication_mechanism": {
+                  "description": "Authentication mechanism.\nSee https://docs.mongodb.com/manual/reference/parameters/#mongodb-parameter-param.authenticationMechanisms\nfor details.",
+                  "type": "string",
+                  "x-order": 13
                 }
               }
             }

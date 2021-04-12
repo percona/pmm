@@ -162,6 +162,11 @@ type AddMongoDBExporterBody struct {
 
 	// List of collector names to disable in this exporter.
 	DisableCollectors []string `json:"disable_collectors"`
+
+	// Authentication mechanism.
+	// See https://docs.mongodb.com/manual/reference/parameters/#mongodb-parameter-param.authenticationMechanisms
+	// for details.
+	AuthenticationMechanism string `json:"authentication_mechanism,omitempty"`
 }
 
 // Validate validates this add mongo DB exporter body
