@@ -15584,6 +15584,251 @@
         }
       }
     },
+    "/v1/management/DBaaS/Components/ChangePSMDB": {
+      "post": {
+        "tags": [
+          "Components"
+        ],
+        "summary": "ChangePSMDBComponents manages PSMDB related components.",
+        "operationId": "ChangePSMDBComponents",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "kubernetes_cluster_name": {
+                  "description": "Kubernetes cluster name.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "mongod": {
+                  "description": "ChangeComponent contains fields to manage components.",
+                  "type": "object",
+                  "properties": {
+                    "default_version": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "versions": {
+                      "type": "array",
+                      "items": {
+                        "description": "ComponentVersion contains operations which should be done with component version.",
+                        "type": "object",
+                        "properties": {
+                          "version": {
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "disable": {
+                            "type": "boolean",
+                            "x-order": 1
+                          },
+                          "enable": {
+                            "type": "boolean",
+                            "x-order": 2
+                          }
+                        }
+                      },
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/DBaaS/Components/ChangePXC": {
+      "post": {
+        "tags": [
+          "Components"
+        ],
+        "summary": "ChangePXCComponents manages PXC related components.",
+        "operationId": "ChangePXCComponents",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "kubernetes_cluster_name": {
+                  "description": "Kubernetes cluster name.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "pxc": {
+                  "description": "ChangeComponent contains fields to manage components.",
+                  "type": "object",
+                  "properties": {
+                    "default_version": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "versions": {
+                      "type": "array",
+                      "items": {
+                        "description": "ComponentVersion contains operations which should be done with component version.",
+                        "type": "object",
+                        "properties": {
+                          "version": {
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "disable": {
+                            "type": "boolean",
+                            "x-order": 1
+                          },
+                          "enable": {
+                            "type": "boolean",
+                            "x-order": 2
+                          }
+                        }
+                      },
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 1
+                },
+                "proxysql": {
+                  "description": "ChangeComponent contains fields to manage components.",
+                  "type": "object",
+                  "properties": {
+                    "default_version": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "versions": {
+                      "type": "array",
+                      "items": {
+                        "description": "ComponentVersion contains operations which should be done with component version.",
+                        "type": "object",
+                        "properties": {
+                          "version": {
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "disable": {
+                            "type": "boolean",
+                            "x-order": 1
+                          },
+                          "enable": {
+                            "type": "boolean",
+                            "x-order": 2
+                          }
+                        }
+                      },
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/DBaaS/Components/GetPSMDB": {
       "post": {
         "tags": [
@@ -15622,7 +15867,7 @@
                 "versions": {
                   "type": "array",
                   "items": {
-                    "description": "Version contains information about operator and components matrix.",
+                    "description": "OperatorVersion contains information about operator and components matrix.",
                     "type": "object",
                     "properties": {
                       "product": {
@@ -15662,6 +15907,10 @@
                                 "default": {
                                   "type": "boolean",
                                   "x-order": 4
+                                },
+                                "disabled": {
+                                  "type": "boolean",
+                                  "x-order": 5
                                 }
                               }
                             },
@@ -15692,6 +15941,10 @@
                                 "default": {
                                   "type": "boolean",
                                   "x-order": 4
+                                },
+                                "disabled": {
+                                  "type": "boolean",
+                                  "x-order": 5
                                 }
                               }
                             },
@@ -15722,6 +15975,10 @@
                                 "default": {
                                   "type": "boolean",
                                   "x-order": 4
+                                },
+                                "disabled": {
+                                  "type": "boolean",
+                                  "x-order": 5
                                 }
                               }
                             },
@@ -15752,6 +16009,10 @@
                                 "default": {
                                   "type": "boolean",
                                   "x-order": 4
+                                },
+                                "disabled": {
+                                  "type": "boolean",
+                                  "x-order": 5
                                 }
                               }
                             },
@@ -15782,6 +16043,10 @@
                                 "default": {
                                   "type": "boolean",
                                   "x-order": 4
+                                },
+                                "disabled": {
+                                  "type": "boolean",
+                                  "x-order": 5
                                 }
                               }
                             },
@@ -15812,6 +16077,10 @@
                                 "default": {
                                   "type": "boolean",
                                   "x-order": 4
+                                },
+                                "disabled": {
+                                  "type": "boolean",
+                                  "x-order": 5
                                 }
                               }
                             },
@@ -15842,6 +16111,10 @@
                                 "default": {
                                   "type": "boolean",
                                   "x-order": 4
+                                },
+                                "disabled": {
+                                  "type": "boolean",
+                                  "x-order": 5
                                 }
                               }
                             },
@@ -15872,6 +16145,10 @@
                                 "default": {
                                   "type": "boolean",
                                   "x-order": 4
+                                },
+                                "disabled": {
+                                  "type": "boolean",
+                                  "x-order": 5
                                 }
                               }
                             },
@@ -15967,7 +16244,7 @@
                 "versions": {
                   "type": "array",
                   "items": {
-                    "description": "Version contains information about operator and components matrix.",
+                    "description": "OperatorVersion contains information about operator and components matrix.",
                     "type": "object",
                     "properties": {
                       "product": {
@@ -16007,6 +16284,10 @@
                                 "default": {
                                   "type": "boolean",
                                   "x-order": 4
+                                },
+                                "disabled": {
+                                  "type": "boolean",
+                                  "x-order": 5
                                 }
                               }
                             },
@@ -16037,6 +16318,10 @@
                                 "default": {
                                   "type": "boolean",
                                   "x-order": 4
+                                },
+                                "disabled": {
+                                  "type": "boolean",
+                                  "x-order": 5
                                 }
                               }
                             },
@@ -16067,6 +16352,10 @@
                                 "default": {
                                   "type": "boolean",
                                   "x-order": 4
+                                },
+                                "disabled": {
+                                  "type": "boolean",
+                                  "x-order": 5
                                 }
                               }
                             },
@@ -16097,6 +16386,10 @@
                                 "default": {
                                   "type": "boolean",
                                   "x-order": 4
+                                },
+                                "disabled": {
+                                  "type": "boolean",
+                                  "x-order": 5
                                 }
                               }
                             },
@@ -16127,6 +16420,10 @@
                                 "default": {
                                   "type": "boolean",
                                   "x-order": 4
+                                },
+                                "disabled": {
+                                  "type": "boolean",
+                                  "x-order": 5
                                 }
                               }
                             },
@@ -16157,6 +16454,10 @@
                                 "default": {
                                   "type": "boolean",
                                   "x-order": 4
+                                },
+                                "disabled": {
+                                  "type": "boolean",
+                                  "x-order": 5
                                 }
                               }
                             },
@@ -16187,6 +16488,10 @@
                                 "default": {
                                   "type": "boolean",
                                   "x-order": 4
+                                },
+                                "disabled": {
+                                  "type": "boolean",
+                                  "x-order": 5
                                 }
                               }
                             },
@@ -16217,6 +16522,10 @@
                                 "default": {
                                   "type": "boolean",
                                   "x-order": 4
+                                },
+                                "disabled": {
+                                  "type": "boolean",
+                                  "x-order": 5
                                 }
                               }
                             },
