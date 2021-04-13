@@ -92,7 +92,7 @@ type AddMongoDBRequest struct {
 	// List of collector names to disable in this exporter.
 	DisableCollectors []string `protobuf:"bytes,24,rep,name=disable_collectors,json=disableCollectors,proto3" json:"disable_collectors,omitempty"`
 	// Authentication mechanism.
-	// See https://docs.mongodb.com/manual/reference/parameters/#mongodb-parameter-param.authenticationMechanisms
+	// See https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism
 	// for details.
 	AuthenticationMechanism string `protobuf:"bytes,25,opt,name=authentication_mechanism,json=authenticationMechanism,proto3" json:"authentication_mechanism,omitempty"`
 }

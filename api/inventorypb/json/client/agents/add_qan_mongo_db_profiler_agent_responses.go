@@ -158,7 +158,7 @@ type AddQANMongoDBProfilerAgentBody struct {
 	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 
 	// Authentication mechanism.
-	// See https://docs.mongodb.com/manual/reference/parameters/#mongodb-parameter-param.authenticationMechanisms
+	// See https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism
 	// for details.
 	AuthenticationMechanism string `json:"authentication_mechanism,omitempty"`
 }

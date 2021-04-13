@@ -683,7 +683,7 @@ message AddMongoDBExporterRequest {
   // List of collector names to disable in this exporter.
   repeated string disable_collectors = 13;
   // Authentication mechanism.
-  // See https://docs.mongodb.com/manual/reference/parameters/#mongodb-parameter-param.authenticationMechanisms
+  // See https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism
   // for details.
   string authentication_mechanism = 14;
 }
@@ -954,7 +954,7 @@ message AddQANMongoDBProfilerAgentRequest {
   // Skip connection check.
   bool skip_connection_check = 8;
   // Authentication mechanism.
-  // See https://docs.mongodb.com/manual/reference/parameters/#mongodb-parameter-param.authenticationMechanisms
+  // See https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism
   // for details.
   string authentication_mechanism = 12;
 }

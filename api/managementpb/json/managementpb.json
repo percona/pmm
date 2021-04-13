@@ -2363,7 +2363,7 @@
                   "x-order": 4
                 },
                 "authentication_mechanism": {
-                  "description": "Authentication mechanism.\nSee https://docs.mongodb.com/manual/reference/parameters/#mongodb-parameter-param.authenticationMechanisms\nfor details.",
+                  "description": "Authentication mechanism.\nSee https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism\nfor details.",
                   "type": "string",
                   "x-order": 23
                 },

@@ -3330,7 +3330,7 @@ type AddMongoDBExporterRequest struct {
 	// List of collector names to disable in this exporter.
 	DisableCollectors []string `protobuf:"bytes,13,rep,name=disable_collectors,json=disableCollectors,proto3" json:"disable_collectors,omitempty"`
 	// Authentication mechanism.
-	// See https://docs.mongodb.com/manual/reference/parameters/#mongodb-parameter-param.authenticationMechanisms
+	// See https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism
 	// for details.
 	AuthenticationMechanism string `protobuf:"bytes,14,opt,name=authentication_mechanism,json=authenticationMechanism,proto3" json:"authentication_mechanism,omitempty"`
 }
@@ -4746,7 +4746,7 @@ type AddQANMongoDBProfilerAgentRequest struct {
 	// Skip connection check.
 	SkipConnectionCheck bool `protobuf:"varint,8,opt,name=skip_connection_check,json=skipConnectionCheck,proto3" json:"skip_connection_check,omitempty"`
 	// Authentication mechanism.
-	// See https://docs.mongodb.com/manual/reference/parameters/#mongodb-parameter-param.authenticationMechanisms
+	// See https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism
 	// for details.
 	AuthenticationMechanism string `protobuf:"bytes,12,opt,name=authentication_mechanism,json=authenticationMechanism,proto3" json:"authentication_mechanism,omitempty"`
 }
