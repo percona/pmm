@@ -4,6 +4,7 @@ package dbaas.v1beta1;
 
 option go_package = "api/managementpb/dbaas;dbaasv1beta1";
 
+import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 
 // TODO move it to parent directory / package once API is v1-stable
@@ -15,6 +16,7 @@ message Component {
   string status = 3;
   bool critical = 4;
   bool default = 5;
+  bool disabled = 6;
 }
 
 // Matrix contains all available components.
@@ -29,8 +31,8 @@ message Matrix {
   map<string, Component> log_collector = 8;
 }
 
-// Version contains information about operator and components matrix.
-message Version {
+// OperatorVersion contains information about operator and components matrix.
+message OperatorVersion {
   string product = 1;
   string operator = 2;
   Matrix matrix = 3;
@@ -44,7 +46,7 @@ message GetPSMDBComponentsRequest {
 }
 
 message GetPSMDBComponentsResponse {
-  repeated Version versions = 1;
+  repeated OperatorVersion versions = 1;
 }
 
 message GetPXCComponentsRequest {
@@ -55,8 +57,49 @@ message GetPXCComponentsRequest {
 }
 
 message GetPXCComponentsResponse {
-  repeated Version versions = 1;
+  repeated OperatorVersion versions = 1;
 }
+
+// ChangeComponent contains fields to manage components.
+message ChangeComponent {
+  string default_version = 1;
+  // ComponentVersion contains operations which should be done with component version.
+  message ComponentVersion {
+    string version = 1 [
+      (validator.field) = {
+        string_not_empty: true
+      }
+    ];
+    bool disable = 2;
+    bool enable = 3;
+  }
+  repeated ComponentVersion versions = 2;
+}
+
+message ChangePSMDBComponentsRequest {
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  ChangeComponent mongod = 2;
+}
+
+message ChangePSMDBComponentsResponse {}
+
+message ChangePXCComponentsRequest {
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  ChangeComponent pxc = 2;
+  ChangeComponent proxysql = 3;
+}
+
+message ChangePXCComponentsResponse {}
 
 // Components service provides public methods for managing components.
 service Components {
@@ -71,6 +114,20 @@ service Components {
   rpc GetPXCComponents(GetPXCComponentsRequest) returns (GetPXCComponentsResponse) {
     option (google.api.http) = {
       post: "/v1/management/DBaaS/Components/GetPXC"
+      body: "*"
+    };
+  }
+  // ChangePSMDBComponents manages PSMDB related components.
+  rpc ChangePSMDBComponents(ChangePSMDBComponentsRequest) returns (ChangePSMDBComponentsResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/Components/ChangePSMDB"
+      body: "*"
+    };
+  }
+  // ChangePXCComponents manages PXC related components.
+  rpc ChangePXCComponents(ChangePXCComponentsRequest) returns (ChangePXCComponentsResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/Components/ChangePXC"
       body: "*"
     };
   }
