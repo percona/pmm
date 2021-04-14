@@ -13,7 +13,7 @@ use_directory_urls: false
 theme:
   name: material
   logo: _images/percona-logo.svg
-  favicon: https://raw.githubusercontent.com/percona-platform/grafana/master/public/img/percona-favicon.ico
+  favicon: _images/percona-favicon.ico
   palette:
 
     # Light mode
