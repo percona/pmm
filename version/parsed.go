@@ -7,6 +7,7 @@ import (
 )
 
 var versionRE = regexp.MustCompile(`^(\d+)\.(\d+)\.(\d+)(.*)$`)
+var fetchRest = regexp.MustCompile(`^-([0-9]+)-?(.*)$`)
 
 // Parsed represents a SemVer-like version information.
 type Parsed struct {
@@ -15,6 +16,7 @@ type Parsed struct {
 	Patch int
 	Rest  string
 	Num   int // MMmmpp
+    NumRest int
 }
 
 // Parse parses version information from given string.
@@ -35,6 +37,11 @@ func Parse(s string) (*Parsed, error) {
 	if res.Patch, err = strconv.Atoi(m[3]); err != nil {
 		return nil, err
 	}
+
+    if res.Rest != "" {
+	    m = fetchRest.FindStringSubmatch(res.Rest)
+        res.NumRest = m[1]
+    }
 
 	res.Num = res.Major*10000 + res.Minor*100 + res.Patch
 	return res, nil
