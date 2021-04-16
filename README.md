@@ -36,6 +36,8 @@ Before you start, it helps to know what [git](https://git-scm.com), [Python 3](h
 
 If you'd like to have a local copy of PMM documentation, or are thinking about contributing, it helps if you can build the documentation to see how it will look when published. The easiest way is to use Docker, as this avoids having to install MkDocs and its dependencies.
 
+### With Docker
+
 1. [Get Docker](https://docs.docker.com/get-docker/)
 2. Clone this repository
 3. Change directory to `pmm-doc`
@@ -53,9 +55,11 @@ If you want to see how things look as you edit, MkDocs has a built-in server for
 docker run --rm -v $(pwd):/docs -p 8000:8000 perconalab/pmm-doc-md mkdocs serve -t material --dev-addr=0.0.0.0:8000
 ```
 
-and point your browser to [http://localhost:8000](http://localhost:8000).
+Wait until you see `INFO    -  Start detecting changes` then point your browser to [http://0.0.0.0:8000](http://0.0.0.0:8000).
 
-If you prefer not to use Docker, you'll have to install MkDocs and all its dependencies.
+### Without Docker
+
+*If you don't use Docker, you must install MkDocs and all its dependencies.*
 
 1. Install [Python 3](https://www.python.org/downloads/)
 
@@ -79,54 +83,65 @@ Or, to run the built-in web server:
 mkdocs serve -t material
 ```
 
-And view the site at <http://localhost:8000>
+View the site at <http://0.0.0.0:8000>
 
 ## PDF
 
-You can create a PDF version of the documentation.
+*How to create a PDF version of the documentation.*
 
-1. If for a release, edit `mkdoc-pdf.yml` and change:
+1. (For Percona staff) If bulding for a release of PMM, edit `mkdoc-pdf.yml` and change:
 
     - The release number in `plugins.with-pdf.output_path`
     - The release number and date in `plugins.with-pdf.cover_subtitle`
 
-2. If using Docker:
+2. Build
 
-    ```sh
-    docker run --rm -v $(pwd):/docs -e ENABLE_PDF_EXPORT=1 perconalab/pmm-doc-md mkdocs build -f mkdocs-pdf.yml
-    ```
+    - With Docker:
 
-    If not:
+        ```sh
+        docker run --rm -v $(pwd):/docs perconalab/pmm-doc-md mkdocs build -f mkdocs-pdf.yml
+        ```
 
-    ```sh
-    ENABLE_PDF_EXPORT=1 mkdocs build -f mkdocs-pdf.yml
-    ```
+    - Without:
 
-2. The PDF is in `site/_pdf`.
+        ```sh
+        mkdocs build -f mkdocs-pdf.yml
+        ```
+
+3. The PDF is in `site/_pdf`.
 
 ## Directories and files
 
-- `mkdocs.yml`: Main MkDocs configuration file
-- `nav.yml`: Navigation (`nav`) element in separate file defining table of contents
+- `mkdocs.yml`: Default MkDocs configuration file. Creates themeless HTML for hosting on percona.com.
+- `mkdocs-netlify.yml`: MkDocs configuration file. Creates material-themed HTML for hosting on netlify.com.
+- `mkdocs-pdf.yml`: MkDocs configuration file. Creates themed [PDF](#pdf).
+- `nav.yml`: Navigation (`nav`) element in separate file defining table of contents.
 - `docs`:
-    - `*.md`: Markdown files
-    - `_images/*`: Images
-    - `css`: Styling
-    - `js`: JavaScript files
+    - `*.md`: Markdown files.
+    - `_images/*`: Images.
+    - `css`: Styling.
+    - `js`: JavaScript files.
 - `_resources`:
     - `bin`
         - `glossary.tsv`: Export from a spreadsheet of glossary entries.
         - `make_glossary.pl`: Script to write Markdown page from `glossary.tsv`.
         - `grafana-dashboards-descriptions.py`: Script to extract dashboard descriptions from <https://github.com/percona/grafana-dashboards/>.
         - `plantuml`: Wrapper script for running PlantUML.
+        - `plantuml.jar`: Copy of the PlantUML Java file (needed for Netlify builds).
     - `diagrams`:
         - `*.puml`: [PlantUML](https://plantuml.com) diagrams (see comments inside each).
         - `plantuml_styles.uml`: Global style for PlantUML diagrams.
     - `templates`: Stylesheet for PDF output (used by [mkdocs-with-pdf](https://github.com/orzih/mkdocs-with-pdf) extension).
-    - `theme`: MkDocs template for HTML intended for publishing on percona.com.
+    - `theme`:
+        - `main.html`: MkDocs template for HTML published on percona.com.
 - `requirements.txt`: Python package dependencies.
+- `runtime.txt`: Python version specifier (used by netlify).
 - `variables.yml`: Values used throughout the Markdown, including the current PMM version/release number.
 - `.spelling`: Words regarded as correct by `mdspell` (See [Spelling and grammar](#spelling-and-grammar).)
+- `.github`:
+    - `workflows`:
+        - `build.yml`: Workflow specification for building the documentation via a GitHub action. (Uses `mike` which puts HTML in `publish` branch.)
+- `site`: When building locally, directory where HTML is put.
 
 ## Version switching
 
