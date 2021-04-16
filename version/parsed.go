@@ -39,8 +39,10 @@ func Parse(s string) (*Parsed, error) {
 	}
 
     if res.Rest != "" {
-	    m = fetchRest.FindStringSubmatch(res.Rest)
-        res.NumRest = m[1]
+	    r := fetchRest.FindStringSubmatch(res.Rest)
+	    if res.NumRest, err = strconv.Atoi(r[1]); err != nil {
+		     return nil, err
+        }
     }
 
 	res.Num = res.Major*10000 + res.Minor*100 + res.Patch
