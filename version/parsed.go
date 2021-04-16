@@ -38,8 +38,9 @@ func Parse(s string) (*Parsed, error) {
 		return nil, err
 	}
 
+
 	r := fetchRest.FindStringSubmatch(res.Rest)
-    if len(r) > 0 {
+    if len(r) != 0 {
 	    if res.NumRest, err = strconv.Atoi(r[1]); err != nil {
 		     return nil, err
         }
