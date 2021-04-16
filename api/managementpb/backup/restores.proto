@@ -10,42 +10,44 @@ import "managementpb/backup/common.proto";
 
 // RestoreHistoryItem represents single backup restore item.
 message RestoreHistoryItem {
-  // Machine-readable artifact ID.
+  // Machine-readable restore id.
   string restore_id = 1;
+  // ID of the artifact used for restore.
+  string artifact_id = 2;
   // Artifact name used for restore.
-  string name = 2;
+  string name = 3;
   // Database vendor e.g. PostgreSQL, MongoDB, MySQL.
-  string vendor = 3;
+  string vendor = 4;
   // Machine-readable location ID.
-  string location_id = 4;
+  string location_id = 5;
   // Location name.
-  string location_name = 5;
+  string location_name = 6;
   // Machine-readable service ID.
-  string service_id = 6;
+  string service_id = 7;
   // Service name.
-  string service_name = 7;
+  string service_name = 8;
   // Backup data model.
-  DataModel data_model = 8;
+  DataModel data_model = 9;
   // Backup status.
-  Status status = 9;
+  Status status = 10;
   // Restore start time.
-  google.protobuf.Timestamp started_at = 10;
+  google.protobuf.Timestamp started_at = 11;
   // Restore finish time.
-  google.protobuf.Timestamp finished_at = 11;
+  google.protobuf.Timestamp finished_at = 12;
 }
 
-message ListRestoresHistoryRequest {}
+message ListRestoreHistoryRequest {}
 
-message ListRestoresHistoryResponse {
+message ListRestoreHistoryResponse {
   repeated RestoreHistoryItem items = 1;
 }
 
-// RestoresHistory service provides public methods for managing backup restores history.
-service RestoresHistory {
-  // ListRestoresHistory returns a list of all backup restores history items.
-  rpc ListRestoresHistory(ListRestoresHistoryRequest) returns (ListRestoresHistoryResponse) {
+// RestoreHistory service provides public methods for managing backup restore history.
+service RestoreHistory {
+  // ListRestoreHistory returns a list of all backup restore history items.
+  rpc ListRestoreHistory(ListRestoreHistoryRequest) returns (ListRestoreHistoryResponse) {
     option (google.api.http) = {
-      post: "/v1/management/backup/RestoresHistory/List"
+      post: "/v1/management/backup/RestoreHistory/List"
       body: "*"
     };
   }

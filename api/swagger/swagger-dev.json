@@ -24523,13 +24523,13 @@
         }
       }
     },
-    "/v1/management/backup/RestoresHistory/List": {
+    "/v1/management/backup/RestoreHistory/List": {
       "post": {
         "tags": [
-          "RestoresHistory"
+          "RestoreHistory"
         ],
-        "summary": "ListRestoresHistory returns a list of all backup restores history items.",
-        "operationId": "ListRestoresHistory",
+        "summary": "ListRestoreHistory returns a list of all backup restore history items.",
+        "operationId": "ListRestoreHistory",
         "parameters": [
           {
             "name": "body",
@@ -24553,39 +24553,44 @@
                     "type": "object",
                     "properties": {
                       "restore_id": {
-                        "description": "Machine-readable artifact ID.",
+                        "description": "Machine-readable restore id.",
                         "type": "string",
                         "x-order": 0
+                      },
+                      "artifact_id": {
+                        "description": "ID of the artifact used for restore.",
+                        "type": "string",
+                        "x-order": 1
                       },
                       "name": {
                         "description": "Artifact name used for restore.",
                         "type": "string",
-                        "x-order": 1
+                        "x-order": 2
                       },
                       "vendor": {
                         "description": "Database vendor e.g. PostgreSQL, MongoDB, MySQL.",
                         "type": "string",
-                        "x-order": 2
+                        "x-order": 3
                       },
                       "location_id": {
                         "description": "Machine-readable location ID.",
                         "type": "string",
-                        "x-order": 3
+                        "x-order": 4
                       },
                       "location_name": {
                         "description": "Location name.",
                         "type": "string",
-                        "x-order": 4
+                        "x-order": 5
                       },
                       "service_id": {
                         "description": "Machine-readable service ID.",
                         "type": "string",
-                        "x-order": 5
+                        "x-order": 6
                       },
                       "service_name": {
                         "description": "Service name.",
                         "type": "string",
-                        "x-order": 6
+                        "x-order": 7
                       },
                       "data_model": {
                         "description": "DataModel is a model used for performing a backup.",
@@ -24596,7 +24601,7 @@
                           "PHYSICAL",
                           "LOGICAL"
                         ],
-                        "x-order": 7
+                        "x-order": 8
                       },
                       "status": {
                         "description": "Status shows the current status of execution either backup or restore.",
@@ -24610,19 +24615,19 @@
                           "SUCCESS",
                           "ERROR"
                         ],
-                        "x-order": 8
+                        "x-order": 9
                       },
                       "started_at": {
                         "description": "Restore start time.",
                         "type": "string",
                         "format": "date-time",
-                        "x-order": 9
+                        "x-order": 10
                       },
                       "finished_at": {
                         "description": "Restore finish time.",
                         "type": "string",
                         "format": "date-time",
-                        "x-order": 10
+                        "x-order": 11
                       }
                     }
                   },

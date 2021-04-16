@@ -30,10 +30,10 @@ func (this *RestoreHistoryItem) Validate() error {
 	}
 	return nil
 }
-func (this *ListRestoresHistoryRequest) Validate() error {
+func (this *ListRestoreHistoryRequest) Validate() error {
 	return nil
 }
-func (this *ListRestoresHistoryResponse) Validate() error {
+func (this *ListRestoreHistoryResponse) Validate() error {
 	for _, item := range this.Items {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
