@@ -108,7 +108,7 @@ View the site at <http://0.0.0.0:8000>
         mkdocs build -f mkdocs-pdf.yml
         ```
 
-2. The PDF is in `site/_pdf`.
+3. The PDF is in `site/_pdf`.
 
 ## Directories and files
 
