@@ -8,11 +8,11 @@ import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "managementpb/backup/common.proto";
 
-// Artifact represents single backup artifact.
-message Artifact {
+// RestoreHistoryItem represents single backup restore item.
+message RestoreHistoryItem {
   // Machine-readable artifact ID.
-  string artifact_id = 1;
-  // Artifact name
+  string restore_id = 1;
+  // Artifact name used for restore.
   string name = 2;
   // Database vendor e.g. PostgreSQL, MongoDB, MySQL.
   string vendor = 3;
@@ -30,20 +30,22 @@ message Artifact {
   Status status = 9;
   // Artifact creation time.
   google.protobuf.Timestamp created_at = 10;
+  google.protobuf.Timestamp started_at = 11;
+  google.protobuf.Timestamp finished_at = 12;
 }
 
-message ListArtifactsRequest {}
+message ListRestoresHistoryRequest {}
 
-message ListArtifactsResponse {
-  repeated Artifact artifacts = 1;
+message ListRestoresHistoryResponse {
+  repeated RestoreHistoryItem items = 1;
 }
 
-// Artifacts service provides public methods for managing backup artifacts.
-service Artifacts {
-  // ListArtifacts returns a list of all backup artifacts.
-  rpc ListArtifacts(ListArtifactsRequest) returns (ListArtifactsResponse) {
+// RestoresHistory service provides public methods for managing backup restores history.
+service RestoresHistory {
+  // ListRestoresHistory returns a list of all backup restores history items.
+  rpc ListRestoresHistory(ListRestoresHistoryRequest) returns (ListRestoresHistoryResponse) {
     option (google.api.http) = {
-      post: "/v1/management/backup/Artifacts/List"
+      post: "/v1/management/backup/RestoresHistory/List"
       body: "*"
     };
   }

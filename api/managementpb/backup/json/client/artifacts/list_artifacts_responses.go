@@ -149,7 +149,7 @@ type ArtifactsItems0 struct {
 	// Enum: [DATA_MODEL_INVALID PHYSICAL LOGICAL]
 	DataModel *string `json:"data_model,omitempty"`
 
-	// Status shows current status of backup.
+	// Status shows the current status of execution either backup or restore.
 	// Enum: [STATUS_INVALID PENDING IN_PROGRESS PAUSED SUCCESS ERROR]
 	Status *string `json:"status,omitempty"`
 
