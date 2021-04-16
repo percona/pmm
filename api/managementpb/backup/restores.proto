@@ -28,10 +28,10 @@ message RestoreHistoryItem {
   DataModel data_model = 8;
   // Backup status.
   Status status = 9;
-  // Artifact creation time.
-  google.protobuf.Timestamp created_at = 10;
-  google.protobuf.Timestamp started_at = 11;
-  google.protobuf.Timestamp finished_at = 12;
+  // Restore start time.
+  google.protobuf.Timestamp started_at = 10;
+  // Restore finish time.
+  google.protobuf.Timestamp finished_at = 11;
 }
 
 message ListRestoresHistoryRequest {}

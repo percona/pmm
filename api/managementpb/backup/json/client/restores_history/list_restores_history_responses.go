@@ -189,15 +189,11 @@ type ItemsItems0 struct {
 	// Enum: [STATUS_INVALID PENDING IN_PROGRESS PAUSED SUCCESS ERROR]
 	Status *string `json:"status,omitempty"`
 
-	// Artifact creation time.
-	// Format: date-time
-	CreatedAt strfmt.DateTime `json:"created_at,omitempty"`
-
-	// started at
+	// Restore start time.
 	// Format: date-time
 	StartedAt strfmt.DateTime `json:"started_at,omitempty"`
 
-	// finished at
+	// Restore finish time.
 	// Format: date-time
 	FinishedAt strfmt.DateTime `json:"finished_at,omitempty"`
 }
@@ -211,10 +207,6 @@ func (o *ItemsItems0) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateStatus(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateCreatedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -327,19 +319,6 @@ func (o *ItemsItems0) validateStatus(formats strfmt.Registry) error {
 
 	// value enum
 	if err := o.validateStatusEnum("status", "body", *o.Status); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *ItemsItems0) validateCreatedAt(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.CreatedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("created_at", "body", "date-time", o.CreatedAt.String(), formats); err != nil {
 		return err
 	}
 

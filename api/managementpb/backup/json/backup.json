@@ -773,12 +773,6 @@
                     "description": "RestoreHistoryItem represents single backup restore item.",
                     "type": "object",
                     "properties": {
-                      "created_at": {
-                        "description": "Artifact creation time.",
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 9
-                      },
                       "data_model": {
                         "description": "DataModel is a model used for performing a backup.",
                         "type": "string",
@@ -791,9 +785,10 @@
                         "x-order": 7
                       },
                       "finished_at": {
+                        "description": "Restore finish time.",
                         "type": "string",
                         "format": "date-time",
-                        "x-order": 11
+                        "x-order": 10
                       },
                       "location_id": {
                         "description": "Machine-readable location ID.",
@@ -826,9 +821,10 @@
                         "x-order": 6
                       },
                       "started_at": {
+                        "description": "Restore start time.",
                         "type": "string",
                         "format": "date-time",
-                        "x-order": 10
+                        "x-order": 9
                       },
                       "status": {
                         "description": "Status shows the current status of execution either backup or restore.",

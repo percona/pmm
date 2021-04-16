@@ -24612,21 +24612,17 @@
                         ],
                         "x-order": 8
                       },
-                      "created_at": {
-                        "description": "Artifact creation time.",
+                      "started_at": {
+                        "description": "Restore start time.",
                         "type": "string",
                         "format": "date-time",
                         "x-order": 9
                       },
-                      "started_at": {
+                      "finished_at": {
+                        "description": "Restore finish time.",
                         "type": "string",
                         "format": "date-time",
                         "x-order": 10
-                      },
-                      "finished_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 11
                       }
                     }
                   },
