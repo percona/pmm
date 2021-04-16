@@ -5491,7 +5491,7 @@
         "tags": [
           "SecurityChecks"
         ],
-        "summary": "ChangeSecurityChecks enables/disables Security Thread Tool checks by names.",
+        "summary": "ChangeSecurityChecks enables/disables Security Thread Tool checks or changes their interval by names.",
         "operationId": "ChangeSecurityChecks",
         "parameters": [
           {
@@ -5514,6 +5514,18 @@
                       "enable": {
                         "type": "boolean",
                         "x-order": 1
+                      },
+                      "interval": {
+                        "description": "SecurityCheckInterval represents possible execution interval values for checks.",
+                        "type": "string",
+                        "default": "SECURITY_CHECK_INTERVAL_INVALID",
+                        "enum": [
+                          "SECURITY_CHECK_INTERVAL_INVALID",
+                          "STANDARD",
+                          "FREQUENT",
+                          "RARE"
+                        ],
+                        "x-order": 3
                       },
                       "name": {
                         "description": "The name of the check to change.",
@@ -5736,6 +5748,18 @@
                         "description": "True if that check is disabled.",
                         "type": "boolean",
                         "x-order": 1
+                      },
+                      "interval": {
+                        "description": "SecurityCheckInterval represents possible execution interval values for checks.",
+                        "type": "string",
+                        "default": "SECURITY_CHECK_INTERVAL_INVALID",
+                        "enum": [
+                          "SECURITY_CHECK_INTERVAL_INVALID",
+                          "STANDARD",
+                          "FREQUENT",
+                          "RARE"
+                        ],
+                        "x-order": 4
                       },
                       "name": {
                         "description": "Machine-readable name (ID) that is used in expression.",

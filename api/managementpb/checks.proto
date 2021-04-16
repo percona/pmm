@@ -8,6 +8,14 @@ import "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options/annota
 import "google/api/annotations.proto";
 import "managementpb/severity.proto";
 
+// SecurityCheckInterval represents possible execution interval values for checks.
+enum SecurityCheckInterval {
+  SECURITY_CHECK_INTERVAL_INVALID = 0;
+  STANDARD = 1;
+  FREQUENT = 2;
+  RARE = 3;
+}
+
 // SecurityCheckResult represents the check result returned from pmm-managed after running the check.
 message SecurityCheckResult {
   string summary = 1;
@@ -28,6 +36,8 @@ message SecurityCheck {
   string description = 3;
   // Short human-readable summary.
   string summary = 4;
+  // Check execution interval.
+  SecurityCheckInterval interval = 5;
 }
 
 // ChangeSecurityCheckParams specifies a single check parameters.
@@ -36,6 +46,8 @@ message ChangeSecurityCheckParams {
   string name = 1;
   bool enable = 2;
   bool disable = 3;
+  // check execution interval.
+  SecurityCheckInterval interval = 4;
 }
 
 message GetSecurityCheckResultsRequest {}
@@ -89,7 +101,7 @@ service SecurityChecks {
       body: "*"
     };
   }
-  // ChangeSecurityChecks enables/disables Security Thread Tool checks by names.
+  // ChangeSecurityChecks enables/disables Security Thread Tool checks or changes their interval by names.
   rpc ChangeSecurityChecks(ChangeSecurityChecksRequest) returns (ChangeSecurityChecksResponse) {
     option (google.api.http) = {
       post: "/v1/management/SecurityChecks/Change"
