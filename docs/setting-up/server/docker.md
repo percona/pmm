@@ -17,7 +17,7 @@ We maintain a [Docker image for PMM Server][DOCKERHUB]. This section shows how t
     sudo docker pull percona/pmm-server:2
     ```
 
-1. Create a persistent data container.
+2. Create a persistent data container.
 
     ```sh
     sudo docker create --volume /srv \
@@ -26,7 +26,7 @@ We maintain a [Docker image for PMM Server][DOCKERHUB]. This section shows how t
 
     PMM Server expects the data volume (specified with `--volume`) to be `/srv`.  **Using any other value will result in data loss when upgrading.**
 
-1. Run the image to start PMM Server.
+3. Run the image to start PMM Server.
 
     ```sh
     sudo docker run --detach --restart always \
@@ -37,7 +37,7 @@ We maintain a [Docker image for PMM Server][DOCKERHUB]. This section shows how t
 
     You can disable manual updates via the Home Dashboard *PMM Upgrade* panel by adding `-e DISABLE_UPDATES=true` to the `docker run` command.
 
-1. In a web browser, visit *server hostname*:80 or *server hostname*:443 to see the PMM user interface.
+4. In a web browser, visit *server hostname*:80 or *server hostname*:443 to see the PMM user interface.
 
 ## Backup and upgrade
 
@@ -78,7 +78,7 @@ You can test a new release of the PMM Server Docker image by making backups of y
     sudo docker cp pmm-data:/srv .
     ```
 
-4. Pull and run the latest image.
+4. Pull the latest image and run the container.
 
     ```sh
     sudo docker pull percona/pmm-server:2
@@ -188,6 +188,55 @@ You can test a new release of the PMM Server Docker image by making backups of y
     ```sh
     docker rmi $(docker images | grep "percona/pmm-server" | awk {'print $3'})
     ```
+
+
+## Hosts with no internet connectivity
+
+If the host where you will run PMM Server has no internet connection, you can download the Docker image on a separate (internet-connected) host and securely copy it.
+
+1. On an internet-connected host, download the Docker image and its checksum file.
+
+    ```sh
+    wget https://downloads.percona.com/downloads/pmm2/{{release}}/docker/pmm-server-{{release}}.docker
+    wget https://downloads.percona.com/downloads/pmm2/{{release}}/docker/pmm-server-{{release}}.sha256sum
+    ```
+
+2. Copy both files to where you will run PMM Server.
+
+3. Open a terminal on the PMM Server host.
+
+4. (Optional) Check the Docker image file integrity.
+
+    ```sh
+    shasum -ca 256 pmm-server-{{release}}.sha256sum
+    ```
+
+5. Load the image.
+
+    ```sh
+    sudo docker load -i pmm-server-{{release}}.docker
+    ```
+
+6. Create the `pmm-data` persistent data container.
+
+    ```sh
+    sudo docker create --volume /srv \
+    --name pmm-data percona/pmm-server:{{release}} /bin/true
+    ```
+
+7. Run the container.
+
+    ```sh
+    sudo docker run \
+    --detach \
+    --restart always \
+    --publish 80:80 --publish 443:443 \
+    --volumes-from pmm-data \
+    --name pmm-server \
+    percona/pmm-server:{{release}}
+    ```
+
+
 
 [TAGS]: https://hub.docker.com/r/percona/pmm-server/tags
 [DOCKERHUB]: https://hub.docker.com/r/percona/pmm-server
