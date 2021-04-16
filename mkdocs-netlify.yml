@@ -1,3 +1,5 @@
+# MkDocs configuration for Netlify builds
+
 site_name: Percona Monitoring and Management (Preview)
 site_description: Documentation
 site_author: Percona LLC
@@ -19,8 +21,6 @@ theme:
     # Light mode
     - media: "(prefers-color-scheme: light)"
       scheme: percona-light
-#      primary: amber
-#      accent: indigo
       toggle:
         icon: material/toggle-switch-off-outline
         name: Switch to dark mode
@@ -28,8 +28,6 @@ theme:
     # Dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-#      primary: blue
-#      accent: blue
       toggle:
         icon: material/toggle-switch
         name: Switch to light mode

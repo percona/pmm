@@ -1,6 +1,8 @@
 # Percona Monitoring and Management (PMM) Documentation
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fpercona%2Fpmm-doc.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fpercona%2Fpmm-doc?ref=badge_shield)
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/9db2c2b3-f6a8-4d56-a853-8414f8580a43/deploy-status)](https://app.netlify.com/sites/pmm-doc/deploys)
+
 [Percona Monitoring and Management (PMM)](https://www.percona.com/software/database-tools/percona-monitoring-and-management) is a database monitoring solution that is free and open-source.
 
 This repo holds the source files for the PMM technical documentation published at <https://www.percona.com/doc/percona-monitoring-and-management/>.
@@ -23,7 +25,7 @@ We use [MkDocs](https://www.mkdocs.org/) to convert [Markdown](https://daringfir
 
 The documentation source files are in the `docs` directory. (Other files in this repo are explained in [Directories and files](#directories-and-files).)
 
-We use different branches for two major PMM versions:
+The two major PMM versions are kept in separate branches:
 
 - `main` is for PMM 2.x (latest)
 - `1.x` is for PMM 1.x
@@ -39,9 +41,9 @@ If you'd like to have a local copy of PMM documentation, or are thinking about c
 3. Change directory to `pmm-doc`
 4. Use [our Docker image](https://hub.docker.com/repository/docker/perconalab/pmm-doc-md) to *build the documentation*:
 
-	```sh
-	docker run --rm -v $(pwd):/docs perconalab/pmm-doc-md mkdocs build -t material
-	```
+    ```sh
+    docker run --rm -v $(pwd):/docs perconalab/pmm-doc-md mkdocs build -t material
+    ```
 
 5. Find the `site` directory, open `index.html` in a browser to view the first page of documentation.
 
@@ -59,15 +61,15 @@ If you prefer not to use Docker, you'll have to install MkDocs and all its depen
 
 2. Install MkDocs and required extensions:
 
-	```sh
-	pip install -r requirements.txt
-	```
+    ```sh
+    pip install -r requirements.txt
+    ```
 
 3. Build the site with your choice of theme (choose one of `mkdocs`, `readthedocs`, `material`, `gitbook` or `bootstrap4`):
 
-	```sh
-	mkdocs build -t material
-	```
+    ```sh
+    mkdocs build -t material
+    ```
 
 4. Open `site/index.html`
 
@@ -81,46 +83,47 @@ And view the site at <http://localhost:8000>
 
 ## PDF
 
-To generate a PDF version of the documentation:
+You can create a PDF version of the documentation.
 
-1. Edit `mkdocs.yml` and comment out the `section-index` plugin.
+1. If for a release, edit `mkdoc-pdf.yml` and change:
 
-2. Build the PDF.
+    - The release number in `plugins.with-pdf.output_path`
+    - The release number and date in `plugins.with-pdf.cover_subtitle`
 
-	With Docker:
+2. If using Docker:
 
-	```sh
-	docker run --rm -v $(pwd):/docs -e ENABLE_PDF_EXPORT=1 perconalab/pmm-doc-md mkdocs build -t material
-	```
+    ```sh
+    docker run --rm -v $(pwd):/docs -e ENABLE_PDF_EXPORT=1 perconalab/pmm-doc-md mkdocs build -f mkdocs-pdf.yml
+    ```
 
-	Without:
+    If not:
 
-	```sh
-	ENABLE_PDF_EXPORT=1 mkdocs build -t material
-	```
+    ```sh
+    ENABLE_PDF_EXPORT=1 mkdocs build -f mkdocs-pdf.yml
+    ```
 
-3. The PDF is in `site/_pdf`.
+2. The PDF is in `site/_pdf`.
 
 ## Directories and files
 
 - `mkdocs.yml`: Main MkDocs configuration file
 - `nav.yml`: Navigation (`nav`) element in separate file defining table of contents
 - `docs`:
-	- `*.md`: Markdown files
-	- `_images/*`: Images
-	- `css`: Styling
-	- `js`: JavaScript files
+    - `*.md`: Markdown files
+    - `_images/*`: Images
+    - `css`: Styling
+    - `js`: JavaScript files
 - `_resources`:
-	- `bin`
-	    - `glossary.tsv`: Export from a spreadsheet of glossary entries.
-    	- `make_glossary.pl`: Script to write Markdown page from `glossary.tsv`.
-    	- `grafana-dashboards-descriptions.py`: Script to extract dashboard descriptions from <https://github.com/percona/grafana-dashboards/>.
-		- `plantuml`: Wrapper script for running PlantUML.
-	- `diagrams`:
-		- `*.puml`: [PlantUML](https://plantuml.com) diagrams (see comments inside each).
-		- `plantuml_styles.uml`: Global style for PlantUML diagrams.
-	- `templates`: Stylesheet for PDF output (used by [mkdocs-with-pdf](https://github.com/orzih/mkdocs-with-pdf) extension).
-	- `theme`: MkDocs template for HTML intended for publishing on percona.com.
+    - `bin`
+        - `glossary.tsv`: Export from a spreadsheet of glossary entries.
+        - `make_glossary.pl`: Script to write Markdown page from `glossary.tsv`.
+        - `grafana-dashboards-descriptions.py`: Script to extract dashboard descriptions from <https://github.com/percona/grafana-dashboards/>.
+        - `plantuml`: Wrapper script for running PlantUML.
+    - `diagrams`:
+        - `*.puml`: [PlantUML](https://plantuml.com) diagrams (see comments inside each).
+        - `plantuml_styles.uml`: Global style for PlantUML diagrams.
+    - `templates`: Stylesheet for PDF output (used by [mkdocs-with-pdf](https://github.com/orzih/mkdocs-with-pdf) extension).
+    - `theme`: MkDocs template for HTML intended for publishing on percona.com.
 - `requirements.txt`: Python package dependencies.
 - `variables.yml`: Values used throughout the Markdown, including the current PMM version/release number.
 - `.spelling`: Words regarded as correct by `mdspell` (See [Spelling and grammar](#spelling-and-grammar).)
@@ -138,23 +141,23 @@ With this, a [GitHub actions](https://github.com/percona/pmm-doc/actions) workfl
 - `PMM_Home_Dashboard_TALL.jpg` is created by [pmm-screenshots-pw](https://github.com/PaulJacobs-percona/pmm-screenshots-pw). If snapped by hand, it should be 1280x1120 pixels, to match the overlay image.
 - `PMM_Home_Dashboard_TALL_Overlay.png` is exported from `_resources/diagrams/PMM_Home_Dashboard_TALL_Overlay.drawio` using <https://app.diagrams.net/>.
 
-	1. Go to <https://app.diagrams.net/>
-	2. If it's your first time, select *Device* at the *Save diagrams to:* dialog
-	2. Click *Open existing diagram*
-	3. Navigate to `pmm-doc/_resources/diagrams` and select `PMM_Home_Dashboard_TALL_Overlay.drawio`
-	4. If the dashboard layout has changed, replace the *Guide* Layer with a new screenshot and adjust the elements on the *Overlay* layer as needed (To show layers, click View --> Layers). Untick the *Guide* Layer so it is not exported.
-	5. Click File --> Export as --> PNG
-	6. In the *Image settings* dialog, use these settings:
-		- *Zoom*: 100%, Border Width: 0
-		- *Size:* Page
-		- *Transparent Background:* ON
-		- *Shadow:* OFF
-		- *Grid*: OFF
-		- *Include a copy of my diagram:* OFF
-	7. Click *Export*
-	8. Click *Device*
-	9. Navigate to `pmm-doc/docs/_resources/diagrams` and click `PMM_Home_Dashboard_TALL_Overlay.png`
-	10. Click *Save* and overwrite the current file
+    1. Go to <https://app.diagrams.net/>
+    2. If it's your first time, select *Device* at the *Save diagrams to:* dialog
+    2. Click *Open existing diagram*
+    3. Navigate to `pmm-doc/_resources/diagrams` and select `PMM_Home_Dashboard_TALL_Overlay.drawio`
+    4. If the dashboard layout has changed, replace the *Guide* Layer with a new screenshot and adjust the elements on the *Overlay* layer as needed (To show layers, click View --> Layers). Untick the *Guide* Layer so it is not exported.
+    5. Click File --> Export as --> PNG
+    6. In the *Image settings* dialog, use these settings:
+        - *Zoom*: 100%, Border Width: 0
+        - *Size:* Page
+        - *Transparent Background:* ON
+        - *Shadow:* OFF
+        - *Grid*: OFF
+        - *Include a copy of my diagram:* OFF
+    7. Click *Export*
+    8. Click *Device*
+    9. Navigate to `pmm-doc/docs/_resources/diagrams` and click `PMM_Home_Dashboard_TALL_Overlay.png`
+    10. Click *Save* and overwrite the current file
 
 The overlay image is merged with a copy of the latest home dashboard using [`composite`](https://imagemagick.org/script/composite.php), one of the ImageMagick tools.
 
@@ -166,23 +169,23 @@ composite _resources/diagrams/PMM_Home_Dashboard_TALL_Overlay.png docs/_images/P
 
 The GitHub actions build job performs a basic spell and grammar check. You can do these yourself on the command line if you have [Node.js](https://nodejs.org/en/download/) installed.
 
-	npm i markdown-spellcheck -g
+    npm i markdown-spellcheck -g
     mdspell --report --en-us --ignore-acronyms --ignore-numbers docs/<path to file>.md
 
 To check all files:
 
-	mdspell --report --en-us --ignore-acronyms --ignore-numbers "docs/**/*.md"
+    mdspell --report --en-us --ignore-acronyms --ignore-numbers "docs/**/*.md"
 
 Add any custom dictionary words to `.spelling`. If spell checking fails, the GitHub action will fail too, but after the MkDocs build and so can be safely ignored. The `publish` branch will still have the latest build and can be used. Meanwhile, see what the spelling error is and either fix it or add the word to `.spelling`.
 
 Grammar is checked using [`write-good`](https://github.com/btford/write-good). (The results of this check are ignored and don't affect the GitHub action.)
 
-	npm i write-good -g
-	write-good docs/<path to file>.md
+    npm i write-good -g
+    write-good docs/<path to file>.md
 
 To check all files:
 
-	write-good docs/**/*.md
+    write-good docs/**/*.md
 
 ## Link checking
 
