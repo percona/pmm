@@ -38,7 +38,6 @@ func Parse(s string) (*Parsed, error) {
 		return nil, err
 	}
 
-
 	r := fetchRest.FindStringSubmatch(res.Rest)
     if len(r) != 0 {
 	    if res.NumRest, err = strconv.Atoi(r[1]); err != nil {
@@ -62,11 +61,9 @@ func MustParse(s string) *Parsed {
 
 // String returns original string representation of version information.
 func (p *Parsed) String() string {
-	return fmt.Sprintf("%d.%d.%d%s", p.Major, p.Minor, p.Patch, p.Rest)
-}
-
-// String returns original string representation of version information.
-func (p *Parsed) CVEString() string {
+    if p.NumRest == 0 {
+	    return fmt.Sprintf("%d.%d.%d%s", p.Major, p.Minor, p.Patch, p.Rest)
+    }
 	return fmt.Sprintf("%d.%d.%d-%d", p.Major, p.Minor, p.Patch, p.NumRest)
 }
 
