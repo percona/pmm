@@ -51,7 +51,7 @@ func Parse(s string) (*Parsed, error) {
 }
 
 // Parse parses PMM version information from given string.
-func pmmVersionParse(s string) (int, error) {
+func ParsePmmVersion(s string) (int, error) {
 	m := versionPmm.FindStringSubmatch(s)
 	if len(m) != 4 {
 		return 0, fmt.Errorf("failed to parse %q", s)
