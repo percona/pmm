@@ -70,6 +70,10 @@ message SetStateRequest {
     int64 max_query_log_size = 4;
     // Contains files and their contents which can be used in DSN.
     TextFiles text_files = 5;
+    // TLS in enabled if true.
+    bool tls = 6;
+    // TLS certificate wont be verified.
+    bool tls_skip_verify = 7;
   }
   map<string, BuiltinAgent> builtin_agents = 2;
 }
