@@ -140,7 +140,7 @@ message StartActionRequest {
     string query = 2;
     MysqlExplainOutputFormat output_format = 3;
     // Contains files and their contents which can be used in DSN.
-    TextFiles text_files = 4;
+    TextFiles tls_files = 4;
   }
   // MySQLShowCreateTableParams describes MySQL SHOW CREATE TABLE action parameters.
   message MySQLShowCreateTableParams {
@@ -148,7 +148,7 @@ message StartActionRequest {
     string dsn = 1;
     string table = 2;
     // Contains files and their contents which can be used in DSN.
-    TextFiles text_files = 3;
+    TextFiles tls_files = 3;
   }
   // MySQLShowTableStatusParams describes MySQL SHOW TABLE STATUS action parameters.
   message MySQLShowTableStatusParams {
@@ -156,7 +156,7 @@ message StartActionRequest {
     string dsn = 1;
     string table = 2;
     // Contains files and their contents which can be used in DSN.
-    TextFiles text_files = 3;
+    TextFiles tls_files = 3;
   }
   // MySQLShowIndexParams describes MySQL SHOW INDEX action parameters.
   message MySQLShowIndexParams {
@@ -164,7 +164,7 @@ message StartActionRequest {
     string dsn = 1;
     string table = 2;
     // Contains files and their contents which can be used in DSN.
-    TextFiles text_files = 3;
+    TextFiles tls_files = 3;
   }
   // PostgreSQLShowCreateTableParams describes PostgreSQL SHOW CREATE TABLE action parameters.
   message PostgreSQLShowCreateTableParams {
@@ -219,7 +219,7 @@ message StartActionRequest {
     // Query suffix (without leading SHOW).
     string query = 2;
     // Contains files and their contents which can be used in DSN.
-    TextFiles text_files = 3;
+    TextFiles tls_files = 3;
   }
   // MySQLQuerySelectParams describes MySQL SELECT query action parameters.
   message MySQLQuerySelectParams {
@@ -228,7 +228,7 @@ message StartActionRequest {
     // Query suffix (without leading SELECT).
     string query = 2;
     // Contains files and their contents which can be used in DSN.
-    TextFiles text_files = 3;
+    TextFiles tls_files = 3;
   }
   // PostgreSQLQueryShowParams describes PostgreSQL SHOW query action parameters.
   message PostgreSQLQueryShowParams {
