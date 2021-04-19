@@ -58,6 +58,10 @@ message SetStateRequest {
     repeated string env = 5;
     map<string, string> text_files = 6;
     repeated string redact_words = 7;
+    // TLS in enabled if true.
+    bool tls = 8;
+    // TLS certificate wont be verified.
+    bool tls_skip_verify = 9;
   }
   map<string, AgentProcess> agent_processes = 1;
   // BuiltinAgent describes desired configuration of a single built-in agent for pmm-agent.
