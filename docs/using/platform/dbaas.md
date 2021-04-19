@@ -75,9 +75,7 @@ The Kubernetes Cluster tab shows the status of operators.
 
 You must create at least one Kubernetes cluster to create a DB cluster.
 
-To monitor a DB cluster, set up a [public address](../../how-to/configure.md#public-address) for PMM Server first. 
-
-PMM will create a separate API Key for each DB Cluster to monitor it.
+To monitor a DB cluster, set up a [public address](../../how-to/configure.md#public-address) for PMM Server first.
 
 1. Select the *DB Cluster* tab.
 
