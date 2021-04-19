@@ -297,10 +297,6 @@ message StartActionRequest {
     string dsn = 1;
     // Contains files and their contents which can be used in DSN.
     TextFiles text_files = 2;
-    // TLS in enabled if true.
-    bool tls = 3;
-    // TLS certificate wont be verified.
-    bool tls_skip_verify = 4;
   }
   string action_id = 1;
   oneof params {
@@ -363,6 +359,10 @@ message CheckConnectionRequest {
   google.protobuf.Duration timeout = 3;
   // Contains files and their contents which can be used in DSN.
   TextFiles text_files = 4;
+  // TLS in enabled if true.
+  bool tls = 5;
+  // TLS certificate wont be verified.
+  bool tls_skip_verify = 6;
 }
 
 // CheckConnectionResponse is an AgentMessage containing a result of connection check.
