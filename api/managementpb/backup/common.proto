@@ -4,16 +4,6 @@ package backup.v1beta1;
 
 option go_package = "api/managementpb/backup;backupv1beta1";
 
-// Status shows the current status of execution either backup or restore.
-enum Status {
-  STATUS_INVALID = 0;
-  PENDING = 1;
-  IN_PROGRESS = 2;
-  PAUSED = 3;
-  SUCCESS = 4;
-  ERROR = 5;
-}
-
 // DataModel is a model used for performing a backup.
 enum DataModel {
   DATA_MODEL_INVALID = 0;

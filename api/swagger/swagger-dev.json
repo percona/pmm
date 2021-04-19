@@ -23870,16 +23870,16 @@
                         "x-order": 7
                       },
                       "status": {
-                        "description": "Status shows the current status of execution either backup or restore.",
+                        "description": "BackupStatus shows the current status of execution of backup.",
                         "type": "string",
-                        "default": "STATUS_INVALID",
+                        "default": "BACKUP_STATUS_INVALID",
                         "enum": [
-                          "STATUS_INVALID",
-                          "PENDING",
-                          "IN_PROGRESS",
-                          "PAUSED",
-                          "SUCCESS",
-                          "ERROR"
+                          "BACKUP_STATUS_INVALID",
+                          "BACKUP_STATUS_PENDING",
+                          "BACKUP_STATUS_IN_PROGRESS",
+                          "BACKUP_STATUS_PAUSED",
+                          "BACKUP_STATUS_SUCCESS",
+                          "BACKUP_STATUS_ERROR"
                         ],
                         "x-order": 8
                       },
@@ -24604,16 +24604,14 @@
                         "x-order": 8
                       },
                       "status": {
-                        "description": "Status shows the current status of execution either backup or restore.",
+                        "description": "RestoreStatus shows the current status of execution of restore.",
                         "type": "string",
-                        "default": "STATUS_INVALID",
+                        "default": "RESTORE_STATUS_INVALID",
                         "enum": [
-                          "STATUS_INVALID",
-                          "PENDING",
-                          "IN_PROGRESS",
-                          "PAUSED",
-                          "SUCCESS",
-                          "ERROR"
+                          "RESTORE_STATUS_INVALID",
+                          "RESTORE_STATUS_IN_PROGRESS",
+                          "RESTORE_STATUS_SUCCESS",
+                          "RESTORE_STATUS_ERROR"
                         ],
                         "x-order": 9
                       },

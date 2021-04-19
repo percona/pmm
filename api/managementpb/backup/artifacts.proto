@@ -8,6 +8,16 @@ import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "managementpb/backup/common.proto";
 
+// BackupStatus shows the current status of execution of backup.
+enum BackupStatus {
+  BACKUP_STATUS_INVALID = 0;
+  BACKUP_STATUS_PENDING = 1;
+  BACKUP_STATUS_IN_PROGRESS = 2;
+  BACKUP_STATUS_PAUSED = 3;
+  BACKUP_STATUS_SUCCESS = 4;
+  BACKUP_STATUS_ERROR = 5;
+}
+
 // Artifact represents single backup artifact.
 message Artifact {
   // Machine-readable artifact ID.
@@ -27,7 +37,7 @@ message Artifact {
   // Backup data model.
   DataModel data_model = 8;
   // Backup status.
-  Status status = 9;
+  BackupStatus status = 9;
   // Artifact creation time.
   google.protobuf.Timestamp created_at = 10;
 }

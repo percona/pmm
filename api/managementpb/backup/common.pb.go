@@ -25,65 +25,6 @@ const (
 // of the legacy proto package is being used.
 const _ = proto.ProtoPackageIsVersion4
 
-// Status shows the current status of execution either backup or restore.
-type Status int32
-
-const (
-	Status_STATUS_INVALID Status = 0
-	Status_PENDING        Status = 1
-	Status_IN_PROGRESS    Status = 2
-	Status_PAUSED         Status = 3
-	Status_SUCCESS        Status = 4
-	Status_ERROR          Status = 5
-)
-
-// Enum value maps for Status.
-var (
-	Status_name = map[int32]string{
-		0: "STATUS_INVALID",
-		1: "PENDING",
-		2: "IN_PROGRESS",
-		3: "PAUSED",
-		4: "SUCCESS",
-		5: "ERROR",
-	}
-	Status_value = map[string]int32{
-		"STATUS_INVALID": 0,
-		"PENDING":        1,
-		"IN_PROGRESS":    2,
-		"PAUSED":         3,
-		"SUCCESS":        4,
-		"ERROR":          5,
-	}
-)
-
-func (x Status) Enum() *Status {
-	p := new(Status)
-	*p = x
-	return p
-}
-
-func (x Status) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (Status) Descriptor() protoreflect.EnumDescriptor {
-	return file_managementpb_backup_common_proto_enumTypes[0].Descriptor()
-}
-
-func (Status) Type() protoreflect.EnumType {
-	return &file_managementpb_backup_common_proto_enumTypes[0]
-}
-
-func (x Status) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use Status.Descriptor instead.
-func (Status) EnumDescriptor() ([]byte, []int) {
-	return file_managementpb_backup_common_proto_rawDescGZIP(), []int{0}
-}
-
 // DataModel is a model used for performing a backup.
 type DataModel int32
 
@@ -118,11 +59,11 @@ func (x DataModel) String() string {
 }
 
 func (DataModel) Descriptor() protoreflect.EnumDescriptor {
-	return file_managementpb_backup_common_proto_enumTypes[1].Descriptor()
+	return file_managementpb_backup_common_proto_enumTypes[0].Descriptor()
 }
 
 func (DataModel) Type() protoreflect.EnumType {
-	return &file_managementpb_backup_common_proto_enumTypes[1]
+	return &file_managementpb_backup_common_proto_enumTypes[0]
 }
 
 func (x DataModel) Number() protoreflect.EnumNumber {
@@ -131,7 +72,7 @@ func (x DataModel) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use DataModel.Descriptor instead.
 func (DataModel) EnumDescriptor() ([]byte, []int) {
-	return file_managementpb_backup_common_proto_rawDescGZIP(), []int{1}
+	return file_managementpb_backup_common_proto_rawDescGZIP(), []int{0}
 }
 
 var File_managementpb_backup_common_proto protoreflect.FileDescriptor
@@ -140,13 +81,7 @@ var file_managementpb_backup_common_proto_rawDesc = []byte{
 	0x0a, 0x20, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x70, 0x62, 0x2f, 0x62,
 	0x61, 0x63, 0x6b, 0x75, 0x70, 0x2f, 0x63, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x2e, 0x70, 0x72, 0x6f,
 	0x74, 0x6f, 0x12, 0x0e, 0x62, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74,
-	0x61, 0x31, 0x2a, 0x5e, 0x0a, 0x06, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x12, 0x12, 0x0a, 0x0e,
-	0x53, 0x54, 0x41, 0x54, 0x55, 0x53, 0x5f, 0x49, 0x4e, 0x56, 0x41, 0x4c, 0x49, 0x44, 0x10, 0x00,
-	0x12, 0x0b, 0x0a, 0x07, 0x50, 0x45, 0x4e, 0x44, 0x49, 0x4e, 0x47, 0x10, 0x01, 0x12, 0x0f, 0x0a,
-	0x0b, 0x49, 0x4e, 0x5f, 0x50, 0x52, 0x4f, 0x47, 0x52, 0x45, 0x53, 0x53, 0x10, 0x02, 0x12, 0x0a,
-	0x0a, 0x06, 0x50, 0x41, 0x55, 0x53, 0x45, 0x44, 0x10, 0x03, 0x12, 0x0b, 0x0a, 0x07, 0x53, 0x55,
-	0x43, 0x43, 0x45, 0x53, 0x53, 0x10, 0x04, 0x12, 0x09, 0x0a, 0x05, 0x45, 0x52, 0x52, 0x4f, 0x52,
-	0x10, 0x05, 0x2a, 0x3e, 0x0a, 0x09, 0x44, 0x61, 0x74, 0x61, 0x4d, 0x6f, 0x64, 0x65, 0x6c, 0x12,
+	0x61, 0x31, 0x2a, 0x3e, 0x0a, 0x09, 0x44, 0x61, 0x74, 0x61, 0x4d, 0x6f, 0x64, 0x65, 0x6c, 0x12,
 	0x16, 0x0a, 0x12, 0x44, 0x41, 0x54, 0x41, 0x5f, 0x4d, 0x4f, 0x44, 0x45, 0x4c, 0x5f, 0x49, 0x4e,
 	0x56, 0x41, 0x4c, 0x49, 0x44, 0x10, 0x00, 0x12, 0x0c, 0x0a, 0x08, 0x50, 0x48, 0x59, 0x53, 0x49,
 	0x43, 0x41, 0x4c, 0x10, 0x01, 0x12, 0x0b, 0x0a, 0x07, 0x4c, 0x4f, 0x47, 0x49, 0x43, 0x41, 0x4c,
@@ -168,10 +103,9 @@ func file_managementpb_backup_common_proto_rawDescGZIP() []byte {
 	return file_managementpb_backup_common_proto_rawDescData
 }
 
-var file_managementpb_backup_common_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_managementpb_backup_common_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_managementpb_backup_common_proto_goTypes = []interface{}{
-	(Status)(0),    // 0: backup.v1beta1.Status
-	(DataModel)(0), // 1: backup.v1beta1.DataModel
+	(DataModel)(0), // 0: backup.v1beta1.DataModel
 }
 var file_managementpb_backup_common_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -191,7 +125,7 @@ func file_managementpb_backup_common_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_managementpb_backup_common_proto_rawDesc,
-			NumEnums:      2,
+			NumEnums:      1,
 			NumMessages:   0,
 			NumExtensions: 0,
 			NumServices:   0,

@@ -8,6 +8,14 @@ import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "managementpb/backup/common.proto";
 
+// RestoreStatus shows the current status of execution of restore.
+enum RestoreStatus {
+  RESTORE_STATUS_INVALID = 0;
+  RESTORE_STATUS_IN_PROGRESS = 1;
+  RESTORE_STATUS_SUCCESS = 2;
+  RESTORE_STATUS_ERROR = 3;
+}
+
 // RestoreHistoryItem represents single backup restore item.
 message RestoreHistoryItem {
   // Machine-readable restore id.
@@ -28,8 +36,8 @@ message RestoreHistoryItem {
   string service_name = 8;
   // Backup data model.
   DataModel data_model = 9;
-  // Backup status.
-  Status status = 10;
+  // Restore status.
+  RestoreStatus status = 10;
   // Restore start time.
   google.protobuf.Timestamp started_at = 11;
   // Restore finish time.

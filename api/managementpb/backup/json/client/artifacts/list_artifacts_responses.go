@@ -149,8 +149,8 @@ type ArtifactsItems0 struct {
 	// Enum: [DATA_MODEL_INVALID PHYSICAL LOGICAL]
 	DataModel *string `json:"data_model,omitempty"`
 
-	// Status shows the current status of execution either backup or restore.
-	// Enum: [STATUS_INVALID PENDING IN_PROGRESS PAUSED SUCCESS ERROR]
+	// BackupStatus shows the current status of execution of backup.
+	// Enum: [BACKUP_STATUS_INVALID BACKUP_STATUS_PENDING BACKUP_STATUS_IN_PROGRESS BACKUP_STATUS_PAUSED BACKUP_STATUS_SUCCESS BACKUP_STATUS_ERROR]
 	Status *string `json:"status,omitempty"`
 
 	// Artifact creation time.
@@ -230,7 +230,7 @@ var artifactsItems0TypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["STATUS_INVALID","PENDING","IN_PROGRESS","PAUSED","SUCCESS","ERROR"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["BACKUP_STATUS_INVALID","BACKUP_STATUS_PENDING","BACKUP_STATUS_IN_PROGRESS","BACKUP_STATUS_PAUSED","BACKUP_STATUS_SUCCESS","BACKUP_STATUS_ERROR"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -240,23 +240,23 @@ func init() {
 
 const (
 
-	// ArtifactsItems0StatusSTATUSINVALID captures enum value "STATUS_INVALID"
-	ArtifactsItems0StatusSTATUSINVALID string = "STATUS_INVALID"
+	// ArtifactsItems0StatusBACKUPSTATUSINVALID captures enum value "BACKUP_STATUS_INVALID"
+	ArtifactsItems0StatusBACKUPSTATUSINVALID string = "BACKUP_STATUS_INVALID"
 
-	// ArtifactsItems0StatusPENDING captures enum value "PENDING"
-	ArtifactsItems0StatusPENDING string = "PENDING"
+	// ArtifactsItems0StatusBACKUPSTATUSPENDING captures enum value "BACKUP_STATUS_PENDING"
+	ArtifactsItems0StatusBACKUPSTATUSPENDING string = "BACKUP_STATUS_PENDING"
 
-	// ArtifactsItems0StatusINPROGRESS captures enum value "IN_PROGRESS"
-	ArtifactsItems0StatusINPROGRESS string = "IN_PROGRESS"
+	// ArtifactsItems0StatusBACKUPSTATUSINPROGRESS captures enum value "BACKUP_STATUS_IN_PROGRESS"
+	ArtifactsItems0StatusBACKUPSTATUSINPROGRESS string = "BACKUP_STATUS_IN_PROGRESS"
 
-	// ArtifactsItems0StatusPAUSED captures enum value "PAUSED"
-	ArtifactsItems0StatusPAUSED string = "PAUSED"
+	// ArtifactsItems0StatusBACKUPSTATUSPAUSED captures enum value "BACKUP_STATUS_PAUSED"
+	ArtifactsItems0StatusBACKUPSTATUSPAUSED string = "BACKUP_STATUS_PAUSED"
 
-	// ArtifactsItems0StatusSUCCESS captures enum value "SUCCESS"
-	ArtifactsItems0StatusSUCCESS string = "SUCCESS"
+	// ArtifactsItems0StatusBACKUPSTATUSSUCCESS captures enum value "BACKUP_STATUS_SUCCESS"
+	ArtifactsItems0StatusBACKUPSTATUSSUCCESS string = "BACKUP_STATUS_SUCCESS"
 
-	// ArtifactsItems0StatusERROR captures enum value "ERROR"
-	ArtifactsItems0StatusERROR string = "ERROR"
+	// ArtifactsItems0StatusBACKUPSTATUSERROR captures enum value "BACKUP_STATUS_ERROR"
+	ArtifactsItems0StatusBACKUPSTATUSERROR string = "BACKUP_STATUS_ERROR"
 )
 
 // prop value enum

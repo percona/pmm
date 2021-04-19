@@ -188,8 +188,8 @@ type ItemsItems0 struct {
 	// Enum: [DATA_MODEL_INVALID PHYSICAL LOGICAL]
 	DataModel *string `json:"data_model,omitempty"`
 
-	// Status shows the current status of execution either backup or restore.
-	// Enum: [STATUS_INVALID PENDING IN_PROGRESS PAUSED SUCCESS ERROR]
+	// RestoreStatus shows the current status of execution of restore.
+	// Enum: [RESTORE_STATUS_INVALID RESTORE_STATUS_IN_PROGRESS RESTORE_STATUS_SUCCESS RESTORE_STATUS_ERROR]
 	Status *string `json:"status,omitempty"`
 
 	// Restore start time.
@@ -277,7 +277,7 @@ var itemsItems0TypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["STATUS_INVALID","PENDING","IN_PROGRESS","PAUSED","SUCCESS","ERROR"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["RESTORE_STATUS_INVALID","RESTORE_STATUS_IN_PROGRESS","RESTORE_STATUS_SUCCESS","RESTORE_STATUS_ERROR"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -287,23 +287,17 @@ func init() {
 
 const (
 
-	// ItemsItems0StatusSTATUSINVALID captures enum value "STATUS_INVALID"
-	ItemsItems0StatusSTATUSINVALID string = "STATUS_INVALID"
+	// ItemsItems0StatusRESTORESTATUSINVALID captures enum value "RESTORE_STATUS_INVALID"
+	ItemsItems0StatusRESTORESTATUSINVALID string = "RESTORE_STATUS_INVALID"
 
-	// ItemsItems0StatusPENDING captures enum value "PENDING"
-	ItemsItems0StatusPENDING string = "PENDING"
+	// ItemsItems0StatusRESTORESTATUSINPROGRESS captures enum value "RESTORE_STATUS_IN_PROGRESS"
+	ItemsItems0StatusRESTORESTATUSINPROGRESS string = "RESTORE_STATUS_IN_PROGRESS"
 
-	// ItemsItems0StatusINPROGRESS captures enum value "IN_PROGRESS"
-	ItemsItems0StatusINPROGRESS string = "IN_PROGRESS"
+	// ItemsItems0StatusRESTORESTATUSSUCCESS captures enum value "RESTORE_STATUS_SUCCESS"
+	ItemsItems0StatusRESTORESTATUSSUCCESS string = "RESTORE_STATUS_SUCCESS"
 
-	// ItemsItems0StatusPAUSED captures enum value "PAUSED"
-	ItemsItems0StatusPAUSED string = "PAUSED"
-
-	// ItemsItems0StatusSUCCESS captures enum value "SUCCESS"
-	ItemsItems0StatusSUCCESS string = "SUCCESS"
-
-	// ItemsItems0StatusERROR captures enum value "ERROR"
-	ItemsItems0StatusERROR string = "ERROR"
+	// ItemsItems0StatusRESTORESTATUSERROR captures enum value "RESTORE_STATUS_ERROR"
+	ItemsItems0StatusRESTORESTATUSERROR string = "RESTORE_STATUS_ERROR"
 )
 
 // prop value enum
