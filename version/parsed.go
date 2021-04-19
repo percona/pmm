@@ -54,10 +54,22 @@ func Parse(s string) (*Parsed, error) {
 func pmmVersionParse(s string) (int, error) {
 	m := versionPmm.FindStringSubmatch(s)
 	if len(m) != 4 {
-		return nil, fmt.Errorf("failed to parse %q", s)
+		return 0, fmt.Errorf("failed to parse %q", s)
 	}
 
-	res := strconv.Atoi(m[1])*1000 + strconv.Atoi(m[2])*100 + strconv.Atoi(m[3])
+	var err error
+	var major, minor, patch int
+	if major, err = strconv.Atoi(m[1]); err != nil {
+		return 0, err
+	}
+	if minor, err = strconv.Atoi(m[2]); err != nil {
+		return 0, err
+	}
+	if patch, err = strconv.Atoi(m[3]); err != nil {
+		return 0, err
+	}
+
+	res := major*10000 + minor*100 + patch
 	return res, nil
 }
 
