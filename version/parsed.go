@@ -7,16 +7,17 @@ import (
 )
 
 var versionRE = regexp.MustCompile(`^(\d+)\.(\d+)\.(\d+)(.*)$`)
-var fetchRest = regexp.MustCompile(`^-([0-9]+)-?(.*)$`)
+var fetchRest = regexp.MustCompile(`^-(\d+)-?(.*)$`)
+var versionPmm = regexp.MustCompile(`^.*?v(\d+)\.(\d+)\.(\d+).*?$`)
 
 // Parsed represents a SemVer-like version information.
 type Parsed struct {
-	Major int
-	Minor int
-	Patch int
-	Rest  string
-	Num   int // MMmmpp
-    NumRest int
+	Major   int
+	Minor   int
+	Patch   int
+	Rest    string
+	Num     int // MMmmpp
+	NumRest int
 }
 
 // Parse parses version information from given string.
@@ -39,13 +40,24 @@ func Parse(s string) (*Parsed, error) {
 	}
 
 	r := fetchRest.FindStringSubmatch(res.Rest)
-    if len(r) != 0 {
-	    if res.NumRest, err = strconv.Atoi(r[1]); err != nil {
-		     return nil, err
-        }
-    }
+	if len(r) != 0 {
+		if res.NumRest, err = strconv.Atoi(r[1]); err != nil {
+			return nil, err
+		}
+	}
 
 	res.Num = res.Major*10000 + res.Minor*100 + res.Patch
+	return res, nil
+}
+
+// Parse parses PMM version information from given string.
+func pmmVersionParse(s string) (int, error) {
+	m := versionPmm.FindStringSubmatch(s)
+	if len(m) != 4 {
+		return nil, fmt.Errorf("failed to parse %q", s)
+	}
+
+	res := strconv.Atoi(m[1])*1000 + strconv.Atoi(m[2])*100 + strconv.Atoi(m[3])
 	return res, nil
 }
 
@@ -61,9 +73,9 @@ func MustParse(s string) *Parsed {
 
 // String returns original string representation of version information.
 func (p *Parsed) String() string {
-    if p.NumRest == 0 {
-	    return fmt.Sprintf("%d.%d.%d%s", p.Major, p.Minor, p.Patch, p.Rest)
-    }
+	if p.NumRest == 0 {
+		return fmt.Sprintf("%d.%d.%d%s", p.Major, p.Minor, p.Patch, p.Rest)
+	}
 	return fmt.Sprintf("%d.%d.%d-%d", p.Major, p.Minor, p.Patch, p.NumRest)
 }
 
