@@ -42,7 +42,7 @@ alias kubectl='minikube kubectl --'
 
 ## Start PMM server with DBaaS activated
 
-> - To start a fully-working 3 node XtraDB cluster, consisting of sets of 3x ProxySQL, 3x PXC and 6x PMM Client containers, you will need at least 9 vCPU available for minikube. (1x vCPU for ProxySQL and PXC and 0.5vCPU for each pmm-client containers).
+> - To start a fully-working 3 node XtraDB cluster, consisting of sets of 3x HAProxy, 3x PXC and 6x PMM Client containers, you will need at least 9 vCPU available for minikube. (1x vCPU for HAProxy and PXC and 0.5vCPU for each pmm-client containers).
 >
 > - DBaaS does not depend on PMM Client.
 >
