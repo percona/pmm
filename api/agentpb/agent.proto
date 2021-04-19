@@ -149,6 +149,10 @@ message StartActionRequest {
     MysqlExplainOutputFormat output_format = 3;
     // Contains files and their contents which can be used in DSN.
     TextFiles tls_files = 4;
+    // TLS in enabled if true.
+    bool tls = 6;
+    // TLS certificate wont be verified.
+    bool tls_skip_verify = 7;
   }
   // MySQLShowCreateTableParams describes MySQL SHOW CREATE TABLE action parameters.
   message MySQLShowCreateTableParams {
@@ -157,6 +161,10 @@ message StartActionRequest {
     string table = 2;
     // Contains files and their contents which can be used in DSN.
     TextFiles tls_files = 3;
+    // TLS in enabled if true.
+    bool tls = 6;
+    // TLS certificate wont be verified.
+    bool tls_skip_verify = 7;
   }
   // MySQLShowTableStatusParams describes MySQL SHOW TABLE STATUS action parameters.
   message MySQLShowTableStatusParams {
@@ -165,6 +173,10 @@ message StartActionRequest {
     string table = 2;
     // Contains files and their contents which can be used in DSN.
     TextFiles tls_files = 3;
+    // TLS in enabled if true.
+    bool tls = 6;
+    // TLS certificate wont be verified.
+    bool tls_skip_verify = 7;
   }
   // MySQLShowIndexParams describes MySQL SHOW INDEX action parameters.
   message MySQLShowIndexParams {
@@ -173,6 +185,10 @@ message StartActionRequest {
     string table = 2;
     // Contains files and their contents which can be used in DSN.
     TextFiles tls_files = 3;
+    // TLS in enabled if true.
+    bool tls = 6;
+    // TLS certificate wont be verified.
+    bool tls_skip_verify = 7;
   }
   // PostgreSQLShowCreateTableParams describes PostgreSQL SHOW CREATE TABLE action parameters.
   message PostgreSQLShowCreateTableParams {
@@ -228,6 +244,10 @@ message StartActionRequest {
     string query = 2;
     // Contains files and their contents which can be used in DSN.
     TextFiles tls_files = 3;
+    // TLS in enabled if true.
+    bool tls = 6;
+    // TLS certificate wont be verified.
+    bool tls_skip_verify = 7;
   }
   // MySQLQuerySelectParams describes MySQL SELECT query action parameters.
   message MySQLQuerySelectParams {
@@ -237,6 +257,10 @@ message StartActionRequest {
     string query = 2;
     // Contains files and their contents which can be used in DSN.
     TextFiles tls_files = 3;
+    // TLS in enabled if true.
+    bool tls = 6;
+    // TLS certificate wont be verified.
+    bool tls_skip_verify = 7;
   }
   // PostgreSQLQueryShowParams describes PostgreSQL SHOW query action parameters.
   message PostgreSQLQueryShowParams {
