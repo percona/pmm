@@ -80,12 +80,25 @@ alias kubectl='minikube kubectl --'
 2. Deploy the Percona operators configuration for PXC and PSMDB in minikube:
 
     ```sh
+    # Prepare a set of base64 encoded values and non encoded for user and pass with administrator privileges to pmm-server (DBaaS)
+    PMM_USER='admin';
+    PMM_PASS='<RANDOM_PASS_GOES_IN_HERE>';
+
+    PMM_USER_B64="$(echo -n "${PMM_USER}" | base64)";
+    PMM_PASS_B64="$(echo -n "${PMM_PASS}" | base64)";
+
     # Install the PXC operator
     curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-xtradb-cluster-operator/{{op.pxc_vers}}/deploy/bundle.yaml \
+    | kubectl apply -f -
+    curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-xtradb-cluster-operator/{{op.pxc_vers}}/deploy/secrets.yaml \
+    | sed "s/pmmserver:.*/pmmserver: ${PMM_PASS}/g" \
     | kubectl apply -f -
 
     # Install the PSMDB operator
     curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-server-mongodb-operator/{{op.psmdb_vers}}/deploy/bundle.yaml \
+    | kubectl apply -f -
+    curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-server-mongodb-operator/{{op.psmdb_vers}}/deploy/secrets.yaml \
+    | sed "s/PMM_SERVER_USER:.*$/PMM_SERVER_USER: ${PMM_USER}/g;s/PMM_SERVER_PASSWORD:.*$/PMM_SERVER_PASSWORD: ${PMM_PASS}/g;" \
     | kubectl apply -f -
     ```
 
@@ -116,12 +129,25 @@ alias kubectl='minikube kubectl --'
 2. When your EKS cluster is running, install the PXC and PSMDB operators:
 
     ```sh
+    # Prepare a set of base64 encoded values and non encoded for user and pass with administrator privileges to pmm-server (DBaaS)
+    PMM_USER='admin';
+    PMM_PASS='<RANDOM_PASS_GOES_IN_HERE>';
+
+    PMM_USER_B64="$(echo -n "${PMM_USER}" | base64)";
+    PMM_PASS_B64="$(echo -n "${PMM_PASS}" | base64)";
+
     # Install the PXC operator
     curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-xtradb-cluster-operator/{{op.pxc_vers}}/deploy/bundle.yaml \
+    | kubectl apply -f -
+    curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-xtradb-cluster-operator/{{op.pxc_vers}}/deploy/secrets.yaml \
+    | sed "s/pmmserver:.*/pmmserver: ${PMM_PASS}/g" \
     | kubectl apply -f -
 
     # Install the PSMDB operator
     curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-server-mongodb-operator/{{op.psmdb_vers}}/deploy/bundle.yaml \
+    | kubectl apply -f -
+    curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-server-mongodb-operator/{{op.psmdb_vers}}/deploy/secrets.yaml \
+    | sed "s/PMM_SERVER_USER:.*$/PMM_SERVER_USER: ${PMM_USER}/g;s/PMM_SERVER_PASSWORD:.*$/PMM_SERVER_PASSWORD: ${PMM_PASS}/g;" \
     | kubectl apply -f -
     ```
 
@@ -243,8 +269,10 @@ You should have an account on GCP [https://cloud.google.com/](https://cloud.goog
 9. Set up PXC and PSMDB operators:
 
     ```
-    curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-xtradb-cluster-operator/{{op.pxc_vers}}/deploy/bundle.yaml  | kubectl apply -f -
-    curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-server-mongodb-operator/{{op.psmdb_vers}}/deploy/bundle.yaml  | kubectl apply -f -
+    curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-xtradb-cluster-operator/pmm-branch/deploy/bundle.yaml  | kubectl apply -f -
+    curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-xtradb-cluster-operator/pmm-branch/deploy/secrets.yaml | kubectl apply -f -
+    curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-server-mongodb-operator/pmm-branch/deploy/bundle.yaml  | kubectl apply -f -
+    curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-server-mongodb-operator/pmm-branch/deploy/secrets.yaml | kubectl apply -f -
     ```
 
     ![](../../_images/PMM_DBaaS_GKE_11.png)
@@ -367,13 +395,17 @@ The install script:
 #!/bin/bash
 
 TOP_DIR=$(git rev-parse --show-toplevel)
+PMM_USER="$(echo -n 'admin' | base64)";
+PMM_PASS="$(echo -n 'admin_password' | base64)";
 KUBECTL_CMD="kubectl --kubeconfig ${HOME}/.kube/config_eks"
 
 # Install the PXC operator
 cat ${TOP_DIR}/deploy/pxc_operator.yaml | ${KUBECTL_CMD} apply -f -
+cat ${TOP_DIR}/deploy/secrets.yaml | sed "s/pmmserver:.*=/pmmserver: ${PMM_PASS}/g" | ${KUBECTL_CMD} apply -f -
 
 # Install the PSMDB operator
 cat ${TOP_DIR}/deploy/psmdb_operator.yaml | ${KUBECTL_CMD} apply -f -
+cat ${TOP_DIR}/deploy/secrets.yaml | sed "s/PMM_SERVER_USER:.*$/PMM_SERVER_USER: ${PMM_USER}/g;s/PMM_SERVER_PASSWORD:.*=$/PMM_SERVER_PASSWORD: ${PMM_PASS}/g;" | ${KUBECTL_CMD} apply -f -
 ```
 
 The delete script:
@@ -382,15 +414,17 @@ The delete script:
 #!/bin/bash
 
 TOP_DIR=$(git rev-parse --show-toplevel)
+PMM_USER="$(echo -n 'admin' | base64)";
+PMM_PASS="$(echo -n 'admin_password' | base64)";
 KUBECTL_CMD="kubectl --kubeconfig ${HOME}/.kube/config_eks"
 
 # Delete the PXC operator
 cat ${TOP_DIR}/deploy/pxc_operator.yaml | ${KUBECTL_CMD} delete -f -
-kubectl delete secret my-cluster-secrets
+cat ${TOP_DIR}/deploy/secrets.yaml | sed "s/pmmserver:.*=/pmmserver: ${PMM_PASS}/g" | ${KUBECTL_CMD} delete -f -
 
 # Delete the PSMDB operator
 cat ${TOP_DIR}/deploy/psmdb_operator.yaml | ${KUBECTL_CMD} delete -f -
-kubectl delete secret my-cluster-name-secrets
+cat ${TOP_DIR}/deploy/secrets.yaml | sed "s/PMM_SERVER_USER:.*$/PMM_SERVER_USER: ${PMM_USER}/g;s/PMM_SERVER_PASSWORD:.*=$/PMM_SERVER_PASSWORD: ${PMM_PASS}/g;" | ${KUBECTL_CMD} delete -f -
 ```
 
 (Both scripts are similar except the install script command is `apply` while in the delete script it is `delete`.)
@@ -419,7 +453,7 @@ eksctl delete cluster --name=your-cluster-name
 
 ## Run PMM Server as a Docker container for DBaaS
 
-1. Start PMM Server with DBaaS enabled:
+1. Start PMM server from a feature branch:
 
     ```sh
     docker run --detach --name pmm-server --publish 80:80 --publish 443:443 --env PERCONA_TEST_DBAAS=1  percona/pmm-server:2;
