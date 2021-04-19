@@ -2,6 +2,9 @@
 package version
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -55,18 +58,22 @@ func Time() (time.Time, error) {
 	return time.Unix(sec, 0).UTC(), nil
 }
 
-// FullInfo returns multi-line version information.
-func FullInfo() string {
+// timestampFormatted returns timestamp in format "YYYY-MM-DD HH:mm:ss (UTC)"
+func timestampFormatted() string {
 	timestamp := Timestamp
 	if t, err := Time(); err == nil {
 		timestamp = t.Format("2006-01-02 15:04:05 (UTC)")
 	}
+	return timestamp
+}
 
+// FullInfo returns multi-line version information.
+func FullInfo() string {
 	res := []string{
 		"ProjectName: " + ProjectName,
 		"Version: " + Version,
 		"PMMVersion: " + PMMVersion,
-		"Timestamp: " + timestamp,
+		"Timestamp: " + timestampFormatted(),
 		"FullCommit: " + FullCommit,
 	}
 	if Branch != "" {
@@ -74,4 +81,27 @@ func FullInfo() string {
 	}
 
 	return strings.Join(res, "\n")
+}
+
+// FullInfoJson returns version information in JSON format.
+func FullInfoJson() string {
+	res := map[string]string{
+		"ProjectName": ProjectName,
+		"Version":     Version,
+		"PMMVersion":  PMMVersion,
+		"Timestamp":   timestampFormatted(),
+		"FullCommit":  FullCommit,
+	}
+	if Branch != "" {
+		res["Branch"] = Branch
+	}
+
+	b := &bytes.Buffer{}
+	encoder := json.NewEncoder(b)
+
+	if err := encoder.Encode(res); err != nil {
+		fmt.Printf("failed to marshal fields to JSON, %v", err)
+		return ""
+	}
+	return b.String()
 }
