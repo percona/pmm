@@ -136,6 +136,39 @@
             "schema": {
               "type": "object",
               "properties": {
+                "haproxy": {
+                  "description": "ChangeComponent contains fields to manage components.",
+                  "type": "object",
+                  "properties": {
+                    "default_version": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "versions": {
+                      "type": "array",
+                      "items": {
+                        "description": "ComponentVersion contains operations which should be done with component version.",
+                        "type": "object",
+                        "properties": {
+                          "disable": {
+                            "type": "boolean",
+                            "x-order": 1
+                          },
+                          "enable": {
+                            "type": "boolean",
+                            "x-order": 2
+                          },
+                          "version": {
+                            "type": "string",
+                            "x-order": 0
+                          }
+                        }
+                      },
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 3
+                },
                 "kubernetes_cluster_name": {
                   "description": "Kubernetes cluster name.",
                   "type": "string",

@@ -15765,6 +15765,39 @@
                     }
                   },
                   "x-order": 2
+                },
+                "haproxy": {
+                  "description": "ChangeComponent contains fields to manage components.",
+                  "type": "object",
+                  "properties": {
+                    "default_version": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "versions": {
+                      "type": "array",
+                      "items": {
+                        "description": "ComponentVersion contains operations which should be done with component version.",
+                        "type": "object",
+                        "properties": {
+                          "version": {
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "disable": {
+                            "type": "boolean",
+                            "x-order": 1
+                          },
+                          "enable": {
+                            "type": "boolean",
+                            "x-order": 2
+                          }
+                        }
+                      },
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 3
                 }
               }
             }
