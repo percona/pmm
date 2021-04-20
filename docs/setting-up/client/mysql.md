@@ -358,6 +358,12 @@ With the PMM user interface, you select *Use performance schema*, or deselect it
 
 2. Add the database server as a service using one of these example commands. If successful, PMM Client will print `MySQL Service added` with the service's ID and name. Use the `--environment` and `-custom-labels` options to set tags for the service that help you distinguish them.
 
+**Examples -- TLS connection**
+
+```sh
+sudo pmm-admin add mysql --username=user --password=pass --tls --tls-skip-verify --tls-ca=pathtoca.pem --tls-cert=pathtocert.pem --tls-key=pathtocertkey.pem --server-url=http://admin:admin@127.0.0.1 --query-source=perfschema name localhost:3306
+```
+
 **Examples -- Slow query log**
 
 Default query source (`slowlog`), service name (`{node name}-mysql`), and service address/port (`127.0.0.1:3306`), with database server account `pmm` and password `pass`.
