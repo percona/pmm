@@ -126,7 +126,7 @@ The address or hostname PMM Server will be accessible at. Click *Get from browse
 
 ### DBaaS
 
-A read-only setting that shows whether DBaaS features are activated on this server.
+Enables DBaaS features on this server.
 
 > <b style="color:goldenrod">Caution</b> DBaaS functionality is a technical preview that must be turned on with a server feature flag. See [DBaaS](../setting-up/server/dbaas.md).
 
