@@ -63,8 +63,6 @@ The connection can be direct, or indirect using [Cloud SQL Proxy][GOOGLE_CLOUD_S
 
 ## Cloud SQL Proxy
 
-<!-- Needed? -->
-
 ### MySQL
 
 1. Create instance on GCP

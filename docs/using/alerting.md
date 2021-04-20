@@ -92,8 +92,6 @@ This page has four tabs.
 
 3. Enter a template in the *Alert Rule Template* text box.
 
-    <!-- Markdown source code block in raw/endraw prevents MkDocs macros interpretation -->
-
     ```
     {% raw %}
     ---

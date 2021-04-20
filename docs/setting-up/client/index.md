@@ -31,14 +31,6 @@ Here is an overview of the steps involved for each option.
     - Operating system -- PMM Client runs on any modern 64-bit Linux distribution. It is tested on [supported versions of Debian, Ubuntu, CentOS, and Red Hat Enterprise Linux][PERCONA_TOOLS].
     - Disk -- A minimum of 100 MB of storage is required for installing the PMM Client package. With a good connection to PMM Server, additional storage is not required. However, the client needs to store any collected data that it cannot dispatch immediately, so additional storage may be required if the connection is unstable or the throughput is low. (Caching only applies to Query Analytics data; VictoriaMetrics data is never cached on the client side.)
 
-
-<!--
-    Credentials used in communication between the exporters and the PMM Server are the following ones:
-
-    * login is `pmm`
-    * password is equal to Agent ID, which can be seen e.g. on the Inventory Dashboard.
--->
-
 ## Install PMM Client with a package manager {: #package-manager }
 
 ### Install on Debian-based distributions
@@ -277,8 +269,6 @@ You can now add services with [`pmm-admin`](../../details/commands/pmm-admin.md)
 
 ## Run PMM Client with Docker compose {: #docker-compose }
 
-<!-- thanks: https://gist.github.com/paskal -->
-
 1. Copy and paste this text into a file called `docker-compose.yml`.
 
     ```yaml
@@ -338,26 +328,6 @@ You can now add services with [`pmm-admin`](../../details/commands/pmm-admin.md)
     ```
 
 > <b style="color:goldenrod">Caution</b> `pmm-agent.yaml` contains sensitive credentials and should not be shared.
-
-<!--
-Troubleshooting
-
-1) Can't ping server from client
-a) - Is client still member of swarm? Check status with
-docker node ls --filter role=worker
-Status should be 'Ready', availability 'Active'
-See https://docs.docker.com/engine/reference/commandline/swarm/
-b) Check firewall
-
-2) "Failed to register pmm-agent on PMM Server: Node with name "pmm-client-myhost" already exists"
-Change name of host in docker-compose file
-
-3) "docker: Error response from daemon: attaching to network failed, make sure your network options are correct and check manager logs: context deadline exceeded."
-a) Try again. VMware network issues.
-b) Has client host restarted? Leave/join swarm. On leader, clean up old with docker node rm ID
-c) Increase VM memory > 2048
-
--->
 
 ## Register node with PMM Server {: #register }
 
