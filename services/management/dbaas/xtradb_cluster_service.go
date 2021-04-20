@@ -22,6 +22,7 @@ import (
 
 	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -88,13 +89,28 @@ func (s XtraDBClusterService) ListXtraDBClusters(ctx context.Context, req *dbaas
 			}
 		}
 
-		if c.Params.Proxysql.ComputeResources != nil {
-			cluster.Params.Proxysql = &dbaasv1beta1.XtraDBClusterParams_ProxySQL{
-				DiskSize: c.Params.Proxysql.DiskSize,
+		if c.Params.Haproxy != nil {
+			if c.Params.Haproxy.ComputeResources != nil {
+				cluster.Params.Haproxy = &dbaasv1beta1.XtraDBClusterParams_HAProxy{
+					ComputeResources: &dbaasv1beta1.ComputeResources{
+						CpuM:        c.Params.Haproxy.ComputeResources.CpuM,
+						MemoryBytes: c.Params.Haproxy.ComputeResources.MemoryBytes,
+					},
+				}
 			}
-			cluster.Params.Proxysql.ComputeResources = &dbaasv1beta1.ComputeResources{
-				CpuM:        c.Params.Proxysql.ComputeResources.CpuM,
-				MemoryBytes: c.Params.Proxysql.ComputeResources.MemoryBytes,
+			clusters[i] = &cluster
+			continue
+		}
+
+		if c.Params.Proxysql != nil {
+			if c.Params.Proxysql.ComputeResources != nil {
+				cluster.Params.Proxysql = &dbaasv1beta1.XtraDBClusterParams_ProxySQL{
+					DiskSize: c.Params.Proxysql.DiskSize,
+					ComputeResources: &dbaasv1beta1.ComputeResources{
+						CpuM:        c.Params.Proxysql.ComputeResources.CpuM,
+						MemoryBytes: c.Params.Proxysql.ComputeResources.MemoryBytes,
+					},
+				}
 			}
 		}
 
@@ -144,6 +160,11 @@ func (s XtraDBClusterService) CreateXtraDBCluster(ctx context.Context, req *dbaa
 		return nil, err
 	}
 
+	// Check if one and only one of proxies is set.
+	if (req.Params.Proxysql != nil) == (req.Params.Haproxy != nil) {
+		return nil, errors.New("xtradb cluster must have one and only one proxy type defined")
+	}
+
 	kubernetesCluster, err := models.FindKubernetesClusterByName(s.db.Querier, req.KubernetesClusterName)
 	if err != nil {
 		return nil, err
@@ -162,25 +183,37 @@ func (s XtraDBClusterService) CreateXtraDBCluster(ctx context.Context, req *dbaa
 				ComputeResources: new(dbaascontrollerv1beta1.ComputeResources),
 				DiskSize:         req.Params.Pxc.DiskSize,
 			},
-			Proxysql: &dbaascontrollerv1beta1.XtraDBClusterParams_ProxySQL{
-				Image:            req.Params.Proxysql.Image,
-				ComputeResources: new(dbaascontrollerv1beta1.ComputeResources),
-				DiskSize:         req.Params.Proxysql.DiskSize,
-			},
 		},
+	}
+	if req.Params.Proxysql != nil {
+		in.Params.Proxysql = &dbaascontrollerv1beta1.XtraDBClusterParams_ProxySQL{
+			Image:            req.Params.Proxysql.Image,
+			ComputeResources: new(dbaascontrollerv1beta1.ComputeResources),
+			DiskSize:         req.Params.Proxysql.DiskSize,
+		}
+		if req.Params.Proxysql.ComputeResources != nil {
+			in.Params.Proxysql.ComputeResources = &dbaascontrollerv1beta1.ComputeResources{
+				CpuM:        req.Params.Proxysql.ComputeResources.CpuM,
+				MemoryBytes: req.Params.Proxysql.ComputeResources.MemoryBytes,
+			}
+		}
+	} else {
+		in.Params.Haproxy = &dbaascontrollerv1beta1.XtraDBClusterParams_HAProxy{
+			Image:            req.Params.Haproxy.Image,
+			ComputeResources: new(dbaascontrollerv1beta1.ComputeResources),
+		}
+		if req.Params.Haproxy.ComputeResources != nil {
+			in.Params.Haproxy.ComputeResources = &dbaascontrollerv1beta1.ComputeResources{
+				CpuM:        req.Params.Haproxy.ComputeResources.CpuM,
+				MemoryBytes: req.Params.Haproxy.ComputeResources.MemoryBytes,
+			}
+		}
 	}
 
 	if req.Params.Pxc.ComputeResources != nil {
 		in.Params.Pxc.ComputeResources = &dbaascontrollerv1beta1.ComputeResources{
 			CpuM:        req.Params.Pxc.ComputeResources.CpuM,
 			MemoryBytes: req.Params.Pxc.ComputeResources.MemoryBytes,
-		}
-	}
-
-	if req.Params.Proxysql.ComputeResources != nil {
-		in.Params.Proxysql.ComputeResources = &dbaascontrollerv1beta1.ComputeResources{
-			CpuM:        req.Params.Proxysql.ComputeResources.CpuM,
-			MemoryBytes: req.Params.Proxysql.ComputeResources.MemoryBytes,
 		}
 	}
 
@@ -212,6 +245,11 @@ func (s XtraDBClusterService) UpdateXtraDBCluster(ctx context.Context, req *dbaa
 			return nil, status.Error(codes.InvalidArgument, "resume and suspend cannot be set together")
 		}
 
+		// Check if only one or none of proxies is set.
+		if (req.Params.Proxysql != nil) && (req.Params.Haproxy != nil) {
+			return nil, errors.New("can't update both proxies, only one is in use")
+		}
+
 		in.Params = &dbaascontrollerv1beta1.UpdateXtraDBClusterRequest_UpdateXtraDBClusterParams{
 			ClusterSize: req.Params.ClusterSize,
 			Suspend:     req.Params.Suspend,
@@ -232,6 +270,15 @@ func (s XtraDBClusterService) UpdateXtraDBCluster(ctx context.Context, req *dbaa
 				ComputeResources: &dbaascontrollerv1beta1.ComputeResources{
 					CpuM:        req.Params.Proxysql.ComputeResources.CpuM,
 					MemoryBytes: req.Params.Proxysql.ComputeResources.MemoryBytes,
+				},
+			}
+		}
+
+		if req.Params.Haproxy != nil && req.Params.Haproxy.ComputeResources != nil {
+			in.Params.Haproxy = &dbaascontrollerv1beta1.UpdateXtraDBClusterRequest_UpdateXtraDBClusterParams_HAProxy{
+				ComputeResources: &dbaascontrollerv1beta1.ComputeResources{
+					CpuM:        req.Params.Haproxy.ComputeResources.CpuM,
+					MemoryBytes: req.Params.Haproxy.ComputeResources.MemoryBytes,
 				},
 			}
 		}
@@ -297,9 +344,17 @@ func (s XtraDBClusterService) GetXtraDBClusterResources(ctx context.Context, req
 	}
 
 	clusterSize := uint64(req.Params.ClusterSize)
-	memory := uint64(req.Params.Pxc.ComputeResources.MemoryBytes+req.Params.Proxysql.ComputeResources.MemoryBytes) * clusterSize
-	cpu := uint64(req.Params.Pxc.ComputeResources.CpuM+req.Params.Proxysql.ComputeResources.CpuM) * clusterSize
-	disk := uint64(req.Params.Pxc.DiskSize+req.Params.Proxysql.DiskSize) * clusterSize
+	var proxyComputeResources *dbaasv1beta1.ComputeResources
+	var disk uint64
+	if req.Params.Proxysql != nil {
+		disk = uint64(req.Params.Proxysql.DiskSize) * clusterSize
+		proxyComputeResources = req.Params.Proxysql.ComputeResources
+	} else {
+		proxyComputeResources = req.Params.Haproxy.ComputeResources
+	}
+	memory := uint64(req.Params.Pxc.ComputeResources.MemoryBytes+proxyComputeResources.MemoryBytes) * clusterSize
+	cpu := uint64(req.Params.Pxc.ComputeResources.CpuM+proxyComputeResources.CpuM) * clusterSize
+	disk += uint64(req.Params.Pxc.DiskSize) * clusterSize
 
 	if settings.PMMPublicAddress != "" {
 		memory += 1000000000 * clusterSize

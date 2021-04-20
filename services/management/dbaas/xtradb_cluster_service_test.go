@@ -415,34 +415,69 @@ func TestXtraDBClusterService(t *testing.T) {
 	})
 
 	t.Run("BasicGetXtraDBClusterResources", func(t *testing.T) {
-		s := NewXtraDBClusterService(db, dbaasClient)
-		v := int64(1000000000)
-		r := int64(2000000000)
+		t.Parallel()
+		t.Run("ProxySQL", func(t *testing.T) {
+			t.Parallel()
+			s := NewXtraDBClusterService(db, dbaasClient)
+			v := int64(1000000000)
+			r := int64(2000000000)
 
-		in := dbaasv1beta1.GetXtraDBClusterResourcesRequest{
-			Params: &dbaasv1beta1.XtraDBClusterParams{
-				ClusterSize: 1,
-				Pxc: &dbaasv1beta1.XtraDBClusterParams_PXC{
-					ComputeResources: &dbaasv1beta1.ComputeResources{
-						CpuM:        1000,
-						MemoryBytes: v,
+			in := dbaasv1beta1.GetXtraDBClusterResourcesRequest{
+				Params: &dbaasv1beta1.XtraDBClusterParams{
+					ClusterSize: 1,
+					Pxc: &dbaasv1beta1.XtraDBClusterParams_PXC{
+						ComputeResources: &dbaasv1beta1.ComputeResources{
+							CpuM:        1000,
+							MemoryBytes: v,
+						},
+						DiskSize: v,
 					},
-					DiskSize: v,
-				},
-				Proxysql: &dbaasv1beta1.XtraDBClusterParams_ProxySQL{
-					ComputeResources: &dbaasv1beta1.ComputeResources{
-						CpuM:        1000,
-						MemoryBytes: v,
+					Proxysql: &dbaasv1beta1.XtraDBClusterParams_ProxySQL{
+						ComputeResources: &dbaasv1beta1.ComputeResources{
+							CpuM:        1000,
+							MemoryBytes: v,
+						},
+						DiskSize: v,
 					},
-					DiskSize: v,
 				},
-			},
-		}
+			}
 
-		actual, err := s.GetXtraDBClusterResources(ctx, &in)
-		assert.NoError(t, err)
-		assert.Equal(t, uint64(r), actual.Expected.MemoryBytes)
-		assert.Equal(t, uint64(2000), actual.Expected.CpuM)
-		assert.Equal(t, uint64(r), actual.Expected.DiskSize)
+			actual, err := s.GetXtraDBClusterResources(ctx, &in)
+			assert.NoError(t, err)
+			assert.Equal(t, uint64(r), actual.Expected.MemoryBytes)
+			assert.Equal(t, uint64(2000), actual.Expected.CpuM)
+			assert.Equal(t, uint64(r), actual.Expected.DiskSize)
+		})
+
+		t.Run("HAProxy", func(t *testing.T) {
+			t.Parallel()
+			s := NewXtraDBClusterService(db, dbaasClient)
+			v := int64(1000000000)
+
+			in := dbaasv1beta1.GetXtraDBClusterResourcesRequest{
+				Params: &dbaasv1beta1.XtraDBClusterParams{
+					ClusterSize: 1,
+					Pxc: &dbaasv1beta1.XtraDBClusterParams_PXC{
+						ComputeResources: &dbaasv1beta1.ComputeResources{
+							CpuM:        1000,
+							MemoryBytes: v,
+						},
+						DiskSize: v,
+					},
+					Haproxy: &dbaasv1beta1.XtraDBClusterParams_HAProxy{
+						ComputeResources: &dbaasv1beta1.ComputeResources{
+							CpuM:        1000,
+							MemoryBytes: v,
+						},
+					},
+				},
+			}
+
+			actual, err := s.GetXtraDBClusterResources(ctx, &in)
+			assert.NoError(t, err)
+			assert.Equal(t, uint64(2000000000), actual.Expected.MemoryBytes)
+			assert.Equal(t, uint64(2000), actual.Expected.CpuM)
+			assert.Equal(t, uint64(v), actual.Expected.DiskSize)
+		})
 	})
 }
