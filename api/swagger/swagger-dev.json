@@ -18155,7 +18155,7 @@
                       "x-order": 2
                     },
                     "haproxy": {
-                      "description": "HAProxy container parameters.\nNOTE: HAProxy does not need disk size as ProxySQL because the container does not require it.",
+                      "description": "HAProxy container parameters.\nNOTE: HAProxy does not need disk size as ProxySQL does because the container does not require it.",
                       "type": "object",
                       "properties": {
                         "image": {
@@ -18419,7 +18419,7 @@
                       "x-order": 2
                     },
                     "haproxy": {
-                      "description": "HAProxy container parameters.\nNOTE: HAProxy does not need disk size as ProxySQL because the container does not require it.",
+                      "description": "HAProxy container parameters.\nNOTE: HAProxy does not need disk size as ProxySQL does because the container does not require it.",
                       "type": "object",
                       "properties": {
                         "image": {
@@ -19062,7 +19062,7 @@
                             "x-order": 2
                           },
                           "haproxy": {
-                            "description": "HAProxy container parameters.\nNOTE: HAProxy does not need disk size as ProxySQL because the container does not require it.",
+                            "description": "HAProxy container parameters.\nNOTE: HAProxy does not need disk size as ProxySQL does because the container does not require it.",
                             "type": "object",
                             "properties": {
                               "image": {

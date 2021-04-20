@@ -371,7 +371,7 @@ func (o *CreateXtraDBClusterParamsBodyParams) UnmarshalBinary(b []byte) error {
 }
 
 /*CreateXtraDBClusterParamsBodyParamsHaproxy HAProxy container parameters.
-// NOTE: HAProxy does not need disk size as ProxySQL because the container does not require it.
+// NOTE: HAProxy does not need disk size as ProxySQL does because the container does not require it.
 swagger:model CreateXtraDBClusterParamsBodyParamsHaproxy
 */
 type CreateXtraDBClusterParamsBodyParamsHaproxy struct {

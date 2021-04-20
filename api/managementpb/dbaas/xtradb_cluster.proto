@@ -69,7 +69,7 @@ message XtraDBClusterParams {
     ];
   }
   // HAProxy container parameters.
-  // NOTE: HAProxy does not need disk size as ProxySQL because the container does not require it.
+  // NOTE: HAProxy does not need disk size as ProxySQL does because the container does not require it.
   message HAProxy {
     // Docker image used for HAProxy.
     string image = 1;

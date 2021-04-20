@@ -1141,7 +1141,7 @@ func (x *XtraDBClusterParams_ProxySQL) GetDiskSize() int64 {
 }
 
 // HAProxy container parameters.
-// NOTE: HAProxy does not need disk size as ProxySQL because the container does not require it.
+// NOTE: HAProxy does not need disk size as ProxySQL does because the container does not require it.
 type XtraDBClusterParams_HAProxy struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

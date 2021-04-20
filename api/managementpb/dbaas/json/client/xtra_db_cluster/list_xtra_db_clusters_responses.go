@@ -428,7 +428,7 @@ func (o *ClustersItems0Params) UnmarshalBinary(b []byte) error {
 }
 
 /*ClustersItems0ParamsHaproxy HAProxy container parameters.
-// NOTE: HAProxy does not need disk size as ProxySQL because the container does not require it.
+// NOTE: HAProxy does not need disk size as ProxySQL does because the container does not require it.
 swagger:model ClustersItems0ParamsHaproxy
 */
 type ClustersItems0ParamsHaproxy struct {
