@@ -269,6 +269,9 @@ type UpdateXtraDBClusterParamsBodyParams struct {
 	// Resume cluster `pause: false`.
 	Resume bool `json:"resume,omitempty"`
 
+	// haproxy
+	Haproxy *UpdateXtraDBClusterParamsBodyParamsHaproxy `json:"haproxy,omitempty"`
+
 	// proxysql
 	Proxysql *UpdateXtraDBClusterParamsBodyParamsProxysql `json:"proxysql,omitempty"`
 
@@ -279,6 +282,10 @@ type UpdateXtraDBClusterParamsBodyParams struct {
 // Validate validates this update xtra DB cluster params body params
 func (o *UpdateXtraDBClusterParamsBodyParams) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := o.validateHaproxy(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := o.validateProxysql(formats); err != nil {
 		res = append(res, err)
@@ -291,6 +298,24 @@ func (o *UpdateXtraDBClusterParamsBodyParams) Validate(formats strfmt.Registry) 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *UpdateXtraDBClusterParamsBodyParams) validateHaproxy(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Haproxy) { // not required
+		return nil
+	}
+
+	if o.Haproxy != nil {
+		if err := o.Haproxy.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "params" + "." + "haproxy")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -341,6 +366,100 @@ func (o *UpdateXtraDBClusterParamsBodyParams) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *UpdateXtraDBClusterParamsBodyParams) UnmarshalBinary(b []byte) error {
 	var res UpdateXtraDBClusterParamsBodyParams
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*UpdateXtraDBClusterParamsBodyParamsHaproxy HAProxy container parameters.
+swagger:model UpdateXtraDBClusterParamsBodyParamsHaproxy
+*/
+type UpdateXtraDBClusterParamsBodyParamsHaproxy struct {
+
+	// compute resources
+	ComputeResources *UpdateXtraDBClusterParamsBodyParamsHaproxyComputeResources `json:"compute_resources,omitempty"`
+}
+
+// Validate validates this update xtra DB cluster params body params haproxy
+func (o *UpdateXtraDBClusterParamsBodyParamsHaproxy) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateComputeResources(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *UpdateXtraDBClusterParamsBodyParamsHaproxy) validateComputeResources(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.ComputeResources) { // not required
+		return nil
+	}
+
+	if o.ComputeResources != nil {
+		if err := o.ComputeResources.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "params" + "." + "haproxy" + "." + "compute_resources")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *UpdateXtraDBClusterParamsBodyParamsHaproxy) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *UpdateXtraDBClusterParamsBodyParamsHaproxy) UnmarshalBinary(b []byte) error {
+	var res UpdateXtraDBClusterParamsBodyParamsHaproxy
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*UpdateXtraDBClusterParamsBodyParamsHaproxyComputeResources ComputeResources represents container computer resources requests or limits.
+swagger:model UpdateXtraDBClusterParamsBodyParamsHaproxyComputeResources
+*/
+type UpdateXtraDBClusterParamsBodyParamsHaproxyComputeResources struct {
+
+	// CPUs in milliCPUs; 1000m = 1 vCPU.
+	CPUm int32 `json:"cpu_m,omitempty"`
+
+	// Memory in bytes.
+	MemoryBytes string `json:"memory_bytes,omitempty"`
+}
+
+// Validate validates this update xtra DB cluster params body params haproxy compute resources
+func (o *UpdateXtraDBClusterParamsBodyParamsHaproxyComputeResources) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *UpdateXtraDBClusterParamsBodyParamsHaproxyComputeResources) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *UpdateXtraDBClusterParamsBodyParamsHaproxyComputeResources) UnmarshalBinary(b []byte) error {
+	var res UpdateXtraDBClusterParamsBodyParamsHaproxyComputeResources
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
