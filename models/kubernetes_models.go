@@ -45,6 +45,7 @@ type KubernetesCluster struct {
 	KubeConfig            string     `reform:"kube_config"`
 	PXC                   *Component `reform:"pxc"`
 	ProxySQL              *Component `reform:"proxysql"`
+	HAProxy               *Component `reform:"haproxy"`
 	Mongod                *Component `reform:"mongod"`
 	CreatedAt             time.Time  `reform:"created_at"`
 	UpdatedAt             time.Time  `reform:"updated_at"`

@@ -484,6 +484,9 @@ var databaseSchema = [][]string{
 		`ALTER TABLE kubernetes_clusters ADD COLUMN proxysql JSONB`,
 		`ALTER TABLE kubernetes_clusters ADD COLUMN mongod JSONB`,
 	},
+	34: {
+		`ALTER TABLE kubernetes_clusters ADD COLUMN haproxy JSONB`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

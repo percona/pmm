@@ -33,6 +33,7 @@ func (v *kubernetesClusterTableType) Columns() []string {
 		"kube_config",
 		"pxc",
 		"proxysql",
+		"haproxy",
 		"mongod",
 		"created_at",
 		"updated_at",
@@ -65,6 +66,7 @@ var KubernetesClusterTable = &kubernetesClusterTableType{
 			{Name: "KubeConfig", Type: "string", Column: "kube_config"},
 			{Name: "PXC", Type: "*Component", Column: "pxc"},
 			{Name: "ProxySQL", Type: "*Component", Column: "proxysql"},
+			{Name: "HAProxy", Type: "*Component", Column: "haproxy"},
 			{Name: "Mongod", Type: "*Component", Column: "mongod"},
 			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
 			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},
@@ -76,15 +78,16 @@ var KubernetesClusterTable = &kubernetesClusterTableType{
 
 // String returns a string representation of this struct or record.
 func (s KubernetesCluster) String() string {
-	res := make([]string, 8)
+	res := make([]string, 9)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "KubernetesClusterName: " + reform.Inspect(s.KubernetesClusterName, true)
 	res[2] = "KubeConfig: " + reform.Inspect(s.KubeConfig, true)
 	res[3] = "PXC: " + reform.Inspect(s.PXC, true)
 	res[4] = "ProxySQL: " + reform.Inspect(s.ProxySQL, true)
-	res[5] = "Mongod: " + reform.Inspect(s.Mongod, true)
-	res[6] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
-	res[7] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
+	res[5] = "HAProxy: " + reform.Inspect(s.HAProxy, true)
+	res[6] = "Mongod: " + reform.Inspect(s.Mongod, true)
+	res[7] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
+	res[8] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
 	return strings.Join(res, ", ")
 }
 
@@ -97,6 +100,7 @@ func (s *KubernetesCluster) Values() []interface{} {
 		s.KubeConfig,
 		s.PXC,
 		s.ProxySQL,
+		s.HAProxy,
 		s.Mongod,
 		s.CreatedAt,
 		s.UpdatedAt,
@@ -112,6 +116,7 @@ func (s *KubernetesCluster) Pointers() []interface{} {
 		&s.KubeConfig,
 		&s.PXC,
 		&s.ProxySQL,
+		&s.HAProxy,
 		&s.Mongod,
 		&s.CreatedAt,
 		&s.UpdatedAt,

@@ -64,6 +64,10 @@ func TestKubernetesHelpers(t *testing.T) {
 					DisabledVersions: []string{"8.0.0"},
 					DefaultVersion:   "8.0.1-19",
 				},
+				HAProxy: &models.Component{
+					DisabledVersions: []string{"2.0.0"},
+					DefaultVersion:   "2.1.7",
+				},
 				Mongod: &models.Component{
 					DisabledVersions: []string{"3.4.0", "3.6.0"},
 					DefaultVersion:   "4.4.3-8",
@@ -100,6 +104,10 @@ func TestKubernetesHelpers(t *testing.T) {
 				ProxySQL: &models.Component{
 					DisabledVersions: []string{"8.0.0"},
 					DefaultVersion:   "8.0.1-19",
+				},
+				HAProxy: &models.Component{
+					DisabledVersions: []string{"2.0.0"},
+					DefaultVersion:   "2.1.7",
 				},
 				Mongod: &models.Component{
 					DisabledVersions: []string{"3.4.0", "3.6.0"},
