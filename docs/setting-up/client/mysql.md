@@ -466,28 +466,23 @@ Open the [*PXC/Galera Cluster Summary* dashboard][DASH_PXCGALERACLUSTER].
 [DASH_MYSQLUSERDETAILS]: ../../details/dashboards/dashboard-mysql-user-details.md
 [DASH_PXCGALERACLUSTER]: ../../details/dashboards/dashboard-pxc-galera-cluster-summary.md
 [LOGROTATE]: https://linux.die.net/man/8/logrotate
-<!-- Products -->
 [PERCONA_SERVER_MYSQL]: https://www.percona.com/software/mysql-database/percona-server
 [PERCONA_XTRADB_CLUSTER]: https://www.percona.com/software/mysql-database/percona-xtradb-cluster
 [ORACLE_MYSQL]: https://www.mysql.com/
 [MARIADB]: https://mariadb.org/
-<!-- Blog -->
 [BLOG_INNODB_METRICS]: https://www.percona.com/blog/2014/11/18/mysqls-innodb_metrics-table-how-much-is-the-overhead/
 [BLOG_LOGGING]: https://www.percona.com/blog/2009/02/10/impact-of-logging-on-mysql%E2%80%99s-performance/
 [BLOG_LOG_ROTATION]: https://www.percona.com/blog/2013/04/18/rotating-mysql-slow-logs-safely/
 [BLOG_PS_VS_SLOW]: https://www.percona.com/blog/2014/02/11/performance_schema-vs-slow-query-log/
-<!-- Percona Server for MySQL -->
 [PS_FEATURES_REMOVED]: https://www.percona.com/doc/percona-server/LATEST/changed_in_version.html
 [ps_slow_query_ext]: https://www.percona.com/doc/percona-server/LATEST/diagnostics/slow_extended.html
 [ps_query_response_time_stats]: https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#usage
 [ps_userstats]: https://www.percona.com/doc/percona-server/LATEST/diagnostics/user_stats.html
-<!-- MariaDB -->
 [mariadb_slow_query_log]: https://mariadb.com/kb/en/slow-query-log-overview/
 [mariadb_slow_query_ext]: https://mariadb.com/kb/en/slow-query-log-extended-statistics/
 [mariadb_query_response_time]: https://mariadb.com/kb/en/query-response-time-plugin/
 [mariadb_perfschema_instr_table]: https://mariadb.com/kb/en/performance-schema-setup_instruments-table/
 [mariadb_userstats]: https://mariadb.com/kb/en/user-statistics/
-<!-- MySQL -->
 [log_slow_rate_limit]: https://www.percona.com/doc/percona-server/LATEST/diagnostics/slow_extended.html#log_slow_rate_limit
 [log_slow_rate_type]: https://www.percona.com/doc/percona-server/LATEST/diagnostics/slow_extended.html#log_slow_rate_type
 [log_slow_verbosity]: https://www.percona.com/doc/percona-server/LATEST/diagnostics/slow_extended.html#log_slow_verbosity

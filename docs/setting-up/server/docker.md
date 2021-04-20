@@ -132,8 +132,6 @@ You can test a new release of the PMM Server Docker image by making backups of y
 
 ## Running PMM Server with Docker compose {: #docker-compose }
 
-<!-- thanks: https://gist.github.com/paskal -->
-
 > With this approach, data is stored in a volume, not in a `pmm-data` container.
 
 1. Copy and paste this text into a file called `docker-compose.yml`.
