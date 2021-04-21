@@ -1,113 +1,116 @@
 package version
 
 import (
-	"encoding/json"
+	"fmt"
 	"strings"
 	"testing"
 )
 
-func TestInfoManaged(t *testing.T) {
+func setupDataForManaged() {
 	ProjectName = "pmm-managed"
 	Version = "2.1.2"
 	PMMVersion = "2.1.2"
 	Timestamp = "1545226908"
 	FullCommit = "6559a94ab33831deeda04193f74413b735edb1a1"
 	Branch = "master"
-
-	expected := "pmm-managed v2.1.2"
-	actual := ShortInfo()
-	if expected != actual {
-		t.Errorf("expected: %q\nactual: %q", expected, actual)
-	}
-
-	expected = strings.Join([]string{
-		"ProjectName: pmm-managed",
-		"Version: 2.1.2",
-		"PMMVersion: 2.1.2",
-		"Timestamp: 2018-12-19 13:41:48 (UTC)",
-		"FullCommit: 6559a94ab33831deeda04193f74413b735edb1a1",
-		"Branch: master",
-	}, "\n")
-	actual = FullInfo()
-	if expected != actual {
-		t.Errorf("expected: %q\nactual: %q", expected, actual)
-	}
-
-	expectedMap := map[string]string{
-		"ProjectName": ProjectName,
-		"Version":     Version,
-		"PMMVersion":  PMMVersion,
-		"Timestamp":   "2018-12-19 13:41:48 (UTC)",
-		"FullCommit":  FullCommit,
-		"Branch":      Branch,
-	}
-
-	actualJsonString := FullInfoJson()
-	actualJsonMap := map[string]string{}
-	if json.Unmarshal([]byte(actualJsonString), &actualJsonMap) != nil {
-		t.Errorf("expected JSON string, actual: %q", actualJsonString)
-	}
-
-	for expKey, expVal := range expectedMap {
-		if _, ok := actualJsonMap[expKey]; !ok {
-			t.Errorf("expected key=%s is absent in JSON string\nactual: %q", expKey, actualJsonString)
-		}
-
-		if actualJsonMap[expKey] != expVal {
-			t.Errorf("expected value for key=%s is invalid\nexpected: %q\nactual: %q", expKey, expVal, actualJsonMap[expKey])
-		}
-	}
 }
 
-func TestInfoExporter(t *testing.T) {
+func setupDataForExporter() {
 	ProjectName = "external_exporter"
 	Version = "0.8.5"
 	PMMVersion = "2.1.2"
-	Timestamp = "1545226908"
-	FullCommit = "6559a94ab33831deeda04193f74413b735edb1a1"
+	Timestamp = "1545226909"
+	FullCommit = "6559a94ab33831deeda04193f74413b735edb1a2"
 	Branch = "master"
+}
 
-	expected := "external_exporter v0.8.5 (PMM v2.1.2)"
+func TestShortInfoManaged(t *testing.T) {
+	setupDataForManaged()
+
+	expected := fmt.Sprintf("%s v%s", ProjectName, PMMVersion)
 	actual := ShortInfo()
 	if expected != actual {
 		t.Errorf("expected: %q\nactual: %q", expected, actual)
 	}
+}
 
-	expected = strings.Join([]string{
-		"ProjectName: external_exporter",
-		"Version: 0.8.5",
-		"PMMVersion: 2.1.2",
-		"Timestamp: 2018-12-19 13:41:48 (UTC)",
-		"FullCommit: 6559a94ab33831deeda04193f74413b735edb1a1",
-		"Branch: master",
+func TestFullInfoPlainManaged(t *testing.T) {
+	setupDataForManaged()
+
+	expected := strings.Join([]string{
+		fmt.Sprintf("ProjectName: %s", ProjectName),
+		fmt.Sprintf("Version: %s", Version),
+		fmt.Sprintf("PMMVersion: %s", PMMVersion),
+		fmt.Sprintf("Timestamp: %s", timestampFormatted()),
+		fmt.Sprintf("FullCommit: %s", FullCommit),
+		fmt.Sprintf("Branch: %s", Branch),
 	}, "\n")
-	actual = FullInfo()
+	actual := FullInfo()
 	if expected != actual {
 		t.Errorf("expected: %q\nactual: %q", expected, actual)
 	}
+}
 
-	expectedMap := map[string]string{
-		"ProjectName": ProjectName,
-		"Version":     Version,
-		"PMMVersion":  PMMVersion,
-		"Timestamp":   "2018-12-19 13:41:48 (UTC)",
-		"FullCommit":  FullCommit,
-		"Branch":      Branch,
+func TestFullInfoJsonManaged(t *testing.T) {
+	setupDataForManaged()
+
+	expected := "{" + strings.Join([]string{
+		fmt.Sprintf(`"Branch":"%s"`, Branch),
+		fmt.Sprintf(`"FullCommit":"%s"`, FullCommit),
+		fmt.Sprintf(`"PMMVersion":"%s"`, PMMVersion),
+		fmt.Sprintf(`"ProjectName":"%s"`, ProjectName),
+		fmt.Sprintf(`"Timestamp":"%s"`, timestampFormatted()),
+		fmt.Sprintf(`"Version":"%s"`, Version),
+	}, ",") + "}"
+
+	actual := FullInfoJson()
+	if actual != expected {
+		t.Errorf("\nexpected: %q\nactual:   %q", expected, actual)
 	}
+}
 
-	actualJsonString := FullInfoJson()
-	actualJsonMap := map[string]string{}
-	if json.Unmarshal([]byte(actualJsonString), &actualJsonMap) != nil {
-		t.Errorf("expected JSON string, actual: %q", actualJsonString)
+func TestShortInfoExporter(t *testing.T) {
+	setupDataForExporter()
+
+	expected := fmt.Sprintf("external_exporter v%s (PMM v%s)", Version, PMMVersion)
+	actual := ShortInfo()
+	if expected != actual {
+		t.Errorf("expected: %q\nactual: %q", expected, actual)
 	}
+}
 
-	for expKey, expVal := range expectedMap {
-		if _, ok := actualJsonMap[expKey]; !ok {
-			t.Errorf("expected key=%s is absent in JSON string\nactual: %q", expKey, actualJsonString)
-		}
+func TestFullInfoPlainExporter(t *testing.T) {
+	setupDataForExporter()
 
-		if actualJsonMap[expKey] != expVal {
-			t.Errorf("expected value for key=%s is invalid\nexpected: %q\nactual: %q", expKey, expVal, actualJsonMap[expKey])
-		}
+	expected := strings.Join([]string{
+		fmt.Sprintf("ProjectName: %s", ProjectName),
+		fmt.Sprintf("Version: %s", Version),
+		fmt.Sprintf("PMMVersion: %s", PMMVersion),
+		fmt.Sprintf("Timestamp: %s", timestampFormatted()),
+		fmt.Sprintf("FullCommit: %s", FullCommit),
+		fmt.Sprintf("Branch: %s", Branch),
+	}, "\n")
+
+	actual := FullInfo()
+	if expected != actual {
+		t.Errorf("expected: %q\nactual: %q", expected, actual)
+	}
+}
+
+func TestFullInfoJsonExporter(t *testing.T) {
+	setupDataForExporter()
+
+	expected := "{" + strings.Join([]string{
+		fmt.Sprintf(`"Branch":"%s"`, Branch),
+		fmt.Sprintf(`"FullCommit":"%s"`, FullCommit),
+		fmt.Sprintf(`"PMMVersion":"%s"`, PMMVersion),
+		fmt.Sprintf(`"ProjectName":"%s"`, ProjectName),
+		fmt.Sprintf(`"Timestamp":"%s"`, timestampFormatted()),
+		fmt.Sprintf(`"Version":"%s"`, Version),
+	}, ",") + "}"
+
+	actual := FullInfoJson()
+	if actual != expected {
+		t.Errorf("\nexpected: %q\nactual:   %q", expected, actual)
 	}
 }

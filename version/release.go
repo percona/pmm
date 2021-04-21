@@ -2,9 +2,7 @@
 package version
 
 import (
-	"bytes"
 	"encoding/json"
-	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -85,7 +83,7 @@ func FullInfo() string {
 
 // FullInfoJson returns version information in JSON format.
 func FullInfoJson() string {
-	res := map[string]string{
+	resMap := map[string]string{
 		"ProjectName": ProjectName,
 		"Version":     Version,
 		"PMMVersion":  PMMVersion,
@@ -93,15 +91,12 @@ func FullInfoJson() string {
 		"FullCommit":  FullCommit,
 	}
 	if Branch != "" {
-		res["Branch"] = Branch
+		resMap["Branch"] = Branch
 	}
 
-	b := &bytes.Buffer{}
-	encoder := json.NewEncoder(b)
-
-	if err := encoder.Encode(res); err != nil {
-		fmt.Printf("failed to marshal fields to JSON, %v", err)
-		return ""
+	resJson, err := json.Marshal(resMap)
+	if err != nil {
+		panic(err)
 	}
-	return b.String()
+	return string(resJson)
 }
