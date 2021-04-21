@@ -62,6 +62,8 @@ message StartMySQLExplainActionRequest {
   ];
   // Database name. Required if it can't be deduced from the query.
   string database = 4;
+  // TLS certificate wont be verified.
+  bool tls_skip_verify = 5;
 }
 
 message StartMySQLExplainActionResponse {
@@ -88,6 +90,8 @@ message StartMySQLExplainJSONActionRequest {
   ];
   // Database name. Required if it can't be deduced from the query.
   string database = 4;
+  // TLS certificate wont be verified.
+  bool tls_skip_verify = 5;
 }
 
 message StartMySQLExplainJSONActionResponse {
@@ -114,6 +118,8 @@ message StartMySQLExplainTraditionalJSONActionRequest {
   ];
   // Database name. Required if it can't be deduced from the query.
   string database = 4;
+  // TLS certificate wont be verified.
+  bool tls_skip_verify = 5;
 }
 
 message StartMySQLExplainTraditionalJSONActionResponse {
@@ -140,6 +146,8 @@ message StartMySQLShowCreateTableActionRequest {
   ];
   // Database name. Required if not given in the table_name field.
   string database = 4;
+  // TLS certificate wont be verified.
+  bool tls_skip_verify = 5;
 }
 
 message StartMySQLShowCreateTableActionResponse {
@@ -166,6 +174,8 @@ message StartMySQLShowTableStatusActionRequest {
   ];
   // Database name. Required if not given in the table_name field.
   string database = 4;
+  // TLS certificate wont be verified.
+  bool tls_skip_verify = 5;
 }
 
 message StartMySQLShowTableStatusActionResponse {
@@ -192,6 +202,8 @@ message StartMySQLShowIndexActionRequest {
   ];
   // Database name. Required if not given in the table_name field.
   string database = 4;
+  // TLS certificate wont be verified.
+  bool tls_skip_verify = 5;
 }
 
 message StartMySQLShowIndexActionResponse {
