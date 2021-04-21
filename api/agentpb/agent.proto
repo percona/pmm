@@ -145,6 +145,8 @@ message StartActionRequest {
     MysqlExplainOutputFormat output_format = 3;
     // Contains files and their contents which can be used in DSN.
     TextFiles tls_files = 4;
+    // TLS certificate wont be verified.
+    bool tls_skip_verify = 5;
   }
   // MySQLShowCreateTableParams describes MySQL SHOW CREATE TABLE action parameters.
   message MySQLShowCreateTableParams {
@@ -153,6 +155,8 @@ message StartActionRequest {
     string table = 2;
     // Contains files and their contents which can be used in DSN.
     TextFiles tls_files = 3;
+    // TLS certificate wont be verified.
+    bool tls_skip_verify = 4;
   }
   // MySQLShowTableStatusParams describes MySQL SHOW TABLE STATUS action parameters.
   message MySQLShowTableStatusParams {
@@ -161,6 +165,8 @@ message StartActionRequest {
     string table = 2;
     // Contains files and their contents which can be used in DSN.
     TextFiles tls_files = 3;
+    // TLS certificate wont be verified.
+    bool tls_skip_verify = 4;
   }
   // MySQLShowIndexParams describes MySQL SHOW INDEX action parameters.
   message MySQLShowIndexParams {
@@ -169,6 +175,8 @@ message StartActionRequest {
     string table = 2;
     // Contains files and their contents which can be used in DSN.
     TextFiles tls_files = 3;
+    // TLS certificate wont be verified.
+    bool tls_skip_verify = 4;
   }
   // PostgreSQLShowCreateTableParams describes PostgreSQL SHOW CREATE TABLE action parameters.
   message PostgreSQLShowCreateTableParams {
@@ -224,6 +232,8 @@ message StartActionRequest {
     string query = 2;
     // Contains files and their contents which can be used in DSN.
     TextFiles tls_files = 3;
+    // TLS certificate wont be verified.
+    bool tls_skip_verify = 4;
   }
   // MySQLQuerySelectParams describes MySQL SELECT query action parameters.
   message MySQLQuerySelectParams {
@@ -233,6 +243,8 @@ message StartActionRequest {
     string query = 2;
     // Contains files and their contents which can be used in DSN.
     TextFiles tls_files = 3;
+    // TLS certificate wont be verified.
+    bool tls_skip_verify = 4;
   }
   // PostgreSQLQueryShowParams describes PostgreSQL SHOW query action parameters.
   message PostgreSQLQueryShowParams {
@@ -331,10 +343,8 @@ message CheckConnectionRequest {
   google.protobuf.Duration timeout = 3;
   // Contains files and their contents which can be used in DSN.
   TextFiles text_files = 4;
-  // TLS in enabled if true.
-  bool tls = 5;
   // TLS certificate wont be verified.
-  bool tls_skip_verify = 6;
+  bool tls_skip_verify = 5;
 }
 
 // CheckConnectionResponse is an AgentMessage containing a result of connection check.
