@@ -97,6 +97,7 @@ message ChangePXCComponentsRequest {
   ];
   ChangeComponent pxc = 2;
   ChangeComponent proxysql = 3;
+  ChangeComponent haproxy = 4;
 }
 
 message ChangePXCComponentsResponse {}
