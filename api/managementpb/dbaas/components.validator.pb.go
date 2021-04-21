@@ -109,6 +109,11 @@ func (this *ChangePXCComponentsRequest) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("Proxysql", err)
 		}
 	}
+	if this.Haproxy != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Haproxy); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Haproxy", err)
+		}
+	}
 	return nil
 }
 func (this *ChangePXCComponentsResponse) Validate() error {
