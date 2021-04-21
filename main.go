@@ -77,6 +77,7 @@ import (
 	managementdbaas "github.com/percona/pmm-managed/services/management/dbaas"
 	managementgrpc "github.com/percona/pmm-managed/services/management/grpc"
 	"github.com/percona/pmm-managed/services/management/ia"
+	"github.com/percona/pmm-managed/services/minio"
 	"github.com/percona/pmm-managed/services/platform"
 	"github.com/percona/pmm-managed/services/qan"
 	"github.com/percona/pmm-managed/services/server"
@@ -136,6 +137,7 @@ type gRPCServerDeps struct {
 	rulesService          *ia.RulesService
 	jobsService           *agents.JobsService
 	versionServiceClient  *managementdbaas.VersionServiceClient
+	minio                 *minio.Service
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -198,7 +200,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	iav1beta1.RegisterRulesServer(gRPCServer, deps.rulesService)
 	iav1beta1.RegisterAlertsServer(gRPCServer, deps.alertsService)
 
-	backupv1beta1.RegisterLocationsServer(gRPCServer, backup.NewLocationsService(deps.db))
+	backupv1beta1.RegisterLocationsServer(gRPCServer, backup.NewLocationsService(deps.db, deps.minio))
 	backupv1beta1.RegisterArtifactsServer(gRPCServer, backup.NewArtifactsService(deps.db))
 
 	// TODO Remove once changing settings.DBaaS.Enabled is possible via API.
@@ -810,6 +812,7 @@ func main() {
 			rulesService:          rulesService,
 			jobsService:           jobsService,
 			versionServiceClient:  versionService,
+			minio:                 &minio.Service{},
 		})
 	}()
 

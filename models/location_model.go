@@ -73,10 +73,11 @@ func (s *BackupLocation) AfterFind() error {
 
 // S3LocationConfig contains required properties for accessing S3 Bucket.
 type S3LocationConfig struct {
-	Endpoint   string `json:"endpoint"`
-	AccessKey  string `json:"access_key"`
-	SecretKey  string `json:"secret_key"`
-	BucketName string `json:"bucket_name"`
+	Endpoint     string `json:"endpoint"`
+	AccessKey    string `json:"access_key"`
+	SecretKey    string `json:"secret_key"`
+	BucketName   string `json:"bucket_name"`
+	BucketRegion string `json:"bucket_region"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
