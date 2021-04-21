@@ -133,9 +133,6 @@ type StartMySQLShowCreateTableActionBody struct {
 
 	// Database name. Required if not given in the table_name field.
 	Database string `json:"database,omitempty"`
-
-	// TLS certificate wont be verified.
-	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 }
 
 // Validate validates this start my SQL show create table action body

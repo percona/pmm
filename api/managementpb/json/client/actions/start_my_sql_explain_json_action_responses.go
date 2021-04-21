@@ -133,9 +133,6 @@ type StartMySQLExplainJSONActionBody struct {
 
 	// Database name. Required if it can't be deduced from the query.
 	Database string `json:"database,omitempty"`
-
-	// TLS certificate wont be verified.
-	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 }
 
 // Validate validates this start my SQL explain JSON action body

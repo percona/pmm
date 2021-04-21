@@ -14533,11 +14533,6 @@
                   "description": "Database name. Required if it can't be deduced from the query.",
                   "type": "string",
                   "x-order": 3
-                },
-                "tls_skip_verify": {
-                  "description": "TLS certificate wont be verified.",
-                  "type": "boolean",
-                  "x-order": 4
                 }
               }
             }
@@ -14641,11 +14636,6 @@
                   "description": "Database name. Required if it can't be deduced from the query.",
                   "type": "string",
                   "x-order": 3
-                },
-                "tls_skip_verify": {
-                  "description": "TLS certificate wont be verified.",
-                  "type": "boolean",
-                  "x-order": 4
                 }
               }
             }
@@ -14749,11 +14739,6 @@
                   "description": "Database name. Required if it can't be deduced from the query.",
                   "type": "string",
                   "x-order": 3
-                },
-                "tls_skip_verify": {
-                  "description": "TLS certificate wont be verified.",
-                  "type": "boolean",
-                  "x-order": 4
                 }
               }
             }
@@ -14857,11 +14842,6 @@
                   "description": "Database name. Required if not given in the table_name field.",
                   "type": "string",
                   "x-order": 3
-                },
-                "tls_skip_verify": {
-                  "description": "TLS certificate wont be verified.",
-                  "type": "boolean",
-                  "x-order": 4
                 }
               }
             }
@@ -14965,11 +14945,6 @@
                   "description": "Database name. Required if not given in the table_name field.",
                   "type": "string",
                   "x-order": 3
-                },
-                "tls_skip_verify": {
-                  "description": "TLS certificate wont be verified.",
-                  "type": "boolean",
-                  "x-order": 4
                 }
               }
             }
@@ -15073,11 +15048,6 @@
                   "description": "Database name. Required if not given in the table_name field.",
                   "type": "string",
                   "x-order": 3
-                },
-                "tls_skip_verify": {
-                  "description": "TLS certificate wont be verified.",
-                  "type": "boolean",
-                  "x-order": 4
                 }
               }
             }
