@@ -143,6 +143,8 @@ To monitor a DB cluster, set up a [public address](../../how-to/configure.md#pub
 
     ![](../../_images/PMM_DBaaS_DB_Cluster_Delete.png)
 
+> <b style="color:goldenrod">Important</b> Deleting a cluster in this way also deletes any attached volumes.
+
 ### Edit a DB Cluster
 
 1. Select the *DB Cluster* tab.
