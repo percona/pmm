@@ -20,6 +20,7 @@ import (
 	"context"
 	"testing"
 
+	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
@@ -80,5 +81,166 @@ func TestCollect(t *testing.T) {
 		require.NotEmpty(t, templates)
 		assert.NotContains(t, templates, "test_template")
 		assert.Contains(t, templates, "test_template_2")
+	})
+}
+
+func TestTemplateValidation(t *testing.T) {
+	ctx := context.Background()
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	// Enable IA
+	settings, err := models.GetSettings(db)
+	require.NoError(t, err)
+	settings.IntegratedAlerting.Enabled = true
+	err = models.SaveSettings(db, settings)
+	require.NoError(t, err)
+
+	t.Run("create a template with missing param", func(t *testing.T) {
+		t.Parallel()
+
+		const templateWithMissingParam = `
+---
+templates: 
+  - name: template_with_missing_param_1
+    version: 1
+    summary: Template with missing param 1
+    tiers: [anonymous, registered]
+    expr: |-
+      max_over_time(mysql_global_status_threads_connected[5m]) / ignoring (job)
+      mysql_global_variables_max_connections
+      * 100
+      > [[ .threshold ]]
+    params: 
+      - name: from
+        summary: A percentage from configured maximum
+        unit: '%'
+        type: float
+        range: [0, 100]
+        value: 80
+      - name: to
+        summary: A percentage from configured maximum
+        unit: '%'
+        type: float
+        range: [0, 100]
+        value: 80
+    for: 5m
+    severity: warning
+    labels: 
+      foo: bar
+    annotations: 
+      description: |-
+        More than [[ .threshold ]]% of MySQL connections are in use on {{ $labels.instance }}
+        VALUE = {{ $value }}
+        LABELS: {{ $labels }}
+      summary: MySQL too many connections (instance {{ $labels.instance }})
+`
+
+		svc := NewTemplatesService(db)
+		resp, err := svc.CreateTemplate(ctx, &iav1beta1.CreateTemplateRequest{
+			Yaml: templateWithMissingParam,
+		})
+		assert.Nil(t, resp)
+		assert.EqualError(t, err, "rpc error: code = InvalidArgument desc = failed to fill expression "+
+			"placeholders: template: :4:5: executing \"\" at <.threshold>: map has no entry for key \"threshold\".")
+	})
+
+	t.Run("update valid template with a template with missing param", func(t *testing.T) {
+		t.Parallel()
+
+		const validTemplate = `
+---
+templates: 
+  - name: valid_template_1
+    version: 1
+    summary: Valid template 1
+    tiers: [anonymous, registered]
+    expr: |-
+      max_over_time(mysql_global_status_threads_connected[5m]) / ignoring (job)
+      mysql_global_variables_max_connections
+      * 100
+      > [[ .threshold ]]
+    params:
+      - name: threshold
+        summary: A threshold
+        unit: '%'
+        type: float
+        range: [0, 100]
+        value: 95
+      - name: from
+        summary: A percentage from configured maximum
+        unit: '%'
+        type: float
+        range: [0, 100]
+        value: 80
+      - name: to
+        summary: A percentage from configured maximum
+        unit: '%'
+        type: float
+        range: [0, 100]
+        value: 80
+    for: 5m
+    severity: warning
+    labels: 
+      foo: bar
+    annotations: 
+      description: |-
+        More than [[ .threshold ]]% of MySQL connections are in use on {{ $labels.instance }}
+        VALUE = {{ $value }}
+        LABELS: {{ $labels }}
+      summary: MySQL too many connections (instance {{ $labels.instance }})
+`
+
+		const templateWithMissingParam = `
+---
+templates: 
+  - name: valid_template_1
+    version: 1
+    summary: Actually this template isn't valid because of missing threshold param :) 
+    tiers: [anonymous, registered]
+    expr: |-
+      max_over_time(mysql_global_status_threads_connected[5m]) / ignoring (job)
+      mysql_global_variables_max_connections
+      * 100
+      > [[ .threshold ]]
+    params:
+      - name: from
+        summary: A percentage from configured maximum
+        unit: '%'
+        type: float
+        range: [0, 100]
+        value: 80
+      - name: to
+        summary: A percentage from configured maximum
+        unit: '%'
+        type: float
+        range: [0, 100]
+        value: 80
+    for: 5m
+    severity: warning
+    labels: 
+      foo: bar
+    annotations: 
+      description: |-
+        More than [[ .threshold ]]% of MySQL connections are in use on {{ $labels.instance }}
+        VALUE = {{ $value }}
+        LABELS: {{ $labels }}
+      summary: MySQL too many connections (instance {{ $labels.instance }})
+`
+
+		svc := NewTemplatesService(db)
+		createResp, err := svc.CreateTemplate(ctx, &iav1beta1.CreateTemplateRequest{
+			Yaml: validTemplate,
+		})
+		require.NoError(t, err)
+		assert.NotNil(t, createResp)
+
+		resp, err := svc.UpdateTemplate(ctx, &iav1beta1.UpdateTemplateRequest{
+			Name: "valid_template_1",
+			Yaml: templateWithMissingParam,
+		})
+		assert.Nil(t, resp)
+		assert.EqualError(t, err, "rpc error: code = InvalidArgument desc = failed to fill expression "+
+			"placeholders: template: :4:5: executing \"\" at <.threshold>: map has no entry for key \"threshold\".")
 	})
 }

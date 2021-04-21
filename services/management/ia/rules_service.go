@@ -504,6 +504,25 @@ func (s *RulesService) processRuleParameters(param []*iav1beta1.RuleParam, templ
 		return nil, status.Errorf(codes.InvalidArgument, "Unknown parameters %s.", names)
 	}
 
+	params := make(map[string]string, len(res))
+	for _, rp := range res {
+		var value string
+		switch rp.Type {
+		case models.Float:
+			value = fmt.Sprint(rp.FloatValue)
+		case models.Bool:
+			value = fmt.Sprint(rp.BoolValue)
+		case models.String:
+			value = rp.StringValue
+		default:
+			return nil, status.Errorf(codes.InvalidArgument, "Invalid parameter type %s", rp.Type)
+		}
+		params[rp.Name] = value
+	}
+	if _, err := templateRuleExpr(t.Expr, params); err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "Failed to template rule expression: %s", err)
+	}
+
 	return res, nil
 }
 

@@ -270,10 +270,10 @@ func (s *TemplatesService) loadTemplatesFromDB() ([]templateInfo, error) {
 	}
 
 	res := make([]templateInfo, 0, len(templates))
-	for _, template := range templates {
-		template := template
-		params := make([]alert.Parameter, 0, len(template.Params))
-		for _, param := range template.Params {
+	for _, t := range templates {
+		t := t
+		params := make([]alert.Parameter, 0, len(t.Params))
+		for _, param := range t.Params {
 			p := alert.Parameter{
 				Name:    param.Name,
 				Summary: param.Summary,
@@ -297,12 +297,12 @@ func (s *TemplatesService) loadTemplatesFromDB() ([]templateInfo, error) {
 			params = append(params, p)
 		}
 
-		labels, err := template.GetLabels()
+		labels, err := t.GetLabels()
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to load template labels")
 		}
 
-		annotations, err := template.GetAnnotations()
+		annotations, err := t.GetAnnotations()
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to load template annotations")
 		}
@@ -310,20 +310,20 @@ func (s *TemplatesService) loadTemplatesFromDB() ([]templateInfo, error) {
 		res = append(res,
 			templateInfo{
 				Template: alert.Template{
-					Name:        template.Name,
-					Version:     template.Version,
-					Summary:     template.Summary,
-					Tiers:       template.Tiers,
-					Expr:        template.Expr,
+					Name:        t.Name,
+					Version:     t.Version,
+					Summary:     t.Summary,
+					Tiers:       t.Tiers,
+					Expr:        t.Expr,
 					Params:      params,
-					For:         promconfig.Duration(template.For),
-					Severity:    common.Severity(template.Severity),
+					For:         promconfig.Duration(t.For),
+					Severity:    common.Severity(t.Severity),
 					Labels:      labels,
 					Annotations: annotations,
 				},
-				Yaml:      template.Yaml,
-				Source:    convertSource(template.Source),
-				CreatedAt: &template.CreatedAt,
+				Yaml:      t.Yaml,
+				Source:    convertSource(t.Source),
+				CreatedAt: &t.CreatedAt,
 			},
 		)
 	}
@@ -340,6 +340,28 @@ func validateUserTemplate(t *alert.Template) error {
 	}
 
 	// TODO more validations
+
+	// validate expression template with fake parameter values
+	params := make(map[string]string, len(t.Params))
+	for _, p := range t.Params {
+		var value string
+		switch p.Type {
+		case alert.Float:
+			value = "0"
+		case alert.Bool:
+			value = "false"
+		case alert.String:
+			value = "param_text"
+		default:
+			return errors.Errorf("invalid parameter type %s", p.Type)
+		}
+
+		params[p.Name] = value
+	}
+
+	if _, err := templateRuleExpr(t.Expr, params); err != nil {
+		return err
+	}
 
 	return nil
 }
