@@ -123,6 +123,9 @@ type ChangePXCComponentsBody struct {
 	// Kubernetes cluster name.
 	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
 
+	// haproxy
+	Haproxy *ChangePXCComponentsParamsBodyHaproxy `json:"haproxy,omitempty"`
+
 	// proxysql
 	Proxysql *ChangePXCComponentsParamsBodyProxysql `json:"proxysql,omitempty"`
 
@@ -133,6 +136,10 @@ type ChangePXCComponentsBody struct {
 // Validate validates this change p x c components body
 func (o *ChangePXCComponentsBody) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := o.validateHaproxy(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := o.validateProxysql(formats); err != nil {
 		res = append(res, err)
@@ -145,6 +152,24 @@ func (o *ChangePXCComponentsBody) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *ChangePXCComponentsBody) validateHaproxy(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Haproxy) { // not required
+		return nil
+	}
+
+	if o.Haproxy != nil {
+		if err := o.Haproxy.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "haproxy")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -270,6 +295,113 @@ func (o *ChangePXCComponentsDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ChangePXCComponentsDefaultBody) UnmarshalBinary(b []byte) error {
 	var res ChangePXCComponentsDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ChangePXCComponentsParamsBodyHaproxy ChangeComponent contains fields to manage components.
+swagger:model ChangePXCComponentsParamsBodyHaproxy
+*/
+type ChangePXCComponentsParamsBodyHaproxy struct {
+
+	// default version
+	DefaultVersion string `json:"default_version,omitempty"`
+
+	// versions
+	Versions []*ChangePXCComponentsParamsBodyHaproxyVersionsItems0 `json:"versions"`
+}
+
+// Validate validates this change p x c components params body haproxy
+func (o *ChangePXCComponentsParamsBodyHaproxy) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateVersions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangePXCComponentsParamsBodyHaproxy) validateVersions(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Versions) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Versions); i++ {
+		if swag.IsZero(o.Versions[i]) { // not required
+			continue
+		}
+
+		if o.Versions[i] != nil {
+			if err := o.Versions[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("body" + "." + "haproxy" + "." + "versions" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangePXCComponentsParamsBodyHaproxy) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangePXCComponentsParamsBodyHaproxy) UnmarshalBinary(b []byte) error {
+	var res ChangePXCComponentsParamsBodyHaproxy
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ChangePXCComponentsParamsBodyHaproxyVersionsItems0 ComponentVersion contains operations which should be done with component version.
+swagger:model ChangePXCComponentsParamsBodyHaproxyVersionsItems0
+*/
+type ChangePXCComponentsParamsBodyHaproxyVersionsItems0 struct {
+
+	// version
+	Version string `json:"version,omitempty"`
+
+	// disable
+	Disable bool `json:"disable,omitempty"`
+
+	// enable
+	Enable bool `json:"enable,omitempty"`
+}
+
+// Validate validates this change p x c components params body haproxy versions items0
+func (o *ChangePXCComponentsParamsBodyHaproxyVersionsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangePXCComponentsParamsBodyHaproxyVersionsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangePXCComponentsParamsBodyHaproxyVersionsItems0) UnmarshalBinary(b []byte) error {
+	var res ChangePXCComponentsParamsBodyHaproxyVersionsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
