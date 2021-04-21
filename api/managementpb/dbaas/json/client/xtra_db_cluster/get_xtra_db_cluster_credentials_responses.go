@@ -291,16 +291,16 @@ swagger:model GetXtraDBClusterCredentialsOKBodyConnectionCredentials
 */
 type GetXtraDBClusterCredentialsOKBodyConnectionCredentials struct {
 
-	// ProxySQL username.
+	// PXC username.
 	Username string `json:"username,omitempty"`
 
-	// ProxySQL password.
+	// PXC password.
 	Password string `json:"password,omitempty"`
 
-	// ProxySQL host.
+	// PXC host.
 	Host string `json:"host,omitempty"`
 
-	// ProxySQL port.
+	// PXC port.
 	Port int32 `json:"port,omitempty"`
 }
 
