@@ -423,6 +423,29 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 		}
 
 		job = jobs.NewEchoJob(p.JobId, timeout, j.Echo.Message, delay)
+	case *agentpb.StartJobRequest_MysqlBackup:
+		var locationConfig jobs.BackupLocationConfig
+		switch cfg := j.MysqlBackup.LocationConfig.(type) {
+		case *agentpb.StartJobRequest_MySQLBackup_S3Config:
+			locationConfig.S3Config = &jobs.S3LocationConfig{
+				Endpoint:     cfg.S3Config.Endpoint,
+				AccessKey:    cfg.S3Config.AccessKey,
+				SecretKey:    cfg.S3Config.SecretKey,
+				BucketName:   cfg.S3Config.BucketName,
+				BucketRegion: cfg.S3Config.BucketRegion,
+			}
+		default:
+			return errors.Errorf("unknown location config: %T", j.MysqlBackup.LocationConfig)
+		}
+
+		cfg := jobs.DatabaseConfig{
+			User:     j.MysqlBackup.User,
+			Password: j.MysqlBackup.Password,
+			Address:  j.MysqlBackup.Address,
+			Port:     int(j.MysqlBackup.Port),
+			Socket:   j.MysqlBackup.Socket,
+		}
+		job = jobs.NewMySQLBackupJob(p.JobId, timeout, j.MysqlBackup.Name, cfg, locationConfig)
 	default:
 		return errors.Errorf("unknown job type: %T", j)
 	}
