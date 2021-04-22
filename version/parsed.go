@@ -8,7 +8,6 @@ import (
 
 var versionRE = regexp.MustCompile(`^(\d+)\.(\d+)\.(\d+)(.*)$`)
 var fetchRest = regexp.MustCompile(`^-(\d+)-?(.*)$`)
-var versionPmm = regexp.MustCompile(`^.*?v(\d+)\.(\d+)\.(\d+).*?$`)
 
 // Parsed represents a SemVer-like version information.
 type Parsed struct {
@@ -47,29 +46,6 @@ func Parse(s string) (*Parsed, error) {
 	}
 
 	res.Num = res.Major*10000 + res.Minor*100 + res.Patch
-	return res, nil
-}
-
-// Parse parses PMM version information from given string.
-func ParsePmmVersion(s string) (int, error) {
-	m := versionPmm.FindStringSubmatch(s)
-	if len(m) != 4 {
-		return 0, fmt.Errorf("failed to parse %q", s)
-	}
-
-	var err error
-	var major, minor, patch int
-	if major, err = strconv.Atoi(m[1]); err != nil {
-		return 0, err
-	}
-	if minor, err = strconv.Atoi(m[2]); err != nil {
-		return 0, err
-	}
-	if patch, err = strconv.Atoi(m[3]); err != nil {
-		return 0, err
-	}
-
-	res := major*10000 + minor*100 + patch
 	return res, nil
 }
 
