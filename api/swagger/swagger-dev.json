@@ -15765,6 +15765,39 @@
                     }
                   },
                   "x-order": 2
+                },
+                "haproxy": {
+                  "description": "ChangeComponent contains fields to manage components.",
+                  "type": "object",
+                  "properties": {
+                    "default_version": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "versions": {
+                      "type": "array",
+                      "items": {
+                        "description": "ComponentVersion contains operations which should be done with component version.",
+                        "type": "object",
+                        "properties": {
+                          "version": {
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "disable": {
+                            "type": "boolean",
+                            "x-order": 1
+                          },
+                          "enable": {
+                            "type": "boolean",
+                            "x-order": 2
+                          }
+                        }
+                      },
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 3
                 }
               }
             }
@@ -18153,6 +18186,37 @@
                         }
                       },
                       "x-order": 2
+                    },
+                    "haproxy": {
+                      "description": "HAProxy container parameters.\nNOTE: HAProxy does not need disk size as ProxySQL does because the container does not require it.",
+                      "type": "object",
+                      "properties": {
+                        "image": {
+                          "description": "Docker image used for HAProxy.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "compute_resources": {
+                          "description": "ComputeResources represents container computer resources requests or limits.",
+                          "type": "object",
+                          "properties": {
+                            "cpu_m": {
+                              "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 0
+                            },
+                            "memory_bytes": {
+                              "description": "Memory in bytes.",
+                              "type": "string",
+                              "format": "int64",
+                              "x-order": 1
+                            }
+                          },
+                          "x-order": 1
+                        }
+                      },
+                      "x-order": 3
                     }
                   },
                   "x-order": 2
@@ -18386,6 +18450,37 @@
                         }
                       },
                       "x-order": 2
+                    },
+                    "haproxy": {
+                      "description": "HAProxy container parameters.\nNOTE: HAProxy does not need disk size as ProxySQL does because the container does not require it.",
+                      "type": "object",
+                      "properties": {
+                        "image": {
+                          "description": "Docker image used for HAProxy.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "compute_resources": {
+                          "description": "ComputeResources represents container computer resources requests or limits.",
+                          "type": "object",
+                          "properties": {
+                            "cpu_m": {
+                              "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 0
+                            },
+                            "memory_bytes": {
+                              "description": "Memory in bytes.",
+                              "type": "string",
+                              "format": "int64",
+                              "x-order": 1
+                            }
+                          },
+                          "x-order": 1
+                        }
+                      },
+                      "x-order": 3
                     }
                   },
                   "x-order": 0
@@ -18644,6 +18739,32 @@
                       "description": "Resume cluster `pause: false`.",
                       "type": "boolean",
                       "x-order": 4
+                    },
+                    "haproxy": {
+                      "description": "HAProxy container parameters.",
+                      "type": "object",
+                      "properties": {
+                        "compute_resources": {
+                          "description": "ComputeResources represents container computer resources requests or limits.",
+                          "type": "object",
+                          "properties": {
+                            "cpu_m": {
+                              "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 0
+                            },
+                            "memory_bytes": {
+                              "description": "Memory in bytes.",
+                              "type": "string",
+                              "format": "int64",
+                              "x-order": 1
+                            }
+                          },
+                          "x-order": 0
+                        }
+                      },
+                      "x-order": 5
                     }
                   },
                   "x-order": 2
@@ -18741,22 +18862,22 @@
                   "type": "object",
                   "properties": {
                     "username": {
-                      "description": "ProxySQL username.",
+                      "description": "PXC username.",
                       "type": "string",
                       "x-order": 0
                     },
                     "password": {
-                      "description": "ProxySQL password.",
+                      "description": "PXC password.",
                       "type": "string",
                       "x-order": 1
                     },
                     "host": {
-                      "description": "ProxySQL host.",
+                      "description": "PXC host.",
                       "type": "string",
                       "x-order": 2
                     },
                     "port": {
-                      "description": "ProxySQL port.",
+                      "description": "PXC port.",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 3
@@ -18972,6 +19093,37 @@
                               }
                             },
                             "x-order": 2
+                          },
+                          "haproxy": {
+                            "description": "HAProxy container parameters.\nNOTE: HAProxy does not need disk size as ProxySQL does because the container does not require it.",
+                            "type": "object",
+                            "properties": {
+                              "image": {
+                                "description": "Docker image used for HAProxy.",
+                                "type": "string",
+                                "x-order": 0
+                              },
+                              "compute_resources": {
+                                "description": "ComputeResources represents container computer resources requests or limits.",
+                                "type": "object",
+                                "properties": {
+                                  "cpu_m": {
+                                    "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
+                                    "type": "integer",
+                                    "format": "int32",
+                                    "x-order": 0
+                                  },
+                                  "memory_bytes": {
+                                    "description": "Memory in bytes.",
+                                    "type": "string",
+                                    "format": "int64",
+                                    "x-order": 1
+                                  }
+                                },
+                                "x-order": 1
+                              }
+                            },
+                            "x-order": 3
                           }
                         },
                         "x-order": 3
@@ -23958,15 +24110,10 @@
                   "type": "string",
                   "x-order": 0
                 },
-                "location_id": {
-                  "description": "Machine-readable location ID.",
-                  "type": "string",
-                  "x-order": 1
-                },
                 "artifact_id": {
                   "description": "Artifact id to restore.",
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -23980,6 +24127,101 @@
               "properties": {
                 "restore_id": {
                   "description": "Unique restore identifier.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/backup/Backups/StartBackup": {
+      "post": {
+        "tags": [
+          "Backups"
+        ],
+        "summary": "StartBackup request backup specified service to location.",
+        "operationId": "StartBackup",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "service_id": {
+                  "description": "Service identifier.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "location_id": {
+                  "description": "Machine-readable location ID.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "name": {
+                  "description": "If empty then name is auto-generated.",
+                  "type": "string",
+                  "x-order": 2
+                },
+                "description": {
+                  "description": "Human-readable description.",
+                  "type": "string",
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "artifact_id": {
+                  "description": "Unique identifier.",
                   "type": "string",
                   "x-order": 0
                 }

@@ -161,9 +161,6 @@ type RestoreBackupBody struct {
 	// Service identifier where backup should be restored.
 	ServiceID string `json:"service_id,omitempty"`
 
-	// Machine-readable location ID.
-	LocationID string `json:"location_id,omitempty"`
-
 	// Artifact id to restore.
 	ArtifactID string `json:"artifact_id,omitempty"`
 }
