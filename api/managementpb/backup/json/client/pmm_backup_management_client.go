@@ -11,6 +11,7 @@ import (
 	"github.com/go-openapi/strfmt"
 
 	"github.com/percona/pmm/api/managementpb/backup/json/client/artifacts"
+	"github.com/percona/pmm/api/managementpb/backup/json/client/backups"
 	"github.com/percona/pmm/api/managementpb/backup/json/client/locations"
 	"github.com/percona/pmm/api/managementpb/backup/json/client/restore_history"
 )
@@ -58,6 +59,7 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMBackupM
 	cli := new(PMMBackupManagement)
 	cli.Transport = transport
 	cli.Artifacts = artifacts.New(transport, formats)
+	cli.Backups = backups.New(transport, formats)
 	cli.Locations = locations.New(transport, formats)
 	cli.RestoreHistory = restore_history.New(transport, formats)
 	return cli
@@ -106,6 +108,8 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 type PMMBackupManagement struct {
 	Artifacts artifacts.ClientService
 
+	Backups backups.ClientService
+
 	Locations locations.ClientService
 
 	RestoreHistory restore_history.ClientService
@@ -117,6 +121,7 @@ type PMMBackupManagement struct {
 func (c *PMMBackupManagement) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
 	c.Artifacts.SetTransport(transport)
+	c.Backups.SetTransport(transport)
 	c.Locations.SetTransport(transport)
 	c.RestoreHistory.SetTransport(transport)
 }
