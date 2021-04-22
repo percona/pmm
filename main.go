@@ -200,6 +200,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	iav1beta1.RegisterRulesServer(gRPCServer, deps.rulesService)
 	iav1beta1.RegisterAlertsServer(gRPCServer, deps.alertsService)
 
+	backupv1beta1.RegisterBackupsServer(gRPCServer, backup.NewBackupsService(deps.db, deps.jobsService))
 	backupv1beta1.RegisterLocationsServer(gRPCServer, backup.NewLocationsService(deps.db, deps.minio))
 	backupv1beta1.RegisterArtifactsServer(gRPCServer, backup.NewArtifactsService(deps.db))
 
@@ -310,6 +311,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		iav1beta1.RegisterRulesHandlerFromEndpoint,
 		iav1beta1.RegisterTemplatesHandlerFromEndpoint,
 
+		backupv1beta1.RegisterBackupsHandlerFromEndpoint,
 		backupv1beta1.RegisterLocationsHandlerFromEndpoint,
 		backupv1beta1.RegisterArtifactsHandlerFromEndpoint,
 

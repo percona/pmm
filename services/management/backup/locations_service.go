@@ -119,7 +119,16 @@ func (s *LocationsService) AddLocation(ctx context.Context, req *backupv1beta1.A
 		params.S3Config.BucketRegion = bucketLocation
 	}
 
-	loc, err := models.CreateBackupLocation(s.db.Querier, params)
+	var loc *models.BackupLocation
+	err := s.db.InTransaction(func(tx *reform.TX) error {
+		var err error
+		loc, err = models.CreateBackupLocation(s.db.Querier, params)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+
 	if err != nil {
 		return nil, err
 	}
@@ -172,7 +181,14 @@ func (s *LocationsService) ChangeLocation(ctx context.Context, req *backupv1beta
 		params.S3Config.BucketRegion = bucketLocation
 	}
 
-	_, err := models.ChangeBackupLocation(s.db.Querier, req.LocationId, params)
+	err := s.db.InTransaction(func(tx *reform.TX) error {
+		_, err := models.ChangeBackupLocation(tx.Querier, req.LocationId, params)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+
 	if err != nil {
 		return nil, err
 	}
@@ -230,9 +246,17 @@ func (s *LocationsService) RemoveLocation(ctx context.Context, req *backupv1beta
 	if req.Force {
 		mode = models.RemoveCascade
 	}
-	if err := models.RemoveBackupLocation(s.db.Querier, req.LocationId, mode); err != nil {
+	err := s.db.InTransaction(func(tx *reform.TX) error {
+		if err := models.RemoveBackupLocation(s.db.Querier, req.LocationId, mode); err != nil {
+			return err
+		}
+		return nil
+	})
+
+	if err != nil {
 		return nil, err
 	}
+
 	return &backupv1beta1.RemoveLocationResponse{}, nil
 }
 

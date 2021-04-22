@@ -193,6 +193,70 @@ func FindAgentsByIDs(q *reform.Querier, ids []string) ([]*Agent, error) {
 	return res, nil
 }
 
+// FindDBConfigForService find DB config from agents running on service specified by serviceID.
+func FindDBConfigForService(q *reform.Querier, serviceID string) (DBConfig, error) {
+	svc, err := FindServiceByID(q, serviceID)
+	if err != nil {
+		return DBConfig{}, err
+	}
+	var agentTypes []AgentType
+	switch svc.ServiceType {
+	case MySQLServiceType:
+		agentTypes = []AgentType{
+			MySQLdExporterType,
+			QANMySQLSlowlogAgentType,
+			QANMySQLPerfSchemaAgentType,
+		}
+	case PostgreSQLServiceType:
+		agentTypes = []AgentType{
+			PostgresExporterType,
+			QANPostgreSQLPgStatementsAgentType,
+			QANPostgreSQLPgStatMonitorAgentType,
+		}
+	case MongoDBServiceType:
+		agentTypes = []AgentType{
+			MongoDBExporterType,
+			QANMongoDBProfilerAgentType,
+		}
+	case ExternalServiceType, HAProxyServiceType, ProxySQLServiceType:
+		fallthrough
+	default:
+		return DBConfig{}, status.Error(codes.FailedPrecondition, "Unsupported service.")
+	}
+	p := strings.Join(q.Placeholders(2, len(agentTypes)), ", ")
+	tail := fmt.Sprintf("WHERE service_id = $1 AND agent_type IN (%s) ORDER BY agent_id", p)
+
+	args := make([]interface{}, len(agentTypes)+1)
+	args[0] = serviceID
+	for i, agentType := range agentTypes {
+		args[i+1] = agentType
+	}
+
+	structs, err := q.SelectAllFrom(AgentTable, tail, args...)
+	if err != nil {
+		return DBConfig{}, errors.WithStack(err)
+	}
+
+	res := make([]*Agent, len(structs))
+	for i, s := range structs {
+		res[i] = s.(*Agent)
+	}
+
+	if len(res) == 0 {
+		return DBConfig{}, status.Error(codes.FailedPrecondition, "No agents available.")
+	}
+
+	// Find config with specified user.
+	for _, agent := range res {
+		cfg := agent.DBConfig(svc)
+		if cfg.Valid() {
+			return cfg, nil
+		}
+	}
+
+	return DBConfig{}, status.Error(codes.FailedPrecondition, "No DB config found.")
+}
+
 // FindPMMAgentsRunningOnNode gets pmm-agents for node where it runs.
 func FindPMMAgentsRunningOnNode(q *reform.Querier, nodeID string) ([]*Agent, error) {
 	structs, err := q.SelectAllFrom(AgentTable, "WHERE runs_on_node_id = $1 AND agent_type = $2", nodeID, PMMAgentType)

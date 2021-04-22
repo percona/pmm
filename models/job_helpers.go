@@ -44,11 +44,12 @@ func FindJobResultByID(q *reform.Querier, id string) (*JobResult, error) {
 }
 
 // CreateJobResult stores a job result in the storage.
-func CreateJobResult(q *reform.Querier, pmmAgentID string, jobType JobType) (*JobResult, error) {
+func CreateJobResult(q *reform.Querier, pmmAgentID string, jobType JobType, data *JobResultData) (*JobResult, error) {
 	result := &JobResult{
 		ID:         "/job_id/" + uuid.New().String(),
 		PMMAgentID: pmmAgentID,
 		Type:       jobType,
+		Result:     data,
 	}
 	if err := q.Insert(result); err != nil {
 		return nil, errors.WithStack(err)

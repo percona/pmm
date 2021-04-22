@@ -209,6 +209,32 @@ func (s *Agent) UnifiedLabels() (map[string]string, error) {
 	return res, nil
 }
 
+// DBConfig contains values required to connect to DB.
+type DBConfig struct {
+	User     string
+	Password string
+	Address  string
+	Port     int
+	Socket   string
+}
+
+// Valid returns true if config is valid.
+func (c DBConfig) Valid() bool {
+	return c.User != "" && (c.Address != "" || c.Socket != "")
+}
+
+// DBConfig returns DBConfig for given Service with this agent.
+func (s *Agent) DBConfig(service *Service) DBConfig {
+	cfg := DBConfig{
+		User:     pointer.GetString(s.Username),
+		Password: pointer.GetString(s.Password),
+		Address:  pointer.GetString(service.Address),
+		Port:     int(pointer.GetUint16(service.Port)),
+		Socket:   pointer.GetString(service.Socket),
+	}
+	return cfg
+}
+
 // DSN returns DSN string for accessing given Service with this Agent (and implicit driver).
 func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string, tdp *DelimiterPair) string {
 	host := pointer.GetString(service.Address)
