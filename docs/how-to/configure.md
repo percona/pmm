@@ -126,9 +126,12 @@ The address or hostname PMM Server will be accessible at. Click *Get from browse
 
 ### DBaaS
 
-Enables DBaaS features on this server.
-
 > <b style="color:goldenrod">Caution</b> DBaaS functionality is a technical preview that must be turned on with a server feature flag. See [DBaaS](../setting-up/server/dbaas.md).
+
+Enables/disables [DBaaS features](../using/platform/dbaas.md) on this server.
+
+> <b style="color:goldenrod">Important</b> Deactivating DBaaS ***does not*** suspend or remove running DB clusters.
+
 
 ### Integrated Alerting
 
