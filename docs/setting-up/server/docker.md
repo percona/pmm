@@ -39,6 +39,42 @@ We maintain a [Docker image for PMM Server][DOCKERHUB]. This section shows how t
 
 4. In a web browser, visit *server hostname*:80 or *server hostname*:443 to see the PMM user interface.
 
+### Docker environment variables
+It is possible to change some server setting by using environment variables when starting the Docker container.
+Use `-e var=value` in your pmm-server run command.
+
+|Variable|Description|
+|-----|-----|
+|`DISABLE_UPDATES`|Disable automatic updates|
+|`DISABLE_TELEMETRY`|Disable built-in telemetry and disable STT if telemetry is disabled|
+|`METRICS_RESOLUTION`|High metrics resolution in seconds|
+|`METRICS_RESOLUTION_HR`|High metrics resolution (same as above)|
+|`METRICS_RESOLUTION_MR`|Medium metrics resolution in seconds|
+|`METRICS_RESOLUTION_LR`|Low metrics resolution in seconds|
+|`DATA_RETENTION`|How many days to keep time-series data in ClickHouse|
+|`ENABLE_VM_CACHE`|Enable cache in VM|
+|`ENABLE_ALERTING`|Enable integrated alerting|
+|`ENABLE_AZUREDISCOVER`|Enable support for discovery of Azure databases|
+|`ENABLE_BACKUP_MANAGEMENT`|Enable integrated backup tools|
+|`PERCONA_TEST_SAAS_HOST`|SaaS server hostname|
+|`PERCONA_TEST_DBAAS`|Enable testing DBaaS features. (Will be deprecated in future versions.)|
+|`ENABLE_DBAAS`|Enable DBaaS features|
+|`PMM_DEBUG`|Enables a more verbose log level|
+|`PMM_TRACE`|Enables a more verbose log level including traceback information|
+
+#### Ignored variables
+These variables will be ignored by `pmm-managed` when starting the server. If any other variable is found,
+it will be considered invalid and the server won't start.
+
+|Variable|Description|
+|-----|-----|
+|`_`, `HOME`, `HOSTNAME`, `LANG`, `PATH`, `PWD`, `SHLVL`, `TERM`|Default environment variables|
+|`GF_*`|Grafana's environment variables|
+|`SUPERVISOR_`|Supervisord environment variables|
+|`PERCONA_TEST_`|Unknown variable but won't prevent the server to start|
+|`PERCONA_TEST_DBAAS`|Deprecated. Use ENABLE_DBAAS|
+
+
 ## Backup and upgrade
 
 You can test a new release of the PMM Server Docker image by making backups of your current `pmm-server` and `pmm-data` containers which you can restore if you need to.
