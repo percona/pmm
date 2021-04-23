@@ -31,11 +31,10 @@ func TestParsed(t *testing.T) {
 			}, {
 				s: "3.0.0",
 				p: &Parsed{Major: 3, Minor: 0, Patch: 0, Num: 30000},
+			}, {
+				s: "4.0.0-12",
+				p: &Parsed{Major: 4, Minor: 0, Patch: 0, Num: 40000, NumRest: 12},
 			},
-            }, {
-                s: "4.0.0-12",
-                p: &Parsed{Major: 4, Minor: 0, Patch: 0, Num: 40000, NumRest: 12},
-            },
 		}
 		for i, expected := range data {
 			t.Run(expected.s, func(t *testing.T) {
