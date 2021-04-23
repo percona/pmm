@@ -61,10 +61,7 @@ func MustParse(s string) *Parsed {
 
 // String returns original string representation of version information.
 func (p *Parsed) String() string {
-	if p.NumRest == 0 {
-		return fmt.Sprintf("%d.%d.%d%s", p.Major, p.Minor, p.Patch, p.Rest)
-	}
-	return fmt.Sprintf("%d.%d.%d-%d", p.Major, p.Minor, p.Patch, p.NumRest)
+	return fmt.Sprintf("%d.%d.%d%s", p.Major, p.Minor, p.Patch, p.Rest)
 }
 
 // Less returns true if this (left) Info is less than given argument (right).
