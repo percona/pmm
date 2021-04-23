@@ -33,7 +33,7 @@ func TestParsed(t *testing.T) {
 				p: &Parsed{Major: 3, Minor: 0, Patch: 0, Num: 30000},
 			}, {
 				s: "4.0.0-12",
-				p: &Parsed{Major: 4, Minor: 0, Patch: 0, Num: 40000, NumRest: 12},
+				p: &Parsed{Major: 4, Minor: 0, Patch: 0, Rest: "-12", Num: 40000, NumRest: 12},
 			},
 		}
 		for i, expected := range data {
@@ -59,13 +59,13 @@ func TestParsed(t *testing.T) {
 			p *Parsed
 		}{
 			{
-				s: "5.6.47-87.0-log",
+				s: "5.6.47-87",
 				p: &Parsed{Major: 5, Minor: 6, Patch: 47, Rest: "-87.0-log", Num: 50647, NumRest: 87},
 			}, {
 				s: "5.6.48-log",
 				p: &Parsed{Major: 5, Minor: 6, Patch: 48, Rest: "-log", Num: 50648},
 			}, {
-				s: "5.7.29-32-log",
+				s: "5.7.29-32",
 				p: &Parsed{Major: 5, Minor: 7, Patch: 29, Rest: "-32-log", Num: 50729, NumRest: 32},
 			}, {
 				s: "5.7.30-log",
