@@ -1670,6 +1670,86 @@ func (x *JobStatusResponse) GetAlive() bool {
 	return false
 }
 
+// S3LocationConfig represents S3 bucket configuration.
+type S3LocationConfig struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Endpoint     string `protobuf:"bytes,1,opt,name=endpoint,proto3" json:"endpoint,omitempty"`
+	AccessKey    string `protobuf:"bytes,2,opt,name=access_key,json=accessKey,proto3" json:"access_key,omitempty"`
+	SecretKey    string `protobuf:"bytes,3,opt,name=secret_key,json=secretKey,proto3" json:"secret_key,omitempty"`
+	BucketName   string `protobuf:"bytes,4,opt,name=bucket_name,json=bucketName,proto3" json:"bucket_name,omitempty"`
+	BucketRegion string `protobuf:"bytes,5,opt,name=bucket_region,json=bucketRegion,proto3" json:"bucket_region,omitempty"`
+}
+
+func (x *S3LocationConfig) Reset() {
+	*x = S3LocationConfig{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_agentpb_agent_proto_msgTypes[23]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *S3LocationConfig) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*S3LocationConfig) ProtoMessage() {}
+
+func (x *S3LocationConfig) ProtoReflect() protoreflect.Message {
+	mi := &file_agentpb_agent_proto_msgTypes[23]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use S3LocationConfig.ProtoReflect.Descriptor instead.
+func (*S3LocationConfig) Descriptor() ([]byte, []int) {
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *S3LocationConfig) GetEndpoint() string {
+	if x != nil {
+		return x.Endpoint
+	}
+	return ""
+}
+
+func (x *S3LocationConfig) GetAccessKey() string {
+	if x != nil {
+		return x.AccessKey
+	}
+	return ""
+}
+
+func (x *S3LocationConfig) GetSecretKey() string {
+	if x != nil {
+		return x.SecretKey
+	}
+	return ""
+}
+
+func (x *S3LocationConfig) GetBucketName() string {
+	if x != nil {
+		return x.BucketName
+	}
+	return ""
+}
+
+func (x *S3LocationConfig) GetBucketRegion() string {
+	if x != nil {
+		return x.BucketRegion
+	}
+	return ""
+}
+
 // StartJobRequest is a ServerMessage asking pmm-agent to start job.
 type StartJobRequest struct {
 	state         protoimpl.MessageState
@@ -1681,13 +1761,14 @@ type StartJobRequest struct {
 	Timeout *duration.Duration `protobuf:"bytes,2,opt,name=timeout,proto3" json:"timeout,omitempty"`
 	// Types that are assignable to Job:
 	//	*StartJobRequest_Echo_
+	//	*StartJobRequest_MysqlBackup
 	Job isStartJobRequest_Job `protobuf_oneof:"job"`
 }
 
 func (x *StartJobRequest) Reset() {
 	*x = StartJobRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[23]
+		mi := &file_agentpb_agent_proto_msgTypes[24]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1700,7 +1781,7 @@ func (x *StartJobRequest) String() string {
 func (*StartJobRequest) ProtoMessage() {}
 
 func (x *StartJobRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[23]
+	mi := &file_agentpb_agent_proto_msgTypes[24]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1713,7 +1794,7 @@ func (x *StartJobRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StartJobRequest.ProtoReflect.Descriptor instead.
 func (*StartJobRequest) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{23}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *StartJobRequest) GetJobId() string {
@@ -1744,6 +1825,13 @@ func (x *StartJobRequest) GetEcho() *StartJobRequest_Echo {
 	return nil
 }
 
+func (x *StartJobRequest) GetMysqlBackup() *StartJobRequest_MySQLBackup {
+	if x, ok := x.GetJob().(*StartJobRequest_MysqlBackup); ok {
+		return x.MysqlBackup
+	}
+	return nil
+}
+
 type isStartJobRequest_Job interface {
 	isStartJobRequest_Job()
 }
@@ -1752,7 +1840,13 @@ type StartJobRequest_Echo_ struct {
 	Echo *StartJobRequest_Echo `protobuf:"bytes,10,opt,name=echo,proto3,oneof"`
 }
 
+type StartJobRequest_MysqlBackup struct {
+	MysqlBackup *StartJobRequest_MySQLBackup `protobuf:"bytes,11,opt,name=mysql_backup,json=mysqlBackup,proto3,oneof"`
+}
+
 func (*StartJobRequest_Echo_) isStartJobRequest_Job() {}
+
+func (*StartJobRequest_MysqlBackup) isStartJobRequest_Job() {}
 
 // StartJobResponse is an AgentMessage for StartJobRequest acceptance.
 type StartJobResponse struct {
@@ -1766,7 +1860,7 @@ type StartJobResponse struct {
 func (x *StartJobResponse) Reset() {
 	*x = StartJobResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[24]
+		mi := &file_agentpb_agent_proto_msgTypes[25]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1779,7 +1873,7 @@ func (x *StartJobResponse) String() string {
 func (*StartJobResponse) ProtoMessage() {}
 
 func (x *StartJobResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[24]
+	mi := &file_agentpb_agent_proto_msgTypes[25]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1792,7 +1886,7 @@ func (x *StartJobResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StartJobResponse.ProtoReflect.Descriptor instead.
 func (*StartJobResponse) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{24}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *StartJobResponse) GetError() string {
@@ -1814,7 +1908,7 @@ type StopJobRequest struct {
 func (x *StopJobRequest) Reset() {
 	*x = StopJobRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[25]
+		mi := &file_agentpb_agent_proto_msgTypes[26]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1827,7 +1921,7 @@ func (x *StopJobRequest) String() string {
 func (*StopJobRequest) ProtoMessage() {}
 
 func (x *StopJobRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[25]
+	mi := &file_agentpb_agent_proto_msgTypes[26]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1840,7 +1934,7 @@ func (x *StopJobRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StopJobRequest.ProtoReflect.Descriptor instead.
 func (*StopJobRequest) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{25}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *StopJobRequest) GetJobId() string {
@@ -1860,7 +1954,7 @@ type StopJobResponse struct {
 func (x *StopJobResponse) Reset() {
 	*x = StopJobResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[26]
+		mi := &file_agentpb_agent_proto_msgTypes[27]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1873,7 +1967,7 @@ func (x *StopJobResponse) String() string {
 func (*StopJobResponse) ProtoMessage() {}
 
 func (x *StopJobResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[26]
+	mi := &file_agentpb_agent_proto_msgTypes[27]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1886,7 +1980,7 @@ func (x *StopJobResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StopJobResponse.ProtoReflect.Descriptor instead.
 func (*StopJobResponse) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{26}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{27}
 }
 
 // JobResult represents job result.
@@ -1900,13 +1994,14 @@ type JobResult struct {
 	// Types that are assignable to Result:
 	//	*JobResult_Error_
 	//	*JobResult_Echo_
+	//	*JobResult_MysqlBackup
 	Result isJobResult_Result `protobuf_oneof:"result"`
 }
 
 func (x *JobResult) Reset() {
 	*x = JobResult{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[27]
+		mi := &file_agentpb_agent_proto_msgTypes[28]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1919,7 +2014,7 @@ func (x *JobResult) String() string {
 func (*JobResult) ProtoMessage() {}
 
 func (x *JobResult) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[27]
+	mi := &file_agentpb_agent_proto_msgTypes[28]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1932,7 +2027,7 @@ func (x *JobResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JobResult.ProtoReflect.Descriptor instead.
 func (*JobResult) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{27}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *JobResult) GetJobId() string {
@@ -1970,6 +2065,13 @@ func (x *JobResult) GetEcho() *JobResult_Echo {
 	return nil
 }
 
+func (x *JobResult) GetMysqlBackup() *JobResult_MySQLBackup {
+	if x, ok := x.GetResult().(*JobResult_MysqlBackup); ok {
+		return x.MysqlBackup
+	}
+	return nil
+}
+
 type isJobResult_Result interface {
 	isJobResult_Result()
 }
@@ -1982,9 +2084,15 @@ type JobResult_Echo_ struct {
 	Echo *JobResult_Echo `protobuf:"bytes,11,opt,name=echo,proto3,oneof"`
 }
 
+type JobResult_MysqlBackup struct {
+	MysqlBackup *JobResult_MySQLBackup `protobuf:"bytes,12,opt,name=mysql_backup,json=mysqlBackup,proto3,oneof"`
+}
+
 func (*JobResult_Error_) isJobResult_Result() {}
 
 func (*JobResult_Echo_) isJobResult_Result() {}
+
+func (*JobResult_MysqlBackup) isJobResult_Result() {}
 
 // JobProgress represents job progress messages like percentage of completion, status updates, etc.
 type JobProgress struct {
@@ -1996,13 +2104,14 @@ type JobProgress struct {
 	Timestamp *timestamp.Timestamp `protobuf:"bytes,2,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
 	// Types that are assignable to Result:
 	//	*JobProgress_Echo_
+	//	*JobProgress_MysqlBackup
 	Result isJobProgress_Result `protobuf_oneof:"result"`
 }
 
 func (x *JobProgress) Reset() {
 	*x = JobProgress{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[28]
+		mi := &file_agentpb_agent_proto_msgTypes[29]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2015,7 +2124,7 @@ func (x *JobProgress) String() string {
 func (*JobProgress) ProtoMessage() {}
 
 func (x *JobProgress) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[28]
+	mi := &file_agentpb_agent_proto_msgTypes[29]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2028,7 +2137,7 @@ func (x *JobProgress) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JobProgress.ProtoReflect.Descriptor instead.
 func (*JobProgress) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{28}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *JobProgress) GetJobId() string {
@@ -2059,6 +2168,13 @@ func (x *JobProgress) GetEcho() *JobProgress_Echo {
 	return nil
 }
 
+func (x *JobProgress) GetMysqlBackup() *JobProgress_MySQLBackup {
+	if x, ok := x.GetResult().(*JobProgress_MysqlBackup); ok {
+		return x.MysqlBackup
+	}
+	return nil
+}
+
 type isJobProgress_Result interface {
 	isJobProgress_Result()
 }
@@ -2067,7 +2183,13 @@ type JobProgress_Echo_ struct {
 	Echo *JobProgress_Echo `protobuf:"bytes,10,opt,name=echo,proto3,oneof"`
 }
 
+type JobProgress_MysqlBackup struct {
+	MysqlBackup *JobProgress_MySQLBackup `protobuf:"bytes,11,opt,name=mysql_backup,json=mysqlBackup,proto3,oneof"`
+}
+
 func (*JobProgress_Echo_) isJobProgress_Result() {}
+
+func (*JobProgress_MysqlBackup) isJobProgress_Result() {}
 
 type AgentMessage struct {
 	state         protoimpl.MessageState
@@ -2096,7 +2218,7 @@ type AgentMessage struct {
 func (x *AgentMessage) Reset() {
 	*x = AgentMessage{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[29]
+		mi := &file_agentpb_agent_proto_msgTypes[30]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2109,7 +2231,7 @@ func (x *AgentMessage) String() string {
 func (*AgentMessage) ProtoMessage() {}
 
 func (x *AgentMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[29]
+	mi := &file_agentpb_agent_proto_msgTypes[30]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2122,7 +2244,7 @@ func (x *AgentMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AgentMessage.ProtoReflect.Descriptor instead.
 func (*AgentMessage) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{29}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *AgentMessage) GetId() uint32 {
@@ -2352,7 +2474,7 @@ type ServerMessage struct {
 func (x *ServerMessage) Reset() {
 	*x = ServerMessage{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[30]
+		mi := &file_agentpb_agent_proto_msgTypes[31]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2365,7 +2487,7 @@ func (x *ServerMessage) String() string {
 func (*ServerMessage) ProtoMessage() {}
 
 func (x *ServerMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[30]
+	mi := &file_agentpb_agent_proto_msgTypes[31]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2378,7 +2500,7 @@ func (x *ServerMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ServerMessage.ProtoReflect.Descriptor instead.
 func (*ServerMessage) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{30}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *ServerMessage) GetId() uint32 {
@@ -2575,7 +2697,7 @@ type SetStateRequest_AgentProcess struct {
 func (x *SetStateRequest_AgentProcess) Reset() {
 	*x = SetStateRequest_AgentProcess{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[32]
+		mi := &file_agentpb_agent_proto_msgTypes[33]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2588,7 +2710,7 @@ func (x *SetStateRequest_AgentProcess) String() string {
 func (*SetStateRequest_AgentProcess) ProtoMessage() {}
 
 func (x *SetStateRequest_AgentProcess) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[32]
+	mi := &file_agentpb_agent_proto_msgTypes[33]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2676,7 +2798,7 @@ type SetStateRequest_BuiltinAgent struct {
 func (x *SetStateRequest_BuiltinAgent) Reset() {
 	*x = SetStateRequest_BuiltinAgent{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[34]
+		mi := &file_agentpb_agent_proto_msgTypes[35]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2689,7 +2811,7 @@ func (x *SetStateRequest_BuiltinAgent) String() string {
 func (*SetStateRequest_BuiltinAgent) ProtoMessage() {}
 
 func (x *SetStateRequest_BuiltinAgent) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[34]
+	mi := &file_agentpb_agent_proto_msgTypes[35]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2773,7 +2895,7 @@ type StartActionRequest_MySQLExplainParams struct {
 func (x *StartActionRequest_MySQLExplainParams) Reset() {
 	*x = StartActionRequest_MySQLExplainParams{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[38]
+		mi := &file_agentpb_agent_proto_msgTypes[39]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2786,7 +2908,7 @@ func (x *StartActionRequest_MySQLExplainParams) String() string {
 func (*StartActionRequest_MySQLExplainParams) ProtoMessage() {}
 
 func (x *StartActionRequest_MySQLExplainParams) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[38]
+	mi := &file_agentpb_agent_proto_msgTypes[39]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2855,7 +2977,7 @@ type StartActionRequest_MySQLShowCreateTableParams struct {
 func (x *StartActionRequest_MySQLShowCreateTableParams) Reset() {
 	*x = StartActionRequest_MySQLShowCreateTableParams{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[39]
+		mi := &file_agentpb_agent_proto_msgTypes[40]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2868,7 +2990,7 @@ func (x *StartActionRequest_MySQLShowCreateTableParams) String() string {
 func (*StartActionRequest_MySQLShowCreateTableParams) ProtoMessage() {}
 
 func (x *StartActionRequest_MySQLShowCreateTableParams) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[39]
+	mi := &file_agentpb_agent_proto_msgTypes[40]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2930,7 +3052,7 @@ type StartActionRequest_MySQLShowTableStatusParams struct {
 func (x *StartActionRequest_MySQLShowTableStatusParams) Reset() {
 	*x = StartActionRequest_MySQLShowTableStatusParams{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[40]
+		mi := &file_agentpb_agent_proto_msgTypes[41]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2943,7 +3065,7 @@ func (x *StartActionRequest_MySQLShowTableStatusParams) String() string {
 func (*StartActionRequest_MySQLShowTableStatusParams) ProtoMessage() {}
 
 func (x *StartActionRequest_MySQLShowTableStatusParams) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[40]
+	mi := &file_agentpb_agent_proto_msgTypes[41]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3005,7 +3127,7 @@ type StartActionRequest_MySQLShowIndexParams struct {
 func (x *StartActionRequest_MySQLShowIndexParams) Reset() {
 	*x = StartActionRequest_MySQLShowIndexParams{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[41]
+		mi := &file_agentpb_agent_proto_msgTypes[42]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3018,7 +3140,7 @@ func (x *StartActionRequest_MySQLShowIndexParams) String() string {
 func (*StartActionRequest_MySQLShowIndexParams) ProtoMessage() {}
 
 func (x *StartActionRequest_MySQLShowIndexParams) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[41]
+	mi := &file_agentpb_agent_proto_msgTypes[42]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3076,7 +3198,7 @@ type StartActionRequest_PostgreSQLShowCreateTableParams struct {
 func (x *StartActionRequest_PostgreSQLShowCreateTableParams) Reset() {
 	*x = StartActionRequest_PostgreSQLShowCreateTableParams{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[42]
+		mi := &file_agentpb_agent_proto_msgTypes[43]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3089,7 +3211,7 @@ func (x *StartActionRequest_PostgreSQLShowCreateTableParams) String() string {
 func (*StartActionRequest_PostgreSQLShowCreateTableParams) ProtoMessage() {}
 
 func (x *StartActionRequest_PostgreSQLShowCreateTableParams) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[42]
+	mi := &file_agentpb_agent_proto_msgTypes[43]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3133,7 +3255,7 @@ type StartActionRequest_PostgreSQLShowIndexParams struct {
 func (x *StartActionRequest_PostgreSQLShowIndexParams) Reset() {
 	*x = StartActionRequest_PostgreSQLShowIndexParams{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[43]
+		mi := &file_agentpb_agent_proto_msgTypes[44]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3146,7 +3268,7 @@ func (x *StartActionRequest_PostgreSQLShowIndexParams) String() string {
 func (*StartActionRequest_PostgreSQLShowIndexParams) ProtoMessage() {}
 
 func (x *StartActionRequest_PostgreSQLShowIndexParams) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[43]
+	mi := &file_agentpb_agent_proto_msgTypes[44]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3193,7 +3315,7 @@ type StartActionRequest_MongoDBExplainParams struct {
 func (x *StartActionRequest_MongoDBExplainParams) Reset() {
 	*x = StartActionRequest_MongoDBExplainParams{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[44]
+		mi := &file_agentpb_agent_proto_msgTypes[45]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3206,7 +3328,7 @@ func (x *StartActionRequest_MongoDBExplainParams) String() string {
 func (*StartActionRequest_MongoDBExplainParams) ProtoMessage() {}
 
 func (x *StartActionRequest_MongoDBExplainParams) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[44]
+	mi := &file_agentpb_agent_proto_msgTypes[45]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3253,7 +3375,7 @@ type StartActionRequest_PTSummaryParams struct {
 func (x *StartActionRequest_PTSummaryParams) Reset() {
 	*x = StartActionRequest_PTSummaryParams{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[45]
+		mi := &file_agentpb_agent_proto_msgTypes[46]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3266,7 +3388,7 @@ func (x *StartActionRequest_PTSummaryParams) String() string {
 func (*StartActionRequest_PTSummaryParams) ProtoMessage() {}
 
 func (x *StartActionRequest_PTSummaryParams) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[45]
+	mi := &file_agentpb_agent_proto_msgTypes[46]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3297,7 +3419,7 @@ type StartActionRequest_PTPgSummaryParams struct {
 func (x *StartActionRequest_PTPgSummaryParams) Reset() {
 	*x = StartActionRequest_PTPgSummaryParams{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[46]
+		mi := &file_agentpb_agent_proto_msgTypes[47]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3310,7 +3432,7 @@ func (x *StartActionRequest_PTPgSummaryParams) String() string {
 func (*StartActionRequest_PTPgSummaryParams) ProtoMessage() {}
 
 func (x *StartActionRequest_PTPgSummaryParams) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[46]
+	mi := &file_agentpb_agent_proto_msgTypes[47]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3369,7 +3491,7 @@ type StartActionRequest_PTMongoDBSummaryParams struct {
 func (x *StartActionRequest_PTMongoDBSummaryParams) Reset() {
 	*x = StartActionRequest_PTMongoDBSummaryParams{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[47]
+		mi := &file_agentpb_agent_proto_msgTypes[48]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3382,7 +3504,7 @@ func (x *StartActionRequest_PTMongoDBSummaryParams) String() string {
 func (*StartActionRequest_PTMongoDBSummaryParams) ProtoMessage() {}
 
 func (x *StartActionRequest_PTMongoDBSummaryParams) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[47]
+	mi := &file_agentpb_agent_proto_msgTypes[48]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3442,7 +3564,7 @@ type StartActionRequest_PTMySQLSummaryParams struct {
 func (x *StartActionRequest_PTMySQLSummaryParams) Reset() {
 	*x = StartActionRequest_PTMySQLSummaryParams{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[48]
+		mi := &file_agentpb_agent_proto_msgTypes[49]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3455,7 +3577,7 @@ func (x *StartActionRequest_PTMySQLSummaryParams) String() string {
 func (*StartActionRequest_PTMySQLSummaryParams) ProtoMessage() {}
 
 func (x *StartActionRequest_PTMySQLSummaryParams) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[48]
+	mi := &file_agentpb_agent_proto_msgTypes[49]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3525,7 +3647,7 @@ type StartActionRequest_MySQLQueryShowParams struct {
 func (x *StartActionRequest_MySQLQueryShowParams) Reset() {
 	*x = StartActionRequest_MySQLQueryShowParams{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[49]
+		mi := &file_agentpb_agent_proto_msgTypes[50]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3538,7 +3660,7 @@ func (x *StartActionRequest_MySQLQueryShowParams) String() string {
 func (*StartActionRequest_MySQLQueryShowParams) ProtoMessage() {}
 
 func (x *StartActionRequest_MySQLQueryShowParams) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[49]
+	mi := &file_agentpb_agent_proto_msgTypes[50]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3601,7 +3723,7 @@ type StartActionRequest_MySQLQuerySelectParams struct {
 func (x *StartActionRequest_MySQLQuerySelectParams) Reset() {
 	*x = StartActionRequest_MySQLQuerySelectParams{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[50]
+		mi := &file_agentpb_agent_proto_msgTypes[51]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3614,7 +3736,7 @@ func (x *StartActionRequest_MySQLQuerySelectParams) String() string {
 func (*StartActionRequest_MySQLQuerySelectParams) ProtoMessage() {}
 
 func (x *StartActionRequest_MySQLQuerySelectParams) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[50]
+	mi := &file_agentpb_agent_proto_msgTypes[51]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3671,7 +3793,7 @@ type StartActionRequest_PostgreSQLQueryShowParams struct {
 func (x *StartActionRequest_PostgreSQLQueryShowParams) Reset() {
 	*x = StartActionRequest_PostgreSQLQueryShowParams{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[51]
+		mi := &file_agentpb_agent_proto_msgTypes[52]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3684,7 +3806,7 @@ func (x *StartActionRequest_PostgreSQLQueryShowParams) String() string {
 func (*StartActionRequest_PostgreSQLQueryShowParams) ProtoMessage() {}
 
 func (x *StartActionRequest_PostgreSQLQueryShowParams) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[51]
+	mi := &file_agentpb_agent_proto_msgTypes[52]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3722,7 +3844,7 @@ type StartActionRequest_PostgreSQLQuerySelectParams struct {
 func (x *StartActionRequest_PostgreSQLQuerySelectParams) Reset() {
 	*x = StartActionRequest_PostgreSQLQuerySelectParams{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[52]
+		mi := &file_agentpb_agent_proto_msgTypes[53]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3735,7 +3857,7 @@ func (x *StartActionRequest_PostgreSQLQuerySelectParams) String() string {
 func (*StartActionRequest_PostgreSQLQuerySelectParams) ProtoMessage() {}
 
 func (x *StartActionRequest_PostgreSQLQuerySelectParams) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[52]
+	mi := &file_agentpb_agent_proto_msgTypes[53]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3781,7 +3903,7 @@ type StartActionRequest_MongoDBQueryGetParameterParams struct {
 func (x *StartActionRequest_MongoDBQueryGetParameterParams) Reset() {
 	*x = StartActionRequest_MongoDBQueryGetParameterParams{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[53]
+		mi := &file_agentpb_agent_proto_msgTypes[54]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3794,7 +3916,7 @@ func (x *StartActionRequest_MongoDBQueryGetParameterParams) String() string {
 func (*StartActionRequest_MongoDBQueryGetParameterParams) ProtoMessage() {}
 
 func (x *StartActionRequest_MongoDBQueryGetParameterParams) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[53]
+	mi := &file_agentpb_agent_proto_msgTypes[54]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3840,7 +3962,7 @@ type StartActionRequest_MongoDBQueryBuildInfoParams struct {
 func (x *StartActionRequest_MongoDBQueryBuildInfoParams) Reset() {
 	*x = StartActionRequest_MongoDBQueryBuildInfoParams{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[54]
+		mi := &file_agentpb_agent_proto_msgTypes[55]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3853,7 +3975,7 @@ func (x *StartActionRequest_MongoDBQueryBuildInfoParams) String() string {
 func (*StartActionRequest_MongoDBQueryBuildInfoParams) ProtoMessage() {}
 
 func (x *StartActionRequest_MongoDBQueryBuildInfoParams) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[54]
+	mi := &file_agentpb_agent_proto_msgTypes[55]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3899,7 +4021,7 @@ type StartActionRequest_MongoDBQueryGetCmdLineOptsParams struct {
 func (x *StartActionRequest_MongoDBQueryGetCmdLineOptsParams) Reset() {
 	*x = StartActionRequest_MongoDBQueryGetCmdLineOptsParams{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[55]
+		mi := &file_agentpb_agent_proto_msgTypes[56]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3912,7 +4034,7 @@ func (x *StartActionRequest_MongoDBQueryGetCmdLineOptsParams) String() string {
 func (*StartActionRequest_MongoDBQueryGetCmdLineOptsParams) ProtoMessage() {}
 
 func (x *StartActionRequest_MongoDBQueryGetCmdLineOptsParams) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[55]
+	mi := &file_agentpb_agent_proto_msgTypes[56]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3955,7 +4077,7 @@ type CheckConnectionResponse_Stats struct {
 func (x *CheckConnectionResponse_Stats) Reset() {
 	*x = CheckConnectionResponse_Stats{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[56]
+		mi := &file_agentpb_agent_proto_msgTypes[57]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3968,7 +4090,7 @@ func (x *CheckConnectionResponse_Stats) String() string {
 func (*CheckConnectionResponse_Stats) ProtoMessage() {}
 
 func (x *CheckConnectionResponse_Stats) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[56]
+	mi := &file_agentpb_agent_proto_msgTypes[57]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4004,7 +4126,7 @@ type StartJobRequest_Echo struct {
 func (x *StartJobRequest_Echo) Reset() {
 	*x = StartJobRequest_Echo{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[57]
+		mi := &file_agentpb_agent_proto_msgTypes[58]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4017,7 +4139,7 @@ func (x *StartJobRequest_Echo) String() string {
 func (*StartJobRequest_Echo) ProtoMessage() {}
 
 func (x *StartJobRequest_Echo) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[57]
+	mi := &file_agentpb_agent_proto_msgTypes[58]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4030,7 +4152,7 @@ func (x *StartJobRequest_Echo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StartJobRequest_Echo.ProtoReflect.Descriptor instead.
 func (*StartJobRequest_Echo) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{23, 0}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{24, 0}
 }
 
 func (x *StartJobRequest_Echo) GetMessage() string {
@@ -4047,6 +4169,129 @@ func (x *StartJobRequest_Echo) GetDelay() *duration.Duration {
 	return nil
 }
 
+// MySQLBackup is job for backup MySQL service.
+type StartJobRequest_MySQLBackup struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Database user;
+	User string `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
+	// Database password.
+	Password string `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
+	// Database address. Can't be specified with socket.
+	Address string `protobuf:"bytes,3,opt,name=address,proto3" json:"address,omitempty"`
+	// Database port. Can't be specified with socket.
+	Port int32 `protobuf:"varint,4,opt,name=port,proto3" json:"port,omitempty"`
+	// Database unix socket. Can't be specified with address/port.
+	Socket string `protobuf:"bytes,5,opt,name=socket,proto3" json:"socket,omitempty"`
+	// Backup name.
+	Name string `protobuf:"bytes,6,opt,name=name,proto3" json:"name,omitempty"`
+	// Backup target location.
+	//
+	// Types that are assignable to LocationConfig:
+	//	*StartJobRequest_MySQLBackup_S3Config
+	LocationConfig isStartJobRequest_MySQLBackup_LocationConfig `protobuf_oneof:"location_config"`
+}
+
+func (x *StartJobRequest_MySQLBackup) Reset() {
+	*x = StartJobRequest_MySQLBackup{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_agentpb_agent_proto_msgTypes[59]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *StartJobRequest_MySQLBackup) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartJobRequest_MySQLBackup) ProtoMessage() {}
+
+func (x *StartJobRequest_MySQLBackup) ProtoReflect() protoreflect.Message {
+	mi := &file_agentpb_agent_proto_msgTypes[59]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartJobRequest_MySQLBackup.ProtoReflect.Descriptor instead.
+func (*StartJobRequest_MySQLBackup) Descriptor() ([]byte, []int) {
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{24, 1}
+}
+
+func (x *StartJobRequest_MySQLBackup) GetUser() string {
+	if x != nil {
+		return x.User
+	}
+	return ""
+}
+
+func (x *StartJobRequest_MySQLBackup) GetPassword() string {
+	if x != nil {
+		return x.Password
+	}
+	return ""
+}
+
+func (x *StartJobRequest_MySQLBackup) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
+func (x *StartJobRequest_MySQLBackup) GetPort() int32 {
+	if x != nil {
+		return x.Port
+	}
+	return 0
+}
+
+func (x *StartJobRequest_MySQLBackup) GetSocket() string {
+	if x != nil {
+		return x.Socket
+	}
+	return ""
+}
+
+func (x *StartJobRequest_MySQLBackup) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (m *StartJobRequest_MySQLBackup) GetLocationConfig() isStartJobRequest_MySQLBackup_LocationConfig {
+	if m != nil {
+		return m.LocationConfig
+	}
+	return nil
+}
+
+func (x *StartJobRequest_MySQLBackup) GetS3Config() *S3LocationConfig {
+	if x, ok := x.GetLocationConfig().(*StartJobRequest_MySQLBackup_S3Config); ok {
+		return x.S3Config
+	}
+	return nil
+}
+
+type isStartJobRequest_MySQLBackup_LocationConfig interface {
+	isStartJobRequest_MySQLBackup_LocationConfig()
+}
+
+type StartJobRequest_MySQLBackup_S3Config struct {
+	S3Config *S3LocationConfig `protobuf:"bytes,10,opt,name=s3_config,json=s3Config,proto3,oneof"`
+}
+
+func (*StartJobRequest_MySQLBackup_S3Config) isStartJobRequest_MySQLBackup_LocationConfig() {}
+
 // Error contains job error message.
 type JobResult_Error struct {
 	state         protoimpl.MessageState
@@ -4059,7 +4304,7 @@ type JobResult_Error struct {
 func (x *JobResult_Error) Reset() {
 	*x = JobResult_Error{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[58]
+		mi := &file_agentpb_agent_proto_msgTypes[60]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4072,7 +4317,7 @@ func (x *JobResult_Error) String() string {
 func (*JobResult_Error) ProtoMessage() {}
 
 func (x *JobResult_Error) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[58]
+	mi := &file_agentpb_agent_proto_msgTypes[60]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4085,7 +4330,7 @@ func (x *JobResult_Error) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JobResult_Error.ProtoReflect.Descriptor instead.
 func (*JobResult_Error) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{27, 0}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{28, 0}
 }
 
 func (x *JobResult_Error) GetMessage() string {
@@ -4107,7 +4352,7 @@ type JobResult_Echo struct {
 func (x *JobResult_Echo) Reset() {
 	*x = JobResult_Echo{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[59]
+		mi := &file_agentpb_agent_proto_msgTypes[61]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4120,7 +4365,7 @@ func (x *JobResult_Echo) String() string {
 func (*JobResult_Echo) ProtoMessage() {}
 
 func (x *JobResult_Echo) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[59]
+	mi := &file_agentpb_agent_proto_msgTypes[61]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4133,7 +4378,7 @@ func (x *JobResult_Echo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JobResult_Echo.ProtoReflect.Descriptor instead.
 func (*JobResult_Echo) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{27, 1}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{28, 1}
 }
 
 func (x *JobResult_Echo) GetMessage() string {
@@ -4141,6 +4386,45 @@ func (x *JobResult_Echo) GetMessage() string {
 		return x.Message
 	}
 	return ""
+}
+
+// MySQLBackup contains result for MySQL backup job.
+type JobResult_MySQLBackup struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *JobResult_MySQLBackup) Reset() {
+	*x = JobResult_MySQLBackup{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_agentpb_agent_proto_msgTypes[62]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *JobResult_MySQLBackup) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*JobResult_MySQLBackup) ProtoMessage() {}
+
+func (x *JobResult_MySQLBackup) ProtoReflect() protoreflect.Message {
+	mi := &file_agentpb_agent_proto_msgTypes[62]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use JobResult_MySQLBackup.ProtoReflect.Descriptor instead.
+func (*JobResult_MySQLBackup) Descriptor() ([]byte, []int) {
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{28, 2}
 }
 
 // Echo contains echo job status update.
@@ -4155,7 +4439,7 @@ type JobProgress_Echo struct {
 func (x *JobProgress_Echo) Reset() {
 	*x = JobProgress_Echo{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[60]
+		mi := &file_agentpb_agent_proto_msgTypes[63]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4168,7 +4452,7 @@ func (x *JobProgress_Echo) String() string {
 func (*JobProgress_Echo) ProtoMessage() {}
 
 func (x *JobProgress_Echo) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[60]
+	mi := &file_agentpb_agent_proto_msgTypes[63]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4181,7 +4465,7 @@ func (x *JobProgress_Echo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JobProgress_Echo.ProtoReflect.Descriptor instead.
 func (*JobProgress_Echo) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{28, 0}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{29, 0}
 }
 
 func (x *JobProgress_Echo) GetStatus() string {
@@ -4189,6 +4473,45 @@ func (x *JobProgress_Echo) GetStatus() string {
 		return x.Status
 	}
 	return ""
+}
+
+// MySQLBackup contains backup job status update.
+type JobProgress_MySQLBackup struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *JobProgress_MySQLBackup) Reset() {
+	*x = JobProgress_MySQLBackup{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_agentpb_agent_proto_msgTypes[64]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *JobProgress_MySQLBackup) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*JobProgress_MySQLBackup) ProtoMessage() {}
+
+func (x *JobProgress_MySQLBackup) ProtoReflect() protoreflect.Message {
+	mi := &file_agentpb_agent_proto_msgTypes[64]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use JobProgress_MySQLBackup.ProtoReflect.Descriptor instead.
+func (*JobProgress_MySQLBackup) Descriptor() ([]byte, []int) {
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{29, 1}
 }
 
 var File_agentpb_agent_proto protoreflect.FileDescriptor
@@ -4668,6 +4991,7 @@ var file_agentpb_agent_proto_rawDesc = []byte{
 	0x74, 0x69, 0x6d, 0x65, 0x6f, 0x75, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x19, 0x2e,
 	0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e,
 	0x44, 0x75, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x07, 0x74, 0x69, 0x6d, 0x65, 0x6f, 0x75,
+<<<<<<< HEAD
 	0x74, 0x12, 0x31, 0x0a, 0x04, 0x65, 0x63, 0x68, 0x6f, 0x18, 0x0a, 0x20, 0x01, 0x28, 0x0b, 0x32,
 	0x1b, 0x2e, 0x61, 0x67, 0x65, 0x6e, 0x74, 0x2e, 0x53, 0x74, 0x61, 0x72, 0x74, 0x4a, 0x6f, 0x62,
 	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x2e, 0x45, 0x63, 0x68, 0x6f, 0x48, 0x00, 0x52, 0x04,
@@ -4829,6 +5153,234 @@ var file_agentpb_agent_proto_rawDesc = []byte{
 	0x76, 0x65, 0x72, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x28, 0x01, 0x30, 0x01, 0x42, 0x15,
 	0x5a, 0x13, 0x61, 0x70, 0x69, 0x2f, 0x61, 0x67, 0x65, 0x6e, 0x74, 0x70, 0x62, 0x3b, 0x61, 0x67,
 	0x65, 0x6e, 0x74, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+=======
+	0x74, 0x12, 0x2f, 0x0a, 0x0a, 0x74, 0x65, 0x78, 0x74, 0x5f, 0x66, 0x69, 0x6c, 0x65, 0x73, 0x18,
+	0x04, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x10, 0x2e, 0x61, 0x67, 0x65, 0x6e, 0x74, 0x2e, 0x54, 0x65,
+	0x78, 0x74, 0x46, 0x69, 0x6c, 0x65, 0x73, 0x52, 0x09, 0x74, 0x65, 0x78, 0x74, 0x46, 0x69, 0x6c,
+	0x65, 0x73, 0x22, 0x95, 0x01, 0x0a, 0x17, 0x43, 0x68, 0x65, 0x63, 0x6b, 0x43, 0x6f, 0x6e, 0x6e,
+	0x65, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x14,
+	0x0a, 0x05, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x65,
+	0x72, 0x72, 0x6f, 0x72, 0x12, 0x3a, 0x0a, 0x05, 0x73, 0x74, 0x61, 0x74, 0x73, 0x18, 0x02, 0x20,
+	0x01, 0x28, 0x0b, 0x32, 0x24, 0x2e, 0x61, 0x67, 0x65, 0x6e, 0x74, 0x2e, 0x43, 0x68, 0x65, 0x63,
+	0x6b, 0x43, 0x6f, 0x6e, 0x6e, 0x65, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f,
+	0x6e, 0x73, 0x65, 0x2e, 0x53, 0x74, 0x61, 0x74, 0x73, 0x52, 0x05, 0x73, 0x74, 0x61, 0x74, 0x73,
+	0x1a, 0x28, 0x0a, 0x05, 0x53, 0x74, 0x61, 0x74, 0x73, 0x12, 0x1f, 0x0a, 0x0b, 0x74, 0x61, 0x62,
+	0x6c, 0x65, 0x5f, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x0a,
+	0x74, 0x61, 0x62, 0x6c, 0x65, 0x43, 0x6f, 0x75, 0x6e, 0x74, 0x22, 0x29, 0x0a, 0x10, 0x4a, 0x6f,
+	0x62, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x15,
+	0x0a, 0x06, 0x6a, 0x6f, 0x62, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05,
+	0x6a, 0x6f, 0x62, 0x49, 0x64, 0x22, 0x29, 0x0a, 0x11, 0x4a, 0x6f, 0x62, 0x53, 0x74, 0x61, 0x74,
+	0x75, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x14, 0x0a, 0x05, 0x61, 0x6c,
+	0x69, 0x76, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x05, 0x61, 0x6c, 0x69, 0x76, 0x65,
+	0x22, 0xb2, 0x01, 0x0a, 0x10, 0x53, 0x33, 0x4c, 0x6f, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43,
+	0x6f, 0x6e, 0x66, 0x69, 0x67, 0x12, 0x1a, 0x0a, 0x08, 0x65, 0x6e, 0x64, 0x70, 0x6f, 0x69, 0x6e,
+	0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x65, 0x6e, 0x64, 0x70, 0x6f, 0x69, 0x6e,
+	0x74, 0x12, 0x1d, 0x0a, 0x0a, 0x61, 0x63, 0x63, 0x65, 0x73, 0x73, 0x5f, 0x6b, 0x65, 0x79, 0x18,
+	0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x61, 0x63, 0x63, 0x65, 0x73, 0x73, 0x4b, 0x65, 0x79,
+	0x12, 0x1d, 0x0a, 0x0a, 0x73, 0x65, 0x63, 0x72, 0x65, 0x74, 0x5f, 0x6b, 0x65, 0x79, 0x18, 0x03,
+	0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x73, 0x65, 0x63, 0x72, 0x65, 0x74, 0x4b, 0x65, 0x79, 0x12,
+	0x1f, 0x0a, 0x0b, 0x62, 0x75, 0x63, 0x6b, 0x65, 0x74, 0x5f, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x04,
+	0x20, 0x01, 0x28, 0x09, 0x52, 0x0a, 0x62, 0x75, 0x63, 0x6b, 0x65, 0x74, 0x4e, 0x61, 0x6d, 0x65,
+	0x12, 0x23, 0x0a, 0x0d, 0x62, 0x75, 0x63, 0x6b, 0x65, 0x74, 0x5f, 0x72, 0x65, 0x67, 0x69, 0x6f,
+	0x6e, 0x18, 0x05, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0c, 0x62, 0x75, 0x63, 0x6b, 0x65, 0x74, 0x52,
+	0x65, 0x67, 0x69, 0x6f, 0x6e, 0x22, 0x98, 0x04, 0x0a, 0x0f, 0x53, 0x74, 0x61, 0x72, 0x74, 0x4a,
+	0x6f, 0x62, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x15, 0x0a, 0x06, 0x6a, 0x6f, 0x62,
+	0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x6a, 0x6f, 0x62, 0x49, 0x64,
+	0x12, 0x33, 0x0a, 0x07, 0x74, 0x69, 0x6d, 0x65, 0x6f, 0x75, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x0b, 0x32, 0x19, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f,
+	0x62, 0x75, 0x66, 0x2e, 0x44, 0x75, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x07, 0x74, 0x69,
+	0x6d, 0x65, 0x6f, 0x75, 0x74, 0x12, 0x31, 0x0a, 0x04, 0x65, 0x63, 0x68, 0x6f, 0x18, 0x0a, 0x20,
+	0x01, 0x28, 0x0b, 0x32, 0x1b, 0x2e, 0x61, 0x67, 0x65, 0x6e, 0x74, 0x2e, 0x53, 0x74, 0x61, 0x72,
+	0x74, 0x4a, 0x6f, 0x62, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x2e, 0x45, 0x63, 0x68, 0x6f,
+	0x48, 0x00, 0x52, 0x04, 0x65, 0x63, 0x68, 0x6f, 0x12, 0x47, 0x0a, 0x0c, 0x6d, 0x79, 0x73, 0x71,
+	0x6c, 0x5f, 0x62, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x18, 0x0b, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x22,
+	0x2e, 0x61, 0x67, 0x65, 0x6e, 0x74, 0x2e, 0x53, 0x74, 0x61, 0x72, 0x74, 0x4a, 0x6f, 0x62, 0x52,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x2e, 0x4d, 0x79, 0x53, 0x51, 0x4c, 0x42, 0x61, 0x63, 0x6b,
+	0x75, 0x70, 0x48, 0x00, 0x52, 0x0b, 0x6d, 0x79, 0x73, 0x71, 0x6c, 0x42, 0x61, 0x63, 0x6b, 0x75,
+	0x70, 0x1a, 0x51, 0x0a, 0x04, 0x45, 0x63, 0x68, 0x6f, 0x12, 0x18, 0x0a, 0x07, 0x6d, 0x65, 0x73,
+	0x73, 0x61, 0x67, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x6d, 0x65, 0x73, 0x73,
+	0x61, 0x67, 0x65, 0x12, 0x2f, 0x0a, 0x05, 0x64, 0x65, 0x6c, 0x61, 0x79, 0x18, 0x02, 0x20, 0x01,
+	0x28, 0x0b, 0x32, 0x19, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x62, 0x75, 0x66, 0x2e, 0x44, 0x75, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x05, 0x64,
+	0x65, 0x6c, 0x61, 0x79, 0x1a, 0xe2, 0x01, 0x0a, 0x0b, 0x4d, 0x79, 0x53, 0x51, 0x4c, 0x42, 0x61,
+	0x63, 0x6b, 0x75, 0x70, 0x12, 0x12, 0x0a, 0x04, 0x75, 0x73, 0x65, 0x72, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x04, 0x75, 0x73, 0x65, 0x72, 0x12, 0x1a, 0x0a, 0x08, 0x70, 0x61, 0x73, 0x73,
+	0x77, 0x6f, 0x72, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x70, 0x61, 0x73, 0x73,
+	0x77, 0x6f, 0x72, 0x64, 0x12, 0x18, 0x0a, 0x07, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x18,
+	0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x12, 0x12,
+	0x0a, 0x04, 0x70, 0x6f, 0x72, 0x74, 0x18, 0x04, 0x20, 0x01, 0x28, 0x05, 0x52, 0x04, 0x70, 0x6f,
+	0x72, 0x74, 0x12, 0x16, 0x0a, 0x06, 0x73, 0x6f, 0x63, 0x6b, 0x65, 0x74, 0x18, 0x05, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x06, 0x73, 0x6f, 0x63, 0x6b, 0x65, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61,
+	0x6d, 0x65, 0x18, 0x06, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x36,
+	0x0a, 0x09, 0x73, 0x33, 0x5f, 0x63, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x18, 0x0a, 0x20, 0x01, 0x28,
+	0x0b, 0x32, 0x17, 0x2e, 0x61, 0x67, 0x65, 0x6e, 0x74, 0x2e, 0x53, 0x33, 0x4c, 0x6f, 0x63, 0x61,
+	0x74, 0x69, 0x6f, 0x6e, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x48, 0x00, 0x52, 0x08, 0x73, 0x33,
+	0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x42, 0x11, 0x0a, 0x0f, 0x6c, 0x6f, 0x63, 0x61, 0x74, 0x69,
+	0x6f, 0x6e, 0x5f, 0x63, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x42, 0x05, 0x0a, 0x03, 0x6a, 0x6f, 0x62,
+	0x22, 0x28, 0x0a, 0x10, 0x53, 0x74, 0x61, 0x72, 0x74, 0x4a, 0x6f, 0x62, 0x52, 0x65, 0x73, 0x70,
+	0x6f, 0x6e, 0x73, 0x65, 0x12, 0x14, 0x0a, 0x05, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x09, 0x52, 0x05, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x22, 0x27, 0x0a, 0x0e, 0x53, 0x74,
+	0x6f, 0x70, 0x4a, 0x6f, 0x62, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x15, 0x0a, 0x06,
+	0x6a, 0x6f, 0x62, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x6a, 0x6f,
+	0x62, 0x49, 0x64, 0x22, 0x11, 0x0a, 0x0f, 0x53, 0x74, 0x6f, 0x70, 0x4a, 0x6f, 0x62, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0xda, 0x02, 0x0a, 0x09, 0x4a, 0x6f, 0x62, 0x52, 0x65,
+	0x73, 0x75, 0x6c, 0x74, 0x12, 0x15, 0x0a, 0x06, 0x6a, 0x6f, 0x62, 0x5f, 0x69, 0x64, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x6a, 0x6f, 0x62, 0x49, 0x64, 0x12, 0x38, 0x0a, 0x09, 0x74,
+	0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1a,
+	0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66,
+	0x2e, 0x54, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x52, 0x09, 0x74, 0x69, 0x6d, 0x65,
+	0x73, 0x74, 0x61, 0x6d, 0x70, 0x12, 0x2e, 0x0a, 0x05, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x18, 0x0a,
+	0x20, 0x01, 0x28, 0x0b, 0x32, 0x16, 0x2e, 0x61, 0x67, 0x65, 0x6e, 0x74, 0x2e, 0x4a, 0x6f, 0x62,
+	0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x2e, 0x45, 0x72, 0x72, 0x6f, 0x72, 0x48, 0x00, 0x52, 0x05,
+	0x65, 0x72, 0x72, 0x6f, 0x72, 0x12, 0x2b, 0x0a, 0x04, 0x65, 0x63, 0x68, 0x6f, 0x18, 0x0b, 0x20,
+	0x01, 0x28, 0x0b, 0x32, 0x15, 0x2e, 0x61, 0x67, 0x65, 0x6e, 0x74, 0x2e, 0x4a, 0x6f, 0x62, 0x52,
+	0x65, 0x73, 0x75, 0x6c, 0x74, 0x2e, 0x45, 0x63, 0x68, 0x6f, 0x48, 0x00, 0x52, 0x04, 0x65, 0x63,
+	0x68, 0x6f, 0x12, 0x41, 0x0a, 0x0c, 0x6d, 0x79, 0x73, 0x71, 0x6c, 0x5f, 0x62, 0x61, 0x63, 0x6b,
+	0x75, 0x70, 0x18, 0x0c, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1c, 0x2e, 0x61, 0x67, 0x65, 0x6e, 0x74,
+	0x2e, 0x4a, 0x6f, 0x62, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x2e, 0x4d, 0x79, 0x53, 0x51, 0x4c,
+	0x42, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x48, 0x00, 0x52, 0x0b, 0x6d, 0x79, 0x73, 0x71, 0x6c, 0x42,
+	0x61, 0x63, 0x6b, 0x75, 0x70, 0x1a, 0x21, 0x0a, 0x05, 0x45, 0x72, 0x72, 0x6f, 0x72, 0x12, 0x18,
+	0x0a, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x1a, 0x20, 0x0a, 0x04, 0x45, 0x63, 0x68, 0x6f,
+	0x12, 0x18, 0x0a, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x1a, 0x0d, 0x0a, 0x0b, 0x4d, 0x79,
+	0x53, 0x51, 0x4c, 0x42, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x42, 0x08, 0x0a, 0x06, 0x72, 0x65, 0x73,
+	0x75, 0x6c, 0x74, 0x22, 0x8b, 0x02, 0x0a, 0x0b, 0x4a, 0x6f, 0x62, 0x50, 0x72, 0x6f, 0x67, 0x72,
+	0x65, 0x73, 0x73, 0x12, 0x15, 0x0a, 0x06, 0x6a, 0x6f, 0x62, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x09, 0x52, 0x05, 0x6a, 0x6f, 0x62, 0x49, 0x64, 0x12, 0x38, 0x0a, 0x09, 0x74, 0x69,
+	0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1a, 0x2e,
+	0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e,
+	0x54, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x52, 0x09, 0x74, 0x69, 0x6d, 0x65, 0x73,
+	0x74, 0x61, 0x6d, 0x70, 0x12, 0x2d, 0x0a, 0x04, 0x65, 0x63, 0x68, 0x6f, 0x18, 0x0a, 0x20, 0x01,
+	0x28, 0x0b, 0x32, 0x17, 0x2e, 0x61, 0x67, 0x65, 0x6e, 0x74, 0x2e, 0x4a, 0x6f, 0x62, 0x50, 0x72,
+	0x6f, 0x67, 0x72, 0x65, 0x73, 0x73, 0x2e, 0x45, 0x63, 0x68, 0x6f, 0x48, 0x00, 0x52, 0x04, 0x65,
+	0x63, 0x68, 0x6f, 0x12, 0x43, 0x0a, 0x0c, 0x6d, 0x79, 0x73, 0x71, 0x6c, 0x5f, 0x62, 0x61, 0x63,
+	0x6b, 0x75, 0x70, 0x18, 0x0b, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1e, 0x2e, 0x61, 0x67, 0x65, 0x6e,
+	0x74, 0x2e, 0x4a, 0x6f, 0x62, 0x50, 0x72, 0x6f, 0x67, 0x72, 0x65, 0x73, 0x73, 0x2e, 0x4d, 0x79,
+	0x53, 0x51, 0x4c, 0x42, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x48, 0x00, 0x52, 0x0b, 0x6d, 0x79, 0x73,
+	0x71, 0x6c, 0x42, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x1a, 0x1e, 0x0a, 0x04, 0x45, 0x63, 0x68, 0x6f,
+	0x12, 0x16, 0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x1a, 0x0d, 0x0a, 0x0b, 0x4d, 0x79, 0x53, 0x51,
+	0x4c, 0x42, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x42, 0x08, 0x0a, 0x06, 0x72, 0x65, 0x73, 0x75, 0x6c,
+	0x74, 0x22, 0xca, 0x06, 0x0a, 0x0c, 0x41, 0x67, 0x65, 0x6e, 0x74, 0x4d, 0x65, 0x73, 0x73, 0x61,
+	0x67, 0x65, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x02,
+	0x69, 0x64, 0x12, 0x21, 0x0a, 0x04, 0x70, 0x69, 0x6e, 0x67, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b,
+	0x32, 0x0b, 0x2e, 0x61, 0x67, 0x65, 0x6e, 0x74, 0x2e, 0x50, 0x69, 0x6e, 0x67, 0x48, 0x00, 0x52,
+	0x04, 0x70, 0x69, 0x6e, 0x67, 0x12, 0x41, 0x0a, 0x0d, 0x73, 0x74, 0x61, 0x74, 0x65, 0x5f, 0x63,
+	0x68, 0x61, 0x6e, 0x67, 0x65, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x61,
+	0x67, 0x65, 0x6e, 0x74, 0x2e, 0x53, 0x74, 0x61, 0x74, 0x65, 0x43, 0x68, 0x61, 0x6e, 0x67, 0x65,
+	0x64, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x48, 0x00, 0x52, 0x0c, 0x73, 0x74, 0x61, 0x74,
+	0x65, 0x43, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x64, 0x12, 0x3b, 0x0a, 0x0b, 0x71, 0x61, 0x6e, 0x5f,
+	0x63, 0x6f, 0x6c, 0x6c, 0x65, 0x63, 0x74, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x18, 0x2e,
+	0x61, 0x67, 0x65, 0x6e, 0x74, 0x2e, 0x51, 0x41, 0x4e, 0x43, 0x6f, 0x6c, 0x6c, 0x65, 0x63, 0x74,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x48, 0x00, 0x52, 0x0a, 0x71, 0x61, 0x6e, 0x43, 0x6f,
+	0x6c, 0x6c, 0x65, 0x63, 0x74, 0x12, 0x41, 0x0a, 0x0d, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x5f,
+	0x72, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x18, 0x05, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x61,
+	0x67, 0x65, 0x6e, 0x74, 0x2e, 0x41, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x75, 0x6c,
+	0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x48, 0x00, 0x52, 0x0c, 0x61, 0x63, 0x74, 0x69,
+	0x6f, 0x6e, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x12, 0x21, 0x0a, 0x04, 0x70, 0x6f, 0x6e, 0x67,
+	0x18, 0x08, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0b, 0x2e, 0x61, 0x67, 0x65, 0x6e, 0x74, 0x2e, 0x50,
+	0x6f, 0x6e, 0x67, 0x48, 0x00, 0x52, 0x04, 0x70, 0x6f, 0x6e, 0x67, 0x12, 0x36, 0x0a, 0x09, 0x73,
+	0x65, 0x74, 0x5f, 0x73, 0x74, 0x61, 0x74, 0x65, 0x18, 0x09, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x17,
+	0x2e, 0x61, 0x67, 0x65, 0x6e, 0x74, 0x2e, 0x53, 0x65, 0x74, 0x53, 0x74, 0x61, 0x74, 0x65, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x48, 0x00, 0x52, 0x08, 0x73, 0x65, 0x74, 0x53, 0x74,
+	0x61, 0x74, 0x65, 0x12, 0x3f, 0x0a, 0x0c, 0x73, 0x74, 0x61, 0x72, 0x74, 0x5f, 0x61, 0x63, 0x74,
+	0x69, 0x6f, 0x6e, 0x18, 0x0a, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x61, 0x67, 0x65, 0x6e,
+	0x74, 0x2e, 0x53, 0x74, 0x61, 0x72, 0x74, 0x41, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x48, 0x00, 0x52, 0x0b, 0x73, 0x74, 0x61, 0x72, 0x74, 0x41, 0x63,
+	0x74, 0x69, 0x6f, 0x6e, 0x12, 0x3c, 0x0a, 0x0b, 0x73, 0x74, 0x6f, 0x70, 0x5f, 0x61, 0x63, 0x74,
+	0x69, 0x6f, 0x6e, 0x18, 0x0b, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x19, 0x2e, 0x61, 0x67, 0x65, 0x6e,
+	0x74, 0x2e, 0x53, 0x74, 0x6f, 0x70, 0x41, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70,
+	0x6f, 0x6e, 0x73, 0x65, 0x48, 0x00, 0x52, 0x0a, 0x73, 0x74, 0x6f, 0x70, 0x41, 0x63, 0x74, 0x69,
+	0x6f, 0x6e, 0x12, 0x4b, 0x0a, 0x10, 0x63, 0x68, 0x65, 0x63, 0x6b, 0x5f, 0x63, 0x6f, 0x6e, 0x6e,
+	0x65, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x0c, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1e, 0x2e, 0x61,
+	0x67, 0x65, 0x6e, 0x74, 0x2e, 0x43, 0x68, 0x65, 0x63, 0x6b, 0x43, 0x6f, 0x6e, 0x6e, 0x65, 0x63,
+	0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x48, 0x00, 0x52, 0x0f,
+	0x63, 0x68, 0x65, 0x63, 0x6b, 0x43, 0x6f, 0x6e, 0x6e, 0x65, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x12,
+	0x36, 0x0a, 0x09, 0x73, 0x74, 0x61, 0x72, 0x74, 0x5f, 0x6a, 0x6f, 0x62, 0x18, 0x0d, 0x20, 0x01,
+	0x28, 0x0b, 0x32, 0x17, 0x2e, 0x61, 0x67, 0x65, 0x6e, 0x74, 0x2e, 0x53, 0x74, 0x61, 0x72, 0x74,
+	0x4a, 0x6f, 0x62, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x48, 0x00, 0x52, 0x08, 0x73,
+	0x74, 0x61, 0x72, 0x74, 0x4a, 0x6f, 0x62, 0x12, 0x33, 0x0a, 0x08, 0x73, 0x74, 0x6f, 0x70, 0x5f,
+	0x6a, 0x6f, 0x62, 0x18, 0x0e, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x16, 0x2e, 0x61, 0x67, 0x65, 0x6e,
+	0x74, 0x2e, 0x53, 0x74, 0x6f, 0x70, 0x4a, 0x6f, 0x62, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x48, 0x00, 0x52, 0x07, 0x73, 0x74, 0x6f, 0x70, 0x4a, 0x6f, 0x62, 0x12, 0x39, 0x0a, 0x0a,
+	0x6a, 0x6f, 0x62, 0x5f, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x18, 0x0f, 0x20, 0x01, 0x28, 0x0b,
+	0x32, 0x18, 0x2e, 0x61, 0x67, 0x65, 0x6e, 0x74, 0x2e, 0x4a, 0x6f, 0x62, 0x53, 0x74, 0x61, 0x74,
+	0x75, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x48, 0x00, 0x52, 0x09, 0x6a, 0x6f,
+	0x62, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x12, 0x31, 0x0a, 0x0a, 0x6a, 0x6f, 0x62, 0x5f, 0x72,
+	0x65, 0x73, 0x75, 0x6c, 0x74, 0x18, 0x10, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x10, 0x2e, 0x61, 0x67,
+	0x65, 0x6e, 0x74, 0x2e, 0x4a, 0x6f, 0x62, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x48, 0x00, 0x52,
+	0x09, 0x6a, 0x6f, 0x62, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x12, 0x37, 0x0a, 0x0c, 0x6a, 0x6f,
+	0x62, 0x5f, 0x70, 0x72, 0x6f, 0x67, 0x72, 0x65, 0x73, 0x73, 0x18, 0x11, 0x20, 0x01, 0x28, 0x0b,
+	0x32, 0x12, 0x2e, 0x61, 0x67, 0x65, 0x6e, 0x74, 0x2e, 0x4a, 0x6f, 0x62, 0x50, 0x72, 0x6f, 0x67,
+	0x72, 0x65, 0x73, 0x73, 0x48, 0x00, 0x52, 0x0b, 0x6a, 0x6f, 0x62, 0x50, 0x72, 0x6f, 0x67, 0x72,
+	0x65, 0x73, 0x73, 0x42, 0x09, 0x0a, 0x07, 0x70, 0x61, 0x79, 0x6c, 0x6f, 0x61, 0x64, 0x22, 0xdb,
+	0x05, 0x0a, 0x0d, 0x53, 0x65, 0x72, 0x76, 0x65, 0x72, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
+	0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x02, 0x69, 0x64,
+	0x12, 0x21, 0x0a, 0x04, 0x70, 0x6f, 0x6e, 0x67, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0b,
+	0x2e, 0x61, 0x67, 0x65, 0x6e, 0x74, 0x2e, 0x50, 0x6f, 0x6e, 0x67, 0x48, 0x00, 0x52, 0x04, 0x70,
+	0x6f, 0x6e, 0x67, 0x12, 0x42, 0x0a, 0x0d, 0x73, 0x74, 0x61, 0x74, 0x65, 0x5f, 0x63, 0x68, 0x61,
+	0x6e, 0x67, 0x65, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1b, 0x2e, 0x61, 0x67, 0x65,
+	0x6e, 0x74, 0x2e, 0x53, 0x74, 0x61, 0x74, 0x65, 0x43, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x64, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x48, 0x00, 0x52, 0x0c, 0x73, 0x74, 0x61, 0x74, 0x65,
+	0x43, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x64, 0x12, 0x3c, 0x0a, 0x0b, 0x71, 0x61, 0x6e, 0x5f, 0x63,
+	0x6f, 0x6c, 0x6c, 0x65, 0x63, 0x74, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x19, 0x2e, 0x61,
+	0x67, 0x65, 0x6e, 0x74, 0x2e, 0x51, 0x41, 0x4e, 0x43, 0x6f, 0x6c, 0x6c, 0x65, 0x63, 0x74, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x48, 0x00, 0x52, 0x0a, 0x71, 0x61, 0x6e, 0x43, 0x6f,
+	0x6c, 0x6c, 0x65, 0x63, 0x74, 0x12, 0x42, 0x0a, 0x0d, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x5f,
+	0x72, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x18, 0x05, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1b, 0x2e, 0x61,
+	0x67, 0x65, 0x6e, 0x74, 0x2e, 0x41, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x75, 0x6c,
+	0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x48, 0x00, 0x52, 0x0c, 0x61, 0x63, 0x74,
+	0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x12, 0x21, 0x0a, 0x04, 0x70, 0x69, 0x6e,
+	0x67, 0x18, 0x08, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0b, 0x2e, 0x61, 0x67, 0x65, 0x6e, 0x74, 0x2e,
+	0x50, 0x69, 0x6e, 0x67, 0x48, 0x00, 0x52, 0x04, 0x70, 0x69, 0x6e, 0x67, 0x12, 0x35, 0x0a, 0x09,
+	0x73, 0x65, 0x74, 0x5f, 0x73, 0x74, 0x61, 0x74, 0x65, 0x18, 0x09, 0x20, 0x01, 0x28, 0x0b, 0x32,
+	0x16, 0x2e, 0x61, 0x67, 0x65, 0x6e, 0x74, 0x2e, 0x53, 0x65, 0x74, 0x53, 0x74, 0x61, 0x74, 0x65,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x48, 0x00, 0x52, 0x08, 0x73, 0x65, 0x74, 0x53, 0x74,
+	0x61, 0x74, 0x65, 0x12, 0x3e, 0x0a, 0x0c, 0x73, 0x74, 0x61, 0x72, 0x74, 0x5f, 0x61, 0x63, 0x74,
+	0x69, 0x6f, 0x6e, 0x18, 0x0a, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x19, 0x2e, 0x61, 0x67, 0x65, 0x6e,
+	0x74, 0x2e, 0x53, 0x74, 0x61, 0x72, 0x74, 0x41, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71,
+	0x75, 0x65, 0x73, 0x74, 0x48, 0x00, 0x52, 0x0b, 0x73, 0x74, 0x61, 0x72, 0x74, 0x41, 0x63, 0x74,
+	0x69, 0x6f, 0x6e, 0x12, 0x3b, 0x0a, 0x0b, 0x73, 0x74, 0x6f, 0x70, 0x5f, 0x61, 0x63, 0x74, 0x69,
+	0x6f, 0x6e, 0x18, 0x0b, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x18, 0x2e, 0x61, 0x67, 0x65, 0x6e, 0x74,
+	0x2e, 0x53, 0x74, 0x6f, 0x70, 0x41, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x48, 0x00, 0x52, 0x0a, 0x73, 0x74, 0x6f, 0x70, 0x41, 0x63, 0x74, 0x69, 0x6f, 0x6e,
+	0x12, 0x4a, 0x0a, 0x10, 0x63, 0x68, 0x65, 0x63, 0x6b, 0x5f, 0x63, 0x6f, 0x6e, 0x6e, 0x65, 0x63,
+	0x74, 0x69, 0x6f, 0x6e, 0x18, 0x0c, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1d, 0x2e, 0x61, 0x67, 0x65,
+	0x6e, 0x74, 0x2e, 0x43, 0x68, 0x65, 0x63, 0x6b, 0x43, 0x6f, 0x6e, 0x6e, 0x65, 0x63, 0x74, 0x69,
+	0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x48, 0x00, 0x52, 0x0f, 0x63, 0x68, 0x65,
+	0x63, 0x6b, 0x43, 0x6f, 0x6e, 0x6e, 0x65, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x35, 0x0a, 0x09,
+	0x73, 0x74, 0x61, 0x72, 0x74, 0x5f, 0x6a, 0x6f, 0x62, 0x18, 0x0d, 0x20, 0x01, 0x28, 0x0b, 0x32,
+	0x16, 0x2e, 0x61, 0x67, 0x65, 0x6e, 0x74, 0x2e, 0x53, 0x74, 0x61, 0x72, 0x74, 0x4a, 0x6f, 0x62,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x48, 0x00, 0x52, 0x08, 0x73, 0x74, 0x61, 0x72, 0x74,
+	0x4a, 0x6f, 0x62, 0x12, 0x32, 0x0a, 0x08, 0x73, 0x74, 0x6f, 0x70, 0x5f, 0x6a, 0x6f, 0x62, 0x18,
+	0x0e, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x15, 0x2e, 0x61, 0x67, 0x65, 0x6e, 0x74, 0x2e, 0x53, 0x74,
+	0x6f, 0x70, 0x4a, 0x6f, 0x62, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x48, 0x00, 0x52, 0x07,
+	0x73, 0x74, 0x6f, 0x70, 0x4a, 0x6f, 0x62, 0x12, 0x38, 0x0a, 0x0a, 0x6a, 0x6f, 0x62, 0x5f, 0x73,
+	0x74, 0x61, 0x74, 0x75, 0x73, 0x18, 0x0f, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x17, 0x2e, 0x61, 0x67,
+	0x65, 0x6e, 0x74, 0x2e, 0x4a, 0x6f, 0x62, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x52, 0x65, 0x71,
+	0x75, 0x65, 0x73, 0x74, 0x48, 0x00, 0x52, 0x09, 0x6a, 0x6f, 0x62, 0x53, 0x74, 0x61, 0x74, 0x75,
+	0x73, 0x42, 0x09, 0x0a, 0x07, 0x70, 0x61, 0x79, 0x6c, 0x6f, 0x61, 0x64, 0x2a, 0xc4, 0x01, 0x0a,
+	0x18, 0x4d, 0x79, 0x73, 0x71, 0x6c, 0x45, 0x78, 0x70, 0x6c, 0x61, 0x69, 0x6e, 0x4f, 0x75, 0x74,
+	0x70, 0x75, 0x74, 0x46, 0x6f, 0x72, 0x6d, 0x61, 0x74, 0x12, 0x27, 0x0a, 0x23, 0x4d, 0x59, 0x53,
+	0x51, 0x4c, 0x5f, 0x45, 0x58, 0x50, 0x4c, 0x41, 0x49, 0x4e, 0x5f, 0x4f, 0x55, 0x54, 0x50, 0x55,
+	0x54, 0x5f, 0x46, 0x4f, 0x52, 0x4d, 0x41, 0x54, 0x5f, 0x49, 0x4e, 0x56, 0x41, 0x4c, 0x49, 0x44,
+	0x10, 0x00, 0x12, 0x27, 0x0a, 0x23, 0x4d, 0x59, 0x53, 0x51, 0x4c, 0x5f, 0x45, 0x58, 0x50, 0x4c,
+	0x41, 0x49, 0x4e, 0x5f, 0x4f, 0x55, 0x54, 0x50, 0x55, 0x54, 0x5f, 0x46, 0x4f, 0x52, 0x4d, 0x41,
+	0x54, 0x5f, 0x44, 0x45, 0x46, 0x41, 0x55, 0x4c, 0x54, 0x10, 0x01, 0x12, 0x24, 0x0a, 0x20, 0x4d,
+	0x59, 0x53, 0x51, 0x4c, 0x5f, 0x45, 0x58, 0x50, 0x4c, 0x41, 0x49, 0x4e, 0x5f, 0x4f, 0x55, 0x54,
+	0x50, 0x55, 0x54, 0x5f, 0x46, 0x4f, 0x52, 0x4d, 0x41, 0x54, 0x5f, 0x4a, 0x53, 0x4f, 0x4e, 0x10,
+	0x02, 0x12, 0x30, 0x0a, 0x2c, 0x4d, 0x59, 0x53, 0x51, 0x4c, 0x5f, 0x45, 0x58, 0x50, 0x4c, 0x41,
+	0x49, 0x4e, 0x5f, 0x4f, 0x55, 0x54, 0x50, 0x55, 0x54, 0x5f, 0x46, 0x4f, 0x52, 0x4d, 0x41, 0x54,
+	0x5f, 0x54, 0x52, 0x41, 0x44, 0x49, 0x54, 0x49, 0x4f, 0x4e, 0x41, 0x4c, 0x5f, 0x4a, 0x53, 0x4f,
+	0x4e, 0x10, 0x03, 0x32, 0x41, 0x0a, 0x05, 0x41, 0x67, 0x65, 0x6e, 0x74, 0x12, 0x38, 0x0a, 0x07,
+	0x43, 0x6f, 0x6e, 0x6e, 0x65, 0x63, 0x74, 0x12, 0x13, 0x2e, 0x61, 0x67, 0x65, 0x6e, 0x74, 0x2e,
+	0x41, 0x67, 0x65, 0x6e, 0x74, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x1a, 0x14, 0x2e, 0x61,
+	0x67, 0x65, 0x6e, 0x74, 0x2e, 0x53, 0x65, 0x72, 0x76, 0x65, 0x72, 0x4d, 0x65, 0x73, 0x73, 0x61,
+	0x67, 0x65, 0x28, 0x01, 0x30, 0x01, 0x42, 0x15, 0x5a, 0x13, 0x61, 0x70, 0x69, 0x2f, 0x61, 0x67,
+	0x65, 0x6e, 0x74, 0x70, 0x62, 0x3b, 0x61, 0x67, 0x65, 0x6e, 0x74, 0x70, 0x62, 0x62, 0x06, 0x70,
+	0x72, 0x6f, 0x74, 0x6f, 0x33,
+>>>>>>> PMM-2.0
 }
 
 var (
@@ -4844,7 +5396,7 @@ func file_agentpb_agent_proto_rawDescGZIP() []byte {
 }
 
 var file_agentpb_agent_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_agentpb_agent_proto_msgTypes = make([]protoimpl.MessageInfo, 61)
+var file_agentpb_agent_proto_msgTypes = make([]protoimpl.MessageInfo, 65)
 var file_agentpb_agent_proto_goTypes = []interface{}{
 	(MysqlExplainOutputFormat)(0),                 // 0: agent.MysqlExplainOutputFormat
 	(*TextFiles)(nil),                             // 1: agent.TextFiles
@@ -4870,87 +5422,92 @@ var file_agentpb_agent_proto_goTypes = []interface{}{
 	(*CheckConnectionResponse)(nil),               // 21: agent.CheckConnectionResponse
 	(*JobStatusRequest)(nil),                      // 22: agent.JobStatusRequest
 	(*JobStatusResponse)(nil),                     // 23: agent.JobStatusResponse
-	(*StartJobRequest)(nil),                       // 24: agent.StartJobRequest
-	(*StartJobResponse)(nil),                      // 25: agent.StartJobResponse
-	(*StopJobRequest)(nil),                        // 26: agent.StopJobRequest
-	(*StopJobResponse)(nil),                       // 27: agent.StopJobResponse
-	(*JobResult)(nil),                             // 28: agent.JobResult
-	(*JobProgress)(nil),                           // 29: agent.JobProgress
-	(*AgentMessage)(nil),                          // 30: agent.AgentMessage
-	(*ServerMessage)(nil),                         // 31: agent.ServerMessage
-	nil,                                           // 32: agent.TextFiles.FilesEntry
-	(*SetStateRequest_AgentProcess)(nil),          // 33: agent.SetStateRequest.AgentProcess
-	nil,                                           // 34: agent.SetStateRequest.AgentProcessesEntry
-	(*SetStateRequest_BuiltinAgent)(nil),          // 35: agent.SetStateRequest.BuiltinAgent
-	nil,                                           // 36: agent.SetStateRequest.BuiltinAgentsEntry
-	nil,                                           // 37: agent.SetStateRequest.AgentProcess.TextFilesEntry
-	nil,                                           // 38: agent.QueryActionMap.MapEntry
-	(*StartActionRequest_MySQLExplainParams)(nil), // 39: agent.StartActionRequest.MySQLExplainParams
-	(*StartActionRequest_MySQLShowCreateTableParams)(nil),       // 40: agent.StartActionRequest.MySQLShowCreateTableParams
-	(*StartActionRequest_MySQLShowTableStatusParams)(nil),       // 41: agent.StartActionRequest.MySQLShowTableStatusParams
-	(*StartActionRequest_MySQLShowIndexParams)(nil),             // 42: agent.StartActionRequest.MySQLShowIndexParams
-	(*StartActionRequest_PostgreSQLShowCreateTableParams)(nil),  // 43: agent.StartActionRequest.PostgreSQLShowCreateTableParams
-	(*StartActionRequest_PostgreSQLShowIndexParams)(nil),        // 44: agent.StartActionRequest.PostgreSQLShowIndexParams
-	(*StartActionRequest_MongoDBExplainParams)(nil),             // 45: agent.StartActionRequest.MongoDBExplainParams
-	(*StartActionRequest_PTSummaryParams)(nil),                  // 46: agent.StartActionRequest.PTSummaryParams
-	(*StartActionRequest_PTPgSummaryParams)(nil),                // 47: agent.StartActionRequest.PTPgSummaryParams
-	(*StartActionRequest_PTMongoDBSummaryParams)(nil),           // 48: agent.StartActionRequest.PTMongoDBSummaryParams
-	(*StartActionRequest_PTMySQLSummaryParams)(nil),             // 49: agent.StartActionRequest.PTMySQLSummaryParams
-	(*StartActionRequest_MySQLQueryShowParams)(nil),             // 50: agent.StartActionRequest.MySQLQueryShowParams
-	(*StartActionRequest_MySQLQuerySelectParams)(nil),           // 51: agent.StartActionRequest.MySQLQuerySelectParams
-	(*StartActionRequest_PostgreSQLQueryShowParams)(nil),        // 52: agent.StartActionRequest.PostgreSQLQueryShowParams
-	(*StartActionRequest_PostgreSQLQuerySelectParams)(nil),      // 53: agent.StartActionRequest.PostgreSQLQuerySelectParams
-	(*StartActionRequest_MongoDBQueryGetParameterParams)(nil),   // 54: agent.StartActionRequest.MongoDBQueryGetParameterParams
-	(*StartActionRequest_MongoDBQueryBuildInfoParams)(nil),      // 55: agent.StartActionRequest.MongoDBQueryBuildInfoParams
-	(*StartActionRequest_MongoDBQueryGetCmdLineOptsParams)(nil), // 56: agent.StartActionRequest.MongoDBQueryGetCmdLineOptsParams
-	(*CheckConnectionResponse_Stats)(nil),                       // 57: agent.CheckConnectionResponse.Stats
-	(*StartJobRequest_Echo)(nil),                                // 58: agent.StartJobRequest.Echo
-	(*JobResult_Error)(nil),                                     // 59: agent.JobResult.Error
-	(*JobResult_Echo)(nil),                                      // 60: agent.JobResult.Echo
-	(*JobProgress_Echo)(nil),                                    // 61: agent.JobProgress.Echo
-	(*timestamp.Timestamp)(nil),                                 // 62: google.protobuf.Timestamp
-	(*MetricsBucket)(nil),                                       // 63: agent.MetricsBucket
-	(inventorypb.AgentStatus)(0),                                // 64: inventory.AgentStatus
-	(*duration.Duration)(nil),                                   // 65: google.protobuf.Duration
-	(inventorypb.ServiceType)(0),                                // 66: inventory.ServiceType
-	(inventorypb.AgentType)(0),                                  // 67: inventory.AgentType
+	(*S3LocationConfig)(nil),                      // 24: agent.S3LocationConfig
+	(*StartJobRequest)(nil),                       // 25: agent.StartJobRequest
+	(*StartJobResponse)(nil),                      // 26: agent.StartJobResponse
+	(*StopJobRequest)(nil),                        // 27: agent.StopJobRequest
+	(*StopJobResponse)(nil),                       // 28: agent.StopJobResponse
+	(*JobResult)(nil),                             // 29: agent.JobResult
+	(*JobProgress)(nil),                           // 30: agent.JobProgress
+	(*AgentMessage)(nil),                          // 31: agent.AgentMessage
+	(*ServerMessage)(nil),                         // 32: agent.ServerMessage
+	nil,                                           // 33: agent.TextFiles.FilesEntry
+	(*SetStateRequest_AgentProcess)(nil),          // 34: agent.SetStateRequest.AgentProcess
+	nil,                                           // 35: agent.SetStateRequest.AgentProcessesEntry
+	(*SetStateRequest_BuiltinAgent)(nil),          // 36: agent.SetStateRequest.BuiltinAgent
+	nil,                                           // 37: agent.SetStateRequest.BuiltinAgentsEntry
+	nil,                                           // 38: agent.SetStateRequest.AgentProcess.TextFilesEntry
+	nil,                                           // 39: agent.QueryActionMap.MapEntry
+	(*StartActionRequest_MySQLExplainParams)(nil), // 40: agent.StartActionRequest.MySQLExplainParams
+	(*StartActionRequest_MySQLShowCreateTableParams)(nil),       // 41: agent.StartActionRequest.MySQLShowCreateTableParams
+	(*StartActionRequest_MySQLShowTableStatusParams)(nil),       // 42: agent.StartActionRequest.MySQLShowTableStatusParams
+	(*StartActionRequest_MySQLShowIndexParams)(nil),             // 43: agent.StartActionRequest.MySQLShowIndexParams
+	(*StartActionRequest_PostgreSQLShowCreateTableParams)(nil),  // 44: agent.StartActionRequest.PostgreSQLShowCreateTableParams
+	(*StartActionRequest_PostgreSQLShowIndexParams)(nil),        // 45: agent.StartActionRequest.PostgreSQLShowIndexParams
+	(*StartActionRequest_MongoDBExplainParams)(nil),             // 46: agent.StartActionRequest.MongoDBExplainParams
+	(*StartActionRequest_PTSummaryParams)(nil),                  // 47: agent.StartActionRequest.PTSummaryParams
+	(*StartActionRequest_PTPgSummaryParams)(nil),                // 48: agent.StartActionRequest.PTPgSummaryParams
+	(*StartActionRequest_PTMongoDBSummaryParams)(nil),           // 49: agent.StartActionRequest.PTMongoDBSummaryParams
+	(*StartActionRequest_PTMySQLSummaryParams)(nil),             // 50: agent.StartActionRequest.PTMySQLSummaryParams
+	(*StartActionRequest_MySQLQueryShowParams)(nil),             // 51: agent.StartActionRequest.MySQLQueryShowParams
+	(*StartActionRequest_MySQLQuerySelectParams)(nil),           // 52: agent.StartActionRequest.MySQLQuerySelectParams
+	(*StartActionRequest_PostgreSQLQueryShowParams)(nil),        // 53: agent.StartActionRequest.PostgreSQLQueryShowParams
+	(*StartActionRequest_PostgreSQLQuerySelectParams)(nil),      // 54: agent.StartActionRequest.PostgreSQLQuerySelectParams
+	(*StartActionRequest_MongoDBQueryGetParameterParams)(nil),   // 55: agent.StartActionRequest.MongoDBQueryGetParameterParams
+	(*StartActionRequest_MongoDBQueryBuildInfoParams)(nil),      // 56: agent.StartActionRequest.MongoDBQueryBuildInfoParams
+	(*StartActionRequest_MongoDBQueryGetCmdLineOptsParams)(nil), // 57: agent.StartActionRequest.MongoDBQueryGetCmdLineOptsParams
+	(*CheckConnectionResponse_Stats)(nil),                       // 58: agent.CheckConnectionResponse.Stats
+	(*StartJobRequest_Echo)(nil),                                // 59: agent.StartJobRequest.Echo
+	(*StartJobRequest_MySQLBackup)(nil),                         // 60: agent.StartJobRequest.MySQLBackup
+	(*JobResult_Error)(nil),                                     // 61: agent.JobResult.Error
+	(*JobResult_Echo)(nil),                                      // 62: agent.JobResult.Echo
+	(*JobResult_MySQLBackup)(nil),                               // 63: agent.JobResult.MySQLBackup
+	(*JobProgress_Echo)(nil),                                    // 64: agent.JobProgress.Echo
+	(*JobProgress_MySQLBackup)(nil),                             // 65: agent.JobProgress.MySQLBackup
+	(*timestamp.Timestamp)(nil),                                 // 66: google.protobuf.Timestamp
+	(*MetricsBucket)(nil),                                       // 67: agent.MetricsBucket
+	(inventorypb.AgentStatus)(0),                                // 68: inventory.AgentStatus
+	(*duration.Duration)(nil),                                   // 69: google.protobuf.Duration
+	(inventorypb.ServiceType)(0),                                // 70: inventory.ServiceType
+	(inventorypb.AgentType)(0),                                  // 71: inventory.AgentType
 }
 var file_agentpb_agent_proto_depIdxs = []int32{
-	32, // 0: agent.TextFiles.files:type_name -> agent.TextFiles.FilesEntry
-	62, // 1: agent.Pong.current_time:type_name -> google.protobuf.Timestamp
-	63, // 2: agent.QANCollectRequest.metrics_bucket:type_name -> agent.MetricsBucket
-	64, // 3: agent.StateChangedRequest.status:type_name -> inventory.AgentStatus
-	34, // 4: agent.SetStateRequest.agent_processes:type_name -> agent.SetStateRequest.AgentProcessesEntry
-	36, // 5: agent.SetStateRequest.builtin_agents:type_name -> agent.SetStateRequest.BuiltinAgentsEntry
-	62, // 6: agent.QueryActionValue.timestamp:type_name -> google.protobuf.Timestamp
+	33, // 0: agent.TextFiles.files:type_name -> agent.TextFiles.FilesEntry
+	66, // 1: agent.Pong.current_time:type_name -> google.protobuf.Timestamp
+	67, // 2: agent.QANCollectRequest.metrics_bucket:type_name -> agent.MetricsBucket
+	68, // 3: agent.StateChangedRequest.status:type_name -> inventory.AgentStatus
+	35, // 4: agent.SetStateRequest.agent_processes:type_name -> agent.SetStateRequest.AgentProcessesEntry
+	37, // 5: agent.SetStateRequest.builtin_agents:type_name -> agent.SetStateRequest.BuiltinAgentsEntry
+	66, // 6: agent.QueryActionValue.timestamp:type_name -> google.protobuf.Timestamp
 	11, // 7: agent.QueryActionValue.slice:type_name -> agent.QueryActionSlice
 	12, // 8: agent.QueryActionValue.map:type_name -> agent.QueryActionMap
 	10, // 9: agent.QueryActionSlice.slice:type_name -> agent.QueryActionValue
-	38, // 10: agent.QueryActionMap.map:type_name -> agent.QueryActionMap.MapEntry
+	39, // 10: agent.QueryActionMap.map:type_name -> agent.QueryActionMap.MapEntry
 	11, // 11: agent.QueryActionResult.rows:type_name -> agent.QueryActionSlice
 	12, // 12: agent.QueryActionResult.docs:type_name -> agent.QueryActionMap
-	39, // 13: agent.StartActionRequest.mysql_explain_params:type_name -> agent.StartActionRequest.MySQLExplainParams
-	40, // 14: agent.StartActionRequest.mysql_show_create_table_params:type_name -> agent.StartActionRequest.MySQLShowCreateTableParams
-	41, // 15: agent.StartActionRequest.mysql_show_table_status_params:type_name -> agent.StartActionRequest.MySQLShowTableStatusParams
-	42, // 16: agent.StartActionRequest.mysql_show_index_params:type_name -> agent.StartActionRequest.MySQLShowIndexParams
-	43, // 17: agent.StartActionRequest.postgresql_show_create_table_params:type_name -> agent.StartActionRequest.PostgreSQLShowCreateTableParams
-	44, // 18: agent.StartActionRequest.postgresql_show_index_params:type_name -> agent.StartActionRequest.PostgreSQLShowIndexParams
-	45, // 19: agent.StartActionRequest.mongodb_explain_params:type_name -> agent.StartActionRequest.MongoDBExplainParams
-	46, // 20: agent.StartActionRequest.pt_summary_params:type_name -> agent.StartActionRequest.PTSummaryParams
-	47, // 21: agent.StartActionRequest.pt_pg_summary_params:type_name -> agent.StartActionRequest.PTPgSummaryParams
-	48, // 22: agent.StartActionRequest.pt_mongodb_summary_params:type_name -> agent.StartActionRequest.PTMongoDBSummaryParams
-	49, // 23: agent.StartActionRequest.pt_mysql_summary_params:type_name -> agent.StartActionRequest.PTMySQLSummaryParams
-	50, // 24: agent.StartActionRequest.mysql_query_show_params:type_name -> agent.StartActionRequest.MySQLQueryShowParams
-	51, // 25: agent.StartActionRequest.mysql_query_select_params:type_name -> agent.StartActionRequest.MySQLQuerySelectParams
-	52, // 26: agent.StartActionRequest.postgresql_query_show_params:type_name -> agent.StartActionRequest.PostgreSQLQueryShowParams
-	53, // 27: agent.StartActionRequest.postgresql_query_select_params:type_name -> agent.StartActionRequest.PostgreSQLQuerySelectParams
-	54, // 28: agent.StartActionRequest.mongodb_query_getparameter_params:type_name -> agent.StartActionRequest.MongoDBQueryGetParameterParams
-	55, // 29: agent.StartActionRequest.mongodb_query_buildinfo_params:type_name -> agent.StartActionRequest.MongoDBQueryBuildInfoParams
-	56, // 30: agent.StartActionRequest.mongodb_query_getcmdlineopts_params:type_name -> agent.StartActionRequest.MongoDBQueryGetCmdLineOptsParams
-	65, // 31: agent.StartActionRequest.timeout:type_name -> google.protobuf.Duration
-	66, // 32: agent.CheckConnectionRequest.type:type_name -> inventory.ServiceType
-	65, // 33: agent.CheckConnectionRequest.timeout:type_name -> google.protobuf.Duration
+	40, // 13: agent.StartActionRequest.mysql_explain_params:type_name -> agent.StartActionRequest.MySQLExplainParams
+	41, // 14: agent.StartActionRequest.mysql_show_create_table_params:type_name -> agent.StartActionRequest.MySQLShowCreateTableParams
+	42, // 15: agent.StartActionRequest.mysql_show_table_status_params:type_name -> agent.StartActionRequest.MySQLShowTableStatusParams
+	43, // 16: agent.StartActionRequest.mysql_show_index_params:type_name -> agent.StartActionRequest.MySQLShowIndexParams
+	44, // 17: agent.StartActionRequest.postgresql_show_create_table_params:type_name -> agent.StartActionRequest.PostgreSQLShowCreateTableParams
+	45, // 18: agent.StartActionRequest.postgresql_show_index_params:type_name -> agent.StartActionRequest.PostgreSQLShowIndexParams
+	46, // 19: agent.StartActionRequest.mongodb_explain_params:type_name -> agent.StartActionRequest.MongoDBExplainParams
+	47, // 20: agent.StartActionRequest.pt_summary_params:type_name -> agent.StartActionRequest.PTSummaryParams
+	48, // 21: agent.StartActionRequest.pt_pg_summary_params:type_name -> agent.StartActionRequest.PTPgSummaryParams
+	49, // 22: agent.StartActionRequest.pt_mongodb_summary_params:type_name -> agent.StartActionRequest.PTMongoDBSummaryParams
+	50, // 23: agent.StartActionRequest.pt_mysql_summary_params:type_name -> agent.StartActionRequest.PTMySQLSummaryParams
+	51, // 24: agent.StartActionRequest.mysql_query_show_params:type_name -> agent.StartActionRequest.MySQLQueryShowParams
+	52, // 25: agent.StartActionRequest.mysql_query_select_params:type_name -> agent.StartActionRequest.MySQLQuerySelectParams
+	53, // 26: agent.StartActionRequest.postgresql_query_show_params:type_name -> agent.StartActionRequest.PostgreSQLQueryShowParams
+	54, // 27: agent.StartActionRequest.postgresql_query_select_params:type_name -> agent.StartActionRequest.PostgreSQLQuerySelectParams
+	55, // 28: agent.StartActionRequest.mongodb_query_getparameter_params:type_name -> agent.StartActionRequest.MongoDBQueryGetParameterParams
+	56, // 29: agent.StartActionRequest.mongodb_query_buildinfo_params:type_name -> agent.StartActionRequest.MongoDBQueryBuildInfoParams
+	57, // 30: agent.StartActionRequest.mongodb_query_getcmdlineopts_params:type_name -> agent.StartActionRequest.MongoDBQueryGetCmdLineOptsParams
+	69, // 31: agent.StartActionRequest.timeout:type_name -> google.protobuf.Duration
+	70, // 32: agent.CheckConnectionRequest.type:type_name -> inventory.ServiceType
+	69, // 33: agent.CheckConnectionRequest.timeout:type_name -> google.protobuf.Duration
 	1,  // 34: agent.CheckConnectionRequest.text_files:type_name -> agent.TextFiles
+<<<<<<< HEAD
 	57, // 35: agent.CheckConnectionResponse.stats:type_name -> agent.CheckConnectionResponse.Stats
 	65, // 36: agent.StartJobRequest.timeout:type_name -> google.protobuf.Duration
 	58, // 37: agent.StartJobRequest.echo:type_name -> agent.StartJobRequest.Echo
@@ -5011,6 +5568,66 @@ var file_agentpb_agent_proto_depIdxs = []int32{
 	88, // [88:88] is the sub-list for extension type_name
 	88, // [88:88] is the sub-list for extension extendee
 	0,  // [0:88] is the sub-list for field type_name
+=======
+	58, // 35: agent.CheckConnectionResponse.stats:type_name -> agent.CheckConnectionResponse.Stats
+	69, // 36: agent.StartJobRequest.timeout:type_name -> google.protobuf.Duration
+	59, // 37: agent.StartJobRequest.echo:type_name -> agent.StartJobRequest.Echo
+	60, // 38: agent.StartJobRequest.mysql_backup:type_name -> agent.StartJobRequest.MySQLBackup
+	66, // 39: agent.JobResult.timestamp:type_name -> google.protobuf.Timestamp
+	61, // 40: agent.JobResult.error:type_name -> agent.JobResult.Error
+	62, // 41: agent.JobResult.echo:type_name -> agent.JobResult.Echo
+	63, // 42: agent.JobResult.mysql_backup:type_name -> agent.JobResult.MySQLBackup
+	66, // 43: agent.JobProgress.timestamp:type_name -> google.protobuf.Timestamp
+	64, // 44: agent.JobProgress.echo:type_name -> agent.JobProgress.Echo
+	65, // 45: agent.JobProgress.mysql_backup:type_name -> agent.JobProgress.MySQLBackup
+	2,  // 46: agent.AgentMessage.ping:type_name -> agent.Ping
+	6,  // 47: agent.AgentMessage.state_changed:type_name -> agent.StateChangedRequest
+	4,  // 48: agent.AgentMessage.qan_collect:type_name -> agent.QANCollectRequest
+	18, // 49: agent.AgentMessage.action_result:type_name -> agent.ActionResultRequest
+	3,  // 50: agent.AgentMessage.pong:type_name -> agent.Pong
+	9,  // 51: agent.AgentMessage.set_state:type_name -> agent.SetStateResponse
+	15, // 52: agent.AgentMessage.start_action:type_name -> agent.StartActionResponse
+	17, // 53: agent.AgentMessage.stop_action:type_name -> agent.StopActionResponse
+	21, // 54: agent.AgentMessage.check_connection:type_name -> agent.CheckConnectionResponse
+	26, // 55: agent.AgentMessage.start_job:type_name -> agent.StartJobResponse
+	28, // 56: agent.AgentMessage.stop_job:type_name -> agent.StopJobResponse
+	23, // 57: agent.AgentMessage.job_status:type_name -> agent.JobStatusResponse
+	29, // 58: agent.AgentMessage.job_result:type_name -> agent.JobResult
+	30, // 59: agent.AgentMessage.job_progress:type_name -> agent.JobProgress
+	3,  // 60: agent.ServerMessage.pong:type_name -> agent.Pong
+	7,  // 61: agent.ServerMessage.state_changed:type_name -> agent.StateChangedResponse
+	5,  // 62: agent.ServerMessage.qan_collect:type_name -> agent.QANCollectResponse
+	19, // 63: agent.ServerMessage.action_result:type_name -> agent.ActionResultResponse
+	2,  // 64: agent.ServerMessage.ping:type_name -> agent.Ping
+	8,  // 65: agent.ServerMessage.set_state:type_name -> agent.SetStateRequest
+	14, // 66: agent.ServerMessage.start_action:type_name -> agent.StartActionRequest
+	16, // 67: agent.ServerMessage.stop_action:type_name -> agent.StopActionRequest
+	20, // 68: agent.ServerMessage.check_connection:type_name -> agent.CheckConnectionRequest
+	25, // 69: agent.ServerMessage.start_job:type_name -> agent.StartJobRequest
+	27, // 70: agent.ServerMessage.stop_job:type_name -> agent.StopJobRequest
+	22, // 71: agent.ServerMessage.job_status:type_name -> agent.JobStatusRequest
+	71, // 72: agent.SetStateRequest.AgentProcess.type:type_name -> inventory.AgentType
+	38, // 73: agent.SetStateRequest.AgentProcess.text_files:type_name -> agent.SetStateRequest.AgentProcess.TextFilesEntry
+	34, // 74: agent.SetStateRequest.AgentProcessesEntry.value:type_name -> agent.SetStateRequest.AgentProcess
+	71, // 75: agent.SetStateRequest.BuiltinAgent.type:type_name -> inventory.AgentType
+	1,  // 76: agent.SetStateRequest.BuiltinAgent.text_files:type_name -> agent.TextFiles
+	36, // 77: agent.SetStateRequest.BuiltinAgentsEntry.value:type_name -> agent.SetStateRequest.BuiltinAgent
+	10, // 78: agent.QueryActionMap.MapEntry.value:type_name -> agent.QueryActionValue
+	0,  // 79: agent.StartActionRequest.MySQLExplainParams.output_format:type_name -> agent.MysqlExplainOutputFormat
+	1,  // 80: agent.StartActionRequest.MongoDBExplainParams.text_files:type_name -> agent.TextFiles
+	1,  // 81: agent.StartActionRequest.MongoDBQueryGetParameterParams.text_files:type_name -> agent.TextFiles
+	1,  // 82: agent.StartActionRequest.MongoDBQueryBuildInfoParams.text_files:type_name -> agent.TextFiles
+	1,  // 83: agent.StartActionRequest.MongoDBQueryGetCmdLineOptsParams.text_files:type_name -> agent.TextFiles
+	69, // 84: agent.StartJobRequest.Echo.delay:type_name -> google.protobuf.Duration
+	24, // 85: agent.StartJobRequest.MySQLBackup.s3_config:type_name -> agent.S3LocationConfig
+	31, // 86: agent.Agent.Connect:input_type -> agent.AgentMessage
+	32, // 87: agent.Agent.Connect:output_type -> agent.ServerMessage
+	87, // [87:88] is the sub-list for method output_type
+	86, // [86:87] is the sub-list for method input_type
+	86, // [86:86] is the sub-list for extension type_name
+	86, // [86:86] is the sub-list for extension extendee
+	0,  // [0:86] is the sub-list for field type_name
+>>>>>>> PMM-2.0
 }
 
 func init() { file_agentpb_agent_proto_init() }
@@ -5297,7 +5914,7 @@ func file_agentpb_agent_proto_init() {
 			}
 		}
 		file_agentpb_agent_proto_msgTypes[23].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*StartJobRequest); i {
+			switch v := v.(*S3LocationConfig); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5309,7 +5926,7 @@ func file_agentpb_agent_proto_init() {
 			}
 		}
 		file_agentpb_agent_proto_msgTypes[24].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*StartJobResponse); i {
+			switch v := v.(*StartJobRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5321,7 +5938,7 @@ func file_agentpb_agent_proto_init() {
 			}
 		}
 		file_agentpb_agent_proto_msgTypes[25].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*StopJobRequest); i {
+			switch v := v.(*StartJobResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5333,7 +5950,7 @@ func file_agentpb_agent_proto_init() {
 			}
 		}
 		file_agentpb_agent_proto_msgTypes[26].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*StopJobResponse); i {
+			switch v := v.(*StopJobRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5345,7 +5962,7 @@ func file_agentpb_agent_proto_init() {
 			}
 		}
 		file_agentpb_agent_proto_msgTypes[27].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*JobResult); i {
+			switch v := v.(*StopJobResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5357,7 +5974,7 @@ func file_agentpb_agent_proto_init() {
 			}
 		}
 		file_agentpb_agent_proto_msgTypes[28].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*JobProgress); i {
+			switch v := v.(*JobResult); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5369,7 +5986,7 @@ func file_agentpb_agent_proto_init() {
 			}
 		}
 		file_agentpb_agent_proto_msgTypes[29].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*AgentMessage); i {
+			switch v := v.(*JobProgress); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5381,6 +5998,18 @@ func file_agentpb_agent_proto_init() {
 			}
 		}
 		file_agentpb_agent_proto_msgTypes[30].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*AgentMessage); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_agentpb_agent_proto_msgTypes[31].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ServerMessage); i {
 			case 0:
 				return &v.state
@@ -5392,7 +6021,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[32].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[33].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*SetStateRequest_AgentProcess); i {
 			case 0:
 				return &v.state
@@ -5404,7 +6033,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[34].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[35].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*SetStateRequest_BuiltinAgent); i {
 			case 0:
 				return &v.state
@@ -5416,7 +6045,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[38].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[39].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*StartActionRequest_MySQLExplainParams); i {
 			case 0:
 				return &v.state
@@ -5428,7 +6057,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[39].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[40].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*StartActionRequest_MySQLShowCreateTableParams); i {
 			case 0:
 				return &v.state
@@ -5440,7 +6069,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[40].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[41].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*StartActionRequest_MySQLShowTableStatusParams); i {
 			case 0:
 				return &v.state
@@ -5452,7 +6081,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[41].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[42].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*StartActionRequest_MySQLShowIndexParams); i {
 			case 0:
 				return &v.state
@@ -5464,7 +6093,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[42].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[43].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*StartActionRequest_PostgreSQLShowCreateTableParams); i {
 			case 0:
 				return &v.state
@@ -5476,7 +6105,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[43].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[44].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*StartActionRequest_PostgreSQLShowIndexParams); i {
 			case 0:
 				return &v.state
@@ -5488,7 +6117,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[44].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[45].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*StartActionRequest_MongoDBExplainParams); i {
 			case 0:
 				return &v.state
@@ -5500,7 +6129,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[45].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[46].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*StartActionRequest_PTSummaryParams); i {
 			case 0:
 				return &v.state
@@ -5512,7 +6141,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[46].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[47].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*StartActionRequest_PTPgSummaryParams); i {
 			case 0:
 				return &v.state
@@ -5524,7 +6153,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[47].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[48].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*StartActionRequest_PTMongoDBSummaryParams); i {
 			case 0:
 				return &v.state
@@ -5536,7 +6165,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[48].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[49].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*StartActionRequest_PTMySQLSummaryParams); i {
 			case 0:
 				return &v.state
@@ -5548,7 +6177,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[49].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[50].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*StartActionRequest_MySQLQueryShowParams); i {
 			case 0:
 				return &v.state
@@ -5560,7 +6189,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[50].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[51].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*StartActionRequest_MySQLQuerySelectParams); i {
 			case 0:
 				return &v.state
@@ -5572,7 +6201,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[51].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[52].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*StartActionRequest_PostgreSQLQueryShowParams); i {
 			case 0:
 				return &v.state
@@ -5584,7 +6213,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[52].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[53].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*StartActionRequest_PostgreSQLQuerySelectParams); i {
 			case 0:
 				return &v.state
@@ -5596,7 +6225,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[53].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[54].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*StartActionRequest_MongoDBQueryGetParameterParams); i {
 			case 0:
 				return &v.state
@@ -5608,7 +6237,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[54].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[55].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*StartActionRequest_MongoDBQueryBuildInfoParams); i {
 			case 0:
 				return &v.state
@@ -5620,7 +6249,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[55].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[56].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*StartActionRequest_MongoDBQueryGetCmdLineOptsParams); i {
 			case 0:
 				return &v.state
@@ -5632,7 +6261,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[56].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[57].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*CheckConnectionResponse_Stats); i {
 			case 0:
 				return &v.state
@@ -5644,7 +6273,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[57].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[58].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*StartJobRequest_Echo); i {
 			case 0:
 				return &v.state
@@ -5656,20 +6285,8 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[58].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*JobResult_Error); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
 		file_agentpb_agent_proto_msgTypes[59].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*JobResult_Echo); i {
+			switch v := v.(*StartJobRequest_MySQLBackup); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5681,7 +6298,55 @@ func file_agentpb_agent_proto_init() {
 			}
 		}
 		file_agentpb_agent_proto_msgTypes[60].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*JobResult_Error); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_agentpb_agent_proto_msgTypes[61].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*JobResult_Echo); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_agentpb_agent_proto_msgTypes[62].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*JobResult_MySQLBackup); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_agentpb_agent_proto_msgTypes[63].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*JobProgress_Echo); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_agentpb_agent_proto_msgTypes[64].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*JobProgress_MySQLBackup); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5724,17 +6389,20 @@ func file_agentpb_agent_proto_init() {
 		(*StartActionRequest_MongodbQueryBuildinfoParams)(nil),
 		(*StartActionRequest_MongodbQueryGetcmdlineoptsParams)(nil),
 	}
-	file_agentpb_agent_proto_msgTypes[23].OneofWrappers = []interface{}{
+	file_agentpb_agent_proto_msgTypes[24].OneofWrappers = []interface{}{
 		(*StartJobRequest_Echo_)(nil),
-	}
-	file_agentpb_agent_proto_msgTypes[27].OneofWrappers = []interface{}{
-		(*JobResult_Error_)(nil),
-		(*JobResult_Echo_)(nil),
+		(*StartJobRequest_MysqlBackup)(nil),
 	}
 	file_agentpb_agent_proto_msgTypes[28].OneofWrappers = []interface{}{
-		(*JobProgress_Echo_)(nil),
+		(*JobResult_Error_)(nil),
+		(*JobResult_Echo_)(nil),
+		(*JobResult_MysqlBackup)(nil),
 	}
 	file_agentpb_agent_proto_msgTypes[29].OneofWrappers = []interface{}{
+		(*JobProgress_Echo_)(nil),
+		(*JobProgress_MysqlBackup)(nil),
+	}
+	file_agentpb_agent_proto_msgTypes[30].OneofWrappers = []interface{}{
 		(*AgentMessage_Ping)(nil),
 		(*AgentMessage_StateChanged)(nil),
 		(*AgentMessage_QanCollect)(nil),
@@ -5750,7 +6418,7 @@ func file_agentpb_agent_proto_init() {
 		(*AgentMessage_JobResult)(nil),
 		(*AgentMessage_JobProgress)(nil),
 	}
-	file_agentpb_agent_proto_msgTypes[30].OneofWrappers = []interface{}{
+	file_agentpb_agent_proto_msgTypes[31].OneofWrappers = []interface{}{
 		(*ServerMessage_Pong)(nil),
 		(*ServerMessage_StateChanged)(nil),
 		(*ServerMessage_QanCollect)(nil),
@@ -5764,13 +6432,16 @@ func file_agentpb_agent_proto_init() {
 		(*ServerMessage_StopJob)(nil),
 		(*ServerMessage_JobStatus)(nil),
 	}
+	file_agentpb_agent_proto_msgTypes[59].OneofWrappers = []interface{}{
+		(*StartJobRequest_MySQLBackup_S3Config)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_agentpb_agent_proto_rawDesc,
 			NumEnums:      1,
-			NumMessages:   61,
+			NumMessages:   65,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
