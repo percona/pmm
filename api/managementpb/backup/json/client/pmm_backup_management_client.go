@@ -13,6 +13,7 @@ import (
 	"github.com/percona/pmm/api/managementpb/backup/json/client/artifacts"
 	"github.com/percona/pmm/api/managementpb/backup/json/client/backups"
 	"github.com/percona/pmm/api/managementpb/backup/json/client/locations"
+	"github.com/percona/pmm/api/managementpb/backup/json/client/restore_history"
 )
 
 // Default PMM backup management HTTP client.
@@ -60,6 +61,7 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMBackupM
 	cli.Artifacts = artifacts.New(transport, formats)
 	cli.Backups = backups.New(transport, formats)
 	cli.Locations = locations.New(transport, formats)
+	cli.RestoreHistory = restore_history.New(transport, formats)
 	return cli
 }
 
@@ -110,6 +112,8 @@ type PMMBackupManagement struct {
 
 	Locations locations.ClientService
 
+	RestoreHistory restore_history.ClientService
+
 	Transport runtime.ClientTransport
 }
 
@@ -119,4 +123,5 @@ func (c *PMMBackupManagement) SetTransport(transport runtime.ClientTransport) {
 	c.Artifacts.SetTransport(transport)
 	c.Backups.SetTransport(transport)
 	c.Locations.SetTransport(transport)
+	c.RestoreHistory.SetTransport(transport)
 }
