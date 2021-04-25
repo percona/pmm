@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package backup.v1beta1;
+
+option go_package = "api/managementpb/backup;backupv1beta1";
+
+// DataModel is a model used for performing a backup.
+enum DataModel {
+  DATA_MODEL_INVALID = 0;
+  PHYSICAL = 1;
+  LOGICAL = 2;
+}

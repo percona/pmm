@@ -6,22 +6,16 @@ option go_package = "api/managementpb/backup;backupv1beta1";
 
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
+import "managementpb/backup/common.proto";
 
-// Status shows current status of backup.
-enum Status {
-  STATUS_INVALID = 0;
-  PENDING = 1;
-  IN_PROGRESS = 2;
-  PAUSED = 3;
-  SUCCESS = 4;
-  ERROR = 5;
-}
-
-// DataModel is a model used for performing a backup.
-enum DataModel {
-  DATA_MODEL_INVALID = 0;
-  PHYSICAL = 1;
-  LOGICAL = 2;
+// BackupStatus shows the current status of execution of backup.
+enum BackupStatus {
+  BACKUP_STATUS_INVALID = 0;
+  BACKUP_STATUS_PENDING = 1;
+  BACKUP_STATUS_IN_PROGRESS = 2;
+  BACKUP_STATUS_PAUSED = 3;
+  BACKUP_STATUS_SUCCESS = 4;
+  BACKUP_STATUS_ERROR = 5;
 }
 
 // Artifact represents single backup artifact.
@@ -43,7 +37,7 @@ message Artifact {
   // Backup data model.
   DataModel data_model = 8;
   // Backup status.
-  Status status = 9;
+  BackupStatus status = 9;
   // Artifact creation time.
   google.protobuf.Timestamp created_at = 10;
 }
