@@ -131,7 +131,3 @@ curl -s -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_
 ```
 curl -s -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z", "filter_by": "1D410B4BE5060972", "group_by": "queryid"}' http://127.0.0.1:9922/v0/qan/ObjectDetails/GetLabels | jq
 ```
-
-
-## License
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fpercona%2Fqan-api2.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fpercona%2Fqan-api2?ref=badge_large)

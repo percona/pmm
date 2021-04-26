@@ -1,5 +1,6 @@
 dist: bionic
 language: go
+os: linux
 
 services:
   - docker
@@ -9,14 +10,14 @@ go:
   - 1.14.x
   - tip
 
-matrix:
+jobs:
   allow_failures:
     - go: tip
 
 env:
   global:
     # REVIEWDOG_GITHUB_API_TOKEN
-    secure: "Md83AEZnxZ/pXNEM4jrFO8vLVbWKW3SOzWqOCFFhsH/ojisQUF5SjMgH2ysZ/2J6AOps0w5+ny1ZAt0/Y2l64gX/5/qwbHERj/+f3kTKVXkGxOBYWCOdxdNlqYD90UJRG9HKqtcjNztd/JzoK+AZuE9rD9dKHOmmzLz/n6DsQEpu/jeDcn+rIrlRm7RrrKqNjbACnKEfMVL3WoSlOiKz6nrCq6Iyb9a3N1/UctaxSDR3nxZJ25E61C7tytFZkCx7uP1ep3Iok6uEdgpkPRmKUZUUOl1HR2O7dvi4HoNxWYut1xluhZ8Zbny/qOVJfBDnR5JRzgefzwKNTVUm97/NCKgaQcQXbNGieymErbi5bVnpFhcFxnqvrcpeT0drTw/ZTjD6bxpNnQLDXZeGUyEvLyEaNFreAI9LwADvzhpvi/xu1JoeLVGP4BfOlRj/v21PElS5kbK5FcPcEeTSqhJroOBe48p8dhlLI35U1/Y9KOBKS1Vlb117wpXlfFwMOhAKlXDdaUUGrQXwFb1nTAuo5WkPPgto0HBBK+mEtOUJLtEUZCfu4Zf1uH8PNzXSn6fhpSv36+Sklv+9obkqeJUCeEuoEJObhWrsVhGw/DcgzsRBmOtL+BcIpFDqYMKYrCAaOm+u2FIHGoCDE7ym2Xe+fw/K/XmSj/HsGcWNKkGZRso="
+    - secure: e3XaA+pzOc4QdW1L9pu8xKYK1UnmzaAkoTr9KYPvSZMatNe61bynBt0wM2aqutCI4Ow83Z02cQeW4/CoZuQtbFjufkuTYKd/2pwlZ7DQCeKyafVtpwHI2A1dJBR2pxqywYn62NTxNYw1xGFqBcNr5T7FKRSoaE3GBK9H7krriXLj+5t6bU9632amoE5dx6SyJ2C1t+QxzNi8m6TaGXiAwAmDo6Y/AcocCnzFiIBcXutZIjBO5TtkEncgIDpoRiOF7kPTx2IkYXnB1wNDJM08CO0OQd3giKPzNCYjL9feCUM7lykxbx3oXEaZ6V/3JxxZhxt1WWbB53ch6tgfbEm7+Oxc37ForPLkV7sb4HS/1kxmrLbZi0IB/rIDDUn03+2rWDAF9+mnoM/r1Qdgp2GpMNYzxKqryiFhaKtoQt0erBcq5P+U6qW/Dd0eR1/rSfqv/0ixUtr2npRyiFUn3gm1ffDLeGis8H3SMNTSswhJ6AdnABWEiZ6OcmkJY46MbFMqn3osbhhgjyxsqluBpQV4Q+n1unsK4SNbvLwwIScOI5NvmInwJdBpPfyoRtEOPFmEl3vVbLpD+XjhKYUHiPoU/1cIWYrFOlRnVbq70W4ZX82OpzrXusOe8nVpVTfD7iVqyALGyTo4B2uR3P0PWrRaVx4C6eRcugyx9jxn+zHw0rE=
 
 branches:
   except:
@@ -63,8 +64,9 @@ after_success:
   - bash <(curl -s https://codecov.io/bash) -X fix
 
 notifications:
+  # perconacorp:token#channel
   slack:
-    on_success: change
+    on_success: always
     on_failure: always
     rooms:
-      secure: MvPcu8ToJDcsDM5jIWugMcdRLjwbl7yDrZ6zDSmHamc7jETSt7dF0SbBIf5FoDGSeoHw/Yhxr/X38dh1eTqOYpCidOSpFKTAZwLQuMn02dj8yEC8YSfS3Of/sGTDpvY0BwqWKQnsllpAzOO1gNiqU+Bhvl6SmP3rl/RRoiggqUeLHdbRhTeYko1C3cYjFT3L45XgZxjGOFrFvEp+97NEE10+JEj5fFU7H6kzEvYMss61+soyHePGIDn8hxg26TAFtoCh1g+1o3x1D2XeKsh5TeDjLEUkXFvsgVg42NGl95P7xR1N61Dxw6op+gX2P2lVQKB+aM/sYxIoJx2swq+Kui5pu0Q9zFdCanfc5CQOekcXF+pAZPwWjq2xNaN/ne6pxuSwLRHXLCwi7g49fiDGwd0fudmsLX2xIXHTe5G91Kl4ESh6G2P/dCuLC/j0ZyBY+vhaQNC5bJthOxu/e6Wxb5n3Rqj+I0/j/DmX8aC3E7j8J6ByNrn6/VSlcwOVlpV2T811x/SioU00VJicw3mrILtsRoY0BXUNQgRUeiFBIjahlN9eGXxt5A4vzWzmGRNn29f18D9qMsVHNGbvolEFwXBis/V5AHW+YfuG29cWnyQWUyT7UqkyS4koWkdEYwr58zblHANAVlOQFaUmzuGaYyC0XDstenYOEN5PUHqgXg0=
+      - secure: dhYrTsJIRIujGzMdK3LNxk9KwepEA8H9UeP1KB9l8gUcPw44hfuAe2Cx8f5mFRlBofy6Hk1KX9WNfd2UMH9w3EeWiqnmJDdoWy2IeEQloYbg2r47jpUVfrUTRdPtMCIqN5pVn8ik/cBnjWP1UN+442bnAVwENnhtTHHSCuc+TxdicxHCxluOQctbHrpkbBdZqzJe1yrbnC8U3tahF1Xp6+z/jD+ybENy6D5dzvY2CvVA1SvKEUoDmoEnCfIbDutS5j+0WKzmoSc7ZmTYJyM/kt2jHup7RyFxS0Jn+Bf/tQUKUo1lVCNlcSi3tVjSDo6XQ3mimYxG16j0/rJdYdFiKlyiseZrJ/1Vq0ITdC+QY72o5Z1q3JESvmu9PM9wWaxL1Wtwk4AXbyi48kC/GqD5Ldvivn4dYEakCAvBRk2GreQtUbKvaytLk0fjV23Dkjxaw5OjywluYlYen5YbRQJ7DvzpP2/gW2tX9VpC7iRKruj3FymwczlAVvuh4O6PggduUNhmNX92NrBICvjNV/YbO2VRxH1bKb2iPNNpDIY59CLKXWcgXfCTmYCCQ76LcHPR/1scmUnONi5Ax/KYXRYjfoih5FrMNg1XvAWx0u5obldMrQj9BpCVQ2vEa5u3heQehOz9uwwb4bJ8lRsgm7flWQZRp9YZkxX+OhfoF9HZtV0=
