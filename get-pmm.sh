@@ -129,12 +129,9 @@ parse_params() {
 #######################################
 gather_info() {
   msg "${GREEN}PMM Server Wizard Install${NOFORMAT}"
-  msg "\tPort Number to start PMM Server on (default: 443): "
-  read port
-  msg "\tPMM Server Container Name (default: pmm-server): "
-  read container_name
-  msg "\tOverride specific version (container tag) (default: latest in 2.x series) format: 2.x.y: "
-  read tag
+  read -p "  Port Number to start PMM Server on (default: 443): " port
+  read -p "  PMM Server Container Name (default: pmm-server): " container_name
+  read -p "  Override specific version (container tag) (default: latest in 2.x series) format: 2.x.y: " tag
 }
 
 check_command() {
