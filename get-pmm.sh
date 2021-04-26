@@ -5,7 +5,7 @@
 # If docker is not installed - this script try to install it as root user.
 #
 # Usage example:
-# curl -fsSL https://github.com/percona/pmm/blob/PMM-2.0/get-pmm.sh -o get-pmm2.sh; chmod +x get-pmm2.sh; ./get-pmm2.sh
+# curl -fsSL https://raw.githubusercontent.com/percona/pmm/PMM-2.0/get-pmm.sh -o get-pmm2.sh; chmod +x get-pmm2.sh; ./get-pmm2.sh
 #
 #################################
 
