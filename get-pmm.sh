@@ -164,7 +164,7 @@ run_root() {
 install_docker() {
   msg "Checking if docker is installed..."
   if ! check_command docker; then
-    msg "Installing docker..."
+    msg "Docker not found. Installing..."
     curl -fsSL get.docker.com -o /tmp/get-docker.sh ||
       wget -qO /tmp/get-docker.sh get.docker.com
     sh /tmp/get-docker.sh
@@ -233,7 +233,6 @@ show_message() {
 }
 
 main() {
-  parse_params "$@"
   setup_colors
   if [[ $interactive == 1 ]]; then
     gather_info
@@ -243,6 +242,8 @@ main() {
   start_pmm
   show_message
 }
+
+parse_params "$@"
 
 main
 die "Done!" 0
