@@ -17,6 +17,9 @@
 package models
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
@@ -41,6 +44,32 @@ func FindArtifacts(q *reform.Querier) ([]*Artifact, error) {
 		artifacts = append(artifacts, r.(*Artifact))
 	}
 
+	return artifacts, nil
+}
+
+// FindArtifactsByIDs finds artifacts by IDs.
+func FindArtifactsByIDs(q *reform.Querier, ids []string) (map[string]*Artifact, error) {
+	if len(ids) == 0 {
+		return map[string]*Artifact{}, nil
+	}
+
+	p := strings.Join(q.Placeholders(1, len(ids)), ", ")
+	tail := fmt.Sprintf("WHERE id IN (%s)", p)
+	args := make([]interface{}, 0, len(ids))
+	for _, id := range ids {
+		args = append(args, id)
+	}
+
+	all, err := q.SelectAllFrom(ArtifactTable, tail, args...)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	artifacts := make(map[string]*Artifact, len(all))
+	for _, l := range all {
+		artifact := l.(*Artifact)
+		artifacts[artifact.ID] = artifact
+	}
 	return artifacts, nil
 }
 

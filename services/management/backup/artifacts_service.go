@@ -108,19 +108,19 @@ func convertDataModel(dataModel models.DataModel) (*backupv1beta1.DataModel, err
 	return &dm, nil
 }
 
-func convertBackupStatus(status models.BackupStatus) (*backupv1beta1.Status, error) {
-	var s backupv1beta1.Status
+func convertBackupStatus(status models.BackupStatus) (*backupv1beta1.BackupStatus, error) {
+	var s backupv1beta1.BackupStatus
 	switch status {
 	case models.PendingBackupStatus:
-		s = backupv1beta1.Status_PENDING
+		s = backupv1beta1.BackupStatus_BACKUP_STATUS_PENDING
 	case models.InProgressBackupStatus:
-		s = backupv1beta1.Status_IN_PROGRESS
+		s = backupv1beta1.BackupStatus_BACKUP_STATUS_IN_PROGRESS
 	case models.PausedBackupStatus:
-		s = backupv1beta1.Status_PAUSED
+		s = backupv1beta1.BackupStatus_BACKUP_STATUS_PAUSED
 	case models.SuccessBackupStatus:
-		s = backupv1beta1.Status_SUCCESS
+		s = backupv1beta1.BackupStatus_BACKUP_STATUS_SUCCESS
 	case models.ErrorBackupStatus:
-		s = backupv1beta1.Status_ERROR
+		s = backupv1beta1.BackupStatus_BACKUP_STATUS_ERROR
 	default:
 		return nil, errors.Errorf("invalid status '%s'", status)
 	}

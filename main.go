@@ -202,6 +202,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	backupv1beta1.RegisterBackupsServer(gRPCServer, backup.NewBackupsService(deps.db, deps.jobsService))
 	backupv1beta1.RegisterLocationsServer(gRPCServer, backup.NewLocationsService(deps.db, deps.minio))
 	backupv1beta1.RegisterArtifactsServer(gRPCServer, backup.NewArtifactsService(deps.db))
+	backupv1beta1.RegisterRestoreHistoryServer(gRPCServer, backup.NewRestoreHistoryService(deps.db))
 
 	dbaasv1beta1.RegisterKubernetesServer(gRPCServer, managementdbaas.NewKubernetesServer(deps.db, deps.dbaasClient))
 	dbaasv1beta1.RegisterXtraDBClusterServer(gRPCServer, managementdbaas.NewXtraDBClusterService(deps.db, deps.dbaasClient))
@@ -310,6 +311,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		backupv1beta1.RegisterBackupsHandlerFromEndpoint,
 		backupv1beta1.RegisterLocationsHandlerFromEndpoint,
 		backupv1beta1.RegisterArtifactsHandlerFromEndpoint,
+		backupv1beta1.RegisterRestoreHistoryHandlerFromEndpoint,
 
 		jobs1beta1.RegisterJobsHandlerFromEndpoint,
 
