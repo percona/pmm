@@ -2267,6 +2267,16 @@
                   "description": "Disable Backup Management.",
                   "type": "boolean",
                   "x-order": 24
+                },
+                "enable_dbaas": {
+                  "description": "Enable DBaaS.",
+                  "type": "boolean",
+                  "x-order": 25
+                },
+                "disable_dbaas": {
+                  "description": "Disable DBaaS.",
+                  "type": "boolean",
+                  "x-order": 26
                 }
               }
             }
@@ -24022,16 +24032,16 @@
                         "x-order": 7
                       },
                       "status": {
-                        "description": "Status shows current status of backup.",
+                        "description": "BackupStatus shows the current status of execution of backup.",
                         "type": "string",
-                        "default": "STATUS_INVALID",
+                        "default": "BACKUP_STATUS_INVALID",
                         "enum": [
-                          "STATUS_INVALID",
-                          "PENDING",
-                          "IN_PROGRESS",
-                          "PAUSED",
-                          "SUCCESS",
-                          "ERROR"
+                          "BACKUP_STATUS_INVALID",
+                          "BACKUP_STATUS_PENDING",
+                          "BACKUP_STATUS_IN_PROGRESS",
+                          "BACKUP_STATUS_PAUSED",
+                          "BACKUP_STATUS_SUCCESS",
+                          "BACKUP_STATUS_ERROR"
                         ],
                         "x-order": 8
                       },
@@ -24811,6 +24821,159 @@
             "description": "A successful response.",
             "schema": {
               "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/backup/RestoreHistory/List": {
+      "post": {
+        "tags": [
+          "RestoreHistory"
+        ],
+        "summary": "ListRestoreHistory returns a list of all backup restore history items.",
+        "operationId": "ListRestoreHistory",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "description": "RestoreHistoryItem represents single backup restore item.",
+                    "type": "object",
+                    "properties": {
+                      "restore_id": {
+                        "description": "Machine-readable restore id.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "artifact_id": {
+                        "description": "ID of the artifact used for restore.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "name": {
+                        "description": "Artifact name used for restore.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "vendor": {
+                        "description": "Database vendor e.g. PostgreSQL, MongoDB, MySQL.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "location_id": {
+                        "description": "Machine-readable location ID.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "location_name": {
+                        "description": "Location name.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "service_id": {
+                        "description": "Machine-readable service ID.",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "service_name": {
+                        "description": "Service name.",
+                        "type": "string",
+                        "x-order": 7
+                      },
+                      "data_model": {
+                        "description": "DataModel is a model used for performing a backup.",
+                        "type": "string",
+                        "default": "DATA_MODEL_INVALID",
+                        "enum": [
+                          "DATA_MODEL_INVALID",
+                          "PHYSICAL",
+                          "LOGICAL"
+                        ],
+                        "x-order": 8
+                      },
+                      "status": {
+                        "description": "RestoreStatus shows the current status of execution of restore.",
+                        "type": "string",
+                        "default": "RESTORE_STATUS_INVALID",
+                        "enum": [
+                          "RESTORE_STATUS_INVALID",
+                          "RESTORE_STATUS_IN_PROGRESS",
+                          "RESTORE_STATUS_SUCCESS",
+                          "RESTORE_STATUS_ERROR"
+                        ],
+                        "x-order": 9
+                      },
+                      "started_at": {
+                        "description": "Restore start time.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 10
+                      },
+                      "finished_at": {
+                        "description": "Restore finish time.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 11
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
             }
           },
           "default": {
