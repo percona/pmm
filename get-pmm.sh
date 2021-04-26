@@ -162,6 +162,7 @@ run_root() {
 # Installs docker if needed.
 #######################################
 install_docker() {
+  msg "Checking if docker is installed..."
   if ! check_command docker; then
     msg "Installing docker..."
     curl -fsSL get.docker.com -o /tmp/get-docker.sh ||
@@ -169,12 +170,13 @@ install_docker() {
     sh /tmp/get-docker.sh
     run_root 'service docker start' || :
   fi
-  if ! docker ps 1>/dev/null; then
+  if ! docker ps &>/dev/null; then
     root_is_needed='yes'
-    if ! run_root 'docker ps 1> /dev/null'; then
+    if ! run_root 'docker ps &> /dev/null'; then
       die "${RED}ERROR: cannot run "docker ps" command${NOFORMAT}"
     fi
   fi
+  msg "Docker is ready."
 }
 
 #######################################
@@ -193,14 +195,15 @@ run_docker() {
 # If any PMM server instance is run - stop and backup it.
 #######################################
 start_pmm() {
+  msg "Starting PMM server..."
   run_docker "pull $repo:$tag 1> /dev/null"
 
-  if ! run_docker "inspect pmm-data 2> /dev/null 1> /dev/null"; then
+  if ! run_docker "inspect pmm-data &> /dev/null"; then
     run_docker "create -v /srv/ --name pmm-data percona/pmm-server:$tag /bin/true 1> /dev/null"
     msg "Created PMM Data Volume: pmm-data"
   fi
 
-  if run_docker "inspect pmm-server 2> /dev/null 1> /dev/null"; then
+  if run_docker "inspect pmm-server &> /dev/null"; then
     pmm_archive="pmm-server-$(date "+%F-%H%M%S")"
     msg "\tExisting PMM Server found, renaming to $pmm_archive"
     run_docker 'stop pmm-server' || :
@@ -208,7 +211,7 @@ start_pmm() {
   fi
   run_pmm="run -d -p $port:443 --volumes-from pmm-data --name $container_name --restart always $repo:$tag"
 
-  run_docker "$run_pmm 2> /dev/null 1> /dev/null"
+  run_docker "$run_pmm &> /dev/null"
   msg "Created PMM Server: $container_name"
   msg "\tUse the following command if you ever need to update your container by hand:"
   msg "\tdocker $run_pmm"
