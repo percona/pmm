@@ -7,6 +7,7 @@ option go_package = "api/agentpb;agentpb";
 import "agentpb/collector.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
+import "google/rpc/status.proto";
 import "inventorypb/agent_status.proto";
 import "inventorypb/agents.proto";
 import "inventorypb/services.proto";
@@ -489,6 +490,12 @@ message AgentMessage {
   // TODO https://jira.percona.com/browse/PMM-3449
 
   uint32 id = 1;
+  // The responder sets the status field in two situations:
+  // 1. When it received a request with the payload field not set.
+  //    That means that responded is older than the requester, and doesn't know about newer payload types.
+  //    Status code UNIMPLEMENTED (12) is reserved for that case.
+  // 2. When the payload is set, but the request can't be performed due to some error.
+  google.rpc.Status status = 2047;
   oneof payload {
     // requests from agent
     Ping ping = 2;
@@ -513,6 +520,12 @@ message ServerMessage {
   // TODO https://jira.percona.com/browse/PMM-3449
 
   uint32 id = 1;
+  // The responder sets the status field in two situations:
+  // 1. When it received a request with the payload field not set.
+  //    That means that responded is older than the requester, and doesn't know about newer payload types.
+  //    Status code UNIMPLEMENTED (12) is reserved for that case.
+  // 2. When the payload is set, but the request can't be performed due to some error.
+  google.rpc.Status status = 2047;
   oneof payload {
     // responses from server
     Pong pong = 2;
