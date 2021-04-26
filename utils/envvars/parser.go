@@ -34,6 +34,9 @@ import (
 const (
 	defaultSaaSHost = "check.percona.com:443"
 	envSaaSHost     = "PERCONA_TEST_SAAS_HOST"
+	// TODO REMOVE PERCONA_TEST_DBAAS IN FUTURE RELEASES.
+	envTestDbaas   = "PERCONA_TEST_DBAAS"
+	envEnableDbaas = "ENABLE_DBAAS"
 )
 
 // InvalidDurationError invalid duration error.
@@ -55,6 +58,7 @@ func (e InvalidDurationError) Error() string { return string(e) }
 //  - DATA_RETENTION is the duration of how long keep time-series data in ClickHouse;
 //  - ENABLE_ALERTING enables Integrated Alerting;
 //  - ENABLE_AZUREDISCOVER enables Azure Discover;
+//  - ENABLE_DBAAS enables Database as a Service feature, it's a replacement for deprecated PERCONA_TEST_DBAAS which still works but will be removed eventually;
 //  - the environment variables prefixed with GF_ passed as related to Grafana.
 func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs []error, warns []string) {
 	envSettings = new(models.ChangeSettingsParams)
@@ -139,6 +143,18 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 		case "PERCONA_TEST_AUTH_HOST", "PERCONA_TEST_CHECKS_HOST", "PERCONA_TEST_TELEMETRY_HOST":
 			err = fmt.Errorf("environment variable %q is removed and replaced by %q", k, envSaaSHost)
 
+		case envEnableDbaas, envTestDbaas:
+			envSettings.EnableDBaaS, err = strconv.ParseBool(v)
+			if err != nil {
+				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+				errs = append(errs, err)
+				continue
+			}
+			envSettings.DisableDBaaS = !envSettings.EnableDBaaS
+			if k == envTestDbaas {
+				warns = append(warns, fmt.Sprintf("environment variable %q IS DEPRECATED AND WILL BE REMOVED, USE %q INSTEAD", envTestDbaas, envEnableDbaas))
+			}
+
 		default:
 			// handle prefixes
 
@@ -158,17 +174,6 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 			}
 
 			warns = append(warns, fmt.Sprintf("environment variable %q IS NOT SUPPORTED and WILL BE REMOVED IN THE FUTURE", k))
-
-			// TODO rename to ENABLE_DBAAS and move to own `case` before `default:`
-			if k == "PERCONA_TEST_DBAAS" {
-				envSettings.EnableDBaaS, err = strconv.ParseBool(v)
-				if err != nil {
-					err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
-					errs = append(errs, err)
-					continue
-				}
-				envSettings.DisableDBaaS = !envSettings.EnableDBaaS
-			}
 		}
 
 		if err != nil {

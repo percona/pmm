@@ -40,6 +40,16 @@ func NewLogsService(db *reform.DB, client dbaasClient) dbaasv1beta1.LogsAPIServe
 	return &LogsService{db: db, l: l, controllerClient: client}
 }
 
+// Enabled returns if service is enabled and can be used.
+func (s *LogsService) Enabled() bool {
+	settings, err := models.GetSettings(s.db)
+	if err != nil {
+		s.l.WithError(err).Error("can't get settings")
+		return false
+	}
+	return settings.DBaaS.Enabled
+}
+
 // GetLogs returns container's logs of a database cluster and its pods events.
 func (s LogsService) GetLogs(ctx context.Context, in *dbaasv1beta1.GetLogsRequest) (*dbaasv1beta1.GetLogsResponse, error) {
 	kubernetesCluster, err := models.FindKubernetesClusterByName(s.db.Querier, in.KubernetesClusterName)

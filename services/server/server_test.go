@@ -211,7 +211,7 @@ func TestServer(t *testing.T) {
 		server := newServer(t)
 
 		server.UpdateSettingsFromEnv([]string{
-			"PERCONA_TEST_DBAAS=1",
+			"ENABLE_DBAAS=1",
 			"ENABLE_ALERTING=1",
 			"ENABLE_AZUREDISCOVER=1",
 		})

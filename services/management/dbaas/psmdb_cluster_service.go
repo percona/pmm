@@ -42,6 +42,16 @@ func NewPSMDBClusterService(db *reform.DB, client dbaasClient) dbaasv1beta1.PSMD
 	return &PSMDBClusterService{db: db, l: l, controllerClient: client}
 }
 
+// Enabled returns if service is enabled and can be used.
+func (s *PSMDBClusterService) Enabled() bool {
+	settings, err := models.GetSettings(s.db)
+	if err != nil {
+		s.l.WithError(err).Error("can't get settings")
+		return false
+	}
+	return settings.DBaaS.Enabled
+}
+
 // ListPSMDBClusters returns a list of all PSMDB clusters.
 func (s PSMDBClusterService) ListPSMDBClusters(ctx context.Context, req *dbaasv1beta1.ListPSMDBClustersRequest) (*dbaasv1beta1.ListPSMDBClustersResponse, error) {
 	kubernetesCluster, err := models.FindKubernetesClusterByName(s.db.Querier, req.KubernetesClusterName)

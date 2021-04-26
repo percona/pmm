@@ -67,6 +67,7 @@ type Server struct {
 	awsInstanceChecker   *AWSInstanceChecker
 	grafanaClient        grafanaClient
 	rulesService         rulesService
+	dbaasClient          dbaasClient
 	l                    *logrus.Entry
 
 	pmmUpdateAuthFileM sync.Mutex
@@ -76,6 +77,11 @@ type Server struct {
 	envSettings *models.ChangeSettingsParams
 
 	sshKeyM sync.Mutex
+}
+
+type dbaasClient interface {
+	Connect(ctx context.Context) error
+	Disconnect() error
 }
 
 type pmmUpdateAuth struct {
@@ -97,6 +103,7 @@ type Params struct {
 	AwsInstanceChecker   *AWSInstanceChecker
 	GrafanaClient        grafanaClient
 	RulesService         rulesService
+	DbaasClient          dbaasClient
 }
 
 // NewServer returns new server for Server service.
@@ -121,6 +128,7 @@ func NewServer(params *Params) (*Server, error) {
 		awsInstanceChecker:   params.AwsInstanceChecker,
 		grafanaClient:        params.GrafanaClient,
 		rulesService:         params.RulesService,
+		dbaasClient:          params.DbaasClient,
 		l:                    logrus.WithField("component", "server"),
 		pmmUpdateAuthFile:    path,
 		envSettings:          new(models.ChangeSettingsParams),
@@ -512,6 +520,11 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverp
 		return status.Error(codes.FailedPrecondition, "Azure Discover is enabled via ENABLE_AZUREDISCOVER environment variable.")
 	}
 
+	// ignore req.DisableDbaas when DBaaS is enabled through env var.
+	if req.DisableDbaas && s.envSettings.EnableDBaaS {
+		return status.Error(codes.FailedPrecondition, "DBaaS is enabled via ENABLE_DBAAS or via deprecated PERCONA_TEST_DBAAS environment variable.")
+	}
+
 	if getDuration(metricsRes.GetHr()) != 0 && s.envSettings.MetricsResolutions.HR != 0 {
 		return status.Error(codes.FailedPrecondition, "High resolution for metrics is set via METRICS_RESOLUTION_HR (or METRICS_RESOLUTION) environment variable.")
 	}
@@ -579,6 +592,9 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 			RemoveSlackAlertingSettings: req.RemoveSlackAlertingSettings,
 			EnableBackupManagement:      req.EnableBackupManagement,
 			DisableBackupManagement:     req.DisableBackupManagement,
+
+			EnableDBaaS:  req.EnableDbaas,
+			DisableDBaaS: req.DisableDbaas,
 		}
 
 		if req.EmailAlertingSettings != nil {
@@ -667,6 +683,22 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 	// When STT moved from enabled state to disabled drop all existing STT alerts.
 	if oldSettings.SaaS.STTEnabled && !newSettings.SaaS.STTEnabled {
 		s.checksService.CleanupAlerts()
+	}
+
+	// When DBaaS is enabled, connect to the dbaas-controller API.
+	if !oldSettings.DBaaS.Enabled && newSettings.DBaaS.Enabled {
+		err := s.dbaasClient.Connect(ctx)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// When DBaaS is disabled, disconnect from the dbaas-controller API.
+	if oldSettings.DBaaS.Enabled && !newSettings.DBaaS.Enabled {
+		err := s.dbaasClient.Disconnect()
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	if isAgentsStateUpdateNeeded(req.MetricsResolutions) {

@@ -55,7 +55,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/backoff"
 	channelz "google.golang.org/grpc/channelz/service"
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/reflection"
@@ -122,22 +121,22 @@ func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
 }
 
 type gRPCServerDeps struct {
-	db                    *reform.DB
-	vmdb                  *victoriametrics.Service
-	server                *server.Server
-	agentsRegistry        *agents.Registry
-	grafanaClient         *grafana.Client
-	checksService         *checks.Service
-	dbaasControllerClient *dbaas.Client
-	alertmanager          *alertmanager.Service
-	vmalert               *vmalert.Service
-	settings              *models.Settings
-	alertsService         *ia.AlertsService
-	templatesService      *ia.TemplatesService
-	rulesService          *ia.RulesService
-	jobsService           *agents.JobsService
-	versionServiceClient  *managementdbaas.VersionServiceClient
-	minio                 *minio.Service
+	db                   *reform.DB
+	vmdb                 *victoriametrics.Service
+	server               *server.Server
+	agentsRegistry       *agents.Registry
+	grafanaClient        *grafana.Client
+	checksService        *checks.Service
+	dbaasClient          *dbaas.Client
+	alertmanager         *alertmanager.Service
+	vmalert              *vmalert.Service
+	settings             *models.Settings
+	alertsService        *ia.AlertsService
+	templatesService     *ia.TemplatesService
+	rulesService         *ia.RulesService
+	jobsService          *agents.JobsService
+	versionServiceClient *managementdbaas.VersionServiceClient
+	minio                *minio.Service
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -204,14 +203,11 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	backupv1beta1.RegisterLocationsServer(gRPCServer, backup.NewLocationsService(deps.db, deps.minio))
 	backupv1beta1.RegisterArtifactsServer(gRPCServer, backup.NewArtifactsService(deps.db))
 
-	// TODO Remove once changing settings.DBaaS.Enabled is possible via API.
-	if deps.settings.DBaaS.Enabled {
-		dbaasv1beta1.RegisterKubernetesServer(gRPCServer, managementdbaas.NewKubernetesServer(deps.db, deps.dbaasControllerClient))
-		dbaasv1beta1.RegisterXtraDBClusterServer(gRPCServer, managementdbaas.NewXtraDBClusterService(deps.db, deps.dbaasControllerClient))
-		dbaasv1beta1.RegisterPSMDBClusterServer(gRPCServer, managementdbaas.NewPSMDBClusterService(deps.db, deps.dbaasControllerClient))
-		dbaasv1beta1.RegisterLogsAPIServer(gRPCServer, managementdbaas.NewLogsService(deps.db, deps.dbaasControllerClient))
-		dbaasv1beta1.RegisterComponentsServer(gRPCServer, managementdbaas.NewComponentsService(deps.db, deps.dbaasControllerClient, deps.versionServiceClient))
-	}
+	dbaasv1beta1.RegisterKubernetesServer(gRPCServer, managementdbaas.NewKubernetesServer(deps.db, deps.dbaasClient))
+	dbaasv1beta1.RegisterXtraDBClusterServer(gRPCServer, managementdbaas.NewXtraDBClusterService(deps.db, deps.dbaasClient))
+	dbaasv1beta1.RegisterPSMDBClusterServer(gRPCServer, managementdbaas.NewPSMDBClusterService(deps.db, deps.dbaasClient))
+	dbaasv1beta1.RegisterLogsAPIServer(gRPCServer, managementdbaas.NewLogsService(deps.db, deps.dbaasClient))
+	dbaasv1beta1.RegisterComponentsServer(gRPCServer, managementdbaas.NewComponentsService(deps.db, deps.dbaasClient, deps.versionServiceClient))
 
 	if l.Logger.GetLevel() >= logrus.DebugLevel {
 		l.Debug("Reflection and channelz are enabled.")
@@ -512,28 +508,6 @@ func getQANClient(ctx context.Context, sqlDB *sql.DB, dbName, qanAPIAddr string)
 	return qan.NewClient(conn, db)
 }
 
-func getDBaaSControllerClient(ctx context.Context, dbaasControllerAPIAddr string, settings *models.Settings) *dbaas.Client {
-	// TODO Remove once changing settings.DBaaS.Enabled is possible via API.
-	if !settings.DBaaS.Enabled {
-		return dbaas.NewClient(nil)
-	}
-
-	opts := []grpc.DialOption{
-		grpc.WithInsecure(),
-		grpc.WithConnectParams(grpc.ConnectParams{Backoff: backoff.Config{MaxDelay: 10 * time.Second}, MinConnectTimeout: 10 * time.Second}),
-		grpc.WithUserAgent("pmm-managed/" + version.Version),
-	}
-
-	// Without grpc.WithBlock() DialContext returns an error only if something very wrong with address or options;
-	// it does not return an error of connection failure but tries to reconnect in the background.
-	conn, err := grpc.DialContext(ctx, dbaasControllerAPIAddr, opts...)
-	if err != nil {
-		logrus.Fatalf("Failed to connect DBaaS Controller API %s: %s.", dbaasControllerAPIAddr, err)
-	}
-
-	return dbaas.NewClient(conn)
-}
-
 func main() {
 	// empty version breaks much of pmm-managed logic
 	if version.Version == "" {
@@ -659,6 +633,8 @@ func main() {
 
 	versionService := managementdbaas.NewVersionServiceClient(*versionServiceAPIURLF)
 
+	dbaasClient := dbaas.NewClient(*dbaasControllerAPIAddrF)
+
 	serverParams := &server.Params{
 		DB:                   db,
 		VMDB:                 vmdb,
@@ -673,6 +649,7 @@ func main() {
 		GrafanaClient:        grafanaClient,
 		VMAlertExternalRules: externalRules,
 		RulesService:         rulesService,
+		DbaasClient:          dbaasClient,
 	}
 
 	server, err := server.NewServer(serverParams)
@@ -741,7 +718,21 @@ func main() {
 		l.Fatalf("Failed to get settings: %+v.", err)
 	}
 
-	dbaasControllerClient := getDBaaSControllerClient(ctx, *dbaasControllerAPIAddrF, settings)
+	if settings.DBaaS.Enabled {
+		l.Debug("DBaaS is enabled - creating a DBaaS client.")
+		ctx, cancel := context.WithTimeout(ctx, time.Second*20)
+		err := dbaasClient.Connect(ctx)
+		cancel()
+		if err != nil {
+			l.Fatalf("Failed to connect to dbaas-controller API on %s: %v", *dbaasControllerAPIAddrF, err)
+		}
+		defer func() {
+			err := dbaasClient.Disconnect()
+			if err != nil {
+				l.Fatalf("Failed to disconnect from dbaas-controller API: %v", err)
+			}
+		}()
+	}
 
 	authServer := grafana.NewAuthServer(grafanaClient, awsInstanceChecker)
 
@@ -799,22 +790,22 @@ func main() {
 	go func() {
 		defer wg.Done()
 		runGRPCServer(ctx, &gRPCServerDeps{
-			db:                    db,
-			vmdb:                  vmdb,
-			server:                server,
-			agentsRegistry:        agentsRegistry,
-			grafanaClient:         grafanaClient,
-			checksService:         checksService,
-			dbaasControllerClient: dbaasControllerClient,
-			alertmanager:          alertmanager,
-			vmalert:               vmalert,
-			settings:              settings,
-			alertsService:         alertsService,
-			templatesService:      templatesService,
-			rulesService:          rulesService,
-			jobsService:           jobsService,
-			versionServiceClient:  versionService,
-			minio:                 &minio.Service{},
+			db:                   db,
+			vmdb:                 vmdb,
+			server:               server,
+			agentsRegistry:       agentsRegistry,
+			grafanaClient:        grafanaClient,
+			checksService:        checksService,
+			dbaasClient:          dbaasClient,
+			alertmanager:         alertmanager,
+			vmalert:              vmalert,
+			settings:             settings,
+			alertsService:        alertsService,
+			templatesService:     templatesService,
+			rulesService:         rulesService,
+			jobsService:          jobsService,
+			versionServiceClient: versionService,
+			minio:                &minio.Service{},
 		})
 	}()
 

@@ -49,6 +49,16 @@ func NewComponentsService(db *reform.DB, dbaasClient dbaasClient, versionService
 	}
 }
 
+// Enabled returns if service is enabled and can be used.
+func (c *componentsService) Enabled() bool {
+	settings, err := models.GetSettings(c.db)
+	if err != nil {
+		c.l.WithError(err).Error("can't get settings")
+		return false
+	}
+	return settings.DBaaS.Enabled
+}
+
 func (c componentsService) GetPSMDBComponents(ctx context.Context, req *dbaasv1beta1.GetPSMDBComponentsRequest) (*dbaasv1beta1.GetPSMDBComponentsResponse, error) {
 	var kubernetesCluster *models.KubernetesCluster
 	params := componentsParams{

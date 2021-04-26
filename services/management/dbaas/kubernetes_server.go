@@ -48,6 +48,16 @@ func NewKubernetesServer(db *reform.DB, dbaasClient dbaasClient) dbaasv1beta1.Ku
 	return &kubernetesServer{l: l, db: db, dbaasClient: dbaasClient}
 }
 
+// Enabled returns if service is enabled and can be used.
+func (k *kubernetesServer) Enabled() bool {
+	settings, err := models.GetSettings(k.db)
+	if err != nil {
+		k.l.WithError(err).Error("can't get settings")
+		return false
+	}
+	return settings.DBaaS.Enabled
+}
+
 // ListKubernetesClusters returns a list of all registered Kubernetes clusters.
 func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1beta1.ListKubernetesClustersRequest) (*dbaasv1beta1.ListKubernetesClustersResponse, error) {
 	kubernetesClusters, err := models.FindAllKubernetesClusters(k.db.Querier)
