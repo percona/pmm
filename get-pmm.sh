@@ -1,22 +1,28 @@
 #!/usr/bin/env bash
-
+#
 # ###############################
-# Script to run PMM 2 
-# curl -fsSLhttps://github.com/percona/pmm/blob/PMM-2/get-pmm.sh -o get-pmm2.sh ; chmod +x get-pmm2.sh ; ./get-pmm2.sh
+# Script to run PMM 2.
+# If docker is not installed - this script try to install it as root user.
+#
+# Usage example:
+# curl -fsSL https://github.com/percona/pmm/blob/PMM-2.0/get-pmm.sh -o get-pmm2.sh; chmod +x get-pmm2.sh; ./get-pmm2.sh
 #
 #################################
 
 set -Eeuo pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
-# default values of variables set from params
-interactive=0
+# Set defaults.
 tag=${PMM_TAG:-"latest"}
 repo=${PMM_REPO:-"percona/pmm-server"}
 port=${PMM_PORT:-443}
 container_name=${CONTAINER_NAME:-"pmm-server"}
+interactive=0
 root_is_needed='no'
 
+#######################################
+# Show script usage info.
+#######################################
 usage() {
   cat <<EOF
 Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v] [-i] [-t] [-n] [-p]
@@ -44,23 +50,40 @@ EOF
   exit
 }
 
+#######################################
+# Clean up setup if interrupt.
+#######################################
 cleanup() {
   trap - SIGINT SIGTERM ERR EXIT
-  # script cleanup here
 }
 
+#######################################
+# Defines colours for output messages.
+#######################################
 setup_colors() {
   if [[ -t 2 ]] && [[ -z "${NO_COLOR-}" ]] && [[ "${TERM-}" != "dumb" ]]; then
-    NOFORMAT='\033[0m' RED='\033[0;31m' GREEN='\033[0;32m' ORANGE='\033[0;33m' BLUE='\033[0;34m' PURPLE='\033[0;35m' CYAN='\033[0;36m' YELLOW='\033[1;33m'
+    NOFORMAT='\033[0m' RED='\033[0;31m' GREEN='\033[0;32m' ORANGE='\033[0;33m'
+    BLUE='\033[0;34m' PURPLE='\033[0;35m' CYAN='\033[0;36m' YELLOW='\033[1;33m'
   else
     NOFORMAT='' RED='' GREEN='' ORANGE='' BLUE='' PURPLE='' CYAN='' YELLOW=''
   fi
 }
 
+#######################################
+# Prints message to stderr with new line at the end.
+#######################################
 msg() {
   echo >&2 -e "${1-}"
 }
 
+#######################################
+# Prints message and exit with code.
+# Arguments:
+#   message string;
+#   exit code.
+# Outputs:
+#   writes message to stderr.
+#######################################
 die() {
   local msg=$1
   local code=${2-1} # default exit status 1
@@ -68,6 +91,9 @@ die() {
   exit "$code"
 }
 
+#######################################
+# Accept and parse script's params.
+#######################################
 parse_params() {
   while :; do
     case "${1-}" in
@@ -98,6 +124,9 @@ parse_params() {
   return 0
 }
 
+#######################################
+# Gathers PMM setup param in interactive mode.
+#######################################
 gather_info() {
   msg "${GREEN}PMM Server Wizard Install${NOFORMAT}"
   msg "\tPort Number to start PMM Server on (default: 443): "
@@ -112,6 +141,9 @@ check_command() {
   command -v "$@" 1>/dev/null
 }
 
+#######################################
+# Runs command as root.
+#######################################
 run_root() {
   sh='sh -c'
   if [ "$(id -un)" != 'root' ]; then
@@ -126,6 +158,9 @@ run_root() {
   ${sh} "$@"
 }
 
+#######################################
+# Installs docker if needed.
+#######################################
 install_docker() {
   if ! check_command docker; then
     msg "Installing docker..."
@@ -142,6 +177,9 @@ install_docker() {
   fi
 }
 
+#######################################
+# Runs docker command as root if required.
+#######################################
 run_docker() {
   if [ "${root_is_needed}" = 'yes' ]; then
     run_root "docker $*"
@@ -150,6 +188,10 @@ run_docker() {
   fi
 }
 
+#######################################
+# Starts PMM server container with give repo, tag, name and port.
+# If any PMM server instance is run - stop and backup it.
+#######################################
 start_pmm() {
   run_docker "pull $repo:$tag 1> /dev/null"
 
@@ -172,6 +214,10 @@ start_pmm() {
   msg "\tdocker $run_pmm"
 }
 
+#######################################
+# Shows final message.
+# Shows a list of addresses on which PMM server available.
+#######################################
 show_message() {
   msg "PMM Server has been successfully setup on this system!"
   msg "You can access your new server using the one of following web addresses:"
@@ -179,7 +225,8 @@ show_message() {
     msg "\t${BLUE}https://$ip:$port/${NOFORMAT}"
   done
   msg "The default username is '${PURPLE}admin${NOFORMAT}' and password is '${PURPLE}admin${NOFORMAT}'"
-  msg "**Note** chrome may not trust the default SSL certificate on first load so type '${PURPLE}thisisunsafe${NOFORMAT}' to bypass their warning"
+  msg "**Note** Browser may not trust the default SSL certificate on first load."
+  msg "So type '${PURPLE}thisisunsafe${NOFORMAT}' to bypass their warning"
 }
 
 main() {
