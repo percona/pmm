@@ -411,6 +411,11 @@
                   "type": "boolean",
                   "x-order": 24
                 },
+                "disable_dbaas": {
+                  "description": "Disable DBaaS.",
+                  "type": "boolean",
+                  "x-order": 26
+                },
                 "disable_stt": {
                   "description": "Disable Security Threat Tool.",
                   "type": "boolean",
@@ -476,6 +481,11 @@
                   "description": "Enable Backup Management.",
                   "type": "boolean",
                   "x-order": 23
+                },
+                "enable_dbaas": {
+                  "description": "Enable DBaaS.",
+                  "type": "boolean",
+                  "x-order": 25
                 },
                 "enable_stt": {
                   "description": "Enable Security Threat Tool.",
