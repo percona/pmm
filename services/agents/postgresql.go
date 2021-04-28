@@ -68,13 +68,18 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent, red
 
 	sort.Strings(args)
 
+	timeout := 1 * time.Second
+	if exporter.AzureOptions != nil {
+		timeout = 5 * time.Second
+	}
+
 	res := &agentpb.SetStateRequest_AgentProcess{
 		Type:               inventorypb.AgentType_POSTGRES_EXPORTER,
 		TemplateLeftDelim:  tdp.Left,
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
 		Env: []string{
-			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, 5*time.Second, "postgres", nil)),
+			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, timeout, "postgres", nil)),
 			fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.AgentID),
 		},
 	}

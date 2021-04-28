@@ -56,7 +56,7 @@ func TestPostgresExporterConfig(t *testing.T) {
 			"--web.listen-address=:{{ .listen_port }}",
 		},
 		Env: []string{
-			"DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=5&sslmode=disable",
+			"DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=1&sslmode=disable",
 			"HTTP_AUTH=pmm:agent-id",
 		},
 		RedactWords: []string{"s3cur3 p@$$w0r4."},
@@ -69,13 +69,13 @@ func TestPostgresExporterConfig(t *testing.T) {
 	t.Run("EmptyPassword", func(t *testing.T) {
 		exporter.Password = nil
 		actual := postgresExporterConfig(postgresql, exporter, exposeSecrets, pmmAgentVersion)
-		assert.Equal(t, "DATA_SOURCE_NAME=postgres://username@1.2.3.4:5432/postgres?connect_timeout=5&sslmode=disable", actual.Env[0])
+		assert.Equal(t, "DATA_SOURCE_NAME=postgres://username@1.2.3.4:5432/postgres?connect_timeout=1&sslmode=disable", actual.Env[0])
 	})
 
 	t.Run("EmptyUsername", func(t *testing.T) {
 		exporter.Username = nil
 		actual := postgresExporterConfig(postgresql, exporter, exposeSecrets, pmmAgentVersion)
-		assert.Equal(t, "DATA_SOURCE_NAME=postgres://1.2.3.4:5432/postgres?connect_timeout=5&sslmode=disable", actual.Env[0])
+		assert.Equal(t, "DATA_SOURCE_NAME=postgres://1.2.3.4:5432/postgres?connect_timeout=1&sslmode=disable", actual.Env[0])
 	})
 
 	t.Run("Socket", func(t *testing.T) {
@@ -83,7 +83,7 @@ func TestPostgresExporterConfig(t *testing.T) {
 		postgresql.Port = nil
 		postgresql.Socket = pointer.ToString("/var/run/postgres")
 		actual := postgresExporterConfig(postgresql, exporter, exposeSecrets, pmmAgentVersion)
-		assert.Equal(t, "DATA_SOURCE_NAME=postgres:///postgres?connect_timeout=5&host=%2Fvar%2Frun%2Fpostgres&sslmode=disable", actual.Env[0])
+		assert.Equal(t, "DATA_SOURCE_NAME=postgres:///postgres?connect_timeout=1&host=%2Fvar%2Frun%2Fpostgres&sslmode=disable", actual.Env[0])
 	})
 
 	t.Run("DisabledCollectors", func(t *testing.T) {
@@ -139,10 +139,59 @@ func TestPostgresExporterConfig(t *testing.T) {
 				"--web.listen-address=:{{ .listen_port }}",
 			},
 			Env: []string{
-				"DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=5&sslmode=disable",
+				"DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=1&sslmode=disable",
 				"HTTP_AUTH=pmm:agent-id",
 			},
 			RedactWords: []string{"s3cur3 p@$$w0r4."},
+		}
+		requireNoDuplicateFlags(t, actual.Args)
+		require.Equal(t, expected.Args, actual.Args)
+		require.Equal(t, expected.Env, actual.Env)
+		require.Equal(t, expected, actual)
+	})
+
+	t.Run("AzureTimeout", func(t *testing.T) {
+		pmmAgentVersion := version.MustParse("2.16.0")
+
+		postgresql := &models.Service{
+			Address: pointer.ToString("1.2.3.4"),
+			Port:    pointer.ToUint16(5432),
+		}
+		exporter := &models.Agent{
+			AgentID:   "agent-id",
+			AgentType: models.PostgresExporterType,
+			Username:  pointer.ToString("username"),
+			Password:  pointer.ToString("s3cur3 p@$$w0r4."),
+			AzureOptions: &models.AzureOptions{
+				SubscriptionID: "subscription_id",
+				ClientID:       "client_id",
+				ClientSecret:   "client_secret",
+				TenantID:       "tenant_id",
+				ResourceGroup:  "resource_group",
+			},
+		}
+
+		actual = postgresExporterConfig(postgresql, exporter, redactSecrets, pmmAgentVersion)
+		expected = &agentpb.SetStateRequest_AgentProcess{
+			Type:               inventorypb.AgentType_POSTGRES_EXPORTER,
+			TemplateLeftDelim:  "{{",
+			TemplateRightDelim: "}}",
+			Args: []string{
+				"--auto-discover-databases",
+				"--collect.custom_query.hr",
+				"--collect.custom_query.hr.directory=/usr/local/percona/pmm2/collectors/custom-queries/postgresql/high-resolution",
+				"--collect.custom_query.lr",
+				"--collect.custom_query.lr.directory=/usr/local/percona/pmm2/collectors/custom-queries/postgresql/low-resolution",
+				"--collect.custom_query.mr",
+				"--collect.custom_query.mr.directory=/usr/local/percona/pmm2/collectors/custom-queries/postgresql/medium-resolution",
+				"--exclude-databases=template0,template1,postgres,pmm-managed-dev,azure_maintenance",
+				"--web.listen-address=:{{ .listen_port }}",
+			},
+			Env: []string{
+				"DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=5&sslmode=disable",
+				"HTTP_AUTH=pmm:agent-id",
+			},
+			RedactWords: []string{"s3cur3 p@$$w0r4.", "client_secret"},
 		}
 		requireNoDuplicateFlags(t, actual.Args)
 		require.Equal(t, expected.Args, actual.Args)
