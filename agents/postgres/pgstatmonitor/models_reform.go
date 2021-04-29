@@ -572,6 +572,326 @@ var (
 	_ fmt.Stringer  = (*pgStatMonitor08)(nil)
 )
 
+type pgStatMonitor09ViewType struct {
+	s parse.StructInfo
+	z []interface{}
+}
+
+// Schema returns a schema name in SQL database ("").
+func (v *pgStatMonitor09ViewType) Schema() string {
+	return v.s.SQLSchema
+}
+
+// Name returns a view or table name in SQL database ("pg_stat_monitor").
+func (v *pgStatMonitor09ViewType) Name() string {
+	return v.s.SQLName
+}
+
+// Columns returns a new slice of column names for that view or table in SQL database.
+func (v *pgStatMonitor09ViewType) Columns() []string {
+	return []string{
+		"bucket",
+		"bucket_start_time",
+		"userid",
+		"datname",
+		"client_ip",
+		"queryid",
+		"top_queryid",
+		"query",
+		"planid",
+		"query_plan",
+		"top_query",
+		"application_name",
+		"relations",
+		"cmd_type",
+		"cmd_type_text",
+		"elevel",
+		"sqlcode",
+		"message",
+		"calls",
+		"total_time",
+		"min_time",
+		"max_time",
+		"mean_time",
+		"stddev_time",
+		"rows_retrieved",
+		"plans_calls",
+		"plan_total_time",
+		"plan_min_time",
+		"plan_max_time",
+		"plan_mean_time",
+		"shared_blks_hit",
+		"shared_blks_read",
+		"shared_blks_dirtied",
+		"shared_blks_written",
+		"local_blks_hit",
+		"local_blks_read",
+		"local_blks_dirtied",
+		"local_blks_written",
+		"temp_blks_read",
+		"temp_blks_written",
+		"blk_read_time",
+		"blk_write_time",
+		"resp_calls",
+		"cpu_user_time",
+		"cpu_sys_time",
+		"wal_records",
+		"wal_fpi",
+		"wal_bytes",
+		"state_code",
+		"state",
+	}
+}
+
+// NewStruct makes a new struct for that view or table.
+func (v *pgStatMonitor09ViewType) NewStruct() reform.Struct {
+	return new(pgStatMonitor09)
+}
+
+// pgStatMonitor09View represents pg_stat_monitor view or table in SQL database.
+var pgStatMonitor09View = &pgStatMonitor09ViewType{
+	s: parse.StructInfo{
+		Type:    "pgStatMonitor09",
+		SQLName: "pg_stat_monitor",
+		Fields: []parse.FieldInfo{
+			{Name: "Bucket", Type: "int64", Column: "bucket"},
+			{Name: "BucketStartTime", Type: "string", Column: "bucket_start_time"},
+			{Name: "User", Type: "string", Column: "userid"},
+			{Name: "DatName", Type: "string", Column: "datname"},
+			{Name: "ClientIP", Type: "string", Column: "client_ip"},
+			{Name: "QueryID", Type: "string", Column: "queryid"},
+			{Name: "TopQueryid", Type: "*string", Column: "top_queryid"},
+			{Name: "Query", Type: "string", Column: "query"},
+			{Name: "Planid", Type: "*string", Column: "planid"},
+			{Name: "QueryPlan", Type: "*string", Column: "query_plan"},
+			{Name: "TopQuery", Type: "*string", Column: "top_query"},
+			{Name: "ApplicationName", Type: "*string", Column: "application_name"},
+			{Name: "Relations", Type: "pq.StringArray", Column: "relations"},
+			{Name: "CmdType", Type: "int32", Column: "cmd_type"},
+			{Name: "CmdTypeText", Type: "string", Column: "cmd_type_text"},
+			{Name: "Elevel", Type: "int32", Column: "elevel"},
+			{Name: "Sqlcode", Type: "*string", Column: "sqlcode"},
+			{Name: "Message", Type: "*string", Column: "message"},
+			{Name: "Calls", Type: "int64", Column: "calls"},
+			{Name: "TotalTime", Type: "float64", Column: "total_time"},
+			{Name: "MinTime", Type: "float64", Column: "min_time"},
+			{Name: "MaxTime", Type: "float64", Column: "max_time"},
+			{Name: "MeanTime", Type: "float64", Column: "mean_time"},
+			{Name: "StddevTime", Type: "float64", Column: "stddev_time"},
+			{Name: "RowsRetrieved", Type: "int64", Column: "rows_retrieved"},
+			{Name: "PlansCalls", Type: "int64", Column: "plans_calls"},
+			{Name: "PlanTotalTime", Type: "float64", Column: "plan_total_time"},
+			{Name: "PlanMinTime", Type: "float64", Column: "plan_min_time"},
+			{Name: "PlanMaxTime", Type: "float64", Column: "plan_max_time"},
+			{Name: "PlanMeanTime", Type: "float64", Column: "plan_mean_time"},
+			{Name: "SharedBlksHit", Type: "int64", Column: "shared_blks_hit"},
+			{Name: "SharedBlksRead", Type: "int64", Column: "shared_blks_read"},
+			{Name: "SharedBlksDirtied", Type: "int64", Column: "shared_blks_dirtied"},
+			{Name: "SharedBlksWritten", Type: "int64", Column: "shared_blks_written"},
+			{Name: "LocalBlksHit", Type: "int64", Column: "local_blks_hit"},
+			{Name: "LocalBlksRead", Type: "int64", Column: "local_blks_read"},
+			{Name: "LocalBlksDirtied", Type: "int64", Column: "local_blks_dirtied"},
+			{Name: "LocalBlksWritten", Type: "int64", Column: "local_blks_written"},
+			{Name: "TempBlksRead", Type: "int64", Column: "temp_blks_read"},
+			{Name: "TempBlksWritten", Type: "int64", Column: "temp_blks_written"},
+			{Name: "BlkReadTime", Type: "float64", Column: "blk_read_time"},
+			{Name: "BlkWriteTime", Type: "float64", Column: "blk_write_time"},
+			{Name: "RespCalls", Type: "pq.StringArray", Column: "resp_calls"},
+			{Name: "CPUUserTime", Type: "float64", Column: "cpu_user_time"},
+			{Name: "CPUSysTime", Type: "float64", Column: "cpu_sys_time"},
+			{Name: "WalRecords", Type: "int64", Column: "wal_records"},
+			{Name: "WalFpi", Type: "int64", Column: "wal_fpi"},
+			{Name: "WalBytes", Type: "string", Column: "wal_bytes"},
+			{Name: "StateCode", Type: "int64", Column: "state_code"},
+			{Name: "State", Type: "string", Column: "state"},
+		},
+		PKFieldIndex: -1,
+	},
+	z: new(pgStatMonitor09).Values(),
+}
+
+// String returns a string representation of this struct or record.
+func (s pgStatMonitor09) String() string {
+	res := make([]string, 50)
+	res[0] = "Bucket: " + reform.Inspect(s.Bucket, true)
+	res[1] = "BucketStartTime: " + reform.Inspect(s.BucketStartTime, true)
+	res[2] = "User: " + reform.Inspect(s.User, true)
+	res[3] = "DatName: " + reform.Inspect(s.DatName, true)
+	res[4] = "ClientIP: " + reform.Inspect(s.ClientIP, true)
+	res[5] = "QueryID: " + reform.Inspect(s.QueryID, true)
+	res[6] = "TopQueryid: " + reform.Inspect(s.TopQueryid, true)
+	res[7] = "Query: " + reform.Inspect(s.Query, true)
+	res[8] = "Planid: " + reform.Inspect(s.Planid, true)
+	res[9] = "QueryPlan: " + reform.Inspect(s.QueryPlan, true)
+	res[10] = "TopQuery: " + reform.Inspect(s.TopQuery, true)
+	res[11] = "ApplicationName: " + reform.Inspect(s.ApplicationName, true)
+	res[12] = "Relations: " + reform.Inspect(s.Relations, true)
+	res[13] = "CmdType: " + reform.Inspect(s.CmdType, true)
+	res[14] = "CmdTypeText: " + reform.Inspect(s.CmdTypeText, true)
+	res[15] = "Elevel: " + reform.Inspect(s.Elevel, true)
+	res[16] = "Sqlcode: " + reform.Inspect(s.Sqlcode, true)
+	res[17] = "Message: " + reform.Inspect(s.Message, true)
+	res[18] = "Calls: " + reform.Inspect(s.Calls, true)
+	res[19] = "TotalTime: " + reform.Inspect(s.TotalTime, true)
+	res[20] = "MinTime: " + reform.Inspect(s.MinTime, true)
+	res[21] = "MaxTime: " + reform.Inspect(s.MaxTime, true)
+	res[22] = "MeanTime: " + reform.Inspect(s.MeanTime, true)
+	res[23] = "StddevTime: " + reform.Inspect(s.StddevTime, true)
+	res[24] = "RowsRetrieved: " + reform.Inspect(s.RowsRetrieved, true)
+	res[25] = "PlansCalls: " + reform.Inspect(s.PlansCalls, true)
+	res[26] = "PlanTotalTime: " + reform.Inspect(s.PlanTotalTime, true)
+	res[27] = "PlanMinTime: " + reform.Inspect(s.PlanMinTime, true)
+	res[28] = "PlanMaxTime: " + reform.Inspect(s.PlanMaxTime, true)
+	res[29] = "PlanMeanTime: " + reform.Inspect(s.PlanMeanTime, true)
+	res[30] = "SharedBlksHit: " + reform.Inspect(s.SharedBlksHit, true)
+	res[31] = "SharedBlksRead: " + reform.Inspect(s.SharedBlksRead, true)
+	res[32] = "SharedBlksDirtied: " + reform.Inspect(s.SharedBlksDirtied, true)
+	res[33] = "SharedBlksWritten: " + reform.Inspect(s.SharedBlksWritten, true)
+	res[34] = "LocalBlksHit: " + reform.Inspect(s.LocalBlksHit, true)
+	res[35] = "LocalBlksRead: " + reform.Inspect(s.LocalBlksRead, true)
+	res[36] = "LocalBlksDirtied: " + reform.Inspect(s.LocalBlksDirtied, true)
+	res[37] = "LocalBlksWritten: " + reform.Inspect(s.LocalBlksWritten, true)
+	res[38] = "TempBlksRead: " + reform.Inspect(s.TempBlksRead, true)
+	res[39] = "TempBlksWritten: " + reform.Inspect(s.TempBlksWritten, true)
+	res[40] = "BlkReadTime: " + reform.Inspect(s.BlkReadTime, true)
+	res[41] = "BlkWriteTime: " + reform.Inspect(s.BlkWriteTime, true)
+	res[42] = "RespCalls: " + reform.Inspect(s.RespCalls, true)
+	res[43] = "CPUUserTime: " + reform.Inspect(s.CPUUserTime, true)
+	res[44] = "CPUSysTime: " + reform.Inspect(s.CPUSysTime, true)
+	res[45] = "WalRecords: " + reform.Inspect(s.WalRecords, true)
+	res[46] = "WalFpi: " + reform.Inspect(s.WalFpi, true)
+	res[47] = "WalBytes: " + reform.Inspect(s.WalBytes, true)
+	res[48] = "StateCode: " + reform.Inspect(s.StateCode, true)
+	res[49] = "State: " + reform.Inspect(s.State, true)
+	return strings.Join(res, ", ")
+}
+
+// Values returns a slice of struct or record field values.
+// Returned interface{} values are never untyped nils.
+func (s *pgStatMonitor09) Values() []interface{} {
+	return []interface{}{
+		s.Bucket,
+		s.BucketStartTime,
+		s.User,
+		s.DatName,
+		s.ClientIP,
+		s.QueryID,
+		s.TopQueryid,
+		s.Query,
+		s.Planid,
+		s.QueryPlan,
+		s.TopQuery,
+		s.ApplicationName,
+		s.Relations,
+		s.CmdType,
+		s.CmdTypeText,
+		s.Elevel,
+		s.Sqlcode,
+		s.Message,
+		s.Calls,
+		s.TotalTime,
+		s.MinTime,
+		s.MaxTime,
+		s.MeanTime,
+		s.StddevTime,
+		s.RowsRetrieved,
+		s.PlansCalls,
+		s.PlanTotalTime,
+		s.PlanMinTime,
+		s.PlanMaxTime,
+		s.PlanMeanTime,
+		s.SharedBlksHit,
+		s.SharedBlksRead,
+		s.SharedBlksDirtied,
+		s.SharedBlksWritten,
+		s.LocalBlksHit,
+		s.LocalBlksRead,
+		s.LocalBlksDirtied,
+		s.LocalBlksWritten,
+		s.TempBlksRead,
+		s.TempBlksWritten,
+		s.BlkReadTime,
+		s.BlkWriteTime,
+		s.RespCalls,
+		s.CPUUserTime,
+		s.CPUSysTime,
+		s.WalRecords,
+		s.WalFpi,
+		s.WalBytes,
+		s.StateCode,
+		s.State,
+	}
+}
+
+// Pointers returns a slice of pointers to struct or record fields.
+// Returned interface{} values are never untyped nils.
+func (s *pgStatMonitor09) Pointers() []interface{} {
+	return []interface{}{
+		&s.Bucket,
+		&s.BucketStartTime,
+		&s.User,
+		&s.DatName,
+		&s.ClientIP,
+		&s.QueryID,
+		&s.TopQueryid,
+		&s.Query,
+		&s.Planid,
+		&s.QueryPlan,
+		&s.TopQuery,
+		&s.ApplicationName,
+		&s.Relations,
+		&s.CmdType,
+		&s.CmdTypeText,
+		&s.Elevel,
+		&s.Sqlcode,
+		&s.Message,
+		&s.Calls,
+		&s.TotalTime,
+		&s.MinTime,
+		&s.MaxTime,
+		&s.MeanTime,
+		&s.StddevTime,
+		&s.RowsRetrieved,
+		&s.PlansCalls,
+		&s.PlanTotalTime,
+		&s.PlanMinTime,
+		&s.PlanMaxTime,
+		&s.PlanMeanTime,
+		&s.SharedBlksHit,
+		&s.SharedBlksRead,
+		&s.SharedBlksDirtied,
+		&s.SharedBlksWritten,
+		&s.LocalBlksHit,
+		&s.LocalBlksRead,
+		&s.LocalBlksDirtied,
+		&s.LocalBlksWritten,
+		&s.TempBlksRead,
+		&s.TempBlksWritten,
+		&s.BlkReadTime,
+		&s.BlkWriteTime,
+		&s.RespCalls,
+		&s.CPUUserTime,
+		&s.CPUSysTime,
+		&s.WalRecords,
+		&s.WalFpi,
+		&s.WalBytes,
+		&s.StateCode,
+		&s.State,
+	}
+}
+
+// View returns View object for that struct.
+func (s *pgStatMonitor09) View() reform.View {
+	return pgStatMonitor09View
+}
+
+// check interfaces
+var (
+	_ reform.View   = pgStatMonitor09View
+	_ reform.Struct = (*pgStatMonitor09)(nil)
+	_ fmt.Stringer  = (*pgStatMonitor09)(nil)
+)
+
 type pgStatMonitorSettingsViewType struct {
 	s parse.StructInfo
 	z []interface{}
@@ -657,5 +977,6 @@ func init() {
 	parse.AssertUpToDate(&pgUserView.s, new(pgUser))
 	parse.AssertUpToDate(&pgStatMonitorDefaultView.s, new(pgStatMonitorDefault))
 	parse.AssertUpToDate(&pgStatMonitor08View.s, new(pgStatMonitor08))
+	parse.AssertUpToDate(&pgStatMonitor09View.s, new(pgStatMonitor09))
 	parse.AssertUpToDate(&pgStatMonitorSettingsView.s, new(pgStatMonitorSettings))
 }

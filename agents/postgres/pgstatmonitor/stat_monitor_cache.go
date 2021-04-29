@@ -91,11 +91,16 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 
 	var view reform.View
 	var row reform.Struct
-	view = pgStatMonitorDefaultView
-	row = &pgStatMonitorDefault{}
-	if pgMonitorVersion >= 0.8 {
+	switch {
+	case pgMonitorVersion >= 0.9:
+		view = pgStatMonitor09View
+		row = &pgStatMonitor09{}
+	case pgMonitorVersion >= 0.8:
 		view = pgStatMonitor08View
 		row = &pgStatMonitor08{}
+	default:
+		view = pgStatMonitorDefaultView
+		row = &pgStatMonitorDefault{}
 	}
 
 	rows, e := q.SelectRows(view, "WHERE queryid IS NOT NULL AND query IS NOT NULL")
@@ -121,6 +126,16 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 			c.Database = databases[r.DBID]
 			c.Username = usernames[r.UserID]
 		case *pgStatMonitor08:
+			m, e := r.ToPgStatMonitor()
+			if e != nil {
+				err = e
+				break
+			}
+
+			c.pgStatMonitor = m
+			c.Database = r.DatName
+			c.Username = r.User
+		case *pgStatMonitor09:
 			m, e := r.ToPgStatMonitor()
 			if e != nil {
 				err = e

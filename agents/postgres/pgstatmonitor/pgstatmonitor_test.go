@@ -50,7 +50,7 @@ func setup(t *testing.T, db *reform.DB, disableQueryExamples bool) *PGStatMonito
 }
 
 func supportedVersion(version string) bool {
-	supported := float64(11)
+	supported := float64(13)
 	current, err := strconv.ParseFloat(version, 32)
 	if err != nil {
 		return false
@@ -88,7 +88,7 @@ func filter(mb []*agentpb.MetricsBucket) []*agentpb.MetricsBucket {
 }
 
 func TestPGStatMonitorSchema(t *testing.T) {
-	t.Skip("Skip it until https://jira.percona.com/browse/PG-139 is fixed")
+	t.Skip("Skip it until the sandbox supports pg_stat_monitor by default. The current PostgreSQL image is the official, not the one from PerconaLab")
 	sqlDB := tests.OpenTestPostgreSQL(t)
 	defer sqlDB.Close() //nolint:errcheck
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
@@ -106,7 +106,25 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		assert.NoError(t, err)
 	}()
 
-	structs, err := db.SelectAllFrom(pgStatMonitorDefaultView, "")
+	var v string
+	err = db.QueryRow(fmt.Sprintf("SELECT /* %s */ pg_stat_monitor_version()", queryTag)).Scan(&v)
+	if err != nil {
+		return
+	}
+	split := strings.Split(v, ".")
+	pgMonitorVersion, err := strconv.ParseFloat(fmt.Sprintf("%s.%s%s", split[0], split[1], split[2]), 64)
+	assert.NoError(t, err)
+
+	var view reform.View
+	switch {
+	case pgMonitorVersion >= 0.9:
+		view = pgStatMonitor09View
+	case pgMonitorVersion >= 0.8:
+		view = pgStatMonitor08View
+	default:
+		view = pgStatMonitorDefaultView
+	}
+	structs, err := db.SelectAllFrom(view, "")
 	require.NoError(t, err)
 	tests.LogTable(t, structs)
 
@@ -144,6 +162,11 @@ func TestPGStatMonitorSchema(t *testing.T) {
 			selectAllCountriesLong: "1BD274D6C4EFDEAF",
 		}
 
+	case "13":
+		digests = map[string]string{
+			selectAllCountries:     "6DB095DC2F1199D9",
+			selectAllCountriesLong: "7FE44699CA927E67",
+		}
 	default:
 		t.Log("Unhandled version, assuming dummy digests.")
 		digests = map[string]string{
@@ -165,6 +188,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		require.Len(t, buckets, 1)
 
 		actual := buckets[0]
+		actual.Common.Username = strings.ReplaceAll(actual.Common.Username, `"`, "")
 		assert.InDelta(t, 0, actual.Common.MQueryTimeSum, 0.09)
 		assert.Equal(t, float32(5), actual.Postgresql.MSharedBlksHitSum+actual.Postgresql.MSharedBlksReadSum)
 		assert.InDelta(t, 1.5, actual.Postgresql.MSharedBlksHitCnt+actual.Postgresql.MSharedBlksReadCnt, 0.5)
@@ -172,6 +196,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		if !m.pgsmNormalizedQuery && !m.disableQueryExamples {
 			example = actual.Common.Example
 		}
+
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Fingerprint:         selectAllCountries,
@@ -218,6 +243,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		require.Len(t, buckets, 1)
 
 		actual = buckets[0]
+		actual.Common.Username = strings.ReplaceAll(actual.Common.Username, `"`, "")
 		assert.InDelta(t, 0, actual.Common.MQueryTimeSum, 0.09)
 		expected = &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
@@ -272,6 +298,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		require.Len(t, buckets, 1)
 
 		actual := buckets[0]
+		actual.Common.Username = strings.ReplaceAll(actual.Common.Username, `"`, "")
 		assert.InDelta(t, 0, actual.Common.MQueryTimeSum, 0.09)
 		assert.InDelta(t, 5, actual.Postgresql.MSharedBlksHitSum+actual.Postgresql.MSharedBlksReadSum, 3)
 		assert.InDelta(t, 1.5, actual.Postgresql.MSharedBlksHitCnt+actual.Postgresql.MSharedBlksReadCnt, 0.5)
@@ -321,6 +348,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		require.Len(t, buckets, 1)
 
 		actual = buckets[0]
+		actual.Common.Username = strings.ReplaceAll(actual.Common.Username, `"`, "")
 		assert.InDelta(t, 0, actual.Common.MQueryTimeSum, 0.09)
 		assert.InDelta(t, 0, actual.Postgresql.MBlkReadTimeCnt, 1)
 		assert.InDelta(t, 5, actual.Postgresql.MSharedBlksHitSum, 2)
@@ -403,6 +431,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		require.Len(t, buckets, 1)
 
 		actual := buckets[0]
+		actual.Common.Username = strings.ReplaceAll(actual.Common.Username, `"`, "")
 		assert.NotZero(t, actual.Postgresql.MBlkReadTimeSum)
 		expectedFingerprint := fmt.Sprintf("INSERT /* CheckMBlkReadTime */ INTO %s (customer_id, first_name, last_name, active) VALUES ($1, $2, $3, $4)", tableName)
 		expected := &agentpb.MetricsBucket{
@@ -419,7 +448,8 @@ func TestPGStatMonitorSchema(t *testing.T) {
 				NumQueries:          float32(n),
 				MQueryTimeCnt:       float32(n),
 				MQueryTimeSum:       actual.Common.MQueryTimeSum,
-				Tables:              []string{fmt.Sprintf("public.%s", tableName)},
+				// FIXME: Why tables is empty here? this will error.
+				Tables: []string{fmt.Sprintf("public.%s", tableName)},
 			},
 			Postgresql: &agentpb.MetricsBucket_PostgreSQL{
 				MBlkReadTimeCnt:       float32(n),
