@@ -64,7 +64,6 @@ markdown_extensions:
 plugins:
   - search
   - git-revision-date
-  - bootstrap-tables
   - section-index # Adds links to nodes - comment out when creating PDF
 #  - htmlproofer # Uncomment to check links - but extends build time significantly
   - macros:
