@@ -2,7 +2,7 @@
 #
 # ###############################
 # Script to run PMM 2.
-# If docker is not installed - this script try to install it as root user.
+# If docker is not installed, this script will try to install it as root user.
 #
 # Usage example:
 # curl -fsSL https://raw.githubusercontent.com/percona/pmm/PMM-2.0/get-pmm.sh -o get-pmm2.sh; chmod +x get-pmm2.sh; ./get-pmm2.sh
@@ -167,9 +167,9 @@ install_docker() {
     sh /tmp/get-docker.sh
     run_root 'service docker start' || :
   fi
-  if ! docker ps &>/dev/null; then
+  if ! docker ps 1>/dev/null; then
     root_is_needed='yes'
-    if ! run_root 'docker ps &> /dev/null'; then
+    if ! run_root 'docker ps > /dev/null'; then
       die "${RED}ERROR: cannot run "docker ps" command${NOFORMAT}"
     fi
   fi
@@ -195,12 +195,12 @@ start_pmm() {
   msg "Starting PMM server..."
   run_docker "pull $repo:$tag 1> /dev/null"
 
-  if ! run_docker "inspect pmm-data &> /dev/null"; then
+  if ! run_docker "inspect pmm-data 1> /dev/null"; then
     run_docker "create -v /srv/ --name pmm-data percona/pmm-server:$tag /bin/true 1> /dev/null"
     msg "Created PMM Data Volume: pmm-data"
   fi
 
-  if run_docker "inspect pmm-server &> /dev/null"; then
+  if run_docker "inspect pmm-server 1> /dev/null"; then
     pmm_archive="pmm-server-$(date "+%F-%H%M%S")"
     msg "\tExisting PMM Server found, renaming to $pmm_archive"
     run_docker 'stop pmm-server' || :
@@ -208,7 +208,7 @@ start_pmm() {
   fi
   run_pmm="run -d -p $port:443 --volumes-from pmm-data --name $container_name --restart always $repo:$tag"
 
-  run_docker "$run_pmm &> /dev/null"
+  run_docker "$run_pmm 1> /dev/null"
   msg "Created PMM Server: $container_name"
   msg "\tUse the following command if you ever need to update your container by hand:"
   msg "\tdocker $run_pmm"
@@ -220,13 +220,22 @@ start_pmm() {
 #######################################
 show_message() {
   msg "PMM Server has been successfully setup on this system!"
+
+  if check_command ifconfig; then
+    ips=$(ifconfig | grep "inet " | awk '{print $2}')
+  elif check_command ip; then
+    ips=$(ip -f inet a | awk -F"[/ ]+" '/inet / {print $3}')
+  else
+    die "${RED}ERROR: cannot detect PMM server address${NOFORMAT}"
+  fi
+
   msg "You can access your new server using the one of following web addresses:"
-  for ip in $(ifconfig | grep "inet " | awk '{print $2}'); do
+  for ip in $ips; do
     msg "\t${BLUE}https://$ip:$port/${NOFORMAT}"
   done
   msg "The default username is '${PURPLE}admin${NOFORMAT}' and password is '${PURPLE}admin${NOFORMAT}'"
   msg "**Note** Browser may not trust the default SSL certificate on first load."
-  msg "So type '${PURPLE}thisisunsafe${NOFORMAT}' to bypass their warning"
+  msg "So type '${PURPLE}thisisunsafe${NOFORMAT}' to bypass their warning (Chrome only)."
 }
 
 main() {
