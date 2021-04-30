@@ -195,12 +195,12 @@ start_pmm() {
   msg "Starting PMM server..."
   run_docker "pull $repo:$tag 1> /dev/null"
 
-  if ! run_docker "inspect pmm-data 1> /dev/null"; then
+  if ! run_docker "inspect pmm-data 1> /dev/null 2> /dev/null"; then
     run_docker "create -v /srv/ --name pmm-data percona/pmm-server:$tag /bin/true 1> /dev/null"
     msg "Created PMM Data Volume: pmm-data"
   fi
 
-  if run_docker "inspect pmm-server 1> /dev/null"; then
+  if run_docker "inspect pmm-server 1> /dev/null 2> /dev/null"; then
     pmm_archive="pmm-server-$(date "+%F-%H%M%S")"
     msg "\tExisting PMM Server found, renaming to $pmm_archive"
     run_docker 'stop pmm-server' || :
@@ -222,7 +222,7 @@ show_message() {
   msg "PMM Server has been successfully setup on this system!"
 
   if check_command ifconfig; then
-    ips=$(ifconfig | grep "inet " | awk '{print $2}')
+    ips=$(ifconfig | awk  '/inet / {print $2}' | sed 's/addr://')
   elif check_command ip; then
     ips=$(ip -f inet a | awk -F"[/ ]+" '/inet / {print $3}')
   else
