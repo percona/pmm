@@ -159,21 +159,23 @@ run_root() {
 # Installs docker if needed.
 #######################################
 install_docker() {
-  msg "Checking if docker is installed..."
+  printf "Checking docker installation"
   if ! check_command docker; then
-    msg "Docker not found. Installing..."
+    printf " - not installed. Installing...\n\n"
     curl -fsSL get.docker.com -o /tmp/get-docker.sh ||
       wget -qO /tmp/get-docker.sh get.docker.com
     sh /tmp/get-docker.sh
     run_root 'service docker start' || :
+  else 
+    printf " - installed.\n\n"
   fi
+
   if ! docker ps 1>/dev/null; then
     root_is_needed='yes'
     if ! run_root 'docker ps > /dev/null'; then
       die "${RED}ERROR: cannot run "docker ps" command${NOFORMAT}"
     fi
   fi
-  msg "Docker is ready."
 }
 
 #######################################
@@ -202,16 +204,16 @@ start_pmm() {
 
   if run_docker "inspect pmm-server 1> /dev/null 2> /dev/null"; then
     pmm_archive="pmm-server-$(date "+%F-%H%M%S")"
-    msg "\tExisting PMM Server found, renaming to $pmm_archive"
+    msg "\tExisting PMM Server found, renaming to $pmm_archive\n"
     run_docker 'stop pmm-server' || :
-    run_docker "rename pmm-server $pmm_archive"
+    run_docker "rename pmm-server $pmm_archive\n"
   fi
   run_pmm="run -d -p $port:443 --volumes-from pmm-data --name $container_name --restart always $repo:$tag"
 
   run_docker "$run_pmm 1> /dev/null"
   msg "Created PMM Server: $container_name"
   msg "\tUse the following command if you ever need to update your container by hand:"
-  msg "\tdocker $run_pmm"
+  msg "\tdocker $run_pmm \n"
 }
 
 #######################################
@@ -219,7 +221,7 @@ start_pmm() {
 # Shows a list of addresses on which PMM server available.
 #######################################
 show_message() {
-  msg "PMM Server has been successfully setup on this system!"
+  msg "PMM Server has been successfully setup on this system!\n"
 
   if check_command ifconfig; then
     ips=$(ifconfig | awk  '/inet / {print $2}' | sed 's/addr://')
@@ -233,9 +235,9 @@ show_message() {
   for ip in $ips; do
     msg "\t${BLUE}https://$ip:$port/${NOFORMAT}"
   done
-  msg "The default username is '${PURPLE}admin${NOFORMAT}' and password is '${PURPLE}admin${NOFORMAT}'"
-  msg "**Note** Browser may not trust the default SSL certificate on first load."
-  msg "So type '${PURPLE}thisisunsafe${NOFORMAT}' to bypass their warning (Chrome only)."
+  msg "\nThe default username is '${PURPLE}admin${NOFORMAT}' and the password is '${PURPLE}admin${NOFORMAT}' :)"
+  msg "Note: Some browsers may not trust the default SSL certificate when you first open one of the urls above."
+  msg "If this is the case, Chrome users may want to type '${PURPLE}thisisunsafe${NOFORMAT}' to bypass the warning.\n"
 }
 
 main() {
@@ -243,7 +245,7 @@ main() {
   if [[ $interactive == 1 ]]; then
     gather_info
   fi
-  msg "Gathering/Downloading required components, this may take a moment"
+  msg "Gathering/downloading required components, this may take a moment\n"
   install_docker
   start_pmm
   show_message
@@ -252,4 +254,4 @@ main() {
 parse_params "$@"
 
 main
-die "Done!" 0
+die "Enjoy Percona Monitoring and Management!" 0
