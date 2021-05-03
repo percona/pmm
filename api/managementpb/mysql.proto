@@ -76,6 +76,12 @@ message AddMySQLRequest {
   bool tls = 19;
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 20;
+  // Certificate Authority certificate chain.
+  string tls_ca = 25;
+  // Client certificate.
+  string tls_cert = 26;
+  // Password for decrypting tls_cert.
+  string tls_key = 27;
   // Tablestats group collectors will be disabled if there are more than that number of tables.
   // If zero, server's default value is used.
   // Use negative value to disable them.

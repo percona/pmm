@@ -3714,11 +3714,26 @@
                   "type": "boolean",
                   "x-order": 5
                 },
+                "tls_ca": {
+                  "description": "Certificate Authority certificate chain.",
+                  "type": "string",
+                  "x-order": 6
+                },
+                "tls_cert": {
+                  "description": "Client certificate.",
+                  "type": "string",
+                  "x-order": 7
+                },
+                "tls_key": {
+                  "description": "Password for decrypting tls_cert.",
+                  "type": "string",
+                  "x-order": 8
+                },
                 "tablestats_group_table_limit": {
                   "description": "Tablestats group collectors will be disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 6
+                  "x-order": 9
                 },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
@@ -3726,17 +3741,17 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 7
+                  "x-order": 10
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "x-order": 8
+                  "x-order": 11
                 },
                 "push_metrics": {
                   "description": "Enables push metrics mode for exporter.",
                   "type": "boolean",
-                  "x-order": 9
+                  "x-order": 12
                 },
                 "disable_collectors": {
                   "description": "List of collector names to disable in this exporter.",
@@ -3744,7 +3759,7 @@
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 10
+                  "x-order": 13
                 }
               }
             }
@@ -3795,11 +3810,26 @@
                       "type": "boolean",
                       "x-order": 6
                     },
+                    "tls_ca": {
+                      "description": "Certificate Authority certificate chain.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "tls_cert": {
+                      "description": "Client certificate.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "tls_key": {
+                      "description": "Password for decrypting tls_cert.",
+                      "type": "string",
+                      "x-order": 9
+                    },
                     "tablestats_group_table_limit": {
                       "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 7
+                      "x-order": 10
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -3807,12 +3837,12 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 11
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 12
                     },
                     "disabled_collectors": {
                       "description": "List of disabled collector names.",
@@ -3820,7 +3850,7 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 10
+                      "x-order": 13
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -3834,18 +3864,18 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 11
+                      "x-order": 14
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 12
+                      "x-order": 15
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 13
+                      "x-order": 16
                     }
                   },
                   "x-order": 0
@@ -4828,10 +4858,25 @@
                   "type": "boolean",
                   "x-order": 5
                 },
+                "tls_ca": {
+                  "description": "Certificate Authority certificate chain.",
+                  "type": "string",
+                  "x-order": 6
+                },
+                "tls_cert": {
+                  "description": "Client certificate.",
+                  "type": "string",
+                  "x-order": 7
+                },
+                "tls_key": {
+                  "description": "Password for decrypting tls_cert.",
+                  "type": "string",
+                  "x-order": 8
+                },
                 "disable_query_examples": {
                   "description": "Disable query examples.",
                   "type": "boolean",
-                  "x-order": 6
+                  "x-order": 9
                 },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
@@ -4839,12 +4884,12 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 7
+                  "x-order": 10
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "x-order": 8
+                  "x-order": 11
                 }
               }
             }
@@ -4895,10 +4940,25 @@
                       "type": "boolean",
                       "x-order": 6
                     },
+                    "tls_ca": {
+                      "description": "Certificate Authority certificate chain.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "tls_cert": {
+                      "description": "Client certificate.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "tls_key": {
+                      "description": "Password for decrypting tls_cert.",
+                      "type": "string",
+                      "x-order": 9
+                    },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 10
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -4906,7 +4966,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 11
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -4920,7 +4980,7 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 12
                     }
                   },
                   "x-order": 0
@@ -5015,16 +5075,31 @@
                   "type": "boolean",
                   "x-order": 5
                 },
+                "tls_ca": {
+                  "description": "Certificate Authority certificate chain.",
+                  "type": "string",
+                  "x-order": 6
+                },
+                "tls_cert": {
+                  "description": "Client certificate.",
+                  "type": "string",
+                  "x-order": 7
+                },
+                "tls_key": {
+                  "description": "Password for decrypting tls_cert.",
+                  "type": "string",
+                  "x-order": 8
+                },
                 "disable_query_examples": {
                   "description": "Disable query examples.",
                   "type": "boolean",
-                  "x-order": 6
+                  "x-order": 9
                 },
                 "max_slowlog_file_size": {
                   "description": "Rotate slowlog file at this size if \u003e 0.\nUse zero or negative value to disable rotation.",
                   "type": "string",
                   "format": "int64",
-                  "x-order": 7
+                  "x-order": 10
                 },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
@@ -5032,12 +5107,12 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 8
+                  "x-order": 11
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "x-order": 9
+                  "x-order": 12
                 }
               }
             }
@@ -5088,16 +5163,31 @@
                       "type": "boolean",
                       "x-order": 6
                     },
+                    "tls_ca": {
+                      "description": "Certificate Authority certificate chain.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "tls_cert": {
+                      "description": "Client certificate.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "tls_key": {
+                      "description": "Password for decrypting tls_cert.",
+                      "type": "string",
+                      "x-order": 9
+                    },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 10
                     },
                     "max_slowlog_file_size": {
                       "description": "Slowlog file is rotated at this size if \u003e 0.",
                       "type": "string",
                       "format": "int64",
-                      "x-order": 8
+                      "x-order": 11
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -5105,7 +5195,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 9
+                      "x-order": 12
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -5119,7 +5209,7 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 10
+                      "x-order": 13
                     }
                   },
                   "x-order": 0
@@ -6390,11 +6480,26 @@
                       "type": "boolean",
                       "x-order": 6
                     },
+                    "tls_ca": {
+                      "description": "Certificate Authority certificate chain.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "tls_cert": {
+                      "description": "Client certificate.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "tls_key": {
+                      "description": "Password for decrypting tls_cert.",
+                      "type": "string",
+                      "x-order": 9
+                    },
                     "tablestats_group_table_limit": {
                       "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 7
+                      "x-order": 10
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -6402,12 +6507,12 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 11
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 12
                     },
                     "disabled_collectors": {
                       "description": "List of disabled collector names.",
@@ -6415,7 +6520,7 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 10
+                      "x-order": 13
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -6429,18 +6534,18 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 11
+                      "x-order": 14
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 12
+                      "x-order": 15
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 13
+                      "x-order": 16
                     }
                   },
                   "x-order": 0
@@ -7347,10 +7452,25 @@
                       "type": "boolean",
                       "x-order": 6
                     },
+                    "tls_ca": {
+                      "description": "Certificate Authority certificate chain.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "tls_cert": {
+                      "description": "Client certificate.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "tls_key": {
+                      "description": "Password for decrypting tls_cert.",
+                      "type": "string",
+                      "x-order": 9
+                    },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 10
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -7358,7 +7478,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 11
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -7372,7 +7492,7 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 12
                     }
                   },
                   "x-order": 0
@@ -7530,16 +7650,31 @@
                       "type": "boolean",
                       "x-order": 6
                     },
+                    "tls_ca": {
+                      "description": "Certificate Authority certificate chain.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "tls_cert": {
+                      "description": "Client certificate.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "tls_key": {
+                      "description": "Password for decrypting tls_cert.",
+                      "type": "string",
+                      "x-order": 9
+                    },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 10
                     },
                     "max_slowlog_file_size": {
                       "description": "Slowlog file is rotated at this size if \u003e 0.",
                       "type": "string",
                       "format": "int64",
-                      "x-order": 8
+                      "x-order": 11
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -7547,7 +7682,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 9
+                      "x-order": 12
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -7561,7 +7696,7 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 10
+                      "x-order": 13
                     }
                   },
                   "x-order": 0
@@ -8354,11 +8489,26 @@
                       "type": "boolean",
                       "x-order": 6
                     },
+                    "tls_ca": {
+                      "description": "Certificate Authority certificate chain.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "tls_cert": {
+                      "description": "Client certificate.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "tls_key": {
+                      "description": "Password for decrypting tls_cert.",
+                      "type": "string",
+                      "x-order": 9
+                    },
                     "tablestats_group_table_limit": {
                       "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 7
+                      "x-order": 10
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -8366,12 +8516,12 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 11
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 12
                     },
                     "disabled_collectors": {
                       "description": "List of disabled collector names.",
@@ -8379,7 +8529,7 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 10
+                      "x-order": 13
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -8393,18 +8543,18 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 11
+                      "x-order": 14
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 12
+                      "x-order": 15
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 13
+                      "x-order": 16
                     }
                   },
                   "x-order": 3
@@ -8697,10 +8847,25 @@
                       "type": "boolean",
                       "x-order": 6
                     },
+                    "tls_ca": {
+                      "description": "Certificate Authority certificate chain.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "tls_cert": {
+                      "description": "Client certificate.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "tls_key": {
+                      "description": "Password for decrypting tls_cert.",
+                      "type": "string",
+                      "x-order": 9
+                    },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 10
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -8708,7 +8873,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 11
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -8722,7 +8887,7 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 12
                     }
                   },
                   "x-order": 7
@@ -8766,16 +8931,31 @@
                       "type": "boolean",
                       "x-order": 6
                     },
+                    "tls_ca": {
+                      "description": "Certificate Authority certificate chain.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "tls_cert": {
+                      "description": "Client certificate.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "tls_key": {
+                      "description": "Password for decrypting tls_cert.",
+                      "type": "string",
+                      "x-order": 9
+                    },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 10
                     },
                     "max_slowlog_file_size": {
                       "description": "Slowlog file is rotated at this size if \u003e 0.",
                       "type": "string",
                       "format": "int64",
-                      "x-order": 8
+                      "x-order": 11
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -8783,7 +8963,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 9
+                      "x-order": 12
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -8797,7 +8977,7 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 10
+                      "x-order": 13
                     }
                   },
                   "x-order": 8
@@ -9488,11 +9668,26 @@
                         "type": "boolean",
                         "x-order": 6
                       },
+                      "tls_ca": {
+                        "description": "Certificate Authority certificate chain.",
+                        "type": "string",
+                        "x-order": 7
+                      },
+                      "tls_cert": {
+                        "description": "Client certificate.",
+                        "type": "string",
+                        "x-order": 8
+                      },
+                      "tls_key": {
+                        "description": "Password for decrypting tls_cert.",
+                        "type": "string",
+                        "x-order": 9
+                      },
                       "tablestats_group_table_limit": {
                         "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
                         "type": "integer",
                         "format": "int32",
-                        "x-order": 7
+                        "x-order": 10
                       },
                       "custom_labels": {
                         "description": "Custom user-assigned labels.",
@@ -9500,12 +9695,12 @@
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 8
+                        "x-order": 11
                       },
                       "push_metrics_enabled": {
                         "description": "True if exporter uses push metrics mode.",
                         "type": "boolean",
-                        "x-order": 9
+                        "x-order": 12
                       },
                       "disabled_collectors": {
                         "description": "List of disabled collector names.",
@@ -9513,7 +9708,7 @@
                         "items": {
                           "type": "string"
                         },
-                        "x-order": 10
+                        "x-order": 13
                       },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -9527,18 +9722,18 @@
                           "STOPPING",
                           "DONE"
                         ],
-                        "x-order": 11
+                        "x-order": 14
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 12
+                        "x-order": 15
                       },
                       "tablestats_group_disabled": {
                         "description": "True if tablestats group collectors are currently disabled.",
                         "type": "boolean",
-                        "x-order": 13
+                        "x-order": 16
                       }
                     }
                   },
@@ -9843,10 +10038,25 @@
                         "type": "boolean",
                         "x-order": 6
                       },
+                      "tls_ca": {
+                        "description": "Certificate Authority certificate chain.",
+                        "type": "string",
+                        "x-order": 7
+                      },
+                      "tls_cert": {
+                        "description": "Client certificate.",
+                        "type": "string",
+                        "x-order": 8
+                      },
+                      "tls_key": {
+                        "description": "Password for decrypting tls_cert.",
+                        "type": "string",
+                        "x-order": 9
+                      },
                       "query_examples_disabled": {
                         "description": "True if query examples are disabled.",
                         "type": "boolean",
-                        "x-order": 7
+                        "x-order": 10
                       },
                       "custom_labels": {
                         "description": "Custom user-assigned labels.",
@@ -9854,7 +10064,7 @@
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 8
+                        "x-order": 11
                       },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -9868,7 +10078,7 @@
                           "STOPPING",
                           "DONE"
                         ],
-                        "x-order": 9
+                        "x-order": 12
                       }
                     }
                   },
@@ -9915,16 +10125,31 @@
                         "type": "boolean",
                         "x-order": 6
                       },
+                      "tls_ca": {
+                        "description": "Certificate Authority certificate chain.",
+                        "type": "string",
+                        "x-order": 7
+                      },
+                      "tls_cert": {
+                        "description": "Client certificate.",
+                        "type": "string",
+                        "x-order": 8
+                      },
+                      "tls_key": {
+                        "description": "Password for decrypting tls_cert.",
+                        "type": "string",
+                        "x-order": 9
+                      },
                       "query_examples_disabled": {
                         "description": "True if query examples are disabled.",
                         "type": "boolean",
-                        "x-order": 7
+                        "x-order": 10
                       },
                       "max_slowlog_file_size": {
                         "description": "Slowlog file is rotated at this size if \u003e 0.",
                         "type": "string",
                         "format": "int64",
-                        "x-order": 8
+                        "x-order": 11
                       },
                       "custom_labels": {
                         "description": "Custom user-assigned labels.",
@@ -9932,7 +10157,7 @@
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 9
+                        "x-order": 12
                       },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -9946,7 +10171,7 @@
                           "STOPPING",
                           "DONE"
                         ],
-                        "x-order": 10
+                        "x-order": 13
                       }
                     }
                   },
@@ -20530,11 +20755,26 @@
                   "type": "boolean",
                   "x-order": 20
                 },
+                "tls_ca": {
+                  "description": "Certificate Authority certificate chain.",
+                  "type": "string",
+                  "x-order": 21
+                },
+                "tls_cert": {
+                  "description": "Client certificate.",
+                  "type": "string",
+                  "x-order": 22
+                },
+                "tls_key": {
+                  "description": "Password for decrypting tls_cert.",
+                  "type": "string",
+                  "x-order": 23
+                },
                 "tablestats_group_table_limit": {
                   "description": "Tablestats group collectors will be disabled if there are more than that number of tables.\nIf zero, server's default value is used.\nUse negative value to disable them.",
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 21
+                  "x-order": 24
                 },
                 "metrics_mode": {
                   "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
@@ -20545,7 +20785,7 @@
                     "PULL",
                     "PUSH"
                   ],
-                  "x-order": 22
+                  "x-order": 25
                 },
                 "disable_collectors": {
                   "description": "List of collector names to disable in this exporter.",
@@ -20553,7 +20793,7 @@
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 23
+                  "x-order": 26
                 }
               }
             }
@@ -20665,11 +20905,26 @@
                       "type": "boolean",
                       "x-order": 6
                     },
+                    "tls_ca": {
+                      "description": "Certificate Authority certificate chain.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "tls_cert": {
+                      "description": "Client certificate.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "tls_key": {
+                      "description": "Password for decrypting tls_cert.",
+                      "type": "string",
+                      "x-order": 9
+                    },
                     "tablestats_group_table_limit": {
                       "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 7
+                      "x-order": 10
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -20677,12 +20932,12 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 11
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 12
                     },
                     "disabled_collectors": {
                       "description": "List of disabled collector names.",
@@ -20690,7 +20945,7 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 10
+                      "x-order": 13
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -20704,18 +20959,18 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 11
+                      "x-order": 14
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 12
+                      "x-order": 15
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 13
+                      "x-order": 16
                     }
                   },
                   "x-order": 1
@@ -20759,10 +21014,25 @@
                       "type": "boolean",
                       "x-order": 6
                     },
+                    "tls_ca": {
+                      "description": "Certificate Authority certificate chain.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "tls_cert": {
+                      "description": "Client certificate.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "tls_key": {
+                      "description": "Password for decrypting tls_cert.",
+                      "type": "string",
+                      "x-order": 9
+                    },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 10
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -20770,7 +21040,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 11
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -20784,7 +21054,7 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 12
                     }
                   },
                   "x-order": 2
@@ -20828,16 +21098,31 @@
                       "type": "boolean",
                       "x-order": 6
                     },
+                    "tls_ca": {
+                      "description": "Certificate Authority certificate chain.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "tls_cert": {
+                      "description": "Client certificate.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "tls_key": {
+                      "description": "Password for decrypting tls_cert.",
+                      "type": "string",
+                      "x-order": 9
+                    },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 10
                     },
                     "max_slowlog_file_size": {
                       "description": "Slowlog file is rotated at this size if \u003e 0.",
                       "type": "string",
                       "format": "int64",
-                      "x-order": 8
+                      "x-order": 11
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -20845,7 +21130,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 9
+                      "x-order": 12
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -20859,7 +21144,7 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 10
+                      "x-order": 13
                     }
                   },
                   "x-order": 3
@@ -22555,11 +22840,26 @@
                       "type": "boolean",
                       "x-order": 6
                     },
+                    "tls_ca": {
+                      "description": "Certificate Authority certificate chain.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "tls_cert": {
+                      "description": "Client certificate.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "tls_key": {
+                      "description": "Password for decrypting tls_cert.",
+                      "type": "string",
+                      "x-order": 9
+                    },
                     "tablestats_group_table_limit": {
                       "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 7
+                      "x-order": 10
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -22567,12 +22867,12 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 11
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 12
                     },
                     "disabled_collectors": {
                       "description": "List of disabled collector names.",
@@ -22580,7 +22880,7 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 10
+                      "x-order": 13
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -22594,18 +22894,18 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 11
+                      "x-order": 14
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 12
+                      "x-order": 15
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 13
+                      "x-order": 16
                     }
                   },
                   "x-order": 3
@@ -22649,10 +22949,25 @@
                       "type": "boolean",
                       "x-order": 6
                     },
+                    "tls_ca": {
+                      "description": "Certificate Authority certificate chain.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "tls_cert": {
+                      "description": "Client certificate.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "tls_key": {
+                      "description": "Password for decrypting tls_cert.",
+                      "type": "string",
+                      "x-order": 9
+                    },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 10
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -22660,7 +22975,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 11
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -22674,7 +22989,7 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 12
                     }
                   },
                   "x-order": 4

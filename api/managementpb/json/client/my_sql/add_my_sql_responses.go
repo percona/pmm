@@ -191,6 +191,15 @@ type AddMySQLBody struct {
 	// Skip TLS certificate and hostname validation.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
+	// Certificate Authority certificate chain.
+	TLSCa string `json:"tls_ca,omitempty"`
+
+	// Client certificate.
+	TLSCert string `json:"tls_cert,omitempty"`
+
+	// Password for decrypting tls_cert.
+	TLSKey string `json:"tls_key,omitempty"`
+
 	// Tablestats group collectors will be disabled if there are more than that number of tables.
 	// If zero, server's default value is used.
 	// Use negative value to disable them.
@@ -546,6 +555,15 @@ type AddMySQLOKBodyMysqldExporter struct {
 	// Skip TLS certificate and hostname validation.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
+	// Certificate Authority certificate chain.
+	TLSCa string `json:"tls_ca,omitempty"`
+
+	// Client certificate.
+	TLSCert string `json:"tls_cert,omitempty"`
+
+	// Password for decrypting tls_cert.
+	TLSKey string `json:"tls_key,omitempty"`
+
 	// Tablestats group collectors are disabled if there are more than that number of tables.
 	// 0 means tablestats group collectors are always enabled (no limit).
 	// Negative value means tablestats group collectors are always disabled.
@@ -690,6 +708,15 @@ type AddMySQLOKBodyQANMysqlPerfschema struct {
 	// Skip TLS certificate and hostname validation.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
+	// Certificate Authority certificate chain.
+	TLSCa string `json:"tls_ca,omitempty"`
+
+	// Client certificate.
+	TLSCert string `json:"tls_cert,omitempty"`
+
+	// Password for decrypting tls_cert.
+	TLSKey string `json:"tls_key,omitempty"`
+
 	// True if query examples are disabled.
 	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
 
@@ -819,6 +846,15 @@ type AddMySQLOKBodyQANMysqlSlowlog struct {
 
 	// Skip TLS certificate and hostname validation.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Certificate Authority certificate chain.
+	TLSCa string `json:"tls_ca,omitempty"`
+
+	// Client certificate.
+	TLSCert string `json:"tls_cert,omitempty"`
+
+	// Password for decrypting tls_cert.
+	TLSKey string `json:"tls_key,omitempty"`
 
 	// True if query examples are disabled.
 	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`

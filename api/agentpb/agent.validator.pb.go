@@ -262,15 +262,35 @@ func (this *StartActionRequest) Validate() error {
 	return nil
 }
 func (this *StartActionRequest_MySQLExplainParams) Validate() error {
+	if this.TlsFiles != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.TlsFiles); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("TlsFiles", err)
+		}
+	}
 	return nil
 }
 func (this *StartActionRequest_MySQLShowCreateTableParams) Validate() error {
+	if this.TlsFiles != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.TlsFiles); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("TlsFiles", err)
+		}
+	}
 	return nil
 }
 func (this *StartActionRequest_MySQLShowTableStatusParams) Validate() error {
+	if this.TlsFiles != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.TlsFiles); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("TlsFiles", err)
+		}
+	}
 	return nil
 }
 func (this *StartActionRequest_MySQLShowIndexParams) Validate() error {
+	if this.TlsFiles != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.TlsFiles); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("TlsFiles", err)
+		}
+	}
 	return nil
 }
 func (this *StartActionRequest_PostgreSQLShowCreateTableParams) Validate() error {
@@ -300,9 +320,19 @@ func (this *StartActionRequest_PTMySQLSummaryParams) Validate() error {
 	return nil
 }
 func (this *StartActionRequest_MySQLQueryShowParams) Validate() error {
+	if this.TlsFiles != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.TlsFiles); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("TlsFiles", err)
+		}
+	}
 	return nil
 }
 func (this *StartActionRequest_MySQLQuerySelectParams) Validate() error {
+	if this.TlsFiles != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.TlsFiles); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("TlsFiles", err)
+		}
+	}
 	return nil
 }
 func (this *StartActionRequest_PostgreSQLQueryShowParams) Validate() error {
