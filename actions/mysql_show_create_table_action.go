@@ -20,6 +20,9 @@ import (
 	"fmt"
 
 	"github.com/percona/pmm/api/agentpb"
+	"github.com/prometheus/common/log"
+
+	"github.com/percona/pmm-agent/tlshelpers"
 )
 
 type mysqlShowCreateTableAction struct {
@@ -30,6 +33,13 @@ type mysqlShowCreateTableAction struct {
 // NewMySQLShowCreateTableAction creates MySQL SHOW CREATE TABLE Action.
 // This is an Action that can run `SHOW CREATE TABLE` command on MySQL service with given DSN.
 func NewMySQLShowCreateTableAction(id string, params *agentpb.StartActionRequest_MySQLShowCreateTableParams) Action {
+	if params.TlsFiles != nil && params.TlsFiles.Files != nil {
+		err := tlshelpers.RegisterMySQLCerts(params.TlsFiles.Files, params.TlsSkipVerify)
+		if err != nil {
+			log.Error(err)
+		}
+	}
+
 	return &mysqlShowCreateTableAction{
 		id:     id,
 		params: params,

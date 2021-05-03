@@ -342,6 +342,7 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 		"type":      agentType,
 	})
 	l.Debugf("Starting: %s.", processParams)
+
 	process := process.New(processParams, agentProcess.RedactWords, l)
 	go pprof.Do(ctx, pprof.Labels("agentID", agentID, "type", agentType), process.Run)
 
@@ -401,6 +402,8 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 			DSN:                  dsn,
 			AgentID:              agentID,
 			DisableQueryExamples: builtinAgent.DisableQueryExamples,
+			TextFiles:            builtinAgent.GetTextFiles(),
+			TLSSkipVerify:        builtinAgent.TlsSkipVerify,
 		}
 		agent, err = perfschema.New(params, l)
 
@@ -418,6 +421,8 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 			SlowLogFilePrefix:    s.paths.SlowLogFilePrefix,
 			DisableQueryExamples: builtinAgent.DisableQueryExamples,
 			MaxSlowlogFileSize:   builtinAgent.MaxQueryLogSize,
+			TextFiles:            builtinAgent.GetTextFiles(),
+			TLSSkipVerify:        builtinAgent.TlsSkipVerify,
 		}
 		agent, err = slowlog.New(params, l)
 

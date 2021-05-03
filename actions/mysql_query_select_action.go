@@ -20,6 +20,9 @@ import (
 
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
+	"github.com/prometheus/common/log"
+
+	"github.com/percona/pmm-agent/tlshelpers"
 )
 
 type mysqlQuerySelectAction struct {
@@ -29,6 +32,13 @@ type mysqlQuerySelectAction struct {
 
 // NewMySQLQuerySelectAction creates MySQL SELECT query Action.
 func NewMySQLQuerySelectAction(id string, params *agentpb.StartActionRequest_MySQLQuerySelectParams) Action {
+	if params.TlsFiles != nil && params.TlsFiles.Files != nil {
+		err := tlshelpers.RegisterMySQLCerts(params.TlsFiles.Files, params.TlsSkipVerify)
+		if err != nil {
+			log.Error(err)
+		}
+	}
+
 	return &mysqlQuerySelectAction{
 		id:     id,
 		params: params,

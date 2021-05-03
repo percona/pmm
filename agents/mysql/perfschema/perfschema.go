@@ -33,6 +33,7 @@ import (
 	"gopkg.in/reform.v1/dialects/mysql"
 
 	"github.com/percona/pmm-agent/agents"
+	"github.com/percona/pmm-agent/tlshelpers"
 	"github.com/percona/pmm-agent/utils/truncate"
 )
 
@@ -61,6 +62,8 @@ type Params struct {
 	DSN                  string
 	AgentID              string
 	DisableQueryExamples bool
+	TextFiles            *agentpb.TextFiles
+	TLSSkipVerify        bool
 }
 
 // newPerfSchemaParams holds all required parameters to instantiate a new PerfSchema
@@ -76,6 +79,13 @@ const queryTag = "pmm-agent:perfschema"
 
 // New creates new PerfSchema QAN service.
 func New(params *Params, l *logrus.Entry) (*PerfSchema, error) {
+	if params.TextFiles != nil && params.TextFiles.Files != nil {
+		err := tlshelpers.RegisterMySQLCerts(params.TextFiles.Files, params.TLSSkipVerify)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	sqlDB, err := sql.Open("mysql", params.DSN)
 	if err != nil {
 		return nil, err

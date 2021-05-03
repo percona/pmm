@@ -39,6 +39,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/percona/pmm-agent/config"
+	"github.com/percona/pmm-agent/tlshelpers"
 	"github.com/percona/pmm-agent/utils/templates"
 )
 
@@ -67,7 +68,7 @@ func (cc *ConnectionChecker) Check(ctx context.Context, msg *agentpb.CheckConnec
 
 	switch msg.Type {
 	case inventorypb.ServiceType_MYSQL_SERVICE:
-		return cc.checkMySQLConnection(ctx, msg.Dsn)
+		return cc.checkMySQLConnection(ctx, msg.Dsn, msg.TextFiles, msg.TlsSkipVerify, id)
 	case inventorypb.ServiceType_MONGODB_SERVICE:
 		return cc.checkMongoDBConnection(ctx, msg.Dsn, msg.TextFiles, id)
 	case inventorypb.ServiceType_POSTGRESQL_SERVICE:
@@ -89,17 +90,38 @@ func (cc *ConnectionChecker) sqlPing(ctx context.Context, db *sql.DB) error {
 	return err
 }
 
-func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn string) *agentpb.CheckConnectionResponse {
+func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn string, files *agentpb.TextFiles, tlsSkipVerify bool, id uint32) *agentpb.CheckConnectionResponse {
 	var res agentpb.CheckConnectionResponse
+	var err error
 
-	cfg, err := mysql.ParseDSN(dsn)
+	if files != nil && files.Files != nil {
+		err = tlshelpers.RegisterMySQLCerts(files.Files, tlsSkipVerify)
+		if err != nil {
+			cc.l.Debugf("checkMySQLConnection: failed to register cert: %s", err)
+			res.Error = err.Error()
+			return &res
+		}
+	}
+
+	tempdir := filepath.Join(cc.paths.TempDir, strings.ToLower("check-mysql-connection"), strconv.Itoa(int(id)))
+	_, err = templates.RenderDSN(dsn, files, tempdir)
 	if err != nil {
+		cc.l.Debugf("checkMySQLDBConnection: failed to Render DSN: %s", err)
+		res.Error = err.Error()
+		return &res
+	}
+
+	var cfg *mysql.Config
+	cfg, err = mysql.ParseDSN(dsn)
+	if err != nil {
+		cc.l.Debugf("checkMySQLConnection: failed to parse DSN: %s", err)
 		res.Error = err.Error()
 		return &res
 	}
 
 	connector, err := mysql.NewConnector(cfg)
 	if err != nil {
+		cc.l.Debugf("checkMySQLConnection: failed to create connector: %s", err)
 		res.Error = err.Error()
 		return &res
 	}

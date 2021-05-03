@@ -20,6 +20,9 @@ import (
 
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
+	"github.com/prometheus/common/log"
+
+	"github.com/percona/pmm-agent/tlshelpers"
 )
 
 type mysqlQueryShowAction struct {
@@ -29,6 +32,13 @@ type mysqlQueryShowAction struct {
 
 // NewMySQLQueryShowAction creates MySQL SHOW query Action.
 func NewMySQLQueryShowAction(id string, params *agentpb.StartActionRequest_MySQLQueryShowParams) Action {
+	if params.TlsFiles != nil && params.TlsFiles.Files != nil {
+		err := tlshelpers.RegisterMySQLCerts(params.TlsFiles.Files, params.TlsSkipVerify)
+		if err != nil {
+			log.Error(err)
+		}
+	}
+
 	return &mysqlQueryShowAction{
 		id:     id,
 		params: params,

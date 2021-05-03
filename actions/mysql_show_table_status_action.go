@@ -20,6 +20,9 @@ import (
 
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
+	"github.com/prometheus/common/log"
+
+	"github.com/percona/pmm-agent/tlshelpers"
 )
 
 type mysqlShowTableStatusAction struct {
@@ -30,6 +33,13 @@ type mysqlShowTableStatusAction struct {
 // NewMySQLShowTableStatusAction creates MySQL SHOW TABLE STATUS Action.
 // This is an Action that can run `SHOW TABLE STATUS` command on MySQL service with given DSN.
 func NewMySQLShowTableStatusAction(id string, params *agentpb.StartActionRequest_MySQLShowTableStatusParams) Action {
+	if params.TlsFiles != nil && params.TlsFiles.Files != nil {
+		err := tlshelpers.RegisterMySQLCerts(params.TlsFiles.Files, params.TlsSkipVerify)
+		if err != nil {
+			log.Error(err)
+		}
+	}
+
 	return &mysqlShowTableStatusAction{
 		id:     id,
 		params: params,
