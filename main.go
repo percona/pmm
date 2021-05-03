@@ -38,7 +38,6 @@ func main() {
 	kingpin.CommandLine.Name = "pmm-admin"
 	kingpin.CommandLine.Help = fmt.Sprintf("Version %s", version.Version)
 	kingpin.CommandLine.HelpFlag.Short('h')
-	kingpin.CommandLine.Version(version.FullInfo())
 	kingpin.CommandLine.UsageTemplate(commands.UsageTemplate)
 
 	serverURLF := kingpin.Flag("server-url", "PMM Server URL in `https://username:password@pmm-server-host/` format").String()
@@ -46,6 +45,17 @@ func main() {
 	kingpin.Flag("debug", "Enable debug logging").BoolVar(&commands.GlobalFlags.Debug)
 	kingpin.Flag("trace", "Enable trace logging (implies debug)").BoolVar(&commands.GlobalFlags.Trace)
 	jsonF := kingpin.Flag("json", "Enable JSON output").Bool()
+
+	kingpin.Flag("version", "Show application version").Short('v').Action(func(*kingpin.ParseContext) error {
+		if *jsonF {
+			fmt.Println(version.FullInfoJson())
+		} else {
+			fmt.Println(version.FullInfo())
+		}
+		os.Exit(0)
+
+		return nil
+	}).Bool()
 
 	cmd := kingpin.Parse()
 
