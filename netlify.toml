@@ -1,0 +1,4 @@
+[build]
+  base = "."
+  publish = "site"
+  command = "PATH=$PATH:./_resources/bin mkdocs build -f mkdocs-netlify.yml"

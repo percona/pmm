@@ -143,11 +143,6 @@ Enables [Integrated Alerting](../using/alerting.md) and reveals the [Communicati
 
 Activates Microsoft Azure monitoring.
 
-### Backup Management {: #backup-management }
-
-> <b style="color:goldenrod">Caution</b> This is a technical preview feature.
-
-Activates backup management.
 
 ### Public Address
 

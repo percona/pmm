@@ -137,6 +137,11 @@ This page has four tabs.
     > - `unit` (optional): PMM currently supports either `s` (seconds) or `%` (percentage).
     > - `value` (optional): the parameter value itself.
     > - `range` (optional): only for `float` parameters, defining the boundaries for the value.
+    >
+    > **Restrictions**
+    >
+    > - Value strings must not include any of these special characters: `<` `>` `!` `@` `#` `$` `%` `^` `&` `*` `(` `)` `_` `/` `\` `'` `+` `-` `=` ` ` (space)
+    > - Any variables must be predefined.
 
 4. Click *Add* to add the alert rule template, or *Cancel* to abort the operation.
 
