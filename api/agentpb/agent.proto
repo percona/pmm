@@ -70,6 +70,10 @@ message SetStateRequest {
     int64 max_query_log_size = 4;
     // Contains files and their contents which can be used in DSN.
     TextFiles text_files = 5;
+    // TLS in enabled if true.
+    bool tls = 6;
+    // TLS certificate wont be verified.
+    bool tls_skip_verify = 7;
   }
   map<string, BuiltinAgent> builtin_agents = 2;
 }
@@ -139,24 +143,40 @@ message StartActionRequest {
     string dsn = 1;
     string query = 2;
     MysqlExplainOutputFormat output_format = 3;
+    // Contains files and their contents which can be used in DSN.
+    TextFiles tls_files = 4;
+    // TLS certificate wont be verified.
+    bool tls_skip_verify = 5;
   }
   // MySQLShowCreateTableParams describes MySQL SHOW CREATE TABLE action parameters.
   message MySQLShowCreateTableParams {
     // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
     string table = 2;
+    // Contains files and their contents which can be used in DSN.
+    TextFiles tls_files = 3;
+    // TLS certificate wont be verified.
+    bool tls_skip_verify = 4;
   }
   // MySQLShowTableStatusParams describes MySQL SHOW TABLE STATUS action parameters.
   message MySQLShowTableStatusParams {
     // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
     string table = 2;
+    // Contains files and their contents which can be used in DSN.
+    TextFiles tls_files = 3;
+    // TLS certificate wont be verified.
+    bool tls_skip_verify = 4;
   }
   // MySQLShowIndexParams describes MySQL SHOW INDEX action parameters.
   message MySQLShowIndexParams {
     // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
     string table = 2;
+    // Contains files and their contents which can be used in DSN.
+    TextFiles tls_files = 3;
+    // TLS certificate wont be verified.
+    bool tls_skip_verify = 4;
   }
   // PostgreSQLShowCreateTableParams describes PostgreSQL SHOW CREATE TABLE action parameters.
   message PostgreSQLShowCreateTableParams {
@@ -210,6 +230,10 @@ message StartActionRequest {
     string dsn = 1;
     // Query suffix (without leading SHOW).
     string query = 2;
+    // Contains files and their contents which can be used in DSN.
+    TextFiles tls_files = 3;
+    // TLS certificate wont be verified.
+    bool tls_skip_verify = 4;
   }
   // MySQLQuerySelectParams describes MySQL SELECT query action parameters.
   message MySQLQuerySelectParams {
@@ -217,6 +241,10 @@ message StartActionRequest {
     string dsn = 1;
     // Query suffix (without leading SELECT).
     string query = 2;
+    // Contains files and their contents which can be used in DSN.
+    TextFiles tls_files = 3;
+    // TLS certificate wont be verified.
+    bool tls_skip_verify = 4;
   }
   // PostgreSQLQueryShowParams describes PostgreSQL SHOW query action parameters.
   message PostgreSQLQueryShowParams {
@@ -315,6 +343,8 @@ message CheckConnectionRequest {
   google.protobuf.Duration timeout = 3;
   // Contains files and their contents which can be used in DSN.
   TextFiles text_files = 4;
+  // TLS certificate wont be verified.
+  bool tls_skip_verify = 5;
 }
 
 // CheckConnectionResponse is an AgentMessage containing a result of connection check.
@@ -374,8 +404,8 @@ message StartJobRequest {
       S3LocationConfig s3_config = 10;
     }
   }
-  // MySQLBackupRestore is job for MySQL backup restore service.
-  message MySQLBackupRestore {
+  // MySQLRestoreBackup is job for MySQL restore backup service.
+  message MySQLRestoreBackup {
     // Service identifier where the backup should be restored.
     string service_id = 1;
     // Backup name.
@@ -391,7 +421,7 @@ message StartJobRequest {
   oneof job {
     Echo echo = 10;
     MySQLBackup mysql_backup = 11;
-    MySQLBackupRestore mysql_backup_restore = 12;
+    MySQLRestoreBackup mysql_restore_backup = 12;
   }
 }
 
@@ -421,8 +451,8 @@ message JobResult {
   // MySQLBackup contains result for MySQL backup job.
   message MySQLBackup {}
 
-  // MySQLBackupRestore contains result for MySQL backup restore job.
-  message MySQLBackupRestore {}
+  // MySQLRestoreBackup contains result for MySQL restore backup job.
+  message MySQLRestoreBackup {}
 
   string job_id = 1;
   google.protobuf.Timestamp timestamp = 2;
@@ -430,7 +460,7 @@ message JobResult {
     Error error = 10;
     Echo echo = 11;
     MySQLBackup mysql_backup = 12;
-    MySQLBackupRestore mysql_backup_restore = 13;
+    MySQLRestoreBackup mysql_restore_backup = 13;
   }
 }
 
@@ -443,15 +473,15 @@ message JobProgress {
   // MySQLBackup contains backup job status update.
   message MySQLBackup {}
 
-  // MySQLBackupRestore contains backup restore job status update.
-  message MySQLBackupRestore {}
+  // MySQLRestoreBackup contains restore backup job status update.
+  message MySQLRestoreBackup {}
 
   string job_id = 1;
   google.protobuf.Timestamp timestamp = 2;
   oneof result {
     Echo echo = 10;
     MySQLBackup mysql_backup = 11;
-    MySQLBackupRestore mysql_backup_restore = 12;
+    MySQLRestoreBackup mysql_restore_backup = 12;
   }
 }
 

@@ -1,62 +1,116 @@
 package version
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 )
 
-func TestInfoManaged(t *testing.T) {
+func setupDataForManaged() {
 	ProjectName = "pmm-managed"
 	Version = "2.1.2"
 	PMMVersion = "2.1.2"
 	Timestamp = "1545226908"
 	FullCommit = "6559a94ab33831deeda04193f74413b735edb1a1"
 	Branch = "master"
+}
 
-	expected := "pmm-managed v2.1.2"
+func setupDataForExporter() {
+	ProjectName = "external_exporter"
+	Version = "0.8.5"
+	PMMVersion = "2.1.2"
+	Timestamp = "1545226909"
+	FullCommit = "6559a94ab33831deeda04193f74413b735edb1a2"
+	Branch = "master"
+}
+
+func TestShortInfoManaged(t *testing.T) {
+	setupDataForManaged()
+
+	expected := fmt.Sprintf("%s v%s", ProjectName, PMMVersion)
 	actual := ShortInfo()
-	if expected != actual {
-		t.Errorf("expected: %q\nactual: %q", expected, actual)
-	}
-
-	expected = strings.Join([]string{
-		"ProjectName: pmm-managed",
-		"Version: 2.1.2",
-		"PMMVersion: 2.1.2",
-		"Timestamp: 2018-12-19 13:41:48 (UTC)",
-		"FullCommit: 6559a94ab33831deeda04193f74413b735edb1a1",
-		"Branch: master",
-	}, "\n")
-	actual = FullInfo()
 	if expected != actual {
 		t.Errorf("expected: %q\nactual: %q", expected, actual)
 	}
 }
 
-func TestInfoExporter(t *testing.T) {
-	ProjectName = "external_exporter"
-	Version = "0.8.5"
-	PMMVersion = "2.1.2"
-	Timestamp = "1545226908"
-	FullCommit = "6559a94ab33831deeda04193f74413b735edb1a1"
-	Branch = "master"
+func TestFullInfoPlainManaged(t *testing.T) {
+	setupDataForManaged()
 
-	expected := "external_exporter v0.8.5 (PMM v2.1.2)"
+	expected := strings.Join([]string{
+		fmt.Sprintf("ProjectName: %s", ProjectName),
+		fmt.Sprintf("Version: %s", Version),
+		fmt.Sprintf("PMMVersion: %s", PMMVersion),
+		fmt.Sprintf("Timestamp: %s", timestampFormatted()),
+		fmt.Sprintf("FullCommit: %s", FullCommit),
+		fmt.Sprintf("Branch: %s", Branch),
+	}, "\n")
+	actual := FullInfo()
+	if expected != actual {
+		t.Errorf("expected: %q\nactual: %q", expected, actual)
+	}
+}
+
+func TestFullInfoJsonManaged(t *testing.T) {
+	setupDataForManaged()
+
+	expected := "{" + strings.Join([]string{
+		fmt.Sprintf(`"Branch":"%s"`, Branch),
+		fmt.Sprintf(`"FullCommit":"%s"`, FullCommit),
+		fmt.Sprintf(`"PMMVersion":"%s"`, PMMVersion),
+		fmt.Sprintf(`"ProjectName":"%s"`, ProjectName),
+		fmt.Sprintf(`"Timestamp":"%s"`, timestampFormatted()),
+		fmt.Sprintf(`"Version":"%s"`, Version),
+	}, ",") + "}"
+
+	actual := FullInfoJson()
+	if actual != expected {
+		t.Errorf("\nexpected: %q\nactual:   %q", expected, actual)
+	}
+}
+
+func TestShortInfoExporter(t *testing.T) {
+	setupDataForExporter()
+
+	expected := fmt.Sprintf("external_exporter v%s (PMM v%s)", Version, PMMVersion)
 	actual := ShortInfo()
 	if expected != actual {
 		t.Errorf("expected: %q\nactual: %q", expected, actual)
 	}
+}
 
-	expected = strings.Join([]string{
-		"ProjectName: external_exporter",
-		"Version: 0.8.5",
-		"PMMVersion: 2.1.2",
-		"Timestamp: 2018-12-19 13:41:48 (UTC)",
-		"FullCommit: 6559a94ab33831deeda04193f74413b735edb1a1",
-		"Branch: master",
+func TestFullInfoPlainExporter(t *testing.T) {
+	setupDataForExporter()
+
+	expected := strings.Join([]string{
+		fmt.Sprintf("ProjectName: %s", ProjectName),
+		fmt.Sprintf("Version: %s", Version),
+		fmt.Sprintf("PMMVersion: %s", PMMVersion),
+		fmt.Sprintf("Timestamp: %s", timestampFormatted()),
+		fmt.Sprintf("FullCommit: %s", FullCommit),
+		fmt.Sprintf("Branch: %s", Branch),
 	}, "\n")
-	actual = FullInfo()
+
+	actual := FullInfo()
 	if expected != actual {
 		t.Errorf("expected: %q\nactual: %q", expected, actual)
+	}
+}
+
+func TestFullInfoJsonExporter(t *testing.T) {
+	setupDataForExporter()
+
+	expected := "{" + strings.Join([]string{
+		fmt.Sprintf(`"Branch":"%s"`, Branch),
+		fmt.Sprintf(`"FullCommit":"%s"`, FullCommit),
+		fmt.Sprintf(`"PMMVersion":"%s"`, PMMVersion),
+		fmt.Sprintf(`"ProjectName":"%s"`, ProjectName),
+		fmt.Sprintf(`"Timestamp":"%s"`, timestampFormatted()),
+		fmt.Sprintf(`"Version":"%s"`, Version),
+	}, ",") + "}"
+
+	actual := FullInfoJson()
+	if actual != expected {
+		t.Errorf("\nexpected: %q\nactual:   %q", expected, actual)
 	}
 }
