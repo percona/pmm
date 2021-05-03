@@ -61,7 +61,7 @@ for the list alerts operation typically these are written to a http.Request
 type ListAlertsParams struct {
 
 	/*Body*/
-	Body interface{}
+	Body ListAlertsBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -102,13 +102,13 @@ func (o *ListAlertsParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the list alerts params
-func (o *ListAlertsParams) WithBody(body interface{}) *ListAlertsParams {
+func (o *ListAlertsParams) WithBody(body ListAlertsBody) *ListAlertsParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the list alerts params
-func (o *ListAlertsParams) SetBody(body interface{}) {
+func (o *ListAlertsParams) SetBody(body ListAlertsBody) {
 	o.Body = body
 }
 
@@ -120,10 +120,8 @@ func (o *ListAlertsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Re
 	}
 	var res []error
 
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
+	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
 	}
 
 	if len(res) > 0 {
