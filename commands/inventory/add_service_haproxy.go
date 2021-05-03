@@ -20,6 +20,7 @@ import (
 	"github.com/percona/pmm/api/inventorypb/json/client/services"
 
 	"github.com/percona/pmm-admin/commands"
+	"github.com/percona/pmm-admin/helpers"
 )
 
 var addHAProxyServiceResultT = commands.ParseTemplate(`
@@ -53,6 +54,11 @@ type addHAProxyServiceCommand struct {
 }
 
 func (cmd *addHAProxyServiceCommand) Run() (commands.Result, error) {
+	isSupported, err := helpers.IsHAProxySupported()
+	if !isSupported {
+		return nil, err
+	}
+
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err

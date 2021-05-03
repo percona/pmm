@@ -26,6 +26,7 @@ import (
 
 	"github.com/percona/pmm-admin/agentlocal"
 	"github.com/percona/pmm-admin/commands"
+	"github.com/percona/pmm-admin/helpers"
 )
 
 var addHAProxyResultT = commands.ParseTemplate(`
@@ -61,6 +62,11 @@ type addHAProxyCommand struct {
 }
 
 func (cmd *addHAProxyCommand) Run() (commands.Result, error) {
+	isSupported, err := helpers.IsHAProxySupported()
+	if !isSupported {
+		return nil, err
+	}
+
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err
