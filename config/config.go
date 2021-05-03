@@ -280,7 +280,6 @@ func get(args []string, l *logrus.Entry) (cfg *Config, configFileF string, err e
 func Application(cfg *Config) (*kingpin.Application, *string) {
 	app := kingpin.New("pmm-agent", fmt.Sprintf("Version %s", version.Version))
 	app.HelpFlag.Short('h')
-	app.Version(version.FullInfo())
 
 	app.Command("run", "Run pmm-agent (default command)").Default()
 
@@ -344,6 +343,21 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_DEBUG").BoolVar(&cfg.Debug)
 	app.Flag("trace", "Enable trace output (implies debug) [PMM_AGENT_TRACE]").
 		Envar("PMM_AGENT_TRACE").BoolVar(&cfg.Trace)
+	jsonF := app.Flag("json", "Enable JSON output").Action(func(*kingpin.ParseContext) error {
+		logrus.SetFormatter(&logrus.JSONFormatter{}) // with levels and timestamps always present
+		return nil
+	}).Bool()
+
+	app.Flag("version", "Show application version").Short('v').Action(func(*kingpin.ParseContext) error {
+		if *jsonF {
+			fmt.Println(version.FullInfoJson())
+		} else {
+			fmt.Println(version.FullInfo())
+		}
+		os.Exit(0)
+
+		return nil
+	}).Bool()
 
 	setupCmd := app.Command("setup", "Configure local pmm-agent")
 	nodeinfo := nodeinfo.Get()

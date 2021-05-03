@@ -62,7 +62,6 @@ func main() {
 	kingpin.CommandLine = app
 	kingpin.HelpFlag = app.HelpFlag
 	kingpin.HelpCommand = app.HelpCommand
-	kingpin.VersionFlag = app.VersionFlag
 	cmd := kingpin.Parse()
 
 	switch cmd {

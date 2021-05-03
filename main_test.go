@@ -16,6 +16,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"go/build"
 	"os"
@@ -36,6 +37,27 @@ func TestPackages(t *testing.T) {
 	out := string(b)
 	assert.False(t, strings.Contains(out, "httptest.serve"), `pmm-agent should not import package "net/http/httptest"`)
 	assert.False(t, strings.Contains(out, "test.run"), `pmm-agent should not import package "testing"`)
+}
+
+func TestVersionPlain(t *testing.T) {
+	t.Parallel()
+	cmd := exec.Command("pmm-agent", "--version")
+	b, err := cmd.CombinedOutput()
+	require.NoError(t, err, "%s", b)
+
+	out := string(b)
+	assert.True(t, strings.Contains(out, `Version:`), `'pmm-agent --version --json' produces incorrect output format`)
+}
+
+func TestVersionJson(t *testing.T) {
+	t.Parallel()
+	cmd := exec.Command("pmm-agent", "--version", "--json")
+	b, err := cmd.CombinedOutput()
+	require.NoError(t, err, "%s", b)
+
+	var jsonStruct interface{}
+	err = json.Unmarshal(b, &jsonStruct)
+	require.NoError(t, err, `'pmm-agent --version --json' produces incorrect output format`)
 }
 
 func TestImports(t *testing.T) {
