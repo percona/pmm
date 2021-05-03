@@ -678,12 +678,12 @@ func (s *Service) executeMySQLChecks(ctx context.Context, checks []check.Check) 
 
 			switch c.Type {
 			case check.MySQLShow:
-				if err := s.agentsRegistry.StartMySQLQueryShowAction(ctx, r.ID, target.agentID, target.dsn, c.Query); err != nil {
+				if err := s.agentsRegistry.StartMySQLQueryShowAction(ctx, r.ID, target.agentID, target.dsn, c.Query, target.files, target.tdp, target.tlsSkipVerify); err != nil {
 					s.l.Warnf("Failed to start MySQL show query action for agent %s, reason: %s.", target.agentID, err)
 					continue
 				}
 			case check.MySQLSelect:
-				if err := s.agentsRegistry.StartMySQLQuerySelectAction(ctx, r.ID, target.agentID, target.dsn, c.Query); err != nil {
+				if err := s.agentsRegistry.StartMySQLQuerySelectAction(ctx, r.ID, target.agentID, target.dsn, c.Query, target.files, target.tdp, target.tlsSkipVerify); err != nil {
 					s.l.Warnf("Failed to start MySQL select query action for agent %s, reason: %s.", target.agentID, err)
 					continue
 				}
@@ -896,12 +896,13 @@ func (s *Service) processResults(ctx context.Context, sttCheck check.Check, targ
 
 // target contains required info about check target.
 type target struct {
-	agentID   string
-	serviceID string
-	labels    map[string]string
-	dsn       string
-	files     map[string]string
-	tdp       *models.DelimiterPair
+	agentID       string
+	serviceID     string
+	labels        map[string]string
+	dsn           string
+	files         map[string]string
+	tdp           *models.DelimiterPair
+	tlsSkipVerify bool
 }
 
 // findTargets returns slice of available targets for specified service type.
@@ -950,12 +951,13 @@ func (s *Service) findTargets(serviceType models.ServiceType, minPMMAgentVersion
 			}
 
 			targets = append(targets, target{
-				agentID:   pmmAgent.AgentID,
-				serviceID: service.ServiceID,
-				labels:    labels,
-				dsn:       dsn,
-				files:     agent.Files(),
-				tdp:       agent.TemplateDelimiters(service),
+				agentID:       pmmAgent.AgentID,
+				serviceID:     service.ServiceID,
+				labels:        labels,
+				dsn:           dsn,
+				files:         agent.Files(),
+				tdp:           agent.TemplateDelimiters(service),
+				tlsSkipVerify: agent.TLSSkipVerify,
 			})
 			return nil
 		})

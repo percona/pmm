@@ -104,6 +104,7 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 			Password:                       req.Password,
 			TLS:                            req.Tls,
 			TLSSkipVerify:                  req.TlsSkipVerify,
+			MySQLOptions:                   models.MySQLOptionsFromRequest(req),
 			TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
 			PushMetrics:                    isPushMode(req.MetricsMode),
 			DisableCollectors:              req.DisableCollectors,
@@ -133,6 +134,7 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 				Password:              req.Password,
 				TLS:                   req.Tls,
 				TLSSkipVerify:         req.TlsSkipVerify,
+				MySQLOptions:          models.MySQLOptionsFromRequest(req),
 				QueryExamplesDisabled: req.DisableQueryExamples,
 			})
 			if err != nil {
@@ -154,6 +156,7 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 				Password:              req.Password,
 				TLS:                   req.Tls,
 				TLSSkipVerify:         req.TlsSkipVerify,
+				MySQLOptions:          models.MySQLOptionsFromRequest(req),
 				QueryExamplesDisabled: req.DisableQueryExamples,
 				MaxQueryLogSize:       maxSlowlogFileSize,
 			})

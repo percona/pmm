@@ -30,6 +30,25 @@ import (
 	"gopkg.in/reform.v1"
 )
 
+// MySQLOptionsParams contains methods to create MySQLOptions object.
+type MySQLOptionsParams interface {
+	GetTlsCa() string
+	GetTlsCert() string
+	GetTlsKey() string
+}
+
+// MySQLOptionsFromRequest creates MySQLOptions object from request.
+func MySQLOptionsFromRequest(params MySQLOptionsParams) *MySQLOptions {
+	if params.GetTlsCa() != "" || params.GetTlsCert() != "" || params.GetTlsKey() != "" {
+		return &MySQLOptions{
+			TLSCa:   params.GetTlsCa(),
+			TLSCert: params.GetTlsCert(),
+			TLSKey:  params.GetTlsKey(),
+		}
+	}
+	return nil
+}
+
 // MongoDBOptionsParams contains methods to create MongoDBOptions object.
 type MongoDBOptionsParams interface {
 	GetTlsCertificateKey() string
@@ -604,6 +623,7 @@ type CreateAgentParams struct {
 	CustomLabels                   map[string]string
 	TLS                            bool
 	TLSSkipVerify                  bool
+	MySQLOptions                   *MySQLOptions
 	MongoDBOptions                 *MongoDBOptions
 	TableCountTablestatsGroupLimit int32
 	QueryExamplesDisabled          bool
@@ -658,6 +678,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		Password:                       pointer.ToStringOrNil(params.Password),
 		TLS:                            params.TLS,
 		TLSSkipVerify:                  params.TLSSkipVerify,
+		MySQLOptions:                   params.MySQLOptions,
 		MongoDBOptions:                 params.MongoDBOptions,
 		TableCountTablestatsGroupLimit: params.TableCountTablestatsGroupLimit,
 		QueryExamplesDisabled:          params.QueryExamplesDisabled,

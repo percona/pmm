@@ -58,6 +58,7 @@ func (v *agentTableType) Columns() []string {
 		"rds_enhanced_metrics_disabled",
 		"push_metrics",
 		"disabled_collectors",
+		"mysql_options",
 		"mongo_db_tls_options",
 	}
 }
@@ -113,6 +114,7 @@ var AgentTable = &agentTableType{
 			{Name: "RDSEnhancedMetricsDisabled", Type: "bool", Column: "rds_enhanced_metrics_disabled"},
 			{Name: "PushMetrics", Type: "bool", Column: "push_metrics"},
 			{Name: "DisabledCollectors", Type: "pq.StringArray", Column: "disabled_collectors"},
+			{Name: "MySQLOptions", Type: "*MySQLOptions", Column: "mysql_options"},
 			{Name: "MongoDBOptions", Type: "*MongoDBOptions", Column: "mongo_db_tls_options"},
 		},
 		PKFieldIndex: 0,
@@ -122,7 +124,7 @@ var AgentTable = &agentTableType{
 
 // String returns a string representation of this struct or record.
 func (s Agent) String() string {
-	res := make([]string, 31)
+	res := make([]string, 32)
 	res[0] = "AgentID: " + reform.Inspect(s.AgentID, true)
 	res[1] = "AgentType: " + reform.Inspect(s.AgentType, true)
 	res[2] = "RunsOnNodeID: " + reform.Inspect(s.RunsOnNodeID, true)
@@ -153,7 +155,8 @@ func (s Agent) String() string {
 	res[27] = "RDSEnhancedMetricsDisabled: " + reform.Inspect(s.RDSEnhancedMetricsDisabled, true)
 	res[28] = "PushMetrics: " + reform.Inspect(s.PushMetrics, true)
 	res[29] = "DisabledCollectors: " + reform.Inspect(s.DisabledCollectors, true)
-	res[30] = "MongoDBOptions: " + reform.Inspect(s.MongoDBOptions, true)
+	res[30] = "MySQLOptions: " + reform.Inspect(s.MySQLOptions, true)
+	res[31] = "MongoDBOptions: " + reform.Inspect(s.MongoDBOptions, true)
 	return strings.Join(res, ", ")
 }
 
@@ -191,6 +194,7 @@ func (s *Agent) Values() []interface{} {
 		s.RDSEnhancedMetricsDisabled,
 		s.PushMetrics,
 		s.DisabledCollectors,
+		s.MySQLOptions,
 		s.MongoDBOptions,
 	}
 }
@@ -229,6 +233,7 @@ func (s *Agent) Pointers() []interface{} {
 		&s.RDSEnhancedMetricsDisabled,
 		&s.PushMetrics,
 		&s.DisabledCollectors,
+		&s.MySQLOptions,
 		&s.MongoDBOptions,
 	}
 }

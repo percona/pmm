@@ -57,13 +57,13 @@ func (_m *mockAgentsRegistry) StartMongoDBQueryGetParameterAction(ctx context.Co
 	return r0
 }
 
-// StartMySQLQuerySelectAction provides a mock function with given fields: ctx, id, pmmAgentID, dsn, query
-func (_m *mockAgentsRegistry) StartMySQLQuerySelectAction(ctx context.Context, id string, pmmAgentID string, dsn string, query string) error {
-	ret := _m.Called(ctx, id, pmmAgentID, dsn, query)
+// StartMySQLQuerySelectAction provides a mock function with given fields: ctx, id, pmmAgentID, dsn, query, files, tdp, tlsSkipVerify
+func (_m *mockAgentsRegistry) StartMySQLQuerySelectAction(ctx context.Context, id string, pmmAgentID string, dsn string, query string, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error {
+	ret := _m.Called(ctx, id, pmmAgentID, dsn, query, files, tdp, tlsSkipVerify)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, string) error); ok {
-		r0 = rf(ctx, id, pmmAgentID, dsn, query)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, string, map[string]string, *models.DelimiterPair, bool) error); ok {
+		r0 = rf(ctx, id, pmmAgentID, dsn, query, files, tdp, tlsSkipVerify)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -71,13 +71,13 @@ func (_m *mockAgentsRegistry) StartMySQLQuerySelectAction(ctx context.Context, i
 	return r0
 }
 
-// StartMySQLQueryShowAction provides a mock function with given fields: ctx, id, pmmAgentID, dsn, query
-func (_m *mockAgentsRegistry) StartMySQLQueryShowAction(ctx context.Context, id string, pmmAgentID string, dsn string, query string) error {
-	ret := _m.Called(ctx, id, pmmAgentID, dsn, query)
+// StartMySQLQueryShowAction provides a mock function with given fields: ctx, id, pmmAgentID, dsn, query, files, tdp, tlsSkipVerify
+func (_m *mockAgentsRegistry) StartMySQLQueryShowAction(ctx context.Context, id string, pmmAgentID string, dsn string, query string, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error {
+	ret := _m.Called(ctx, id, pmmAgentID, dsn, query, files, tdp, tlsSkipVerify)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, string) error); ok {
-		r0 = rf(ctx, id, pmmAgentID, dsn, query)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, string, map[string]string, *models.DelimiterPair, bool) error); ok {
+		r0 = rf(ctx, id, pmmAgentID, dsn, query, files, tdp, tlsSkipVerify)
 	} else {
 		r0 = ret.Error(0)
 	}

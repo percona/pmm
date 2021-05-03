@@ -224,6 +224,7 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, req *inventorypb
 			CustomLabels:                   req.CustomLabels,
 			TLS:                            req.Tls,
 			TLSSkipVerify:                  req.TlsSkipVerify,
+			MySQLOptions:                   models.MySQLOptionsFromRequest(req),
 			TableCountTablestatsGroupLimit: req.TablestatsGroupTableLimit,
 			PushMetrics:                    req.PushMetrics,
 			DisableCollectors:              req.DisableCollectors,
@@ -342,6 +343,7 @@ func (as *AgentsService) AddQANMySQLPerfSchemaAgent(ctx context.Context, req *in
 			CustomLabels:          req.CustomLabels,
 			TLS:                   req.Tls,
 			TLSSkipVerify:         req.TlsSkipVerify,
+			MySQLOptions:          models.MySQLOptionsFromRequest(req),
 			QueryExamplesDisabled: req.DisableQueryExamples,
 		}
 		row, err := models.CreateAgent(tx.Querier, models.QANMySQLPerfSchemaAgentType, params)
@@ -405,6 +407,7 @@ func (as *AgentsService) AddQANMySQLSlowlogAgent(ctx context.Context, req *inven
 			CustomLabels:          req.CustomLabels,
 			TLS:                   req.Tls,
 			TLSSkipVerify:         req.TlsSkipVerify,
+			MySQLOptions:          models.MySQLOptionsFromRequest(req),
 			QueryExamplesDisabled: req.DisableQueryExamples,
 			MaxQueryLogSize:       maxSlowlogFileSize,
 		}

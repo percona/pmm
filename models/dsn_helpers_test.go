@@ -140,6 +140,12 @@ func TestFindDSNByServiceID(t *testing.T) {
 				PMMAgentID:   pointer.ToString("PA2"),
 				RunsOnNodeID: nil,
 				ServiceID:    pointer.ToString("S3"),
+				TLS:          true,
+				MySQLOptions: &models.MySQLOptions{
+					TLSCa:   "content-of-tls-ca",
+					TLSCert: "content-of-tls-cert",
+					TLSKey:  "content-of-tls-key",
+				},
 			},
 			&models.Agent{
 				AgentID:      "A8",

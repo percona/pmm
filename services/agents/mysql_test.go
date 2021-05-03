@@ -106,6 +106,24 @@ func TestMySQLdExporterConfig(t *testing.T) {
 		actual := mysqldExporterConfig(mysql, exporter, exposeSecrets)
 		assert.Equal(t, "DATA_SOURCE_NAME=tcp(1.2.3.4:3306)/?timeout=1s", actual.Env[0])
 	})
+
+	t.Run("SSLEnabled", func(t *testing.T) {
+		exporter.TLS = true
+		exporter.MySQLOptions = &models.MySQLOptions{
+			TLSCa:   "content-of-tls-ca",
+			TLSCert: "content-of-tls-certificate-key",
+			TLSKey:  "content-of-tls-key",
+		}
+		actual := mysqldExporterConfig(mysql, exporter, exposeSecrets)
+		expected := "DATA_SOURCE_NAME=tcp(1.2.3.4:3306)/?timeout=1s&tls=custom"
+		assert.Equal(t, expected, actual.Env[0])
+		expectedFiles := map[string]string{
+			"tlsCa":   exporter.MySQLOptions.TLSCa,
+			"tlsCert": exporter.MySQLOptions.TLSCert,
+			"tlsKey":  exporter.MySQLOptions.TLSKey,
+		}
+		assert.Equal(t, expectedFiles, actual.TextFiles)
+	})
 }
 
 func TestMySQLdExporterConfigTablestatsGroupDisabled(t *testing.T) {
@@ -119,6 +137,12 @@ func TestMySQLdExporterConfigTablestatsGroupDisabled(t *testing.T) {
 		Username:                       pointer.ToString("username"),
 		Password:                       pointer.ToString("s3cur3 p@$$w0r4."),
 		TableCountTablestatsGroupLimit: -1,
+		TLS:                            true,
+		MySQLOptions: &models.MySQLOptions{
+			TLSCa:   "content-of-tls-ca",
+			TLSCert: "content-of-tls-cert",
+			TLSKey:  "content-of-tls-key",
+		},
 	}
 	actual := mysqldExporterConfig(mysql, exporter, redactSecrets)
 	expected := &agentpb.SetStateRequest_AgentProcess{
@@ -155,13 +179,21 @@ func TestMySQLdExporterConfigTablestatsGroupDisabled(t *testing.T) {
 			"--exporter.global-conn-pool",
 			"--exporter.max-idle-conns=3",
 			"--exporter.max-open-conns=3",
+			"--mysql.ssl-ca-file={{ .TextFiles.tlsCa }}",
+			"--mysql.ssl-cert-file={{ .TextFiles.tlsCert }}",
+			"--mysql.ssl-key-file={{ .TextFiles.tlsKey }}",
 			"--web.listen-address=:{{ .listen_port }}",
 		},
 		Env: []string{
-			"DATA_SOURCE_NAME=username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:3306)/?timeout=1s",
+			"DATA_SOURCE_NAME=username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:3306)/?timeout=1s&tls=custom",
 			"HTTP_AUTH=pmm:agent-id",
 		},
 		RedactWords: []string{"s3cur3 p@$$w0r4."},
+		TextFiles: map[string]string{
+			"tlsCa":   "content-of-tls-ca",
+			"tlsCert": "content-of-tls-cert",
+			"tlsKey":  "content-of-tls-key",
+		},
 	}
 	requireNoDuplicateFlags(t, actual.Args)
 	require.Equal(t, expected.Args, actual.Args)
@@ -171,13 +203,13 @@ func TestMySQLdExporterConfigTablestatsGroupDisabled(t *testing.T) {
 	t.Run("EmptyPassword", func(t *testing.T) {
 		exporter.Password = nil
 		actual := mysqldExporterConfig(mysql, exporter, exposeSecrets)
-		assert.Equal(t, "DATA_SOURCE_NAME=username@tcp(1.2.3.4:3306)/?timeout=1s", actual.Env[0])
+		assert.Equal(t, "DATA_SOURCE_NAME=username@tcp(1.2.3.4:3306)/?timeout=1s&tls=custom", actual.Env[0])
 	})
 
 	t.Run("EmptyUsername", func(t *testing.T) {
 		exporter.Username = nil
 		actual := mysqldExporterConfig(mysql, exporter, exposeSecrets)
-		assert.Equal(t, "DATA_SOURCE_NAME=tcp(1.2.3.4:3306)/?timeout=1s", actual.Env[0])
+		assert.Equal(t, "DATA_SOURCE_NAME=tcp(1.2.3.4:3306)/?timeout=1s&tls=custom", actual.Env[0])
 	})
 }
 

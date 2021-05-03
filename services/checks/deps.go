@@ -30,8 +30,8 @@ import (
 // agentsRegistry is a subset of methods of agents.Registry used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type agentsRegistry interface {
-	StartMySQLQueryShowAction(ctx context.Context, id, pmmAgentID, dsn, query string) error
-	StartMySQLQuerySelectAction(ctx context.Context, id, pmmAgentID, dsn, query string) error
+	StartMySQLQueryShowAction(ctx context.Context, id, pmmAgentID, dsn, query string, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error
+	StartMySQLQuerySelectAction(ctx context.Context, id, pmmAgentID, dsn, query string, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error
 	StartPostgreSQLQueryShowAction(ctx context.Context, id, pmmAgentID, dsn string) error
 	StartPostgreSQLQuerySelectAction(ctx context.Context, id, pmmAgentID, dsn, query string) error
 	StartMongoDBQueryGetParameterAction(ctx context.Context, id, pmmAgentID, dsn string, files map[string]string, tdp *models.DelimiterPair) error
