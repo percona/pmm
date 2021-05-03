@@ -100,6 +100,12 @@ message MySQLdExporter {
   bool tls = 6;
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 7;
+  // Certificate Authority certificate chain.
+  string tls_ca = 15;
+  // Client certificate.
+  string tls_cert = 16;
+  // Password for decrypting tls_cert.
+  string tls_key = 17;
   // Tablestats group collectors are disabled if there are more than that number of tables.
   // 0 means tablestats group collectors are always enabled (no limit).
   // Negative value means tablestats group collectors are always disabled.
@@ -234,6 +240,12 @@ message QANMySQLPerfSchemaAgent {
   bool tls = 6;
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 7;
+  // Certificate Authority certificate chain.
+  string tls_ca = 11;
+  // Client certificate.
+  string tls_cert = 12;
+  // Password for decrypting tls_cert.
+  string tls_key = 13;
   // True if query examples are disabled.
   bool query_examples_disabled = 8;
   // Custom user-assigned labels.
@@ -262,6 +274,12 @@ message QANMySQLSlowlogAgent {
   bool tls = 6;
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 7;
+  // Certificate Authority certificate chain.
+  string tls_ca = 12;
+  // Client certificate.
+  string tls_cert = 13;
+  // Password for decrypting tls_cert.
+  string tls_key = 14;
   // True if query examples are disabled.
   bool query_examples_disabled = 8;
   // Slowlog file is rotated at this size if > 0.
@@ -612,6 +630,12 @@ message AddMySQLdExporterRequest {
   bool tls = 5;
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 6;
+  // Certificate Authority certificate chain.
+  string tls_ca = 12;
+  // Client certificate.
+  string tls_cert = 13;
+  // Password for decrypting tls_cert.
+  string tls_key = 14;
   // Tablestats group collectors will be disabled if there are more than that number of tables.
   // 0 means tablestats group collectors are always enabled (no limit).
   // Negative value means tablestats group collectors are always disabled.
@@ -836,6 +860,12 @@ message AddQANMySQLPerfSchemaAgentRequest {
   bool tls = 5;
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 6;
+  // Certificate Authority certificate chain.
+  string tls_ca = 10;
+  // Client certificate.
+  string tls_cert = 11;
+  // Password for decrypting tls_cert.
+  string tls_key = 12;
   // Disable query examples.
   bool disable_query_examples = 7;
   // Custom user-assigned labels.
@@ -888,6 +918,12 @@ message AddQANMySQLSlowlogAgentRequest {
   bool tls = 5;
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 6;
+  // Certificate Authority certificate chain.
+  string tls_ca = 11;
+  // Client certificate.
+  string tls_cert = 12;
+  // Password for decrypting tls_cert.
+  string tls_key = 13;
   // Disable query examples.
   bool disable_query_examples = 7;
   // Rotate slowlog file at this size if > 0.
