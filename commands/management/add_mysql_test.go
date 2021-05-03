@@ -99,6 +99,10 @@ Table statistics collection enabled (the limit is 1000, the actual table count i
 			MysqldExporter: &mysql.AddMySQLOKBodyMysqldExporter{
 				TablestatsGroupTableLimit: 1000,
 				TablestatsGroupDisabled:   true,
+				TLS:                       true,
+				TLSCa:                     "ca",
+				TLSCert:                   "cert",
+				TLSKey:                    "key",
 			},
 			TableCount: 2000,
 		}

@@ -156,6 +156,10 @@ github.com/pborman/uuid v1.2.0/go.mod h1:X/NO0urCmaxf9VXbdlT7C2Yzkj2IKimNn4k+gtP
 github.com/pelletier/go-toml v1.4.0/go.mod h1:PN7xzY2wHTK0K9p34ErDQMlFxa51Fk0OUruD3k1mMwo=
 github.com/percona/pmm v2.16.1-0.20210421091738-24a8cb003a6c+incompatible h1:kCt4DdHQj31gS/nU2BosTzi8K+P7aRy4nIAfEkpo4Do=
 github.com/percona/pmm v2.16.1-0.20210421091738-24a8cb003a6c+incompatible/go.mod h1:nN14kK4Dfl2Ub1k05aOnAHv7SmLEQtCsYX+DEfLgrkU=
+github.com/percona/pmm v2.16.1-0.20210503100435-b69e3ee98ac5+incompatible h1:dlCJiDHIgllkwHGqeMihobQuGrQDSRQXCALhxrx7XUk=
+github.com/percona/pmm v2.16.1-0.20210503100435-b69e3ee98ac5+incompatible/go.mod h1:nN14kK4Dfl2Ub1k05aOnAHv7SmLEQtCsYX+DEfLgrkU=
+github.com/percona/pmm v2.16.1-0.20210503110502-3c8ba7b08a74+incompatible h1:Ae/EjtR/W6RPmc7HRXr229UeV9h2h/aHZQWFOQAxseM=
+github.com/percona/pmm v2.16.1-0.20210503110502-3c8ba7b08a74+incompatible/go.mod h1:nN14kK4Dfl2Ub1k05aOnAHv7SmLEQtCsYX+DEfLgrkU=
 github.com/pkg/errors v0.8.0/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pkg/errors v0.8.1 h1:iURUrRGxPUNPdy5/HRSm+Yj6okJ6UtLINN0Q9M4+h3I=
 github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
