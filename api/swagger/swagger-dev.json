@@ -24415,7 +24415,7 @@
         }
       }
     },
-    "/v1/management/backup/Backups/RestoreBackup": {
+    "/v1/management/backup/Backups/Restore": {
       "post": {
         "tags": [
           "Backups"

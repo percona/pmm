@@ -70,7 +70,7 @@ service Backups {
   // RestoreBackup requests the backup restore.
   rpc RestoreBackup(RestoreBackupRequest) returns (RestoreBackupResponse) {
     option (google.api.http) = {
-      post: "/v1/management/backup/Backups/RestoreBackup"
+      post: "/v1/management/backup/Backups/Restore"
       body: "*"
     };
   }

@@ -56,7 +56,7 @@ type RestoreBackupOK struct {
 }
 
 func (o *RestoreBackupOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/backup/Backups/RestoreBackup][%d] restoreBackupOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/backup/Backups/Restore][%d] restoreBackupOk  %+v", 200, o.Payload)
 }
 
 func (o *RestoreBackupOK) GetPayload() *RestoreBackupOKBody {
@@ -98,7 +98,7 @@ func (o *RestoreBackupDefault) Code() int {
 }
 
 func (o *RestoreBackupDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/backup/Backups/RestoreBackup][%d] RestoreBackup default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/backup/Backups/Restore][%d] RestoreBackup default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *RestoreBackupDefault) GetPayload() *RestoreBackupDefaultBody {

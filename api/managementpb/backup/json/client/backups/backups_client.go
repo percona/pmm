@@ -44,7 +44,7 @@ func (a *Client) RestoreBackup(params *RestoreBackupParams) (*RestoreBackupOK, e
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "RestoreBackup",
 		Method:             "POST",
-		PathPattern:        "/v1/management/backup/Backups/RestoreBackup",
+		PathPattern:        "/v1/management/backup/Backups/Restore",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
