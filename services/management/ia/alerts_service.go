@@ -72,9 +72,8 @@ func (s *AlertsService) ListAlerts(ctx context.Context, req *iav1beta1.ListAlert
 		return nil, errors.Wrap(err, "failed to get alerts form alertmanager")
 	}
 
-	res := make([]*iav1beta1.Alert, 0, len(alerts))
+	var res []*iav1beta1.Alert
 	for _, alert := range alerts {
-
 		if _, ok := alert.Labels["ia"]; !ok { // Skip non-IA alerts
 			continue
 		}
@@ -137,27 +136,52 @@ func (s *AlertsService) ListAlerts(ctx context.Context, req *iav1beta1.ListAlert
 				return nil, errors.Wrapf(err, "failed to convert alert rule")
 			}
 		}
-
 		pass, err := satisfiesFilters(alert, rule.Filters)
 		if err != nil {
 			return nil, err
 		}
 
-		if pass {
-			res = append(res, &iav1beta1.Alert{
-				AlertId:   getAlertID(alert),
-				Summary:   alert.Annotations["summary"],
-				Severity:  managementpb.Severity(common.ParseSeverity(alert.Labels["severity"])),
-				Status:    st,
-				Labels:    alert.Labels,
-				Rule:      rule,
-				CreatedAt: createdAt,
-				UpdatedAt: updatedAt,
-			})
+		if !pass {
+			continue
 		}
+
+		res = append(res, &iav1beta1.Alert{
+			AlertId:   getAlertID(alert),
+			Summary:   alert.Annotations["summary"],
+			Severity:  managementpb.Severity(common.ParseSeverity(alert.Labels["severity"])),
+			Status:    st,
+			Labels:    alert.Labels,
+			Rule:      rule,
+			CreatedAt: createdAt,
+			UpdatedAt: updatedAt,
+		})
 	}
 
-	return &iav1beta1.ListAlertsResponse{Alerts: res}, nil
+	pageTotals := &iav1beta1.PageTotals{
+		TotalPages: 1,
+	}
+
+	var pageIndex int
+	var pageSize int
+	if req.PageParams != nil {
+		pageIndex = int(req.PageParams.Index)
+		pageSize = int(req.PageParams.PageSize)
+	}
+
+	from, to := pageIndex*pageSize, (pageIndex+1)*pageSize
+	if to > len(res) || to == 0 {
+		to = len(res)
+	}
+
+	if pageSize > 0 {
+		pageTotals.TotalPages = int32(len(res) / pageSize)
+		if len(res)%pageSize > 0 {
+			pageTotals.TotalPages++
+		}
+	}
+	pageTotals.TotalItems = int32(len(res))
+
+	return &iav1beta1.ListAlertsResponse{Alerts: res[from:to], Totals: pageTotals}, nil
 }
 
 // satisfiesFilters checks that alert passes filters, returns true in case of success.

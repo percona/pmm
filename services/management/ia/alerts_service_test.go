@@ -17,12 +17,25 @@
 package ia
 
 import (
+	"context"
+	"strconv"
 	"testing"
+	"time"
 
+	"github.com/AlekSi/pointer"
+	"github.com/brianvoe/gofakeit"
+	"github.com/go-openapi/strfmt"
+	"github.com/percona-platform/saas/pkg/alert"
+	"github.com/percona-platform/saas/pkg/common"
 	"github.com/percona/pmm/api/alertmanager/ammodels"
 	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"gopkg.in/reform.v1"
+	"gopkg.in/reform.v1/dialects/postgresql"
+
+	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm-managed/utils/testdb"
 )
 
 func TestSatisfiesFilters(t *testing.T) {
@@ -205,4 +218,127 @@ func TestSatisfiesFilters(t *testing.T) {
 			})
 		}
 	})
+}
+
+func TestListAlerts(t *testing.T) {
+	ctx := context.Background()
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
+	q := db.Querier
+	now := strfmt.DateTime(time.Now())
+
+	tmpl, err := models.CreateTemplate(q, &models.CreateTemplateParams{
+		Template: &alert.Template{
+			Name:     "test_Template",
+			Version:  1,
+			Summary:  gofakeit.Quote(),
+			Expr:     gofakeit.Quote(),
+			Severity: common.Warning,
+		},
+		Source: "USER_FILE",
+	})
+	require.NoError(t, err)
+
+	rule, err := models.CreateRule(q, &models.CreateRuleParams{
+		TemplateName: tmpl.Name,
+		Severity:     models.Severity(common.Warning),
+	})
+	require.NoError(t, err)
+
+	const alertsCount = 25
+	mockAlert := &mockAlertManager{}
+	var mockedAlerts []*ammodels.GettableAlert
+	for i := 0; i < alertsCount; i++ {
+		mockedAlerts = append(mockedAlerts, &ammodels.GettableAlert{
+			Alert: ammodels.Alert{
+				Labels: map[string]string{
+					"ia":        "1",
+					"alertname": rule.ID,
+				},
+			},
+			Fingerprint: pointer.ToString(strconv.Itoa(i)),
+			Status: &ammodels.AlertStatus{
+				State: pointer.ToString("active"),
+			},
+			StartsAt:  &now,
+			UpdatedAt: &now,
+		})
+	}
+	mockAlert.On("GetAlerts", ctx).Return(mockedAlerts, nil)
+
+	tmplSvc := NewTemplatesService(db)
+	tmplSvc.Collect(ctx)
+	svc := NewAlertsService(db, mockAlert, tmplSvc)
+
+	findAlerts := func(alerts []*iav1beta1.Alert, alertIDs ...string) bool {
+		if len(alerts) != len(alertIDs) {
+			return false
+		}
+		m := make(map[string]bool)
+		for _, alertID := range alertIDs {
+			m[alertID] = false
+		}
+		for _, a := range alerts {
+			val, ok := m[a.AlertId]
+			// Extra alert
+			if !ok {
+				return false
+			}
+			// Duplicate
+			if val {
+				return false
+			}
+			m[a.AlertId] = true
+		}
+		for _, v := range m {
+			// AlertID was not in alerts
+			if !v {
+				return false
+			}
+		}
+		return true
+	}
+
+	t.Run("without pagination", func(t *testing.T) {
+		res, err := svc.ListAlerts(ctx, &iav1beta1.ListAlertsRequest{})
+		assert.NoError(t, err)
+		var expect []string
+		for _, m := range mockedAlerts {
+			expect = append(expect, *m.Fingerprint)
+		}
+		assert.True(t, findAlerts(res.Alerts, expect...), "wrong alerts returned")
+		assert.EqualValues(t, res.Totals.TotalItems, len(mockedAlerts))
+	})
+
+	t.Run("pagination", func(t *testing.T) {
+		res, err := svc.ListAlerts(ctx, &iav1beta1.ListAlertsRequest{
+			PageParams: &iav1beta1.PageParams{
+				PageSize: 1,
+			},
+		})
+		assert.NoError(t, err)
+		assert.Len(t, res.Alerts, 1)
+		assert.True(t, findAlerts(res.Alerts, "0"), "wrong alerts returned")
+		assert.EqualValues(t, res.Totals.TotalItems, alertsCount)
+		assert.EqualValues(t, res.Totals.TotalPages, alertsCount)
+
+		res, err = svc.ListAlerts(ctx, &iav1beta1.ListAlertsRequest{
+			PageParams: &iav1beta1.PageParams{
+				PageSize: 10,
+				Index:    2,
+			},
+		})
+		assert.NoError(t, err)
+		assert.Len(t, res.Alerts, 5)
+		assert.True(t, findAlerts(res.Alerts, "20", "21", "22", "23", "24"), "wrong alerts returned")
+		assert.EqualValues(t, res.Totals.TotalItems, alertsCount)
+		assert.EqualValues(t, res.Totals.TotalPages, 3)
+
+	})
+
 }
