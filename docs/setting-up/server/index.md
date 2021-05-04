@@ -25,3 +25,17 @@ Choose how you want to run PMM Server:
 - [on an Amazon AWS EC2 instance](aws.md)
 
 When PMM Server is running, set up [PMM Client](../client/index.md) for each node or service.
+
+## Single line installer
+
+> <b style="color:goldenrod">Caution</b> This is a [technical preview](../../details/glossary.md#technical-preview) and is subject to change.
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/percona/pmm/PMM-7883-single-line-installer/get-pmm.sh -o get-pmm2.sh ; chmod +x get-pmm2.sh ; ./get-pmm2.sh
+```
+
+This command will:
+
+- if Docker is not already installed, install it
+- if there is a PMM Server docker container running, stop it and back it up
+- pull and run the latest PMM Server docker image
