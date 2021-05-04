@@ -341,6 +341,15 @@ type ChangeMySQLdExporterOKBodyMysqldExporter struct {
 	// Skip TLS certificate and hostname validation.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
+	// Certificate Authority certificate chain.
+	TLSCa string `json:"tls_ca,omitempty"`
+
+	// Client certificate.
+	TLSCert string `json:"tls_cert,omitempty"`
+
+	// Password for decrypting tls_cert.
+	TLSKey string `json:"tls_key,omitempty"`
+
 	// Tablestats group collectors are disabled if there are more than that number of tables.
 	// 0 means tablestats group collectors are always enabled (no limit).
 	// Negative value means tablestats group collectors are always disabled.

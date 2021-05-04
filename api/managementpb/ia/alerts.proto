@@ -8,6 +8,7 @@ import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "managementpb/ia/boolean_flag.proto";
+import "managementpb/ia/pagination.proto";
 import "managementpb/ia/rules.proto";
 import "managementpb/ia/status.proto";
 import "managementpb/severity.proto";
@@ -34,10 +35,15 @@ message Alert {
   google.protobuf.Timestamp updated_at = 8;
 }
 
-message ListAlertsRequest {}
+message ListAlertsRequest {
+  // Page request.
+  PageParams page_params = 1;
+}
 
 message ListAlertsResponse {
   repeated Alert alerts = 1;
+  // Total items and pages.
+  PageTotals totals = 2;
 }
 
 message ToggleAlertRequest {
