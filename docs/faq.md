@@ -2,6 +2,7 @@
 
 ## How can I contact the developers?
 
+- [Discord channel](https://discord.gg/qSRxH4Xu).
 - [Community forum](https://www.percona.com/forums/questions-discussions/percona-monitoring-and-management).
 - [PMM project in JIRA](https://jira.percona.com/projects/PMM).
 
