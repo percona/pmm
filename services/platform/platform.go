@@ -156,7 +156,8 @@ func (s *Service) SignOut(ctx context.Context) error {
 
 	_, err = api.NewAuthAPIClient(cc).SignOut(ctx, &api.SignOutRequest{})
 	if err != nil {
-		if st, ok := status.FromError(err); !ok || st.Code() != codes.InvalidArgument {
+		// If SaaS credentials have become invalid then go ahead with the log out instead of returning error.
+		if st, ok := status.FromError(err); !ok || st.Code() != codes.InvalidArgument && st.Code() != codes.Unauthenticated {
 			return err
 		}
 	}
@@ -192,6 +193,13 @@ func (s *Service) refreshSession(ctx context.Context) error {
 
 	_, err = api.NewAuthAPIClient(cc).RefreshSession(ctx, &api.RefreshSessionRequest{})
 	if err != nil {
+		// If SaaS credentials become invalid then force a logout so that the next
+		// refresh session attempt is successful.
+		logoutErr := saasdial.LogoutIfInvalidAuth(s.db, s.l, err)
+		if logoutErr != nil {
+			s.l.Warnf("Failed to force logout: %v", logoutErr)
+		}
+
 		return errors.Wrap(err, "failed to refresh session")
 	}
 

@@ -1095,6 +1095,12 @@ func (s *Service) downloadChecks(ctx context.Context) ([]check.Check, error) {
 
 	resp, err := api.NewRetrievalAPIClient(cc).GetAllChecks(ctx, &api.GetAllChecksRequest{})
 	if err != nil {
+		// if credentials are invalid then force a logout so that the next check download
+		// attempt can be successful.
+		logoutErr := saasdial.LogoutIfInvalidAuth(s.db, s.l, err)
+		if logoutErr != nil {
+			s.l.Warnf("Failed to force logout: %v", logoutErr)
+		}
 		return nil, errors.Wrap(err, "failed to request checks service")
 	}
 
