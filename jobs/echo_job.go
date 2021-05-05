@@ -55,7 +55,7 @@ func (j *echoJob) Type() string {
 	return "echo"
 }
 
-// Timeouts returns job timeout.
+// Timeout returns job timeout.
 func (j *echoJob) Timeout() time.Duration {
 	return j.timeout
 }
