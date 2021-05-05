@@ -93,10 +93,6 @@ func (ssc *statStatementCache) getStatStatementsExtended(ctx context.Context, q 
 	databases := queryDatabases(q)
 	usernames := queryUsernames(q)
 
-	// the same query can appear several times (with different database and/or username),
-	// so cache results of the current iteration too
-	tables := make(map[int64][]string)
-
 	rows, e := rowsByVersion(q, "WHERE queryid IS NOT NULL AND query IS NOT NULL")
 	if e != nil {
 		err = e
@@ -122,21 +118,13 @@ func (ssc *statStatementCache) getStatStatementsExtended(ctx context.Context, q 
 
 		if p := prev[c.QueryID]; p != nil {
 			oldN++
+			newSharedN++
 
-			// use previous values
 			c.Tables = p.Tables
 			c.Query, c.IsQueryTruncated = p.Query, p.IsQueryTruncated
 		} else {
 			newN++
 
-			// do not extract tables again if we saw this query during this iteration already
-			if tables[c.QueryID] == nil {
-				tables[c.QueryID] = extractTables(c.Query, ssc.l)
-			} else {
-				newSharedN++
-			}
-
-			c.Tables = tables[c.QueryID]
 			c.Query, c.IsQueryTruncated = truncate.Query(c.Query)
 		}
 
@@ -149,6 +137,7 @@ func (ssc *statStatementCache) getStatStatementsExtended(ctx context.Context, q 
 	if err != nil {
 		err = errors.Wrap(err, "failed to fetch pg_stat_statements")
 	}
+
 	return
 }
 

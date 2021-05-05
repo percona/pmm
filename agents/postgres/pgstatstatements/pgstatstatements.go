@@ -235,6 +235,10 @@ func makeBuckets(current, prev map[int64]*pgStatStatementsExtended, l *logrus.En
 			l.Debugf("Normal query: %s.", currentPSS)
 		}
 
+		if len(currentPSS.Tables) == 0 {
+			currentPSS.Tables = extractTables(currentPSS.Query, l)
+		}
+
 		mb := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Database:    currentPSS.Database,

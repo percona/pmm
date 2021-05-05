@@ -279,7 +279,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 			Common: &agentpb.MetricsBucket_Common{
 				Fingerprint:         selectAllCitiesLong,
 				Database:            "pmm-agent",
-				Tables:              []string{"city"},
+				Tables:              []string{},
 				Username:            "pmm-agent",
 				AgentId:             "agent_id",
 				PeriodStartUnixSecs: 1554116340,
@@ -322,7 +322,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 			Common: &agentpb.MetricsBucket_Common{
 				Fingerprint:         selectAllCitiesLong,
 				Database:            "pmm-agent",
-				Tables:              []string{"city"},
+				Tables:              []string{},
 				Username:            "pmm-agent",
 				AgentId:             "agent_id",
 				PeriodStartUnixSecs: 1554116340,
