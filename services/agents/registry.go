@@ -298,7 +298,7 @@ func (r *Registry) handleJobResult(l *logrus.Entry, result *agentpb.JobResult) {
 			res.Error = result.Error.Message
 		case *agentpb.JobResult_Echo_:
 			if res.Type != models.Echo {
-				return errors.Errorf("Result type echo doesn't match job type %s", res.Type)
+				return errors.Errorf("result type echo doesn't match job type %s", res.Type)
 			}
 			res.Result = &models.JobResultData{
 				Echo: &models.EchoJobResult{
@@ -316,13 +316,29 @@ func (r *Registry) handleJobResult(l *logrus.Entry, result *agentpb.JobResult) {
 			if err != nil {
 				return err
 			}
+		case *agentpb.JobResult_MysqlRestoreBackup:
+			if res.Type != models.MySQLRestoreBackupJob {
+				return errors.Errorf("result type %s doesn't match job type %s", models.MySQLRestoreBackupJob, res.Type)
+			}
+
+			_, err := models.ChangeRestoreHistoryItem(
+				t.Querier,
+				res.Result.MySQLRestoreBackup.RestoreID,
+				models.ChangeRestoreHistoryItemParams{
+					Status: models.SuccessRestoreStatus,
+				})
+			if err != nil {
+				return err
+			}
 		default:
 			return errors.Errorf("unexpected job result type: %T", result)
 		}
+
 		res.Done = true
+
 		return t.Update(res)
 	}); e != nil {
-		l.Errorf("Failed to save job result: %+v", e)
+		l.Errorf("failed to save job result: %+v", e)
 	}
 }
 
@@ -335,11 +351,21 @@ func (r *Registry) handleJobError(jobResult *models.JobResult) error {
 		_, err = models.ChangeArtifact(r.db.Querier, jobResult.Result.MySQLBackup.ArtifactID, models.ChangeArtifactParams{
 			Status: models.ErrorBackupStatus,
 		})
+	case models.MySQLRestoreBackupJob:
+		_, err := models.ChangeRestoreHistoryItem(
+			r.db.Querier,
+			jobResult.Result.MySQLRestoreBackup.RestoreID,
+			models.ChangeRestoreHistoryItemParams{
+				Status: models.ErrorRestoreStatus,
+			})
+		if err != nil {
+			return err
+		}
 	default:
 		// Don't do anything without explicit handling
 	}
-	return err
 
+	return err
 }
 
 func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, error) {

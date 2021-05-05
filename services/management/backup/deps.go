@@ -29,7 +29,22 @@ import (
 // We use it instead of real type for testing and to avoid dependency cycle.
 type jobsService interface {
 	StopJob(jobID string) error
-	StartMySQLBackupJob(id, pmmAgentID string, timeout time.Duration, name string, dbConfig models.DBConfig, locationConfig models.BackupLocationConfig) error
+	StartMySQLBackupJob(
+		id string,
+		pmmAgentID string,
+		timeout time.Duration,
+		name string,
+		dbConfig models.DBConfig,
+		locationConfig models.BackupLocationConfig,
+	) error
+	StartMySQLRestoreBackupJob(
+		jobID string,
+		pmmAgentID string,
+		serviceID string,
+		timeout time.Duration,
+		name string,
+		locationConfig models.BackupLocationConfig,
+	) error
 }
 
 type awsS3 interface {

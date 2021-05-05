@@ -114,6 +114,39 @@ func TestRestoreHistory(t *testing.T) {
 		assert.Less(t, time.Now().UTC().Unix()-i.StartedAt.Unix(), int64(5))
 	})
 
+	t.Run("change", func(t *testing.T) {
+		tx, err := db.Begin()
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			require.NoError(t, tx.Rollback())
+		})
+
+		q := tx.Querier
+		prepareArtifactsAndService(q)
+
+		params := models.CreateRestoreHistoryItemParams{
+			ArtifactID: artifactID1,
+			ServiceID:  serviceID1,
+			Status:     models.InProgressRestoreStatus,
+		}
+
+		i, err := models.CreateRestoreHistoryItem(q, params)
+		require.NoError(t, err)
+		assert.Equal(t, params.ArtifactID, i.ArtifactID)
+		assert.Equal(t, params.ServiceID, i.ServiceID)
+		assert.Equal(t, params.Status, i.Status)
+		assert.Less(t, time.Now().UTC().Unix()-i.StartedAt.Unix(), int64(5))
+
+		i, err = models.ChangeRestoreHistoryItem(q, i.ID, models.ChangeRestoreHistoryItemParams{
+			Status: models.ErrorRestoreStatus,
+		})
+		require.NoError(t, err)
+		assert.Equal(t, params.ArtifactID, i.ArtifactID)
+		assert.Equal(t, params.ServiceID, i.ServiceID)
+		assert.Equal(t, models.ErrorRestoreStatus, i.Status)
+		assert.Less(t, time.Now().UTC().Unix()-i.StartedAt.Unix(), int64(5))
+	})
+
 	t.Run("list", func(t *testing.T) {
 		tx, err := db.Begin()
 		require.NoError(t, err)

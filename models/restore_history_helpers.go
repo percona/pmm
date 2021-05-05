@@ -101,6 +101,30 @@ func CreateRestoreHistoryItem(q *reform.Querier, params CreateRestoreHistoryItem
 	return row, nil
 }
 
+// ChangeRestoreHistoryItemParams are params for changing existing restore history item.
+type ChangeRestoreHistoryItemParams struct {
+	Status RestoreStatus
+}
+
+// ChangeRestoreHistoryItem updates existing restore history item.
+func ChangeRestoreHistoryItem(
+	q *reform.Querier,
+	restoreID string,
+	params ChangeRestoreHistoryItemParams,
+) (*RestoreHistoryItem, error) {
+	row, err := findRestoreHistoryItemByID(q, restoreID)
+	if err != nil {
+		return nil, err
+	}
+	row.Status = params.Status
+
+	if err := q.Update(row); err != nil {
+		return nil, errors.Wrap(err, "failed to update restore history item")
+	}
+
+	return row, nil
+}
+
 // RemoveRestoreHistoryItem removes restore history item by ID.
 func RemoveRestoreHistoryItem(q *reform.Querier, id string) error {
 	if _, err := findRestoreHistoryItemByID(q, id); err != nil {

@@ -48,7 +48,7 @@ func (rs RestoreStatus) Validate() error {
 	return nil
 }
 
-// RestoreHistoryItem represents a backup restore history.
+// RestoreHistoryItem represents a restore backup history.
 //reform:restore_history
 type RestoreHistoryItem struct {
 	ID         string        `reform:"id,pk"`

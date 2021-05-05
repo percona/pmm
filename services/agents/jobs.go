@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package jobs provides jobs functionality.
+// Package agents provides jobs functionality.
 package agents
 
 import (
@@ -110,6 +110,52 @@ func (s *JobsService) StartMySQLBackupJob(id, pmmAgentID string, timeout time.Du
 	resp := agent.channel.SendAndWaitResponse(req)
 	if e := resp.(*agentpb.StartJobResponse).Error; e != "" {
 		return errors.Errorf("failed to start MySQL job: %s", e)
+	}
+
+	return nil
+}
+
+// StartMySQLRestoreBackupJob starts mysql restore backup job on the pmm-agent.
+func (s *JobsService) StartMySQLRestoreBackupJob(
+	jobID string,
+	pmmAgentID string,
+	serviceID string,
+	timeout time.Duration,
+	name string,
+	locationConfig models.BackupLocationConfig,
+) error {
+	if locationConfig.S3Config == nil {
+		return errors.Errorf("location config is not set")
+	}
+
+	req := &agentpb.StartJobRequest{
+		JobId:   jobID,
+		Timeout: ptypes.DurationProto(timeout),
+		Job: &agentpb.StartJobRequest_MysqlRestoreBackup{
+			MysqlRestoreBackup: &agentpb.StartJobRequest_MySQLRestoreBackup{
+				ServiceId: serviceID,
+				Name:      name,
+				LocationConfig: &agentpb.StartJobRequest_MySQLRestoreBackup_S3Config{
+					S3Config: &agentpb.S3LocationConfig{
+						Endpoint:     locationConfig.S3Config.Endpoint,
+						AccessKey:    locationConfig.S3Config.AccessKey,
+						SecretKey:    locationConfig.S3Config.SecretKey,
+						BucketName:   locationConfig.S3Config.BucketName,
+						BucketRegion: locationConfig.S3Config.BucketRegion,
+					},
+				},
+			},
+		},
+	}
+
+	agent, err := s.r.get(pmmAgentID)
+	if err != nil {
+		return err
+	}
+
+	resp := agent.channel.SendAndWaitResponse(req)
+	if e := resp.(*agentpb.StartJobResponse).Error; e != "" {
+		return errors.Errorf("failed to start MySQL restore backup job: %s", e)
 	}
 
 	return nil
