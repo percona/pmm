@@ -173,6 +173,10 @@ func (s *AlertsService) ListAlerts(ctx context.Context, req *iav1beta1.ListAlert
 		to = len(res)
 	}
 
+	if from > len(res) {
+		from = len(res)
+	}
+
 	if pageSize > 0 {
 		pageTotals.TotalPages = int32(len(res) / pageSize)
 		if len(res)%pageSize > 0 {

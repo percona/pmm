@@ -431,6 +431,10 @@ func (s *TemplatesService) ListTemplates(ctx context.Context, req *iav1beta1.Lis
 		to = len(names)
 	}
 
+	if from > len(names) {
+		from = len(names)
+	}
+
 	for _, name := range names[from:to] {
 		t, err := convertTemplate(s.l, templates[name])
 		if err != nil {

@@ -341,4 +341,29 @@ func TestListAlerts(t *testing.T) {
 
 	})
 
+	t.Run("fetch more than available", func(t *testing.T) {
+		var expect []string
+		for _, m := range mockedAlerts {
+			expect = append(expect, *m.Fingerprint)
+		}
+		res, err := svc.ListAlerts(ctx, &iav1beta1.ListAlertsRequest{
+			PageParams: &iav1beta1.PageParams{
+				PageSize: alertsCount * 2,
+			},
+		})
+		assert.NoError(t, err)
+		assert.True(t, findAlerts(res.Alerts, expect...), "wrong alerts returned")
+		assert.EqualValues(t, res.Totals.TotalItems, len(mockedAlerts))
+
+		res, err = svc.ListAlerts(ctx, &iav1beta1.ListAlertsRequest{
+			PageParams: &iav1beta1.PageParams{
+				PageSize: 1,
+				Index:    alertsCount * 2,
+			},
+		})
+		assert.NoError(t, err)
+		assert.Len(t, res.Alerts, 0)
+		assert.EqualValues(t, res.Totals.TotalItems, len(mockedAlerts))
+	})
+
 }
