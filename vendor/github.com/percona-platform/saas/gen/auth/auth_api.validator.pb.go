@@ -81,3 +81,25 @@ func (this *ResetPasswordRequest) Validate() error {
 func (this *ResetPasswordResponse) Validate() error {
 	return nil
 }
+
+func (this *GetProfileRequest) Validate() error {
+	return nil
+}
+
+func (this *GetProfileResponse) Validate() error {
+	return nil
+}
+
+func (this *UpdateProfileRequest) Validate() error {
+	if this.FirstName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("FirstName", fmt.Errorf(`value '%v' must not be an empty string`, this.FirstName))
+	}
+	if this.LastName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("LastName", fmt.Errorf(`value '%v' must not be an empty string`, this.LastName))
+	}
+	return nil
+}
+
+func (this *UpdateProfileResponse) Validate() error {
+	return nil
+}

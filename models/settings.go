@@ -43,6 +43,13 @@ type SaaS struct {
 	STTCheckIntervals STTCheckIntervals `json:"stt_check_intervals"`
 }
 
+// IntegratedAlerting contains settings related to IntegratedAlerting.
+type IntegratedAlerting struct {
+	Enabled               bool                   `json:"enabled"`
+	EmailAlertingSettings *EmailAlertingSettings `json:"email_settings"`
+	SlackAlertingSettings *SlackAlertingSettings `json:"slack_settings"`
+}
+
 // Settings contains PMM Server settings.
 type Settings struct {
 	PMMPublicAddress string `json:"pmm_public_address"`
@@ -76,11 +83,7 @@ type Settings struct {
 		Enabled bool `json:"enabled"`
 	} `json:"dbaas"`
 
-	IntegratedAlerting struct {
-		Enabled               bool                   `json:"enabled"`
-		EmailAlertingSettings *EmailAlertingSettings `json:"email_settings"`
-		SlackAlertingSettings *SlackAlertingSettings `json:"slack_settings"`
-	} `json:"ia"`
+	IntegratedAlerting IntegratedAlerting `json:"ia"`
 
 	Azurediscover struct {
 		Enabled bool `json:"enabled"`

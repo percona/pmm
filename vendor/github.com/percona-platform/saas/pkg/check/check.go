@@ -182,8 +182,7 @@ type Check struct {
 	Script      string        `yaml:"script"`
 }
 
-// the same as Prometheus label format
-//nolint:gochecknoglobals
+// The same as Prometheus label format.
 var nameRE = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*$`)
 
 // Validate validates check for minimal correctness.

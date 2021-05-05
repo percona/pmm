@@ -97,11 +97,7 @@ func (r *Template) Validate() error {
 		return err
 	}
 
-	if err = r.Severity.Validate(); err != nil {
-		return err
-	}
-
-	return nil
+	return r.Severity.Validate()
 }
 
 func (r *Template) validateParams() error {

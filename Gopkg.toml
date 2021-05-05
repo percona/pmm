@@ -4,6 +4,7 @@ required = [
   "github.com/kevinburke/go-bindata/go-bindata",
   "github.com/vektra/mockery/cmd/mockery",
   "golang.org/x/tools/cmd/goimports",
+  "google.golang.org/protobuf",
   "gopkg.in/reform.v1/reform",
 ]
 

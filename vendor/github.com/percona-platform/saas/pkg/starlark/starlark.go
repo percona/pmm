@@ -85,16 +85,16 @@ func noopPrint(*starlark.Thread, string) {}
 // run executes function with a given name with given arguments and returns result and fatal error.
 // threadName is used only for debugging.
 // print is a user-suplied function for Starlark 'print'.
-func (env *Env) run(funcName string, args starlark.Tuple, threadName string, print PrintFunc) (starlark.Value, error) {
+func (env *Env) run(funcName string, args starlark.Tuple, threadName string, printFunc PrintFunc) (starlark.Value, error) {
 	thread := &starlark.Thread{
 		Name:  threadName,
 		Print: noopPrint,
 	}
-	if print != nil {
+	if printFunc != nil {
 		thread.Print = func(t *starlark.Thread, msg string) {
 			// make it look similar to starlark.CallStack.String
 			fr := t.CallFrame(1)
-			print("thread "+t.Name+":", fr.Pos.String()+":", "in", fr.Name+":", msg)
+			printFunc("thread "+t.Name+":", fr.Pos.String()+":", "in", fr.Name+":", msg)
 		}
 	}
 
@@ -131,7 +131,7 @@ func (env *Env) run(funcName string, args starlark.Tuple, threadName string, pri
 // Run executes function 'check_context' with given query results and additional funcs known as 'context'.
 // Id is used to separate that execution from other and used only for debugging.
 // print is a user-suplied Starlark 'print' function implementation.
-func (env *Env) Run(id string, input []map[string]interface{}, contextFuncs map[string]GoFunc, print PrintFunc) ([]check.Result, error) {
+func (env *Env) Run(id string, input []map[string]interface{}, contextFuncs map[string]GoFunc, printFunc PrintFunc) ([]check.Result, error) {
 	var rows *starlark.List
 	rows, err := prepareInput(input)
 	if err != nil {
@@ -148,7 +148,7 @@ func (env *Env) Run(id string, input []map[string]interface{}, contextFuncs map[
 	context.Freeze()
 
 	var output starlark.Value
-	output, err = env.run("check_context", starlark.Tuple{rows, context}, id, print)
+	output, err = env.run("check_context", starlark.Tuple{rows, context}, id, printFunc)
 	if err != nil {
 		// thread id is already present
 		return nil, err

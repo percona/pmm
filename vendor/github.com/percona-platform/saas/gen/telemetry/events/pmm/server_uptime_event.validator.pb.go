@@ -9,6 +9,7 @@ import (
 
 	proto "github.com/golang/protobuf/proto"
 	_ "github.com/golang/protobuf/ptypes/duration"
+	_ "github.com/golang/protobuf/ptypes/wrappers"
 	_ "github.com/mwitkow/go-proto-validators"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 )
@@ -37,6 +38,16 @@ func (this *ServerUptimeEvent) Validate() error {
 	}
 	if _, ok := DistributionMethod_name[int32(this.DistributionMethod)]; !ok {
 		return github_com_mwitkow_go_proto_validators.FieldError("DistributionMethod", fmt.Errorf(`value '%v' must be a valid DistributionMethod field`, this.DistributionMethod))
+	}
+	if this.SttEnabled != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.SttEnabled); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("SttEnabled", err)
+		}
+	}
+	if this.IaEnabled != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.IaEnabled); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("IaEnabled", err)
+		}
 	}
 	return nil
 }
