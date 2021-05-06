@@ -404,6 +404,17 @@ message StartJobRequest {
       S3LocationConfig s3_config = 10;
     }
   }
+  // MySQLRestoreBackup is job for MySQL restore backup service.
+  message MySQLRestoreBackup {
+    // Service identifier where the backup should be restored.
+    string service_id = 1;
+    // Backup name.
+    string name = 2;
+    // Where backup is stored.
+    oneof location_config {
+      S3LocationConfig s3_config = 10;
+    }
+  }
   // MongoDBBackup is job for backup MongoDB service.
   message MongoDBBackup {
     // Database user;
@@ -429,6 +440,7 @@ message StartJobRequest {
   oneof job {
     Echo echo = 10;
     MySQLBackup mysql_backup = 11;
+    MySQLRestoreBackup mysql_restore_backup = 12;
     MongoDBBackup mongodb_backup = 13;
   }
 }
@@ -462,12 +474,16 @@ message JobResult {
   // MySQLBackup contains result for MySQL backup job.
   message MySQLBackup {}
 
+  // MySQLRestoreBackup contains result for MySQL restore backup job.
+  message MySQLRestoreBackup {}
+
   string job_id = 1;
   google.protobuf.Timestamp timestamp = 2;
   oneof result {
     Error error = 10;
     Echo echo = 11;
     MySQLBackup mysql_backup = 12;
+    MySQLRestoreBackup mysql_restore_backup = 13;
     MongoDBBackup mongodb_backup = 14;
   }
 }
@@ -481,11 +497,15 @@ message JobProgress {
   // MySQLBackup contains backup job status update.
   message MySQLBackup {}
 
+  // MySQLRestoreBackup contains restore backup job status update.
+  message MySQLRestoreBackup {}
+
   string job_id = 1;
   google.protobuf.Timestamp timestamp = 2;
   oneof result {
     Echo echo = 10;
     MySQLBackup mysql_backup = 11;
+    MySQLRestoreBackup mysql_restore_backup = 12;
   }
 }
 

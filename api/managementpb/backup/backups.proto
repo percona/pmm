@@ -38,12 +38,39 @@ message StartBackupResponse {
   string artifact_id = 1;
 }
 
+message RestoreBackupRequest {
+  // Service identifier where backup should be restored.
+  string service_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Artifact id to restore.
+  string artifact_id = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
+
+message RestoreBackupResponse {
+  // Unique restore identifier.
+  string restore_id = 1;
+}
+
 // Backups service handles backup operations to DB.
 service Backups {
   // StartBackup request backup specified service to location.
   rpc StartBackup(StartBackupRequest) returns (StartBackupResponse) {
     option (google.api.http) = {
       post: "/v1/management/backup/Backups/StartBackup"
+      body: "*"
+    };
+  }
+  // RestoreBackup requests the backup restore.
+  rpc RestoreBackup(RestoreBackupRequest) returns (RestoreBackupResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/backup/Backups/Restore"
       body: "*"
     };
   }

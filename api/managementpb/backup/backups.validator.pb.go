@@ -29,3 +29,15 @@ func (this *StartBackupRequest) Validate() error {
 func (this *StartBackupResponse) Validate() error {
 	return nil
 }
+func (this *RestoreBackupRequest) Validate() error {
+	if this.ServiceId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
+	}
+	if this.ArtifactId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ArtifactId", fmt.Errorf(`value '%v' must not be an empty string`, this.ArtifactId))
+	}
+	return nil
+}
+func (this *RestoreBackupResponse) Validate() error {
+	return nil
+}
