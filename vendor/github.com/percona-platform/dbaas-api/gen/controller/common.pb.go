@@ -201,6 +201,73 @@ func (x *ComputeResources) GetMemoryBytes() int64 {
 	return 0
 }
 
+// PMMParams represents params related to pmm. If nil do not turn on monitoring.
+type PMMParams struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// PMM server public address.
+	PublicAddress string `protobuf:"bytes,1,opt,name=public_address,json=publicAddress,proto3" json:"public_address,omitempty"`
+	// PMM server admin login.
+	Login string `protobuf:"bytes,2,opt,name=login,proto3" json:"login,omitempty"`
+	// PMM server admin password.
+	Password string `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`
+}
+
+func (x *PMMParams) Reset() {
+	*x = PMMParams{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_controller_common_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *PMMParams) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PMMParams) ProtoMessage() {}
+
+func (x *PMMParams) ProtoReflect() protoreflect.Message {
+	mi := &file_controller_common_proto_msgTypes[3]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PMMParams.ProtoReflect.Descriptor instead.
+func (*PMMParams) Descriptor() ([]byte, []int) {
+	return file_controller_common_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *PMMParams) GetPublicAddress() string {
+	if x != nil {
+		return x.PublicAddress
+	}
+	return ""
+}
+
+func (x *PMMParams) GetLogin() string {
+	if x != nil {
+		return x.Login
+	}
+	return ""
+}
+
+func (x *PMMParams) GetPassword() string {
+	if x != nil {
+		return x.Password
+	}
+	return ""
+}
+
 var File_controller_common_proto protoreflect.FileDescriptor
 
 var file_controller_common_proto_rawDesc = []byte{
@@ -227,9 +294,17 @@ var file_controller_common_proto_rawDesc = []byte{
 	0x75, 0x5f, 0x6d, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x04, 0x63, 0x70, 0x75, 0x4d, 0x12,
 	0x21, 0x0a, 0x0c, 0x6d, 0x65, 0x6d, 0x6f, 0x72, 0x79, 0x5f, 0x62, 0x79, 0x74, 0x65, 0x73, 0x18,
 	0x02, 0x20, 0x01, 0x28, 0x03, 0x52, 0x0b, 0x6d, 0x65, 0x6d, 0x6f, 0x72, 0x79, 0x42, 0x79, 0x74,
-	0x65, 0x73, 0x42, 0x1e, 0x5a, 0x1c, 0x63, 0x6f, 0x6e, 0x74, 0x72, 0x6f, 0x6c, 0x6c, 0x65, 0x72,
-	0x3b, 0x63, 0x6f, 0x6e, 0x74, 0x72, 0x6f, 0x6c, 0x6c, 0x65, 0x72, 0x76, 0x31, 0x62, 0x65, 0x74,
-	0x61, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x65, 0x73, 0x22, 0x7c, 0x0a, 0x09, 0x50, 0x4d, 0x4d, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12,
+	0x2d, 0x0a, 0x0e, 0x70, 0x75, 0x62, 0x6c, 0x69, 0x63, 0x5f, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73,
+	0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x06, 0xe2, 0xdf, 0x1f, 0x02, 0x58, 0x01, 0x52,
+	0x0d, 0x70, 0x75, 0x62, 0x6c, 0x69, 0x63, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x12, 0x1c,
+	0x0a, 0x05, 0x6c, 0x6f, 0x67, 0x69, 0x6e, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x42, 0x06, 0xe2,
+	0xdf, 0x1f, 0x02, 0x58, 0x01, 0x52, 0x05, 0x6c, 0x6f, 0x67, 0x69, 0x6e, 0x12, 0x22, 0x0a, 0x08,
+	0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x42, 0x06,
+	0xe2, 0xdf, 0x1f, 0x02, 0x58, 0x01, 0x52, 0x08, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64,
+	0x42, 0x1e, 0x5a, 0x1c, 0x63, 0x6f, 0x6e, 0x74, 0x72, 0x6f, 0x6c, 0x6c, 0x65, 0x72, 0x3b, 0x63,
+	0x6f, 0x6e, 0x74, 0x72, 0x6f, 0x6c, 0x6c, 0x65, 0x72, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
+	0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -244,11 +319,12 @@ func file_controller_common_proto_rawDescGZIP() []byte {
 	return file_controller_common_proto_rawDescData
 }
 
-var file_controller_common_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_controller_common_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_controller_common_proto_goTypes = []interface{}{
 	(*RunningOperation)(nil), // 0: percona.platform.dbaas.controller.v1beta1.RunningOperation
 	(*KubeAuth)(nil),         // 1: percona.platform.dbaas.controller.v1beta1.KubeAuth
 	(*ComputeResources)(nil), // 2: percona.platform.dbaas.controller.v1beta1.ComputeResources
+	(*PMMParams)(nil),        // 3: percona.platform.dbaas.controller.v1beta1.PMMParams
 }
 var file_controller_common_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -300,6 +376,18 @@ func file_controller_common_proto_init() {
 				return nil
 			}
 		}
+		file_controller_common_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*PMMParams); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -307,7 +395,7 @@ func file_controller_common_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_controller_common_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

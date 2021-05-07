@@ -34,6 +34,9 @@ import (
 	"github.com/pkg/errors"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 
 	"github.com/percona/pmm-managed/utils/irt"
 )
@@ -246,6 +249,14 @@ func (c *Client) convertRole(role string) role {
 	}
 }
 
+type apiKey struct {
+	Id         int64      `json:"id"`
+	OrgId      int64      `json:"orgId,omitempty"`
+	Name       string     `json:"name"`
+	Role       string     `json:"role"`
+	Expiration *time.Time `json:"expiration,omitempty"`
+}
+
 func (c *Client) getRoleForAPIKey(ctx context.Context, authHeaders http.Header) (role, error) {
 	var k map[string]interface{}
 	if err := c.do(ctx, "GET", "/api/auth/key", "", authHeaders, nil, &k); err != nil {
@@ -300,12 +311,74 @@ func (c *Client) testDeleteUser(ctx context.Context, userID int, authHeaders htt
 	return c.do(ctx, "DELETE", "/api/admin/users/"+strconv.Itoa(userID), "", authHeaders, nil, nil)
 }
 
-func (c *Client) testCreateAPIKey(ctx context.Context, name string, role role, authHeaders http.Header) (int, string, error) {
+// CreateAdminAPIKey creates API key with Admin role and provided name.
+func (c *Client) CreateAdminAPIKey(ctx context.Context, name string) (int64, string, error) {
+	authHeaders, err := c.authHeadersFromContext(ctx)
+	if err != nil {
+		return 0, "", err
+	}
+	return c.createAPIKey(ctx, name, admin, authHeaders)
+}
+
+// DeleteAPIKeysWithPrefix deletes all API keys with provided prefix. If there is no api key with provided prefix just ignores it.
+func (c *Client) DeleteAPIKeysWithPrefix(ctx context.Context, prefix string) error {
+	authHeaders, err := c.authHeadersFromContext(ctx)
+	if err != nil {
+		return err
+	}
+	var keys []apiKey
+	if err := c.do(ctx, "GET", "/api/auth/keys", "", authHeaders, nil, &keys); err != nil {
+		return err
+	}
+
+	for _, k := range keys {
+		if strings.HasPrefix(k.Name, prefix) {
+			err := c.deleteAPIKey(ctx, k.Id, authHeaders)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+// DeleteAPIKeyByID deletes API key by ID.
+func (c *Client) DeleteAPIKeyByID(ctx context.Context, id int64) error {
+	authHeaders, err := c.authHeadersFromContext(ctx)
+	if err != nil {
+		return err
+	}
+	return c.deleteAPIKey(ctx, id, authHeaders)
+}
+
+func (c *Client) authHeadersFromContext(ctx context.Context) (http.Header, error) {
+	headers, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return nil, fmt.Errorf("cannot get headers from metadata")
+	}
+	// get authorization from headers.
+	authorizationHeaders := headers.Get("Authorization")
+	cookieHeaders := headers.Get("grpcgateway-cookie")
+	if len(authorizationHeaders) == 0 && len(cookieHeaders) == 0 {
+		return nil, status.Error(codes.Unauthenticated, "Authorization error.")
+	}
+
+	authHeaders := make(http.Header)
+	if len(authorizationHeaders) > 0 {
+		authHeaders.Add("Authorization", authorizationHeaders[0])
+	}
+	if len(cookieHeaders) > 0 {
+		for _, header := range cookieHeaders {
+			authHeaders.Add("Cookie", header)
+		}
+	}
+	return authHeaders, nil
+}
+
+func (c *Client) createAPIKey(ctx context.Context, name string, role role, authHeaders http.Header) (int64, string, error) {
 	// https://grafana.com/docs/grafana/latest/http_api/auth/#create-api-key
-	b, err := json.Marshal(map[string]string{
-		"name": name,
-		"role": role.String(),
-	})
+	b, err := json.Marshal(apiKey{Name: name, Role: role.String()})
 	if err != nil {
 		return 0, "", errors.WithStack(err)
 	}
@@ -313,23 +386,23 @@ func (c *Client) testCreateAPIKey(ctx context.Context, name string, role role, a
 	if err = c.do(ctx, "POST", "/api/auth/keys", "", authHeaders, b, &m); err != nil {
 		return 0, "", err
 	}
-	apiKey := m["key"].(string)
+	key := m["key"].(string)
 
 	apiAuthHeaders := http.Header{}
-	apiAuthHeaders.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
+	apiAuthHeaders.Set("Authorization", fmt.Sprintf("Bearer %s", key))
 
-	var k map[string]interface{}
+	var k apiKey
 	if err := c.do(ctx, "GET", "/api/auth/key", "", apiAuthHeaders, nil, &k); err != nil {
 		return 0, "", err
 	}
-	apiKeyID := int(k["id"].(float64))
+	apiKeyID := k.Id
 
-	return apiKeyID, apiKey, nil
+	return apiKeyID, key, nil
 }
 
-func (c *Client) testDeleteAPIKey(ctx context.Context, apiKeyID int, authHeaders http.Header) error {
+func (c *Client) deleteAPIKey(ctx context.Context, apiKeyID int64, authHeaders http.Header) error {
 	// https://grafana.com/docs/grafana/latest/http_api/auth/#delete-api-key
-	return c.do(ctx, "DELETE", "/api/auth/keys/"+strconv.Itoa(apiKeyID), "", authHeaders, nil, nil)
+	return c.do(ctx, "DELETE", "/api/auth/keys/"+strconv.FormatInt(apiKeyID, 10), "", authHeaders, nil, nil)
 }
 
 // Annotation contains grafana annotation response.
