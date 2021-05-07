@@ -49,7 +49,7 @@ markdown_extensions:
 plugins:
   - search
   - git-revision-date
-  - bootstrap-tables
+  - bootstrap-tables # Adds 'class=table' to tables. They look better in percona.com but nowhere else.
   - section-index # Adds links to nodes
 #  - htmlproofer # Uncomment to check links - but extends build time significantly
   - macros:

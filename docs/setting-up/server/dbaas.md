@@ -94,15 +94,9 @@ alias kubectl='minikube kubectl --'
     # Install the PXC operator
     curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-xtradb-cluster-operator/{{op.pxc_vers}}/deploy/bundle.yaml \
     | kubectl apply -f -
-    curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-xtradb-cluster-operator/{{op.pxc_vers}}/deploy/secrets.yaml \
-    | sed "s/pmmserver:.*/pmmserver: ${PMM_PASS}/g" \
-    | kubectl apply -f -
 
     # Install the PSMDB operator
     curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-server-mongodb-operator/{{op.psmdb_vers}}/deploy/bundle.yaml \
-    | kubectl apply -f -
-    curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-server-mongodb-operator/{{op.psmdb_vers}}/deploy/secrets.yaml \
-    | sed "s/PMM_SERVER_USER:.*$/PMM_SERVER_USER: ${PMM_USER}/g;s/PMM_SERVER_PASSWORD:.*$/PMM_SERVER_PASSWORD: ${PMM_PASS}/g;" \
     | kubectl apply -f -
     ```
 
@@ -143,15 +137,9 @@ alias kubectl='minikube kubectl --'
     # Install the PXC operator
     curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-xtradb-cluster-operator/{{op.pxc_vers}}/deploy/bundle.yaml \
     | kubectl apply -f -
-    curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-xtradb-cluster-operator/{{op.pxc_vers}}/deploy/secrets.yaml \
-    | sed "s/pmmserver:.*/pmmserver: ${PMM_PASS}/g" \
-    | kubectl apply -f -
 
     # Install the PSMDB operator
     curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-server-mongodb-operator/{{op.psmdb_vers}}/deploy/bundle.yaml \
-    | kubectl apply -f -
-    curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-server-mongodb-operator/{{op.psmdb_vers}}/deploy/secrets.yaml \
-    | sed "s/PMM_SERVER_USER:.*$/PMM_SERVER_USER: ${PMM_USER}/g;s/PMM_SERVER_PASSWORD:.*$/PMM_SERVER_PASSWORD: ${PMM_PASS}/g;" \
     | kubectl apply -f -
     ```
 
@@ -274,9 +262,7 @@ You should have an account on GCP [https://cloud.google.com/](https://cloud.goog
 
     ```
     curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-xtradb-cluster-operator/pmm-branch/deploy/bundle.yaml  | kubectl apply -f -
-    curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-xtradb-cluster-operator/pmm-branch/deploy/secrets.yaml | kubectl apply -f -
     curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-server-mongodb-operator/pmm-branch/deploy/bundle.yaml  | kubectl apply -f -
-    curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-server-mongodb-operator/pmm-branch/deploy/secrets.yaml | kubectl apply -f -
     ```
 
     ![](../../_images/PMM_DBaaS_GKE_11.png)
@@ -389,6 +375,8 @@ You should have an account on GCP [https://cloud.google.com/](https://cloud.goog
 
 You should delete all installation operators as the operators own resources.
 
+> If a Public Address is set in PMM Settings, for each DB cluster an API Key is created which can be found on the page `/graph/org/apikeys`. You should not delete them (for now, until [issue PMM-8045](https://jira.percona.com/browse/PMM-8045) is fixed) -- once a DB cluster is removed from DBaaS, the related API Key is also removed.
+
 If you only run `eksctl delete cluster` without cleaning up the cluster first, there will be a lot of orphaned resources as Cloud Formations, Load Balancers, EC2 instances, Network interfaces, etc.
 
 In the `pmm-managed` repository, in the deploy directory there are 2 example bash scripts to install and delete the operators from the EKS cluster.
@@ -405,11 +393,9 @@ KUBECTL_CMD="kubectl --kubeconfig ${HOME}/.kube/config_eks"
 
 # Install the PXC operator
 cat ${TOP_DIR}/deploy/pxc_operator.yaml | ${KUBECTL_CMD} apply -f -
-cat ${TOP_DIR}/deploy/secrets.yaml | sed "s/pmmserver:.*=/pmmserver: ${PMM_PASS}/g" | ${KUBECTL_CMD} apply -f -
 
 # Install the PSMDB operator
 cat ${TOP_DIR}/deploy/psmdb_operator.yaml | ${KUBECTL_CMD} apply -f -
-cat ${TOP_DIR}/deploy/secrets.yaml | sed "s/PMM_SERVER_USER:.*$/PMM_SERVER_USER: ${PMM_USER}/g;s/PMM_SERVER_PASSWORD:.*=$/PMM_SERVER_PASSWORD: ${PMM_PASS}/g;" | ${KUBECTL_CMD} apply -f -
 ```
 
 The delete script:
@@ -424,11 +410,9 @@ KUBECTL_CMD="kubectl --kubeconfig ${HOME}/.kube/config_eks"
 
 # Delete the PXC operator
 cat ${TOP_DIR}/deploy/pxc_operator.yaml | ${KUBECTL_CMD} delete -f -
-cat ${TOP_DIR}/deploy/secrets.yaml | sed "s/pmmserver:.*=/pmmserver: ${PMM_PASS}/g" | ${KUBECTL_CMD} delete -f -
 
 # Delete the PSMDB operator
 cat ${TOP_DIR}/deploy/psmdb_operator.yaml | ${KUBECTL_CMD} delete -f -
-cat ${TOP_DIR}/deploy/secrets.yaml | sed "s/PMM_SERVER_USER:.*$/PMM_SERVER_USER: ${PMM_USER}/g;s/PMM_SERVER_PASSWORD:.*=$/PMM_SERVER_PASSWORD: ${PMM_PASS}/g;" | ${KUBECTL_CMD} delete -f -
 ```
 
 (Both scripts are similar except the install script command is `apply` while in the delete script it is `delete`.)
