@@ -9,4 +9,7 @@ skinparam {
   ActivityBackgroundColor #cce6ff
   activityDiamondBackgroundColor #cce6ff
   legendBackgroundColor #0000
+  Padding 10
+  BoxPadding 20
+  ParticipantPadding 30
 }
