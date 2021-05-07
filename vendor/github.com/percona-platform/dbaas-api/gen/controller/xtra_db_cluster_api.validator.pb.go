@@ -93,6 +93,11 @@ func (this *CreateXtraDBClusterRequest) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("Params", err)
 		}
 	}
+	if this.Pmm != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Pmm); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Pmm", err)
+		}
+	}
 	return nil
 }
 func (this *CreateXtraDBClusterResponse) Validate() error {

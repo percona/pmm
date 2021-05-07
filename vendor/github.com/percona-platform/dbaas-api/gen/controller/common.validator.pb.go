@@ -29,3 +29,15 @@ func (this *KubeAuth) Validate() error {
 func (this *ComputeResources) Validate() error {
 	return nil
 }
+func (this *PMMParams) Validate() error {
+	if this.PublicAddress == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("PublicAddress", fmt.Errorf(`value '%v' must not be an empty string`, this.PublicAddress))
+	}
+	if this.Login == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Login", fmt.Errorf(`value '%v' must not be an empty string`, this.Login))
+	}
+	if this.Password == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Password", fmt.Errorf(`value '%v' must not be an empty string`, this.Password))
+	}
+	return nil
+}

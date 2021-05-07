@@ -23,4 +23,4 @@ required = [
 
 [[constraint]]
   name = "github.com/percona-platform/dbaas-api"
-  branch = "main"
+  branch = "pmm-2.17.0"

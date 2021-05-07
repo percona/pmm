@@ -19,6 +19,8 @@ package dbaas
 
 import (
 	"context"
+	"fmt"
+	"math/rand"
 
 	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
@@ -36,12 +38,13 @@ type XtraDBClusterService struct {
 	db               *reform.DB
 	l                *logrus.Entry
 	controllerClient dbaasClient
+	grafanaClient    grafanaClient
 }
 
 // NewXtraDBClusterService creates XtraDB Service.
-func NewXtraDBClusterService(db *reform.DB, client dbaasClient) dbaasv1beta1.XtraDBClusterServer {
+func NewXtraDBClusterService(db *reform.DB, client dbaasClient, grafanaClient grafanaClient) dbaasv1beta1.XtraDBClusterServer {
 	l := logrus.WithField("component", "xtradb_cluster")
-	return &XtraDBClusterService{db: db, l: l, controllerClient: client}
+	return &XtraDBClusterService{db: db, l: l, controllerClient: client, grafanaClient: grafanaClient}
 }
 
 // ListXtraDBClusters returns a list of all XtraDB clusters.
@@ -170,12 +173,28 @@ func (s XtraDBClusterService) CreateXtraDBCluster(ctx context.Context, req *dbaa
 		return nil, err
 	}
 
+	var pmmParams *dbaascontrollerv1beta1.PMMParams
+	var apiKeyID int64
+	if settings.PMMPublicAddress != "" {
+		var apiKey string
+		apiKeyName := fmt.Sprintf("pxc-%s-%s-%d", req.KubernetesClusterName, req.Name, rand.Int63())
+		apiKeyID, apiKey, err = s.grafanaClient.CreateAdminAPIKey(ctx, apiKeyName)
+		if err != nil {
+			return nil, err
+		}
+		pmmParams = &dbaascontrollerv1beta1.PMMParams{
+			PublicAddress: settings.PMMPublicAddress,
+			Login:         "api_key",
+			Password:      apiKey,
+		}
+	}
+
 	in := dbaascontrollerv1beta1.CreateXtraDBClusterRequest{
 		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
 			Kubeconfig: kubernetesCluster.KubeConfig,
 		},
-		Name:             req.Name,
-		PmmPublicAddress: settings.PMMPublicAddress,
+		Name: req.Name,
+		Pmm:  pmmParams,
 		Params: &dbaascontrollerv1beta1.XtraDBClusterParams{
 			ClusterSize: req.Params.ClusterSize,
 			Pxc: &dbaascontrollerv1beta1.XtraDBClusterParams_PXC{
@@ -219,6 +238,12 @@ func (s XtraDBClusterService) CreateXtraDBCluster(ctx context.Context, req *dbaa
 
 	_, err = s.controllerClient.CreateXtraDBCluster(ctx, &in)
 	if err != nil {
+		if apiKeyID != 0 {
+			e := s.grafanaClient.DeleteAPIKeyByID(ctx, apiKeyID)
+			if e != nil {
+				s.l.Warnf("couldn't delete created API Key %s: %s", apiKeyID, e)
+			}
+		}
 		return nil, err
 	}
 
@@ -309,6 +334,12 @@ func (s XtraDBClusterService) DeleteXtraDBCluster(ctx context.Context, req *dbaa
 	_, err = s.controllerClient.DeleteXtraDBCluster(ctx, &in)
 	if err != nil {
 		return nil, err
+	}
+
+	err = s.grafanaClient.DeleteAPIKeysWithPrefix(ctx, fmt.Sprintf("pxc-%s-%s", req.KubernetesClusterName, req.Name))
+	if err != nil {
+		// ignore if API Key is not deleted.
+		s.l.Warnf("Couldn't delete API key: %s", err)
 	}
 
 	return &dbaasv1beta1.DeleteXtraDBClusterResponse{}, nil
