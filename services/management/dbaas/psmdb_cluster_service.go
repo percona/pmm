@@ -18,6 +18,8 @@ package dbaas
 
 import (
 	"context"
+	"fmt"
+	"math/rand"
 
 	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
@@ -34,12 +36,13 @@ type PSMDBClusterService struct {
 	db               *reform.DB
 	l                *logrus.Entry
 	controllerClient dbaasClient
+	grafanaClient    grafanaClient
 }
 
 // NewPSMDBClusterService creates PSMDB Service.
-func NewPSMDBClusterService(db *reform.DB, client dbaasClient) dbaasv1beta1.PSMDBClusterServer {
+func NewPSMDBClusterService(db *reform.DB, dbaasClient dbaasClient, grafanaClient grafanaClient) dbaasv1beta1.PSMDBClusterServer {
 	l := logrus.WithField("component", "xtradb_cluster")
-	return &PSMDBClusterService{db: db, l: l, controllerClient: client}
+	return &PSMDBClusterService{db: db, l: l, controllerClient: dbaasClient, grafanaClient: grafanaClient}
 }
 
 // Enabled returns if service is enabled and can be used.
@@ -152,6 +155,22 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 		return nil, err
 	}
 
+	var pmmParams *dbaascontrollerv1beta1.PMMParams
+	var apiKeyID int64
+	if settings.PMMPublicAddress != "" {
+		var apiKey string
+		apiKeyName := fmt.Sprintf("psmdb-%s-%s-%d", req.KubernetesClusterName, req.Name, rand.Int63())
+		apiKeyID, apiKey, err = s.grafanaClient.CreateAdminAPIKey(ctx, apiKeyName)
+		if err != nil {
+			return nil, err
+		}
+		pmmParams = &dbaascontrollerv1beta1.PMMParams{
+			PublicAddress: settings.PMMPublicAddress,
+			Login:         "api_key",
+			Password:      apiKey,
+		}
+	}
+
 	in := dbaascontrollerv1beta1.CreatePSMDBClusterRequest{
 		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
 			Kubeconfig: kubernetesCluster.KubeConfig,
@@ -168,11 +187,17 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 				DiskSize: req.Params.Replicaset.DiskSize,
 			},
 		},
-		PmmPublicAddress: settings.PMMPublicAddress,
+		Pmm: pmmParams,
 	}
 
 	_, err = s.controllerClient.CreatePSMDBCluster(ctx, &in)
 	if err != nil {
+		if apiKeyID != 0 {
+			e := s.grafanaClient.DeleteAPIKeyByID(ctx, apiKeyID)
+			if e != nil {
+				s.l.Warnf("couldn't delete created API Key %s: %s", apiKeyID, e)
+			}
+		}
 		return nil, err
 	}
 
@@ -239,6 +264,12 @@ func (s PSMDBClusterService) DeletePSMDBCluster(ctx context.Context, req *dbaasv
 	_, err = s.controllerClient.DeletePSMDBCluster(ctx, &in)
 	if err != nil {
 		return nil, err
+	}
+
+	err = s.grafanaClient.DeleteAPIKeysWithPrefix(ctx, fmt.Sprintf("psmdb-%s-%s", req.KubernetesClusterName, req.Name))
+	if err != nil {
+		// ignore if API Key is not deleted.
+		s.l.Warnf("Couldn't delete API key: %s", err)
 	}
 
 	return &dbaasv1beta1.DeletePSMDBClusterResponse{}, nil

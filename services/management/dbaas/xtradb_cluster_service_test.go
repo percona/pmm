@@ -19,6 +19,7 @@ package dbaas
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/google/uuid"
@@ -72,7 +73,7 @@ const pxcKubeconfigTest = `
 const pxcKubernetesClusterNameTest = "test-k8s-cluster-name"
 
 func TestXtraDBClusterService(t *testing.T) {
-	setup := func(t *testing.T) (ctx context.Context, db *reform.DB, dbaasClient *mockDbaasClient, teardown func(t *testing.T)) {
+	setup := func(t *testing.T) (ctx context.Context, db *reform.DB, dbaasClient *mockDbaasClient, grafanaClient *mockGrafanaClient, teardown func(t *testing.T)) {
 		t.Helper()
 
 		ctx = logger.Set(context.Background(), t.Name())
@@ -81,6 +82,7 @@ func TestXtraDBClusterService(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 		db = reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		dbaasClient = new(mockDbaasClient)
+		grafanaClient = new(mockGrafanaClient)
 
 		teardown = func(t *testing.T) {
 			uuid.SetRand(nil)
@@ -90,7 +92,7 @@ func TestXtraDBClusterService(t *testing.T) {
 		return
 	}
 
-	ctx, db, dbaasClient, teardown := setup(t)
+	ctx, db, dbaasClient, grafanaClient, teardown := setup(t)
 	defer teardown(t)
 
 	ks := NewKubernetesServer(db, dbaasClient)
@@ -110,7 +112,7 @@ func TestXtraDBClusterService(t *testing.T) {
 	assert.NotNil(t, registerKubernetesClusterResponse)
 
 	t.Run("BasicListXtraDBClusters", func(t *testing.T) {
-		s := NewXtraDBClusterService(db, dbaasClient)
+		s := NewXtraDBClusterService(db, dbaasClient, grafanaClient)
 		mockResp := controllerv1beta1.ListXtraDBClustersResponse{
 			Clusters: []*controllerv1beta1.ListXtraDBClustersResponse_Cluster{
 				{
@@ -157,7 +159,7 @@ func TestXtraDBClusterService(t *testing.T) {
 
 	//nolint:dupl
 	t.Run("BasicCreateXtraDBClusters", func(t *testing.T) {
-		s := NewXtraDBClusterService(db, dbaasClient)
+		s := NewXtraDBClusterService(db, dbaasClient, grafanaClient)
 		mockReq := controllerv1beta1.CreateXtraDBClusterRequest{
 			KubeAuth: &controllerv1beta1.KubeAuth{
 				Kubeconfig: pxcKubeconfigTest,
@@ -212,7 +214,7 @@ func TestXtraDBClusterService(t *testing.T) {
 
 	t.Run("BasicGetXtraDBClusterCredentials", func(t *testing.T) {
 		name := "third-pxc-test"
-		s := NewXtraDBClusterService(db, dbaasClient)
+		s := NewXtraDBClusterService(db, dbaasClient, grafanaClient)
 		mockReq := controllerv1beta1.GetXtraDBClusterCredentialsRequest{
 			KubeAuth: &controllerv1beta1.KubeAuth{
 				Kubeconfig: pxcKubeconfigTest,
@@ -244,7 +246,7 @@ func TestXtraDBClusterService(t *testing.T) {
 
 	t.Run("BasicGetXtraDBClusterCredentialsWithHost", func(t *testing.T) { // Real kubernetes will have ingress
 		name := "another-third-pxc-test"
-		s := NewXtraDBClusterService(db, dbaasClient)
+		s := NewXtraDBClusterService(db, dbaasClient, grafanaClient)
 		mockReq := controllerv1beta1.GetXtraDBClusterCredentialsRequest{
 			KubeAuth: &controllerv1beta1.KubeAuth{
 				Kubeconfig: pxcKubeconfigTest,
@@ -278,7 +280,7 @@ func TestXtraDBClusterService(t *testing.T) {
 
 	//nolint:dupl
 	t.Run("BasicUpdateXtraDBCluster", func(t *testing.T) {
-		s := NewXtraDBClusterService(db, dbaasClient)
+		s := NewXtraDBClusterService(db, dbaasClient, grafanaClient)
 		mockReq := controllerv1beta1.UpdateXtraDBClusterRequest{
 			KubeAuth: &controllerv1beta1.KubeAuth{
 				Kubeconfig: pxcKubeconfigTest,
@@ -329,7 +331,7 @@ func TestXtraDBClusterService(t *testing.T) {
 
 	//nolint:dupl
 	t.Run("BasicSuspendResumeXtraDBCluster", func(t *testing.T) {
-		s := NewXtraDBClusterService(db, dbaasClient)
+		s := NewXtraDBClusterService(db, dbaasClient, grafanaClient)
 		mockReqSuspend := controllerv1beta1.UpdateXtraDBClusterRequest{
 			KubeAuth: &controllerv1beta1.KubeAuth{
 				Kubeconfig: pxcKubeconfigTest,
@@ -375,7 +377,7 @@ func TestXtraDBClusterService(t *testing.T) {
 	})
 
 	t.Run("BasicRestartXtraDBCluster", func(t *testing.T) {
-		s := NewXtraDBClusterService(db, dbaasClient)
+		s := NewXtraDBClusterService(db, dbaasClient, grafanaClient)
 		mockReq := controllerv1beta1.RestartXtraDBClusterRequest{
 			KubeAuth: &controllerv1beta1.KubeAuth{
 				Kubeconfig: pxcKubeconfigTest,
@@ -395,19 +397,21 @@ func TestXtraDBClusterService(t *testing.T) {
 	})
 
 	t.Run("BasicDeleteXtraDBCluster", func(t *testing.T) {
-		s := NewXtraDBClusterService(db, dbaasClient)
+		s := NewXtraDBClusterService(db, dbaasClient, grafanaClient)
+		dbClusterName := "delete-pxc-test"
 		mockReq := controllerv1beta1.DeleteXtraDBClusterRequest{
 			KubeAuth: &controllerv1beta1.KubeAuth{
 				Kubeconfig: pxcKubeconfigTest,
 			},
-			Name: "third-pxc-test",
+			Name: dbClusterName,
 		}
 
 		dbaasClient.On("DeleteXtraDBCluster", ctx, &mockReq).Return(&controllerv1beta1.DeleteXtraDBClusterResponse{}, nil)
+		grafanaClient.On("DeleteAPIKeysWithPrefix", ctx, fmt.Sprintf("%s-%s", kubernetesClusterNameTest, dbClusterName)).Return(nil)
 
 		in := dbaasv1beta1.DeleteXtraDBClusterRequest{
 			KubernetesClusterName: pxcKubernetesClusterNameTest,
-			Name:                  "third-pxc-test",
+			Name:                  dbClusterName,
 		}
 
 		_, err := s.DeleteXtraDBCluster(ctx, &in)
@@ -418,7 +422,7 @@ func TestXtraDBClusterService(t *testing.T) {
 		t.Parallel()
 		t.Run("ProxySQL", func(t *testing.T) {
 			t.Parallel()
-			s := NewXtraDBClusterService(db, dbaasClient)
+			s := NewXtraDBClusterService(db, dbaasClient, grafanaClient)
 			v := int64(1000000000)
 			r := int64(2000000000)
 
@@ -451,7 +455,7 @@ func TestXtraDBClusterService(t *testing.T) {
 
 		t.Run("HAProxy", func(t *testing.T) {
 			t.Parallel()
-			s := NewXtraDBClusterService(db, dbaasClient)
+			s := NewXtraDBClusterService(db, dbaasClient, grafanaClient)
 			v := int64(1000000000)
 
 			in := dbaasv1beta1.GetXtraDBClusterResourcesRequest{

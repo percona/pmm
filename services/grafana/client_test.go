@@ -127,13 +127,13 @@ func TestClient(t *testing.T) {
 				// t.Parallel()
 
 				login := fmt.Sprintf("api-%s-%d", role, time.Now().Nanosecond())
-				apiKeyID, apiKey, err := c.testCreateAPIKey(ctx, login, role, authHeaders)
+				apiKeyID, apiKey, err := c.createAPIKey(ctx, login, role, authHeaders)
 				require.NoError(t, err)
 				require.NotZero(t, apiKeyID)
 				require.NotEmpty(t, apiKey)
 				if err != nil {
 					defer func() {
-						err = c.testDeleteAPIKey(ctx, apiKeyID, authHeaders)
+						err = c.deleteAPIKey(ctx, apiKeyID, authHeaders)
 						require.NoError(t, err)
 					}()
 				}
