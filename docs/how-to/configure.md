@@ -8,12 +8,29 @@ Open the *Settings* page from the [main menu](../details/interface.md#main-menu)
 
 On the left are the selector tabs:
 
-- [Metrics Resolution](#metrics-resolution)
-- [Advanced Settings](#advanced-settings)
-- [SSH Key](#ssh-key)
-- [Alertmanager Integration](#alertmanager-integration)
-- [Percona Platform](#percona-platform)
-- [Communication](#communication) (This tab remains hidden until [Integrated Alerting](#integrated-alerting) is activated in the *Advanced Settings* tab.)
+- [Configure](#configure)
+  - [Metrics resolution](#metrics-resolution)
+  - [Advanced Settings](#advanced-settings)
+    - [Data Retention](#data-retention)
+    - [Telemetry](#telemetry)
+    - [Check for updates](#check-for-updates)
+    - [Security Threat Tool](#security-threat-tool)
+  - [Public address](#public-address)
+    - [DBaaS](#dbaas)
+    - [Integrated Alerting](#integrated-alerting)
+    - [Microsoft Azure Monitoring](#microsoft-azure-monitoring)
+    - [Public Address](#public-address-1)
+  - [SSH Key](#ssh-key)
+  - [Alertmanager integration](#alertmanager-integration)
+  - [Percona Platform](#percona-platform)
+    - [Login](#login)
+    - [Sign up](#sign-up)
+    - [Password Reset](#password-reset)
+      - [Password Forgotten](#password-forgotten)
+      - [Change Password after Login](#change-password-after-login)
+  - [Communication](#communication)
+    - [Email](#email)
+    - [Slack](#slack)
 
 > <b style="color:goldenrod">Important</b> Click *Apply changes* to save any changes made here.
 
@@ -198,6 +215,28 @@ To create a *Percona Platform* account:
 A brief message will confirm the creation of your new account and you may now log in with these credentials.
 
 > Your Percona Platform account is separate from your PMM User account.
+
+### Password Reset
+
+#### Password Forgotten
+
+In case you forgot your password, click on the *Forgot password* link in the login page.
+
+You will be redirected to a password reset page. Enter the email you are registered with in the field and click on *Reset via Email*.
+
+![image](../_images/PMM_Settings_Percona_Platform_Password_Reset.jpg)
+
+An email with a link to reset your password will be sent to you.
+
+#### Change Password after Login
+
+If you did not forget your password but you still want to change it, go to <https://okta.percona.com/enduser/settings> (make sure you are logged in).
+
+![image](../_images/PMM_Settings_Percona_Platform_Password_Reset_Okta.jpg)
+
+Insert you current password and the new password in the form to the bottom right of the page. If you cannot see the form, you will need to click on the *Edit Profile* green button (you will be prompted for you password).
+
+Click on *Change Password*. If everything goes well, you will see a confirmation message.
 
 ## Communication
 

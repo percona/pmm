@@ -11,8 +11,10 @@ Here is an overview of the steps involved.
 
 ## Before you start
 
+Check that:
+
 - [PMM Server is installed](../server/index.md) and running with a known IP address accessible from the client node.
-- [PMM Client is installed](index.md) and the [node registered with PMM Server](index.md#register).
+- [PMM Client is installed](index.md) and the [node is registered with PMM Server](index.md#register).
 - You have superuser (root) access on the client host.
 - You have superuser access to any database servers that you want to monitor.
 
@@ -350,13 +352,7 @@ With the PMM user interface, you select *Use performance schema*, or deselect it
 
 ### On the command line
 
-1. Configure PMM Client (connect to example PMM Server at address `192.168.1.123`).
-
-	```sh
-	pmm-admin config --server-insecure-tls --server-url=https://192.168.1.123:443
-	```
-
-2. Add the database server as a service using one of these example commands. If successful, PMM Client will print `MySQL Service added` with the service's ID and name. Use the `--environment` and `-custom-labels` options to set tags for the service that help you distinguish them.
+Add the database server as a service using one of these example commands. If successful, PMM Client will print `MySQL Service added` with the service's ID and name. Use the `--environment` and `-custom-labels` options to set tags for the service to help identify them.
 
 **Examples -- TLS connection**
 
@@ -416,7 +412,7 @@ pmm-admin add mysql --environment=test --custom-labels='source=slowlog'  --usern
 
 **Check service - PMM user interface**
 
-1. Go to *PMM --> PMM Inventory*.
+1. Select {{icon.cog}} *Configuration-->PMM Inventory-->Inventory list*.
 2. Look in the *Services* tab for a matching *Service Type* (MySQL), *Service name*, *Addresses*, and any other details entered in the form.
 3. Look in the *Agents* tab to check the desired data source is being used.
 

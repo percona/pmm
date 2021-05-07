@@ -33,6 +33,12 @@ Here is an overview of the steps involved for each option.
 
 ## Install PMM Client with a package manager {: #package-manager }
 
+> **Tip** If you have used `percona-release` before, disable and re-enable the repository:
+> ```sh
+> sudo percona-release disable all
+> sudo percona-release enable original release
+> ```
+
 ### Install on Debian-based distributions
 
 1. Configure repositories.
@@ -49,6 +55,14 @@ Here is an overview of the steps involved for each option.
     sudo apt install -y pmm2-client
     ```
 
+3. Check.
+
+	```sh
+	pmm-admin --version
+	```
+
+4. [Register the node](#register).
+
 ### Install on Red Hat-based distributions
 
 1. Configure repositories.
@@ -63,11 +77,14 @@ Here is an overview of the steps involved for each option.
     sudo yum install -y pmm2-client
     ```
 
-> **Tip** If you have used `percona-release` before, disable and re-enable the repository:
-> ```sh
-> sudo percona-release disable all
-> sudo percona-release enable original release
-> ```
+3. Check.
+
+	```sh
+	pmm-admin --version
+	```
+
+4. [Register the node](#register).
+
 
 ## Download and install PMM Client packages manually {: #manual-package }
 
@@ -321,11 +338,25 @@ You can now add services with [`pmm-admin`](../../details/commands/pmm-admin.md)
     #        entrypoint: pmm-agent setup
     ```
 
-5. Run again.
+5. Run again, this time with the Docker *detach* option.
 
     ```sh
-    sudo docker-compose up
+    sudo docker-compose up -d
     ```
+
+6. Verify.
+
+    On the command line.
+
+    ```sh
+    sudo docker exec pmm-client pmm-admin status
+    ```
+
+    In the GUI.
+
+    - Select *{{icon.dashboards}} PMM Dashboards --> {{icon.node}} System (Node) --> {{icon.node}} Node Overview*
+    - In the *Node Names* menu, select the new node
+    - Change the time range to see data
 
 > <b style="color:goldenrod">Caution</b> `pmm-agent.yaml` contains sensitive credentials and should not be shared.
 
@@ -340,6 +371,19 @@ pmm-admin config --server-insecure-tls --server-url=https://admin:admin@X.X.X.X:
 - `X.X.X.X` is the address of your PMM Server.
 - `443` is the default port number.
 - `admin`/`admin` is the default PMM username and password. This is the same account you use to log into the PMM user interface, which you had the option to change when first logging in.
+
+
+**Examples**
+
+Register on PMM Server with IP address `192.168.33.14` using the default `admin/admin` username and password, a node with IP address `192.168.33.23`, type `generic`, and name `mynode`.
+
+```sh
+pmm-admin config --server-insecure-tls --server-url=https://admin:admin@192.168.33.14:443 192.168.33.23 generic mynode
+```
+
+
+
+
 
 ## Configure and add services {: #configure-add-services }
 

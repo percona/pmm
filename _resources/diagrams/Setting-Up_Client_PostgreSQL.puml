@@ -1,0 +1,45 @@
+' Diagram showing sequence of tasks to set up PMM Client for PostgreSQL
+' Syntax: https://plantuml.com/activity-diagram-beta
+' Icons: https://plantuml.com/openiconic
+' Colour: https://plantuml.com/color
+' Text: https://plantuml.com/creole
+@startuml "setting-up_client_postgresql"
+!include _resources/diagrams/plantuml_styles.puml
+'title "Setting up PMM Client to monitor a PostgreSQL host\nOverview\n"
+legend bottom left
+Legend
+<#cce6ff>| Required |
+<#lightgrey>| Optional |
+endlegend
+
+#lightgrey:Create a database\naccount for PMM;
+partition "Choose and configure\nan extension" {
+	split
+		-> ""pg_stat_statements"";
+		:Install\n""postgresql-contrib"";
+	split again
+		-> ""ps_stat_monitor"";
+		split
+			-> Percona distribution;
+			:Install with\nLinux package\nmanager;
+		split again
+			-> PostgreSQL;
+			:Compile from\nsource code;
+		end split
+	end split
+	:Configure extension;
+}
+partition "Add a service " {
+	split
+	-> With user interface;
+		:PMM <&arrow-thick-right>\nPMM Add Instance <&arrow-thick-right>\nPostgreSQL -\nAdd a remote instance;
+	split again
+	-> On command line;
+			:<code>
+			pmm-admin add postgresql
+			...
+			</code>;
+	end split
+}
+#lightgrey:Check the service;
+@enduml
