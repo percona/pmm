@@ -13,7 +13,7 @@ set -Eeuo pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
 # Set defaults.
-tag=${PMM_TAG:-"latest"}
+tag=${PMM_TAG:-"2"}
 repo=${PMM_REPO:-"percona/pmm-server"}
 port=${PMM_PORT:-443}
 container_name=${CONTAINER_NAME:-"pmm-server"}
