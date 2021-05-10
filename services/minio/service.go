@@ -18,7 +18,10 @@
 package minio
 
 import (
-	"github.com/minio/minio-go"
+	"context"
+
+	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 
 	"github.com/percona/pmm-managed/models"
 )
@@ -28,21 +31,21 @@ type Service struct {
 }
 
 // BucketExists return true if bucket can be accessed with provided credentials and exists.
-func (s *Service) BucketExists(endpoint, accessKey, secretKey, name string) (bool, error) {
+func (s *Service) BucketExists(ctx context.Context, endpoint, accessKey, secretKey, name string) (bool, error) {
 	minioClient, err := newClient(endpoint, accessKey, secretKey)
 	if err != nil {
 		return false, err
 	}
-	return minioClient.BucketExists(name)
+	return minioClient.BucketExists(ctx, name)
 }
 
 // GetBucketLocation retrieves bucket location by specified bucket name.
-func (s *Service) GetBucketLocation(endpoint, accessKey, secretKey, name string) (string, error) {
+func (s *Service) GetBucketLocation(ctx context.Context, endpoint, accessKey, secretKey, name string) (string, error) {
 	minioClient, err := newClient(endpoint, accessKey, secretKey)
 	if err != nil {
 		return "", err
 	}
-	return minioClient.GetBucketLocation(name)
+	return minioClient.GetBucketLocation(ctx, name)
 }
 
 func newClient(endpoint, accessKey, secretKey string) (*minio.Client, error) {
@@ -56,5 +59,8 @@ func newClient(endpoint, accessKey, secretKey string) (*minio.Client, error) {
 		secure = false
 	}
 
-	return minio.New(url.Host, accessKey, secretKey, secure)
+	return minio.New(url.Host, &minio.Options{
+		Secure: secure,
+		Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
+	})
 }

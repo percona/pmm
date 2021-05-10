@@ -17,6 +17,7 @@
 package backup
 
 import (
+	"context"
 	"time"
 
 	"github.com/percona/pmm-managed/models"
@@ -48,6 +49,6 @@ type jobsService interface {
 }
 
 type awsS3 interface {
-	GetBucketLocation(host string, accessKey, secretKey, name string) (string, error)
-	BucketExists(host string, accessKey, secretKey, name string) (bool, error)
+	GetBucketLocation(ctx context.Context, host string, accessKey, secretKey, name string) (string, error)
+	BucketExists(ctx context.Context, host string, accessKey, secretKey, name string) (bool, error)
 }
