@@ -345,8 +345,8 @@ When you remove a service, collected data remains on PMM Server for the specifie
     `--size-slow-logs=N`
     : Rotate slow log file at this size. If `0`, use server-defined default. Negative values disable log rotation. A unit suffix must be appended to the number and can be one of:
 
-		- `KB`, `kB`, `MB`, `mB`, `GB`, `gB`, `TB`, `tB` for base 10 units (1000, 1000000, etc);
-		- `KiB`, `MiB`, `GiB`, `TiB` for base 2 units (1024, 1048576, etc).
+        - `KB`, `kB`, `MB`, `mB`, `GB`, `gB`, `TB`, `tB` for base 10 units (1000, 1000000, etc);
+        - `KiB`, `MiB`, `GiB`, `TiB` for base 2 units (1024, 1048576, etc).
 
     `--disable-queryexamples`
     : Disable collection of query examples.
@@ -354,14 +354,14 @@ When you remove a service, collected data remains on PMM Server for the specifie
     `--disable-tablestats`
     : Disable table statistics collection.
 
-    	Excluded collectors for low-resolution time intervals:
+        Excluded collectors for low-resolution time intervals:
 
-	    - `--collect.auto_increment.columns`
-      - `--collect.info_schema.tables`
-      - `--collect.info_schema.tablestats`
-	    - `--collect.perf_schema.indexiowaits`
-	    - `--collect.perf_schema.tableiowaits`
-      - `--collect.perf_schema.file_instances`
+        - `--collect.auto_increment.columns`
+        - `--collect.info_schema.tables`
+        - `--collect.info_schema.tablestats`
+        - `--collect.perf_schema.indexiowaits`
+        - `--collect.perf_schema.tableiowaits`
+        - `--collect.perf_schema.file_instances`
 
 	Excluded collectors for medium-resolution time intervals:
 
@@ -400,6 +400,18 @@ When you remove a service, collected data remains on PMM Server for the specifie
 
     `--tls-ca-file=PATHTOCACERT`
     : Path to certificate authority file.
+
+    `--ssl-ca=PATHTOCACERT`
+    : The path name of the Certificate Authority (CA) certificate file. If used must specify the same certificate used by the server. (-ssl-capath is similar but specifies the path name of a directory of CA certificate files.)
+
+    `--ssl-cert=PATHTOCERTKEY`
+    : The path name of the client public key certificate file.
+
+    `--ssl-key`
+    : The path name of the client private key file.
+
+    `--ssl-skip-verify`
+    : Skip SSL certificate verification.
 
     `--metrics-mode=mode`
     : Metrics flow mode for agents node-exporter. Allowed values:
