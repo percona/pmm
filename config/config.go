@@ -29,6 +29,7 @@ import (
 	"github.com/percona/pmm/utils/nodeinfo"
 	"github.com/percona/pmm/version"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/sys/unix"
 	"gopkg.in/alecthomas/kingpin.v2"
 	"gopkg.in/yaml.v3"
 )
@@ -453,4 +454,9 @@ func SaveToFile(path string, cfg *Config, comment string) error {
 	res = append(res, "---\n"...)
 	res = append(res, b...)
 	return ioutil.WriteFile(path, res, 0640)
+}
+
+// IsWritable checks if specified path is writable.
+func IsWritable(path string) error {
+	return unix.Access(path, unix.W_OK)
 }

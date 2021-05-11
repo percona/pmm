@@ -17,6 +17,7 @@ package commands
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"time"
 
@@ -58,6 +59,11 @@ func Setup() {
 
 	if cfg.ID == "" && cfg.Setup.SkipRegistration {
 		fmt.Printf("Can't skip registration: pmm-agent ID is empty.\n")
+		os.Exit(1)
+	}
+
+	if err := config.IsWritable(configFilepath); err != nil {
+		fmt.Printf("Config file %s is not writable: %v.\n", configFilepath, err)
 		os.Exit(1)
 	}
 
@@ -135,12 +141,15 @@ func register(cfg *config.Config, l *logrus.Entry) {
 		msg := err.Error()
 		if e, _ := err.(*node.RegisterNodeDefault); e != nil {
 			msg = e.Payload.Error + ""
-			if e.Code() == 401 || e.Code() == 403 {
-				msg += ".\nPlease check username and password"
+			switch e.Code() {
+			case http.StatusConflict:
+				msg += " If you want override node, use --force option"
+			case http.StatusUnauthorized, http.StatusForbidden:
+				msg += "\nPlease check username and password"
 			}
 		}
 		if _, ok := err.(errFromNginx); ok {
-			msg += ".\nPlease check pmm-managed logs"
+			msg += ".\nPlease check pmm-managed logs."
 		}
 
 		fmt.Printf("Failed to register pmm-agent on PMM Server: %s.\n", msg)
