@@ -103,7 +103,7 @@ As well as via the *PMM Settings* page, you can also disable telemetry with the 
 
 > - If the Security Threat Tool is enabled in PMM Settings, Telemetry is automatically enabled.
 >
-> - Telemetry is sent immediately; the 24-hour grace period is not honored.
+> - Telemetry is sent immediately; the 24 hour grace period is not honored.
 
 ### Check for updates
 
