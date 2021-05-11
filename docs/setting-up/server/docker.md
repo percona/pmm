@@ -48,8 +48,7 @@ It is possible to change some server setting by using environment variables when
 Use `-e var=value` in your pmm-server run command.
 
 | Variable                   | Description                                                             |
-
-| -------------------------- | -------------------------                                               |
+| -------------------------- | ----------------------------------------------------------------------- |
 | `DISABLE_UPDATES`          | Disable automatic updates                                               |
 | `DISABLE_TELEMETRY`        | Disable built-in telemetry and disable STT if telemetry is disabled     |
 | `METRICS_RESOLUTION`       | High metrics resolution in seconds                                      |
