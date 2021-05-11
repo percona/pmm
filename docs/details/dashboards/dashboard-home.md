@@ -1,6 +1,6 @@
 # Home Dashboard
 
-![image](../../_images/PMM_Home_Dashboard.jpg)
+![!image](../../_images/PMM_Home_Dashboard.jpg)
 
 The Home Dashboard is a high-level overview of your environment, the starting page of the PMM portal from which you can open the tools of PMM, and browse to online resources.
 

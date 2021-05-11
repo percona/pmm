@@ -1,6 +1,6 @@
 # MongoDB Instances Overview
 
-![image](../../_images/PMM_MongoDB_Instances_Overview_full.jpg)
+![!image](../../_images/PMM_MongoDB_Instances_Overview_full.jpg)
 
 This dashboard provides basic information about MongoDB instances.
 

@@ -1,6 +1,6 @@
 # MySQL Group Replication Summary
 
-![image](../../_images/PMM_MySQL_Group_Replication_Summary_full.jpg)
+![!image](../../_images/PMM_MySQL_Group_Replication_Summary_full.jpg)
 
 
 ## Overview

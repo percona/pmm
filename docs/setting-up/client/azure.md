@@ -8,7 +8,7 @@ First of all, ensure that there is the minimal latency between PMM Server and th
 
 Second, add a firewall rule to enable access from PMM Client like this:
 
-![image](../../_images/azure-firewall.png)
+![!image](../../_images/azure-firewall.png)
 
 
 ## Setting up a MySQL instance
@@ -30,11 +30,11 @@ Follow the instructions for remotes instances explained [here](aws.md).
 
 Example:
 
-![image](../../_images/azure-add-mysql-1.png)
+![!image](../../_images/azure-add-mysql-1.png)
 
 and be sure to set *Performance Schema* as the query collection method for Query Analytics.
 
-![image](../../_images/azure-add-mysql-2.png)
+![!image](../../_images/azure-add-mysql-2.png)
 
 # MariaDB.
 
@@ -46,7 +46,7 @@ won't receive any query data.
 
 For PostgreSQL follow the same methods used for MySQL and MariaDB and enable `track_io_timing` in the instance configuration to enable Query Analytics.
 
-![image](../../_images/azure-postgresql-config.png)
+![!image](../../_images/azure-postgresql-config.png)
 
 For Query Analytics, set the server parameter:
 

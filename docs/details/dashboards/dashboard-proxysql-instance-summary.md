@@ -1,6 +1,6 @@
 # ProxySQL Instance Summary
 
-![image](../../_images/PMM_ProxySQL_Instance_Summary.jpg)
+![!image](../../_images/PMM_ProxySQL_Instance_Summary.jpg)
 
 ## Network Traffic
 

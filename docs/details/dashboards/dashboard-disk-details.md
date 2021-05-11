@@ -1,6 +1,6 @@
 # Disk Details
 
-![image](../../_images/PMM_Disk_Details.jpg)
+![!image](../../_images/PMM_Disk_Details.jpg)
 
 ## mount point Usage
 

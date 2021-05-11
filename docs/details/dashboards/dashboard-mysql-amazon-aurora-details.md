@@ -1,6 +1,6 @@
 # MySQL Amazon Aurora Details
 
-![image](../../_images/PMM_MySQL_Amazon_Aurora_Details_full.jpg)
+![!image](../../_images/PMM_MySQL_Amazon_Aurora_Details_full.jpg)
 
 ## Amazon Aurora Transaction Commits
 

@@ -1,6 +1,6 @@
 # PostgreSQL Instance Summary
 
-![image](../../_images/PMM_PostgreSQL_Instance_Summary.jpg)
+![!image](../../_images/PMM_PostgreSQL_Instance_Summary.jpg)
 
 ## Number of Temp Files
 

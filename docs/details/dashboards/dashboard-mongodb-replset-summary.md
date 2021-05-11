@@ -1,6 +1,6 @@
 # MongoDB ReplSet Summary
 
-![image](../../_images/PMM_MongoDB_ReplSet_Summary.jpg)
+![!image](../../_images/PMM_MongoDB_ReplSet_Summary.jpg)
 
 ## Replication Lag
 

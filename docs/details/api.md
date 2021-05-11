@@ -2,11 +2,11 @@
 
 PMM Server lets you visually interact with API resources representing all objects within PMM. You can browse the API using the [Swagger](https://swagger.io/tools/swagger-ui/) UI, accessible at the `/swagger/` endpoint URL:
 
-![image](../_images/PMM_Swagger_API.jpg)
+![!image](../_images/PMM_Swagger_API.jpg)
 
 Clicking an object lets you examine objects and execute requests on them:
 
-![image](../_images/PMM_Swagger_API_Execute.jpg)
+![!image](../_images/PMM_Swagger_API_Execute.jpg)
 
 The objects visible are nodes, services, and agents:
 

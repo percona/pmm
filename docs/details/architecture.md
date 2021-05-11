@@ -21,7 +21,7 @@ The PMM Server package provides:
 
 ## PMM Server
 
-![image](../_images/PMM_Architecture_Client_Server.jpg)
+![!image](../_images/PMM_Architecture_Client_Server.jpg)
 
 PMM Server includes the following tools:
 
@@ -39,7 +39,7 @@ PMM Server includes the following tools:
 
 ### PMM Client
 
-![image](../_images/diagram.pmm.client-architecture.png)
+![!image](../_images/diagram.pmm.client-architecture.png)
 
 The PMM Client package consist of the following:
 

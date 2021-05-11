@@ -1,6 +1,6 @@
 # PMM Inventory
 
-![image](../../_images/PMM_Inventory.jpg)
+![!image](../../_images/PMM_Inventory.jpg)
 
 The *Inventory* dashboard is a high level overview of all objects PMM “knows” about.
 
@@ -28,8 +28,8 @@ You can remove items from the inventory.
 
 2. In the first column, select the items to be removed.
 
-    ![image](../../_images/PMM_Inventory_Item_Selection.jpg)
+    ![!image](../../_images/PMM_Inventory_Item_Selection.jpg)
 
 3. Click *Delete*. The interface will ask you to confirm the operation:
 
-    ![image](../../_images/PMM_Inventory_Item_Delete.jpg)
+    ![!image](../../_images/PMM_Inventory_Item_Delete.jpg)

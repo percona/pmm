@@ -4,7 +4,7 @@ The *Settings* page is where you configure PMM.
 
 Open the *Settings* page from the [main menu](../details/interface.md#main-menu) with {{icon.cog}} *Configuration-->Settings*. The page opens with the *Metrics Resolution* settings tab selected.
 
-![image](../_images/PMM_Settings_Metrics_Resolution.jpg)
+![!image](../_images/PMM_Settings_Metrics_Resolution.jpg)
 
 On the left are the selector tabs:
 
@@ -44,7 +44,7 @@ Metrics are collected at three intervals representing low, medium and high resol
 
 The *Metrics Resolution* settings tab contains a radio button with three fixed presets (*Rare*, *Standard* and *Frequent*) and one editable custom preset (*Custom*).
 
-![image](../_images/PMM_Settings_Metrics_Resolution.jpg)
+![!image](../_images/PMM_Settings_Metrics_Resolution.jpg)
 
 Each preset is a group of low, medium and high resolutions. The values are in seconds.
 
@@ -194,7 +194,7 @@ This panel is where you create, and log into and out of your Percona Platform ac
 
 ### Login
 
-![image](../_images/PMM_Settings_Percona_Platform_Login.jpg)
+![!image](../_images/PMM_Settings_Percona_Platform_Login.jpg)
 
 If you have a *Percona Platform* account, enter your credentials and click *Login*.
 
@@ -202,7 +202,7 @@ Click *Sign out* to log out of your Percona Platform account.
 
 ### Sign up
 
-![image](../_images/PMM_Settings_Percona_Platform_Sign_Up.jpg)
+![!image](../_images/PMM_Settings_Percona_Platform_Sign_Up.jpg)
 
 To create a *Percona Platform* account:
 
@@ -224,7 +224,7 @@ In case you forgot your password, click on the *Forgot password* link in the log
 
 You will be redirected to a password reset page. Enter the email you are registered with in the field and click on *Reset via Email*.
 
-![image](../_images/PMM_Settings_Percona_Platform_Password_Reset.jpg)
+![!image](../_images/PMM_Settings_Percona_Platform_Password_Reset.jpg)
 
 An email with a link to reset your password will be sent to you.
 
@@ -232,7 +232,7 @@ An email with a link to reset your password will be sent to you.
 
 If you did not forget your password but you still want to change it, go to <https://okta.percona.com/enduser/settings> (make sure you are logged in).
 
-![image](../_images/PMM_Settings_Percona_Platform_Password_Reset_Okta.jpg)
+![!image](../_images/PMM_Settings_Percona_Platform_Password_Reset_Okta.jpg)
 
 Insert you current password and the new password in the form to the bottom right of the page. If you cannot see the form, you will need to click on the *Edit Profile* green button (you will be prompted for you password).
 
