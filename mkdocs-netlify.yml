@@ -85,10 +85,6 @@ extra: # Used in main.html template and can't be externalised
     edit_page_text: '<i class="uil uil-pen"></i> <b>Edit this page</b>'
     updated_text: '<i class="uil uil-refresh"></i> Page updated'
 
-
-
-
-
 nav:
   - Welcome: index.md
   - Setting up:
