@@ -2,7 +2,7 @@
 # See also mkdocs.yml plugins.with-pdf.cover_subtitle and output_path
 release: '2.17.0'
 version: '2.17'
-release_date: 2021-05-10
+release_date: 2021-05-11
 
 # Setting Up/Server/DBaaS operator versions
 op:
