@@ -2,8 +2,8 @@
 
 ## How can I contact the developers?
 
-- [Discord channel](https://discord.gg/qSRxH4Xu).
 - [Community forum](https://www.percona.com/forums/questions-discussions/percona-monitoring-and-management).
+- [Discord channel](https://discord.gg/qSRxH4Xu).
 - [PMM project in JIRA](https://jira.percona.com/projects/PMM).
 
 ## What are the minimum system requirements for PMM?

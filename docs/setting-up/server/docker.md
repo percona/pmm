@@ -34,10 +34,10 @@ We maintain a [Docker image for PMM Server][DOCKERHUB]. This section shows how t
     --volumes-from pmm-data --name pmm-server \
     percona/pmm-server:2
     ```
-    > Optionally you can enable http (insecure) by including `--publish 80:80` in the above docker run command however note that PMM Client *requires* TLS to communication with the server so will only work on the secure port. 
- 
+    > Optionally you can enable http (insecure) by including `--publish 80:80` in the above docker run command however note that PMM Client *requires* TLS to communication with the server so will only work on the secure port.
+
     You can disable manual updates via the Home Dashboard *PMM Upgrade* panel by adding `-e DISABLE_UPDATES=true` to the `docker run` command.
-   
+
 
 4. In a web browser, visit *https://server hostname*:443 (or *//server hostname*:80 if optionally enabled) to see the PMM user interface.
 
@@ -47,36 +47,36 @@ We maintain a [Docker image for PMM Server][DOCKERHUB]. This section shows how t
 It is possible to change some server setting by using environment variables when starting the Docker container.
 Use `-e var=value` in your pmm-server run command.
 
-|Variable|Description|
-|-----|-----|
-|`DISABLE_UPDATES`|Disable automatic updates|
-|`DISABLE_TELEMETRY`|Disable built-in telemetry and disable STT if telemetry is disabled|
-|`METRICS_RESOLUTION`|High metrics resolution in seconds|
-|`METRICS_RESOLUTION_HR`|High metrics resolution (same as above)|
-|`METRICS_RESOLUTION_MR`|Medium metrics resolution in seconds|
-|`METRICS_RESOLUTION_LR`|Low metrics resolution in seconds|
-|`DATA_RETENTION`|How many days to keep time-series data in ClickHouse|
-|`ENABLE_VM_CACHE`|Enable cache in VM|
-|`ENABLE_ALERTING`|Enable integrated alerting|
-|`ENABLE_AZUREDISCOVER`|Enable support for discovery of Azure databases|
-|`ENABLE_BACKUP_MANAGEMENT`|Enable integrated backup tools|
-|`PERCONA_TEST_SAAS_HOST`|SaaS server hostname|
-|`PERCONA_TEST_DBAAS`|Enable testing DBaaS features. (Will be deprecated in future versions.)|
-|`ENABLE_DBAAS`|Enable DBaaS features|
-|`PMM_DEBUG`|Enables a more verbose log level|
-|`PMM_TRACE`|Enables a more verbose log level including traceback information|
+| Variable                   | Description                                                             |
+| -------------------------- | ----------------------------------------------------------------------- |
+| `DISABLE_UPDATES`          | Disable automatic updates                                               |
+| `DISABLE_TELEMETRY`        | Disable built-in telemetry and disable STT if telemetry is disabled     |
+| `METRICS_RESOLUTION`       | High metrics resolution in seconds                                      |
+| `METRICS_RESOLUTION_HR`    | High metrics resolution (same as above)                                 |
+| `METRICS_RESOLUTION_MR`    | Medium metrics resolution in seconds                                    |
+| `METRICS_RESOLUTION_LR`    | Low metrics resolution in seconds                                       |
+| `DATA_RETENTION`           | How many days to keep time-series data in ClickHouse                    |
+| `ENABLE_VM_CACHE`          | Enable cache in VM                                                      |
+| `ENABLE_ALERTING`          | Enable integrated alerting                                              |
+| `ENABLE_AZUREDISCOVER`     | Enable support for discovery of Azure databases                         |
+| `ENABLE_BACKUP_MANAGEMENT` | Enable integrated backup tools                                          |
+| `PERCONA_TEST_SAAS_HOST`   | SaaS server hostname                                                    |
+| `PERCONA_TEST_DBAAS`       | Enable testing DBaaS features. (Will be deprecated in future versions.) |
+| `ENABLE_DBAAS`             | Enable DBaaS features                                                   |
+| `PMM_DEBUG`                | Enables a more verbose log level                                        |
+| `PMM_TRACE`                | Enables a more verbose log level including trace-back information       |
 
 #### Ignored variables
 These variables will be ignored by `pmm-managed` when starting the server. If any other variable is found,
 it will be considered invalid and the server won't start.
 
-|Variable|Description|
-|-----|-----|
-|`_`, `HOME`, `HOSTNAME`, `LANG`, `PATH`, `PWD`, `SHLVL`, `TERM`|Default environment variables|
-|`GF_*`|Grafana's environment variables|
-|`SUPERVISOR_`|Supervisord environment variables|
-|`PERCONA_TEST_`|Unknown variable but won't prevent the server to start|
-|`PERCONA_TEST_DBAAS`|Deprecated. Use ENABLE_DBAAS|
+| Variable                                                        | Description                                            |
+| --------------------------------------------------------------- | ------------------------------------------------------ |
+| `_`, `HOME`, `HOSTNAME`, `LANG`, `PATH`, `PWD`, `SHLVL`, `TERM` | Default environment variables                          |
+| `GF_*`                                                          | Grafana's environment variables                        |
+| `SUPERVISOR_`                                                   | Supervisord environment variables                      |
+| `PERCONA_TEST_`                                                 | Unknown variable but won't prevent the server to start |
+| `PERCONA_TEST_DBAAS`                                            | Deprecated. Use `ENABLE_DBAAS`                         |
 
 
 ## Backup and upgrade

@@ -184,6 +184,7 @@ nav:
   - faq.md
   - Release Notes:
       - release-notes/index.md
+      - release-notes/2.17.0.md
       - release-notes/2.16.0.md
       - release-notes/2.15.1.md
       - release-notes/2.15.0.md

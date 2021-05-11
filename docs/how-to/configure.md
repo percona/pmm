@@ -103,7 +103,7 @@ As well as via the *PMM Settings* page, you can also disable telemetry with the 
 
 > - If the Security Threat Tool is enabled in PMM Settings, Telemetry is automatically enabled.
 >
-> - Telemetry is sent immediately; the 24-hour grace period is not honored.
+> - Telemetry is sent immediately; the 24 hour grace period is not honored.
 
 ### Check for updates
 
@@ -145,9 +145,12 @@ The address or hostname PMM Server will be accessible at. Click *Get from browse
 
 ### DBaaS
 
-Enables DBaaS features on this server.
-
 > <b style="color:goldenrod">Caution</b> DBaaS functionality is a technical preview that must be turned on with a server feature flag. See [DBaaS](../setting-up/server/dbaas.md).
+
+Enables/disables [DBaaS features](../using/platform/dbaas.md) on this server.
+
+> <b style="color:goldenrod">Important</b> Deactivating DBaaS ***does not*** suspend or remove running DB clusters.
+
 
 ### Integrated Alerting
 
