@@ -4,7 +4,7 @@ You can run an instance of PMM Server hosted at AWS Marketplace.
 
 Assuming that you have an AWS (Amazon Web Services) account, locate *Percona Monitoring and Management Server* in [AWS Marketplace](https://aws.amazon.com/marketplace) (or use [this link]({{ extra.server_aws }})).
 
-![](../../_images/PMM_AWS_Marketplace.png)
+![!](../../_images/PMM_AWS_Marketplace.png)
 
 Selecting a region and instance type in the *Pricing Information* section will give you an estimate of the costs involved. This is only an indication of costs. You will choose regions and instance types in later steps.
 

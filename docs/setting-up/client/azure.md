@@ -58,7 +58,7 @@ pg_stat_statements.track = all
 
 You need to get the Client ID, Client Secret, Tenant ID and Subscription ID.
 
-![](../../_images/PMM_Add_Instance_Azure_1.png)
+![!](../../_images/PMM_Add_Instance_Azure_1.png)
 
 You can follow the steps here: <https://www.inkoop.io/blog/how-to-get-azure-api-credentials/>
 
@@ -72,7 +72,7 @@ Navigate to:
 
 When you fill in all fields press the *Discover* button and you will see a list of available databases for monitoring.
 
-![](../../_images/PMM_Add_Instance_Azure_2.png)
+![!](../../_images/PMM_Add_Instance_Azure_2.png)
 
 You can monitor 6 types of databases:
 
@@ -90,13 +90,13 @@ You can find more details on how to create DB on Azure at:
 
 > You will need to set `pg_stat_statements.track = all` in you PostgreSQL Server settings to use PMM Query Analytics
 
-![](../../_images/PMM_Add_Instance_Azure_3.png)
+![!](../../_images/PMM_Add_Instance_Azure_3.png)
 
 In the list of databases on the Discovery page click *Start Monitoring* to add the selected Azure Database to PMM.
 
 Fill in all required fields and click *Add service*.
 
-![](../../_images/PMM_Add_Instance_Azure_4.png)
+![!](../../_images/PMM_Add_Instance_Azure_4.png)
 
 PMM can use 3 exporters to collect metrics:
 

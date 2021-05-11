@@ -10,7 +10,7 @@ Checks are automatically downloaded from Percona Platform and run every 24 hours
 
 The *Failed security checks* panel on the *Home Dashboard* shows the number of failed checks classed as *critical* (red), *major* (amber), and *trivial* (blue).
 
-![Failed security checks panel](../../_images/PMM_Home_Dashboard_Panels_Failed_Security_Checks.jpg)
+![!Failed security checks panel](../../_images/PMM_Home_Dashboard_Panels_Failed_Security_Checks.jpg)
 
 > **Key**
 >
@@ -18,7 +18,7 @@ The *Failed security checks* panel on the *Home Dashboard* shows the number of f
 
 Details are in the *PMM Database Checks* dashboard (select *PMM-->PMM Database Checks*).
 
-![PMM Database Checks dashboard](../../_images/PMM_Database_Checks.jpg)
+![!PMM Database Checks dashboard](../../_images/PMM_Database_Checks.jpg)
 
 ## How to enable
 

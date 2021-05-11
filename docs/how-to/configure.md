@@ -69,7 +69,7 @@ Values for the *Custom* preset can be entered as values, or changed with the arr
 
 ## Advanced Settings
 
-![](../_images/PMM_Settings_Advanced_Settings.png)
+![!](../_images/PMM_Settings_Advanced_Settings.png)
 
 ### Data Retention
 
@@ -131,11 +131,11 @@ Checks use the *Standard* interval by default. To change a check's interval:
 - Select *All Checks*
 - In the *Actions* column, select the {{icon.history}} icon
 
-    ![](../_images/PMM_Security_Checks_Actions.png)
+    ![!](../_images/PMM_Security_Checks_Actions.png)
 
 - Select an interval and click *Save*
 
-    ![](../_images/PMM_Security_Checks_Actions_Set_Interval.png)
+    ![!](../_images/PMM_Security_Checks_Actions_Set_Interval.png)
 
 (Read more at [Security Threat Tool](../using/platform/security-threat-tool.md).)
 
@@ -171,7 +171,7 @@ Public address for accessing DBaaS features on this server.
 
 This section lets you upload your public SSH key to access the PMM Server via SSH (for example, when accessing PMM Server as a [virtual appliance](../setting-up/server/virtual-appliance.md)).
 
-![](../_images/PMM_Settings_SSH_Key.jpg)
+![!](../_images/PMM_Settings_SSH_Key.jpg)
 
 Enter your **public key** in the *SSH Key* field and click *Apply SSH Key*.
 
@@ -184,7 +184,7 @@ This section lets you configure integration of VictoriaMetrics with an external 
 - The *Alertmanager URL* field should contain the URL of the Alertmanager which would serve your PMM alerts.
 - The *Prometheus Alerting rules* field is used to specify alerting rules in the YAML configuration format.
 
-![](../_images/PMM_Settings_Alertmanager_Integration.jpg)
+![!](../_images/PMM_Settings_Alertmanager_Integration.jpg)
 
 Fill both fields and click the *Apply Alertmanager settings* button to proceed.
 
@@ -244,7 +244,7 @@ Global communications settings for [Integrated Alerting](../using/alerting.md).
 
 > If there is no *Communication* tab, go to the *Advanced Settings* tab and activate *Integrated Alerting*.
 
-![](../_images/PMM_Settings_Communication.png)
+![!](../_images/PMM_Settings_Communication.png)
 
 (Integrated Alerting uses a separate instance of Alertmanager run by `pmm-managed`.)
 
@@ -265,7 +265,7 @@ Settings for the SMTP email server:
 
 ### Slack
 
-![](../_images/PMM_Settings_Communication_Slack.png)
+![!](../_images/PMM_Settings_Communication_Slack.png)
 
 Settings for Slack notifications:
 

@@ -10,4 +10,4 @@ Annotations show as a vertical dashed line on a dashboard graph. Reveal the anno
 
 You turn annotations on or off with the *PMM Annotations* switch in the second row menu bar.
 
-![PMM Annotations switch](../_images/PMM_Common_Controls_Annotation_Toggle.jpg)
+![!PMM Annotations switch](../_images/PMM_Common_Controls_Annotation_Toggle.jpg)
