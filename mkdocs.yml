@@ -76,6 +76,7 @@ extra: # Used in main.html template and can't be externalised
     updated_text: '<i class="uil uil-refresh"></i> Page updated'
     version:
       provider: mike
+
 nav:
   - Welcome: index.md
   - Setting up:
