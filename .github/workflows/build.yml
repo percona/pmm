@@ -52,6 +52,7 @@ jobs:
         if: github.ref == 'refs/heads/main'
         run: |
           PATH=$PATH:_resources/bin mike deploy 2.x -p
+          mike set-default 2.x -p
           mike retitle 2.x "PMM2 (LATEST)" -p
 
       - name: Install Node.js 14.x
