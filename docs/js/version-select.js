@@ -1,3 +1,7 @@
+/*
+ * Custom version of same taken from mike code for injecting version switcher into percona.com
+*/
+
 window.addEventListener("DOMContentLoaded", function() {
   // This is a bit hacky. Figure out the base URL from a known CSS file the
   // template refers to...
