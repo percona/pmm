@@ -164,15 +164,21 @@ You can now [add the service](#add-a-service).
 
     > See [`pg_stat_monitor` GitHub repository](https://github.com/percona/pg_stat_monitor/blob/master/docs/USER_GUIDE.md#configuration) for details about available parameters.
 
-3. Restart the database server.
+3. Set bucket time to 60 seconds
 
-4. Create the extension. In a `psql` session:
+	```
+	ALTER SYSTEM SET pg_stat_monitor.pgsm_bucket_time=60;
+	```
+
+4. Start or restart your PostgreSQL instance.    
+
+5. In a `psql` session:
 
     ```sql
     CREATE EXTENSION pg_stat_monitor;
     ```
 
-5. Check the version.
+6. Check the version.
 
     ```sql
     SELECT pg_stat_monitor_version();

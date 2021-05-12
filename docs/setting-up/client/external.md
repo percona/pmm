@@ -64,13 +64,16 @@ Please see more details here: https://prometheus.io/docs/instrumenting/writing_e
 ### Examples
 
 ```sh
-root@mysql1:~# pmm-admin add external --group=processess  --listen-port=9256
+root@mysql1:~# pmm-admin add external --group=processes  --listen-port=9256
 External Service added.
 Service ID  : /service_id/6485f4fd-745b-4dfb-8b72-328e300f8b50
-Service name: mysql1-processess
-Group       : processess
+Service name: mysql1-processes
+Group       : processes
 ```
-Add exporter running on local port 9256 to the group called "processess"  use group name and host name to automatically generate service name.  Use default scheme and metrics path.
+
+- Add an exporter running on local port 9256 to the group called `processes`.
+- Use the group and host names to automatically generate a service name.
+- Use the default scheme and metrics path.
 
 ## Adding an External service via UI
 
@@ -84,8 +87,8 @@ Add exporter running on local port 9256 to the group called "processess"  use gr
 
     The endpoint can be set manually:
 
-    ![!](../../_images/PMM_External_Serverless_switcher_manually.png)
+    ![](../../_images/PMM_External_Serverless_switcher_manually.png)
 
     or by parsing required data from a URL string, in which case you only need to pass a valid URL.
 
-    ![!](../../_images/PMM_External_Serverless_switcher.png)
+    ![](../../_images/PMM_External_Serverless_switcher.png)

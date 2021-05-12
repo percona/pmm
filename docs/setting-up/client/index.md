@@ -284,6 +284,12 @@ You can now add services with [`pmm-admin`](../../details/commands/pmm-admin.md)
     docker rmi $(docker images | grep "percona/pmm-client" | awk {'print $3'})
     ```
 
+4. Remove the volume.
+
+   ```sh
+   docker volume rm pmm-client-data
+   ```
+
 ## Run PMM Client with Docker compose {: #docker-compose }
 
 1. Copy and paste this text into a file called `docker-compose.yml`.
@@ -306,6 +312,7 @@ You can now add services with [`pmm-admin`](../../details/commands/pmm-admin.md)
             max-file: "5"
         volumes:
           - ./pmm-agent.yaml:/etc/pmm-agent.yaml
+          - pmm-client-data:/srv
         environment:
           - PMM_AGENT_CONFIG_FILE=/etc/pmm-agent.yaml
           - PMM_AGENT_SERVER_USERNAME=admin
@@ -313,6 +320,8 @@ You can now add services with [`pmm-admin`](../../details/commands/pmm-admin.md)
           - PMM_AGENT_SERVER_ADDRESS=X.X.X.X:443
           - PMM_AGENT_SERVER_INSECURE_TLS=true
         entrypoint: pmm-agent setup
+    volumes:
+      pmm-client-data:
     ```
 
     > - Check the values in the `environment` section match those for your PMM Server. (`X.X.X.X` is the IP address of your PMM Server.)
