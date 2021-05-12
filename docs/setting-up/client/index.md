@@ -284,6 +284,12 @@ You can now add services with [`pmm-admin`](../../details/commands/pmm-admin.md)
     docker rmi $(docker images | grep "percona/pmm-client" | awk {'print $3'})
     ```
 
+4. Remove the volume.
+
+   ```sh
+   docker volume rm pmm-client-data
+   ```
+
 ## Run PMM Client with Docker compose {: #docker-compose }
 
 1. Copy and paste this text into a file called `docker-compose.yml`.
