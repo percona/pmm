@@ -1,4 +1,4 @@
-# MkDocs configuration for PDF output only
+# MkDocs configuration for PDF output with Percona theme -- see _resources/templates/styles.scss
 
 site_name: Percona Monitoring and Management
 site_description: Documentation
