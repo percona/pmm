@@ -15,7 +15,7 @@ For MongoDB monitoring services to work in Query Analytics, you need to set up t
 Here is an example for the MongoDB shell that creates and assigns the appropriate roles to the user.
 
 ```js
-db.createRole({
+db.getSiblingDB("admin").createRole({
     role: "explainRole",
     privileges: [{
         resource: {
