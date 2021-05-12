@@ -34,13 +34,6 @@ theme:
 extra_css:
   - https://unicons.iconscout.com/release/v3.0.3/css/line.css
   - https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css
-  - css/version-select.css
-  - css/toctree.css
-  - css/percona.css
-
-extra_javascript:
-  - js/version-select.js
-  - js/toctree.js
 
 markdown_extensions:
   - attr_list
@@ -80,7 +73,8 @@ extra: # Used in main.html template and can't be externalised
     open_issue_tooltip: 'Report an issue with this page on GitHub'
     edit_page_text: '<i class="uil uil-pen"></i> <b>Edit this page</b>'
     updated_text: '<i class="uil uil-refresh"></i> Page updated'
-
+    version:
+      provider: mike
 nav:
   - Welcome: index.md
   - Setting up:
