@@ -458,5 +458,13 @@ func SaveToFile(path string, cfg *Config, comment string) error {
 
 // IsWritable checks if specified path is writable.
 func IsWritable(path string) error {
+	_, err := os.Stat(path)
+	if err != nil {
+		// File doesn't exists, check if folder is writable.
+		if os.IsNotExist(err) {
+			return unix.Access(filepath.Dir(path), unix.W_OK)
+		}
+		return err
+	}
 	return unix.Access(path, unix.W_OK)
 }
