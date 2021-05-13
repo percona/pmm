@@ -1,6 +1,6 @@
 # PXC/Galera Node Summary
 
-![image](../../_images/PMM_PXC_Galera_Node_Summary.jpg)
+![!image](../../_images/PMM_PXC_Galera_Node_Summary.jpg)
 
 ## Galera Replication Latency
 

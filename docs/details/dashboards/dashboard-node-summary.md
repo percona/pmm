@@ -1,6 +1,6 @@
 # Node Summary
 
-![image](../../_images/PMM_Node_Summary.jpg)
+![!image](../../_images/PMM_Node_Summary.jpg)
 
 ## System Summary
 

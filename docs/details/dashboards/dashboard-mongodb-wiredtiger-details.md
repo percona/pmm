@@ -1,6 +1,6 @@
 # MongoDB WiredTiger Details
 
-![image](../../_images/PMM_MongoDB_WiredTiger_Details.jpg)
+![!image](../../_images/PMM_MongoDB_WiredTiger_Details.jpg)
 
 ## WiredTiger Transactions
 

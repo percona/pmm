@@ -4,7 +4,7 @@ You can run an instance of PMM Server hosted at AWS Marketplace.
 
 Assuming that you have an AWS (Amazon Web Services) account, locate *Percona Monitoring and Management Server* in [AWS Marketplace](https://aws.amazon.com/marketplace) (or use [this link]({{ extra.server_aws }})).
 
-![](../../_images/PMM_AWS_Marketplace.png)
+![!](../../_images/PMM_AWS_Marketplace.png)
 
 Selecting a region and instance type in the *Pricing Information* section will give you an estimate of the costs involved. This is only an indication of costs. You will choose regions and instance types in later steps.
 
@@ -44,11 +44,11 @@ Percona Monitoring and Management Server is provided at no cost, but you may nee
 
 In the *Security Group* section, which acts like a firewall, you may use the preselected option `Create new based on seller settings` to create a security group with recommended settings. In the *Key Pair* select an already set up EC2 key pair to limit access to your instance.
 
-![image](../../_images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.3.png)
+![!image](../../_images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.3.png)
 
 > It is important that the security group allow communication via the the following ports: *22*, *80*, and *443*. PMM should also be able to access port *3306* on the RDS that uses the instance.
 
-![image](../../_images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.2.png)
+![!image](../../_images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.2.png)
 
 ## Applying settings
 
@@ -56,7 +56,7 @@ Scroll up to the top of the page to view your settings. Then, click the *Launch 
 
 Your instance settings are summarized in a special area. Click the Launch with 1 click button to continue.
 
-![image](../../_images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.3.png)
+![!image](../../_images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.3.png)
 
 > The *Launch with 1 click* button may alternatively be titled as *Accept Software Terms & Launch with 1-Click*.
 
@@ -66,7 +66,7 @@ Your clicking the *Launch with 1 click* button, deploys your instance. To contin
 
 Your instance appears in the EC2 console in a table that lists all instances available to you. When a new instance is only created, it has no name. Make sure that you give it a name to distinguish from other instances managed via the EC2 console.
 
-![image](../../_images/aws-marketplace.ec2-console.pmm.1.png)
+![!image](../../_images/aws-marketplace.ec2-console.pmm.1.png)
 
 ## Running the instance
 
@@ -76,23 +76,23 @@ After you add your new instance it will take some time to initialize it. When th
 
 With your instance selected, open its IP address in a web browser. The IP address appears in the *IPv4 Public IP* column or as value of the *Public IP* field at the top of the *Properties* panel.
 
-![image](../../_images/aws-marketplace.pmm.ec2.properties.png)
+![!image](../../_images/aws-marketplace.pmm.ec2.properties.png)
 
 To run the instance, copy and paste its public IP address to the location bar of your browser. In the *Percona Monitoring and Management* welcome page that opens, enter the instance ID.
 
-![image](../../_images/installation-wizard.ami.instance-id-verification.png)
+![!image](../../_images/installation-wizard.ami.instance-id-verification.png)
 
 You can copy the instance ID from the *Properties* panel of your instance, select the *Description* tab back in the EC2 console. Click the *Copy* button next to the *Instance ID* field. This button appears as soon as you hover the cursor of your mouse over the ID.
 
 Hover the cursor over the instance ID for the Copy button to appear.
 
-![image](../../_images/aws-marketplace.pmm.ec2.properties.instance-id.png)
+![!image](../../_images/aws-marketplace.pmm.ec2.properties.instance-id.png)
 
 Paste the instance in the *Instance ID* field of the *Percona Monitoring and Management* welcome page and click *Submit*.
 
 PMM Server provides user access control, and therefore you will need user credentials to access it:
 
-![image](../../_images/PMM_Login.jpg)
+![!image](../../_images/PMM_Login.jpg)
 
 - Default user name: ``admin``
 - Default password: ``admin``
@@ -101,7 +101,7 @@ You will be prompted to change the default password every time you log in.
 
 The PMM Server is now ready and the home page opens.
 
-![image](../../_images/PMM_Home_Dashboard.jpg)
+![!image](../../_images/PMM_Home_Dashboard.jpg)
 
 You are creating a username and password that will be used for two purposes:
 
@@ -312,12 +312,12 @@ To expand the existing EBS volume for increased capacity, follow these steps.
 
 1. Find the instance in the EC2 Console
 
-![image](../../_images/aws-marketplace.pmm.ec2.remove1.png)
+![!image](../../_images/aws-marketplace.pmm.ec2.remove1.png)
 
 2. Select "Instance state" menu and "Terminate instance"
 
-![image](../../_images/aws-marketplace.pmm.ec2.remove2.png)
+![!image](../../_images/aws-marketplace.pmm.ec2.remove2.png)
 
 3. Confirm termination operation
 
-![image](../../_images/aws-marketplace.pmm.ec2.remove3.png)
+![!image](../../_images/aws-marketplace.pmm.ec2.remove3.png)

@@ -1,5 +1,5 @@
 # MySQL TokuDB Details
 
-![image](../../_images/PMM_MySQL_TokuDB_Details.jpg)
+![!image](../../_images/PMM_MySQL_TokuDB_Details.jpg)
 
 No description

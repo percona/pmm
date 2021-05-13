@@ -1,6 +1,6 @@
 # Prometheus Exporters Overview
 
-![image](../../_images/PMM_Prometheus_Exporters_Overview.jpg)
+![!image](../../_images/PMM_Prometheus_Exporters_Overview.jpg)
 
 ## Prometheus Exporters Summary
 

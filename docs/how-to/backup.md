@@ -5,12 +5,12 @@
 3. Click *Apply changes*
 4. In the left menu bar, click *{{icon.history}}-->Backup*
 
-    ![](../_images/PMM_Backup_Management.jpg)
+    ![!](../_images/PMM_Backup_Management.jpg)
 
 5. Click *Add*
 6. Fill in the form fields
 
-    ![](../_images/PMM_Backup_Management_Locations_Add_Storage_Location.jpg)
+    ![!](../_images/PMM_Backup_Management_Locations_Add_Storage_Location.jpg)
 
     - *Name*:
     - *Description*:

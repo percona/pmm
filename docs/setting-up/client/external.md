@@ -29,11 +29,11 @@ Here are the differences between `external` and `external-serverless` types.
 
 Connection schema of external exporter:
 
-![](../../_images/PMM_External_Exporter_Schema.jpg)
+![!](../../_images/PMM_External_Exporter_Schema.jpg)
 
 Connection schema of external serverless exporter:
 
-![](../../_images/PMM_External_Serverless_Exporter_Schema.jpg)
+![!](../../_images/PMM_External_Serverless_Exporter_Schema.jpg)
 
 
 ## How I can add something not supported by PMM
@@ -44,7 +44,7 @@ From this point, PMM will collect and store available metrics.
 
 To browse and visualize collected metrics as a first step, we can look at the Advanced Data Exploration dashboard and select informative services and metrics.
 
-![](../../_images/PMM_Exploration_Dashboard.jpg)
+![!](../../_images/PMM_Exploration_Dashboard.jpg)
 
 Another way is to create a [new Grafana Dashboard to PMM as needed](https://grafana.com/docs/grafana/latest/best-practices/best-practices-for-creating-dashboards/).
 
@@ -81,7 +81,7 @@ Group       : processes
 
 2. Select *External Service -- Add a remote instance*.
 
-    ![](../../_images/PMM_External_Serverless.png)
+    ![!](../../_images/PMM_External_Serverless.png)
 
 3. Fill the form and set the external service endpoint.
 

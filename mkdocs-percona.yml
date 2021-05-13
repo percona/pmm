@@ -23,10 +23,12 @@ extra_css:
   - css/version-select.css
   - css/toctree.css
   - css/percona.css
+  - css/lightgallery.min.cs
 
 extra_javascript:
   - js/version-select.js
   - js/toctree.js
+  - js/lightgallery.min.js
 
 markdown_extensions:
   - attr_list
@@ -45,6 +47,7 @@ markdown_extensions:
   - pymdownx.highlight:
         linenums: false
   - plantuml_markdown
+  - lightgallery
 
 plugins:
   - search

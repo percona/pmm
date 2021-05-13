@@ -46,7 +46,7 @@ At the moment, PMM Server can't render dashboard images exported by Grafana with
 
 3. Select *Share* to reveal the *Share Panel*.
 
-    ![image](../_images/PMM_Common_Panel_Menu_Share.jpg)
+    ![!image](../_images/PMM_Common_Panel_Menu_Share.jpg)
 
 4. Click *Direct link rendered image*.
 
@@ -54,4 +54,4 @@ At the moment, PMM Server can't render dashboard images exported by Grafana with
 
 If the necessary plugins are not installed, a message in the Share Panel will say so.
 
-![image](../_images/PMM_Common_Panel_Menu_Share_Link_Missing_Plugins.jpg)
+![!image](../_images/PMM_Common_Panel_Menu_Share_Link_Missing_Plugins.jpg)

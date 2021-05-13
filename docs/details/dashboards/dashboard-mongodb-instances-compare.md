@@ -1,6 +1,6 @@
 # MongoDB Instances Compare
 
-![image](../../_images/PMM_MongoDB_Instances_Compare.jpg)
+![!image](../../_images/PMM_MongoDB_Instances_Compare.jpg)
 
 ## Connections
 

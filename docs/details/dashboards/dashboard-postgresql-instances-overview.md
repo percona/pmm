@@ -1,6 +1,6 @@
 # PostgreSQL Instances Overview
 
-![image](../../_images/PMM_PostgreSQL_Instances_Overview_full.jpg)
+![!image](../../_images/PMM_PostgreSQL_Instances_Overview_full.jpg)
 
 ## Connected
 

@@ -1,6 +1,6 @@
 # MySQL Table Details
 
-![image](../../_images/PMM_MySQL_Table_Details.jpg)
+![!image](../../_images/PMM_MySQL_Table_Details.jpg)
 
 ## Largest Tables
 

@@ -1,6 +1,6 @@
 # MongoDB Instance Summary
 
-![image](../../_images/PMM_MongoDB_Instance_Summary.jpg)
+![!image](../../_images/PMM_MongoDB_Instance_Summary.jpg)
 
 ## Command Operations
 

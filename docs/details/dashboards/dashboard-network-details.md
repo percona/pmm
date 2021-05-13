@@ -1,6 +1,6 @@
 # Network Details
 
-![image](../../_images/PMM_Network_Details.jpg)
+![!image](../../_images/PMM_Network_Details.jpg)
 
 ## Last Hour Statistic
 

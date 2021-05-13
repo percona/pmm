@@ -50,4 +50,4 @@ You can also add HAProxy by UI in Grafana. Add instance.
 
 HAProxy data is visible in the *Advanced Data Exploration* dashboard:
 
-![](../../_images/PMM_Advanced_Data_Exploration_HAProxy.png)
+![!](../../_images/PMM_Advanced_Data_Exploration_HAProxy.png)

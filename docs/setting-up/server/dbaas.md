@@ -225,37 +225,37 @@ You should have an account on GCP [https://cloud.google.com/](https://cloud.goog
 
 2. Navigate to Menu --> Kubernetes Engine --> Clusters
 
-    ![](../../_images/PMM_DBaaS_GKE_1.png)
+    ![!](../../_images/PMM_DBaaS_GKE_1.png)
 
 3. Click button Create cluster
 
-    ![](../../_images/PMM_DBaaS_GKE_2.png)
+    ![!](../../_images/PMM_DBaaS_GKE_2.png)
 
 4. You can specify cluster option in form or simply click on “My first cluster” and button Create
 
-    ![](../../_images/PMM_DBaaS_GKE_3.png)
+    ![!](../../_images/PMM_DBaaS_GKE_3.png)
 
-    ![](../../_images/PMM_DBaaS_GKE_4.png)
+    ![!](../../_images/PMM_DBaaS_GKE_4.png)
 
 5. Wait until cluster created
 
-    ![](../../_images/PMM_DBaaS_GKE_5.png)
+    ![!](../../_images/PMM_DBaaS_GKE_5.png)
 
 6. Click on button Connect in a the cluster’s row
 
-    ![](../../_images/PMM_DBaaS_GKE_6.png)
+    ![!](../../_images/PMM_DBaaS_GKE_6.png)
 
 7. Click button Run in Cloud shell
 
-    ![](../../_images/PMM_DBaaS_GKE_7.png)
+    ![!](../../_images/PMM_DBaaS_GKE_7.png)
 
 8. Click Authorize
 
-    ![](../../_images/PMM_DBaaS_GKE_8.png)
+    ![!](../../_images/PMM_DBaaS_GKE_8.png)
 
-    ![](../../_images/PMM_DBaaS_GKE_9.png)
+    ![!](../../_images/PMM_DBaaS_GKE_9.png)
 
-    ![](../../_images/PMM_DBaaS_GKE_10.png)
+    ![!](../../_images/PMM_DBaaS_GKE_10.png)
 
 9. Set up PXC and PSMDB operators:
 
@@ -264,7 +264,7 @@ You should have an account on GCP [https://cloud.google.com/](https://cloud.goog
     curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-server-mongodb-operator/pmm-branch/deploy/bundle.yaml  | kubectl apply -f -
     ```
 
-    ![](../../_images/PMM_DBaaS_GKE_11.png)
+    ![!](../../_images/PMM_DBaaS_GKE_11.png)
 
 10. Check if it was set up successfully
 
@@ -273,7 +273,7 @@ You should have an account on GCP [https://cloud.google.com/](https://cloud.goog
     kubectl api-resources --api-group='pxc.percona.com'
     ```
 
-    ![](../../_images/PMM_DBaaS_GKE_12.png)
+    ![!](../../_images/PMM_DBaaS_GKE_12.png)
 
 11. Check versions
 
@@ -281,7 +281,7 @@ You should have an account on GCP [https://cloud.google.com/](https://cloud.goog
     kubectl api-versions | grep percona.com
     ```
 
-    ![](../../_images/PMM_DBaaS_GKE_13.png)
+    ![!](../../_images/PMM_DBaaS_GKE_13.png)
 
 12. Create Service Account, copy and store kubeconfig - output of the following command
 
@@ -324,7 +324,7 @@ You should have an account on GCP [https://cloud.google.com/](https://cloud.goog
     server=`kubectl cluster-info | grep 'Kubernetes master' | cut -d ' ' -f 6`
     ```
 
-    ![](../../_images/PMM_DBaaS_GKE_14.png)
+    ![!](../../_images/PMM_DBaaS_GKE_14.png)
 
 
     ```
@@ -349,7 +349,7 @@ You should have an account on GCP [https://cloud.google.com/](https://cloud.goog
     "
     ```
 
-    ![](../../_images/PMM_DBaaS_GKE_15.png)
+    ![!](../../_images/PMM_DBaaS_GKE_15.png)
 
 13. Start PMM Server on you local machine or other VM instance:
 
@@ -360,15 +360,15 @@ You should have an account on GCP [https://cloud.google.com/](https://cloud.goog
 
 14.  Login into PMM and navigate to DBaaS
 
-     ![](../../_images/PMM_DBaaS_GKE_16.png)
+     ![!](../../_images/PMM_DBaaS_GKE_16.png)
 
 15. Register your GKE using kubeconfig from step 12.
 
 	> <b style="color:goldenrod">Important</b> Ensure there are no stray new lines in the kubeconfig, especially in long lines like certificate or token.
 
-    ![](../../_images/PMM_DBaaS_GKE_17.png)
+    ![!](../../_images/PMM_DBaaS_GKE_17.png)
 
-    ![](../../_images/PMM_DBaaS_GKE_18.png)
+    ![!](../../_images/PMM_DBaaS_GKE_18.png)
 
 ## Deleting clusters
 

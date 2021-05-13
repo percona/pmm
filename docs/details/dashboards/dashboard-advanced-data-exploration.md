@@ -1,6 +1,6 @@
 # Advanced Data Exploration
 
-![image](../../_images/PMM_Advanced_Data_Exploration_full.jpg)
+![!image](../../_images/PMM_Advanced_Data_Exploration_full.jpg)
 
 The *Advanced Data Exploration* dashboard provides detailed information about the progress of a single Prometheus metric across one or more hosts.
 
@@ -20,4 +20,4 @@ Shows the number of samples Per second stored for a given interval in the time s
 
 This dashboard supports metrics related to NUMA. The names of all these metrics start with `node_memory_numa`.
 
-![image](../../_images/metrics-monitor.advanced-data-exploration.node-memory-numa.png)
+![!image](../../_images/metrics-monitor.advanced-data-exploration.node-memory-numa.png)

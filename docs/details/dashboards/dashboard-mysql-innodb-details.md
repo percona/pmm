@@ -1,6 +1,6 @@
 # MySQL InnoDB Details
 
-![image](../../_images/PMM_MySQL_InnoDB_Details_full.jpg)
+![!image](../../_images/PMM_MySQL_InnoDB_Details_full.jpg)
 
 ## InnoDB Activity
 

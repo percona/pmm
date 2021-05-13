@@ -44,7 +44,6 @@ PMM is efficient, quick to set up and easy to use. It runs in cloud, on-prem, or
 
 PMM is a client/server application built by us with our own and third-party open-source tools. (Read more in [Architecture](details/architecture.md).)
 
-
 ```plantuml source="_resources/diagrams/1_PMM_Context.puml"
 ```
 
@@ -54,7 +53,7 @@ PMM Server is the heart of PMM. It receives data from clients, collates it and s
 
 This is the home dashboard from [pmmdemo][PMMDEMO]:
 
-![PMM Server user interface home page](_images/PMM_Home_Dashboard_TALL.jpg)
+![!PMM Server user interface home page](_images/PMM_Home_Dashboard_TALL.jpg)
 
 **PMM Client**
 
@@ -68,7 +67,6 @@ PMM Client runs on every database host or node you want to monitor. The client c
 
 ```plantuml format="svg_object" width="90%" height="90%" source="_resources/diagrams/Map.puml"
 ```
-
 
 [PERCONA_SERVICES]: https://www.percona.com/services
 [PMM_FORUM]: https://www.percona.com/forums/questions-discussions/percona-monitoring-and-management

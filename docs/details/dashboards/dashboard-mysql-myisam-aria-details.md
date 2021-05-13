@@ -1,6 +1,6 @@
 # MySQL MyISAM/Aria Details
 
-![image](../../_images/PMM_MySQL_MyISAM_Aria_Details.jpg)
+![!image](../../_images/PMM_MySQL_MyISAM_Aria_Details.jpg)
 
 ## MyISAM Key Buffer Performance
 

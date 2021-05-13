@@ -1,6 +1,6 @@
 # CPU Utilization Details
 
-![image](../../_images/PMM_CPU_Utilization_Details_full.jpg)
+![!image](../../_images/PMM_CPU_Utilization_Details_full.jpg)
 
 ## Overall CPU Utilization
 
