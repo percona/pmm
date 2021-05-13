@@ -43,7 +43,8 @@ Enabling STT in the settings also causes the PMM server to download STT checks f
 | Check ID                | Description
 | ----------------------- | ----------------------------------------------------------------
 | `mongodb_auth`          | MongoDB authentication is disabled
-| `mongodb_version`       | MongoDB/PSMDB version is not the latest
+| `mongodb_version`       | MongoDB/Percona Server for MongoDB version is not the latest
+| `mongodb_cve_version`   | MongoDB/Percona Server for MongoDB version is not the latest with CVE fixes
 | `mysql_anonymous_users` | There are accounts with no username
 | `mysql_empty_password`  | There are users without passwords
 | `mysql_version`         | MySQL/PS/MariaDB version is not the latest
