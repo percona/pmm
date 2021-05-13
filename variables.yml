@@ -6,7 +6,7 @@ release_date: 2021-05-11
 
 # Setting Up/Server/DBaaS operator versions
 op:
-  pxc_vers: 'K8SPXC-668-CUSTOM'
+  pxc_vers: 'v1.8.0'
   psmdb_vers: 'v1.7.0'
 
 # Miscellaneous values
