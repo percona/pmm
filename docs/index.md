@@ -13,7 +13,7 @@ With PMM, you can:
 - Drill-down and discover the cause of inefficiencies, anticipate performance issues, or troubleshoot existing ones
 - Watch for potential security issues and remedy them
 
-> Try the live demo: <a href='https://pmmdemo.percona.com/' target='_blank'>pmmdemo.percona.com</a>
+Try the live demo: <a href='https://pmmdemo.percona.com/' target='_blank'>pmmdemo.percona.com<br><br><img src="_images/PMM_Home_Dashboard_TALL.jpg"/></a>
 
 PMM is efficient, quick to set up and easy to use. It runs in cloud, on-prem, or across hybrid platforms. It is supported by [our legendary expertise][PERCONA_SERVICES] in open source databases, and by a [vibrant developer and user community][PMM_FORUM].
 
@@ -50,10 +50,6 @@ PMM is a client/server application built by us with our own and third-party open
 **PMM Server**
 
 PMM Server is the heart of PMM. It receives data from clients, collates it and stores it. Metrics are drawn as tables, charts and graphs within [*dashboards*](details/dashboards/), each a part of the web-based [user interface](using/interface.md).
-
-This is the home dashboard from [pmmdemo][PMMDEMO]:
-
-![!PMM Server user interface home page](_images/PMM_Home_Dashboard_TALL.jpg)
 
 **PMM Client**
 
