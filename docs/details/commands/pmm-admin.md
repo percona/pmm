@@ -623,9 +623,9 @@ When you remove a service, collected data remains on PMM Server for the specifie
 
 : Add External Service on Remote node to monitoring.
 
-    Usage example: `sudo pmm-admin add external-serverless --url=http://1.2.3.4:9093/metrics`
+    Usage example: `pmm-admin add external-serverless --url=http://1.2.3.4:9093/metrics`
 
-    Also, individual parameters can be set instead of `--url` like: `sudo pmm-admin add external-serverless --scheme=http --host=1.2.3.4 --listen-port=9093 --metrics-path=/metrics --container-name=ddd --external-name=e125`
+    Also, individual parameters can be set instead of `--url` like: `pmm-admin add external-serverless --scheme=http --host=1.2.3.4 --listen-port=9093 --metrics-path=/metrics --container-name=ddd --external-name=e125`
 
     Notice that some parameters are mandatory depending on the context. For example, if you specify `--url`, `--schema` and other related parameters are not mandatory but, if you specify `--host` you must provide all other parameters needed to
     build the destination URL or even you can specify `--address` instead of host and port as individual parameters.

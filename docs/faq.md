@@ -36,8 +36,8 @@ You can add multiple instances of MySQL or some other service to be monitored fr
 For example, to add complete MySQL monitoring for two local MySQL servers, the commands would be:
 
 ```sh
-sudo pmm-admin add mysql --username root --password root instance-01 127.0.0.1:3001
-sudo pmm-admin add mysql --username root --password root instance-02 127.0.0.1:3002
+pmm-admin add mysql --username root --password root instance-01 127.0.0.1:3001
+pmm-admin add mysql --username root --password root instance-02 127.0.0.1:3002
 ```
 
 For more information, run:

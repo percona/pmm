@@ -44,7 +44,7 @@ If you'd like to have a local copy of PMM documentation, or are thinking about c
 4. Use [our Docker image](https://hub.docker.com/repository/docker/perconalab/pmm-doc-md) to *build the documentation*:
 
     ```sh
-    docker run --rm -v $(pwd):/docs perconalab/pmm-doc-md mkdocs build -t material
+    docker run --rm -v $(pwd):/docs perconalab/pmm-doc-md mkdocs build
     ```
 
 5. Find the `site` directory, open `index.html` in a browser to view the first page of documentation.
@@ -52,7 +52,7 @@ If you'd like to have a local copy of PMM documentation, or are thinking about c
 If you want to see how things look as you edit, MkDocs has a built-in server for live previewing. After (or instead of) building, run:
 
 ```sh
-docker run --rm -v $(pwd):/docs -p 8000:8000 perconalab/pmm-doc-md mkdocs serve -t material --dev-addr=0.0.0.0:8000
+docker run --rm -v $(pwd):/docs -p 8000:8000 perconalab/pmm-doc-md mkdocs serve --dev-addr=0.0.0.0:8000
 ```
 
 Wait until you see `INFO    -  Start detecting changes` then point your browser to [http://0.0.0.0:8000](http://0.0.0.0:8000).
@@ -69,10 +69,10 @@ Wait until you see `INFO    -  Start detecting changes` then point your browser 
     pip install -r requirements.txt
     ```
 
-3. Build the site with your choice of theme (choose one of `mkdocs`, `readthedocs`, `material`, `gitbook` or `bootstrap4`):
+3. Build the site:
 
     ```sh
-    mkdocs build -t material
+    mkdocs build
     ```
 
 4. Open `site/index.html`
@@ -80,7 +80,7 @@ Wait until you see `INFO    -  Start detecting changes` then point your browser 
 Or, to run the built-in web server:
 
 ```sh
-mkdocs serve -t material
+mkdocs serve
 ```
 
 View the site at <http://0.0.0.0:8000>
@@ -112,8 +112,8 @@ View the site at <http://0.0.0.0:8000>
 
 ## Directories and files
 
-- `mkdocs.yml`: Default MkDocs configuration file. Creates themeless HTML for hosting on percona.com.
-- `mkdocs-netlify.yml`: MkDocs configuration file. Creates material-themed HTML for hosting on netlify.com.
+- `mkdocs.yml`: Default MkDocs configuration file. Uses Material theme.
+- `mkdocs-percona.yml`: MkDocs configuration file. Creates unthemed HTML for hosting on percona.com.
 - `mkdocs-pdf.yml`: MkDocs configuration file. Creates themed [PDF](#pdf).
 - `nav.yml`: Navigation (`nav`) element in separate file defining table of contents.
 - `docs`:

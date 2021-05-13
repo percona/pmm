@@ -14,13 +14,13 @@ We maintain a [Docker image for PMM Server][DOCKERHUB]. This section shows how t
 1. Pull the image.
 
     ```sh
-    sudo docker pull percona/pmm-server:2
+    docker pull percona/pmm-server:2
     ```
 
 2. Create a persistent data container.
 
     ```sh
-    sudo docker create --volume /srv \
+    docker create --volume /srv \
     --name pmm-data percona/pmm-server:2 /bin/true
     ```
 
@@ -29,7 +29,7 @@ We maintain a [Docker image for PMM Server][DOCKERHUB]. This section shows how t
 3. Run the image to start PMM Server.
 
     ```sh
-    sudo docker run --detach --restart always \
+    docker run --detach --restart always \
     --publish 443:443 \
     --volumes-from pmm-data --name pmm-server \
     percona/pmm-server:2
@@ -86,43 +86,43 @@ You can test a new release of the PMM Server Docker image by making backups of y
 1. Find out which release you have now.
 
     ```sh
-    sudo docker exec -it pmm-server curl -u admin:admin https://localhost/v1/version
+    docker exec -it pmm-server curl -u admin:admin https://localhost/v1/version
     ```
 
 	> **Tip:** Use `jq` to extract the quoted string value.
 	> ```sh
-	> sudo apt install jq # Example for Debian, Ubuntu
-	> sudo docker exec -it pmm-server curl -u admin:admin https://localhost/v1/version | jq .version
+	> apt install jq # Example for Debian, Ubuntu
+	> docker exec -it pmm-server curl -u admin:admin https://localhost/v1/version | jq .version
 	> ```
 
 2. Check the container mount points are the same (`/srv`).
 
     ```sh
-    sudo docker inspect pmm-data | grep Destination
-    sudo docker inspect pmm-server | grep Destination
+    docker inspect pmm-data | grep Destination
+    docker inspect pmm-server | grep Destination
     ```
 
     With `jq`:
 
     ```sh
-    sudo docker inspect pmm-data | jq '.[].Mounts[].Destination'
-    sudo docker inspect pmm-server | jq '.[].Mounts[].Destination'
+    docker inspect pmm-data | jq '.[].Mounts[].Destination'
+    docker inspect pmm-server | jq '.[].Mounts[].Destination'
     ```
 
 3. Stop the container and create backups.
 
     ```sh
-    sudo docker stop pmm-server
-    sudo docker rename pmm-server pmm-server-backup
+    docker stop pmm-server
+    docker rename pmm-server pmm-server-backup
     mkdir pmm-data-backup && cd $_
-    sudo docker cp pmm-data:/srv .
+    docker cp pmm-data:/srv .
     ```
 
 4. Pull the latest image and run the container.
 
     ```sh
-    sudo docker pull percona/pmm-server:2
-    sudo docker run \
+    docker pull percona/pmm-server:2
+    docker run \
     --detach \
     --restart always \
     --publish 443:443 \
@@ -138,36 +138,36 @@ You can test a new release of the PMM Server Docker image by making backups of y
 1. Stop and remove the running version.
 
     ```sh
-    sudo docker stop pmm-server
-    sudo docker rm pmm-server
+    docker stop pmm-server
+    docker rm pmm-server
     ```
 
 2. Restore backups.
 
     ```sh
-    sudo docker rename pmm-server-backup pmm-server
+    docker rename pmm-server-backup pmm-server
     # cd to wherever you saved the backup
-    sudo docker cp srv pmm-data:/
+    docker cp srv pmm-data:/
     ```
 
 3. Restore permissions.
 
     ```sh
-    sudo docker run --rm --volumes-from pmm-data -it percona/pmm-server:2 chown -R root:root /srv && \
-    sudo docker run --rm --volumes-from pmm-data -it percona/pmm-server:2 chown -R pmm:pmm /srv/alertmanager && \
-    sudo docker run --rm --volumes-from pmm-data -it percona/pmm-server:2 chown -R root:pmm /srv/clickhouse && \
-    sudo docker run --rm --volumes-from pmm-data -it percona/pmm-server:2 chown -R grafana:grafana /srv/grafana && \
-    sudo docker run --rm --volumes-from pmm-data -it percona/pmm-server:2 chown -R pmm:pmm /srv/logs && \
-    sudo docker run --rm --volumes-from pmm-data -it percona/pmm-server:2 chown -R postgres:postgres /srv/postgres && \
-    sudo docker run --rm --volumes-from pmm-data -it percona/pmm-server:2 chown -R pmm:pmm /srv/prometheus && \
-    sudo docker run --rm --volumes-from pmm-data -it percona/pmm-server:2 chown -R pmm:pmm /srv/victoriametrics && \
-    sudo docker run --rm --volumes-from pmm-data -it percona/pmm-server:2 chown -R postgres:postgres /srv/logs/postgresql.log
+    docker run --rm --volumes-from pmm-data -it percona/pmm-server:2 chown -R root:root /srv && \
+    docker run --rm --volumes-from pmm-data -it percona/pmm-server:2 chown -R pmm:pmm /srv/alertmanager && \
+    docker run --rm --volumes-from pmm-data -it percona/pmm-server:2 chown -R root:pmm /srv/clickhouse && \
+    docker run --rm --volumes-from pmm-data -it percona/pmm-server:2 chown -R grafana:grafana /srv/grafana && \
+    docker run --rm --volumes-from pmm-data -it percona/pmm-server:2 chown -R pmm:pmm /srv/logs && \
+    docker run --rm --volumes-from pmm-data -it percona/pmm-server:2 chown -R postgres:postgres /srv/postgres && \
+    docker run --rm --volumes-from pmm-data -it percona/pmm-server:2 chown -R pmm:pmm /srv/prometheus && \
+    docker run --rm --volumes-from pmm-data -it percona/pmm-server:2 chown -R pmm:pmm /srv/victoriametrics && \
+    docker run --rm --volumes-from pmm-data -it percona/pmm-server:2 chown -R postgres:postgres /srv/logs/postgresql.log
     ```
 
 4. Start (don’t run) the image.
 
     ```sh
-    sudo docker start pmm-server
+    docker start pmm-server
     ```
 
 ## Running PMM Server with Docker compose {: #docker-compose }
@@ -200,7 +200,7 @@ You can test a new release of the PMM Server Docker image by making backups of y
 2. Run:
 
     ```sh
-    sudo docker-compose up
+    docker-compose up
     ```
 
 3. Access PMM Server on <https://X.X.X.X:443> where `X.X.X.X` is the IP address of the PMM Server host.
@@ -252,20 +252,20 @@ If the host where you will run PMM Server has no internet connection, you can do
 5. Load the image.
 
     ```sh
-    sudo docker load -i pmm-server-{{release}}.docker
+    docker load -i pmm-server-{{release}}.docker
     ```
 
 6. Create the `pmm-data` persistent data container.
 
     ```sh
-    sudo docker create --volume /srv \
+    docker create --volume /srv \
     --name pmm-data percona/pmm-server:{{release}} /bin/true
     ```
 
 7. Run the container.
 
     ```sh
-    sudo docker run \
+    docker run \
     --detach \
     --restart always \
     --publish 443:443 \

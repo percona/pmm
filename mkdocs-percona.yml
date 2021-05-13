@@ -1,6 +1,7 @@
-# MkDocs configuration for Netlify builds
+# MkDocs configuration for HTML publishing to percona.com
+# There is no theme unless specified on the command line. See README.md
 
-site_name: Percona Monitoring and Management (Preview)
+site_name: Percona Monitoring and Management
 site_description: Documentation
 site_author: Percona LLC
 copyright: Percona LLC, &#169; 2021
@@ -11,26 +12,10 @@ edit_uri: edit/main/docs/
 
 use_directory_urls: false
 
-# Theme for netlify testing
+# Custom theme for uploading to percona.com website
 theme:
   name: material
-  logo: _images/percona-logo.svg
-  favicon: _images/percona-favicon.ico
-  palette:
-
-    # Light mode
-    - media: "(prefers-color-scheme: light)"
-      scheme: percona-light
-      toggle:
-        icon: material/toggle-switch-off-outline
-        name: Switch to dark mode
-
-    # Dark mode
-    - media: "(prefers-color-scheme: dark)"
-      scheme: slate
-      toggle:
-        icon: material/toggle-switch
-        name: Switch to light mode
+  custom_dir: _resources/theme
 
 extra_css:
   - https://unicons.iconscout.com/release/v3.0.3/css/line.css
@@ -67,7 +52,8 @@ markdown_extensions:
 plugins:
   - search
   - git-revision-date
-  - section-index # Adds links to nodes - comment out when creating PDF
+  - bootstrap-tables # Adds 'class=table' to tables. They look better in percona.com but nowhere else.
+  - section-index # Adds links to nodes
 #  - htmlproofer # Uncomment to check links - but extends build time significantly
   - macros:
         include_yaml:
@@ -123,6 +109,7 @@ nav:
       - how-to/secure.md
       - how-to/optimize.md
       - how-to/annotate.md
+      - how-to/backup.md
       - how-to/render-dashboard-images.md
       - how-to/troubleshoot.md
   - Details:

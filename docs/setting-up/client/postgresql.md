@@ -48,7 +48,7 @@ We recommend creating a PMM database account that can connect to the `postgres` 
 3. Reload the configuration:
 
     ```sh
-    sudo su - postgres
+    su - postgres
     psql -c "select pg_reload_conf()"
     ```
 
@@ -103,13 +103,13 @@ Here are the benefits and drawbacks of each.
 - Debian/Ubuntu
 
     ```sh
-    sudo apt install -y postgresql-contrib
+    apt install -y postgresql-contrib
     ```
 
 - Red Hat/CentOS
 
     ```sh
-    sudo yum install -y postgresql-contrib
+    yum install -y postgresql-contrib
     ```
 
 **Configure**
@@ -170,7 +170,7 @@ You can now [add the service](#add-a-service).
 	ALTER SYSTEM SET pg_stat_monitor.pgsm_bucket_time=60;
 	```
 
-4. Start or restart your PostgreSQL instance.    
+4. Start or restart your PostgreSQL instance.
 
 5. In a `psql` session:
 
@@ -250,7 +250,7 @@ Look for your service in the output of this command.
 pmm-admin inventory list services
 ```
 
-> If using Docker, use `sudo docker exec pmm-client pmm-admin inventory list services`
+> If using Docker, use `docker exec pmm-client pmm-admin inventory list services`
 
 **Check data**
 

@@ -15,7 +15,7 @@ When adding an instance with `pmm-admin add`, the `--disable-tablestats` option 
 ### USAGE
 
 ```sh
-sudo pmm-admin add mysql --disable-tablestats
+pmm-admin add mysql --disable-tablestats
 ```
 
 ## Change the number of tables beyond which per-table statistics is disabled
@@ -25,7 +25,7 @@ When adding an instance with `pmm-admin add`, the `--disable-tablestats-limit` o
 ### USAGE
 
 ```sh
-sudo pmm-admin add mysql --disable-tablestats-limit=<LIMIT>
+pmm-admin add mysql --disable-tablestats-limit=<LIMIT>
 ```
 
 ### EXAMPLE
@@ -33,5 +33,5 @@ sudo pmm-admin add mysql --disable-tablestats-limit=<LIMIT>
 Add a MySQL instance, disabling per-table statistics collection when the number of tables in the instance reaches 2000.
 
 ```sh
-sudo pmm-admin add mysql --disable-tablestats-limit=2000
+pmm-admin add mysql --disable-tablestats-limit=2000
 ```
