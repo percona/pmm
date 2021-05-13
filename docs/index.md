@@ -38,7 +38,7 @@ PMM is efficient, quick to set up and easy to use. It runs in cloud, on-prem, or
 - [External services](setting-up/client/external.md)
 - [HAProxy](setting-up/client/haproxy.md)
 
-> [**Quickstart installation**][PMM_QUICKSTART]
+> Or see the [**Quickstart installation guide**][PMM_QUICKSTART]
 
 ## How it works
 
