@@ -62,12 +62,10 @@ jobs:
 
       - name: Spelling
         run: |
-          sudo npm i markdown-spellcheck -g
-          mdspell --report --en-us --ignore-acronyms --ignore-numbers "docs/**/*.md" || true
+          npx markdown-spellcheck --report --en-us --ignore-acronyms --ignore-numbers "docs/**/*.md" || true
           # Ignore errors, just inspect results
 
       - name: Grammar
         run: |
-          sudo npm i write-good -g
-          write-good --no-passive docs/**/*.md || true
+          npx write-good --no-passive docs/**/*.md || true
           # Ignore errors, just inspect results

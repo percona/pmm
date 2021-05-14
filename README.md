@@ -1,5 +1,4 @@
 # Percona Monitoring and Management (PMM) Documentation
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fpercona%2Fpmm-doc.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fpercona%2Fpmm-doc?ref=badge_shield)
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/9db2c2b3-f6a8-4d56-a853-8414f8580a43/deploy-status)](https://app.netlify.com/sites/pmm-doc/deploys)
 
@@ -210,5 +209,3 @@ The plugin is installed in [our Docker image](https://hub.docker.com/repository/
 
 To enable it for local builds, uncomment the line with `htmlproofer` in the `plugins` section of `mkdocs.yml` and parse the build output for warnings.
 
-## License
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fpercona%2Fpmm-doc.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fpercona%2Fpmm-doc?ref=badge_large)
