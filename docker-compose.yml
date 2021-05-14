@@ -33,6 +33,8 @@ services:
     ports:
       - 127.0.0.1:80:80
       - 443:443
+      # For headless delve
+      - 2345:2345
     volumes:
       - .:/root/go/src/github.com/percona/pmm-managed
       - ./Makefile.devcontainer:/root/go/src/github.com/percona/pmm-managed/Makefile:ro

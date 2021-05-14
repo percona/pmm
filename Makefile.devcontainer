@@ -33,7 +33,7 @@ init:                   ## Install development tools
 
 
 install:                        ## Install pmm-managed binaries.
-	go install -v $(PMM_LD_FLAGS) ./...
+	go install -gcflags="all=-N -l" -v $(PMM_LD_FLAGS) ./...
 
 	make release
 
@@ -44,6 +44,11 @@ install-race:                   ## Install pmm-managed binaries with race detect
 	go build -race -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-managed
 	go build -race -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-managed-init ./cmd/pmm-managed-init
 	go build -race -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-managed-starlark ./cmd/pmm-managed-starlark
+
+install-debug:  ## Install pmm-managed binaries with debug symbols.
+	go build -gcflags="all=-N -l" -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-managed
+	go build -gcflags="all=-N -l" -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-managed-init ./cmd/pmm-managed-init
+	go build -gcflags="all=-N -l" -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-managed-starlark ./cmd/pmm-managed-starlark
 
 PMM_TEST_PACKAGES ?= ./...
 PMM_TEST_FLAGS ?= -timeout=90s
@@ -93,6 +98,8 @@ run: install _run               ## Run pmm-managed.
 
 run-race: install-race _run     ## Run pmm-managed with race detector.
 
+run-debug: install-debug _run               ## Run pmm-managed with debug symbols.
+
 # TODO https://jira.percona.com/browse/PMM-3484, see maincover_test.go
 # run-race-cover: install-race    ## Run pmm-managed with race detector and collect coverage information.
 # 	go test -coverpkg="github.com/percona/pmm-managed/..." \
@@ -117,3 +124,6 @@ travis: ci-reviewdog test-race test-cover test-crosscover
 ci-reviewdog:
 	golangci-lint run -c=.golangci-required.yml --out-format=line-number | reviewdog -f=golangci-lint -level=error -reporter=github-pr-check
 	golangci-lint run -c=.golangci.yml --out-format=line-number | reviewdog -f=golangci-lint -level=error -reporter=github-pr-review
+
+dlv/attach:
+	dlv --listen=:2345 --headless=true --api-version=2 --accept-multiclient attach $(shell pgrep pmm-managed)
