@@ -585,7 +585,8 @@ type AddMySQLOKBodyMysqldExporter struct {
 	//  - WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -613,7 +614,7 @@ var addMySqlOkBodyMysqldExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -640,6 +641,9 @@ const (
 
 	// AddMySQLOKBodyMysqldExporterStatusDONE captures enum value "DONE"
 	AddMySQLOKBodyMysqldExporterStatusDONE string = "DONE"
+
+	// AddMySQLOKBodyMysqldExporterStatusUNKNOWN captures enum value "UNKNOWN"
+	AddMySQLOKBodyMysqldExporterStatusUNKNOWN string = "UNKNOWN"
 )
 
 // prop value enum
@@ -730,7 +734,8 @@ type AddMySQLOKBodyQANMysqlPerfschema struct {
 	//  - WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 }
 
@@ -752,7 +757,7 @@ var addMySqlOkBodyQanMysqlPerfschemaTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -779,6 +784,9 @@ const (
 
 	// AddMySQLOKBodyQANMysqlPerfschemaStatusDONE captures enum value "DONE"
 	AddMySQLOKBodyQANMysqlPerfschemaStatusDONE string = "DONE"
+
+	// AddMySQLOKBodyQANMysqlPerfschemaStatusUNKNOWN captures enum value "UNKNOWN"
+	AddMySQLOKBodyQANMysqlPerfschemaStatusUNKNOWN string = "UNKNOWN"
 )
 
 // prop value enum
@@ -872,7 +880,8 @@ type AddMySQLOKBodyQANMysqlSlowlog struct {
 	//  - WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 }
 
@@ -894,7 +903,7 @@ var addMySqlOkBodyQanMysqlSlowlogTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -921,6 +930,9 @@ const (
 
 	// AddMySQLOKBodyQANMysqlSlowlogStatusDONE captures enum value "DONE"
 	AddMySQLOKBodyQANMysqlSlowlogStatusDONE string = "DONE"
+
+	// AddMySQLOKBodyQANMysqlSlowlogStatusUNKNOWN captures enum value "UNKNOWN"
+	AddMySQLOKBodyQANMysqlSlowlogStatusUNKNOWN string = "UNKNOWN"
 )
 
 // prop value enum
