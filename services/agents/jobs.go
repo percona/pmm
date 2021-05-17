@@ -60,7 +60,10 @@ func (s *JobsService) StartEchoJob(id, pmmAgentID string, timeout time.Duration,
 		return err
 	}
 
-	resp := agent.channel.SendAndWaitResponse(req)
+	resp, err := agent.channel.SendAndWaitResponse(req)
+	if err != nil {
+		return err
+	}
 
 	if e := resp.(*agentpb.StartJobResponse).Error; e != "" {
 		return errors.Errorf("failed to start echo job: %s", e)
@@ -107,7 +110,10 @@ func (s *JobsService) StartMySQLBackupJob(id, pmmAgentID string, timeout time.Du
 		return err
 	}
 
-	resp := agent.channel.SendAndWaitResponse(req)
+	resp, err := agent.channel.SendAndWaitResponse(req)
+	if err != nil {
+		return err
+	}
 	if e := resp.(*agentpb.StartJobResponse).Error; e != "" {
 		return errors.Errorf("failed to start MySQL job: %s", e)
 	}
@@ -153,7 +159,10 @@ func (s *JobsService) StartMySQLRestoreBackupJob(
 		return err
 	}
 
-	resp := agent.channel.SendAndWaitResponse(req)
+	resp, err := agent.channel.SendAndWaitResponse(req)
+	if err != nil {
+		return err
+	}
 	if e := resp.(*agentpb.StartJobResponse).Error; e != "" {
 		return errors.Errorf("failed to start MySQL restore backup job: %s", e)
 	}
@@ -178,7 +187,7 @@ func (s *JobsService) StopJob(jobID string) error {
 		return errors.WithStack(err)
 	}
 
-	agent.channel.SendAndWaitResponse(&agentpb.StopJobRequest{JobId: jobID})
+	_, err = agent.channel.SendAndWaitResponse(&agentpb.StopJobRequest{JobId: jobID})
 
-	return nil
+	return err
 }
