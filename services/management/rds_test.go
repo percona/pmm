@@ -140,7 +140,7 @@ func TestRDSService(t *testing.T) {
 					Address:       "autotest-aurora-mysql-56.cstdx0tr6tzx.us-east-1.rds.amazonaws.com",
 					Port:          3306,
 					Engine:        managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL,
-					EngineVersion: "5.6.10a",
+					EngineVersion: "5.6.mysql_aurora.1.22.2",
 				},
 				{
 					Region:        "us-west-2",

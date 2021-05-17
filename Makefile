@@ -12,7 +12,11 @@ env-devcontainer:
 	docker exec -it --workdir=/root/go/src/github.com/percona/pmm-managed pmm-managed-server .devcontainer/setup.py
 
 env-down:                                   ## Stop devcontainer.
+	docker-compose down --remove-orphans
+
+env-remove:
 	docker-compose down --volumes --remove-orphans
+
 
 TARGET ?= _bash
 

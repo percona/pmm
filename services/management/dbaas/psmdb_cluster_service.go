@@ -195,7 +195,7 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 		if apiKeyID != 0 {
 			e := s.grafanaClient.DeleteAPIKeyByID(ctx, apiKeyID)
 			if e != nil {
-				s.l.Warnf("couldn't delete created API Key %s: %s", apiKeyID, e)
+				s.l.Warnf("couldn't delete created API Key %v: %s", apiKeyID, e)
 			}
 		}
 		return nil, err

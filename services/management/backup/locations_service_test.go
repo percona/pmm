@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/brianvoe/gofakeit"
+	"github.com/brianvoe/gofakeit/v6"
 	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"

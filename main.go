@@ -90,7 +90,8 @@ import (
 )
 
 const (
-	shutdownTimeout = 3 * time.Second
+	shutdownTimeout    = 3 * time.Second
+	gRPCMessageMaxSize = 100 * 1024 * 1024
 
 	gRPCAddr  = "127.0.0.1:7771"
 	http1Addr = "127.0.0.1:7772"
@@ -145,7 +146,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	l.Infof("Starting server on http://%s/ ...", gRPCAddr)
 
 	gRPCServer := grpc.NewServer(
-		grpc.MaxRecvMsgSize(10*1024*1024),
+		grpc.MaxRecvMsgSize(gRPCMessageMaxSize),
 
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			interceptors.Unary,
@@ -494,6 +495,7 @@ func getQANClient(ctx context.Context, sqlDB *sql.DB, dbName, qanAPIAddr string)
 		grpc.WithInsecure(),
 		grpc.WithBackoffMaxDelay(time.Second), //nolint:staticcheck
 		grpc.WithUserAgent("pmm-managed/" + version.Version),
+		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(gRPCMessageMaxSize)),
 	}
 
 	// Without grpc.WithBlock() DialContext returns an error only if something very wrong with address or options;

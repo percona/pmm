@@ -234,16 +234,28 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsB
 		convertedMetricsBuckets = append(convertedMetricsBuckets, mb)
 	}
 
-	qanReq := &qanpb.CollectRequest{
-		MetricsBucket: convertedMetricsBuckets,
+	// Slice metrics, so request to qan-api is not too big
+	const bucketSize = 25000
+	from, to := 0, bucketSize
+	// Send at least one time, even though it's empty
+	for from <= len(convertedMetricsBuckets) {
+		if to > len(convertedMetricsBuckets) {
+			to = len(convertedMetricsBuckets)
+		}
+		qanReq := &qanpb.CollectRequest{
+			MetricsBucket: convertedMetricsBuckets[from:to],
+		}
+		c.l.Debugf("%+v", qanReq)
+		res, err := c.c.Collect(ctx, qanReq)
+		if err != nil {
+			return errors.Wrap(err, "failed to sent CollectRequest to QAN")
+		}
+		c.l.Debugf("%+v", res)
+
+		from += bucketSize
+		to += bucketSize
 	}
 
-	c.l.Debugf("%+v", qanReq)
-	res, err := c.c.Collect(ctx, qanReq)
-	if err != nil {
-		return errors.Wrap(err, "failed to sent CollectRequest to QAN")
-	}
-	c.l.Debugf("%+v", res)
 	return nil
 }
 

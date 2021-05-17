@@ -6,14 +6,34 @@ include Makefile.include
 _bash:
 	/bin/bash
 
+BASE_PATH = $(shell pwd)
+BIN_PATH := $(BASE_PATH)/bin
+
+export PATH := $(BIN_PATH):$(PATH)
+
 gen:                            ## Generate files.
 	rm -f models/*_reform.go
 	find . -name mock_*.go -delete
 	go generate ./...
 	make format
 
+init:                   ## Install development tools
+	go build -modfile=tools/go.mod -o $(BIN_PATH)/dlv github.com/go-delve/delve/cmd/dlv
+	go build -modfile=tools/go.mod -o $(BIN_PATH)/golangci-lint github.com/golangci/golangci-lint/cmd/golangci-lint
+	go build -modfile=tools/go.mod -o $(BIN_PATH)/go-sumtype github.com/BurntSushi/go-sumtype
+	go build -modfile=tools/go.mod -o $(BIN_PATH)/go-bindata github.com/kevinburke/go-bindata/go-bindata
+	go build -modfile=tools/go.mod -o $(BIN_PATH)/reviewdog github.com/reviewdog/reviewdog/cmd/reviewdog
+	go build -modfile=tools/go.mod -o $(BIN_PATH)/mockery github.com/vektra/mockery/cmd/mockery
+	go build -modfile=tools/go.mod -o $(BIN_PATH)/benchstat golang.org/x/perf/cmd/benchstat
+	go build -modfile=tools/go.mod -o $(BIN_PATH)/goimports golang.org/x/tools/cmd/goimports
+	go build -modfile=tools/go.mod -o $(BIN_PATH)/gopls golang.org/x/tools/gopls
+	go build -modfile=tools/go.mod -o $(BIN_PATH)/reform gopkg.in/reform.v1/reform
+	go build -modfile=tools/go.mod -o $(BIN_PATH)/reform gopkg.in/reform.v1/reform
+	go build -modfile=tools/go.mod -o $(BIN_PATH)/gofumpt mvdan.cc/gofumpt
+
+
 install:                        ## Install pmm-managed binaries.
-	go install -v $(PMM_LD_FLAGS) ./...
+	go install -gcflags="all=-N -l" -v $(PMM_LD_FLAGS) ./...
 
 	make release
 
@@ -24,6 +44,11 @@ install-race:                   ## Install pmm-managed binaries with race detect
 	go build -race -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-managed
 	go build -race -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-managed-init ./cmd/pmm-managed-init
 	go build -race -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-managed-starlark ./cmd/pmm-managed-starlark
+
+install-debug:  ## Install pmm-managed binaries with debug symbols.
+	go build -gcflags="all=-N -l" -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-managed
+	go build -gcflags="all=-N -l" -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-managed-init ./cmd/pmm-managed-init
+	go build -gcflags="all=-N -l" -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-managed-starlark ./cmd/pmm-managed-starlark
 
 PMM_TEST_PACKAGES ?= ./...
 PMM_TEST_FLAGS ?= -timeout=90s
@@ -52,14 +77,13 @@ fuzz-grafana:                   ## Run fuzzer for services/grafana package.
 
 check:                          ## Run required checkers and linters.
 	go run .github/check-license.go
-	dep check
-	go-sumtype ./vendor/... ./...
+	go-sumtype ./...
 	golangci-lint run -c=.golangci-required.yml
 
 check-all: check                ## Run all linters for new code.
 	golangci-lint run -c=.golangci.yml --new-from-rev=PMM-2.0
 
-FILES = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
+FILES = $(shell find . -type f -name '*.go')
 
 format:                         ## Format source code.
 	goimports -local github.com/percona/pmm-managed -l -w $(FILES)
@@ -73,6 +97,8 @@ _run:
 run: install _run               ## Run pmm-managed.
 
 run-race: install-race _run     ## Run pmm-managed with race detector.
+
+run-debug: install-debug _run               ## Run pmm-managed with debug symbols.
 
 # TODO https://jira.percona.com/browse/PMM-3484, see maincover_test.go
 # run-race-cover: install-race    ## Run pmm-managed with race detector and collect coverage information.
@@ -98,3 +124,6 @@ travis: ci-reviewdog test-race test-cover test-crosscover
 ci-reviewdog:
 	golangci-lint run -c=.golangci-required.yml --out-format=line-number | reviewdog -f=golangci-lint -level=error -reporter=github-pr-check
 	golangci-lint run -c=.golangci.yml --out-format=line-number | reviewdog -f=golangci-lint -level=error -reporter=github-pr-review
+
+dlv/attach:
+	dlv --listen=:2345 --headless=true --api-version=2 --accept-multiclient attach $(shell pgrep pmm-managed)
