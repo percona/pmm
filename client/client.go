@@ -33,8 +33,9 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
-	"google.golang.org/grpc/status"
+	grpcstatus "google.golang.org/grpc/status"
 
 	"github.com/percona/pmm-agent/actions" // TODO https://jira.percona.com/browse/PMM-7206
 	"github.com/percona/pmm-agent/client/channel"
@@ -215,12 +216,16 @@ func (c *Client) Done() <-chan struct{} {
 
 func (c *Client) processActionResults() {
 	for result := range c.actionsRunner.Results() {
-		resp := c.channel.SendAndWaitResponse(&agentpb.ActionResultRequest{
+		resp, err := c.channel.SendAndWaitResponse(&agentpb.ActionResultRequest{
 			ActionId: result.ID,
 			Output:   result.Output,
 			Done:     true,
 			Error:    result.Error,
 		})
+		if err != nil {
+			c.l.Error(err)
+			continue
+		}
 		if resp == nil {
 			c.l.Warn("Failed to send ActionResult request.")
 		}
@@ -243,7 +248,11 @@ func (c *Client) processSupervisorRequests() {
 		defer wg.Done()
 
 		for state := range c.supervisor.Changes() {
-			resp := c.channel.SendAndWaitResponse(state)
+			resp, err := c.channel.SendAndWaitResponse(state)
+			if err != nil {
+				c.l.Error(err)
+				continue
+			}
 			if resp == nil {
 				c.l.Warn("Failed to send StateChanged request.")
 			}
@@ -256,7 +265,11 @@ func (c *Client) processSupervisorRequests() {
 		defer wg.Done()
 
 		for collect := range c.supervisor.QANRequests() {
-			resp := c.channel.SendAndWaitResponse(collect)
+			resp, err := c.channel.SendAndWaitResponse(collect)
+			if err != nil {
+				c.l.Error(err)
+				continue
+			}
 			if resp == nil {
 				c.l.Warn("Failed to send QanCollect request.")
 			}
@@ -270,6 +283,8 @@ func (c *Client) processSupervisorRequests() {
 func (c *Client) processChannelRequests(ctx context.Context) {
 	for req := range c.channel.Requests() {
 		var responsePayload agentpb.AgentResponsePayload
+		var status *grpcstatus.Status
+	outerSwitch:
 		switch p := req.Payload.(type) {
 		case *agentpb.Ping:
 			responsePayload = &agentpb.Pong{
@@ -359,9 +374,10 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTMongoDBSummary, argListFromMongoDBParams(params.PtMongodbSummaryParams))
 
 			case nil:
-				// Requests() is not closed, so exit early to break channel
 				c.l.Errorf("Unhandled StartAction request: %v.", req)
-				return
+				responsePayload = nil
+				status = grpcstatus.New(codes.Unimplemented, "can't handle start action type send, it is not implemented")
+				break outerSwitch
 			}
 
 			c.actionsRunner.Start(action, c.getActionTimeout(p))
@@ -390,15 +406,16 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 			responsePayload = &agentpb.JobStatusResponse{Alive: alive}
 
 		case nil:
-			// Requests() is not closed, so exit early to break channel
 			c.l.Errorf("Unhandled server request: %v.", req)
-			return
 		}
-
-		c.channel.Send(&channel.AgentResponse{
+		response := &channel.AgentResponse{
 			ID:      req.ID,
 			Payload: responsePayload,
-		})
+		}
+		if status != nil {
+			response.Status = status
+		}
+		c.channel.Send(response)
 	}
 
 	if err := c.channel.Wait(); err != nil {
@@ -570,7 +587,7 @@ func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) (*dialRe
 		msg := err.Error()
 
 		// improve error message
-		if s, ok := status.FromError(errors.Cause(err)); ok {
+		if s, ok := grpcstatus.FromError(errors.Cause(err)); ok {
 			msg = strings.TrimSuffix(s.Message(), ".")
 		}
 
@@ -609,7 +626,11 @@ func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) (*dialRe
 
 func getNetworkInformation(channel *channel.Channel) (latency, clockDrift time.Duration, err error) {
 	start := time.Now()
-	resp := channel.SendAndWaitResponse(new(agentpb.Ping))
+	var resp agentpb.ServerResponsePayload
+	resp, err = channel.SendAndWaitResponse(new(agentpb.Ping))
+	if err != nil {
+		return
+	}
 	if resp == nil {
 		err = channel.Wait()
 		return

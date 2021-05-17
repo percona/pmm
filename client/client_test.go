@@ -29,6 +29,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 
 	"github.com/percona/pmm-agent/config"
 )
@@ -214,6 +215,64 @@ func TestGetActionTimeout(t *testing.T) {
 			assert.Equal(t, tc.expected, actual)
 		})
 	}
+}
+
+func TestUnexpectedActionType(t *testing.T) {
+	serverMD := &agentpb.ServerConnectMetadata{
+		ServerVersion: t.Name(),
+	}
+	connect := func(stream agentpb.Agent_ConnectServer) error {
+		// establish the connection
+		md, err := agentpb.ReceiveAgentConnectMetadata(stream)
+		require.NoError(t, err)
+		assert.Equal(t, &agentpb.AgentConnectMetadata{ID: "agent_id"}, md)
+		err = agentpb.SendServerConnectMetadata(stream, serverMD)
+		require.NoError(t, err)
+		msg, err := stream.Recv()
+		require.NoError(t, err)
+		ping := msg.GetPing()
+		require.NotNil(t, ping)
+		err = stream.Send(&agentpb.ServerMessage{
+			Id:      msg.Id,
+			Payload: (&agentpb.Pong{CurrentTime: ptypes.TimestampNow()}).ServerMessageResponsePayload(),
+		})
+		require.NoError(t, err)
+
+		// actual test
+		err = stream.Send(&agentpb.ServerMessage{
+			Id: 4242,
+			Payload: &agentpb.ServerMessage_StartAction{
+				// try to send unknown payload for action type
+				StartAction: &agentpb.StartActionRequest{},
+			},
+		})
+		assert.NoError(t, err)
+
+		msg, err = stream.Recv()
+		assert.NoError(t, err)
+		assert.Equal(t, int32(codes.Unimplemented), msg.GetStatus().GetCode())
+		assert.NoError(t, err)
+		return nil
+	}
+	port, teardown := setup(t, connect)
+	defer teardown()
+
+	cfg := &config.Config{
+		ID: "agent_id",
+		Server: config.Server{
+			Address:    fmt.Sprintf("127.0.0.1:%d", port),
+			WithoutTLS: true,
+		},
+	}
+
+	s := new(mockSupervisor)
+	s.On("Changes").Return(make(<-chan *agentpb.StateChangedRequest))
+	s.On("QANRequests").Return(make(<-chan *agentpb.QANCollectRequest))
+
+	client := New(cfg, s, nil)
+	err := client.Run(context.Background())
+	assert.NoError(t, err)
+	assert.Equal(t, serverMD, client.GetServerConnectMetadata())
 }
 
 func TestArgListFromPgParams(t *testing.T) {

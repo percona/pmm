@@ -17,7 +17,6 @@ package channel
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"net"
 	"strings"
@@ -124,7 +123,8 @@ func TestAgentRequestWithTruncatedInvalidUTF8(t *testing.T) {
 		},
 		Mysql: &agentpb.MetricsBucket_MySQL{},
 	}}
-	resp := channel.SendAndWaitResponse(rq)
+	resp, err := channel.SendAndWaitResponse(rq)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 
 	// Testing that it was failing with invalid query
@@ -135,7 +135,8 @@ func TestAgentRequestWithTruncatedInvalidUTF8(t *testing.T) {
 		},
 		Mysql: &agentpb.MetricsBucket_MySQL{},
 	}}
-	resp = channel.SendAndWaitResponse(rq)
+	resp, err = channel.SendAndWaitResponse(rq)
+	require.NoError(t, err)
 	assert.Nil(t, resp)
 }
 
@@ -164,7 +165,8 @@ func TestAgentRequest(t *testing.T) {
 	defer teardown()
 
 	for i := uint32(1); i <= count; i++ {
-		resp := channel.SendAndWaitResponse(new(agentpb.QANCollectRequest))
+		resp, err := channel.SendAndWaitResponse(new(agentpb.QANCollectRequest))
+		require.NoError(t, err)
 		assert.NotNil(t, resp)
 	}
 
@@ -258,7 +260,8 @@ func TestServerExitsWithGRPCError(t *testing.T) {
 	channel, _, teardown := setup(t, connect, errUnimplemented)
 	defer teardown()
 
-	resp := channel.SendAndWaitResponse(new(agentpb.QANCollectRequest))
+	resp, err := channel.SendAndWaitResponse(new(agentpb.QANCollectRequest))
+	require.NoError(t, err)
 	assert.Nil(t, resp)
 }
 
@@ -275,7 +278,8 @@ func TestServerExitsWithUnknownError(t *testing.T) {
 	channel, _, teardown := setup(t, connect, status.Error(codes.Unknown, "EOF"))
 	defer teardown()
 
-	resp := channel.SendAndWaitResponse(new(agentpb.QANCollectRequest))
+	resp, err := channel.SendAndWaitResponse(new(agentpb.QANCollectRequest))
+	require.NoError(t, err)
 	assert.Nil(t, resp)
 }
 
@@ -334,38 +338,69 @@ func TestAgentClosesConnection(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-func TestUnexpectedResponseFromServer(t *testing.T) {
+func TestUnexpectedResponseIDFromServer(t *testing.T) {
+	unexpectedIDSent := make(chan struct{})
 	connect := func(stream agentpb.Agent_ConnectServer) error { //nolint:unparam
-		// this message triggers "no subscriber for ID" error
+		// This message triggers no error, we ignore message ids that have no subscriber.
 		err := stream.Send(&agentpb.ServerMessage{
 			Id:      111,
 			Payload: new(agentpb.QANCollectResponse).ServerMessageResponsePayload(),
 		})
 		assert.NoError(t, err)
+		close(unexpectedIDSent)
 
-		// this message should not trigger new error
+		// Check that channel is still open.
 		err = stream.Send(&agentpb.ServerMessage{
-			Id:      222,
-			Payload: new(agentpb.QANCollectResponse).ServerMessageResponsePayload(),
+			Id:      1,
+			Payload: new(agentpb.Ping).ServerMessageRequestPayload(),
 		})
 		assert.NoError(t, err)
-
+		pong, err := stream.Recv()
+		assert.NoError(t, err)
+		assert.NotNil(t, pong)
 		return nil
 	}
-
-	// TODO https://jira.percona.com/browse/PMM-3825
-	channel, _, teardown := setup(t, connect, fmt.Errorf("no subscriber for ID 111"), io.EOF)
+	channel, _, teardown := setup(t, connect, io.EOF)
 	defer teardown()
 
-	// after receiving unexpected response, channel is closed
-	resp := channel.SendAndWaitResponse(new(agentpb.QANCollectRequest))
-	assert.Nil(t, resp)
+	<-unexpectedIDSent
+	// Get the ping message and send pong response, channel stays open after message with unexpected id.
 	msg := <-channel.Requests()
-	assert.Nil(t, msg)
+	assert.NotNil(t, msg)
+	channel.send(&agentpb.AgentMessage{
+		Id:      1,
+		Payload: new(agentpb.Pong).AgentMessageResponsePayload(),
+	})
+}
 
-	// future requests are ignored
-	resp = channel.SendAndWaitResponse(new(agentpb.QANCollectRequest))
-	assert.Nil(t, resp)
-	msg = <-channel.Requests()
-	assert.Nil(t, msg)
+func TestUnexpectedResponsePayloadFromServer(t *testing.T) {
+	connect := func(stream agentpb.Agent_ConnectServer) error {
+		// establish the connection
+		err := stream.Send(&agentpb.ServerMessage{
+			Id:      1,
+			Payload: new(agentpb.Ping).ServerMessageRequestPayload(),
+		})
+		assert.NoError(t, err)
+		_, _ = stream.Recv()
+
+		// test unexpected payload
+		err = stream.Send(&agentpb.ServerMessage{
+			Id: 4242,
+		})
+		require.NoError(t, err)
+
+		msg, err := stream.Recv()
+		assert.NoError(t, err)
+		assert.Equal(t, int32(codes.Unimplemented), msg.GetStatus().GetCode())
+		return nil
+	}
+	channel, _, teardown := setup(t, connect, io.EOF)
+	defer teardown()
+	req := <-channel.Requests()
+	channel.Send(&AgentResponse{
+		ID: req.ID,
+		Payload: &agentpb.Pong{
+			CurrentTime: ptypes.TimestampNow(),
+		},
+	})
 }
