@@ -17,6 +17,7 @@
 package dir
 
 import (
+	"io/ioutil"
 	"os"
 	"testing"
 
@@ -81,6 +82,71 @@ func TestCreateDataDir(t *testing.T) {
 			require.NoError(t, err)
 			assert.True(t, stat.IsDir())
 			assert.Equal(t, tc.perm, stat.Mode().Perm())
+		})
+	}
+}
+
+func TestFindFilesWithExtensions(t *testing.T) {
+	t.Parallel()
+
+	var files []*os.File
+	createTemp := func(pattern string) {
+		f, err := ioutil.TempFile("", t.Name()+pattern)
+		require.NoError(t, err)
+		files = append(files, f)
+	}
+
+	createTemp("*.yaml")
+	createTemp("*.yaml")
+	createTemp("*.yml")
+	createTemp("*")
+
+	t.Cleanup(func() {
+		for _, f := range files {
+			_ = os.Remove(f.Name())
+		}
+	})
+
+	testcases := []struct {
+		name       string
+		extensions []string
+		expected   int
+	}{
+		{
+			name:       "only yml",
+			extensions: []string{"yml"},
+			expected:   1,
+		},
+		{
+			name:       "only yaml",
+			extensions: []string{"yaml"},
+			expected:   2,
+		},
+		{
+			name:       "yml and yaml",
+			extensions: []string{"yml", "yaml"},
+			expected:   3,
+		},
+		{
+			name:       "non existing - bin",
+			extensions: []string{"bin"},
+			expected:   0,
+		},
+		{
+			name:       "empty",
+			extensions: []string{""},
+			expected:   0,
+		},
+	}
+
+	for _, tc := range testcases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			files, err := FindFilesWithExtensions(os.TempDir(), tc.extensions...)
+			assert.NoError(t, err)
+			assert.Len(t, files, tc.expected)
 		})
 	}
 }
