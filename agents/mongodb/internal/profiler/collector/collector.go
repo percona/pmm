@@ -232,6 +232,7 @@ func connectAndCollect(ctx context.Context, collection *mongo.Collection, dbName
 		}
 		if err := cursor.Err(); err != nil {
 			logger.Warnln("couldn't retrieve data from cursor", err)
+			return
 		}
 
 		select {
