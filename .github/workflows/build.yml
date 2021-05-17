@@ -48,12 +48,12 @@ jobs:
           PATH=$PATH:_resources/bin mike deploy -F mkdocs-percona.yml 2.x -b publish -p
           mike retitle -F mkdocs-percona.yml 2.x "PMM2 (LATEST)" -b publish -p
 
-      - name: Run MkDocs for Netlify/GitHub pages (2.x)
+      - name: Run MkDocs for Netlify (2.x)
         if: github.ref == 'refs/heads/main'
         run: |
-          PATH=$PATH:_resources/bin mike deploy 2.x -p
-          mike set-default 2.x -p
-          mike retitle 2.x "PMM2 (LATEST)" -p
+          PATH=$PATH:_resources/bin mike deploy 2.x -b netlify -p
+          mike set-default 2.x -b netlify -p
+          mike retitle 2.x "PMM2 (LATEST)" -b netlify  -p
 
       - name: Install Node.js 14.x
         uses: percona-platform/setup-node@v2.1.2
