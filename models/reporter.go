@@ -233,7 +233,7 @@ SELECT
 	{{ end }}
 FROM metrics
 WHERE period_start >= :period_start_from AND period_start <= :period_start_to
-{{ if .DimensionVal }} AND {{ .Group }} = '{{ .DimensionVal }}' {{ end }}
+{{ if not .IsTotal }} AND {{ .Group }} = '{{ .DimensionVal }}' {{ end }}
     {{range $key, $vals := .Dimensions }} AND {{ $key }} IN ( '{{ StringsJoin $vals "', '" }}' ){{ end }}
 {{ if .Labels }}{{$i := 0}}
     AND ({{range $key, $val := .Labels }} {{ $i = inc $i}}
@@ -251,7 +251,7 @@ var tmplQueryReportSparklines = template.Must(template.New("queryReportSparkline
 func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 	periodStartFromSec, periodStartToSec int64,
 	dimensions map[string][]string, labels map[string][]string,
-	group string, column string) ([]*qanpb.Point, error) {
+	group string, column string, isTotal bool) ([]*qanpb.Point, error) {
 
 	// Align to minutes
 	periodStartToSec = periodStartToSec / 60 * 60
@@ -294,6 +294,7 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 		Column          string
 		IsCommon        bool
 		TimeFrame       int64
+		IsTotal         bool
 	}{
 		dimensionVal,
 		periodStartFromSec,
@@ -305,6 +306,7 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 		column,
 		!inSlice([]string{"load", "num_queries", "num_queries_with_errors", "num_queries_with_warnings"}, column),
 		timeFrame,
+		isTotal,
 	}
 
 	var results []*qanpb.Point
