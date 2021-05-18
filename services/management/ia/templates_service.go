@@ -77,7 +77,7 @@ func NewTemplatesService(db *reform.DB) *TemplatesService {
 	return &TemplatesService{
 		db:                db,
 		l:                 l,
-		userTemplatesPath: templatesDir + "/*.yml",
+		userTemplatesPath: templatesDir,
 		templates:         make(map[string]templateInfo),
 	}
 }
@@ -218,7 +218,7 @@ func (s *TemplatesService) loadTemplatesFromAssets(ctx context.Context) ([]alert
 
 // loadTemplatesFromUserFiles loads user's alerting rule templates from /srv/ia/templates.
 func (s *TemplatesService) loadTemplatesFromUserFiles(ctx context.Context) ([]alert.Template, error) {
-	paths, err := filepath.Glob(s.userTemplatesPath)
+	paths, err := dir.FindFilesWithExtensions(s.userTemplatesPath, "yml", "yaml")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get paths")
 	}

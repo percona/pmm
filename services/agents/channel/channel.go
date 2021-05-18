@@ -18,13 +18,16 @@
 package channel
 
 import (
-	"fmt"
 	"sync"
 	"sync/atomic"
 
 	"github.com/golang/protobuf/proto" //nolint:staticcheck
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
+	protostatus "google.golang.org/genproto/googleapis/rpc/status"
+	"google.golang.org/grpc/codes"
+	grpcstatus "google.golang.org/grpc/status"
 
 	"github.com/percona/pmm-managed/utils/logger"
 )
@@ -46,6 +49,7 @@ type AgentRequest struct {
 // and the payload is already unwrapped (XXX instead of ServerMessage_XXX).
 type ServerResponse struct {
 	ID      uint32
+	Status  *grpcstatus.Status
 	Payload agentpb.ServerResponsePayload
 }
 
@@ -55,6 +59,12 @@ type Metrics struct {
 	Recv      float64 // a total number of messages received from pmm-agent
 	Responses float64 // the current length of the response queue
 	Requests  float64 // the current length of the request queue
+}
+
+// Response is a type used to pass response from pmm-agent to the subscriber.
+type Response struct {
+	Payload agentpb.AgentResponsePayload
+	Error   error
 }
 
 // Channel encapsulates two-way communication channel between pmm-managed and pmm-agent.
@@ -71,12 +81,14 @@ type Channel struct {
 	sendM sync.Mutex
 
 	rw        sync.RWMutex
-	responses map[uint32]chan agentpb.AgentResponsePayload
+	responses map[uint32]chan Response
 	requests  chan *AgentRequest
 
 	closeOnce sync.Once
 	closeWait chan struct{}
 	closeErr  error
+
+	l *logrus.Entry
 }
 
 // New creates new two-way communication channel with given stream.
@@ -86,10 +98,12 @@ func New(stream agentpb.Agent_ConnectServer) *Channel {
 	s := &Channel{
 		s: stream,
 
-		responses: make(map[uint32]chan agentpb.AgentResponsePayload),
+		responses: make(map[uint32]chan Response),
 		requests:  make(chan *AgentRequest, agentRequestsCap),
 
 		closeWait: make(chan struct{}),
+
+		l: logger.Get(stream.Context()),
 	}
 
 	go s.runReceiver()
@@ -99,7 +113,7 @@ func New(stream agentpb.Agent_ConnectServer) *Channel {
 // close marks channel as closed with given error - only once.
 func (c *Channel) close(err error) {
 	c.closeOnce.Do(func() {
-		logger.Get(c.s.Context()).Debugf("Closing with error: %+v", err)
+		c.l.Debugf("Closing with error: %+v", err)
 		c.closeErr = err
 
 		c.rw.Lock()
@@ -129,16 +143,20 @@ func (c *Channel) Requests() <-chan *AgentRequest {
 // Send sends message to pmm-managed. It is no-op once channel is closed (see Wait).
 func (c *Channel) Send(resp *ServerResponse) {
 	msg := &agentpb.ServerMessage{
-		Id:      resp.ID,
-		Payload: resp.Payload.ServerMessageResponsePayload(),
+		Id:     resp.ID,
+		Status: resp.Status.Proto(),
+	}
+	if resp.Payload != nil {
+		msg.Payload = resp.Payload.ServerMessageResponsePayload()
 	}
 	c.send(msg)
 }
 
-// SendAndWaitResponse sends request to pmm-managed, blocks until response is available, and returns it.
-// Response will be nil if channel is closed.
+// SendAndWaitResponse sends request to pmm-managed, blocks until response is available.
+// If error occurred - subscription got canceled - returned payload is nil and error contains reason for cancelation.
+// Response and error will be both nil if channel is closed.
 // It is no-op once channel is closed (see Wait).
-func (c *Channel) SendAndWaitResponse(payload agentpb.ServerRequestPayload) agentpb.AgentResponsePayload {
+func (c *Channel) SendAndWaitResponse(payload agentpb.ServerRequestPayload) (agentpb.AgentResponsePayload, error) {
 	id := atomic.AddUint32(&c.lastSentRequestID, 1)
 	ch := c.subscribe(id)
 
@@ -146,8 +164,8 @@ func (c *Channel) SendAndWaitResponse(payload agentpb.ServerRequestPayload) agen
 		Id:      id,
 		Payload: payload.ServerMessageRequestPayload(),
 	})
-
-	return <-ch
+	resp := <-ch
+	return resp.Payload, resp.Error
 }
 
 func (c *Channel) send(msg *agentpb.ServerMessage) {
@@ -160,11 +178,10 @@ func (c *Channel) send(msg *agentpb.ServerMessage) {
 	}
 
 	// do not use default compact representation for large/complex messages
-	l := logger.Get(c.s.Context())
 	if size := proto.Size(msg); size < 100 {
-		l.Debugf("Sending message (%d bytes): %s.", size, msg)
+		c.l.Debugf("Sending message (%d bytes): %s.", size, msg)
 	} else {
-		l.Debugf("Sending message (%d bytes):\n%s\n", size, proto.MarshalTextString(msg))
+		c.l.Debugf("Sending message (%d bytes):\n%s\n", size, proto.MarshalTextString(msg))
 	}
 
 	err := c.s.Send(msg)
@@ -178,10 +195,9 @@ func (c *Channel) send(msg *agentpb.ServerMessage) {
 
 // runReader receives messages from server.
 func (c *Channel) runReceiver() {
-	l := logger.Get(c.s.Context())
 	defer func() {
 		close(c.requests)
-		l.Debug("Exiting receiver goroutine.")
+		c.l.Debug("Exiting receiver goroutine.")
 	}()
 
 	for {
@@ -194,9 +210,9 @@ func (c *Channel) runReceiver() {
 
 		// do not use default compact representation for large/complex messages
 		if size := proto.Size(msg); size < 100 {
-			l.Debugf("Received message (%d bytes): %s.", size, msg)
+			c.l.Debugf("Received message (%d bytes): %s.", size, msg)
 		} else {
-			l.Debugf("Received message (%d bytes):\n%s\n", size, proto.MarshalTextString(msg))
+			c.l.Debugf("Received message (%d bytes):\n%s\n", size, proto.MarshalTextString(msg))
 		}
 
 		switch p := msg.Payload.(type) {
@@ -236,32 +252,40 @@ func (c *Channel) runReceiver() {
 
 		// responses
 		case *agentpb.AgentMessage_Pong:
-			c.publish(msg.Id, p.Pong)
+			c.publish(msg.Id, msg.Status, p.Pong)
 		case *agentpb.AgentMessage_SetState:
-			c.publish(msg.Id, p.SetState)
+			c.publish(msg.Id, msg.Status, p.SetState)
 		case *agentpb.AgentMessage_StartAction:
-			c.publish(msg.Id, p.StartAction)
+			c.publish(msg.Id, msg.Status, p.StartAction)
 		case *agentpb.AgentMessage_StopAction:
-			c.publish(msg.Id, p.StopAction)
+			c.publish(msg.Id, msg.Status, p.StopAction)
 		case *agentpb.AgentMessage_StartJob:
-			c.publish(msg.Id, p.StartJob)
+			c.publish(msg.Id, msg.Status, p.StartJob)
 		case *agentpb.AgentMessage_StopJob:
-			c.publish(msg.Id, p.StopJob)
+			c.publish(msg.Id, msg.Status, p.StopJob)
 		case *agentpb.AgentMessage_JobStatus:
-			c.publish(msg.Id, p.JobStatus)
+			c.publish(msg.Id, msg.Status, p.JobStatus)
 		case *agentpb.AgentMessage_CheckConnection:
-			c.publish(msg.Id, p.CheckConnection)
+			c.publish(msg.Id, msg.Status, p.CheckConnection)
 
 		case nil:
-			c.close(errors.Errorf("failed to handle received message %s", msg))
-			return
+			c.cancel(msg.Id, errors.Errorf("unimplemented: failed to handle received message %s", msg))
+			if msg.Status != nil && grpcstatus.FromProto(msg.Status).Code() == codes.Unimplemented {
+				// This means pmm-agent does not know the message payload type we just sent.
+				// We continue here to stop endless cycle of Unimplemented messages between pmm-managed and pmm-agent.
+				c.l.Warnf("pmm-agent was not able to process message with id: %d, handling of that payload type is unimplemented", msg.Id)
+				continue
+			}
+			c.Send(&ServerResponse{
+				ID:     msg.Id,
+				Status: grpcstatus.New(codes.Unimplemented, "can't handle message type send, it is not implemented"),
+			})
 		}
 	}
 }
 
-func (c *Channel) subscribe(id uint32) chan agentpb.AgentResponsePayload {
-	ch := make(chan agentpb.AgentResponsePayload, 1)
-
+func (c *Channel) subscribe(id uint32) chan Response {
+	ch := make(chan Response, 1)
 	c.rw.Lock()
 	if c.responses == nil { // Channel is closed, no more subscriptions
 		c.rw.Unlock()
@@ -272,7 +296,7 @@ func (c *Channel) subscribe(id uint32) chan agentpb.AgentResponsePayload {
 	_, ok := c.responses[id]
 	if ok {
 		// it is possible only on lastSentRequestID wrap around, and we can't recover from that
-		logger.Get(c.s.Context()).Panicf("Already have subscriber for ID %d.", id)
+		c.l.Panicf("Already have subscriber for ID %d.", id)
 	}
 
 	c.responses[id] = ch
@@ -280,23 +304,40 @@ func (c *Channel) subscribe(id uint32) chan agentpb.AgentResponsePayload {
 	return ch
 }
 
-func (c *Channel) publish(id uint32, resp agentpb.AgentResponsePayload) {
+func (c *Channel) removeResponseChannel(id uint32) chan Response {
 	c.rw.Lock()
+	defer c.rw.Unlock()
 	if c.responses == nil { // Channel is closed, no more publishing
-		c.rw.Unlock()
-		return
+		return nil
 	}
 
 	ch := c.responses[id]
 	if ch == nil {
-		c.rw.Unlock()
-		c.close(errors.WithStack(fmt.Errorf("no subscriber for ID %d", id)))
+		c.l.Errorf("No subscriber for ID %d", id)
+		return nil
+	}
+	delete(c.responses, id)
+	return ch
+}
+
+// cancel sends an error to the subscriber and closes the subscription channel.
+func (c *Channel) cancel(id uint32, err error) {
+	if ch := c.removeResponseChannel(id); ch != nil {
+		ch <- Response{Error: err}
+		close(ch)
+	}
+}
+
+func (c *Channel) publish(id uint32, status *protostatus.Status, resp agentpb.AgentResponsePayload) {
+	if status != nil && grpcstatus.FromProto(status).Code() != codes.OK {
+		c.l.Errorf("got response %v with status %v", resp, status)
+		c.cancel(id, grpcstatus.FromProto(status).Err())
 		return
 	}
 
-	delete(c.responses, id)
-	c.rw.Unlock()
-	ch <- resp
+	if ch := c.removeResponseChannel(id); ch != nil {
+		ch <- Response{Payload: resp}
+	}
 }
 
 // Metrics returns current channel metrics.

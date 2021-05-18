@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -37,6 +36,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm-managed/utils/dir"
 	"github.com/percona/pmm-managed/utils/testdb"
 	"github.com/percona/pmm-managed/utils/tests"
 )
@@ -148,7 +148,7 @@ groups:
 		err = rules.RemoveVMAlertRulesFiles()
 		require.NoError(t, err)
 
-		matches, err := filepath.Glob(testDir + "/*.yml")
+		matches, err := dir.FindFilesWithExtensions(testDir, "yml", "yaml")
 
 		assert.Empty(t, matches)
 		assert.NoError(t, err)

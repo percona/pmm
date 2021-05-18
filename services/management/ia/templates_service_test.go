@@ -31,9 +31,9 @@ import (
 )
 
 const (
-	testBadTemplates = "../../../testdata/ia/bad/*.yml"
-	testTemplates    = "../../../testdata/ia/user2/*.yml"
-	testTemplates2   = "../../../testdata/ia/user/*.yml"
+	testBadTemplates = "../../../testdata/ia/bad"
+	testTemplates    = "../../../testdata/ia/user2"
+	testTemplates2   = "../../../testdata/ia/user"
 )
 
 func TestCollect(t *testing.T) {

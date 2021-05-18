@@ -38,6 +38,8 @@ type Client struct {
 	xtradbClusterClient       controllerv1beta1.XtraDBClusterAPIClient
 	psmdbClusterClient        controllerv1beta1.PSMDBClusterAPIClient
 	logsClient                controllerv1beta1.LogsAPIClient
+	xtradbOperatorClient      controllerv1beta1.XtraDBOperatorAPIClient
+	psmdbOperatorClient       controllerv1beta1.PSMDBOperatorAPIClient
 	connM                     *sync.RWMutex
 	conn                      *grpc.ClientConn
 	dbaasControllerAPIAddress string
@@ -81,6 +83,8 @@ func (c *Client) Connect(ctx context.Context) error {
 	c.xtradbClusterClient = controllerv1beta1.NewXtraDBClusterAPIClient(conn)
 	c.psmdbClusterClient = controllerv1beta1.NewPSMDBClusterAPIClient(conn)
 	c.logsClient = controllerv1beta1.NewLogsAPIClient(conn)
+	c.psmdbOperatorClient = controllerv1beta1.NewPSMDBOperatorAPIClient(conn)
+	c.xtradbOperatorClient = controllerv1beta1.NewXtraDBOperatorAPIClient(conn)
 
 	c.l.Info("Connected to dbaas-controller API.")
 	return nil
@@ -212,4 +216,18 @@ func (c *Client) GetResources(ctx context.Context, in *controllerv1beta1.GetReso
 	c.connM.RLock()
 	defer c.connM.RUnlock()
 	return c.kubernetesClient.GetResources(ctx, in, opts...)
+}
+
+// InstallXtraDBOperator installs kubernetes pxc operator.
+func (c *Client) InstallXtraDBOperator(ctx context.Context, in *controllerv1beta1.InstallXtraDBOperatorRequest, opts ...grpc.CallOption) (*controllerv1beta1.InstallXtraDBOperatorResponse, error) {
+	c.connM.RLock()
+	defer c.connM.RUnlock()
+	return c.xtradbOperatorClient.InstallXtraDBOperator(ctx, in, opts...)
+}
+
+// InstallPSMDBOperator installs kubernetes PSMDB operator.
+func (c *Client) InstallPSMDBOperator(ctx context.Context, in *controllerv1beta1.InstallPSMDBOperatorRequest, opts ...grpc.CallOption) (*controllerv1beta1.InstallPSMDBOperatorResponse, error) {
+	c.connM.RLock()
+	defer c.connM.RUnlock()
+	return c.psmdbOperatorClient.InstallPSMDBOperator(ctx, in, opts...)
 }

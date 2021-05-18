@@ -119,7 +119,7 @@ func (s *RulesService) RemoveVMAlertRulesFiles() error {
 	return nil
 }
 
-// writeVMAlertRulesFiles converts all available rules to VMAlert rule files.
+// WriteVMAlertRulesFiles converts all available rules to VMAlert rule files.
 func (s *RulesService) WriteVMAlertRulesFiles() {
 	rules, err := s.getAlertRules()
 	if err != nil {

@@ -116,6 +116,22 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 	if err != nil {
 		return nil, err
 	}
+	_, err = k.dbaasClient.InstallXtraDBOperator(ctx, &dbaascontrollerv1beta1.InstallXtraDBOperatorRequest{
+		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
+			Kubeconfig: req.KubeAuth.Kubeconfig,
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+	_, err = k.dbaasClient.InstallPSMDBOperator(ctx, &dbaascontrollerv1beta1.InstallPSMDBOperatorRequest{
+		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
+			Kubeconfig: req.KubeAuth.Kubeconfig,
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
 
 	return &dbaasv1beta1.RegisterKubernetesClusterResponse{}, nil
 }
