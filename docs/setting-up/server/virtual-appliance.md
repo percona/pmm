@@ -243,13 +243,13 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 
 1. Open a web browser and visit the guest IP address.
 2. The PMM login screen appears.
-	![image](../../_images/PMM_Login.jpg)
+	![!image](../../_images/PMM_Login.jpg)
 3. Enter the default username and password in the relevant fields and click *Log in*.
 	- username: `admin`
 	- password: `admin`
 4. (Recommended) Follow the prompts to change the default password.
 5. The PMM Home Dashboard appears.
-	![image](../../_images/PMM_Home_Dashboard.jpg)
+	![!image](../../_images/PMM_Home_Dashboard.jpg)
 
 ## (Optional) Change root password
 

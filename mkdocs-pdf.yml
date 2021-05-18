@@ -1,4 +1,4 @@
-# MkDocs configuration for PDF output only
+# MkDocs configuration for PDF output with Percona theme -- see _resources/templates/styles.scss
 
 site_name: Percona Monitoring and Management
 site_description: Documentation
@@ -74,6 +74,7 @@ nav:
       - using/index.md
       - using/interface.md
       - using/alerting.md
+      - using/backup.md
       - using/query-analytics.md
       - Percona Platform:
           - using/platform/index.md

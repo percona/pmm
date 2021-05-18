@@ -1,6 +1,6 @@
 # Nodes Compare
 
-![image](../../_images/PMM_Nodes_Compare.jpg)
+![!image](../../_images/PMM_Nodes_Compare.jpg)
 
 This dashboard lets you compare a wide range of parameters. Parameters of the same type are shown side by side for all servers, grouped into the following sections:
 

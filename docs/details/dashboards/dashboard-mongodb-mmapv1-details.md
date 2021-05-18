@@ -1,6 +1,6 @@
 # MongoDB MMAPv1 Details
 
-![image](../../_images/PMM_MongoDB_MMAPv1_Details.jpg)
+![!image](../../_images/PMM_MongoDB_MMAPv1_Details.jpg)
 
 ## Document Activity
 

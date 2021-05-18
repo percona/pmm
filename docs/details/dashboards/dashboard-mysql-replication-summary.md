@@ -1,6 +1,6 @@
 # MySQL Replication Summary
 
-![image](../../_images/PMM_MySQL_Replication_Summary.jpg)
+![!image](../../_images/PMM_MySQL_Replication_Summary.jpg)
 
 ## IO Thread Running
 

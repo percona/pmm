@@ -36,8 +36,8 @@ You can add multiple instances of MySQL or some other service to be monitored fr
 For example, to add complete MySQL monitoring for two local MySQL servers, the commands would be:
 
 ```sh
-sudo pmm-admin add mysql --username root --password root instance-01 127.0.0.1:3001
-sudo pmm-admin add mysql --username root --password root instance-02 127.0.0.1:3002
+pmm-admin add mysql --username root --password root instance-01 127.0.0.1:3001
+pmm-admin add mysql --username root --password root instance-02 127.0.0.1:3002
 ```
 
 For more information, run:
@@ -56,7 +56,7 @@ When you remove a monitoring service, previously collected data remains availabl
 
 By default, the RDS discovery works with the default `aws` partition. But you can switch to special regions, like the [GovCloud](https://aws.amazon.com/govcloud-us/) one, with the alternative [AWS partitions](https://docs.aws.amazon.com/sdk-for-go/api/aws/endpoints/#pkg-constants) (e.g. `aws-us-gov`) adding them to the *Settings* via the PMM Server [API](details/api.md).
 
-![image](_images/aws-partitions-in-api.png)
+![!image](_images/aws-partitions-in-api.png)
 
 To specify other than the default value, or to use several, use the JSON Array syntax: `["aws", "aws-cn"]`.
 

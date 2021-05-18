@@ -1,6 +1,6 @@
 # MySQL InnoDB Compression Details
 
-![image](../../_images/PMM_MySQL_InnoDB_Compression_Details.jpg)
+![!image](../../_images/PMM_MySQL_InnoDB_Compression_Details.jpg)
 
 This dashboard helps you analyze the efficiency of InnoDB compression.
 

@@ -1,6 +1,6 @@
 # MongoDB Cluster Summary
 
-![image](../../_images/PMM_MongoDB_Cluster_Summary.jpg)
+![!image](../../_images/PMM_MongoDB_Cluster_Summary.jpg)
 
 ## Current Connections Per Shard
 

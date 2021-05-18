@@ -1,6 +1,6 @@
 # NUMA Details
 
-![image](../../_images/PMM_NUMA_Details.jpg)
+![!image](../../_images/PMM_NUMA_Details.jpg)
 
 For each node, this dashboard shows metrics related to Non-uniform memory
 access (NUMA).

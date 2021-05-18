@@ -1,6 +1,6 @@
 # MySQL Instance Summary
 
-![image](../../_images/PMM_MySQL_Instance_Summary.jpg)
+![!image](../../_images/PMM_MySQL_Instance_Summary.jpg)
 
 ## MySQL Connections
 

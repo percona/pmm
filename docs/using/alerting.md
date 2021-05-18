@@ -27,19 +27,19 @@ This page has four tabs.
 
 1. *Alerts*: Shows alerts (if any).
 
-    ![](../_images/PMM_Integrated_Alerting_Alerts.jpg)
+    ![!](../_images/PMM_Integrated_Alerting_Alerts.jpg)
 
 2. *Alert Rules*: Shows rule definitions.
 
-    ![](../_images/PMM_Integrated_Alerting_Alert_Rules.jpg)
+    ![!](../_images/PMM_Integrated_Alerting_Alert_Rules.jpg)
 
 3. *Alert Rule Templates*: Lists rule templates.
 
-    ![](../_images/PMM_Integrated_Alerting_Alert_Rule_Templates.jpg)
+    ![!](../_images/PMM_Integrated_Alerting_Alert_Rule_Templates.jpg)
 
 4. *Notification Channels*: Lists notification channels.
 
-    ![](../_images/PMM_Integrated_Alerting_Notification_Channels.jpg)
+    ![!](../_images/PMM_Integrated_Alerting_Notification_Channels.jpg)
 
 ## Add a Notification Channel
 
@@ -49,7 +49,7 @@ This page has four tabs.
 
 3. Fill in the details:
 
-    ![](../_images/PMM_Integrated_Alerting_Notification_Channels_Add_Form.jpg)
+    ![!](../_images/PMM_Integrated_Alerting_Notification_Channels_Add_Form.jpg)
 
     - Name
     - Type
@@ -71,7 +71,7 @@ This page has four tabs.
 
 3. Fill in the details
 
-    ![](../_images/PMM_Integrated_Alerting_Alert_Rules_Add_Form.jpg)
+    ![!](../_images/PMM_Integrated_Alerting_Alert_Rules_Add_Form.jpg)
 
     - Template
     - Name
@@ -125,7 +125,7 @@ This page has four tabs.
     ```
     {% endraw %}
 
-    ![](../_images/PMM_Integrated_Alerting_Alert_Rule_Templates_Add_Form.jpg)
+    ![!](../_images/PMM_Integrated_Alerting_Alert_Rule_Templates_Add_Form.jpg)
 
     > **Alert Rule Template parameters**
     >

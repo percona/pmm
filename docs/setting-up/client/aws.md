@@ -12,7 +12,7 @@ It is crucial that *enhanced monitoring* be enabled for the Amazon RDS DB instan
 
 Set the *Enable Enhanced Monitoring* option in the settings of your Amazon RDS DB instance.
 
-![image](../../_images/amazon-rds.modify-db-instance.2.png)
+![!image](../../_images/amazon-rds.modify-db-instance.2.png)
 
 ## Creating an IAM user with permission to access Amazon RDS DB instances
 
@@ -28,7 +28,7 @@ A policy defines how AWS services can be accessed. Once defined it can be associ
 
 To define a new policy use the IAM page at AWS.
 
-![image](../../_images/aws.iam.png)
+![!image](../../_images/aws.iam.png)
 
 1. Select the *Policies* option on the navigation panel and click the *Create policy* button.
 
@@ -54,13 +54,13 @@ To define a new policy use the IAM page at AWS.
 
 3. Click *Review policy* and set a name to your policy, such as `AmazonRDSforPMMPolicy`. Then, click the *Create policy* button.
 
-    ![image](../../_images/aws.iam.create-policy.png)
+    ![!image](../../_images/aws.iam.create-policy.png)
 
 ## Creating an IAM user
 
 Policies are attached to existing IAM users or groups. To create a new IAM user, select *Users* on the Identity and Access Management page at AWS. Then click *Add user* and complete the following steps:
 
-![image](../../_images/aws.iam-users.1.png)
+![!image](../../_images/aws.iam-users.1.png)
 
 1. On the *Add user* page, set the user name and select the *Programmatic access* option under *Select AWS access type*. Set a custom password and then proceed to permissions by clicking the *Permissions* button.
 
@@ -96,7 +96,7 @@ First, make sure that the Identity and Access Management page is open and open *
 
 The `AmazonRDSforPMMPolicy` is now added to your IAM user.
 
-![image](../../_images/aws.iam.add-permissions.png)
+![!image](../../_images/aws.iam.add-permissions.png)
 
 ## Setting up the Amazon RDS DB Instance
 
@@ -131,30 +131,30 @@ The following steps are needed to add an Amazon RDS database instance to PMM:
 
 2. Select *AWS RDS MySQL or Aurora MySQL -- Add a remote instance*.
 
-    ![image](../../_images/PMM_Add_Instance_RDS.png)
+    ![!image](../../_images/PMM_Add_Instance_RDS.png)
 
 3. Enter the access key ID and the secret access key of your IAM user.
 
 4. Click the *Discover* button for PMM to retrieve the available Amazon RDS
 instances.
 
-    ![image](../../_images/PMM_Add_Instance_RDS_Discover.png)
+    ![!image](../../_images/PMM_Add_Instance_RDS_Discover.png)
 
 5. For the instance that you would like to monitor, select the *Start monitoring* button.
 
 6. You will see a new page with the number of fields. The list is divided into the following groups: *Main details*, *RDS database*, *Labels*, and *Additional options*. Some already known data, such as already entered *AWS access key*, are filled in automatically, and some fields are optional.
 
-    ![](../../_images/PMM_Add_Instance_RDS_Main_Details.png)
+    ![!](../../_images/PMM_Add_Instance_RDS_Main_Details.png)
 
     The *Main details* section allows you to specify the DNS hostname of your instance,
     the service name to use within PMM, the port your service is listening on, and the
     database user name and password.
 
-    ![image](../../_images/PMM_Add_Instance_RDS_Labels.png)
+    ![!image](../../_images/PMM_Add_Instance_RDS_Labels.png)
 
     The *Labels* section allows you to specify labels for the environment, the AWS region and availability zone to be used, the Replication set and Cluster names and also it allows you to set the list of custom labels in a key:value format.
 
-    ![](../../_images/PMM_Add_Instance_RDS_Additional_Options.png)
+    ![!](../../_images/PMM_Add_Instance_RDS_Additional_Options.png)
 
     The *Additional options* section contains specific flags which allow you to tune the RDS monitoring. They can allow you to skip connection check, to use TLS for the database connection, not to validate the TLS certificate and the hostname, as well as to disable basic and/or enhanced metrics collection for the RDS instance to reduce costs.
 
@@ -178,7 +178,7 @@ For PostgreSQL, use the same method described above.
 2. Select *AWS RDS MySQL or Aurora MySQL -- Add a remote instance*.
     *At the moment of writing this guide, the Add button doesn't mention PostgreSQL but the discovery function already supports it.*
 
-    ![image](../../_images/PMM_rds_postgre_02_discover.png)
+    ![!image](../../_images/PMM_rds_postgre_02_discover.png)
 
 4. Follow steps 4 to 6 as in the previous section. Fill the form and remember to select `PG Stat Statement` to enable Query Analytics.
     To get queries for Query Analytics, you need to enable `pg_stat_statements` in your instance by running:
@@ -187,5 +187,5 @@ For PostgreSQL, use the same method described above.
     CREATE EXTENSION pg_stat_statements SCHEMA public;
     ```
 
-    ![image](../../_images/PMM_rds_postgre_03_form_1.png)
-    ![image](../../_images/PMM_rds_postgre_04_add_btn.png)
+    ![!image](../../_images/PMM_rds_postgre_03_form_1.png)
+    ![!image](../../_images/PMM_rds_postgre_04_add_btn.png)

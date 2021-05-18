@@ -6,7 +6,7 @@
 4. [View selectors](#view-selectors) (dynamic contents)
 5. [Shortcut menu](#shortcut-menu) (dynamic contents)
 
-![](../_images/PMM_Home_Dashboard_TALL_Numbered.png)
+![!](../_images/PMM_Home_Dashboard_TALL_Numbered.png)
 
 
 ## Main menu
@@ -43,7 +43,7 @@ The main menu is part of the Grafana framework and is visible on every page.
 
 ### Navigation bar
 
-![Common page elements top row](../_images/PMM_Home_Dashboard_Menus_Top_Navigation_Bar.jpg)
+![!Common page elements top row](../_images/PMM_Home_Dashboard_Menus_Top_Navigation_Bar.jpg)
 
 | Item (left)                   | Description               |
 | ----------------------------- | ------------------------- |
@@ -69,7 +69,7 @@ The main menu is part of the Grafana framework and is visible on every page.
 
 This menu bar is context sensitive; it changes according to the page you are on. (With wide menus on small screens, items may wrap to the next row.)
 
-![](../_images/PMM_Home_Dashboard_Menus_Submenu_Bar.jpg)
+![!](../_images/PMM_Home_Dashboard_Menus_Submenu_Bar.jpg)
 
 | Item                          | Description                               |
 | ----------------------------- | ----------------------------------------  |

@@ -1,6 +1,6 @@
 # MongoDB InMemory Details
 
-![image](../../_images/PMM_MongoDB_InMemory_Details.jpg)
+![!image](../../_images/PMM_MongoDB_InMemory_Details.jpg)
 
 ## InMemory Transactions
 

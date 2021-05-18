@@ -35,8 +35,8 @@ Here is an overview of the steps involved for each option.
 
 > **Tip** If you have used `percona-release` before, disable and re-enable the repository:
 > ```sh
-> sudo percona-release disable all
-> sudo percona-release enable original release
+> percona-release disable all
+> percona-release enable original release
 > ```
 
 ### Install on Debian-based distributions
@@ -45,14 +45,14 @@ Here is an overview of the steps involved for each option.
 
     ```sh
     wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
-    sudo dpkg -i percona-release_latest.generic_all.deb
+    dpkg -i percona-release_latest.generic_all.deb
     ```
 
 2. Install the PMM Client package.
 
     ```sh
-    sudo apt update
-    sudo apt install -y pmm2-client
+    apt update
+    apt install -y pmm2-client
     ```
 
 3. Check.
@@ -68,13 +68,13 @@ Here is an overview of the steps involved for each option.
 1. Configure repositories.
 
     ```sh
-    sudo yum install -y https://repo.percona.com/yum/percona-release-latest.noarch.rpm
+    yum install -y https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     ```
 
 2. Install the PMM Client package.
 
     ```sh
-    sudo yum install -y pmm2-client
+    yum install -y pmm2-client
     ```
 
 3. Check.
@@ -111,13 +111,13 @@ Here are the download page links for each supported platform.
 ### Install on Debian-based distributions
 
 ```sh
-sudo dpkg -i *.deb
+dpkg -i *.deb
 ```
 
 ### Install on Red Hat-based distributions
 
 ```sh
-sudo dnf localinstall *.rpm
+dnf localinstall *.rpm
 ```
 
 ## Download and unpack generic Linux binary package {: #binary-package }
@@ -125,13 +125,13 @@ sudo dnf localinstall *.rpm
 1. Download the PMM Client package:
 
 	```sh
-	sudo wget https://downloads.percona.com/downloads/pmm2/{{release}}/binary/tarball/pmm2-client-{{release}}.tar.gz
+	wget https://downloads.percona.com/downloads/pmm2/{{release}}/binary/tarball/pmm2-client-{{release}}.tar.gz
 	```
 
 2. Download the PMM Client package checksum file:
 
 	```sh
-	sudo wget https://downloads.percona.com/downloads/pmm2/{{release}}/binary/tarball/pmm2-client-{{release}}.tar.gz.sha256sum
+	wget https://downloads.percona.com/downloads/pmm2/{{release}}/binary/tarball/pmm2-client-{{release}}.tar.gz.sha256sum
 	```
 
 3. Verify the download.
@@ -143,13 +143,13 @@ sudo dnf localinstall *.rpm
 4. Unpack the package and move into the directory.
 
 	```sh
-	sudo tar xfz pmm2-client-{{release}}.tar.gz && cd pmm2-client-{{release}}
+	tar xfz pmm2-client-{{release}}.tar.gz && cd pmm2-client-{{release}}
 	```
 
 5. Run the installer.
 
 	```sh
-	sudo ./install_tarball
+	./install_tarball
 	```
 
 6. Change the path.
@@ -161,7 +161,7 @@ sudo dnf localinstall *.rpm
 7. Set up the agent
 
 	```sh
-	sudo pmm-agent setup --config-file=/usr/local/percona/pmm2/config/pmm-agent.yaml --server-address=192.168.1.123 --server-insecure-tls --server-username=admin --server-password=admin
+	pmm-agent setup --config-file=/usr/local/percona/pmm2/config/pmm-agent.yaml --server-address=192.168.1.123 --server-insecure-tls --server-username=admin --server-password=admin
 	```
 
 8. Open a new terminal and run the agent.
@@ -183,13 +183,13 @@ sudo dnf localinstall *.rpm
 1. Uninstall the PMM Client package.
 
     ```sh
-    sudo apt remove -y pmm2-client
+    apt remove -y pmm2-client
     ```
 
 2. Remove the Percona repository
 
     ```sh
-    sudo dpkg -r percona-release
+    dpkg -r percona-release
     ```
 
 ### Remove on Red Hat-based distributions
@@ -197,13 +197,13 @@ sudo dnf localinstall *.rpm
 1. Uninstall the PMM Client package.
 
     ```sh
-    sudo yum remove -y pmm2-client
+    yum remove -y pmm2-client
     ```
 
 2. Remove the Percona repository
 
     ```sh
-    sudo yum remove -y percona-release
+    yum remove -y percona-release
     ```
 
 
@@ -284,6 +284,12 @@ You can now add services with [`pmm-admin`](../../details/commands/pmm-admin.md)
     docker rmi $(docker images | grep "percona/pmm-client" | awk {'print $3'})
     ```
 
+4. Remove the volume.
+
+   ```sh
+   docker volume rm pmm-client-data
+   ```
+
 ## Run PMM Client with Docker compose {: #docker-compose }
 
 1. Copy and paste this text into a file called `docker-compose.yml`.
@@ -306,6 +312,7 @@ You can now add services with [`pmm-admin`](../../details/commands/pmm-admin.md)
             max-file: "5"
         volumes:
           - ./pmm-agent.yaml:/etc/pmm-agent.yaml
+          - pmm-client-data:/srv
         environment:
           - PMM_AGENT_CONFIG_FILE=/etc/pmm-agent.yaml
           - PMM_AGENT_SERVER_USERNAME=admin
@@ -313,6 +320,8 @@ You can now add services with [`pmm-admin`](../../details/commands/pmm-admin.md)
           - PMM_AGENT_SERVER_ADDRESS=X.X.X.X:443
           - PMM_AGENT_SERVER_INSECURE_TLS=true
         entrypoint: pmm-agent setup
+    volumes:
+      pmm-client-data:
     ```
 
     > - Check the values in the `environment` section match those for your PMM Server. (`X.X.X.X` is the IP address of your PMM Server.)
@@ -328,7 +337,7 @@ You can now add services with [`pmm-admin`](../../details/commands/pmm-admin.md)
 3. Run the PMM Agent setup. This will run and stop.
 
     ```sh
-    sudo docker-compose up
+    docker-compose up
     ```
 
 4. Edit `docker-compose.yml`, comment out the `entrypoint` line (insert a `#`) and save.
@@ -341,7 +350,7 @@ You can now add services with [`pmm-admin`](../../details/commands/pmm-admin.md)
 5. Run again, this time with the Docker *detach* option.
 
     ```sh
-    sudo docker-compose up -d
+    docker-compose up -d
     ```
 
 6. Verify.
@@ -349,7 +358,7 @@ You can now add services with [`pmm-admin`](../../details/commands/pmm-admin.md)
     On the command line.
 
     ```sh
-    sudo docker exec pmm-client pmm-admin status
+    docker exec pmm-client pmm-admin status
     ```
 
     In the GUI.

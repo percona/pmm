@@ -35,7 +35,7 @@ docker run -d -p 443:443 --volumes-from pmm-data \
   --restart always percona/pmm-server:2
 ```
 
-> - The certificates must be owned by root. You can do this with: `sudo chown 0:0 /etc/pmm-certs/*`
+> - The certificates must be owned by root. You can do this with: `chown 0:0 /etc/pmm-certs/*`
 >
 > - The mounted certificate directory (`/etc/pmm-certs` in this example) must contain the files `certificate.crt`, `certificate.key`, `ca-certs.pem` and `dhparam.pem`.
 >

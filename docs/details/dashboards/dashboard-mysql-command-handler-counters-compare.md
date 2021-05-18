@@ -1,6 +1,6 @@
 # MySQL Command/Handler Counters Compare
 
-![image](../../_images/PMM_MySQL_Command_Handler_Counters_Compare.jpg)
+![!image](../../_images/PMM_MySQL_Command_Handler_Counters_Compare.jpg)
 
 This dashboard shows server status variables. On this dashboard, you may select multiple servers and compare their counters simultaneously.
 

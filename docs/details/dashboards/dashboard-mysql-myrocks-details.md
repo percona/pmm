@@ -1,6 +1,6 @@
 # MySQL MyRocks Details
 
-![image](../../_images/PMM_MySQL_MyRocks_Details.jpg)
+![!image](../../_images/PMM_MySQL_MyRocks_Details.jpg)
 
 The [MyRocks](http://myrocks.io) storage engine developed by Facebook based on the RocksDB storage engine is applicable to systems which primarily interact with the database by writing data to it rather than reading from it. RocksDB also features a good level of compression, higher than that of the InnoDB storage engine, which makes it especially valuable when optimizing the usage of hard drives.
 

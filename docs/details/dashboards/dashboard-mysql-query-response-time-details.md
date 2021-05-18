@@ -1,6 +1,6 @@
 # MySQL Query Response Time Details
 
-![image](../../_images/PMM_MySQL_Query_Response_Time_Details.jpg)
+![!image](../../_images/PMM_MySQL_Query_Response_Time_Details.jpg)
 
 ## Average Query Response Time
 

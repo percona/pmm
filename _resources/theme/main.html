@@ -162,6 +162,13 @@ nav:
 {%- for scriptfile in config.extra_javascript %}
 <script src="{{ scriptfile|url }}" type="text/javascript"></script>
 {% endfor %}
+{# For lightgallery-markdown #}
+<script>
+    var elements = document.getElementsByClassName("lightgallery");
+    for(var i=0; i<elements.length; i++) {
+       lightGallery(elements[i]);
+    }
+</script>
 {% endmacro %}
 
 {# Inserts CSS files from mkdocs.yml #}

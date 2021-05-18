@@ -4,7 +4,7 @@ The *Settings* page is where you configure PMM.
 
 Open the *Settings* page from the [main menu](../details/interface.md#main-menu) with {{icon.cog}} *Configuration-->Settings*. The page opens with the *Metrics Resolution* settings tab selected.
 
-![image](../_images/PMM_Settings_Metrics_Resolution.jpg)
+![!image](../_images/PMM_Settings_Metrics_Resolution.jpg)
 
 On the left are the selector tabs:
 
@@ -44,7 +44,7 @@ Metrics are collected at three intervals representing low, medium and high resol
 
 The *Metrics Resolution* settings tab contains a radio button with three fixed presets (*Rare*, *Standard* and *Frequent*) and one editable custom preset (*Custom*).
 
-![image](../_images/PMM_Settings_Metrics_Resolution.jpg)
+![!image](../_images/PMM_Settings_Metrics_Resolution.jpg)
 
 Each preset is a group of low, medium and high resolutions. The values are in seconds.
 
@@ -69,7 +69,7 @@ Values for the *Custom* preset can be entered as values, or changed with the arr
 
 ## Advanced Settings
 
-![](../_images/PMM_Settings_Advanced_Settings.png)
+![!](../_images/PMM_Settings_Advanced_Settings.png)
 
 ### Data Retention
 
@@ -131,11 +131,11 @@ Checks use the *Standard* interval by default. To change a check's interval:
 - Select *All Checks*
 - In the *Actions* column, select the {{icon.history}} icon
 
-    ![](../_images/PMM_Security_Checks_Actions.png)
+    ![!](../_images/PMM_Security_Checks_Actions.png)
 
 - Select an interval and click *Save*
 
-    ![](../_images/PMM_Security_Checks_Actions_Set_Interval.png)
+    ![!](../_images/PMM_Security_Checks_Actions_Set_Interval.png)
 
 (Read more at [Security Threat Tool](../using/platform/security-threat-tool.md).)
 
@@ -171,7 +171,7 @@ Public address for accessing DBaaS features on this server.
 
 This section lets you upload your public SSH key to access the PMM Server via SSH (for example, when accessing PMM Server as a [virtual appliance](../setting-up/server/virtual-appliance.md)).
 
-![](../_images/PMM_Settings_SSH_Key.jpg)
+![!](../_images/PMM_Settings_SSH_Key.jpg)
 
 Enter your **public key** in the *SSH Key* field and click *Apply SSH Key*.
 
@@ -184,7 +184,7 @@ This section lets you configure integration of VictoriaMetrics with an external 
 - The *Alertmanager URL* field should contain the URL of the Alertmanager which would serve your PMM alerts.
 - The *Prometheus Alerting rules* field is used to specify alerting rules in the YAML configuration format.
 
-![](../_images/PMM_Settings_Alertmanager_Integration.jpg)
+![!](../_images/PMM_Settings_Alertmanager_Integration.jpg)
 
 Fill both fields and click the *Apply Alertmanager settings* button to proceed.
 
@@ -194,7 +194,7 @@ This panel is where you create, and log into and out of your Percona Platform ac
 
 ### Login
 
-![image](../_images/PMM_Settings_Percona_Platform_Login.jpg)
+![!image](../_images/PMM_Settings_Percona_Platform_Login.jpg)
 
 If you have a *Percona Platform* account, enter your credentials and click *Login*.
 
@@ -202,7 +202,7 @@ Click *Sign out* to log out of your Percona Platform account.
 
 ### Sign up
 
-![image](../_images/PMM_Settings_Percona_Platform_Sign_Up.jpg)
+![!image](../_images/PMM_Settings_Percona_Platform_Sign_Up.jpg)
 
 To create a *Percona Platform* account:
 
@@ -224,7 +224,7 @@ In case you forgot your password, click on the *Forgot password* link in the log
 
 You will be redirected to a password reset page. Enter the email you are registered with in the field and click on *Reset via Email*.
 
-![image](../_images/PMM_Settings_Percona_Platform_Password_Reset.jpg)
+![!image](../_images/PMM_Settings_Percona_Platform_Password_Reset.jpg)
 
 An email with a link to reset your password will be sent to you.
 
@@ -232,7 +232,7 @@ An email with a link to reset your password will be sent to you.
 
 If you did not forget your password but you still want to change it, go to <https://okta.percona.com/enduser/settings> (make sure you are logged in).
 
-![image](../_images/PMM_Settings_Percona_Platform_Password_Reset_Okta.jpg)
+![!image](../_images/PMM_Settings_Percona_Platform_Password_Reset_Okta.jpg)
 
 Insert you current password and the new password in the form to the bottom right of the page. If you cannot see the form, you will need to click on the *Edit Profile* green button (you will be prompted for you password).
 
@@ -244,7 +244,7 @@ Global communications settings for [Integrated Alerting](../using/alerting.md).
 
 > If there is no *Communication* tab, go to the *Advanced Settings* tab and activate *Integrated Alerting*.
 
-![](../_images/PMM_Settings_Communication.png)
+![!](../_images/PMM_Settings_Communication.png)
 
 (Integrated Alerting uses a separate instance of Alertmanager run by `pmm-managed`.)
 
@@ -265,7 +265,7 @@ Settings for the SMTP email server:
 
 ### Slack
 
-![](../_images/PMM_Settings_Communication_Slack.png)
+![!](../_images/PMM_Settings_Communication_Slack.png)
 
 Settings for Slack notifications:
 
