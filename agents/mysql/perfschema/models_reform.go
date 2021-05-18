@@ -216,6 +216,92 @@ var (
 	_ fmt.Stringer  = (*eventsStatementsSummaryByDigest)(nil)
 )
 
+type eventsStatementsSummaryByDigestExamplesViewType struct {
+	s parse.StructInfo
+	z []interface{}
+}
+
+// Schema returns a schema name in SQL database ("performance_schema").
+func (v *eventsStatementsSummaryByDigestExamplesViewType) Schema() string {
+	return v.s.SQLSchema
+}
+
+// Name returns a view or table name in SQL database ("events_statements_summary_by_digest").
+func (v *eventsStatementsSummaryByDigestExamplesViewType) Name() string {
+	return v.s.SQLName
+}
+
+// Columns returns a new slice of column names for that view or table in SQL database.
+func (v *eventsStatementsSummaryByDigestExamplesViewType) Columns() []string {
+	return []string{
+		"QUERY_SAMPLE_TEXT",
+		"DIGEST",
+		"SCHEMA_NAME",
+	}
+}
+
+// NewStruct makes a new struct for that view or table.
+func (v *eventsStatementsSummaryByDigestExamplesViewType) NewStruct() reform.Struct {
+	return new(eventsStatementsSummaryByDigestExamples)
+}
+
+// eventsStatementsSummaryByDigestExamplesView represents events_statements_summary_by_digest view or table in SQL database.
+var eventsStatementsSummaryByDigestExamplesView = &eventsStatementsSummaryByDigestExamplesViewType{
+	s: parse.StructInfo{
+		Type:      "eventsStatementsSummaryByDigestExamples",
+		SQLSchema: "performance_schema",
+		SQLName:   "events_statements_summary_by_digest",
+		Fields: []parse.FieldInfo{
+			{Name: "SQLText", Type: "*string", Column: "QUERY_SAMPLE_TEXT"},
+			{Name: "Digest", Type: "*string", Column: "DIGEST"},
+			{Name: "CurrentSchema", Type: "*string", Column: "SCHEMA_NAME"},
+		},
+		PKFieldIndex: -1,
+	},
+	z: new(eventsStatementsSummaryByDigestExamples).Values(),
+}
+
+// String returns a string representation of this struct or record.
+func (s eventsStatementsSummaryByDigestExamples) String() string {
+	res := make([]string, 3)
+	res[0] = "SQLText: " + reform.Inspect(s.SQLText, true)
+	res[1] = "Digest: " + reform.Inspect(s.Digest, true)
+	res[2] = "CurrentSchema: " + reform.Inspect(s.CurrentSchema, true)
+	return strings.Join(res, ", ")
+}
+
+// Values returns a slice of struct or record field values.
+// Returned interface{} values are never untyped nils.
+func (s *eventsStatementsSummaryByDigestExamples) Values() []interface{} {
+	return []interface{}{
+		s.SQLText,
+		s.Digest,
+		s.CurrentSchema,
+	}
+}
+
+// Pointers returns a slice of pointers to struct or record fields.
+// Returned interface{} values are never untyped nils.
+func (s *eventsStatementsSummaryByDigestExamples) Pointers() []interface{} {
+	return []interface{}{
+		&s.SQLText,
+		&s.Digest,
+		&s.CurrentSchema,
+	}
+}
+
+// View returns View object for that struct.
+func (s *eventsStatementsSummaryByDigestExamples) View() reform.View {
+	return eventsStatementsSummaryByDigestExamplesView
+}
+
+// check interfaces
+var (
+	_ reform.View   = eventsStatementsSummaryByDigestExamplesView
+	_ reform.Struct = (*eventsStatementsSummaryByDigestExamples)(nil)
+	_ fmt.Stringer  = (*eventsStatementsSummaryByDigestExamples)(nil)
+)
+
 type eventsStatementsHistoryViewType struct {
 	s parse.StructInfo
 	z []interface{}
@@ -471,6 +557,7 @@ var (
 
 func init() {
 	parse.AssertUpToDate(&eventsStatementsSummaryByDigestView.s, new(eventsStatementsSummaryByDigest))
+	parse.AssertUpToDate(&eventsStatementsSummaryByDigestExamplesView.s, new(eventsStatementsSummaryByDigestExamples))
 	parse.AssertUpToDate(&eventsStatementsHistoryView.s, new(eventsStatementsHistory))
 	parse.AssertUpToDate(&setupConsumersView.s, new(setupConsumers))
 	parse.AssertUpToDate(&setupInstrumentsView.s, new(setupInstruments))

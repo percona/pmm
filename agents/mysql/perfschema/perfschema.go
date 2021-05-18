@@ -21,6 +21,8 @@ import (
 	"database/sql"
 	"io"
 	"math"
+	"strconv"
+	"sync"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -35,7 +37,32 @@ import (
 	"github.com/percona/pmm-agent/agents"
 	"github.com/percona/pmm-agent/tlshelpers"
 	"github.com/percona/pmm-agent/utils/truncate"
+	"github.com/percona/pmm-agent/utils/version"
 )
+
+// mySQLVersion contains
+type mySQLVersion struct {
+	version float64
+	vendor  string
+}
+
+// versionsCache provides cached access to MySQL version.
+type versionsCache struct {
+	rw    sync.RWMutex
+	items map[string]*mySQLVersion
+}
+
+func (m *PerfSchema) mySQLVersion() *mySQLVersion {
+	m.versionsCache.rw.RLock()
+	defer m.versionsCache.rw.RUnlock()
+
+	res := m.versionsCache.items[m.agentID]
+	if res == nil {
+		return &mySQLVersion{}
+	}
+
+	return res
+}
 
 const (
 	retainHistory  = 5 * time.Minute
@@ -55,6 +82,7 @@ type PerfSchema struct {
 	changes              chan agents.Change
 	historyCache         *historyCache
 	summaryCache         *summaryCache
+	versionsCache        *versionsCache
 }
 
 // Params represent Agent parameters.
@@ -118,6 +146,7 @@ func newPerfSchema(params *newPerfSchemaParams) *PerfSchema {
 		changes:              make(chan agents.Change, 10),
 		historyCache:         newHistoryCache(retainHistory),
 		summaryCache:         newSummaryCache(retainSummaries),
+		versionsCache:        &versionsCache{items: make(map[string]*mySQLVersion)},
 	}
 }
 
@@ -140,6 +169,20 @@ func (m *PerfSchema) Run(ctx context.Context) {
 	} else {
 		m.l.Error(err)
 		m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
+	}
+
+	// cache MySQL version
+	ver, ven, err := version.GetMySQLVersion(m.q)
+	if err != nil {
+		m.l.Error(err)
+	}
+	mysqlVer, err := strconv.ParseFloat(ver, 64)
+	if err != nil {
+		m.l.Error(err)
+	}
+	m.versionsCache.items[m.agentID] = &mySQLVersion{
+		version: mysqlVer,
+		vendor:  ven,
 	}
 
 	go m.runHistoryCacheRefresher(ctx)
@@ -207,7 +250,16 @@ func (m *PerfSchema) runHistoryCacheRefresher(ctx context.Context) {
 }
 
 func (m *PerfSchema) refreshHistoryCache() error {
-	current, err := getHistory(m.q)
+	mysqlVer := m.mySQLVersion()
+
+	var err error
+	var current map[string]*eventsStatementsHistory
+	switch {
+	case mysqlVer.version >= 8 && mysqlVer.vendor == "oracle":
+		current, err = getHistory80(m.q)
+	default:
+		current, err = getHistory(m.q)
+	}
 	if err != nil {
 		return err
 	}

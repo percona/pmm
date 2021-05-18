@@ -16,6 +16,7 @@
 package perfschema
 
 import (
+	"database/sql"
 	"sync"
 	"time"
 
@@ -30,6 +31,21 @@ func getHistory(q *reform.Querier) (map[string]*eventsStatementsHistory, error) 
 	}
 	defer rows.Close() //nolint:errcheck
 
+	return getHistoryRows(rows, q)
+}
+
+func getHistory80(q *reform.Querier) (map[string]*eventsStatementsHistory, error) {
+	rows, err := q.SelectRows(eventsStatementsSummaryByDigestExamplesView, "WHERE DIGEST IS NOT NULL AND QUERY_SAMPLE_TEXT IS NOT NULL")
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to query events_statements_summary_by_digest")
+	}
+	defer rows.Close() //nolint:errcheck
+
+	return getHistoryRows(rows, q)
+}
+
+func getHistoryRows(rows *sql.Rows, q *reform.Querier) (map[string]*eventsStatementsHistory, error) {
+	var err error
 	res := make(map[string]*eventsStatementsHistory)
 	for {
 		var esh eventsStatementsHistory

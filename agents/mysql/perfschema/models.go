@@ -51,6 +51,15 @@ type eventsStatementsSummaryByDigest struct {
 	// LastSeen                time.Time `reform:"LAST_SEEN"`
 }
 
+// eventsStatementsSummaryByDigestExamples represents a row in
+// performance_schema.events_statements_summary_by_digest table for MySQL 8.0 examples.
+//reform:performance_schema.events_statements_summary_by_digest
+type eventsStatementsSummaryByDigestExamples struct {
+	SQLText       *string `reform:"QUERY_SAMPLE_TEXT"`
+	Digest        *string `reform:"DIGEST"`
+	CurrentSchema *string `reform:"SCHEMA_NAME"`
+}
+
 // eventsStatementsHistory represents a row in performance_schema.events_statements_history table.
 //reform:performance_schema.events_statements_history
 type eventsStatementsHistory struct {
