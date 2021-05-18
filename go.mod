@@ -34,7 +34,7 @@ require (
 	github.com/lib/pq v1.8.0
 	github.com/minio/minio-go/v7 v7.0.10
 	github.com/mitchellh/mapstructure v1.3.3 // indirect
-	github.com/percona-platform/dbaas-api v0.0.0-20210507104513-7da6c5473f86
+	github.com/percona-platform/dbaas-api v0.0.0-20210518140815-21d371355e30
 	github.com/percona-platform/saas v0.0.0-20210505183502-c18b6f47c932
 	github.com/percona/pmm v2.17.1-0.20210517140246-0c5987831641+incompatible
 	github.com/percona/promconfig v0.2.1
