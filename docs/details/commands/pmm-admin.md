@@ -345,7 +345,6 @@ When you remove a service, collected data remains on PMM Server for the specifie
     `--size-slow-logs=N`
     : Rotate slow log file at this size. If `0`, use server-defined default. Negative values disable log rotation. A unit suffix must be appended to the number and can be one of:
 
-        - `KB`, `kB`, `MB`, `mB`, `GB`, `gB`, `TB`, `tB` for base 10 units (1000, 1000000, etc);
         - `KiB`, `MiB`, `GiB`, `TiB` for base 2 units (1024, 1048576, etc).
 
     `--disable-queryexamples`
