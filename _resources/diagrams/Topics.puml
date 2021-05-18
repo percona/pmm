@@ -6,15 +6,8 @@
 ' Text: https://plantuml.com/creole
 @startmindmap "PMM_DOC_TOPICS"
 !include _resources/diagrams/plantuml_styles.puml
+skinparam svgLinkTarget _blank
 <style>
-'mindmapDiagram {
-'  node {
-'  BackgroundColor #cce6ff
-'  Padding 5
-'  Margin 5
-'  }
-'}
-
 mindmapDiagram {
   node {
     ' Gap within nodes
@@ -30,8 +23,6 @@ mindmapDiagram {
     BackgroundColor goldenrod
   }
 }
-
-
 </style>
 ' Absolute links - can be useful for exporting map as stand-alone image
 ' relative links make testing easier but must be changed for local vs hosting' Hosted
