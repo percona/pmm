@@ -44,6 +44,7 @@ We maintain a [Docker image for PMM Server][DOCKERHUB]. This section shows how t
     > PRO Tip: Eliminate browser certificate warnings by configuring a [trusted certificate](https://www.percona.com/doc/percona-monitoring-and-management/2.x/how-to/secure.html#ssl-encryption)
 
 ### Docker environment variables
+
 It is possible to change some server setting by using environment variables when starting the Docker container.
 Use `-e var=value` in your pmm-server run command.
 
@@ -67,15 +68,15 @@ Use `-e var=value` in your pmm-server run command.
 | `PMM_TRACE`                | Enables a more verbose log level including trace-back information       |
 
 #### Ignored variables
-These variables will be ignored by `pmm-managed` when starting the server. If any other variable is found,
-it will be considered invalid and the server won't start.
+
+These variables will be ignored by `pmm-managed` when starting the server. If any other variable is found, it will be considered invalid and the server won't start.
 
 | Variable                                                        | Description                                            |
 | --------------------------------------------------------------- | ------------------------------------------------------ |
 | `_`, `HOME`, `HOSTNAME`, `LANG`, `PATH`, `PWD`, `SHLVL`, `TERM` | Default environment variables                          |
 | `GF_*`                                                          | Grafana's environment variables                        |
 | `SUPERVISOR_`                                                   | Supervisord environment variables                      |
-| `PERCONA_TEST_`                                                 | Unknown variable but won't prevent the server to start |
+| `PERCONA_TEST_`                                                 | Unknown variable but won't prevent the server starting |
 | `PERCONA_TEST_DBAAS`                                            | Deprecated. Use `ENABLE_DBAAS`                         |
 
 
