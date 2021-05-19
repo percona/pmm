@@ -20,6 +20,8 @@ To open the DBaaS dashboard:
 
 ### Add a Kubernetes cluster
 
+> PXC and PSMDB operators are installed as part of the Kubernetes cluster registration process. It enables you to deploy database clusters into the Kubernetes cluster.
+
 1. Click *Register new Kubernetes Cluster*
 
 2. Enter values for the *Kubernetes Cluster Name* and *Kubeconfig file* in the corresponding fields.
@@ -69,6 +71,8 @@ Administrators can select allowed and default versions of components versions fo
 The Kubernetes Cluster tab shows the status of operators.
 
 ![!](../../_images/PMM_DBaaS_Kubernetes_Cluster_Operator_Status.png)
+
+> In case operators get deleted by accident, you can simply install them by unregistrating and then adding back the Kubernetes the cluster.
 
 ## DB clusters
 
