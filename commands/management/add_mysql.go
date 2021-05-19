@@ -260,7 +260,7 @@ func init() {
 	querySourceHelp := fmt.Sprintf("Source of SQL queries, one of: %s (default: %s)", strings.Join(querySources, ", "), querySources[0])
 	AddMySQLC.Flag("query-source", querySourceHelp).Default(querySources[0]).EnumVar(&AddMySQL.QuerySource, querySources...)
 	AddMySQLC.Flag("disable-queryexamples", "Disable collection of query examples").BoolVar(&AddMySQL.DisableQueryExamples)
-	AddMySQLC.Flag("size-slow-logs", "Rotate slow log file at this size (default: server-defined; negative value disables rotation)").
+	AddMySQLC.Flag("size-slow-logs", `Rotate slow log file at this size (default: server-defined; negative value disables rotation). Ex.: 1GiB`).
 		BytesVar(&AddMySQL.MaxSlowlogFileSize)
 	AddMySQLC.Flag("disable-tablestats", "Disable table statistics collection").BoolVar(&AddMySQL.DisableTablestats)
 	AddMySQLC.Flag("disable-tablestats-limit", "Table statistics collection will be disabled if there are more than specified number of tables (default: server-defined)").
