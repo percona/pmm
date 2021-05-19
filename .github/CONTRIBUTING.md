@@ -6,8 +6,7 @@ git, make, curl, go, nginx
 
 ## Local setup
 
-1. Install [dep](https://github.com/golang/dep).
-2. Run `make -C api init` to install dependencies.
+1. Run `make -C api init` to install dependencies.
 
 ### To run nginx
 
