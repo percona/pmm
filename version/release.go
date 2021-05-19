@@ -2,6 +2,7 @@
 package version
 
 import (
+	"encoding/json"
 	"strconv"
 	"strings"
 	"time"
@@ -55,18 +56,22 @@ func Time() (time.Time, error) {
 	return time.Unix(sec, 0).UTC(), nil
 }
 
-// FullInfo returns multi-line version information.
-func FullInfo() string {
+// timestampFormatted returns timestamp in format "YYYY-MM-DD HH:mm:ss (UTC)"
+func timestampFormatted() string {
 	timestamp := Timestamp
 	if t, err := Time(); err == nil {
 		timestamp = t.Format("2006-01-02 15:04:05 (UTC)")
 	}
+	return timestamp
+}
 
+// FullInfo returns multi-line version information.
+func FullInfo() string {
 	res := []string{
 		"ProjectName: " + ProjectName,
 		"Version: " + Version,
 		"PMMVersion: " + PMMVersion,
-		"Timestamp: " + timestamp,
+		"Timestamp: " + timestampFormatted(),
 		"FullCommit: " + FullCommit,
 	}
 	if Branch != "" {
@@ -74,4 +79,24 @@ func FullInfo() string {
 	}
 
 	return strings.Join(res, "\n")
+}
+
+// FullInfoJson returns version information in JSON format.
+func FullInfoJson() string {
+	resMap := map[string]string{
+		"ProjectName": ProjectName,
+		"Version":     Version,
+		"PMMVersion":  PMMVersion,
+		"Timestamp":   timestampFormatted(),
+		"FullCommit":  FullCommit,
+	}
+	if Branch != "" {
+		resMap["Branch"] = Branch
+	}
+
+	resJson, err := json.Marshal(resMap)
+	if err != nil {
+		panic(err)
+	}
+	return string(resJson)
 }

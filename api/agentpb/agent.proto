@@ -7,6 +7,7 @@ option go_package = "api/agentpb;agentpb";
 import "agentpb/collector.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
+import "google/rpc/status.proto";
 import "inventorypb/agent_status.proto";
 import "inventorypb/agents.proto";
 import "inventorypb/services.proto";
@@ -70,6 +71,10 @@ message SetStateRequest {
     int64 max_query_log_size = 4;
     // Contains files and their contents which can be used in DSN.
     TextFiles text_files = 5;
+    // TLS in enabled if true.
+    bool tls = 6;
+    // TLS certificate wont be verified.
+    bool tls_skip_verify = 7;
   }
   map<string, BuiltinAgent> builtin_agents = 2;
 }
@@ -139,24 +144,40 @@ message StartActionRequest {
     string dsn = 1;
     string query = 2;
     MysqlExplainOutputFormat output_format = 3;
+    // Contains files and their contents which can be used in DSN.
+    TextFiles tls_files = 4;
+    // TLS certificate wont be verified.
+    bool tls_skip_verify = 5;
   }
   // MySQLShowCreateTableParams describes MySQL SHOW CREATE TABLE action parameters.
   message MySQLShowCreateTableParams {
     // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
     string table = 2;
+    // Contains files and their contents which can be used in DSN.
+    TextFiles tls_files = 3;
+    // TLS certificate wont be verified.
+    bool tls_skip_verify = 4;
   }
   // MySQLShowTableStatusParams describes MySQL SHOW TABLE STATUS action parameters.
   message MySQLShowTableStatusParams {
     // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
     string table = 2;
+    // Contains files and their contents which can be used in DSN.
+    TextFiles tls_files = 3;
+    // TLS certificate wont be verified.
+    bool tls_skip_verify = 4;
   }
   // MySQLShowIndexParams describes MySQL SHOW INDEX action parameters.
   message MySQLShowIndexParams {
     // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
     string table = 2;
+    // Contains files and their contents which can be used in DSN.
+    TextFiles tls_files = 3;
+    // TLS certificate wont be verified.
+    bool tls_skip_verify = 4;
   }
   // PostgreSQLShowCreateTableParams describes PostgreSQL SHOW CREATE TABLE action parameters.
   message PostgreSQLShowCreateTableParams {
@@ -210,6 +231,10 @@ message StartActionRequest {
     string dsn = 1;
     // Query suffix (without leading SHOW).
     string query = 2;
+    // Contains files and their contents which can be used in DSN.
+    TextFiles tls_files = 3;
+    // TLS certificate wont be verified.
+    bool tls_skip_verify = 4;
   }
   // MySQLQuerySelectParams describes MySQL SELECT query action parameters.
   message MySQLQuerySelectParams {
@@ -217,6 +242,10 @@ message StartActionRequest {
     string dsn = 1;
     // Query suffix (without leading SELECT).
     string query = 2;
+    // Contains files and their contents which can be used in DSN.
+    TextFiles tls_files = 3;
+    // TLS certificate wont be verified.
+    bool tls_skip_verify = 4;
   }
   // PostgreSQLQueryShowParams describes PostgreSQL SHOW query action parameters.
   message PostgreSQLQueryShowParams {
@@ -315,6 +344,8 @@ message CheckConnectionRequest {
   google.protobuf.Duration timeout = 3;
   // Contains files and their contents which can be used in DSN.
   TextFiles text_files = 4;
+  // TLS certificate wont be verified.
+  bool tls_skip_verify = 5;
 }
 
 // CheckConnectionResponse is an AgentMessage containing a result of connection check.
@@ -339,6 +370,15 @@ message JobStatusResponse {
   bool alive = 1;
 }
 
+// S3LocationConfig represents S3 bucket configuration.
+message S3LocationConfig {
+  string endpoint = 1;
+  string access_key = 2;
+  string secret_key = 3;
+  string bucket_name = 4;
+  string bucket_region = 5;
+}
+
 // StartJobRequest is a ServerMessage asking pmm-agent to start job.
 message StartJobRequest {
   // Echo is a simple echo job that can be delayed.
@@ -346,11 +386,43 @@ message StartJobRequest {
     string message = 1;
     google.protobuf.Duration delay = 2;
   }
+  // MySQLBackup is job for backup MySQL service.
+  message MySQLBackup {
+    // Database user;
+    string user = 1;
+    // Database password.
+    string password = 2;
+    // Database address. Can't be specified with socket.
+    string address = 3;
+    // Database port. Can't be specified with socket.
+    int32 port = 4;
+    // Database unix socket. Can't be specified with address/port.
+    string socket = 5;
+    // Backup name.
+    string name = 6;
+    // Backup target location.
+    oneof location_config {
+      S3LocationConfig s3_config = 10;
+    }
+  }
+  // MySQLRestoreBackup is job for MySQL restore backup service.
+  message MySQLRestoreBackup {
+    // Service identifier where the backup should be restored.
+    string service_id = 1;
+    // Backup name.
+    string name = 2;
+    // Where backup is stored.
+    oneof location_config {
+      S3LocationConfig s3_config = 10;
+    }
+  }
   string job_id = 1;
   // Timeout for the job.
   google.protobuf.Duration timeout = 2;
   oneof job {
     Echo echo = 10;
+    MySQLBackup mysql_backup = 11;
+    MySQLRestoreBackup mysql_restore_backup = 12;
   }
 }
 
@@ -377,11 +449,19 @@ message JobResult {
   message Echo {
     string message = 1;
   }
+  // MySQLBackup contains result for MySQL backup job.
+  message MySQLBackup {}
+
+  // MySQLRestoreBackup contains result for MySQL restore backup job.
+  message MySQLRestoreBackup {}
+
   string job_id = 1;
   google.protobuf.Timestamp timestamp = 2;
   oneof result {
     Error error = 10;
     Echo echo = 11;
+    MySQLBackup mysql_backup = 12;
+    MySQLRestoreBackup mysql_restore_backup = 13;
   }
 }
 
@@ -391,10 +471,18 @@ message JobProgress {
   message Echo {
     string status = 1;
   }
+  // MySQLBackup contains backup job status update.
+  message MySQLBackup {}
+
+  // MySQLRestoreBackup contains restore backup job status update.
+  message MySQLRestoreBackup {}
+
   string job_id = 1;
   google.protobuf.Timestamp timestamp = 2;
   oneof result {
     Echo echo = 10;
+    MySQLBackup mysql_backup = 11;
+    MySQLRestoreBackup mysql_restore_backup = 12;
   }
 }
 
@@ -402,6 +490,12 @@ message AgentMessage {
   // TODO https://jira.percona.com/browse/PMM-3449
 
   uint32 id = 1;
+  // The responder sets the status field in two situations:
+  // 1. When it received a request with the payload field not set.
+  //    That means that responded is older than the requester, and doesn't know about newer payload types.
+  //    Status code UNIMPLEMENTED (12) is reserved for that case.
+  // 2. When the payload is set, but the request can't be performed due to some error.
+  google.rpc.Status status = 2047;
   oneof payload {
     // requests from agent
     Ping ping = 2;
@@ -426,6 +520,12 @@ message ServerMessage {
   // TODO https://jira.percona.com/browse/PMM-3449
 
   uint32 id = 1;
+  // The responder sets the status field in two situations:
+  // 1. When it received a request with the payload field not set.
+  //    That means that responded is older than the requester, and doesn't know about newer payload types.
+  //    Status code UNIMPLEMENTED (12) is reserved for that case.
+  // 2. When the payload is set, but the request can't be performed due to some error.
+  google.rpc.Status status = 2047;
   oneof payload {
     // responses from server
     Pong pong = 2;

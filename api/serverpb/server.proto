@@ -244,6 +244,10 @@ message ChangeSettingsRequest {
   bool enable_backup_management = 24;
   // Disable Backup Management.
   bool disable_backup_management = 25;
+  // Enable DBaaS.
+  bool enable_dbaas = 26;
+  // Disable DBaaS.
+  bool disable_dbaas = 27;
 }
 
 message ChangeSettingsResponse {

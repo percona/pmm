@@ -10,6 +10,7 @@ import (
 	_ "github.com/golang/protobuf/ptypes/timestamp"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "github.com/percona/pmm/api/inventorypb"
+	_ "google.golang.org/genproto/googleapis/rpc/status"
 	math "math"
 )
 
@@ -262,15 +263,35 @@ func (this *StartActionRequest) Validate() error {
 	return nil
 }
 func (this *StartActionRequest_MySQLExplainParams) Validate() error {
+	if this.TlsFiles != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.TlsFiles); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("TlsFiles", err)
+		}
+	}
 	return nil
 }
 func (this *StartActionRequest_MySQLShowCreateTableParams) Validate() error {
+	if this.TlsFiles != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.TlsFiles); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("TlsFiles", err)
+		}
+	}
 	return nil
 }
 func (this *StartActionRequest_MySQLShowTableStatusParams) Validate() error {
+	if this.TlsFiles != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.TlsFiles); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("TlsFiles", err)
+		}
+	}
 	return nil
 }
 func (this *StartActionRequest_MySQLShowIndexParams) Validate() error {
+	if this.TlsFiles != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.TlsFiles); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("TlsFiles", err)
+		}
+	}
 	return nil
 }
 func (this *StartActionRequest_PostgreSQLShowCreateTableParams) Validate() error {
@@ -300,9 +321,19 @@ func (this *StartActionRequest_PTMySQLSummaryParams) Validate() error {
 	return nil
 }
 func (this *StartActionRequest_MySQLQueryShowParams) Validate() error {
+	if this.TlsFiles != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.TlsFiles); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("TlsFiles", err)
+		}
+	}
 	return nil
 }
 func (this *StartActionRequest_MySQLQuerySelectParams) Validate() error {
+	if this.TlsFiles != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.TlsFiles); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("TlsFiles", err)
+		}
+	}
 	return nil
 }
 func (this *StartActionRequest_PostgreSQLQueryShowParams) Validate() error {
@@ -380,6 +411,9 @@ func (this *JobStatusRequest) Validate() error {
 func (this *JobStatusResponse) Validate() error {
 	return nil
 }
+func (this *S3LocationConfig) Validate() error {
+	return nil
+}
 func (this *StartJobRequest) Validate() error {
 	if this.Timeout != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Timeout); err != nil {
@@ -393,12 +427,46 @@ func (this *StartJobRequest) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetJob().(*StartJobRequest_MysqlBackup); ok {
+		if oneOfNester.MysqlBackup != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.MysqlBackup); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("MysqlBackup", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetJob().(*StartJobRequest_MysqlRestoreBackup); ok {
+		if oneOfNester.MysqlRestoreBackup != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.MysqlRestoreBackup); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("MysqlRestoreBackup", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *StartJobRequest_Echo) Validate() error {
 	if this.Delay != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Delay); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Delay", err)
+		}
+	}
+	return nil
+}
+func (this *StartJobRequest_MySQLBackup) Validate() error {
+	if oneOfNester, ok := this.GetLocationConfig().(*StartJobRequest_MySQLBackup_S3Config); ok {
+		if oneOfNester.S3Config != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.S3Config); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("S3Config", err)
+			}
+		}
+	}
+	return nil
+}
+func (this *StartJobRequest_MySQLRestoreBackup) Validate() error {
+	if oneOfNester, ok := this.GetLocationConfig().(*StartJobRequest_MySQLRestoreBackup_S3Config); ok {
+		if oneOfNester.S3Config != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.S3Config); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("S3Config", err)
+			}
 		}
 	}
 	return nil
@@ -432,12 +500,32 @@ func (this *JobResult) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetResult().(*JobResult_MysqlBackup); ok {
+		if oneOfNester.MysqlBackup != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.MysqlBackup); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("MysqlBackup", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetResult().(*JobResult_MysqlRestoreBackup); ok {
+		if oneOfNester.MysqlRestoreBackup != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.MysqlRestoreBackup); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("MysqlRestoreBackup", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *JobResult_Error) Validate() error {
 	return nil
 }
 func (this *JobResult_Echo) Validate() error {
+	return nil
+}
+func (this *JobResult_MySQLBackup) Validate() error {
+	return nil
+}
+func (this *JobResult_MySQLRestoreBackup) Validate() error {
 	return nil
 }
 func (this *JobProgress) Validate() error {
@@ -453,12 +541,37 @@ func (this *JobProgress) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetResult().(*JobProgress_MysqlBackup); ok {
+		if oneOfNester.MysqlBackup != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.MysqlBackup); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("MysqlBackup", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetResult().(*JobProgress_MysqlRestoreBackup); ok {
+		if oneOfNester.MysqlRestoreBackup != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.MysqlRestoreBackup); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("MysqlRestoreBackup", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *JobProgress_Echo) Validate() error {
 	return nil
 }
+func (this *JobProgress_MySQLBackup) Validate() error {
+	return nil
+}
+func (this *JobProgress_MySQLRestoreBackup) Validate() error {
+	return nil
+}
 func (this *AgentMessage) Validate() error {
+	if this.Status != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Status); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Status", err)
+		}
+	}
 	if oneOfNester, ok := this.GetPayload().(*AgentMessage_Ping); ok {
 		if oneOfNester.Ping != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Ping); err != nil {
@@ -560,6 +673,11 @@ func (this *AgentMessage) Validate() error {
 	return nil
 }
 func (this *ServerMessage) Validate() error {
+	if this.Status != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Status); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Status", err)
+		}
+	}
 	if oneOfNester, ok := this.GetPayload().(*ServerMessage_Pong); ok {
 		if oneOfNester.Pong != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Pong); err != nil {
