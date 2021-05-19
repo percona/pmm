@@ -26,8 +26,3 @@ git, make, curl, go, nginx
 
 1. Run `docker run -d -p 80:80 -p 443:443  --name pmm-server perconalab/pmm-server:dev-latest`.
 2. Open http://localhost/.
-
-
-## Vendoring
-
-We use [dep](https://github.com/golang/dep) to vendor dependencies.
