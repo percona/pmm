@@ -24,6 +24,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -38,6 +39,8 @@ import (
 
 	"github.com/percona/pmm-agent/config"
 )
+
+var customLabelRE = regexp.MustCompile(`^([a-zA-Z_][a-zA-Z0-9_]*)=([^='", ]+)$`)
 
 // setLocalTransport configures transport for accessing local pmm-agent API.
 //
@@ -132,6 +135,28 @@ func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 	managementpb.Default.SetTransport(transport)
 }
 
+// ParseCustomLabels parses --custom-labels flag value.
+//
+// Note that quotes around value are parsed and removed by shell before this function is called.
+// E.g. the value of [[--custom-labels='region=us-east1, mylabel=mylab-22']] will be received by this function
+// as [[region=us-east1, mylabel=mylab-22]].
+func ParseCustomLabels(labels string) (map[string]string, error) {
+	result := map[string]string{}
+	parts := strings.Split(labels, ",")
+	for _, part := range parts {
+		part = strings.TrimSpace(part)
+		if part == "" {
+			continue
+		}
+		submatches := customLabelRE.FindStringSubmatch(part)
+		if submatches == nil {
+			return nil, fmt.Errorf("wrong custom label format")
+		}
+		result[submatches[1]] = submatches[2]
+	}
+	return result, nil
+}
+
 // serverRegister registers Node on PMM Server.
 //
 // This method is not thread-safe.
@@ -149,6 +174,11 @@ func serverRegister(cfgSetup *config.Setup) (string, error) {
 		}
 	}
 
+	customLabels, err := ParseCustomLabels(cfgSetup.CustomLabels)
+	if err != nil {
+		return "", err
+	}
+
 	res, err := managementpb.Default.Node.RegisterNode(&node.RegisterNodeParams{
 		Body: node.RegisterNodeBody{
 			NodeType:      pointer.ToString(nodeTypes[cfgSetup.NodeType]),
@@ -160,8 +190,8 @@ func serverRegister(cfgSetup *config.Setup) (string, error) {
 			NodeModel:     cfgSetup.NodeModel,
 			Region:        cfgSetup.Region,
 			Az:            cfgSetup.Az,
-			// TODO CustomLabels:  customLabels,
-			Address: cfgSetup.Address,
+			Address:       cfgSetup.Address,
+			CustomLabels:  customLabels,
 
 			Reregister:        cfgSetup.Force,
 			MetricsMode:       pointer.ToString(strings.ToUpper(cfgSetup.MetricsMode)),
