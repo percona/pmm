@@ -2,6 +2,8 @@ module github.com/percona/pmm/tools
 
 go 1.16
 
+replace github.com/go-openapi/spec => github.com/Percona-Lab/spec v0.19.8-percona
+
 require (
 	github.com/BurntSushi/go-sumtype v0.0.0-20190304192233-fcb4a6205bdc
 	github.com/Percona-Lab/swagger-order v0.0.0-20191002141859-166b3973d026
