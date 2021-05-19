@@ -268,7 +268,7 @@ func (s *SlowLog) rotateSlowLog(ctx context.Context, slowLogPath string) error {
 		return errors.Wrap(err, "cannot rename old slowlog file")
 	}
 
-	_, err = db.ExecContext(ctx, fmt.Sprintf("FLUSH LOGS /* %s */", queryTag)) //nolint:gosec
+	_, err = db.ExecContext(ctx, "FLUSH NO_WRITE_TO_BINLOG SLOW LOGS") //nolint:gosec
 	if err != nil {
 		return errors.Wrap(err, "cannot flush logs")
 	}
