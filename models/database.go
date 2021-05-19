@@ -505,6 +505,9 @@ var databaseSchema = [][]string{
 		`ALTER TABLE agents
 		ADD COLUMN mysql_options VARCHAR`,
 	},
+	37: {
+		`ALTER TABLE agents ALTER COLUMN max_query_log_size TYPE BIGINT`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
