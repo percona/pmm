@@ -27,5 +27,5 @@ PMM Server    | 7773          | out           | Debugging
 > <b style="color:goldenrod">Important</b>
 >
 > Depending on your architecture other ports may also need to be exposed.
-> - For `pmm-agent`, the default listen port is 7777. This can be changed in the `pmm-agent.yml` configuration file or with the `pmm-agent` flag `--listen-port`.
+> - For `pmm-agent`, the default listen port is 7777.
 > - The default range for agents ports can be changed with the flag `--ports-min` and  `--ports-max`, or in the configuration file.
