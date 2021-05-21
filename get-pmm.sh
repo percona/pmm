@@ -13,7 +13,7 @@ set -Eeuo pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
 # Set defaults.
-tag=${PMM_TAG:-"latest"}
+tag=${PMM_TAG:-"2"}
 repo=${PMM_REPO:-"percona/pmm-server"}
 port=${PMM_PORT:-443}
 container_name=${CONTAINER_NAME:-"pmm-server"}
@@ -129,9 +129,15 @@ parse_params() {
 #######################################
 gather_info() {
   msg "${GREEN}PMM Server Wizard Install${NOFORMAT}"
-  read -p "  Port Number to start PMM Server on (default: 443): " port
-  read -p "  PMM Server Container Name (default: pmm-server): " container_name
-  read -p "  Override specific version (container tag) (default: latest in 2.x series) format: 2.x.y: " tag
+  default_port=$port
+  default_container_name=$container_name
+  default_tag=$tag
+  read -p "  Port Number to start PMM Server on (default: $default_port): " port
+  : ${port:=$default_port}
+  read -p "  PMM Server Container Name (default: $default_container_name): " container_name
+  : ${container_name:="$default_container_name"}
+  read -p "  Override specific version (container tag) (default: $default_tag in 2.x series) format: 2.x.y: " tag
+  : ${tag:=$default_tag}
 }
 
 check_command() {
@@ -166,7 +172,7 @@ install_docker() {
       wget -qO /tmp/get-docker.sh get.docker.com
     sh /tmp/get-docker.sh
     run_root 'service docker start' || :
-  else 
+  else
     printf " - installed.\n\n"
   fi
 
@@ -224,7 +230,7 @@ show_message() {
   msg "PMM Server has been successfully setup on this system!\n"
 
   if check_command ifconfig; then
-    ips=$(ifconfig | awk  '/inet / {print $2}' | sed 's/addr://')
+    ips=$(ifconfig | awk '/inet / {print $2}' | sed 's/addr://')
   elif check_command ip; then
     ips=$(ip -f inet a | awk -F"[/ ]+" '/inet / {print $3}')
   else
