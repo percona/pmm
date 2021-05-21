@@ -18,6 +18,8 @@ Your CPU must support the SSE4.2 instruction set, a requirement of ClickHouse, a
 
 ---
 
+Set up your [network](network.md)
+
 Choose how you want to run PMM Server:
 
 - [with Docker](docker.md)
