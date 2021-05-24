@@ -130,7 +130,7 @@ func TestRDSService(t *testing.T) {
 			})
 
 			require.NoError(t, err)
-			assert.Equal(t, len(instances.RdsInstances), 2, "Should have two instances")
+			assert.Equal(t, len(instances.RdsInstances), 4, "Should have four instances")
 			assert.Equal(t, []*managementpb.DiscoverRDSInstance{
 				{
 					Region:        "us-east-1",
@@ -141,6 +141,26 @@ func TestRDSService(t *testing.T) {
 					Port:          3306,
 					Engine:        managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL,
 					EngineVersion: "5.6.mysql_aurora.1.22.2",
+				},
+				{
+					Region:        "us-east-1",
+					Az:            "us-east-1d",
+					InstanceId:    "autotest-psql-10",
+					NodeModel:     "db.t2.micro",
+					Address:       "autotest-psql-10.cstdx0tr6tzx.us-east-1.rds.amazonaws.com",
+					Port:          5432,
+					Engine:        managementpb.DiscoverRDSEngine_DISCOVER_RDS_POSTGRESQL,
+					EngineVersion: "10.16",
+				},
+				{
+					Region:        "us-west-2",
+					Az:            "us-west-2b",
+					InstanceId:    "autotest-aurora-psql-11",
+					NodeModel:     "db.r4.large",
+					Address:       "autotest-aurora-psql-11.c3uoaol27cbb.us-west-2.rds.amazonaws.com",
+					Port:          5432,
+					Engine:        managementpb.DiscoverRDSEngine_DISCOVER_RDS_POSTGRESQL,
+					EngineVersion: "11.9",
 				},
 				{
 					Region:        "us-west-2",
@@ -164,8 +184,8 @@ func TestRDSService(t *testing.T) {
 			region    string
 			instances []instance
 		}{
-			{"us-east-1", []instance{{"us-east-1a", "autotest-aurora-mysql-56"}}},
-			{"us-west-2", []instance{{"us-west-2c", "autotest-mysql-57"}}},
+			{"us-east-1", []instance{{"us-east-1a", "autotest-aurora-mysql-56"}, {"us-east-1d", "autotest-psql-10"}}},
+			{"us-west-2", []instance{{"us-west-2b", "autotest-aurora-psql-11"}, {"us-west-2c", "autotest-mysql-57"}}},
 		} {
 			t.Run(fmt.Sprintf("discoverRDSRegion %s", tt.region), func(t *testing.T) {
 				ctx := logger.Set(context.Background(), t.Name())
@@ -187,7 +207,7 @@ func TestRDSService(t *testing.T) {
 				instances, err := discoverRDSRegion(ctx, sess, tt.region)
 
 				require.NoError(t, err)
-				require.Equal(t, len(instances), len(tt.instances), "Should have one instance")
+				require.Equal(t, len(instances), len(tt.instances), "Should have two instances")
 				// we compare instances this way because there are too much fields that we don't need to compare.
 				for i, instance := range tt.instances {
 					assert.Equal(t, instance.az, pointer.GetString(instances[i].AvailabilityZone))
