@@ -29,6 +29,8 @@ type ClientService interface {
 
 	ChangePXCComponents(params *ChangePXCComponentsParams) (*ChangePXCComponentsOK, error)
 
+	GetLatestOperatorVersions(params *GetLatestOperatorVersionsParams) (*GetLatestOperatorVersionsOK, error)
+
 	GetPSMDBComponents(params *GetPSMDBComponentsParams) (*GetPSMDBComponentsOK, error)
 
 	GetPXCComponents(params *GetPXCComponentsParams) (*GetPXCComponentsOK, error)
@@ -99,6 +101,39 @@ func (a *Client) ChangePXCComponents(params *ChangePXCComponentsParams) (*Change
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*ChangePXCComponentsDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  GetLatestOperatorVersions gets latest operator versions returns latest version of our operators
+*/
+func (a *Client) GetLatestOperatorVersions(params *GetLatestOperatorVersionsParams) (*GetLatestOperatorVersionsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetLatestOperatorVersionsParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "GetLatestOperatorVersions",
+		Method:             "POST",
+		PathPattern:        "/v1/management/DBaaS/Components/GetLatestOperatorVersions",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &GetLatestOperatorVersionsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetLatestOperatorVersionsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*GetLatestOperatorVersionsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

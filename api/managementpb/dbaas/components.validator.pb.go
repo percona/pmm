@@ -119,3 +119,9 @@ func (this *ChangePXCComponentsRequest) Validate() error {
 func (this *ChangePXCComponentsResponse) Validate() error {
 	return nil
 }
+func (this *GetLatestOperatorVersionsRequest) Validate() error {
+	return nil
+}
+func (this *GetLatestOperatorVersionsResponse) Validate() error {
+	return nil
+}

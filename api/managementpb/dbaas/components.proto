@@ -102,6 +102,13 @@ message ChangePXCComponentsRequest {
 
 message ChangePXCComponentsResponse {}
 
+message GetLatestOperatorVersionsRequest {}
+
+message GetLatestOperatorVersionsResponse {
+  string pxc = 1;
+  string psmdb = 2;
+}
+
 // Components service provides public methods for managing components.
 service Components {
   // GetPSMDBComponents returns list of available components for PSMDB Clusters.
@@ -129,6 +136,13 @@ service Components {
   rpc ChangePXCComponents(ChangePXCComponentsRequest) returns (ChangePXCComponentsResponse) {
     option (google.api.http) = {
       post: "/v1/management/DBaaS/Components/ChangePXC"
+      body: "*"
+    };
+  }
+  // GetLatestOperatorVersions returns latest version of our operators.
+  rpc GetLatestOperatorVersions(GetLatestOperatorVersionsRequest) returns (GetLatestOperatorVersionsResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/Components/GetLatestOperatorVersions"
       body: "*"
     };
   }
