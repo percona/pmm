@@ -1373,6 +1373,11 @@
                                   "OPERATORS_STATUS_NOT_INSTALLED"
                                 ],
                                 "x-order": 0
+                              },
+                              "version": {
+                                "description": "version is installed version in the cluster.",
+                                "type": "string",
+                                "x-order": 1
                               }
                             },
                             "x-order": 1
@@ -1392,6 +1397,11 @@
                                   "OPERATORS_STATUS_NOT_INSTALLED"
                                 ],
                                 "x-order": 0
+                              },
+                              "version": {
+                                "description": "version is installed version in the cluster.",
+                                "type": "string",
+                                "x-order": 1
                               }
                             },
                             "x-order": 0
