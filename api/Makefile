@@ -14,7 +14,6 @@ init:                 ## Install tools.
 	mv ./prototool-new ./prototool
 	chmod +x ./prototool
 
-
 	go build -modfile=../tools/go.mod -o $(BIN_PATH)/protoc-gen-go github.com/golang/protobuf/protoc-gen-go
 	go build -modfile=../tools/go.mod -o $(BIN_PATH)/protoc-gen-govalidators github.com/mwitkow/go-proto-validators/protoc-gen-govalidators
 	go build -modfile=../tools/go.mod -o $(BIN_PATH)/protoc-gen-grpc-gateway github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
@@ -23,7 +22,7 @@ init:                 ## Install tools.
 	go build -modfile=../tools/go.mod -o $(BIN_PATH)/swagger-order github.com/Percona-Lab/swagger-order
 	go build -modfile=../tools/go.mod -o $(BIN_PATH)/go-sumtype github.com/BurntSushi/go-sumtype
 
-	# Download this-party proto files
+	# Download third-party proto files
 	$(eval GO_PROTO_VALIDATOR=$(shell go list -f '{{ .Version }}' -m github.com/mwitkow/go-proto-validators))
 	$(eval GRPC_GW=$(shell go list -f '{{ .Version }}' -m github.com/grpc-ecosystem/grpc-gateway))
 	curl --create-dirs -L https://raw.githubusercontent.com/grpc-ecosystem/grpc-gateway/$(GRPC_GW)/protoc-gen-swagger/options/annotations.proto -o ../third_party/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options/annotations.proto
