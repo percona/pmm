@@ -396,16 +396,19 @@ func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, 
 		return nil, err
 	}
 
-	// pmm-agent with the same ID can still be connected in two cases:
-	//   1. Someone uses the same ID by mistake, glitch, or malicious intent.
-	//   2. pmm-agent detects broken connection and reconnects,
-	//      but pmm-managed still thinks that the previous connection is okay.
-	// In both cases, kick it.
-	l.Warnf("Another pmm-agent with ID %q is already connected.", agentMD.ID)
-	r.Kick(ctx, agentMD.ID)
-
 	r.rw.Lock()
 	defer r.rw.Unlock()
+
+	// do not use r.get() - r.rw is already locked
+	if agent := r.agents[agentMD.ID]; agent != nil {
+		// pmm-agent with the same ID can still be connected in two cases:
+		//   1. Someone uses the same ID by mistake, glitch, or malicious intent.
+		//   2. pmm-agent detects broken connection and reconnects,
+		//      but pmm-managed still thinks that the previous connection is okay.
+		// In both cases, kick it.
+		l.Warnf("Another pmm-agent with ID %q is already connected.", agentMD.ID)
+		r.Kick(ctx, agentMD.ID)
+	}
 
 	agent := &pmmAgentInfo{
 		channel:         channel.New(stream),
@@ -697,6 +700,7 @@ func (r *Registry) runStateChangeHandler(ctx context.Context, agent *pmmAgentInf
 			err := r.sendSetStateRequest(nCtx, agent)
 			if err != nil {
 				l.Error(err)
+				r.RequestStateUpdate(ctx, agent.id)
 			}
 			cancel()
 		}
