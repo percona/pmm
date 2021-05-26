@@ -33,6 +33,28 @@ You can get PMM Server logs in two ways:
 - In a browser, visit `https://<address-of-your-pmm-server>/logs.zip`.
 - Go to *PMM > PMM Settings* and click *Download server diagnostics*. (See [Diagnostics in PMM Settings](configure.md#diagnostics).)
 
+
+## Connection difficulties
+
+### Passwords
+
+When adding a service, the host might not be detected correctly if the password contains special symbols (e.g. `@`, `%`, etc.).
+
+In such cases, you should convert any password, replacing special characters with their escape sequence equivalents.
+
+One way to do this is to use the [`encodeURIComponent`][ENCODE_URI] JavaScript function in your browser's web console (usually found under *Development Tools*). Evaluate the function with your password as the parameter. For example:
+
+```js
+> encodeURIComponent("s3cR#tpa$$worD")
+```
+
+will give:
+
+```
+"s3cR%23tpa%24%24worD"
+```
+
+
 ## Integrated Alerting
 
 ### No {{icon.bell}} Integrated Alerting icon
@@ -108,3 +130,8 @@ If you create a custom alert rule template you will have access to edit.
 > The concept of “template” implies things like variable substitutions...where can I use these? Where can I find a complete list of them?
 
 Here is a guide to creating templates for Alertmanager: <https://prometheus.io/docs/prometheus/latest/configuration/template_examples/>
+
+
+
+
+[ENCODE_URI]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent

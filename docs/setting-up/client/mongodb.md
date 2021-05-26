@@ -1,20 +1,37 @@
 # MongoDB
 
-## Configuring MongoDB for Monitoring in PMM Query Analytics
+PMM Client collects metrics from [MongoDB][MONGODB] and [Percona Server for MongoDB][PSMDB].
 
-In Query Analytics, you can monitor MongoDB metrics and queries. Run the `pmm-admin add` command to use these monitoring services.
+This page shows you how to set up PMM to monitor a MongoDB database instance.
 
-**Supported versions of MongoDB**
+> We recommend you read it in full before doing anything.
 
-Query Analytics supports MongoDB version 3.2 or higher.
+Here is an overview of the steps involved.
 
-## Setting Up the Required Permissions
+```plantuml source="_resources/diagrams/Setting-Up_Client_MongoDB.puml"
+```
 
-For MongoDB monitoring services to work in Query Analytics, you need to set up the `mongodb_exporter` user.
+## Before you start
 
-Here is an example for the MongoDB shell that creates and assigns the appropriate roles to the user.
+Check that:
 
-```js
+- [PMM Server is installed](../server/index.md) and running with a known IP address or hostname accessible from the client node.
+- [PMM Client is installed](index.md) and the [node is registered with PMM Server](index.md#register).
+- You have superuser (root) access on the client host.
+- You have `adminUserAnyDatabase` or superuser role privilege to any database servers that you want to monitor.
+- Your MongoDB server is version 4.0 or higher.
+
+## Create PMM account and set permissions
+
+We recommend using a dedicated account to connect PMM Client to the monitored database instance.
+
+This example creates a new custom role with the privileges needed by the Query Analyzer, and adds a database user with that role plus the built-in "clusterMonitor" role.
+
+> Values for username (`user`) and password (`pwd`) are examples. Replace them before using this code.
+
+Run this in a `mongo` session.
+
+```json
 db.getSiblingDB("admin").createRole({
     role: "explainRole",
     privileges: [{
@@ -35,8 +52,8 @@ db.getSiblingDB("admin").createRole({
 })
 
 db.getSiblingDB("admin").createUser({
-   user: "mongodb_exporter",
-   pwd: "s3cR#tpa$$worD",
+   user: "{{pmm_mongodb_user}}",
+   pwd: "{{pmm_password}}",
    roles: [
       { role: "explainRole", db: "admin" },
       { role: "clusterMonitor", db: "admin" },
@@ -45,128 +62,199 @@ db.getSiblingDB("admin").createUser({
 })
 ```
 
-## Enabling Profiling
+## Profiling
 
-For [MongoDB](https://www.mongodb.com) to work correctly with Query Analytics, you need to enable profiling in your `mongod` configuration. (Profiling is not enabled by default because it may reduce the performance of your MongoDB server.)
+To use PMM Query Analytics, you must turn on MongoDB's [profiling feature][MONGDB_DATABASE_PROFILER].
 
-### Enabling Profiling on Command Line
+You can set profiling:
 
-You can enable profiling from command line when you start the `mongod`
-server. This command is useful if you start `mongod` manually.
+- permanently, by editing the MongoDB configuration file  and restarting the database instance (recommended);
+- when starting MongoDB, by passing arguments to `mongod` on the command line;
+- until the next database instance restart, by running a command in a `mongo` session.
 
-Run this command as root or by using the `sudo` command
+> Profiling is turned off by default as it can adversely affect the performance of the database server.
+
+### Set profiling in the configuration file
+
+1. Edit the configuration file (usually `/etc/mongod.conf`).
+
+2. Create or add this to the `operationProfiling` section. ([Read more][MONGODB_CONFIG_OP_PROF].)
+
+    ```yml
+    operationProfiling:
+      mode: all
+      slowOpThresholdMs: 200
+      rateLimit: 100
+    ```
+
+    > This is a [YAML](http://yaml.org/spec/) file. Indentation is important.
+
+3. Restart the `mongod` service. (Example for `systemd`.)
+
+    ```sh
+    systemctl restart mongod
+    ```
+
+### Set profiling on the command Line
 
 ```sh
 mongod --dbpath=DATABASEDIR --profile 2 --slowms 200 --rateLimit 100
 ```
 
-Note that you need to specify a path to an existing directory that stores
-database files with the `--dpbath`. When the `--profile` option is set to
-2, `mongod` collects the profiling data for all operations. To decrease the
-load, you may consider setting this option to 1 so that the profiling data
-are only collected for slow operations.
+- `--dbpath`: The path to database files (usually `/var/lib/mongo`).
+- `--profile`: The MongoDB profiling level. A value of `2` tells the server to collect profiling data for *all* operations. To lower the load on the server, use a value of `1` to only record slow operations.
+- `--slowms`: An operation is classified as *slow* if it runs for longer than this number of milliseconds.
+- `--rateLimit`: (Only available with Percona Server for MongoDB.) The sample rate of profiled queries. A value of `100` means sample every 100th fast query. ([Read more][PSMDB_RATELIMIT].)
 
-The `--slowms` option sets the minimum time for a slow operation. In the
-given example, any operation which takes longer than 200 milliseconds is a
-slow operation.
+    > Smaller values improve accuracy but can adversly affect the performance of your server.
 
-The `--rateLimit` option, which is available if you use PSMDB instead
-of MongoDB, refers to the number of queries that the MongoDB profiler
-collects. The lower the rate limit, the less impact on the performance.
-However, the accuracy of the collected information decreases as well.
+### Set profiling in a `mongo` session
 
-### Enabling Profiling in the Configuration File
+In a `mongo` session:
 
-If you run `mongod` as a service, you need to use the configuration file
-which by default is `/etc/mongod.conf`.
-
-In this file, you need to locate the `operationProfiling:` section and add the
-following settings:
-
-```
-operationProfiling:
-   slowOpThresholdMs: 200
-   mode: slowOp
+```json
+use admin
+db.setProfilingLevel(2)
 ```
 
-These settings affect `mongod` in the same way as the command line options. Note that the configuration file is in the [YAML](http://yaml.org/spec/) format. In this format the indentation of your lines is important as it defines levels of nesting.
+> If you have already [added a service](#add-service), you should remove it and re-add it after changing the profiling level.
 
-Restart the `mongod` service to enable the settings.
+## Add service
 
-Run this command as root or by using the `sudo` command
+When you have configured your database server, you can add a MongoDB service with the user interface or on the command line.
+
+### With the user interface
+
+1. Select *{{icon.cog}} Configuration-->{{icon.inventory}} PMM Inventory-->{{icon.addinstance}} Add Instance*.
+2. Select *MongoDB -- Add a remote instance*.
+3. Enter values for the fields.
+    - *Hostname*: The hostname or IP address of the node where the database server is running.
+    - *Service name*: Choose a service name.
+    - *Port*: Default is 27017 for MongoDB servers.
+    - *Username*: The username for connecting to the MongoDB database. Use the PMM user account if you chose to create one (`{{pmm_mongodb_user}}` in these examples).
+    - *Password*: The password for this user account. (`{{pmm_password}}` in these examples.)
+    - Additional options:
+        - *Use QAN MongoDB Profiler*: Activate if you want to use Query Analytics and have [set up profiling](#profiling).
+
+4. Click *Add service*.
+
+### On the command line
+
+Use `pmm-admin` to add the database server as a service using one of these example commands.
+
+When successful, PMM Client will print `MongoDB Service added` with the service's ID and name. Use the `--environment` and `-custom-labels` options to set tags for the service to help identify them.
+
+**Example**
 
 ```sh
-service mongod restart
+pmm-admin add mongodb \
+--username={{pmm_mongodb_user}} --password={{pmm_password}} \
+--query-source=profiler --cluster=mycluster
 ```
 
-## Adding MongoDB Service Monitoring
-
-Add monitoring as follows:
+**Example**
 
 ```sh
-pmm-admin add mongodb --username=pmm --password=pmm
+pmm-admin add mongodb \
+--username={{pmm_mongodb_user}} --password={{pmm_password}} \
+mongo 127.0.0.1:27017
 ```
 
-where username and password are credentials for the monitored MongoDB access, which will be used locally on the database host. Additionally, two positional arguments can be appended to the command line flags: a service name to be used by PMM, and a service address. If not specified, they are substituted automatically as `<node>-mongodb` and `127.0.0.1:27017`.
-
-The command line and the output of this command may look as follows:
+**Example**
 
 ```sh
-pmm-admin add mongodb --username=pmm --password=pmm mongo 127.0.0.1:27017
+pmm-admin add mongodb \
+--username={{pmm_mongodb_user}} --password={{pmm_password}} \
+--service-name=mymongosvc --host=127.0.0.1 --port=27017
 ```
 
-```
-MongoDB Service added.
-Service ID  : /service_id/f1af8a88-5a95-4bf1-a646-0101f8a20791
-Service name: mongo
-```
-
-Beside positional arguments shown above you can specify service name and service address with the following flags: `--service-name`, `--host` (the hostname or IP address of the service), and `--port` (the port number of the service). If both flag and positional argument are present, flag gains higher priority. Here is the previous example modified to use these flags:
-
-```sh
-pmm-admin add mongodb --username=pmm --password=pmm --service-name=mongo --host=127.0.0.1 --port=27017
-```
-
-You can add a MongoDB instance using a UNIX socket with the `--socket` option:
+**Example -- connect via UNIX socket**
 
 ```sh
 pmm-admin add mongodb --socket=/tmp/mongodb-27017.sock
 ```
 
-> If the password contains special symbols like the 'at' (`@`) symbol, the host might not be detected correctly. Make sure that you insert the password with special characters replaced with their escape sequences. The simplest way is to use the [`encodeURIComponent`][ENCODE_URI] JavaScript function in your browser's web console (usually found under *Development Tools*). Evaluate the function with your password as the parameter. For example:
->
-> ```javascript
-> encodeURIComponent('$ecRet_pas$w@rd')
-> "%24ecRet_pas%24w%40rd"
-> ```
 
-[ENCODE_URI]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent
-
-## Passing SSL parameters to the MongoDB monitoring service
-
-SSL/TLS related parameters are passed to an SSL enabled MongoDB server as
-monitoring service parameters along with the `pmm-admin add` command when adding
-the MongoDB monitoring service.
-
-Run this command as root or by using the `sudo` command
+**Example -- connecting via SSL/TLS**
 
 ```sh
-pmm-admin add mongodb --tls
+pmm-admin add mongodb --tls \
+--tls-certificate-key-file=PATHTOCER \
+--tls-certificate-key-file-password=IFPASSWORDTOCERTISSET \
+--tls-ca-file=PATHTOCACERT
 ```
 
-**Supported SSL/TLS Parameters**
+where:
 
-`--tls`
-: Enable a TLS connection with mongo server
+- `PATHTOCERT`: Path to TLS certificate file.
+- `IFPASSWORDTOCERTISSET`: Password for TLS certificate file.
+- `PATHTOCACERT`: Path to certificate authority file.
 
-`--tls-skip-verify`
-: Skip TLS certificates validation
+> **See also**
+>
+> - [`pmm-admin` man page for `pmm-admin add mongodb`](../../details/commands/pmm-admin.md#mongodb)
+>
+> - [Troubleshooting connection difficulties][TROUBLESHOOTING_CONNECTION]
 
-`--tls-certificate-key-file=PATHTOCERT`
-: Path to TLS certificate file.
+## Tips
 
-`--tls-certificate-key-file-password=IFPASSWORDTOCERTISSET`
-: Password for TLS certificate file.
+- When adding nodes of a replica set, add each node separately using the same cluster name.
 
-`--tls-ca-file=PATHTOCACERT`
-: Path to certificate authority file.
+- Atlas doesn't support direct connections. When connecting to an Atlas instance, use the `pmm-admin` option `--direct-connection=false`. (Doing so will prevent replicaset status from working.)
+
+## Check the service
+
+**Check service - PMM user interface**
+
+1. Select *{{icon.cog}} Configuration-->{{icon.inventory}} PMM Inventory-->{{icon.inventory}} Inventory list*.
+2. Look in the *Services* tab for a matching *Service Type* (MongoDB), *Service name*, *Addresses*, and any other values used when adding the service.
+3. Look in the *Agents* tab to check the desired data source is being used.
+
+**Check service - Command line**
+
+Look for your service in the output of this command.
+
+```sh
+pmm-admin inventory list services --service-type=mongodb
+```
+
+**Check data**
+
+1. Open the *MongoDB Instances Overview* dashboard.
+2. Set the *Service Name* to the newly-added service.
+
+**Check Query Analytics**
+
+1. Open *PMM Query Analytics*.
+2. In the *Filters* panel:
+    1. Under *Service Name*, select your service.
+    2. Under *Service Type* select *mongodb*.
+
+
+## Remove service
+
+### With the user interface
+
+1. Select *{{icon.cog}} Configuration-->{{icon.inventory}} PMM Inventory-->{{icon.inventory}} Inventory List*.
+2. In the first column, click the tick box for the service you want to remove.
+3. Click *{{icon.trash}} Delete*.
+4. On the *Confirm action* dialog window:
+    1. (Optional) Select *Force mode* to also delete associated agents.
+    2. Click *Proceed*.
+
+### On the command line
+
+```sh
+pmm-admin remove mongodb SERVICE_NAME
+```
+
+- `SERVICE_NAME`: The name the service was added as. (Find it with `pmm-admin list`.)
+
+
+[MONGODB]: https://www.mongodb.com/
+[MONGDB_DATABASE_PROFILER]: https://docs.mongodb.com/manual/tutorial/manage-the-database-profiler/
+[MONGODB_CONFIG_OP_PROF]: https://docs.mongodb.com/manual/reference/configuration-options/#operationprofiling-options
+[PSMDB]: https://www.percona.com/software/mongodb/percona-server-for-mongodb
+[PSMDB_RATELIMIT]: https://www.percona.com/doc/percona-server-for-mongodb/LATEST/rate-limit.html#enabling-the-rate-limit
+[PMM_ADMIN_MAN_PAGE]: ../../details/commands/pmm-admin.md
+[TROUBLESHOOTING_CONNECTION]: ../../how-to/troubleshoot.md#connection-difficulties

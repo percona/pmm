@@ -1,0 +1,29 @@
+' Diagram showing sequence of tasks to set up PMM Client for MongoDB
+' Syntax: https://plantuml.com/activity-diagram-beta
+' Icons: https://plantuml.com/openiconic
+' Colour: https://plantuml.com/color
+' Text: https://plantuml.com/creole
+@startuml "setting-up_client_mongodb"
+!include _resources/diagrams/plantuml_styles.puml
+legend bottom left
+Legend
+<#cce6ff>| Required |
+<#lightgrey>| Optional |
+endlegend
+
+:Create PMM account and\nset permissions;
+#lightgrey:Configure profiling;
+partition "Add a service " {
+    split
+    -> With user interface;
+        :PMM <&arrow-thick-right>\nPMM Add Instance <&arrow-thick-right>\nMongoDB -\nAdd a remote instance;
+    split again
+    -> On command line;
+            :<code>
+            pmm-admin add mongodb
+            ...
+            </code>;
+    end split
+}
+#lightgrey:Check the service;
+@enduml
