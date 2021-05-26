@@ -72,8 +72,6 @@ The Kubernetes Cluster tab shows the status of operators.
 
 ![!](../../_images/PMM_DBaaS_Kubernetes_Cluster_Operator_Status.png)
 
-> In case operators get deleted by accident, you can simply install them by unregistrating and then adding back the Kubernetes the cluster.
-
 ## DB clusters
 
 ### Add a DB Cluster

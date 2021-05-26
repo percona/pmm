@@ -13,11 +13,11 @@ Second, add a firewall rule to enable access from PMM Client like this:
 
 ## Setting up a MySQL instance
 
-Query Analytics requires you to configure *Performance Schema* as the query source, because the slow query log is stored on the Azure side, and QAN agent is not able to read it.  Enable the `performance_schema` option under `Parameter Groups` in Amazon RDS.
+Query Analytics requires you to configure *Performance Schema* as the query source, because the slow query log is stored on the Azure side, and QAN agent is not able to read it.  Enable the `performance_schema` option under `Parameter Groups` in Azure MySQL databases.
 
 When adding a monitoring instance for Azure, specify a unique name to distinguish it from the local MySQL instance.  If you do not specify a name, it will use the client’s host name.
 
-Create the `pmm` user with the following privileges on the Amazon RDS instance that you want to monitor:
+Create the `pmm` user with the following privileges on the Azure MySQL database instance that you want to monitor:
 
 ```sql
 GRANT SELECT, PROCESS, REPLICATION CLIENT ON *.* TO 'pmm'@'%' IDENTIFIED BY 'pass' WITH MAX_USER_CONNECTIONS 10;
@@ -26,7 +26,7 @@ GRANT SELECT, UPDATE, DELETE, DROP ON performance_schema.* TO 'pmm'@'%';
 
 # Adding an Azure Instance
 
-Follow the instructions for remotes instances explained [here](aws.md).
+Follow the instructions for remotes instances explained [here](aws.md), Azure MySQL databases are similar to AWS RDS databases.
 
 Example:
 

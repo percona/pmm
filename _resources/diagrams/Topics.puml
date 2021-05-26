@@ -1,0 +1,52 @@
+' Topic/role map of PMM documentation
+' References:
+' Syntax: https://plantuml.com/mindmap-diagram
+' Icons: https://plantuml.com/openiconic
+' Colour: https://plantuml.com/color
+' Text: https://plantuml.com/creole
+@startmindmap "PMM_DOC_TOPICS"
+!include _resources/diagrams/plantuml_styles.puml
+skinparam svgLinkTarget _blank
+<style>
+mindmapDiagram {
+  node {
+    ' Gap within nodes
+    Padding 5
+    ' Gap between nodes
+    Margin 5
+    RoundCorner 15
+  }
+  .user {
+    BackgroundColor lightblue
+  }
+  .admin {
+    BackgroundColor goldenrod
+  }
+}
+</style>
+' Absolute links - can be useful for exporting map as stand-alone image
+' relative links make testing easier but must be changed for local vs hosting' Hosted
+!$base = "https://www.percona.com/doc/percona-monitoring-and-management/2.x"
+'!$base = "../2.x"
+'!$base = "."
+
+* For Users <<user>>
+ * For System Administrators<<admin>>
+  * [[$base/setting-up/ Installation]]<<admin>>
+  * [[$base/how-to/configure.html Configuration]]<<admin>>
+  * [[$base/how-to/upgrade.html Upgrading]]<<admin>>
+  * [[$base/details/commands/ Command-line tools]]<<admin>>
+  * [[$base/how-to/secure.html Security]]<<admin>>
+  * [[$base/how-to/optimize.html Optimization]]<<admin>>
+  * [[$base/details/architecture.html System Architecture]]<<admin>>
+
+left side
+
+ * [[$base/using/interface.html User interface]]<<user>>
+ * [[$base/details/interface.html UI components]]<<user>>
+ * [[$base/details/dashboards/ Dashboards]]<<user>>
+ * [[$base/using/alerting.html Alerting]]<<user>>
+ * [[$base/using/query-analytics.html Query Analytics]]<<user>>
+ * [[$base/using/platform/index.html Percona Platform]]<<user>>
+
+@endmindmap

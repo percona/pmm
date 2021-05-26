@@ -380,7 +380,7 @@ pmm-admin config --server-insecure-tls --server-url=https://admin:admin@X.X.X.X:
 - `X.X.X.X` is the address of your PMM Server.
 - `443` is the default port number.
 - `admin`/`admin` is the default PMM username and password. This is the same account you use to log into the PMM user interface, which you had the option to change when first logging in.
-
+> **Note** Clients *must* be registered with the PMM Server using a secure channel. If you use http as your server URL, PMM will try to connect via https on port 443. If a TLS connection can't be established you will get an error and you must use https along with the appropriate secure port.
 
 **Examples**
 

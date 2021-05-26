@@ -421,7 +421,7 @@ pmm-admin add mysql --environment=test --custom-labels='source=slowlog'  --usern
 Look for your service in the output of this command.
 
 ```sh
-pmm-admin inventory list services
+pmm-admin inventory list services --service-type=mysql
 ```
 
 **Check data**

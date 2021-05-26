@@ -71,8 +71,7 @@ alias kubectl='minikube kubectl --'
 
 ## Create a Kubernetes cluster
 
-> The DBaaS feature uses Kubernetes clusters to deploy database clusters. You need to create one and then add it using kubeconfig you get after successfull setup. Please follow instructions below.
->
+> The DBaaS feature uses Kubernetes clusters to deploy database clusters. You must first create a Kubernetes cluster and then add it to PMM using `kubeconfig` to get a successful setup
 
 ### Minikube {: #minikube }
 
@@ -85,7 +84,7 @@ alias kubectl='minikube kubectl --'
     minikube start
     ```
 
-2. Get your kubeconfig details from minikube (to register your Kubernetes cluster with PMM Server):
+2. Get your kubeconfig details from `minikube`. (You need these to register your Kubernetes cluster with PMM Server):
 
     ```sh
     minikube kubectl -- config view --flatten --minify
@@ -210,7 +209,34 @@ You should have an account on GCP [https://cloud.google.com/](https://cloud.goog
 
     ![!](../../_images/PMM_DBaaS_GKE_10.png)
 
-9. Create Service Account, copy and store kubeconfig - output of the following command
+9. Set up PXC and PSMDB operators:
+
+    ```
+    curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-xtradb-cluster-operator/pmm-branch/deploy/bundle.yaml  | kubectl apply -f -
+    curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-server-mongodb-operator/pmm-branch/deploy/bundle.yaml  | kubectl apply -f -
+    ```
+
+    ![!](../../_images/PMM_DBaaS_GKE_11.png)
+
+10. Check if it was set up successfully
+
+    ```
+    kubectl api-resources --api-group='psmdb.percona.com'
+    kubectl api-resources --api-group='pxc.percona.com'
+    ```
+
+    ![!](../../_images/PMM_DBaaS_GKE_12.png)
+
+11. Check versions
+
+    ```
+    kubectl api-versions | grep percona.com
+    ```
+
+    ![!](../../_images/PMM_DBaaS_GKE_13.png)
+
+12. Create Service Account, copy and store kubeconfig - output of the following command
+>>>>>>> main
 
     ```
     cat <<EOF | kubectl apply -f -
@@ -278,9 +304,9 @@ You should have an account on GCP [https://cloud.google.com/](https://cloud.goog
 
     ![!](../../_images/PMM_DBaaS_GKE_15.png)
 
-10. Start PMM Server on you local machine or other VM instance:
+10. Start PMM Server on your local machine or other VM instance:
 
-    ```
+    ```sh
     docker run --detach --name pmm-server --publish 80:80 --publish 443:443 \
     --env ENABLE_DBAAS=1 perconalab/pmm-server-fb:PR-1240-07bef94;
     ```
@@ -295,7 +321,7 @@ You should have an account on GCP [https://cloud.google.com/](https://cloud.goog
 
 > If a Public Address is set in PMM Settings, for each DB cluster an API Key is created which can be found on the page `/graph/org/apikeys`. You should not delete them (for now, until [issue PMM-8045](https://jira.percona.com/browse/PMM-8045) is fixed) -- once a DB cluster is removed from DBaaS, the related API Key is also removed.
 
-For example If you only run `eksctl delete cluster` to delete Amazon EKS cluster without cleaning up the cluster first, there will be a lot of orphaned resources as Cloud Formations, Load Balancers, EC2 instances, Network interfaces, etc. The same applies for Google GKE clusters.
+For example, if you only run `eksctl delete cluster` to delete an Amazon EKS cluster without cleaning up the cluster first, there will be a lot of orphaned resources such as Cloud Formations, Load Balancers, EC2 instances, Network interfaces, etc. The same applies for Google GKE clusters.
 
 ### Cleaning up Kubernetes cluster
 

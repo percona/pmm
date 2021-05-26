@@ -90,6 +90,7 @@ nav:
       - setting-up/index.md
       - Server:
           - setting-up/server/index.md
+          - setting-up/server/network.md
           - setting-up/server/docker.md
           - setting-up/server/virtual-appliance.md
           - setting-up/server/aws.md
