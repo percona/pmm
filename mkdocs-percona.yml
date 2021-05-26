@@ -98,6 +98,7 @@ nav:
       - using/index.md
       - using/interface.md
       - using/alerting.md
+      - using/backup.md
       - using/query-analytics.md
       - Percona Platform:
           - using/platform/index.md
@@ -188,6 +189,7 @@ nav:
   - faq.md
   - Release Notes:
       - release-notes/index.md
+      - release-notes/2.18.0.md
       - release-notes/2.17.0.md
       - release-notes/2.16.0.md
       - release-notes/2.15.1.md

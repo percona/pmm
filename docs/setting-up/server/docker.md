@@ -79,7 +79,6 @@ These variables will be ignored by `pmm-managed` when starting the server. If an
 | `PERCONA_TEST_`                                                 | Unknown variable but won't prevent the server starting |
 | `PERCONA_TEST_DBAAS`                                            | Deprecated. Use `ENABLE_DBAAS`                         |
 
-
 ## Backup and upgrade
 
 You can test a new release of the PMM Server Docker image by making backups of your current `pmm-server` and `pmm-data` containers which you can restore if you need to.
