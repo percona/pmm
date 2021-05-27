@@ -200,7 +200,7 @@ where:
 
 - When adding nodes of a replica set, add each node separately using the same cluster name.
 
-- Atlas doesn't support direct connections. When connecting to an Atlas instance, use the `pmm-admin` option `--direct-connection=false`. (Doing so will prevent replicaset status from working.)
+- Atlas doesn't support direct connections. When connecting to an Atlas instance, use the `pmm-admin` option `--direct-connection=false`. (Doing so will prevent replicaset status from working and the MongoDB Overview dashboard widget will show invalid values.)
 
 ## Check the service
 
