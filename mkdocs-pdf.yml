@@ -71,6 +71,7 @@ nav:
           - setting-up/client/linux.md
           - setting-up/client/external.md
           - setting-up/client/haproxy.md
+          - setting-up/client/remote.md
   - Using:
       - using/index.md
       - using/interface.md

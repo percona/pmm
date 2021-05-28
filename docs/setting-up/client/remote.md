@@ -1,8 +1,8 @@
-# Monitoring remote instances.
+# Monitoring remote instances
 
-## Recommended settings.
+## Recommended settings
 
-When monitoring remote instances including RDS and Google instances, network latency might affect the scrape process and throw timeout errors. 
+When monitoring remote instances including RDS and Google instances, network latency might affect the scrape process and throw timeout errors.
 For this reason, it is recommended to lower the metrics resolution in the settings section using the menu on the left side (The gear icon).
 
 Starting with PMM 2.18, the scrape timeout has been updated according to the following rules:
@@ -11,11 +11,11 @@ Starting with PMM 2.18, the scrape timeout has been updated according to the fol
 - For resolutions <= 10 seconds, timeout is set to resolution minus 1 second. For example, for 10 second resolution, timeout will be set at 9 seconds.
 - For lower resolutions (values > 10 seconds), the scrape timeout is set to 90% of the resolution time. For example, for 60 second resolution, the scrape timeout will be set to 54 seconds.
 
-## How to check for scrape timeouts.
+## How to check for scrape timeouts
 
 Sometimes it is hard to check if you are using the correct values to scrape or if there some other reason why there is no data in a dashboard even when the instance has been added correctly and the agent is running.
 
-One aditional step you can do is to check for scrape target statuses. Browse to http://<your-pmm-server-address-here>/prometheus/targets and then click on the Unhealthy button. 
+One aditional step you can do is to check for scrape target statuses. Browse to http://<your-pmm-server-address-here>/prometheus/targets and then click on the Unhealthy button.
 
 ![!image](../../_images/scrape_targets_01.png)
 
@@ -28,4 +28,3 @@ In the example here, there is a message that says: "context deadline exeeded" an
 In this case, we can lower the metric resolutions increasing these values as shown in the image below.
 
 ![!image](../../_images/scrape_targets_03.png)
-
