@@ -549,7 +549,8 @@ type AddPostgreSQLOKBodyPostgresExporter struct {
 	//  - WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -574,7 +575,7 @@ var addPostgreSqlOkBodyPostgresExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -601,6 +602,9 @@ const (
 
 	// AddPostgreSQLOKBodyPostgresExporterStatusDONE captures enum value "DONE"
 	AddPostgreSQLOKBodyPostgresExporterStatusDONE string = "DONE"
+
+	// AddPostgreSQLOKBodyPostgresExporterStatusUNKNOWN captures enum value "UNKNOWN"
+	AddPostgreSQLOKBodyPostgresExporterStatusUNKNOWN string = "UNKNOWN"
 )
 
 // prop value enum
@@ -679,7 +683,8 @@ type AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent struct {
 	//  - WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 }
 
@@ -701,7 +706,7 @@ var addPostgreSqlOkBodyQanPostgresqlPgstatementsAgentTypeStatusPropEnum []interf
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -728,6 +733,9 @@ const (
 
 	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusDONE captures enum value "DONE"
 	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusDONE string = "DONE"
+
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusUNKNOWN captures enum value "UNKNOWN"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusUNKNOWN string = "UNKNOWN"
 )
 
 // prop value enum
@@ -809,7 +817,8 @@ type AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent struct {
 	//  - WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 }
 
@@ -831,7 +840,7 @@ var addPostgreSqlOkBodyQanPostgresqlPgstatmonitorAgentTypeStatusPropEnum []inter
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -858,6 +867,9 @@ const (
 
 	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusDONE captures enum value "DONE"
 	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusDONE string = "DONE"
+
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusUNKNOWN captures enum value "UNKNOWN"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusUNKNOWN string = "UNKNOWN"
 )
 
 // prop value enum
