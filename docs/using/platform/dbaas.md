@@ -5,14 +5,16 @@
 
 The DBaaS dashboard is where you add, remove, and operate on Kubernetes and database clusters.
 
-## Activate a DBaaS feature
+## Activate DBaaS
 
-**To activate the *DBaaS* feature**, select {{ icon.bars }} *PMM* --> *PMM Settings* --> *Advanced settings*.
-Then turn on the DBaaS feature by clicking on {{ icon.toggleoff }} toggle in the *Technical preview features* section of the page.
+The DBaaS feature is turned off by default. To turn it on:
 
-To open the DBaaS dashboard:
+1. Go to *{{icon.bars}} PMM-->PMM Settings-->Advanced settings*.
+2. Click the {{icon.toggleoff}} toggle in the *Technical preview features* section of the page.
 
-- From the left menu, select {{ icon.database }} *DBaaS*.
+## Open the DBaaS dashboard
+
+From the left menu, select *{{icon.database}} DBaaS*.
 
 ![!](../../_images/PMM_DBaaS_Kubernetes_Cluster_Panel.jpg)
 
@@ -86,7 +88,10 @@ To monitor a DB cluster, set up a [public address](../../how-to/configure.md#pub
 
 3. In section 1, *Basic Options*:
 
-    1. Enter a value for *Cluster name* that complies with domain naming rules.
+    1. Enter a value for *Cluster name*. A cluster name:
+        - must begin with a lowercase letter;
+        - can comprise lowercase letters, numbers and dashes;
+        - must end with an alphanumeric character.
 
     2. Select a cluster from the *Kubernetes Cluster* menu.
 
