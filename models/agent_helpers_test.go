@@ -139,6 +139,7 @@ func TestAgentHelpers(t *testing.T) {
 			CreatedAt:    now,
 			UpdatedAt:    now,
 			NodeID:       pointer.ToString("N1"),
+			Status:       models.AgentStatusUnknown,
 		}}
 		assert.Equal(t, expected, agents)
 	})
@@ -157,6 +158,7 @@ func TestAgentHelpers(t *testing.T) {
 			RunsOnNodeID: nil,
 			CreatedAt:    now,
 			UpdatedAt:    now,
+			Status:       models.AgentStatusUnknown,
 		}, {
 			AgentID:      "A3",
 			AgentType:    models.NodeExporterType,
@@ -165,6 +167,7 @@ func TestAgentHelpers(t *testing.T) {
 			RunsOnNodeID: nil,
 			CreatedAt:    now,
 			UpdatedAt:    now,
+			Status:       models.AgentStatusUnknown,
 		}}
 		assert.Equal(t, expected, agents)
 	})
@@ -183,6 +186,7 @@ func TestAgentHelpers(t *testing.T) {
 			RunsOnNodeID: nil,
 			CreatedAt:    now,
 			UpdatedAt:    now,
+			Status:       models.AgentStatusUnknown,
 		}}
 		assert.Equal(t, expected, agents)
 	})
@@ -201,6 +205,7 @@ func TestAgentHelpers(t *testing.T) {
 			RunsOnNodeID: nil,
 			CreatedAt:    now,
 			UpdatedAt:    now,
+			Status:       models.AgentStatusUnknown,
 		}}
 		assert.Equal(t, expected, agents)
 
@@ -214,6 +219,7 @@ func TestAgentHelpers(t *testing.T) {
 			RunsOnNodeID: nil,
 			CreatedAt:    now,
 			UpdatedAt:    now,
+			Status:       models.AgentStatusUnknown,
 		}}
 		assert.Equal(t, expected, agents)
 

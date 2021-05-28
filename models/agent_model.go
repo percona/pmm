@@ -41,6 +41,8 @@ type AgentType string
 const (
 	certificateKeyFilePlaceholder = "certificateKeyFilePlaceholder"
 	caFilePlaceholder             = "caFilePlaceholder"
+	// AgentStatusUnknown indicates we know nothing about agent because it is not connected.
+	AgentStatusUnknown = "UNKNOWN"
 )
 
 // Agent types (in the same order as in agents.proto).
@@ -169,6 +171,9 @@ func (s *Agent) BeforeInsert() error {
 	s.UpdatedAt = now
 	if len(s.CustomLabels) == 0 {
 		s.CustomLabels = nil
+	}
+	if s.Status == "" && s.AgentType != ExternalExporterType && s.AgentType != PMMAgentType {
+		s.Status = AgentStatusUnknown
 	}
 	return nil
 }
