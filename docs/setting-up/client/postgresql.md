@@ -232,6 +232,22 @@ Add instance to connect with a UNIX socket.
 pmm-admin add postgresql --socket=/var/run/postgresql
 ```
 
+Add instance to connect with SSL/TLS.
+
+```sh
+pmm-admin add postgresql \
+--username=pmm \
+--password=password \
+--tls \
+--tls-skip-verify
+```
+
+where:
+
+- `--tls`: Use TLS to connect to the database.
+- `--tls-skip-verify`: Skip TLS certificates validation.
+
+
 > See [pmm-admin man page]
 
 ## Check the service
