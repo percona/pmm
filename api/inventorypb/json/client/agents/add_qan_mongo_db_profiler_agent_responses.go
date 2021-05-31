@@ -351,7 +351,8 @@ type AddQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent struct {
 	//  - WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 }
 
@@ -373,7 +374,7 @@ var addQanMongoDbProfilerAgentOkBodyQanMongodbProfilerAgentTypeStatusPropEnum []
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -400,6 +401,9 @@ const (
 
 	// AddQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentStatusDONE captures enum value "DONE"
 	AddQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentStatusDONE string = "DONE"
+
+	// AddQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentStatusUNKNOWN captures enum value "UNKNOWN"
+	AddQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentStatusUNKNOWN string = "UNKNOWN"
 )
 
 // prop value enum
