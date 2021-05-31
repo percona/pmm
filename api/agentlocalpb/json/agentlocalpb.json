@@ -153,7 +153,7 @@
                         "x-order": 3
                       },
                       "status": {
-                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                         "type": "string",
                         "default": "AGENT_STATUS_INVALID",
                         "enum": [
@@ -162,7 +162,8 @@
                           "RUNNING",
                           "WAITING",
                           "STOPPING",
-                          "DONE"
+                          "DONE",
+                          "UNKNOWN"
                         ],
                         "x-order": 2
                       }
@@ -339,7 +340,7 @@
                         "x-order": 3
                       },
                       "status": {
-                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                         "type": "string",
                         "default": "AGENT_STATUS_INVALID",
                         "enum": [
@@ -348,7 +349,8 @@
                           "RUNNING",
                           "WAITING",
                           "STOPPING",
-                          "DONE"
+                          "DONE",
+                          "UNKNOWN"
                         ],
                         "x-order": 2
                       }
