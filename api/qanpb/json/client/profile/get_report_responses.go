@@ -879,6 +879,30 @@ type RowsItems0SparklineItems0 struct {
 
 	// Total time system spent in query.
 	MCPUSysTimeSumPerSec float32 `json:"m_cpu_sys_time_sum_per_sec,omitempty"`
+
+	// pg_stat_monitor 0.9 metrics
+	MRowRetrievedSum string `json:"m_row_retrieved_sum,omitempty"`
+
+	// Total number of rows in result.
+	MRowRetrievedCnt string `json:"m_row_retrieved_cnt,omitempty"`
+
+	// m plans calls sum
+	MPlansCallsSum string `json:"m_plans_calls_sum,omitempty"`
+
+	// Total number of planned calls.
+	MPlansCallsCnt string `json:"m_plans_calls_cnt,omitempty"`
+
+	// m wal records sum
+	MWalRecordsSum string `json:"m_wal_records_sum,omitempty"`
+
+	// Total number of WAL (Write-ahead logging) records.
+	MWalRecordsCnt string `json:"m_wal_records_cnt,omitempty"`
+
+	// m wal fpi sum
+	MWalFpiSum string `json:"m_wal_fpi_sum,omitempty"`
+
+	// Total number of FPI (full page images) in WAL (Write-ahead logging) records.
+	MWalFpiCnt string `json:"m_wal_fpi_cnt,omitempty"`
 }
 
 // Validate validates this rows items0 sparkline items0

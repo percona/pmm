@@ -591,6 +591,17 @@
                               "format": "float",
                               "x-order": 38
                             },
+                            "m_plans_calls_cnt": {
+                              "description": "Total number of planned calls.",
+                              "type": "string",
+                              "format": "uint64",
+                              "x-order": 60
+                            },
+                            "m_plans_calls_sum": {
+                              "type": "string",
+                              "format": "uint64",
+                              "x-order": 59
+                            },
                             "m_qc_hit_sum_per_sec": {
                               "description": "Boolean metrics:\n- *_sum_per_sec - how many times this matric was true.\n\nQuery Cache hits.",
                               "type": "number",
@@ -614,6 +625,18 @@
                               "type": "number",
                               "format": "float",
                               "x-order": 41
+                            },
+                            "m_row_retrieved_cnt": {
+                              "description": "Total number of rows in result.",
+                              "type": "string",
+                              "format": "uint64",
+                              "x-order": 58
+                            },
+                            "m_row_retrieved_sum": {
+                              "type": "string",
+                              "format": "uint64",
+                              "title": "pg_stat_monitor 0.9 metrics",
+                              "x-order": 57
                             },
                             "m_rows_affected_sum_per_sec": {
                               "description": "Number of rows changed - UPDATE, DELETE, INSERT.",
@@ -740,6 +763,28 @@
                               "type": "number",
                               "format": "float",
                               "x-order": 22
+                            },
+                            "m_wal_fpi_cnt": {
+                              "description": "Total number of FPI (full page images) in WAL (Write-ahead logging) records.",
+                              "type": "string",
+                              "format": "uint64",
+                              "x-order": 64
+                            },
+                            "m_wal_fpi_sum": {
+                              "type": "string",
+                              "format": "uint64",
+                              "x-order": 63
+                            },
+                            "m_wal_records_cnt": {
+                              "description": "Total number of WAL (Write-ahead logging) records.",
+                              "type": "string",
+                              "format": "uint64",
+                              "x-order": 62
+                            },
+                            "m_wal_records_sum": {
+                              "type": "string",
+                              "format": "uint64",
+                              "x-order": 61
                             },
                             "num_queries_per_sec": {
                               "description": "number of queries in bucket.",
@@ -1239,6 +1284,17 @@
                         "format": "float",
                         "x-order": 38
                       },
+                      "m_plans_calls_cnt": {
+                        "description": "Total number of planned calls.",
+                        "type": "string",
+                        "format": "uint64",
+                        "x-order": 60
+                      },
+                      "m_plans_calls_sum": {
+                        "type": "string",
+                        "format": "uint64",
+                        "x-order": 59
+                      },
                       "m_qc_hit_sum_per_sec": {
                         "description": "Boolean metrics:\n- *_sum_per_sec - how many times this matric was true.\n\nQuery Cache hits.",
                         "type": "number",
@@ -1262,6 +1318,18 @@
                         "type": "number",
                         "format": "float",
                         "x-order": 41
+                      },
+                      "m_row_retrieved_cnt": {
+                        "description": "Total number of rows in result.",
+                        "type": "string",
+                        "format": "uint64",
+                        "x-order": 58
+                      },
+                      "m_row_retrieved_sum": {
+                        "type": "string",
+                        "format": "uint64",
+                        "title": "pg_stat_monitor 0.9 metrics",
+                        "x-order": 57
                       },
                       "m_rows_affected_sum_per_sec": {
                         "description": "Number of rows changed - UPDATE, DELETE, INSERT.",
@@ -1388,6 +1456,28 @@
                         "type": "number",
                         "format": "float",
                         "x-order": 22
+                      },
+                      "m_wal_fpi_cnt": {
+                        "description": "Total number of FPI (full page images) in WAL (Write-ahead logging) records.",
+                        "type": "string",
+                        "format": "uint64",
+                        "x-order": 64
+                      },
+                      "m_wal_fpi_sum": {
+                        "type": "string",
+                        "format": "uint64",
+                        "x-order": 63
+                      },
+                      "m_wal_records_cnt": {
+                        "description": "Total number of WAL (Write-ahead logging) records.",
+                        "type": "string",
+                        "format": "uint64",
+                        "x-order": 62
+                      },
+                      "m_wal_records_sum": {
+                        "type": "string",
+                        "format": "uint64",
+                        "x-order": 61
                       },
                       "num_queries_per_sec": {
                         "description": "number of queries in bucket.",

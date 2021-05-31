@@ -313,28 +313,30 @@ message MetricsBucket {
     float m_cpu_sys_time_cnt = 29;
     // Total time system spent in query.
     float m_cpu_sys_time_sum = 30;
+    //
     // pg_stat_monitor 0.9 metrics
-    string application_name = 31;
-    uint32 cmd_type = 32;
-    string cmd_type_text = 33;
-    uint32 elevel = 34;
-    string sqlcode = 35;
-    string message = 36;
-    float min_time = 37;
-    float max_time = 38;
-    float mean_time = 39;
-    float stddev_time = 40;
-    uint64 row_retrieved = 41;
-    uint64 plans_calls = 42;
-    float plan_total_time = 43;
-    float plan_min_time = 44;
-    float plan_max_time = 45;
-    float plan_mean_time = 46;
-    uint64 wal_records = 47;
-    uint64 wal_fpi = 48;
-    string wal_bytes = 49;
-    uint64 state_code = 50;
-    string state = 51;
+    //
+    uint64 m_row_retrieved_sum = 31;
+    // Total number of rows in result.
+    uint64 m_row_retrieved_cnt = 32;
+    uint64 m_plans_calls_sum = 33;
+    // Total number of planned calls.
+    uint64 m_plans_calls_cnt = 34;
+    uint64 m_wal_records_sum = 35;
+    // Total number of WAL (Write-ahead logging) records.
+    uint64 m_wal_records_cnt = 36;
+    uint64 m_wal_fpi_sum = 37;
+    // Total number of FPI (full page images) in WAL (Write-ahead logging) records.
+    uint64 m_wal_fpi_cnt = 38;
+    // Metrics skipped due to different bucket_time in pg_stat_monitor (1min in PMM, 5min in pg_stat_monitor):
+    // float min_time, float max_time, float mean_time
+    // float plan_total_time, float plan_min_time, float plan_max_time, float plan_mean_time
+    // float stddev_time
+
+    // Other metrics skipped (empty values, codes):
+    // string application_name, uint32 cmd_type, string cmd_type_text, uint32 elevel, string sqlcode,
+    // string message, uint64 state_code, string state, string wal_bytes
+
   }
   Common common = 1;
   MySQL mysql = 2;
