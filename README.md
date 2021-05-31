@@ -150,9 +150,10 @@ With this, a [GitHub actions](https://github.com/percona/pmm-doc/actions) workfl
 
 ## Image overlays
 
-`docs/using/interface.md` uses an image of the home dashboard overlaid with numbered boxes to identify menu bars and control. This approach means the home dashboard image and it's numbered version always look the same. Here's how it's done.
+`docs/using/interface.md` uses an image of the home dashboard overlaid with numbered boxes to identify menu bars and control. This approach means the home dashboard image and its numbered version always look the same. Here's how it's done.
 
 - `PMM_Home_Dashboard_TALL.jpg` is created by [pmm-screenshots-pw](https://github.com/PaulJacobs-percona/pmm-screenshots-pw). If snapped by hand, it should be 1280x1120 pixels, to match the overlay image.
+
 - `PMM_Home_Dashboard_TALL_Overlay.png` is exported from `_resources/diagrams/PMM_Home_Dashboard_TALL_Overlay.drawio` using <https://app.diagrams.net/>.
 
     1. Go to <https://app.diagrams.net/>
@@ -208,4 +209,3 @@ We're using the `mkdocs-htmlproofer-plugin` link checking plugin to detect broke
 The plugin is installed in [our Docker image](https://hub.docker.com/repository/docker/perconalab/pmm-doc-md) and by the GitHub action but it is commented out in `mkdocs.yml`.
 
 To enable it for local builds, uncomment the line with `htmlproofer` in the `plugins` section of `mkdocs.yml` and parse the build output for warnings.
-
