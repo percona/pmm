@@ -48,7 +48,7 @@ Each row of the table represents the metrics for a chosen object type, one of:
 
 At the top of the second column is the *dimension* menu. Use this to choose the object type.
 
-![!image](../_images/PMM_Query_Analytics_Dimension_Selector.jpg)
+![!image](../_images/PMM_Query_Analytics_Menus_Dimension_Selector.jpg)
 
 On the right side of the dimension column is the *Dimension Search* bar.
 
@@ -74,17 +74,17 @@ Delete the search text and press Enter to see the full list again.
 
 - Hovering on the main metric meter reveals the percentage of the total, and other details specific to the main metric.
 
-	![!image](../_images/PMM_Query_Analytics_Main_Metric_Summary.jpg)
+    ![!image](../_images/PMM_Query_Analytics_Tooltips_Metric_Tooltip.jpg)
 
 - Hovering on column values reveals more details on the value. The contents depends on the type of value.
 
-	![!image](../_images/PMM_Query_Analytics_Metric_Tooltip.jpg)
+    ![!image](../_images/PMM_Query_Analytics_Metric_Tooltip.jpg)
 
 **Adding and removing columns**
 
 - Metrics columns are added with the *Add column* button.
 
-	![!image](../_images/PMM_Query_Analytics_add-columns.jpg)
+    ![!image](../_images/PMM_Query_Analytics_Devices_Add_Columns.jpg)
 
 - When clicked, a text field and list of available metrics are revealed. Select a metric or enter a search string to reduce the list. Selecting a metric adds it to the panel.
 - A metric column is removed by clicking on the column heading and selecting *Remove column*.
@@ -99,7 +99,7 @@ Delete the search text and press Enter to see the full list again.
 
 - The pagination device lets you move forwards or backwards through pages, jump to a specific page, and choose how many items are listed per page.
 
-	![!image](../_images/PMM_Query_Analytics_Panels_Pagination.jpg)
+    ![!image](../_images/PMM_Query_Analytics_Devices_Pagination.jpg)
 
 - Queries are grouped into pages of 25, 50 or 100 items.
 
@@ -112,25 +112,25 @@ Delete the search text and press Enter to see the full list again.
 
 The *Details* tab contains a *Query time distribution* bar (only for MySQL databases) and a set of *Metrics* in collapsible subpanels.
 
-![!image](../_images/PMM_Query_Analytics_details.jpg)
+![!image](../_images/PMM_Query_Analytics_Tabs_Details.jpg)
 
 - The *Query time distribution* bar shows a query’s total time made up of colored segments, each segment representing the proportion of time spent on one of the follow named activities:
 
-	- `query_time`: Statement execution time.
-	- `lock_time`: Time to acquire locks.
-	- `blk_read_time`: Total time the statement spent reading blocks (if `track_io_timing` is enabled, otherwise zero).
-	- `blk_write_time`: Total time the statement spent writing blocks (if `track_io_timing` is enabled, otherwise zero).
-	- `innodb_io_r_wait`: Time for InnoDB to read the data from storage.
-	- `innodb_queue_wait`: Time the query spent either waiting to enter the InnoDB queue, or in it pending execution.
-	- `innodb_rec_lock_wait`: Time the query waited for row locks.
-	- `other`: Remaining uncategorized query time.
+    - `query_time`: Statement execution time.
+    - `lock_time`: Time to acquire locks.
+    - `blk_read_time`: Total time the statement spent reading blocks (if `track_io_timing` is enabled, otherwise zero).
+    - `blk_write_time`: Total time the statement spent writing blocks (if `track_io_timing` is enabled, otherwise zero).
+    - `innodb_io_r_wait`: Time for InnoDB to read the data from storage.
+    - `innodb_queue_wait`: Time the query spent either waiting to enter the InnoDB queue, or in it pending execution.
+    - `innodb_rec_lock_wait`: Time the query waited for row locks.
+    - `other`: Remaining uncategorized query time.
 
 - *Metrics* is a table with these headings:
 
-	- *Metric*: The Metric name, with a question-mark tool-tip that reveals a description of the metric on mouse-over.
-	- *Rate/Second*: A sparkline chart of real-time values per unit time.
-	- *Sum*: A summation of the metric for the selected query, and the percentage of the total.
-	- *Per Query Stats*: The value of the metric per query.
+    - *Metric*: The Metric name, with a question-mark tool-tip that reveals a description of the metric on mouse-over.
+    - *Rate/Second*: A sparkline chart of real-time values per unit time.
+    - *Sum*: A summation of the metric for the selected query, and the percentage of the total.
+    - *Per Query Stats*: The value of the metric per query.
 
 - Each row in the table is a metric. The contents depends on the chosen dimension.
 
@@ -140,7 +140,7 @@ The *Details* tab contains a *Query time distribution* bar (only for MySQL datab
 
 The *Examples* tab shows an example of the selected query’s fingerprint or table element.
 
-![!image](../_images/PMM_Query_Analytics_examples.jpg)
+![!image](../_images/PMM_Query_Analytics_Tabs_Examples.jpg)
 
 ### Explain Tab
 
@@ -152,7 +152,7 @@ The *Explain* tab shows the `explain` output for the selected query, in Classic 
 - MongoDB: JSON only
 - PostgreSQL: Not supported
 
-![!image](../_images/PMM_Query_Analytics_explain.jpg)
+![!image](../_images/PMM_Query_Analytics_Tabs_Explain.jpg)
 
 ### Tables Tab
 
@@ -160,7 +160,7 @@ The *Explain* tab shows the `explain` output for the selected query, in Classic 
 
 The *Tables* tab shows information on the tables and indexes involved in the selected query.
 
-![!image](../_images/PMM_Query_Analytics_tables.jpg)
+![!image](../_images/PMM_Query_Analytics_Tabs_Tables.jpg)
 
 ## Query Analytics for MongoDB
 
