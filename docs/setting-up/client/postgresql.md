@@ -195,6 +195,8 @@ When you have configured your database server, you can add a PostgreSQL service 
 3. Enter or select values for the fields.
 4. Click *Add service*.
 
+![!](../../_images/PMM_Add_Instance_PostgreSQL.jpg)
+
 ### On the command line
 
 Add the database server as a service using one of these example commands. If successful, PMM Client will print `PostgreSQL Service added` with the service's ID and name. Use the `--environment` and `-custom-labels` options to set tags for the service to help identify them.

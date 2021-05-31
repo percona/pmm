@@ -131,7 +131,7 @@ The following steps are needed to add an Amazon RDS database instance to PMM:
 
 2. Select *AWS RDS MySQL or Aurora MySQL -- Add a remote instance*.
 
-    ![!image](../../_images/PMM_Add_Instance_RDS.png)
+    ![!image](../../_images/PMM_Add_Instance_AWS_RDS.jpg)
 
 3. Enter the access key ID and the secret access key of your IAM user.
 

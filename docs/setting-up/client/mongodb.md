@@ -127,16 +127,10 @@ When you have configured your database server, you can add a MongoDB service wit
 
 1. Select *{{icon.cog}} Configuration-->{{icon.inventory}} PMM Inventory-->{{icon.addinstance}} Add Instance*.
 2. Select *MongoDB -- Add a remote instance*.
-3. Enter values for the fields.
-    - *Hostname*: The hostname or IP address of the node where the database server is running.
-    - *Service name*: Choose a service name.
-    - *Port*: Default is 27017 for MongoDB servers.
-    - *Username*: The username for connecting to the MongoDB database. Use the PMM user account if you chose to create one (`{{pmm_mongodb_user}}` in these examples).
-    - *Password*: The password for this user account. (`{{pmm_password}}` in these examples.)
-    - Additional options:
-        - *Use QAN MongoDB Profiler*: Activate if you want to use Query Analytics and have [set up profiling](#profiling).
-
+3. Enter or select values for the fields.
 4. Click *Add service*.
+
+![!](../../_images/PMM_Add_Instance_MongoDB.jpg)
 
 ### On the command line
 

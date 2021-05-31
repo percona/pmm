@@ -321,34 +321,10 @@ With the PMM user interface, you select *Use performance schema*, or deselect it
 
 1. Select *PMM --> PMM Add Instance*.
 2. Select *MySQL -- Add a remote instance*.
-3. Enter values for these fields.
-
-	| Section                  | Field                                          | Required | Description                             | Default  | `pmm-admin` parameter
-	| ------------------------ | ---------------------------------------------- | -------- | --------------------------------------- | -------- | --------------------------
-	| *Main details*           |                                                |          |                                         |          |
-	|                          | *Hostname*                                     | ☑️        | Hostname or IP address of the service   |          | `--address`
-	|                          | *Service name*                                 |          | Service name                            |          | `--name`
-	|                          | *Port*                                         |          | Port for accessing the service          | 3306     | `port` in `--address=address[:port]`
-	|                          | *Username*                                     |          | MySQL user name                         |          | `--username`
-	|                          | *Password*                                     |          | MySQL user password                     |          | `--password`
-	| *Labels*                 |                                                |          |                                         |          |
-	|                          | *Environment*                                  |          |                                         |          | `--environment`
-	|                          | *Region*                                       |          |                                         |          |
-	|                          | *Availability zone*                            |          |                                         |          |
-	|                          | *Replication set*                              |          |                                         |          | `--replication-set`
-	|                          | *Cluster*                                      |          |                                         |          | `--cluster`
-	|                          | *Custom labels*                                |          |                                         |          | `--custom-labels`
-	| *Additional options*     |                                                |          |                                         |          |
-    |                          | *Skip connection check*                        |          |                                         |          | `--skip-connection-check`
-	|                          | *Use TLS for database connections*             |          |                                         |          | `--tls`
-	|                          | *Skip TLS certificate and hostname validation* |          |                                         |          | `--tls-skip-verify`
-	|                          | *Table statistics limit*                       |          |                                         |          |
-	|                      	   | --> *Disabled*                                 |          |                                         |          | `--disable-tablestats`
-	|                      	   | --> *Default*                                  |          |                                         |          | `--disable-tablestats-limit`
-	|                      	   | --> *Custom*                                   |          |                                         |          | `--disable-tablestats-limit`
-	|                          | *Use performance schema*                       |          |                                         |          | `--perfschema` if selected, `--slowlog` if not.
-
+3. Enter or select values for the fields.
 4. Click *Add service*.
+
+![!](../../_images/PMM_Add_Instance_MySQL.jpg)
 
 ### On the command line
 
