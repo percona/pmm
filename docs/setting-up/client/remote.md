@@ -1,4 +1,4 @@
-# Monitoring remote instances
+# Remote instances
 
 ## Recommended settings
 
