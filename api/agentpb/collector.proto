@@ -316,26 +316,25 @@ message MetricsBucket {
     //
     // pg_stat_monitor 0.9 metrics
     //
-    uint64 m_row_retrieved_sum = 31;
+    float m_row_retrieved_sum = 31;
     // Total number of rows in result.
-    uint64 m_row_retrieved_cnt = 32;
-    uint64 m_plans_calls_sum = 33;
+    float m_row_retrieved_cnt = 32;
+    float m_plans_calls_sum = 33;
     // Total number of planned calls.
-    uint64 m_plans_calls_cnt = 34;
-    uint64 m_wal_records_sum = 35;
+    float m_plans_calls_cnt = 34;
+    float m_wal_records_sum = 35;
     // Total number of WAL (Write-ahead logging) records.
-    uint64 m_wal_records_cnt = 36;
-    uint64 m_wal_fpi_sum = 37;
+    float m_wal_records_cnt = 36;
+    float m_wal_fpi_sum = 37;
     // Total number of FPI (full page images) in WAL (Write-ahead logging) records.
-    uint64 m_wal_fpi_cnt = 38;
+    float m_wal_fpi_cnt = 38;
     // Metrics skipped due to different bucket_time in pg_stat_monitor (1min in PMM, 5min in pg_stat_monitor):
-    // float min_time, float max_time, float mean_time
-    // float plan_total_time, float plan_min_time, float plan_max_time, float plan_mean_time
-    // float stddev_time
+    // min_time, max_time, mean_time
+    // plan_total_time, plan_min_time, plan_max_time, plan_mean_time
+    // stddev_time
 
     // Other metrics skipped (empty values, codes):
-    // string application_name, uint32 cmd_type, string cmd_type_text, uint32 elevel, string sqlcode,
-    // string message, uint64 state_code, string state, string wal_bytes
+    // application_name, cmd_type, cmd_type_text, elevel, sqlcode, message, state_code, state, wal_bytes
 
   }
   Common common = 1;
