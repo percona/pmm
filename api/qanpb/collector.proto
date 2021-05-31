@@ -341,6 +341,29 @@ message MetricsBucket {
   float m_cpu_sys_time_cnt = 232;
   // Total time system spent in query.
   float m_cpu_sys_time_sum = 233;
+  //
+  // pg_stat_monitor 0.9 metrics
+  //
+  float m_row_retrieved_sum = 234;
+  // Total number of rows in result.
+  float m_row_retrieved_cnt = 235;
+  float m_plans_calls_sum = 236;
+  // Total number of planned calls.
+  float m_plans_calls_cnt = 237;
+  float m_wal_records_sum = 238;
+  // Total number of WAL (Write-ahead logging) records.
+  float m_wal_records_cnt = 239;
+  float m_wal_fpi_sum = 240;
+  // Total number of FPI (full page images) in WAL (Write-ahead logging) records.
+  float m_wal_fpi_cnt = 241;
+  // Metrics skipped due to different bucket_time in pg_stat_monitor (1min in PMM, 5min in pg_stat_monitor):
+  // min_time, max_time, mean_time
+  // plan_total_time, plan_min_time, plan_max_time, plan_mean_time
+  // stddev_time
+
+  // Other metrics skipped (empty values, codes):
+  // application_name, cmd_type, cmd_type_text, elevel, sqlcode, message, state_code, state, wal_bytes
+
 }
 
 message CollectResponse {}
