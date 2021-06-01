@@ -75,7 +75,7 @@ Some panels have an information icon {{icon.info}} in the top left corner. Mouse
 
 At the top of each panel and to the right of the panel name is the *panel menu*.
 
-![!image](../_images/PMM_Common_Panel_Menu_Open.jpg)
+![!image](../_images/PMM_Common_Panel_Menu.jpg)
 
 > **Tip** The menu is hidden until you mouse over it. Look for the {{icon.angledown}} symbol in the title bar of a panel.
 

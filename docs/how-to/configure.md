@@ -69,7 +69,7 @@ Values for the *Custom* preset can be entered as values, or changed with the arr
 
 ## Advanced Settings
 
-![!](../_images/PMM_Settings_Advanced_Settings.png)
+![!](../_images/PMM_Settings_Advanced_Settings.jpg)
 
 ### Data Retention
 
@@ -244,7 +244,7 @@ Global communications settings for [Integrated Alerting](../using/alerting.md).
 
 > If there is no *Communication* tab, go to the *Advanced Settings* tab and activate *Integrated Alerting*.
 
-![!](../_images/PMM_Settings_Communication.png)
+![!](../_images/PMM_Settings_Communication.jpg)
 
 (Integrated Alerting uses a separate instance of Alertmanager run by `pmm-managed`.)
 
