@@ -883,13 +883,13 @@ type RowsItems0SparklineItems0 struct {
 	// pg_stat_monitor 0.9 metrics
 	//
 	// Total number of planned calls.
-	MPlansCallsSumPerSec string `json:"m_plans_calls_sum_per_sec,omitempty"`
+	MPlansCallsSumPerSec float32 `json:"m_plans_calls_sum_per_sec,omitempty"`
 
 	// Total number of WAL (Write-ahead logging) records.
-	MWalRecordsSumPerSec string `json:"m_wal_records_sum_per_sec,omitempty"`
+	MWalRecordsSumPerSec float32 `json:"m_wal_records_sum_per_sec,omitempty"`
 
 	// Total number of FPI (full page images) in WAL (Write-ahead logging) records.
-	MWalFpiSumPerSec string `json:"m_wal_fpi_sum_per_sec,omitempty"`
+	MWalFpiSumPerSec float32 `json:"m_wal_fpi_sum_per_sec,omitempty"`
 }
 
 // Validate validates this rows items0 sparkline items0

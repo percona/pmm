@@ -153,11 +153,11 @@ message Point {
   // pg_stat_monitor 0.9 metrics
   //
   // Total number of planned calls.
-  uint64 m_plans_calls_sum_per_sec = 58;
+  float m_plans_calls_sum_per_sec = 58;
   // Total number of WAL (Write-ahead logging) records.
-  uint64 m_wal_records_sum_per_sec = 59;
+  float m_wal_records_sum_per_sec = 59;
   // Total number of FPI (full page images) in WAL (Write-ahead logging) records.
-  uint64 m_wal_fpi_sum_per_sec = 60;
+  float m_wal_fpi_sum_per_sec = 60;
 }
 
 // MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.
