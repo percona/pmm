@@ -138,23 +138,23 @@ The following steps are needed to add an Amazon RDS database instance to PMM:
 4. Click the *Discover* button for PMM to retrieve the available Amazon RDS
 instances.
 
-    ![!image](../../_images/PMM_Add_Instance_RDS_Discover.png)
+    ![!image](../../_images/PMM_Add_Instance_AWS_RDS_Discover.png)
 
 5. For the instance that you would like to monitor, select the *Start monitoring* button.
 
 6. You will see a new page with the number of fields. The list is divided into the following groups: *Main details*, *RDS database*, *Labels*, and *Additional options*. Some already known data, such as already entered *AWS access key*, are filled in automatically, and some fields are optional.
 
-    ![!](../../_images/PMM_Add_Instance_RDS_Main_Details.png)
+    ![!](../../_images/PMM_Add_Instance_AWS_RDS_Main_Details.png)
 
     The *Main details* section allows you to specify the DNS hostname of your instance,
     the service name to use within PMM, the port your service is listening on, and the
     database user name and password.
 
-    ![!image](../../_images/PMM_Add_Instance_RDS_Labels.png)
+    ![!image](../../_images/PMM_Add_Instance_AWS_RDS_Labels.png)
 
     The *Labels* section allows you to specify labels for the environment, the AWS region and availability zone to be used, the Replication set and Cluster names and also it allows you to set the list of custom labels in a key:value format.
 
-    ![!](../../_images/PMM_Add_Instance_RDS_Additional_Options.png)
+    ![!](../../_images/PMM_Add_Instance_AWS_RDS_Additional_Options.png)
 
     The *Additional options* section contains specific flags which allow you to tune the RDS monitoring. They can allow you to skip connection check, to use TLS for the database connection, not to validate the TLS certificate and the hostname, as well as to disable basic and/or enhanced metrics collection for the RDS instance to reduce costs.
 
