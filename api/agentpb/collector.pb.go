@@ -1687,17 +1687,17 @@ type MetricsBucket_PostgreSQL struct {
 	//
 	// pg_stat_monitor 0.9 metrics
 	//
-	MRowRetrievedSum float32 `protobuf:"fixed32,31,opt,name=m_row_retrieved_sum,json=mRowRetrievedSum,proto3" json:"m_row_retrieved_sum,omitempty"`
 	// Total number of rows in result.
+	MRowRetrievedSum float32 `protobuf:"fixed32,31,opt,name=m_row_retrieved_sum,json=mRowRetrievedSum,proto3" json:"m_row_retrieved_sum,omitempty"`
 	MRowRetrievedCnt float32 `protobuf:"fixed32,32,opt,name=m_row_retrieved_cnt,json=mRowRetrievedCnt,proto3" json:"m_row_retrieved_cnt,omitempty"`
-	MPlansCallsSum   float32 `protobuf:"fixed32,33,opt,name=m_plans_calls_sum,json=mPlansCallsSum,proto3" json:"m_plans_calls_sum,omitempty"`
 	// Total number of planned calls.
+	MPlansCallsSum float32 `protobuf:"fixed32,33,opt,name=m_plans_calls_sum,json=mPlansCallsSum,proto3" json:"m_plans_calls_sum,omitempty"`
 	MPlansCallsCnt float32 `protobuf:"fixed32,34,opt,name=m_plans_calls_cnt,json=mPlansCallsCnt,proto3" json:"m_plans_calls_cnt,omitempty"`
-	MWalRecordsSum float32 `protobuf:"fixed32,35,opt,name=m_wal_records_sum,json=mWalRecordsSum,proto3" json:"m_wal_records_sum,omitempty"`
 	// Total number of WAL (Write-ahead logging) records.
+	MWalRecordsSum float32 `protobuf:"fixed32,35,opt,name=m_wal_records_sum,json=mWalRecordsSum,proto3" json:"m_wal_records_sum,omitempty"`
 	MWalRecordsCnt float32 `protobuf:"fixed32,36,opt,name=m_wal_records_cnt,json=mWalRecordsCnt,proto3" json:"m_wal_records_cnt,omitempty"`
-	MWalFpiSum     float32 `protobuf:"fixed32,37,opt,name=m_wal_fpi_sum,json=mWalFpiSum,proto3" json:"m_wal_fpi_sum,omitempty"`
 	// Total number of FPI (full page images) in WAL (Write-ahead logging) records.
+	MWalFpiSum float32 `protobuf:"fixed32,37,opt,name=m_wal_fpi_sum,json=mWalFpiSum,proto3" json:"m_wal_fpi_sum,omitempty"`
 	MWalFpiCnt float32 `protobuf:"fixed32,38,opt,name=m_wal_fpi_cnt,json=mWalFpiCnt,proto3" json:"m_wal_fpi_cnt,omitempty"`
 }
 

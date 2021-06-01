@@ -152,18 +152,12 @@ message Point {
   //
   // pg_stat_monitor 0.9 metrics
   //
-  uint64 m_row_retrieved_sum = 58;
-  // Total number of rows in result.
-  uint64 m_row_retrieved_cnt = 59;
-  uint64 m_plans_calls_sum = 60;
   // Total number of planned calls.
-  uint64 m_plans_calls_cnt = 61;
-  uint64 m_wal_records_sum = 62;
+  uint64 m_plans_calls_sum_per_sec = 58;
   // Total number of WAL (Write-ahead logging) records.
-  uint64 m_wal_records_cnt = 63;
-  uint64 m_wal_fpi_sum = 64;
+  uint64 m_wal_records_sum_per_sec = 59;
   // Total number of FPI (full page images) in WAL (Write-ahead logging) records.
-  uint64 m_wal_fpi_cnt = 65;
+  uint64 m_wal_fpi_sum_per_sec = 60;
 }
 
 // MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.

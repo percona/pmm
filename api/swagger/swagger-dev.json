@@ -802,50 +802,24 @@
                               "format": "float",
                               "x-order": 56
                             },
-                            "m_row_retrieved_sum": {
+                            "m_plans_calls_sum_per_sec": {
+                              "description": "Total number of planned calls.",
                               "type": "string",
                               "format": "uint64",
                               "title": "pg_stat_monitor 0.9 metrics",
                               "x-order": 57
                             },
-                            "m_row_retrieved_cnt": {
-                              "description": "Total number of rows in result.",
+                            "m_wal_records_sum_per_sec": {
+                              "description": "Total number of WAL (Write-ahead logging) records.",
                               "type": "string",
                               "format": "uint64",
                               "x-order": 58
                             },
-                            "m_plans_calls_sum": {
-                              "type": "string",
-                              "format": "uint64",
-                              "x-order": 59
-                            },
-                            "m_plans_calls_cnt": {
-                              "description": "Total number of planned calls.",
-                              "type": "string",
-                              "format": "uint64",
-                              "x-order": 60
-                            },
-                            "m_wal_records_sum": {
-                              "type": "string",
-                              "format": "uint64",
-                              "x-order": 61
-                            },
-                            "m_wal_records_cnt": {
-                              "description": "Total number of WAL (Write-ahead logging) records.",
-                              "type": "string",
-                              "format": "uint64",
-                              "x-order": 62
-                            },
-                            "m_wal_fpi_sum": {
-                              "type": "string",
-                              "format": "uint64",
-                              "x-order": 63
-                            },
-                            "m_wal_fpi_cnt": {
+                            "m_wal_fpi_sum_per_sec": {
                               "description": "Total number of FPI (full page images) in WAL (Write-ahead logging) records.",
                               "type": "string",
                               "format": "uint64",
-                              "x-order": 64
+                              "x-order": 59
                             }
                           }
                         },
@@ -1505,50 +1479,24 @@
                         "format": "float",
                         "x-order": 56
                       },
-                      "m_row_retrieved_sum": {
+                      "m_plans_calls_sum_per_sec": {
+                        "description": "Total number of planned calls.",
                         "type": "string",
                         "format": "uint64",
                         "title": "pg_stat_monitor 0.9 metrics",
                         "x-order": 57
                       },
-                      "m_row_retrieved_cnt": {
-                        "description": "Total number of rows in result.",
+                      "m_wal_records_sum_per_sec": {
+                        "description": "Total number of WAL (Write-ahead logging) records.",
                         "type": "string",
                         "format": "uint64",
                         "x-order": 58
                       },
-                      "m_plans_calls_sum": {
-                        "type": "string",
-                        "format": "uint64",
-                        "x-order": 59
-                      },
-                      "m_plans_calls_cnt": {
-                        "description": "Total number of planned calls.",
-                        "type": "string",
-                        "format": "uint64",
-                        "x-order": 60
-                      },
-                      "m_wal_records_sum": {
-                        "type": "string",
-                        "format": "uint64",
-                        "x-order": 61
-                      },
-                      "m_wal_records_cnt": {
-                        "description": "Total number of WAL (Write-ahead logging) records.",
-                        "type": "string",
-                        "format": "uint64",
-                        "x-order": 62
-                      },
-                      "m_wal_fpi_sum": {
-                        "type": "string",
-                        "format": "uint64",
-                        "x-order": 63
-                      },
-                      "m_wal_fpi_cnt": {
+                      "m_wal_fpi_sum_per_sec": {
                         "description": "Total number of FPI (full page images) in WAL (Write-ahead logging) records.",
                         "type": "string",
                         "format": "uint64",
-                        "x-order": 64
+                        "x-order": 59
                       }
                     }
                   },
