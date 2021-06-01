@@ -360,14 +360,16 @@ func (cmd *listCommand) Run() (Result, error) {
 		}
 	}
 	for _, a := range agentsRes.Payload.ExternalExporter {
-		agentsList = append(agentsList, listResultAgent{
-			AgentType:   types.AgentTypeExternalExporter,
-			AgentID:     a.AgentID,
-			ServiceID:   a.ServiceID,
-			Status:      getStatus(nil),
-			Disabled:    a.Disabled,
-			MetricsMode: getMetricsMode(a.PushMetricsEnabled),
-		})
+		if a.RunsOnNodeID == cmd.NodeID {
+			agentsList = append(agentsList, listResultAgent{
+				AgentType:   types.AgentTypeExternalExporter,
+				AgentID:     a.AgentID,
+				ServiceID:   a.ServiceID,
+				Status:      getStatus(nil),
+				Disabled:    a.Disabled,
+				MetricsMode: getMetricsMode(a.PushMetricsEnabled),
+			})
+		}
 	}
 	for _, a := range agentsRes.Payload.VMAgent {
 		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
