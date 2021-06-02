@@ -73,7 +73,7 @@ func (s *JobsService) StartEchoJob(id, pmmAgentID string, timeout time.Duration,
 }
 
 // StartMySQLBackupJob starts mysql backup job on the pmm-agent.
-func (s *JobsService) StartMySQLBackupJob(id, pmmAgentID string, timeout time.Duration, name string, dbConfig models.DBConfig, locationConfig models.BackupLocationConfig) error {
+func (s *JobsService) StartMySQLBackupJob(id, pmmAgentID string, timeout time.Duration, name string, dbConfig *models.DBConfig, locationConfig *models.BackupLocationConfig) error {
 	mySQLReq := &agentpb.StartJobRequest_MySQLBackup{
 		Name:     name,
 		User:     dbConfig.User,
@@ -121,6 +121,54 @@ func (s *JobsService) StartMySQLBackupJob(id, pmmAgentID string, timeout time.Du
 	return nil
 }
 
+func (s *JobsService) StartMongoDBBackupJob(id, pmmAgentID string, timeout time.Duration, name string, dbConfig *models.DBConfig, locationConfig *models.BackupLocationConfig) error {
+	mongoDBReq := &agentpb.StartJobRequest_MongoDBBackup{
+		Name:     name,
+		User:     dbConfig.User,
+		Password: dbConfig.Password,
+		Address:  dbConfig.Address,
+		Port:     int32(dbConfig.Port),
+		Socket:   dbConfig.Socket,
+	}
+
+	switch {
+	case locationConfig.S3Config != nil:
+		mongoDBReq.LocationConfig = &agentpb.StartJobRequest_MongoDBBackup_S3Config{
+			S3Config: &agentpb.S3LocationConfig{
+				Endpoint:     locationConfig.S3Config.Endpoint,
+				AccessKey:    locationConfig.S3Config.AccessKey,
+				SecretKey:    locationConfig.S3Config.SecretKey,
+				BucketName:   locationConfig.S3Config.BucketName,
+				BucketRegion: locationConfig.S3Config.BucketRegion,
+			},
+		}
+	default:
+		return errors.Errorf("unsupported location config")
+	}
+	req := &agentpb.StartJobRequest{
+		JobId:   id,
+		Timeout: ptypes.DurationProto(timeout),
+		Job: &agentpb.StartJobRequest_MongodbBackup{
+			MongodbBackup: mongoDBReq,
+		},
+	}
+
+	agent, err := s.r.get(pmmAgentID)
+	if err != nil {
+		return err
+	}
+
+	resp, err := agent.channel.SendAndWaitResponse(req)
+	if err != nil {
+		return err
+	}
+	if e := resp.(*agentpb.StartJobResponse).Error; e != "" {
+		return errors.Errorf("failed to start MongoDB job: %s", e)
+	}
+
+	return nil
+}
+
 // StartMySQLRestoreBackupJob starts mysql restore backup job on the pmm-agent.
 func (s *JobsService) StartMySQLRestoreBackupJob(
 	jobID string,
@@ -128,7 +176,7 @@ func (s *JobsService) StartMySQLRestoreBackupJob(
 	serviceID string,
 	timeout time.Duration,
 	name string,
-	locationConfig models.BackupLocationConfig,
+	locationConfig *models.BackupLocationConfig,
 ) error {
 	if locationConfig.S3Config == nil {
 		return errors.Errorf("location config is not set")

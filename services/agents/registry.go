@@ -317,6 +317,17 @@ func (r *Registry) handleJobResult(l *logrus.Entry, result *agentpb.JobResult) {
 			if err != nil {
 				return err
 			}
+		case *agentpb.JobResult_MongodbBackup:
+			if res.Type != models.MongoDBBackupJob {
+				return errors.Errorf("result type %s doesn't match job type %s", models.MongoDBBackupJob, res.Type)
+			}
+
+			_, err := models.ChangeArtifact(t.Querier, res.Result.MongoDBBackup.ArtifactID, models.ChangeArtifactParams{
+				Status: models.SuccessBackupStatus,
+			})
+			if err != nil {
+				return err
+			}
 		case *agentpb.JobResult_MysqlRestoreBackup:
 			if res.Type != models.MySQLRestoreBackupJob {
 				return errors.Errorf("result type %s doesn't match job type %s", models.MySQLRestoreBackupJob, res.Type)
@@ -334,12 +345,10 @@ func (r *Registry) handleJobResult(l *logrus.Entry, result *agentpb.JobResult) {
 		default:
 			return errors.Errorf("unexpected job result type: %T", result)
 		}
-
 		res.Done = true
-
 		return t.Update(res)
 	}); e != nil {
-		l.Errorf("failed to save job result: %+v", e)
+		l.Errorf("Failed to save job result: %+v", e)
 	}
 }
 
@@ -352,21 +361,22 @@ func (r *Registry) handleJobError(jobResult *models.JobResult) error {
 		_, err = models.ChangeArtifact(r.db.Querier, jobResult.Result.MySQLBackup.ArtifactID, models.ChangeArtifactParams{
 			Status: models.ErrorBackupStatus,
 		})
+	case models.MongoDBBackupJob:
+		_, err = models.ChangeArtifact(r.db.Querier, jobResult.Result.MongoDBBackup.ArtifactID, models.ChangeArtifactParams{
+			Status: models.ErrorBackupStatus,
+		})
 	case models.MySQLRestoreBackupJob:
-		_, err := models.ChangeRestoreHistoryItem(
+		_, err = models.ChangeRestoreHistoryItem(
 			r.db.Querier,
 			jobResult.Result.MySQLRestoreBackup.RestoreID,
 			models.ChangeRestoreHistoryItemParams{
 				Status: models.ErrorRestoreStatus,
 			})
-		if err != nil {
-			return err
-		}
 	default:
 		// Don't do anything without explicit handling
 	}
-
 	return err
+
 }
 
 func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, error) {

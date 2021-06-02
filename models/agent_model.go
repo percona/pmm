@@ -238,20 +238,19 @@ type DBConfig struct {
 }
 
 // Valid returns true if config is valid.
-func (c DBConfig) Valid() bool {
-	return c.User != "" && (c.Address != "" || c.Socket != "")
+func (c *DBConfig) Valid() bool {
+	return c.Address != "" || c.Socket != ""
 }
 
 // DBConfig returns DBConfig for given Service with this agent.
-func (s *Agent) DBConfig(service *Service) DBConfig {
-	cfg := DBConfig{
+func (s *Agent) DBConfig(service *Service) *DBConfig {
+	return &DBConfig{
 		User:     pointer.GetString(s.Username),
 		Password: pointer.GetString(s.Password),
 		Address:  pointer.GetString(service.Address),
 		Port:     int(pointer.GetUint16(service.Port)),
 		Socket:   pointer.GetString(service.Socket),
 	}
-	return cfg
 }
 
 // DSN returns DSN string for accessing given Service with this Agent (and implicit driver).

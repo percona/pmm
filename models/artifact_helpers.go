@@ -22,6 +22,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 )
 
@@ -90,6 +92,22 @@ func FindArtifactByID(q *reform.Querier, id string) (*Artifact, error) {
 	}
 }
 
+func checkUniqueArtifactName(q *reform.Querier, name string) error {
+	if name == "" {
+		panic("empty Location Name")
+	}
+
+	var artifact Artifact
+	switch err := q.FindOneTo(&artifact, "name", name); err {
+	case nil:
+		return status.Errorf(codes.AlreadyExists, "Artifact with name %q already exists.", name)
+	case reform.ErrNoRows:
+		return nil
+	default:
+		return errors.WithStack(err)
+	}
+}
+
 // CreateArtifactParams are params for creating a new artifact.
 type CreateArtifactParams struct {
 	Name       string
@@ -136,6 +154,10 @@ func CreateArtifact(q *reform.Querier, params CreateArtifactParams) (*Artifact, 
 	case errors.Is(err, ErrNotFound):
 	default:
 		return nil, errors.WithStack(err)
+	}
+
+	if err := checkUniqueArtifactName(q, params.Name); err != nil {
+		return nil, err
 	}
 
 	row := &Artifact{

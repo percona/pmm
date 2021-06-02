@@ -15,12 +15,26 @@ type mockJobsService struct {
 	mock.Mock
 }
 
-// StartMySQLBackupJob provides a mock function with given fields: id, pmmAgentID, timeout, name, dbConfig, locationConfig
-func (_m *mockJobsService) StartMySQLBackupJob(id string, pmmAgentID string, timeout time.Duration, name string, dbConfig models.DBConfig, locationConfig models.BackupLocationConfig) error {
+// StartMongoDBBackupJob provides a mock function with given fields: id, pmmAgentID, timeout, name, dbConfig, locationConfig
+func (_m *mockJobsService) StartMongoDBBackupJob(id string, pmmAgentID string, timeout time.Duration, name string, dbConfig *models.DBConfig, locationConfig *models.BackupLocationConfig) error {
 	ret := _m.Called(id, pmmAgentID, timeout, name, dbConfig, locationConfig)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string, string, time.Duration, string, models.DBConfig, models.BackupLocationConfig) error); ok {
+	if rf, ok := ret.Get(0).(func(string, string, time.Duration, string, *models.DBConfig, *models.BackupLocationConfig) error); ok {
+		r0 = rf(id, pmmAgentID, timeout, name, dbConfig, locationConfig)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// StartMySQLBackupJob provides a mock function with given fields: id, pmmAgentID, timeout, name, dbConfig, locationConfig
+func (_m *mockJobsService) StartMySQLBackupJob(id string, pmmAgentID string, timeout time.Duration, name string, dbConfig *models.DBConfig, locationConfig *models.BackupLocationConfig) error {
+	ret := _m.Called(id, pmmAgentID, timeout, name, dbConfig, locationConfig)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string, string, time.Duration, string, *models.DBConfig, *models.BackupLocationConfig) error); ok {
 		r0 = rf(id, pmmAgentID, timeout, name, dbConfig, locationConfig)
 	} else {
 		r0 = ret.Error(0)
@@ -30,11 +44,11 @@ func (_m *mockJobsService) StartMySQLBackupJob(id string, pmmAgentID string, tim
 }
 
 // StartMySQLRestoreBackupJob provides a mock function with given fields: jobID, pmmAgentID, serviceID, timeout, name, locationConfig
-func (_m *mockJobsService) StartMySQLRestoreBackupJob(jobID string, pmmAgentID string, serviceID string, timeout time.Duration, name string, locationConfig models.BackupLocationConfig) error {
+func (_m *mockJobsService) StartMySQLRestoreBackupJob(jobID string, pmmAgentID string, serviceID string, timeout time.Duration, name string, locationConfig *models.BackupLocationConfig) error {
 	ret := _m.Called(jobID, pmmAgentID, serviceID, timeout, name, locationConfig)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string, string, string, time.Duration, string, models.BackupLocationConfig) error); ok {
+	if rf, ok := ret.Get(0).(func(string, string, string, time.Duration, string, *models.BackupLocationConfig) error); ok {
 		r0 = rf(jobID, pmmAgentID, serviceID, timeout, name, locationConfig)
 	} else {
 		r0 = ret.Error(0)
