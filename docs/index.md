@@ -13,7 +13,7 @@ With PMM, you can:
 - Drill-down and discover the cause of inefficiencies, anticipate performance issues, or troubleshoot existing ones
 - Watch for potential security issues and remedy them
 
-Try the live demo: <a href='https://pmmdemo.percona.com/' target='_blank'>pmmdemo.percona.com<br><br><img src="_images/PMM_Home_Dashboard_TALL.jpg"/></a>
+Try the live demo: <a href='https://pmmdemo.percona.com/' target='_blank'>pmmdemo.percona.com<br><br><img src="_images/PMM_Home_Dashboard.jpg"/></a>
 
 PMM is efficient, quick to set up and easy to use. It runs in cloud, on-prem, or across hybrid platforms. It is supported by [our legendary expertise][PERCONA_SERVICES] in open source databases, and by a [vibrant developer and user community][PMM_FORUM].
 

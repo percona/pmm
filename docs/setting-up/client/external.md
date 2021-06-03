@@ -44,7 +44,7 @@ From this point, PMM will collect and store available metrics.
 
 To browse and visualize collected metrics as a first step, we can look at the Advanced Data Exploration dashboard and select informative services and metrics.
 
-![!](../../_images/PMM_Exploration_Dashboard.jpg)
+![!](../../_images/PMM_Advanced_Data_Exploration.jpg)
 
 Another way is to create a [new Grafana Dashboard to PMM as needed](https://grafana.com/docs/grafana/latest/best-practices/best-practices-for-creating-dashboards/).
 

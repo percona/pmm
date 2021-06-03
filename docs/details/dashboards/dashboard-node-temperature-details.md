@@ -1,6 +1,6 @@
 # Node Temperature Details
 
-![!image](../../_images/PMM_Node_Temperature_Details_full.jpg)
+![!image](../../_images/PMM_Node_Temperature_Details.jpg)
 
 The Node Temperature Details dashboard exposes hardware monitoring and sensor data obtained through the `sysfs` virtual file system of the node.
 

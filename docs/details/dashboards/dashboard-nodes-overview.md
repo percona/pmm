@@ -1,6 +1,6 @@
 # Nodes Overview
 
-![!image](../../_images/PMM_Nodes_Overview_full.jpg)
+![!image](../../_images/PMM_Nodes_Overview.jpg)
 
 The Nodes Overview dashboard provides details about the efficiency of work of the following components. Each component is represented as a section in the dashboard.
 

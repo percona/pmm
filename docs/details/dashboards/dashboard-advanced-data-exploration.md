@@ -1,6 +1,6 @@
 # Advanced Data Exploration
 
-![!image](../../_images/PMM_Advanced_Data_Exploration_full.jpg)
+![!image](../../_images/PMM_Advanced_Data_Exploration.jpg)
 
 The *Advanced Data Exploration* dashboard provides detailed information about the progress of a single Prometheus metric across one or more hosts.
 
