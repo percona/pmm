@@ -119,3 +119,15 @@ func (this *ChangePXCComponentsRequest) Validate() error {
 func (this *ChangePXCComponentsResponse) Validate() error {
 	return nil
 }
+func (this *CheckForOperatorUpdateRequest) Validate() error {
+	if this.KubernetesClusterName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
+	}
+	if this.OperatorType == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("OperatorType", fmt.Errorf(`value '%v' must not be an empty string`, this.OperatorType))
+	}
+	return nil
+}
+func (this *CheckForOperatorUpdateResponse) Validate() error {
+	return nil
+}

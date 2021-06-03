@@ -16137,6 +16137,108 @@
         }
       }
     },
+    "/v1/management/DBaaS/Components/CheckForOperatorUpdate": {
+      "post": {
+        "tags": [
+          "Components"
+        ],
+        "summary": "CheckForOperatorUpdate checks if a new version of an operator is available.",
+        "operationId": "CheckForOperatorUpdate",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "kubernetes_cluster_name": {
+                  "description": "Kubernetes cluster name.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "operator_type": {
+                  "description": "operator_type tells what operator we are interested in for checking the update availability.",
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "description": "OperatorUpdateStatus represents status of an update for the operator.\n\n - UPDATE_AVAILABLE: An update of the operator is available for the installed version of PMM server.\n - UPDATE_NOT_AVAILABLE: An update of the operator is not available for the installed version of PMM server.\n - UPDATE_AVAILABLE_BUT_NOT_COMPATIBLE: An update of the operator is available but for more up to date version of\nPMM server than is currently installed.",
+                  "type": "string",
+                  "default": "OPERATOR_UPDATE_STATUS_INVALID",
+                  "enum": [
+                    "OPERATOR_UPDATE_STATUS_INVALID",
+                    "UPDATE_AVAILABLE",
+                    "UPDATE_NOT_AVAILABLE",
+                    "UPDATE_AVAILABLE_BUT_NOT_COMPATIBLE"
+                  ],
+                  "x-order": 0
+                },
+                "available_operator_version": {
+                  "description": "available_operator_version is not empty if there is an update available,\nfor both compatible and incompatible one.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "available_pmm_server_version": {
+                  "description": "available_pmm_server_version is not empty only if the update is available but\nthe version of the operator is not compatible with installed PMM version.",
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/DBaaS/Components/GetPSMDB": {
       "post": {
         "tags": [
