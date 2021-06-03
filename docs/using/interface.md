@@ -18,7 +18,7 @@ PMM's user interface is a browser application based on [Grafana][Grafana]. This 
 5. If this is your first time logging in, you'll be asked to set a new password. (We recommend you do.) Enter a new password in both fields and click *Submit*. You can click *Skip* to carry on with the default password.
 6. The PMM Home dashboard loads.
 
-    ![!PMM Home dashboard](../_images/PMM_Home_Dashboard_TALL.jpg)
+    ![!PMM Home dashboard](../_images/PMM_Home_Dashboard.jpg)
 
 ## Dashboards
 
