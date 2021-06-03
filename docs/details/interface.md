@@ -6,7 +6,7 @@
 4. [View selectors](#view-selectors) (dynamic contents)
 5. [Shortcut menu](#shortcut-menu) (dynamic contents)
 
-![!](../_images/PMM_Home_Dashboard_TALL_Numbered.png)
+![!](../_images/PMM_Home_Dashboard_Numbered.png)
 
 
 ## Main menu
