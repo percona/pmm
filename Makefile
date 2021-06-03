@@ -12,22 +12,22 @@ PMM_RELEASE_BRANCH ?= $(shell git describe --always --contains --all)
 
 release:                        ## Build qan-api2 release binary.
 	env CGO_ENABLED=0 go build -v -o $(PMM_RELEASE_PATH)/qan-api2 -ldflags " \
-		-X 'github.com/percona/qan-api2/vendor/github.com/percona/pmm/version.ProjectName=qan-api2' \
-		-X 'github.com/percona/qan-api2/vendor/github.com/percona/pmm/version.Version=$(PMM_RELEASE_VERSION)' \
-		-X 'github.com/percona/qan-api2/vendor/github.com/percona/pmm/version.PMMVersion=$(PMM_RELEASE_VERSION)' \
-		-X 'github.com/percona/qan-api2/vendor/github.com/percona/pmm/version.Timestamp=$(PMM_RELEASE_TIMESTAMP)' \
-		-X 'github.com/percona/qan-api2/vendor/github.com/percona/pmm/version.FullCommit=$(PMM_RELEASE_FULLCOMMIT)' \
-		-X 'github.com/percona/qan-api2/vendor/github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)' \
+		-X 'github.com/percona/pmm/version.ProjectName=qan-api2' \
+		-X 'github.com/percona/pmm/version.Version=$(PMM_RELEASE_VERSION)' \
+		-X 'github.com/percona/pmm/version.PMMVersion=$(PMM_RELEASE_VERSION)' \
+		-X 'github.com/percona/pmm/version.Timestamp=$(PMM_RELEASE_TIMESTAMP)' \
+		-X 'github.com/percona/pmm/version.FullCommit=$(PMM_RELEASE_FULLCOMMIT)' \
+		-X 'github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)' \
 		"
 
 init:                           ## Installs tools to $GOPATH/bin (which is expected to be in $PATH).
-	curl https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOPATH)/bin
-
-	go install ./vendor/github.com/kevinburke/go-bindata/go-bindata \
-				./vendor/golang.org/x/tools/cmd/goimports
+	go build -modfile=tools/go.mod -o bin/golangci-lint github.com/golangci/golangci-lint/cmd/golangci-lint
+	go build -modfile=tools/go.mod -o bin/go-bindata github.com/kevinburke/go-bindata/go-bindata
+	go build -modfile=tools/go.mod -o bin/goimports golang.org/x/tools/cmd/goimports
+	go build -modfile=tools/go.mod -o bin/reviewdog github.com/reviewdog/reviewdog/cmd/reviewdog
 
 gen:                            ## Generate files.
-	go-bindata -nometadata -pkg migrations -o migrations/bindata.go -prefix migrations/sql migrations/sql
+	bin/go-bindata -nometadata -pkg migrations -o migrations/bindata.go -prefix migrations/sql migrations/sql
 	make format
 
 install:                        ## Install qan-api2 binary.
@@ -58,15 +58,16 @@ test-cover:                     ## Run tests and collect coverage information.
 
 check:                          ## Run checkers and linters.
 	go run .github/check-license.go
+	bin/golangci-lint run -c=.golangci.yml --out-format=line-number
 
 check-all: check                ## Run golang ci linter to check new changes from master.
-	golangci-lint run -c=.golangci.yml --new-from-rev=master
+	bin/golangci-lint run -c=.golangci.yml --new-from-rev=master
 
 FILES = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 
 format:                         ## Format source code.
 	gofmt -w -s $(FILES)
-	goimports -local github.com/percona/qan-api2 -l -w $(FILES)
+	bin/goimports -local github.com/percona/qan-api2 -l -w $(FILES)
 
 RUN_FLAGS = ## -todo-use-kingpin-for-flags
 
@@ -113,7 +114,3 @@ deploy:
 
 clean:                          ## Removes generated artifacts.
 	rm -Rf ./bin
-
-ci-reviewdog:                   ## Runs reviewdog checks.
-	golangci-lint run -c=.golangci-required.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -level=error -reporter=github-pr-check
-	golangci-lint run -c=.golangci.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -level=error -reporter=github-pr-review
