@@ -40,7 +40,7 @@ These menus and controls appear on all dashboards:
 
 (For details see [UI Components](../details/interface.md).)
 
-![!](../_images/PMM_Home_Dashboard_TALL_Numbered.png)
+![!](../_images/PMM_Home_Dashboard_Numbered.png)
 
 
 ## Navigation
