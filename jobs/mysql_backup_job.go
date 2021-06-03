@@ -40,12 +40,12 @@ type MySQLBackupJob struct {
 	timeout  time.Duration
 	l        logrus.FieldLogger
 	name     string
-	db       DatabaseConfig
+	connConf DBConnConfig
 	location BackupLocationConfig
 }
 
-// DatabaseConfig contains required properties for connection to DB.
-type DatabaseConfig struct {
+// DBConnConfig contains required properties for connection to DB.
+type DBConnConfig struct {
 	User     string
 	Password string
 	Address  string
@@ -53,51 +53,35 @@ type DatabaseConfig struct {
 	Socket   string
 }
 
-// S3LocationConfig contains required properties for accessing S3 Bucket.
-type S3LocationConfig struct {
-	Endpoint     string
-	AccessKey    string
-	SecretKey    string
-	BucketName   string
-	BucketRegion string
-}
-
-// BackupLocationConfig groups all backup locations configs.
-type BackupLocationConfig struct {
-	S3Config *S3LocationConfig
-}
-
 // NewMySQLBackupJob constructs new Job for MySQL backup.
-func NewMySQLBackupJob(id string, timeout time.Duration, name string, dbConfig DatabaseConfig, locationConfig BackupLocationConfig) *MySQLBackupJob {
+func NewMySQLBackupJob(id string, timeout time.Duration, name string, connConf DBConnConfig, locationConfig BackupLocationConfig) *MySQLBackupJob {
 	return &MySQLBackupJob{
 		id:       id,
 		timeout:  timeout,
 		l:        logrus.WithFields(logrus.Fields{"id": id, "type": "mysql_backup", "name": name}),
 		name:     name,
-		db:       dbConfig,
+		connConf: connConf,
 		location: locationConfig,
 	}
 }
 
-// ID returns job id.
+// ID returns Job id.
 func (j *MySQLBackupJob) ID() string {
 	return j.id
 }
 
-// Type returns job type.
+// Type returns Job type.
 func (j *MySQLBackupJob) Type() string {
 	return "mysql_backup"
 }
 
-// Timeout returns job timeout.
+// Timeout returns Job timeout.
 func (j *MySQLBackupJob) Timeout() time.Duration {
 	return j.timeout
 }
 
+// Run starts Job execution.
 func (j *MySQLBackupJob) Run(ctx context.Context, send Send) (rerr error) {
-	t := time.Now()
-	j.l.Info("MySQL backup started")
-
 	if _, err := exec.LookPath(xtrabackupBin); err != nil {
 		return errors.Wrapf(err, "lookpath: %s", xtrabackupBin)
 	}
@@ -112,20 +96,21 @@ func (j *MySQLBackupJob) Run(ctx context.Context, send Send) (rerr error) {
 		}
 	}
 
-	xtrabackupCmd := exec.CommandContext(ctx, xtrabackupBin,
-		"--user="+j.db.User,
-		"--password="+j.db.Password,
-		"--compress",
-		"--backup") // #nosec G204
+	xtrabackupCmd := exec.CommandContext(ctx, xtrabackupBin, "--compress", "--backup") // #nosec G204
+
+	if j.connConf.User != "" {
+		xtrabackupCmd.Args = append(xtrabackupCmd.Args, "--user="+j.connConf.User)
+		xtrabackupCmd.Args = append(xtrabackupCmd.Args, "--password="+j.connConf.Password)
+	}
 
 	switch {
-	case j.db.Address != "":
-		xtrabackupCmd.Args = append(xtrabackupCmd.Args, "--host="+j.db.Address)
-		if j.db.Port > 0 {
-			xtrabackupCmd.Args = append(xtrabackupCmd.Args, "--port="+strconv.Itoa(j.db.Port))
+	case j.connConf.Address != "":
+		xtrabackupCmd.Args = append(xtrabackupCmd.Args, "--host="+j.connConf.Address)
+		if j.connConf.Port > 0 {
+			xtrabackupCmd.Args = append(xtrabackupCmd.Args, "--port="+strconv.Itoa(j.connConf.Port))
 		}
-	case j.db.Socket != "":
-		xtrabackupCmd.Args = append(xtrabackupCmd.Args, "--socket="+j.db.Socket)
+	case j.connConf.Socket != "":
+		xtrabackupCmd.Args = append(xtrabackupCmd.Args, "--socket="+j.connConf.Socket)
 	}
 
 	var xbcloudCmd *exec.Cmd
@@ -199,6 +184,5 @@ func (j *MySQLBackupJob) Run(ctx context.Context, send Send) (rerr error) {
 		},
 	})
 
-	j.l.WithField("duration", time.Since(t).String()).Info("MySQL backup finished")
 	return nil
 }

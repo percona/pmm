@@ -13,27 +13,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package jobs provides Jobs implementations and runner.
 package jobs
 
-import (
-	"context"
-	"time"
+// S3LocationConfig contains required properties for accessing S3 Bucket.
+type S3LocationConfig struct {
+	Endpoint     string
+	AccessKey    string
+	SecretKey    string
+	BucketName   string
+	BucketRegion string
+}
 
-	"github.com/percona/pmm/api/agentpb"
-)
-
-// Send is interface for function that used by jobs to send messages back to pmm-server.
-type Send func(payload agentpb.AgentResponsePayload)
-
-// Job represents job interface.
-type Job interface {
-	// ID returns Job ID.
-	ID() string
-	// Type returns Job type.
-	Type() string
-	// Timeout returns Job timeout.
-	Timeout() time.Duration
-	// Run starts Job execution.
-	Run(ctx context.Context, send Send) error
+// BackupLocationConfig groups all backup locations configs.
+type BackupLocationConfig struct {
+	S3Config *S3LocationConfig
 }

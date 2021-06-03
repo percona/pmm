@@ -19,6 +19,7 @@ import (
 	"context"
 	"runtime/pprof"
 	"sync"
+	"time"
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/percona/pmm/api/agentpb"
@@ -70,12 +71,16 @@ func (r *Runner) Run(ctx context.Context) {
 			r.addJobCancel(jobID, cancel)
 			r.runningJobs.Add(1)
 			run := func(ctx context.Context) {
+				l := r.l.WithFields(logrus.Fields{"id": jobID, "type": jobType})
+				l.Infof("Job started.")
+
+				defer func(start time.Time) {
+					l.WithField("duration", time.Since(start).String()).Info("Job finished.")
+				}(time.Now())
+
 				defer r.runningJobs.Done()
 				defer cancel()
 				defer r.removeJobCancel(jobID)
-
-				l := r.l.WithFields(logrus.Fields{"id": jobID, "type": jobType})
-				l.Infof("Starting...")
 
 				err := job.Run(ctx, r.send)
 				if err != nil {
@@ -88,7 +93,7 @@ func (r *Runner) Run(ctx context.Context) {
 							},
 						},
 					})
-					l.Warnf("Job terminated with error %+v", err)
+					l.Warnf("Job terminated with error: %+v", err)
 				}
 			}
 
