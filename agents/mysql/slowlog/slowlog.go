@@ -24,6 +24,7 @@ import (
 	"math"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql" // register SQL driver
@@ -163,7 +164,25 @@ func (s *SlowLog) Run(ctx context.Context) {
 
 // recheck returns new slowlog information, and rotates slowlog file if needed.
 func (s *SlowLog) recheck(ctx context.Context) (newInfo *slowLogInfo) {
-	var err error
+	db, err := sql.Open("mysql", s.params.DSN)
+	if err != nil {
+		s.l.Errorf("Cannot open database connection: %s", err)
+		return
+	}
+	defer db.Close() //nolint:errcheck
+
+	var grants string
+	row := db.QueryRowContext(ctx, "SHOW GRANTS")
+	if err := row.Scan(&grants); err != nil {
+		s.l.Errorf("Cannot scan db user privileges: %s", err)
+		return
+	}
+
+	if !strings.Contains(grants, "RELOAD") && !strings.Contains(grants, "ALL PRIVILEGES") {
+		s.l.Error("RELOAD grant not enabled, cannot rotate slowlog")
+		return
+	}
+
 	if newInfo, err = s.getSlowLogInfo(ctx); err != nil {
 		s.l.Error(err)
 		return
