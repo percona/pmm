@@ -23631,6 +23631,10 @@
                         "description": "URL containing information on how to resolve an issue detected by an STT check.",
                         "type": "string",
                         "x-order": 4
+                      },
+                      "service_name": {
+                        "type": "string",
+                        "x-order": 5
                       }
                     }
                   },

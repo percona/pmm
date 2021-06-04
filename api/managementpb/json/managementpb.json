@@ -5741,6 +5741,10 @@
                         "type": "string",
                         "x-order": 4
                       },
+                      "service_name": {
+                        "type": "string",
+                        "x-order": 5
+                      },
                       "severity": {
                         "description": "Severity represents severity level of the check result or alert.",
                         "type": "string",
