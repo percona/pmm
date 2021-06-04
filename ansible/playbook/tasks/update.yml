@@ -58,6 +58,14 @@
         path: /etc/systemd/system/supervisord.service
         state: absent
 
+    - name: Increase number of open files for jobs
+      when: not is_container
+      ini_file:
+        dest: /etc/supervisord.conf
+        section: supervisord
+        option: minfds
+        value: "800000"
+
     # See https://github.com/Supervisor/supervisor/issues/1264 for explanation
     # why we do reread + stop/remove/add instead of using supervisorctl Ansible module.
 
