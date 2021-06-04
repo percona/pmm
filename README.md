@@ -1,6 +1,6 @@
 # Percona Monitoring and Management (PMM) Documentation
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/9db2c2b3-f6a8-4d56-a853-8414f8580a43/deploy-status)](https://app.netlify.com/sites/pmm-doc/deploys)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/52970fb0-4de9-4b89-ab41-bd1cf83564b4/deploy-status)](https://app.netlify.com/sites/pmm-doc/deploys)
 
 [Percona Monitoring and Management (PMM)](https://www.percona.com/software/database-tools/percona-monitoring-and-management) is a database monitoring solution that is free and open-source.
 
