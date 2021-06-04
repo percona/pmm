@@ -48,7 +48,6 @@ and all API definitions (including technical preview, development and testing AP
 * [percona-platform/dbaas-controller](https://github.com/percona-platform/dbaas-controller)
 * [percona/qan-api2](https://github.com/percona/qan-api2)
 * [percona/pmm-update](https://github.com/percona/pmm-update)
-* [percona/percona-toolkit](https://github.com/percona/percona-toolkit)
 * [percona/grafana-dashboards](https://github.com/percona/grafana-dashboards)
 * [percona-platform/grafana](https://github.com/percona-platform/grafana)
 
@@ -64,6 +63,7 @@ and all API definitions (including technical preview, development and testing AP
 * [percona/rds_exporter](https://github.com/percona/rds_exporter)
 * [percona/azure_exporter](https://github.com/percona/azure_metrics_exporter)
 * [Percona-Lab/clickhouse_exporter](https://github.com/Percona-Lab/clickhouse_exporter)
+* [percona/percona-toolkit](https://github.com/percona/percona-toolkit)
 
 ### Building and Packaging
 
