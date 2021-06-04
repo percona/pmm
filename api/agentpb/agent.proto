@@ -437,10 +437,18 @@ message StartJobRequest {
   }
   // MongoDBRestoreBackup is job for MongoDB restore backup service.
   message MongoDBRestoreBackup {
-    // Service identifier where the backup should be restored.
-    string service_id = 1;
+    // Database user;
+    string user = 1;
+    // Database password.
+    string password = 2;
+    // Database address. Can't be specified with socket.
+    string address = 3;
+    // Database port. Can't be specified with socket.
+    int32 port = 4;
+    // Database unix socket. Can't be specified with address/port.
+    string socket = 5;
     // Backup name.
-    string name = 2;
+    string name = 6;
     // Where backup is stored.
     oneof location_config {
       S3LocationConfig s3_config = 10;
