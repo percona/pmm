@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
+	ver "github.com/hashicorp/go-version"
 	pgquery "github.com/lfittl/pg_query_go"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -83,24 +84,10 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 	databases := queryDatabases(q)
 	usernames := queryUsernames(q)
 
-	pgMonitorVersion, e := getPGMonitorVersion(q)
+	row, view, e := getRowAndView(q)
 	if e != nil {
-		err = errors.Wrap(e, "failed to get pg_stat_monitor version")
+		err = errors.Wrap(e, "failed to get row and view for pg_stat_monitor version")
 		return
-	}
-
-	var view reform.View
-	var row reform.Struct
-	switch {
-	case pgMonitorVersion >= 0.9:
-		view = pgStatMonitor09View
-		row = &pgStatMonitor09{}
-	case pgMonitorVersion >= 0.8:
-		view = pgStatMonitor08View
-		row = &pgStatMonitor08{}
-	default:
-		view = pgStatMonitorDefaultView
-		row = &pgStatMonitorDefault{}
 	}
 
 	rows, e := q.SelectRows(view, "WHERE queryid IS NOT NULL AND query IS NOT NULL")
@@ -258,4 +245,41 @@ func queryUsernames(q *reform.Querier) map[int64]string {
 		res[u.UserID] = pointer.GetString(u.UserName)
 	}
 	return res
+}
+
+// getRowAndView return row and view coresponding to right pg_stat_monitor version.
+func getRowAndView(q *reform.Querier) (reform.Struct, reform.View, error) {
+	pgMonitorVersion, err := getPGMonitorVersion(q)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	v, err := ver.NewVersion(pgMonitorVersion)
+	if err != nil {
+		return nil, nil, err
+	}
+	v09, err := ver.NewVersion("0.9")
+	if err != nil {
+		return nil, nil, err
+	}
+	v08, err := ver.NewVersion("0.8")
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var view reform.View
+	var row reform.Struct
+	switch {
+	case v.GreaterThanOrEqual(v09):
+		view = pgStatMonitor09View
+		row = &pgStatMonitor09{}
+	case v.GreaterThanOrEqual(v08):
+		view = pgStatMonitor08View
+		row = &pgStatMonitor08{}
+	default:
+		view = pgStatMonitorDefaultView
+		row = &pgStatMonitorDefault{}
+	}
+
+	return row, view, nil
 }
