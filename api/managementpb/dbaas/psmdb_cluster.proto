@@ -52,6 +52,8 @@ message PSMDBClusterParams {
   ];
   // Docker image used for PSMDB.
   string image = 3;
+  // Make DB accessible outside of K8s cluster.
+  bool external = 4;
 }
 
 message ListPSMDBClustersRequest {

@@ -1706,6 +1706,11 @@
                       "format": "int32",
                       "x-order": 0
                     },
+                    "external": {
+                      "description": "Make DB accessible outside of K8s cluster.",
+                      "type": "boolean",
+                      "x-order": 3
+                    },
                     "image": {
                       "description": "Docker image used for PSMDB.",
                       "type": "string",
@@ -1901,6 +1906,11 @@
                       "type": "integer",
                       "format": "int32",
                       "x-order": 0
+                    },
+                    "external": {
+                      "description": "Make DB accessible outside of K8s cluster.",
+                      "type": "boolean",
+                      "x-order": 3
                     },
                     "image": {
                       "description": "Docker image used for PSMDB.",
@@ -2415,6 +2425,11 @@
                             "type": "integer",
                             "format": "int32",
                             "x-order": 0
+                          },
+                          "external": {
+                            "description": "Make DB accessible outside of K8s cluster.",
+                            "type": "boolean",
+                            "x-order": 3
                           },
                           "image": {
                             "description": "Docker image used for PSMDB.",
