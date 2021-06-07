@@ -159,6 +159,338 @@
         }
       }
     },
+    "/v1/management/backup/Backups/ChangeScheduled": {
+      "post": {
+        "tags": [
+          "Backups"
+        ],
+        "summary": "ChangeScheduledBackup changes existing scheduled backup.",
+        "operationId": "ChangeScheduledBackup",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "cron_expression": {
+                  "description": "How often backup should be run in cron format.",
+                  "type": "string",
+                  "x-order": 2
+                },
+                "description": {
+                  "description": "Human-readable description.",
+                  "type": "string",
+                  "x-order": 5
+                },
+                "enabled": {
+                  "type": "boolean",
+                  "x-order": 1
+                },
+                "name": {
+                  "description": "Name of backup.",
+                  "type": "string",
+                  "x-order": 4
+                },
+                "retry_interval": {
+                  "description": "Delay between each retry.",
+                  "type": "string",
+                  "x-order": 7
+                },
+                "retry_mode": {
+                  "description": "RetryMode specifies how backup should retry in case of failure.",
+                  "type": "string",
+                  "default": "RETRY_MODE_INVALID",
+                  "enum": [
+                    "RETRY_MODE_INVALID",
+                    "AUTO",
+                    "MANUAL"
+                  ],
+                  "x-order": 6
+                },
+                "retry_times": {
+                  "description": "How many times to retry a failed backup before giving up.",
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 8
+                },
+                "schedule_backup_id": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "start_time": {
+                  "description": "First backup wouldn't happen before this time.",
+                  "type": "string",
+                  "format": "date-time",
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/backup/Backups/ListScheduled": {
+      "post": {
+        "tags": [
+          "Backups"
+        ],
+        "summary": "ListScheduledBackups returns all scheduled backups.",
+        "operationId": "ListScheduledBackups",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "scheduled_backups": {
+                  "type": "array",
+                  "items": {
+                    "description": "ScheduledBackup represents scheduled task for backup.",
+                    "type": "object",
+                    "properties": {
+                      "cron_expression": {
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "description": {
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "enabled": {
+                        "type": "boolean",
+                        "x-order": 10
+                      },
+                      "last_run": {
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 11
+                      },
+                      "location_id": {
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "name": {
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "next_run": {
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 12
+                      },
+                      "retry_interval": {
+                        "type": "string",
+                        "x-order": 8
+                      },
+                      "retry_mode": {
+                        "description": "RetryMode specifies how backup should retry in case of failure.",
+                        "type": "string",
+                        "default": "RETRY_MODE_INVALID",
+                        "enum": [
+                          "RETRY_MODE_INVALID",
+                          "AUTO",
+                          "MANUAL"
+                        ],
+                        "x-order": 7
+                      },
+                      "retry_times": {
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 9
+                      },
+                      "scheduled_backup_id": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "service_id": {
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "start_time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 4
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/backup/Backups/RemoveScheduled": {
+      "post": {
+        "tags": [
+          "Backups"
+        ],
+        "summary": "RemoveScheduledBackup removes existing scheduled backup.",
+        "operationId": "RemoveScheduledBackup",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schedule_backup_id": {
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/backup/Backups/Restore": {
       "post": {
         "tags": [
@@ -244,7 +576,139 @@
         }
       }
     },
-    "/v1/management/backup/Backups/StartBackup": {
+    "/v1/management/backup/Backups/Schedule": {
+      "post": {
+        "tags": [
+          "Backups"
+        ],
+        "summary": "ScheduleBackup schedules repeated backup.",
+        "operationId": "ScheduleBackup",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "cron_expression": {
+                  "description": "How often backup should be run in cron format.",
+                  "type": "string",
+                  "x-order": 2
+                },
+                "description": {
+                  "description": "Human-readable description.",
+                  "type": "string",
+                  "x-order": 5
+                },
+                "enabled": {
+                  "description": "If scheduling is enabled.",
+                  "type": "boolean",
+                  "x-order": 9
+                },
+                "location_id": {
+                  "description": "Machine-readable location ID.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "name": {
+                  "description": "Name of backup.",
+                  "type": "string",
+                  "x-order": 4
+                },
+                "retry_interval": {
+                  "description": "Delay between each retry.",
+                  "type": "string",
+                  "x-order": 7
+                },
+                "retry_mode": {
+                  "description": "RetryMode specifies how backup should retry in case of failure.",
+                  "type": "string",
+                  "default": "RETRY_MODE_INVALID",
+                  "enum": [
+                    "RETRY_MODE_INVALID",
+                    "AUTO",
+                    "MANUAL"
+                  ],
+                  "x-order": 6
+                },
+                "retry_times": {
+                  "description": "How many times to retry a failed backup before giving up.",
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 8
+                },
+                "service_id": {
+                  "description": "Service identifier where backup should be performed.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "start_time": {
+                  "description": "First backup wouldn't happen before this time.",
+                  "type": "string",
+                  "format": "date-time",
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schedule_backup_id": {
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/backup/Backups/Start": {
       "post": {
         "tags": [
           "Backups"

@@ -6,6 +6,9 @@ package backupv1beta1
 import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
+	_ "github.com/golang/protobuf/ptypes/duration"
+	_ "github.com/golang/protobuf/ptypes/timestamp"
+	_ "github.com/golang/protobuf/ptypes/wrappers"
 	_ "github.com/mwitkow/go-proto-validators"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
@@ -39,5 +42,119 @@ func (this *RestoreBackupRequest) Validate() error {
 	return nil
 }
 func (this *RestoreBackupResponse) Validate() error {
+	return nil
+}
+func (this *ScheduledBackup) Validate() error {
+	if this.StartTime != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.StartTime); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("StartTime", err)
+		}
+	}
+	if this.RetryInterval != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.RetryInterval); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("RetryInterval", err)
+		}
+	}
+	if this.LastRun != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.LastRun); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("LastRun", err)
+		}
+	}
+	if this.NextRun != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.NextRun); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("NextRun", err)
+		}
+	}
+	return nil
+}
+func (this *ScheduleBackupRequest) Validate() error {
+	if this.ServiceId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
+	}
+	if this.LocationId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("LocationId", fmt.Errorf(`value '%v' must not be an empty string`, this.LocationId))
+	}
+	if this.CronExpression == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("CronExpression", fmt.Errorf(`value '%v' must not be an empty string`, this.CronExpression))
+	}
+	if this.StartTime != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.StartTime); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("StartTime", err)
+		}
+	}
+	if this.RetryInterval != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.RetryInterval); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("RetryInterval", err)
+		}
+	}
+	return nil
+}
+func (this *ScheduleBackupResponse) Validate() error {
+	return nil
+}
+func (this *ListScheduledBackupsRequest) Validate() error {
+	return nil
+}
+func (this *ListScheduledBackupsResponse) Validate() error {
+	for _, item := range this.ScheduledBackups {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("ScheduledBackups", err)
+			}
+		}
+	}
+	return nil
+}
+func (this *ChangeScheduledBackupRequest) Validate() error {
+	if this.ScheduleBackupId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ScheduleBackupId", fmt.Errorf(`value '%v' must not be an empty string`, this.ScheduleBackupId))
+	}
+	if this.Enabled != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Enabled); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Enabled", err)
+		}
+	}
+	if this.CronExpression != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.CronExpression); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("CronExpression", err)
+		}
+	}
+	if this.StartTime != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.StartTime); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("StartTime", err)
+		}
+	}
+	if this.Name != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Name); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Name", err)
+		}
+	}
+	if this.Description != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Description); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Description", err)
+		}
+	}
+	if this.RetryInterval != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.RetryInterval); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("RetryInterval", err)
+		}
+	}
+	if this.RetryTimes != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.RetryTimes); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("RetryTimes", err)
+		}
+	}
+	return nil
+}
+func (this *ChangeScheduledBackupResponse) Validate() error {
+	return nil
+}
+func (this *RemoveScheduledBackupRequest) Validate() error {
+	if this.ScheduleBackupId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ScheduleBackupId", fmt.Errorf(`value '%v' must not be an empty string`, this.ScheduleBackupId))
+	}
+	return nil
+}
+func (this *RemoveScheduledBackupResponse) Validate() error {
 	return nil
 }

@@ -6,6 +6,9 @@ option go_package = "api/managementpb/backup;backupv1beta1";
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
 
 // RetryMode specifies how backup should retry in case of failure.
 enum RetryMode {
@@ -58,12 +61,109 @@ message RestoreBackupResponse {
   string restore_id = 1;
 }
 
+// ScheduledBackup represents scheduled task for backup.
+message ScheduledBackup {
+  string scheduled_backup_id = 1;
+  string service_id = 2;
+  string location_id = 3;
+  string cron_expression = 4;
+  google.protobuf.Timestamp start_time = 5;
+  string name = 6;
+  string description = 7;
+  RetryMode retry_mode = 8;
+  google.protobuf.Duration retry_interval = 9;
+  uint32 retry_times = 10;
+  bool enabled = 11;
+  google.protobuf.Timestamp last_run = 12;
+  google.protobuf.Timestamp next_run = 13;
+}
+
+message ScheduleBackupRequest {
+  // Service identifier where backup should be performed.
+  string service_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Machine-readable location ID.
+  string location_id = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // How often backup should be run in cron format.
+  string cron_expression = 3 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // First backup wouldn't happen before this time.
+  google.protobuf.Timestamp start_time = 4;
+  // Name of backup.
+  string name = 5;
+  // Human-readable description.
+  string description = 6;
+  //
+  RetryMode retry_mode = 7;
+  // Delay between each retry.
+  google.protobuf.Duration retry_interval = 8;
+  // How many times to retry a failed backup before giving up.
+  uint32 retry_times = 9;
+  // If scheduling is enabled.
+  bool enabled = 10;
+}
+
+message ScheduleBackupResponse {
+  string schedule_backup_id = 1;
+}
+
+message ListScheduledBackupsRequest {}
+
+message ListScheduledBackupsResponse {
+  repeated ScheduledBackup scheduled_backups = 1;
+}
+
+message ChangeScheduledBackupRequest {
+  string schedule_backup_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  google.protobuf.BoolValue enabled = 2;
+  // How often backup should be run in cron format.
+  google.protobuf.StringValue cron_expression = 3;
+  // First backup wouldn't happen before this time.
+  google.protobuf.Timestamp start_time = 4;
+  // Name of backup.
+  google.protobuf.StringValue name = 5;
+  // Human-readable description.
+  google.protobuf.StringValue description = 6;
+  //
+  RetryMode retry_mode = 7;
+  // Delay between each retry.
+  google.protobuf.Duration retry_interval = 8;
+  // How many times to retry a failed backup before giving up.
+  google.protobuf.UInt32Value retry_times = 9;
+}
+
+message ChangeScheduledBackupResponse {}
+
+message RemoveScheduledBackupRequest {
+  string schedule_backup_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
+
+message RemoveScheduledBackupResponse {}
+
 // Backups service handles backup operations to DB.
 service Backups {
   // StartBackup request backup specified service to location.
   rpc StartBackup(StartBackupRequest) returns (StartBackupResponse) {
     option (google.api.http) = {
-      post: "/v1/management/backup/Backups/StartBackup"
+      post: "/v1/management/backup/Backups/Start"
       body: "*"
     };
   }
@@ -71,6 +171,34 @@ service Backups {
   rpc RestoreBackup(RestoreBackupRequest) returns (RestoreBackupResponse) {
     option (google.api.http) = {
       post: "/v1/management/backup/Backups/Restore"
+      body: "*"
+    };
+  }
+  // ScheduleBackup schedules repeated backup.
+  rpc ScheduleBackup(ScheduleBackupRequest) returns (ScheduleBackupResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/backup/Backups/Schedule"
+      body: "*"
+    };
+  }
+  // ListScheduledBackups returns all scheduled backups.
+  rpc ListScheduledBackups(ListScheduledBackupsRequest) returns (ListScheduledBackupsResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/backup/Backups/ListScheduled"
+      body: "*"
+    };
+  }
+  // ChangeScheduledBackup changes existing scheduled backup.
+  rpc ChangeScheduledBackup(ChangeScheduledBackupRequest) returns (ChangeScheduledBackupResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/backup/Backups/ChangeScheduled"
+      body: "*"
+    };
+  }
+  // RemoveScheduledBackup removes existing scheduled backup.
+  rpc RemoveScheduledBackup(RemoveScheduledBackupRequest) returns (RemoveScheduledBackupResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/backup/Backups/RemoveScheduled"
       body: "*"
     };
   }
