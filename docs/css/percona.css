@@ -14,3 +14,8 @@
 ul li p {
 	margin: 0;
 }
+
+.imgcenter {
+    display: block;
+    margin: 0 auto;
+}

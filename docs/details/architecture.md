@@ -1,8 +1,41 @@
 # Architecture
 
-PMM works on the client/server principle, where a single server instance communicates with one or more clients.
+PMM is a client/server application built by us with our own and third-party open-source tools.
 
-Except when monitoring AWS RDS instances, a PMM Client must be running on the host to be monitored.
+```plantuml
+@startuml "1 - PMM Context"
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+!include _resources/diagrams/plantuml_styles.puml
+HIDE_STEREOTYPE()
+'title PMM Context
+caption PMM's client/server architecture
+Person_Ext(user, "User")
+System_Ext(monitored, "Monitored systems", "Servers, databases, services or applications")
+System(pmm_client, "PMM Client", "Runs on every monitored host to extract metrics data from databases and services and forwards it to PMM Server")
+System(pmm_server, "PMM Server", "Receives, stores and organizes metrics data from PMM Clients, presents it in web UI as graphs, charts, and tables")
+System_Ext(platform, "Percona Platform", "Value-added services:\n- Security Threat Tool\n- DBaaS (Coming soon)")
+Lay_D(user, pmm_client)
+Lay_D(user, pmm_server)
+Rel_R(monitored, pmm_client, "Metrics")
+BiRel_R(pmm_client, pmm_server, " ")
+BiRel_R(pmm_server, platform, " ")
+Rel(user, pmm_server, " ")
+Rel(user, pmm_client, " ")
+@enduml
+```
+
+
+**PMM Server**
+
+PMM Server is the heart of PMM. It receives data from clients, collates it and stores it. Metrics are drawn as tables, charts and graphs within [*dashboards*](dashboards/), each a part of the web-based [user interface](../using/interface.md).
+
+**PMM Client**
+
+PMM Client runs on every database host or node you want to monitor. The client collects server metrics, general system metrics, and query analytics data, and sends it to the server. Except when monitoring AWS RDS instances, a PMM Client must be running on the host to be monitored.
+
+**Percona Platform**
+
+[Percona Platform](../using/platform/) (in development) provides value-added services for PMM.
 
 ## PMM context
 
