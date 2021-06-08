@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
@@ -262,19 +263,42 @@ func RemoveService(q *reform.Querier, id string, mode RemoveMode) error {
 	if err != nil {
 		return err
 	}
-	// check/remove Agents
-	structs, err := q.FindAllFrom(AgentTable, "service_id", id)
+	// find agents and artifacts
+	agents, err := FindAgents(q, AgentFilters{ServiceID: id})
 	if err != nil {
 		return errors.Wrap(err, "failed to select Agent IDs")
 	}
-	if len(structs) != 0 {
+
+	artifacts, err := FindArtifacts(q, &ArtifactFilters{ServiceID: id})
+	if err != nil {
+		return errors.Wrap(err, "failed to select artifacts")
+	}
+
+	restoreItems, err := FindRestoreHistoryItems(q, &RestoreHistoryItemFilters{ServiceID: id})
+	if err != nil {
+		return errors.Wrap(err, "failed to select restore history items")
+	}
+
+	if len(agents) != 0 || len(artifacts) != 0 || len(restoreItems) != 0 {
 		switch mode {
 		case RemoveRestrict:
-			return status.Errorf(codes.FailedPrecondition, "Service with ID %q has agents.", id)
+			return status.Errorf(codes.FailedPrecondition,
+				"Service with ID %q has agents, artifacts or restore history items.", id)
 		case RemoveCascade:
-			for _, str := range structs {
-				agentID := str.(*Agent).AgentID
-				if _, err = RemoveAgent(q, agentID, RemoveCascade); err != nil {
+			for _, a := range agents {
+				if _, err := RemoveAgent(q, a.AgentID, RemoveCascade); err != nil {
+					return err
+				}
+			}
+			for _, a := range artifacts {
+				if _, err := ChangeArtifact(q, a.ID, ChangeArtifactParams{
+					ServiceID: pointer.ToString(""),
+				}); err != nil {
+					return err
+				}
+			}
+			for _, i := range restoreItems {
+				if err := RemoveRestoreHistoryItem(q, i.ID); err != nil {
 					return err
 				}
 			}

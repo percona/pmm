@@ -17,9 +17,12 @@
 package models_test
 
 import (
+	"fmt"
 	"net/url"
 	"testing"
 
+	"github.com/AlekSi/pointer"
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -235,7 +238,7 @@ func TestBackupLocations(t *testing.T) {
 		assert.Equal(t, updatedLoc, findLoc)
 	})
 
-	t.Run("remove", func(t *testing.T) {
+	t.Run("remove restrict", func(t *testing.T) {
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		defer func() {
@@ -259,6 +262,69 @@ func TestBackupLocations(t *testing.T) {
 
 		err = models.RemoveBackupLocation(q, loc.ID, models.RemoveRestrict)
 		require.NoError(t, err)
+
+		locations, err := models.FindBackupLocations(q)
+		require.NoError(t, err)
+		assert.Empty(t, locations)
+	})
+	t.Run("remove cascade", func(t *testing.T) {
+		tx, err := db.Begin()
+		require.NoError(t, err)
+		defer func() {
+			require.NoError(t, tx.Rollback())
+		}()
+
+		q := tx.Querier
+
+		params := models.CreateBackupLocationParams{
+			Name:        "some name",
+			Description: "some desc",
+			BackupLocationConfig: models.BackupLocationConfig{
+				PMMClientConfig: &models.PMMClientLocationConfig{
+					Path: "/tmp",
+				},
+			},
+		}
+
+		loc, err := models.CreateBackupLocation(q, params)
+		require.NoError(t, err)
+
+		nodeID1, serviceID1 := "node_1", "service_1"
+		node := &models.Node{
+			NodeID:   nodeID1,
+			NodeType: models.GenericNodeType,
+			NodeName: "Node 1",
+		}
+		require.NoError(t, q.Insert(node))
+
+		s := &models.Service{
+			ServiceID:   serviceID1,
+			ServiceType: models.MySQLServiceType,
+			ServiceName: "Service 1",
+			NodeID:      nodeID1,
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16OrNil(777),
+		}
+		require.NoError(t, q.Insert(s))
+
+		artifact, err := models.CreateArtifact(q, models.CreateArtifactParams{
+			Name:       "artifact",
+			Vendor:     "mysql",
+			LocationID: loc.ID,
+			ServiceID:  serviceID1,
+			DataModel:  models.PhysicalDataModel,
+			Status:     models.SuccessBackupStatus,
+		})
+		require.NoError(t, err)
+
+		err = models.RemoveBackupLocation(q, loc.ID, models.RemoveRestrict)
+		require.EqualError(t, err, fmt.Sprintf("rpc error: code = FailedPrecondition desc = backup location with ID \"%s\" has artifacts.", loc.ID))
+
+		err = models.RemoveBackupLocation(q, loc.ID, models.RemoveCascade)
+		require.NoError(t, err)
+
+		_, err = models.FindArtifactByID(q, artifact.ID)
+		require.True(t, errors.Is(err, models.ErrNotFound))
 
 		locations, err := models.FindBackupLocations(q)
 		require.NoError(t, err)
