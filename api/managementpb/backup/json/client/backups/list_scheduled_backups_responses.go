@@ -297,7 +297,7 @@ type ScheduledBackupsItems0 struct {
 	// Enum: [RETRY_MODE_INVALID AUTO MANUAL]
 	RetryMode *string `json:"retry_mode,omitempty"`
 
-	// Delay between each retry.
+	// Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.
 	RetryInterval string `json:"retry_interval,omitempty"`
 
 	// How many times to retry a failed backup before giving up.

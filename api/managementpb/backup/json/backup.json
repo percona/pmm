@@ -194,7 +194,7 @@
                   "x-order": 4
                 },
                 "retry_interval": {
-                  "description": "Delay between each retry.",
+                  "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
                   "type": "string",
                   "x-order": 7
                 },
@@ -361,7 +361,7 @@
                         "x-order": 16
                       },
                       "retry_interval": {
-                        "description": "Delay between each retry.",
+                        "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
                         "type": "string",
                         "x-order": 10
                       },
@@ -655,7 +655,7 @@
                   "x-order": 4
                 },
                 "retry_interval": {
-                  "description": "Delay between each retry.",
+                  "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
                   "type": "string",
                   "x-order": 7
                 },

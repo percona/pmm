@@ -84,7 +84,7 @@ message ScheduledBackup {
   string description = 9;
   // Retry mode.
   RetryMode retry_mode = 10;
-  // Delay between each retry.
+  // Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.
   google.protobuf.Duration retry_interval = 11;
   // How many times to retry a failed backup before giving up.
   uint32 retry_times = 12;
@@ -127,7 +127,7 @@ message ScheduleBackupRequest {
   string description = 6;
   // Retry mode.
   RetryMode retry_mode = 7;
-  // Delay between each retry.
+  // Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.
   google.protobuf.Duration retry_interval = 8;
   // How many times to retry a failed backup before giving up.
   uint32 retry_times = 9;
@@ -162,7 +162,7 @@ message ChangeScheduledBackupRequest {
   google.protobuf.StringValue description = 6;
   //
   RetryMode retry_mode = 7;
-  // Delay between each retry.
+  // Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.
   google.protobuf.Duration retry_interval = 8;
   // How many times to retry a failed backup before giving up.
   google.protobuf.UInt32Value retry_times = 9;

@@ -338,7 +338,7 @@ type ScheduledBackup struct {
 	Description string `protobuf:"bytes,9,opt,name=description,proto3" json:"description,omitempty"`
 	// Retry mode.
 	RetryMode RetryMode `protobuf:"varint,10,opt,name=retry_mode,json=retryMode,proto3,enum=backup.v1beta1.RetryMode" json:"retry_mode,omitempty"`
-	// Delay between each retry.
+	// Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.
 	RetryInterval *duration.Duration `protobuf:"bytes,11,opt,name=retry_interval,json=retryInterval,proto3" json:"retry_interval,omitempty"`
 	// How many times to retry a failed backup before giving up.
 	RetryTimes uint32 `protobuf:"varint,12,opt,name=retry_times,json=retryTimes,proto3" json:"retry_times,omitempty"`
@@ -524,7 +524,7 @@ type ScheduleBackupRequest struct {
 	Description string `protobuf:"bytes,6,opt,name=description,proto3" json:"description,omitempty"`
 	// Retry mode.
 	RetryMode RetryMode `protobuf:"varint,7,opt,name=retry_mode,json=retryMode,proto3,enum=backup.v1beta1.RetryMode" json:"retry_mode,omitempty"`
-	// Delay between each retry.
+	// Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.
 	RetryInterval *duration.Duration `protobuf:"bytes,8,opt,name=retry_interval,json=retryInterval,proto3" json:"retry_interval,omitempty"`
 	// How many times to retry a failed backup before giving up.
 	RetryTimes uint32 `protobuf:"varint,9,opt,name=retry_times,json=retryTimes,proto3" json:"retry_times,omitempty"`
@@ -783,7 +783,7 @@ type ChangeScheduledBackupRequest struct {
 	Description *wrappers.StringValue `protobuf:"bytes,6,opt,name=description,proto3" json:"description,omitempty"`
 	//
 	RetryMode RetryMode `protobuf:"varint,7,opt,name=retry_mode,json=retryMode,proto3,enum=backup.v1beta1.RetryMode" json:"retry_mode,omitempty"`
-	// Delay between each retry.
+	// Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.
 	RetryInterval *duration.Duration `protobuf:"bytes,8,opt,name=retry_interval,json=retryInterval,proto3" json:"retry_interval,omitempty"`
 	// How many times to retry a failed backup before giving up.
 	RetryTimes *wrappers.UInt32Value `protobuf:"bytes,9,opt,name=retry_times,json=retryTimes,proto3" json:"retry_times,omitempty"`
