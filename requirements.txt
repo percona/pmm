@@ -1,4 +1,4 @@
-mkdocs>=1.1.2
+mkdocs>=1.2
 mkdocs-macros-plugin
 mkdocs-exclude
 markdown-include

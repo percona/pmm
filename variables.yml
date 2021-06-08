@@ -1,14 +1,10 @@
-# PMM Version for HTML
-# See also mkdocs.yml plugins.with-pdf.cover_subtitle and output_path
 release: '2.18.0'
 version: '2.18'
 release_date: 2021-06-01
-
 # Setting Up/Server/DBaaS operator versions
 op:
   pxc_vers: 'v1.8.0'
   psmdb_vers: 'v1.7.0'
-
 # Miscellaneous values
 extra:
   # Link to AWS Marketplace for PMM Server

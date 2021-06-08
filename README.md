@@ -88,7 +88,7 @@ View the site at <http://0.0.0.0:8000>
 
 *How to create a PDF version of the documentation.*
 
-1. (For Percona staff) If bulding for a release of PMM, edit `mkdoc-pdf.yml` and change:
+1. (For Percona staff) If bulding for a release of PMM, edit `mkdoc.yml` and change:
 
     - The release number in `plugins.with-pdf.output_path`
     - The release number and date in `plugins.with-pdf.cover_subtitle`
@@ -98,23 +98,23 @@ View the site at <http://0.0.0.0:8000>
     - With Docker:
 
         ```sh
-        docker run --rm -v $(pwd):/docs perconalab/pmm-doc-md mkdocs build -f mkdocs-pdf.yml
+        docker run --rm -v $(pwd):/docs -e ENABLE_PDF_EXPORT=1 perconalab/pmm-doc-md mkdocs build -f mkdocs-pdf.yml
         ```
 
     - Without:
 
         ```sh
-        mkdocs build -f mkdocs-pdf.yml
+        ENABLE_PDF_EXPORT=1 mkdocs build -f mkdocs-pdf.yml
         ```
 
 3. The PDF is in `site/_pdf`.
 
 ## Directories and files
 
-- `mkdocs.yml`: Default MkDocs configuration file. Uses Material theme.
-- `mkdocs-percona.yml`: MkDocs configuration file. Creates unthemed HTML for hosting on percona.com.
-- `mkdocs-pdf.yml`: MkDocs configuration file. Creates themed [PDF](#pdf).
-- `nav.yml`: Navigation (`nav`) element in separate file defining table of contents.
+- `mkdocs-base.yml`: Base MkDocs configuration file. Contains common configuration and navigation used by other MkDocs configs.
+- `mkdocs-pdf.yml`: MkDocs configuration file. Creates themed [PDF](#pdf). Inherits from `mkdocs-base.yml`.
+- `mkdocs-percona.yml`: MkDocs configuration file. Creates unthemed HTML for hosting on percona.com. Inherits from `mkdocs-base.yml`.
+- `mkdocs.yml`: Default MkDocs configuration file. Creates (Material) themed HTML for hosting anywhere. Inherits from `mkdocs-base.yml`.
 - `docs`:
     - `*.md`: Markdown files.
     - `_images/*`: Images.
@@ -136,6 +136,7 @@ View the site at <http://0.0.0.0:8000>
 - `requirements.txt`: Python package dependencies.
 - `runtime.txt`: Python version specifier (used by netlify).
 - `variables.yml`: Values used throughout the Markdown, including the current PMM version/release number.
+- `netlify.toml`: Netlify build definition.
 - `.spelling`: Words regarded as correct by `mdspell` (See [Spelling and grammar](#spelling-and-grammar).)
 - `.github`:
     - `workflows`:
