@@ -79,6 +79,11 @@ plugins:
     # Check links - but extends build time significantly
     # https://pypi.org/project/mkdocs-htmlproofer-plugin/
 #    htmlproofer: {}
+    mike:
+      version_selector: true
+      css_dir: css
+      javascript_dir: js
+      canonical_version: null
 
 extra: # Used in main.html template and can't be externalised
     open_issue_text: '<i class="uil uil-exclamation-triangle"></i> Report a problem

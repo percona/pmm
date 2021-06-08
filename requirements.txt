@@ -10,5 +10,5 @@ mkdocs-material-extensions
 mkdocs-bootstrap-tables-plugin
 mkdocs-section-index
 mkdocs-htmlproofer-plugin
-mike
+mike>=1.0.1
 lightgallery

@@ -1,0 +1,4 @@
+# MkDocs configuration for default Material-themed build
+INHERIT: mkdocs-base.yml
+plugins:
+  section-index: {}
