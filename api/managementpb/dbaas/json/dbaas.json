@@ -1686,6 +1686,11 @@
             "schema": {
               "type": "object",
               "properties": {
+                "expose": {
+                  "description": "Make DB cluster accessible outside of K8s cluster.",
+                  "type": "boolean",
+                  "x-order": 3
+                },
                 "kubernetes_cluster_name": {
                   "description": "Kubernetes cluster name.",
                   "type": "string",
@@ -1705,11 +1710,6 @@
                       "type": "integer",
                       "format": "int32",
                       "x-order": 0
-                    },
-                    "expose": {
-                      "description": "Make DB accessible outside of K8s cluster.",
-                      "type": "boolean",
-                      "x-order": 3
                     },
                     "image": {
                       "description": "Docker image used for PSMDB.",
@@ -1906,11 +1906,6 @@
                       "type": "integer",
                       "format": "int32",
                       "x-order": 0
-                    },
-                    "expose": {
-                      "description": "Make DB accessible outside of K8s cluster.",
-                      "type": "boolean",
-                      "x-order": 3
                     },
                     "image": {
                       "description": "Docker image used for PSMDB.",
@@ -2387,6 +2382,11 @@
                     "description": "Cluster represents PSMDB cluster information.\nTODO Do not use inner messages in all public APIs (for consistency).",
                     "type": "object",
                     "properties": {
+                      "exposed": {
+                        "description": "DB cluster accessible outside of K8s cluster.",
+                        "type": "boolean",
+                        "x-order": 4
+                      },
                       "name": {
                         "description": "Cluster name.",
                         "type": "string",
@@ -2425,11 +2425,6 @@
                             "type": "integer",
                             "format": "int32",
                             "x-order": 0
-                          },
-                          "expose": {
-                            "description": "Make DB accessible outside of K8s cluster.",
-                            "type": "boolean",
-                            "x-order": 3
                           },
                           "image": {
                             "description": "Docker image used for PSMDB.",
@@ -2549,6 +2544,11 @@
             "schema": {
               "type": "object",
               "properties": {
+                "expose": {
+                  "description": "Make DB cluster accessible outside of K8s cluster.",
+                  "type": "boolean",
+                  "x-order": 3
+                },
                 "kubernetes_cluster_name": {
                   "description": "Kubernetes cluster name.",
                   "type": "string",
@@ -2568,11 +2568,6 @@
                       "type": "integer",
                       "format": "int32",
                       "x-order": 0
-                    },
-                    "expose": {
-                      "description": "Make DB accessible outside of K8s cluster.",
-                      "type": "boolean",
-                      "x-order": 4
                     },
                     "haproxy": {
                       "description": "HAProxy container parameters.\nNOTE: HAProxy does not need disk size as ProxySQL does because the container does not require it.",
@@ -2837,11 +2832,6 @@
                       "type": "integer",
                       "format": "int32",
                       "x-order": 0
-                    },
-                    "expose": {
-                      "description": "Make DB accessible outside of K8s cluster.",
-                      "type": "boolean",
-                      "x-order": 4
                     },
                     "haproxy": {
                       "description": "HAProxy container parameters.\nNOTE: HAProxy does not need disk size as ProxySQL does because the container does not require it.",
@@ -3433,6 +3423,11 @@
                     "description": "Cluster represents XtraDB cluster information.\nTODO Do not use inner messages in all public APIs (for consistency).",
                     "type": "object",
                     "properties": {
+                      "exposed": {
+                        "description": "DB cluster accessible outside of K8s cluster.",
+                        "type": "boolean",
+                        "x-order": 4
+                      },
                       "name": {
                         "description": "Cluster name.",
                         "type": "string",
@@ -3471,11 +3466,6 @@
                             "type": "integer",
                             "format": "int32",
                             "x-order": 0
-                          },
-                          "expose": {
-                            "description": "Make DB accessible outside of K8s cluster.",
-                            "type": "boolean",
-                            "x-order": 4
                           },
                           "haproxy": {
                             "description": "HAProxy container parameters.\nNOTE: HAProxy does not need disk size as ProxySQL does because the container does not require it.",

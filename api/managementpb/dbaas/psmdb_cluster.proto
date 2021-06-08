@@ -52,8 +52,6 @@ message PSMDBClusterParams {
   ];
   // Docker image used for PSMDB.
   string image = 3;
-  // Make DB accessible outside of K8s cluster.
-  bool expose = 4;
 }
 
 message ListPSMDBClustersRequest {
@@ -77,6 +75,8 @@ message ListPSMDBClustersResponse {
     RunningOperation operation = 3;
     // Cluster parameters.
     PSMDBClusterParams params = 4;
+    // DB cluster accessible outside of K8s cluster.
+    bool exposed = 5;
   }
   // PSMDB clusters information.
   repeated Cluster clusters = 1;
@@ -137,6 +137,8 @@ message CreatePSMDBClusterRequest {
       msg_exists: true
     }
   ];
+  // Make DB cluster accessible outside of K8s cluster.
+  bool expose = 4;
 }
 
 message CreatePSMDBClusterResponse {}

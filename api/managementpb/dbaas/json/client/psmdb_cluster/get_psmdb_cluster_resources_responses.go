@@ -360,9 +360,6 @@ type GetPSMDBClusterResourcesParamsBodyParams struct {
 	// Docker image used for PSMDB.
 	Image string `json:"image,omitempty"`
 
-	// Make DB accessible outside of K8s cluster.
-	Expose bool `json:"expose,omitempty"`
-
 	// replicaset
 	Replicaset *GetPSMDBClusterResourcesParamsBodyParamsReplicaset `json:"replicaset,omitempty"`
 }

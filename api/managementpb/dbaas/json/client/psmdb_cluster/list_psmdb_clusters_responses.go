@@ -139,6 +139,9 @@ type ClustersItems0 struct {
 	// Enum: [PSMDB_CLUSTER_STATE_INVALID PSMDB_CLUSTER_STATE_CHANGING PSMDB_CLUSTER_STATE_READY PSMDB_CLUSTER_STATE_FAILED PSMDB_CLUSTER_STATE_DELETING PSMDB_CLUSTER_STATE_PAUSED]
 	State *string `json:"state,omitempty"`
 
+	// DB cluster accessible outside of K8s cluster.
+	Exposed bool `json:"exposed,omitempty"`
+
 	// operation
 	Operation *ClustersItems0Operation `json:"operation,omitempty"`
 
@@ -325,9 +328,6 @@ type ClustersItems0Params struct {
 
 	// Docker image used for PSMDB.
 	Image string `json:"image,omitempty"`
-
-	// Make DB accessible outside of K8s cluster.
-	Expose bool `json:"expose,omitempty"`
 
 	// replicaset
 	Replicaset *ClustersItems0ParamsReplicaset `json:"replicaset,omitempty"`
