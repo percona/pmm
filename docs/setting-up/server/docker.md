@@ -39,7 +39,7 @@ We maintain a [Docker image for PMM Server][DOCKERHUB]. This section shows how t
     You can disable manual updates via the Home Dashboard *PMM Upgrade* panel by adding `-e DISABLE_UPDATES=true` to the `docker run` command.
 
 
-4. In a web browser, visit *https://server hostname*:443 (or *//server hostname*:80 if optionally enabled) to see the PMM user interface.
+4. In a web browser, visit *https://server-hostname*:443 (or *http://server-hostname*:80 if optionally enabled) to see the PMM user interface.
 
     > PRO Tip: Eliminate browser certificate warnings by configuring a [trusted certificate](https://www.percona.com/doc/percona-monitoring-and-management/2.x/how-to/secure.html#ssl-encryption)
 
