@@ -308,38 +308,62 @@
                     "type": "object",
                     "properties": {
                       "cron_expression": {
-                        "type": "string",
-                        "x-order": 3
-                      },
-                      "description": {
-                        "type": "string",
-                        "x-order": 6
-                      },
-                      "enabled": {
-                        "type": "boolean",
-                        "x-order": 10
-                      },
-                      "last_run": {
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 11
-                      },
-                      "location_id": {
-                        "type": "string",
-                        "x-order": 2
-                      },
-                      "name": {
+                        "description": "How often backup will be run in cron format.",
                         "type": "string",
                         "x-order": 5
                       },
-                      "next_run": {
+                      "data_model": {
+                        "description": "DataModel is a model used for performing a backup.",
                         "type": "string",
-                        "format": "date-time",
-                        "x-order": 12
+                        "default": "DATA_MODEL_INVALID",
+                        "enum": [
+                          "DATA_MODEL_INVALID",
+                          "PHYSICAL",
+                          "LOGICAL"
+                        ],
+                        "x-order": 13
                       },
-                      "retry_interval": {
+                      "description": {
+                        "description": "Description.",
                         "type": "string",
                         "x-order": 8
+                      },
+                      "enabled": {
+                        "description": "If scheduling is enabled.",
+                        "type": "boolean",
+                        "x-order": 12
+                      },
+                      "last_run": {
+                        "description": "Last run.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 15
+                      },
+                      "location_id": {
+                        "description": "Machine-readable location ID.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "location_name": {
+                        "description": "Location name.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "name": {
+                        "description": "Artifact name.",
+                        "type": "string",
+                        "x-order": 7
+                      },
+                      "next_run": {
+                        "description": "Next run.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 16
+                      },
+                      "retry_interval": {
+                        "description": "Delay between each retry.",
+                        "type": "string",
+                        "x-order": 10
                       },
                       "retry_mode": {
                         "description": "RetryMode specifies how backup should retry in case of failure.",
@@ -350,25 +374,39 @@
                           "AUTO",
                           "MANUAL"
                         ],
-                        "x-order": 7
-                      },
-                      "retry_times": {
-                        "type": "integer",
-                        "format": "int64",
                         "x-order": 9
                       },
+                      "retry_times": {
+                        "description": "How many times to retry a failed backup before giving up.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 11
+                      },
                       "scheduled_backup_id": {
+                        "description": "Machine-readable ID.",
                         "type": "string",
                         "x-order": 0
                       },
                       "service_id": {
+                        "description": "Machine-readable service ID.",
                         "type": "string",
                         "x-order": 1
                       },
+                      "service_name": {
+                        "description": "Service name.",
+                        "type": "string",
+                        "x-order": 2
+                      },
                       "start_time": {
+                        "description": "First backup wouldn't happen before this time.",
                         "type": "string",
                         "format": "date-time",
-                        "x-order": 4
+                        "x-order": 6
+                      },
+                      "vendor": {
+                        "description": "Database vendor e.g. PostgreSQL, MongoDB, MySQL.",
+                        "type": "string",
+                        "x-order": 14
                       }
                     }
                   },

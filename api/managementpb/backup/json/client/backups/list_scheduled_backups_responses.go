@@ -265,46 +265,59 @@ swagger:model ScheduledBackupsItems0
 */
 type ScheduledBackupsItems0 struct {
 
-	// scheduled backup id
+	// Machine-readable ID.
 	ScheduledBackupID string `json:"scheduled_backup_id,omitempty"`
 
-	// service id
+	// Machine-readable service ID.
 	ServiceID string `json:"service_id,omitempty"`
 
-	// location id
+	// Service name.
+	ServiceName string `json:"service_name,omitempty"`
+
+	// Machine-readable location ID.
 	LocationID string `json:"location_id,omitempty"`
 
-	// cron expression
+	// Location name.
+	LocationName string `json:"location_name,omitempty"`
+
+	// How often backup will be run in cron format.
 	CronExpression string `json:"cron_expression,omitempty"`
 
-	// start time
+	// First backup wouldn't happen before this time.
 	// Format: date-time
 	StartTime strfmt.DateTime `json:"start_time,omitempty"`
 
-	// name
+	// Artifact name.
 	Name string `json:"name,omitempty"`
 
-	// description
+	// Description.
 	Description string `json:"description,omitempty"`
 
 	// RetryMode specifies how backup should retry in case of failure.
 	// Enum: [RETRY_MODE_INVALID AUTO MANUAL]
 	RetryMode *string `json:"retry_mode,omitempty"`
 
-	// retry interval
+	// Delay between each retry.
 	RetryInterval string `json:"retry_interval,omitempty"`
 
-	// retry times
+	// How many times to retry a failed backup before giving up.
 	RetryTimes int64 `json:"retry_times,omitempty"`
 
-	// enabled
+	// If scheduling is enabled.
 	Enabled bool `json:"enabled,omitempty"`
 
-	// last run
+	// DataModel is a model used for performing a backup.
+	// Enum: [DATA_MODEL_INVALID PHYSICAL LOGICAL]
+	DataModel *string `json:"data_model,omitempty"`
+
+	// Database vendor e.g. PostgreSQL, MongoDB, MySQL.
+	Vendor string `json:"vendor,omitempty"`
+
+	// Last run.
 	// Format: date-time
 	LastRun strfmt.DateTime `json:"last_run,omitempty"`
 
-	// next run
+	// Next run.
 	// Format: date-time
 	NextRun strfmt.DateTime `json:"next_run,omitempty"`
 }
@@ -318,6 +331,10 @@ func (o *ScheduledBackupsItems0) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateRetryMode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateDataModel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -388,6 +405,52 @@ func (o *ScheduledBackupsItems0) validateRetryMode(formats strfmt.Registry) erro
 
 	// value enum
 	if err := o.validateRetryModeEnum("retry_mode", "body", *o.RetryMode); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var scheduledBackupsItems0TypeDataModelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["DATA_MODEL_INVALID","PHYSICAL","LOGICAL"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		scheduledBackupsItems0TypeDataModelPropEnum = append(scheduledBackupsItems0TypeDataModelPropEnum, v)
+	}
+}
+
+const (
+
+	// ScheduledBackupsItems0DataModelDATAMODELINVALID captures enum value "DATA_MODEL_INVALID"
+	ScheduledBackupsItems0DataModelDATAMODELINVALID string = "DATA_MODEL_INVALID"
+
+	// ScheduledBackupsItems0DataModelPHYSICAL captures enum value "PHYSICAL"
+	ScheduledBackupsItems0DataModelPHYSICAL string = "PHYSICAL"
+
+	// ScheduledBackupsItems0DataModelLOGICAL captures enum value "LOGICAL"
+	ScheduledBackupsItems0DataModelLOGICAL string = "LOGICAL"
+)
+
+// prop value enum
+func (o *ScheduledBackupsItems0) validateDataModelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, scheduledBackupsItems0TypeDataModelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ScheduledBackupsItems0) validateDataModel(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.DataModel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateDataModelEnum("data_model", "body", *o.DataModel); err != nil {
 		return err
 	}
 
