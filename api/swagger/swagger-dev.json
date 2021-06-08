@@ -17587,7 +17587,7 @@
                       "type": "string",
                       "x-order": 2
                     },
-                    "external": {
+                    "expose": {
                       "description": "Make DB accessible outside of K8s cluster.",
                       "type": "boolean",
                       "x-order": 3
@@ -17788,7 +17788,7 @@
                       "type": "string",
                       "x-order": 2
                     },
-                    "external": {
+                    "expose": {
                       "description": "Make DB accessible outside of K8s cluster.",
                       "type": "boolean",
                       "x-order": 3
@@ -18321,7 +18321,7 @@
                             "type": "string",
                             "x-order": 2
                           },
-                          "external": {
+                          "expose": {
                             "description": "Make DB accessible outside of K8s cluster.",
                             "type": "boolean",
                             "x-order": 3
@@ -18517,6 +18517,11 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "expose": {
+                      "description": "Make DB accessible outside of K8s cluster.",
+                      "type": "boolean",
+                      "x-order": 4
                     }
                   },
                   "x-order": 2
@@ -18781,6 +18786,11 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "expose": {
+                      "description": "Make DB accessible outside of K8s cluster.",
+                      "type": "boolean",
+                      "x-order": 4
                     }
                   },
                   "x-order": 0
@@ -19424,6 +19434,11 @@
                               }
                             },
                             "x-order": 3
+                          },
+                          "expose": {
+                            "description": "Make DB accessible outside of K8s cluster.",
+                            "type": "boolean",
+                            "x-order": 4
                           }
                         },
                         "x-order": 3

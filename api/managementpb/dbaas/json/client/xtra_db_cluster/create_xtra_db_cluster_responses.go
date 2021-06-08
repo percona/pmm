@@ -266,6 +266,9 @@ type CreateXtraDBClusterParamsBodyParams struct {
 	// Cluster size.
 	ClusterSize int32 `json:"cluster_size,omitempty"`
 
+	// Make DB accessible outside of K8s cluster.
+	Expose bool `json:"expose,omitempty"`
+
 	// haproxy
 	Haproxy *CreateXtraDBClusterParamsBodyParamsHaproxy `json:"haproxy,omitempty"`
 

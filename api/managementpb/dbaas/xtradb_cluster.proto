@@ -93,6 +93,8 @@ message XtraDBClusterParams {
   ProxySQL proxysql = 3;
   // HAProxy container parameters.
   HAProxy haproxy = 4;
+  // Make DB accessible outside of K8s cluster.
+  bool expose = 5;
 }
 
 message ListXtraDBClustersRequest {

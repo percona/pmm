@@ -270,7 +270,7 @@ type CreatePSMDBClusterParamsBodyParams struct {
 	Image string `json:"image,omitempty"`
 
 	// Make DB accessible outside of K8s cluster.
-	External bool `json:"external,omitempty"`
+	Expose bool `json:"expose,omitempty"`
 
 	// replicaset
 	Replicaset *CreatePSMDBClusterParamsBodyParamsReplicaset `json:"replicaset,omitempty"`

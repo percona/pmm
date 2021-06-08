@@ -1706,7 +1706,7 @@
                       "format": "int32",
                       "x-order": 0
                     },
-                    "external": {
+                    "expose": {
                       "description": "Make DB accessible outside of K8s cluster.",
                       "type": "boolean",
                       "x-order": 3
@@ -1907,7 +1907,7 @@
                       "format": "int32",
                       "x-order": 0
                     },
-                    "external": {
+                    "expose": {
                       "description": "Make DB accessible outside of K8s cluster.",
                       "type": "boolean",
                       "x-order": 3
@@ -2426,7 +2426,7 @@
                             "format": "int32",
                             "x-order": 0
                           },
-                          "external": {
+                          "expose": {
                             "description": "Make DB accessible outside of K8s cluster.",
                             "type": "boolean",
                             "x-order": 3
@@ -2568,6 +2568,11 @@
                       "type": "integer",
                       "format": "int32",
                       "x-order": 0
+                    },
+                    "expose": {
+                      "description": "Make DB accessible outside of K8s cluster.",
+                      "type": "boolean",
+                      "x-order": 4
                     },
                     "haproxy": {
                       "description": "HAProxy container parameters.\nNOTE: HAProxy does not need disk size as ProxySQL does because the container does not require it.",
@@ -2832,6 +2837,11 @@
                       "type": "integer",
                       "format": "int32",
                       "x-order": 0
+                    },
+                    "expose": {
+                      "description": "Make DB accessible outside of K8s cluster.",
+                      "type": "boolean",
+                      "x-order": 4
                     },
                     "haproxy": {
                       "description": "HAProxy container parameters.\nNOTE: HAProxy does not need disk size as ProxySQL does because the container does not require it.",
@@ -3461,6 +3471,11 @@
                             "type": "integer",
                             "format": "int32",
                             "x-order": 0
+                          },
+                          "expose": {
+                            "description": "Make DB accessible outside of K8s cluster.",
+                            "type": "boolean",
+                            "x-order": 4
                           },
                           "haproxy": {
                             "description": "HAProxy container parameters.\nNOTE: HAProxy does not need disk size as ProxySQL does because the container does not require it.",
