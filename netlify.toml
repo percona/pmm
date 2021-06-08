@@ -1,0 +1,10 @@
+# Production build is made in github actions
+# by 'mike' with the built site sent to 'netlify' branch.
+# This definition pubishes the 'netlify' branch.
+[build]
+  publish = "site"
+  command = "PATH=$PATH:_resources/bin mkdocs build"
+
+[context.production]
+  publish = "/"
+  command = ""
