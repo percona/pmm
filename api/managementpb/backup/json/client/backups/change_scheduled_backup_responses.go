@@ -122,8 +122,8 @@ swagger:model ChangeScheduledBackupBody
 */
 type ChangeScheduledBackupBody struct {
 
-	// schedule backup id
-	ScheduleBackupID string `json:"schedule_backup_id,omitempty"`
+	// scheduled backup id
+	ScheduledBackupID string `json:"scheduled_backup_id,omitempty"`
 
 	// enabled
 	Enabled bool `json:"enabled,omitempty"`

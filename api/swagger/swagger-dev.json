@@ -24494,7 +24494,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "schedule_backup_id": {
+                "scheduled_backup_id": {
                   "type": "string",
                   "x-order": 0
                 },
@@ -24792,7 +24792,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "schedule_backup_id": {
+                "scheduled_backup_id": {
                   "type": "string",
                   "x-order": 0
                 }
@@ -25017,7 +25017,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "schedule_backup_id": {
+                "scheduled_backup_id": {
                   "type": "string",
                   "x-order": 0
                 }

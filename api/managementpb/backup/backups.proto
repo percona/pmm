@@ -136,7 +136,7 @@ message ScheduleBackupRequest {
 }
 
 message ScheduleBackupResponse {
-  string schedule_backup_id = 1;
+  string scheduled_backup_id = 1;
 }
 
 message ListScheduledBackupsRequest {}
@@ -146,7 +146,7 @@ message ListScheduledBackupsResponse {
 }
 
 message ChangeScheduledBackupRequest {
-  string schedule_backup_id = 1 [
+  string scheduled_backup_id = 1 [
     (validator.field) = {
       string_not_empty: true
     }
@@ -171,7 +171,7 @@ message ChangeScheduledBackupRequest {
 message ChangeScheduledBackupResponse {}
 
 message RemoveScheduledBackupRequest {
-  string schedule_backup_id = 1 [
+  string scheduled_backup_id = 1 [
     (validator.field) = {
       string_not_empty: true
     }

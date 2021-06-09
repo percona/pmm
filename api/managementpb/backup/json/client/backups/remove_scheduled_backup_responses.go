@@ -120,8 +120,8 @@ swagger:model RemoveScheduledBackupBody
 */
 type RemoveScheduledBackupBody struct {
 
-	// schedule backup id
-	ScheduleBackupID string `json:"schedule_backup_id,omitempty"`
+	// scheduled backup id
+	ScheduledBackupID string `json:"scheduled_backup_id,omitempty"`
 }
 
 // Validate validates this remove scheduled backup body

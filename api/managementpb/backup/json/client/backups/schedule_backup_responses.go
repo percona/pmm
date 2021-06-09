@@ -332,8 +332,8 @@ swagger:model ScheduleBackupOKBody
 */
 type ScheduleBackupOKBody struct {
 
-	// schedule backup id
-	ScheduleBackupID string `json:"schedule_backup_id,omitempty"`
+	// scheduled backup id
+	ScheduledBackupID string `json:"scheduled_backup_id,omitempty"`
 }
 
 // Validate validates this schedule backup OK body

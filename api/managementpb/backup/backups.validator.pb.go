@@ -106,8 +106,8 @@ func (this *ListScheduledBackupsResponse) Validate() error {
 	return nil
 }
 func (this *ChangeScheduledBackupRequest) Validate() error {
-	if this.ScheduleBackupId == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("ScheduleBackupId", fmt.Errorf(`value '%v' must not be an empty string`, this.ScheduleBackupId))
+	if this.ScheduledBackupId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ScheduledBackupId", fmt.Errorf(`value '%v' must not be an empty string`, this.ScheduledBackupId))
 	}
 	if this.Enabled != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Enabled); err != nil {
@@ -150,8 +150,8 @@ func (this *ChangeScheduledBackupResponse) Validate() error {
 	return nil
 }
 func (this *RemoveScheduledBackupRequest) Validate() error {
-	if this.ScheduleBackupId == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("ScheduleBackupId", fmt.Errorf(`value '%v' must not be an empty string`, this.ScheduleBackupId))
+	if this.ScheduledBackupId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ScheduledBackupId", fmt.Errorf(`value '%v' must not be an empty string`, this.ScheduledBackupId))
 	}
 	return nil
 }
