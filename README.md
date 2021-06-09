@@ -116,8 +116,7 @@ View the site at <http://0.0.0.0:8000>
 - `mkdocs.yml`: Default MkDocs configuration file. Creates (Material) themed HTML for hosting anywhere.
 - `docs`:
     - `*.md`: Markdown files.
-    - `_images/*`: Images and image resources.
-    - `_videos/*`: Videos.
+    - `_images/*`: Images, image resources, videos.
     - `css`: Styling.
     - `js`: JavaScript files.
 - `_resources`:

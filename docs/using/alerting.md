@@ -182,6 +182,6 @@ This page has four tabs.
 This short (3:36) video shows how to activate and configure Integrated Alerting.
 
 <video width="100%" controls>
-  <source src="../_videos/Integrated-Alerting.mp4" type="video/mp4">
+  <source src="../_images/Integrated-Alerting.mp4" type="video/mp4">
   Your browser does not support playing this video.
 </video>
