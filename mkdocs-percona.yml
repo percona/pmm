@@ -87,7 +87,6 @@ extra: # Used in main.html template and can't be externalised
     version:
       provider: mike
 
-# Common navigation for percona.com, netlify and PDF
 nav:
   - Welcome: index.md
   - Setting up:

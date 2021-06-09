@@ -1,4 +1,5 @@
-# MkDocs configuration for themed output
+# MkDocs configuration
+# Used as base - look for .yml files with INHERIT
 site_name: Percona Monitoring and Management
 site_description: Documentation
 site_author: Percona LLC
@@ -37,37 +38,36 @@ extra_javascript:
   - js/lightgallery.min.js
 
 markdown_extensions:
-    - attr_list
-    - toc:
+    attr_list: {}
+    toc:
         permalink: True
-    - admonition
-    - def_list
-    - meta
-    - smarty:
-        smart_angled_quotes: true
-    - pymdownx.details
-    - pymdownx.mark
-    - pymdownx.smartsymbols
-    - pymdownx.tabbed
-    - pymdownx.tilde
-    - pymdownx.superfences
-    - pymdownx.highlight:
+    admonition: {}
+    def_list: {}
+    meta: {}
+    smarty: { smart_angled_quotes: true }
+    pymdownx.details: {}
+    pymdownx.mark: {}
+    pymdownx.smartsymbols: {}
+    pymdownx.tabbed: {}
+    pymdownx.tilde: {}
+    pymdownx.superfences: {}
+    pymdownx.highlight:
         linenums: false
-    - plantuml_markdown
-    - lightgallery
+    plantuml_markdown: {}
+    lightgallery: {}
 
 plugins:
-    - search
-    - git-revision-date
-    - macros:
+    search: {}
+    git-revision-date: {}
+    macros:
         include_yaml:
-            - variables.yml'
+          - 'variables.yml'
     # https://pypi.org/project/mkdocs-exclude/
-    - exclude:
+    exclude:
         glob:
           - 'setting-up/client/docker.md'
     # https://github.com/orzih/mkdocs-with-pdf
-    - with-pdf:
+    with-pdf:
         output_path: '_pdf/PerconaMonitoringAndManagement-2.18.0.pdf'
         cover_title: 'Documentation'
         cover_subtitle: 2.18.0 (June 1, 2021)
@@ -76,12 +76,14 @@ plugins:
         debug_html: false
         custom_template_path: _resources/templates
         enabled_if_env: ENABLE_PDF_EXPORT
-    - mike:
-        version_selector: true
-        css_dir: css
-        javascript_dir: js
-        canonical_version: null
-    - section-index
+    # Check links - but extends build time significantly
+    # https://pypi.org/project/mkdocs-htmlproofer-plugin/
+#    htmlproofer: {}
+    mike:
+      version_selector: true
+      css_dir: css
+      javascript_dir: js
+      canonical_version: null
 
 extra: # Used in main.html template and can't be externalised
     open_issue_text: '<i class="uil uil-exclamation-triangle"></i> Report a problem
@@ -94,6 +96,7 @@ extra: # Used in main.html template and can't be externalised
     version:
       provider: mike
 
+# Common navigation for percona.com, netlify and PDF
 nav:
   - Welcome: index.md
   - Setting up:
