@@ -19,7 +19,7 @@ Here's how the web UI home page looks on our <a href='https://pmmdemo.percona.co
 
 <a href='https://pmmdemo.percona.com/' target='_blank'><img src="_images/PMM_Home_Dashboard.jpg" width=600px class="imgcenter"/></a>
 
-PMM can run as a cloud service, on-prem, or across hybrid platforms. It's supported by our [legendary expertise][PERCONA_SERVICES] in open source databases, and by a vibrant developer and user [community][PMM_FORUM].
+PMM can run as a cloud service, on-prem, or across hybrid platforms. It's supported by our [legendary expertise][PERCONA_SERVICES] in open source databases, and by a vibrant developer and user [community].
 
 ## Next steps
 
@@ -42,4 +42,4 @@ Links to popular sections.
     ```
 
 [PERCONA_SERVICES]: https://www.percona.com/services
-[PMM_FORUM]: https://www.percona.com/forums/questions-discussions/percona-monitoring-and-management
+[community]: https://www.percona.com/forums/questions-discussions/percona-monitoring-and-management
