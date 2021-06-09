@@ -61,7 +61,7 @@ plugins:
     - git-revision-date
     - macros:
         include_yaml:
-            - variables.yml'
+            - variables.yml
     # https://pypi.org/project/mkdocs-exclude/
     - exclude:
         glob:
