@@ -15,7 +15,7 @@ Starting with PMM 2.18, the scrape timeout has been updated according to the fol
 
 Sometimes it is hard to check if you are using the correct values to scrape or if there some other reason why there is no data in a dashboard even when the instance has been added correctly and the agent is running.
 
-One aditional step you can do is to check for scrape target statuses. Browse to http://<your-pmm-server-address-here>/prometheus/targets and then click on the Unhealthy button.
+One aditional step you can do is to check for scrape target statuses. Browse to `http://<your-pmm-server-address-here>/prometheus/targets` and then click on the Unhealthy button.
 
 ![!image](../../_images/scrape_targets_01.png)
 
