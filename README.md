@@ -88,7 +88,7 @@ View the site at <http://0.0.0.0:8000>
 
 *How to create a PDF version of the documentation.*
 
-1. (For Percona staff) If bulding for a release of PMM, edit `mkdoc.yml` and change:
+1. (For Percona staff) If bulding for a release of PMM, edit `mkdocs-pdf.yml` and change:
 
     - The release number in `plugins.with-pdf.output_path`
     - The release number and date in `plugins.with-pdf.cover_subtitle`
@@ -111,13 +111,13 @@ View the site at <http://0.0.0.0:8000>
 
 ## Directories and files
 
-- `mkdocs-base.yml`: Base MkDocs configuration file. Contains common configuration and navigation used by other MkDocs configs.
-- `mkdocs-pdf.yml`: MkDocs configuration file. Creates themed [PDF](#pdf). Inherits from `mkdocs-base.yml`.
-- `mkdocs-percona.yml`: MkDocs configuration file. Creates unthemed HTML for hosting on percona.com. Inherits from `mkdocs-base.yml`.
-- `mkdocs.yml`: Default MkDocs configuration file. Creates (Material) themed HTML for hosting anywhere. Inherits from `mkdocs-base.yml`.
+- `mkdocs-pdf.yml`: MkDocs configuration file. Creates themed [PDF](#pdf).
+- `mkdocs-percona.yml`: MkDocs configuration file. Creates unthemed HTML for hosting on percona.com.
+- `mkdocs.yml`: Default MkDocs configuration file. Creates (Material) themed HTML for hosting anywhere.
 - `docs`:
     - `*.md`: Markdown files.
-    - `_images/*`: Images.
+    - `_images/*`: Images and image resources.
+    - `_videos/*`: Videos.
     - `css`: Styling.
     - `js`: JavaScript files.
 - `_resources`:
@@ -127,9 +127,6 @@ View the site at <http://0.0.0.0:8000>
         - `grafana-dashboards-descriptions.py`: Script to extract dashboard descriptions from <https://github.com/percona/grafana-dashboards/>.
         - `plantuml`: Wrapper script for running PlantUML.
         - `plantuml.jar`: Copy of the PlantUML Java file (needed for Netlify builds).
-    - `diagrams`:
-        - `*.puml`: [PlantUML](https://plantuml.com) diagrams (see comments inside each).
-        - `plantuml_styles.uml`: Global style for PlantUML diagrams.
     - `templates`: Stylesheet for PDF output (used by [mkdocs-with-pdf](https://github.com/orzih/mkdocs-with-pdf) extension).
     - `theme`:
         - `main.html`: MkDocs template for HTML published on percona.com.
@@ -157,12 +154,12 @@ Here's how it's done.
 
 - `PMM_Home_Dashboard.jpg` is created by [pmm-screenshots-pw](https://github.com/PaulJacobs-percona/pmm-screenshots-pw). If snapped by hand, it should be 1280x1280 pixels, to match the overlay image.
 
-- `PMM_Home_Dashboard_Overlay.png` is exported from `_resources/diagrams/PMM_Home_Dashboard_Overlay.drawio` using <https://app.diagrams.net/>.
+- `PMM_Home_Dashboard_Overlay.png` is exported from `docs/_images/PMM_Home_Dashboard_Overlay.drawio` using <https://app.diagrams.net/>.
 
     1. Go to <https://app.diagrams.net/>
     2. If it's your first time, select *Device* at the *Save diagrams to:* dialog
     2. Click *Open existing diagram*
-    3. Navigate to `pmm-doc/_resources/diagrams` and select `PMM_Home_Dashboard_Overlay.drawio`
+    3. Navigate to `pmm-doc/docs/_images` and select `PMM_Home_Dashboard_Overlay.drawio`
     4. If the dashboard layout has changed, replace the *Guide* Layer with a new screenshot and adjust the elements on the *Overlay* layer as needed (To show layers, click View --> Layers). Untick the *Guide* Layer so it is not exported.
     5. Click File --> Export as --> PNG
     6. In the *Image settings* dialog, use these settings:
@@ -174,13 +171,13 @@ Here's how it's done.
         - *Include a copy of my diagram:* OFF
     7. Click *Export*
     8. Click *Device*
-    9. Navigate to `pmm-doc/docs/_resources/diagrams` and click `PMM_Home_Dashboard_Overlay.png`
+    9. Navigate to `pmm-doc/docs/_images` and click `PMM_Home_Dashboard_Overlay.png`
     10. Click *Save* and overwrite the current file
 
 The overlay image is merged with a copy of the latest home dashboard using [`composite`](https://imagemagick.org/script/composite.php), one of the [ImageMagick](https://imagemagick.org/script/download.php) tools.
 
 ```sh
-composite _resources/diagrams/PMM_Home_Dashboard_Overlay.png docs/_images/PMM_Home_Dashboard.jpg docs/_images/PMM_Home_Dashboard_Numbered.png
+composite docs/_images/PMM_Home_Dashboard_Overlay.png docs/_images/PMM_Home_Dashboard.jpg docs/_images/PMM_Home_Dashboard_Numbered.png
 ```
 
 ## Spelling and grammar

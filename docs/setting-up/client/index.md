@@ -17,7 +17,58 @@ When you have installed PMM Client, you must:
 
 Here is an overview of the steps involved for each option.
 
-```plantuml source="_resources/diagrams/Setting-Up_Client.puml"
+```plantuml
+@startuml "setting-up_client"
+!include docs/_images/plantuml_styles.puml
+title Running PMM Client\nOverview of options\n
+split
+    -[hidden]->
+    split
+        -[hidden]->
+        partition "Package manager" {
+            split
+                -[hidden]->
+                (1)
+                :Set up ""percona-release"";
+                :""apt install pmm-client"";
+            split again
+                -[hidden]->
+                (2)
+                :Download "".deb""/"".rpm"";
+                :""dpkg -i *.deb""\n""dnf localinstall *.rpm"";
+            end split
+        }
+    split again
+        partition "Binary package" {
+        -[hidden]->
+        (3)
+        :Download & verify;
+        :Unpack;
+        :Install;
+        :Set ""$PATH"";
+        }
+    end split
+    :Set up pmm-agent;
+split again
+    -[hidden]->
+    partition "Docker" {
+        split
+            -[hidden]->
+            (4)
+            :""docker pull percona/pmm-client:2"";
+            :Create persistent data store;
+            :""docker run ..."";
+        split again
+            -[hidden]->
+            (5)
+            :Create ""docker-compose.yml"";
+            :""docker-compose up"";
+        end split
+    }
+end split
+:Register node;
+:Configure and add services;
+@enduml
 ```
 
 ## Before you start
@@ -57,9 +108,9 @@ Here is an overview of the steps involved for each option.
 
 3. Check.
 
-	```sh
-	pmm-admin --version
-	```
+    ```sh
+    pmm-admin --version
+    ```
 
 4. [Register the node](#register).
 
@@ -79,9 +130,9 @@ Here is an overview of the steps involved for each option.
 
 3. Check.
 
-	```sh
-	pmm-admin --version
-	```
+    ```sh
+    pmm-admin --version
+    ```
 
 4. [Register the node](#register).
 
@@ -93,8 +144,8 @@ Here is an overview of the steps involved for each option.
 3. Under *Software:*, select the item matching your software platform.
 4. Click to download the package file:
 
-	- For Debian, Ubuntu: `.deb`
-	- For Red Hat, CentOS, Oracle Linux: `.rpm`
+    - For Debian, Ubuntu: `.deb`
+    - For Red Hat, CentOS, Oracle Linux: `.rpm`
 
 (Alternatively, copy the link and use `wget` to download it.)
 
@@ -124,57 +175,57 @@ dnf localinstall *.rpm
 
 1. Download the PMM Client package:
 
-	```sh
-	wget https://downloads.percona.com/downloads/pmm2/{{release}}/binary/tarball/pmm2-client-{{release}}.tar.gz
-	```
+    ```sh
+    wget https://downloads.percona.com/downloads/pmm2/{{release}}/binary/tarball/pmm2-client-{{release}}.tar.gz
+    ```
 
 2. Download the PMM Client package checksum file:
 
-	```sh
-	wget https://downloads.percona.com/downloads/pmm2/{{release}}/binary/tarball/pmm2-client-{{release}}.tar.gz.sha256sum
-	```
+    ```sh
+    wget https://downloads.percona.com/downloads/pmm2/{{release}}/binary/tarball/pmm2-client-{{release}}.tar.gz.sha256sum
+    ```
 
 3. Verify the download.
 
-	```sh
-	sha256sum -c pmm2-client-{{release}}.tar.gz.sha256sum
-	```
+    ```sh
+    sha256sum -c pmm2-client-{{release}}.tar.gz.sha256sum
+    ```
 
 4. Unpack the package and move into the directory.
 
-	```sh
-	tar xfz pmm2-client-{{release}}.tar.gz && cd pmm2-client-{{release}}
-	```
+    ```sh
+    tar xfz pmm2-client-{{release}}.tar.gz && cd pmm2-client-{{release}}
+    ```
 
 5. Run the installer.
 
-	```sh
-	./install_tarball
-	```
+    ```sh
+    ./install_tarball
+    ```
 
 6. Change the path.
 
-	```sh
-	PATH=$PATH:/usr/local/percona/pmm2/bin
-	```
+    ```sh
+    PATH=$PATH:/usr/local/percona/pmm2/bin
+    ```
 
 7. Set up the agent
 
-	```sh
-	pmm-agent setup --config-file=/usr/local/percona/pmm2/config/pmm-agent.yaml --server-address=192.168.1.123 --server-insecure-tls --server-username=admin --server-password=admin
-	```
+    ```sh
+    pmm-agent setup --config-file=/usr/local/percona/pmm2/config/pmm-agent.yaml --server-address=192.168.1.123 --server-insecure-tls --server-username=admin --server-password=admin
+    ```
 
 8. Open a new terminal and run the agent.
 
-	```sh
-	PATH=$PATH:/usr/local/percona/pmm2/bin pmm-agent --config-file=/usr/local/percona/pmm2/config/pmm-agent.yaml
-	```
+    ```sh
+    PATH=$PATH:/usr/local/percona/pmm2/bin pmm-agent --config-file=/usr/local/percona/pmm2/config/pmm-agent.yaml
+    ```
 
 9. In the first terminal, check.
 
-	```sh
-	pmm-admin status
-	```
+    ```sh
+    pmm-admin status
+    ```
 
 ## Remove PMM Client with a package manager {: #remove-package-manager }
 
@@ -206,35 +257,33 @@ dnf localinstall *.rpm
     yum remove -y percona-release
     ```
 
-
-
 ## Run PMM Client as a Docker container {: #docker }
 
 The [PMM Client Docker image](https://hub.docker.com/r/percona/pmm-client/tags/) is a convenient way to run PMM Client as a preconfigured [Docker](https://docs.docker.com/get-docker/) container.
 
 1. Pull the PMM Client docker image.
 
-	```sh
+    ```sh
     docker pull \
-	percona/pmm-client:2
-	```
+    percona/pmm-client:2
+    ```
 
 2. Use the image as a template to create a persistent data store that preserves local data when the image is updated.
 
-	```sh
+    ```sh
     docker create \
-	--volume /srv \
-	--name pmm-client-data \
-	percona/pmm-client:2 /bin/true
-	```
+    --volume /srv \
+    --name pmm-client-data \
+    percona/pmm-client:2 /bin/true
+    ```
 
 3. Run the container to start [PMM Agent](../../details/commands/pmm-agent.md) in setup mode. Set `X.X.X.X` to the IP address of your PMM Server. (Do not use the `docker --detach` option as PMM agent only logs to the console.)
 
-	```sh
-	PMM_SERVER=X.X.X.X:443
+    ```sh
+    PMM_SERVER=X.X.X.X:443
     docker run \
-	--rm \
-	--name pmm-client \
+    --rm \
+    --name pmm-client \
     -e PMM_AGENT_SERVER_ADDRESS=${PMM_SERVER} \
     -e PMM_AGENT_SERVER_USERNAME=admin \
     -e PMM_AGENT_SERVER_PASSWORD=admin \
@@ -242,17 +291,17 @@ The [PMM Client Docker image](https://hub.docker.com/r/percona/pmm-client/tags/)
     -e PMM_AGENT_SETUP=1 \
     -e PMM_AGENT_CONFIG_FILE=pmm-agent.yml \
     --volumes-from pmm-client-data \
-	percona/pmm-client:2
-	```
+    percona/pmm-client:2
+    ```
 
 4. Check status.
 
-	```sh
-	docker exec	pmm-client \
-	pmm-admin status
-	```
+    ```sh
+    docker exec    pmm-client \
+    pmm-admin status
+    ```
 
-	In the PMM user interface you will also see an increase in the number of monitored nodes.
+    In the PMM user interface you will also see an increase in the number of monitored nodes.
 
 You can now add services with [`pmm-admin`](../../details/commands/pmm-admin.md) by prefixing commands with `docker exec pmm-client`.
 
@@ -389,10 +438,6 @@ Register on PMM Server with IP address `192.168.33.14` using the default `admin/
 ```sh
 pmm-admin config --server-insecure-tls --server-url=https://admin:admin@192.168.33.14:443 192.168.33.23 generic mynode
 ```
-
-
-
-
 
 ## Configure and add services {: #configure-add-services }
 

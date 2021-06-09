@@ -6,7 +6,46 @@ This page shows how to set up PMM to monitor a PostgreSQL database instance. (Re
 
 Here is an overview of the steps involved.
 
-```plantuml source="_resources/diagrams/Setting-Up_Client_PostgreSQL.puml"
+```plantuml
+@startuml "setting-up_client_postgresql"
+!include docs/_images/plantuml_styles.puml
+'title "Setting up PMM Client to monitor a PostgreSQL host\nOverview\n"
+legend bottom left
+Legend
+<#cce6ff>| Required |
+<#lightgrey>| Optional |
+endlegend
+#lightgrey:Create a database\naccount for PMM;
+partition "Choose and configure\nan extension" {
+    split
+        -> ""pg_stat_statements"";
+        :Install\n""postgresql-contrib"";
+    split again
+        -> ""ps_stat_monitor"";
+        split
+            -> Percona distribution;
+            :Install with\nLinux package\nmanager;
+        split again
+            -> PostgreSQL;
+            :Compile from\nsource code;
+        end split
+    end split
+    :Configure extension;
+}
+partition "Add a service " {
+    split
+    -> With user interface;
+        :PMM <&arrow-thick-right>\nPMM Add Instance <&arrow-thick-right>\nPostgreSQL -\nAdd a remote instance;
+    split again
+    -> On command line;
+            :<code>
+            pmm-admin add postgresql
+            ...
+            </code>;
+    end split
+}
+#lightgrey:Check the service;
+@enduml
 ```
 
 ## Before you start
@@ -166,9 +205,9 @@ You can now [add the service](#add-a-service).
 
 3. Set bucket time to 60 seconds
 
-	```
-	ALTER SYSTEM SET pg_stat_monitor.pgsm_bucket_time=60;
-	```
+    ```
+    ALTER SYSTEM SET pg_stat_monitor.pgsm_bucket_time=60;
+    ```
 
 4. Start or restart your PostgreSQL instance.
 

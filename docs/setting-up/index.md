@@ -6,7 +6,57 @@ The PMM setting-up process can be broken into three key stages:
 2. [Setting up one or more PMM Clients](#setting-up-pmm-client)
 3. [Configuring and adding services for monitoring](#configure-add-services)
 
-```plantuml source="_resources/diagrams/Setting-Up.puml"
+```plantuml
+@startuml "setting-up"
+!include docs/_images/plantuml_styles.puml
+skinparam partitionWidth 400
+title Setting up PMM\nOverview\n
+partition "Set up PMM Server as one of: " {
+    split
+        -[hidden]->
+        :Docker container;
+    split again
+        -[hidden]->
+        :Virtual appliance;
+    split again
+        -[hidden]->
+        :Amazon AWS marketplace;
+    end split
+}
+partition "Set up PMM Client for each node via: " {
+    split
+        partition "Package manager" {
+            :Set up ""percona-release"";
+            :""apt/yum install pmm2-client"";
+        }
+    split again
+        partition "Manual package install" {
+            :Download "".deb""/"".rpm"";
+            :Install
+            <code>
+            dpkg -i *.deb # Debian
+            dnf localinstall *.rpm # RHEL
+            </code>;
+        }
+    split again
+        partition "Binary package install" {
+            :Download "".tar.gz"";
+            :<code>
+            tar xfz ...
+            pmm-agent setup ...
+            </code>;
+        }
+    split again
+        partition "Docker" {
+            :<code>
+            docker pull
+            percona/pmm-client:2
+            </code>;
+        }
+    end split
+}
+:Configure and add service;
+@enduml
 ```
 
 ## Setting up PMM Server {: #setting-up-pmm-server}

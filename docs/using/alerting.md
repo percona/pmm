@@ -6,6 +6,37 @@
 
 **To activate *Integrated Alerting***, select *PMM-->PMM Settings-->Advanced Settings*, turn on *Integrated Alerting* and click *Apply changes*.
 
+<!-- incomplete flow diagram
+```plantuml
+@startuml
+!include docs/_images/plantuml_styles.puml
+|//PMM Settings//|
+start
+:Activate //Integrated Alerting//;
+if (//Communication// settings) then
+    :Email;
+else
+    :Slack;
+endif
+|//Integrated Alerting//|
+:Add //Notification Channel//;
+if (Alert Rule Template?) then
+    :Select;
+else
+    |Server|
+    -[dashed]->
+    :Create;
+    note right
+        Edit on filesystem
+    end note
+    -[dashed]->
+endif
+|//Integrated Alerting//|
+:Add //Alert Rule//;
+stop
+@enduml
+```
+-->
 ## Definitions
 
 - Alerts are generated when their criteria (*alert rules*) are met; an *alert* is the result of an *alert rule* expression evaluating to *true*.

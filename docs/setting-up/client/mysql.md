@@ -6,7 +6,54 @@ This page shows you how to set up PMM to monitor a MySQL or MySQL-based database
 
 Here is an overview of the steps involved.
 
-```plantuml source="_resources/diagrams/Setting-Up_Client_MySQL.puml"
+```plantuml
+@startuml "setting-up_client_mysql"
+!include docs/_images/plantuml_styles.puml
+'title "Setting up PMM Client to monitor a MySQL host\nOverview\n"
+legend bottom left
+Legend
+<#cce6ff>| Required |
+<#lightgrey>| Optional |
+endlegend
+#lightgrey:Create a database account for PMM;
+partition "Choose and configure\na source" {
+    split
+        :Configure //slow query log//;
+        :Configure //slow query log (extended)//;
+        #lightgrey:Configure //slow query log rotation//;
+    split again
+        :Configure //Performance Schema//;
+    end split
+}
+#lightgrey:Configure //query response time//;
+#lightgrey:Configure //tablestats//;
+#lightgrey:Configure //user statistics//;
+partition "Add a service " {
+    split
+    -> With user interface;
+        :PMM <&arrow-thick-right>\nPMM Add Instance <&arrow-thick-right>\nMySQL -\nAdd a remote instance;
+    split again
+    -> On command line;
+        split
+            -> Slow query log;
+            :<code>
+            pmm-admin add mysql
+            --query-source=slowlog
+            --size-slow-logs=N
+            ...
+            </code>;
+        split again
+            -> Performance Schema;
+            :<code>
+            pmm-admin add mysql
+            --query-source=perfschema
+            ...
+            </code>;
+        end split
+    end split
+}
+#lightgrey:Check the service;
+@enduml
 ```
 
 ## Before you start
@@ -254,23 +301,23 @@ You must also install the plugins.
 1. Check that `/usr/lib/mysql/plugin/query_response_time.so` exists.
 2. Install the plugins and activate.
 
-	For [MariaDB 10.3][mariadb_query_response_time]:
+    For [MariaDB 10.3][mariadb_query_response_time]:
 
-	```sql
-	INSTALL PLUGIN QUERY_RESPONSE_TIME_AUDIT SONAME 'query_response_time.so';
-	INSTALL PLUGIN QUERY_RESPONSE_TIME SONAME 'query_response_time.so';
-	SET GLOBAL query_response_time_stats = ON;
-	```
+    ```sql
+    INSTALL PLUGIN QUERY_RESPONSE_TIME_AUDIT SONAME 'query_response_time.so';
+    INSTALL PLUGIN QUERY_RESPONSE_TIME SONAME 'query_response_time.so';
+    SET GLOBAL query_response_time_stats = ON;
+    ```
 
-	For [Percona Server for MySQL 5.7][ps_query_response_time_stats]:
+    For [Percona Server for MySQL 5.7][ps_query_response_time_stats]:
 
-	```sql
-	INSTALL PLUGIN QUERY_RESPONSE_TIME_AUDIT SONAME 'query_response_time.so';
-	INSTALL PLUGIN QUERY_RESPONSE_TIME SONAME 'query_response_time.so';
-	INSTALL PLUGIN QUERY_RESPONSE_TIME_READ SONAME 'query_response_time.so';
-	INSTALL PLUGIN QUERY_RESPONSE_TIME_WRITE SONAME 'query_response_time.so';
-	SET GLOBAL query_response_time_stats = ON;
-	```
+    ```sql
+    INSTALL PLUGIN QUERY_RESPONSE_TIME_AUDIT SONAME 'query_response_time.so';
+    INSTALL PLUGIN QUERY_RESPONSE_TIME SONAME 'query_response_time.so';
+    INSTALL PLUGIN QUERY_RESPONSE_TIME_READ SONAME 'query_response_time.so';
+    INSTALL PLUGIN QUERY_RESPONSE_TIME_WRITE SONAME 'query_response_time.so';
+    SET GLOBAL query_response_time_stats = ON;
+    ```
 
 ## Tablestats
 

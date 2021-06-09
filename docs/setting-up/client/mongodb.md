@@ -8,7 +8,30 @@ This page shows you how to set up PMM to monitor a MongoDB database instance.
 
 Here is an overview of the steps involved.
 
-```plantuml source="_resources/diagrams/Setting-Up_Client_MongoDB.puml"
+```plantuml
+@startuml "setting-up_client_mongodb"
+!include docs/_images/plantuml_styles.puml
+legend bottom left
+Legend
+<#cce6ff>| Required |
+<#lightgrey>| Optional |
+endlegend
+:Create PMM account and\nset permissions;
+#lightgrey:Configure profiling;
+partition "Add a service " {
+    split
+    -> With user interface;
+        :PMM <&arrow-thick-right>\nPMM Add Instance <&arrow-thick-right>\nMongoDB -\nAdd a remote instance;
+    split again
+    -> On command line;
+            :<code>
+            pmm-admin add mongodb
+            ...
+            </code>;
+    end split
+}
+#lightgrey:Check the service;
+@enduml
 ```
 
 ## Before you start

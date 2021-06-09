@@ -4,7 +4,30 @@ Run PMM Server as a virtual machine by downloading and importing the [PMM {{rele
 
 This page shows how to set up PMM Server as a virtual machine in [VMware Workstation Player][VMware] and [Oracle VM VirtualBox][VirtualBox].
 
-```plantuml source="_resources/diagrams/Setting-Up_Server_Virtual-Appliance.puml"
+```plantuml
+@startuml "setting-up_server_virtual-appliance"
+!include docs/_images/plantuml_styles.puml
+title Running PMM Server as a virtual appliance\nOverview\n
+:Download;
+:Verify;
+split
+partition "VMware" {
+    :Import;
+    :Reconfigure interface;
+    :Start guest and get IP address;
+}
+split again
+partition "VirtualBox" {
+    :Import;
+    :Reconfigure interface;
+    :Start guest and get IP address;
+}
+end split
+:Log in to PMM user interface;
+#lightgrey:(Optional) Change root password;
+#lightgrey:(Optional) Set up SSH;
+#lightgrey:(Optional) Set up static IP;
+@enduml
 ```
 
 Most steps can be done with either a user interface or on the command line, but some steps can only be done in one or the other. Sections are labeled **UI** for user interface or **CLI** for command line instructions.
@@ -84,32 +107,32 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 5. Click *Continue*.
 6. In the *Save as* dialog:
 
-	a. (Optional) Change the directory or file name.
+    a. (Optional) Change the directory or file name.
 
-	b. Click *Save*.
+    b. Click *Save*.
 
 7. Choose one of:
-	- (Optional) Click *Finish*. This starts the virtual machine.
-	- (Recommended) Click *Customize Settings*. This opens the VM's settings page without starting the machine.
+    - (Optional) Click *Finish*. This starts the virtual machine.
+    - (Recommended) Click *Customize Settings*. This opens the VM's settings page without starting the machine.
 
 **CLI**
 
 1. Install [`ovftool`][OVFTool]. (You need to register.)
 2. Import and convert the OVA file. (`ovftool` can't change CPU or memory settings during import but it can set the default interface.)
 
-	Choose one of:
-	- Download and import the OVA file.
-		```sh
-		ovftool --name="PMM Server" --net:NAT=Wi-Fi\
-		https://www.percona.com/downloads/pmm2/{{release}}/ova/pmm-server-{{release}}.ova\
-		pmm-server-{{release}}.vmx
-		```
-	- Import an already-downloaded OVA file.
-		```sh
-		ovftool --name="PMM Server" --net:NAT=WiFi\
-		pmm-server-{{release}}.ova\
-		pmm-server.vmx
-		```
+    Choose one of:
+    - Download and import the OVA file.
+        ```sh
+        ovftool --name="PMM Server" --net:NAT=Wi-Fi\
+        https://www.percona.com/downloads/pmm2/{{release}}/ova/pmm-server-{{release}}.ova\
+        pmm-server-{{release}}.vmx
+        ```
+    - Import an already-downloaded OVA file.
+        ```sh
+        ovftool --name="PMM Server" --net:NAT=WiFi\
+        pmm-server-{{release}}.ova\
+        pmm-server.vmx
+        ```
 
 ### Reconfigure interface
 
@@ -135,17 +158,17 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 **CLI/UI**
 
 1. Start the virtual machine in GUI mode. (There's no way to redirect a VMware VM's console to the host.)
-	```sh
-	vmrun -gu root -gp percona start \
-	pmm-server.vmx gui
-	```
+    ```sh
+    vmrun -gu root -gp percona start \
+    pmm-server.vmx gui
+    ```
 2. When the instance has booted, note the IP address in the guest console.
 3. (Optional) Stop and restart the instance in headless mode.
-	```sh
-	vmrun stop pmm-server.vmx
-	vmrun -gu root -gp percona start \
-	pmm-server.vmx nogui
-	```
+    ```sh
+    vmrun stop pmm-server.vmx
+    vmrun -gu root -gp percona start \
+    pmm-server.vmx nogui
+    ```
 
 ## PMM Server as a virtual appliance on Oracle VM VirtualBox {: #virtualbox }
 
@@ -164,20 +187,20 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 
 1. Open a terminal and change directory to where the downloaded `.ova` file is.
 2. (Optional) Do a 'dry run' import to see what values will be used.
-	```sh
-	VBoxManage import pmm-server-{{release}}.ova --dry-run
-	```
+    ```sh
+    VBoxManage import pmm-server-{{release}}.ova --dry-run
+    ```
 3. Import the image.
-	Choose one of:
-	- With the default settings.
-		```sh
-		VBoxManage import pmm-server-{{release}}.ova
-		```
-	- With custom settings (in this example, Name: "PMM Server", CPUs: 2, RAM: 8192 MB).
-		```sh
-		VBoxManage import --vsys 0 --vmname "PMM Server"\
-    	--cpus 2 --memory 8192 pmm-server-{{release}}.ova
-		```
+    Choose one of:
+    - With the default settings.
+        ```sh
+        VBoxManage import pmm-server-{{release}}.ova
+        ```
+    - With custom settings (in this example, Name: "PMM Server", CPUs: 2, RAM: 8192 MB).
+        ```sh
+        VBoxManage import --vsys 0 --vmname "PMM Server"\
+        --cpus 2 --memory 8192 pmm-server-{{release}}.ova
+        ```
 
 ### Reconfigure interface
 
@@ -192,20 +215,20 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 **CLI**
 
 1. Show the list of available bridge interfaces.
-	```sh
-	VBoxManage list bridgedifs
-	```
+    ```sh
+    VBoxManage list bridgedifs
+    ```
 2. Find the name of the active interface you want to bridge to (one with *Status: Up* and a valid IP address). Example: `en0: Wi-Fi (Wireless)`
 3. Bridge the virtual machine's first interface (`nic1`) to the host's `en0` ethernet adapter.
-	```sh
-	VBoxManage modifyvm 'PMM Server'\
-	--nic1 bridged --bridgeadapter1 'en0: Wi-Fi (Wireless)'
-	```
+    ```sh
+    VBoxManage modifyvm 'PMM Server'\
+    --nic1 bridged --bridgeadapter1 'en0: Wi-Fi (Wireless)'
+    ```
 4. Redirect the console output into a host file.
-	```sh
-	VBoxManage modifyvm 'PMM Server'\
-	--uart1 0x3F8 4 --uartmode1 file /tmp/pmm-server-console.log
-	```
+    ```sh
+    VBoxManage modifyvm 'PMM Server'\
+    --uart1 0x3F8 4 --uartmode1 file /tmp/pmm-server-console.log
+    ```
 
 ### Start guest and get IP address
 
@@ -218,24 +241,24 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 **CLI**
 
 1. Start the guest.
-	```sh
-	VBoxManage startvm --type headless 'PMM Server'
-	```
+    ```sh
+    VBoxManage startvm --type headless 'PMM Server'
+    ```
 2. (Optional) Watch the log file.
-	```sh
-	tail -f /tmp/pmm-server-console.log
-	```
+    ```sh
+    tail -f /tmp/pmm-server-console.log
+    ```
 3. Wait for one minute for the server to boot up.
 4. Choose one of:
-	- Read the IP address from the tailed log file.
-	- Extract the IP address from the log file.
-		```sh
-		grep -e "^IP:" /tmp/pmm-server-console.log | cut -f2 -d' '
-		```
+    - Read the IP address from the tailed log file.
+    - Extract the IP address from the log file.
+        ```sh
+        grep -e "^IP:" /tmp/pmm-server-console.log | cut -f2 -d' '
+        ```
 5. (Optional) Stop the guest:
-		```sh
-		VBoxManage controlvm "PMM Server" poweroff
-		```
+        ```sh
+        VBoxManage controlvm "PMM Server" poweroff
+        ```
 
 ## Log into PMM user interface
 
@@ -243,13 +266,13 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 
 1. Open a web browser and visit the guest IP address.
 2. The PMM login screen appears.
-	![!image](../../_images/PMM_Login.jpg)
+    ![!image](../../_images/PMM_Login.jpg)
 3. Enter the default username and password in the relevant fields and click *Log in*.
-	- username: `admin`
-	- password: `admin`
+    - username: `admin`
+    - password: `admin`
 4. (Recommended) Follow the prompts to change the default password.
 5. The PMM Home Dashboard appears.
-	![!image](../../_images/PMM_Home_Dashboard.jpg)
+    ![!image](../../_images/PMM_Home_Dashboard.jpg)
 
 ## (Optional) Change root password
 
@@ -257,8 +280,8 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 
 1. Start the virtual machine in GUI mode.
 2. Log in with the default superuser credentials:
-	- Username: `root`
-	- Password: `percona`
+    - Username: `root`
+    - Password: `percona`
 3. Follow the prompts to change the password.
 
 ## (Optional) Set up SSH
@@ -266,17 +289,17 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 **UI/CLI**
 
 1. Create a key pair for the `admin` user.
-	```sh
-	ssh-keygen -f admin
-	```
+    ```sh
+    ssh-keygen -f admin
+    ```
 2. Log into the [PMM user interface](#5-log-into-pmm-user-interface).
 3. Select *PMM --> PMM Settings --> SSH Key*.
 4. Copy and paste the contents of the `admin.pub` file into the *SSH Key* field.
 5. Click *Apply SSH Key*. (This copies the public key to `/home/admin/.ssh/authorized_keys` in the guest).
 6. Log in via SSH (`N.N.N.N` is the guest IP address).
-	```sh
-	ssh -i admin admin@N.N.N.N
-	```
+    ```sh
+    ssh -i admin admin@N.N.N.N
+    ```
 
 ## (Optional) Set up static IP
 
@@ -288,23 +311,23 @@ When the guest OS starts, it will get an IP address from the hypervisor's DHCP s
 2. Log in as `root`.
 3. Edit `/etc/sysconfig/network-scripts/ifcfg-eth0`
 4. Change the value of `BOOTPROTO`:
-	```ini
-	BOOTPROTO=none
-	```
+    ```ini
+    BOOTPROTO=none
+    ```
 5. Add these values:
-	```ini
-	IPADDR=192.168.1.123 # Example
-	NETMASK=255.255.255.0
-	GATEWAY=192.168.1.1
-	```
+    ```ini
+    IPADDR=192.168.1.123 # Example
+    NETMASK=255.255.255.0
+    GATEWAY=192.168.1.1
+    ```
 6. Restart the interface.
-	```sh
-	ifdown eth0 && ifup eth0
-	```
+    ```sh
+    ifdown eth0 && ifup eth0
+    ```
 7. Check the IP.
-	```sh
-	ip addr show eth0
-	```
+    ```sh
+    ip addr show eth0
+    ```
 
 ## Remove PMM Server
 
