@@ -96,6 +96,7 @@ type SecurityCheckResult struct {
 	Labels      map[string]string `protobuf:"bytes,4,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	// URL containing information on how to resolve an issue detected by an STT check.
 	ReadMoreUrl string `protobuf:"bytes,5,opt,name=read_more_url,json=readMoreUrl,proto3" json:"read_more_url,omitempty"`
+	// Name of the monitored service on which the check ran.
 	ServiceName string `protobuf:"bytes,6,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
 }
 

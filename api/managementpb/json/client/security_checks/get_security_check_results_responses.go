@@ -281,7 +281,7 @@ type ResultsItems0 struct {
 	// URL containing information on how to resolve an issue detected by an STT check.
 	ReadMoreURL string `json:"read_more_url,omitempty"`
 
-	// service name
+	// Name of the monitored service on which the check ran.
 	ServiceName string `json:"service_name,omitempty"`
 }
 
