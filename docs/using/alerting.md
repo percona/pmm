@@ -2,7 +2,8 @@
 
 *Integrated Alerting* lets you know when certain system events occur.
 
-> <b style="color:goldenrod">Caution</b> Integrated Alerting is a [technical preview](../details/glossary.md#technical-preview) and is subject to change.
+!!! caution alert alert-warning "Caution"
+    Integrated Alerting is a [technical preview](../details/glossary.md#technical-preview) and is subject to change.
 
 **To activate *Integrated Alerting***, select *PMM-->PMM Settings-->Advanced Settings*, turn on *Integrated Alerting* and click *Apply changes*.
 
