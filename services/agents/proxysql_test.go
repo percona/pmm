@@ -48,6 +48,7 @@ func TestProxySQLExporterConfig(t *testing.T) {
 			"-collect.mysql_connection_list",
 			"-collect.mysql_connection_pool",
 			"-collect.mysql_status",
+			"-collect.stats_command_counter",
 			"-collect.stats_memory_metrics",
 			"-web.listen-address=:{{ .listen_port }}",
 		},
@@ -83,6 +84,7 @@ func TestProxySQLExporterConfig(t *testing.T) {
 			Args: []string{
 				"-collect.mysql_connection_pool",
 				"-collect.mysql_status",
+				"-collect.stats_command_counter",
 				"-web.listen-address=:{{ .listen_port }}",
 			},
 		}
