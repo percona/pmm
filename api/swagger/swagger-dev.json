@@ -826,23 +826,23 @@
                               "type": "string",
                               "x-order": 60
                             },
-                            "m_plan_total_time": {
+                            "m_plan_total_time_per_sec": {
                               "description": "Min, max, sum and average of plan time.",
                               "type": "number",
                               "format": "float",
                               "x-order": 61
                             },
-                            "m_plan_min_time": {
+                            "m_plan_min_time_per_sec": {
                               "type": "number",
                               "format": "float",
                               "x-order": 62
                             },
-                            "m_plan_max_time": {
+                            "m_plan_max_time_per_sec": {
                               "type": "number",
                               "format": "float",
                               "x-order": 63
                             },
-                            "m_plan_mean_time": {
+                            "m_plan_mean_time_per_sec": {
                               "type": "number",
                               "format": "float",
                               "x-order": 64
@@ -1529,23 +1529,23 @@
                         "type": "string",
                         "x-order": 60
                       },
-                      "m_plan_total_time": {
+                      "m_plan_total_time_per_sec": {
                         "description": "Min, max, sum and average of plan time.",
                         "type": "number",
                         "format": "float",
                         "x-order": 61
                       },
-                      "m_plan_min_time": {
+                      "m_plan_min_time_per_sec": {
                         "type": "number",
                         "format": "float",
                         "x-order": 62
                       },
-                      "m_plan_max_time": {
+                      "m_plan_max_time_per_sec": {
                         "type": "number",
                         "format": "float",
                         "x-order": 63
                       },
-                      "m_plan_mean_time": {
+                      "m_plan_mean_time_per_sec": {
                         "type": "number",
                         "format": "float",
                         "x-order": 64

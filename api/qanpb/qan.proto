@@ -161,10 +161,10 @@ message Point {
   // Bytes of WAL (Write-ahead logging) records.
   string m_wal_bytes = 61;
   // Min, max, sum and average of plan time.
-  float m_plan_total_time = 62;
-  float m_plan_min_time = 63;
-  float m_plan_max_time = 64;
-  float m_plan_mean_time = 65;
+  float m_plan_total_time_per_sec = 62;
+  float m_plan_min_time_per_sec = 63;
+  float m_plan_max_time_per_sec = 64;
+  float m_plan_mean_time_per_sec = 65;
 }
 
 // MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.

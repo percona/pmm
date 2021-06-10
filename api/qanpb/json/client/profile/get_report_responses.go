@@ -895,16 +895,16 @@ type RowsItems0SparklineItems0 struct {
 	MWalBytes string `json:"m_wal_bytes,omitempty"`
 
 	// Min, max, sum and average of plan time.
-	MPlanTotalTime float32 `json:"m_plan_total_time,omitempty"`
+	MPlanTotalTimePerSec float32 `json:"m_plan_total_time_per_sec,omitempty"`
 
-	// m plan min time
-	MPlanMinTime float32 `json:"m_plan_min_time,omitempty"`
+	// m plan min time per sec
+	MPlanMinTimePerSec float32 `json:"m_plan_min_time_per_sec,omitempty"`
 
-	// m plan max time
-	MPlanMaxTime float32 `json:"m_plan_max_time,omitempty"`
+	// m plan max time per sec
+	MPlanMaxTimePerSec float32 `json:"m_plan_max_time_per_sec,omitempty"`
 
-	// m plan mean time
-	MPlanMeanTime float32 `json:"m_plan_mean_time,omitempty"`
+	// m plan mean time per sec
+	MPlanMeanTimePerSec float32 `json:"m_plan_mean_time_per_sec,omitempty"`
 }
 
 // Validate validates this rows items0 sparkline items0
