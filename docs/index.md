@@ -54,18 +54,18 @@ mindmapDiagram {
 !$base = "https://www.percona.com/doc/percona-monitoring-and-management/2.x"
 '!$base = "../2.x"
 '!$base = "."
-+[#lightblue] For Users <<user>>
-++[#goldenrod] For Sys Admins<<admin>>
++[#lightblue] For Users <&person> <<user>>
+++[#goldenrod] For Sys Admins <&star> <<admin>>
 +++_ [[$base/setting-up/ Setting up]]
-+++_ [[$base/how-to/configure.html Configure]]
-+++_ [[$base/how-to/upgrade.html Upgrade]]
-+++_ [[$base/details/commands/ Command-line tools]]
++++_ [[$base/how-to/configure.html How to configure]]
++++_ [[$base/how-to/upgrade.html How to upgrade]]
++++_ [[$base/details/commands/pmm-admin.html ""pmm-admin""]]
 +++_ [[$base/details/architecture.html Architecture]]
 --_ [[$base/using/interface.html User interface]]
---_ [[$base/details/dashboards/ Dashboards]]
---_ [[$base/using/alerting.html Integrated alerting]]
---_ [[$base/using/query-analytics.html Query Analytics]]
---_ [[$base/using/platform/index.html Percona Platform]]
+--_ [[$base/using/query-analytics.html Using Query Analytics]]
+--_ [[$base/using/alerting.html Using Integrated Alerting]]
+--_ [[$base/using/platform/index.html Using Percona Platform]]
+--_ [[$base/details/dashboards/ Dashboards reference]]
 @endmindmap
 ```
 
