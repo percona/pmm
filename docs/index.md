@@ -8,7 +8,7 @@
 
 - Additional features include checking databases for [security threats](using/platform/security-threat-tool.md).
 
-!!! note alert alert-info ""
+!!! alert alert-info ""
     This is for the latest release, **PMM {{release}}** ([Release Notes](release-notes/{{release}}.md)).
 
 Percona Monitoring and Management helps you improve the performance of databases, simplify their management, and strengthen their security. It is efficient, quick to [set up](setting-up/index.md) and easy to use.
