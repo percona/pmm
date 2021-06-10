@@ -32,7 +32,8 @@ On the left are the selector tabs:
     - [Email](#email)
     - [Slack](#slack)
 
-> <b style="color:goldenrod">Important</b> Click *Apply changes* to save any changes made here.
+!!! important alert alert-warning "Important"
+    Click *Apply changes* to save any changes made here.
 
 **Diagnostics**
 
@@ -145,11 +146,13 @@ The address or hostname PMM Server will be accessible at. Click *Get from browse
 
 ### DBaaS
 
-> <b style="color:goldenrod">Caution</b> DBaaS functionality is a technical preview that must be turned on with a server feature flag. See [DBaaS](../setting-up/server/dbaas.md).
+!!! caution alert alert-warning "Caution"
+    DBaaS functionality is a technical preview that must be turned on with a server feature flag. See [DBaaS](../setting-up/server/dbaas.md).
 
 Enables/disables [DBaaS features](../using/platform/dbaas.md) on this server.
 
-> <b style="color:goldenrod">Important</b> Deactivating DBaaS ***does not*** suspend or remove running DB clusters.
+!!! note alert alert-info "Note"
+    Deactivating DBaaS ***does not*** suspend or remove running DB clusters.
 
 
 ### Integrated Alerting
@@ -158,10 +161,10 @@ Enables [Integrated Alerting](../using/alerting.md) and reveals the [Communicati
 
 ### Microsoft Azure Monitoring
 
-> <b style="color:goldenrod">Caution</b> This is a technical preview feature.
+!!! caution alert alert-warning "Caution"
+    This is a technical preview feature.
 
 Activates Microsoft Azure monitoring.
-
 
 ### Public Address
 

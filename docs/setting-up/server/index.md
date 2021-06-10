@@ -30,16 +30,18 @@ When PMM Server is running, set up [PMM Client](../client/index.md) for each nod
 
 ## Single line installer
 
-> <b style="color:goldenrod">Caution</b> This is a [technical preview](../../details/glossary.md#technical-preview) and is subject to change.
+!!! caution alert alert-warning "Caution"
+    This is a [technical preview](../../details/glossary.md#technical-preview) and is subject to change.
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/percona/pmm/PMM-2.0/get-pmm.sh -o get-pmm2.sh ; chmod +x get-pmm2.sh ; ./get-pmm2.sh
 ```
 
-> <b style="color:red">Warning</b> We highly recommend you review `get-pmm2.sh` prior to running on your system, to ensure the content is as expected.
+!!! important alert alert-warning "Important"
+    We highly recommend you review `get-pmm2.sh` prior to running on your system, to ensure the content is as expected.
 
 This command will:
 
-- if Docker is not already installed, install it
-- if there is a PMM Server docker container running, stop it and back it up
-- pull and run the latest PMM Server docker image
+- install Docker if not already installed;
+- if there is a PMM Server docker container running, stop it and back it up;
+- pull and run the latest PMM Server docker image.

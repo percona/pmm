@@ -1,7 +1,7 @@
 # DBaaS
 
-> <b style="color:goldenrod">Caution</b> DBaaS functionality is currently in [technical preview](../../details/glossary.md#technical-preview) and is subject to change.
-
+!!! caution alert alert-warning "Caution"
+    DBaaS functionality is currently in [technical preview](../../details/glossary.md#technical-preview) and is subject to change.
 
 ## Software prerequisites
 
@@ -339,11 +339,9 @@ For example, if you only run `eksctl delete cluster` to delete an Amazon EKS clu
 
 2. In the `dbaas-controller` repository, in the deploy directory there are manifests we use to deploy operators. Use them to delete operators and related resources from the cluster.
 
-	> <b style="color:goldenrod">Important</b>
-	>
-	> - Do NOT execute this step before all database clusters, backups and restores are deleted in the previous step. It may result in not being able to delete the namespace DBaaS lives in.
-	>
-	> - Also be careful with this step if you are running DBaaS in more than one namespace as it deletes cluster level CustomResourceDefinitions needed to run DBaaS. This would break DBaaS in other namespaces. Delete just operators deployments in that case.
+    !!! important alert alert-warning "Important"
+        - Do NOT execute this step before all database clusters, backups and restores are deleted in the previous step. It may result in not being able to delete the namespace DBaaS lives in.
+        - Also be careful with this step if you are running DBaaS in more than one namespace as it deletes cluster level CustomResourceDefinitions needed to run DBaaS. This would break DBaaS in other namespaces. Delete just operators deployments in that case.
 
     ```sh
     # Delete the PXC operator and related resources.
@@ -371,11 +369,9 @@ For example, if you only run `eksctl delete cluster` to delete an Amazon EKS clu
     docker run --detach --name pmm-server --publish 80:80 --publish 443:443 --env ENABLE_DBAAS=1  percona/pmm-server:2;
     ```
 
-	> <b style="color:goldenrod">Important</b>
-	>
-	> - Use `--network minikube` if running PMM Server and minikube in the same Docker instance. This way they will share single network and the kubeconfig will work.
-	>
-	> - Use Docker variables `--env PMM_DEBUG=1 --env PMM_TRACE=1` to see extended debug details.
+    !!! important alert alert-warning "Important"
+        - Use `--network minikube` if running PMM Server and minikube in the same Docker instance. This way they will share single network and the kubeconfig will work.
+        - Use Docker variables `--env PMM_DEBUG=1 --env PMM_TRACE=1` to see extended debug details.
 
 2. Change the default administrator credentials:
 

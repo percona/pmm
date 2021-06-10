@@ -102,7 +102,8 @@ The `AmazonRDSforPMMPolicy` is now added to your IAM user.
 
 Query Analytics requires Configuring Performance Schema as the query source, because the slow query log is stored on the AWS (Amazon Web Services) side, and QAN agent is not able to read it.  Enable the `performance_schema` option under `Parameter Groups` in Amazon RDS.
 
-> <b style="color:goldenrod">Caution</b> Enabling Performance Schema on T2 instances is not recommended because it can easily run the T2 instance out of memory.
+!!! important alert alert-warning "Important"
+    Enabling Performance Schema on T2 instances is not recommended because it can easily run the T2 instance out of memory.
 
 When adding a monitoring instance for Amazon RDS, specify a unique name to distinguish it from the local MySQL instance.  If you do not specify a name, it will use the client’s host name.
 

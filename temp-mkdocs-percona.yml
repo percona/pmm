@@ -1,5 +1,5 @@
 # MkDocs configuration for HTML publishing to percona.com
-INHERIT: mkdocs-base.yml
+INHERIT: temp-mkdocs-base.yml
 
 plugins:
   section-index: {}

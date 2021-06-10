@@ -109,7 +109,8 @@ Decide which database extension to use, and configure your database server for i
 
 We recommend choosing only one of these. **If you use both, you will get duplicate metrics.**
 
-> <b style="color:goldenrod">Important</b> While we recommend use of the newer `pg_stat_monitor` extension, be aware it is currently in beta phase and unsupported.
+!!! important alert alert-warning "Important"
+    While we recommend use of the newer `pg_stat_monitor` extension, be aware it is currently in beta phase and unsupported.
 
 Here are the benefits and drawbacks of each.
 
@@ -179,7 +180,8 @@ You can now [add the service](#add-a-service).
 - PostgreSQL versions 11, 12, 13.
 - Percona Distribution for PostgreSQL versions 11, 12, 13.
 
-> <b style="color:goldenrod">Important</b> `pg_stat_monitor` is currently in beta phase and unsupported.
+!!! important alert alert-warning "Important"
+    `pg_stat_monitor` is currently in beta phase and is unsupported.
 
 **Install**
 

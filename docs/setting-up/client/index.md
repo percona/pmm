@@ -84,11 +84,12 @@ end split
 
 ## Install PMM Client with a package manager {: #package-manager }
 
-> **Tip** If you have used `percona-release` before, disable and re-enable the repository:
-> ```sh
-> percona-release disable all
-> percona-release enable original release
-> ```
+!!! tip alert alert-secondary "Tip"
+    If you have used `percona-release` before, disable and re-enable the repository:
+    ```sh
+    percona-release disable all
+    percona-release enable original release
+    ```
 
 ### Install on Debian-based distributions
 
@@ -305,13 +306,12 @@ The [PMM Client Docker image](https://hub.docker.com/r/percona/pmm-client/tags/)
 
 You can now add services with [`pmm-admin`](../../details/commands/pmm-admin.md) by prefixing commands with `docker exec pmm-client`.
 
-> **Tip**
->
-> - Adjust host firewall and routing rules to allow Docker communications. ([Read more in the FAQ.](../../faq.md#how-do-i-troubleshoot-communication-issues-between-pmm-client-and-pmm-server))
-> - For help:
-> ```sh
-> docker run --rm percona/pmm-client:2 --help
-> ```
+!!! tip alert alert-secondary "Tips"
+    - Adjust host firewall and routing rules to allow Docker communications. ([Read more in the FAQ.](../../faq.md#how-do-i-troubleshoot-communication-issues-between-pmm-client-and-pmm-server))
+    - For help:
+        ```sh
+        docker run --rm percona/pmm-client:2 --help
+        ```
 
 ## Remove PMM Client as a Docker container {: #remove-docker }
 
@@ -373,9 +373,9 @@ You can now add services with [`pmm-admin`](../../details/commands/pmm-admin.md)
       pmm-client-data:
     ```
 
-    > - Check the values in the `environment` section match those for your PMM Server. (`X.X.X.X` is the IP address of your PMM Server.)
-    >
-    > - Use unique hostnames across all PMM Clients (value for `services.pmm-client.hostname`).
+    !!! note alert alert-info ""
+        - Check the values in the `environment` section match those for your PMM Server. (`X.X.X.X` is the IP address of your PMM Server.)
+        - Use unique hostnames across all PMM Clients (value for `services.pmm-client.hostname`).
 
 2. Ensure a writable agent configuration file.
 
@@ -416,7 +416,8 @@ You can now add services with [`pmm-admin`](../../details/commands/pmm-admin.md)
     - In the *Node Names* menu, select the new node
     - Change the time range to see data
 
-> <b style="color:goldenrod">Caution</b> `pmm-agent.yaml` contains sensitive credentials and should not be shared.
+!!! danger alert alert-danger "Danger"
+    `pmm-agent.yaml` contains sensitive credentials and should not be shared.
 
 ## Register node with PMM Server {: #register }
 
@@ -429,7 +430,9 @@ pmm-admin config --server-insecure-tls --server-url=https://admin:admin@X.X.X.X:
 - `X.X.X.X` is the address of your PMM Server.
 - `443` is the default port number.
 - `admin`/`admin` is the default PMM username and password. This is the same account you use to log into the PMM user interface, which you had the option to change when first logging in.
-> **Note** Clients *must* be registered with the PMM Server using a secure channel. If you use http as your server URL, PMM will try to connect via https on port 443. If a TLS connection can't be established you will get an error and you must use https along with the appropriate secure port.
+
+!!! important alert alert-warning "Important"
+    Clients *must* be registered with the PMM Server using a secure channel. If you use http as your server URL, PMM will try to connect via https on port 443. If a TLS connection can't be established you will get an error and you must use https along with the appropriate secure port.
 
 **Examples**
 
@@ -455,8 +458,8 @@ You should continue by adding services according to the service type.
 - [HAProxy](haproxy.md)
 - [Notes on remote instances](remote.md)
 
-> **Note**
-> To change the parameters of a previously-added service, remove the service and re-add it with new parameters.
+!!! note alert alert-info ""
+    To change the parameters of a previously-added service, remove the service and re-add it with new parameters.
 
 ## Remove services from monitoring {: #remove-services }
 

@@ -86,7 +86,8 @@ This menu bar is context sensitive; it changes according to the page you are on.
 
 This menu contains shortcuts to other dashboards. The list changes according to the page you're on.
 
-> <b style="color:goldenrod">Important</b> This menu will be removed in future releases. Its function will be replaced by the {{icon.dashboards}} *PMM Dashboards* main menu entry.
+!!! important alert alert-warning "Important"
+    This menu will be removed in future releases. Its function will be replaced by the {{icon.dashboards}} *PMM Dashboards* main menu entry.
 
 | Item                          | Description                      |
 | ----------------------------- | -------------------------------- |

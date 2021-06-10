@@ -1,7 +1,7 @@
 # DBaaS
 
-> <b style="color:goldenrod">Caution</b> DBaaS functionality is currently in [technical preview](../../details/glossary.md#technical-preview) and is subject to change.
-
+!!! caution alert alert-warning "Caution"
+    DBaaS functionality is currently in [technical preview](../../details/glossary.md#technical-preview) and is subject to change.
 
 The DBaaS dashboard is where you add, remove, and operate on Kubernetes and database clusters.
 
@@ -151,7 +151,8 @@ To monitor a DB cluster, set up a [public address](../../how-to/configure.md#pub
 
     ![!](../../_images/PMM_DBaaS_DB_Cluster_Delete.png)
 
-> <b style="color:goldenrod">Important</b> Deleting a cluster in this way also deletes any attached volumes.
+!!! important alert alert-warning "Important"
+    Deleting a cluster in this way also deletes any attached volumes.
 
 ### Edit a DB Cluster
 
