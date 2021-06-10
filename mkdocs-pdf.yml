@@ -66,7 +66,7 @@ plugins:
         enabled_if_env: ENABLE_PDF_EXPORT
     # Check links - but extends build time significantly
     # https://pypi.org/project/mkdocs-htmlproofer-plugin/
-#    htmlproofer: {}
+    - htmlproofer
 
 extra: # Used in main.html template and can't be externalised
     open_issue_text: '<i class="uil uil-exclamation-triangle"></i> Report a problem
