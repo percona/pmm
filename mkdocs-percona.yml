@@ -26,6 +26,7 @@ extra_javascript:
   - js/toctree.js
   - js/lightgallery.min.js
   - https://cdnjs.cloudflare.com/ajax/libs/tablesort/5.2.1/tablesort.min.js
+  - js/table.number.js
   - js/tables.js
 
 markdown_extensions:

@@ -32,8 +32,6 @@ extra_css:
   - css/lightgallery.min.css
 
 extra_javascript:
-  - js/version-select.js
-  - js/toctree.js
   - js/lightgallery.min.js
   - https://cdnjs.cloudflare.com/ajax/libs/tablesort/5.2.1/tablesort.min.js
   - js/table.number.js
