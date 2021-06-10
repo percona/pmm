@@ -60,19 +60,16 @@ mindmapDiagram {
 +++_ [[$base/how-to/configure.html Configure]]
 +++_ [[$base/how-to/upgrade.html Upgrade]]
 +++_ [[$base/details/commands/ Command-line tools]]
-+++_ [[$base/how-to/secure.html Secure]]
-+++_ [[$base/how-to/optimize.html Optimize]]
 +++_ [[$base/details/architecture.html Architecture]]
 --_ [[$base/using/interface.html User interface]]
---_ [[$base/details/interface.html UI components]]
 --_ [[$base/details/dashboards/ Dashboards]]
---_ [[$base/using/alerting.html Alerting]]
+--_ [[$base/using/alerting.html Integrated alerting]]
 --_ [[$base/using/query-analytics.html Query Analytics]]
 --_ [[$base/using/platform/index.html Percona Platform]]
 @endmindmap
 ```
 
-??? note "Full section map (click to show/hide)"
+??? note alert alert-info "Full section map (click to show/hide)"
 
     ```plantuml format="svg_object" width="100%" height="100%"
     @startwbs ""
