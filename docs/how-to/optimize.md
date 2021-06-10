@@ -4,9 +4,9 @@
 
 If a MySQL instance has a lot of schemas or tables, there are two options to help improve the performance of PMM when adding instances with `pmm-admin add`: `--disable-tablestats` and `--disable-tablestats-limit`.
 
-> - These settings can only be used when adding an instance. To change them, you must remove and re-add the instances.
->
-> - You can only use one of these options when adding an instance.
+!!! important alert alert-success "Important"
+    - These settings can only be used when adding an instance. To change them, you must remove and re-add the instances.
+    - You can only use one of these options when adding an instance.
 
 ## Disable per-table statistics for an instance
 

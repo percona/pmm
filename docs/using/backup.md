@@ -14,7 +14,7 @@
 - There is a `mysql` system group.
 - MySQL is using the `/var/lib/mysql` directory for database storage.
 - Backup management has been enabled:
-    1. Navigate to *{{icon.cog}} Configuration-->Settings-->Advanced Settings*.
+    1. Select *{{icon.cog}} Configuration-->{{icon.setting}} Settings-->Advanced Settings*.
     2. Activate *Backup Management*.
     3. Click *Apply changes*.
     4. In the left menu bar, click *{{icon.history}}-->Backup*.
@@ -52,7 +52,8 @@
 
 ## Creating a backup {: #backup-create }
 
-> You must add a [backup storage location](#backup-location) before backing up.
+!!! tip alert alert-success "Tip"
+    You must add a [backup storage location](#backup-location) before backing up.
 
 1. Navigate to *Backup Management-->Backup Inventory*.
 
@@ -71,10 +72,10 @@
 
 5. In the *Backup Inventory* pane, watch the *Status* column.
 
-
 ## Restoring a backup {: #backup-restore }
 
-> For this release, you can only restore a backup to the same service. I.e. a MySQL backup of service `mymsql-service-1` can only be restored to a MySQL database server registered with the same service name. Future releases will give more flexibility to restore backups to other service types.
+!!! note alert alert-primary ""
+    For this release, you can only restore a backup to the same service. I.e. a MySQL backup of service `mymsql-service-1` can only be restored to a MySQL database server registered with the same service name. Future releases will give more flexibility to restore backups to other service types.
 
 1. Navigate to *Backup Management-->Backup Inventory*
 

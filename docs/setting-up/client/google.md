@@ -38,15 +38,15 @@ The connection can be direct, or indirect using [Cloud SQL Proxy][GOOGLE_CLOUD_S
 
 3. Configure `pg_stat_statements`. Open an interactive SQL session with your GCP PostgreSQL server and run:
 
-	```sql
-	CREATE EXTENSION pg_stat_statements;
-	```
+    ```sql
+    CREATE EXTENSION pg_stat_statements;
+    ```
 
 4. Log into the PMM user interface.
 
-5. Select *PMM --> PMM Add Instance*
+5. Select *{{icon.cog}} Configuration-->{{icon.inventory}} PMM Inventory-->{{icon.addinstance}} Add Instance*.
 
-6. Select *PostgreSQL Add a remote instance*
+6. Select *PostgreSQL Add a remote instance*.
 
 7. Fill in the details for the remote PostgreSQL instance:
 

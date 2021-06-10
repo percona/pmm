@@ -12,7 +12,8 @@ To see which security features are enabled:
 pmm-admin status
 ```
 
-> **Tip** You can gain an extra level of security by keeping PMM Server isolated from the internet, if possible.
+!!! tip alert alert-success "Tip"
+    You can gain an extra level of security by keeping PMM Server isolated from the internet, if possible.
 
 ## SSL encryption
 
@@ -35,11 +36,10 @@ docker run -d -p 443:443 --volumes-from pmm-data \
   --restart always percona/pmm-server:2
 ```
 
-> - The certificates must be owned by root. You can do this with: `chown 0:0 /etc/pmm-certs/*`
->
-> - The mounted certificate directory (`/etc/pmm-certs` in this example) must contain the files `certificate.crt`, `certificate.key`, `ca-certs.pem` and `dhparam.pem`.
->
-> - For SSL encryption, the container must publish on port 443 instead of 80.
+!!! note alert alert-primary ""
+    - The certificates must be owned by root. You can do this with: `chown 0:0 /etc/pmm-certs/*`
+    - The mounted certificate directory (`/etc/pmm-certs` in this example) must contain the files `certificate.crt`, `certificate.key`, `ca-certs.pem` and `dhparam.pem`.
+    - For SSL encryption, the container must publish on port 443 instead of 80.
 
 ### Copying certificates
 

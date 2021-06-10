@@ -34,14 +34,17 @@ We maintain a [Docker image for PMM Server][DOCKERHUB]. This section shows how t
     --volumes-from pmm-data --name pmm-server \
     percona/pmm-server:2
     ```
-    > Optionally you can enable http (insecure) by including `--publish 80:80` in the above docker run command however note that PMM Client *requires* TLS to communication with the server so will only work on the secure port.
+
+    !!! note alert alert-primary "Note"
+        Optionally you can enable http (insecure) by including `--publish 80:80` in the above docker run command however note that PMM Client *requires* TLS to communication with the server so will only work on the secure port.
 
     You can disable manual updates via the Home Dashboard *PMM Upgrade* panel by adding `-e DISABLE_UPDATES=true` to the `docker run` command.
 
 
 4. In a web browser, visit *https://server-hostname*:443 (or *http://server-hostname*:80 if optionally enabled) to see the PMM user interface.
 
-    > PRO Tip: Eliminate browser certificate warnings by configuring a [trusted certificate](https://www.percona.com/doc/percona-monitoring-and-management/2.x/how-to/secure.html#ssl-encryption)
+    !!! tip alert alert-success "Tip"
+        Eliminate browser certificate warnings by configuring a [trusted certificate](https://www.percona.com/doc/percona-monitoring-and-management/2.x/how-to/secure.html#ssl-encryption)
 
 ### Docker environment variables
 
@@ -89,11 +92,12 @@ You can test a new release of the PMM Server Docker image by making backups of y
     docker exec -it pmm-server curl -u admin:admin https://localhost/v1/version
     ```
 
-	> **Tip:** Use `jq` to extract the quoted string value.
-	> ```sh
-	> apt install jq # Example for Debian, Ubuntu
-	> docker exec -it pmm-server curl -u admin:admin https://localhost/v1/version | jq .version
-	> ```
+    !!! tip alert alert-success "Tip"
+        Use `jq` to extract the quoted string value.
+        ```sh
+        apt install jq # Example for Debian, Ubuntu
+        docker exec -it pmm-server curl -u admin:admin https://localhost/v1/version | jq .version
+        ```
 
 2. Check the container mount points are the same (`/srv`).
 
@@ -164,7 +168,7 @@ You can test a new release of the PMM Server Docker image by making backups of y
     docker run --rm --volumes-from pmm-data -it percona/pmm-server:2 chown -R postgres:postgres /srv/logs/postgresql.log
     ```
 
-4. Start (don’t run) the image.
+4. Start the image.
 
     ```sh
     docker start pmm-server
@@ -172,7 +176,8 @@ You can test a new release of the PMM Server Docker image by making backups of y
 
 ## Running PMM Server with Docker compose {: #docker-compose }
 
-> With this approach, data is stored in a volume, not in a `pmm-data` container.
+!!! important alert alert-success "Important"
+    With this approach, data is stored in a volume, not in a `pmm-data` container.
 
 1. Copy and paste this text into a file called `docker-compose.yml`.
 
@@ -205,7 +210,8 @@ You can test a new release of the PMM Server Docker image by making backups of y
 
 3. Access PMM Server on <https://X.X.X.X:443> where `X.X.X.X` is the IP address of the PMM Server host.
 
-> **See also** [Run PMM Client with Docker compose][PMMC_COMPOSE]
+!!! seealso alert alert-info "See also"
+    [Run PMM Client with Docker compose][PMMC_COMPOSE]
 
 ## Removing PMM Server
 

@@ -1,6 +1,7 @@
 # Upgrade
 
-> Upgrade PMM Server before upgrading PMM Clients.
+!!! important alert alert-success "Important"
+    Upgrade PMM Server before upgrading PMM Clients.
 
 ## Updating a Server
 

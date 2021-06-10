@@ -28,13 +28,11 @@ The main menu is part of the Grafana framework and is visible on every page.
 | {{icon.checks}}     | PMM Database Checks  |
 | {{icon.database}}   | DBaaS                |
 
-[Folders]: https://grafana.com/docs/grafana/latest/dashboards/dashboard_folders/
-[PromQL]: https://grafana.com/blog/2020/02/04/introduction-to-promql-the-prometheus-query-language/
-[BACKUP]: ../how-to/backup.md
 
-> The DBaaS icon appears only if a server feature flag has been set.
->
-> The Backup Management icon appears when *Backup Management* is activated in *PMM Settings-->Advanced Settings*.
+!!! tip alert alert-success "Tip"
+    The DBaaS icon appears only if a server feature flag has been set.
+
+    The Backup Management icon appears when *Backup Management* is activated in *{{icon.cog}} Configuration-->{{icon.setting}} Settings-->Advanced Settings*.
 
 | Icon (Bottom)            | Description          |
 |:------------------------:| ---------            |
@@ -86,7 +84,7 @@ This menu bar is context sensitive; it changes according to the page you are on.
 
 This menu contains shortcuts to other dashboards. The list changes according to the page you're on.
 
-!!! important alert alert-warning "Important"
+!!! note alert alert-primary ""
     This menu will be removed in future releases. Its function will be replaced by the {{icon.dashboards}} *PMM Dashboards* main menu entry.
 
 | Item                          | Description                      |
@@ -99,7 +97,8 @@ This menu contains shortcuts to other dashboards. The list changes according to 
 | {{icon.bars}} Services        | Services menu                    |
 | {{icon.bars}} PMM             | PMM menu                         |
 
-> The *Compare* menu links to the Instances Overview dashboard for the current service type.
+!!! tip alert alert-success "Tip"
+    The *Compare* menu links to the Instances Overview dashboard for the current service type.
 
 ##### Services menu
 
@@ -124,3 +123,8 @@ This item lists shortcuts to utility pages.
 |                | PMM Database Checks             |
 |                | PMM Inventory                   |
 |                | PMM Settings                    |
+
+
+[Folders]: https://grafana.com/docs/grafana/latest/dashboards/dashboard_folders/
+[PromQL]: https://grafana.com/blog/2020/02/04/introduction-to-promql-the-prometheus-query-language/
+[BACKUP]: ../using/backup.md

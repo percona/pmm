@@ -84,7 +84,7 @@ end split
 
 ## Install PMM Client with a package manager {: #package-manager }
 
-!!! tip alert alert-secondary "Tip"
+!!! tip alert alert-success "Tip"
     If you have used `percona-release` before, disable and re-enable the repository:
     ```sh
     percona-release disable all
@@ -306,7 +306,7 @@ The [PMM Client Docker image](https://hub.docker.com/r/percona/pmm-client/tags/)
 
 You can now add services with [`pmm-admin`](../../details/commands/pmm-admin.md) by prefixing commands with `docker exec pmm-client`.
 
-!!! tip alert alert-secondary "Tips"
+!!! tip alert alert-success "Tips"
     - Adjust host firewall and routing rules to allow Docker communications. ([Read more in the FAQ.](../../faq.md#how-do-i-troubleshoot-communication-issues-between-pmm-client-and-pmm-server))
     - For help:
         ```sh
@@ -470,13 +470,10 @@ One of next types has to be set: mysql, mongodb, postgresql, proxysql, haproxy, 
 pmm-admin remove <service-type> <service-name>
 ```
 
-> **See also**
->
-> - [Percona release][PERCONA_RELEASE]
->
-> - [PMM Client architecture](../../details/architecture.md#pmm-client)
->
-> - [Thanks to https://gist.github.com/paskal for Docker compose files][PASKAL]
+!!! seealso alert alert-info "See also"
+    - [Percona release]
+    - [PMM Client architecture](../../details/architecture.md#pmm-client)
+    - [Thanks to https://gist.github.com/paskal for original Docker compose files][PASKAL]
 
 
 [GETDOCKER]: https://docs.docker.com/get-docker/
@@ -490,7 +487,7 @@ pmm-admin remove <service-type> <service-name>
 [DOWNLOAD_UBUNTU_18]: https://www.percona.com/downloads/pmm2/{{release}}/binary/debian/bionic/
 [DOWNLOAD_UBUNTU_20]: https://www.percona.com/downloads/pmm2/{{release}}/binary/debian/focal/
 [DOWNLOAD_LINUX_GENERIC]: https://downloads.percona.com/downloads/pmm2/{{release}}/binary/tarball/pmm2-client-{{release}}.tar.gz
-[PERCONA_RELEASE]: https://www.percona.com/doc/percona-repo-config/percona-release.html
+[Percona release]: https://www.percona.com/doc/percona-repo-config/percona-release.html
 [PERCONA_TOOLS]: https://www.percona.com/services/policies/percona-software-support-lifecycle#pt
 [PASKAL]: https://gist.github.com/paskal/48f10a0a584f4849be6b0889ede9262b
 [PMMS_COMPOSE]: ../server/docker.md#docker-compose

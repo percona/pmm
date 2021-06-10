@@ -1,11 +1,19 @@
 # Integrated Alerting
 
-*Integrated Alerting* lets you know when certain system events occur.
-
 !!! caution alert alert-warning "Caution"
     Integrated Alerting is a [technical preview](../details/glossary.md#technical-preview) and is subject to change.
 
-**To activate *Integrated Alerting***, select *PMM-->PMM Settings-->Advanced Settings*, turn on *Integrated Alerting* and click *Apply changes*.
+*Integrated Alerting* lets you know when certain system events occur.
+
+**To activate *Integrated Alerting***, select *{{icon.cog}} Configuration-->{{icon.setting}} Settings-->Advanced Settings*, turn on *Integrated Alerting* and click *Apply changes*.
+
+This short (3:36) video shows how to activate and configure Integrated Alerting.
+
+<video width="100%" controls>
+  <source src="../_images/Integrated-Alerting.mp4" type="video/mp4">
+  Your browser does not support playing this video.
+</video>
+
 
 <!-- incomplete flow diagram
 ```plantuml
@@ -43,17 +51,19 @@ stop
 - Alerts are generated when their criteria (*alert rules*) are met; an *alert* is the result of an *alert rule* expression evaluating to *true*.
 - Alert rules are based on *alert rule templates*. We provide a default set of templates. You can also create your own.
 
-> PMM's *Integrated Alerting* is a customized and separate instance of the Prometheus Alertmanager, and distinct from Grafana's alerting functionality.
+!!! note alert alert-primary ""
+    PMM's *Integrated Alerting* is a customized and separate instance of the Prometheus Alertmanager, and distinct from Grafana's alerting functionality.
 
 ## Prerequisites
 
-Set up a communication channel: When the *Communication* tab appears, select it. Enter details for *Email* or *Slack*. ([Read more](../how-to/configure.md#advanced-settings))
+Set up a communication channel: When the *Communication* tab appears, select it. Enter details for *Email* or *Slack*. ([Read more.](../how-to/configure.md#advanced-settings))
 
 ## Open the *Integrated Alerting* page
 
-- From the left menu, select {{ icon.bell }} *Alerting*, {{ icon.listul }} *Integrated Alerting*
+- From the left menu, select *{{icon.bell}} Alerting-->{{icon.listul}} Integrated Alerting*
 
-> The *Alerting* menu also lists {{ icon.listul }} *Alert Rules* and {{ icon.commentshare }} *Notification Channels*. These are for Grafana's alerting functionality.
+!!! note alert alert-primary ""
+    The *Alerting* menu also lists {{ icon.listul }} *Alert Rules* and {{ icon.commentshare }} *Notification Channels*. These are for Grafana's alerting functionality.
 
 This page has four tabs.
 
@@ -159,30 +169,21 @@ This page has four tabs.
 
     ![!](../_images/PMM_Integrated_Alerting_Alert_Rule_Templates_Add_Form.jpg)
 
-    > **Alert Rule Template parameters**
-    >
-    > The parameters used in the template follow a format and might include different fields depending on their `type`:
-    >
-    > - `name` (required): the name of the parameter. Spaces and special characters not allowed.
-    > - `summary` (required): a short description of what this parameter represents.
-    > - `type` (required): PMM currently supports the `float` type. (More will be available in the future, such as `string` or `bool`.)
-    > - `unit` (optional): PMM currently supports either `s` (seconds) or `%` (percentage).
-    > - `value` (optional): the parameter value itself.
-    > - `range` (optional): only for `float` parameters, defining the boundaries for the value.
-    >
-    > **Restrictions**
-    >
-    > - Value strings must not include any of these special characters: `<` `>` `!` `@` `#` `$` `%` `^` `&` `*` `(` `)` `_` `/` `\` `'` `+` `-` `=` ` ` (space)
-    > - Any variables must be predefined.
+    !!! note alert alert-primary ""
+        **Alert Rule Template parameters**
+
+        The parameters used in the template follow a format and might include different fields depending on their `type`:
+
+        - `name` (required): the name of the parameter. Spaces and special characters not allowed.
+        - `summary` (required): a short description of what this parameter represents.
+        - `type` (required): PMM currently supports the `float` type. (More will be available in the future, such as `string` or `bool`.)
+        - `unit` (optional): PMM currently supports either `s` (seconds) or `%` (percentage).
+        - `value` (optional): the parameter value itself.
+        - `range` (optional): only for `float` parameters, defining the boundaries for the value.
+
+        **Restrictions**
+
+        - Value strings must not include any of these special characters: `<` `>` `!` `@` `#` `$` `%` `^` `&` `*` `(` `)` `_` `/` `\` `'` `+` `-` `=` ` ` (space)
+        - Any variables must be predefined.
 
 4. Click *Add* to add the alert rule template, or *Cancel* to abort the operation.
-
-
-## Video
-
-This short (3:36) video shows how to activate and configure Integrated Alerting.
-
-<video width="100%" controls>
-  <source src="../_images/Integrated-Alerting.mp4" type="video/mp4">
-  Your browser does not support playing this video.
-</video>

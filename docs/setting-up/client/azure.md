@@ -10,7 +10,6 @@ Second, add a firewall rule to enable access from PMM Client like this:
 
 ![!image](../../_images/azure-firewall.png)
 
-
 ## Setting up a MySQL instance
 
 Query Analytics requires you to configure *Performance Schema* as the query source, because the slow query log is stored on the Azure side, and QAN agent is not able to read it.  Enable the `performance_schema` option under `Parameter Groups` in Azure MySQL databases.
@@ -88,7 +87,8 @@ You can find more details on how to create DB on Azure at:
 - <https://docs.microsoft.com/en-us/azure/postgresql/>
 - <https://docs.microsoft.com/en-us/azure/mysql/>
 
-> You will need to set `pg_stat_statements.track = all` in you PostgreSQL Server settings to use PMM Query Analytics
+!!! tip alert alert-success "Tip"
+    You must set `pg_stat_statements.track = all` in your PostgreSQL Server settings to use PMM Query Analytics. ([Read more.](postgresql.md#pg_stat_statements))
 
 ![!](../../_images/PMM_Add_Instance_Azure_3.png)
 

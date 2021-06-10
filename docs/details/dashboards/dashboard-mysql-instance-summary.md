@@ -153,7 +153,8 @@ The recommended settings for most environments is to set:
 - `query_cache_type=0`
 - `query_cache_size=0`
 
-> While you can dynamically change these values, to completely remove the contention point you have to restart the database.
+!!! tip alert alert-success "Tip"
+    While you can dynamically change these values, to completely remove the contention point you have to restart the database.
 
 ## MySQL Query Cache Activity
 
@@ -168,7 +169,8 @@ The recommended settings for most environments is to set:
 - `query_cache_type=0`
 - `query_cache_size=0`
 
-> While you can dynamically change these values, to completely remove the contention point you have to restart the database.
+!!! tip alert alert-success "Tip"
+    While you can dynamically change these values, to completely remove the contention point you have to restart the database.
 
 ## MySQL Table Open Cache Status
 

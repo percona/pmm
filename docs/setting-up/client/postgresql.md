@@ -109,7 +109,7 @@ Decide which database extension to use, and configure your database server for i
 
 We recommend choosing only one of these. **If you use both, you will get duplicate metrics.**
 
-!!! important alert alert-warning "Important"
+!!! caution alert alert-warning "Caution"
     While we recommend use of the newer `pg_stat_monitor` extension, be aware it is currently in beta phase and unsupported.
 
 Here are the benefits and drawbacks of each.
@@ -120,21 +120,20 @@ Here are the benefits and drawbacks of each.
 | `pg_stat_monitor`      | Builds on `pg_stat_monitor` features                                             | Beta software
 |                        | Bucket-based aggregation                                                         |
 
-> **About *bucket-based data aggregation***
->
-> `pg_stat_monitor` collects statistics and aggregates data in a data collection unit called a *bucket*. These are linked together to form a *bucket chain*.
->
-> You can specify:
->
-> - the number of buckets (the length of the chain)
-> - how much space is available for all buckets
-> - a time limit for each bucket's data collection (the *bucket expiry*)
->
-> When a bucket's expiration time is reached, accumulated statistics are reset and data is stored in the next available bucket in > the chain.
->
-> When all buckets in the chain have been used, the first bucket is reused and its contents are overwritten.
->
-> If a bucket fills before its expiration time is reached, data is discarded.
+!!! note alert alert-primary "Bucket-based data aggregation"
+    `pg_stat_monitor` collects statistics and aggregates data in a data collection unit called a *bucket*. These are linked together to form a *bucket chain*.
+
+    You can specify:
+
+    - the number of buckets (the length of the chain);
+    - how much space is available for all buckets;
+    - a time limit for each bucket's data collection (the *bucket expiry*).
+
+    When a bucket's expiration time is reached, accumulated statistics are reset and data is stored in the next available bucket in the chain.
+
+    When all buckets in the chain have been used, the first bucket is reused and its contents are overwritten.
+
+    If a bucket fills before its expiration time is reached, data is discarded.
 
 ### `pg_stat_statements`
 
@@ -175,13 +174,13 @@ You can now [add the service](#add-a-service).
 
 ### `pg_stat_monitor`
 
+!!! caution alert alert-warning "Caution"
+    `pg_stat_monitor` is currently in beta phase and is unsupported.
+
 `pg_stat_monitor` has been tested with:
 
 - PostgreSQL versions 11, 12, 13.
 - Percona Distribution for PostgreSQL versions 11, 12, 13.
-
-!!! important alert alert-warning "Important"
-    `pg_stat_monitor` is currently in beta phase and is unsupported.
 
 **Install**
 
@@ -203,11 +202,12 @@ You can now [add the service](#add-a-service).
 
     You can get a list of available settings with `SELECT * FROM pg_stat_monitor_settings;`.
 
-    > See [`pg_stat_monitor` GitHub repository](https://github.com/percona/pg_stat_monitor/blob/master/docs/USER_GUIDE.md#configuration) for details about available parameters.
+    !!! note alert alert-primary ""
+        See [`pg_stat_monitor` GitHub repository](https://github.com/percona/pg_stat_monitor/blob/master/docs/USER_GUIDE.md#configuration) for details about available parameters.
 
 3. Set bucket time to 60 seconds
 
-    ```
+    ```sql
     ALTER SYSTEM SET pg_stat_monitor.pgsm_bucket_time=60;
     ```
 
@@ -290,9 +290,6 @@ where:
 - `--tls`: Use TLS to connect to the database.
 - `--tls-skip-verify`: Skip TLS certificates validation.
 
-
-> See [pmm-admin man page]
-
 ## Check the service
 
 **Check service - PMM user interface**
@@ -309,15 +306,17 @@ Look for your service in the output of this command.
 pmm-admin inventory list services
 ```
 
-> If using Docker, use `docker exec pmm-client pmm-admin inventory list services`
+!!! tip alert alert-success ""
+    If using Docker, use `docker exec pmm-client pmm-admin inventory list services`
 
 **Check data**
 
 1. Open the *PostgreSQL Instance Summary* dashboard.
 2. Set the *Service Name* to the newly-added service.
 
-> See also
-> - [Configuring Percona Repositories with percona-release][PERCONA_RELEASE]
+!!! seealso alert alert-info "See also"
+    - [`pmm-admin` man page for `pmm-admin add postgresql`](../../details/commands/pmm-admin.md#postgresql)
+    - [Configuring Percona Repositories with percona-release][PERCONA_RELEASE]
 
 [POSTGRESQL]: https://www.postgresql.org/
 [POSTGRESQL_VERSIONING]: https://www.postgresql.org/support/versioning/

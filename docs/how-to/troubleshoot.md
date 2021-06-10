@@ -14,7 +14,8 @@ If PMM server wasn't updated properly, or if you have concerns about the release
 
     Replace `admin:admin` with your username/password, and replace `PMM_SERVER` with your server address.
 
-    > You will not see the logs using this method.
+    !!! note alert alert-primary ""
+        You will not see the logs using this method.
 
 Refresh The Home page in 2-5 min and you should see that PMM was updated.
 
@@ -28,10 +29,16 @@ Logs obtained in this way includes PMM Client logs and logs which were received 
 
 Beginning with PMM version 2.4.0, there is an additional flag that enables the fetching of [`pprof`](https://github.com/google/pprof) debug profiles and adds them to the diagnostics data. To enable, run `pmm-admin summary --pprof`.
 
-You can get PMM Server logs in two ways:
+You can get PMM Server logs with either of these methods:
 
-- In a browser, visit `https://<address-of-your-pmm-server>/logs.zip`.
-- Go to *PMM > PMM Settings* and click *Download server diagnostics*. (See [Diagnostics in PMM Settings](configure.md#diagnostics).)
+**Direct download**
+
+In a browser, visit `https://<address-of-your-pmm-server>/logs.zip`.
+
+**From Settings page**
+
+1. Select *{{icon.cog}} Configuration-->{{icon.setting}} Settings*.
+2. Click *Download server diagnostics*. (See [Diagnostics in PMM Settings](configure.md#diagnostics).)
 
 
 ## Connection difficulties
@@ -65,41 +72,38 @@ You are not logged in as a privileged user. You need either Admin or Editor role
 
 Integrated Alerting isn't activated.
 
-1. Go to PMM --> PMM Settings --> Advanced Settings
-2. Enable Integrated Alerting
+1. Go to *{{icon.cog}} Configuration-->{{icon.setting}} Settings-->Advanced Settings*.
+2. Enable *Integrated Alerting*.
 
 ### Unreachable external IP addresses
 
-> When I get an email or page from my system the IP is not reachable from outside my organization how do I fix this?
-
-You can configure your PMM Server’s Public Address by navigating to PMM --> PMM Settings --> Advanced Settings, and supply an address to use in your alert notifications.
+!!! tip alert alert-success "When I get an email or page from my system the IP is not reachable from outside my organization how do I fix this?"
+    To configure your PMM Server’s Public Address, Select *{{icon.cog}} Configuration-->{{icon.setting}} Settings-->Advanced Settings*, and supply an address to use in your alert notifications.
 
 ### What is 'Alertmanager integration'?
 
-> There’s already an Alertmanager integration tab without me turning it on, I know because I was using your existing Alertmanager integration.
-
-This will continue to work but will be renamed *External Alertmanager*.
+!!! tip alert alert-success "There’s already an Alertmanager integration tab without me turning it on, I know because I was using your existing Alertmanager integration."
+    This will continue to work but will be renamed *External Alertmanager*.
 
 ### Notification channels not working
 
-> I tried to setup a Slack/Email channel but nothing happened
+!!! tip alert alert-success "I tried to setup a Slack/Email channel but nothing happened."
+    Before you can use a notification channel you must provide your connection details.
 
-Before you can use a notification channel you must provide your connection details.
+    1. Go to PMM --> PMM Settings--> Communication
+    2. Define your SMTP server or Slack incoming webhook URL
 
-1. Go to PMM --> PMM Settings--> Communication
-2. Define your SMTP server or Slack incoming webhook URL
-
-For PagerDuty you can configure in the notification channel tab of Integrated Alerting by supplying your server/routing key.
+    For PagerDuty you can configure in the notification channel tab of Integrated Alerting by supplying your server/routing key.
 
 ### What's the difference: Username/Password vs Identity/Secret
 
-> In configuring my email server I’m being asked for a Username and Password as well as Identity and Secret. What is the difference between these and which do I use or do I need both?
+!!! tip alert alert-success "In configuring my email server I’m being asked for a Username and Password as well as Identity and Secret. What is the difference between these and which do I use or do I need both?"
 
-It depends on what kind of authentication your system uses:
+    It depends on what kind of authentication your system uses:
 
-- LOGIN: Use Username/Password
-- PLAIN: Use either Username or Identity and Password
-- CRAM-MD5: Use Username and Secret
+    - LOGIN: Use Username/Password
+    - PLAIN: Use either Username or Identity and Password
+    - CRAM-MD5: Use Username and Secret
 
 ### Alert Rule Templates is disabled
 
@@ -111,25 +115,19 @@ If you create a custom alert rule template you will have access to edit.
 
 ### Creating rules
 
-> I’m ready to create my first rule!  I’ve chosen a template and given it a name...what is the format of the fields?
+!!! tip alert alert-success "I’m ready to create my first rule!  I’ve chosen a template and given it a name...what is the format of the fields?"
 
-- Threshold - float value, it has different meanings depending on what template is used
-
-- Duration - The duration the condition must be satisfied in seconds
-
-- Filters - A Key, Evaluator, and Value. E.g. `service_name=ps5.7`
-
-	- Key must be an exact match. You can find a complete list of keys by using the {{icon.compass }}*Explore* main menu item in PMM
-
-	- Evaluator can be any of: `=`, `=~`
-
-	- Value is an exact match or when used with a ‘fuzzy’ evaluator (=~) can be a regular expression. E.g. `service_name=~ps.*`
+    - Threshold - float value, it has different meanings depending on what template is used
+    - Duration - The duration the condition must be satisfied in seconds
+    - Filters - A Key, Evaluator, and Value. E.g. `service_name=ps5.7`
+        - Key must be an exact match. You can find a complete list of keys by using the {{icon.compass }}*Explore* main menu item in PMM
+        - Evaluator can be any of: `=`, `=~`
+        - Value is an exact match or when used with a ‘fuzzy’ evaluator (=~) can be a regular expression. E.g. `service_name=~ps.*`
 
 ### Variables in Templates
 
-> The concept of “template” implies things like variable substitutions...where can I use these? Where can I find a complete list of them?
-
-Here is a guide to creating templates for Alertmanager: <https://prometheus.io/docs/prometheus/latest/configuration/template_examples/>
+!!! tip alert alert-success "The concept of *template* implies things like variable substitutions...where can I use these? Where can I find a complete list of them?"
+    Here is a guide to creating templates for Alertmanager: <https://prometheus.io/docs/prometheus/latest/configuration/template_examples/>
 
 
 

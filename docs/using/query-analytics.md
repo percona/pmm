@@ -17,7 +17,8 @@ The dashboard contains three panels:
 - [Overview Panel](#overview-panel)
 - [Details Panel](#details-panel)
 
-> Query Analytics data retrieval is not instantaneous and can be delayed due to network conditions. In such situations *no data* is reported and a gap appears in the sparkline.
+!!! note alert alert-primary ""
+    Query Analytics data retrieval is not instantaneous and can be delayed due to network conditions. In such situations *no data* is reported and a gap appears in the sparkline.
 
 ## Filters Panel
 

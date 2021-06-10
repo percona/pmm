@@ -4,7 +4,8 @@ PMM Client collects metrics from [MongoDB][MONGODB] and [Percona Server for Mong
 
 This page shows you how to set up PMM to monitor a MongoDB database instance.
 
-> We recommend you read it in full before doing anything.
+!!! tip alert alert-success ""
+    We recommend you read it in full before doing anything.
 
 Here is an overview of the steps involved.
 
@@ -50,7 +51,8 @@ We recommend using a dedicated account to connect PMM Client to the monitored da
 
 This example creates a new custom role with the privileges needed by the Query Analyzer, and adds a database user with that role plus the built-in "clusterMonitor" role.
 
-> Values for username (`user`) and password (`pwd`) are examples. Replace them before using this code.
+!!! caution alert alert-warning ""
+    Values for username (`user`) and password (`pwd`) are examples. Replace them before using this code.
 
 Run this in a `mongo` session.
 
@@ -95,7 +97,8 @@ You can set profiling:
 - when starting MongoDB, by passing arguments to `mongod` on the command line;
 - until the next database instance restart, by running a command in a `mongo` session.
 
-> Profiling is turned off by default as it can adversely affect the performance of the database server.
+!!! note alert alert-primary ""
+    Profiling is turned off by default as it can adversely affect the performance of the database server.
 
 ### Set profiling in the configuration file
 
@@ -110,7 +113,8 @@ You can set profiling:
       rateLimit: 100
     ```
 
-    > This is a [YAML](http://yaml.org/spec/) file. Indentation is important.
+    !!! important alert alert-success "Important"
+        This is a [YAML](http://yaml.org/spec/) file. Indentation matters.
 
 3. Restart the `mongod` service. (Example for `systemd`.)
 
@@ -129,7 +133,8 @@ mongod --dbpath=DATABASEDIR --profile 2 --slowms 200 --rateLimit 100
 - `--slowms`: An operation is classified as *slow* if it runs for longer than this number of milliseconds.
 - `--rateLimit`: (Only available with Percona Server for MongoDB.) The sample rate of profiled queries. A value of `100` means sample every 100th fast query. ([Read more][PSMDB_RATELIMIT].)
 
-    > Smaller values improve accuracy but can adversly affect the performance of your server.
+    !!! caution alert alert-warning "Caution"
+        Smaller values improve accuracy but can adversly affect the performance of your server.
 
 ### Set profiling in a `mongo` session
 
@@ -140,7 +145,8 @@ use admin
 db.setProfilingLevel(2)
 ```
 
-> If you have already [added a service](#add-service), you should remove it and re-add it after changing the profiling level.
+!!! note alert alert-primary ""
+    If you have already [added a service](#add-service), you should remove it and re-add it after changing the profiling level.
 
 ## Add service
 
@@ -191,7 +197,6 @@ pmm-admin add mongodb \
 pmm-admin add mongodb --socket=/tmp/mongodb-27017.sock
 ```
 
-
 **Example -- connecting via SSL/TLS**
 
 ```sh
@@ -207,17 +212,9 @@ where:
 - `IFPASSWORDTOCERTISSET`: Password for TLS certificate file.
 - `PATHTOCACERT`: Path to certificate authority file.
 
-> **See also**
->
-> - [`pmm-admin` man page for `pmm-admin add mongodb`](../../details/commands/pmm-admin.md#mongodb)
->
-> - [Troubleshooting connection difficulties][TROUBLESHOOTING_CONNECTION]
-
-## Tips
-
-- When adding nodes of a sharded cluster, add each node separately using the `--cluster mycluster` option for the MongoDB Cluster Summary dashboard to populate correctly.
-
-- Atlas doesn't support direct connections. When connecting to an Atlas instance, use the `pmm-admin` option `--direct-connection=false`. (Doing so will prevent replicaset status from working and the MongoDB Overview dashboard widget will show invalid values.)
+!!! tip alert alert-success "Tips"
+    - When adding nodes of a sharded cluster, add each node separately using the `--cluster mycluster` option for the MongoDB Cluster Summary dashboard to populate correctly.
+    - Atlas doesn't support direct connections. When connecting to an Atlas instance, use the `pmm-admin` option `--direct-connection=false`. (Doing so will prevent replicaset status from working and the MongoDB Overview dashboard widget will show invalid values.)
 
 ## Check the service
 
@@ -247,7 +244,6 @@ pmm-admin inventory list services --service-type=mongodb
     1. Under *Service Name*, select your service.
     2. Under *Service Type* select *mongodb*.
 
-
 ## Remove service
 
 ### With the user interface
@@ -266,6 +262,11 @@ pmm-admin remove mongodb SERVICE_NAME
 ```
 
 - `SERVICE_NAME`: The name the service was added as. (Find it with `pmm-admin list`.)
+
+
+!!! seealso alert alert-info "See also"
+    - [`pmm-admin` man page for `pmm-admin add mongodb`](../../details/commands/pmm-admin.md#mongodb)
+    - [Troubleshooting connection difficulties][TROUBLESHOOTING_CONNECTION]
 
 
 [MONGODB]: https://www.mongodb.com/

@@ -2,7 +2,7 @@
 
 The *Settings* page is where you configure PMM.
 
-Open the *Settings* page from the [main menu](../details/interface.md#main-menu) with {{icon.cog}} *Configuration-->Settings*. The page opens with the *Metrics Resolution* settings tab selected.
+Open the *Settings* page from the [main menu](../details/interface.md#main-menu) with *{{icon.cog}} Configuration-->{{icon.setting}} Settings*. The page opens with the *Metrics Resolution* settings tab selected.
 
 ![!image](../_images/PMM_Settings_Metrics_Resolution.jpg)
 
@@ -32,7 +32,7 @@ On the left are the selector tabs:
     - [Email](#email)
     - [Slack](#slack)
 
-!!! important alert alert-warning "Important"
+!!! tip alert alert-success "Tip"
     Click *Apply changes* to save any changes made here.
 
 **Diagnostics**
@@ -49,11 +49,11 @@ The *Metrics Resolution* settings tab contains a radio button with three fixed p
 
 Each preset is a group of low, medium and high resolutions. The values are in seconds.
 
-> Short time intervals are *high* resolution metrics. Longer time intervals are *low* resolution. So:
->
-> - A low resolution interval *increases* the time between collection, resulting in low-resolution metrics and lower disk usage.
->
-> - A high resolution interval *decreases* the time between collection, resulting in high-resolution metrics and higher disk usage.
+!!! note alert alert-primary "Time intervals and resolutions"
+    Short time intervals are *high* resolution metrics. Longer time intervals are *low* resolution. So:
+
+    - A low resolution interval *increases* the time between collection, resulting in low-resolution metrics and lower disk usage.
+    - A high resolution interval *decreases* the time between collection, resulting in high-resolution metrics and higher disk usage.
 
 The default values (in seconds) for the fixed presets and their resolution names are:
 
@@ -66,7 +66,8 @@ The default values (in seconds) for the fixed presets and their resolution names
 
 Values for the *Custom* preset can be entered as values, or changed with the arrows.
 
-> If there is poor network connectivity between PMM Server and PMM Client, or between PMM Client and the database server it is monitoring, scraping every second may not be possible when the network latency is greater than 1 second.
+!!! note alert alert-primary ""
+    If there is poor network connectivity between PMM Server and PMM Client, or between PMM Client and the database server it is monitoring, scraping every second may not be possible when the network latency is greater than 1 second.
 
 ## Advanced Settings
 
@@ -102,9 +103,9 @@ Grafana’s [anonymous usage statistics](https://grafana.com/docs/grafana/latest
 
 As well as via the *PMM Settings* page, you can also disable telemetry with the `-e DISABLE_TELEMETRY=1` option in your docker run statement for the PMM Server.
 
-> - If the Security Threat Tool is enabled in PMM Settings, Telemetry is automatically enabled.
->
-> - Telemetry is sent immediately; the 24 hour grace period is not honored.
+!!! note alert alert-primary ""
+    - If the Security Threat Tool is enabled in PMM Settings, Telemetry is automatically enabled.
+    - Telemetry is sent immediately; the 24 hour grace period is not honored.
 
 ### Check for updates
 
@@ -114,7 +115,8 @@ When active, PMM will automatically check for updates and put a notification in 
 
 The [Security Threat Tool](../using/platform/security-threat-tool.md) performs a range of security-related checks on a registered instance and reports the findings. It is off by default.
 
-> To see the results of checks, select {{icon.checks}} *PMM Database Checks* to open the *Security Checks/Failed Checks* dashboard, and select the *Failed Checks* tab.
+!!! tip alert alert-success "Tip"
+    To see the results of checks, select *{{icon.checks}} Security Checks* to open the *Security Checks/Failed Checks* dashboard, and select the *Failed Checks* tab.
 
 Checks are re-fetched and re-run at intervals. There are three named intervals:
 
@@ -124,7 +126,8 @@ Checks are re-fetched and re-run at intervals. There are three named intervals:
 | *Standard interval* (default) | 24             |
 | *Frequent interval*           | 4              |
 
-> The values for each named interval are fixed.
+!!! note alert alert-primary ""
+    The values for each named interval are fixed.
 
 Checks use the *Standard* interval by default. To change a check's interval:
 
@@ -151,9 +154,8 @@ The address or hostname PMM Server will be accessible at. Click *Get from browse
 
 Enables/disables [DBaaS features](../using/platform/dbaas.md) on this server.
 
-!!! note alert alert-info "Note"
+!!! important alert alert-success "Important"
     Deactivating DBaaS ***does not*** suspend or remove running DB clusters.
-
 
 ### Integrated Alerting
 
@@ -217,7 +219,8 @@ To create a *Percona Platform* account:
 
 A brief message will confirm the creation of your new account and you may now log in with these credentials.
 
-> Your Percona Platform account is separate from your PMM User account.
+!!! note alert alert-primary ""
+    Your Percona Platform account is separate from your PMM User account.
 
 ### Password Reset
 
@@ -245,7 +248,8 @@ Click on *Change Password*. If everything goes well, you will see a confirmation
 
 Global communications settings for [Integrated Alerting](../using/alerting.md).
 
-> If there is no *Communication* tab, go to the *Advanced Settings* tab and activate *Integrated Alerting*.
+!!! tip alert alert-success "Tip"
+    If there is no *Communication* tab, go to the *Advanced Settings* tab and activate *Integrated Alerting*.
 
 ![!](../_images/PMM_Settings_Communication.jpg)
 
@@ -274,6 +278,5 @@ Settings for Slack notifications:
 
 - *URL*: The Slack webhook URL to use for Slack notifications.
 
-> **See also**
->
-> [Prometheus Alertmanager configuration](https://prometheus.io/docs/alerting/latest/configuration/)
+!!! seealso alert alert-info "See also"
+    [Prometheus Alertmanager configuration](https://prometheus.io/docs/alerting/latest/configuration/)

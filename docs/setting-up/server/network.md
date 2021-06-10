@@ -24,7 +24,7 @@ PMM Server    | 7773          | out           | Debugging
 `vm-agent`    | 8428          | both          | VictoriaMetrics port
 `pmm-agent`   | 42000 - 51999 | in            | Default range for `pmm-agent` connected agents
 
-!!! important alert alert-warning "Important"
+!!! important alert alert-success "Important"
     Depending on your architecture other ports may also need to be exposed.
     - For `pmm-agent`, the default listen port is 7777.
     - The default range for agents ports can be changed with the flag `--ports-min` and  `--ports-max`, or in the configuration file.

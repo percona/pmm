@@ -77,7 +77,8 @@ At the top of each panel and to the right of the panel name is the *panel menu*.
 
 ![!image](../_images/PMM_Common_Panel_Menu.jpg)
 
-> **Tip** The menu is hidden until you mouse over it. Look for the {{icon.angledown}} symbol in the title bar of a panel.
+!!! tip alert alert-success "Tip"
+    The menu is hidden until you mouse over it. Look for the {{icon.angledown}} symbol in the title bar of a panel.
 
 | Item                          | Description                                                                         |
 |:-----------------------------:| ----------------------------------------------------------------------------------- |
@@ -93,8 +94,6 @@ The *View* menu items opens panels in full-window mode. This is useful for graph
 
 Exit a panel's full window mode by pressing *Escape* or clicking the left arrow {{icon.arrowleft}} next to the dashboard name.
 
-> **See also**
->
-> - [How to render dashboard images](../how-to/render-dashboard-images.md)
->
-> - [How to annotate special events](../how-to/annotate.md)
+!!! seealso alert alert-info "See also"
+    - [How to render dashboard images](../how-to/render-dashboard-images.md)
+    - [How to annotate special events](../how-to/annotate.md)

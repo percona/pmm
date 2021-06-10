@@ -2,6 +2,10 @@
 
 ![!image](../../_images/PMM_MySQL_InnoDB_Details.jpg)
 
+
+!!! tip alert alert-success "Tip"
+    If metrics are missing, try running: `SET GLOBAL innodb_monitor_enable=all;` in the MySQL client.
+
 ## InnoDB Activity
 
 ### Writes (Rows)
@@ -59,8 +63,6 @@ This graph allows you to see which operations occur and the number of rows affec
 ### InnoDB Transactions Information (RW)
 
 The InnoDB Transactions Information graph shows details about the recent transactions.  Transaction IDs Assigned represents the total number of transactions initiated by InnoDB.  RW Transaction Commits are the number of transactions not read-only. Insert-Update Transactions Commits are transactions on the Undo entries.  Non Locking RO Transaction Commits are transactions commit from select statement in auto-commit mode or transactions explicitly started with "start transaction read only".
-
-> If you do not see any metric, try running: `SET GLOBAL innodb_monitor_enable=all;` in the MySQL client.
 
 ### Misc InnoDB Transactions Information
 
@@ -156,7 +158,8 @@ If Enabled, By Default every Table will have its own Tablespace represented as i
 
 ### Data Written Per Row Written
 
-> Due to difference in timing of Row Write and Data Write the value may be misleading on short intervals.
+!!! note alert alert-primary ""
+    Due to difference in timing of Row Write and Data Write the value may be misleading on short intervals.
 
 ### InnoDB Data I/O
 
@@ -650,8 +653,6 @@ The Delay Injected due to Purge Thread(s) unable to keep up with purge progress.
 
 The InnoDB Purge Performance graph shows metrics about the page purging process.  The purge process removed the undo entries from the history list and cleanup the pages of the old versions of modified rows and effectively remove deleted rows.
 
-> If you do not see any metric, try running: `SET GLOBAL innodb_monitor_enable=all;` in the MySQL client.
-
 ### Transactions and Undo Records
 
 
@@ -659,8 +660,6 @@ The InnoDB Purge Performance graph shows metrics about the page purging process.
 ### InnoDB Undo Space Usage
 
 The InnoDB Undo Space Usage graph shows the amount of space used by the Undo segment.  If the amount of space grows too much, look for long running transactions holding read views opened in the InnoDB status.
-
-> If you do not see any metric, try running: `SET GLOBAL innodb_monitor_enable=all;` in the MySQL client.
 
 ### Transaction History
 
@@ -704,8 +703,6 @@ Number of Undo Slots Used.
 
 The InnoDB Page Splits graph shows the InnoDB page maintenance activity related to splitting and merging pages.  When an InnoDB page, other than the top most leaf page, has too much data to accept a row update or a row insert, it has to be split in two.  Similarly, if an InnoDB page, after a row update or delete operation, ends up being less than half full, an attempt is made to merge the page with a neighbor page. If the resulting page size is larger than the InnoDB page size, the operation fails.  If your workload causes a large number of page splits, try lowering the `innodb_fill_factor` variable (5.7+).
 
-> If you do not see any metric, try running: `SET GLOBAL innodb_monitor_enable=all;` in the MySQL client.
-
 ### Page Merge Success Ratio
 
 
@@ -714,13 +711,9 @@ The InnoDB Page Splits graph shows the InnoDB page maintenance activity related 
 
 The InnoDB Page Reorgs graph shows information about the page reorganization operations.  When a page receives an  update or an insert that affect the offset of other rows in the page, a reorganization is needed.  If the reorganization process finds out there is not enough room in the page, the page will be split. Page reorganization can only fail for compressed pages.
 
-> If you do not see any metric, try running: `SET GLOBAL innodb_monitor_enable=all;` in the MySQL client.
-
 ### InnoDB Page Reorgs Failures
 
 The InnoDB Page Reorgs graph shows information about the page reorganization operations.  When a page receives an  update or an insert that affect the offset of other rows in the page, a reorganization is needed.  If the reorganization process finds out there is not enough room in the page, the page will be split. Page reorganization can only fail for compressed pages.
-
-> If you do not see any metric, try running: `SET GLOBAL innodb_monitor_enable=all;` in the MySQL client.
 
 ### InnoDB Fill Factor
 
@@ -755,8 +748,6 @@ How Many Successful Searches using AHI are performed per each row maintenance op
 ### InnoDB AHI Usage
 
 The InnoDB AHI Usage graph shows the search operations on the InnoDB adaptive hash index and its efficiency.  The adaptive hash index is a search hash designed to speed access to InnoDB pages in memory.  If the Hit Ratio is small, the working data set is larger than the buffer pool, the AHI should likely be disabled.
-
-> If you do not see any metric, try running: `SET GLOBAL innodb_monitor_enable=all;` in the MySQL client.
 
 ### InnoDB AHI Miss Ratio
 
@@ -822,13 +813,9 @@ Number of low level operations InnoDB can do after it entered InnoDB kernel befo
 
 The InnoDB Contention - OS Waits graph shows the number of time an OS wait operation was required while waiting to get the lock.  This happens once the spin rounds are exhausted.
 
-> If you do not see any metric, try running: `SET GLOBAL innodb_monitor_enable=all;` in the MySQL client.
-
 ### InnoDB Contention - Spin Rounds
 
 The InnoDB Contention - Spin Rounds graph shows the number of spin rounds executed to get a lock.  A spin round is a fast retry to get the lock in a loop.
-
-> If you do not see any metric, try running: `SET GLOBAL innodb_monitor_enable=all;` in the MySQL client.
 
 ## InnoDB Misc
 
@@ -836,13 +823,9 @@ The InnoDB Contention - Spin Rounds graph shows the number of spin rounds execut
 
 The InnoDB Main Thread Utilization graph shows the portion of time the InnoDB main thread spent at various task.
 
-> If you do not see any metric, try running: `SET GLOBAL innodb_monitor_enable=all;` in the MySQL client.
-
 ### InnoDB Activity
 
 The InnoDB Activity graph shows a measure of the activity of the InnoDB threads.
-
-> If you do not see any metric, try running: `SET GLOBAL innodb_monitor_enable=all;` in the MySQL client.
 
 ### InnoDB Dedicated Server
 
@@ -882,13 +865,15 @@ Number of Pages To Sample if Persistent Statistics are Disabled.
 
 The InnoDB Defragmentation graph shows the status information related to the InnoDB online defragmentation feature of MariaDB for the optimize table command.  To enable this feature, the variable `innodb-defragment` must be set to 1 in the configuration file.
 
-> Currently available only on a MariaDB server.
+!!! note alert alert-primary ""
+    Currently available only on a MariaDB server.
 
 ### InnoDB Online DDL
 
 The InnoDB Online DDL graph shows the state of the online DDL (alter table) operations in InnoDB.  The progress metric is estimate of the percentage of the rows processed by the online DDL.
 
-> Currently available only on a MariaDB server.
+!!! note alert alert-primary ""
+    Currently available only on a MariaDB server.
 
 ## MySQL Summary
 
@@ -979,7 +964,9 @@ RAM (Random Access Memory) is the hardware in a computing device where the opera
 ### Memory Available
 
 Percent of Memory Available
-> on Modern Linux Kernels amount of Memory Available for application is not the same as Free+Cached+Buffers.
+
+!!! note alert alert-primary ""
+    On Modern Linux Kernels amount of Memory Available for application is not the same as Free+Cached+Buffers.
 
 ### Virtual Memory
 
@@ -989,7 +976,8 @@ RAM + SWAP
 
 Sum of disk space on all partitions.
 
-> It can be significantly over-reported in some installations.
+!!! note alert alert-primary ""
+    It can be significantly over-reported in some installations.
 
 ### Min Space Available
 
