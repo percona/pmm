@@ -394,10 +394,12 @@ func makeBuckets(agentID string, res event.Result, periodStart time.Time, period
 			continue
 		}
 
+		fingerprint, isTruncated := truncate.Query(v.Fingerprint)
 		mb := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Queryid:              v.Id,
-				Fingerprint:          v.Fingerprint,
+				Fingerprint:          fingerprint,
+				IsTruncated:          isTruncated,
 				Database:             "",
 				Schema:               v.Db,
 				Username:             v.User,

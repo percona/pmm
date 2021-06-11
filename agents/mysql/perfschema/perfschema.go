@@ -353,11 +353,13 @@ func makeBuckets(current, prev map[string]*eventsStatementsSummaryByDigest, l *l
 		}
 
 		count := inc(currentESS.CountStar, prevESS.CountStar)
+		fingerprint, isTruncated := truncate.Query(*currentESS.DigestText)
 		mb := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Schema:                 pointer.GetString(currentESS.SchemaName), // TODO can it be NULL?
 				Queryid:                *currentESS.Digest,
-				Fingerprint:            *currentESS.DigestText,
+				Fingerprint:            fingerprint,
+				IsTruncated:            isTruncated,
 				NumQueries:             count,
 				NumQueriesWithErrors:   inc(currentESS.SumErrors, prevESS.SumErrors),
 				NumQueriesWithWarnings: inc(currentESS.SumWarnings, prevESS.SumWarnings),
