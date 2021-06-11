@@ -143,7 +143,8 @@ The *Examples* tab shows an example of the selected query’s fingerprint or tab
 
 ![!image](../_images/PMM_Query_Analytics_Tabs_Examples.jpg)
 
-*Note: query example and fingerprint can be truncated to 1024 long to reduce space usage. In this case,  the query explains section will not work.*
+!!! note alert alert-primary ""
+    Query example and fingerprint can be truncated to 1024 long to reduce space usage. In this case, the query explains section will not work.
 
 ### Explain Tab
 

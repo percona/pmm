@@ -131,8 +131,8 @@ If you create a custom alert rule template you will have access to edit.
 
 ### Missing data
 
-#### Why don't I see the whole query?
-To reduce space usage, long query examples and fingerprints can be truncated to 1024 symbols. In this case,  the query explains section will not work.
+!!! tip alert alert-success "Why don't I see the whole query?"
+    To reduce space usage, long query examples and fingerprints can be truncated to 1024 symbols. In this case, the query explains section will not work.
 
 
 [ENCODE_URI]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent
