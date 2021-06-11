@@ -85,7 +85,7 @@ wget https://www.percona.com/downloads/pmm2/{{release}}/ova/pmm-server-{{release
 shasum -ca 256 pmm-server-{{release}}.sha256sum
 ```
 
-## PMM Server as a virtual appliance on VMware Workstation Player {: #vmware }
+## VMware Workstation Player {: #vmware }
 
 ### Import
 
@@ -162,7 +162,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
     pmm-server.vmx nogui
     ```
 
-## PMM Server as a virtual appliance on Oracle VM VirtualBox {: #virtualbox }
+## Oracle VM VirtualBox {: #virtualbox }
 
 ### Import
 
