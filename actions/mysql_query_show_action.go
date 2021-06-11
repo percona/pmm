@@ -20,7 +20,6 @@ import (
 
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
-	"github.com/prometheus/common/log"
 
 	"github.com/percona/pmm-agent/tlshelpers"
 )
@@ -32,13 +31,6 @@ type mysqlQueryShowAction struct {
 
 // NewMySQLQueryShowAction creates MySQL SHOW query Action.
 func NewMySQLQueryShowAction(id string, params *agentpb.StartActionRequest_MySQLQueryShowParams) Action {
-	if params.TlsFiles != nil && params.TlsFiles.Files != nil {
-		err := tlshelpers.RegisterMySQLCerts(params.TlsFiles.Files, params.TlsSkipVerify)
-		if err != nil {
-			log.Error(err)
-		}
-	}
-
 	return &mysqlQueryShowAction{
 		id:     id,
 		params: params,
@@ -57,11 +49,12 @@ func (a *mysqlQueryShowAction) Type() string {
 
 // Run runs an Action and returns output and error.
 func (a *mysqlQueryShowAction) Run(ctx context.Context) ([]byte, error) {
-	db, err := mysqlOpen(a.params.Dsn)
+	db, err := mysqlOpen(a.params.Dsn, a.params.TlsFiles)
 	if err != nil {
 		return nil, err
 	}
 	defer db.Close() //nolint:errcheck
+	defer tlshelpers.DeregisterMySQLCerts()
 
 	// use prepared statement to force binary protocol usage that returns correct types
 	stmt, err := db.PrepareContext(ctx, "SHOW /* pmm-agent */ "+a.params.Query) //nolint:gosec

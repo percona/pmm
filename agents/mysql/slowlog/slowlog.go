@@ -78,8 +78,8 @@ type slowLogInfo struct {
 
 // New creates new SlowLog QAN service.
 func New(params *Params, l *logrus.Entry) (*SlowLog, error) {
-	if params.TextFiles != nil && params.TextFiles.Files != nil {
-		err := tlshelpers.RegisterMySQLCerts(params.TextFiles.Files, params.TLSSkipVerify)
+	if params.TextFiles != nil {
+		err := tlshelpers.RegisterMySQLCerts(params.TextFiles.Files)
 		if err != nil {
 			return nil, err
 		}

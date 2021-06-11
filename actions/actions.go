@@ -22,7 +22,10 @@ import (
 	"encoding/json"
 
 	"github.com/go-sql-driver/mysql"
+	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
+
+	"github.com/percona/pmm-agent/tlshelpers"
 )
 
 //go-sumtype:decl Action
@@ -105,7 +108,14 @@ func jsonRows(columns []string, dataRows [][]interface{}) ([]byte, error) {
 }
 
 // mysqlOpen returns *sql.DB for given MySQL DSN.
-func mysqlOpen(dsn string) (*sql.DB, error) {
+func mysqlOpen(dsn string, tlsFiles *agentpb.TextFiles) (*sql.DB, error) {
+	if tlsFiles != nil {
+		err := tlshelpers.RegisterMySQLCerts(tlsFiles.Files)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	cfg, err := mysql.ParseDSN(dsn)
 	if err != nil {
 		return nil, errors.WithStack(err)

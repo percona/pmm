@@ -94,8 +94,8 @@ func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn strin
 	var res agentpb.CheckConnectionResponse
 	var err error
 
-	if files != nil && files.Files != nil {
-		err = tlshelpers.RegisterMySQLCerts(files.Files, tlsSkipVerify)
+	if files != nil {
+		err = tlshelpers.RegisterMySQLCerts(files.Files)
 		if err != nil {
 			cc.l.Debugf("checkMySQLConnection: failed to register cert: %s", err)
 			res.Error = err.Error()
@@ -103,18 +103,17 @@ func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn strin
 		}
 	}
 
-	tempdir := filepath.Join(cc.paths.TempDir, strings.ToLower("check-mysql-connection"), strconv.Itoa(int(id)))
-	_, err = templates.RenderDSN(dsn, files, tempdir)
+	cfg, err := mysql.ParseDSN(dsn)
 	if err != nil {
-		cc.l.Debugf("checkMySQLDBConnection: failed to Render DSN: %s", err)
+		cc.l.Debugf("checkMySQLConnection: failed to parse DSN: %s", err)
 		res.Error = err.Error()
 		return &res
 	}
 
-	var cfg *mysql.Config
-	cfg, err = mysql.ParseDSN(dsn)
+	tempdir := filepath.Join(cc.paths.TempDir, strings.ToLower("check-mysql-connection"), strconv.Itoa(int(id)))
+	_, err = templates.RenderDSN(dsn, files, tempdir)
 	if err != nil {
-		cc.l.Debugf("checkMySQLConnection: failed to parse DSN: %s", err)
+		cc.l.Debugf("checkMySQLDBConnection: failed to Render DSN: %s", err)
 		res.Error = err.Error()
 		return &res
 	}

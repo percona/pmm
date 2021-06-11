@@ -25,14 +25,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/AlekSi/pointer"
-	_ "github.com/go-sql-driver/mysql" // register SQL driver
+	"github.com/AlekSi/pointer" // register SQL driver
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/utils/sqlmetrics"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
-	"gopkg.in/reform.v1/dialects/mysql"
+	mysqlDialects "gopkg.in/reform.v1/dialects/mysql"
 
 	"github.com/percona/pmm-agent/agents"
 	"github.com/percona/pmm-agent/tlshelpers"
@@ -107,8 +106,8 @@ const queryTag = "pmm-agent:perfschema"
 
 // New creates new PerfSchema QAN service.
 func New(params *Params, l *logrus.Entry) (*PerfSchema, error) {
-	if params.TextFiles != nil && params.TextFiles.Files != nil {
-		err := tlshelpers.RegisterMySQLCerts(params.TextFiles.Files, params.TLSSkipVerify)
+	if params.TextFiles != nil {
+		err := tlshelpers.RegisterMySQLCerts(params.TextFiles.Files)
 		if err != nil {
 			return nil, err
 		}
@@ -123,7 +122,7 @@ func New(params *Params, l *logrus.Entry) (*PerfSchema, error) {
 	sqlDB.SetConnMaxLifetime(0)
 	reformL := sqlmetrics.NewReform("mysql", params.AgentID, l.Tracef)
 	// TODO register reformL metrics https://jira.percona.com/browse/PMM-4087
-	q := reform.NewDB(sqlDB, mysql.Dialect, reformL).WithTag(queryTag)
+	q := reform.NewDB(sqlDB, mysqlDialects.Dialect, reformL).WithTag(queryTag)
 
 	newParams := &newPerfSchemaParams{
 		Querier:              q,
