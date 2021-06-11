@@ -1216,6 +1216,21 @@
                   "type": "boolean",
                   "x-order": 4
                 },
+                "tls_ca": {
+                  "description": "TLS CA certificate.",
+                  "type": "string",
+                  "x-order": 10
+                },
+                "tls_cert": {
+                  "description": "TLS Certifcate.",
+                  "type": "string",
+                  "x-order": 11
+                },
+                "tls_key": {
+                  "description": "TLS Certificate Key.",
+                  "type": "string",
+                  "x-order": 12
+                },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                   "type": "boolean",
@@ -2269,6 +2284,21 @@
                   "type": "boolean",
                   "x-order": 4
                 },
+                "tls_ca": {
+                  "description": "TLS CA certificate.",
+                  "type": "string",
+                  "x-order": 9
+                },
+                "tls_cert": {
+                  "description": "TLS Certifcate.",
+                  "type": "string",
+                  "x-order": 10
+                },
+                "tls_key": {
+                  "description": "TLS Certificate Key.",
+                  "type": "string",
+                  "x-order": 11
+                },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",
                   "type": "boolean",
@@ -2451,6 +2481,21 @@
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
                   "x-order": 4
+                },
+                "tls_ca": {
+                  "description": "TLS CA certificate.",
+                  "type": "string",
+                  "x-order": 8
+                },
+                "tls_cert": {
+                  "description": "TLS Certifcate.",
+                  "type": "string",
+                  "x-order": 9
+                },
+                "tls_key": {
+                  "description": "TLS Certificate Key.",
+                  "type": "string",
+                  "x-order": 10
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",
@@ -9989,31 +10034,6 @@
                   "description": "Access unix socket.\nAddress (and port) or socket is required.",
                   "type": "string",
                   "x-order": 4
-                },
-                "tls": {
-                  "type": "boolean",
-                  "title": "TLS enabled",
-                  "x-order": 9
-                },
-                "tls_ca": {
-                  "description": "TLS CA certificate.",
-                  "type": "string",
-                  "x-order": 11
-                },
-                "tls_cert": {
-                  "description": "TLS Certifcate.",
-                  "type": "string",
-                  "x-order": 12
-                },
-                "tls_key": {
-                  "description": "TLS Certificate Key.",
-                  "type": "string",
-                  "x-order": 13
-                },
-                "tls_skip_verify": {
-                  "type": "boolean",
-                  "title": "Skip TLS certificates validation",
-                  "x-order": 10
                 }
               }
             }

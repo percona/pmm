@@ -760,6 +760,12 @@ message AddPostgresExporterRequest {
   bool push_metrics = 9;
   // List of collector names to disable in this exporter.
   repeated string disable_collectors = 10;
+  // TLS CA certificate.
+  string tls_ca = 11;
+  // TLS Certifcate.
+  string tls_cert = 12;
+  // TLS Certificate Key.
+  string tls_key = 13;
 }
 
 message AddPostgresExporterResponse {
@@ -1035,6 +1041,12 @@ message AddQANPostgreSQLPgStatementsAgentRequest {
   map<string, string> custom_labels = 7;
   // Skip connection check.
   bool skip_connection_check = 8;
+  // TLS CA certificate.
+  string tls_ca = 9;
+  // TLS Certifcate.
+  string tls_cert = 10;
+  // TLS Certificate Key.
+  string tls_key = 11;
 }
 
 message AddQANPostgreSQLPgStatementsAgentResponse {
@@ -1087,6 +1099,12 @@ message AddQANPostgreSQLPgStatMonitorAgentRequest {
   map<string, string> custom_labels = 8;
   // Skip connection check.
   bool skip_connection_check = 9;
+  // TLS CA certificate.
+  string tls_ca = 10;
+  // TLS Certifcate.
+  string tls_cert = 11;
+  // TLS Certificate Key.
+  string tls_key = 12;
 }
 
 message AddQANPostgreSQLPgStatMonitorAgentResponse {

@@ -314,16 +314,6 @@ message AddPostgreSQLServiceRequest {
   string replication_set = 7;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 8;
-  // TLS enabled
-  bool tls = 10;
-  // Skip TLS certificates validation
-  bool tls_skip_verify = 11;
-  // TLS CA certificate.
-  string tls_ca = 12;
-  // TLS Certifcate.
-  string tls_cert = 13;
-  // TLS Certificate Key.
-  string tls_key = 14;
 }
 
 message AddPostgreSQLServiceResponse {

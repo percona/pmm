@@ -151,21 +151,6 @@ type AddPostgreSQLServiceBody struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// TLS enabled
-	TLS bool `json:"tls,omitempty"`
-
-	// Skip TLS certificates validation
-	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
-
-	// TLS CA certificate.
-	TLSCa string `json:"tls_ca,omitempty"`
-
-	// TLS Certifcate.
-	TLSCert string `json:"tls_cert,omitempty"`
-
-	// TLS Certificate Key.
-	TLSKey string `json:"tls_key,omitempty"`
 }
 
 // Validate validates this add postgre SQL service body
