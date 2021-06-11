@@ -355,16 +355,17 @@ message MetricsBucket {
   float m_wal_fpi_cnt = 239;
   // Bytes of WAL (Write-ahead logging) records.
   string m_wal_bytes = 240;
-  // Min, max, sum and average of plan time.
+  // Sum, min, max of plan time.
   float m_plan_total_time = 241;
   float m_plan_min_time = 242;
   float m_plan_max_time = 243;
   float m_plan_mean_time = 244;
   // Metrics skipped due to different bucket_time in pg_stat_monitor (1min in PMM, 5min in pg_stat_monitor):
   // min_time, max_time, mean_time
+  // plan_mean_time
   // stddev_time
   // Other metrics skipped (empty values, codes):
-  // application_name, cmd_type, cmd_type_text, elevel, sqlcode, message, state_code, state, wal_bytes
+  // application_name, cmd_type, cmd_type_text, elevel, sqlcode, message, state_code, state
 
 }
 

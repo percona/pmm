@@ -726,7 +726,7 @@ type SparklineItems0 struct {
 	// Bytes of WAL (Write-ahead logging) records.
 	MWalBytes string `json:"m_wal_bytes,omitempty"`
 
-	// Min, max, sum and average of plan time.
+	// Sum, min, max of plan time.
 	MPlanTotalTimePerSec float32 `json:"m_plan_total_time_per_sec,omitempty"`
 
 	// m plan min time per sec
@@ -734,9 +734,6 @@ type SparklineItems0 struct {
 
 	// m plan max time per sec
 	MPlanMaxTimePerSec float32 `json:"m_plan_max_time_per_sec,omitempty"`
-
-	// m plan mean time per sec
-	MPlanMeanTimePerSec float32 `json:"m_plan_mean_time_per_sec,omitempty"`
 }
 
 // Validate validates this sparkline items0

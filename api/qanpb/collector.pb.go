@@ -397,7 +397,7 @@ type MetricsBucket struct {
 	MWalFpiCnt float32 `protobuf:"fixed32,239,opt,name=m_wal_fpi_cnt,json=mWalFpiCnt,proto3" json:"m_wal_fpi_cnt,omitempty"`
 	// Bytes of WAL (Write-ahead logging) records.
 	MWalBytes string `protobuf:"bytes,240,opt,name=m_wal_bytes,json=mWalBytes,proto3" json:"m_wal_bytes,omitempty"`
-	// Min, max, sum and average of plan time.
+	// Sum, min, max of plan time.
 	MPlanTotalTime float32 `protobuf:"fixed32,241,opt,name=m_plan_total_time,json=mPlanTotalTime,proto3" json:"m_plan_total_time,omitempty"`
 	MPlanMinTime   float32 `protobuf:"fixed32,242,opt,name=m_plan_min_time,json=mPlanMinTime,proto3" json:"m_plan_min_time,omitempty"`
 	MPlanMaxTime   float32 `protobuf:"fixed32,243,opt,name=m_plan_max_time,json=mPlanMaxTime,proto3" json:"m_plan_max_time,omitempty"`
