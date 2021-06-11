@@ -84,6 +84,9 @@ var sparklinePointAllFields = []string{
 	"m_blk_write_time_sum_per_sec",
 	"m_cpu_user_time_sum_per_sec",
 	"m_cpu_sys_time_sum_per_sec",
+	"m_plans_calls_sum_per_sec",
+	"m_wal_records_sum_per_sec",
+	"m_wal_fpi_sum_per_sec",
 }
 
 func getPointFieldsList(point *qanpb.Point, fields []string) []interface{} {
@@ -145,6 +148,9 @@ func getPointFieldsList(point *qanpb.Point, fields []string) []interface{} {
 		"m_blk_write_time_sum_per_sec":         &point.MBlkWriteTimeSumPerSec,
 		"m_cpu_user_time_sum_per_sec":          &point.MCpuUserTimeSumPerSec,
 		"m_cpu_sys_time_sum_per_sec":           &point.MCpuSysTimeSumPerSec,
+		"m_plans_calls_sum_per_sec":            &point.MPlansCallsSumPerSec,
+		"m_wal_records_sum_per_sec":            &point.MWalRecordsSumPerSec,
+		"m_wal_fpi_sum_per_sec":                &point.MWalFpiSumPerSec,
 	}
 
 	sparklinePointValuesList := []interface{}{}
@@ -324,6 +330,12 @@ func isValidMetricColumn(name string) bool {
 		"m_cpu_sys_time_cnt":           {},
 		"m_cpu_user_time_sum":          {},
 		"m_cpu_sys_time_sum":           {},
+		"m_plans_calls_cnt":            {},
+		"m_plans_calls_sum":            {},
+		"m_wal_records_cnt":            {},
+		"m_wal_records_sum":            {},
+		"m_wal_fpi_cnt":                {},
+		"m_wal_fpi_sum":                {},
 	}
 	_, isValid := fields[name]
 	return isValid
