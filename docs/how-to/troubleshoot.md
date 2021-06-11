@@ -129,7 +129,10 @@ If you create a custom alert rule template you will have access to edit.
 !!! tip alert alert-success "The concept of *template* implies things like variable substitutions...where can I use these? Where can I find a complete list of them?"
     Here is a guide to creating templates for Alertmanager: <https://prometheus.io/docs/prometheus/latest/configuration/template_examples/>
 
+### Missing data
 
+#### Why don't I see the whole query?
+To reduce space usage, long query examples and fingerprints can be truncated to 1024 symbols. In this case,  the query explains section will not work.
 
 
 [ENCODE_URI]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent
