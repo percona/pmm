@@ -272,10 +272,7 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 				sum   *float32 // MetricsBucket.XXXSum field to write value
 				cnt   *float32 // MetricsBucket.XXXCnt field to write count
 			}{
-				// convert milliseconds to seconds
-				{float32(currentPSM.TotalTime-prevPSM.TotalTime) / 1000, &mb.Common.MQueryTimeSum, &mb.Common.MQueryTimeCnt},
 				{float32(currentPSM.Rows - prevPSM.Rows), &mb.Postgresql.MRowsSum, &mb.Postgresql.MRowsCnt},
-
 				{float32(currentPSM.SharedBlksHit - prevPSM.SharedBlksHit), &mb.Postgresql.MSharedBlksHitSum, &mb.Postgresql.MSharedBlksHitCnt},
 				{float32(currentPSM.SharedBlksRead - prevPSM.SharedBlksRead), &mb.Postgresql.MSharedBlksReadSum, &mb.Postgresql.MSharedBlksReadCnt},
 				{float32(currentPSM.SharedBlksDirtied - prevPSM.SharedBlksDirtied), &mb.Postgresql.MSharedBlksDirtiedSum, &mb.Postgresql.MSharedBlksDirtiedCnt},
@@ -289,7 +286,12 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 				{float32(currentPSM.TempBlksRead - prevPSM.TempBlksRead), &mb.Postgresql.MTempBlksReadSum, &mb.Postgresql.MTempBlksReadCnt},
 				{float32(currentPSM.TempBlksWritten - prevPSM.TempBlksWritten), &mb.Postgresql.MTempBlksWrittenSum, &mb.Postgresql.MTempBlksWrittenCnt},
 
+				{float32(currentPSM.PlansCalls - prevPSM.PlansCalls), &mb.Postgresql.MPlansCallsSum, &mb.Postgresql.MPlansCallsCnt},
+				{float32(currentPSM.WalFpi - prevPSM.WalFpi), &mb.Postgresql.MWalFpiSum, &mb.Postgresql.MWalFpiCnt},
+				{float32(currentPSM.WalRecords - prevPSM.WalRecords), &mb.Postgresql.MWalRecordsSum, &mb.Postgresql.MWalRecordsCnt},
+
 				// convert milliseconds to seconds
+				{float32(currentPSM.TotalTime-prevPSM.TotalTime) / 1000, &mb.Common.MQueryTimeSum, &mb.Common.MQueryTimeCnt},
 				{float32(currentPSM.BlkReadTime-prevPSM.BlkReadTime) / 1000, &mb.Postgresql.MBlkReadTimeSum, &mb.Postgresql.MBlkReadTimeCnt},
 				{float32(currentPSM.BlkWriteTime-prevPSM.BlkWriteTime) / 1000, &mb.Postgresql.MBlkWriteTimeSum, &mb.Postgresql.MBlkWriteTimeCnt},
 

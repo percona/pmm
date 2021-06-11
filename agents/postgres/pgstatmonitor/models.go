@@ -259,6 +259,9 @@ func (m pgStatMonitor09) ToPgStatMonitor() (pgStatMonitor, error) {
 		CPUUserTime:       m.CPUUserTime,
 		CPUSysTime:        m.CPUSysTime,
 		Relations:         m.Relations,
+		PlansCalls:        m.PlansCalls,
+		WalFpi:            m.WalFpi,
+		WalRecords:        m.WalRecords,
 	}, nil
 }
 
@@ -292,6 +295,9 @@ type pgStatMonitor struct {
 	CPUUserTime       float64
 	CPUSysTime        float64
 	Relations         pq.StringArray
+	PlansCalls        int64
+	WalFpi            int64
+	WalRecords        int64
 }
 
 // pgStatMonitorSettings represents a row in pg_stat_monitor_settings view.
