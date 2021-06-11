@@ -61,7 +61,7 @@ for the check for operator update operation typically these are written to a htt
 type CheckForOperatorUpdateParams struct {
 
 	/*Body*/
-	Body CheckForOperatorUpdateBody
+	Body interface{}
 
 	timeout    time.Duration
 	Context    context.Context
@@ -102,13 +102,13 @@ func (o *CheckForOperatorUpdateParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the check for operator update params
-func (o *CheckForOperatorUpdateParams) WithBody(body CheckForOperatorUpdateBody) *CheckForOperatorUpdateParams {
+func (o *CheckForOperatorUpdateParams) WithBody(body interface{}) *CheckForOperatorUpdateParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the check for operator update params
-func (o *CheckForOperatorUpdateParams) SetBody(body CheckForOperatorUpdateBody) {
+func (o *CheckForOperatorUpdateParams) SetBody(body interface{}) {
 	o.Body = body
 }
 
@@ -120,8 +120,10 @@ func (o *CheckForOperatorUpdateParams) WriteToRequest(r runtime.ClientRequest, r
 	}
 	var res []error
 
-	if err := r.SetBodyParam(o.Body); err != nil {
-		return err
+	if o.Body != nil {
+		if err := r.SetBodyParam(o.Body); err != nil {
+			return err
+		}
 	}
 
 	if len(res) > 0 {

@@ -114,22 +114,13 @@ enum OperatorUpdateStatus {
   UPDATE_AVAILABLE_BUT_NOT_COMPATIBLE = 3;
 }
 
-message CheckForOperatorUpdateRequest {
-  // Kubernetes cluster name.
-  string kubernetes_cluster_name = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // operator_type tells what operator we are interested in for checking the update availability.
-  string operator_type = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-}
+message CheckForOperatorUpdateRequest {}
 
-message CheckForOperatorUpdateResponse {
+// OperatorUpdateInformation indicates if operator update is available. It includes what version of operator we can update to.
+// If we are running latest operator for installed PMM version and more up-to-date operator is available, we also get PMM
+// version we can update to to get the most up-to-date operator.
+message OperatorUpdateInformation {
+  // The status indicates operator status availablility.
   OperatorUpdateStatus status = 1;
   // available_operator_version is not empty if there is an update available,
   // for both compatible and incompatible one.
@@ -137,6 +128,17 @@ message CheckForOperatorUpdateResponse {
   // available_pmm_server_version is not empty only if the update is available but
   // the version of the operator is not compatible with installed PMM version.
   string available_pmm_server_version = 3;
+}
+
+// OperatorsUpdateInformation is just a container for update information for PXC and PSMDB operators.
+message OperatorsUpdateInformation {
+  OperatorUpdateInformation pxc_operator = 1;
+  OperatorUpdateInformation psmdb_operator = 2;
+}
+
+message CheckForOperatorUpdateResponse {
+  // The cluster name is used as a key for this map, value stores information about oprators update availablility.
+  map<string, OperatorsUpdateInformation> update_information = 1;
 }
 
 // Components service provides public methods for managing components.

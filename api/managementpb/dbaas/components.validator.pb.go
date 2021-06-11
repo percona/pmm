@@ -120,14 +120,25 @@ func (this *ChangePXCComponentsResponse) Validate() error {
 	return nil
 }
 func (this *CheckForOperatorUpdateRequest) Validate() error {
-	if this.KubernetesClusterName == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
+	return nil
+}
+func (this *OperatorUpdateInformation) Validate() error {
+	return nil
+}
+func (this *OperatorsUpdateInformation) Validate() error {
+	if this.PxcOperator != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PxcOperator); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("PxcOperator", err)
+		}
 	}
-	if this.OperatorType == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("OperatorType", fmt.Errorf(`value '%v' must not be an empty string`, this.OperatorType))
+	if this.PsmdbOperator != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PsmdbOperator); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("PsmdbOperator", err)
+		}
 	}
 	return nil
 }
 func (this *CheckForOperatorUpdateResponse) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
