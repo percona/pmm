@@ -2,40 +2,41 @@
 
 **Percona Monitoring and Management** (PMM) is a free, open-source monitoring tool for MySQL, PostgreSQL, MongoDB, and ProxySQL, and the servers they run on.
 
-- PMM **collects** from databases and their hosts thousands of out-of-the-box performance **metrics**.
+- PMM **collects** thousands of out-of-the-box performance **metrics** from databases and their hosts.
 
 - The PMM [web UI](using/interface.md) **visualizes data** in [dashboards](details/dashboards/).
 
 - Additional features include checking databases for [security threats](using/platform/security-threat-tool.md).
 
 !!! alert alert-info ""
-    This is for the latest release, **PMM {{release}}** ([Release Notes](release-notes/{{release}}.md)).
+    You're looking at the documentation for the latest release, **PMM {{release}}** ([Release Notes](release-notes/{{release}}.md)).
 
-Percona Monitoring and Management helps you improve the performance of databases, simplify their management, and strengthen their security. It is efficient, quick to [set up](setting-up/index.md) and easy to use.
+Percona Monitoring and Management helps you improve the performance of your databases, simplify their management, and strengthen their security. It's efficient, quick to [set up](setting-up/index.md), and easy to use.
 
-A minimal PMM set-up comprises one [server](details/architecture.md#pmm-server) and a [client agent](details/architecture.md#pmm-client) on every system you want to monitor. Clients send metrics to the server which stores, collates and displays them.
+???+ note alert alert-info "PMM Live Demo"
 
-Here's how the web UI home page looks on our <a href='https://pmmdemo.percona.com/' target='_blank'>live demo system</a>. (It's free to use---why not try it?)
+    Here's how the home page looks on our <a href='https://pmmdemo.percona.com/' target='_blank'>free, live demo system</a>.
 
-<a href='https://pmmdemo.percona.com/' target='_blank'><img src="_images/PMM_Home_Dashboard.jpg" width=600px class="imgcenter"/></a>
+    <a href='https://pmmdemo.percona.com/' target='_blank'><img src="_images/PMM_Home_Dashboard.jpg" width=600px class="imgcenter"/></a>
 
 PMM can run as a cloud service, on-prem, or across hybrid platforms. It's supported by our [legendary expertise][PERCONA_SERVICES] in open source databases, and by a vibrant developer and user [community].
 
-## Next steps
+## Start here
 
-The [Quickstart installation guide](https://www.percona.com/software/pmm/quickstart) shows how to run PMM Server as a Docker container, and how to install PMM Client on Ubuntu or Red Hat Linux hosts.
+A minimal PMM set-up comprises one [server](details/architecture.md#pmm-server) and a [client agent](details/architecture.md#pmm-client) on every system you want to monitor. (The server stores, collates and displays metrics sent to it by clients.)
 
-Full instructions for setting up are in:
+- [Setting Up] explains in detail how to install and run both PMM Server and PMM Client.
 
-- [Setting up PMM Server](setting-up/server/index.md)
-- [Setting up PMM Client](setting-up/client/index.md)
+- The [Quickstart install guide] shows how to run PMM Server as a Docker container, and how to install PMM Client on Ubuntu or Red Hat Linux hosts.
 
-## Reading guide
+- Our [one-line installer] is a command line script that installs Docker and runs PMM Server as a container. (Caution: this is a [Technical Preview].)
 
-Links to popular sections.
+## Read more
+
 
 ```plantuml format="svg_object" width="90%" height="90%"
 @startmindmap ""
+title Links to popular sections
 skinparam svgLinkTarget _blank
 skinparam defaultFontName Chivo
 skinparam defaultFontSize 11
@@ -148,3 +149,7 @@ mindmapDiagram {
 
 [PERCONA_SERVICES]: https://www.percona.com/services
 [community]: https://www.percona.com/forums/questions-discussions/percona-monitoring-and-management
+[Technical Preview]: details/glossary.md#technical-preview
+[one-line installer]: setting-up/server/index.md#one-line-installer
+[Setting Up]: setting-up/index.md
+[Quickstart install guide]: https://www.percona.com/software/pmm/quickstart

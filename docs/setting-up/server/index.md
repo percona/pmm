@@ -29,20 +29,22 @@ Your CPU must support the SSE4.2 instruction set, a requirement of ClickHouse, a
 
 3. When PMM Server is running, set up [PMM Client](../client/index.md) for each node or service.
 
-## Single line installer
+## One-line installer
 
 !!! caution alert alert-warning "Caution"
-    This is a [technical preview](../../details/glossary.md#technical-preview) and is subject to change.
+    This is a [technical preview] and is subject to change.
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/percona/pmm/PMM-2.0/get-pmm.sh -o get-pmm2.sh ; chmod +x get-pmm2.sh ; ./get-pmm2.sh
 ```
 
-!!! important alert alert-success "Important"
-    We highly recommend you review `get-pmm2.sh` prior to running on your system, to ensure the content is as expected.
+!!! caution alert alert-warning "Caution"
+    Download and check `get-pmm2.sh` before running it to make sure you know what it does.
 
 This command will:
 
 - install Docker if not already installed;
 - if there is a PMM Server docker container running, stop it and back it up;
 - pull and run the latest PMM Server docker image.
+
+[technical preview]: ../../details/glossary.md#technical-preview
