@@ -135,7 +135,7 @@ func TestPostgresExporterConfig(t *testing.T) {
 				"--collect.custom_query.lr.directory=/usr/local/percona/pmm2/collectors/custom-queries/postgresql/low-resolution",
 				"--collect.custom_query.mr",
 				"--collect.custom_query.mr.directory=/usr/local/percona/pmm2/collectors/custom-queries/postgresql/medium-resolution",
-				"--exclude-databases=template0,template1,postgres,pmm-managed-dev,azure_maintenance",
+				"--exclude-databases=template0,template1,postgres,cloudsqladmin,pmm-managed-dev,azure_maintenance",
 				"--web.listen-address=:{{ .listen_port }}",
 			},
 			Env: []string{
@@ -184,7 +184,7 @@ func TestPostgresExporterConfig(t *testing.T) {
 				"--collect.custom_query.lr.directory=/usr/local/percona/pmm2/collectors/custom-queries/postgresql/low-resolution",
 				"--collect.custom_query.mr",
 				"--collect.custom_query.mr.directory=/usr/local/percona/pmm2/collectors/custom-queries/postgresql/medium-resolution",
-				"--exclude-databases=template0,template1,postgres,pmm-managed-dev,azure_maintenance",
+				"--exclude-databases=template0,template1,postgres,cloudsqladmin,pmm-managed-dev,azure_maintenance",
 				"--web.listen-address=:{{ .listen_port }}",
 			},
 			Env: []string{
