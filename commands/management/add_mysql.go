@@ -144,10 +144,6 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 
 	var tlsCa, tlsCert, tlsKey string
 	if cmd.TLS {
-		if cmd.TLSCaFile == "" || cmd.TLSCertFile == "" || cmd.TLSKeyFile == "" {
-			return nil, fmt.Errorf("TLS is on. You must also define tls-ca, tls-cert and tls-key flags.")
-		}
-
 		tlsCa, err = commands.ReadFile(cmd.TLSCaFile)
 		if err != nil {
 			return nil, err
