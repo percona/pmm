@@ -492,4 +492,13 @@ func fillPostgreSQL(mb *qanpb.MetricsBucket, bp *agentpb.MetricsBucket_PostgreSQ
 
 	mb.MCpuUserTimeCnt = bp.MCpuUserTimeCnt
 	mb.MCpuUserTimeSum = bp.MCpuUserTimeSum
+
+	mb.MPlansCallsCnt = bp.MPlansCallsCnt
+	mb.MPlansCallsSum = bp.MPlansCallsSum
+
+	mb.MWalRecordsCnt = bp.MWalRecordsCnt
+	mb.MWalRecordsSum = bp.MWalRecordsSum
+
+	mb.MWalFpiCnt = bp.MWalFpiCnt
+	mb.MWalFpiSum = bp.MWalFpiSum
 }
