@@ -595,7 +595,7 @@
                               "description": "Plan time in per seconds.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 61
+                              "x-order": 60
                             },
                             "m_plans_calls_sum_per_sec": {
                               "description": "Total number of planned calls.",
@@ -753,11 +753,6 @@
                               "type": "number",
                               "format": "float",
                               "x-order": 22
-                            },
-                            "m_wal_bytes": {
-                              "description": "Bytes of WAL (Write-ahead logging) records.",
-                              "type": "string",
-                              "x-order": 60
                             },
                             "m_wal_fpi_sum_per_sec": {
                               "description": "Total number of FPI (full page images) in WAL (Write-ahead logging) records.",
@@ -1273,7 +1268,7 @@
                         "description": "Plan time in per seconds.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 61
+                        "x-order": 60
                       },
                       "m_plans_calls_sum_per_sec": {
                         "description": "Total number of planned calls.",
@@ -1431,11 +1426,6 @@
                         "type": "number",
                         "format": "float",
                         "x-order": 22
-                      },
-                      "m_wal_bytes": {
-                        "description": "Bytes of WAL (Write-ahead logging) records.",
-                        "type": "string",
-                        "x-order": 60
                       },
                       "m_wal_fpi_sum_per_sec": {
                         "description": "Total number of FPI (full page images) in WAL (Write-ahead logging) records.",

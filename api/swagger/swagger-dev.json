@@ -821,16 +821,11 @@
                               "format": "float",
                               "x-order": 59
                             },
-                            "m_wal_bytes": {
-                              "description": "Bytes of WAL (Write-ahead logging) records.",
-                              "type": "string",
-                              "x-order": 60
-                            },
                             "m_plan_time_per_sec": {
                               "description": "Plan time in per seconds.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 61
+                              "x-order": 60
                             }
                           }
                         },
@@ -1509,16 +1504,11 @@
                         "format": "float",
                         "x-order": 59
                       },
-                      "m_wal_bytes": {
-                        "description": "Bytes of WAL (Write-ahead logging) records.",
-                        "type": "string",
-                        "x-order": 60
-                      },
                       "m_plan_time_per_sec": {
                         "description": "Plan time in per seconds.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 61
+                        "x-order": 60
                       }
                     }
                   },
