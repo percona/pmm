@@ -182,14 +182,16 @@ message PostgresExporter {
   bool push_metrics_enabled = 11;
   // List of disabled collector names.
   repeated string disabled_collectors = 12;
-  //
-  // Status fields below.
-  //
-
   // Actual Agent status.
   AgentStatus status = 9;
   // Listen port for scraping metrics.
   uint32 listen_port = 10;
+  // TLS CA certificate.
+  string tls_ca = 13;
+  // TLS Certifcate.
+  string tls_cert = 14;
+  // TLS Certificate Key.
+  string tls_key = 15;
 }
 
 // ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.

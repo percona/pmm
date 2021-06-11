@@ -4383,6 +4383,21 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "tls_ca": {
+                      "description": "TLS CA certificate.",
+                      "type": "string",
+                      "x-order": 12
+                    },
+                    "tls_cert": {
+                      "description": "TLS Certifcate.",
+                      "type": "string",
+                      "x-order": 13
+                    },
+                    "tls_key": {
+                      "description": "TLS Certificate Key.",
+                      "type": "string",
+                      "x-order": 14
                     }
                   },
                   "x-order": 0
@@ -6982,6 +6997,21 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "tls_ca": {
+                      "description": "TLS CA certificate.",
+                      "type": "string",
+                      "x-order": 12
+                    },
+                    "tls_cert": {
+                      "description": "TLS Certifcate.",
+                      "type": "string",
+                      "x-order": 13
+                    },
+                    "tls_key": {
+                      "description": "TLS Certificate Key.",
+                      "type": "string",
+                      "x-order": 14
                     }
                   },
                   "x-order": 0
@@ -8795,6 +8825,21 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "tls_ca": {
+                      "description": "TLS CA certificate.",
+                      "type": "string",
+                      "x-order": 12
+                    },
+                    "tls_cert": {
+                      "description": "TLS Certifcate.",
+                      "type": "string",
+                      "x-order": 13
+                    },
+                    "tls_key": {
+                      "description": "TLS Certificate Key.",
+                      "type": "string",
+                      "x-order": 14
                     }
                   },
                   "x-order": 5
@@ -9993,6 +10038,21 @@
                         "type": "integer",
                         "format": "int64",
                         "x-order": 11
+                      },
+                      "tls_ca": {
+                        "description": "TLS CA certificate.",
+                        "type": "string",
+                        "x-order": 12
+                      },
+                      "tls_cert": {
+                        "description": "TLS Certifcate.",
+                        "type": "string",
+                        "x-order": 13
+                      },
+                      "tls_key": {
+                        "description": "TLS Certificate Key.",
+                        "type": "string",
+                        "x-order": 14
                       }
                     }
                   },
@@ -21980,6 +22040,21 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "tls_ca": {
+                      "description": "TLS CA certificate.",
+                      "type": "string",
+                      "x-order": 12
+                    },
+                    "tls_cert": {
+                      "description": "TLS Certifcate.",
+                      "type": "string",
+                      "x-order": 13
+                    },
+                    "tls_key": {
+                      "description": "TLS Certificate Key.",
+                      "type": "string",
+                      "x-order": 14
                     }
                   },
                   "x-order": 1
@@ -23263,6 +23338,21 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "tls_ca": {
+                      "description": "TLS CA certificate.",
+                      "type": "string",
+                      "x-order": 12
+                    },
+                    "tls_cert": {
+                      "description": "TLS Certifcate.",
+                      "type": "string",
+                      "x-order": 13
+                    },
+                    "tls_key": {
+                      "description": "TLS Certificate Key.",
+                      "type": "string",
+                      "x-order": 14
                     }
                   },
                   "x-order": 7
