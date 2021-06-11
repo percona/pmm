@@ -77,33 +77,36 @@ Integrated Alerting isn't activated.
 
 ### Unreachable external IP addresses
 
-!!! tip alert alert-success "When I get an email or page from my system the IP is not reachable from outside my organization how do I fix this?"
-    To configure your PMM Server’s Public Address, Select *{{icon.cog}} Configuration-->{{icon.setting}} Settings-->Advanced Settings*, and supply an address to use in your alert notifications.
+**When I get an email or page from my system the IP is not reachable from outside my organization how do I fix this?**
+
+To configure your PMM Server’s Public Address, Select *{{icon.cog}} Configuration-->{{icon.setting}} Settings-->Advanced Settings*, and supply an address to use in your alert notifications.
 
 ### What is 'Alertmanager integration'?
 
-!!! tip alert alert-success "There’s already an Alertmanager integration tab without me turning it on, I know because I was using your existing Alertmanager integration."
-    This will continue to work but will be renamed *External Alertmanager*.
+**There’s already an Alertmanager integration tab without me turning it on, I know because I was using your existing Alertmanager integration.**
+
+This will continue to work but will be renamed *External Alertmanager*.
 
 ### Notification channels not working
 
-!!! tip alert alert-success "I tried to setup a Slack/Email channel but nothing happened."
-    Before you can use a notification channel you must provide your connection details.
+**I tried to setup a Slack/Email channel but nothing happened.**
 
-    1. Go to PMM --> PMM Settings--> Communication
-    2. Define your SMTP server or Slack incoming webhook URL
+Before you can use a notification channel you must provide your connection details.
 
-    For PagerDuty you can configure in the notification channel tab of Integrated Alerting by supplying your server/routing key.
+1. Go to PMM --> PMM Settings--> Communication
+2. Define your SMTP server or Slack incoming webhook URL
+
+For PagerDuty you can configure in the notification channel tab of Integrated Alerting by supplying your server/routing key.
 
 ### What's the difference: Username/Password vs Identity/Secret
 
-!!! tip alert alert-success "In configuring my email server I’m being asked for a Username and Password as well as Identity and Secret. What is the difference between these and which do I use or do I need both?"
+**In configuring my email server I’m being asked for a Username and Password as well as Identity and Secret. What is the difference between these and which do I use or do I need both?**
 
-    It depends on what kind of authentication your system uses:
+It depends on what kind of authentication your system uses:
 
-    - LOGIN: Use Username/Password
-    - PLAIN: Use either Username or Identity and Password
-    - CRAM-MD5: Use Username and Secret
+- `LOGIN`: Use Username/Password
+- `PLAIN`: Use either Username or Identity and Password
+- `CRAM-MD5`: Use Username and Secret
 
 ### Alert Rule Templates is disabled
 
@@ -115,24 +118,26 @@ If you create a custom alert rule template you will have access to edit.
 
 ### Creating rules
 
-!!! tip alert alert-success "I’m ready to create my first rule!  I’ve chosen a template and given it a name...what is the format of the fields?"
+**I'm ready to create my first rule! I've chosen a template and given it a name...what is the format of the fields?**
 
-    - Threshold - float value, it has different meanings depending on what template is used
-    - Duration - The duration the condition must be satisfied in seconds
-    - Filters - A Key, Evaluator, and Value. E.g. `service_name=ps5.7`
-        - Key must be an exact match. You can find a complete list of keys by using the {{icon.compass }}*Explore* main menu item in PMM
-        - Evaluator can be any of: `=`, `=~`
-        - Value is an exact match or when used with a ‘fuzzy’ evaluator (=~) can be a regular expression. E.g. `service_name=~ps.*`
+- Threshold - float value, it has different meanings depending on what template is used
+- Duration - The duration the condition must be satisfied in seconds
+- Filters - A Key, Evaluator, and Value. E.g. `service_name=ps5.7`
+    - Key must be an exact match. You can find a complete list of keys by using the {{icon.compass }}*Explore* main menu item in PMM
+    - Evaluator can be any of: `=`, `=~`
+    - Value is an exact match or when used with a ‘fuzzy’ evaluator (=~) can be a regular expression. E.g. `service_name=~ps.*`
 
 ### Variables in Templates
 
-!!! tip alert alert-success "The concept of *template* implies things like variable substitutions...where can I use these? Where can I find a complete list of them?"
-    Here is a guide to creating templates for Alertmanager: <https://prometheus.io/docs/prometheus/latest/configuration/template_examples/>
+**The concept of *template* implies things like variable substitutions...where can I use these? Where can I find a complete list of them?**
+
+Here is a guide to creating templates for Alertmanager: <https://prometheus.io/docs/prometheus/latest/configuration/template_examples/>
 
 ### Missing data
 
-!!! tip alert alert-success "Why don't I see the whole query?"
-    To reduce space usage, long query examples and fingerprints can be truncated to 1024 symbols. In this case, the query explains section will not work.
+**Why don't I see the whole query?**
+
+To reduce space usage, long query examples and fingerprints can be truncated to 1024 symbols. In this case, the query explains section will not work.
 
 
 [ENCODE_URI]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent
