@@ -99,7 +99,6 @@ mindmapDiagram {
 ----_ [[$base/setting-up/server/virtual-appliance.html Virtual\nAppliance]]
 ----_ [[$base/setting-up/server/aws.html AWS\nMarketplace]]
 +++ <&laptop> [[$base/setting-up/client/ Client]]
-++++_ [[$base/setting-up/client/docker.html Docker]]
 ++++_ [[$base/setting-up/client/mysql.html MySQL]]
 ++++_ [[$base/setting-up/client/percona-server.html Percona\nServer]]
 ++++_ [[$base/setting-up/client/mongodb.html MongoDB]]
