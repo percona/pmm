@@ -133,7 +133,7 @@ If you create a custom alert rule template you will have access to edit.
 
 Here is a guide to creating templates for Alertmanager: <https://prometheus.io/docs/prometheus/latest/configuration/template_examples/>
 
-### Missing data
+## Missing data
 
 **Why don't I see the whole query?**
 
