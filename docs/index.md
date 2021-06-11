@@ -19,7 +19,7 @@ Percona Monitoring and Management helps you improve the performance of your data
 
     <a href='https://pmmdemo.percona.com/' target='_blank'><img src="_images/PMM_Home_Dashboard.jpg" width=600px class="imgcenter"/></a>
 
-PMM can run as a cloud service, on-prem, or across hybrid platforms. It's supported by our [legendary expertise][PERCONA_SERVICES] in open source databases, and by a vibrant developer and user [community].
+PMM runs in the cloud, on-prem, or across hybrid platforms. It's supported by our [legendary expertise][PERCONA_SERVICES] in open source databases, and by a vibrant developer and user [community].
 
 ## Start here
 
@@ -29,7 +29,7 @@ A minimal PMM set-up comprises one [server](details/architecture.md#pmm-server) 
 
 - The [Quickstart install guide] shows how to run PMM Server as a Docker container, and how to install PMM Client on Ubuntu or Red Hat Linux hosts.
 
-- Our [one-line installer] is a command line script that installs Docker and runs PMM Server as a container. (Caution: this is a [Technical Preview].)
+- A [one-line install command] downloads a script, makes it executable and runs it. The script installs Docker and runs PMM Server as a container. (Caution: this is a [Technical Preview].)
 
 ## Read more
 
@@ -150,6 +150,6 @@ mindmapDiagram {
 [PERCONA_SERVICES]: https://www.percona.com/services
 [community]: https://www.percona.com/forums/questions-discussions/percona-monitoring-and-management
 [Technical Preview]: details/glossary.md#technical-preview
-[one-line installer]: setting-up/server/index.md#one-line-installer
+[one-line install command]: setting-up/server/index.md#one-line-installer
 [Setting Up]: setting-up/index.md
 [Quickstart install guide]: https://www.percona.com/software/pmm/quickstart

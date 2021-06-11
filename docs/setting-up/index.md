@@ -1,6 +1,6 @@
 # Setting up
 
-There are three stages when installing and setting up PMM.
+There are three stages to installing and setting up PMM.
 
 ## 1. Set up at least one PMM Server {: #setting-up-pmm-server}
 
@@ -16,10 +16,9 @@ You must set up PMM Client on each node where there is a service to be monitored
 
 You have these options:
 
+- [Pull and run our Docker image](client/index.md#docker) or use [Docker compose](client/index.md#docker-compose)
 - [Use a package manager](client/index.md#package-manager) (`apt`, `apt-get`, `dnf`, `yum`).
-- [Manually download and install packages](client/index.md#manual-package) (as `.deb` or `.rpm` files).
-- [Manually download and unpack a binary package](client/index.md#binary-package) (a `.tar.gz` file).
-- [Pull and run our Docker image](client/index.md#docker).
+- [Download a binary package](client/index.md#binary-package) (a `.tar.gz` file).
 
 ## 3. Configure and add services {: #configure-add-services}
 
@@ -50,7 +49,7 @@ Here's a graphical overview of the steps involved.
 !include docs/_images/plantuml_styles.puml
 skinparam partitionWidth 400
 title Setting up PMM\nOverview\n
-partition "<b>Stage 1:</b> Set up PMM Server. Choose from:" {
+partition "<b>Stage 1:</b> Set up PMM Server\nChoices:" {
     split
         -[hidden]->
         :Docker container;
@@ -62,38 +61,13 @@ partition "<b>Stage 1:</b> Set up PMM Server. Choose from:" {
         :Amazon AWS marketplace;
     end split
 }
-partition "<b>Stage 2:</b> Set up PMM Client on each node. Choose from:" {
+partition "<b>Stage 2:</b> Set up PMM Client\nChoices:" {
     split
-        partition "Package\nmanager" {
-            :Set up ""percona-release"";
-            :""apt/yum install pmm2-client"";
-        }
+        :Docker or\nDocker compose;
     split again
-        partition "Manual\npackage\ninstall" {
-            :Download "".deb"" / "".rpm"";
-            :Install:
-            <code>
-            dpkg -i *.deb
-            </code>
-            or
-            <code>
-            dnf localinstall *.rpm
-            </code>;
-        }
+        :Package manager;
     split again
-        partition "Binary\npackage\ninstall" {
-            :Download "".tar.gz"";
-            :<code>
-            tar xfz ...
-            pmm-agent setup ...
-            </code>;
-        }
-    split again
-        partition "Docker" {
-            :<code>
-            docker pull percona/pmm-client:2
-            </code>;
-        }
+        :Binary package;
     end split
 }
 partition "<b>Stage 3</b>" {
