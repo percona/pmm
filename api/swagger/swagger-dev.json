@@ -820,7 +820,6 @@
                               "type": "number",
                               "format": "float",
                               "x-order": 59
-<<<<<<< HEAD
                             },
                             "m_wal_bytes_sum_per_sec": {
                               "description": "Total bytes of WAL (Write-ahead logging) records.",
@@ -833,8 +832,6 @@
                               "type": "number",
                               "format": "float",
                               "x-order": 61
-=======
->>>>>>> PMM-2.0
                             }
                           }
                         },
@@ -1512,7 +1509,6 @@
                         "type": "number",
                         "format": "float",
                         "x-order": 59
-<<<<<<< HEAD
                       },
                       "m_wal_bytes_sum_per_sec": {
                         "description": "Total bytes of WAL (Write-ahead logging) records.",
@@ -1525,8 +1521,6 @@
                         "type": "number",
                         "format": "float",
                         "x-order": 61
-=======
->>>>>>> PMM-2.0
                       }
                     }
                   },
