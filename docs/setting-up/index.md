@@ -2,25 +2,25 @@
 
 There are three stages to installing and setting up PMM.
 
-## 1. Set up at least one PMM Server {: #setting-up-pmm-server}
+## 1. Set up PMM Server {: #setting-up-pmm-server}
 
-You have these options:
+Set up at least one PMM Server with one of these options:
 
 - [Pull and run our Docker container](server/docker.md).
 - [Download and import our Virtual Appliance](server/virtual-appliance.md) (as an `.ovf` file).
 - [Use your Amazon AWS account and our marketplace offering](server/aws.md).
 
-## 2. Set up one or more PMM Clients {: #setting-up-pmm-client}
+## 2. Set up PMM Client {: #setting-up-pmm-client}
 
 You must set up PMM Client on each node where there is a service to be monitored.
 
 You have these options:
 
-- [Pull and run our Docker image](client/index.md#docker) or use [Docker compose](client/index.md#docker-compose)
+- [Pull and run our Docker image](client/index.md#docker) or use Docker compose.
 - [Use a package manager](client/index.md#package-manager) (`apt`, `apt-get`, `dnf`, `yum`).
 - [Download a binary package](client/index.md#binary-package) (a `.tar.gz` file).
 
-## 3. Configure and add services {: #configure-add-services}
+## 3. Add services {: #configure-add-services}
 
 You must configure your services and add them to PMM Server's inventory of monitored systems.
 
@@ -48,11 +48,10 @@ Here's a graphical overview of the steps involved.
 @startuml "setting-up"
 !include docs/_images/plantuml_styles.puml
 skinparam partitionWidth 400
-title Setting up PMM\nOverview\n
 partition "<b>Stage 1:</b> Set up PMM Server\nChoices:" {
     split
         -[hidden]->
-        :Docker container;
+        :Docker or\nDocker compose;
     split again
         -[hidden]->
         :Virtual appliance;
@@ -71,7 +70,8 @@ partition "<b>Stage 2:</b> Set up PMM Client\nChoices:" {
     end split
 }
 partition "<b>Stage 3</b>" {
-    :Configure and add service(s);
+    :Register;
+    :Add services;
 }
 @enduml
 ```

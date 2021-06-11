@@ -1,4 +1,15 @@
-# Setting up PMM Server
+# Set up PMM Server
+
+To set up PMM Server:
+
+1. Configure your [network](network.md).
+
+2. Decide how you want to run PMM Server. Choose from:
+
+    - [Docker](docker.md)
+    - [Virtual appliance](virtual-appliance.md)
+    - [Amazon AWS EC2 instance](aws.md)
+    - [One-line installer](#one-line-installer)
 
 ## System requirements
 
@@ -17,17 +28,7 @@ A minimum of 2 GB per monitored database node. The increase in memory usage is n
 
 Your CPU must support the SSE4.2 instruction set, a requirement of ClickHouse, a third-party column-oriented database used by Query Analytics. If your CPU is lacking this instruction set you won't be able to use Query Analytics.
 
-## How to set up PMM Server
 
-1. Set up your [network](network.md)
-
-2. Choose how you want to run PMM Server:
-
-    - [with Docker](docker.md)
-    - [as a virtual appliance](virtual-appliance.md)
-    - [on an Amazon AWS EC2 instance](aws.md)
-
-3. When PMM Server is running, set up [PMM Client](../client/index.md) for each node or service.
 
 ## One-line installer
 
