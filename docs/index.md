@@ -113,6 +113,7 @@ mindmapDiagram {
 ++ <&wrench> [[$base/using/ Using]]
 +++_ [[$base/using/interface.html User\ninterface]]
 +++_ [[$base/using/alerting.html Integrated\nAlerting]]
++++_ [[$base/using/backup.html Backup and\nRestore]]
 +++_ [[$base/using/query-analytics.html Query\nAnalytics]]
 +++ [[$base/using/platform/index.html Percona\nPlatform]]
 ++++_ [[$base/using/platform/security-threat-tool.html Security\nThreat Tool]]
