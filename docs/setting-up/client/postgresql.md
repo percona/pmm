@@ -170,7 +170,7 @@ Here are the benefits and drawbacks of each.
     psql postgres postgres -c "CREATE EXTENSION pg_stat_statements SCHEMA public"
     ```
 
-You can now [add the service](#add-a-service).
+You can now [add the service](#add-service).
 
 ### `pg_stat_monitor`
 
@@ -225,7 +225,7 @@ You can now [add the service](#add-a-service).
     SELECT pg_stat_monitor_version();
     ```
 
-## Add a service {: #add-service }
+## Add service
 
 When you have configured your database server, you can add a PostgreSQL service with the user interface or on the command line.
 

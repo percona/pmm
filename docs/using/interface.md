@@ -83,7 +83,7 @@ At the top of each panel and to the right of the panel name is the *panel menu*.
 | Item                          | Description                                                                         |
 |:-----------------------------:| ----------------------------------------------------------------------------------- |
 | {{icon.eye}} View             | Open the panel in full window mode                                                  |
-| {{icon.share}} Share          | [Render the panel's image for sharing](#rendering-dashboard-images)                 |
+| {{icon.share}} Share          | [Render the panel's image for sharing](../how-to/render-dashboard-images.md)        |
 | {{icon.compass}} Explore      | Run [PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/) queries |
 | {{icon.infocircle}} Inspect   | See the panel's data or definition                                                  |
 | {{icon.cube}} More            | (Only charts and graphs) Additional options                                         |

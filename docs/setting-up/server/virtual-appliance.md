@@ -284,7 +284,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
     ```sh
     ssh-keygen -f admin
     ```
-2. Log into the [PMM user interface](#5-log-into-pmm-user-interface).
+2. Log into the [PMM user interface](log-into-pmm-user-interface).
 3. Select *PMM --> PMM Settings --> SSH Key*.
 4. Copy and paste the contents of the `admin.pub` file into the *SSH Key* field.
 5. Click *Apply SSH Key*. (This copies the public key to `/home/admin/.ssh/authorized_keys` in the guest).

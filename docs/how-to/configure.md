@@ -168,7 +168,7 @@ Enables [Integrated Alerting](../using/alerting.md) and reveals the [Communicati
 
 Activates Microsoft Azure monitoring.
 
-### Public Address
+### Public Address {: #public-address-1 }
 
 Public address for accessing DBaaS features on this server.
 

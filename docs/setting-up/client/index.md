@@ -13,7 +13,7 @@ The install options are:
 - [Package manager](#package-manager):
 
     - On Debian or Red Hat, install `percona-release` and use a Linux package manager (`apt`/`dnf`) to install PMM Client.
-    - On Debian or Red Hat, download `.deb`/`.rpm` PMM Client packages and [manually install](#manual-package) them.
+    - On Debian or Red Hat, download `.deb`/`.rpm` PMM Client packages and manually install them.
 
 - [Binary package](#binary-package): For other Linux distributions, download and unpack generic PMM Client Linux binaries.
 
@@ -22,7 +22,7 @@ When you have installed PMM Client, you must:
 - [Register the node with PMM Server](#register).
 - [Configure and add services according to type](#configure-add-services).
 
-If you need to, you can [remove services](#remove-services) or [remove PMM Client](#remove).
+If you need to, you can [remove services](#remove-services) or [remove PMM Client](#uninstall).
 
 ---
 

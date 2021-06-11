@@ -323,7 +323,7 @@ You must also install the plugins.
 
 Some table metrics are automatically disabled when the number of tables exceeds a default limit of 1000 tables. This prevents PMM Client from affecting the performance of your database server.
 
-The limit can be changed [when adding a service on the command line ](#2-2-command-line) with the two `pmm-admin` options:
+The limit can be changed [when adding a service on the command line ](#command-line) with the two `pmm-admin` options:
 
 | `pmm-admin` option                | Description
 |-----------------------------------|--------------------------------------------------------------------------
@@ -364,7 +364,7 @@ When adding a service with the command line, you must use the `pmm-admin --query
 
 With the PMM user interface, you select *Use performance schema*, or deselect it to use *slow query log*.
 
-### With the user interface
+### User interface
 
 1. Select *PMM --> PMM Add Instance*.
 2. Select *MySQL -- Add a remote instance*.
@@ -373,7 +373,7 @@ With the PMM user interface, you select *Use performance schema*, or deselect it
 
 ![!](../../_images/PMM_Add_Instance_MySQL.jpg)
 
-### On the command line
+### Command line
 
 Add the database server as a service using one of these example commands. If successful, PMM Client will print `MySQL Service added` with the service's ID and name. Use the `--environment` and `-custom-labels` options to set tags for the service to help identify them.
 
