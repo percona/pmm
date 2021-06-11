@@ -7,22 +7,13 @@ This page shows how to set up PMM Server as a virtual machine in [VMware Worksta
 ```plantuml
 @startuml "setting-up_server_virtual-appliance"
 !include docs/_images/plantuml_styles.puml
-title Running PMM Server as a virtual appliance\nOverview\n
 :Download;
 :Verify;
-split
-partition "VMware" {
+partition "VMware or\nVirtualBox" {
     :Import;
     :Reconfigure interface;
     :Start guest and get IP address;
 }
-split again
-partition "VirtualBox" {
-    :Import;
-    :Reconfigure interface;
-    :Start guest and get IP address;
-}
-end split
 :Log in to PMM user interface;
 #lightgrey:(Optional) Change root password;
 #lightgrey:(Optional) Set up SSH;
