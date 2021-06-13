@@ -313,6 +313,25 @@ message MetricsBucket {
     float m_cpu_sys_time_cnt = 29;
     // Total time system spent in query.
     float m_cpu_sys_time_sum = 30;
+    //
+    // pg_stat_monitor 0.9 metrics
+    //
+    // Total number of planned calls.
+    float m_plans_calls_sum = 31;
+    float m_plans_calls_cnt = 32;
+    // Total number of WAL (Write-ahead logging) records.
+    float m_wal_records_sum = 33;
+    float m_wal_records_cnt = 34;
+    // Total number of FPI (full page images) in WAL (Write-ahead logging) records.
+    float m_wal_fpi_sum = 35;
+    float m_wal_fpi_cnt = 36;
+    // Metrics skipped due to different bucket_time in pg_stat_monitor (1min in PMM, 5min in pg_stat_monitor):
+    // min_time, max_time, mean_time
+    // plan_total_time, plan_min_time, plan_max_time, plan_mean_time
+    // stddev_time
+    // Other metrics skipped (empty values, codes):
+    // application_name, cmd_type, cmd_type_text, elevel, sqlcode, message, state_code, state, wal_bytes
+
   }
   Common common = 1;
   MySQL mysql = 2;
