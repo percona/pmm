@@ -342,6 +342,21 @@ func (r *Registry) handleJobResult(l *logrus.Entry, result *agentpb.JobResult) {
 			if err != nil {
 				return err
 			}
+
+		case *agentpb.JobResult_MongodbRestoreBackup:
+			if res.Type != models.MongoDBRestoreBackupJob {
+				return errors.Errorf("result type %s doesn't match job type %s", models.MongoDBRestoreBackupJob, res.Type)
+			}
+
+			_, err := models.ChangeRestoreHistoryItem(
+				t.Querier,
+				res.Result.MongoDBRestoreBackup.RestoreID,
+				models.ChangeRestoreHistoryItemParams{
+					Status: models.SuccessRestoreStatus,
+				})
+			if err != nil {
+				return err
+			}
 		default:
 			return errors.Errorf("unexpected job result type: %T", result)
 		}
@@ -369,6 +384,13 @@ func (r *Registry) handleJobError(jobResult *models.JobResult) error {
 		_, err = models.ChangeRestoreHistoryItem(
 			r.db.Querier,
 			jobResult.Result.MySQLRestoreBackup.RestoreID,
+			models.ChangeRestoreHistoryItemParams{
+				Status: models.ErrorRestoreStatus,
+			})
+	case models.MongoDBRestoreBackupJob:
+		_, err = models.ChangeRestoreHistoryItem(
+			r.db.Querier,
+			jobResult.Result.MongoDBRestoreBackup.RestoreID,
 			models.ChangeRestoreHistoryItemParams{
 				Status: models.ErrorRestoreStatus,
 			})

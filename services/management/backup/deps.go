@@ -31,7 +31,7 @@ import (
 type jobsService interface {
 	StopJob(jobID string) error
 	StartMySQLBackupJob(
-		id string,
+		jobID string,
 		pmmAgentID string,
 		timeout time.Duration,
 		name string,
@@ -47,7 +47,15 @@ type jobsService interface {
 		locationConfig *models.BackupLocationConfig,
 	) error
 	StartMongoDBBackupJob(
-		id string,
+		jobID string,
+		pmmAgentID string,
+		timeout time.Duration,
+		name string,
+		dbConfig *models.DBConfig,
+		locationConfig *models.BackupLocationConfig,
+	) error
+	StartMongoDBRestoreBackupJob(
+		jobID string,
 		pmmAgentID string,
 		timeout time.Duration,
 		name string,

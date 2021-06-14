@@ -43,9 +43,9 @@ func NewJobsService(db *reform.DB, registry *Registry) *JobsService {
 }
 
 // StartEchoJob starts echo job on the pmm-agent.
-func (s *JobsService) StartEchoJob(id, pmmAgentID string, timeout time.Duration, message string, delay time.Duration) error {
+func (s *JobsService) StartEchoJob(jobID, pmmAgentID string, timeout time.Duration, message string, delay time.Duration) error {
 	req := &agentpb.StartJobRequest{
-		JobId:   id,
+		JobId:   jobID,
 		Timeout: ptypes.DurationProto(timeout),
 		Job: &agentpb.StartJobRequest_Echo_{
 			Echo: &agentpb.StartJobRequest_Echo{
@@ -73,7 +73,7 @@ func (s *JobsService) StartEchoJob(id, pmmAgentID string, timeout time.Duration,
 }
 
 // StartMySQLBackupJob starts mysql backup job on the pmm-agent.
-func (s *JobsService) StartMySQLBackupJob(id, pmmAgentID string, timeout time.Duration, name string, dbConfig *models.DBConfig, locationConfig *models.BackupLocationConfig) error {
+func (s *JobsService) StartMySQLBackupJob(jobID, pmmAgentID string, timeout time.Duration, name string, dbConfig *models.DBConfig, locationConfig *models.BackupLocationConfig) error {
 	mySQLReq := &agentpb.StartJobRequest_MySQLBackup{
 		Name:     name,
 		User:     dbConfig.User,
@@ -86,19 +86,13 @@ func (s *JobsService) StartMySQLBackupJob(id, pmmAgentID string, timeout time.Du
 	switch {
 	case locationConfig.S3Config != nil:
 		mySQLReq.LocationConfig = &agentpb.StartJobRequest_MySQLBackup_S3Config{
-			S3Config: &agentpb.S3LocationConfig{
-				Endpoint:     locationConfig.S3Config.Endpoint,
-				AccessKey:    locationConfig.S3Config.AccessKey,
-				SecretKey:    locationConfig.S3Config.SecretKey,
-				BucketName:   locationConfig.S3Config.BucketName,
-				BucketRegion: locationConfig.S3Config.BucketRegion,
-			},
+			S3Config: convertS3ConfigModel(locationConfig.S3Config),
 		}
 	default:
 		return errors.Errorf("unsupported location config")
 	}
 	req := &agentpb.StartJobRequest{
-		JobId:   id,
+		JobId:   jobID,
 		Timeout: ptypes.DurationProto(timeout),
 		Job: &agentpb.StartJobRequest_MysqlBackup{
 			MysqlBackup: mySQLReq,
@@ -121,7 +115,15 @@ func (s *JobsService) StartMySQLBackupJob(id, pmmAgentID string, timeout time.Du
 	return nil
 }
 
-func (s *JobsService) StartMongoDBBackupJob(id, pmmAgentID string, timeout time.Duration, name string, dbConfig *models.DBConfig, locationConfig *models.BackupLocationConfig) error {
+// StartMongoDBBackupJob starts mongoDB backup job on the pmm-agent.
+func (s *JobsService) StartMongoDBBackupJob(
+	jobID string,
+	pmmAgentID string,
+	timeout time.Duration,
+	name string,
+	dbConfig *models.DBConfig,
+	locationConfig *models.BackupLocationConfig,
+) error {
 	mongoDBReq := &agentpb.StartJobRequest_MongoDBBackup{
 		Name:     name,
 		User:     dbConfig.User,
@@ -134,19 +136,13 @@ func (s *JobsService) StartMongoDBBackupJob(id, pmmAgentID string, timeout time.
 	switch {
 	case locationConfig.S3Config != nil:
 		mongoDBReq.LocationConfig = &agentpb.StartJobRequest_MongoDBBackup_S3Config{
-			S3Config: &agentpb.S3LocationConfig{
-				Endpoint:     locationConfig.S3Config.Endpoint,
-				AccessKey:    locationConfig.S3Config.AccessKey,
-				SecretKey:    locationConfig.S3Config.SecretKey,
-				BucketName:   locationConfig.S3Config.BucketName,
-				BucketRegion: locationConfig.S3Config.BucketRegion,
-			},
+			S3Config: convertS3ConfigModel(locationConfig.S3Config),
 		}
 	default:
 		return errors.Errorf("unsupported location config")
 	}
 	req := &agentpb.StartJobRequest{
-		JobId:   id,
+		JobId:   jobID,
 		Timeout: ptypes.DurationProto(timeout),
 		Job: &agentpb.StartJobRequest_MongodbBackup{
 			MongodbBackup: mongoDBReq,
@@ -190,13 +186,7 @@ func (s *JobsService) StartMySQLRestoreBackupJob(
 				ServiceId: serviceID,
 				Name:      name,
 				LocationConfig: &agentpb.StartJobRequest_MySQLRestoreBackup_S3Config{
-					S3Config: &agentpb.S3LocationConfig{
-						Endpoint:     locationConfig.S3Config.Endpoint,
-						AccessKey:    locationConfig.S3Config.AccessKey,
-						SecretKey:    locationConfig.S3Config.SecretKey,
-						BucketName:   locationConfig.S3Config.BucketName,
-						BucketRegion: locationConfig.S3Config.BucketRegion,
-					},
+					S3Config: convertS3ConfigModel(locationConfig.S3Config),
 				},
 			},
 		},
@@ -213,6 +203,57 @@ func (s *JobsService) StartMySQLRestoreBackupJob(
 	}
 	if e := resp.(*agentpb.StartJobResponse).Error; e != "" {
 		return errors.Errorf("failed to start MySQL restore backup job: %s", e)
+	}
+
+	return nil
+}
+
+// StartMongoDBRestoreBackupJob starts mongo restore backup job on the pmm-agent.
+func (s *JobsService) StartMongoDBRestoreBackupJob(
+	jobID string,
+	pmmAgentID string,
+	timeout time.Duration,
+	name string,
+	dbConfig *models.DBConfig,
+	locationConfig *models.BackupLocationConfig,
+) error {
+	mongoDBReq := &agentpb.StartJobRequest_MongoDBRestoreBackup{
+		Name:     name,
+		User:     dbConfig.User,
+		Password: dbConfig.Password,
+		Address:  dbConfig.Address,
+		Port:     int32(dbConfig.Port),
+		Socket:   dbConfig.Socket,
+	}
+
+	switch {
+	case locationConfig.S3Config != nil:
+		mongoDBReq.LocationConfig = &agentpb.StartJobRequest_MongoDBRestoreBackup_S3Config{
+			S3Config: convertS3ConfigModel(locationConfig.S3Config),
+		}
+	default:
+		return errors.Errorf("unsupported location config")
+	}
+
+	req := &agentpb.StartJobRequest{
+		JobId:   jobID,
+		Timeout: ptypes.DurationProto(timeout),
+		Job: &agentpb.StartJobRequest_MongodbRestoreBackup{
+			MongodbRestoreBackup: mongoDBReq,
+		},
+	}
+
+	agent, err := s.r.get(pmmAgentID)
+	if err != nil {
+		return err
+	}
+
+	resp, err := agent.channel.SendAndWaitResponse(req)
+	if err != nil {
+		return err
+	}
+	if e := resp.(*agentpb.StartJobResponse).Error; e != "" {
+		return errors.Errorf("failed to start MonogDB restore backup job: %s", e)
 	}
 
 	return nil
@@ -238,4 +279,14 @@ func (s *JobsService) StopJob(jobID string) error {
 	_, err = agent.channel.SendAndWaitResponse(&agentpb.StopJobRequest{JobId: jobID})
 
 	return err
+}
+
+func convertS3ConfigModel(config *models.S3LocationConfig) *agentpb.S3LocationConfig {
+	return &agentpb.S3LocationConfig{
+		Endpoint:     config.Endpoint,
+		AccessKey:    config.AccessKey,
+		SecretKey:    config.SecretKey,
+		BucketName:   config.BucketName,
+		BucketRegion: config.BucketRegion,
+	}
 }
