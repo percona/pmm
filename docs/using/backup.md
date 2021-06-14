@@ -1,7 +1,7 @@
 # Backup and Restore
 
 !!! caution alert alert-warning "Caution"
-    Backup and restore features are a technical preview and currently only work with MySQL database servers backing up to Amazon AWS S3 storage locations.  You must also enable this feature at container creation time by adding `-e ENABLE_BACKUP_MANAGEMENT=1` to your `docker run` command.  
+    Backup and restore features are a technical preview and currently only work with MySQL database servers backing up to Amazon AWS S3 storage locations.  You must also enable this feature at container creation time by adding `-e ENABLE_BACKUP_MANAGEMENT=1` to your `docker run` command. After that, go to `/graph/backup` to check the Backup Management page.
 
 ## Before you start
 
