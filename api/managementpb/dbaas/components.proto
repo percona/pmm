@@ -109,9 +109,6 @@ enum OperatorUpdateStatus {
   UPDATE_AVAILABLE = 1;
   // An update of the operator is not available for the installed version of PMM server.
   UPDATE_NOT_AVAILABLE = 2;
-  // An update of the operator is available but for more up to date version of
-  // PMM server than is currently installed.
-  UPDATE_AVAILABLE_BUT_NOT_COMPATIBLE = 3;
 }
 
 message CheckForOperatorUpdateRequest {}
@@ -125,9 +122,6 @@ message OperatorUpdateInformation {
   // available_operator_version is not empty if there is an update available,
   // for both compatible and incompatible one.
   string available_operator_version = 2;
-  // available_pmm_server_version is not empty only if the update is available but
-  // the version of the operator is not compatible with installed PMM version.
-  string available_pmm_server_version = 3;
 }
 
 // OperatorsUpdateInformation is just a container for update information for PXC and PSMDB operators.

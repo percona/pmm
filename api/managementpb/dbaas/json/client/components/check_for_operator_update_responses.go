@@ -352,18 +352,12 @@ type UpdateInformationAnonPSMDBOperator struct {
 	//
 	//  - UPDATE_AVAILABLE: An update of the operator is available for the installed version of PMM server.
 	//  - UPDATE_NOT_AVAILABLE: An update of the operator is not available for the installed version of PMM server.
-	//  - UPDATE_AVAILABLE_BUT_NOT_COMPATIBLE: An update of the operator is available but for more up to date version of
-	// PMM server than is currently installed.
-	// Enum: [OPERATOR_UPDATE_STATUS_INVALID UPDATE_AVAILABLE UPDATE_NOT_AVAILABLE UPDATE_AVAILABLE_BUT_NOT_COMPATIBLE]
+	// Enum: [OPERATOR_UPDATE_STATUS_INVALID UPDATE_AVAILABLE UPDATE_NOT_AVAILABLE]
 	Status *string `json:"status,omitempty"`
 
 	// available_operator_version is not empty if there is an update available,
 	// for both compatible and incompatible one.
 	AvailableOperatorVersion string `json:"available_operator_version,omitempty"`
-
-	// available_pmm_server_version is not empty only if the update is available but
-	// the version of the operator is not compatible with installed PMM version.
-	AvailablePMMServerVersion string `json:"available_pmm_server_version,omitempty"`
 }
 
 // Validate validates this update information anon PSMDB operator
@@ -384,7 +378,7 @@ var updateInformationAnonPsmdbOperatorTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["OPERATOR_UPDATE_STATUS_INVALID","UPDATE_AVAILABLE","UPDATE_NOT_AVAILABLE","UPDATE_AVAILABLE_BUT_NOT_COMPATIBLE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["OPERATOR_UPDATE_STATUS_INVALID","UPDATE_AVAILABLE","UPDATE_NOT_AVAILABLE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -402,9 +396,6 @@ const (
 
 	// UpdateInformationAnonPSMDBOperatorStatusUPDATENOTAVAILABLE captures enum value "UPDATE_NOT_AVAILABLE"
 	UpdateInformationAnonPSMDBOperatorStatusUPDATENOTAVAILABLE string = "UPDATE_NOT_AVAILABLE"
-
-	// UpdateInformationAnonPSMDBOperatorStatusUPDATEAVAILABLEBUTNOTCOMPATIBLE captures enum value "UPDATE_AVAILABLE_BUT_NOT_COMPATIBLE"
-	UpdateInformationAnonPSMDBOperatorStatusUPDATEAVAILABLEBUTNOTCOMPATIBLE string = "UPDATE_AVAILABLE_BUT_NOT_COMPATIBLE"
 )
 
 // prop value enum
@@ -458,18 +449,12 @@ type UpdateInformationAnonPxcOperator struct {
 	//
 	//  - UPDATE_AVAILABLE: An update of the operator is available for the installed version of PMM server.
 	//  - UPDATE_NOT_AVAILABLE: An update of the operator is not available for the installed version of PMM server.
-	//  - UPDATE_AVAILABLE_BUT_NOT_COMPATIBLE: An update of the operator is available but for more up to date version of
-	// PMM server than is currently installed.
-	// Enum: [OPERATOR_UPDATE_STATUS_INVALID UPDATE_AVAILABLE UPDATE_NOT_AVAILABLE UPDATE_AVAILABLE_BUT_NOT_COMPATIBLE]
+	// Enum: [OPERATOR_UPDATE_STATUS_INVALID UPDATE_AVAILABLE UPDATE_NOT_AVAILABLE]
 	Status *string `json:"status,omitempty"`
 
 	// available_operator_version is not empty if there is an update available,
 	// for both compatible and incompatible one.
 	AvailableOperatorVersion string `json:"available_operator_version,omitempty"`
-
-	// available_pmm_server_version is not empty only if the update is available but
-	// the version of the operator is not compatible with installed PMM version.
-	AvailablePMMServerVersion string `json:"available_pmm_server_version,omitempty"`
 }
 
 // Validate validates this update information anon pxc operator
@@ -490,7 +475,7 @@ var updateInformationAnonPxcOperatorTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["OPERATOR_UPDATE_STATUS_INVALID","UPDATE_AVAILABLE","UPDATE_NOT_AVAILABLE","UPDATE_AVAILABLE_BUT_NOT_COMPATIBLE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["OPERATOR_UPDATE_STATUS_INVALID","UPDATE_AVAILABLE","UPDATE_NOT_AVAILABLE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -508,9 +493,6 @@ const (
 
 	// UpdateInformationAnonPxcOperatorStatusUPDATENOTAVAILABLE captures enum value "UPDATE_NOT_AVAILABLE"
 	UpdateInformationAnonPxcOperatorStatusUPDATENOTAVAILABLE string = "UPDATE_NOT_AVAILABLE"
-
-	// UpdateInformationAnonPxcOperatorStatusUPDATEAVAILABLEBUTNOTCOMPATIBLE captures enum value "UPDATE_AVAILABLE_BUT_NOT_COMPATIBLE"
-	UpdateInformationAnonPxcOperatorStatusUPDATEAVAILABLEBUTNOTCOMPATIBLE string = "UPDATE_AVAILABLE_BUT_NOT_COMPATIBLE"
 )
 
 // prop value enum
