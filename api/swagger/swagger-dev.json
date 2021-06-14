@@ -801,6 +801,25 @@
                               "type": "number",
                               "format": "float",
                               "x-order": 56
+                            },
+                            "m_plans_calls_sum_per_sec": {
+                              "description": "Total number of planned calls.",
+                              "type": "number",
+                              "format": "float",
+                              "title": "pg_stat_monitor 0.9 metrics",
+                              "x-order": 57
+                            },
+                            "m_wal_records_sum_per_sec": {
+                              "description": "Total number of WAL (Write-ahead logging) records.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 58
+                            },
+                            "m_wal_fpi_sum_per_sec": {
+                              "description": "Total number of FPI (full page images) in WAL (Write-ahead logging) records.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 59
                             }
                           }
                         },
@@ -1459,6 +1478,25 @@
                         "type": "number",
                         "format": "float",
                         "x-order": 56
+                      },
+                      "m_plans_calls_sum_per_sec": {
+                        "description": "Total number of planned calls.",
+                        "type": "number",
+                        "format": "float",
+                        "title": "pg_stat_monitor 0.9 metrics",
+                        "x-order": 57
+                      },
+                      "m_wal_records_sum_per_sec": {
+                        "description": "Total number of WAL (Write-ahead logging) records.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 58
+                      },
+                      "m_wal_fpi_sum_per_sec": {
+                        "description": "Total number of FPI (full page images) in WAL (Write-ahead logging) records.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 59
                       }
                     }
                   },
