@@ -76,7 +76,7 @@ func TestParseInfo(t *testing.T) {
 				"Grafana, etc.) and exposes API for that.  Those APIs are used by pmm-admin tool. " +
 				"See the PMM docs for more information.",
 		}
-		actual, err := parseInfo(stdout)
+		actual, err := parseInfo(stdout, "Name")
 		require.NoError(t, err)
 		assert.Equal(t, expected, actual)
 		buildtime, err := parseInfoTime(actual["Buildtime"])
@@ -137,7 +137,7 @@ func TestParseInfo(t *testing.T) {
 			"License":     "AGPLv3",
 			"Description": "Tool for updating packages and OS configuration for PMM Server",
 		}
-		actual, err := parseInfo(stdout)
+		actual, err := parseInfo(stdout, "Name")
 		require.NoError(t, err)
 		assert.Equal(t, expected, actual)
 		buildtime, err := parseInfoTime(actual["Buildtime"])
@@ -209,7 +209,7 @@ func TestParseInfo(t *testing.T) {
 			"License":     "AGPLv3",
 			"Description": "Tool for updating packages and OS configuration for PMM Server",
 		}
-		actual, err := parseInfo(stdout)
+		actual, err := parseInfo(stdout, "Name")
 		assert.EqualError(t, err, "second `Name` encountered")
 		assert.Equal(t, expected, actual)
 		buildtime, err := parseInfoTime(actual["Buildtime"])
@@ -254,7 +254,7 @@ func TestParseInfo(t *testing.T) {
 			"License":     "AGPLv3",
 			"Description": "Tool for updating packages and OS configuration for PMM Server",
 		}
-		actual, err := parseInfo(stdout)
+		actual, err := parseInfo(stdout, "Name")
 		require.NoError(t, err)
 		assert.Equal(t, expected, actual)
 		buildtime, err := parseInfoTime(actual["Buildtime"])
@@ -287,8 +287,54 @@ func TestParseInfo(t *testing.T) {
 			up:condense time: 0.000
 			updates time: 0.469
 		`, "\n")
-		actual, err := parseInfo(stdout)
+		actual, err := parseInfo(stdout, "Name")
 		require.NoError(t, err)
 		assert.Empty(t, actual)
+	})
+
+	t.Run("RepoInfo", func(t *testing.T) {
+		// yum repoinfo pmm2-server.
+		stdout := strings.Split(`
+			Loaded plugins: changelog, fastestmirror, ovl
+			Loading mirror speeds from cached hostfile
+			* base: centos.schlundtech.de
+			* epel: mirror.netcologne.de
+			* extras: centos.mirror.iphh.net
+			* updates: mirror.netcologne.de
+			Repo-id      : pmm2-server
+			Repo-name    : PMM Server YUM repository - x86_64
+			Repo-status  : enabled
+			Repo-revision: 1622561436
+			Repo-updated : Tue Jun  1 15:30:45 2021
+			Repo-pkgs    : 237
+			Repo-size    : 2.4 G
+			Repo-baseurl : https://repo.percona.com/pmm2-components/yum/release/7/RPMS/x86_64/
+			Repo-expire  : 21600 second(s) (last: Thu Jun 10 16:08:12 2021)
+			Filter     : read-only:present
+			Repo-filename: /etc/yum.repos.d/pmm2-server.repo
+			
+			repolist: 237
+			…
+		`, "\n")
+		expected := map[string]string{
+			"Repo-id":       "pmm2-server",
+			"Repo-name":     "PMM Server YUM repository - x86_64",
+			"Repo-status":   "enabled",
+			"Repo-revision": "1622561436",
+			"Repo-updated":  "Tue Jun  1 15:30:45 2021",
+			"Repo-pkgs":     "237",
+			"Repo-size":     "2.4 G",
+			"Repo-baseurl":  "https://repo.percona.com/pmm2-components/yum/release/7/RPMS/x86_64/",
+			"Repo-expire":   "21600 second(s) (last: Thu Jun 10 16:08:12 2021)",
+			"Filter":        "read-only:present",
+			"Repo-filename": "/etc/yum.repos.d/pmm2-server.repo",
+			"repolist":      "237",
+		}
+		actual, err := parseInfo(stdout, "Repo-id")
+		require.NoError(t, err)
+		assert.Equal(t, expected, actual)
+		releasetime, err := parseInfoTime(actual["Repo-updated"])
+		require.NoError(t, err)
+		assert.Equal(t, time.Date(2021, 6, 1, 15, 30, 45, 0, time.UTC), releasetime)
 	})
 }

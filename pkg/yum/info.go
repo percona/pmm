@@ -25,10 +25,11 @@ import (
 )
 
 // parseInfo parses `yum info` stdout for a single version of a single package.
-func parseInfo(lines []string) (map[string]string, error) {
+// also used to parse `yum repoinfo`.
+func parseInfo(lines []string, firstKey string) (map[string]string, error) {
 	res := make(map[string]string)
 	var prevKey string
-	var nameFound bool
+	var keyFound bool
 	for _, line := range lines {
 		// separate progress output from data
 		line = strings.TrimSpace(line)
@@ -40,14 +41,14 @@ func parseInfo(lines []string) (map[string]string, error) {
 			continue
 		}
 		key := strings.TrimSpace(parts[0])
-		if key == "Name" {
+		if key == firstKey {
 			// sanity check that we do not try to parse multiple packages
-			if nameFound {
+			if keyFound {
 				return res, errors.New("second `Name` encountered")
 			}
-			nameFound = true
+			keyFound = true
 		}
-		if !nameFound {
+		if !keyFound {
 			continue
 		}
 

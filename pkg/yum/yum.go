@@ -43,7 +43,7 @@ func Installed(ctx context.Context, name string) (*version.UpdateInstalledResult
 		return nil, errors.Wrapf(err, "%#q failed", cmdLine)
 	}
 
-	info, err := parseInfo(stdout)
+	info, err := parseInfo(stdout, "Name")
 	if err != nil {
 		return nil, err
 	}
@@ -59,6 +59,26 @@ func Installed(ctx context.Context, name string) (*version.UpdateInstalledResult
 	return &version.UpdateInstalledResult{
 		Installed: res,
 	}, nil
+}
+
+// getReleaseTime returns date and time when repo was updated (packages published or repo got rebuilt).
+func getReleaseTime(ctx context.Context, repo string) (string, error) {
+	cmdLine := "yum repoinfo " + repo
+	stdout, _, err := run.Run(ctx, yumInfoCancelTimeout, cmdLine, nil)
+	if err != nil {
+		return "", errors.Wrapf(err, "%#q failed", cmdLine)
+	}
+
+	info, err := parseInfo(stdout, "Repo-id")
+	if err != nil {
+		return "", err
+	}
+
+	if time, ok := info["Repo-updated"]; ok {
+		return time, nil
+	}
+
+	return "", errors.New("Repo-updated field is not found in repoinfo")
 }
 
 // Check returns up-to-date versions information for a package with given name.
@@ -84,7 +104,7 @@ func Check(ctx context.Context, name string) (*version.UpdateCheckResult, error)
 		return nil, errors.Wrapf(err, "%#q failed", cmdLine)
 	}
 
-	info, err := parseInfo(stdout)
+	info, err := parseInfo(stdout, "Name")
 	if err != nil {
 		return nil, err
 	}
@@ -93,9 +113,15 @@ func Check(ctx context.Context, name string) (*version.UpdateCheckResult, error)
 		FullVersion: fullVersion(info),
 		Repo:        info["Repo"],
 	}
-	buildTime, err := parseInfoTime(info["Buildtime"])
+
+	// replace Buildtime with repo release time to show time of release.
+	repoUpdated, err := getReleaseTime(ctx, info["Repo"])
+	if err != nil {
+		return nil, err
+	}
+	releaseTime, err := parseInfoTime(repoUpdated)
 	if err == nil {
-		res.Latest.BuildTime = &buildTime
+		res.Latest.BuildTime = &releaseTime
 	}
 
 	cmdLine = "yum update " + name + " --changelog --cacheonly --assumeno"
