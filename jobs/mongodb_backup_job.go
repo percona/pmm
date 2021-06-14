@@ -42,7 +42,7 @@ const (
 )
 
 // This regexp checks that there is no running pbm operations.
-var noRunningOperationsR = regexp.MustCompile(`Currently running:\n=*\n\(none\)`)
+var noRunningPBMOperationsRE = regexp.MustCompile(`Currently running:\n=*\n\(none\)`)
 
 // MongoDBBackupJob implements Job from MongoDB backup.
 type MongoDBBackupJob struct {
@@ -89,7 +89,7 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 
 	switch {
 	case j.location.S3Config != nil:
-		if err := j.setupS3(ctx); err != nil {
+		if err := pbmSetupS3(ctx, j.l, j.dbURL, j.name, j.location.S3Config, false); err != nil {
 			return errors.Wrap(err, "failed to setup S3 location")
 		}
 	default:
@@ -97,7 +97,7 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 	}
 
 	rCtx, cancel := context.WithTimeout(ctx, resyncTimeout)
-	if err := j.waitForNoRunningOperations(rCtx); err != nil {
+	if err := waitForNoRunningPBMOperations(rCtx, j.l, j.dbURL); err != nil {
 		cancel()
 		return errors.Wrap(err, "failed to wait pbm resync completion")
 	}
@@ -107,7 +107,7 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 		return errors.Wrap(err, "failed to start backup")
 	}
 
-	if err := j.waitForNoRunningOperations(ctx); err != nil {
+	if err := waitForNoRunningPBMOperations(ctx, j.l, j.dbURL); err != nil {
 		return errors.Wrap(err, "failed to wait backup completion")
 	}
 
@@ -162,31 +162,32 @@ func (j *MongoDBBackupJob) startBackup(ctx context.Context) error {
 	return nil
 }
 
-func (j *MongoDBBackupJob) checkBackupCompletion(ctx context.Context) (bool, error) {
-	j.l.Debug("Checking backup status.")
+func checkRunningPBMOperations(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL) (bool, error) {
+	l.Debug("Checking running pbm operations.")
 
 	nCtx, cancel := context.WithTimeout(ctx, cmdTimeout)
 	defer cancel()
 
-	output, err := exec.CommandContext(nCtx, pbmBin, "status", "--mongodb-uri="+j.dbURL.String()).CombinedOutput() // #nosec G204
+	output, err := exec.CommandContext(nCtx, pbmBin, "status", "--mongodb-uri="+dbURL.String()).CombinedOutput() // #nosec G204
 	if err != nil {
 		return false, errors.Wrapf(err, "pbm status error: %s", string(output))
 	}
 
-	return noRunningOperationsR.Match(output), nil
+	return noRunningPBMOperationsRE.Match(output), nil
 }
 
-func (j *MongoDBBackupJob) waitForNoRunningOperations(ctx context.Context) error {
-	j.l.Info("Waiting for operations completion.")
+func waitForNoRunningPBMOperations(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL) error {
+	l.Info("Waiting for pbm operations completion.")
+
 	ticker := time.NewTicker(statusCheckInterval)
 	defer ticker.Stop()
 
 	for {
 		select {
 		case <-ticker.C:
-			done, err := j.checkBackupCompletion(ctx)
+			done, err := checkRunningPBMOperations(ctx, l, dbURL)
 			if err != nil {
-				return errors.Wrapf(err, "failed to check backup completion")
+				return errors.Wrapf(err, "failed to check running operations")
 			}
 
 			if done {
@@ -198,12 +199,12 @@ func (j *MongoDBBackupJob) waitForNoRunningOperations(ctx context.Context) error
 	}
 }
 
-func (j *MongoDBBackupJob) setupS3(ctx context.Context) error {
-	j.l.Info("Configuring S3 location.")
+func pbmSetupS3(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL, prefix string, s3Config *S3LocationConfig, resync bool) error {
+	l.Info("Configuring S3 location.")
 	nCtx, cancel := context.WithTimeout(ctx, cmdTimeout)
 	defer cancel()
 
-	confFile, err := j.writePBMConfigFile()
+	confFile, err := writePBMConfigFile(prefix, s3Config)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -213,7 +214,7 @@ func (j *MongoDBBackupJob) setupS3(ctx context.Context) error {
 		nCtx,
 		pbmBin,
 		"config",
-		"--mongodb-uri="+j.dbURL.String(),
+		"--mongodb-uri="+dbURL.String(),
 		"--file="+confFile,
 	).CombinedOutput()
 
@@ -221,10 +222,27 @@ func (j *MongoDBBackupJob) setupS3(ctx context.Context) error {
 		return errors.Wrapf(err, "pbm config error: %s", string(output))
 	}
 
+	if resync {
+		nCtx, cancel := context.WithTimeout(ctx, cmdTimeout)
+		defer cancel()
+
+		output, err = exec.CommandContext( //nolint:gosec
+			nCtx,
+			pbmBin,
+			"config",
+			"--mongodb-uri="+dbURL.String(),
+			"--force-resync",
+		).CombinedOutput()
+
+		if err != nil {
+			return errors.Wrapf(err, "pbm config error: %s", string(output))
+		}
+	}
+
 	return nil
 }
 
-func (j *MongoDBBackupJob) writePBMConfigFile() (string, error) {
+func writePBMConfigFile(prefix string, s3Config *S3LocationConfig) (string, error) {
 	tmp, err := ioutil.TempFile("", "pbm-config-*.yml")
 	if err != nil {
 		return "", errors.Wrap(err, "failed to create pbm configuration file")
@@ -247,12 +265,12 @@ func (j *MongoDBBackupJob) writePBMConfigFile() (string, error) {
 	}
 
 	conf.Storage.Type = "s3"
-	conf.Storage.S3.EndpointURL = j.location.S3Config.Endpoint
-	conf.Storage.S3.Region = j.location.S3Config.BucketRegion
-	conf.Storage.S3.Bucket = j.location.S3Config.BucketName
-	conf.Storage.S3.Prefix = j.name
-	conf.Storage.S3.Credentials.AccessKeyID = j.location.S3Config.AccessKey
-	conf.Storage.S3.Credentials.SecretAccessKey = j.location.S3Config.SecretKey
+	conf.Storage.S3.EndpointURL = s3Config.Endpoint
+	conf.Storage.S3.Region = s3Config.BucketRegion
+	conf.Storage.S3.Bucket = s3Config.BucketName
+	conf.Storage.S3.Prefix = prefix
+	conf.Storage.S3.Credentials.AccessKeyID = s3Config.AccessKey
+	conf.Storage.S3.Credentials.SecretAccessKey = s3Config.SecretKey
 
 	bytes, err := yaml.Marshal(&conf)
 	if err != nil {

@@ -504,7 +504,30 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 			Socket:   j.MongodbBackup.Socket,
 		}
 		job = jobs.NewMongoDBBackupJob(p.JobId, timeout, j.MongodbBackup.Name, cfg, locationConfig)
+	case *agentpb.StartJobRequest_MongodbRestoreBackup:
+		var locationConfig jobs.BackupLocationConfig
+		switch cfg := j.MongodbRestoreBackup.LocationConfig.(type) {
+		case *agentpb.StartJobRequest_MongoDBRestoreBackup_S3Config:
+			locationConfig.S3Config = &jobs.S3LocationConfig{
+				Endpoint:     cfg.S3Config.Endpoint,
+				AccessKey:    cfg.S3Config.AccessKey,
+				SecretKey:    cfg.S3Config.SecretKey,
+				BucketName:   cfg.S3Config.BucketName,
+				BucketRegion: cfg.S3Config.BucketRegion,
+			}
 
+		default:
+			return errors.Errorf("unknown location config: %T", j.MongodbRestoreBackup.LocationConfig)
+		}
+
+		cfg := jobs.DBConnConfig{
+			User:     j.MongodbRestoreBackup.User,
+			Password: j.MongodbRestoreBackup.Password,
+			Address:  j.MongodbRestoreBackup.Address,
+			Port:     int(j.MongodbRestoreBackup.Port),
+			Socket:   j.MongodbRestoreBackup.Socket,
+		}
+		job = jobs.NewMongoDBRestoreJob(p.JobId, timeout, j.MongodbRestoreBackup.Name, cfg, locationConfig)
 	default:
 		return errors.Errorf("unknown job type: %T", j)
 	}
