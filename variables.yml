@@ -5,12 +5,8 @@ release_date: 2021-06-01
 op:
   pxc_vers: 'v1.8.0'
   psmdb_vers: 'v1.7.0'
-# Miscellaneous values
+  # Miscellaneous values
 extra:
-  # Link to AWS Marketplace for PMM Server
-  server_aws: 'https://aws.amazon.com/marketplace/pp/B077J7FYGX'
-  # Code block includes
-  STATE_HEALTH_STATUS: '{{.State.Health.Status}}' # Docker variables in code breaks MkDocs macros extension
   # Used in Setting Up/Client pages
   'pmm_password': 'password'  #'s3cR#tpa$$worD'
   'pmm_mongodb_user': 'pmm_mongodb'

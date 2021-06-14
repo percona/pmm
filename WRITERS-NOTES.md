@@ -104,3 +104,12 @@ An exception would be when there is an equivalent or closely related section els
 ```
 !!! seealso alert alert-info "See also"
 ```
+
+
+## Variables
+
+We use the `mkdocs-macros` plugin for variable expansion. For example, the variable `release` in `variables.yml` is used in the code so that the current PMM release number is always up to date. (Search the markdown files for `{{release}}`.)
+
+This plugin can have problems when Jinja-like constructs are used in code. This happens when refering to Docker variables. Work arounds are explained here: https://github.com/fralau/mkdocs_macros_plugin/blob/master/webdoc/docs/advanced.md#solutions
+
+In some places we have used variables themselves to solve the problem. In others, `{% raw %}/{% endraw %}` surrounds the conflicting text.
