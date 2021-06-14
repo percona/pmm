@@ -111,7 +111,7 @@ To monitor a DB cluster, set up a [public address](../../how-to/configure.md#pub
 
         Values for the *Custom* preset can be edited.
 
-		Beside each resource type is an estimate of the required and available resources represented numerically in absolute and percentage values, and graphically as a colored, segmented bar showing the projected ratio of used to available resources. A red warning triangle {{ icon.exclamationtrianglered }} is shown if the requested resources exceed those available.
+        Beside each resource type is an estimate of the required and available resources represented numerically in absolute and percentage values, and graphically as a colored, segmented bar showing the projected ratio of used to available resources. A red warning triangle {{ icon.exclamationtrianglered }} is shown if the requested resources exceed those available.
 
         ![!](../../_images/PMM_DBaaS_DB_Cluster_Advanced_Options.png)
 
