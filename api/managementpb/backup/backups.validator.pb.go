@@ -8,6 +8,7 @@ import (
 	proto "github.com/golang/protobuf/proto"
 	_ "github.com/mwitkow/go-proto-validators"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
+	_ "github.com/percona/pmm/api/inventorypb"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	math "math"
 )
@@ -27,6 +28,22 @@ func (this *StartBackupRequest) Validate() error {
 	return nil
 }
 func (this *StartBackupResponse) Validate() error {
+	return nil
+}
+func (this *ListServicesForRestoreRequest) Validate() error {
+	if this.ArtifactId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ArtifactId", fmt.Errorf(`value '%v' must not be an empty string`, this.ArtifactId))
+	}
+	return nil
+}
+func (this *ListServicesForRestoreResponse) Validate() error {
+	for _, item := range this.Mysql {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Mysql", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *RestoreBackupRequest) Validate() error {

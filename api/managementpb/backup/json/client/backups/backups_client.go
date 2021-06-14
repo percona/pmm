@@ -25,11 +25,46 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
+	ListServicesForRestore(params *ListServicesForRestoreParams) (*ListServicesForRestoreOK, error)
+
 	RestoreBackup(params *RestoreBackupParams) (*RestoreBackupOK, error)
 
 	StartBackup(params *StartBackupParams) (*StartBackupOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+  ListServicesForRestore lists services for restore lists compatible services for restoring a backup
+*/
+func (a *Client) ListServicesForRestore(params *ListServicesForRestoreParams) (*ListServicesForRestoreOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewListServicesForRestoreParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "ListServicesForRestore",
+		Method:             "POST",
+		PathPattern:        "/v1/management/backup/Backups/ListServicesForRestore",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ListServicesForRestoreReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ListServicesForRestoreOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ListServicesForRestoreDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*

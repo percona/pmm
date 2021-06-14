@@ -593,6 +593,42 @@ func (this *JobProgress_MySQLBackup) Validate() error {
 func (this *JobProgress_MySQLRestoreBackup) Validate() error {
 	return nil
 }
+func (this *GetVersionRequest) Validate() error {
+	if oneOfNester, ok := this.GetSoftware().(*GetVersionRequest_RemoteMysql); ok {
+		if oneOfNester.RemoteMysql != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.RemoteMysql); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("RemoteMysql", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetSoftware().(*GetVersionRequest_LocalMysql); ok {
+		if oneOfNester.LocalMysql != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.LocalMysql); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("LocalMysql", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetSoftware().(*GetVersionRequest_Xtrabackup); ok {
+		if oneOfNester.Xtrabackup != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Xtrabackup); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Xtrabackup", err)
+			}
+		}
+	}
+	return nil
+}
+func (this *GetVersionRequest_RemoteMySQL) Validate() error {
+	return nil
+}
+func (this *GetVersionRequest_LocalMySQL) Validate() error {
+	return nil
+}
+func (this *GetVersionRequest_XtraBackup) Validate() error {
+	return nil
+}
+func (this *GetVersionResponse) Validate() error {
+	return nil
+}
 func (this *AgentMessage) Validate() error {
 	if this.Status != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Status); err != nil {
@@ -697,6 +733,13 @@ func (this *AgentMessage) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetPayload().(*AgentMessage_GetVersion); ok {
+		if oneOfNester.GetVersion != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.GetVersion); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("GetVersion", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *ServerMessage) Validate() error {
@@ -786,6 +829,13 @@ func (this *ServerMessage) Validate() error {
 		if oneOfNester.JobStatus != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.JobStatus); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("JobStatus", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetPayload().(*ServerMessage_GetVersion); ok {
+		if oneOfNester.GetVersion != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.GetVersion); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("GetVersion", err)
 			}
 		}
 	}

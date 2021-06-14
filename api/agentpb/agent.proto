@@ -510,6 +510,39 @@ message JobProgress {
   }
 }
 
+// GetVersionRequest represents a request for version retrieving of different software.
+message GetVersionRequest {
+  // RemoteMySQL is used for remote MySQL version retrieving using `select version();`.
+  message RemoteMySQL {
+    // Database user;
+    string user = 1;
+    // Database password.
+    string password = 2;
+    // Database address. Can't be specified with socket.
+    string address = 3;
+    // Database port. Can't be specified with socket.
+    int32 port = 4;
+    // Database unix socket. Can't be specified with address/port.
+    string socket = 5;
+  }
+  // LocalMySQL is used for local MySQL version retrieving using `mysql --version`.
+  message LocalMySQL {}
+
+  // XtraBackup is used for xtrabackup version retrieving.
+  message XtraBackup {}
+
+  oneof software {
+    RemoteMySQL remote_mysql = 1;
+    LocalMySQL local_mysql = 2;
+    XtraBackup xtrabackup = 3;
+  }
+}
+
+// GetVersionResponse represents a response containing a version of requested software.
+message GetVersionResponse {
+  string version = 1;
+}
+
 message AgentMessage {
   // TODO https://jira.percona.com/browse/PMM-3449
 
@@ -537,6 +570,7 @@ message AgentMessage {
     JobStatusResponse job_status = 15;
     JobResult job_result = 16;
     JobProgress job_progress = 17;
+    GetVersionResponse get_version = 18;
   }
 }
 
@@ -565,6 +599,7 @@ message ServerMessage {
     StartJobRequest start_job = 13;
     StopJobRequest stop_job = 14;
     JobStatusRequest job_status = 15;
+    GetVersionRequest get_version = 16;
   }
 }
 
