@@ -1,6 +1,6 @@
 # Docker
 
-How to run PMM Server with Docker based on our [Docker image] for PMM Server.
+How to run PMM Server with Docker based on our [Docker image].
 
 !!! note alert alert-primary ""
     The tags used here are for the current release. Other [tags] are available.
@@ -12,7 +12,13 @@ How to run PMM Server with Docker based on our [Docker image] for PMM Server.
 
 ## Run
 
+!!! summary alert alert-info "Summary"
+    - Pull the Docker image.
+    - Copy it to create a persistent data container.
+    - Run the image.
+    - Open the PMM UI in a browser.
 
+---
 
 1. Pull the image.
 
@@ -84,6 +90,14 @@ How to run PMM Server with Docker based on our [Docker image] for PMM Server.
 
 ## Upgrade
 
+!!! summary alert alert-info "Summary"
+    - Stop the running container.
+    - Backup (rename) the container and copy data.
+    - Pull the latest Docker image.
+    - Run it.
+
+---
+
 !!! tip alert alert-success "Tip"
     To see what release you are running, use the *PMM Upgrade* panel on the *Home Dashboard*, or run:
 
@@ -117,10 +131,16 @@ How to run PMM Server with Docker based on our [Docker image] for PMM Server.
 
 ## Restore
 
+!!! summary alert alert-info "Summary"
+    - Stop and remove the container.
+    - Restore (rename) the backup container.
+    - Restore saved data to the data container.
+    - Restore permissions to the data.
+
+---
+
 !!! caution alert alert-warning "Important"
     You must have a [backup](#backup) to restore from.
-
-
 
 1. Stop the container.
 
@@ -170,6 +190,13 @@ How to run PMM Server with Docker based on our [Docker image] for PMM Server.
 
 ## Remove
 
+!!! summary alert alert-info "Summary"
+    - Stop the container.
+    - Remove (delete) both the server and data containers.
+    - Remove (delete) both images.
+
+---
+
 !!! caution alert alert-warning "Caution"
     These steps delete the PMM Server Docker image and any accumulated PMM metrics data.
 
@@ -192,6 +219,12 @@ How to run PMM Server with Docker based on our [Docker image] for PMM Server.
     ```
 
 ## Docker compose {: #docker-compose }
+
+!!! summary alert alert-info "Summary"
+    - Copy and paste the `docker-compose.yml` file.
+    - Run `docker-compose up`.
+
+---
 
 !!! important alert alert-success "Important"
     With this approach, data is stored in a volume, not in a `pmm-data` container.
@@ -229,8 +262,7 @@ How to run PMM Server with Docker based on our [Docker image] for PMM Server.
 
 ## Environment variables
 
-Use the following container environment variables (with `-e var=value`) to set PMM Server parameters.
-
+Use the following Docker container environment variables (with `-e var=value`) to set PMM Server parameters.
 
 | Variable                   | Description                                                             |
 | -------------------------- | ----------------------------------------------------------------------- |
