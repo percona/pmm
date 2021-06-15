@@ -56,7 +56,7 @@ stop
 
 ## Prerequisites
 
-Set up a communication channel: When the *Communication* tab appears, select it. Enter details for *Email* or *Slack*. ([Read more.](../how-to/configure.md#advanced-settings))
+Set up a communication channel: When the *Communication* tab appears, select it. Enter details for *Email* or *Slack*. ([Read more.](../how-to/configure.md#communication))
 
 ## Open the *Integrated Alerting* page
 
