@@ -20,9 +20,9 @@ package agents
 import (
 	"time"
 
-	"github.com/golang/protobuf/ptypes"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
+	"google.golang.org/protobuf/types/known/durationpb"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
@@ -46,11 +46,11 @@ func NewJobsService(db *reform.DB, registry *Registry) *JobsService {
 func (s *JobsService) StartEchoJob(jobID, pmmAgentID string, timeout time.Duration, message string, delay time.Duration) error {
 	req := &agentpb.StartJobRequest{
 		JobId:   jobID,
-		Timeout: ptypes.DurationProto(timeout),
+		Timeout: durationpb.New(timeout),
 		Job: &agentpb.StartJobRequest_Echo_{
 			Echo: &agentpb.StartJobRequest_Echo{
 				Message: message,
-				Delay:   ptypes.DurationProto(delay),
+				Delay:   durationpb.New(delay),
 			},
 		},
 	}
@@ -93,7 +93,7 @@ func (s *JobsService) StartMySQLBackupJob(jobID, pmmAgentID string, timeout time
 	}
 	req := &agentpb.StartJobRequest{
 		JobId:   jobID,
-		Timeout: ptypes.DurationProto(timeout),
+		Timeout: durationpb.New(timeout),
 		Job: &agentpb.StartJobRequest_MysqlBackup{
 			MysqlBackup: mySQLReq,
 		},
@@ -143,7 +143,7 @@ func (s *JobsService) StartMongoDBBackupJob(
 	}
 	req := &agentpb.StartJobRequest{
 		JobId:   jobID,
-		Timeout: ptypes.DurationProto(timeout),
+		Timeout: durationpb.New(timeout),
 		Job: &agentpb.StartJobRequest_MongodbBackup{
 			MongodbBackup: mongoDBReq,
 		},
@@ -180,7 +180,7 @@ func (s *JobsService) StartMySQLRestoreBackupJob(
 
 	req := &agentpb.StartJobRequest{
 		JobId:   jobID,
-		Timeout: ptypes.DurationProto(timeout),
+		Timeout: durationpb.New(timeout),
 		Job: &agentpb.StartJobRequest_MysqlRestoreBackup{
 			MysqlRestoreBackup: &agentpb.StartJobRequest_MySQLRestoreBackup{
 				ServiceId: serviceID,
@@ -237,7 +237,7 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 
 	req := &agentpb.StartJobRequest{
 		JobId:   jobID,
-		Timeout: ptypes.DurationProto(timeout),
+		Timeout: durationpb.New(timeout),
 		Job: &agentpb.StartJobRequest_MongodbRestoreBackup{
 			MongodbRestoreBackup: mongoDBReq,
 		},

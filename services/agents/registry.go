@@ -28,7 +28,6 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/golang/protobuf/proto" //nolint:staticcheck
-	"github.com/golang/protobuf/ptypes"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/version"
@@ -37,6 +36,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/durationpb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
@@ -56,9 +57,9 @@ const (
 var (
 	checkExternalExporterConnectionPMMVersion = version.MustParse("1.14.99")
 
-	defaultActionTimeout      = ptypes.DurationProto(10 * time.Second)
-	defaultQueryActionTimeout = ptypes.DurationProto(15 * time.Second) // should be less than checks.resultTimeout
-	defaultPtActionTimeout    = ptypes.DurationProto(30 * time.Second) // Percona-toolkit action timeout
+	defaultActionTimeout      = durationpb.New(10 * time.Second)
+	defaultQueryActionTimeout = durationpb.New(15 * time.Second) // should be less than checks.resultTimeout
+	defaultPtActionTimeout    = durationpb.New(30 * time.Second) // Percona-toolkit action timeout
 
 	mSentDesc = prom.NewDesc(
 		prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "messages_sent_total"),
@@ -228,7 +229,7 @@ func (r *Registry) Run(stream agentpb.Agent_ConnectServer) error {
 				agent.channel.Send(&channel.ServerResponse{
 					ID: req.ID,
 					Payload: &agentpb.Pong{
-						CurrentTime: ptypes.TimestampNow(),
+						CurrentTime: timestamppb.Now(),
 					},
 				})
 
@@ -603,8 +604,8 @@ func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) error {
 		return nil
 	}
 	roundtrip := time.Since(start)
-	agentTime, err := ptypes.Timestamp(resp.(*agentpb.Pong).CurrentTime)
-	if err != nil {
+	agentTime := resp.(*agentpb.Pong).CurrentTime.AsTime()
+	if err := resp.(*agentpb.Pong).CurrentTime.CheckValid(); err != nil {
 		return errors.Wrap(err, "failed to decode Pong.current_time")
 	}
 	clockDrift := agentTime.Sub(start) - roundtrip/2
@@ -984,7 +985,7 @@ func (r *Registry) CheckConnectionToService(ctx context.Context, q *reform.Queri
 		request = &agentpb.CheckConnectionRequest{
 			Type:    inventorypb.ServiceType_MYSQL_SERVICE,
 			Dsn:     agent.DSN(service, 2*time.Second, "", nil),
-			Timeout: ptypes.DurationProto(3 * time.Second),
+			Timeout: durationpb.New(3 * time.Second),
 			TextFiles: &agentpb.TextFiles{
 				Files:              agent.Files(),
 				TemplateLeftDelim:  tdp.Left,
@@ -996,14 +997,14 @@ func (r *Registry) CheckConnectionToService(ctx context.Context, q *reform.Queri
 		request = &agentpb.CheckConnectionRequest{
 			Type:    inventorypb.ServiceType_POSTGRESQL_SERVICE,
 			Dsn:     agent.DSN(service, 2*time.Second, "postgres", nil),
-			Timeout: ptypes.DurationProto(3 * time.Second),
+			Timeout: durationpb.New(3 * time.Second),
 		}
 	case models.MongoDBServiceType:
 		tdp := agent.TemplateDelimiters(service)
 		request = &agentpb.CheckConnectionRequest{
 			Type:    inventorypb.ServiceType_MONGODB_SERVICE,
 			Dsn:     agent.DSN(service, 2*time.Second, "", nil),
-			Timeout: ptypes.DurationProto(3 * time.Second),
+			Timeout: durationpb.New(3 * time.Second),
 			TextFiles: &agentpb.TextFiles{
 				Files:              agent.Files(),
 				TemplateLeftDelim:  tdp.Left,
@@ -1014,7 +1015,7 @@ func (r *Registry) CheckConnectionToService(ctx context.Context, q *reform.Queri
 		request = &agentpb.CheckConnectionRequest{
 			Type:    inventorypb.ServiceType_PROXYSQL_SERVICE,
 			Dsn:     agent.DSN(service, 2*time.Second, "", nil),
-			Timeout: ptypes.DurationProto(3 * time.Second),
+			Timeout: durationpb.New(3 * time.Second),
 		}
 	case models.ExternalServiceType:
 		exporterURL, err := agent.ExporterURL(q)
@@ -1025,7 +1026,7 @@ func (r *Registry) CheckConnectionToService(ctx context.Context, q *reform.Queri
 		request = &agentpb.CheckConnectionRequest{
 			Type:    inventorypb.ServiceType_EXTERNAL_SERVICE,
 			Dsn:     exporterURL,
-			Timeout: ptypes.DurationProto(3 * time.Second),
+			Timeout: durationpb.New(3 * time.Second),
 		}
 	case models.HAProxyServiceType:
 		exporterURL, err := agent.ExporterURL(q)
@@ -1036,7 +1037,7 @@ func (r *Registry) CheckConnectionToService(ctx context.Context, q *reform.Queri
 		request = &agentpb.CheckConnectionRequest{
 			Type:    inventorypb.ServiceType_HAPROXY_SERVICE,
 			Dsn:     exporterURL,
-			Timeout: ptypes.DurationProto(3 * time.Second),
+			Timeout: durationpb.New(3 * time.Second),
 		}
 	default:
 		return errors.Errorf("unhandled Service type %s", service.ServiceType)

@@ -30,7 +30,6 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto" //nolint:staticcheck
-	"github.com/golang/protobuf/ptypes"
 	"github.com/google/uuid"
 	events "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	reporter "github.com/percona-platform/saas/gen/telemetry/reporter"
@@ -38,6 +37,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
+	"google.golang.org/protobuf/types/known/durationpb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 	"gopkg.in/reform.v1"
 
@@ -266,7 +267,7 @@ func (s *Service) makeV2Payload(serverUUID string, settings *models.Settings) (*
 	event := &events.ServerUptimeEvent{
 		Id:                 serverID,
 		Version:            s.pmmVersion,
-		UpDuration:         ptypes.DurationProto(time.Since(s.start)),
+		UpDuration:         durationpb.New(time.Since(s.start)),
 		DistributionMethod: s.tDistributionMethod,
 		SttEnabled:         wrapperspb.Bool(settings.SaaS.STTEnabled),
 		IaEnabled:          wrapperspb.Bool(settings.IntegratedAlerting.Enabled),
@@ -285,7 +286,7 @@ func (s *Service) makeV2Payload(serverUUID string, settings *models.Settings) (*
 	req := &reporter.ReportRequest{
 		Events: []*reporter.Event{{
 			Id:   id[:],
-			Time: ptypes.TimestampNow(),
+			Time: timestamppb.Now(),
 			Event: &reporter.AnyEvent{
 				TypeUrl: proto.MessageName(event), //nolint:staticcheck
 				Binary:  eventB,

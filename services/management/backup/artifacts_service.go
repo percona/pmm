@@ -20,10 +20,10 @@ package backup
 import (
 	"context"
 
-	"github.com/golang/protobuf/ptypes"
 	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
@@ -135,8 +135,8 @@ func convertArtifact(
 	services map[string]*models.Service,
 	locations map[string]*models.BackupLocation,
 ) (*backupv1beta1.Artifact, error) {
-	createdAt, err := ptypes.TimestampProto(a.CreatedAt)
-	if err != nil {
+	createdAt := timestamppb.New(a.CreatedAt)
+	if err := createdAt.CheckValid(); err != nil {
 		return nil, errors.Wrap(err, "failed to convert timestamp")
 	}
 
