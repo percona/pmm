@@ -1,9 +1,9 @@
 # Docker
 
-This page shows how to run PMM Server with Docker based on our [Docker image] for PMM Server.
+How to run PMM Server with Docker based on our [Docker image] for PMM Server.
 
 !!! note alert alert-primary ""
-    The tags used here are for the current release, {{release}}. Other [tags] are available.
+    The tags used here are for the current release. Other [tags] are available.
 
 ## Before you start
 
@@ -27,7 +27,14 @@ This page shows how to run PMM Server with Docker based on our [Docker image] fo
     ```
 
     !!! caution alert alert-warning "Important"
-        PMM Server expects the data volume (specified with `--volume`) to be `/srv`.  **Using any other value will result in data loss when upgrading.**
+        PMM Server expects the data volume to be `/srv`. Using any other value will result in **data loss** when upgrading.
+
+        To check server and data container mount points:
+
+        ```sh
+        docker inspect pmm-data | grep Destination && \
+        docker inspect pmm-server | grep Destination
+        ```
 
 3. Run the image.
 
@@ -41,50 +48,48 @@ This page shows how to run PMM Server with Docker based on our [Docker image] fo
 
 4. In a web browser, visit `https://localhost:443` (or `http://localhost:80` if enabled) to see the PMM user interface. (If you are accessing the docker host remotely, replace `localhost` with the IP or server name of the host.)
 
-!!! tip alert alert-success "Tips"
-    - Disable manual updates via the Home Dashboard *PMM Upgrade* panel by adding `-e DISABLE_UPDATES=true` to the `docker run` command in step 3. ([Read more about Docker environment variables.](#environment-variables))
-    - Eliminate browser certificate warnings by configuring a [trusted certificate].
-    - Optionally enable an (insecure) HTTP connection by adding `--publish 80:80` to the `docker run` command in step 3. However note that PMM Client *requires* TLS to communicate with the server so will only work on the secure port.
-
 ## Backup
 
-1. Find out what release is running.
+!!! summary "Summary"
+    - Stop and rename the `pmm-server` container.
+    - Take a local copy of the `pmm-data` container's `/srv` directory.
+
+1. Stop the container.
+
+    ```sh
+    docker stop pmm-server
+    ```
+
+1. Move the image.
+
+    ```sh
+    docker rename pmm-server pmm-server-backup
+    ```
+
+1. Create a subdirectory (e.g., `pmm-data-backup`) and move to it.
+
+    ```sh
+    mkdir pmm-data-backup && cd pmm-data-backup
+    ```
+
+1. Backup the data.
+
+    ```sh
+    docker cp pmm-data:/srv .
+    ```
+
+## Upgrade
+
+!!! tip alert alert-success "Tip"
+    To see what release you are running, use the *PMM Upgrade* panel on the *Home Dashboard*, or run:
 
     ```sh
     docker exec -it pmm-server \
     curl -ku admin:admin https://localhost/v1/version
     ```
 
-    !!! note alert alert-primary ""
-        If you are accessing the docker host remotely, replace `localhost` with the IP or server name of the host.
+    (If you are accessing the docker host remotely, replace `localhost` with the IP or server name of the host.)
 
-2. Check container mount points match (`/srv`).
-
-    ```sh
-    docker inspect pmm-data | grep Destination && \
-    docker inspect pmm-server | grep Destination
-    ```
-
-3. Stop the container
-
-    ```sh
-    docker stop pmm-server
-    ```
-
-4. Backup the image.
-
-    ```sh
-    docker rename pmm-server pmm-server-backup
-    ```
-
-5. Backup the data (copy it to a subdirectory, for example, `pmm-data-backup`).
-
-    ```sh
-    mkdir pmm-data-backup && cd $_ && \
-    docker cp pmm-data:/srv .
-    ```
-
-## Upgrade
 
 1. Perform a [backup](#backup).
 
@@ -106,16 +111,12 @@ This page shows how to run PMM Server with Docker based on our [Docker image] fo
     percona/pmm-server:2
     ```
 
-4. Check the version (or use the *PMM Upgrade* panel on the *Home Dashboard*).
-
-    ```sh
-    docker exec -it pmm-server curl -ku admin:admin https://localhost/v1/version
-    ```
-
 ## Restore
 
 !!! caution alert alert-warning "Important"
     You must have a [backup](#backup) to restore from.
+
+
 
 1. Stop the container.
 
@@ -123,27 +124,27 @@ This page shows how to run PMM Server with Docker based on our [Docker image] fo
     docker stop pmm-server
     ```
 
-2. Remove it.
+1. Remove it.
 
     ```sh
     docker rm pmm-server
     ```
 
-3. Restore backup.
+1. Revert to the saved image.
 
     ```sh
     docker rename pmm-server-backup pmm-server
     ```
 
-4. Change directory to the backup directory (e.g. `pmm-data-backup`).
+1. Change directory to the backup directory (e.g. `pmm-data-backup`).
 
-5. Copy the data.
+1. Copy the data.
 
     ```sh
     docker cp srv pmm-data:/
     ```
 
-6. Restore permissions.
+1. Restore permissions.
 
     ```sh
     docker run --rm --volumes-from pmm-data -it percona/pmm-server:2 chown -R root:root /srv && \
@@ -157,7 +158,7 @@ This page shows how to run PMM Server with Docker based on our [Docker image] fo
     docker run --rm --volumes-from pmm-data -it percona/pmm-server:2 chown -R postgres:postgres /srv/logs/postgresql.log
     ```
 
-4. Start the image.
+1. Start the image.
 
     ```sh
     docker start pmm-server
@@ -166,7 +167,7 @@ This page shows how to run PMM Server with Docker based on our [Docker image] fo
 ## Remove
 
 !!! caution alert alert-warning "Caution"
-    These steps delete the PMM Server Docker image and PMM metrics data.
+    These steps delete the PMM Server Docker image and any accumulated PMM metrics data.
 
 1. Stop pmm-server container.
 
@@ -174,13 +175,13 @@ This page shows how to run PMM Server with Docker based on our [Docker image] fo
     docker stop pmm-server
     ```
 
-2. Remove containers.
+1. Remove containers.
 
     ```sh
     docker rm pmm-server pmm-data
     ```
 
-3. Remove the image.
+1. Remove the image.
 
     ```sh
     docker rmi $(docker images | grep "percona/pmm-server" | awk {'print $3'})
@@ -214,13 +215,13 @@ This page shows how to run PMM Server with Docker based on our [Docker image] fo
       data:
     ```
 
-2. Run:
+1. Run:
 
     ```sh
     docker-compose up
     ```
 
-3. In a web browser, visit `https://localhost:443` to see the PMM user interface. (If you are accessing the docker host remotely, replace `localhost` with the IP or server name of the host.)
+1. In a web browser, visit `https://localhost:443` to see the PMM user interface. (If you are accessing the docker host remotely, replace `localhost` with the IP or server name of the host.)
 
 ## Environment variables
 
@@ -261,6 +262,13 @@ These variables will be ignored by `pmm-managed` when starting the server. If an
 
 ## Tips
 
+- Disable manual updates via the Home Dashboard *PMM Upgrade* panel by adding `-e DISABLE_UPDATES=true` to the `docker run` command.
+
+- Eliminate browser certificate warnings by configuring a [trusted certificate].
+
+- Optionally enable an (insecure) HTTP connection by adding `--publish 80:80` to the `docker run` command. However note that PMM Client *requires* TLS to communicate with the server so will only work on the secure port.
+
+
 **Isolated hosts**
 
 If the host where you will run PMM Server has no internet connection, you can download the Docker image on a separate (internet-connected) host and securely copy it.
@@ -272,30 +280,30 @@ If the host where you will run PMM Server has no internet connection, you can do
     wget https://downloads.percona.com/downloads/pmm2/{{release}}/docker/pmm-server-{{release}}.sha256sum
     ```
 
-2. Copy both files to where you will run PMM Server.
+1. Copy both files to where you will run PMM Server.
 
-3. Open a terminal on the PMM Server host.
+1. Open a terminal on the PMM Server host.
 
-4. (Optional) Check the Docker image file integrity.
+1. (Optional) Check the Docker image file integrity.
 
     ```sh
     shasum -ca 256 pmm-server-{{release}}.sha256sum
     ```
 
-5. Load the image.
+1. Load the image.
 
     ```sh
     docker load -i pmm-server-{{release}}.docker
     ```
 
-6. Create the `pmm-data` persistent data container.
+1. Create the `pmm-data` persistent data container.
 
     ```sh
     docker create --volume /srv \
     --name pmm-data percona/pmm-server:{{release}} /bin/true
     ```
 
-7. Run the container.
+1. Run the container.
 
     ```sh
     docker run \
