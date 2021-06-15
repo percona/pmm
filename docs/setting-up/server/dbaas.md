@@ -169,154 +169,108 @@ alias kubectl='minikube kubectl --'
 
 ### Google GKE {: #google-gke }
 
-**Prerequisites**
+1. Create your cluster either with [Google Cloud Console](https://console.cloud.google.com/) or [gcloud command line tool](https://cloud.google.com/sdk/gcloud):
 
-You should have an account on GCP [https://cloud.google.com/](https://cloud.google.com/).
+   The command below assumes that your gcloud command line tool is properly configured and your user authenticated and authorized to manage GKE Clusters. This example creates a minimal zonal cluster using preemptible node machines, ideal for testing the DBaaS functionality.  
 
-1. Login into google cloud platform console [https://console.cloud.google.com/](https://console.cloud.google.com/)
+   ```shell
+   gcloud container clusters create --zone europe-west3-c pmm-dbaas-cluster --cluster-version 1.19 --machine-type e2-standard-4 --preemptible --num-nodes=3
+   gcloud container clusters get-credentials pmm-dbaas-cluster --zone=europe-west3-c
+   kubectl create clusterrolebinding cluster-admin-binding --clusterrole=cluster-admin --user=<<your_user@your_company.com>>
+   ```
 
-2. Navigate to Menu --> Kubernetes Engine --> Clusters
+2. Create ServiceAccount, ClusterRole and RoleBindings (required Roles are deployed automatically when PMM deploys Operators) using the following command:
 
-    ![!](../../_images/PMM_DBaaS_GKE_1.png)
+   ```shell
+   cat <<EOF | kubectl apply -f -
+   ---
+   apiVersion: v1
+   kind: ServiceAccount
+   metadata:
+     name: percona-dbaas-cluster-operator
+   ---
+   kind: RoleBinding
+   apiVersion: rbac.authorization.k8s.io/v1beta1
+   metadata:
+     name: service-account-percona-server-dbaas-xtradb-operator
+   subjects:
+   - kind: ServiceAccount
+     name: percona-dbaas-cluster-operator
+   roleRef:
+     kind: Role
+     name: percona-xtradb-cluster-operator
+     apiGroup: rbac.authorization.k8s.io
+   ---
+   kind: RoleBinding
+   apiVersion: rbac.authorization.k8s.io/v1beta1
+   metadata:
+     name: service-account-percona-server-dbaas-psmdb-operator
+   subjects:
+   - kind: ServiceAccount
+     name: percona-dbaas-cluster-operator
+   roleRef:
+     kind: Role
+     name: percona-server-mongodb-operator
+     apiGroup: rbac.authorization.k8s.io
+   ---
+   apiVersion: rbac.authorization.k8s.io/v1beta1
+   kind: ClusterRole
+   metadata:
+     name: service-account-percona-server-dbaas-admin
+   rules:
+   - apiGroups: ["*"]
+     resources: ["*"]
+     verbs: ["*"]
+   ---
+   apiVersion: rbac.authorization.k8s.io/v1beta1
+   kind: ClusterRoleBinding
+   metadata:
+     name: service-account-percona-server-dbaas-operator-admin
+   subjects:
+   - kind: ServiceAccount
+     name: percona-dbaas-cluster-operator
+     namespace: default
+   roleRef:
+     kind: ClusterRole
+     name: service-account-percona-server-dbaas-admin
+     apiGroup: rbac.authorization.k8s.io
+   EOF
+   ```
 
-3. Click button Create cluster
+3. Extract variables required to generate a kubeconfig:
 
-    ![!](../../_images/PMM_DBaaS_GKE_2.png)
+   ```shell
+   name=`kubectl get serviceAccounts percona-dbaas-cluster-operator -o json | jq  -r '.secrets[].name'`
+   certificate=`kubectl get secret $name -o json | jq -r  '.data."ca.crt"'`
+   token=`kubectl get secret $name -o json | jq -r  '.data.token' | base64 -d`
+   server=`kubectl cluster-info | grep 'Kubernetes master' | cut -d ' ' -f 6`
+   ```
 
-4. You can specify cluster option in form or simply click on “My first cluster” and button Create
+4. Generate your kubeconfig file (copy the output):
 
-    ![!](../../_images/PMM_DBaaS_GKE_3.png)
+   ```shell
+   echo "
+   apiVersion: v1
+   kind: Config
+   users:
+   - name: percona-dbaas-cluster-operator
+     user:
+       token: $token
+   clusters:
+   - cluster:
+       certificate-authority-data: $certificate
+       server: $server
+     name: self-hosted-cluster
+   contexts:
+   - context:
+       cluster: self-hosted-cluster
+       user: percona-dbaas-cluster-operator
+     name: svcs-acct-context
+   current-context: svcs-acct-context
+   "
+   ```
 
-    ![!](../../_images/PMM_DBaaS_GKE_4.png)
-
-5. Wait until cluster created
-
-    ![!](../../_images/PMM_DBaaS_GKE_5.png)
-
-6. Click on button Connect in a the cluster’s row
-
-    ![!](../../_images/PMM_DBaaS_GKE_6.png)
-
-7. Click button Run in Cloud shell
-
-    ![!](../../_images/PMM_DBaaS_GKE_7.png)
-
-8. Click Authorize
-
-    ![!](../../_images/PMM_DBaaS_GKE_8.png)
-
-    ![!](../../_images/PMM_DBaaS_GKE_9.png)
-
-    ![!](../../_images/PMM_DBaaS_GKE_10.png)
-
-9. Set up PXC and PSMDB operators:
-
-    ```
-    curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-xtradb-cluster-operator/pmm-branch/deploy/bundle.yaml  | kubectl apply -f -
-    curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-server-mongodb-operator/pmm-branch/deploy/bundle.yaml  | kubectl apply -f -
-    ```
-
-    ![!](../../_images/PMM_DBaaS_GKE_11.png)
-
-10. Check if it was set up successfully
-
-    ```
-    kubectl api-resources --api-group='psmdb.percona.com'
-    kubectl api-resources --api-group='pxc.percona.com'
-    ```
-
-    ![!](../../_images/PMM_DBaaS_GKE_12.png)
-
-11. Check versions
-
-    ```
-    kubectl api-versions | grep percona.com
-    ```
-
-    ![!](../../_images/PMM_DBaaS_GKE_13.png)
-
-12. Create Service Account, copy and store kubeconfig - output of the following command
->>>>>>> main
-
-    ```
-    cat <<EOF | kubectl apply -f -
-    ---
-    apiVersion: v1
-    kind: ServiceAccount
-    metadata:
-      name: percona-dbaas-cluster-operator
-    ---
-    kind: RoleBinding
-    apiVersion: rbac.authorization.k8s.io/v1beta1
-    metadata:
-      name: service-account-percona-server-dbaas-xtradb-operator
-    subjects:
-    - kind: ServiceAccount
-      name: percona-dbaas-cluster-operator
-    roleRef:
-      kind: Role
-      name: percona-xtradb-cluster-operator
-      apiGroup: rbac.authorization.k8s.io
-    ---
-    kind: RoleBinding
-    apiVersion: rbac.authorization.k8s.io/v1beta1
-    metadata:
-      name: service-account-percona-server-dbaas-psmdb-operator
-    subjects:
-    - kind: ServiceAccount
-      name: percona-dbaas-cluster-operator
-    roleRef:
-      kind: Role
-      name: percona-server-mongodb-operator
-      apiGroup: rbac.authorization.k8s.io
-    EOF
-
-    name=`kubectl get serviceAccounts percona-dbaas-cluster-operator -o json | jq  -r .secrets[].name`
-    certificate=`kubectl get secret $name -o json | jq -r  '.data."ca.crt"'`
-    token=`kubectl get secret $name -o json | jq -r  '.data.token' | base64 -d`
-    server=`kubectl cluster-info | grep 'Kubernetes master' | cut -d ' ' -f 6`
-    ```
-
-    ![!](../../_images/PMM_DBaaS_GKE_14.png)
-
-
-    ```
-    echo "
-    apiVersion: v1
-    kind: Config
-    users:
-    - name: percona-dbaas-cluster-operator
-      user:
-        token: $token
-    clusters:
-    - cluster:
-        certificate-authority-data: $certificate
-        server: $server
-      name: self-hosted-cluster
-    contexts:
-    - context:
-        cluster: self-hosted-cluster
-        user: percona-dbaas-cluster-operator
-      name: svcs-acct-context
-    current-context: svcs-acct-context
-    "
-    ```
-
-    ![!](../../_images/PMM_DBaaS_GKE_15.png)
-
-10. Start PMM Server on your local machine or other VM instance:
-
-    ```sh
-    docker run --detach --name pmm-server --publish 80:80 --publish 443:443 \
-    --env ENABLE_DBAAS=1 perconalab/pmm-server-fb:PR-1240-07bef94;
-    ```
-
-11. Login into PMM and navigate to DBaaS
-
-     ![!](../../_images/PMM_DBaaS_GKE_16.png)
-
-12. Use kubeconfig from step 9 to [Add the Kubernetes cluster](../../using/platform/dbaas.md#add-a-kubernetes-cluster).
-
+5. Follow the instructions on [How to add a Kubernetes cluster](../../using/platform/dbaas.md#add-a-kubernetes-cluster) with kubeconfig from the previous step.
 ## Deleting clusters
 
 > If a Public Address is set in PMM Settings, for each DB cluster an API Key is created which can be found on the page `/graph/org/apikeys`. You should not delete them (for now, until [issue PMM-8045](https://jira.percona.com/browse/PMM-8045) is fixed) -- once a DB cluster is removed from DBaaS, the related API Key is also removed.
