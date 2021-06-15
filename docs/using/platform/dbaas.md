@@ -109,6 +109,8 @@ To monitor a DB cluster, set up a [public address](../../how-to/configure.md#pub
         
         By default, only internal access is provided. 
 
+        *External Access* can't be granted for local Kubernetes clusters (e.g. minikube).
+
     4. Select a preset for *Resources per Node*.
 
         *Small*, *Medium* and *Large* are fixed preset values for *Memory*, *CPU*, and *Disk*.
