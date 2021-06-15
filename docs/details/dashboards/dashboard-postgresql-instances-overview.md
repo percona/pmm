@@ -84,7 +84,7 @@ Number of Locks
 Operations with Blocks
 :   The time spent reading and writing data file blocks by back ends, in milliseconds.
 
-!!! tip alert alert-success "Tip"
+!!! hint alert alert-success "Tip"
     Capturing read and write time statistics is possible only if `track_io_timing` setting is enabled. This can be done either in configuration file or with the following query executed on the running system:
 
 ```sql

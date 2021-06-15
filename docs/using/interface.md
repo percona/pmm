@@ -77,7 +77,7 @@ At the top of each panel and to the right of the panel name is the *panel menu*.
 
 ![!image](../_images/PMM_Common_Panel_Menu.jpg)
 
-!!! tip alert alert-success "Tip"
+!!! hint alert alert-success "Tip"
     The menu is hidden until you mouse over it. Look for the {{icon.angledown}} symbol in the title bar of a panel.
 
 | Item                          | Description                                                                         |

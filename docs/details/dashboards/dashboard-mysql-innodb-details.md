@@ -3,7 +3,7 @@
 ![!image](../../_images/PMM_MySQL_InnoDB_Details.jpg)
 
 
-!!! tip alert alert-success "Tip"
+!!! hint alert alert-success "Tip"
     If metrics are missing, try running: `SET GLOBAL innodb_monitor_enable=all;` in the MySQL client.
 
 ## InnoDB Activity

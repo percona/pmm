@@ -12,7 +12,7 @@ To see which security features are enabled:
 pmm-admin status
 ```
 
-!!! tip alert alert-success "Tip"
+!!! hint alert alert-success "Tip"
     You can gain an extra level of security by keeping PMM Server isolated from the internet, if possible.
 
 ## SSL encryption

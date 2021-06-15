@@ -29,7 +29,7 @@ The main menu is part of the Grafana framework and is visible on every page.
 | {{icon.database}}   | DBaaS                |
 
 
-!!! tip alert alert-success "Tip"
+!!! hint alert alert-success "Tip"
     The DBaaS icon appears only if a server feature flag has been set.
 
     The Backup Management icon appears when *Backup Management* is activated in *{{icon.cog}} Configuration-->{{icon.setting}} Settings-->Advanced Settings*.
@@ -97,7 +97,7 @@ This menu contains shortcuts to other dashboards. The list changes according to 
 | {{icon.bars}} Services        | Services menu                    |
 | {{icon.bars}} PMM             | PMM menu                         |
 
-!!! tip alert alert-success "Tip"
+!!! hint alert alert-success "Tip"
     The *Compare* menu links to the Instances Overview dashboard for the current service type.
 
 ##### Services menu

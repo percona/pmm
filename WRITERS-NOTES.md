@@ -76,17 +76,17 @@ Anything that has the potential to damage or compromise a user's data or system.
 
 ### Tip
 
-Use for tips, hints, non-essential but useful advice.
+Use for tips, hints, non-essential but useful advice. Note that `tip` renders badly in Percona.com. `hint` is better and looks the same as `tip` in Material theme.
 
 ```
-!!! tip alert alert-success "Tip"
+!!! hint alert alert-success "Tip"
     Tip
 
-!!! tip alert alert-success "Tips"
+!!! hint alert alert-success "Tips"
     - One
     - Two
 
-!!! tip alert alert-success ""
+!!! hint alert alert-success ""
     Tip
 ```
 

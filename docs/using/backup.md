@@ -52,7 +52,7 @@
 
 ## Creating a backup {: #backup-create }
 
-!!! tip alert alert-success "Tip"
+!!! hint alert alert-success "Tip"
     You must add a [backup storage location](#backup-location) before backing up.
 
 1. Navigate to *Backup Management-->Backup Inventory*.

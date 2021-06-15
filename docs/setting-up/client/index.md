@@ -141,7 +141,7 @@ The [PMM Client Docker image](https://hub.docker.com/r/percona/pmm-client/tags/)
 
 You can now add services with [`pmm-admin`](../../details/commands/pmm-admin.md) by prefixing commands with `docker exec pmm-client`.
 
-!!! tip alert alert-success "Tips"
+!!! hint alert alert-success "Tips"
     - Adjust host firewall and routing rules to allow Docker communications. ([Read more in the FAQ.](../../faq.md#how-do-i-troubleshoot-communication-issues-between-pmm-client-and-pmm-server))
     - For help:
         ```sh
@@ -238,7 +238,7 @@ You can now add services with [`pmm-admin`](../../details/commands/pmm-admin.md)
 
 ### Package manager
 
-!!! tip alert alert-success "Tip"
+!!! hint alert alert-success "Tip"
     If you have used `percona-release` before, disable and re-enable the repository:
     ```sh
     percona-release disable all

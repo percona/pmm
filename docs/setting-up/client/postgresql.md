@@ -306,7 +306,7 @@ Look for your service in the output of this command.
 pmm-admin inventory list services
 ```
 
-!!! tip alert alert-success ""
+!!! hint alert alert-success ""
     If using Docker, use `docker exec pmm-client pmm-admin inventory list services`
 
 **Check data**

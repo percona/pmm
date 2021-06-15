@@ -98,7 +98,7 @@ How to run PMM Server with Docker based on our [Docker image].
 
 ---
 
-!!! tip alert alert-success "Tip"
+!!! hint alert alert-success "Tip"
     To see what release you are running, use the *PMM Upgrade* panel on the *Home Dashboard*, or run:
 
     ```sh

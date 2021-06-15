@@ -17,7 +17,7 @@ To set up PMM Server:
 
 Approximately 1 GB of storage per monitored database node with data retention set to one week. By default, [retention](../../how-to/configure.md#data-retention) is 30 days.
 
-!!! tip alert alert-success "Tip"
+!!! hint alert alert-success "Tip"
     [Disable table statistics](../../how-to/optimize.md) to decrease the VictoriaMetrics database size.
 
 **Memory**

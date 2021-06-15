@@ -32,7 +32,7 @@ On the left are the selector tabs:
     - [Email](#email)
     - [Slack](#slack)
 
-!!! tip alert alert-success "Tip"
+!!! hint alert alert-success "Tip"
     Click *Apply changes* to save any changes made here.
 
 **Diagnostics**
@@ -115,7 +115,7 @@ When active, PMM will automatically check for updates and put a notification in 
 
 The [Security Threat Tool](../using/platform/security-threat-tool.md) performs a range of security-related checks on a registered instance and reports the findings. It is off by default.
 
-!!! tip alert alert-success "Tip"
+!!! hint alert alert-success "Tip"
     To see the results of checks, select *{{icon.checks}} Security Checks* to open the *Security Checks/Failed Checks* dashboard, and select the *Failed Checks* tab.
 
 Checks are re-fetched and re-run at intervals. There are three named intervals:
@@ -248,7 +248,7 @@ Click on *Change Password*. If everything goes well, you will see a confirmation
 
 Global communications settings for [Integrated Alerting](../using/alerting.md).
 
-!!! tip alert alert-success "Tip"
+!!! hint alert alert-success "Tip"
     If there is no *Communication* tab, go to the *Advanced Settings* tab and activate *Integrated Alerting*.
 
 ![!](../_images/PMM_Settings_Communication.jpg)
