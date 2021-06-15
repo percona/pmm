@@ -113,3 +113,15 @@ We use the `mkdocs-macros` plugin for variable expansion. For example, the varia
 This plugin can have problems when Jinja-like constructs are used in code. This happens when refering to Docker variables. Work arounds are explained here: https://github.com/fralau/mkdocs_macros_plugin/blob/master/webdoc/docs/advanced.md#solutions
 
 In some places we have used variables themselves to solve the problem. In others, `{% raw %}/{% endraw %}` surrounds the conflicting text.
+
+
+## Language
+
+We have attempted to eschew traditional terminology used in software manuals. Some examples:
+
+- "Setting up" instead of "installation and configuration"
+- "Before you start" instead of "Prerequisites"
+
+There are no "introduction" or "overview" sections. These texts are just there under the title.
+
+Section titles are deliberately short. For example, in Setting up/Server/Docker, the 'Run' section shows how to run the docker image for PMM Server. The docs are for 'PMM', the section is 'Server' and subsection 'Docker'. That's what we're running.
