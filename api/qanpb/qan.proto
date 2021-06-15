@@ -149,6 +149,15 @@ message Point {
   float m_cpu_user_time_sum_per_sec = 56;
   // Total time system spent in query.
   float m_cpu_sys_time_sum_per_sec = 57;
+  //
+  // pg_stat_monitor 0.9 metrics
+  //
+  // Total number of planned calls.
+  float m_plans_calls_sum_per_sec = 58;
+  // Total number of WAL (Write-ahead logging) records.
+  float m_wal_records_sum_per_sec = 59;
+  // Total number of FPI (full page images) in WAL (Write-ahead logging) records.
+  float m_wal_fpi_sum_per_sec = 60;
 }
 
 // MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.
