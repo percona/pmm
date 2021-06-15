@@ -90,6 +90,15 @@ Use for tips, hints, non-essential but useful advice.
     Tip
 ```
 
+
+### Summary
+
+Used to summarise a block of text (a TLDR).
+
+```
+!!! summary alert alert-info "Summary"
+```
+
 ### See Also
 
 Used to highlight other sections or external links.
