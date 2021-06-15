@@ -895,7 +895,7 @@ type RowsItems0SparklineItems0 struct {
 	MWalBytesSumPerSec float32 `json:"m_wal_bytes_sum_per_sec,omitempty"`
 
 	// Plan time in per seconds.
-	MPlanTimePerSec float32 `json:"m_plan_time_per_sec,omitempty"`
+	MPlanTimeSumPerSec float32 `json:"m_plan_time_sum_per_sec,omitempty"`
 }
 
 // Validate validates this rows items0 sparkline items0

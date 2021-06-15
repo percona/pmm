@@ -161,7 +161,7 @@ message Point {
   // Total bytes of WAL (Write-ahead logging) records.
   float m_wal_bytes_sum_per_sec = 61;
   // Plan time in per seconds.
-  float m_plan_time_per_sec = 62;
+  float m_plan_time_sum_per_sec = 62;
 }
 
 // MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.

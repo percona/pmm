@@ -357,9 +357,9 @@ message MetricsBucket {
   float m_wal_bytes_sum = 240;
   float m_wal_bytes_cnt = 241;
   // Sum, min, max of plan time.
-  float m_plan_total_time = 242;
-  float m_plan_min_time = 243;
-  float m_plan_max_time = 244;
+  float m_plan_time_sum = 242;
+  float m_plan_time_min = 243;
+  float m_plan_time_max = 244;
   // Metrics skipped due to different bucket_time in pg_stat_monitor (1min in PMM, 5min in pg_stat_monitor):
   // min_time, max_time, mean_time
   // plan_mean_time

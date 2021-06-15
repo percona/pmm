@@ -827,7 +827,7 @@
                               "format": "float",
                               "x-order": 60
                             },
-                            "m_plan_time_per_sec": {
+                            "m_plan_time_sum_per_sec": {
                               "description": "Plan time in per seconds.",
                               "type": "number",
                               "format": "float",
@@ -1516,7 +1516,7 @@
                         "format": "float",
                         "x-order": 60
                       },
-                      "m_plan_time_per_sec": {
+                      "m_plan_time_sum_per_sec": {
                         "description": "Plan time in per seconds.",
                         "type": "number",
                         "format": "float",
