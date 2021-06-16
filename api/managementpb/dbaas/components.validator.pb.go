@@ -125,6 +125,10 @@ func (this *CheckForOperatorUpdateRequest) Validate() error {
 func (this *OperatorsUpdateInformation) Validate() error {
 	return nil
 }
+func (this *AvailableComponentsVersions) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
 func (this *CheckForOperatorUpdateResponse) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil

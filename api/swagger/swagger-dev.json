@@ -16198,22 +16198,20 @@
             "schema": {
               "type": "object",
               "properties": {
-                "update_information": {
-                  "description": "The cluster name is used as a key for this map, value stores information about operators update availability.",
+                "cluster_to_components": {
+                  "description": "The cluster name is used as a key for this map, value contains components and their latest versions that we can update to.",
                   "type": "object",
                   "additionalProperties": {
-                    "description": "OperatorsUpdateInformation is just a container for update information for PXC and PSMDB operators.",
+                    "description": "AvailableComponentsVersions contains info about components and their available latest versions.",
                     "type": "object",
                     "properties": {
-                      "pxc_operator_version": {
-                        "description": "pxc_operator_version is not empty if there is an update available, otherwise empty.",
-                        "type": "string",
+                      "component_to_version": {
+                        "type": "object",
+                        "title": "component_to_version stores, under the name of the component, version we can update to.\nIf the component as a key does not exist in this map, there is no update available for the component.\nExample for operators: {\"pxc-operator\":\"1.9.0\", \"psmdb-operator\":\"1.8.0\"}",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
                         "x-order": 0
-                      },
-                      "psmdb_operator_version": {
-                        "description": "psmdb_operator_version is not empty if there is an update available, otherwise empty.",
-                        "type": "string",
-                        "x-order": 1
                       }
                     }
                   },

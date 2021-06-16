@@ -121,9 +121,17 @@ message OperatorsUpdateInformation {
   string psmdb_operator_version = 2;
 }
 
+// AvailableComponentsVersions contains info about components and their available latest versions.
+message AvailableComponentsVersions {
+  // component_to_version stores, under the name of the component, version we can update to.
+  // If the component as a key does not exist in this map, there is no update available for the component.
+  // Example for operators: {"pxc-operator":"1.9.0", "psmdb-operator":"1.8.0"}
+  map<string, string> component_to_version = 1;
+}
+
 message CheckForOperatorUpdateResponse {
-  // The cluster name is used as a key for this map, value stores information about operators update availability.
-  map<string, OperatorsUpdateInformation> update_information = 1;
+  // The cluster name is used as a key for this map, value contains components and their latest versions that we can update to.
+  map<string, AvailableComponentsVersions> cluster_to_components = 1;
 }
 
 // Components service provides public methods for managing components.

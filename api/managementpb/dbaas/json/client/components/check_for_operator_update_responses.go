@@ -197,15 +197,15 @@ swagger:model CheckForOperatorUpdateOKBody
 */
 type CheckForOperatorUpdateOKBody struct {
 
-	// The cluster name is used as a key for this map, value stores information about operators update availability.
-	UpdateInformation map[string]UpdateInformationAnon `json:"update_information,omitempty"`
+	// The cluster name is used as a key for this map, value contains components and their latest versions that we can update to.
+	ClusterToComponents map[string]ClusterToComponentsAnon `json:"cluster_to_components,omitempty"`
 }
 
 // Validate validates this check for operator update OK body
 func (o *CheckForOperatorUpdateOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateUpdateInformation(formats); err != nil {
+	if err := o.validateClusterToComponents(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -215,18 +215,18 @@ func (o *CheckForOperatorUpdateOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *CheckForOperatorUpdateOKBody) validateUpdateInformation(formats strfmt.Registry) error {
+func (o *CheckForOperatorUpdateOKBody) validateClusterToComponents(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.UpdateInformation) { // not required
+	if swag.IsZero(o.ClusterToComponents) { // not required
 		return nil
 	}
 
-	for k := range o.UpdateInformation {
+	for k := range o.ClusterToComponents {
 
-		if swag.IsZero(o.UpdateInformation[k]) { // not required
+		if swag.IsZero(o.ClusterToComponents[k]) { // not required
 			continue
 		}
-		if val, ok := o.UpdateInformation[k]; ok {
+		if val, ok := o.ClusterToComponents[k]; ok {
 			if err := val.Validate(formats); err != nil {
 				return err
 			}
@@ -255,25 +255,24 @@ func (o *CheckForOperatorUpdateOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*UpdateInformationAnon OperatorsUpdateInformation is just a container for update information for PXC and PSMDB operators.
-swagger:model UpdateInformationAnon
+/*ClusterToComponentsAnon AvailableComponentsVersions contains info about components and their available latest versions.
+swagger:model ClusterToComponentsAnon
 */
-type UpdateInformationAnon struct {
+type ClusterToComponentsAnon struct {
 
-	// pxc_operator_version is not empty if there is an update available, otherwise empty.
-	PxcOperatorVersion string `json:"pxc_operator_version,omitempty"`
-
-	// psmdb_operator_version is not empty if there is an update available, otherwise empty.
-	PSMDBOperatorVersion string `json:"psmdb_operator_version,omitempty"`
+	// component_to_version stores, under the name of the component, version we can update to.
+	// If the component as a key does not exist in this map, there is no update available for the component.
+	// Example for operators: {"pxc-operator":"1.9.0", "psmdb-operator":"1.8.0"}
+	ComponentToVersion map[string]string `json:"component_to_version,omitempty"`
 }
 
-// Validate validates this update information anon
-func (o *UpdateInformationAnon) Validate(formats strfmt.Registry) error {
+// Validate validates this cluster to components anon
+func (o *ClusterToComponentsAnon) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *UpdateInformationAnon) MarshalBinary() ([]byte, error) {
+func (o *ClusterToComponentsAnon) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -281,8 +280,8 @@ func (o *UpdateInformationAnon) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *UpdateInformationAnon) UnmarshalBinary(b []byte) error {
-	var res UpdateInformationAnon
+func (o *ClusterToComponentsAnon) UnmarshalBinary(b []byte) error {
+	var res ClusterToComponentsAnon
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
