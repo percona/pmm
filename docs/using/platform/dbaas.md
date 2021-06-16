@@ -106,8 +106,8 @@ To monitor a DB cluster, set up a [public address](../../how-to/configure.md#pub
     2. Select the number of nodes. (The lower limit is 3.)
 
     3. Select *External Access* if you want to make your DB cluster available outside of Kubernetes cluster.
-        
-        By default, only internal access is provided. 
+
+        By default, only internal access is provided.
 
         *External Access* can't be granted for local Kubernetes clusters (e.g. minikube).
 
@@ -157,7 +157,7 @@ To monitor a DB cluster, set up a [public address](../../how-to/configure.md#pub
 
     ![!](../../_images/PMM_DBaaS_DB_Cluster_Delete.png)
 
-!!! important alert alert-warning "Important"
+!!! caution alert alert-warning "Important"
     Deleting a cluster in this way also deletes any attached volumes.
 
 ### Edit a DB Cluster

@@ -154,7 +154,7 @@ The address or hostname PMM Server will be accessible at. Click *Get from browse
 
 Enables/disables [DBaaS features](../using/platform/dbaas.md) on this server.
 
-!!! important alert alert-success "Important"
+!!! caution alert alert-warning "Important"
     Deactivating DBaaS ***does not*** suspend or remove running DB clusters.
 
 ### Integrated Alerting

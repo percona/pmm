@@ -113,7 +113,7 @@ You can set profiling:
       rateLimit: 100
     ```
 
-    !!! important alert alert-success "Important"
+    !!! caution alert alert-warning "Important"
         This is a [YAML](http://yaml.org/spec/) file. Indentation matters.
 
 3. Restart the `mongod` service. (Example for `systemd`.)
