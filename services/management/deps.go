@@ -24,6 +24,7 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm-managed/services"
 )
 
 //go:generate mockery -name=agentsRegistry -case=snake -inpkg -testonly
@@ -53,7 +54,7 @@ type prometheusService interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type checksService interface {
 	StartChecks(ctx context.Context, group check.Interval, checkNames []string) error
-	GetSecurityCheckResults() ([]check.Result, error)
+	GetSecurityCheckResults() ([]services.STTCheckResult, error)
 	GetAllChecks() map[string]check.Check
 	GetDisabledChecks() ([]string, error)
 	DisableChecks(checkNames []string) error
