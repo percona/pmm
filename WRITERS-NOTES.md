@@ -6,6 +6,8 @@ Admonitions use a combined MkDocs/Bootstrap definition to get acceptable and sim
 
 Percona.com uses Bootstrap 4. Admonitions are styled as [Alerts](https://getbootstrap.com/docs/4.0/components/alerts/).
 
+Material for MkDocs theme: https://squidfunk.github.io/mkdocs-material/reference/admonitions/#supported-types
+
 **General advice**
 
 Admonitions are to highlight something special, not to make every point significant. When used in this way, they are ignored in the same way as 'the boy who cried wolf'. But they help to break up large blocks of text, and add a little colour.
