@@ -6,7 +6,6 @@ package components
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -15,7 +14,6 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
 // CheckForOperatorUpdateReader is a Reader for the CheckForOperatorUpdate structure.
@@ -199,7 +197,7 @@ swagger:model CheckForOperatorUpdateOKBody
 */
 type CheckForOperatorUpdateOKBody struct {
 
-	// The cluster name is used as a key for this map, value stores information about oprators update availablility.
+	// The cluster name is used as a key for this map, value stores information about operators update availability.
 	UpdateInformation map[string]UpdateInformationAnon `json:"update_information,omitempty"`
 }
 
@@ -262,64 +260,15 @@ swagger:model UpdateInformationAnon
 */
 type UpdateInformationAnon struct {
 
-	// psmdb operator
-	PSMDBOperator *UpdateInformationAnonPSMDBOperator `json:"psmdb_operator,omitempty"`
+	// pxc_operator_version is not empty if there is an update available, otherwise empty.
+	PxcOperatorVersion string `json:"pxc_operator_version,omitempty"`
 
-	// pxc operator
-	PxcOperator *UpdateInformationAnonPxcOperator `json:"pxc_operator,omitempty"`
+	// psmdb_operator_version is not empty if there is an update available, otherwise empty.
+	PSMDBOperatorVersion string `json:"psmdb_operator_version,omitempty"`
 }
 
 // Validate validates this update information anon
 func (o *UpdateInformationAnon) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validatePSMDBOperator(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validatePxcOperator(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *UpdateInformationAnon) validatePSMDBOperator(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.PSMDBOperator) { // not required
-		return nil
-	}
-
-	if o.PSMDBOperator != nil {
-		if err := o.PSMDBOperator.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("psmdb_operator")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (o *UpdateInformationAnon) validatePxcOperator(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.PxcOperator) { // not required
-		return nil
-	}
-
-	if o.PxcOperator != nil {
-		if err := o.PxcOperator.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("pxc_operator")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -334,200 +283,6 @@ func (o *UpdateInformationAnon) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *UpdateInformationAnon) UnmarshalBinary(b []byte) error {
 	var res UpdateInformationAnon
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*UpdateInformationAnonPSMDBOperator OperatorUpdateInformation indicates if operator update is available. It includes what version of operator we can update to.
-// If we are running latest operator for installed PMM version and more up-to-date operator is available, we also get PMM
-// version we can update to to get the most up-to-date operator.
-swagger:model UpdateInformationAnonPSMDBOperator
-*/
-type UpdateInformationAnonPSMDBOperator struct {
-
-	// OperatorUpdateStatus represents status of an update for the operator.
-	//
-	//  - UPDATE_AVAILABLE: An update of the operator is available for the installed version of PMM server.
-	//  - UPDATE_NOT_AVAILABLE: An update of the operator is not available for the installed version of PMM server.
-	// Enum: [OPERATOR_UPDATE_STATUS_INVALID UPDATE_AVAILABLE UPDATE_NOT_AVAILABLE]
-	Status *string `json:"status,omitempty"`
-
-	// available_operator_version is not empty if there is an update available,
-	// for both compatible and incompatible one.
-	AvailableOperatorVersion string `json:"available_operator_version,omitempty"`
-}
-
-// Validate validates this update information anon PSMDB operator
-func (o *UpdateInformationAnonPSMDBOperator) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateStatus(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-var updateInformationAnonPsmdbOperatorTypeStatusPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["OPERATOR_UPDATE_STATUS_INVALID","UPDATE_AVAILABLE","UPDATE_NOT_AVAILABLE"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		updateInformationAnonPsmdbOperatorTypeStatusPropEnum = append(updateInformationAnonPsmdbOperatorTypeStatusPropEnum, v)
-	}
-}
-
-const (
-
-	// UpdateInformationAnonPSMDBOperatorStatusOPERATORUPDATESTATUSINVALID captures enum value "OPERATOR_UPDATE_STATUS_INVALID"
-	UpdateInformationAnonPSMDBOperatorStatusOPERATORUPDATESTATUSINVALID string = "OPERATOR_UPDATE_STATUS_INVALID"
-
-	// UpdateInformationAnonPSMDBOperatorStatusUPDATEAVAILABLE captures enum value "UPDATE_AVAILABLE"
-	UpdateInformationAnonPSMDBOperatorStatusUPDATEAVAILABLE string = "UPDATE_AVAILABLE"
-
-	// UpdateInformationAnonPSMDBOperatorStatusUPDATENOTAVAILABLE captures enum value "UPDATE_NOT_AVAILABLE"
-	UpdateInformationAnonPSMDBOperatorStatusUPDATENOTAVAILABLE string = "UPDATE_NOT_AVAILABLE"
-)
-
-// prop value enum
-func (o *UpdateInformationAnonPSMDBOperator) validateStatusEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, updateInformationAnonPsmdbOperatorTypeStatusPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *UpdateInformationAnonPSMDBOperator) validateStatus(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Status) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateStatusEnum("psmdb_operator"+"."+"status", "body", *o.Status); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *UpdateInformationAnonPSMDBOperator) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *UpdateInformationAnonPSMDBOperator) UnmarshalBinary(b []byte) error {
-	var res UpdateInformationAnonPSMDBOperator
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*UpdateInformationAnonPxcOperator OperatorUpdateInformation indicates if operator update is available. It includes what version of operator we can update to.
-// If we are running latest operator for installed PMM version and more up-to-date operator is available, we also get PMM
-// version we can update to to get the most up-to-date operator.
-swagger:model UpdateInformationAnonPxcOperator
-*/
-type UpdateInformationAnonPxcOperator struct {
-
-	// OperatorUpdateStatus represents status of an update for the operator.
-	//
-	//  - UPDATE_AVAILABLE: An update of the operator is available for the installed version of PMM server.
-	//  - UPDATE_NOT_AVAILABLE: An update of the operator is not available for the installed version of PMM server.
-	// Enum: [OPERATOR_UPDATE_STATUS_INVALID UPDATE_AVAILABLE UPDATE_NOT_AVAILABLE]
-	Status *string `json:"status,omitempty"`
-
-	// available_operator_version is not empty if there is an update available,
-	// for both compatible and incompatible one.
-	AvailableOperatorVersion string `json:"available_operator_version,omitempty"`
-}
-
-// Validate validates this update information anon pxc operator
-func (o *UpdateInformationAnonPxcOperator) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateStatus(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-var updateInformationAnonPxcOperatorTypeStatusPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["OPERATOR_UPDATE_STATUS_INVALID","UPDATE_AVAILABLE","UPDATE_NOT_AVAILABLE"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		updateInformationAnonPxcOperatorTypeStatusPropEnum = append(updateInformationAnonPxcOperatorTypeStatusPropEnum, v)
-	}
-}
-
-const (
-
-	// UpdateInformationAnonPxcOperatorStatusOPERATORUPDATESTATUSINVALID captures enum value "OPERATOR_UPDATE_STATUS_INVALID"
-	UpdateInformationAnonPxcOperatorStatusOPERATORUPDATESTATUSINVALID string = "OPERATOR_UPDATE_STATUS_INVALID"
-
-	// UpdateInformationAnonPxcOperatorStatusUPDATEAVAILABLE captures enum value "UPDATE_AVAILABLE"
-	UpdateInformationAnonPxcOperatorStatusUPDATEAVAILABLE string = "UPDATE_AVAILABLE"
-
-	// UpdateInformationAnonPxcOperatorStatusUPDATENOTAVAILABLE captures enum value "UPDATE_NOT_AVAILABLE"
-	UpdateInformationAnonPxcOperatorStatusUPDATENOTAVAILABLE string = "UPDATE_NOT_AVAILABLE"
-)
-
-// prop value enum
-func (o *UpdateInformationAnonPxcOperator) validateStatusEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, updateInformationAnonPxcOperatorTypeStatusPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *UpdateInformationAnonPxcOperator) validateStatus(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Status) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateStatusEnum("pxc_operator"+"."+"status", "body", *o.Status); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *UpdateInformationAnonPxcOperator) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *UpdateInformationAnonPxcOperator) UnmarshalBinary(b []byte) error {
-	var res UpdateInformationAnonPxcOperator
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

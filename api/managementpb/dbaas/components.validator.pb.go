@@ -122,20 +122,7 @@ func (this *ChangePXCComponentsResponse) Validate() error {
 func (this *CheckForOperatorUpdateRequest) Validate() error {
 	return nil
 }
-func (this *OperatorUpdateInformation) Validate() error {
-	return nil
-}
 func (this *OperatorsUpdateInformation) Validate() error {
-	if this.PxcOperator != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PxcOperator); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("PxcOperator", err)
-		}
-	}
-	if this.PsmdbOperator != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PsmdbOperator); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("PsmdbOperator", err)
-		}
-	}
 	return nil
 }
 func (this *CheckForOperatorUpdateResponse) Validate() error {

@@ -317,56 +317,20 @@
               "type": "object",
               "properties": {
                 "update_information": {
-                  "description": "The cluster name is used as a key for this map, value stores information about oprators update availablility.",
+                  "description": "The cluster name is used as a key for this map, value stores information about operators update availability.",
                   "type": "object",
                   "additionalProperties": {
                     "description": "OperatorsUpdateInformation is just a container for update information for PXC and PSMDB operators.",
                     "type": "object",
                     "properties": {
-                      "psmdb_operator": {
-                        "description": "OperatorUpdateInformation indicates if operator update is available. It includes what version of operator we can update to.\nIf we are running latest operator for installed PMM version and more up-to-date operator is available, we also get PMM\nversion we can update to to get the most up-to-date operator.",
-                        "type": "object",
-                        "properties": {
-                          "available_operator_version": {
-                            "description": "available_operator_version is not empty if there is an update available,\nfor both compatible and incompatible one.",
-                            "type": "string",
-                            "x-order": 1
-                          },
-                          "status": {
-                            "description": "OperatorUpdateStatus represents status of an update for the operator.\n\n - UPDATE_AVAILABLE: An update of the operator is available for the installed version of PMM server.\n - UPDATE_NOT_AVAILABLE: An update of the operator is not available for the installed version of PMM server.",
-                            "type": "string",
-                            "default": "OPERATOR_UPDATE_STATUS_INVALID",
-                            "enum": [
-                              "OPERATOR_UPDATE_STATUS_INVALID",
-                              "UPDATE_AVAILABLE",
-                              "UPDATE_NOT_AVAILABLE"
-                            ],
-                            "x-order": 0
-                          }
-                        },
+                      "psmdb_operator_version": {
+                        "description": "psmdb_operator_version is not empty if there is an update available, otherwise empty.",
+                        "type": "string",
                         "x-order": 1
                       },
-                      "pxc_operator": {
-                        "description": "OperatorUpdateInformation indicates if operator update is available. It includes what version of operator we can update to.\nIf we are running latest operator for installed PMM version and more up-to-date operator is available, we also get PMM\nversion we can update to to get the most up-to-date operator.",
-                        "type": "object",
-                        "properties": {
-                          "available_operator_version": {
-                            "description": "available_operator_version is not empty if there is an update available,\nfor both compatible and incompatible one.",
-                            "type": "string",
-                            "x-order": 1
-                          },
-                          "status": {
-                            "description": "OperatorUpdateStatus represents status of an update for the operator.\n\n - UPDATE_AVAILABLE: An update of the operator is available for the installed version of PMM server.\n - UPDATE_NOT_AVAILABLE: An update of the operator is not available for the installed version of PMM server.",
-                            "type": "string",
-                            "default": "OPERATOR_UPDATE_STATUS_INVALID",
-                            "enum": [
-                              "OPERATOR_UPDATE_STATUS_INVALID",
-                              "UPDATE_AVAILABLE",
-                              "UPDATE_NOT_AVAILABLE"
-                            ],
-                            "x-order": 0
-                          }
-                        },
+                      "pxc_operator_version": {
+                        "description": "pxc_operator_version is not empty if there is an update available, otherwise empty.",
+                        "type": "string",
                         "x-order": 0
                       }
                     }

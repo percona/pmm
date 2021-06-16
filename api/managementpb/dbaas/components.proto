@@ -102,36 +102,27 @@ message ChangePXCComponentsRequest {
 
 message ChangePXCComponentsResponse {}
 
-// OperatorUpdateStatus represents status of an update for the operator.
-enum OperatorUpdateStatus {
-  OPERATOR_UPDATE_STATUS_INVALID = 0;
+// ComponentUpdateStatus represents status of an update for the operator.
+enum ComponentUpdateStatus {
+  COMPONENT_UPDATE_STATUS_INVALID = 0;
   // An update of the operator is available for the installed version of PMM server.
-  UPDATE_AVAILABLE = 1;
+  COMPONENT_UPDATE_STATUS_AVAILABLE = 1;
   // An update of the operator is not available for the installed version of PMM server.
-  UPDATE_NOT_AVAILABLE = 2;
+  COMPONENT_UPDATE_STATUS_NOT_AVAILABLE = 2;
 }
 
 message CheckForOperatorUpdateRequest {}
 
-// OperatorUpdateInformation indicates if operator update is available. It includes what version of operator we can update to.
-// If we are running latest operator for installed PMM version and more up-to-date operator is available, we also get PMM
-// version we can update to to get the most up-to-date operator.
-message OperatorUpdateInformation {
-  // The status indicates operator status availablility.
-  OperatorUpdateStatus status = 1;
-  // available_operator_version is not empty if there is an update available,
-  // for both compatible and incompatible one.
-  string available_operator_version = 2;
-}
-
 // OperatorsUpdateInformation is just a container for update information for PXC and PSMDB operators.
 message OperatorsUpdateInformation {
-  OperatorUpdateInformation pxc_operator = 1;
-  OperatorUpdateInformation psmdb_operator = 2;
+  // pxc_operator_version is not empty if there is an update available, otherwise empty.
+  string pxc_operator_version = 1;
+  // psmdb_operator_version is not empty if there is an update available, otherwise empty.
+  string psmdb_operator_version = 2;
 }
 
 message CheckForOperatorUpdateResponse {
-  // The cluster name is used as a key for this map, value stores information about oprators update availablility.
+  // The cluster name is used as a key for this map, value stores information about operators update availability.
   map<string, OperatorsUpdateInformation> update_information = 1;
 }
 
