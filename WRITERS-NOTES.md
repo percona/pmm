@@ -27,8 +27,7 @@ By using a subset of all MkDocs, we can get some alignment between those and Boo
 | Tip                         | Green         | Green            |
 | Caution, Warning, Important | Amber         | Amber            |
 | Danger                      | Red           | Red              |
-
-
+| Summary                     | Turquoise     | Turqoise         |
 
 ### Note, Info
 
