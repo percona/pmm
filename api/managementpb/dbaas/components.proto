@@ -102,15 +102,6 @@ message ChangePXCComponentsRequest {
 
 message ChangePXCComponentsResponse {}
 
-// ComponentUpdateStatus represents status of an update for the operator.
-enum ComponentUpdateStatus {
-  COMPONENT_UPDATE_STATUS_INVALID = 0;
-  // An update of the operator is available for the installed version of PMM server.
-  COMPONENT_UPDATE_STATUS_AVAILABLE = 1;
-  // An update of the operator is not available for the installed version of PMM server.
-  COMPONENT_UPDATE_STATUS_NOT_AVAILABLE = 2;
-}
-
 message CheckForOperatorUpdateRequest {}
 
 // AvailableComponentsVersions contains info about components and their available latest versions.
