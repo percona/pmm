@@ -24,6 +24,8 @@ message SecurityCheckResult {
   map<string, string> labels = 4;
   // URL containing information on how to resolve an issue detected by an STT check.
   string read_more_url = 5;
+  // Name of the monitored service on which the check ran.
+  string service_name = 6;
 }
 
 // SecurityCheck contains check name and status.

@@ -1775,6 +1775,11 @@
             "schema": {
               "type": "object",
               "properties": {
+                "expose": {
+                  "description": "Make DB cluster accessible outside of K8s cluster.",
+                  "type": "boolean",
+                  "x-order": 3
+                },
                 "kubernetes_cluster_name": {
                   "description": "Kubernetes cluster name.",
                   "type": "string",
@@ -2466,6 +2471,11 @@
                     "description": "Cluster represents PSMDB cluster information.\nTODO Do not use inner messages in all public APIs (for consistency).",
                     "type": "object",
                     "properties": {
+                      "exposed": {
+                        "description": "DB cluster accessible outside of K8s cluster.",
+                        "type": "boolean",
+                        "x-order": 4
+                      },
                       "name": {
                         "description": "Cluster name.",
                         "type": "string",
@@ -2623,6 +2633,11 @@
             "schema": {
               "type": "object",
               "properties": {
+                "expose": {
+                  "description": "Make DB cluster accessible outside of K8s cluster.",
+                  "type": "boolean",
+                  "x-order": 3
+                },
                 "kubernetes_cluster_name": {
                   "description": "Kubernetes cluster name.",
                   "type": "string",
@@ -3497,6 +3512,11 @@
                     "description": "Cluster represents XtraDB cluster information.\nTODO Do not use inner messages in all public APIs (for consistency).",
                     "type": "object",
                     "properties": {
+                      "exposed": {
+                        "description": "DB cluster accessible outside of K8s cluster.",
+                        "type": "boolean",
+                        "x-order": 4
+                      },
                       "name": {
                         "description": "Cluster name.",
                         "type": "string",

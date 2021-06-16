@@ -139,6 +139,9 @@ type ClustersItems0 struct {
 	// Enum: [PSMDB_CLUSTER_STATE_INVALID PSMDB_CLUSTER_STATE_CHANGING PSMDB_CLUSTER_STATE_READY PSMDB_CLUSTER_STATE_FAILED PSMDB_CLUSTER_STATE_DELETING PSMDB_CLUSTER_STATE_PAUSED]
 	State *string `json:"state,omitempty"`
 
+	// DB cluster accessible outside of K8s cluster.
+	Exposed bool `json:"exposed,omitempty"`
+
 	// operation
 	Operation *ClustersItems0Operation `json:"operation,omitempty"`
 

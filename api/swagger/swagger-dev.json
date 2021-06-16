@@ -17716,6 +17716,11 @@
                     }
                   },
                   "x-order": 2
+                },
+                "expose": {
+                  "description": "Make DB cluster accessible outside of K8s cluster.",
+                  "type": "boolean",
+                  "x-order": 3
                 }
               }
             }
@@ -18440,6 +18445,11 @@
                           }
                         },
                         "x-order": 3
+                      },
+                      "exposed": {
+                        "description": "DB cluster accessible outside of K8s cluster.",
+                        "type": "boolean",
+                        "x-order": 4
                       }
                     }
                   },
@@ -18632,6 +18642,11 @@
                     }
                   },
                   "x-order": 2
+                },
+                "expose": {
+                  "description": "Make DB cluster accessible outside of K8s cluster.",
+                  "type": "boolean",
+                  "x-order": 3
                 }
               }
             }
@@ -19539,6 +19554,11 @@
                           }
                         },
                         "x-order": 3
+                      },
+                      "exposed": {
+                        "description": "DB cluster accessible outside of K8s cluster.",
+                        "type": "boolean",
+                        "x-order": 4
                       }
                     }
                   },
@@ -23758,6 +23778,11 @@
                         "description": "URL containing information on how to resolve an issue detected by an STT check.",
                         "type": "string",
                         "x-order": 4
+                      },
+                      "service_name": {
+                        "description": "Name of the monitored service on which the check ran.",
+                        "type": "string",
+                        "x-order": 5
                       }
                     }
                   },
