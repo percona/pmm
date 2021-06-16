@@ -122,9 +122,6 @@ func (this *ChangePXCComponentsResponse) Validate() error {
 func (this *CheckForOperatorUpdateRequest) Validate() error {
 	return nil
 }
-func (this *OperatorsUpdateInformation) Validate() error {
-	return nil
-}
 func (this *AvailableComponentsVersions) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil

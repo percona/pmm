@@ -113,14 +113,6 @@ enum ComponentUpdateStatus {
 
 message CheckForOperatorUpdateRequest {}
 
-// OperatorsUpdateInformation is just a container for update information for PXC and PSMDB operators.
-message OperatorsUpdateInformation {
-  // pxc_operator_version is not empty if there is an update available, otherwise empty.
-  string pxc_operator_version = 1;
-  // psmdb_operator_version is not empty if there is an update available, otherwise empty.
-  string psmdb_operator_version = 2;
-}
-
 // AvailableComponentsVersions contains info about components and their available latest versions.
 message AvailableComponentsVersions {
   // component_to_version stores, under the name of the component, version we can update to.
