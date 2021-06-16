@@ -19,10 +19,14 @@ package helpers
 import (
 	"fmt"
 
+	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
 	"github.com/percona/pmm/version"
+	"github.com/pkg/errors"
 
 	"github.com/percona/pmm-admin/agentlocal"
 )
+
+var errNoNode = errors.New("no node available")
 
 // HAProxyMinPMMServerVersion contains minimum version for running HAProxy.
 const haProxyMinPMMServerVersion = "2.15.0"
@@ -61,4 +65,20 @@ func IsHAProxySupported() (bool, error) {
 	}
 
 	return true, nil
+}
+
+// GetNodeName returns node name for provided Get Node response.
+func GetNodeName(node *nodes.GetNodeOKBody) (string, error) {
+	switch {
+	case node.Generic != nil:
+		return node.Generic.NodeName, nil
+	case node.Container != nil:
+		return node.Container.NodeName, nil
+	case node.Remote != nil:
+		return node.Remote.NodeName, nil
+	case node.RemoteRDS != nil:
+		return node.RemoteRDS.NodeName, nil
+	default:
+		return "", errors.Wrap(errNoNode, "unknown node type")
+	}
 }

@@ -27,13 +27,12 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/percona/pmm-admin/agentlocal"
+	"github.com/percona/pmm-admin/helpers"
 )
 
 var annotationResultT = ParseTemplate(`
 Annotation added.
 `)
-
-var errNoNode = errors.New("no node available")
 
 // annotationResult is a result of annotation command.
 type annotationResult struct{}
@@ -69,18 +68,7 @@ func (cmd *annotationCommand) nodeName() (string, error) {
 		return "", err
 	}
 
-	switch {
-	case node.Generic != nil:
-		return node.Generic.NodeName, nil
-	case node.Container != nil:
-		return node.Container.NodeName, nil
-	case node.Remote != nil:
-		return node.Remote.NodeName, nil
-	case node.RemoteRDS != nil:
-		return node.RemoteRDS.NodeName, nil
-	default:
-		return "", errors.Wrap(errNoNode, "unknown node type")
-	}
+	return helpers.GetNodeName(node)
 }
 
 func (cmd *annotationCommand) getCurrentNode() (*nodes.GetNodeOKBody, error) {
