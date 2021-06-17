@@ -1,4 +1,4 @@
-## Easy-install script
+# Easy-install script
 
 !!! caution alert alert-warning "Caution"
     - This is a [technical preview] and is subject to change.

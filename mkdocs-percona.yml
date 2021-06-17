@@ -28,7 +28,7 @@ extra_javascript:
   - https://cdnjs.cloudflare.com/ajax/libs/tablesort/5.2.1/tablesort.min.js
   - js/table.number.js
   - js/tables.js
-  - https://unpkg.com/mermaid/dist/mermaid.min.js
+#  - https://unpkg.com/mermaid/dist/mermaid.min.js
 
 markdown_extensions:
   - attr_list
@@ -44,11 +44,11 @@ markdown_extensions:
   - pymdownx.smartsymbols
   - pymdownx.tabbed
   - pymdownx.tilde
-  - pymdownx.superfences:
-      custom_fences:
-        - name: mermaid
-          class: mermaid
-          format: !!python/name:mermaid2.fence_mermaid
+  - pymdownx.superfences
+#      custom_fences:
+#        - name: mermaid
+#          class: mermaid
+#          format: !!python/name:mermaid2.fence_mermaid
   - pymdownx.highlight:
       linenums: false
   - plantuml_markdown
