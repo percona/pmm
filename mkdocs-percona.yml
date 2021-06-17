@@ -65,6 +65,7 @@ plugins:
       glob:
         - "setting-up/client/docker.md"
   - section-index
+  - bootstrap-tables
 
 extra: # Used in main.html template and can't be externalised
   open_issue_text:
