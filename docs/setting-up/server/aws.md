@@ -355,7 +355,7 @@ To expand the existing EBS volume for increased capacity, follow these steps.
     ```sh
     # lsblk
     NAME                      MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
-    nvme0n1                   259:1    0    10G  0 disk 
+    nvme0n1                   259:1    0    10G  0 disk
     └─nvme0n1p1               259:2    0     8G  0 part /
     ...
     ```
@@ -372,7 +372,7 @@ To expand the existing EBS volume for increased capacity, follow these steps.
     ```
     # lsblk
     NAME                      MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
-    nvme0n1                   259:1    0    10G  0 disk 
+    nvme0n1                   259:1    0    10G  0 disk
     └─nvme0n1p1               259:2    0    10G  0 part /
     ...
     ```
@@ -445,6 +445,5 @@ The procedure of creating a snapshot is described in the Amazon documentation: [
     ![!image](../../_images/aws-marketplace.pmm.ec2.remove3.png)
 
 
-## References
-
-[Improving Percona Monitoring and Management EC2 Instance Resilience Using CloudWatch Alarm Actions](https://www.percona.com/blog/2021/04/29/improving-percona-monitoring-and-management-ec2-instance-resilience-using-cloudwatch-alarm-actions/)
+!!! seealso alert alert-info "See also"
+    [Improving Percona Monitoring and Management EC2 Instance Resilience Using CloudWatch Alarm Actions](https://www.percona.com/blog/2021/04/29/improving-percona-monitoring-and-management-ec2-instance-resilience-using-cloudwatch-alarm-actions/)
