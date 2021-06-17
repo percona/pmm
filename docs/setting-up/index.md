@@ -7,6 +7,8 @@ There are three stages to installing and setting up PMM.
 skinparam rectangle {
     roundCorner 25
 }
+skinparam defaultFontName Chivo
+
 rectangle "Set up PMM Server" as SERVER
 rectangle "Set up PMM Client" as CLIENT
 rectangle "Add services" as SERVICES
