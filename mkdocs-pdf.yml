@@ -23,6 +23,7 @@ extra_javascript:
   - js/version-select.js
   - js/toctree.js
   - js/lightgallery.min.js
+  - https://unpkg.com/mermaid/dist/mermaid.min.js
 
 markdown_extensions:
   - attr_list

@@ -9,20 +9,23 @@ graph LR
 
 ## Set up PMM Server {: #setting-up-pmm-server}
 
-Set up at least one PMM Server as either:
+Set up at least one PMM Server.
 
-- [a Docker container](server/docker.md),
-- [a virtual appliance](server/virtual-appliance.md),
-- or [an Amazon AWS instance](server/aws.md).
+Choose from:
+
+- [Docker](server/docker.md)
+- [Virtual appliance](server/virtual-appliance.md)
+- [Amazon AWS](server/aws.md)
 
 ## Set up PMM Client {: #setting-up-pmm-client}
 
-On every node where there is a service to be monitored,
-set up PMM Client using:
+On every node where there is a service to be monitored, set up PMM Client.
 
-- [Docker](client/index.md#docker),
-- [a Linux package manager](client/index.md#package-manager) (`apt`, `apt-get`, `dnf`, `yum`),
-- or [the binary package](client/index.md#binary-package) (a `.tar.gz` file).
+Choose from:
+
+- [Docker](client/index.md#docker)
+- [Linux package manager](client/index.md#package-manager) (`apt`, `apt-get`, `dnf`, `yum`)
+- [Binary package](client/index.md#binary-package) (a `.tar.gz` file)
 
 ## Add services {: #configure-add-services}
 
