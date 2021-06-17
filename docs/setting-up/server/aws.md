@@ -132,9 +132,35 @@ After the EBS volume is updated, PMM Server instance will auto-detect changes in
 
 ## Upgrading PMM Server on AWS
 
+### Change Public IP address
+
+To assign a public IP address for an Amazon EC2 instance, follow these steps:
+
+1. Allocate Elastic IP address
+
+    ![!image](../../_images/aws-marketplace.pmm.ec2.ip.allocate.png)
+
+2. Associate Elastic IP address with a Network interface ID of your EC2 instance
+
+    If you associate an Elastic IP address to an instance that already has an Elastic IP address associated, this previously associated Elastic IP address will be disassociated but still allocated to your account.
+
+    ![!image](../../_images/aws-marketplace.pmm.ec2.ip.associate.png)
+
 ### Upgrading EC2 instance class
 
 Upgrading to a larger EC2 instance class is supported by PMM provided you follow the instructions from the [AWS manual](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-resize.html). The PMM AMI image uses a distinct EBS volume for the PMM data volume which permits independent resizing of the EC2 instance without impacting the EBS volume.
+
+1. Open the Amazon EC2 console.
+
+2. In the navigation pane, choose PMM Server Instances.
+
+3. Select the instance and choose Actions, Instance state, Stop instance.
+
+4. In the Change instance type dialog box, select the instance type that you want.
+
+    ![!image](../../_images/aws-marketplace.pmm.ec2.instance.upgrade.png)
+
+5. Choose Apply to accept the new settings and start the stopped instance.
 
 ### Expanding the PMM Data EBS Volume
 
@@ -313,16 +339,112 @@ To expand the existing EBS volume for increased capacity, follow these steps.
     /dev/mapper/DataVG-DataLV   32G 254M   32G   1% /srv
     ```
 
+### Expand the Amazon EBS root volume
+
+1. Expand the disk from AWS Console/CLI to the desired capacity.
+
+2. Login to the PMM EC2 instance and verify that the disk capacity has increased. For example, if you have expanded disk from 8G to 10G, dmesg output should look like below:
+
+    ```sh
+    # dmesg | grep "capacity change"
+    [63175.044762] nvme0n1: detected capacity change from 8589934592 to 10737418240
+    ```
+
+3. Use the lsblk command to see that our disk size has been identified by the kernel correctly, but LVM2 is not yet aware of the new size.
+
+    ```sh
+    # lsblk
+    NAME                      MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
+    nvme0n1                   259:1    0    10G  0 disk 
+    └─nvme0n1p1               259:2    0     8G  0 part /
+    ...
+    ```
+
+4. For volumes that have a partition, such as the root volume shown in the previous step, use the growpart command to extend the partition.
+
+    ```sh
+    # growpart /dev/nvme0n1 1
+    CHANGED: partition=1 start=2048 old: size=16775168 end=16777216 new: size=20969439 end=20971487
+    ```
+
+5. To verify that the partition reflects the increased volume size, use the lsblk command again.
+
+    ```
+    # lsblk
+    NAME                      MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
+    nvme0n1                   259:1    0    10G  0 disk 
+    └─nvme0n1p1               259:2    0    10G  0 part /
+    ...
+    ```
+
+6. Extend the XFS file system on the root volume by xfs_growfs command. I
+
+    ```sh
+    # xfs_growfs -d /
+    meta-data=/dev/nvme0n1p1         isize=512    agcount=4, agsize=524224 blks
+             =                       sectsz=512   attr=2, projid32bit=1
+             =                       crc=1        finobt=0 spinodes=0
+    data     =                       bsize=4096   blocks=2096896, imaxpct=25
+             =                       sunit=0      swidth=0 blks
+    naming   =version 2              bsize=4096   ascii-ci=0 ftype=1
+    log      =internal               bsize=4096   blocks=2560, version=2
+             =                       sectsz=512   sunit=0 blks, lazy-count=1
+    realtime =none                   extsz=4096   blocks=0, rtextents=0
+    data blocks changed from 2096896 to 2621120
+    ```
+
+7. Verify that file system reflects the increased volume size
+
+    ```sh
+    # df -hT /
+    Filesystem     Type  Size  Used Avail Use% Mounted on
+    /dev/nvme0n1p1 xfs    10G  5,6G  4,5G  56% /
+    ```
+
+## Backup PMM Server
+
+All data are stored in the `/srv` partition, so it's enough to back the PMM data volume.
+You can create a point-in-time snapshot of the volume and use it for data backup.
+
+The procedure of creating a snapshot is described in the Amazon documentation: [Create Amazon EBS snapshots](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-creating-snapshot.html)
+
+![!image](../../_images/aws-marketplace.pmm.ec2.backup1.png)
+
+
+## Restore PMM Server from a backup
+
+1. Create a new volume by using the latest snapshot of the PMM data volume.
+
+    ![!image](../../_images/aws-marketplace.pmm.ec2.backup2.png)
+
+2. Stop the PMM Server instance.
+
+3. Detach the current PMM data volume.
+
+    ![!image](../../_images/aws-marketplace.pmm.ec2.backup3.png)
+
+4. Attach the new volume.
+
+    ![!image](../../_images/aws-marketplace.pmm.ec2.backup4.png)
+
+5. Start the PMM Server instance.
+
+
 ## Remove PMM Server
 
 1. Find the instance in the EC2 Console
 
-![!image](../../_images/aws-marketplace.pmm.ec2.remove1.png)
+    ![!image](../../_images/aws-marketplace.pmm.ec2.remove1.png)
 
 2. Select "Instance state" menu and "Terminate instance"
 
-![!image](../../_images/aws-marketplace.pmm.ec2.remove2.png)
+    ![!image](../../_images/aws-marketplace.pmm.ec2.remove2.png)
 
 3. Confirm termination operation
 
-![!image](../../_images/aws-marketplace.pmm.ec2.remove3.png)
+    ![!image](../../_images/aws-marketplace.pmm.ec2.remove3.png)
+
+
+## References
+
+[Improving Percona Monitoring and Management EC2 Instance Resilience Using CloudWatch Alarm Actions](https://www.percona.com/blog/2021/04/29/improving-percona-monitoring-and-management-ec2-instance-resilience-using-cloudwatch-alarm-actions/)
