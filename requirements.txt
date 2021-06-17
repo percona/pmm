@@ -12,3 +12,4 @@ mkdocs-section-index
 mkdocs-htmlproofer-plugin
 mike>=1.0.1
 lightgallery
+mkdocs-mermaid2-plugin

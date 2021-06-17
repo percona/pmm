@@ -2,25 +2,29 @@
 
 There are three stages to installing and setting up PMM.
 
-## 1. Set up PMM Server {: #setting-up-pmm-server}
+```mermaid
+graph LR
+1(Set up PMM Server)-->2(Set up PMM Client)-->3(Add services)
+```
 
-Set up at least one PMM Server with one of these options:
+## Set up PMM Server {: #setting-up-pmm-server}
 
-- [Pull and run our Docker container](server/docker.md).
-- [Download and import our Virtual Appliance](server/virtual-appliance.md) (as an `.ovf` file).
-- [Use your Amazon AWS account and our marketplace offering](server/aws.md).
+Set up at least one PMM Server as either:
 
-## 2. Set up PMM Client {: #setting-up-pmm-client}
+- [a Docker container](server/docker.md),
+- [a virtual appliance](server/virtual-appliance.md),
+- or [an Amazon AWS instance](server/aws.md).
 
-You must set up PMM Client on each node where there is a service to be monitored.
+## Set up PMM Client {: #setting-up-pmm-client}
 
-You have these options:
+On every node where there is a service to be monitored,
+set up PMM Client using:
 
-- [Pull and run our Docker image](client/index.md#docker) or use Docker compose.
-- [Use a package manager](client/index.md#package-manager) (`apt`, `apt-get`, `dnf`, `yum`).
-- [Download a binary package](client/index.md#binary-package) (a `.tar.gz` file).
+- [Docker](client/index.md#docker),
+- [a Linux package manager](client/index.md#package-manager) (`apt`, `apt-get`, `dnf`, `yum`),
+- or [the binary package](client/index.md#binary-package) (a `.tar.gz` file).
 
-## 3. Add services {: #configure-add-services}
+## Add services {: #configure-add-services}
 
 You must configure your services and add them to PMM Server's inventory of monitored systems.
 

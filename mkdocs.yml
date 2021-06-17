@@ -51,7 +51,11 @@ markdown_extensions:
     - pymdownx.smartsymbols
     - pymdownx.tabbed
     - pymdownx.tilde
-    - pymdownx.superfences
+    - pymdownx.superfences:
+        custom_fences:
+          - name: mermaid
+            class: mermaid
+            format: !!python/name:mermaid2.fence_mermaid
     - pymdownx.highlight:
         linenums: false
     - plantuml_markdown
@@ -73,6 +77,7 @@ plugins:
         javascript_dir: js
         canonical_version: null
     - section-index
+    - mermaid2
 
 extra: # Used in main.html template and can't be externalised
     open_issue_text: '<i class="uil uil-exclamation-triangle"></i> Report a problem
