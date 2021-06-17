@@ -16209,7 +16209,14 @@
                         "description": "component_to_update_information stores, under the name of the component, information about the update.",
                         "type": "object",
                         "additionalProperties": {
-                          "type": "string"
+                          "description": "ComponentUpdateInformation contains version we can update to for certain component.",
+                          "type": "object",
+                          "properties": {
+                            "available_version": {
+                              "type": "string",
+                              "x-order": 0
+                            }
+                          }
                         },
                         "x-order": 0
                       }

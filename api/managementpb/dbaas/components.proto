@@ -112,7 +112,7 @@ message ComponentUpdateInformation {
 // AvailableComponentsVersions contains info about components and their available latest versions.
 message AvailableComponentsVersions {
   // component_to_update_information stores, under the name of the component, information about the update.
-  map<string, string> component_to_update_information = 1;
+  map<string, ComponentUpdateInformation> component_to_update_information = 1;
 }
 
 message CheckForOperatorUpdateResponse {

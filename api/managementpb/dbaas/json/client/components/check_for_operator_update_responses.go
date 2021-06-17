@@ -261,11 +261,42 @@ swagger:model ClusterToComponentsAnon
 type ClusterToComponentsAnon struct {
 
 	// component_to_update_information stores, under the name of the component, information about the update.
-	ComponentToUpdateInformation map[string]string `json:"component_to_update_information,omitempty"`
+	ComponentToUpdateInformation map[string]ClusterToComponentsAnonComponentToUpdateInformationAnon `json:"component_to_update_information,omitempty"`
 }
 
 // Validate validates this cluster to components anon
 func (o *ClusterToComponentsAnon) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateComponentToUpdateInformation(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ClusterToComponentsAnon) validateComponentToUpdateInformation(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.ComponentToUpdateInformation) { // not required
+		return nil
+	}
+
+	for k := range o.ComponentToUpdateInformation {
+
+		if swag.IsZero(o.ComponentToUpdateInformation[k]) { // not required
+			continue
+		}
+		if val, ok := o.ComponentToUpdateInformation[k]; ok {
+			if err := val.Validate(formats); err != nil {
+				return err
+			}
+		}
+
+	}
+
 	return nil
 }
 
@@ -280,6 +311,38 @@ func (o *ClusterToComponentsAnon) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ClusterToComponentsAnon) UnmarshalBinary(b []byte) error {
 	var res ClusterToComponentsAnon
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ClusterToComponentsAnonComponentToUpdateInformationAnon ComponentUpdateInformation contains version we can update to for certain component.
+swagger:model ClusterToComponentsAnonComponentToUpdateInformationAnon
+*/
+type ClusterToComponentsAnonComponentToUpdateInformationAnon struct {
+
+	// available version
+	AvailableVersion string `json:"available_version,omitempty"`
+}
+
+// Validate validates this cluster to components anon component to update information anon
+func (o *ClusterToComponentsAnonComponentToUpdateInformationAnon) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ClusterToComponentsAnonComponentToUpdateInformationAnon) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ClusterToComponentsAnonComponentToUpdateInformationAnon) UnmarshalBinary(b []byte) error {
+	var res ClusterToComponentsAnonComponentToUpdateInformationAnon
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
