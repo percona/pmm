@@ -10,20 +10,20 @@ repo_url: https://github.com/percona/pmm-doc
 edit_uri: edit/main/docs/
 
 theme:
-    name: material
-    logo: _images/percona-logo.svg
-    favicon: _images/percona-favicon.ico
-    palette:
-      - media: "(prefers-color-scheme: light)"
-        scheme: percona-light
-        toggle:
-          icon: material/toggle-switch-off-outline
-          name: Switch to night mode
-      - media: "(prefers-color-scheme: dark)"
-        scheme: slate
-        toggle:
-          icon: material/toggle-switch
-          name: Switch to day mode
+  name: material
+  logo: _images/percona-logo.svg
+  favicon: _images/percona-favicon.ico
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: percona-light
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to night mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to day mode
 
 extra_css:
   - https://unicons.iconscout.com/release/v3.0.3/css/line.css
@@ -38,57 +38,58 @@ extra_javascript:
   - js/tables.js
 
 markdown_extensions:
-    - attr_list
-    - toc:
-        permalink: True
-    - admonition
-    - def_list
-    - meta
-    - smarty:
-        smart_angled_quotes: true
-    - pymdownx.details
-    - pymdownx.mark
-    - pymdownx.smartsymbols
-    - pymdownx.tabbed
-    - pymdownx.tilde
-    - pymdownx.superfences:
-        custom_fences:
-          - name: mermaid
-            class: mermaid
-            format: !!python/name:mermaid2.fence_mermaid
-    - pymdownx.highlight:
-        linenums: false
-    - plantuml_markdown
-    - lightgallery
+  - attr_list
+  - toc:
+      permalink: True
+  - admonition
+  - def_list
+  - meta
+  - smarty:
+      smart_angled_quotes: true
+  - pymdownx.details
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.tabbed
+  - pymdownx.tilde
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:mermaid2.fence_mermaid
+  - pymdownx.highlight:
+      linenums: false
+  - plantuml_markdown
+  - lightgallery
 
 plugins:
-    - search
-    - git-revision-date
-    - macros:
-        include_yaml:
-            - variables.yml
-    # https://pypi.org/project/mkdocs-exclude/
-    - exclude:
-        glob:
-          - 'setting-up/client/docker.md'
-    - mike:
-        version_selector: true
-        css_dir: css
-        javascript_dir: js
-        canonical_version: null
-    - section-index
-    - mermaid2
+  - search
+  - git-revision-date
+  - macros:
+      include_yaml:
+        - variables.yml
+  # https://pypi.org/project/mkdocs-exclude/
+  - exclude:
+      glob:
+        - "setting-up/client/docker.md"
+  - mike:
+      version_selector: true
+      css_dir: css
+      javascript_dir: js
+      canonical_version: null
+  - section-index
+  - mermaid2
 
 extra: # Used in main.html template and can't be externalised
-    open_issue_text: '<i class="uil uil-exclamation-triangle"></i> Report a problem
-        with this page'
-    open_issue_subject: 'PMM2: doc issue on page '
-    open_issue_body: 'Please describe the issue here'
-    open_issue_tooltip: 'Report an issue with this page on GitHub'
-    edit_page_text: '<i class="uil uil-pen"></i> <b>Edit this page</b>'
-    updated_text: '<i class="uil uil-refresh"></i> Page updated'
-    version:
-      provider: mike
+  open_issue_text:
+    '<i class="uil uil-exclamation-triangle"></i> Report a problem
+    with this page'
+  open_issue_subject: "PMM2: doc issue on page "
+  open_issue_body: "Please describe the issue here"
+  open_issue_tooltip: "Report an issue with this page on GitHub"
+  edit_page_text: '<i class="uil uil-pen"></i> <b>Edit this page</b>'
+  updated_text: '<i class="uil uil-refresh"></i> Page updated'
+  version:
+    provider: mike
 
 nav:
   - Welcome: index.md
