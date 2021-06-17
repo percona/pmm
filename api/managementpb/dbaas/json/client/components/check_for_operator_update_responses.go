@@ -261,6 +261,7 @@ swagger:model ClusterToComponentsAnon
 type ClusterToComponentsAnon struct {
 
 	// component_to_update_information stores, under the name of the component, information about the update.
+	// "pxc-operator", "psmdb-operator" are names used by backend for our operators.
 	ComponentToUpdateInformation map[string]ClusterToComponentsAnonComponentToUpdateInformationAnon `json:"component_to_update_information,omitempty"`
 }
 

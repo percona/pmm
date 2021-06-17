@@ -16206,7 +16206,7 @@
                     "type": "object",
                     "properties": {
                       "component_to_update_information": {
-                        "description": "component_to_update_information stores, under the name of the component, information about the update.",
+                        "description": "component_to_update_information stores, under the name of the component, information about the update.\n\"pxc-operator\", \"psmdb-operator\" are names used by backend for our operators.",
                         "type": "object",
                         "additionalProperties": {
                           "description": "ComponentUpdateInformation contains version we can update to for certain component.",

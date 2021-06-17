@@ -848,6 +848,7 @@ type AvailableComponentsVersions struct {
 	unknownFields protoimpl.UnknownFields
 
 	// component_to_update_information stores, under the name of the component, information about the update.
+	// "pxc-operator", "psmdb-operator" are names used by backend for our operators.
 	ComponentToUpdateInformation map[string]*ComponentUpdateInformation `protobuf:"bytes,1,rep,name=component_to_update_information,json=componentToUpdateInformation,proto3" json:"component_to_update_information,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 }
 
