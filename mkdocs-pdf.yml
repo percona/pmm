@@ -71,7 +71,7 @@ plugins:
  #     enabled_if_env: ENABLE_PDF_EXPORT
   # Check links - but extends build time significantly
   # https://pypi.org/project/mkdocs-htmlproofer-plugin/
-#  - htmlproofer
+  - htmlproofer
 #  - mermaid2
 
 extra: # Used in main.html template and can't be externalised
