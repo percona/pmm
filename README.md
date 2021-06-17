@@ -98,13 +98,13 @@ View the site at <http://0.0.0.0:8000>
     - With Docker:
 
         ```sh
-        docker run --rm -v $(pwd):/docs -e ENABLE_PDF_EXPORT=1 perconalab/pmm-doc-md mkdocs build -f mkdocs-pdf.yml
+        docker run --rm -v $(pwd):/docs perconalab/pmm-doc-md mkdocs build -f mkdocs-pdf.yml
         ```
 
     - Without:
 
         ```sh
-        ENABLE_PDF_EXPORT=1 mkdocs build -f mkdocs-pdf.yml
+        mkdocs build -f mkdocs-pdf.yml
         ```
 
 3. The PDF is in `site/_pdf`.
