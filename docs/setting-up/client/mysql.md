@@ -224,7 +224,7 @@ This section covers how to configure a MySQL-based database server to use *Perfo
 | Percona XtraDB Cluster   | 5.6, 5.7, 8.0
 | MariaDB                  | [10.3+][mariadb_perfschema_instr_table]
 
-PMM's [*MySQL Performance Schema Details* dashboard](../../details/dashboards/dashboard-mysql-performance-schema-details.md) charts the various [performance_schema][performance-schema-startup-configuration] metrics.
+PMM's [*MySQL Performance Schema Details* dashboard](../../details/dashboards/dashboard-mysql-performance-schema-details.md) charts the various [`performance_schema`][performance-schema-startup-configuration] metrics.
 
 To use *Performance Schema*, set these variables.
 

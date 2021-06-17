@@ -26,7 +26,7 @@ If one is available, click the update button to update to the version indicated.
 !!! seealso alert alert-info "See also"
     [PMM Server Docker upgrade](../setting-up/server/docker.md#upgrade)
 
-## Upgrade from PMM 1 {: #upgrade-from-pmm1}
+## Upgrade from PMM 1
 
 Because of the significant architectural changes between PMM1 and PMM2, there is no direct upgrade path. The approach to making the switch from PMM version 1 to 2 is a gradual transition, outlined [in this blog post](https://www.percona.com/blog/2019/11/27/running-pmm1-and-pmm2-clients-on-the-same-host/).
 

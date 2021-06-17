@@ -38,8 +38,8 @@ Most steps can be done with either a user interface or on the command line, but 
 | CPU               | 1
 | Base memory       | 4096 MB
 | Disks             | LVM, 2 physical volumes
-| Disk 1 (sda)      | VMDK (SCSI, 40 GB)
-| Disk 2 (sdb)      | VMDK (SCSI, 400 GB)
+| Disk 1 (`sda`)    | VMDK (SCSI, 40 GB)
+| Disk 2 (`sdb`)    | VMDK (SCSI, 400 GB)
 
 **Users**
 

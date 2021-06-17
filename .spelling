@@ -50,6 +50,7 @@ GitHub
 goroutine
 goroutines
 GovCloud
+gRPC
 Grafana
 Guzman
 Handzelova
@@ -9152,6 +9153,7 @@ Rouillard
 rq
 rseg
 runtime
+SaaS
 schema
 schemas
 scrollbar
@@ -9212,7 +9214,7 @@ webhook
 WiredTiger
 Wittwer
 Writeset
-Xenial
+xenial
 Xerus
 XtraDB
 Yann

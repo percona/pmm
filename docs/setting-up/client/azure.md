@@ -75,12 +75,12 @@ When you fill in all fields press the *Discover* button and you will see a list 
 
 You can monitor 6 types of databases:
 
-- Microsoft.DBforMySQL/servers
-- Microsoft.DBforMySQL/flexibleServers
-- Microsoft.DBforMariaDB/servers
-- Microsoft.DBforPostgreSQL/servers
-- Microsoft.DBforPostgreSQL/flexibleServers
-- Microsoft.DBforPostgreSQL/serversv2
+- `Microsoft.DBforMySQL/servers`
+- `Microsoft.DBforMySQL/flexibleServers`
+- `Microsoft.DBforMariaDB/servers`
+- `Microsoft.DBforPostgreSQL/servers`
+- `Microsoft.DBforPostgreSQL/flexibleServers`
+- `Microsoft.DBforPostgreSQL/serversv2`
 
 You can find more details on how to create DB on Azure at:
 

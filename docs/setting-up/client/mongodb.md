@@ -49,7 +49,7 @@ Check that:
 
 We recommend using a dedicated account to connect PMM Client to the monitored database instance.
 
-This example creates a new custom role with the privileges needed by the Query Analyzer, and adds a database user with that role plus the built-in "clusterMonitor" role.
+This example creates a new custom role with the privileges needed by the Query Analyzer, and adds a database user with that role plus the built-in `clusterMonitor` role.
 
 !!! caution alert alert-warning ""
     Values for username (`user`) and password (`pwd`) are examples. Replace them before using this code.
@@ -242,7 +242,7 @@ pmm-admin inventory list services --service-type=mongodb
 1. Open *PMM Query Analytics*.
 2. In the *Filters* panel:
     1. Under *Service Name*, select your service.
-    2. Under *Service Type* select *mongodb*.
+    2. Under *Service Type* select `mongodb`.
 
 ## Remove service
 

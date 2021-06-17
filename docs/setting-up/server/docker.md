@@ -293,7 +293,7 @@ These variables will be ignored by `pmm-managed` when starting the server. If an
 | --------------------------------------------------------------- | ------------------------------------------------------ |
 | `_`, `HOME`, `HOSTNAME`, `LANG`, `PATH`, `PWD`, `SHLVL`, `TERM` | Default environment variables                          |
 | `GF_*`                                                          | Grafana's environment variables                        |
-| `SUPERVISOR_`                                                   | Supervisord environment variables                      |
+| `SUPERVISOR_`                                                   | `supervisord` environment variables                    |
 | `PERCONA_TEST_`                                                 | Unknown variable but won't prevent the server starting |
 | `PERCONA_TEST_DBAAS`                                            | Deprecated. Use `ENABLE_DBAAS`                         |
 

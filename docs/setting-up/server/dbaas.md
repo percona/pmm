@@ -93,7 +93,7 @@ alias kubectl='minikube kubectl --'
     !!! note alert alert-primary ""
         You will need to copy this output to your clipboard and continue with [adding a Kubernetes cluster to PMM](../../using/platform/dbaas.md#add-a-kubernetes-cluster).
 
-### Amazon AWS EKS {: #aws-eks }
+### Amazon AWS EKS
 
 1. Create your cluster via `eksctl` or the Amazon AWS interface. For example:
 
@@ -170,11 +170,11 @@ alias kubectl='minikube kubectl --'
     !!! note alert alert-primary ""
         If possible, the connection details will show the cluster's external IP (not possible with minikube).
 
-### Google GKE {: #google-gke }
+### Google GKE
 
-1. Create your cluster either with [Google Cloud Console](https://console.cloud.google.com/) or [gcloud command line tool](https://cloud.google.com/sdk/gcloud):
+1. Create your cluster either with [Google Cloud Console](https://console.cloud.google.com/) or [`gcloud` command line tool](https://cloud.google.com/sdk/gcloud):
 
-    The command below assumes that your gcloud command line tool is properly configured and your user authenticated and authorized to manage GKE Clusters. This example creates a minimal zonal cluster using preemptible node machines, ideal for testing the DBaaS functionality.
+    The command below assumes that your `gcloud` command line tool is properly configured and your user authenticated and authorized to manage GKE Clusters. This example creates a minimal zonal cluster using preemptive node machines, ideal for testing the DBaaS functionality.
 
     ```sh
     gcloud container clusters create --zone europe-west3-c pmm-dbaas-cluster --cluster-version 1.19 --machine-type e2-standard-4 --preemptible --num-nodes=3
@@ -182,7 +182,7 @@ alias kubectl='minikube kubectl --'
     kubectl create clusterrolebinding cluster-admin-binding --clusterrole=cluster-admin --user=<<your_user@your_company.com>>
     ```
 
-2. Create ServiceAccount, ClusterRole and RoleBindings (required Roles are deployed automatically when PMM deploys Operators) using the following command:
+2. Create `ServiceAccount`, `ClusterRole` and `RoleBindings` (required Roles are deployed automatically when PMM deploys Operators) using the following command:
 
     ```sh
     cat <<EOF | kubectl apply -f -
@@ -309,7 +309,7 @@ For example, if you only run `eksctl delete cluster` to delete an Amazon EKS clu
     curl https://raw.githubusercontent.com/percona-platform/dbaas-controller/7a5fff023994cecf6bde15705365114004b50b41/deploy/psmdb-operator.yaml | kubectl delete -f -
     ```
 
-3. Delete the namespace where the DBaaS is running, this will delete all remaining namespace level resources if any are left.
+3. Delete the name space where the DBaaS is running, this will delete all remaining name space level resources if any are left.
 
     ```sh
     kubectl delete namespace <your-namespace>
