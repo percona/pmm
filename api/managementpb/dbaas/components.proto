@@ -104,12 +104,15 @@ message ChangePXCComponentsResponse {}
 
 message CheckForOperatorUpdateRequest {}
 
+// ComponentUpdateInformation contains version we can update to for certain component.
+message ComponentUpdateInformation {
+  string available_version = 1;
+}
+
 // AvailableComponentsVersions contains info about components and their available latest versions.
 message AvailableComponentsVersions {
-  // component_to_version stores, under the name of the component, version we can update to.
-  // If the component as a key does not exist in this map, there is no update available for the component.
-  // Example for operators: {"pxc-operator":"1.9.0", "psmdb-operator":"1.8.0"}
-  map<string, string> component_to_version = 1;
+  // component_to_update_information stores, under the name of the component, information about the update.
+  map<string, string> component_to_update_information = 1;
 }
 
 message CheckForOperatorUpdateResponse {

@@ -323,9 +323,9 @@
                     "description": "AvailableComponentsVersions contains info about components and their available latest versions.",
                     "type": "object",
                     "properties": {
-                      "component_to_version": {
+                      "component_to_update_information": {
+                        "description": "component_to_update_information stores, under the name of the component, information about the update.",
                         "type": "object",
-                        "title": "component_to_version stores, under the name of the component, version we can update to.\nIf the component as a key does not exist in this map, there is no update available for the component.\nExample for operators: {\"pxc-operator\":\"1.9.0\", \"psmdb-operator\":\"1.8.0\"}",
                         "additionalProperties": {
                           "type": "string"
                         },

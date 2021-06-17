@@ -260,10 +260,8 @@ swagger:model ClusterToComponentsAnon
 */
 type ClusterToComponentsAnon struct {
 
-	// component_to_version stores, under the name of the component, version we can update to.
-	// If the component as a key does not exist in this map, there is no update available for the component.
-	// Example for operators: {"pxc-operator":"1.9.0", "psmdb-operator":"1.8.0"}
-	ComponentToVersion map[string]string `json:"component_to_version,omitempty"`
+	// component_to_update_information stores, under the name of the component, information about the update.
+	ComponentToUpdateInformation map[string]string `json:"component_to_update_information,omitempty"`
 }
 
 // Validate validates this cluster to components anon
