@@ -2,13 +2,13 @@
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/52970fb0-4de9-4b89-ab41-bd1cf83564b4/deploy-status)](https://app.netlify.com/sites/pmm-doc/deploys)
 
-[Percona Monitoring and Management (PMM)](https://www.percona.com/software/database-tools/percona-monitoring-and-management) is a database monitoring solution that is free and open-source.
+[Percona Monitoring and Management] (PMM) is a database monitoring solution that is free and open-source.
 
-This repo holds the source files for the PMM technical documentation published at <https://www.percona.com/doc/percona-monitoring-and-management/>.
+This repo holds the source files for the official [PMM technical documentation].
 
 To contribute to that documentation, you can:
 
-- **report a general problem** -- open an [Issue in this repo](https://github.com/percona/pmm-doc/issues/new?title=PMM%20doc%20issue&body=Please%20describe%20the%20issue%20here) or use [Percona's Jira](https://jira.percona.com/browse/PMM).
+- **report a general problem** -- open an [Issue in this repo](https://github.com/percona/pmm-doc/issues/new?title=PMM%20doc%20issue&body=Please%20describe%20the%20issue%20here) or use [Jira].
 
 - **report a problem on a page** -- every page of our documentation has a link, *Report a problem with this page*, a shortcut to this repo's *Issues*. (The link pre-fills the issue's subject so we know what page you're on.) Click it, explain it, and we'll fix it.
 
@@ -16,11 +16,11 @@ To contribute to that documentation, you can:
 
 > ![PMM Technical Documentation links](docs/_images/pmm-links.png)
 >
-> *Links on the [PMM Technical Documentation home page](https://www.percona.com/doc/percona-monitoring-and-management/)*
+> *Links on the [PMM Technical Documentation] home page*
 
 ## Introduction
 
-We use [MkDocs](https://www.mkdocs.org/) to convert [Markdown](https://daringfireball.net/projects/markdown/) files into a static HTML website (or [PDF](#pdf)). This process is called [*building the documentation*](#building-the-documentation).
+We use [MkDocs] to convert [Markdown] files into a static HTML website (or [PDF](#pdf)). This process is called [*building the documentation*](#building-the-documentation).
 
 The documentation source files are in the `docs` directory. (Other files in this repo are explained in [Directories and files](#directories-and-files).)
 
@@ -29,7 +29,7 @@ The two major PMM versions are kept in separate branches:
 - `main` is for PMM 2.x (latest)
 - `1.x` is for PMM 1.x
 
-Before you start, it helps to know what [git](https://git-scm.com), [Python 3](https://www.python.org/downloads/) and [Docker](https://docs.docker.com/get-docker/) are, what [Markdown](https://daringfireball.net/projects/markdown/) is and how to write it, and how to install and use those things on the command line. (If you don't, consider opening an [Issue](https://github.com/percona/pmm-doc/issues/new?title=PMM%20doc%20issue&body=Please%20describe%20the%20issue%20here) instead.)
+Before you start, it helps to know what [git], [Python] and [Docker](https://docs.docker.com/get-docker/) are, what [Markdown] is and how to write it, and how to install and use those things on the command line. (If you don't, consider opening an [Issue](https://github.com/percona/pmm-doc/issues/new?title=PMM%20doc%20issue&body=Please%20describe%20the%20issue%20here) instead.)
 
 ## Building the documentation
 
@@ -37,10 +37,10 @@ If you'd like to have a local copy of PMM documentation, or are thinking about c
 
 ### With Docker
 
-1. [Get Docker](https://docs.docker.com/get-docker/)
+1. Install [Docker]
 2. Clone this repository
 3. Change directory to `pmm-doc`
-4. Use [our Docker image](https://hub.docker.com/repository/docker/perconalab/pmm-doc-md) to *build the documentation*:
+4. Use our [PMM documentation Docker image] to *build the documentation*:
 
     ```sh
     docker run --rm -v $(pwd):/docs perconalab/pmm-doc-md mkdocs build
@@ -60,7 +60,7 @@ Wait until you see `INFO    -  Start detecting changes` then point your browser 
 
 *If you don't use Docker, you must install MkDocs and all its dependencies.*
 
-1. Install [Python 3](https://www.python.org/downloads/)
+1. Install [Python].
 
 2. Install MkDocs and required extensions:
 
@@ -141,9 +141,9 @@ View the site at <http://0.0.0.0:8000>
 
 ## Version switching
 
-We are trialing the use of [mike](https://github.com/jimporter/mike) to build different versions.
+We are trialing the use of [mike] to build different versions.
 
-With this, a [GitHub actions](https://github.com/percona/pmm-doc/actions) workflow runs `mike` (which runs `mkdocs`). The HTML is committed and pushed to the `publish` branch. The whole branch is then copied (by us, naturally) to our web server.
+With this, a [GitHub actions] workflow runs `mike` (which runs `mkdocs`). The HTML is committed and pushed to the `publish` branch. The whole branch is then copied (by us, naturally) to our web server.
 
 ## Image overlays
 
@@ -173,7 +173,7 @@ Here's how it's done.
     9. Navigate to `pmm-doc/docs/_images` and click `PMM_Home_Dashboard_Overlay.png`
     10. Click *Save* and overwrite the current file
 
-The overlay image is merged with a copy of the latest home dashboard using [`composite`](https://imagemagick.org/script/composite.php), one of the [ImageMagick](https://imagemagick.org/script/download.php) tools.
+The overlay image is merged with a copy of the latest home dashboard using [composite], one of the [ImageMagick] tools.
 
 ```sh
 composite docs/_images/PMM_Home_Dashboard_Overlay.png docs/_images/PMM_Home_Dashboard.jpg docs/_images/PMM_Home_Dashboard_Numbered.png
@@ -181,7 +181,7 @@ composite docs/_images/PMM_Home_Dashboard_Overlay.png docs/_images/PMM_Home_Dash
 
 ## Spelling and grammar
 
-The GitHub actions build job performs a basic spell and grammar check. You can do these yourself on the command line if you have [Node.js](https://nodejs.org/en/download/) installed.
+The GitHub actions build job performs a basic spell and grammar check. You can do these yourself on the command line if you have [Node.js] installed.
 
     npm i markdown-spellcheck -g
     mdspell --report --en-us --ignore-acronyms --ignore-numbers docs/<path to file>.md
@@ -205,6 +205,23 @@ To check all files:
 
 We're using the `mkdocs-htmlproofer-plugin` link checking plugin to detect broken URLs. It works great but increases the build time significantly (by between 10 and 50 times longer).
 
-The plugin is installed in [our Docker image](https://hub.docker.com/repository/docker/perconalab/pmm-doc-md) and by the GitHub action but it is commented out in `mkdocs.yml`.
+The plugin is installed in our [PMM documentation Docker image] and by the GitHub action but it is commented out in `mkdocs.yml`.
 
 To enable it for local builds, uncomment the line with `htmlproofer` in the `plugins` section of `mkdocs.yml` and parse the build output for warnings.
+
+
+
+[Percona Monitoring and Management]: https://www.percona.com/software/database-tools/percona-monitoring-and-management
+[PMM technical documentation]: https://www.percona.com/doc/percona-monitoring-and-management/
+[Jira]: https://jira.percona.com/browse/PMM
+[MkDocs]: https://www.mkdocs.org/
+[Markdown]: https://daringfireball.net/projects/markdown/
+[git]: https://git-scm.com
+[Python]: https://www.python.org/downloads/
+[Docker]: https://docs.docker.com/get-docker/
+[PMM documentation Docker image](https://hub.docker.com/repository/docker/perconalab/pmm-doc-md)
+[mike]: https://github.com/jimporter/mike
+[GitHub actions]: https://github.com/percona/pmm-doc/actions
+[ImageMagick]: https://imagemagick.org/script/download.php
+[composite]: https://imagemagick.org/script/composite.php
+[Node.js]: https://nodejs.org/en/download/
