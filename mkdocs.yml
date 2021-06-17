@@ -2,7 +2,7 @@
 site_name: Percona Monitoring and Management
 site_description: Documentation
 site_author: Percona LLC
-site_url: ""
+site_url: "https://pmm-doc.netlify.app/2.x/"
 copyright: Percona LLC, &#169; 2021
 use_directory_urls: false
 repo_name: percona/pmm-doc
