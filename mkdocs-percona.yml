@@ -2,7 +2,7 @@
 site_name: Percona Monitoring and Management
 site_description: Documentation
 site_author: Percona LLC
-site_url: "https://www.percona.com/doc/percona-monitoring-and-management/2.x/"
+site_url: "https://www.percona.com/doc/percona-monitoring-and-management/"
 copyright: Percona LLC, &#169; 2021
 use_directory_urls: false
 repo_name: percona/pmm-doc
