@@ -16199,10 +16199,10 @@
               "type": "object",
               "properties": {
                 "cluster_to_components": {
-                  "description": "The cluster name is used as a key for this map, value contains components and their latest versions that we can update to.",
+                  "description": "The cluster name is used as a key for this map, value contains components and their inforamtion about update.",
                   "type": "object",
                   "additionalProperties": {
-                    "description": "AvailableComponentsVersions contains info about components and their available latest versions.",
+                    "description": "ComponentsUpdateInformation contains info about components and their available latest versions.",
                     "type": "object",
                     "properties": {
                       "component_to_update_information": {

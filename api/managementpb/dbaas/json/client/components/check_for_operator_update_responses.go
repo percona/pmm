@@ -197,7 +197,7 @@ swagger:model CheckForOperatorUpdateOKBody
 */
 type CheckForOperatorUpdateOKBody struct {
 
-	// The cluster name is used as a key for this map, value contains components and their latest versions that we can update to.
+	// The cluster name is used as a key for this map, value contains components and their inforamtion about update.
 	ClusterToComponents map[string]ClusterToComponentsAnon `json:"cluster_to_components,omitempty"`
 }
 
@@ -255,7 +255,7 @@ func (o *CheckForOperatorUpdateOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ClusterToComponentsAnon AvailableComponentsVersions contains info about components and their available latest versions.
+/*ClusterToComponentsAnon ComponentsUpdateInformation contains info about components and their available latest versions.
 swagger:model ClusterToComponentsAnon
 */
 type ClusterToComponentsAnon struct {

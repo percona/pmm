@@ -125,7 +125,7 @@ func (this *CheckForOperatorUpdateRequest) Validate() error {
 func (this *ComponentUpdateInformation) Validate() error {
 	return nil
 }
-func (this *AvailableComponentsVersions) Validate() error {
+func (this *ComponentsUpdateInformation) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }

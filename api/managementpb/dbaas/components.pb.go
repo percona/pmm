@@ -841,8 +841,8 @@ func (x *ComponentUpdateInformation) GetAvailableVersion() string {
 	return ""
 }
 
-// AvailableComponentsVersions contains info about components and their available latest versions.
-type AvailableComponentsVersions struct {
+// ComponentsUpdateInformation contains info about components and their available latest versions.
+type ComponentsUpdateInformation struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -852,8 +852,8 @@ type AvailableComponentsVersions struct {
 	ComponentToUpdateInformation map[string]*ComponentUpdateInformation `protobuf:"bytes,1,rep,name=component_to_update_information,json=componentToUpdateInformation,proto3" json:"component_to_update_information,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 }
 
-func (x *AvailableComponentsVersions) Reset() {
-	*x = AvailableComponentsVersions{}
+func (x *ComponentsUpdateInformation) Reset() {
+	*x = ComponentsUpdateInformation{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_managementpb_dbaas_components_proto_msgTypes[14]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -861,13 +861,13 @@ func (x *AvailableComponentsVersions) Reset() {
 	}
 }
 
-func (x *AvailableComponentsVersions) String() string {
+func (x *ComponentsUpdateInformation) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AvailableComponentsVersions) ProtoMessage() {}
+func (*ComponentsUpdateInformation) ProtoMessage() {}
 
-func (x *AvailableComponentsVersions) ProtoReflect() protoreflect.Message {
+func (x *ComponentsUpdateInformation) ProtoReflect() protoreflect.Message {
 	mi := &file_managementpb_dbaas_components_proto_msgTypes[14]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -879,12 +879,12 @@ func (x *AvailableComponentsVersions) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AvailableComponentsVersions.ProtoReflect.Descriptor instead.
-func (*AvailableComponentsVersions) Descriptor() ([]byte, []int) {
+// Deprecated: Use ComponentsUpdateInformation.ProtoReflect.Descriptor instead.
+func (*ComponentsUpdateInformation) Descriptor() ([]byte, []int) {
 	return file_managementpb_dbaas_components_proto_rawDescGZIP(), []int{14}
 }
 
-func (x *AvailableComponentsVersions) GetComponentToUpdateInformation() map[string]*ComponentUpdateInformation {
+func (x *ComponentsUpdateInformation) GetComponentToUpdateInformation() map[string]*ComponentUpdateInformation {
 	if x != nil {
 		return x.ComponentToUpdateInformation
 	}
@@ -896,8 +896,8 @@ type CheckForOperatorUpdateResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// The cluster name is used as a key for this map, value contains components and their latest versions that we can update to.
-	ClusterToComponents map[string]*AvailableComponentsVersions `protobuf:"bytes,1,rep,name=cluster_to_components,json=clusterToComponents,proto3" json:"cluster_to_components,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	// The cluster name is used as a key for this map, value contains components and their inforamtion about update.
+	ClusterToComponents map[string]*ComponentsUpdateInformation `protobuf:"bytes,1,rep,name=cluster_to_components,json=clusterToComponents,proto3" json:"cluster_to_components,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 }
 
 func (x *CheckForOperatorUpdateResponse) Reset() {
@@ -932,7 +932,7 @@ func (*CheckForOperatorUpdateResponse) Descriptor() ([]byte, []int) {
 	return file_managementpb_dbaas_components_proto_rawDescGZIP(), []int{15}
 }
 
-func (x *CheckForOperatorUpdateResponse) GetClusterToComponents() map[string]*AvailableComponentsVersions {
+func (x *CheckForOperatorUpdateResponse) GetClusterToComponents() map[string]*ComponentsUpdateInformation {
 	if x != nil {
 		return x.ClusterToComponents
 	}
@@ -1185,14 +1185,14 @@ var file_managementpb_dbaas_components_proto_rawDesc = []byte{
 	0x6e, 0x12, 0x2b, 0x0a, 0x11, 0x61, 0x76, 0x61, 0x69, 0x6c, 0x61, 0x62, 0x6c, 0x65, 0x5f, 0x76,
 	0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x10, 0x61, 0x76,
 	0x61, 0x69, 0x6c, 0x61, 0x62, 0x6c, 0x65, 0x56, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x22, 0xaf,
-	0x02, 0x0a, 0x1b, 0x41, 0x76, 0x61, 0x69, 0x6c, 0x61, 0x62, 0x6c, 0x65, 0x43, 0x6f, 0x6d, 0x70,
-	0x6f, 0x6e, 0x65, 0x6e, 0x74, 0x73, 0x56, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x73, 0x12, 0x93,
+	0x02, 0x0a, 0x1b, 0x43, 0x6f, 0x6d, 0x70, 0x6f, 0x6e, 0x65, 0x6e, 0x74, 0x73, 0x55, 0x70, 0x64,
+	0x61, 0x74, 0x65, 0x49, 0x6e, 0x66, 0x6f, 0x72, 0x6d, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x93,
 	0x01, 0x0a, 0x1f, 0x63, 0x6f, 0x6d, 0x70, 0x6f, 0x6e, 0x65, 0x6e, 0x74, 0x5f, 0x74, 0x6f, 0x5f,
 	0x75, 0x70, 0x64, 0x61, 0x74, 0x65, 0x5f, 0x69, 0x6e, 0x66, 0x6f, 0x72, 0x6d, 0x61, 0x74, 0x69,
 	0x6f, 0x6e, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x4c, 0x2e, 0x64, 0x62, 0x61, 0x61, 0x73,
-	0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x41, 0x76, 0x61, 0x69, 0x6c, 0x61, 0x62,
-	0x6c, 0x65, 0x43, 0x6f, 0x6d, 0x70, 0x6f, 0x6e, 0x65, 0x6e, 0x74, 0x73, 0x56, 0x65, 0x72, 0x73,
-	0x69, 0x6f, 0x6e, 0x73, 0x2e, 0x43, 0x6f, 0x6d, 0x70, 0x6f, 0x6e, 0x65, 0x6e, 0x74, 0x54, 0x6f,
+	0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x43, 0x6f, 0x6d, 0x70, 0x6f, 0x6e, 0x65,
+	0x6e, 0x74, 0x73, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x49, 0x6e, 0x66, 0x6f, 0x72, 0x6d, 0x61,
+	0x74, 0x69, 0x6f, 0x6e, 0x2e, 0x43, 0x6f, 0x6d, 0x70, 0x6f, 0x6e, 0x65, 0x6e, 0x74, 0x54, 0x6f,
 	0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x49, 0x6e, 0x66, 0x6f, 0x72, 0x6d, 0x61, 0x74, 0x69, 0x6f,
 	0x6e, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x52, 0x1c, 0x63, 0x6f, 0x6d, 0x70, 0x6f, 0x6e, 0x65, 0x6e,
 	0x74, 0x54, 0x6f, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x49, 0x6e, 0x66, 0x6f, 0x72, 0x6d, 0x61,
@@ -1218,9 +1218,9 @@ var file_managementpb_dbaas_components_proto_rawDesc = []byte{
 	0x6f, 0x6e, 0x65, 0x6e, 0x74, 0x73, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x12, 0x10, 0x0a, 0x03, 0x6b,
 	0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12, 0x40, 0x0a,
 	0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x2a, 0x2e, 0x64,
-	0x62, 0x61, 0x61, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x41, 0x76, 0x61,
-	0x69, 0x6c, 0x61, 0x62, 0x6c, 0x65, 0x43, 0x6f, 0x6d, 0x70, 0x6f, 0x6e, 0x65, 0x6e, 0x74, 0x73,
-	0x56, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x73, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x3a,
+	0x62, 0x61, 0x61, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x43, 0x6f, 0x6d,
+	0x70, 0x6f, 0x6e, 0x65, 0x6e, 0x74, 0x73, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x49, 0x6e, 0x66,
+	0x6f, 0x72, 0x6d, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x3a,
 	0x02, 0x38, 0x01, 0x32, 0xd3, 0x06, 0x0a, 0x0a, 0x43, 0x6f, 0x6d, 0x70, 0x6f, 0x6e, 0x65, 0x6e,
 	0x74, 0x73, 0x12, 0x9e, 0x01, 0x0a, 0x12, 0x47, 0x65, 0x74, 0x50, 0x53, 0x4d, 0x44, 0x42, 0x43,
 	0x6f, 0x6d, 0x70, 0x6f, 0x6e, 0x65, 0x6e, 0x74, 0x73, 0x12, 0x28, 0x2e, 0x64, 0x62, 0x61, 0x61,
@@ -1308,7 +1308,7 @@ var file_managementpb_dbaas_components_proto_goTypes = []interface{}{
 	(*ChangePXCComponentsResponse)(nil),      // 11: dbaas.v1beta1.ChangePXCComponentsResponse
 	(*CheckForOperatorUpdateRequest)(nil),    // 12: dbaas.v1beta1.CheckForOperatorUpdateRequest
 	(*ComponentUpdateInformation)(nil),       // 13: dbaas.v1beta1.ComponentUpdateInformation
-	(*AvailableComponentsVersions)(nil),      // 14: dbaas.v1beta1.AvailableComponentsVersions
+	(*ComponentsUpdateInformation)(nil),      // 14: dbaas.v1beta1.ComponentsUpdateInformation
 	(*CheckForOperatorUpdateResponse)(nil),   // 15: dbaas.v1beta1.CheckForOperatorUpdateResponse
 	nil,                                      // 16: dbaas.v1beta1.Matrix.MongodEntry
 	nil,                                      // 17: dbaas.v1beta1.Matrix.PxcEntry
@@ -1319,7 +1319,7 @@ var file_managementpb_dbaas_components_proto_goTypes = []interface{}{
 	nil,                                      // 22: dbaas.v1beta1.Matrix.OperatorEntry
 	nil,                                      // 23: dbaas.v1beta1.Matrix.LogCollectorEntry
 	(*ChangeComponent_ComponentVersion)(nil), // 24: dbaas.v1beta1.ChangeComponent.ComponentVersion
-	nil,                                      // 25: dbaas.v1beta1.AvailableComponentsVersions.ComponentToUpdateInformationEntry
+	nil,                                      // 25: dbaas.v1beta1.ComponentsUpdateInformation.ComponentToUpdateInformationEntry
 	nil,                                      // 26: dbaas.v1beta1.CheckForOperatorUpdateResponse.ClusterToComponentsEntry
 }
 var file_managementpb_dbaas_components_proto_depIdxs = []int32{
@@ -1339,7 +1339,7 @@ var file_managementpb_dbaas_components_proto_depIdxs = []int32{
 	7,  // 13: dbaas.v1beta1.ChangePXCComponentsRequest.pxc:type_name -> dbaas.v1beta1.ChangeComponent
 	7,  // 14: dbaas.v1beta1.ChangePXCComponentsRequest.proxysql:type_name -> dbaas.v1beta1.ChangeComponent
 	7,  // 15: dbaas.v1beta1.ChangePXCComponentsRequest.haproxy:type_name -> dbaas.v1beta1.ChangeComponent
-	25, // 16: dbaas.v1beta1.AvailableComponentsVersions.component_to_update_information:type_name -> dbaas.v1beta1.AvailableComponentsVersions.ComponentToUpdateInformationEntry
+	25, // 16: dbaas.v1beta1.ComponentsUpdateInformation.component_to_update_information:type_name -> dbaas.v1beta1.ComponentsUpdateInformation.ComponentToUpdateInformationEntry
 	26, // 17: dbaas.v1beta1.CheckForOperatorUpdateResponse.cluster_to_components:type_name -> dbaas.v1beta1.CheckForOperatorUpdateResponse.ClusterToComponentsEntry
 	0,  // 18: dbaas.v1beta1.Matrix.MongodEntry.value:type_name -> dbaas.v1beta1.Component
 	0,  // 19: dbaas.v1beta1.Matrix.PxcEntry.value:type_name -> dbaas.v1beta1.Component
@@ -1349,8 +1349,8 @@ var file_managementpb_dbaas_components_proto_depIdxs = []int32{
 	0,  // 23: dbaas.v1beta1.Matrix.BackupEntry.value:type_name -> dbaas.v1beta1.Component
 	0,  // 24: dbaas.v1beta1.Matrix.OperatorEntry.value:type_name -> dbaas.v1beta1.Component
 	0,  // 25: dbaas.v1beta1.Matrix.LogCollectorEntry.value:type_name -> dbaas.v1beta1.Component
-	13, // 26: dbaas.v1beta1.AvailableComponentsVersions.ComponentToUpdateInformationEntry.value:type_name -> dbaas.v1beta1.ComponentUpdateInformation
-	14, // 27: dbaas.v1beta1.CheckForOperatorUpdateResponse.ClusterToComponentsEntry.value:type_name -> dbaas.v1beta1.AvailableComponentsVersions
+	13, // 26: dbaas.v1beta1.ComponentsUpdateInformation.ComponentToUpdateInformationEntry.value:type_name -> dbaas.v1beta1.ComponentUpdateInformation
+	14, // 27: dbaas.v1beta1.CheckForOperatorUpdateResponse.ClusterToComponentsEntry.value:type_name -> dbaas.v1beta1.ComponentsUpdateInformation
 	3,  // 28: dbaas.v1beta1.Components.GetPSMDBComponents:input_type -> dbaas.v1beta1.GetPSMDBComponentsRequest
 	5,  // 29: dbaas.v1beta1.Components.GetPXCComponents:input_type -> dbaas.v1beta1.GetPXCComponentsRequest
 	8,  // 30: dbaas.v1beta1.Components.ChangePSMDBComponents:input_type -> dbaas.v1beta1.ChangePSMDBComponentsRequest
@@ -1543,7 +1543,7 @@ func file_managementpb_dbaas_components_proto_init() {
 			}
 		}
 		file_managementpb_dbaas_components_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*AvailableComponentsVersions); i {
+			switch v := v.(*ComponentsUpdateInformation); i {
 			case 0:
 				return &v.state
 			case 1:

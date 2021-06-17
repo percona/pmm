@@ -109,16 +109,16 @@ message ComponentUpdateInformation {
   string available_version = 1;
 }
 
-// AvailableComponentsVersions contains info about components and their available latest versions.
-message AvailableComponentsVersions {
+// ComponentsUpdateInformation contains info about components and their available latest versions.
+message ComponentsUpdateInformation {
   // component_to_update_information stores, under the name of the component, information about the update.
   // "pxc-operator", "psmdb-operator" are names used by backend for our operators.
   map<string, ComponentUpdateInformation> component_to_update_information = 1;
 }
 
 message CheckForOperatorUpdateResponse {
-  // The cluster name is used as a key for this map, value contains components and their latest versions that we can update to.
-  map<string, AvailableComponentsVersions> cluster_to_components = 1;
+  // The cluster name is used as a key for this map, value contains components and their inforamtion about update.
+  map<string, ComponentsUpdateInformation> cluster_to_components = 1;
 }
 
 // Components service provides public methods for managing components.
