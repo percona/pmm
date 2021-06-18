@@ -20,18 +20,6 @@ message KubeAuth {
   ];
 }
 
-// OperatorsStatus defines status of operators installed in Kubernetes cluster.
-enum OperatorsStatus {
-  // OPERATORS_STATUS_INVALID represents unknown state.
-  OPERATORS_STATUS_INVALID = 0;
-  // OPERATORS_STATUS_OK represents that operators are installed and have supported API version.
-  OPERATORS_STATUS_OK = 1;
-  // OPERATORS_STATUS_UNSUPPORTED represents that operators are installed, but doesn't have supported API version.
-  OPERATORS_STATUS_UNSUPPORTED = 2;
-  // OPERATORS_STATUS_NOT_INSTALLED represents that operators are not installed.
-  OPERATORS_STATUS_NOT_INSTALLED = 3;
-}
-
 // KubernetesClusterStatus defines status of Kubernetes cluster.
 enum KubernetesClusterStatus {
   // KUBERNETES_CLUSTER_STATUS_INVALID represents unknown state.

@@ -1047,6 +1047,103 @@
         }
       }
     },
+    "/v1/management/DBaaS/Components/InstallOperator": {
+      "post": {
+        "tags": [
+          "Components"
+        ],
+        "summary": "InstallOperator installs given operator in given version.",
+        "operationId": "InstallOperator",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "kubernetes_cluster_name": {
+                  "description": "Kubernetes cluster name.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "operator_type": {
+                  "description": "operator_type tells what operator we are interested in updating.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "version": {
+                  "description": "version tells what version of the operator we should update to.",
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "description": "OperatorsStatus defines status of operators installed in Kubernetes cluster.\n\n - OPERATORS_STATUS_INVALID: OPERATORS_STATUS_INVALID represents unknown state.\n - OPERATORS_STATUS_OK: OPERATORS_STATUS_OK represents that operators are installed and have supported API version.\n - OPERATORS_STATUS_UNSUPPORTED: OPERATORS_STATUS_UNSUPPORTED represents that operators are installed, but doesn't have supported API version.\n - OPERATORS_STATUS_NOT_INSTALLED: OPERATORS_STATUS_NOT_INSTALLED represents that operators are not installed.",
+                  "type": "string",
+                  "default": "OPERATORS_STATUS_INVALID",
+                  "enum": [
+                    "OPERATORS_STATUS_INVALID",
+                    "OPERATORS_STATUS_OK",
+                    "OPERATORS_STATUS_UNSUPPORTED",
+                    "OPERATORS_STATUS_NOT_INSTALLED"
+                  ],
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/DBaaS/GetLogs": {
       "post": {
         "tags": [
