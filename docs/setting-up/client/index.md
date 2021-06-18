@@ -122,7 +122,7 @@ The [PMM Client Docker image] is a convenient way to run PMM Client as a preconf
 4. Check status.
 
     ```sh
-    docker exec    pmm-client \
+    docker exec pmm-client \
     pmm-admin status
     ```
 
@@ -476,7 +476,7 @@ pmm-admin remove <service-type> <service-name>
 !!! seealso alert alert-info "See also"
     - [Percona release]
     - [PMM Client architecture](../../details/architecture.md#pmm-client)
-    - Thanks to [`gist.github.com/paskal`] for original Docker compose files
+    - Thanks to [paskal] for original Docker compose files
 
 
 
@@ -488,7 +488,7 @@ pmm-admin remove <service-type> <service-name>
 [Debian 9 (Stretch)]: https://www.percona.com/downloads/pmm2/{{release}}/binary/debian/stretch/
 [Docker compose]: https://docs.docker.com/compose/
 [Docker]: https://docs.docker.com/get-docker/
-[`gist.github.com/paskal`]: https://gist.github.com/paskal/48f10a0a584f4849be6b0889ede9262b
+[paskal]: https://gist.github.com/paskal/48f10a0a584f4849be6b0889ede9262b
 [Percona Monitoring and Management 2 download]: https://www.percona.com/downloads/pmm2/
 [Percona release]: https://www.percona.com/doc/percona-repo-config/percona-release.html
 [Percona software support life cycle]: https://www.percona.com/services/policies/percona-software-support-lifecycle#pt
