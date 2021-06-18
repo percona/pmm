@@ -1,8 +1,6 @@
 # PostgreSQL
 
-PMM Client collects metrics from [PostgreSQL][POSTGRESQL] and [Percona Distribution for PostgreSQL][PERCONA_POSTGRESQL] databases.
-
-This page shows how to set up PMM to monitor a PostgreSQL database instance. (Read it completely before starting work.)
+How to set up PMM to monitor a [PostgreSQL] or [Percona Distribution for PostgreSQL] database instance.
 
 Here is an overview of the steps involved.
 
@@ -318,10 +316,12 @@ pmm-admin inventory list services
     - [`pmm-admin` man page for `pmm-admin add postgresql`](../../details/commands/pmm-admin.md#postgresql)
     - [Configuring Percona Repositories with percona-release][PERCONA_RELEASE]
 
-[POSTGRESQL]: https://www.postgresql.org/
+
+
+[PostgreSQL]: https://www.postgresql.org/
+[Percona Distribution for PostgreSQL]: https://www.percona.com/software/postgresql-distribution
 [POSTGRESQL_VERSIONING]: https://www.postgresql.org/support/versioning/
 [PERCONA_LIFECYCLE]: https://www.percona.com/services/policies/percona-software-platform-lifecycle/
-[PERCONA_POSTGRESQL]: https://www.percona.com/software/postgresql-distribution
 [PERCONA_RELEASE]: https://www.percona.com/doc/percona-repo-config/percona-release.html
 [PERCONA_POSTGRESQL_INSTALL]: https://www.percona.com/doc/postgresql/LATEST/installing.html
 [PG_STAT_MONITOR_INSTALL]: https://github.com/percona/pg_stat_monitor#installation
