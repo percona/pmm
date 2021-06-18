@@ -1,11 +1,6 @@
 # MongoDB
 
-PMM Client collects metrics from [MongoDB][MONGODB] and [Percona Server for MongoDB][PSMDB].
-
-This page shows you how to set up PMM to monitor a MongoDB database instance.
-
-!!! hint alert alert-success ""
-    We recommend you read it in full before doing anything.
+How to set up PMM to monitor a [MongoDB] or [Percona Server for MongoDB] database instance.
 
 Here is an overview of the steps involved.
 
@@ -89,7 +84,7 @@ db.getSiblingDB("admin").createUser({
 
 ## Profiling
 
-To use PMM Query Analytics, you must turn on MongoDB's [profiling feature][MONGDB_DATABASE_PROFILER].
+To use PMM Query Analytics, you must turn on MongoDB's [profiling feature].
 
 You can set profiling:
 
@@ -114,7 +109,7 @@ You can set profiling:
     ```
 
     !!! caution alert alert-warning "Important"
-        This is a [YAML](http://yaml.org/spec/) file. Indentation matters.
+        This is a [YAML] file. Indentation matters.
 
 3. Restart the `mongod` service. (Example for `systemd`.)
 
@@ -263,16 +258,17 @@ pmm-admin remove mongodb SERVICE_NAME
 
 - `SERVICE_NAME`: The name the service was added as. (Find it with `pmm-admin list`.)
 
-
 !!! seealso alert alert-info "See also"
-    - [`pmm-admin` man page for `pmm-admin add mongodb`](../../details/commands/pmm-admin.md#mongodb)
-    - [Troubleshooting connection difficulties][TROUBLESHOOTING_CONNECTION]
+    - [`pmm-admin add mongodb`](../../details/commands/pmm-admin.md#mongodb)
+    - [Troubleshooting connection difficulties]
 
 
-[MONGODB]: https://www.mongodb.com/
-[MONGDB_DATABASE_PROFILER]: https://docs.mongodb.com/manual/tutorial/manage-the-database-profiler/
+[MongoDB]: https://www.mongodb.com/
+[Percona Server for MongoDB]: https://www.percona.com/software/mongodb/percona-server-for-mongodb
+[profiling feature]: https://docs.mongodb.com/manual/tutorial/manage-the-database-profiler/
+[YAML]: http://yaml.org/spec/
+
 [MONGODB_CONFIG_OP_PROF]: https://docs.mongodb.com/manual/reference/configuration-options/#operationprofiling-options
-[PSMDB]: https://www.percona.com/software/mongodb/percona-server-for-mongodb
 [PSMDB_RATELIMIT]: https://www.percona.com/doc/percona-server-for-mongodb/LATEST/rate-limit.html#enabling-the-rate-limit
 [PMM_ADMIN_MAN_PAGE]: ../../details/commands/pmm-admin.md
-[TROUBLESHOOTING_CONNECTION]: ../../how-to/troubleshoot.md#connection-difficulties
+[Troubleshooting connection difficulties]: ../../how-to/troubleshoot.md#connection-difficulties
