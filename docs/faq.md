@@ -21,19 +21,34 @@
 
 ## How can I upgrade from version 1?
 
-See [Upgrade from PMM1](how-to/upgrade.md#upgrade-from-pmm1).
+There is no direct software upgrade path.
+
+You must [set up](setting-up/index.md) PMM 2 and connect your existing clients to it.
+
+When all data is registered in PMM1 and expired in PMM1, decommission your PMM1 instance.
+
+!!! seealso alert alert-info "See also"
+    - [Upgrade from PMM1](how-to/upgrade.md#upgrade-from-pmm-1).
+    - [Percona blog: Running PMM1 and PMM2 Clients on the Same Host](https://www.percona.com/blog/2019/11/27/running-pmm1-and-pmm2-clients-on-the-same-host/)
 
 ## How to control data retention?
 
-See [How to configure Data retention](how-to/configure.md#data-retention).
+Go to *{{icon.cog}} Configuration-->{{icon.setting}} Settings -->Advanced Settings-->Data retention* to adjust the value in days.
 
+!!! seealso alert alert-info "See also"
+    [Configure data retention](how-to/configure.md#data-retention)
 ## How often are NGINX logs rotated?
 
 PMM Server runs `logrotate` on a daily basis to rotate NGINX logs and keeps up to ten of the most recent log files.
 
 ## What privileges are required to monitor a MySQL instance?
 
-See [Setting Up PMM Client](setting-up/client/mysql.md#setting-up-client-user).
+```
+SELECT, PROCESS, SUPER, REPLICATION CLIENT, RELOAD
+```
+
+!!! seealso alert alert-info "See also"
+    [Setting Up/Client/MySQL](setting-up/client/mysql.md#create-a-database-account-for-pmm).
 
 ## Can I monitor multiple service instances?
 
@@ -72,7 +87,18 @@ See [Troubleshoot PMM Server/PMM Client connection](how-to/troubleshoot.md#troub
 
 ## What resolution is used for metrics?
 
-See [Metrics resolution](how-to/configure.md#metrics-resolution).
+The default values (in seconds):
+
+| Preset            | Low  | Medium | High |
+|-------------------|:----:|:------:|:----:|
+| Rare              | 300  | 180    | 60   |
+| Standard          | 60   | 10     | 5    |
+| Frequent          | 30   | 5      | 1    |
+| Custom (defaults) | 60   | 10     | 5    |
+
+
+!!! seealso alert alert-info "See also"
+    [Metrics resolution](how-to/configure.md#metrics-resolution).
 
 ## How do I set up Alerting?
 
