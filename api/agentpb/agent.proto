@@ -536,19 +536,6 @@ message JobProgress {
 
 // GetVersionRequest represents a request for version retrieving of different software.
 message GetVersionRequest {
-  // RemoteMySQL is used for remote MySQL version retrieving using `select version();`.
-  message RemoteMySQL {
-    // Database user;
-    string user = 1;
-    // Database password.
-    string password = 2;
-    // Database address. Can't be specified with socket.
-    string address = 3;
-    // Database port. Can't be specified with socket.
-    int32 port = 4;
-    // Database unix socket. Can't be specified with address/port.
-    string socket = 5;
-  }
   // LocalMySQL is used for local MySQL version retrieving using `mysql --version`.
   message LocalMySQL {}
 
@@ -556,9 +543,8 @@ message GetVersionRequest {
   message XtraBackup {}
 
   oneof software {
-    RemoteMySQL remote_mysql = 1;
-    LocalMySQL local_mysql = 2;
-    XtraBackup xtrabackup = 3;
+    LocalMySQL local_mysql = 1;
+    XtraBackup xtrabackup = 2;
   }
 }
 

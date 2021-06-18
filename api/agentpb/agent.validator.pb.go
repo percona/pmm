@@ -621,13 +621,6 @@ func (this *JobProgress_MySQLRestoreBackup) Validate() error {
 	return nil
 }
 func (this *GetVersionRequest) Validate() error {
-	if oneOfNester, ok := this.GetSoftware().(*GetVersionRequest_RemoteMysql); ok {
-		if oneOfNester.RemoteMysql != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.RemoteMysql); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("RemoteMysql", err)
-			}
-		}
-	}
 	if oneOfNester, ok := this.GetSoftware().(*GetVersionRequest_LocalMysql); ok {
 		if oneOfNester.LocalMysql != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.LocalMysql); err != nil {
@@ -642,9 +635,6 @@ func (this *GetVersionRequest) Validate() error {
 			}
 		}
 	}
-	return nil
-}
-func (this *GetVersionRequest_RemoteMySQL) Validate() error {
 	return nil
 }
 func (this *GetVersionRequest_LocalMySQL) Validate() error {
