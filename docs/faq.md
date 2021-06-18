@@ -8,10 +8,16 @@
 
 ## What are the minimum system requirements for PMM?
 
-See:
+- Server:
+    - Disk: 1 GB per monitored database (1 week data retention)
+    - Memory: 2 GB per monitored database
+    - CPU: Supports [`SSE4.2`](https://wikipedia.org/wiki/SSE4#SSE4.2)
+- Client:
+    - Disk: 100 MB
 
-- [PMM Server](setting-up/server/index.md#system-requirements)
-- [PMM Client](setting-up/client/index.md#system-requirements)
+!!! seealso alert alert-info "See also"
+    - [Setting up PMM Server](setting-up/server/index.md)
+    - [Setting up PMM Client](setting-up/client/index.md)
 
 ## How can I upgrade from PMM version 1?
 
