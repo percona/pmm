@@ -147,3 +147,5 @@ echo "Waiting for PMM to initialize to set password..."
 until [ "`docker inspect -f {% raw %}{{.State.Health.Status}}{% endraw %} pmm-server`" = "healthy" ]; do sleep 1; done
 docker exec -t pmm-server bash -c  "grafana-cli --homepath /usr/share/grafana admin reset-admin-password $PMM_PASSWORD"
 ```
+
+(This example assumes your Docker container is named `pmm-server`.)
