@@ -142,8 +142,8 @@ PMM protects an exporter's output from unauthorized access by adding an authoriz
 Currently there is no API available to change the `admin` password. If you're deploying through Docker you can use the following code snippet to change the password after starting the Docker container:
 
 ```sh
-PMMPASSWORD="mypassword"
+PMM_PASSWORD="mypassword"
 echo "Waiting for PMM to initialize to set password..."
-until [ "`docker inspect -f {% raw %}{{.State.Health.Status}}{% endraw %} pmm2-server`" = "healthy" ]; do sleep 1; done
-docker exec -t pmm2-server bash -c  "ln -s /srv/grafana /usr/share/grafana/data; grafana-cli --homepath /usr/share/grafana admin reset-admin-password $PMMPASSWORD"
+until [ "`docker inspect -f {{.State.Health.Status}} pmm2-server`" == "healthy" ]; do sleep 1; done
+docker exec -t pmm2-server bash -c  "grafana-cli --homepath /usr/share/grafana admin reset-admin-password $PMM_PASSWORD"
 ```
