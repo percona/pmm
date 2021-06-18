@@ -7,7 +7,8 @@ skinparam {
   ArrowHeadColor none
   BackgroundColor #fff
   ActivityBackgroundColor #cce6ff
-  activityDiamondBackgroundColor #cce6ff
+  ActivityDiamondBackgroundColor #cce6ff
+  RectangleBackgroundColor #cce6ff
   legendBackgroundColor #0000
   Padding 10
   BoxPadding 20

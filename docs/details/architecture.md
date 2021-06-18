@@ -30,6 +30,8 @@ PMM Server is the heart of PMM. It receives data from clients, collates it and s
 
 **PMM Client**
 
+PMM Client is a collection of agents and exporters that run on the host being monitored.
+
 PMM Client runs on every database host or node you want to monitor. The client collects server metrics, general system metrics, and query analytics data, and sends it to the server. Except when monitoring AWS RDS instances, a PMM Client must be running on the host to be monitored.
 
 **Percona Platform**

@@ -101,7 +101,7 @@ The default values (in seconds):
 
 
 !!! seealso alert alert-info "See also"
-    [Metrics resolution](how-to/configure.md#metrics-resolution).
+    [Metrics resolution](how-to/configure.md#metrics-resolution)
 
 ## How do I set up Alerting?
 
