@@ -1,8 +1,8 @@
 # MySQL
 
-PMM Client collects metrics from [MySQL][ORACLE_MYSQL], [Percona Server for MySQL][PERCONA_SERVER_MYSQL], [Percona XtraDB Cluster][PERCONA_XTRADB_CLUSTER], and [MariaDB][MARIADB]. (Amazon RDS is also supported and explained in a [separate section](aws.md).)
+How to set up PMM to monitor a MySQL or MySQL-based database instance.
 
-This page shows you how to set up PMM to monitor a MySQL or MySQL-based database instance. (You should read it completely before starting work.)
+PMM Client collects metrics from [MySQL][ORACLE_MYSQL], [Percona Server for MySQL][PERCONA_SERVER_MYSQL], [Percona XtraDB Cluster][PERCONA_XTRADB_CLUSTER], and [MariaDB][MARIADB]. (Amazon RDS is also supported and explained in a [separate section](aws.md).)
 
 Here is an overview of the steps involved.
 
