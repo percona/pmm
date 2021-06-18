@@ -6,7 +6,7 @@
 - [Discord chat](http://per.co.na/discord).
 - [PMM project in JIRA](https://jira.percona.com/projects/PMM).
 
-## What are the minimum system requirements for PMM?
+## What are the minimum system requirements?
 
 - Server:
     - Disk: 1 GB per monitored database (1 week data retention)
@@ -19,15 +19,15 @@
     - [Setting up PMM Server](setting-up/server/index.md)
     - [Setting up PMM Client](setting-up/client/index.md)
 
-## How can I upgrade from PMM version 1?
+## How can I upgrade from version 1?
 
 See [Upgrade from PMM1](how-to/upgrade.md#upgrade-from-pmm1).
 
-## How to control data retention for PMM?
+## How to control data retention?
 
 See [How to configure Data retention](how-to/configure.md#data-retention).
 
-## How often are NGINX logs in PMM Server rotated?
+## How often are NGINX logs rotated?
 
 PMM Server runs `logrotate` on a daily basis to rotate NGINX logs and keeps up to ten of the most recent log files.
 
@@ -74,7 +74,7 @@ See [Troubleshoot PMM Server/PMM Client connection](how-to/troubleshoot.md#troub
 
 See [Metrics resolution](how-to/configure.md#metrics-resolution).
 
-## How do I set up Alerting in PMM?
+## How do I set up Alerting?
 
 When a monitored service metric reaches a defined threshold, PMM Server can trigger alerts for it either using the Grafana Alerting feature or by using an external alert manager.
 
@@ -89,7 +89,7 @@ We only offer support for creating custom rules to our customers, so you should 
 !!! seealso alert alert-info "See also"
     [PMM Alerting with Grafana: Working with Templated Dashboards](https://www.percona.com/blog/2017/02/02/pmm-alerting-with-grafana-working-with-templated-dashboards/)
 
-## How do I use a custom Prometheus configuration file inside PMM Server?
+## How do I use a custom Prometheus configuration file?
 
 Normally, PMM Server fully manages the [Prometheus configuration file](https://prometheus.io/docs/prometheus/latest/configuration/configuration/).
 
