@@ -28,7 +28,7 @@ You must [set up](setting-up/index.md) PMM 2 and connect your existing clients t
 When all data is registered in PMM1 and expired in PMM1, decommission your PMM1 instance.
 
 !!! seealso alert alert-info "See also"
-    - [Upgrade from PMM1](how-to/upgrade.md#upgrade-from-pmm-1).
+    - [Upgrade from PMM1](how-to/upgrade.md#upgrade-from-pmm-1)
     - [Percona blog: Running PMM1 and PMM2 Clients on the Same Host](https://www.percona.com/blog/2019/11/27/running-pmm1-and-pmm2-clients-on-the-same-host/)
 
 ## How to control data retention?
@@ -39,7 +39,9 @@ Go to *{{icon.cog}} Configuration-->{{icon.setting}} Settings -->Advanced Settin
     [Configure data retention](how-to/configure.md#data-retention)
 ## How often are NGINX logs rotated?
 
-PMM Server runs `logrotate` on a daily basis to rotate NGINX logs and keeps up to ten of the most recent log files.
+Daily.
+
+PMM Server runs `logrotate` daily to rotate NGINX logs, keeping up to ten of the most recent log files.
 
 ## What privileges are required to monitor a MySQL instance?
 
@@ -52,24 +54,25 @@ SELECT, PROCESS, SUPER, REPLICATION CLIENT, RELOAD
 
 ## Can I monitor multiple service instances?
 
-You can add multiple instances of MySQL or some other service to be monitored from one PMM Client. In this case, you must provide a unique port and IP address, or a socket for each instance, and specify a unique name for each.  (If a name is not provided, PMM uses the name of the PMM Client host.)
+Yes.
 
-For example, to add complete MySQL monitoring for two local MySQL servers, the commands would be:
+You can add multiple instances of MySQL or any other service to be monitored from the same PMM Client.
+
+To do this, you provide a unique port and IP address, or a socket for each instance, and specify a unique name for each. (If a name is not provided, PMM uses the name of the PMM Client host.)
+
+For example, to add MySQL monitoring for two local MySQL servers:
 
 ```sh
 pmm-admin add mysql --username root --password root instance-01 127.0.0.1:3001
 pmm-admin add mysql --username root --password root instance-02 127.0.0.1:3002
 ```
 
-For more information, run:
-
-```sh
-pmm-admin add mysql --help
-```
+!!! seealso alert alert-info "See also"
+    [`pmm-admin add mysql`](details/commands/pmm-admin.md#mysql)
 
 ## Can I rename instances?
 
-You can remove any monitoring instance and then add it back with a different name.
+Yes, by removing and re-adding with a different name.
 
 When you remove a monitoring service, previously collected data remains available in Grafana.  However, the metrics are tied to the instance name.  So if you add the same instance back with a different name, it will be considered a new instance with a new set of metrics.  So if you are re-adding an instance and want to keep its previous data, add it with the same name.
 
