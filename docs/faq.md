@@ -25,7 +25,7 @@ There is no direct software upgrade path.
 
 You must [set up](setting-up/index.md) PMM 2 and connect your existing clients to it.
 
-When all data is registered in PMM1 and expired in PMM1, decommission your PMM1 instance.
+When all data is registered in PMM2 and expired in PMM1, decommission your PMM1 instance.
 
 !!! seealso alert alert-info "See also"
     - [Upgrade from PMM1](how-to/upgrade.md#upgrade-from-pmm-1)
