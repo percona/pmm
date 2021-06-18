@@ -1,9 +1,9 @@
 # Virtual Appliance
 
-How to run PMM Server as a virtual machine by downloading and importing the [PMM {{release}}][OVA] Open Virtual Appliance (OVA) file into virtualization software supporting the [OVF standard][OVF], such as [VMware Workstation Player][VMware] and [Oracle VM VirtualBox][VirtualBox].
+How to run PMM Server as a virtual machine.
 
 !!! summary alert alert-info "Summary"
-    - Download and verify the OVF file.
+    - Download and verify the [latest][OVA] OVF file.
     - Import it.
     - Reconfigure network.
     - Start the VM and get IP.
@@ -19,7 +19,7 @@ Most steps can be done with either a user interface or on the command line, but 
 **Terminology**
 
 - *Host* is the desktop or server machine running the hypervisor.
-- *Hypervisor* is software (e.g. VirtualBox, VMware) that runs the guest OS as a virtual machine.
+- *Hypervisor* is software (e.g. [VirtualBox], [VMware]) that runs the guest OS as a virtual machine.
 - *Guest* is the CentOS virtual machine that runs PMM Server.
 
 **OVA file details**
@@ -84,7 +84,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 
 **UI**
 
-1. Select *File --> Import*.
+1. Select *File-->Import*.
 2. Click *Choose file...*.
 3. Navigate to the downloaded `.ova` file and select it.
 4. Click *Open*.
@@ -130,7 +130,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 
 1. If started, shut down the virtual machine.
 2. In the VMware main window, select the imported virtual machine.
-3. Click *Virtual Machine --> Settings...*
+3. Click *Virtual Machine-->Settings...*
 4. Click *Network Adapter*.
 5. In the *Bridged Networking* section, select *Autodetect*.
 6. Close the settings window.
@@ -140,7 +140,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 **UI**
 
 1. In the VMware main window, select the imported virtual machine.
-2. Click the play button {{icon.caretright}} or select *Virtual Machine --> Start Up*.
+2. Click the play button {{icon.caretright}} or select *Virtual Machine-->Start Up*.
 3. When the instance has booted, note the IP address in the guest console.
 
 **CLI/UI**
@@ -164,7 +164,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 
 **UI**
 
-1. Select *File --> Import appliance...*.
+1. Select *File-->Import appliance...*.
 2. In the *File* field, type the path to the downloaded `.ova` file, or click the folder icon to navigate and open it.
 3. Click *Continue*.
 4. On the *Appliance settings* page, review the settings and click *Import*.
@@ -254,14 +254,12 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 **UI**
 
 1. Open a web browser and visit the guest IP address.
-2. The PMM login screen appears.
-    ![!image](../../_images/PMM_Login.jpg)
+2. The PMM [login screen] appears.
 3. Enter the default username and password in the relevant fields and click *Log in*.
     - username: `admin`
     - password: `admin`
 4. (Recommended) Follow the prompts to change the default password.
 5. The PMM Home Dashboard appears.
-    ![!image](../../_images/PMM_Home_Dashboard.jpg)
 
 ## (Optional) Change root password
 
@@ -281,8 +279,8 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
     ```sh
     ssh-keygen -f admin
     ```
-2. Log into the [PMM user interface](log-into-pmm-user-interface).
-3. Select *PMM --> PMM Settings --> SSH Key*.
+2. Log into the PMM user interface.
+3. Select *PMM-->PMM Settings-->SSH Key*.
 4. Copy and paste the contents of the `admin.pub` file into the *SSH Key* field.
 5. Click *Apply SSH Key*. (This copies the public key to `/home/admin/.ssh/authorized_keys` in the guest).
 6. Log in via SSH (`N.N.N.N` is the guest IP address).
@@ -331,3 +329,4 @@ When the guest OS starts, it will get an IP address from the hypervisor's DHCP s
 [VirtualBox]: https://www.virtualbox.org/
 [VMware]: https://www.vmware.com/products/workstation-player/
 [OVFTool]: https://code.vmware.com/tool/ovf
+[login screen]: ../../using/interface.md
