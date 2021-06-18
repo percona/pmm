@@ -144,6 +144,6 @@ Currently there is no API available to change the `admin` password. If you're de
 ```sh
 PMM_PASSWORD="mypassword"
 echo "Waiting for PMM to initialize to set password..."
-until [ "`docker inspect -f {% raw %}{{.State.Health.Status}}{% endraw %} pmm2-server`" == "healthy" ]; do sleep 1; done
-docker exec -t pmm2-server bash -c  "grafana-cli --homepath /usr/share/grafana admin reset-admin-password $PMM_PASSWORD"
+until [ "`docker inspect -f {% raw %}{{.State.Health.Status}}{% endraw %} pmm-server`" = "healthy" ]; do sleep 1; done
+docker exec -t pmm-server bash -c  "grafana-cli --homepath /usr/share/grafana admin reset-admin-password $PMM_PASSWORD"
 ```
