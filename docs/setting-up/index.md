@@ -22,6 +22,7 @@ Choose from:
 - With [Docker]
 - As a [virtual appliance]
 - On [Amazon AWS]
+- Use the [easy install] script
 
 ## Set up PMM Client
 
@@ -71,3 +72,4 @@ How you do this depends on the type of service. You can monitor:
 [Docker]: server/docker.md
 [virtual appliance]: server/virtual-appliance.md
 [Amazon AWS]: server/aws.md
+[easy install]: server/easy-install.md
