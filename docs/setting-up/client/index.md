@@ -363,10 +363,62 @@ dnf localinstall *.rpm
     pmm-admin status
     ```
 
-## Uninstall
+## Register
 
-How to uninstall (remove)) PMM Client.
+Register your client node with PMM Server.
+
+```sh
+pmm-admin config --server-insecure-tls --server-url=https://admin:admin@X.X.X.X:443
+```
+
+- `X.X.X.X` is the address of your PMM Server.
+- `443` is the default port number.
+- `admin`/`admin` is the default PMM username and password. This is the same account you use to log into the PMM user interface, which you had the option to change when first logging in.
+
+!!! caution alert alert-warning "Important"
+    Clients *must* be registered with the PMM Server using a secure channel. If you use http as your server URL, PMM will try to connect via https on port 443. If a TLS connection can't be established you will get an error and you must use https along with the appropriate secure port.
+
+**Examples**
+
+Register on PMM Server with IP address `192.168.33.14` using the default `admin/admin` username and password, a node with IP address `192.168.33.23`, type `generic`, and name `mynode`.
+
+```sh
+pmm-admin config --server-insecure-tls --server-url=https://admin:admin@192.168.33.14:443 192.168.33.23 generic mynode
+```
+
+
+## Add services
+
+You must configure and adding services according to the service type.
+
+- [MySQL](mysql.md) (and variants Percona Server for MySQL, Percona XtraDB Cluster, MariaDB)
+- [MongoDB](mongodb.md)
+- [PostgreSQL](postgresql.md)
+- [ProxySQL](proxysql.md)
+- [Amazon RDS](aws.md)
+- [Microsoft Azure](azure.md)
+- [Google Cloud Platform](google) (MySQL and PostgreSQL)
+- [Linux](linux.md)
+- [External services](external.md)
+- [HAProxy](haproxy.md)
+- [Remote instances](remote.md)
+
+!!! hint alert alert-success "Tip"
+    To change the parameters of a previously-added service, remove the service and re-add it with new parameters.
+
+
+
+
+
+
+
+## Remove
+
+How to remove (uninstall) PMM Client.
 ### Docker
+
+!!! caution alert alert-warning "Caution"
+    These steps delete the PMM Client Docker image and client services configuration data.
 
 1. Stop pmm-client container.
 
@@ -422,47 +474,7 @@ How to uninstall (remove)) PMM Client.
     yum remove -y percona-release
     ```
 
-## Register
 
-Register your client node with PMM Server.
-
-```sh
-pmm-admin config --server-insecure-tls --server-url=https://admin:admin@X.X.X.X:443
-```
-
-- `X.X.X.X` is the address of your PMM Server.
-- `443` is the default port number.
-- `admin`/`admin` is the default PMM username and password. This is the same account you use to log into the PMM user interface, which you had the option to change when first logging in.
-
-!!! caution alert alert-warning "Important"
-    Clients *must* be registered with the PMM Server using a secure channel. If you use http as your server URL, PMM will try to connect via https on port 443. If a TLS connection can't be established you will get an error and you must use https along with the appropriate secure port.
-
-**Examples**
-
-Register on PMM Server with IP address `192.168.33.14` using the default `admin/admin` username and password, a node with IP address `192.168.33.23`, type `generic`, and name `mynode`.
-
-```sh
-pmm-admin config --server-insecure-tls --server-url=https://admin:admin@192.168.33.14:443 192.168.33.23 generic mynode
-```
-
-## Add services
-
-You must configure and adding services according to the service type.
-
-- [MySQL](mysql.md) (and variants Percona Server for MySQL, Percona XtraDB Cluster, MariaDB)
-- [MongoDB](mongodb.md)
-- [PostgreSQL](postgresql.md)
-- [ProxySQL](proxysql.md)
-- [Amazon RDS](aws.md)
-- [Microsoft Azure](azure.md)
-- [Google Cloud Platform](google) (MySQL and PostgreSQL)
-- [Linux](linux.md)
-- [External services](external.md)
-- [HAProxy](haproxy.md)
-- [Remote instances](remote.md)
-
-!!! hint alert alert-success "Tip"
-    To change the parameters of a previously-added service, remove the service and re-add it with new parameters.
 
 ## Remove services
 
