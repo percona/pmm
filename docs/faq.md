@@ -93,7 +93,7 @@ See [Troubleshoot PMM Server/PMM Client connection](how-to/troubleshoot.md#troub
 The default values (in seconds):
 
 | Preset            | Low  | Medium | High |
-|-------------------|:----:|:------:|:----:|
+|-------------------|------|--------|------|
 | Rare              | 300  | 180    | 60   |
 | Standard          | 60   | 10     | 5    |
 | Frequent          | 30   | 5      | 1    |
