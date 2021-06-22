@@ -165,8 +165,6 @@ When successful, PMM Client will print `MongoDB Service added` with the service'
 !!! hint alert alert-success "Tips"
     - When adding nodes of a sharded cluster, add each node separately using the `--cluster mycluster` option for the MongoDB Cluster Summary dashboard to populate correctly.
     - Atlas doesn't support direct connections. When connecting to an Atlas instance, use the `pmm-admin` option `--direct-connection=false`. (Doing so will prevent replicaset status from working and the MongoDB Overview dashboard widget will show invalid values.)
-    - [`pmm-admin add mongodb`](../../details/commands/pmm-admin.md#mongodb) command line options 
-
 
 **Example**
 
