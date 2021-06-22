@@ -105,7 +105,7 @@ You can set profiling:
     operationProfiling:
       mode: all
       slowOpThresholdMs: 200
-      rateLimit: 100
+      rateLimit: 100 # (Only available with Percona Server for MongoDB.)
     ```
 
     !!! caution alert alert-warning "Important"
@@ -162,6 +162,12 @@ Use `pmm-admin` to add the database server as a service using one of these examp
 
 When successful, PMM Client will print `MongoDB Service added` with the service's ID and name. Use the `--environment` and `-custom-labels` options to set tags for the service to help identify them.
 
+!!! hint alert alert-success "Tips"
+    - When adding nodes of a sharded cluster, add each node separately using the `--cluster mycluster` option for the MongoDB Cluster Summary dashboard to populate correctly.
+    - Atlas doesn't support direct connections. When connecting to an Atlas instance, use the `pmm-admin` option `--direct-connection=false`. (Doing so will prevent replicaset status from working and the MongoDB Overview dashboard widget will show invalid values.)
+    - [`pmm-admin add mongodb`](../../details/commands/pmm-admin.md#mongodb) command line options 
+
+
 **Example**
 
 ```sh
@@ -206,10 +212,6 @@ where:
 - `PATHTOCERT`: Path to TLS certificate file.
 - `IFPASSWORDTOCERTISSET`: Password for TLS certificate file.
 - `PATHTOCACERT`: Path to certificate authority file.
-
-!!! hint alert alert-success "Tips"
-    - When adding nodes of a sharded cluster, add each node separately using the `--cluster mycluster` option for the MongoDB Cluster Summary dashboard to populate correctly.
-    - Atlas doesn't support direct connections. When connecting to an Atlas instance, use the `pmm-admin` option `--direct-connection=false`. (Doing so will prevent replicaset status from working and the MongoDB Overview dashboard widget will show invalid values.)
 
 ## Check the service
 
