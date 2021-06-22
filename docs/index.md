@@ -96,6 +96,7 @@ mindmapDiagram {
 ----_ [[$base/setting-up/server/docker.html Docker]]
 ----_ [[$base/setting-up/server/virtual-appliance.html Virtual\nAppliance]]
 ----_ [[$base/setting-up/server/aws.html AWS\nMarketplace]]
+----_ [[$base/setting-up/server/easy-install.html Easy-install\nscript]]
 ----_ [[$base/setting-up/server/dbaas.html DBaaS]]
 +++ <&laptop> [[$base/setting-up/client/ Client]]
 ++++_ [[$base/setting-up/client/mysql.html MySQL]]
