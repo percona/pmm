@@ -21,7 +21,7 @@ Percona Monitoring and Management Server is provided at no cost, but you may nee
 
 3. **Configure this software**:
 
-    1. Select a value for *Software Version*. (The latest is {{ release }})
+    1. Select a value for *Software Version*. (The latest is {{release}})
     2. Select a region. (You can change this in the next step.)
     3. Click *Continue to Launch*.
 

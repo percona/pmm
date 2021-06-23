@@ -66,7 +66,7 @@ stop
 - From the left menu, select *{{icon.bell}} Alerting-->{{icon.listul}} Integrated Alerting*
 
 !!! note alert alert-primary ""
-    The *Alerting* menu also lists {{ icon.listul }} *Alert Rules* and {{ icon.commentshare }} *Notification Channels*. These are for Grafana's alerting functionality.
+    The *Alerting* menu also lists {{icon.listul}} *Alert Rules* and {{icon.commentshare}} *Notification Channels*. These are for Grafana's alerting functionality.
 
 This page has four tabs.
 
@@ -90,7 +90,7 @@ This page has four tabs.
 
 1. On the *Integrated Alerting* page, go to the *Notification Channels* tab.
 
-2. Click {{ icon.plussquare }} *Add*.
+2. Click {{icon.plussquare}} *Add*.
 
 3. Fill in the details:
 
@@ -112,7 +112,7 @@ This page has four tabs.
 
 1. On the *Integrated Alerting* page, go to the *Alert Rules* tab.
 
-2. Click {{ icon.plussquare }} *Add*.
+2. Click {{icon.plussquare}} *Add*.
 
 3. Fill in the details
 
@@ -133,7 +133,7 @@ This page has four tabs.
 
 1. On the *Integrated Alerting* page, go to the *Alert Rule Templates* tab.
 
-2. Click {{ icon.plussquare }} *Add*.
+2. Click {{icon.plussquare}} *Add*.
 
 3. Enter a template in the *Alert Rule Template* text box.
 
