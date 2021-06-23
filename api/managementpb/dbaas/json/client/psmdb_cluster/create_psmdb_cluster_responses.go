@@ -129,6 +129,9 @@ type CreatePSMDBClusterBody struct {
 	// (e.g. 'my-name',  or 'abc-123', regex used for validation is '[a-z]([-a-z0-9]*[a-z0-9])?')
 	Name string `json:"name,omitempty"`
 
+	// Make DB cluster accessible outside of K8s cluster.
+	Expose bool `json:"expose,omitempty"`
+
 	// params
 	Params *CreatePSMDBClusterParamsBodyParams `json:"params,omitempty"`
 }

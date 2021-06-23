@@ -139,6 +139,9 @@ type ClustersItems0 struct {
 	// Enum: [XTRA_DB_CLUSTER_STATE_INVALID XTRA_DB_CLUSTER_STATE_CHANGING XTRA_DB_CLUSTER_STATE_READY XTRA_DB_CLUSTER_STATE_FAILED XTRA_DB_CLUSTER_STATE_DELETING XTRA_DB_CLUSTER_STATE_PAUSED]
 	State *string `json:"state,omitempty"`
 
+	// DB cluster accessible outside of K8s cluster.
+	Exposed bool `json:"exposed,omitempty"`
+
 	// operation
 	Operation *ClustersItems0Operation `json:"operation,omitempty"`
 
