@@ -6,7 +6,6 @@ option go_package = "api/managementpb/backup;backupv1beta1";
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
-import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
 import "managementpb/backup/common.proto";
@@ -83,11 +82,11 @@ message ScheduledBackup {
   // Description.
   string description = 9;
   // Retry mode.
-  RetryMode retry_mode = 10;
+  //RetryMode retry_mode = 10;
   // Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.
-  google.protobuf.Duration retry_interval = 11;
+  //google.protobuf.Duration retry_interval = 11;
   // How many times to retry a failed backup before giving up.
-  uint32 retry_times = 12;
+  //uint32 retry_times = 12;
   // If scheduling is enabled.
   bool enabled = 13;
   // Backup data model.
@@ -125,14 +124,12 @@ message ScheduleBackupRequest {
   string name = 5;
   // Human-readable description.
   string description = 6;
-  // Retry mode.
-  RetryMode retry_mode = 7;
   // Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.
-  google.protobuf.Duration retry_interval = 8;
+  //google.protobuf.Duration retry_interval = 7;
   // How many times to retry a failed backup before giving up.
-  uint32 retry_times = 9;
+  //uint32 retry_times = 8;
   // If scheduling is enabled.
-  bool enabled = 10;
+  bool enabled = 9;
 }
 
 message ScheduleBackupResponse {
@@ -160,12 +157,11 @@ message ChangeScheduledBackupRequest {
   google.protobuf.StringValue name = 5;
   // Human-readable description.
   google.protobuf.StringValue description = 6;
-  //
-  RetryMode retry_mode = 7;
   // Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.
-  google.protobuf.Duration retry_interval = 8;
+  //google.protobuf.Duration retry_interval = 7;
   // How many times to retry a failed backup before giving up.
-  google.protobuf.UInt32Value retry_times = 9;
+  //google.protobuf.UInt32Value retry_times = 8;
+
 }
 
 message ChangeScheduledBackupResponse {}

@@ -6,7 +6,6 @@ package backups
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -143,16 +142,10 @@ type ScheduleBackupBody struct {
 	// Human-readable description.
 	Description string `json:"description,omitempty"`
 
-	// RetryMode specifies how backup should retry in case of failure.
-	// Enum: [RETRY_MODE_INVALID AUTO MANUAL]
-	RetryMode *string `json:"retry_mode,omitempty"`
-
 	// Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.
-	RetryInterval string `json:"retry_interval,omitempty"`
-
+	// google.protobuf.Duration retry_interval = 7;
 	// How many times to retry a failed backup before giving up.
-	RetryTimes int64 `json:"retry_times,omitempty"`
-
+	// uint32 retry_times = 8;
 	// If scheduling is enabled.
 	Enabled bool `json:"enabled,omitempty"`
 }
@@ -162,10 +155,6 @@ func (o *ScheduleBackupBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateStartTime(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateRetryMode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -182,52 +171,6 @@ func (o *ScheduleBackupBody) validateStartTime(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("body"+"."+"start_time", "body", "date-time", o.StartTime.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-var scheduleBackupBodyTypeRetryModePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["RETRY_MODE_INVALID","AUTO","MANUAL"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		scheduleBackupBodyTypeRetryModePropEnum = append(scheduleBackupBodyTypeRetryModePropEnum, v)
-	}
-}
-
-const (
-
-	// ScheduleBackupBodyRetryModeRETRYMODEINVALID captures enum value "RETRY_MODE_INVALID"
-	ScheduleBackupBodyRetryModeRETRYMODEINVALID string = "RETRY_MODE_INVALID"
-
-	// ScheduleBackupBodyRetryModeAUTO captures enum value "AUTO"
-	ScheduleBackupBodyRetryModeAUTO string = "AUTO"
-
-	// ScheduleBackupBodyRetryModeMANUAL captures enum value "MANUAL"
-	ScheduleBackupBodyRetryModeMANUAL string = "MANUAL"
-)
-
-// prop value enum
-func (o *ScheduleBackupBody) validateRetryModeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, scheduleBackupBodyTypeRetryModePropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *ScheduleBackupBody) validateRetryMode(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.RetryMode) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateRetryModeEnum("body"+"."+"retry_mode", "body", *o.RetryMode); err != nil {
 		return err
 	}
 

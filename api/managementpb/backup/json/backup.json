@@ -193,28 +193,6 @@
                   "type": "string",
                   "x-order": 4
                 },
-                "retry_interval": {
-                  "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
-                  "type": "string",
-                  "x-order": 7
-                },
-                "retry_mode": {
-                  "description": "RetryMode specifies how backup should retry in case of failure.",
-                  "type": "string",
-                  "default": "RETRY_MODE_INVALID",
-                  "enum": [
-                    "RETRY_MODE_INVALID",
-                    "AUTO",
-                    "MANUAL"
-                  ],
-                  "x-order": 6
-                },
-                "retry_times": {
-                  "description": "How many times to retry a failed backup before giving up.",
-                  "type": "integer",
-                  "format": "int64",
-                  "x-order": 8
-                },
                 "scheduled_backup_id": {
                   "type": "string",
                   "x-order": 0
@@ -321,7 +299,7 @@
                           "PHYSICAL",
                           "LOGICAL"
                         ],
-                        "x-order": 13
+                        "x-order": 10
                       },
                       "description": {
                         "description": "Description.",
@@ -329,15 +307,15 @@
                         "x-order": 8
                       },
                       "enabled": {
-                        "description": "If scheduling is enabled.",
+                        "description": "Retry mode.\nRetryMode retry_mode = 10;\nDelay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.\ngoogle.protobuf.Duration retry_interval = 11;\nHow many times to retry a failed backup before giving up.\nuint32 retry_times = 12;\nIf scheduling is enabled.",
                         "type": "boolean",
-                        "x-order": 12
+                        "x-order": 9
                       },
                       "last_run": {
                         "description": "Last run.",
                         "type": "string",
                         "format": "date-time",
-                        "x-order": 15
+                        "x-order": 12
                       },
                       "location_id": {
                         "description": "Machine-readable location ID.",
@@ -358,29 +336,7 @@
                         "description": "Next run.",
                         "type": "string",
                         "format": "date-time",
-                        "x-order": 16
-                      },
-                      "retry_interval": {
-                        "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
-                        "type": "string",
-                        "x-order": 10
-                      },
-                      "retry_mode": {
-                        "description": "RetryMode specifies how backup should retry in case of failure.",
-                        "type": "string",
-                        "default": "RETRY_MODE_INVALID",
-                        "enum": [
-                          "RETRY_MODE_INVALID",
-                          "AUTO",
-                          "MANUAL"
-                        ],
-                        "x-order": 9
-                      },
-                      "retry_times": {
-                        "description": "How many times to retry a failed backup before giving up.",
-                        "type": "integer",
-                        "format": "int64",
-                        "x-order": 11
+                        "x-order": 13
                       },
                       "scheduled_backup_id": {
                         "description": "Machine-readable ID.",
@@ -406,7 +362,7 @@
                       "vendor": {
                         "description": "Database vendor e.g. PostgreSQL, MongoDB, MySQL.",
                         "type": "string",
-                        "x-order": 14
+                        "x-order": 11
                       }
                     }
                   },
@@ -640,9 +596,9 @@
                   "x-order": 5
                 },
                 "enabled": {
-                  "description": "If scheduling is enabled.",
+                  "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.\ngoogle.protobuf.Duration retry_interval = 7;\nHow many times to retry a failed backup before giving up.\nuint32 retry_times = 8;\nIf scheduling is enabled.",
                   "type": "boolean",
-                  "x-order": 9
+                  "x-order": 6
                 },
                 "location_id": {
                   "description": "Machine-readable location ID.",
@@ -653,28 +609,6 @@
                   "description": "Name of backup.",
                   "type": "string",
                   "x-order": 4
-                },
-                "retry_interval": {
-                  "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
-                  "type": "string",
-                  "x-order": 7
-                },
-                "retry_mode": {
-                  "description": "RetryMode specifies how backup should retry in case of failure.",
-                  "type": "string",
-                  "default": "RETRY_MODE_INVALID",
-                  "enum": [
-                    "RETRY_MODE_INVALID",
-                    "AUTO",
-                    "MANUAL"
-                  ],
-                  "x-order": 6
-                },
-                "retry_times": {
-                  "description": "How many times to retry a failed backup before giving up.",
-                  "type": "integer",
-                  "format": "int64",
-                  "x-order": 8
                 },
                 "service_id": {
                   "description": "Service identifier where backup should be performed.",
