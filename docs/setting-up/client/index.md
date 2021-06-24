@@ -16,7 +16,7 @@ When you have installed PMM Client, you must:
 - [Register the node with PMM Server](#register).
 - [Configure and add services according to type](#add-services).
 
-If you need to, you can [remove services](#remove-services) or [remove PMM Client](#uninstall).
+If you need to, you can [remove services](#remove-services) or [remove PMM Client](#remove).
 
 ---
 

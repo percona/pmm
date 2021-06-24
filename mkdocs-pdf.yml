@@ -39,11 +39,11 @@ markdown_extensions:
   - pymdownx.smartsymbols
   - pymdownx.tabbed
   - pymdownx.tilde
-  - pymdownx.superfences:
-      custom_fences:
-        - name: mermaid
-          class: mermaid
-          format: !!python/name:mermaid2.fence_mermaid
+  - pymdownx.superfences
+#      custom_fences:
+#        - name: mermaid
+#          class: mermaid
+#          format: !!python/name:mermaid2.fence_mermaid
   - pymdownx.highlight:
       linenums: false
   - plantuml_markdown
@@ -68,23 +68,10 @@ plugins:
       cover_logo: docs/_images/PMM_Logo.svg
       debug_html: false
       custom_template_path: _resources/templates
- #     enabled_if_env: ENABLE_PDF_EXPORT
   # Check links - but extends build time significantly
   # https://pypi.org/project/mkdocs-htmlproofer-plugin/
   - htmlproofer
-#  - mermaid2
 
-extra: # Used in main.html template and can't be externalised
-  open_issue_text:
-    '<i class="uil uil-exclamation-triangle"></i> Report a problem
-    with this page'
-  open_issue_subject: "PMM2: doc issue on page "
-  open_issue_body: "Please describe the issue here"
-  open_issue_tooltip: "Report an issue with this page on GitHub"
-  edit_page_text: '<i class="uil uil-pen"></i> <b>Edit this page</b>'
-  updated_text: '<i class="uil uil-refresh"></i> Page updated'
-  version:
-    provider: mike
 
 nav:
   - Welcome: index.md

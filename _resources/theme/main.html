@@ -38,13 +38,8 @@ for wrapping within Drupal container
 {% if page and page.edit_url %}
 <div class="small">
     <ul class="list-inline">
-        <li class="left">
-            <a href="{{ config.repo_url }}issues/new?title={{ config.extra.open_issue_subject }} '{{ page.title }}' ({{ page.url }})&body={{ config.extra.open_issue_body }}"
-                target="_blank" title="{{ config.extra.open_issue_tooltip }}">{{ config.extra.open_issue_text
-                }}</a>
-        </li>
         <li class="pull-right">
-            <a href="{{ page.edit_url }}" target="_blank" title="Edit this page on GitHub in Markdown format">{{
+            <a href="{{ page.edit_url }}" target="_blank" title="{{ config.extra.edit_page_tooltip }}">{{
                 config.extra.edit_page_text }}</a>
         </li>
     </ul>

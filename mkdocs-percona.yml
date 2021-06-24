@@ -2,7 +2,7 @@
 site_name: Percona Monitoring and Management
 site_description: Documentation
 site_author: Percona LLC
-site_url: "https://www.percona.com/doc/percona-monitoring-and-management/"
+site_url: https://www.percona.com/doc/percona-monitoring-and-management/
 copyright: Percona LLC, &#169; 2021
 use_directory_urls: false
 repo_name: percona/pmm-doc
@@ -68,13 +68,8 @@ plugins:
   - bootstrap-tables
 
 extra: # Used in main.html template and can't be externalised
-  open_issue_text:
-    '<i class="uil uil-exclamation-triangle"></i> Report a problem
-    with this page'
-  open_issue_subject: "PMM2: doc issue on page "
-  open_issue_body: "Please describe the issue here"
-  open_issue_tooltip: "Report an issue with this page on GitHub"
-  edit_page_text: '<i class="uil uil-pen"></i> <b>Edit this page</b>'
+  edit_page_text: '<i class="uil uil-pen"></i> Edit this page'
+  edit_page_tooltip: 'Edit this page on GitHub in Markdown format'
   updated_text: '<i class="uil uil-refresh"></i> Page updated'
   version:
     provider: mike
