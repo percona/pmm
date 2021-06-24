@@ -33,8 +33,8 @@ for wrapping within Drupal container
 </div>
 {% endmacro %}
 
-{#### 'Edit this page' and 'Report issue' links #}
-{% macro edit_report() %}
+{#### 'Edit this page' link #}
+{% macro edit_this_page() %}
 {% if page and page.edit_url %}
 <div class="small">
     <ul class="list-inline">
@@ -206,7 +206,7 @@ nav:
         <div class="document row">
             <div class="documentwrapper col-md-9 col-md-push-3">
                 {{ relbar() }}
-                {{ edit_report() }}
+                {{ edit_this_page() }}
                 <div class="bodywrapper">
                     <div class="body">
                         {{ page.content }}
