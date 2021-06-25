@@ -33,7 +33,7 @@ When all data is registered in PMM2 and expired in PMM1, decommission your PMM1 
 
 ## How to control data retention?
 
-Go to *{{icon.cog}} Configuration-->{{icon.setting}} Settings -->Advanced Settings-->Data retention* to adjust the value in days.
+Go to <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings*  → *Advanced Settings* → *Data retention* to adjust the value in days.
 
 !!! seealso alert alert-info "See also"
     [Configure data retention](how-to/configure.md#data-retention)

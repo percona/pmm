@@ -19,11 +19,11 @@ Install and run at least one PMM Server.
 
 Choose from:
 
-| Use                  | {{icon.thumbsup}} **Benefits**                | {{icon.thumbsdown}} **Drawbacks**
-|----------------------|-----------------------------------------------|--------------------------------------
-| [Docker]             | Quick, simple                                 | Docker required, will have additional network configuration needs
-| [Virtual appliance]  | Easily import into Hypervisor of your choice  | Requires more system resources compared to Docker footprint
-| [Amazon AWS]         | Wizard-driven install                         | Non-free solution (infrastructure costs)
+| Use                  | <i class="uil uil-thumbs-up"></i> **Benefits** | <i class="uil uil-thumbs-down"></i> **Drawbacks**
+|----------------------|------------------------------------------------|-------------------------------------------------------------
+| [Docker]             | Quick, simple                                  | Docker required, will have additional network configuration needs
+| [Virtual appliance]  | Easily import into Hypervisor of your choice   | Requires more system resources compared to Docker footprint
+| [Amazon AWS]         | Wizard-driven install                          | Non-free solution (infrastructure costs)
 
 ## Set up PMM Client
 

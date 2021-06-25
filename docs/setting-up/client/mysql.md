@@ -82,7 +82,7 @@ While you can use both at the same time we recommend using only one--there is so
 
 Here are the benefits and drawbacks of *Slow query log* and *Performance Schema* metrics sources.
 
-|                        | {{icon.thumbsup}} **Benefits**                                                   | {{icon.thumbsdown}} **Drawbacks**
+|                        | <i class="uil uil-thumbs-up"></i> **Benefits**                                   | <i class="uil uil-thumbs-down"></i> **Drawbacks**
 |------------------------|----------------------------------------------------------------------------------|------------------------------------------
 | **Slow query log**     | More detail.                                                                     | PMM Client must be on the same host as the database server or have access to the slow query log.
 |                        | Lower resource impact (with query sampling feature in Percona Server for MySQL). | Log files grow and must be actively managed.
@@ -366,7 +366,7 @@ With the PMM user interface, you select *Use performance schema*, or deselect it
 
 ### User interface
 
-1. Select *PMM --> PMM Add Instance*.
+1. Select *PMM* → *PMM Add Instance*.
 2. Select *MySQL -- Add a remote instance*.
 3. Enter or select values for the fields.
 4. Click *Add service*.
@@ -435,7 +435,7 @@ pmm-admin add mysql --environment=test --custom-labels='source=slowlog'  --usern
 
 **Check service - PMM user interface**
 
-1. Select *{{icon.cog}} Configuration-->{{icon.inventory}} PMM Inventory-->Inventory list*.
+1. Select <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *PMM Inventory* → *Inventory list*.
 2. Look in the *Services* tab for a matching *Service Type* (MySQL), *Service name*, *Addresses*, and any other details entered in the form.
 3. Look in the *Agents* tab to check the desired data source is being used.
 

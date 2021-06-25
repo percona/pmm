@@ -24,14 +24,14 @@ As a result of the move to VictoriaMetrics some direct Prometheus paths are no l
 
 Here are their equivalents.
 
-- `/prometheus/alerts` --> No change.
-- `/prometheus/config` --> No equivalent. However, some information is at `/prometheus/targets`.
-- `/prometheus/flags` --> The `flag` metrics at `/prometheus/metrics`.
-- `/prometheus/graph` --> `/graph/explore` (Grafana) or `graph/d/prometheus-advanced/advanced-data-exploration` (PMM dashboard).
-- `/prometheus/rules` --> No change.
-- `/prometheus/service-discovery` --> No equivalent.
-- `/prometheus/status` --> Some information at `/prometheus/metrics`. High cardinality metrics information at `/prometheus/api/v1/status/tsdb`.
-- `/prometheus/targets` --> `/victoriametrics/targets`.
+- `/prometheus/alerts` → No change.
+- `/prometheus/config` → No equivalent. However, some information is at `/prometheus/targets`.
+- `/prometheus/flags` → The `flag` metrics at `/prometheus/metrics`.
+- `/prometheus/graph` → `/graph/explore` (Grafana) or `graph/d/prometheus-advanced/advanced-data-exploration` (PMM dashboard).
+- `/prometheus/rules` → No change.
+- `/prometheus/service-discovery` → No equivalent.
+- `/prometheus/status` → Some information at `/prometheus/metrics`. High cardinality metrics information at `/prometheus/api/v1/status/tsdb`.
+- `/prometheus/targets` → `/victoriametrics/targets`.
 
 ## Troubleshooting
 

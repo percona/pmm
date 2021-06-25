@@ -27,7 +27,7 @@ The dashboard contains three panels:
 - The Filter panel occupies the left side of the dashboard. It lists filters, grouped by category. Selecting one reduces the Overview list to those items matching the filter.
 - The first five of each category are shown. If there are more, the list is expanded by clicking *Show all* beside the category name, and collapsed again with *Show top 5*.
 - Applying a filter may make other filters inapplicable. These become grayed out and inactive.
-- Click the chart symbol {{icon.graphbar}} to navigate directly to an item's associated dashboard.
+- Click the chart symbol <i class="uil uil-graph-bar"></i> to navigate directly to an item's associated dashboard.
 - Separately, the global *Time range* setting filters results by time, either your choice of *Absolute time range*, or one of the predefined *Relative time ranges*.
 
 ![!image](../_images/PMM_Query_Analytics_Time_Range.jpg)
@@ -67,7 +67,7 @@ Delete the search text and press Enter to see the full list again.
 
 **Tool-tips**
 
-- For the *Query* dimension, hovering over the information icon {{icon.infocircle}} reveals the query ID and its example.
+- For the *Query* dimension, hovering over the information icon <i class="fa fa-info-circle"></i> reveals the query ID and its example.
 - Hovering on a column header reveals an informative tool-tip for that column.
 - Hovering on the main metric sparkline highlights the data point and a tooltip shows the data value under the cursor.
 

@@ -124,6 +124,14 @@ This plugin can have problems when Jinja-like constructs are used in code. This 
 
 In some places we have used variables themselves to solve the problem. In others, `{% raw %}/{% endraw %}` surrounds the conflicting text.
 
+## Icons
+
+Icons can be inserted with HTML: `<i class="uil uil-cog"></i>` inserts a Unicons cog symbol.
+
+- For Grafana icons (`uil-` prefix), go to https://iconscout.com/unicons/explore/line, find an icon, select 'Font' and copy the code here.
+- For Font Awesome (`fa-` prefix), go to https://fontawesome.com/icons, find an icon, copy the code.
+
+Some SVG icons are defined in `variables.yml` in the `icon` key.
 
 ## Language
 

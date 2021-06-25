@@ -7,5 +7,5 @@
 - [Annotate](annotate.md) charts to mark significant events
 - [Render dashboard images](render-dashboard-images.md) to save or share
 - [Troubleshoot](troubleshoot.md):
-	- [Integrated Alerting](troubleshoot.md#integrated-alerting)
+    - [Integrated Alerting](troubleshoot.md#integrated-alerting)
     - [PMM Server/PMM Client connections](troubleshoot.md#troubleshoot-connection)

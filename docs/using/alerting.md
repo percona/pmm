@@ -5,7 +5,7 @@
 
 *Integrated Alerting* lets you know when certain system events occur.
 
-**To activate *Integrated Alerting***, select *{{icon.cog}} Configuration-->{{icon.setting}} Settings-->Advanced Settings*, turn on *Integrated Alerting* and click *Apply changes*.
+**To activate *Integrated Alerting***, select <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings*, turn on *Integrated Alerting* and click *Apply changes*.
 
 This short (3:36) video shows how to activate and configure Integrated Alerting.
 
@@ -63,10 +63,10 @@ stop
 
 ## Open the *Integrated Alerting* page
 
-- From the left menu, select *{{icon.bell}} Alerting-->{{icon.listul}} Integrated Alerting*
+- From the left menu, select <i class="uil uil-bell"></i> *Alerting* → <i class="uil uil-list-ul"></i> *Integrated Alerting*
 
 !!! note alert alert-primary ""
-    The *Alerting* menu also lists {{icon.listul}} *Alert Rules* and {{icon.commentshare}} *Notification Channels*. These are for Grafana's alerting functionality.
+    The *Alerting* menu also lists <i class="uil uil-list-ul"></i> *Alert Rules* and <i class="uil uil-comment-alt-share"></i> *Notification Channels*. These are for Grafana's alerting functionality.
 
 This page has four tabs.
 
@@ -90,7 +90,7 @@ This page has four tabs.
 
 1. On the *Integrated Alerting* page, go to the *Notification Channels* tab.
 
-2. Click {{icon.plussquare}} *Add*.
+2. Click <i class="uil uil-plus-square"></i> *Add*.
 
 3. Fill in the details:
 
@@ -112,7 +112,7 @@ This page has four tabs.
 
 1. On the *Integrated Alerting* page, go to the *Alert Rules* tab.
 
-2. Click {{icon.plussquare}} *Add*.
+2. Click <i class="uil uil-plus-square"></i> *Add*.
 
 3. Fill in the details
 
@@ -133,7 +133,7 @@ This page has four tabs.
 
 1. On the *Integrated Alerting* page, go to the *Alert Rule Templates* tab.
 
-2. Click {{icon.plussquare}} *Add*.
+2. Click <i class="uil uil-plus-square"></i> *Add*.
 
 3. Enter a template in the *Alert Rule Template* text box.
 

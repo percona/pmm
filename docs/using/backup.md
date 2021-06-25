@@ -14,10 +14,10 @@
 - There is a `mysql` system group.
 - MySQL is using the `/var/lib/mysql` directory for database storage.
 - Backup management has been enabled:
-    1. Select *{{icon.cog}} Configuration-->{{icon.setting}} Settings-->Advanced Settings*.
+    1. Select <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings*.
     2. Activate *Backup Management*.
     3. Click *Apply changes*.
-    4. In the left menu bar, click *{{icon.history}}-->Backup*.
+    4. In the left menu bar, click <i class="uil uil-history"></i> → *Backup*.
 
         ![!](../_images/PMM_Backup_Management.jpg)
 
@@ -31,7 +31,7 @@
 
 ## Adding a storage location {: #backup-location }
 
-1. Navigate to Backup Management-->Storage locations.
+1. Navigate to Backup Management → Storage locations.
 2. Click *Add*.
 3. Fill in the form fields.
 
@@ -55,9 +55,9 @@
 !!! hint alert alert-success "Tip"
     You must add a [backup storage location](#backup-location) before backing up.
 
-1. Navigate to *Backup Management-->Backup Inventory*.
+1. Navigate to *Backup Management → Backup Inventory*.
 
-2. Click {{icon.plussquare}} Add.
+2. Click <i class="uil uil-plus-square"></i> *Add*.
 
 3. In the *Backup On Demand* dialog, enter values for:
 
@@ -66,7 +66,8 @@
     - *Description* -- A long description.
     - *Location* -- The predefined storage location.
 
-    > *Vendor* is a read-only value showing the database vendor name. (Currently only for the supported MySQL service.)
+    !!! note alert alert-primary ""
+        *Vendor* is a read-only value showing the database vendor name. (Currently only for the supported MySQL service.)
 
 4. Click *Backup*.
 
@@ -77,15 +78,15 @@
 !!! note alert alert-primary ""
     For this release, you can only restore a backup to the same service. I.e. a MySQL backup of service `mymsql-service-1` can only be restored to a MySQL database server registered with the same service name. Future releases will give more flexibility to restore backups to other service types.
 
-1. Navigate to *Backup Management-->Backup Inventory*
+1. Navigate to *Backup Management* → *Backup Inventory*
 
 2. Find the row with the backup you want to restore.
 
-3. In the *Actions* column for that row, click *Restore from backup*
+3. In the *Actions* column for that row, click *Restore from backup*.
 
-4. In the *Restore from backup* dialog, check the values and click *Restore*
+4. In the *Restore from backup* dialog, check the values and click *Restore*.
 
-5. Navigate to the *Restore History* tab to check the status of the restored backup
+5. Navigate to the *Restore History* tab to check the status of the restored backup.
 
 
 

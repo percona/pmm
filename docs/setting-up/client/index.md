@@ -211,9 +211,9 @@ You can now add services with [`pmm-admin`](../../details/commands/pmm-admin.md)
 
     In the GUI.
 
-    - Select *{{icon.dashboards}} PMM Dashboards-->{{icon.node}} System (Node)-->{{icon.node}} Node Overview*
-    - In the *Node Names* menu, select the new node
-    - Change the time range to see data
+    - Select {{icon.dashboards}} *PMM Dashboards* → {{icon.node}} *System (Node)* → {{icon.node}} *Node Overview*.
+    - In the *Node Names* menu, select the new node.
+    - Change the time range to see data.
 
 !!! danger alert alert-danger "Danger"
     `pmm-agent.yaml` contains sensitive credentials and should not be shared.
@@ -222,6 +222,7 @@ You can now add services with [`pmm-admin`](../../details/commands/pmm-admin.md)
 
 !!! hint alert alert-success "Tip"
     If you have used `percona-release` before, disable and re-enable the repository:
+
     ```sh
     percona-release disable all
     percona-release enable original release

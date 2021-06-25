@@ -363,9 +363,9 @@ When you remove a service, collected data remains on PMM Server for the specifie
         - `--collect.perf_schema.tableiowaits`
         - `--collect.perf_schema.file_instances`
 
-	Excluded collectors for medium-resolution time intervals:
+        Excluded collectors for medium-resolution time intervals:
 
-	- `--collect.perf_schema.tablelocks`
+        - `--collect.perf_schema.tablelocks`
 
     `--disable-tablestats-limit=disable-tablestats-limit`
     : Table statistics collection will be disabled if there are more than specified number of tables

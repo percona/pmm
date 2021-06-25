@@ -124,13 +124,13 @@ If you have Amazon RDS with a MySQL version prior to 5.5, `REPLICATION CLIENT` p
 
 ## Adding an Amazon RDS MySQL, Aurora MySQL or Remote Instance
 
-The preferred method of adding an Amazon RDS database instance to PMM is via the *{{icon.cog}} Configuration-->{{icon.inventory}} PMM Inventory-->{{icon.pluscircle}} Add Instance* menu option.
+The preferred method of adding an Amazon RDS database instance to PMM is via the <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *PMM Inventory* → <i class="uil uil-plus-circle"></i> *Add Instance* menu option.
 
 This method supports Amazon RDS database instances that use Amazon Aurora, MySQL, or MariaDB engines, as well as any remote PostgreSQL, ProxySQL, MySQL and MongoDB instances.
 
 The following steps are needed to add an Amazon RDS database instance to PMM:
 
-1. In the PMM web interface, go to *{{icon.cog}} Configuration-->{{icon.inventory}} PMM Inventory-->{{icon.pluscircle}} Add Instance*
+1. In the PMM web interface, go to <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *PMM Inventory* → <i class="uil uil-plus-circle"></i> *Add Instance*
 
 2. Select *AWS RDS MySQL or Aurora MySQL -- Add a remote instance*.
 
@@ -167,21 +167,20 @@ instances.
 
     * when adding a MongoDB instance, you will be able to choose using Query Analytics MongoDB profiler.
 
-
-6. Finally press the *Add service* button to start monitoring your instance.
+7. Finally press the *Add service* button to start monitoring your instance.
 
 ## Adding an Amazon RDS PostgreSQL instance
 
 For PostgreSQL, use the same method described above.
 
-1. In the PMM web interface, go to *{{icon.cog}} Configuration-->{{icon.inventory}} PMM Inventory-->{{icon.pluscircle}} Add Instance*.
+1. In the PMM web interface, go to <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *PMM Inventory* → <i class="uil uil-plus-circle"></i> *Add Instance*.
 
 2. Select *AWS RDS MySQL or Aurora MySQL -- Add a remote instance*.
     *At the moment of writing this guide, the Add button doesn't mention PostgreSQL but the discovery function already supports it.*
 
     ![!image](../../_images/PMM_rds_postgre_02_discover.png)
 
-4. Follow steps 4 to 6 as in the previous section. Fill the form and remember to select `PG Stat Statement` to enable Query Analytics.
+3. Follow steps 4 to 6 as in the previous section. Fill the form and remember to select `PG Stat Statement` to enable Query Analytics.
 
     To get queries for Query Analytics, you need to enable `pg_stat_statements` in your instance by running:
 

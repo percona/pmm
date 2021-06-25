@@ -149,7 +149,7 @@ When you have configured your database server, you can add a MongoDB service wit
 
 ### With the user interface
 
-1. Select *{{icon.cog}} Configuration-->{{icon.inventory}} PMM Inventory-->{{icon.addinstance}} Add Instance*.
+1. Select <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *PMM Inventory* → {{icon.addinstance}} *Add Instance*.
 2. Select *MongoDB -- Add a remote instance*.
 3. Enter or select values for the fields.
 4. Click *Add service*.
@@ -215,7 +215,7 @@ where:
 
 **Check service - PMM user interface**
 
-1. Select *{{icon.cog}} Configuration-->{{icon.inventory}} PMM Inventory-->{{icon.inventory}} Inventory list*.
+1. Select <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *PMM Inventory* → {{icon.inventory}} *Inventory list*.
 2. Look in the *Services* tab for a matching *Service Type* (MongoDB), *Service name*, *Addresses*, and any other values used when adding the service.
 3. Look in the *Agents* tab to check the desired data source is being used.
 
@@ -243,9 +243,9 @@ pmm-admin inventory list services --service-type=mongodb
 
 ### With the user interface
 
-1. Select *{{icon.cog}} Configuration-->{{icon.inventory}} PMM Inventory-->{{icon.inventory}} Inventory List*.
+1. Select <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *PMM Inventory* → {{icon.inventory}} *Inventory List*.
 2. In the first column, click the tick box for the service you want to remove.
-3. Click *{{icon.trash}} Delete*.
+3. Click <i class="uil uil-trash-alt"></i> *Delete*.
 4. On the *Confirm action* dialog window:
     1. (Optional) Select *Force mode* to also delete associated agents.
     2. Click *Proceed*.

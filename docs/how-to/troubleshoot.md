@@ -37,9 +37,8 @@ In a browser, visit `https://<address-of-your-pmm-server>/logs.zip`.
 
 **From Settings page**
 
-1. Select *{{icon.cog}} Configuration-->{{icon.setting}} Settings*.
+1. Select <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings*.
 2. Click *Download server diagnostics*. (See [Diagnostics in PMM Settings](configure.md#diagnostics).)
-
 
 ## Connection difficulties
 
@@ -64,22 +63,22 @@ will give:
 
 ## Integrated Alerting
 
-### No {{icon.bell}} Integrated Alerting icon
+### No <i class="uil uil-bell"></i> Integrated Alerting icon
 
 You are not logged in as a privileged user. You need either Admin or Editor roles to work with Integrated Alerting.
 
-### {{icon.bell}} Integrated Alerting icon but no submenu
+### <i class="uil uil-bell"></i> Integrated Alerting icon but no submenu
 
 Integrated Alerting isn't activated.
 
-1. Go to *{{icon.cog}} Configuration-->{{icon.setting}} Settings-->Advanced Settings*.
+1. Go to <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings*.
 2. Enable *Integrated Alerting*.
 
 ### Unreachable external IP addresses
 
 **When I get an email or page from my system the IP is not reachable from outside my organization how do I fix this?**
 
-To configure your PMM Server’s Public Address, Select *{{icon.cog}} Configuration-->{{icon.setting}} Settings-->Advanced Settings*, and supply an address to use in your alert notifications.
+To configure your PMM Server’s Public Address, Select <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings*, and supply an address to use in your alert notifications.
 
 ### What is 'Alertmanager integration'?
 
@@ -93,8 +92,8 @@ This will continue to work but will be renamed *External Alertmanager*.
 
 Before you can use a notification channel you must provide your connection details.
 
-1. Go to PMM --> PMM Settings--> Communication
-2. Define your SMTP server or Slack incoming webhook URL
+1. Go to *PMM* → *PMM Settings* → *Communication*.
+2. Define your SMTP server or Slack incoming webhook URL.
 
 For PagerDuty you can configure in the notification channel tab of Integrated Alerting by supplying your server/routing key.
 
@@ -123,9 +122,9 @@ If you create a custom alert rule template you will have access to edit.
 - Threshold - float value, it has different meanings depending on what template is used
 - Duration - The duration the condition must be satisfied in seconds
 - Filters - A Key, Evaluator, and Value. E.g. `service_name=ps5.7`
-    - Key must be an exact match. You can find a complete list of keys by using the {{icon.compass}}*Explore* main menu item in PMM
+    - Key must be an exact match. You can find a complete list of keys by using the <i class="uil uil-compass"></i> *Explore* main menu item in PMM
     - Evaluator can be any of: `=`, `=~`
-    - Value is an exact match or when used with a ‘fuzzy’ evaluator (=~) can be a regular expression. E.g. `service_name=~ps.*`
+    - Value is an exact match or when used with a ‘fuzzy’ evaluator (`=~`) can be a regular expression. E.g. `service_name=~ps.*`
 
 ### Variables in Templates
 

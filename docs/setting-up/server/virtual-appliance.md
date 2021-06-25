@@ -84,7 +84,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 
 **UI**
 
-1. Select *File-->Import*.
+1. Select *File → Import*.
 2. Click *Choose file...*.
 3. Navigate to the downloaded `.ova` file and select it.
 4. Click *Open*.
@@ -130,7 +130,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 
 1. If started, shut down the virtual machine.
 2. In the VMware main window, select the imported virtual machine.
-3. Click *Virtual Machine-->Settings...*
+3. Click *Virtual Machine → Settings...*
 4. Click *Network Adapter*.
 5. In the *Bridged Networking* section, select *Autodetect*.
 6. Close the settings window.
@@ -140,7 +140,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 **UI**
 
 1. In the VMware main window, select the imported virtual machine.
-2. Click the play button {{icon.caretright}} or select *Virtual Machine-->Start Up*.
+2. Click the play button <i class="uil uil-caret-right"></i> or select *Virtual Machine → Start Up*.
 3. When the instance has booted, note the IP address in the guest console.
 
 **CLI/UI**
@@ -164,7 +164,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 
 **UI**
 
-1. Select *File-->Import appliance...*.
+1. Select *File → Import appliance...*.
 2. In the *File* field, type the path to the downloaded `.ova` file, or click the folder icon to navigate and open it.
 3. Click *Continue*.
 4. On the *Appliance settings* page, review the settings and click *Import*.
@@ -280,7 +280,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
     ssh-keygen -f admin
     ```
 2. Log into the PMM user interface.
-3. Select *PMM-->PMM Settings-->SSH Key*.
+3. Select *PMM → PMM Settings → SSH Key*.
 4. Copy and paste the contents of the `admin.pub` file into the *SSH Key* field.
 5. Click *Apply SSH Key*. (This copies the public key to `/home/admin/.ssh/authorized_keys` in the guest).
 6. Log in via SSH (`N.N.N.N` is the guest IP address).
@@ -320,8 +320,8 @@ When the guest OS starts, it will get an IP address from the hypervisor's DHCP s
 
 **UI**
 
-1. Stop the virtual machine: select *Close-->Power Off*.
-2. Remove the virtual machine: select *Remove-->Delete all files*.
+1. Stop the virtual machine: select *Close → Power Off*.
+2. Remove the virtual machine: select *Remove → Delete all files*.
 
 
 [OVA]: https://www.percona.com/downloads/pmm2/{{release}}/ova

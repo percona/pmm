@@ -112,7 +112,7 @@ We recommend choosing only one of these. **If you use both, you will get duplica
 
 Here are the benefits and drawbacks of each.
 
-|                        | {{icon.thumbsup}} **Benefits**                                                   | {{icon.thumbsdown}} **Drawbacks**
+|                        | <i class="uil uil-thumbs-up"></i> **Benefits**                                                   | <i class="uil uil-thumbs-down"></i> **Drawbacks**
 |------------------------|----------------------------------------------------------------------------------|------------------------------------------
 | `pg_stat_statements`   | Part of official `postgresql-contrib` package                                    | No aggregated statistics or histograms
 | `pg_stat_monitor`      | Builds on `pg_stat_monitor` features                                             | Beta software
@@ -229,7 +229,7 @@ When you have configured your database server, you can add a PostgreSQL service 
 
 ### With the user interface
 
-1. Select *{{icon.cog}} Configuration --> {{icon.inventory}} PMM Inventory --> {{icon.addinstance}} Add Instance*.
+1. Select <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *PMM Inventory* → {{icon.addinstance}} *Add Instance*.
 2. Select *PostgreSQL -- Add a remote instance*.
 3. Enter or select values for the fields.
 4. Click *Add service*.
@@ -292,7 +292,7 @@ where:
 
 **Check service - PMM user interface**
 
-1. Select *{{icon.cog}} Configuration --> {{icon.inventory}} PMM Inventory --> {{icon.inventory}} Inventory list*
+1. Select <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *PMM Inventory* → {{icon.inventory}} *Inventory list*
 2. Look in the *Services* tab for a matching *Service Type* (PostgreSQL), *Service name*, *Addresses*, and any other details entered in the form.
 3. Look in the *Agents* tab to check the desired data source is being used.
 

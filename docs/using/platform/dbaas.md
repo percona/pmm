@@ -9,12 +9,12 @@ The DBaaS dashboard is where you add, remove, and operate on Kubernetes and data
 
 The DBaaS feature is turned off by default. To turn it on:
 
-1. Go to *{{icon.bars}} PMM-->PMM Settings-->Advanced settings*.
-2. Click the {{icon.toggleoff}} toggle in the *Technical preview features* section of the page.
+1. Go to <i class="uil uil-bars"></i> *PMM* → *PMM Settings* → *Advanced settings*.
+2. Click the <i class="uil uil-toggle-off"></i> toggle in the *Technical preview features* section of the page.
 
 ## Open the DBaaS dashboard
 
-From the left menu, select *{{icon.database}} DBaaS*.
+From the left menu, select <i class="uil uil-database"></i> *DBaaS*.
 
 ![!](../../_images/PMM_DBaaS_Kubernetes_Cluster_Panel.jpg)
 
@@ -22,7 +22,8 @@ From the left menu, select *{{icon.database}} DBaaS*.
 
 ### Add a Kubernetes cluster
 
-> PXC and PSMDB operators are installed as part of the Kubernetes cluster registration process. It enables you to deploy database clusters into the Kubernetes cluster.
+!!! note alert alert-primary ""
+    PXC and PSMDB operators are installed as part of the Kubernetes cluster registration process. It enables you to deploy database clusters into the Kubernetes cluster.
 
 1. Click *Register new Kubernetes Cluster*
 
@@ -38,7 +39,8 @@ From the left menu, select *{{icon.database}} DBaaS*.
 
 ### Unregister a Kubernetes cluster
 
-> You can't unregister a Kubernetes cluster if there DB clusters associated with it.
+!!! caution alert alert-warning "Important"
+    You can't unregister a Kubernetes cluster if there DB clusters associated with it.
 
 1. Click *Unregister*.
 
@@ -48,7 +50,7 @@ From the left menu, select *{{icon.database}} DBaaS*.
 
 1. Find the row with the Kubernetes cluster you want to see.
 
-2. In the *Actions* column, open the {{icon.ellipsisv}} menu and click *Show configuration*.
+2. In the *Actions* column, open the <i class="uil uil-ellipsis-v"></i> menu and click *Show configuration*.
 
 ### Manage allowed component versions
 
@@ -56,7 +58,7 @@ Administrators can select allowed and default versions of components versions fo
 
 1. Find the row with the Kubernetes cluster you want to manage.
 
-2. In the *Actions* column, open the {{icon.ellipsisv}} menu and click *Manage versions*.
+2. In the *Actions* column, open the <i class="uil uil-ellipsis-v"></i> menu and click *Manage versions*.
 
     ![!](../../_images/PMM_DBaaS_Kubernetes_Manage_Versions.png)
 
@@ -111,7 +113,7 @@ To monitor a DB cluster, set up a [public address](../../how-to/configure.md#pub
 
         Values for the *Custom* preset can be edited.
 
-        Beside each resource type is an estimate of the required and available resources represented numerically in absolute and percentage values, and graphically as a colored, segmented bar showing the projected ratio of used to available resources. A red warning triangle {{icon.exclamationtrianglered}} is shown if the requested resources exceed those available.
+        Beside each resource type is an estimate of the required and available resources represented numerically in absolute and percentage values, and graphically as a colored, segmented bar showing the projected ratio of used to available resources. A red warning triangle <i style="color: red" class="uil uil-exclamation-triangle"></i> is shown if the requested resources exceed those available.
 
         ![!](../../_images/PMM_DBaaS_DB_Cluster_Advanced_Options.png)
 
@@ -129,7 +131,7 @@ To monitor a DB cluster, set up a [public address](../../how-to/configure.md#pub
         - *Host*: The hostname
         - *Port*: The port number
         - *Username*: The connection username
-        - *Password*: The connection password (click the eye icon {{icon.eye}} to reveal)
+        - *Password*: The connection password (click the eye icon <i class="uil uil-eye"></i> to reveal)
     - *DB Cluster Parameters*:
         - *K8s cluster name*: The Kubernetes cluster name
         - *CPU*: The number of CPUs allocated to the cluster
@@ -145,13 +147,13 @@ To monitor a DB cluster, set up a [public address](../../how-to/configure.md#pub
 
 1. Find the row with the database cluster you want to delete.
 
-2. In the *Actions* column, open the {{icon.ellipsisv}} menu and click *Delete*.
+2. In the *Actions* column, open the <i class="uil uil-ellipsis-v"></i> menu and click *Delete*.
 
 3. Confirm the action by clicking *Proceed*, or abandon by clicking *Cancel*.
 
     ![!](../../_images/PMM_DBaaS_DB_Cluster_Delete.png)
 
-!!! caution alert alert-warning "Important"
+!!! danger alert alert-danger "Danger"
     Deleting a cluster in this way also deletes any attached volumes.
 
 ### Edit a DB Cluster
@@ -160,7 +162,7 @@ To monitor a DB cluster, set up a [public address](../../how-to/configure.md#pub
 
 2. Find the row with the database cluster you want to change.
 
-3. In the *Actions* column, open the {{icon.ellipsisv}} menu and click *Edit*.
+3. In the *Actions* column, open the <i class="uil uil-ellipsis-v"></i> menu and click *Edit*.
 
 A paused cluster can't be edited.
 
@@ -170,7 +172,7 @@ A paused cluster can't be edited.
 
 2. Identify the database cluster to be changed.
 
-3. In the *Actions* column, open the {{icon.ellipsisv}} menu and click *Restart*.
+3. In the *Actions* column, open the <i class="uil uil-ellipsis-v"></i> menu and click *Restart*.
 
 ### Suspend or resume a DB Cluster
 
@@ -178,7 +180,7 @@ A paused cluster can't be edited.
 
 2. Identify the DB cluster to suspend or resume.
 
-3. In the *Actions* column, open the {{icon.ellipsisv}} menu and click the required action:
+3. In the *Actions* column, open the <i class="uil uil-ellipsis-v"></i> menu and click the required action:
 
     - For active clusters, click *Suspend*.
 
@@ -189,8 +191,8 @@ A paused cluster can't be edited.
         ![!DBaaS Resume](../../_images/PMM_DBaaS_DB_Cluster_Resume.gif)
 
 
-> **See also**
-> [Setting up a development environment for DBaaS](../../setting-up/server/dbaas.md)
+!!! seealso alert alert-info "See also"
+    [Setting up a development environment for DBaaS](../../setting-up/server/dbaas.md)
 
 
 [ALPHA]: https://en.wikipedia.org/wiki/Software_release_life_cycle#Alpha
