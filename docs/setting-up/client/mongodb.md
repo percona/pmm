@@ -166,7 +166,7 @@ When successful, PMM Client will print `MongoDB Service added` with the service'
     - When adding nodes of a sharded cluster, add each node separately using the `--cluster mycluster` option for the MongoDB Cluster Summary dashboard to populate correctly.
     - Atlas doesn't support direct connections. When connecting to an Atlas instance, use the `pmm-admin` option `--direct-connection=false`. (Doing so will prevent replicaset status from working and the MongoDB Overview dashboard widget will show invalid values.)
 
-**Example**
+### Examples
 
 ```sh
 pmm-admin add mongodb \
@@ -174,15 +174,11 @@ pmm-admin add mongodb \
 --query-source=profiler --cluster=mycluster
 ```
 
-**Example**
-
 ```sh
 pmm-admin add mongodb \
 --username={{pmm_mongodb_user}} --password={{pmm_password}} \
 mongo 127.0.0.1:27017
 ```
-
-**Example**
 
 ```sh
 pmm-admin add mongodb \
@@ -190,13 +186,13 @@ pmm-admin add mongodb \
 --service-name=mymongosvc --host=127.0.0.1 --port=27017
 ```
 
-**Example -- connect via UNIX socket**
+#### Connect via UNIX socket
 
 ```sh
 pmm-admin add mongodb --socket=/tmp/mongodb-27017.sock
 ```
 
-**Example -- connecting via SSL/TLS**
+#### Connecting via SSL/TLS
 
 ```sh
 pmm-admin add mongodb --tls \
@@ -213,13 +209,13 @@ where:
 
 ## Check the service
 
-**Check service - PMM user interface**
+### PMM user interface
 
 1. Select <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *PMM Inventory* → {{icon.inventory}} *Inventory list*.
 2. Look in the *Services* tab for a matching *Service Type* (MongoDB), *Service name*, *Addresses*, and any other values used when adding the service.
 3. Look in the *Agents* tab to check the desired data source is being used.
 
-**Check service - Command line**
+### Command line
 
 Look for your service in the output of this command.
 
@@ -227,12 +223,12 @@ Look for your service in the output of this command.
 pmm-admin inventory list services --service-type=mongodb
 ```
 
-**Check data**
+### Check data
 
 1. Open the *MongoDB Instances Overview* dashboard.
 2. Set the *Service Name* to the newly-added service.
 
-**Check Query Analytics**
+#### Query Analytics
 
 1. Open *PMM Query Analytics*.
 2. In the *Filters* panel:
@@ -262,12 +258,10 @@ pmm-admin remove mongodb SERVICE_NAME
     - [`pmm-admin add mongodb`](../../details/commands/pmm-admin.md#mongodb)
     - [Troubleshooting connection difficulties]
 
-
 [MongoDB]: https://www.mongodb.com/
 [Percona Server for MongoDB]: https://www.percona.com/software/mongodb/percona-server-for-mongodb
 [profiling feature]: https://docs.mongodb.com/manual/tutorial/manage-the-database-profiler/
 [YAML]: http://yaml.org/spec/
-
 [MONGODB_CONFIG_OP_PROF]: https://docs.mongodb.com/manual/reference/configuration-options/#operationprofiling-options
 [PSMDB_RATELIMIT]: https://www.percona.com/doc/percona-server-for-mongodb/LATEST/rate-limit.html#enabling-the-rate-limit
 [PMM_ADMIN_MAN_PAGE]: ../../details/commands/pmm-admin.md

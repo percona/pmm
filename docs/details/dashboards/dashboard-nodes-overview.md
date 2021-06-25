@@ -4,10 +4,10 @@
 
 The Nodes Overview dashboard provides details about the efficiency of work of the following components. Each component is represented as a section in the dashboard.
 
-* CPU
-* Memory & Swap
-* Disk
-* Network
+- CPU
+- Memory & Swap
+- Disk
+- Network
 
 The *CPU* section offers the *CPU Usage*, *CPU Saturation and Max Core Usage*, *Interrupts and Context Switches*, and *Processes* metrics.
 

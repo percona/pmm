@@ -23,7 +23,7 @@ GRANT SELECT, PROCESS, REPLICATION CLIENT ON *.* TO 'pmm'@'%' IDENTIFIED BY 'pas
 GRANT SELECT, UPDATE, DELETE, DROP ON performance_schema.* TO 'pmm'@'%';
 ```
 
-# Adding an Azure Instance
+## Adding an Azure Instance
 
 Follow the instructions for remotes instances explained [here](aws.md), Azure MySQL databases are similar to AWS RDS databases.
 
@@ -35,13 +35,13 @@ and be sure to set *Performance Schema* as the query collection method for Query
 
 ![!image](../../_images/azure-add-mysql-2.png)
 
-# MariaDB.
+### MariaDB
 
 MariaDB up to version 10.2 works out of the box but starting with MariaDB 10.3 instrumentation is disabled by default and cannot be enabled since there
 is no SUPER role in Azure-MariaDB. So, it is not possible to run the required queries to enable instrumentation. Monitoring will work but Query Analytics
 won't receive any query data.
 
-# PostgreSQL
+### PostgreSQL
 
 For PostgreSQL follow the same methods used for MySQL and MariaDB and enable `track_io_timing` in the instance configuration to enable Query Analytics.
 

@@ -8,7 +8,7 @@ You can improve the security of your PMM installation with:
 
 To see which security features are enabled:
 
-```
+```sh
 pmm-admin status
 ```
 

@@ -10,11 +10,11 @@ The Average Query Response Time graph shows information collected using the Resp
 
 Query response time counts (operations) are grouped into three buckets:
 
-* 100 ms - 1 s
+- 100 ms - 1 s
 
-* 1 s - 10 s
+- 1 s - 10 s
 
-* &gt; 10 s
+- &gt; 10 s
 
 ## Average Query Response Time
 
@@ -24,18 +24,18 @@ Available only in [Percona Server for MySQL](https://www.percona.com/doc/percona
 
 Available only in Percona Server for MySQL, illustrates READ query response time counts (operations) grouped into three buckets:
 
-* 100 ms - 1 s
+- 100 ms - 1 s
 
-* 1 s - 10 s
+- 1 s - 10 s
 
-* &gt; 10 s
+- &gt; 10 s
 
 ## Write Query Response Time Distribution
 
 Available only in Percona Server for MySQL, illustrates WRITE query response time counts (operations) grouped into three buckets:
 
-* 100 ms - 1 s
+- 100 ms - 1 s
 
-* 1 s - 10 s
+- 1 s - 10 s
 
-* &gt; 10 s
+- &gt; 10 s

@@ -14,27 +14,27 @@ This section contains the *Network traffic* and *network utilization hourly* met
 
 This section offers the following metrics:
 
-* Network traffic by packets
-* Network traffic errors
-* Network traffic drop
-* Network traffic multicast
+- Network traffic by packets
+- Network traffic errors
+- Network traffic drop
+- Network traffic multicast
 
 ## Network Netstat TCP
 
 This section offers the following metrics:
 
-* Timeout value used for retransmitting
-* Min TCP retransmission timeout
-* Max TCP retransmission timeout
-* Netstat: TCP
-* TCP segments
+- Timeout value used for retransmitting
+- Min TCP retransmission timeout
+- Max TCP retransmission timeout
+- Netstat: TCP
+- TCP segments
 
 ## Network Netstat UDP
 
 In this section, you can find the following metrics:
 
-* Netstat: UDP
-* UDP Lite
+- Netstat: UDP
+- UDP Lite
 
 The graphs in the *UDP Lite* metric give statistics about:
 
@@ -63,12 +63,12 @@ The graphs in the *UDP Lite* metric give statistics about:
 
 This section has the following metrics:
 
-* ICMP Errors
-* Messages/Redirects
-* Echos
-* Timestamps/Mask Requests
+- ICMP Errors
+- Messages/Redirects
+- Echos
+- Timestamps/Mask Requests
 
-**ICMP Errors**
+### ICMP Errors
 
 `InErrors`
 :   Messages which the entity received but determined as having ICMP-specific errors (bad ICMP checksums, bad length, etc.)
@@ -94,7 +94,7 @@ This section has the following metrics:
 `InTimeExcds`
 :   Time Exceeded messages received
 
-**Messages/Redirects**
+### Messages/Redirects
 
 `InMsgs`
 :   Messages which the entity received. Note that this counter includes all those counted by `icmpInErrors`
@@ -108,7 +108,7 @@ This section has the following metrics:
 `OutRedirects`
 :   Redirect messages sent. For a host, this object will always be zero, since hosts do not send redirects
 
-**Echos**
+### Echos
 
 `InEchoReps`
 : Echo Reply messages received
@@ -122,7 +122,7 @@ This section has the following metrics:
 `OutEchos`
 : Echo (request) messages sent
 
-**Timestamps/Mask Requests**
+### Timestamps/Mask Requests
 
 `InAddrMaskReps`
 : Address Mask Reply messages received

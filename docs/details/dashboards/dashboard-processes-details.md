@@ -8,28 +8,28 @@ The dashboard consists of two parts: the first section describes metrics for all
 
 Charts for all hosts, available in the first section, are the following ones:
 
-* States of Processes
-* Number of PIDs
-* Percentage of Max PIDs Limit
-* Number of Threads
-* Percentage of Max Threads Limit
-* Runnable Processes
-* Blocked Processes Waiting for I/O
-* Sleeping Processes
-* Running Processes
-* Disk Sleep Processes
-* Stopped Processes
-* Zombie Processes
-* Dead Processes
+- States of Processes
+- Number of PIDs
+- Percentage of Max PIDs Limit
+- Number of Threads
+- Percentage of Max Threads Limit
+- Runnable Processes
+- Blocked Processes Waiting for I/O
+- Sleeping Processes
+- Running Processes
+- Disk Sleep Processes
+- Stopped Processes
+- Zombie Processes
+- Dead Processes
 
 The following charts are present in the second part, available for each host:
 
-* Processes
-* States of Processes
-* Number of PIDs
-* Percentage of Max PIDs Limit
-* Number of Threads
-* Percentage of Max Threads Limit
+- Processes
+- States of Processes
+- Number of PIDs
+- Percentage of Max PIDs Limit
+- Number of Threads
+- Percentage of Max Threads Limit
 
 ## Number of PIDs
 
@@ -49,13 +49,13 @@ No description
 
 ## Runnable Processes
 
-**Processes**
+### Processes
 
 The Processes graph shows how many processes/threads are either in the kernel run queue (runnable state) or in the blocked queue (waiting for I/O).  When the number of process in the runnable state is constantly higher than the number of CPU cores available, the load is CPU bound.  When the number of process blocked waiting for I/O is large, the load is disk bound.  The running average of the sum of these two quantities is the basis of the `loadavg` metric.
 
 ## Blocked Processes Waiting for I/O
 
-**Processes**
+### Processes
 
 The Processes graph shows how many processes/threads are either in the kernel run queue (runnable state) or in the blocked queue (waiting for I/O).  When the number of process in the runnable state is constantly higher than the number of CPU cores available, the load is CPU bound.  When the number of process blocked waiting for I/O is large, the load is disk bound.  The running average of the sum of these two quantities is the basis of the `loadavg` metric.
 

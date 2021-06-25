@@ -190,9 +190,7 @@ A paused cluster can't be edited.
 
         ![!DBaaS Resume](../../_images/PMM_DBaaS_DB_Cluster_Resume.gif)
 
-
 !!! seealso alert alert-info "See also"
     [Setting up a development environment for DBaaS](../../setting-up/server/dbaas.md)
-
 
 [ALPHA]: https://en.wikipedia.org/wiki/Software_release_life_cycle#Alpha

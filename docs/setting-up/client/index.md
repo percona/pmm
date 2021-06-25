@@ -5,7 +5,6 @@ There are different ways to install PMM Client on a node and register it with PM
 - [Docker](#docker): Run PMM Client as a Docker container, either directly or with Docker compose.
 
 - [Package manager](#package-manager):
-
     - On Debian or Red Hat Linux, install `percona-release` and use a Linux package manager (`apt`/`dnf`) to install PMM Client.
     - On Debian or Red Hat, download `.deb`/`.rpm` PMM Client packages and manually install them.
 
@@ -68,7 +67,6 @@ end split
 @enduml
 ```
 
-
 ## Before you start
 
 - [Set up PMM Server](../server/index.md) with a known IP address accessible from the client node.
@@ -82,6 +80,7 @@ end split
     - Disk -- A minimum of 100 MB of storage is required for installing the PMM Client package. With a good connection to PMM Server, additional storage is not required. However, the client needs to store any collected data that it cannot dispatch immediately, so additional storage may be required if the connection is unstable or the throughput is low. (Caching only applies to Query Analytics data; VictoriaMetrics data is never cached on the client side.)
 
 ## Install
+
 ### Docker
 
 The [PMM Client Docker image] is a convenient way to run PMM Client as a preconfigured [Docker] container.
@@ -132,13 +131,9 @@ You can now add services with [`pmm-admin`](../../details/commands/pmm-admin.md)
 
 !!! hint alert alert-success "Tips"
     - Adjust host firewall and routing rules to allow Docker communications. ([Read more in the FAQ.](../../faq.md#how-do-i-troubleshoot-communication-issues-between-pmm-client-and-pmm-server))
-    - For help:
-        ```sh
-        docker run --rm percona/pmm-client:2 --help
-        ```
+    - For help: `docker run --rm percona/pmm-client:2 --help`
 
-
-**Docker compose**
+### Docker compose
 
 1. Copy and paste this text into a file called `docker-compose.yml`.
 
@@ -228,7 +223,7 @@ You can now add services with [`pmm-admin`](../../details/commands/pmm-admin.md)
     percona-release enable original release
     ```
 
-**Debian-based**
+#### Debian-based
 
 1. Configure repositories.
 
@@ -252,7 +247,7 @@ You can now add services with [`pmm-admin`](../../details/commands/pmm-admin.md)
 
 4. [Register the node](#register).
 
-**Red Hat-based**
+#### Red Hat-based
 
 1. Configure repositories.
 
@@ -274,7 +269,7 @@ You can now add services with [`pmm-admin`](../../details/commands/pmm-admin.md)
 
 4. [Register the node](#register).
 
-**Package manager -- manual download**
+### Package manager -- manual download
 
 1. Visit the [Percona Monitoring and Management 2 download] page.
 2. Under *Version:*, select the one you want (usually the latest).
@@ -296,13 +291,13 @@ Here are the download page links for each supported platform.
 - [Ubuntu 18.04 (Bionic Beaver)]
 - [Ubuntu 20.04 (Focal Fossa)]
 
-**Debian-based**
+#### Debian-based
 
 ```sh
 dpkg -i *.deb
 ```
 
-**Red Hat-based**
+#### Red Hat-based
 
 ```sh
 dnf localinstall *.rpm
@@ -379,14 +374,13 @@ pmm-admin config --server-insecure-tls --server-url=https://admin:admin@X.X.X.X:
 !!! caution alert alert-warning "Important"
     Clients *must* be registered with the PMM Server using a secure channel. If you use http as your server URL, PMM will try to connect via https on port 443. If a TLS connection can't be established you will get an error and you must use https along with the appropriate secure port.
 
-**Examples**
+### Examples
 
 Register on PMM Server with IP address `192.168.33.14` using the default `admin/admin` username and password, a node with IP address `192.168.33.23`, type `generic`, and name `mynode`.
 
 ```sh
 pmm-admin config --server-insecure-tls --server-url=https://admin:admin@192.168.33.14:443 192.168.33.23 generic mynode
 ```
-
 
 ## Add services
 
@@ -407,15 +401,10 @@ You must configure and adding services according to the service type.
 !!! hint alert alert-success "Tip"
     To change the parameters of a previously-added service, remove the service and re-add it with new parameters.
 
-
-
-
-
-
-
 ## Remove
 
 How to remove (uninstall) PMM Client.
+
 ### Docker
 
 !!! caution alert alert-warning "Caution"
@@ -447,7 +436,7 @@ How to remove (uninstall) PMM Client.
 
 ### Package manager
 
-**Debian-based distributions**
+#### Debian-based distributions
 
 1. Uninstall the PMM Client package.
 
@@ -461,7 +450,7 @@ How to remove (uninstall) PMM Client.
     dpkg -r percona-release
     ```
 
-**Red Hat-based distributions**
+#### Red Hat-based distributions
 
 1. Uninstall the PMM Client package.
 
@@ -474,8 +463,6 @@ How to remove (uninstall) PMM Client.
     ```sh
     yum remove -y percona-release
     ```
-
-
 
 ## Remove services
 
@@ -490,12 +477,6 @@ pmm-admin remove <service-type> <service-name>
     - [Percona release]
     - [PMM Client architecture](../../details/architecture.md#pmm-client)
     - Thanks to [paskal] for original Docker compose files
-
-
-
-
-
-
 
 [Debian 10 (Buster)]: https://www.percona.com/downloads/pmm2/{{release}}/binary/debian/buster/
 [Debian 9 (Stretch)]: https://www.percona.com/downloads/pmm2/{{release}}/binary/debian/stretch/

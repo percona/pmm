@@ -26,8 +26,6 @@
     - [Amazon AWS]
     - Use the [easy install] script
 
-
-
 [Docker]: docker.md
 [virtual appliance]: virtual-appliance.md
 [Amazon AWS]: aws.md

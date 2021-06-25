@@ -161,11 +161,11 @@ instances.
 
     Also this section contains a database-specific flag, which would allow Query Analytics for the selected remote database:
 
-    * when adding some remote MySQL, AWS RDS MySQL or Aurora MySQL instance, you will be able to choose using performance schema for the database monitoring;
+    - when adding some remote MySQL, AWS RDS MySQL or Aurora MySQL instance, you will be able to choose using performance schema for the database monitoring;
 
-    * when adding a PostgreSQL instance, you will be able to activate using `pg_stat_statements` extension;
+    - when adding a PostgreSQL instance, you will be able to activate using `pg_stat_statements` extension;
 
-    * when adding a MongoDB instance, you will be able to choose using Query Analytics MongoDB profiler.
+    - when adding a MongoDB instance, you will be able to choose using Query Analytics MongoDB profiler.
 
 7. Finally press the *Add service* button to start monitoring your instance.
 
@@ -176,7 +176,9 @@ For PostgreSQL, use the same method described above.
 1. In the PMM web interface, go to <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *PMM Inventory* → <i class="uil uil-plus-circle"></i> *Add Instance*.
 
 2. Select *AWS RDS MySQL or Aurora MySQL -- Add a remote instance*.
-    *At the moment of writing this guide, the Add button doesn't mention PostgreSQL but the discovery function already supports it.*
+
+    !!! note alert alert-primary ""
+        At the moment of writing this guide, the Add button doesn't mention PostgreSQL but the discovery function already supports it.
 
     ![!image](../../_images/PMM_rds_postgre_02_discover.png)
 

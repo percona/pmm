@@ -10,7 +10,7 @@ SQL Thread is a process that runs on a secondary host in the replication environ
 
 Depending on the format of the binary log it can read query statements in plain text and re-execute them or it can read raw data and apply them to the local host.
 
-**Possible values**
+### Possible values
 
 Yes
 : The thread is running and is connected to a replication primary
@@ -31,7 +31,7 @@ IO Thread Running is one of the parameters that the command
 
 This metric shows if the SQL thread is running or not. It only applies to a secondary host.
 
-**Possible values**
+### Possible values
 
 Yes
 :   SQL Thread is running and is applying events from the relay log to the local secondary host
@@ -49,7 +49,7 @@ One of the more common errors is *Error: 1022 Duplicate Key Entry*. In such a ca
 
 This metric indicates whether the host is configured to be in *Read Only* mode or not.
 
-**Possible values**
+### Possible values
 
 Yes
 :   The secondary host permits no client updates except from users who have the SUPER privilege or the REPLICATION SLAVE privilege.
@@ -65,11 +65,11 @@ This metric shows the number of seconds the secondary host is delayed in replica
 
 Since the replication process applies the data modifications on the secondary asynchronously, it could happen that the secondary replicates events after some time. The main reasons are:
 
-* **Network round trip time** - high latency links will lead to non-zero replication lag values.
+- **Network round trip time** - high latency links will lead to non-zero replication lag values.
 
-* **Single threaded nature of replication channels** - primary servers have the advantage of applying changes in parallel, whereas secondary ones are only able to apply changes in serial, thus limiting their throughput. In some cases Group Commit can help but is not always applicable.
+- **Single threaded nature of replication channels** - primary servers have the advantage of applying changes in parallel, whereas secondary ones are only able to apply changes in serial, thus limiting their throughput. In some cases Group Commit can help but is not always applicable.
 
-* **High number of changed rows or computationally expensive SQL** - depending on the replication format (`ROW` vs `STATEMENT`), significant changes to the database through high volume of rows modified, or expensive CPU will all contribute to secondary servers lagging behind the primary.
+- **High number of changed rows or computationally expensive SQL** - depending on the replication format (`ROW` vs `STATEMENT`), significant changes to the database through high volume of rows modified, or expensive CPU will all contribute to secondary servers lagging behind the primary.
 
 Generally adding more CPU or Disk resources can alleviate replication lag issues, up to a point.
 

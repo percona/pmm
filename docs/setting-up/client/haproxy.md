@@ -4,12 +4,15 @@
 
 You can collect metrics from [HAProxy](https://www.haproxy.com/) on a node when:
 
-* there is already configured haproxy
-  1. How to configure HAProxy https://www.haproxy.com/blog/haproxy-exposes-a-prometheus-metrics-endpoint
-  2. After HAProxy is running (default address http://localhost:8404/metrics) you can add it to PMM.
+* There is already a configured haproxy instance.
+
+  1. See [How to configure HAProxy](https://www.haproxy.com/blog/haproxy-exposes-a-prometheus-metrics-endpoint).
+  2. After HAProxy is running (default address <http://localhost:8404/metrics>) you can add it to PMM.
   3. Use the `haproxy` alias to enable HAProxy metrics monitoring.
-* there is already a PMM Agent instance running
-* this node has been [configured](index.md) using the `pmm-admin config` command.
+
+* There is already a PMM Agent instance running.
+
+* This node has been [configured](index.md) using the `pmm-admin config` command.
 
 ## USAGE
 
@@ -21,7 +24,7 @@ where `listen-port` is the port number where HAProxy running. (This is the only 
 
 The output of this command should look as follows:
 
-```
+```txt
 HAProxy Service added.
 Service ID  : /service_id/c481183f-70a2-443f-91e5-cae5cecd06a2
 Service name: Ubuntu-haproxy
@@ -33,7 +36,7 @@ by PMM. If not specified, they are substituted automatically as `<node>-haproxy`
 During adding here is connection check (can be skipped by flag `--skip-connection-check`).
 If HAProxy doesn't run properly on the given port then you will see an error message:
 
-```
+```txt
 Connection check failed: Get "http://127.0.0.1:8404/metrics": dial tcp 127.0.0.1:8404: connect: connection refused.
 ```
 

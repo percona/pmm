@@ -55,11 +55,6 @@
 | High-availability | [PXC/Galera Nodes Compare]                                                               | 55
 | High-availability | [HAProxy Instance Summary]                                                               | 113
 
-
-
-
-
-
 [Advanced Data Exploration]: dashboard-advanced-data-exploration.md
 [Home Dashboard]: dashboard-home.md
 [Prometheus Exporter Status]: dashboard-prometheus-exporter-status.md

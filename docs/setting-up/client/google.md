@@ -52,14 +52,9 @@ The connection can be direct, or indirect using [Cloud SQL Proxy][GOOGLE_CLOUD_S
 
     - In *Stat tracking options*, select *PG Stat Statements*.
 
-7. Click *Add service*.
+8. Click *Add service*.
 
-8. Check for values in the *PostgreSQL Instance Overview* dashboard and *Query Analytics*.
-
-
-
-
-
+9. Check for values in the *PostgreSQL Instance Overview* dashboard and *Query Analytics*.
 
 ## Cloud SQL Proxy
 
@@ -133,11 +128,6 @@ The connection can be direct, or indirect using [Cloud SQL Proxy][GOOGLE_CLOUD_S
     pmm-admin add postgresql --host=127.0.0.1 --port=5432 \
     --username="postgres" --password=secret --service-name=PGGCP
     ```
-
-
-
-
-
 
 [GOOGLE_CLOUD_SQL]: https://cloud.google.com/sql
 [GOOGLE_CLOUD]: https://cloud.google.com/

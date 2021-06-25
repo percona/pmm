@@ -2,7 +2,6 @@
 
 ![!image](../../_images/PMM_MySQL_InnoDB_Details.jpg)
 
-
 !!! hint alert alert-success "Tip"
     If metrics are missing, try running: `SET GLOBAL innodb_monitor_enable=all;` in the MySQL client.
 
@@ -10,11 +9,7 @@
 
 ### Writes (Rows)
 
-
-
 ### Writes (Transactions)
-
-
 
 ### Row Writes per Trx
 
@@ -22,11 +17,7 @@ Rows Written Per Transactions which modify rows. This is better indicator of tra
 
 ### Rows Read Per Trx
 
-
-
 ### Log Space per Trx
-
-
 
 ### Rollbacks
 
@@ -42,23 +33,19 @@ Log Fsync Per Transaction.
 
 ### InnoDB Row Reads
 
-**InnoDB Row Operations**
+### InnoDB Row Operations
 
 This graph allows you to see which operations occur and the number of rows affected per operation. A graph like Queries Per Second will give you an idea of queries, but one query could effect millions of rows.
 
 ### InnoDB Row Writes
 
-**InnoDB Row Operations**
+### InnoDB Row Operations
 
 This graph allows you to see which operations occur and the number of rows affected per operation. A graph like Queries Per Second will give you an idea of queries, but one query could effect millions of rows.
 
 ### InnoDB Read-Only Transactions
 
-
-
 ### InnoDB Read-Write Transactions
-
-
 
 ### InnoDB Transactions Information (RW)
 
@@ -87,8 +74,6 @@ Amount of Data Per Row
 Index Size Per Row shows how much space we're using for indexes on per row basics
 
 ### InnoDB Data Summary
-
-
 
 ### Space Allocated
 

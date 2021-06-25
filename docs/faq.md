@@ -33,10 +33,11 @@ When all data is registered in PMM2 and expired in PMM1, decommission your PMM1 
 
 ## How to control data retention?
 
-Go to <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings*  → *Advanced Settings* → *Data retention* to adjust the value in days.
+Go to <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings* → *Data retention* to adjust the value in days.
 
 !!! seealso alert alert-info "See also"
     [Configure data retention](how-to/configure.md#data-retention)
+
 ## How often are NGINX logs rotated?
 
 Daily.
@@ -45,7 +46,7 @@ PMM Server runs `logrotate` daily to rotate NGINX logs, keeping up to ten of the
 
 ## What privileges are required to monitor a MySQL instance?
 
-```
+```sql
 SELECT, PROCESS, SUPER, REPLICATION CLIENT, RELOAD
 ```
 
@@ -98,7 +99,6 @@ The default values (in seconds):
 | Standard          | 60   | 10     | 5    |
 | Frequent          | 30   | 5      | 1    |
 | Custom (defaults) | 60   | 10     | 5    |
-
 
 !!! seealso alert alert-info "See also"
     [Metrics resolution](how-to/configure.md#metrics-resolution)

@@ -8,7 +8,6 @@
 
 ![!](../_images/PMM_Home_Dashboard_Numbered.png)
 
-
 ## Main menu
 
 The main menu is part of the Grafana framework and is visible on every page.
@@ -27,7 +26,6 @@ The main menu is part of the Grafana framework and is visible on every page.
 | <i class="uil uil-history"></i>    | Backup Management    | [Backup management and storage location configuration][BACKUP]
 | {{icon.checks}}                    | PMM Database Checks  |
 | <i class="uil uil-database"></i>   | DBaaS                |
-
 
 !!! hint alert alert-success "Tip"
     The DBaaS icon appears only if a server feature flag has been set.
@@ -100,7 +98,7 @@ This menu contains shortcuts to other dashboards. The list changes according to 
 !!! hint alert alert-success "Tip"
     The *Compare* menu links to the Instances Overview dashboard for the current service type.
 
-##### Services menu
+### Services menu
 
 The *Services* menu choice determines the Service Type menu.
 
@@ -112,7 +110,7 @@ The *Services* menu choice determines the Service Type menu.
 |           | Nodes Overview                 | <i class="uil uil-bars"></i> OS         | OS dashboards         |
 |           | PostgreSQL Instances Overview  | <i class="uil uil-bars"></i> PostgreSQL | PostgreSQL dashboards |
 
-##### PMM menu
+### PMM menu
 
 This item lists shortcuts to utility pages.
 
@@ -123,7 +121,6 @@ This item lists shortcuts to utility pages.
 |      | PMM Database Checks |
 |      | PMM Inventory       |
 |      | PMM Settings        |
-
 
 [Folders]: https://grafana.com/docs/grafana/latest/dashboards/dashboard_folders/
 [PromQL]: https://grafana.com/blog/2020/02/04/introduction-to-promql-the-prometheus-query-language/

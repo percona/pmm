@@ -135,7 +135,7 @@ Here are the benefits and drawbacks of each.
 
 ### `pg_stat_statements`
 
-**Install**
+#### Install
 
 - Debian/Ubuntu
 
@@ -149,7 +149,7 @@ Here are the benefits and drawbacks of each.
     yum install -y postgresql-contrib
     ```
 
-**Configure**
+#### Configure
 
 1. Add these lines to your `postgresql.conf` file:
 
@@ -180,13 +180,13 @@ You can now [add the service](#add-service).
 - PostgreSQL versions 11, 12, 13.
 - Percona Distribution for PostgreSQL versions 11, 12, 13.
 
-**Install**
+#### Install
 
 - If you use *Percona Distribution for PostgreSQL*, you can install the extension with your Linux package manager. See [Installing Percona Distribution for PostgreSQL][PERCONA_POSTGRESQL_INSTALL].
 
 - If you use *PostgreSQL* you can install by downloading and compiling the source code. See [Installing `pg_stat_monitor`][PG_STAT_MONITOR_INSTALL].
 
-**Configure**
+#### Configure
 
 1. Set or change the value for `shared_preload_library`.
 
@@ -240,7 +240,7 @@ When you have configured your database server, you can add a PostgreSQL service 
 
 Add the database server as a service using one of these example commands. If successful, PMM Client will print `PostgreSQL Service added` with the service's ID and name. Use the `--environment` and `-custom-labels` options to set tags for the service to help identify them.
 
-**Examples**
+### Examples
 
 Add instance with default node (`<node>-postgresql`) and service name.
 
@@ -290,13 +290,13 @@ where:
 
 ## Check the service
 
-**Check service - PMM user interface**
+### Check service - PMM user interface
 
 1. Select <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *PMM Inventory* → {{icon.inventory}} *Inventory list*
 2. Look in the *Services* tab for a matching *Service Type* (PostgreSQL), *Service name*, *Addresses*, and any other details entered in the form.
 3. Look in the *Agents* tab to check the desired data source is being used.
 
-**Check service - Command line**
+### Check service - Command line
 
 Look for your service in the output of this command.
 
@@ -307,7 +307,7 @@ pmm-admin inventory list services
 !!! hint alert alert-success ""
     If using Docker, use `docker exec pmm-client pmm-admin inventory list services`
 
-**Check data**
+### Check data
 
 1. Open the *PostgreSQL Instance Summary* dashboard.
 2. Set the *Service Name* to the newly-added service.
@@ -315,8 +315,6 @@ pmm-admin inventory list services
 !!! seealso alert alert-info "See also"
     - [`pmm-admin` man page for `pmm-admin add postgresql`](../../details/commands/pmm-admin.md#postgresql)
     - [Configuring Percona Repositories with percona-release][PERCONA_RELEASE]
-
-
 
 [PostgreSQL]: https://www.postgresql.org/
 [Percona Distribution for PostgreSQL]: https://www.percona.com/software/postgresql-distribution

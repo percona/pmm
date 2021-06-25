@@ -4,8 +4,8 @@
 
 You can collect metrics from an external (custom) exporter on a node when:
 
-* there is already a PMM Agent instance running and,
-* this node has been [configured](index.md) using the `pmm-admin config` command.
+- there is already a PMM Agent instance running and,
+- this node has been [configured](index.md) using the `pmm-admin config` command.
 
 ### Usage
 
@@ -35,7 +35,6 @@ Connection schema of external serverless exporter:
 
 ![!](../../_images/PMM_External_Serverless_Exporter_Schema.jpg)
 
-
 ## How I can add something not supported by PMM
 
 PMM can collect any metrics in [Open metrics](https://openmetrics.io) or [Prometheus exposition](https://prometheus.io/docs/instrumenting/exposition_formats/) format. You must specify the host and port of these metrics using the `pmm-admin add external` or `pmm-admin add external-serverless` commands.
@@ -54,12 +53,11 @@ One more way is to search for an already created dashboard at <https://grafana.c
 
 You can find more exporters on the [official Prometheus page](https://prometheus.io/docs/instrumenting/exporters/).
 
-
 ### Custom exporter
 
 You can write a custom external exporter or extend your application to expose metrics in Prometheus format.
 
-Please see more details here: https://prometheus.io/docs/instrumenting/writing_exporters/
+For more details see <https://prometheus.io/docs/instrumenting/writing_exporters/>.
 
 ### Examples
 
@@ -77,7 +75,7 @@ Group       : processes
 
 ## Adding an External service via UI
 
-1. In the PMM web interface, go to *PMM > PMM Add Instance*.
+1. In the PMM web interface, go to *PMM* → *PMM Add Instance*.
 
 2. Select *External Service -- Add a remote instance*.
 
@@ -87,8 +85,8 @@ Group       : processes
 
     The endpoint can be set manually:
 
-    ![](../../_images/PMM_External_Serverless_switcher_manually.png)
+    ![!](../../_images/PMM_External_Serverless_switcher_manually.png)
 
     or by parsing required data from a URL string, in which case you only need to pass a valid URL.
 
-    ![](../../_images/PMM_External_Serverless_switcher.png)
+    ![!](../../_images/PMM_External_Serverless_switcher.png)

@@ -14,38 +14,6 @@ This short (3:36) video shows how to activate and configure Integrated Alerting.
   Your browser does not support playing this video.
 </video>
 
-
-<!-- incomplete flow diagram
-```plantuml
-@startuml
-!include docs/_images/plantuml_styles.puml
-|//PMM Settings//|
-start
-:Activate //Integrated Alerting//;
-if (//Communication// settings) then
-    :Email;
-else
-    :Slack;
-endif
-|//Integrated Alerting//|
-:Add //Notification Channel//;
-if (Alert Rule Template?) then
-    :Select;
-else
-    |Server|
-    -[dashed]->
-    :Create;
-    note right
-        Edit on filesystem
-    end note
-    -[dashed]->
-endif
-|//Integrated Alerting//|
-:Add //Alert Rule//;
-stop
-@enduml
-```
--->
 ## Definitions
 
 - Alerts are generated when their criteria (*alert rules*) are met; an *alert* is the result of an *alert rule* expression evaluating to *true*.
@@ -137,7 +105,7 @@ This page has four tabs.
 
 3. Enter a template in the *Alert Rule Template* text box.
 
-    ```
+    ```yaml
     {% raw %}
     ---
     templates:
@@ -168,13 +136,12 @@ This page has four tabs.
                 LABELS: {{ $labels }}
             summary: MySQL too many connections (instance {{ $labels.instance }})
     ```
+
     {% endraw %}
 
     ![!](../_images/PMM_Integrated_Alerting_Alert_Rule_Templates_Add_Form.jpg)
 
-    !!! note alert alert-primary ""
-        **Alert Rule Template parameters**
-
+    !!! note alert alert-primary "Alert Rule Template parameters"
         The parameters used in the template follow a format and might include different fields depending on their `type`:
 
         - `name` (required): the name of the parameter. Spaces and special characters not allowed.

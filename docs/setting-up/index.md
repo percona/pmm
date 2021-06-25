@@ -54,7 +54,6 @@ How you do this depends on the type of service. You can monitor:
 - [HAProxy]
 - [Remote instances]
 
-
 [MySQL]: client/mysql.md
 [MongoDB]: client/mongodb.md
 [PostgreSQL]: client/postgresql.md
@@ -67,7 +66,6 @@ How you do this depends on the type of service. You can monitor:
 [HAProxy]: client/haproxy.md
 [Remote instances]: client/remote.md
 [dashboards]: ../details/dashboards/
-
 [Docker]: server/docker.md
 [virtual appliance]: server/virtual-appliance.md
 [Amazon AWS]: server/aws.md

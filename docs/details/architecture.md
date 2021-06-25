@@ -24,17 +24,17 @@ Rel(user, pmm_client, " ")
 @enduml
 ```
 
-**PMM Server**
+## PMM Server
 
 PMM Server is the heart of PMM. It receives data from clients, collates it and stores it. Metrics are drawn as tables, charts and graphs within [*dashboards*](dashboards/), each a part of the web-based [user interface](../using/interface.md).
 
-**PMM Client**
+## PMM Client
 
 PMM Client is a collection of agents and exporters that run on the host being monitored.
 
 PMM Client runs on every database host or node you want to monitor. The client collects server metrics, general system metrics, and query analytics data, and sends it to the server. Except when monitoring AWS RDS instances, a PMM Client must be running on the host to be monitored.
 
-**Percona Platform**
+## Percona Platform
 
 [Percona Platform](../using/platform/) (in development) provides value-added services for PMM.
 
@@ -53,56 +53,9 @@ The PMM Server package provides:
 - Grafana
 - VictoriaMetrics
 
-## PMM Server
+### PMM Server
 
 ![!image](../_images/PMM_Architecture_Client_Server.jpg)
-
-<!-- incomplete replacement for above
-```plantuml
-@startuml "3 - PMM components - server"
-!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
-!include docs/_images/plantuml_styles.puml
-HIDE_STEREOTYPE()
-'title
-caption PMM Server components
-System_Ext(pmm_client, "PMM Client")
-Boundary(pmm_server, "PMM Server") {
-    Component(pmm_managed, "pmm-managed", "golang")
-    Boundary(query_analytics, "Query Analytics") {
-
-'        Boundary(clickhouse_server, "clickhouse-server"){
-            ComponentDb(clickhouse, "pmm", "clickhouse")
- '       }
-
-        Component(qan_api, "qan-api2", "golang")
-        Component(qan_app, "qan-app", "typescript")
-    }
-   ComponentDb(victoriametrics, "VictoriaMetrics", "")
-'    {        ComponentDb(vmdb, "VictoriaMetrics", "")    }
-    Component(grafana, "Grafana", " ")
-    Component(web_server, "Web server", "Nginx")
-    ComponentDb(postgres, "Persistence", "PostgreSQL")
-    Boundary(alerting, "Alerting") {
-        Component(vmalert, "Integrated Alerting", " ")
-        Component(alert_manager1, "Alertmanager 1", "Bundled")
-    }
-        Component(alert_manager2, "Alertmanager 2", " ")
-'    Component(pmm_update, "??> PMM Update", "golang")
-}
-BiRel_R(pmm_client, pmm_managed, "Query Analytics metrics")
-Rel(pmm_client, victoriametrics, "Metrics")
-Rel_R(pmm_client, web_server, "HTTP")
-Rel_R(pmm_managed, qan_api, " ")
-Rel(pmm_managed, victoriametrics, " ")
-Rel(qan_api, clickhouse, "Analytics")
-Rel(grafana, qan_app, " ")
-Rel_L(qan_app, qan_api, " ")
-Rel_L(grafana, web_server, " ")
-Rel(web_server, pmm_managed, " ")
-Rel(pmm_managed, postgres, " ")
-@enduml
-```
--->
 
 PMM Server includes the following tools:
 
@@ -122,46 +75,6 @@ PMM Server includes the following tools:
 
 ![!image](../_images/diagram.pmm.client-architecture.png)
 
-<!--- incomplete C4 replacement for above
-```plantuml
-@startuml "3 - PMM components - client"
-!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
-!include docs/_images/plantuml_styles.puml
-HIDE_STEREOTYPE()
-'title PMM Client
-caption PMM Client components
-Person_Ext(admin, "Administrator")
-Boundary(pmm_client, "PMM Client") {
-'Component(pxb, "Percona XtraBackup", "")
-'Component(pgb, "pgBackupRest", "")
-'Component(pbm, "Percona Backup for MongoDB", "")
-    Boundary(exporters, "exporters") {
-    Boundary(ptools, "PT") {
-        Component(pt_summary, "pt_summary", "")
-    }
-        Component(rds_exporter, "rds_exporter", "")
-        Component(node_exporter, "node_exporter", "")
-        Component(mysqld_exporter, "mysqld_exporter", "")
-        Component(mongodb_exporter, "mongodb_exporter", "")
-        Component(postgres_exporter, "postgres_exporter", "")
-        Component(proxysql_exporter, "proxysql_exporter", "")
-    }
-    Component(pmm_admin, "pmm-admin", "golang")
-    Component(pmm_agent, "pmm-agent", "golang")
-    Component(vmagent, "vmagent", " ")
-}
-System_Ext(pmm_server, "PMM Server")
-Rel(admin, pmm_admin, "Commands")
-Rel_R(pmm_admin, pmm_agent, " ")
-Rel(pmm_agent, exporters, "Runs")
-Rel(exporters, vmagent, " ")
-Rel(pmm_agent, pmm_server, " ")
-Rel(vmagent, pmm_server, "Pushes to")
-Rel(pmm_server, exporters, "Pulls from")
-@enduml
-```
--->
-
 The PMM Client package consist of the following:
 
 - `pmm-admin` is a command-line tool for managing PMM Client, for example, adding and removing database instances that you want to monitor. ([Read more.](../details/commands/pmm-admin.md)).
@@ -176,7 +89,6 @@ The PMM Client package consist of the following:
 - `azure_database_exporter` is an exporter that collects Azure database performance metrics.
 
 To make data transfer from PMM Client to PMM Server secure, all exporters are able to use SSL/TLS encrypted connections, and their communication with the PMM server is protected by the HTTP basic authentication.
-
 
 ```plantuml
 @startuml "2 - PMM Containers"
@@ -220,48 +132,3 @@ Lay_R(pmm_managed, grafana)
 
 @enduml
 ```
-
-<!-- incomplete 'example deployment' diagram
-```plantuml
-@startuml PMM_context2
-!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
-LAYOUT_WITH_LEGEND()
-' LAYOUT_TOP_DOWN()
-LAYOUT_LEFT_RIGHT()
-Enterprise_Boundary(platform, "Percona Platform") {
-    System(stt, "Security Threat Tool")
-    System(dbaas, "DB as a Service")
-}
-Enterprise_Boundary(enterprise, "Customer Systems") {
-    Person_Ext(user, "User")
-
-    System_Boundary(server_host, "Server host") {
-        System(pmm_server, "PMM Server")
-    }
-    System_Boundary(enterprise1, "Customer system 1") {
-        System(client1, "PMM Client (A)")
-        System_Ext(monitored1, "Monitored database", "(MySQL)")
-        Rel(monitored1, client1, "Metrics")
-    }
-    System_Boundary(enterprise2, "Customer system 2") {
-        System(client2, "PMM Client (B)")
-        System_Ext(monitored2, "Monitored database", "(PostgreSQL)")
-        System_Ext(monitored3, "Monitored database", "(MongoDB)")
-        Rel(monitored2, client2, "Metrics")
-        Rel(monitored3, client2, "Metrics")
-    }
-    System_Boundary(enterprise3, "Customer system N") {
-        System(client3, "PMM Client (X)")
-        System_Ext(monitored4, "Monitored service")
-        Rel(monitored4, client3, "Metrics")
-    }
-}
-Rel(user, pmm_server, " ")
-BiRel(client1, pmm_server, " ")
-BiRel(client2, pmm_server, " ")
-BiRel(client3, pmm_server, " ")
-BiRel(pmm_server, stt, " ")
-BiRel(pmm_server, dbaas, " ")
-@enduml
-```
--->

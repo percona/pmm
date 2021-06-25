@@ -31,11 +31,11 @@ Beginning with PMM version 2.4.0, there is an additional flag that enables the f
 
 You can get PMM Server logs with either of these methods:
 
-**Direct download**
+### Direct download
 
 In a browser, visit `https://<address-of-your-pmm-server>/logs.zip`.
 
-**From Settings page**
+### From Settings page
 
 1. Select <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings*.
 2. Click *Download server diagnostics*. (See [Diagnostics in PMM Settings](configure.md#diagnostics).)
@@ -56,10 +56,9 @@ One way to do this is to use the [`encodeURIComponent`][ENCODE_URI] JavaScript f
 
 will give:
 
-```
+```txt
 "s3cR%23tpa%24%24worD"
 ```
-
 
 ## Integrated Alerting
 
@@ -137,6 +136,5 @@ Here is a guide to creating templates for Alertmanager: <https://prometheus.io/d
 **Why don't I see the whole query?**
 
 To reduce space usage, long query examples and fingerprints can be truncated to 1024 symbols. In this case, the query explains section will not work.
-
 
 [ENCODE_URI]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent

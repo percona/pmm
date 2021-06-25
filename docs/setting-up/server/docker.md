@@ -7,6 +7,7 @@ How to run PMM Server with Docker based on our [Docker image].
 
 !!! seealso alert alert-info "See also"
     [Easy-install script]
+
 ## Before you start
 
 - Install [Docker] 1.12.6 or higher.
@@ -109,7 +110,6 @@ How to run PMM Server with Docker based on our [Docker image].
     ```
 
     (If you are accessing the docker host remotely, replace `localhost` with the IP or server name of the host.)
-
 
 1. Perform a [backup](#backup).
 
@@ -285,7 +285,7 @@ Use the following Docker container environment variables (with `-e var=value`) t
 | `PMM_DEBUG`                | Enables a more verbose log level                                        |
 | `PMM_TRACE`                | Enables a more verbose log level including trace-back information       |
 
-**Ignored variables**
+### Ignored variables
 
 These variables will be ignored by `pmm-managed` when starting the server. If any other variable is found, it will be considered invalid and the server won't start.
 
@@ -297,7 +297,6 @@ These variables will be ignored by `pmm-managed` when starting the server. If an
 | `PERCONA_TEST_`                                                 | Unknown variable but won't prevent the server starting |
 | `PERCONA_TEST_DBAAS`                                            | Deprecated. Use `ENABLE_DBAAS`                         |
 
-
 ## Tips
 
 - Disable manual updates via the Home Dashboard *PMM Upgrade* panel by adding `-e DISABLE_UPDATES=true` to the `docker run` command.
@@ -306,8 +305,7 @@ These variables will be ignored by `pmm-managed` when starting the server. If an
 
 - Optionally enable an (insecure) HTTP connection by adding `--publish 80:80` to the `docker run` command. However note that PMM Client *requires* TLS to communicate with the server so will only work on the secure port.
 
-
-**Isolated hosts**
+### Isolated hosts
 
 If the host where you will run PMM Server has no internet connection, you can download the Docker image on a separate (internet-connected) host and securely copy it.
 
@@ -318,30 +316,30 @@ If the host where you will run PMM Server has no internet connection, you can do
     wget https://downloads.percona.com/downloads/pmm2/{{release}}/docker/pmm-server-{{release}}.sha256sum
     ```
 
-1. Copy both files to where you will run PMM Server.
+2. Copy both files to where you will run PMM Server.
 
-1. Open a terminal on the PMM Server host.
+3. Open a terminal on the PMM Server host.
 
-1. (Optional) Check the Docker image file integrity.
+4. (Optional) Check the Docker image file integrity.
 
     ```sh
     shasum -ca 256 pmm-server-{{release}}.sha256sum
     ```
 
-1. Load the image.
+5. Load the image.
 
     ```sh
     docker load -i pmm-server-{{release}}.docker
     ```
 
-1. Create the `pmm-data` persistent data container.
+6. Create the `pmm-data` persistent data container.
 
     ```sh
     docker create --volume /srv \
     --name pmm-data percona/pmm-server:{{release}} /bin/true
     ```
 
-1. Run the container.
+7. Run the container.
 
     ```sh
     docker run \
@@ -352,11 +350,6 @@ If the host where you will run PMM Server has no internet connection, you can do
     --name pmm-server \
     percona/pmm-server:{{release}}
     ```
-
-
-
-
-
 
 [tags]: https://hub.docker.com/r/percona/pmm-server/tags
 [Docker]: https://docs.docker.com/get-docker/

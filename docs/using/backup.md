@@ -88,8 +88,6 @@
 
 5. Navigate to the *Restore History* tab to check the status of the restored backup.
 
-
-
 [PERCONA_XTRABACKUP]: https://www.percona.com/software/mysql-database/percona-xtrabackup
 [PERCONA_XBCLOUD]: https://www.percona.com/doc/percona-xtrabackup/2.3/xbcloud/xbcloud.html
 [PERCONA_XBSTREAM]: https://www.percona.com/doc/percona-xtrabackup/2.3/xbstream/xbstream.html
