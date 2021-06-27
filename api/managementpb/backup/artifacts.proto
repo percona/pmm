@@ -48,12 +48,28 @@ message ListArtifactsResponse {
   repeated Artifact artifacts = 1;
 }
 
+message RemoveArtifactRequest {
+  // Machine-readable artifact ID.
+  string artifact_id = 1;
+  // Removes all the backup files associated with artifact if flag is set.
+  bool complete_removal = 2;
+}
+
+message RemoveArtifactResponse {}
+
 // Artifacts service provides public methods for managing backup artifacts.
 service Artifacts {
   // ListArtifacts returns a list of all backup artifacts.
   rpc ListArtifacts(ListArtifactsRequest) returns (ListArtifactsResponse) {
     option (google.api.http) = {
       post: "/v1/management/backup/Artifacts/List"
+      body: "*"
+    };
+  }
+  // RemoveArtifact removes specified artifact.
+  rpc RemoveArtifact(RemoveArtifactRequest) returns (RemoveArtifactResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/backup/Artifacts/Remove"
       body: "*"
     };
   }

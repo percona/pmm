@@ -27,6 +27,8 @@ type Client struct {
 type ClientService interface {
 	ListArtifacts(params *ListArtifactsParams) (*ListArtifactsOK, error)
 
+	RemoveArtifact(params *RemoveArtifactParams) (*RemoveArtifactOK, error)
+
 	SetTransport(transport runtime.ClientTransport)
 }
 
@@ -60,6 +62,39 @@ func (a *Client) ListArtifacts(params *ListArtifactsParams) (*ListArtifactsOK, e
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*ListArtifactsDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  RemoveArtifact removes artifact removes specified artifact
+*/
+func (a *Client) RemoveArtifact(params *RemoveArtifactParams) (*RemoveArtifactOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewRemoveArtifactParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "RemoveArtifact",
+		Method:             "POST",
+		PathPattern:        "/v1/management/backup/Artifacts/Remove",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &RemoveArtifactReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*RemoveArtifactOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*RemoveArtifactDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
