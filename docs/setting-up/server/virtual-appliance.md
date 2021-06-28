@@ -280,7 +280,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 ### UI
 
 1. Open a web browser and visit the guest IP address.
-2. The PMM [login screen] appears.
+2. The PMM [login screen](../../using/interface.md) appears.
 3. Enter the default username and password in the relevant fields and click *Log in*.
     - username: `admin`
     - password: `admin`
@@ -368,4 +368,3 @@ When the guest OS starts, it will get an IP address from the hypervisor's DHCP s
 [VirtualBox]: https://www.virtualbox.org/
 [VMware]: https://www.vmware.com/products/workstation-player/
 [OVFTool]: https://code.vmware.com/tool/ovf
-[login screen]: ../../using/interface.md
