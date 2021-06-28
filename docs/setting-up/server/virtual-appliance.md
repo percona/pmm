@@ -271,9 +271,9 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 
 5. (Optional) Stop the guest:
 
-        ```sh
-        VBoxManage controlvm "PMM Server" poweroff
-        ```
+    ```sh
+    VBoxManage controlvm "PMM Server" poweroff
+    ```
 
 ## Log into user interface
 
