@@ -63,10 +63,8 @@ alias kubectl='minikube kubectl --'
     docker exec -t pmm-server bash -c 'ln -s /srv/grafana /usr/share/grafana/data; chown -R grafana:grafana /usr/share/grafana/data; grafana-cli --homepath /usr/share/grafana admin reset-admin-password <RANDOM_PASS_GOES_IN_HERE>'
     ```
 
-3. !!! caution alert alert-warning "Important"
-       Please follow instructions on [How to activate the *DBaaS* feature in Advanced Settings of PMM](../../using/platform/dbaas.md#activate-a-dbaas-feature).
-
-    You need to enable the feature using PMM UI if you omitted `--env ENABLE_DBAAS=1` when starting up the container.
+!!! caution alert alert-warning "Important"
+    You must [activate DBaaS](../../using/platform/dbaas.md#activate-dbaas) using the PMM UI if you omitted `--env ENABLE_DBAAS=1` when starting up the container.
 
 ## Create a Kubernetes cluster
 

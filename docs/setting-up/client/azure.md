@@ -113,4 +113,4 @@ PMM can use 3 exporters to collect metrics:
 
 - `mysql_exporter` or `postgres_exporter` – to collect database related metrics.
 
-- PMM Agent to collect queries related metrics using [`pg_stat_statements`](postgresql.md#pg-stat-statements) for PostgreSQL or Performance Schema for MySQL (MariaDB)
+- PMM Agent to collect queries related metrics using [`pg_stat_statements`](postgresql.md#pg_stat_statements) for PostgreSQL or Performance Schema for MySQL (MariaDB)

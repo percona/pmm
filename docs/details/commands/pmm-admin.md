@@ -184,12 +184,12 @@ PMM communicates with the PMM Server via a PMM agent process.
     `--force`
     : Remove service with that name or ID and all dependent services and agents.
 
-When you remove a service, collected data remains on PMM Server for the specified [retention period](../../faq.md#how-to-control-data-retention-for-pmm).
+When you remove a service, collected data remains on PMM Server for the specified [retention period](../../faq.md#how-to-control-data-retention).
 
 #### `pmm-admin annotate`
 
 `pmm-admin annotate [--node|--service] <annotation> [--tags <tags>] [--node-name=<node>] [--service-name=<service>]`
-: Annotate an event. ([Read more](../../using/interface.md#annotations))
+: Annotate an event. ([Read more](../../how-to/annotate.md))
 
     `<annotation>`
     : The annotation string. If it contains spaces, it should be quoted.
