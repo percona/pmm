@@ -78,7 +78,7 @@ Verify the checksum of the downloaded .ova file.
 shasum -ca 256 pmm-server-{{release}}.sha256sum
 ```
 
-## VMware {: #vmware }
+## VMware
 
 ### Import
 
@@ -164,7 +164,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
     pmm-server.vmx nogui
     ```
 
-## VirtualBox {: #virtualbox }
+## VirtualBox
 
 ### Import
 

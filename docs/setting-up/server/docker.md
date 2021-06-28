@@ -220,7 +220,7 @@ How to run PMM Server with Docker based on our [Docker image].
     docker rmi $(docker images | grep "percona/pmm-server" | awk {'print $3'})
     ```
 
-## Docker compose {: #docker-compose }
+## Docker compose
 
 !!! summary alert alert-info "Summary"
     - Copy and paste the `docker-compose.yml` file.

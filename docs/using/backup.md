@@ -6,33 +6,51 @@
 ## Before you start
 
 - You have an AWS S3 storage account and location details for it.
+
 - There is only one MySQL instance running on the node.
+
 - MySQL is running:
+
     - as a service via `systemd`;
+
     - with the name `mysql` (to confirm, use `systemctl status mysql`);
+
     - from a `mysql` system user account.
+
 - There is a `mysql` system group.
+
 - MySQL is using the `/var/lib/mysql` directory for database storage.
+
 - Backup management has been enabled:
+
     1. Select <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings*.
+
     2. Activate *Backup Management*.
+
     3. Click *Apply changes*.
+
     4. In the left menu bar, click <i class="uil uil-history"></i> → *Backup*.
 
         ![!](../_images/PMM_Backup_Management.jpg)
 
 - The following packages are needed for creating backups. They should be included in the `$PATH` environment variable:
+
     - [`xtrabackup`][PERCONA_XTRABACKUP], which includes:
+
         - [`xbcloud`][PERCONA_XBCLOUD];
+
         - [`xbstream`][PERCONA_XBSTREAM];
+
     - [`qpress`][PERCONA_QPRESS].
 
     **The versions of each must be compatible with the installed version of MySQL.**
 
-## Adding a storage location {: #backup-location }
+## Adding a storage location
 
 1. Navigate to Backup Management → Storage locations.
+
 2. Click *Add*.
+
 3. Fill in the form fields.
 
     ![!](../_images/PMM_Backup_Management_Locations_Add_Storage_Location.jpg)
@@ -50,10 +68,10 @@
 
 4. Click *Add* to add the location or *Test* to test the connection.
 
-## Creating a backup {: #backup-create }
+## Creating a backup
 
 !!! hint alert alert-success "Tip"
-    You must add a [backup storage location](#backup-location) before backing up.
+    You must [add a backup storage location](#adding-a-storage-location) before backing up.
 
 1. Navigate to *Backup Management → Backup Inventory*.
 
@@ -73,7 +91,7 @@
 
 5. In the *Backup Inventory* pane, watch the *Status* column.
 
-## Restoring a backup {: #backup-restore }
+## Restoring a backup
 
 !!! note alert alert-primary ""
     For this release, you can only restore a backup to the same service. I.e. a MySQL backup of service `mymsql-service-1` can only be restored to a MySQL database server registered with the same service name. Future releases will give more flexibility to restore backups to other service types.

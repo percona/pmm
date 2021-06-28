@@ -1,6 +1,6 @@
 # Troubleshoot
 
-## Update {: #troubleshoot-update }
+## Update
 
 If PMM server wasn't updated properly, or if you have concerns about the release, you can force the update process in 2 ways:
 

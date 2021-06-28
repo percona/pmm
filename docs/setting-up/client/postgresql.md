@@ -57,7 +57,7 @@ Check that:
 
 (PMM follows [PostgreSQL's end-of-life policy][POSTGRESQL_VERSIONING]. For specific details on supported platforms and versions, see [Percona’s Software Platform Lifecycle page][PERCONA_LIFECYCLE].)
 
-## Create a database account for PMM {: #setting-up-client-user}
+## Create a database account for PMM
 
 We recommend creating a PMM database account that can connect to the `postgres` database with the `SUPERUSER` role.
 

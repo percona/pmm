@@ -71,7 +71,7 @@ alias kubectl='minikube kubectl --'
 !!! note alert alert-primary ""
     The DBaaS feature uses Kubernetes clusters to deploy database clusters. You must first create a Kubernetes cluster and then add it to PMM using `kubeconfig` to get a successful setup
 
-### Minikube {: #minikube }
+### Minikube
 
 1. Configure and start minikube:
 

@@ -72,8 +72,8 @@ db.getSiblingDB("admin").createRole({
 })
 
 db.getSiblingDB("admin").createUser({
-   user: "{{pmm_mongodb_user}}",
-   pwd: "{{pmm_password}}",
+   user: "pmm_mongodb",
+   pwd: "password",
    roles: [
       { role: "explainRole", db: "admin" },
       { role: "clusterMonitor", db: "admin" },
@@ -170,19 +170,19 @@ When successful, PMM Client will print `MongoDB Service added` with the service'
 
 ```sh
 pmm-admin add mongodb \
---username={{pmm_mongodb_user}} --password={{pmm_password}} \
+--username=pmm_mongodb --password=password \
 --query-source=profiler --cluster=mycluster
 ```
 
 ```sh
 pmm-admin add mongodb \
---username={{pmm_mongodb_user}} --password={{pmm_password}} \
+--username=pmm_mongodb --password=password \
 mongo 127.0.0.1:27017
 ```
 
 ```sh
 pmm-admin add mongodb \
---username={{pmm_mongodb_user}} --password={{pmm_password}} \
+--username=pmm_mongodb --password=password \
 --service-name=mymongosvc --host=127.0.0.1 --port=27017
 ```
 
