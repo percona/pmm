@@ -79,6 +79,8 @@ kubeconfig
 Kubernetes
 Lifecycle
 LoadBalancer
+login
+macOS
 MariaDB
 md
 memtable
@@ -109,6 +111,7 @@ ovftool
 pagecache
 PagerDuty
 parallelization
+paskal
 Percona
 percona-release
 perfschema

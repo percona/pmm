@@ -343,14 +343,14 @@ To expand the existing EBS volume for increased capacity, follow these steps.
 
 1. Expand the disk from AWS Console/CLI to the desired capacity.
 
-2. Login to the PMM EC2 instance and verify that the disk capacity has increased. For example, if you have expanded disk from 8G to 10G, dmesg output should look like below:
+2. Login to the PMM EC2 instance and verify that the disk capacity has increased. For example, if you have expanded disk from 8G to 10G, `dmesg` output should look like below:
 
     ```sh
     # dmesg | grep "capacity change"
     [63175.044762] nvme0n1: detected capacity change from 8589934592 to 10737418240
     ```
 
-3. Use the lsblk command to see that our disk size has been identified by the kernel correctly, but LVM2 is not yet aware of the new size.
+3. Use the `lsblk` command to see that our disk size has been identified by the kernel correctly, but LVM2 is not yet aware of the new size.
 
     ```sh
     # lsblk
@@ -360,14 +360,14 @@ To expand the existing EBS volume for increased capacity, follow these steps.
     ...
     ```
 
-4. For volumes that have a partition, such as the root volume shown in the previous step, use the growpart command to extend the partition.
+4. For volumes that have a partition, such as the root volume shown in the previous step, use the `growpart` command to extend the partition.
 
     ```sh
     # growpart /dev/nvme0n1 1
     CHANGED: partition=1 start=2048 old: size=16775168 end=16777216 new: size=20969439 end=20971487
     ```
 
-5. To verify that the partition reflects the increased volume size, use the lsblk command again.
+5. To verify that the partition reflects the increased volume size, use the `lsblk` command again.
 
     ```
     # lsblk
@@ -377,7 +377,7 @@ To expand the existing EBS volume for increased capacity, follow these steps.
     ...
     ```
 
-6. Extend the XFS file system on the root volume by xfs_growfs command. I
+6. Extend the XFS file system on the root volume by `xfs_growfs` command. I
 
     ```sh
     # xfs_growfs -d /

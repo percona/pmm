@@ -13,7 +13,7 @@ chmod +x ./get-pmm.sh && \
 ./get-pmm.sh
 ```
 
-## MacOS
+## macOS
 
 ```sh
 curl -fsSL -O https://raw.githubusercontent.com/percona/pmm/PMM-2.0/get-pmm.sh -O https://raw.githubusercontent.com/percona/pmm/PMM-2.0/.sha256-oneline && \
