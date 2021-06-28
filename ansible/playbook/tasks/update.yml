@@ -7,7 +7,6 @@
   vars:
     pmm_packages:
       - percona-grafana
-      - percona-prometheus
       - percona-victoriametrics
       - percona-qan-api2
       - percona-dashboards
@@ -196,7 +195,6 @@
       with_nested:
         - - nginx
           - postgresql
-          - prometheus
           - alertmanager
           - clickhouse
           - grafana
