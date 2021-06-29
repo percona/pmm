@@ -49,7 +49,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 1,
@@ -101,7 +103,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 2,
@@ -153,7 +157,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 3,
@@ -205,7 +211,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 4,
@@ -257,7 +265,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 5,
@@ -309,7 +319,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 6,
@@ -361,7 +373,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 7,
@@ -413,7 +427,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 8,
@@ -465,7 +481,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 9,
@@ -517,7 +535,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 10,
@@ -569,7 +589,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 11,
@@ -621,7 +643,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 12,
@@ -673,7 +697,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 13,
@@ -725,7 +751,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 14,
@@ -777,7 +805,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 15,
@@ -829,7 +859,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 16,
@@ -881,7 +913,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 17,
@@ -933,7 +967,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 18,
@@ -985,7 +1021,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 19,
@@ -1037,7 +1075,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 20,
@@ -1089,7 +1129,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 21,
@@ -1141,7 +1183,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 22,
@@ -1193,7 +1237,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 23,
@@ -1245,7 +1291,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 24,
@@ -1297,7 +1345,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 25,
@@ -1349,7 +1399,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 26,
@@ -1401,7 +1453,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 27,
@@ -1453,7 +1507,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 28,
@@ -1505,7 +1561,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 29,
@@ -1557,7 +1615,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 30,
@@ -1609,7 +1669,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 31,
@@ -1661,7 +1723,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 32,
@@ -1713,7 +1777,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 33,
@@ -1765,7 +1831,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 34,
@@ -1817,7 +1885,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 35,
@@ -1869,7 +1939,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 36,
@@ -1921,7 +1993,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 37,
@@ -1973,7 +2047,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 38,
@@ -2025,7 +2101,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 39,
@@ -2077,7 +2155,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 40,
@@ -2129,7 +2209,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 41,
@@ -2181,7 +2263,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 42,
@@ -2233,7 +2317,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 43,
@@ -2285,7 +2371,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 44,
@@ -2337,7 +2425,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 45,
@@ -2389,7 +2479,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 46,
@@ -2441,7 +2533,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 47,
@@ -2493,7 +2587,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 48,
@@ -2545,7 +2641,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 49,
@@ -2597,7 +2695,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 50,
@@ -2649,7 +2749,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 51,
@@ -2701,7 +2803,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 52,
@@ -2753,7 +2857,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 53,
@@ -2805,7 +2911,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 54,
@@ -2857,7 +2965,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 55,
@@ -2909,7 +3019,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 56,
@@ -2961,7 +3073,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 57,
@@ -3013,7 +3127,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 58,
@@ -3065,7 +3181,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 59,
@@ -3117,7 +3235,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 60,
@@ -3169,7 +3289,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 61,
@@ -3221,7 +3343,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 62,
@@ -3273,7 +3397,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 63,
@@ -3325,7 +3451,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 64,
@@ -3377,7 +3505,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 65,
@@ -3429,7 +3559,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 66,
@@ -3481,7 +3613,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 67,
@@ -3533,7 +3667,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 68,
@@ -3585,7 +3721,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 69,
@@ -3637,7 +3775,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 70,
@@ -3689,7 +3829,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 71,
@@ -3741,7 +3883,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 72,
@@ -3793,7 +3937,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 73,
@@ -3845,7 +3991,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 74,
@@ -3897,7 +4045,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 75,
@@ -3949,7 +4099,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 76,
@@ -4001,7 +4153,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 77,
@@ -4053,7 +4207,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 78,
@@ -4105,7 +4261,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 79,
@@ -4157,7 +4315,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 80,
@@ -4209,7 +4369,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 81,
@@ -4261,7 +4423,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 82,
@@ -4313,7 +4477,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 83,
@@ -4365,7 +4531,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 84,
@@ -4417,7 +4585,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 85,
@@ -4469,7 +4639,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 86,
@@ -4521,7 +4693,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 87,
@@ -4573,7 +4747,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 88,
@@ -4625,7 +4801,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 89,
@@ -4677,7 +4855,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 90,
@@ -4729,7 +4909,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 91,
@@ -4781,7 +4963,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 92,
@@ -4833,7 +5017,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 93,
@@ -4885,7 +5071,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 94,
@@ -4937,7 +5125,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 95,
@@ -4989,7 +5179,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 96,
@@ -5041,7 +5233,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 97,
@@ -5093,7 +5287,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 98,
@@ -5145,7 +5341,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 99,
@@ -5197,7 +5395,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 100,
@@ -5249,7 +5449,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 101,
@@ -5301,7 +5503,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 102,
@@ -5353,7 +5557,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 103,
@@ -5405,7 +5611,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 104,
@@ -5457,7 +5665,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 105,
@@ -5509,7 +5719,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 106,
@@ -5561,7 +5773,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 107,
@@ -5613,7 +5827,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 108,
@@ -5665,7 +5881,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 109,
@@ -5717,7 +5935,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 110,
@@ -5769,7 +5989,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 111,
@@ -5821,7 +6043,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 112,
@@ -5873,7 +6097,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 113,
@@ -5925,7 +6151,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 114,
@@ -5977,7 +6205,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 115,
@@ -6029,7 +6259,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 116,
@@ -6081,7 +6313,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 117,
@@ -6133,7 +6367,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 118,
@@ -6185,7 +6421,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
 			"point": 119,
@@ -6237,7 +6475,9 @@
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
 			"mWalRecordsSumPerSec": "NaN",
-			"mWalFpiSumPerSec": "NaN"
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
 		}
 	],
 	"totals": {
@@ -6337,6 +6577,9 @@
 			"sum": 17870
 		},
 		"num_queries_with_warnings": {
+
+		},
+		"plan_time": {
 
 		},
 		"plans_calls": {
@@ -6439,6 +6682,9 @@
 			"max": 1,
 			"avg": 0.0006997452,
 			"p99": 0.3487409
+		},
+		"wal_bytes": {
+
 		},
 		"wal_fpi": {
 
