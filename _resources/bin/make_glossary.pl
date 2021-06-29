@@ -9,10 +9,7 @@
 use File::Basename;
 my $prog = basename($0);
 
-print "<!-- CREATED BY $prog - DO NOT EDIT! -->\n\n";
-# Local styling adjustments
-print "<!-- Local style adjustments -->\n<style>div.section dl.glossary dt {font-weight: bold; font-size: 1.3em;}\n      div.section dd {margin-top: 10px; margin-bottom: 10px; margin-left: 30px;}\n</style>\n\n";
-
+print "<!-- CREATED BY $prog -->\n\n";
 print "# Glossary\n\n";
 
 while (<STDIN>) {
