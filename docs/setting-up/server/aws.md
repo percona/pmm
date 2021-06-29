@@ -98,8 +98,8 @@ PMM Server provides user access control, and therefore you will need user creden
 
 ![!image](../../_images/PMM_Login.jpg)
 
-- Default user name: ``admin``
-- Default password: ``admin``
+- Default user name: `admin`
+- Default password: `admin`
 
 You will be prompted to change the default password every time you log in.
 
@@ -178,7 +178,7 @@ To expand the existing EBS volume for increased capacity, follow these steps.
 
 2. Login to the PMM EC2 instance and verify that the disk capacity has increased. For example, if you have expanded disk from 16G to 32G, `dmesg` output should look like below:
 
-    ```
+    ```txt
     [  535.994494] xvdb: detected capacity change from 17179869184 to 34359738368
     ```
 
@@ -188,7 +188,7 @@ To expand the existing EBS volume for increased capacity, follow these steps.
     vgs
     ```
 
-    ```
+    ```txt
     VG     #PV #LV #SN Attr   VSize  VFree
     DataVG   1   2   0 wz--n- <16.00g    0
     ```
@@ -197,7 +197,7 @@ To expand the existing EBS volume for increased capacity, follow these steps.
     lvs
     ```
 
-    ```
+    ```txt
     LV       VG     Attr       LSize   Pool Origin Data%  Meta% Move Log Cpy%Sync Convert
     DataLV   DataVG Vwi-aotz-- <12.80g ThinPool        1.74
     ThinPool DataVG twi-aotz--  15.96g 1.39  1.29
@@ -209,7 +209,7 @@ To expand the existing EBS volume for increased capacity, follow these steps.
     lsblk | grep xvdb
     ```
 
-    ```
+    ```txt
     xvdb                      202:16 0 32G 0 disk
     ```
 
@@ -217,7 +217,7 @@ To expand the existing EBS volume for increased capacity, follow these steps.
     pvscan
     ```
 
-    ```
+    ```txt
     PV /dev/xvdb   VG DataVG    lvm2 [<16.00 GiB / 0    free]
     Total: 1 [<16.00 GiB] / in use: 1 [<16.00 GiB] / in no VG: 0 [0   ]
     ```
@@ -226,7 +226,7 @@ To expand the existing EBS volume for increased capacity, follow these steps.
     pvresize /dev/xvdb
     ```
 
-    ```
+    ```txt
     Physical volume "/dev/xvdb" changed
     1 physical volume(s) resized / 0 physical volume(s) not resized
     ```
@@ -235,7 +235,7 @@ To expand the existing EBS volume for increased capacity, follow these steps.
     pvs
     ```
 
-    ```
+    ```txt
     PV         VG     Fmt  Attr PSize   PFree
     /dev/xvdb  DataVG lvm2 a--  <32.00g 16.00g
     ```
@@ -246,7 +246,7 @@ To expand the existing EBS volume for increased capacity, follow these steps.
     lvs
     ```
 
-    ```
+    ```txt
     LV       VG     Attr       LSize   Pool    Origin Data%  Meta% Move Log Cpy%Sync Convert
     DataLV   DataVG Vwi-aotz-- <12.80g ThinPool        1.77
     ThinPool DataVG twi-aotz--  15.96g                 1.42   1.32
@@ -256,7 +256,7 @@ To expand the existing EBS volume for increased capacity, follow these steps.
     lvextend /dev/mapper/DataVG-ThinPool -l 100%VG
     ```
 
-    ```
+    ```txt
     Size of logical volume DataVG/ThinPool_tdata changed from 16.00 GiB (4096 extents) to 31.96 GiB (8183 extents).
     Logical volume DataVG/ThinPool_tdata successfully resized.
     ```
@@ -265,7 +265,7 @@ To expand the existing EBS volume for increased capacity, follow these steps.
     lvs
     ```
 
-    ```
+    ```txt
     LV       VG     Attr       LSize   Pool    Origin Data%  Meta% Move Log Cpy%Sync Convert
     DataLV   DataVG Vwi-aotz-- <12.80g ThinPool        1.77
     ThinPool DataVG twi-aotz--  31.96g                 0.71   1.71
@@ -277,7 +277,7 @@ To expand the existing EBS volume for increased capacity, follow these steps.
     lvs
     ```
 
-    ```
+    ```txt
     LV       VG     Attr       LSize   Pool    Origin Data%  Meta% Move Log Cpy%Sync Convert
     DataLV   DataVG Vwi-aotz-- <12.80g ThinPool        1.77
     ThinPool DataVG twi-aotz--  31.96g                 0.71   1.71
@@ -287,7 +287,7 @@ To expand the existing EBS volume for increased capacity, follow these steps.
     lvextend /dev/mapper/DataVG-DataLV -L +19G
     ```
 
-    ```
+    ```txt
     Size of logical volume DataVG/DataLV changed from <12.80 GiB (3276 extents) to <31.80 GiB (8140 extents).
     Logical volume DataVG/DataLV successfully resized.
     ```
@@ -296,7 +296,7 @@ To expand the existing EBS volume for increased capacity, follow these steps.
     lvs
     ```
 
-    ```
+    ```txt
     LV       VG     Attr       LSize   Pool    Origin Data%  Meta% Move Log Cpy%Sync Convert
     DataLV   DataVG Vwi-aotz-- <31.80g ThinPool        0.71
     ThinPool DataVG twi-aotz--  31.96g                 0.71   1.71
@@ -308,7 +308,7 @@ To expand the existing EBS volume for increased capacity, follow these steps.
     df -h /srv
     ```
 
-    ```
+    ```txt
     Filesystem                  Size Used Avail Use% Mounted on
     /dev/mapper/DataVG-DataLV    13G 249M   13G   2% /srv
     ```
@@ -317,7 +317,7 @@ To expand the existing EBS volume for increased capacity, follow these steps.
     xfs_growfs /srv
     ```
 
-    ```
+    ```txt
     meta-data=/dev/mapper/DataVG-DataLV isize=512    agcount=103, agsize=32752 blks
              =                          sectsz=512   attr=2, projid32bit=1
              =                          crc=1        finobt=0 spinodes=0
@@ -334,7 +334,7 @@ To expand the existing EBS volume for increased capacity, follow these steps.
     df -h /srv
     ```
 
-    ```
+    ```txt
     Filesystem                 Size Used Avail Use% Mounted on
     /dev/mapper/DataVG-DataLV   32G 254M   32G   1% /srv
     ```
@@ -369,7 +369,7 @@ To expand the existing EBS volume for increased capacity, follow these steps.
 
 5. To verify that the partition reflects the increased volume size, use the `lsblk` command again.
 
-    ```
+    ```txt
     # lsblk
     NAME                      MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
     nvme0n1                   259:1    0    10G  0 disk
@@ -410,7 +410,6 @@ The procedure of creating a snapshot is described in the Amazon documentation: [
 
 ![!image](../../_images/aws-marketplace.pmm.ec2.backup1.png)
 
-
 ## Restore PMM Server from a backup
 
 1. Create a new volume by using the latest snapshot of the PMM data volume.
@@ -429,7 +428,6 @@ The procedure of creating a snapshot is described in the Amazon documentation: [
 
 5. Start the PMM Server instance.
 
-
 ## Remove PMM Server
 
 1. Find the instance in the EC2 Console
@@ -443,7 +441,6 @@ The procedure of creating a snapshot is described in the Amazon documentation: [
 3. Confirm termination operation
 
     ![!image](../../_images/aws-marketplace.pmm.ec2.remove3.png)
-
 
 !!! seealso alert alert-info "See also"
     [Improving Percona Monitoring and Management EC2 Instance Resilience Using CloudWatch Alarm Actions](https://www.percona.com/blog/2021/04/29/improving-percona-monitoring-and-management-ec2-instance-resilience-using-cloudwatch-alarm-actions/)

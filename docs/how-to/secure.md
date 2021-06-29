@@ -24,6 +24,7 @@ With our Docker, OVF and AMI images, self-signed certificates are in `/srv/nginx
 To use your own, you can either:
 
 - mount the local certificate directory to the same location, or,
+
 - copy your certificates to a running PMM Server container.
 
 ### Mounting certificates

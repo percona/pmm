@@ -16,7 +16,7 @@ Ports to expose:
 Other ports:
 
 | PMM component | TCP port      | Direction     | Description
-|---------------|---------------|---------------|------
+|---------------|---------------|---------------|---------------------------------------------------------------
 | PMM Server    | 7771          | both          | gRPC, used for communication between `pmm-agent`, `pmm-admin`
 | PMM Server    | 7772          | out           | HTTP1 server, used for older links like `logs.zip`
 | PMM Server    | 7773          | out           | Debugging

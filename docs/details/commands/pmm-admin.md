@@ -172,7 +172,6 @@ PMM communicates with the PMM Server via a PMM agent process.
     `--custom-labels=labels`
     : Custom user-assigned labels.
 
-
 #### `pmm-admin remove`
 
 `pmm-admin remove [FLAGS] service-type [service-name]`

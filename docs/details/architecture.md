@@ -48,10 +48,10 @@ The PMM Client package provides:
 
 The PMM Server package provides:
 
-- pmm-managed
-- Query Analytics
-- Grafana
-- VictoriaMetrics
+- `pmm-managed`;
+- Query Analytics;
+- Grafana;
+- VictoriaMetrics.
 
 ### PMM Server
 
@@ -78,12 +78,19 @@ PMM Server includes the following tools:
 The PMM Client package consist of the following:
 
 - `pmm-admin` is a command-line tool for managing PMM Client, for example, adding and removing database instances that you want to monitor. ([Read more.](../details/commands/pmm-admin.md)).
+
 - `pmm-agent` is a client-side component a minimal command-line interface, which is a central entry point in charge for bringing the client functionality: it carries on client’s authentication, gets the client configuration stored on the PMM Server, manages exporters and other agents.
+
 - `node_exporter` is an exporter that collects general system metrics.
+
 - `mysqld_exporter` is an exporter that collects MySQL server metrics.
+
 - `mongodb_exporter` is an exporter that collects MongoDB server metrics.
+
 - `postgres_exporter` is an exporter that collects PostgreSQL performance metrics.
+
 - `proxysql_exporter` is an exporter that collects ProxySQL performance metrics.
+
 - `rds_exporter` is an exporter that collects Amazon RDS performance metrics.
 
 - `azure_database_exporter` is an exporter that collects Azure database performance metrics.

@@ -3,7 +3,7 @@
 ## Recommended settings
 
 When monitoring remote instances including RDS and Google instances, network latency might affect the scrape process and throw timeout errors.
-For this reason, it is recommended to lower the metrics resolution in the settings section using the menu on the left side (The gear icon).
+For this reason, it is recommended to [lower the metrics resolution](../../how-to/configure.md#metrics-resolution).
 
 Starting with PMM 2.18, the scrape timeout has been updated according to the following rules:
 
@@ -15,7 +15,7 @@ Starting with PMM 2.18, the scrape timeout has been updated according to the fol
 
 Sometimes it is hard to check if you are using the correct values to scrape or if there some other reason why there is no data in a dashboard even when the instance has been added correctly and the agent is running.
 
-One additional step you can do is to check for scrape target statuses. Browse to `http://<your-pmm-server-address-here>/prometheus/targets` and then click on the Unhealthy button.
+One additional step you can do is to check for scrape target statuses. Browse to `http://<your-pmm-server-address>/prometheus/targets` and then click on the Unhealthy button.
 
 ![!image](../../_images/scrape_targets_01.png)
 

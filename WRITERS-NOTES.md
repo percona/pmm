@@ -203,3 +203,28 @@ We have attempted to eschew traditional terminology used in software manuals. So
 There are no "introduction" or "overview" sections. These texts are just there under the title.
 
 Section titles are deliberately short. For example, in Setting up/Server/Docker, the 'Run' section shows how to run the docker image for PMM Server. The docs are for 'PMM', the section is 'Server' and subsection 'Docker'. That's what we're running.
+
+## Numbered lists
+
+Most Markdown processors automatically number lists when they are like this:
+
+```md
+1. Item
+1. Item
+1. Item
+...
+```
+
+But to make the raw Markdown easier to read, we recommend explicitly numbering items:
+
+```md
+1. Item
+2. Item
+3. Item
+...
+```
+
+Other advantages:
+
+- contents can be reused in source code comments by developers;
+- encourages authors to pay attention to the order and number of steps in a recipe.

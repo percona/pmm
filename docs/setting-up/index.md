@@ -33,8 +33,8 @@ The choices:
 
 - With [Docker](client/index.md#docker)
 - Natively, installed from:
-    - [Linux package](client/index.md#package-manager) (installed with `apt`, `apt-get`, `dnf`, `yum`)
-    - [Binary package](client/index.md#binary-package) (a downloaded `.tar.gz` file)
+    - [Linux package](client/index.md#package-manager) (installed with `apt`, `apt-get`, `dnf`, `yum`);
+    - [Binary package](client/index.md#binary-package) (a downloaded `.tar.gz` file).
 
 ## Add services
 

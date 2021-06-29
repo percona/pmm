@@ -125,23 +125,23 @@ To monitor a DB cluster, set up a [public address](../../how-to/configure.md#pub
 
     ![!](../../_images/PMM_DBaaS_DB_Cluster_Created.png)
 
-    - *Name*: The cluster name
-    - *Database type*: The cluster database type
+    - *Name*: The cluster name.
+    - *Database type*: The cluster database type.
     - *Connection*:
-        - *Host*: The hostname
-        - *Port*: The port number
-        - *Username*: The connection username
-        - *Password*: The connection password (click the eye icon <i class="uil uil-eye"></i> to reveal)
+        - *Host*: The hostname.
+        - *Port*: The port number.
+        - *Username*: The connection username.
+        - *Password*: The connection password (click the eye icon <i class="uil uil-eye"></i> to reveal).
     - *DB Cluster Parameters*:
-        - *K8s cluster name*: The Kubernetes cluster name
-        - *CPU*: The number of CPUs allocated to the cluster
-        - *Memory*: The amount of memory allocated to the cluster
-        - *Disk*: The amount of disk space allocated to the cluster
+        - *K8s cluster name*: The Kubernetes cluster name.
+        - *CPU*: The number of CPUs allocated to the cluster.
+        - *Memory*: The amount of memory allocated to the cluster.
+        - *Disk*: The amount of disk space allocated to the cluster.
     - *Cluster Status*:
-        - *PENDING*: The cluster is being created
-        - *ACTIVE*: The cluster is active
-        - *FAILED*: The cluster could not be created
-        - *DELETING*: The cluster is being deleted
+        - *PENDING*: The cluster is being created.
+        - *ACTIVE*: The cluster is active.
+        - *FAILED*: The cluster could not be created.
+        - *DELETING*: The cluster is being deleted.
 
 ### Delete a DB Cluster
 

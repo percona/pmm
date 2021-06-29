@@ -73,19 +73,19 @@ How to run PMM Server with Docker based on our [Docker image].
     docker stop pmm-server
     ```
 
-1. Move the image.
+2. Move the image.
 
     ```sh
     docker rename pmm-server pmm-server-backup
     ```
 
-1. Create a subdirectory (e.g., `pmm-data-backup`) and move to it.
+3. Create a subdirectory (e.g., `pmm-data-backup`) and move to it.
 
     ```sh
     mkdir pmm-data-backup && cd pmm-data-backup
     ```
 
-1. Backup the data.
+4. Backup the data.
 
     ```sh
     docker cp pmm-data:/srv .
