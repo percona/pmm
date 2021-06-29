@@ -81,6 +81,8 @@
         state: absent
         name:
           - mariadb-libs # https://jira.percona.com/browse/PMM-5215
+          - logrotate # https://jira.percona.com/browse/PMM-7627
+          - screen
 
     # Split download and update to produce a bit more of progress output.
 
@@ -129,7 +131,7 @@
       command: nginx -t
       changed_when: False
 
-    - name: Enable external snapshorts in Grafana
+    - name: Enable external snapshots in Grafana
       ini_file:
         dest: /etc/grafana/grafana.ini
         section: snapshots
@@ -157,9 +159,20 @@
         option: allow_loading_unsigned_plugins
         value: vertamedia-clickhouse-datasource
 
-    # TODO Create /srv/alertmanager/data and /srv/victoriametrics/data in pmm-managed
-    #      to support Docker-way (swap image) updates.
-    #      https://jira.percona.com/browse/PMM-7024
+    - name: Clickhouse logger         | Configure clickhouse logger
+      replace:
+        path: /etc/clickhouse-server/config.xml
+        regexp: '<logger>[\s\S]*</logger>'
+        replace: |-
+          <logger>
+                  <!-- Possible levels: https://github.com/pocoproject/poco/blob/develop/Foundation/include/Poco/Logger.h#L105 -->
+                  <level>trace</level>
+                  <console>1</console>
+              </logger>
+
+    # TODO: Create /srv/alertmanager/data and /srv/victoriametrics/data in pmm-managed
+    # to support Docker-way (swap image) updates.
+    # https://jira.percona.com/browse/PMM-7024
 
     - name: Create working directory for Alertmanager
       file: path=/srv/alertmanager/data state=directory owner=pmm group=pmm
