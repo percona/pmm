@@ -2,49 +2,13 @@
 
 How to set up PMM to monitor a [PostgreSQL] or [Percona Distribution for PostgreSQL] database instance.
 
-Here is an overview of the steps involved.
-
-```plantuml
-@startuml "setting-up_client_postgresql"
-!include docs/_images/plantuml_styles.puml
-'title "Setting up PMM Client to monitor a PostgreSQL host\nOverview\n"
-legend bottom left
-Legend
-<#cce6ff>| Required |
-<#lightgrey>| Optional |
-endlegend
-#lightgrey:Create a database\naccount for PMM;
-partition "Choose and configure\nan extension" {
-    split
-        -> ""pg_stat_statements"";
-        :Install\n""postgresql-contrib"";
-    split again
-        -> ""ps_stat_monitor"";
-        split
-            -> Percona distribution;
-            :Install with\nLinux package\nmanager;
-        split again
-            -> PostgreSQL;
-            :Compile from\nsource code;
-        end split
-    end split
-    :Configure extension;
-}
-partition "Add a service " {
-    split
-    -> With user interface;
-        :PMM <&arrow-thick-right>\nPMM Add Instance <&arrow-thick-right>\nPostgreSQL -\nAdd a remote instance;
-    split again
-    -> On command line;
-            :<code>
-            pmm-admin add postgresql
-            ...
-            </code>;
-    end split
-}
-#lightgrey:Check the service;
-@enduml
-```
+!!! summary alert alert-info "Summary"
+    - Create PMM account and set permissions
+    - Choose, install and configure an extension:
+        - `pg_stat_statements` or
+        - `pg_stat_monitor`
+    - Add service
+    - Check service
 
 ## Before you start
 
