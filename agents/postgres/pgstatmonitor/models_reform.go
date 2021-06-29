@@ -701,7 +701,7 @@ var pgStatMonitor09View = &pgStatMonitor09ViewType{
 			{Name: "CPUSysTime", Type: "float64", Column: "cpu_sys_time"},
 			{Name: "WalRecords", Type: "int64", Column: "wal_records"},
 			{Name: "WalFpi", Type: "int64", Column: "wal_fpi"},
-			{Name: "WalBytes", Type: "string", Column: "wal_bytes"},
+			{Name: "WalBytes", Type: "int64", Column: "wal_bytes"},
 			{Name: "StateCode", Type: "int64", Column: "state_code"},
 			{Name: "State", Type: "string", Column: "state"},
 		},
