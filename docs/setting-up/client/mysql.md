@@ -356,7 +356,7 @@ User activity, individual table and index access details are shown on the [MySQL
     SET GLOBAL userstat = ON;
     ```
 
-## Add a service
+## Add service
 
 When you have configured your database server, you can add a MySQL service with the user interface or on the command line.
 
@@ -364,16 +364,19 @@ When adding a service with the command line, you must use the `pmm-admin --query
 
 With the PMM user interface, you select *Use performance schema*, or deselect it to use *slow query log*.
 
-### User interface
+### With the user interface
 
-1. Select *PMM* → *PMM Add Instance*.
+1. Select <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *PMM Inventory* → {{icon.addinstance}} *Add Instance*.
+
 2. Select *MySQL -- Add a remote instance*.
+
 3. Enter or select values for the fields.
+
 4. Click *Add service*.
 
 ![!](../../_images/PMM_Add_Instance_MySQL.jpg)
 
-### Command line
+### On the command line
 
 Add the database server as a service using one of these example commands. If successful, PMM Client will print `MySQL Service added` with the service's ID and name. Use the `--environment` and `-custom-labels` options to set tags for the service to help identify them.
 

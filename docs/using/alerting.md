@@ -1,9 +1,9 @@
 # Integrated Alerting
 
+*Integrated Alerting* lets you know when certain system events occur.
+
 !!! caution alert alert-warning "Caution"
     Integrated Alerting is a [technical preview](../details/glossary.md#technical-preview) and is subject to change.
-
-*Integrated Alerting* lets you know when certain system events occur.
 
 **To activate *Integrated Alerting***, select <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings*, turn on *Integrated Alerting* and click *Apply changes*.
 
@@ -27,11 +27,11 @@ This short (3:36) video shows how to activate and configure Integrated Alerting.
 - Set up a communication channel:
 
     - When the *Communication* tab appears, select it.
-    - Enter details for *Email* or *Slack*. ([Read more.](../how-to/configure.md#communication))
+    - Enter details for *Email* or *Slack*. ([Read more](../how-to/configure.md#communication).)
 
 ## Open the *Integrated Alerting* page
 
-- From the left menu, select <i class="uil uil-bell"></i> *Alerting* → <i class="uil uil-list-ul"></i> *Integrated Alerting*
+- From the left menu, select <i class="uil uil-bell"></i> *Alerting* → <i class="uil uil-list-ul"></i> *Integrated Alerting*.
 
 !!! note alert alert-primary ""
     The *Alerting* menu also lists <i class="uil uil-list-ul"></i> *Alert Rules* and <i class="uil uil-comment-alt-share"></i> *Notification Channels*. These are for Grafana's alerting functionality.
@@ -64,15 +64,15 @@ This page has four tabs.
 
     ![!](../_images/PMM_Integrated_Alerting_Notification_Channels_Add_Form.jpg)
 
-    - Name
-    - Type
+    - Name:
+    - Type:
         - Email:
-            - Addresses
-        - Pager Duty
-            - Routing key
-            - Service key
-        - Slack
-            - Channel
+            - Addresses:
+        - Pager Duty:
+            - Routing key:
+            - Service key:
+        - Slack:
+            - Channel:
 
 4. Click *Add* to add the notification channel, or *Cancel* to abort the operation.
 
@@ -86,14 +86,14 @@ This page has four tabs.
 
     ![!](../_images/PMM_Integrated_Alerting_Alert_Rules_Add_Form.jpg)
 
-    - Template
-    - Name
-    - Threshold
-    - Duration(s)
-    - Severity
-    - Filters
-    - Channels
-    - Activate
+    - Template:
+    - Name:
+    - Threshold:
+    - Duration(s):
+    - Severity:
+    - Filters:
+    - Channels:
+    - Activate:
 
 4. Click *Add* to add the alert rule, or *Cancel* to abort the operation.
 
@@ -135,9 +135,8 @@ This page has four tabs.
                 VALUE = {{ $value }}
                 LABELS: {{ $labels }}
             summary: MySQL too many connections (instance {{ $labels.instance }})
-    ```
-
     {% endraw %}
+    ```
 
     ![!](../_images/PMM_Integrated_Alerting_Alert_Rule_Templates_Add_Form.jpg)
 

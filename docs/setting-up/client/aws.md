@@ -124,13 +124,13 @@ If you have Amazon RDS with a MySQL version prior to 5.5, `REPLICATION CLIENT` p
 
 ## Adding an Amazon RDS MySQL, Aurora MySQL or Remote Instance
 
-The preferred method of adding an Amazon RDS database instance to PMM is via the <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *PMM Inventory* → <i class="uil uil-plus-circle"></i> *Add Instance* menu option.
+The preferred method of adding an Amazon RDS database instance to PMM is via the  <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *PMM Inventory* → {{icon.addinstance}} *Add Instance* menu option.
 
 This method supports Amazon RDS database instances that use Amazon Aurora, MySQL, or MariaDB engines, as well as any remote PostgreSQL, ProxySQL, MySQL and MongoDB instances.
 
 The following steps are needed to add an Amazon RDS database instance to PMM:
 
-1. In the PMM web interface, go to <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *PMM Inventory* → <i class="uil uil-plus-circle"></i> *Add Instance*
+1. In the PMM web interface, go to <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *PMM Inventory* → {{icon.addinstance}} *Add Instance*.
 
 2. Select *AWS RDS MySQL or Aurora MySQL -- Add a remote instance*.
 
@@ -173,7 +173,7 @@ instances.
 
 For PostgreSQL, use the same method described above.
 
-1. In the PMM web interface, go to <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *PMM Inventory* → <i class="uil uil-plus-circle"></i> *Add Instance*.
+1. In the PMM web interface, go to <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *PMM Inventory* → {{icon.addinstance}} *Add Instance*..
 
 2. Select *AWS RDS MySQL or Aurora MySQL -- Add a remote instance*.
 

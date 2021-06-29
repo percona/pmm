@@ -7,21 +7,24 @@ PMM's user interface is a browser application based on [Grafana].
 ## Logging in
 
 1. Start a web browser and in the address bar enter the server name or IP address of the PMM server host.
+
 2. The page loads showing the PMM login screen.
 
     ![!](../_images/PMM_Login.jpg)
 
 3. Enter the username and password given to you by your system administrator. The defaults are:
+
     - Username: `admin`
+
     - Password: `admin`
+
 4. Click *Log in*.
+
 5. If this is your first time logging in, you'll be asked to set a new password. (We recommend you do.)
 
-    - Enter a new password in both fields and click *Submit*.
+    - Either enter a new password in both fields and click *Submit*, or
 
-    or
-
-    - Click *Skip* to use the default password.
+    - click *Skip* to use the default password.
 
 6. The PMM Home dashboard loads.
 
@@ -39,11 +42,15 @@ The area inside dashboards is populated by *panels*. Some are in collapsible pan
 
 These menus and controls appear on all dashboards:
 
-1. Main menu  (also *Grafana menu*, *side menu*)
-2. Navigation bar
-3. View controls
-4. View selectors (dynamic contents)
-5. Shortcut menu (dynamic contents)
+1. Main menu  (also *Grafana menu*, *side menu*).
+
+2. Navigation bar.
+
+3. View controls.
+
+4. View selectors (with dynamic contents).
+
+5. Shortcut menu (with dynamic contents).
 
 (For details see [UI Components](../details/interface.md).)
 
@@ -56,6 +63,7 @@ These menus and controls appear on all dashboards:
 There are two ways to open the dashboard search page. (Each takes you to the same search screen.)
 
 - Click the <i class="uil uil-search"></i> icon in the main menu.
+
 - Click the dashboard name in the navigation bar (top row, to the right of the <i class="uil uil-apps"></i> icon). (To search within the current folder, click the folder name instead of the dashboard name.)
 
 ![!Search dashboards by name](../_images/PMM_Home_Dashboard_Search.jpg)

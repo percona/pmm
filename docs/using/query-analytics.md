@@ -6,16 +6,16 @@ The *Query Analytics* dashboard shows how queries are executed and where they sp
 
 Query Analytics supports MySQL, MongoDB and PostgreSQL. The minimum requirements for MySQL are:
 
-- MySQL 5.1 or later (if using the slow query log)
-- MySQL 5.6.9 or later (if using Performance Schema)
+- MySQL 5.1 or later (if using the slow query log).
+- MySQL 5.6.9 or later (if using Performance Schema).
 
 Query Analytics displays metrics in both visual and numeric form. Performance-related characteristics appear as plotted graphics with summaries.
 
 The dashboard contains three panels:
 
-- [Filters Panel](#filters-panel)
-- [Overview Panel](#overview-panel)
-- [Details Panel](#details-panel)
+- the [Filters Panel](#filters-panel);
+- the [Overview Panel](#overview-panel);
+- the [Details Panel](#details-panel).
 
 !!! note alert alert-primary ""
     Query Analytics data retrieval is not instantaneous and can be delayed due to network conditions. In such situations *no data* is reported and a gap appears in the sparkline.
@@ -40,12 +40,12 @@ To the right of the Filters panel and occupying the upper part of the dashboard 
 
 Each row of the table represents the metrics for a chosen object type, one of:
 
-- Query
-- Service Name
-- Database
-- Schema
-- User Name
-- Client Host
+- Query;
+- Service Name;
+- Database;
+- Schema;
+- User Name;
+- Client Host.
 
 At the top of the second column is the *dimension* menu. Use this to choose the object type.
 
@@ -115,7 +115,7 @@ The *Details* tab contains a *Query time distribution* bar (only for MySQL datab
 
 ![!image](../_images/PMM_Query_Analytics_Tabs_Details.jpg)
 
-- The *Query time distribution* bar shows a query’s total time made up of colored segments, each segment representing the proportion of time spent on one of the follow named activities:
+- The *Query time distribution* bar shows a query’s total time made up of colored segments, each segment representing the proportion of time spent on a named activity.
 
     - `query_time`: Statement execution time.
     - `lock_time`: Time to acquire locks.
@@ -126,11 +126,11 @@ The *Details* tab contains a *Query time distribution* bar (only for MySQL datab
     - `innodb_rec_lock_wait`: Time the query waited for row locks.
     - `other`: Remaining uncategorized query time.
 
-- *Metrics* is a table with these headings:
+- *Metrics* is a table with headings:
 
-    - *Metric*: The Metric name, with a question-mark tool-tip that reveals a description of the metric on mouse-over.
-    - *Rate/Second*: A sparkline chart of real-time values per unit time.
-    - *Sum*: A summation of the metric for the selected query, and the percentage of the total.
+    - *Metric*: The Metric name, with a question-mark tool-tip that reveals a description of the metric on mouse-over;
+    - *Rate/Second*: A sparkline chart of real-time values per unit time;
+    - *Sum*: A summation of the metric for the selected query, and the percentage of the total;
     - *Per Query Stats*: The value of the metric per query.
 
 - Each row in the table is a metric. The contents depends on the chosen dimension.
@@ -150,11 +150,11 @@ The *Examples* tab shows an example of the selected query’s fingerprint or tab
 
 (For *Query* dimension.)
 
-The *Explain* tab shows the `explain` output for the selected query, in Classic or JSON formats:
+The *Explain* tab shows the `explain` output for the selected query, in Classic or JSON formats.
 
-- MySQL: Classic and JSON
-- MongoDB: JSON only
-- PostgreSQL: Not supported
+- MySQL: Classic and JSON.
+- MongoDB: JSON only.
+- PostgreSQL: Not supported.
 
 ![!image](../_images/PMM_Query_Analytics_Tabs_Explain.jpg)
 

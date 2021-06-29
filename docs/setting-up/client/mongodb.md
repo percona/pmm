@@ -150,8 +150,11 @@ When you have configured your database server, you can add a MongoDB service wit
 ### With the user interface
 
 1. Select <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *PMM Inventory* → {{icon.addinstance}} *Add Instance*.
+
 2. Select *MongoDB -- Add a remote instance*.
+
 3. Enter or select values for the fields.
+
 4. Click *Add service*.
 
 ![!](../../_images/PMM_Add_Instance_MongoDB.jpg)
@@ -209,13 +212,13 @@ where:
 
 ## Check the service
 
-### PMM user interface
+### With the user interface
 
 1. Select <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *PMM Inventory* → {{icon.inventory}} *Inventory list*.
 2. Look in the *Services* tab for a matching *Service Type* (MongoDB), *Service name*, *Addresses*, and any other values used when adding the service.
 3. Look in the *Agents* tab to check the desired data source is being used.
 
-### Command line
+### On the command line
 
 Look for your service in the output of this command.
 
