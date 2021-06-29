@@ -2,16 +2,10 @@
 
 There are three stages to installing and setting up PMM.
 
-```plantuml
-@startuml
-!include docs/_images/plantuml_styles.puml
-rectangle "Set up a PMM Server" as SERVER
-rectangle "Set up PMM Client(s)" as CLIENT
-rectangle "Add services" as SERVICES
-SERVER -right->> CLIENT
-CLIENT -right->> SERVICES
-@enduml
-```
+!!! summary alert alert-info "Summary"
+    1. Set up a PMM Server
+    2. Set up PMM Client(s)
+    3. Add services
 
 ## Set up PMM Server
 
