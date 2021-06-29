@@ -37,7 +37,7 @@ The main menu is part of the Grafana framework and is visible on every page.
 | (Profile icon)                           | User menu   |
 | <i class="uil uil-question-circle"></i>  | Help        |
 
-### Navigation bar
+## Navigation bar
 
 ![!Common page elements top row](../_images/PMM_Home_Dashboard_Menus_Top_Navigation_Bar.jpg)
 
@@ -50,7 +50,7 @@ The main menu is part of the Grafana framework and is visible on every page.
 | <i class="uil uil-share-alt"></i> | Share dashboard        |
 |                                   |                        |
 
-### View controls
+## View controls
 
 | Item (right)                                    | Description         |
 |-------------------------------------------------| --------------------|
@@ -61,7 +61,7 @@ The main menu is part of the Grafana framework and is visible on every page.
 | <i class="uil uil-sync"></i>                    | Refresh dashboard   |
 | (Time interval)                                 | Refresh period      |
 
-### View selectors
+## View selectors
 
 This menu bar is context sensitive; it changes according to the page you are on. (With wide menus on small screens, items may wrap to the next row.)
 
@@ -78,7 +78,7 @@ This menu bar is context sensitive; it changes according to the page you are on.
 | Service Name                  | Filter by service name                    |
 | PMM Annotations               | View [annotations](../how-to/annotate.md) |
 
-### Shortcut menu
+## Shortcut menu
 
 This menu contains shortcuts to other dashboards. The list changes according to the page you're on.
 

@@ -12,7 +12,7 @@ VictoriaMetrics allows metrics data to be 'pushed' to the server in addition to 
 
 The mode (push/pull) is controlled by the `--metrics-mode` flag for the `pmm-admin config` and `pmm-admin add` commands.
 
-If you need to change the metrics mode for an existing Service, you must remove it and re-add it with the same name and the required flags. (There is currently no ability to "update" a service.)
+If you need to change the metrics mode for an existing Service, you must remove it and re-add it with the same name and the required flags. (There is currently no ability to update a service.)
 
 ## Remapped targets for direct Prometheus paths
 
@@ -22,16 +22,16 @@ They are accessed by requesting a URL of the form `<PMM SERVER URL>/prometheus/<
 
 As a result of the move to VictoriaMetrics some direct Prometheus paths are no longer available.
 
-Here are their equivalents.
-
-- `/prometheus/alerts` → No change.
-- `/prometheus/config` → No equivalent. However, some information is at `/prometheus/targets`.
-- `/prometheus/flags` → The `flag` metrics at `/prometheus/metrics`.
-- `/prometheus/graph` → `/graph/explore` (Grafana) or `graph/d/prometheus-advanced/advanced-data-exploration` (PMM dashboard).
-- `/prometheus/rules` → No change.
-- `/prometheus/service-discovery` → No equivalent.
-- `/prometheus/status` → Some information at `/prometheus/metrics`. High cardinality metrics information at `/prometheus/api/v1/status/tsdb`.
-- `/prometheus/targets` → `/victoriametrics/targets`.
+| Prometheus path                 | VictoriaMetrics equivalent
+|---------------------------------|--------------------------------------------------------------------------------------------------------------------------
+| `/prometheus/alerts`            | No change.
+| `/prometheus/config`            | No equivalent. However, some information is at `/prometheus/targets`.
+| `/prometheus/flags`             | The `flag` metrics at `/prometheus/metrics`.
+| `/prometheus/graph`             | `/graph/explore` (Grafana) or `graph/d/prometheus-advanced/advanced-data-exploration` (PMM dashboard).
+| `/prometheus/rules`             | No change.
+| `/prometheus/service-discovery` | No equivalent.
+| `/prometheus/status`            | Some information at `/prometheus/metrics`. High cardinality metrics information at `/prometheus/api/v1/status/tsdb`.
+| `/prometheus/targets`           | `/victoriametrics/targets`
 
 ## Troubleshooting
 

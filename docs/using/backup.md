@@ -73,7 +73,7 @@
 !!! hint alert alert-success "Tip"
     You must [add a backup storage location](#adding-a-storage-location) before backing up.
 
-1. Navigate to *Backup Management → Backup Inventory*.
+1. Navigate to *Backup Management* → *Backup Inventory*.
 
 2. Click <i class="uil uil-plus-square"></i> *Add*.
 

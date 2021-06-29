@@ -38,7 +38,7 @@ At the moment, PMM Server can't render dashboard images exported by Grafana with
     trousers xdg-utils xkeyboard-config alsa-lib
     ```
 
-## Part 2 - Share the image
+## Part 2: Share the image
 
 1. Navigate to the dashboard you want to share.
 

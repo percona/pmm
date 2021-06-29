@@ -9,7 +9,8 @@ The DBaaS dashboard is where you add, remove, and operate on Kubernetes and data
 
 The DBaaS feature is turned off by default. To turn it on:
 
-1. Go to <i class="uil uil-bars"></i> *PMM* → *PMM Settings* → *Advanced settings*.
+1. Go to <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings*.
+
 2. Click the <i class="uil uil-toggle-off"></i> toggle in the *Technical preview features* section of the page.
 
 ## Open the DBaaS dashboard
@@ -105,9 +106,9 @@ To monitor a DB cluster, set up a [public address](../../how-to/configure.md#pub
 
     1. Select *Topology*, either *Cluster* or *Single Node*.
 
-    1. Select the number of nodes. (The lower limit is 3.)
+    2. Select the number of nodes. (The lower limit is 3.)
 
-    1. Select a preset for *Resources per Node*.
+    3. Select a preset for *Resources per Node*.
 
         *Small*, *Medium* and *Large* are fixed preset values for *Memory*, *CPU*, and *Disk*.
 

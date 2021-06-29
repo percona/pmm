@@ -78,7 +78,7 @@ Integrated Alerting isn't activated.
 
 **When I get an email or page from my system the IP is not reachable from outside my organization how do I fix this?**
 
-To configure your PMM Server’s Public Address, Select <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings*, and supply an address to use in your alert notifications.
+To configure your PMM Server’s Public Address, select <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings*, and supply an address to use in your alert notifications.
 
 ### What is 'Alertmanager integration'?
 
@@ -103,9 +103,9 @@ For PagerDuty you can configure in the notification channel tab of Integrated Al
 
 It depends on what kind of authentication your system uses:
 
-- `LOGIN`: Use Username/Password
-- `PLAIN`: Use either Username or Identity and Password
-- `CRAM-MD5`: Use Username and Secret
+- `LOGIN`: Use Username/Password.
+- `PLAIN`: Use either Username or Identity and Password.
+- `CRAM-MD5`: Use Username and Secret.
 
 ### Alert Rule Templates is disabled
 
