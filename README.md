@@ -157,21 +157,21 @@ Here's how it's done.
 
     1. Go to <https://app.diagrams.net/>
     2. If it's your first time, select *Device* at the *Save diagrams to:* dialog
-    2. Click *Open existing diagram*
-    3. Navigate to `pmm-doc/docs/_images` and select `PMM_Home_Dashboard_Overlay.drawio`
-    4. If the dashboard layout has changed, replace the *Guide* Layer with a new screenshot and adjust the elements on the *Overlay* layer as needed (To show layers, click View --> Layers). Untick the *Guide* Layer so it is not exported.
-    5. Click File --> Export as --> PNG
-    6. In the *Image settings* dialog, use these settings:
+    3. Click *Open existing diagram*
+    4. Navigate to `pmm-doc/docs/_images` and select `PMM_Home_Dashboard_Overlay.drawio`
+    5. If the dashboard layout has changed, replace the *Guide* Layer with a new screenshot and adjust the elements on the *Overlay* layer as needed (To show layers, click View --> Layers). Untick the *Guide* Layer so it is not exported.
+    6. Click File --> Export as --> PNG
+    7. In the *Image settings* dialog, use these settings:
         - *Zoom*: 100%, Border Width: 0
         - *Size:* Page (The page dimensions in inches should be as close to the base image as possible, i.e. 1280x1280)
         - *Transparent Background:* ON
         - *Shadow:* OFF
         - *Grid*: OFF
         - *Include a copy of my diagram:* OFF
-    7. Click *Export*
-    8. Click *Device*
-    9. Navigate to `pmm-doc/docs/_images` and click `PMM_Home_Dashboard_Overlay.png`
-    10. Click *Save* and overwrite the current file
+    8. Click *Export*
+    9. Click *Device*
+    10. Navigate to `pmm-doc/docs/_images` and click `PMM_Home_Dashboard_Overlay.png`
+    11. Click *Save* and overwrite the current file
 
 The overlay image is merged with a copy of the latest home dashboard using [composite], one of the [ImageMagick] tools.
 
@@ -183,23 +183,31 @@ composite docs/_images/PMM_Home_Dashboard_Overlay.png docs/_images/PMM_Home_Dash
 
 The GitHub actions build job performs a basic spell and grammar check. You can do these yourself on the command line if you have [Node.js] installed.
 
-    npm i markdown-spellcheck -g
-    mdspell --report --en-us --ignore-acronyms --ignore-numbers docs/<path to file>.md
+```sh
+npm i markdown-spellcheck -g
+mdspell --report --en-us --ignore-acronyms --ignore-numbers docs/<path to file>.md
+```
 
 To check all files:
 
-    mdspell --report --en-us --ignore-acronyms --ignore-numbers "docs/**/*.md"
+```sh
+mdspell --report --en-us --ignore-acronyms --ignore-numbers "docs/**/*.md"
+```
 
 Add any custom dictionary words to `.spelling`. If spell checking fails, the GitHub action will fail too, but after the MkDocs build and so can be safely ignored. The `publish` branch will still have the latest build and can be used. Meanwhile, see what the spelling error is and either fix it or add the word to `.spelling`.
 
 Grammar is checked using [`write-good`](https://github.com/btford/write-good). (The results of this check are ignored and don't affect the GitHub action.)
 
-    npm i write-good -g
-    write-good docs/<path to file>.md
+```sh
+npm i write-good -g
+write-good docs/<path to file>.md
+```
 
 To check all files:
 
-    write-good docs/**/*.md
+```sh
+write-good docs/**/*.md
+```
 
 ## Link checking
 
@@ -209,8 +217,6 @@ The plugin is installed in our [PMM documentation Docker image] and by the GitHu
 
 To enable it for local builds, uncomment the line with `htmlproofer` in the `plugins` section of `mkdocs.yml` and parse the build output for warnings.
 
-
-
 [Percona Monitoring and Management]: https://www.percona.com/software/database-tools/percona-monitoring-and-management
 [PMM technical documentation]: https://www.percona.com/doc/percona-monitoring-and-management/
 [Jira]: https://jira.percona.com/browse/PMM
@@ -219,7 +225,7 @@ To enable it for local builds, uncomment the line with `htmlproofer` in the `plu
 [git]: https://git-scm.com
 [Python]: https://www.python.org/downloads/
 [Docker]: https://docs.docker.com/get-docker/
-[PMM documentation Docker image](https://hub.docker.com/repository/docker/perconalab/pmm-doc-md)
+[PMM documentation Docker image]: https://hub.docker.com/repository/docker/perconalab/pmm-doc-md
 [mike]: https://github.com/jimporter/mike
 [GitHub actions]: https://github.com/percona/pmm-doc/actions
 [ImageMagick]: https://imagemagick.org/script/download.php
