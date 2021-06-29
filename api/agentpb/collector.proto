@@ -325,12 +325,20 @@ message MetricsBucket {
     // Total number of FPI (full page images) in WAL (Write-ahead logging) records.
     float m_wal_fpi_sum = 35;
     float m_wal_fpi_cnt = 36;
+    // Total bytes of WAL (Write-ahead logging) records.
+    float m_wal_bytes_sum = 37;
+    float m_wal_bytes_cnt = 38;
+    // Sum, count, min, max of plan time.
+    float m_plan_time_sum = 39;
+    float m_plan_time_cnt = 40;
+    float m_plan_time_min = 41;
+    float m_plan_time_max = 42;
     // Metrics skipped due to different bucket_time in pg_stat_monitor (1min in PMM, 5min in pg_stat_monitor):
     // min_time, max_time, mean_time
-    // plan_total_time, plan_min_time, plan_max_time, plan_mean_time
+    // plan_mean_time
     // stddev_time
     // Other metrics skipped (empty values, codes):
-    // application_name, cmd_type, cmd_type_text, elevel, sqlcode, message, state_code, state, wal_bytes
+    // application_name, cmd_type, cmd_type_text, elevel, sqlcode, message, state_code, state
 
   }
   Common common = 1;
