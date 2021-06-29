@@ -85,6 +85,11 @@
 
     # Split download and update to produce a bit more of progress output.
 
+    - name: Packages                   | Clean up yum metadata
+      command: yum --enablerepo=pmm2-server clean metadata
+      args:
+        warn: no
+
     - name: Download pmm2 packages
       yum:
         name: "{{ pmm_packages }}"
