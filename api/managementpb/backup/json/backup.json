@@ -179,7 +179,7 @@
                   "type": "string",
                   "x-order": 0
                 },
-                "complete_removal": {
+                "remove_files": {
                   "description": "Removes all the backup files associated with artifact if flag is set.",
                   "type": "boolean",
                   "x-order": 1

@@ -124,7 +124,7 @@ type RemoveArtifactBody struct {
 	ArtifactID string `json:"artifact_id,omitempty"`
 
 	// Removes all the backup files associated with artifact if flag is set.
-	CompleteRemoval bool `json:"complete_removal,omitempty"`
+	RemoveFiles bool `json:"remove_files,omitempty"`
 }
 
 // Validate validates this remove artifact body

@@ -52,7 +52,7 @@ message RemoveArtifactRequest {
   // Machine-readable artifact ID.
   string artifact_id = 1;
   // Removes all the backup files associated with artifact if flag is set.
-  bool complete_removal = 2;
+  bool remove_files = 2;
 }
 
 message RemoveArtifactResponse {}
