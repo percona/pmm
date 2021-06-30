@@ -23,7 +23,7 @@ The two major PMM versions are kept in separate branches:
 - `main` is for PMM 2.x (latest)
 - `1.x` is for PMM 1.x
 
-Before you start, it helps to know what [git], [Python] and [Docker](https://docs.docker.com/get-docker/) are, what [Markdown] is and how to write it, and how to install and use those things on the command line. (If you don't, consider opening an [Issue](https://github.com/percona/pmm-doc/issues/new?title=PMM%20doc%20issue&body=Please%20describe%20the%20issue%20here) instead.)
+Before you start, it helps to know what [Git], [Python] and [Docker](https://docs.docker.com/get-docker/) are, what [Markdown] is and how to write it, and how to install and use those things on the command line. (If you don't, consider opening a [Jira] issue instead.)
 
 ## Building the documentation
 
@@ -31,9 +31,12 @@ If you'd like to have a local copy of PMM documentation, or are thinking about c
 
 ### With Docker
 
-1. Install [Docker]
-2. Clone this repository
-3. Change directory to `pmm-doc`
+1. Install [Docker].
+
+2. Clone this repository.
+
+3. Change directory to `pmm-doc`.
+
 4. Use our [PMM documentation Docker image] to *build the documentation*:
 
     ```sh
@@ -106,31 +109,57 @@ View the site at <http://0.0.0.0:8000>
 ## Directories and files
 
 - `mkdocs-pdf.yml`: MkDocs configuration file. Creates themed [PDF](#pdf).
+
 - `mkdocs-percona.yml`: MkDocs configuration file. Creates unthemed HTML for hosting on percona.com.
+
 - `mkdocs.yml`: Default MkDocs configuration file. Creates (Material) themed HTML for hosting anywhere.
+
 - `docs`:
+
     - `*.md`: Markdown files.
+
     - `_images/*`: Images, image resources, videos.
+
     - `css`: Styling.
+
     - `js`: JavaScript files.
+
 - `_resources`:
+
     - `bin`
+
         - `glossary.tsv`: Export from a spreadsheet of glossary entries.
+
         - `make_glossary.pl`: Script to write Markdown page from `glossary.tsv`.
+
         - `grafana-dashboards-descriptions.py`: Script to extract dashboard descriptions from <https://github.com/percona/grafana-dashboards/>.
+
         - `plantuml`: Wrapper script for running PlantUML.
+
         - `plantuml.jar`: Copy of the PlantUML Java file (needed for Netlify builds).
+
     - `templates`: Stylesheet for PDF output (used by [mkdocs-with-pdf](https://github.com/orzih/mkdocs-with-pdf) extension).
+
     - `theme`:
+
         - `main.html`: MkDocs template for HTML published on percona.com.
+
 - `requirements.txt`: Python package dependencies.
+
 - `runtime.txt`: Python version specifier (used by netlify).
+
 - `variables.yml`: Values used throughout the Markdown, including the current PMM version/release number.
+
 - `netlify.toml`: Netlify build definition.
+
 - `.spelling`: Words regarded as correct by `mdspell` (See [Spelling and grammar](#spelling-and-grammar).)
+
 - `.github`:
+
     - `workflows`:
+
         - `build.yml`: Workflow specification for building the documentation via a GitHub action. (Uses `mike` which puts HTML in `publish` branch.)
+
 - `site`: When building locally, directory where HTML is put.
 
 ## Version switching
@@ -149,22 +178,39 @@ Here's how it's done.
 
 - `PMM_Home_Dashboard_Overlay.png` is exported from `docs/_images/PMM_Home_Dashboard_Overlay.drawio` using <https://app.diagrams.net/>.
 
+
     1. Go to <https://app.diagrams.net/>
+
     2. If it's your first time, select *Device* at the *Save diagrams to:* dialog
+
     3. Click *Open existing diagram*
+
     4. Navigate to `pmm-doc/docs/_images` and select `PMM_Home_Dashboard_Overlay.drawio`
+
     5. If the dashboard layout has changed, replace the *Guide* Layer with a new screenshot and adjust the elements on the *Overlay* layer as needed (To show layers, click View --> Layers). Untick the *Guide* Layer so it is not exported.
+
     6. Click File --> Export as --> PNG
+
     7. In the *Image settings* dialog, use these settings:
+
         - *Zoom*: 100%, Border Width: 0
+
         - *Size:* Page (The page dimensions in inches should be as close to the base image as possible, i.e. 1280x1280)
+
         - *Transparent Background:* ON
+
         - *Shadow:* OFF
+
         - *Grid*: OFF
+
         - *Include a copy of my diagram:* OFF
+
     8. Click *Export*
+
     9. Click *Device*
+
     10. Navigate to `pmm-doc/docs/_images` and click `PMM_Home_Dashboard_Overlay.png`
+
     11. Click *Save* and overwrite the current file
 
 The overlay image is merged with a copy of the latest home dashboard using [composite], one of the [ImageMagick] tools.
@@ -216,7 +262,7 @@ To enable it for local builds, uncomment the line with `htmlproofer` in the `plu
 [Jira]: https://jira.percona.com/browse/PMM
 [MkDocs]: https://www.mkdocs.org/
 [Markdown]: https://daringfireball.net/projects/markdown/
-[git]: https://git-scm.com
+[Git]: https://git-scm.com
 [Python]: https://www.python.org/downloads/
 [Docker]: https://docs.docker.com/get-docker/
 [PMM documentation Docker image]: https://hub.docker.com/repository/docker/perconalab/pmm-doc-md
