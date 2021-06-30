@@ -164,6 +164,11 @@ How to run PMM Server with Docker based on our [Docker image].
 
 1. Change directory to the backup directory (e.g. `pmm-data-backup`).
 
+1. Remove Victoria Metrics data folder.
+    ```sh
+    docker run --rm --volumes-from pmm-data -it percona/pmm-server:2 rm -r /srv/victoriametrics/data
+    ```
+
 1. Copy the data.
 
     ```sh
