@@ -62,22 +62,22 @@ markdown_extensions:
   - lightgallery
 
 plugins:
-  - search
-  - git-revision-date
-  - macros:
-      include_yaml:
-        - variables.yml
-  # https://pypi.org/project/mkdocs-exclude/
-  - exclude:
-      glob:
-        - "setting-up/client/docker.md"
-  - mike:
-      version_selector: true
-      css_dir: css
-      javascript_dir: js
-      canonical_version: null
-  - section-index
-#  - mermaid2
+    - search
+    - git-revision-date
+    - macros:
+        include_yaml:
+            - variables.yml
+    # https://pypi.org/project/mkdocs-exclude/
+    - exclude:
+        glob:
+          - 'setting-up/client/docker.md'
+    - mike:
+        version_selector: true
+        css_dir: css
+        javascript_dir: js
+        canonical_version: null
+    - section-index
+#    - htmlproofer # Uncomment to check links - but extends build time significantly
 
 extra:
   version:
@@ -202,6 +202,7 @@ nav:
   - faq.md
   - Release Notes:
       - release-notes/index.md
+      - 'PMM 2.19.0': release-notes/2.19.0.md
       - 'PMM 2.18.0': release-notes/2.18.0.md
       - 'PMM 2.17.0': release-notes/2.17.0.md
       - 'PMM 2.16.0': release-notes/2.16.0.md

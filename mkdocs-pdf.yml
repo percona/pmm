@@ -50,27 +50,26 @@ markdown_extensions:
   - lightgallery
 
 plugins:
-  - search
-  - git-revision-date
-  - macros:
-      include_yaml:
-        - variables.yml
-  # https://pypi.org/project/mkdocs-exclude/
-  - exclude:
-      glob:
-        - "setting-up/client/docker.md"
-  # https://github.com/orzih/mkdocs-with-pdf
-  - with-pdf:
-      output_path: "_pdf/PerconaMonitoringAndManagement-2.18.0.pdf"
-      cover_title: "Documentation"
-      cover_subtitle: 2.18.0 (June 1, 2021)
-      author: "Percona Technical Documentation Team"
-      cover_logo: docs/_images/PMM_Logo.svg
-      debug_html: false
-      custom_template_path: _resources/templates
-  # Check links - but extends build time significantly
-  # https://pypi.org/project/mkdocs-htmlproofer-plugin/
-  - htmlproofer
+    - search
+    - git-revision-date
+    - macros:
+        include_yaml:
+          - variables.yml
+    # https://pypi.org/project/mkdocs-exclude/
+    - exclude:
+        glob:
+          - 'setting-up/client/docker.md'
+    # https://github.com/orzih/mkdocs-with-pdf
+    - with-pdf:
+        output_path: '_pdf/PerconaMonitoringAndManagement-2.19.0.pdf'
+        cover_title: 'Documentation'
+        cover_subtitle: 2.19.0 (June 30, 2021)
+        author: 'Percona Technical Documentation Team'
+        cover_logo: docs/_images/PMM_Logo.svg
+        custom_template_path: _resources/templates
+    # Check links - but extends build time significantly
+    # https://pypi.org/project/mkdocs-htmlproofer-plugin/
+#    - htmlproofer
 
 
 nav:
@@ -192,6 +191,7 @@ nav:
   - faq.md
   - Release Notes:
       - release-notes/index.md
+      - 'PMM 2.19.0': release-notes/2.19.0.md
       - 'PMM 2.18.0': release-notes/2.18.0.md
       - 'PMM 2.17.0': release-notes/2.17.0.md
       - 'PMM 2.16.0': release-notes/2.16.0.md
