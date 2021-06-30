@@ -1,15 +1,7 @@
 protoc:
   version: 3.13.0
   includes:
-    # for importing "google/api/annotations.proto"
-    - ../vendor/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis
-
-    # for importing "protoc-gen-swagger/options/annotations.proto" and
-    - ../vendor/github.com/grpc-ecosystem/grpc-gateway
-
-    # for importing "github.com/mwitkow/go-proto-validators/validator.proto"
-    - ../vendor
-
+    - ../third_party
 lint:
   ignores:
     - id: ENUM_ZERO_VALUES_INVALID
