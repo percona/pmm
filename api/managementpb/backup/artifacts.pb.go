@@ -305,7 +305,7 @@ func (x *ListArtifactsResponse) GetArtifacts() []*Artifact {
 	return nil
 }
 
-type RemoveArtifactRequest struct {
+type DeleteArtifactRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -316,8 +316,8 @@ type RemoveArtifactRequest struct {
 	RemoveFiles bool `protobuf:"varint,2,opt,name=remove_files,json=removeFiles,proto3" json:"remove_files,omitempty"`
 }
 
-func (x *RemoveArtifactRequest) Reset() {
-	*x = RemoveArtifactRequest{}
+func (x *DeleteArtifactRequest) Reset() {
+	*x = DeleteArtifactRequest{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_managementpb_backup_artifacts_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -325,13 +325,13 @@ func (x *RemoveArtifactRequest) Reset() {
 	}
 }
 
-func (x *RemoveArtifactRequest) String() string {
+func (x *DeleteArtifactRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RemoveArtifactRequest) ProtoMessage() {}
+func (*DeleteArtifactRequest) ProtoMessage() {}
 
-func (x *RemoveArtifactRequest) ProtoReflect() protoreflect.Message {
+func (x *DeleteArtifactRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_managementpb_backup_artifacts_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -343,33 +343,33 @@ func (x *RemoveArtifactRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RemoveArtifactRequest.ProtoReflect.Descriptor instead.
-func (*RemoveArtifactRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use DeleteArtifactRequest.ProtoReflect.Descriptor instead.
+func (*DeleteArtifactRequest) Descriptor() ([]byte, []int) {
 	return file_managementpb_backup_artifacts_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *RemoveArtifactRequest) GetArtifactId() string {
+func (x *DeleteArtifactRequest) GetArtifactId() string {
 	if x != nil {
 		return x.ArtifactId
 	}
 	return ""
 }
 
-func (x *RemoveArtifactRequest) GetRemoveFiles() bool {
+func (x *DeleteArtifactRequest) GetRemoveFiles() bool {
 	if x != nil {
 		return x.RemoveFiles
 	}
 	return false
 }
 
-type RemoveArtifactResponse struct {
+type DeleteArtifactResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 }
 
-func (x *RemoveArtifactResponse) Reset() {
-	*x = RemoveArtifactResponse{}
+func (x *DeleteArtifactResponse) Reset() {
+	*x = DeleteArtifactResponse{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_managementpb_backup_artifacts_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -377,13 +377,13 @@ func (x *RemoveArtifactResponse) Reset() {
 	}
 }
 
-func (x *RemoveArtifactResponse) String() string {
+func (x *DeleteArtifactResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RemoveArtifactResponse) ProtoMessage() {}
+func (*DeleteArtifactResponse) ProtoMessage() {}
 
-func (x *RemoveArtifactResponse) ProtoReflect() protoreflect.Message {
+func (x *DeleteArtifactResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_managementpb_backup_artifacts_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -395,8 +395,8 @@ func (x *RemoveArtifactResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RemoveArtifactResponse.ProtoReflect.Descriptor instead.
-func (*RemoveArtifactResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use DeleteArtifactResponse.ProtoReflect.Descriptor instead.
+func (*DeleteArtifactResponse) Descriptor() ([]byte, []int) {
 	return file_managementpb_backup_artifacts_proto_rawDescGZIP(), []int{4}
 }
 
@@ -444,13 +444,13 @@ var file_managementpb_backup_artifacts_proto_rawDesc = []byte{
 	0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x18, 0x2e, 0x62, 0x61, 0x63, 0x6b, 0x75, 0x70,
 	0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x41, 0x72, 0x74, 0x69, 0x66, 0x61, 0x63,
 	0x74, 0x52, 0x09, 0x61, 0x72, 0x74, 0x69, 0x66, 0x61, 0x63, 0x74, 0x73, 0x22, 0x5b, 0x0a, 0x15,
-	0x52, 0x65, 0x6d, 0x6f, 0x76, 0x65, 0x41, 0x72, 0x74, 0x69, 0x66, 0x61, 0x63, 0x74, 0x52, 0x65,
+	0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x41, 0x72, 0x74, 0x69, 0x66, 0x61, 0x63, 0x74, 0x52, 0x65,
 	0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x1f, 0x0a, 0x0b, 0x61, 0x72, 0x74, 0x69, 0x66, 0x61, 0x63,
 	0x74, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0a, 0x61, 0x72, 0x74, 0x69,
 	0x66, 0x61, 0x63, 0x74, 0x49, 0x64, 0x12, 0x21, 0x0a, 0x0c, 0x72, 0x65, 0x6d, 0x6f, 0x76, 0x65,
 	0x5f, 0x66, 0x69, 0x6c, 0x65, 0x73, 0x18, 0x02, 0x20, 0x01, 0x28, 0x08, 0x52, 0x0b, 0x72, 0x65,
-	0x6d, 0x6f, 0x76, 0x65, 0x46, 0x69, 0x6c, 0x65, 0x73, 0x22, 0x18, 0x0a, 0x16, 0x52, 0x65, 0x6d,
-	0x6f, 0x76, 0x65, 0x41, 0x72, 0x74, 0x69, 0x66, 0x61, 0x63, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f,
+	0x6d, 0x6f, 0x76, 0x65, 0x46, 0x69, 0x6c, 0x65, 0x73, 0x22, 0x18, 0x0a, 0x16, 0x44, 0x65, 0x6c,
+	0x65, 0x74, 0x65, 0x41, 0x72, 0x74, 0x69, 0x66, 0x61, 0x63, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f,
 	0x6e, 0x73, 0x65, 0x2a, 0xb1, 0x01, 0x0a, 0x0c, 0x42, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x53, 0x74,
 	0x61, 0x74, 0x75, 0x73, 0x12, 0x19, 0x0a, 0x15, 0x42, 0x41, 0x43, 0x4b, 0x55, 0x50, 0x5f, 0x53,
 	0x54, 0x41, 0x54, 0x55, 0x53, 0x5f, 0x49, 0x4e, 0x56, 0x41, 0x4c, 0x49, 0x44, 0x10, 0x00, 0x12,
@@ -472,12 +472,12 @@ var file_managementpb_backup_artifacts_proto_rawDesc = []byte{
 	0x6f, 0x6e, 0x73, 0x65, 0x22, 0x2f, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x29, 0x22, 0x24, 0x2f, 0x76,
 	0x31, 0x2f, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2f, 0x62, 0x61, 0x63,
 	0x6b, 0x75, 0x70, 0x2f, 0x41, 0x72, 0x74, 0x69, 0x66, 0x61, 0x63, 0x74, 0x73, 0x2f, 0x4c, 0x69,
-	0x73, 0x74, 0x3a, 0x01, 0x2a, 0x12, 0x92, 0x01, 0x0a, 0x0e, 0x52, 0x65, 0x6d, 0x6f, 0x76, 0x65,
+	0x73, 0x74, 0x3a, 0x01, 0x2a, 0x12, 0x92, 0x01, 0x0a, 0x0e, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65,
 	0x41, 0x72, 0x74, 0x69, 0x66, 0x61, 0x63, 0x74, 0x12, 0x25, 0x2e, 0x62, 0x61, 0x63, 0x6b, 0x75,
-	0x70, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x52, 0x65, 0x6d, 0x6f, 0x76, 0x65,
+	0x70, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65,
 	0x41, 0x72, 0x74, 0x69, 0x66, 0x61, 0x63, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a,
 	0x26, 0x2e, 0x62, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
-	0x2e, 0x52, 0x65, 0x6d, 0x6f, 0x76, 0x65, 0x41, 0x72, 0x74, 0x69, 0x66, 0x61, 0x63, 0x74, 0x52,
+	0x2e, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x41, 0x72, 0x74, 0x69, 0x66, 0x61, 0x63, 0x74, 0x52,
 	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x31, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x2b, 0x22,
 	0x26, 0x2f, 0x76, 0x31, 0x2f, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2f,
 	0x62, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x2f, 0x41, 0x72, 0x74, 0x69, 0x66, 0x61, 0x63, 0x74, 0x73,
@@ -506,8 +506,8 @@ var file_managementpb_backup_artifacts_proto_goTypes = []interface{}{
 	(*Artifact)(nil),               // 1: backup.v1beta1.Artifact
 	(*ListArtifactsRequest)(nil),   // 2: backup.v1beta1.ListArtifactsRequest
 	(*ListArtifactsResponse)(nil),  // 3: backup.v1beta1.ListArtifactsResponse
-	(*RemoveArtifactRequest)(nil),  // 4: backup.v1beta1.RemoveArtifactRequest
-	(*RemoveArtifactResponse)(nil), // 5: backup.v1beta1.RemoveArtifactResponse
+	(*DeleteArtifactRequest)(nil),  // 4: backup.v1beta1.DeleteArtifactRequest
+	(*DeleteArtifactResponse)(nil), // 5: backup.v1beta1.DeleteArtifactResponse
 	(DataModel)(0),                 // 6: backup.v1beta1.DataModel
 	(*timestamp.Timestamp)(nil),    // 7: google.protobuf.Timestamp
 }
@@ -517,9 +517,9 @@ var file_managementpb_backup_artifacts_proto_depIdxs = []int32{
 	7, // 2: backup.v1beta1.Artifact.created_at:type_name -> google.protobuf.Timestamp
 	1, // 3: backup.v1beta1.ListArtifactsResponse.artifacts:type_name -> backup.v1beta1.Artifact
 	2, // 4: backup.v1beta1.Artifacts.ListArtifacts:input_type -> backup.v1beta1.ListArtifactsRequest
-	4, // 5: backup.v1beta1.Artifacts.RemoveArtifact:input_type -> backup.v1beta1.RemoveArtifactRequest
+	4, // 5: backup.v1beta1.Artifacts.DeleteArtifact:input_type -> backup.v1beta1.DeleteArtifactRequest
 	3, // 6: backup.v1beta1.Artifacts.ListArtifacts:output_type -> backup.v1beta1.ListArtifactsResponse
-	5, // 7: backup.v1beta1.Artifacts.RemoveArtifact:output_type -> backup.v1beta1.RemoveArtifactResponse
+	5, // 7: backup.v1beta1.Artifacts.DeleteArtifact:output_type -> backup.v1beta1.DeleteArtifactResponse
 	6, // [6:8] is the sub-list for method output_type
 	4, // [4:6] is the sub-list for method input_type
 	4, // [4:4] is the sub-list for extension type_name
@@ -571,7 +571,7 @@ func file_managementpb_backup_artifacts_proto_init() {
 			}
 		}
 		file_managementpb_backup_artifacts_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*RemoveArtifactRequest); i {
+			switch v := v.(*DeleteArtifactRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -583,7 +583,7 @@ func file_managementpb_backup_artifacts_proto_init() {
 			}
 		}
 		file_managementpb_backup_artifacts_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*RemoveArtifactResponse); i {
+			switch v := v.(*DeleteArtifactResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -630,8 +630,8 @@ const _ = grpc.SupportPackageIsVersion6
 type ArtifactsClient interface {
 	// ListArtifacts returns a list of all backup artifacts.
 	ListArtifacts(ctx context.Context, in *ListArtifactsRequest, opts ...grpc.CallOption) (*ListArtifactsResponse, error)
-	// RemoveArtifact removes specified artifact.
-	RemoveArtifact(ctx context.Context, in *RemoveArtifactRequest, opts ...grpc.CallOption) (*RemoveArtifactResponse, error)
+	// DeleteArtifact deletes specified artifact.
+	DeleteArtifact(ctx context.Context, in *DeleteArtifactRequest, opts ...grpc.CallOption) (*DeleteArtifactResponse, error)
 }
 
 type artifactsClient struct {
@@ -651,9 +651,9 @@ func (c *artifactsClient) ListArtifacts(ctx context.Context, in *ListArtifactsRe
 	return out, nil
 }
 
-func (c *artifactsClient) RemoveArtifact(ctx context.Context, in *RemoveArtifactRequest, opts ...grpc.CallOption) (*RemoveArtifactResponse, error) {
-	out := new(RemoveArtifactResponse)
-	err := c.cc.Invoke(ctx, "/backup.v1beta1.Artifacts/RemoveArtifact", in, out, opts...)
+func (c *artifactsClient) DeleteArtifact(ctx context.Context, in *DeleteArtifactRequest, opts ...grpc.CallOption) (*DeleteArtifactResponse, error) {
+	out := new(DeleteArtifactResponse)
+	err := c.cc.Invoke(ctx, "/backup.v1beta1.Artifacts/DeleteArtifact", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -664,8 +664,8 @@ func (c *artifactsClient) RemoveArtifact(ctx context.Context, in *RemoveArtifact
 type ArtifactsServer interface {
 	// ListArtifacts returns a list of all backup artifacts.
 	ListArtifacts(context.Context, *ListArtifactsRequest) (*ListArtifactsResponse, error)
-	// RemoveArtifact removes specified artifact.
-	RemoveArtifact(context.Context, *RemoveArtifactRequest) (*RemoveArtifactResponse, error)
+	// DeleteArtifact deletes specified artifact.
+	DeleteArtifact(context.Context, *DeleteArtifactRequest) (*DeleteArtifactResponse, error)
 }
 
 // UnimplementedArtifactsServer can be embedded to have forward compatible implementations.
@@ -675,8 +675,8 @@ type UnimplementedArtifactsServer struct {
 func (*UnimplementedArtifactsServer) ListArtifacts(context.Context, *ListArtifactsRequest) (*ListArtifactsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListArtifacts not implemented")
 }
-func (*UnimplementedArtifactsServer) RemoveArtifact(context.Context, *RemoveArtifactRequest) (*RemoveArtifactResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RemoveArtifact not implemented")
+func (*UnimplementedArtifactsServer) DeleteArtifact(context.Context, *DeleteArtifactRequest) (*DeleteArtifactResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteArtifact not implemented")
 }
 
 func RegisterArtifactsServer(s *grpc.Server, srv ArtifactsServer) {
@@ -701,20 +701,20 @@ func _Artifacts_ListArtifacts_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Artifacts_RemoveArtifact_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RemoveArtifactRequest)
+func _Artifacts_DeleteArtifact_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteArtifactRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ArtifactsServer).RemoveArtifact(ctx, in)
+		return srv.(ArtifactsServer).DeleteArtifact(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/backup.v1beta1.Artifacts/RemoveArtifact",
+		FullMethod: "/backup.v1beta1.Artifacts/DeleteArtifact",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ArtifactsServer).RemoveArtifact(ctx, req.(*RemoveArtifactRequest))
+		return srv.(ArtifactsServer).DeleteArtifact(ctx, req.(*DeleteArtifactRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -728,8 +728,8 @@ var _Artifacts_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Artifacts_ListArtifacts_Handler,
 		},
 		{
-			MethodName: "RemoveArtifact",
-			Handler:    _Artifacts_RemoveArtifact_Handler,
+			MethodName: "DeleteArtifact",
+			Handler:    _Artifacts_DeleteArtifact_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

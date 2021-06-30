@@ -164,8 +164,8 @@
         "tags": [
           "Artifacts"
         ],
-        "summary": "RemoveArtifact removes specified artifact.",
-        "operationId": "RemoveArtifact",
+        "summary": "DeleteArtifact deletes specified artifact.",
+        "operationId": "DeleteArtifact",
         "parameters": [
           {
             "name": "body",
