@@ -8,15 +8,9 @@ This repo holds the source files for the official [PMM technical documentation].
 
 To contribute to that documentation, you can:
 
-- **report a general problem** -- open an [Issue in this repo](https://github.com/percona/pmm-doc/issues/new?title=PMM%20doc%20issue&body=Please%20describe%20the%20issue%20here) or use [Jira].
+- **report a general problem** -- open a [Jira] issue.
 
-- **report a problem on a page** -- every page of our documentation has a link, *Report a problem with this page*, a shortcut to this repo's *Issues*. (The link pre-fills the issue's subject so we know what page you're on.) Click it, explain it, and we'll fix it.
-
-- **fix a problem yourself** -- there is also an *Edit this page* link that will bring you to this repo to edit the Markdown source file for that page. Make your changes (you'll have to fork the repo unless you're Percona staff) and submit a PR which we'll review and adjust where necessary before merging and publishing. If the changes are more than a few lines, you might want to build the website locally to see how it looks in context. That's what the rest of this README covers.
-
-> ![PMM Technical Documentation links](docs/_images/pmm-links.png)
->
-> *Links on the [PMM Technical Documentation] home page*
+- **fix a problem yourself** -- Use the *Edit this page* link to take you the Markdown source file for that page. Make your changes (you'll have to fork the repo unless you're Percona staff) and submit a PR which we'll review and adjust where necessary before merging and publishing. If the changes are more than a few lines, you might want to build the website locally to see how it looks in context. That's what the rest of this README covers.
 
 ## Introduction
 
