@@ -530,7 +530,7 @@ func (s *actionsServer) StartPTMySQLSummaryAction(ctx context.Context, req *mana
 	switch node.NodeType {
 	case models.RemoteNodeType:
 		// Remove this error after: https://jira.percona.com/browse/PMM-7562
-		return nil, status.Errorf(codes.FailedPrecondition, "PTMySQL Summary doesnt working with remote node yet")
+		return nil, status.Errorf(codes.FailedPrecondition, "PTMySQL Summary doesn't work with remote instances yet")
 
 		// pmmAgentID = models.PMMServerAgentID
 	default:
