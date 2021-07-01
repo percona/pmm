@@ -22,3 +22,6 @@ TARGET ?= _bash
 
 env:                                        ## Run `make TARGET` in devcontainer (`make env TARGET=help`); TARGET defaults to bash.
 	docker exec -it --workdir=/root/go/src/github.com/percona/pmm-managed pmm-managed-server make $(TARGET)
+
+env-ci:                                     ## Run `make TARGET` in devcontainer (`make env TARGET=help`); TARGET defaults to bash.
+	docker exec -i --workdir=/root/go/src/github.com/percona/pmm-managed pmm-managed-server make $(TARGET)

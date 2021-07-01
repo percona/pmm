@@ -1,0 +1,225 @@
+---
+name: CI
+on:
+  schedule:
+    # run every Sunday to re-populate caches after they are cleaned on Saturday
+    - cron: "0 12 * * 0"
+  push:
+    branches:
+      - PMM-2.0
+      - release-*
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+*
+  pull_request:
+
+jobs:
+  test:
+    name: Test
+    timeout-minutes: 20
+
+    strategy:
+      fail-fast: false
+      matrix:
+        go-version:
+          - 1.16.x
+        os: [ubuntu-latest]
+        may-fail: [false]
+
+    continue-on-error: ${{ matrix.may-fail }}
+    runs-on: ${{ matrix.os }}
+
+    env:
+      # no `-mod=readonly` to test PRs made by @dependabot;
+      # `git diff --exit-code` step below still checks what we need
+      GOFLAGS: -v
+      PMM_SERVER_IMAGE: perconalab/pmm-server:dev-latest
+      AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+      AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+      GO_VERSION: ${{ matrix.go-version }}
+
+    steps:
+      - name: Check out code into the Go module directory
+        uses: percona-platform/checkout@v2
+
+      - name: Enable Go build cache
+        uses: percona-platform/cache@v2
+        with:
+          path: ~/.cache/go-build
+          key: ${{ matrix.os }}-go-${{ matrix.go-version }}-build-${{ github.ref }}-${{ hashFiles('**') }}
+          restore-keys: |
+            ${{ matrix.os }}-go-${{ matrix.go-version }}-build-${{ github.ref }}-
+            ${{ matrix.os }}-go-${{ matrix.go-version }}-build-
+
+      - name: Initialize CI environment
+        run: |
+          env
+          make env-compose-up
+
+      - name: Restore Go build cache
+        continue-on-error: true
+        run: |
+          docker cp ~/.cache/go-build pmm-managed-server:/root/.cache/go-build
+
+      - name: Setup dev-container
+        run: docker exec -i --workdir=/root/go/src/github.com/percona/pmm-managed pmm-managed-server .devcontainer/setup.py
+
+      - name: Ensure that generated files are not changed
+        run: |
+          make env-ci TARGET=gen
+          make env-ci TARGET=format
+          # Break job if any files were changed during its run (code generation, etc), except go.sum.
+          # `go mod tidy` could remove old checksums from that file, and that's okay on CI,
+          # and actually expected for PRs made by @dependabot.
+          # Checksums of actually used modules are checked by previous `go` subcommands.
+          pushd tools && go mod tidy && git checkout go.sum
+          popd        && go mod tidy && git checkout go.sum
+          git status
+          git diff --exit-code
+
+      - name: Run tests
+        run: |
+          make env-ci TARGET=test-all
+
+      - name: Upload coverage results
+        uses: percona-platform/codecov-action@v1
+        with:
+          file: cover.out
+          flags: all,cover
+          functionalities: fix
+          env_vars: GO_VERSION,PMM_SERVER_IMAGE
+          fail_ci_if_error: false
+
+      - name: Upload coverage results
+        uses: percona-platform/codecov-action@v1
+        with:
+          file: crosscover.out
+          flags: all,crosscover
+          functionalities: fix
+          env_vars: GO_VERSION,PMM_SERVER_IMAGE
+          fail_ci_if_error: false
+
+      - name: Upload coverage results
+        uses: percona-platform/codecov-action@v1
+        with:
+          file: race-crosscover.out
+          flags: update,crosscover
+          functionalities: fix
+          env_vars: GO_VERSION,PMM_SERVER_IMAGE
+          fail_ci_if_error: false
+
+      - name: Cache
+        run: |
+          docker exec pmm-managed-server go clean -testcache
+          rm -fr ~/.cache/go-build
+          docker cp pmm-managed-server:/root/.cache/go-build ~/.cache/go-build
+
+      - name: Run debug commands on failure
+        if: ${{ failure() }}
+        run: |
+          env
+          go version
+          go env
+          pwd
+          git status
+          kubectl version
+
+  check:
+    name: Check
+    timeout-minutes: 10
+    if: github.event_name == 'pull_request'
+
+    strategy:
+      matrix:
+        go-version: [1.16.x]
+        os: [ubuntu-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    env:
+      # no `-mod=readonly` to test PRs made by @dependabot;
+      # `git diff --exit-code` step below still checks what we need
+      GOFLAGS: -v
+
+    steps:
+      - name: Set up Go ${{ matrix.go-version }}
+        uses: percona-platform/setup-go@v2
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: Check out code into the Go module directory
+        uses: percona-platform/checkout@v2
+        with:
+          lfs: true
+
+      - name: Enable Go build cache
+        uses: percona-platform/cache@v2
+        with:
+          path: ~/.cache/go-build
+          key: ${{ matrix.os }}-go-${{ matrix.go-version }}-build-${{ github.ref }}-${{ hashFiles('**') }}
+          restore-keys: |
+            ${{ matrix.os }}-go-${{ matrix.go-version }}-build-${{ github.ref }}-
+            ${{ matrix.os }}-go-${{ matrix.go-version }}-build-
+
+      - name: Initialize CI environment
+        run: |
+          env
+          make env-compose-up
+          make init
+
+      - name: Restore Go build cache
+        continue-on-error: true
+        run: |
+          docker cp ~/.cache/go-build pmm-managed-server:/root/.cache/go-build
+          docker cp ~/go/pkg/mod pmm-managed-server:/root/go/pkg/mod
+
+      - name: Setup dev-container
+        run: docker exec -i --workdir=/root/go/src/github.com/percona/pmm-managed pmm-managed-server .devcontainer/setup.py
+
+      - name: Run required checks/linters
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          make env-ci TARGET=check
+          # use GITHUB_TOKEN because only it has access to GitHub Checks API
+          bin/golangci-lint run -c=.golangci-required.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -name='Required checks' -reporter=github-pr-check
+
+          # run it like that until some of those issues/PRs are resolved:
+          # * https://github.com/quasilyte/go-consistent/issues/33
+          # * https://github.com/golangci/golangci-lint/issues/288
+          # * https://github.com/reviewdog/errorformat/pull/47 (once it is atually used by reviewdog)
+          bin/go-consistent -pedantic -exclude "tests" ./... | bin/reviewdog -f=go-consistent -name='Required go-consistent checks' -reporter=github-pr-check
+
+      - name: Run optional checks/linters
+        run: |
+          # use ROBOT_TOKEN for better reviewer's name
+          if [[ ! -z "${{ secrets.ROBOT_TOKEN }}" ]]; then
+            bin/golangci-lint run --out-format=line-number | env REVIEWDOG_GITHUB_API_TOKEN=${{ secrets.ROBOT_TOKEN }} bin/reviewdog -f=golangci-lint -name='Linters' -reporter=github-pr-review
+          else
+            bin/golangci-lint run --out-format=line-number | env REVIEWDOG_GITHUB_API_TOKEN=${{ secrets.GITHUB_TOKEN }} bin/reviewdog -f=golangci-lint -name='Linters' -reporter=github-pr-review
+          fi
+
+      - name: Check that there are no source code changes
+        run: |
+          # Break job if any files were changed during its run (tools installation, etc), except go.sum.
+          # `go mod tidy` could remove old checksums from that file, and that's okay on CI,
+          # and actually expected for PRs made by @dependabot.
+          # Checksums of actually used modules are checked by previous `go` subcommands.
+          pushd tools && go mod tidy && git checkout go.sum
+          popd        && go mod tidy && git checkout go.sum
+          git diff --exit-code
+
+      - name: Cache
+        run: |
+          docker exec pmm-managed-server go clean -testcache
+          rm -fr ~/.cache/go-build
+          mkdir -p ~/.cache
+          docker cp pmm-managed-server:/root/.cache/go-build ~/.cache/go-build
+
+      - name: Run debug commands on failure
+        if: ${{ failure() }}
+        run: |
+          env
+          go version
+          go env
+          pwd
+          git status
