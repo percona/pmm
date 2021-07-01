@@ -150,32 +150,33 @@ How to run PMM Server with Docker based on our [Docker image].
     docker stop pmm-server
     ```
 
-1. Remove it.
+2. Remove it.
 
     ```sh
     docker rm pmm-server
     ```
 
-1. Revert to the saved image.
+3. Revert to the saved image.
 
     ```sh
     docker rename pmm-server-backup pmm-server
     ```
 
-1. Change directory to the backup directory (e.g. `pmm-data-backup`).
+4. Change directory to the backup directory (e.g. `pmm-data-backup`).
 
-1. Remove Victoria Metrics data folder.
+5. Remove Victoria Metrics data folder.
+
     ```sh
     docker run --rm --volumes-from pmm-data -it percona/pmm-server:2 rm -r /srv/victoriametrics/data
     ```
 
-1. Copy the data.
+6. Copy the data.
 
     ```sh
     docker cp srv pmm-data:/
     ```
 
-1. Restore permissions.
+7. Restore permissions.
 
     ```sh
     docker run --rm --volumes-from pmm-data -it percona/pmm-server:2 chown -R root:root /srv && \
@@ -189,7 +190,7 @@ How to run PMM Server with Docker based on our [Docker image].
     docker run --rm --volumes-from pmm-data -it percona/pmm-server:2 chown -R postgres:postgres /srv/logs/postgresql.log
     ```
 
-1. Start the image.
+8. Start the image.
 
     ```sh
     docker start pmm-server
@@ -213,13 +214,13 @@ How to run PMM Server with Docker based on our [Docker image].
     docker stop pmm-server
     ```
 
-1. Remove containers.
+2. Remove containers.
 
     ```sh
     docker rm pmm-server pmm-data
     ```
 
-1. Remove the image.
+3. Remove the image.
 
     ```sh
     docker rmi $(docker images | grep "percona/pmm-server" | awk {'print $3'})
@@ -259,13 +260,13 @@ How to run PMM Server with Docker based on our [Docker image].
       data:
     ```
 
-1. Run:
+2. Run:
 
     ```sh
     docker-compose up
     ```
 
-1. In a web browser, visit `https://localhost:443` to see the PMM user interface. (If you are accessing the docker host remotely, replace `localhost` with the IP or server name of the host.)
+3. In a web browser, visit `https://localhost:443` to see the PMM user interface. (If you are accessing the docker host remotely, replace `localhost` with the IP or server name of the host.)
 
 ## Environment variables
 
