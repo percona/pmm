@@ -109,13 +109,13 @@ View the site at <http://0.0.0.0:8000>
 
 ## Directories and files
 
-- `mkdocs-base.yml`: MkDocs base configuration file, inherited by all others. Contains common table-of-contents `nav` element.
-
 - `mkdocs-percona.yml`: MkDocs configuration file. Creates unthemed HTML for hosting on percona.com.
 
 - `mkdocs.yml`: Default MkDocs configuration file. Creates (Material) themed HTML for hosting anywhere.
 
 - `mkdocs-pdf.yml`: MkDocs configuration file. Creates themed [PDF](#pdf).
+
+- `temp-mkdocs*.yml`: Set of in-test MkDocs configuration files. Uses a base file with a single `nav` element. Pending compatibility with `mike`. (Fails with mike 1.0.1.)
 
 - `docs`:
 
