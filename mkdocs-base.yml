@@ -68,12 +68,11 @@ plugins:
           - 'setting-up/client/docker.md'
     # https://github.com/orzih/mkdocs-with-pdf
     with-pdf:
-        output_path: '_pdf/PerconaMonitoringAndManagement-2.18.0.pdf'
+        output_path: '_pdf/PerconaMonitoringAndManagement-2.19.0.pdf'
         cover_title: 'Documentation'
-        cover_subtitle: 2.18.0 (June 1, 2021)
+        cover_subtitle: 2.19.0 (June 30, 2021)
         author: 'Percona Technical Documentation Team'
         cover_logo: docs/_images/PMM_Logo.svg
-        debug_html: false
         custom_template_path: _resources/templates
         enabled_if_env: ENABLE_PDF_EXPORT
     # Check links - but extends build time significantly
@@ -107,6 +106,7 @@ nav:
           - setting-up/server/docker.md
           - setting-up/server/virtual-appliance.md
           - setting-up/server/aws.md
+          - setting-up/server/easy-install.md
           - setting-up/server/dbaas.md
       - Client:
           - setting-up/client/index.md
@@ -136,7 +136,6 @@ nav:
       - how-to/secure.md
       - how-to/optimize.md
       - how-to/annotate.md
-      - how-to/backup.md
       - how-to/render-dashboard-images.md
       - how-to/troubleshoot.md
   - Details:
@@ -214,30 +213,31 @@ nav:
   - faq.md
   - Release Notes:
       - release-notes/index.md
-      - release-notes/2.18.0.md
-      - release-notes/2.17.0.md
-      - release-notes/2.16.0.md
-      - release-notes/2.15.1.md
-      - release-notes/2.15.0.md
-      - release-notes/2.14.0.md
-      - release-notes/2.13.0.md
-      - release-notes/2.12.0.md
-      - release-notes/2.11.1.md
-      - release-notes/2.11.0.md
-      - release-notes/2.10.1.md
-      - release-notes/2.10.0.md
-      - release-notes/2.9.1.md
-      - release-notes/2.9.0.md
-      - release-notes/2.8.0.md
-      - release-notes/2.7.0.md
-      - release-notes/2.6.1.md
-      - release-notes/2.6.0.md
-      - release-notes/2.5.0.md
-      - release-notes/2.4.0.md
-      - release-notes/2.3.0.md
-      - release-notes/2.2.2.md
-      - release-notes/2.2.1.md
-      - release-notes/2.2.0.md
-      - release-notes/2.1.0.md
-      - release-notes/2.0.1.md
-      - release-notes/2.0.0.md
+      - 'PMM 2.19.0': release-notes/2.19.0.md
+      - 'PMM 2.18.0': release-notes/2.18.0.md
+      - 'PMM 2.17.0': release-notes/2.17.0.md
+      - 'PMM 2.16.0': release-notes/2.16.0.md
+      - 'PMM 2.15.1': release-notes/2.15.1.md
+      - 'PMM 2.15.0': release-notes/2.15.0.md
+      - 'PMM 2.14.0': release-notes/2.14.0.md
+      - 'PMM 2.13.0': release-notes/2.13.0.md
+      - 'PMM 2.12.0': release-notes/2.12.0.md
+      - 'PMM 2.11.1': release-notes/2.11.1.md
+      - 'PMM 2.11.0': release-notes/2.11.0.md
+      - 'PMM 2.10.1': release-notes/2.10.1.md
+      - 'PMM 2.10.0': release-notes/2.10.0.md
+      - 'PMM 2.9.1': release-notes/2.9.1.md
+      - 'PMM 2.9.0': release-notes/2.9.0.md
+      - 'PMM 2.8.0': release-notes/2.8.0.md
+      - 'PMM 2.7.0': release-notes/2.7.0.md
+      - 'PMM 2.6.1': release-notes/2.6.1.md
+      - 'PMM 2.6.0': release-notes/2.6.0.md
+      - 'PMM 2.5.0': release-notes/2.5.0.md
+      - 'PMM 2.4.0': release-notes/2.4.0.md
+      - 'PMM 2.3.0': release-notes/2.3.0.md
+      - 'PMM 2.2.2': release-notes/2.2.2.md
+      - 'PMM 2.2.1': release-notes/2.2.1.md
+      - 'PMM 2.2.0': release-notes/2.2.0.md
+      - 'PMM 2.1.0': release-notes/2.1.0.md
+      - 'PMM 2.0.1': release-notes/2.0.1.md
+      - 'PMM 2.0.0': release-notes/2.0.0.md

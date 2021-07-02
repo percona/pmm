@@ -21,6 +21,7 @@ The documentation source files are in the `docs` directory. (Other files in this
 The two major PMM versions are kept in separate branches:
 
 - `main` is for PMM 2.x (latest)
+
 - `1.x` is for PMM 1.x
 
 Before you start, it helps to know what [Git], [Python] and [Docker](https://docs.docker.com/get-docker/) are, what [Markdown] is and how to write it, and how to install and use those things on the command line. (If you don't, consider opening a [Jira] issue instead.)
@@ -85,7 +86,7 @@ View the site at <http://0.0.0.0:8000>
 
 *How to create a PDF version of the documentation.*
 
-1. (For Percona staff) If bulding for a release of PMM, edit `mkdocs-pdf.yml` and change:
+1. (For Percona staff) If bulding for a release of PMM, edit `mkdocs-base.yml` and change:
 
     - The release number in `plugins.with-pdf.output_path`
     - The release number and date in `plugins.with-pdf.cover_subtitle`
@@ -95,24 +96,26 @@ View the site at <http://0.0.0.0:8000>
     - With Docker:
 
         ```sh
-        docker run --rm -v $(pwd):/docs perconalab/pmm-doc-md mkdocs build -f mkdocs-pdf.yml
+        docker run --rm -v $(pwd):/docs -e ENABLE_PDF_EXPORT=1 perconalab/pmm-doc-md mkdocs build -f mkdocs-pdf.yml
         ```
 
     - Without:
 
         ```sh
-        mkdocs build -f mkdocs-pdf.yml
+        ENABLE_PDF_EXPORT=1 mkdocs build -f mkdocs-pdf.yml
         ```
 
 3. The PDF is in `site/_pdf`.
 
 ## Directories and files
 
-- `mkdocs-pdf.yml`: MkDocs configuration file. Creates themed [PDF](#pdf).
+- `mkdocs-base.yml`: MkDocs base configuration file, inherited by all others. Contains common table-of-contents `nav` element.
 
 - `mkdocs-percona.yml`: MkDocs configuration file. Creates unthemed HTML for hosting on percona.com.
 
 - `mkdocs.yml`: Default MkDocs configuration file. Creates (Material) themed HTML for hosting anywhere.
+
+- `mkdocs-pdf.yml`: MkDocs configuration file. Creates themed [PDF](#pdf).
 
 - `docs`:
 
