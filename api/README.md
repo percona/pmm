@@ -14,7 +14,7 @@ make serve
 
 1. Edit `.proto` files. Do not edit Swagger, `.pb.go`, `.pb.gw.go`. You can use `make clean` to remove all generated files.
 
-2. Install `prototool` and fill `vendor/` (once):
+2. Install `prototool` and other required tools (once):
 ```
 make init
 ```

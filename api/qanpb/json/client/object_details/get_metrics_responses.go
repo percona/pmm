@@ -711,6 +711,23 @@ type SparklineItems0 struct {
 
 	// Total time system spent in query.
 	MCPUSysTimeSumPerSec float32 `json:"m_cpu_sys_time_sum_per_sec,omitempty"`
+
+	// pg_stat_monitor 0.9 metrics
+	//
+	// Total number of planned calls.
+	MPlansCallsSumPerSec float32 `json:"m_plans_calls_sum_per_sec,omitempty"`
+
+	// Total number of WAL (Write-ahead logging) records.
+	MWalRecordsSumPerSec float32 `json:"m_wal_records_sum_per_sec,omitempty"`
+
+	// Total number of FPI (full page images) in WAL (Write-ahead logging) records.
+	MWalFpiSumPerSec float32 `json:"m_wal_fpi_sum_per_sec,omitempty"`
+
+	// Total bytes of WAL (Write-ahead logging) records.
+	MWalBytesSumPerSec float32 `json:"m_wal_bytes_sum_per_sec,omitempty"`
+
+	// Plan time in per seconds.
+	MPlanTimeSumPerSec float32 `json:"m_plan_time_sum_per_sec,omitempty"`
 }
 
 // Validate validates this sparkline items0

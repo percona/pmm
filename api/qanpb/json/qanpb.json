@@ -591,6 +591,19 @@
                               "format": "float",
                               "x-order": 38
                             },
+                            "m_plan_time_sum_per_sec": {
+                              "description": "Plan time in per seconds.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 61
+                            },
+                            "m_plans_calls_sum_per_sec": {
+                              "description": "Total number of planned calls.",
+                              "type": "number",
+                              "format": "float",
+                              "title": "pg_stat_monitor 0.9 metrics",
+                              "x-order": 57
+                            },
                             "m_qc_hit_sum_per_sec": {
                               "description": "Boolean metrics:\n- *_sum_per_sec - how many times this matric was true.\n\nQuery Cache hits.",
                               "type": "number",
@@ -740,6 +753,24 @@
                               "type": "number",
                               "format": "float",
                               "x-order": 22
+                            },
+                            "m_wal_bytes_sum_per_sec": {
+                              "description": "Total bytes of WAL (Write-ahead logging) records.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 60
+                            },
+                            "m_wal_fpi_sum_per_sec": {
+                              "description": "Total number of FPI (full page images) in WAL (Write-ahead logging) records.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 59
+                            },
+                            "m_wal_records_sum_per_sec": {
+                              "description": "Total number of WAL (Write-ahead logging) records.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 58
                             },
                             "num_queries_per_sec": {
                               "description": "number of queries in bucket.",
@@ -1239,6 +1270,19 @@
                         "format": "float",
                         "x-order": 38
                       },
+                      "m_plan_time_sum_per_sec": {
+                        "description": "Plan time in per seconds.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 61
+                      },
+                      "m_plans_calls_sum_per_sec": {
+                        "description": "Total number of planned calls.",
+                        "type": "number",
+                        "format": "float",
+                        "title": "pg_stat_monitor 0.9 metrics",
+                        "x-order": 57
+                      },
                       "m_qc_hit_sum_per_sec": {
                         "description": "Boolean metrics:\n- *_sum_per_sec - how many times this matric was true.\n\nQuery Cache hits.",
                         "type": "number",
@@ -1388,6 +1432,24 @@
                         "type": "number",
                         "format": "float",
                         "x-order": 22
+                      },
+                      "m_wal_bytes_sum_per_sec": {
+                        "description": "Total bytes of WAL (Write-ahead logging) records.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 60
+                      },
+                      "m_wal_fpi_sum_per_sec": {
+                        "description": "Total number of FPI (full page images) in WAL (Write-ahead logging) records.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 59
+                      },
+                      "m_wal_records_sum_per_sec": {
+                        "description": "Total number of WAL (Write-ahead logging) records.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 58
                       },
                       "num_queries_per_sec": {
                         "description": "number of queries in bucket.",

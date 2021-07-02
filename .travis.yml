@@ -2,7 +2,7 @@ dist: bionic
 language: go
 
 go:
-  - 1.15.x
+  - 1.16.x
   - tip
 
 matrix:
@@ -28,10 +28,7 @@ before_cache:
   # - go clean -cache
 
 install:
-  # ensure that Gopkg.lock is up-to-date
-  - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
   - make -C api init
-  - dep check
 
 before_script:
   # ensure that generated files are not changed

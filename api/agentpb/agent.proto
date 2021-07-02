@@ -416,6 +416,44 @@ message StartJobRequest {
       S3LocationConfig s3_config = 10;
     }
   }
+  // MongoDBBackup is job for backup MongoDB service.
+  message MongoDBBackup {
+    // Database user;
+    string user = 1;
+    // Database password.
+    string password = 2;
+    // Database address. Can't be specified with socket.
+    string address = 3;
+    // Database port. Can't be specified with socket.
+    int32 port = 4;
+    // Database unix socket. Can't be specified with address/port.
+    string socket = 5;
+    // Backup name.
+    string name = 6;
+    // Backup target location.
+    oneof location_config {
+      S3LocationConfig s3_config = 10;
+    }
+  }
+  // MongoDBRestoreBackup is job for MongoDB restore backup service.
+  message MongoDBRestoreBackup {
+    // Database user;
+    string user = 1;
+    // Database password.
+    string password = 2;
+    // Database address. Can't be specified with socket.
+    string address = 3;
+    // Database port. Can't be specified with socket.
+    int32 port = 4;
+    // Database unix socket. Can't be specified with address/port.
+    string socket = 5;
+    // Backup name.
+    string name = 6;
+    // Where backup is stored.
+    oneof location_config {
+      S3LocationConfig s3_config = 10;
+    }
+  }
   string job_id = 1;
   // Timeout for the job.
   google.protobuf.Duration timeout = 2;
@@ -423,6 +461,8 @@ message StartJobRequest {
     Echo echo = 10;
     MySQLBackup mysql_backup = 11;
     MySQLRestoreBackup mysql_restore_backup = 12;
+    MongoDBBackup mongodb_backup = 13;
+    MongoDBRestoreBackup mongodb_restore_backup = 14;
   }
 }
 
@@ -449,11 +489,17 @@ message JobResult {
   message Echo {
     string message = 1;
   }
+  // MongoDBBackup contains result for MongoDB backup job.
+  message MongoDBBackup {}
+
   // MySQLBackup contains result for MySQL backup job.
   message MySQLBackup {}
 
   // MySQLRestoreBackup contains result for MySQL restore backup job.
   message MySQLRestoreBackup {}
+
+  // MongoDBRestoreBackup contains result for MongoDB restore backup job.
+  message MongoDBRestoreBackup {}
 
   string job_id = 1;
   google.protobuf.Timestamp timestamp = 2;
@@ -462,6 +508,8 @@ message JobResult {
     Echo echo = 11;
     MySQLBackup mysql_backup = 12;
     MySQLRestoreBackup mysql_restore_backup = 13;
+    MongoDBBackup mongodb_backup = 14;
+    MongoDBRestoreBackup mongodb_restore_backup = 15;
   }
 }
 
