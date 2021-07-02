@@ -114,10 +114,8 @@ nav:
       - using/alerting.md
       - using/backup.md
       - using/query-analytics.md
-      - Percona Platform:
-          - using/platform/index.md
-          - using/platform/security-threat-tool.md
-          - using/platform/dbaas.md
+      - using/dbaas.md
+      - using/security-threat-tool.md
   - How to:
       - how-to/index.md
       - how-to/configure.md

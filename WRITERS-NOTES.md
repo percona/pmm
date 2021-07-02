@@ -39,7 +39,7 @@ Use as a side panel, an 'aside', a note detached from the main flow of the text.
 
 Preferred use is without the label (first form).
 
-```
+```txt
 !!! note alert alert-primary ""
     Text ...
 
@@ -63,7 +63,7 @@ Style:
 - MkDocs: Amber with triangle/! icon
 - Bootstrap: Yellow with no icon
 
-```
+```txt
 !!! caution alert alert-warning "Caution"
 !!! caution alert alert-warning "Important"
 ```
@@ -75,7 +75,7 @@ Anything that has the potential to damage or compromise a user's data or system.
 - MkDocs: Red with bolt icon.
 - Boostrap: Red with no icon.
 
-```
+```txt
 !!! danger alert alert-danger "Danger"
 ```
 
@@ -83,7 +83,7 @@ Anything that has the potential to damage or compromise a user's data or system.
 
 Use for tips, hints, non-essential but useful advice. Note that `tip` renders badly in Percona.com. `hint` is better and looks the same as `tip` in Material theme.
 
-```
+```txt
 !!! hint alert alert-success "Tip"
     Tip
 
@@ -95,12 +95,11 @@ Use for tips, hints, non-essential but useful advice. Note that `tip` renders ba
     Tip
 ```
 
-
 ### Summary
 
 Used to summarise a block of text (a TLDR).
 
-```
+```txt
 !!! summary alert alert-info "Summary"
 ```
 
@@ -115,7 +114,7 @@ An exception would be when there is an equivalent or closely related section els
 - MkDocs: Blue with pen icon (same as note).
 - Bootstrap: Turquoise with no icon.
 
-```
+```txt
 !!! seealso alert alert-info "See also"
 ```
 

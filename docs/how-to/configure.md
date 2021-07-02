@@ -113,7 +113,7 @@ When active, PMM will automatically check for updates and put a notification in 
 
 ### Security Threat Tool
 
-The [Security Threat Tool](../using/platform/security-threat-tool.md) performs a range of security-related checks on a registered instance and reports the findings. It is off by default.
+The [Security Threat Tool] performs a range of security-related checks on a registered instance and reports the findings. It is off by default.
 
 !!! hint alert alert-success "Tip"
     To see the results of checks, select *{{icon.checks}} Security Checks* to open the *Security Checks/Failed Checks* dashboard, and select the *Failed Checks* tab.
@@ -141,8 +141,6 @@ Checks use the *Standard* interval by default. To change a check's interval:
 
     ![!](../_images/PMM_Security_Checks_Actions_Set_Interval.png)
 
-(Read more at [Security Threat Tool](../using/platform/security-threat-tool.md).)
-
 ## Public address
 
 The address or hostname PMM Server will be accessible at. Click *Get from browser* to have your browser detect and populate this field automatically.
@@ -152,7 +150,7 @@ The address or hostname PMM Server will be accessible at. Click *Get from browse
 !!! caution alert alert-warning "Caution"
     DBaaS functionality is a technical preview that must be turned on with a server feature flag. See [DBaaS](../setting-up/server/dbaas.md).
 
-Enables/disables [DBaaS features](../using/platform/dbaas.md) on this server.
+Enables/disables [DBaaS features](../using/dbaas.md) on this server.
 
 !!! caution alert alert-warning "Important"
     Deactivating DBaaS ***does not*** suspend or remove running DB clusters.
@@ -280,3 +278,5 @@ Settings for Slack notifications:
 
 !!! seealso alert alert-info "See also"
     [Prometheus Alertmanager configuration](https://prometheus.io/docs/alerting/latest/configuration/)
+
+[Security Threat Tool]: ../using/security-threat-tool.md

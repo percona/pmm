@@ -8,7 +8,7 @@ PMM helps you improve the performance of your databases, simplify their manageme
 
 - The PMM [web UI](using/interface.md) **visualizes data** in [dashboards](details/dashboards/).
 
-- Additional features include checking databases for [security threats](using/platform/security-threat-tool.md).
+- Additional features include checking databases for [security threats](using/security-threat-tool.md).
 
 !!! alert alert-info ""
     This is the documentation for the latest release, **PMM {{release}}** ([Release Notes](release-notes/{{release}}.md)).
@@ -64,7 +64,7 @@ mindmapDiagram {
 +++_ [[$base/using/interface.html User interface]]
 +++_ [[$base/using/query-analytics.html Using Query Analytics]]
 +++_ [[$base/using/alerting.html Using Integrated Alerting]]
-+++_ [[$base/using/platform/index.html Using Percona Platform]]
++++_ [[$base/using/dbaas.html Using DBaaS]]
 +++_ [[$base/details/dashboards/ Dashboards reference]]
 @endmindmap
 ```
@@ -117,9 +117,8 @@ mindmapDiagram {
 +++_ [[$base/using/alerting.html Integrated\nAlerting]]
 +++_ [[$base/using/backup.html Backup and\nRestore]]
 +++_ [[$base/using/query-analytics.html Query\nAnalytics]]
-+++ [[$base/using/platform/index.html Percona\nPlatform]]
-++++_ [[$base/using/platform/security-threat-tool.html Security\nThreat Tool]]
-++++_ [[$base/using/platform/dbaas.html DBaaS]]
++++_ [[$base/using/security-threat-tool.html Security\nThreat Tool]]
++++_ [[$base/using/dbaas.html DBaaS]]
 ++ <&task> [[$base/how-to/ How to]]
 +++_ [[$base/how-to/configure.html Configure]]
 +++_ [[$base/how-to/upgrade.html Upgrade]]
