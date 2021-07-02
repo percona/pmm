@@ -57,12 +57,11 @@ func (s *ChecksAPIService) GetSecurityCheckResults(ctx context.Context, request 
 	checkResults := make([]*managementpb.SecurityCheckResult, 0, len(results))
 	for _, result := range results {
 		checkResults = append(checkResults, &managementpb.SecurityCheckResult{
-			Summary:     result.Result.Summary,
-			Description: result.Result.Description,
-			ReadMoreUrl: result.Result.ReadMoreURL,
-			Severity:    managementpb.Severity(result.Result.Severity),
-			Labels:      result.Result.Labels,
-			ServiceName: result.Target.ServiceName,
+			Summary:     result.Summary,
+			Description: result.Description,
+			ReadMoreUrl: result.ReadMoreURL,
+			Severity:    managementpb.Severity(result.Severity),
+			Labels:      result.Labels,
 		})
 	}
 

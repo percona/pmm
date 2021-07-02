@@ -108,7 +108,6 @@ func TestAgents(t *testing.T) {
 		expectedNodeExporter := &inventorypb.NodeExporter{
 			AgentId:    "/agent_id/00000000-0000-4000-8000-000000000006",
 			PmmAgentId: "/agent_id/00000000-0000-4000-8000-000000000005",
-			Status:     inventorypb.AgentStatus_UNKNOWN,
 		}
 		assert.Equal(t, expectedNodeExporter, actualNodeExporter)
 
@@ -123,7 +122,6 @@ func TestAgents(t *testing.T) {
 			AgentId:    "/agent_id/00000000-0000-4000-8000-000000000006",
 			PmmAgentId: "/agent_id/00000000-0000-4000-8000-000000000005",
 			Disabled:   true,
-			Status:     inventorypb.AgentStatus_UNKNOWN,
 		}
 		assert.Equal(t, expectedNodeExporter, actualNodeExporter)
 
@@ -150,7 +148,6 @@ func TestAgents(t *testing.T) {
 			PmmAgentId: "/agent_id/00000000-0000-4000-8000-000000000005",
 			ServiceId:  s.ServiceId,
 			Username:   "username",
-			Status:     inventorypb.AgentStatus_UNKNOWN,
 		}
 		assert.Equal(t, expectedMySQLdExporter, actualAgent)
 
@@ -177,7 +174,6 @@ func TestAgents(t *testing.T) {
 			PmmAgentId: pmmAgent.AgentId,
 			ServiceId:  ms.ServiceId,
 			Username:   "username",
-			Status:     inventorypb.AgentStatus_UNKNOWN,
 		}
 		assert.Equal(t, expectedMongoDBExporter, actualAgent)
 
@@ -196,7 +192,6 @@ func TestAgents(t *testing.T) {
 			PmmAgentId: pmmAgent.AgentId,
 			ServiceId:  s.ServiceId,
 			Username:   "username",
-			Status:     inventorypb.AgentStatus_UNKNOWN,
 		}
 		assert.Equal(t, expectedQANMySQLSlowlogAgent, actualAgent)
 
@@ -223,7 +218,6 @@ func TestAgents(t *testing.T) {
 			PmmAgentId: pmmAgent.AgentId,
 			ServiceId:  ps.ServiceId,
 			Username:   "username",
-			Status:     inventorypb.AgentStatus_UNKNOWN,
 		}
 		assert.Equal(t, expectedPostgresExporter, actualAgent)
 
@@ -407,7 +401,6 @@ func TestAgents(t *testing.T) {
 			NodeId:       "/node_id/00000000-0000-4000-8000-000000000005",
 			AwsAccessKey: "AKIAIOSFODNN7EXAMPLE",
 			CustomLabels: map[string]string{"baz": "qux"},
-			Status:       inventorypb.AgentStatus_UNKNOWN,
 		}
 		assert.Equal(t, expectedAgent, agent)
 	})
@@ -520,7 +513,6 @@ func TestAgents(t *testing.T) {
 			ServiceId:          ms.ServiceId,
 			Username:           "username",
 			PushMetricsEnabled: true,
-			Status:             inventorypb.AgentStatus_UNKNOWN,
 		}
 		assert.Equal(t, expectedMongoDBExporter, actualAgent)
 	})
@@ -556,7 +548,6 @@ func TestAgents(t *testing.T) {
 			AgentId:            "/agent_id/00000000-0000-4000-8000-000000000006",
 			PmmAgentId:         "/agent_id/00000000-0000-4000-8000-000000000005",
 			PushMetricsEnabled: true,
-			Status:             inventorypb.AgentStatus_UNKNOWN,
 		}
 		assert.Equal(t, expectedNodeExporter, actualNodeExporter)
 	})
@@ -608,7 +599,6 @@ func TestAgents(t *testing.T) {
 			ServiceId:          ps.ServiceId,
 			Username:           "username",
 			PushMetricsEnabled: true,
-			Status:             inventorypb.AgentStatus_UNKNOWN,
 		}
 		assert.Equal(t, expectedPostgresExporter, actualAgent)
 	})
@@ -660,7 +650,6 @@ func TestAgents(t *testing.T) {
 			ServiceId:          s.ServiceId,
 			Username:           "username",
 			PushMetricsEnabled: true,
-			Status:             inventorypb.AgentStatus_UNKNOWN,
 		}
 		assert.Equal(t, expectedMySQLdExporter, actualAgent)
 	})
@@ -706,7 +695,6 @@ func TestAgents(t *testing.T) {
 			AwsAccessKey:       "AKIAIOSFODNN7EXAMPLE",
 			CustomLabels:       map[string]string{"baz": "qux"},
 			PushMetricsEnabled: true,
-			Status:             inventorypb.AgentStatus_UNKNOWN,
 		}
 		assert.Equal(t, expectedAgent, agent)
 	})

@@ -4,8 +4,9 @@ templates:
     version: 1
     summary: Memory used by MongoDB
     expr: |-
-      100 / ((node_memory_MemTotal_bytes)
-      / on(node_name) group_left(service_name) (mongodb_ss_mem_resident * 1024 * 1024))
+      sum by (node_name) (mongodb_ss_mem_resident * 1024 * 1024)
+      / on (node_name) (node_memory_MemTotal_bytes)
+      * 100
       > [[ .threshold ]]
     params:
       - name: threshold

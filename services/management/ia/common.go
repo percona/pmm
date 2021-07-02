@@ -21,13 +21,12 @@ import (
 	"os"
 	"time"
 
+	"github.com/golang/protobuf/ptypes"
 	"github.com/percona-platform/saas/pkg/alert"
 	"github.com/percona/pmm/api/managementpb"
 	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"google.golang.org/protobuf/types/known/durationpb"
-	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/percona/pmm-managed/models"
 )
@@ -55,7 +54,7 @@ func convertTemplate(l *logrus.Entry, template templateInfo) (*iav1beta1.Templat
 		Summary:     template.Summary,
 		Expr:        template.Expr,
 		Params:      make([]*iav1beta1.TemplateParam, 0, len(template.Params)),
-		For:         durationpb.New(time.Duration(template.For)),
+		For:         ptypes.DurationProto(time.Duration(template.For)),
 		Severity:    managementpb.Severity(template.Severity),
 		Labels:      template.Labels,
 		Annotations: template.Annotations,
@@ -64,11 +63,10 @@ func convertTemplate(l *logrus.Entry, template templateInfo) (*iav1beta1.Templat
 	}
 
 	if template.CreatedAt != nil {
-		t.CreatedAt = timestamppb.New(*template.CreatedAt)
-		if err := t.CreatedAt.CheckValid(); err != nil {
+		var err error
+		if t.CreatedAt, err = ptypes.TimestampProto(*template.CreatedAt); err != nil {
 			return nil, err
 		}
-
 	}
 
 	for _, p := range template.Params {
@@ -122,12 +120,12 @@ func convertRule(l *logrus.Entry, rule *models.Rule, template templateInfo, chan
 		Disabled: rule.Disabled,
 		Summary:  rule.Summary,
 		Severity: managementpb.Severity(rule.Severity),
-		For:      durationpb.New(rule.For),
+		For:      ptypes.DurationProto(rule.For),
 	}
 
 	var err error
-	r.CreatedAt = timestamppb.New(rule.CreatedAt)
-	if err := r.CreatedAt.CheckValid(); err != nil {
+	r.CreatedAt, err = ptypes.TimestampProto(rule.CreatedAt)
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to convert timestamp")
 	}
 

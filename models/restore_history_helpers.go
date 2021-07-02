@@ -17,38 +17,14 @@
 package models
 
 import (
-	"fmt"
-	"strings"
-	"time"
-
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 )
 
-// RestoreHistoryItemFilters represents filters for restore history items.
-type RestoreHistoryItemFilters struct {
-	// Return only items that belongs to specified service id.
-	ServiceID string
-}
-
 // FindRestoreHistoryItems returns restore history list.
-func FindRestoreHistoryItems(q *reform.Querier, filters *RestoreHistoryItemFilters) ([]*RestoreHistoryItem, error) {
-	var conditions []string
-	var args []interface{}
-	if filters != nil && filters.ServiceID != "" {
-		if _, err := FindServiceByID(q, filters.ServiceID); err != nil {
-			return nil, err
-		}
-		conditions = append(conditions, fmt.Sprintf("service_id = %s", q.Placeholder(1)))
-		args = append(args, filters.ServiceID)
-	}
-
-	var whereClause string
-	if len(conditions) != 0 {
-		whereClause = fmt.Sprintf("WHERE %s", strings.Join(conditions, " AND "))
-	}
-	rows, err := q.SelectAllFrom(RestoreHistoryItemTable, fmt.Sprintf("%s ORDER BY started_at DESC", whereClause), args...)
+func FindRestoreHistoryItems(q *reform.Querier) ([]*RestoreHistoryItem, error) {
+	rows, err := q.SelectAllFrom(RestoreHistoryItemTable, "ORDER BY started_at DESC")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to select restore history")
 	}
@@ -127,8 +103,7 @@ func CreateRestoreHistoryItem(q *reform.Querier, params CreateRestoreHistoryItem
 
 // ChangeRestoreHistoryItemParams are params for changing existing restore history item.
 type ChangeRestoreHistoryItemParams struct {
-	Status     RestoreStatus
-	FinishedAt *time.Time
+	Status RestoreStatus
 }
 
 // ChangeRestoreHistoryItem updates existing restore history item.
@@ -142,10 +117,6 @@ func ChangeRestoreHistoryItem(
 		return nil, err
 	}
 	row.Status = params.Status
-
-	if params.FinishedAt != nil {
-		row.FinishedAt = params.FinishedAt
-	}
 
 	if err := q.Update(row); err != nil {
 		return nil, errors.Wrap(err, "failed to update restore history item")

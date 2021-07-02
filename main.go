@@ -717,14 +717,6 @@ func main() {
 			}
 		}()
 	}
-
-	// Set all agents status to unknown at startup. The ones that are alive
-	// will get their status updated after they connect to the pmm-managed.
-	err = agentsRegistry.SetAllAgentsStatusUnknown(ctx)
-	if err != nil {
-		l.Errorf("Failed to set status of all agents to invalid at startup: %s", err)
-	}
-
 	settings, err := models.GetSettings(sqlDB)
 	if err != nil {
 		l.Fatalf("Failed to get settings: %+v.", err)

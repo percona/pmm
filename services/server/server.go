@@ -33,6 +33,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/duration"
 	"github.com/google/uuid"
 	"github.com/percona/pmm/api/serverpb"
 	"github.com/percona/pmm/utils/pdeathsig"
@@ -42,8 +44,6 @@ import (
 	"golang.org/x/sys/unix"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/durationpb"
-	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
@@ -199,7 +199,8 @@ func (s *Server) Version(ctx context.Context, req *serverpb.VersionRequest) (*se
 		DistributionMethod: s.telemetryService.DistributionMethod(),
 	}
 	if t, err := version.Time(); err == nil {
-		res.Managed.Timestamp = timestamppb.New(t)
+		ts, _ := ptypes.TimestampProto(t)
+		res.Managed.Timestamp = ts
 	}
 
 	if v := s.supervisord.InstalledPMMVersion(ctx); v != nil {
@@ -209,7 +210,7 @@ func (s *Server) Version(ctx context.Context, req *serverpb.VersionRequest) (*se
 			FullVersion: v.FullVersion,
 		}
 		if v.BuildTime != nil {
-			res.Server.Timestamp = timestamppb.New(*v.BuildTime)
+			res.Server.Timestamp, _ = ptypes.TimestampProto(*v.BuildTime)
 		}
 	}
 
@@ -273,16 +274,16 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesReq
 		res.UpdateAvailable = false
 	}
 
-	res.LastCheck = timestamppb.New(lastCheck)
+	res.LastCheck, _ = ptypes.TimestampProto(lastCheck)
 
 	if v.Installed.BuildTime != nil {
 		t := v.Installed.BuildTime.UTC().Truncate(24 * time.Hour) // return only date
-		res.Installed.Timestamp = timestamppb.New(t)
+		res.Installed.Timestamp, _ = ptypes.TimestampProto(t)
 	}
 
 	if v.Latest.BuildTime != nil {
 		t := v.Latest.BuildTime.UTC().Truncate(24 * time.Hour) // return only date
-		res.Latest.Timestamp = timestamppb.New(t)
+		res.Latest.Timestamp, _ = ptypes.TimestampProto(t)
 	}
 
 	return res, nil
@@ -406,16 +407,16 @@ func (s *Server) convertSettings(settings *models.Settings) *serverpb.Settings {
 		UpdatesDisabled:  s.envSettings.DisableUpdates,
 		TelemetryEnabled: !settings.Telemetry.Disabled,
 		MetricsResolutions: &serverpb.MetricsResolutions{
-			Hr: durationpb.New(settings.MetricsResolutions.HR),
-			Mr: durationpb.New(settings.MetricsResolutions.MR),
-			Lr: durationpb.New(settings.MetricsResolutions.LR),
+			Hr: ptypes.DurationProto(settings.MetricsResolutions.HR),
+			Mr: ptypes.DurationProto(settings.MetricsResolutions.MR),
+			Lr: ptypes.DurationProto(settings.MetricsResolutions.LR),
 		},
 		SttCheckIntervals: &serverpb.STTCheckIntervals{
-			RareInterval:     durationpb.New(settings.SaaS.STTCheckIntervals.RareInterval),
-			StandardInterval: durationpb.New(settings.SaaS.STTCheckIntervals.StandardInterval),
-			FrequentInterval: durationpb.New(settings.SaaS.STTCheckIntervals.FrequentInterval),
+			RareInterval:     ptypes.DurationProto(settings.SaaS.STTCheckIntervals.RareInterval),
+			StandardInterval: ptypes.DurationProto(settings.SaaS.STTCheckIntervals.StandardInterval),
+			FrequentInterval: ptypes.DurationProto(settings.SaaS.STTCheckIntervals.FrequentInterval),
 		},
-		DataRetention:        durationpb.New(settings.DataRetention),
+		DataRetention:        ptypes.DurationProto(settings.DataRetention),
 		SshKey:               settings.SSHKey,
 		AwsPartitions:        settings.AWSPartitions,
 		AlertManagerUrl:      settings.AlertManagerURL,
@@ -471,6 +472,11 @@ func (s *Server) GetSettings(ctx context.Context, req *serverpb.GetSettingsReque
 	}, nil
 }
 
+func getDuration(p *duration.Duration) time.Duration {
+	d, _ := ptypes.Duration(p)
+	return d
+}
+
 func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverpb.ChangeSettingsRequest) error {
 	metricsRes := req.MetricsResolutions
 
@@ -519,17 +525,17 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverp
 		return status.Error(codes.FailedPrecondition, "DBaaS is enabled via ENABLE_DBAAS or via deprecated PERCONA_TEST_DBAAS environment variable.")
 	}
 
-	if metricsRes.GetHr().AsDuration() != 0 && s.envSettings.MetricsResolutions.HR != 0 {
+	if getDuration(metricsRes.GetHr()) != 0 && s.envSettings.MetricsResolutions.HR != 0 {
 		return status.Error(codes.FailedPrecondition, "High resolution for metrics is set via METRICS_RESOLUTION_HR (or METRICS_RESOLUTION) environment variable.")
 	}
-	if metricsRes.GetMr().AsDuration() != 0 && s.envSettings.MetricsResolutions.MR != 0 {
+	if getDuration(metricsRes.GetMr()) != 0 && s.envSettings.MetricsResolutions.MR != 0 {
 		return status.Error(codes.FailedPrecondition, "Medium resolution for metrics is set via METRICS_RESOLUTION_MR environment variable.")
 	}
-	if metricsRes.GetLr().AsDuration() != 0 && s.envSettings.MetricsResolutions.LR != 0 {
+	if getDuration(metricsRes.GetLr()) != 0 && s.envSettings.MetricsResolutions.LR != 0 {
 		return status.Error(codes.FailedPrecondition, "Low resolution for metrics is set via METRICS_RESOLUTION_LR environment variable.")
 	}
 
-	if req.DataRetention.AsDuration() != 0 && s.envSettings.DataRetention != 0 {
+	if getDuration(req.DataRetention) != 0 && s.envSettings.DataRetention != 0 {
 		return status.Error(codes.FailedPrecondition, "Data retention for queries is set via DATA_RETENTION environment variable.")
 	}
 
@@ -559,16 +565,16 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 			DisableTelemetry: req.DisableTelemetry,
 			EnableTelemetry:  req.EnableTelemetry,
 			STTCheckIntervals: models.STTCheckIntervals{
-				RareInterval:     sttCheckIntervals.GetRareInterval().AsDuration(),
-				StandardInterval: sttCheckIntervals.GetStandardInterval().AsDuration(),
-				FrequentInterval: sttCheckIntervals.GetFrequentInterval().AsDuration(),
+				RareInterval:     getDuration(sttCheckIntervals.GetRareInterval()),
+				StandardInterval: getDuration(sttCheckIntervals.GetStandardInterval()),
+				FrequentInterval: getDuration(sttCheckIntervals.GetFrequentInterval()),
 			},
 			MetricsResolutions: models.MetricsResolutions{
-				HR: metricsRes.GetHr().AsDuration(),
-				MR: metricsRes.GetMr().AsDuration(),
-				LR: metricsRes.GetLr().AsDuration(),
+				HR: getDuration(metricsRes.GetHr()),
+				MR: getDuration(metricsRes.GetMr()),
+				LR: getDuration(metricsRes.GetLr()),
 			},
-			DataRetention:          req.DataRetention.AsDuration(),
+			DataRetention:          getDuration(req.DataRetention),
 			AWSPartitions:          req.AwsPartitions,
 			AlertManagerURL:        req.AlertManagerUrl,
 			RemoveAlertManagerURL:  req.RemoveAlertManagerUrl,

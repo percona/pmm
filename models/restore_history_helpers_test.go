@@ -41,7 +41,6 @@ func TestRestoreHistory(t *testing.T) {
 	nodeID1 := "node_id_1"
 	artifactID1, artifactID2 := "artifact_id_1", "artifact_id_2"
 	serviceID1, serviceID2 := "service_id_1", "service_id_2"
-	locationID1 := "location_id_1"
 
 	prepareArtifactsAndService := func(q *reform.Querier) {
 		for _, str := range []reform.Struct{
@@ -66,20 +65,11 @@ func TestRestoreHistory(t *testing.T) {
 				Address:     pointer.ToString("127.0.0.1"),
 				Port:        pointer.ToUint16OrNil(777),
 			},
-			&models.BackupLocation{
-				ID:          locationID1,
-				Name:        "Location 1",
-				Description: "Description for location 1",
-				Type:        models.S3BackupLocationType,
-				S3Config:    &models.S3LocationConfig{},
-				CreatedAt:   time.Now(),
-				UpdatedAt:   time.Now(),
-			},
 			&models.Artifact{
 				ID:         artifactID1,
 				Name:       "artifact 1",
 				Vendor:     "MySQL",
-				LocationID: locationID1,
+				LocationID: "location_id_1",
 				ServiceID:  serviceID1,
 				DataModel:  models.PhysicalDataModel,
 				Status:     models.SuccessBackupStatus,
@@ -89,7 +79,7 @@ func TestRestoreHistory(t *testing.T) {
 				ID:         artifactID2,
 				Name:       "artifact 2",
 				Vendor:     "MySQL",
-				LocationID: locationID1,
+				LocationID: "location_id_1",
 				ServiceID:  serviceID2,
 				DataModel:  models.PhysicalDataModel,
 				Status:     models.SuccessBackupStatus,
@@ -183,7 +173,7 @@ func TestRestoreHistory(t *testing.T) {
 		i2, err := models.CreateRestoreHistoryItem(q, params2)
 		require.NoError(t, err)
 
-		actual, err := models.FindRestoreHistoryItems(q, nil)
+		actual, err := models.FindRestoreHistoryItems(q)
 		require.NoError(t, err)
 
 		found := func(id string) func() bool {
@@ -222,7 +212,7 @@ func TestRestoreHistory(t *testing.T) {
 		err = models.RemoveRestoreHistoryItem(q, i.ID)
 		require.NoError(t, err)
 
-		artifacts, err := models.FindRestoreHistoryItems(q, nil)
+		artifacts, err := models.FindRestoreHistoryItems(q)
 		require.NoError(t, err)
 		assert.Empty(t, artifacts)
 	})

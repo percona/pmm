@@ -190,7 +190,7 @@ func TestVictoriaMetrics(t *testing.T) {
 ---
 global:
     scrape_interval: 1m
-    scrape_timeout: 54s
+    scrape_timeout: 10s
 scrape_configs:
     - job_name: victoriametrics
       honor_timestamps: false
@@ -339,7 +339,7 @@ scrape_configs:
             - perf_schema.indexiowaits
             - perf_schema.tableiowaits
       scrape_interval: 1m
-      scrape_timeout: 54s
+      scrape_timeout: 10s
       metrics_path: /metrics
       static_configs:
         - targets:
@@ -447,7 +447,7 @@ scrape_configs:
             - perf_schema.indexiowaits
             - perf_schema.tableiowaits
       scrape_interval: 1m
-      scrape_timeout: 54s
+      scrape_timeout: 10s
       metrics_path: /metrics
       static_configs:
         - targets:
@@ -531,7 +531,7 @@ scrape_configs:
         collect[]:
             - custom_query.lr
       scrape_interval: 1m
-      scrape_timeout: 54s
+      scrape_timeout: 10s
       metrics_path: /metrics
       static_configs:
         - targets:
@@ -568,7 +568,7 @@ func TestConfigReload(t *testing.T) {
 ---
 global:
   scrape_interval: 1m
-  scrape_timeout: 54s
+  scrape_timeout: 10s
 scrape_configs:
 - job_name: victoriametrics
   honor_timestamps: false
@@ -614,7 +614,7 @@ scrape_configs:
 ---
 global:
   scrape_interval: 1m
-  scrape_timeout: 54s
+  scrape_timeout: 10s
 remote_write:
 - url: http://some-remote-url
 remote_read:

@@ -102,7 +102,6 @@ func (s PSMDBClusterService) ListPSMDBClusters(ctx context.Context, req *dbaasv1
 				FinishedSteps: c.Operation.FinishedSteps,
 				Message:       c.Operation.Message,
 			},
-			Exposed: c.Exposed,
 		}
 
 		clusters[i] = &cluster
@@ -188,8 +187,7 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 				DiskSize: req.Params.Replicaset.DiskSize,
 			},
 		},
-		Pmm:    pmmParams,
-		Expose: req.Expose,
+		Pmm: pmmParams,
 	}
 
 	_, err = s.controllerClient.CreatePSMDBCluster(ctx, &in)

@@ -73,11 +73,6 @@ func (bs BackupStatus) Validate() error {
 	return nil
 }
 
-// Pointer returns a pointer of backup status.
-func (bs BackupStatus) Pointer() *BackupStatus {
-	return &bs
-}
-
 // Artifact represents result of a backup.
 //reform:artifacts
 type Artifact struct {
