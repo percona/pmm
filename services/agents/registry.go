@@ -28,7 +28,6 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/golang/protobuf/proto" //nolint:staticcheck
-	"github.com/golang/protobuf/ptypes"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/version"
@@ -37,6 +36,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/durationpb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
@@ -56,9 +57,9 @@ const (
 var (
 	checkExternalExporterConnectionPMMVersion = version.MustParse("1.14.99")
 
-	defaultActionTimeout      = ptypes.DurationProto(10 * time.Second)
-	defaultQueryActionTimeout = ptypes.DurationProto(15 * time.Second) // should be less than checks.resultTimeout
-	defaultPtActionTimeout    = ptypes.DurationProto(30 * time.Second) // Percona-toolkit action timeout
+	defaultActionTimeout      = durationpb.New(10 * time.Second)
+	defaultQueryActionTimeout = durationpb.New(15 * time.Second) // should be less than checks.resultTimeout
+	defaultPtActionTimeout    = durationpb.New(30 * time.Second) // Percona-toolkit action timeout
 
 	mSentDesc = prom.NewDesc(
 		prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "messages_sent_total"),
@@ -217,7 +218,10 @@ func (r *Registry) Run(stream agentpb.Agent_ConnectServer) error {
 				disconnectReason = "done"
 				err = agent.channel.Wait()
 				r.unregister(agent.id)
-				return err
+				if err != nil {
+					l.Error(errors.WithStack(err))
+				}
+				return r.updateAgentStatusForChildren(ctx, agent.id, inventorypb.AgentStatus_DONE, 0)
 			}
 
 			switch p := req.Payload.(type) {
@@ -225,7 +229,7 @@ func (r *Registry) Run(stream agentpb.Agent_ConnectServer) error {
 				agent.channel.Send(&channel.ServerResponse{
 					ID: req.ID,
 					Payload: &agentpb.Pong{
-						CurrentTime: ptypes.TimestampNow(),
+						CurrentTime: timestamppb.Now(),
 					},
 				})
 
@@ -309,7 +313,18 @@ func (r *Registry) handleJobResult(l *logrus.Entry, result *agentpb.JobResult) {
 			}
 
 			_, err := models.ChangeArtifact(t.Querier, res.Result.MySQLBackup.ArtifactID, models.ChangeArtifactParams{
-				Status: models.SuccessBackupStatus,
+				Status: models.SuccessBackupStatus.Pointer(),
+			})
+			if err != nil {
+				return err
+			}
+		case *agentpb.JobResult_MongodbBackup:
+			if res.Type != models.MongoDBBackupJob {
+				return errors.Errorf("result type %s doesn't match job type %s", models.MongoDBBackupJob, res.Type)
+			}
+
+			_, err := models.ChangeArtifact(t.Querier, res.Result.MongoDBBackup.ArtifactID, models.ChangeArtifactParams{
+				Status: models.SuccessBackupStatus.Pointer(),
 			})
 			if err != nil {
 				return err
@@ -328,15 +343,28 @@ func (r *Registry) handleJobResult(l *logrus.Entry, result *agentpb.JobResult) {
 			if err != nil {
 				return err
 			}
+
+		case *agentpb.JobResult_MongodbRestoreBackup:
+			if res.Type != models.MongoDBRestoreBackupJob {
+				return errors.Errorf("result type %s doesn't match job type %s", models.MongoDBRestoreBackupJob, res.Type)
+			}
+
+			_, err := models.ChangeRestoreHistoryItem(
+				t.Querier,
+				res.Result.MongoDBRestoreBackup.RestoreID,
+				models.ChangeRestoreHistoryItemParams{
+					Status: models.SuccessRestoreStatus,
+				})
+			if err != nil {
+				return err
+			}
 		default:
 			return errors.Errorf("unexpected job result type: %T", result)
 		}
-
 		res.Done = true
-
 		return t.Update(res)
 	}); e != nil {
-		l.Errorf("failed to save job result: %+v", e)
+		l.Errorf("Failed to save job result: %+v", e)
 	}
 }
 
@@ -347,23 +375,31 @@ func (r *Registry) handleJobError(jobResult *models.JobResult) error {
 		// nothing
 	case models.MySQLBackupJob:
 		_, err = models.ChangeArtifact(r.db.Querier, jobResult.Result.MySQLBackup.ArtifactID, models.ChangeArtifactParams{
-			Status: models.ErrorBackupStatus,
+			Status: models.ErrorBackupStatus.Pointer(),
+		})
+	case models.MongoDBBackupJob:
+		_, err = models.ChangeArtifact(r.db.Querier, jobResult.Result.MongoDBBackup.ArtifactID, models.ChangeArtifactParams{
+			Status: models.ErrorBackupStatus.Pointer(),
 		})
 	case models.MySQLRestoreBackupJob:
-		_, err := models.ChangeRestoreHistoryItem(
+		_, err = models.ChangeRestoreHistoryItem(
 			r.db.Querier,
 			jobResult.Result.MySQLRestoreBackup.RestoreID,
 			models.ChangeRestoreHistoryItemParams{
 				Status: models.ErrorRestoreStatus,
 			})
-		if err != nil {
-			return err
-		}
+	case models.MongoDBRestoreBackupJob:
+		_, err = models.ChangeRestoreHistoryItem(
+			r.db.Querier,
+			jobResult.Result.MongoDBRestoreBackup.RestoreID,
+			models.ChangeRestoreHistoryItemParams{
+				Status: models.ErrorRestoreStatus,
+			})
 	default:
 		// Don't do anything without explicit handling
 	}
-
 	return err
+
 }
 
 func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, error) {
@@ -396,16 +432,19 @@ func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, 
 		return nil, err
 	}
 
-	// pmm-agent with the same ID can still be connected in two cases:
-	//   1. Someone uses the same ID by mistake, glitch, or malicious intent.
-	//   2. pmm-agent detects broken connection and reconnects,
-	//      but pmm-managed still thinks that the previous connection is okay.
-	// In both cases, kick it.
-	l.Warnf("Another pmm-agent with ID %q is already connected.", agentMD.ID)
-	r.Kick(ctx, agentMD.ID)
-
 	r.rw.Lock()
 	defer r.rw.Unlock()
+
+	// do not use r.get() - r.rw is already locked
+	if agent := r.agents[agentMD.ID]; agent != nil {
+		// pmm-agent with the same ID can still be connected in two cases:
+		//   1. Someone uses the same ID by mistake, glitch, or malicious intent.
+		//   2. pmm-agent detects broken connection and reconnects,
+		//      but pmm-managed still thinks that the previous connection is okay.
+		// In both cases, kick it.
+		l.Warnf("Another pmm-agent with ID %q is already connected.", agentMD.ID)
+		r.Kick(ctx, agentMD.ID)
+	}
 
 	agent := &pmmAgentInfo{
 		channel:         channel.New(stream),
@@ -565,8 +604,8 @@ func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) error {
 		return nil
 	}
 	roundtrip := time.Since(start)
-	agentTime, err := ptypes.Timestamp(resp.(*agentpb.Pong).CurrentTime)
-	if err != nil {
+	agentTime := resp.(*agentpb.Pong).CurrentTime.AsTime()
+	if err := resp.(*agentpb.Pong).CurrentTime.CheckValid(); err != nil {
 		return errors.Wrap(err, "failed to decode Pong.current_time")
 	}
 	clockDrift := agentTime.Sub(start) - roundtrip/2
@@ -586,9 +625,6 @@ func updateAgentStatus(ctx context.Context, q *reform.Querier, agentID string, s
 	agent := &models.Agent{AgentID: agentID}
 	err := q.Reload(agent)
 
-	// TODO set ListenPort to NULL when agent is done?
-	// https://jira.percona.com/browse/PMM-4932
-
 	// FIXME that requires more investigation: https://jira.percona.com/browse/PMM-4932
 	if err == reform.ErrNoRows {
 		l.Warnf("Failed to select Agent by ID for (%s, %s).", agentID, status)
@@ -598,7 +634,6 @@ func updateAgentStatus(ctx context.Context, q *reform.Querier, agentID string, s
 			return nil
 		}
 	}
-
 	if err != nil {
 		return errors.Wrap(err, "failed to select Agent by ID")
 	}
@@ -697,13 +732,51 @@ func (r *Registry) runStateChangeHandler(ctx context.Context, agent *pmmAgentInf
 			err := r.sendSetStateRequest(nCtx, agent)
 			if err != nil {
 				l.Error(err)
+				r.RequestStateUpdate(ctx, agent.id)
 			}
 			cancel()
 		}
 	}
 }
 
-// RequestStateUpdate requests state update on pmm-agent with given ID.
+// SetAllAgentsStatusUnknown goes through all pmm-agents and sets status to UNKNOWN.
+func (r *Registry) SetAllAgentsStatusUnknown(ctx context.Context) error {
+	agentType := models.PMMAgentType
+	agents, err := models.FindAgents(r.db.Querier, models.AgentFilters{AgentType: &agentType})
+	if err != nil {
+		return errors.Wrap(err, "failed to get pmm-agents")
+
+	}
+	for _, agent := range agents {
+		if !r.IsConnected(agent.AgentID) {
+			err = r.updateAgentStatusForChildren(ctx, agent.AgentID, inventorypb.AgentStatus_UNKNOWN, 0)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (r *Registry) updateAgentStatusForChildren(ctx context.Context, agentID string, status inventorypb.AgentStatus, listenPort uint32) error {
+	return r.db.InTransaction(func(t *reform.TX) error {
+		agents, err := models.FindAgents(t.Querier, models.AgentFilters{
+			PMMAgentID: agentID,
+		})
+		if err != nil {
+			return errors.Wrap(err, "failed to get pmm-agent's child agents")
+		}
+		for _, agent := range agents {
+			if err := updateAgentStatus(ctx, t.Querier, agent.AgentID, status, listenPort); err != nil {
+				return errors.Wrap(err, "failed to update agent's status")
+			}
+		}
+		return nil
+	})
+}
+
+// RequestStateUpdate requests state update on pmm-agent with given ID. It sets
+// the status to done if the agent is not connected.
 func (r *Registry) RequestStateUpdate(ctx context.Context, pmmAgentID string) {
 	l := logger.Get(ctx)
 
@@ -912,7 +985,7 @@ func (r *Registry) CheckConnectionToService(ctx context.Context, q *reform.Queri
 		request = &agentpb.CheckConnectionRequest{
 			Type:    inventorypb.ServiceType_MYSQL_SERVICE,
 			Dsn:     agent.DSN(service, 2*time.Second, "", nil),
-			Timeout: ptypes.DurationProto(3 * time.Second),
+			Timeout: durationpb.New(3 * time.Second),
 			TextFiles: &agentpb.TextFiles{
 				Files:              agent.Files(),
 				TemplateLeftDelim:  tdp.Left,
@@ -924,14 +997,14 @@ func (r *Registry) CheckConnectionToService(ctx context.Context, q *reform.Queri
 		request = &agentpb.CheckConnectionRequest{
 			Type:    inventorypb.ServiceType_POSTGRESQL_SERVICE,
 			Dsn:     agent.DSN(service, 2*time.Second, "postgres", nil),
-			Timeout: ptypes.DurationProto(3 * time.Second),
+			Timeout: durationpb.New(3 * time.Second),
 		}
 	case models.MongoDBServiceType:
 		tdp := agent.TemplateDelimiters(service)
 		request = &agentpb.CheckConnectionRequest{
 			Type:    inventorypb.ServiceType_MONGODB_SERVICE,
 			Dsn:     agent.DSN(service, 2*time.Second, "", nil),
-			Timeout: ptypes.DurationProto(3 * time.Second),
+			Timeout: durationpb.New(3 * time.Second),
 			TextFiles: &agentpb.TextFiles{
 				Files:              agent.Files(),
 				TemplateLeftDelim:  tdp.Left,
@@ -942,7 +1015,7 @@ func (r *Registry) CheckConnectionToService(ctx context.Context, q *reform.Queri
 		request = &agentpb.CheckConnectionRequest{
 			Type:    inventorypb.ServiceType_PROXYSQL_SERVICE,
 			Dsn:     agent.DSN(service, 2*time.Second, "", nil),
-			Timeout: ptypes.DurationProto(3 * time.Second),
+			Timeout: durationpb.New(3 * time.Second),
 		}
 	case models.ExternalServiceType:
 		exporterURL, err := agent.ExporterURL(q)
@@ -953,7 +1026,7 @@ func (r *Registry) CheckConnectionToService(ctx context.Context, q *reform.Queri
 		request = &agentpb.CheckConnectionRequest{
 			Type:    inventorypb.ServiceType_EXTERNAL_SERVICE,
 			Dsn:     exporterURL,
-			Timeout: ptypes.DurationProto(3 * time.Second),
+			Timeout: durationpb.New(3 * time.Second),
 		}
 	case models.HAProxyServiceType:
 		exporterURL, err := agent.ExporterURL(q)
@@ -964,7 +1037,7 @@ func (r *Registry) CheckConnectionToService(ctx context.Context, q *reform.Queri
 		request = &agentpb.CheckConnectionRequest{
 			Type:    inventorypb.ServiceType_HAPROXY_SERVICE,
 			Dsn:     exporterURL,
-			Timeout: ptypes.DurationProto(3 * time.Second),
+			Timeout: durationpb.New(3 * time.Second),
 		}
 	default:
 		return errors.Errorf("unhandled Service type %s", service.ServiceType)

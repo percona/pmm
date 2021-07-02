@@ -285,7 +285,7 @@ func TestServiceHelpers(t *testing.T) {
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "S1" not found.`), err)
 
 		err = models.RemoveService(q, "S2", models.RemoveRestrict)
-		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, `Service with ID "S2" has agents.`), err)
+		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, `Service with ID "S2" has agents, artifacts or restore history items.`), err)
 
 		_, err = models.FindServiceByID(q, "S2")
 		require.NoError(t, err)

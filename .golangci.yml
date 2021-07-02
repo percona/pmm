@@ -14,6 +14,9 @@ linters-settings:
       # use "gopkg.in/yaml.v3" instead
       - gopkg.in/yaml.v2
 
+  godot:
+    capital: true
+
   goimports:
     local-prefixes: github.com/percona/pmm-managed
 

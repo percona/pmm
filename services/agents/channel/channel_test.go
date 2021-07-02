@@ -23,7 +23,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/golang/protobuf/ptypes"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
@@ -31,6 +30,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/percona/pmm-managed/utils/interceptors"
 	"github.com/percona/pmm-managed/utils/tests"
@@ -161,7 +161,8 @@ func TestServerRequest(t *testing.T) {
 			resp, err := ch.SendAndWaitResponse(new(agentpb.Ping))
 			require.NoError(t, err)
 			pong := resp.(*agentpb.Pong)
-			ts, err := ptypes.Timestamp(pong.CurrentTime)
+			ts := pong.CurrentTime.AsTime()
+			err = pong.CurrentTime.CheckValid()
 			assert.NoError(t, err)
 			assert.InDelta(t, time.Now().Unix(), ts.Unix(), 1)
 		}
@@ -182,7 +183,7 @@ func TestServerRequest(t *testing.T) {
 		err = stream.Send(&agentpb.AgentMessage{
 			Id: i,
 			Payload: (&agentpb.Pong{
-				CurrentTime: ptypes.TimestampNow(),
+				CurrentTime: timestamppb.Now(),
 			}).AgentMessageResponsePayload(),
 		})
 		assert.NoError(t, err)

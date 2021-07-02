@@ -7,7 +7,7 @@ services:
     hostname: pmm-managed-server
     environment:
       - PATH=/root/go/bin:$PATH
-      - GO_VERSION=${GO_VERSION:-1.15.x}
+      - GO_VERSION=${GO_VERSION:-1.16.x}
       - TRAVIS_REPO_SLUG=${TRAVIS_REPO_SLUG}
       - TRAVIS_PULL_REQUEST_SHA=${TRAVIS_PULL_REQUEST_SHA}
       - TRAVIS_COMMIT=${TRAVIS_COMMIT}

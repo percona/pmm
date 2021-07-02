@@ -20,6 +20,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
@@ -37,6 +38,56 @@ func TestArtifacts(t *testing.T) {
 
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
+	nodeID1 := "node_id_1"
+	serviceID1, serviceID2 := "service_id_1", "service_id_2"
+	locationID1, locationID2 := "location_id_1", "location_id_2"
+
+	prepareLocationsAndService := func(q *reform.Querier) {
+		for _, str := range []reform.Struct{
+			&models.Node{
+				NodeID:   nodeID1,
+				NodeType: models.GenericNodeType,
+				NodeName: "Node 1",
+			},
+			&models.Service{
+				ServiceID:   serviceID1,
+				ServiceType: models.MySQLServiceType,
+				ServiceName: "Service 1",
+				NodeID:      nodeID1,
+				Address:     pointer.ToString("127.0.0.1"),
+				Port:        pointer.ToUint16OrNil(777),
+			},
+			&models.Service{
+				ServiceID:   serviceID2,
+				ServiceType: models.MySQLServiceType,
+				ServiceName: "Service 2",
+				NodeID:      nodeID1,
+				Address:     pointer.ToString("127.0.0.1"),
+				Port:        pointer.ToUint16OrNil(777),
+			},
+			&models.BackupLocation{
+				ID:          locationID1,
+				Name:        "Location 1",
+				Description: "Description for location 1",
+				Type:        models.S3BackupLocationType,
+				S3Config:    &models.S3LocationConfig{},
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
+			},
+			&models.BackupLocation{
+				ID:          locationID2,
+				Name:        "Location 2",
+				Description: "Description for location 2",
+				Type:        models.S3BackupLocationType,
+				S3Config:    &models.S3LocationConfig{},
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
+			},
+		} {
+			require.NoError(t, q.Insert(str))
+		}
+	}
+
 	t.Run("create", func(t *testing.T) {
 		tx, err := db.Begin()
 		require.NoError(t, err)
@@ -45,12 +96,13 @@ func TestArtifacts(t *testing.T) {
 		})
 
 		q := tx.Querier
+		prepareLocationsAndService(q)
 
 		params := models.CreateArtifactParams{
 			Name:       "backup_name",
 			Vendor:     "MySQL",
-			LocationID: "location_id",
-			ServiceID:  "service_id",
+			LocationID: locationID1,
+			ServiceID:  serviceID1,
 			DataModel:  models.PhysicalDataModel,
 			Status:     models.PendingBackupStatus,
 		}
@@ -74,20 +126,21 @@ func TestArtifacts(t *testing.T) {
 		})
 
 		q := tx.Querier
+		prepareLocationsAndService(q)
 
 		params1 := models.CreateArtifactParams{
 			Name:       "backup_name_1",
 			Vendor:     "MySQL",
-			LocationID: "location_id_1",
-			ServiceID:  "service_id_1",
+			LocationID: locationID1,
+			ServiceID:  serviceID1,
 			DataModel:  models.PhysicalDataModel,
 			Status:     models.PendingBackupStatus,
 		}
 		params2 := models.CreateArtifactParams{
 			Name:       "backup_name_2",
 			Vendor:     "PostgreSQL",
-			LocationID: "location_id_2",
-			ServiceID:  "service_id_2",
+			LocationID: locationID2,
+			ServiceID:  serviceID2,
 			DataModel:  models.LogicalDataModel,
 			Status:     models.PausedBackupStatus,
 		}
@@ -97,7 +150,7 @@ func TestArtifacts(t *testing.T) {
 		a2, err := models.CreateArtifact(q, params2)
 		require.NoError(t, err)
 
-		actual, err := models.FindArtifacts(q)
+		actual, err := models.FindArtifacts(q, nil)
 		require.NoError(t, err)
 
 		found := func(id string) func() bool {
@@ -123,12 +176,13 @@ func TestArtifacts(t *testing.T) {
 		})
 
 		q := tx.Querier
+		prepareLocationsAndService(q)
 
 		params := models.CreateArtifactParams{
 			Name:       "backup_name",
 			Vendor:     "MySQL",
-			LocationID: "location_id",
-			ServiceID:  "service_id",
+			LocationID: locationID1,
+			ServiceID:  serviceID1,
 			DataModel:  models.PhysicalDataModel,
 			Status:     models.PendingBackupStatus,
 		}
@@ -139,7 +193,7 @@ func TestArtifacts(t *testing.T) {
 		err = models.RemoveArtifact(q, b.ID)
 		require.NoError(t, err)
 
-		artifacts, err := models.FindArtifacts(q)
+		artifacts, err := models.FindArtifacts(q, nil)
 		require.NoError(t, err)
 		assert.Empty(t, artifacts)
 	})
@@ -158,18 +212,6 @@ func TestArtifactValidation(t *testing.T) {
 		params   models.CreateArtifactParams
 		errorMsg string
 	}{
-		{
-			name: "normal params",
-			params: models.CreateArtifactParams{
-				Name:       "backup_name",
-				Vendor:     "MySQL",
-				LocationID: "location_id",
-				ServiceID:  "service_id",
-				DataModel:  models.PhysicalDataModel,
-				Status:     models.PendingBackupStatus,
-			},
-			errorMsg: "",
-		},
 		{
 			name: "name missing",
 			params: models.CreateArtifactParams{

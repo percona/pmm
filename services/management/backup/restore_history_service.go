@@ -20,7 +20,6 @@ package backup
 import (
 	"context"
 
-	"github.com/golang/protobuf/ptypes"
 	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -68,7 +67,7 @@ func (s *RestoreHistoryService) ListRestoreHistory(
 		q := tx.Querier
 
 		var err error
-		items, err = models.FindRestoreHistoryItems(q)
+		items, err = models.FindRestoreHistoryItems(q, nil)
 		if err != nil {
 			return err
 		}
@@ -141,15 +140,15 @@ func convertRestoreHistoryItem(
 	artifacts map[string]*models.Artifact,
 	locations map[string]*models.BackupLocation,
 ) (*backupv1beta1.RestoreHistoryItem, error) {
-	startedAt, err := ptypes.TimestampProto(i.StartedAt)
-	if err != nil {
+	startedAt := timestamppb.New(i.StartedAt)
+	if err := startedAt.CheckValid(); err != nil {
 		return nil, errors.Wrap(err, "failed to convert startedAt timestamp")
 	}
 
 	var finishedAt *timestamppb.Timestamp
 	if i.FinishedAt != nil {
-		finishedAt, err = ptypes.TimestampProto(*i.FinishedAt)
-		if err != nil {
+		finishedAt = timestamppb.New(*i.FinishedAt)
+		if err := finishedAt.CheckValid(); err != nil {
 			return nil, errors.Wrap(err, "failed to convert finishedAt timestamp")
 		}
 	}

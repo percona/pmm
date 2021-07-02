@@ -81,13 +81,16 @@ func TestGetSecurityCheckResults(t *testing.T) {
 	})
 
 	t.Run("STT enabled", func(t *testing.T) {
-		checkResult := []check.Result{
+		checkResult := []services.STTCheckResult{
 			{
-				Summary:     "Check summary",
-				Description: "Check Description",
-				ReadMoreURL: "https://www.example.com",
-				Severity:    1,
-				Labels:      map[string]string{"label_key": "label_value"},
+				Result: check.Result{
+					Summary:     "Check summary",
+					Description: "Check Description",
+					ReadMoreURL: "https://www.example.com",
+					Severity:    1,
+					Labels:      map[string]string{"label_key": "label_value"},
+				},
+				Target: services.Target{ServiceName: "svc"},
 			},
 		}
 		response := &managementpb.GetSecurityCheckResultsResponse{
@@ -98,6 +101,7 @@ func TestGetSecurityCheckResults(t *testing.T) {
 					ReadMoreUrl: "https://www.example.com",
 					Severity:    1,
 					Labels:      map[string]string{"label_key": "label_value"},
+					ServiceName: "svc",
 				},
 			},
 		}

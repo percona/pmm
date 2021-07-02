@@ -358,7 +358,21 @@ func RemoveBackupLocation(q *reform.Querier, id string, mode RemoveMode) error {
 		return err
 	}
 
-	// @TODO - force delete https://jira.percona.com/browse/PMM-7475
+	artifacts, err := FindArtifacts(q, &ArtifactFilters{LocationID: id})
+	if err != nil {
+		return err
+	}
+
+	if len(artifacts) != 0 && mode == RemoveRestrict {
+		return status.Errorf(codes.FailedPrecondition, "backup location with ID %q has artifacts.", id)
+	}
+
+	for _, a := range artifacts {
+		if err := RemoveArtifact(q, a.ID); err != nil {
+			return err
+		}
+	}
+
 	if err := q.Delete(&BackupLocation{ID: id}); err != nil {
 		return errors.Wrap(err, "failed to delete BackupLocation")
 	}

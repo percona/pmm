@@ -20,10 +20,10 @@ package backup
 import (
 	"context"
 
-	"github.com/golang/protobuf/ptypes"
 	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
@@ -57,7 +57,7 @@ func (s *ArtifactsService) Enabled() bool {
 func (s *ArtifactsService) ListArtifacts(context.Context, *backupv1beta1.ListArtifactsRequest) (*backupv1beta1.ListArtifactsResponse, error) {
 	q := s.db.Querier
 
-	artifacts, err := models.FindArtifacts(q)
+	artifacts, err := models.FindArtifacts(q, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -72,8 +72,10 @@ func (s *ArtifactsService) ListArtifacts(context.Context, *backupv1beta1.ListArt
 	}
 
 	serviceIDs := make([]string, 0, len(artifacts))
-	for _, b := range artifacts {
-		serviceIDs = append(serviceIDs, b.ServiceID)
+	for _, a := range artifacts {
+		if a.ServiceID != "" {
+			serviceIDs = append(serviceIDs, a.ServiceID)
+		}
 	}
 
 	services, err := models.FindServicesByIDs(q, serviceIDs)
@@ -133,8 +135,8 @@ func convertArtifact(
 	services map[string]*models.Service,
 	locations map[string]*models.BackupLocation,
 ) (*backupv1beta1.Artifact, error) {
-	createdAt, err := ptypes.TimestampProto(a.CreatedAt)
-	if err != nil {
+	createdAt := timestamppb.New(a.CreatedAt)
+	if err := createdAt.CheckValid(); err != nil {
 		return nil, errors.Wrap(err, "failed to convert timestamp")
 	}
 
@@ -144,10 +146,9 @@ func convertArtifact(
 			"failed to convert artifact with id '%s': no location id '%s' in the map", a.ID, a.LocationID)
 	}
 
-	s, ok := services[a.ServiceID]
-	if !ok {
-		return nil, errors.Errorf(
-			"failed to convert artifact with id '%s': no service id '%s' in the map", a.ID, a.ServiceID)
+	var serviceName string
+	if s, ok := services[a.ServiceID]; ok {
+		serviceName = s.ServiceName
 	}
 
 	dm, err := convertDataModel(a.DataModel)
@@ -167,7 +168,7 @@ func convertArtifact(
 		LocationId:   a.LocationID,
 		LocationName: l.Name,
 		ServiceId:    a.ServiceID,
-		ServiceName:  s.ServiceName,
+		ServiceName:  serviceName,
 		DataModel:    *dm,
 		Status:       *status,
 		CreatedAt:    createdAt,

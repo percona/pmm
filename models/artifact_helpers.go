@@ -22,6 +22,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 )
 
@@ -32,9 +34,35 @@ var (
 	ErrInvalidArgument = errors.New("invalid argument")
 )
 
+// ArtifactFilters represents filters for artifacts list.
+type ArtifactFilters struct {
+	// Return only artifacts that provide insights for that Service.
+	ServiceID string
+	// Return only artifacts that belong to specified location.
+	LocationID string
+}
+
 // FindArtifacts returns artifacts list.
-func FindArtifacts(q *reform.Querier) ([]*Artifact, error) {
-	rows, err := q.SelectAllFrom(ArtifactTable, "ORDER BY created_at DESC")
+func FindArtifacts(q *reform.Querier, filters *ArtifactFilters) ([]*Artifact, error) {
+	var conditions []string
+	var args []interface{}
+	if filters != nil && filters.ServiceID != "" {
+		conditions = append(conditions, fmt.Sprintf("service_id = %s", q.Placeholder(1)))
+		args = append(args, filters.ServiceID)
+	}
+	if filters != nil && filters.LocationID != "" {
+		if _, err := FindBackupLocationByID(q, filters.LocationID); err != nil {
+			return nil, err
+		}
+		conditions = append(conditions, fmt.Sprintf("location_id = %s", q.Placeholder(1)))
+		args = append(args, filters.LocationID)
+	}
+
+	var whereClause string
+	if len(conditions) != 0 {
+		whereClause = fmt.Sprintf("WHERE %s", strings.Join(conditions, " AND "))
+	}
+	rows, err := q.SelectAllFrom(ArtifactTable, fmt.Sprintf("%s ORDER BY created_at DESC", whereClause), args...)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to select artifacts")
 	}
@@ -90,6 +118,22 @@ func FindArtifactByID(q *reform.Querier, id string) (*Artifact, error) {
 	}
 }
 
+func checkUniqueArtifactName(q *reform.Querier, name string) error {
+	if name == "" {
+		panic("empty Location Name")
+	}
+
+	var artifact Artifact
+	switch err := q.FindOneTo(&artifact, "name", name); err {
+	case nil:
+		return status.Errorf(codes.AlreadyExists, "Artifact with name %q already exists.", name)
+	case reform.ErrNoRows:
+		return nil
+	default:
+		return errors.WithStack(err)
+	}
+}
+
 // CreateArtifactParams are params for creating a new artifact.
 type CreateArtifactParams struct {
 	Name       string
@@ -138,6 +182,10 @@ func CreateArtifact(q *reform.Querier, params CreateArtifactParams) (*Artifact, 
 		return nil, errors.WithStack(err)
 	}
 
+	if err := checkUniqueArtifactName(q, params.Name); err != nil {
+		return nil, err
+	}
+
 	row := &Artifact{
 		ID:         id,
 		Name:       params.Name,
@@ -157,7 +205,8 @@ func CreateArtifact(q *reform.Querier, params CreateArtifactParams) (*Artifact, 
 
 // ChangeArtifactParams are params for changing existing artifact.
 type ChangeArtifactParams struct {
-	Status BackupStatus
+	ServiceID *string
+	Status    *BackupStatus
 }
 
 // ChangeArtifact updates existing artifact.
@@ -166,7 +215,12 @@ func ChangeArtifact(q *reform.Querier, artifactID string, params ChangeArtifactP
 	if err != nil {
 		return nil, err
 	}
-	row.Status = params.Status
+	if params.ServiceID != nil {
+		row.ServiceID = *params.ServiceID
+	}
+	if params.Status != nil {
+		row.Status = *params.Status
+	}
 
 	if err := q.Update(row); err != nil {
 		return nil, errors.Wrap(err, "failed to update backup artifact")

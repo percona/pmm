@@ -71,7 +71,7 @@ func TestServiceService(t *testing.T) {
 
 			response, err := s.RemoveService(ctx, &managementpb.RemoveServiceRequest{})
 			assert.Nil(t, response)
-			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `params not found`), err)
+			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `service_id or service_name expected`), err)
 		})
 
 		t.Run("Both params", func(t *testing.T) {

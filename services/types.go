@@ -14,25 +14,30 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package depstests
+package services
 
 import (
-	"testing"
-	"time"
+	"github.com/percona-platform/saas/pkg/check"
 
-	"github.com/golang/protobuf/jsonpb" //nolint:staticcheck
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	"google.golang.org/protobuf/types/known/durationpb"
+	"github.com/percona/pmm-managed/models"
 )
 
-func TestDuration(t *testing.T) {
-	// https://github.com/golang/protobuf/issues/883
-	// https://github.com/golang/protobuf/issues/1219
-	// https://jira.percona.com/browse/PMM-6760
+// Target contains required info about STT check target.
+type Target struct {
+	AgentID       string
+	ServiceID     string
+	ServiceName   string
+	Labels        map[string]string
+	DSN           string
+	Files         map[string]string
+	TDP           *models.DelimiterPair
+	TLSSkipVerify bool
+}
 
-	var m jsonpb.Marshaler
-	s, err := m.MarshalToString(durationpb.New(-time.Nanosecond))
-	require.NoError(t, err)
-	assert.Equal(t, `"-0.000000001s"`, s)
+// STTCheckResult contains the output from the check file and other information.
+type STTCheckResult struct {
+	CheckName string
+	Interval  check.Interval
+	Target    Target
+	Result    check.Result
 }

@@ -27,13 +27,15 @@ import (
 	"github.com/percona-platform/saas/pkg/check"
 	"github.com/percona/pmm/api/alertmanager/ammodels"
 	"github.com/prometheus/common/model"
+
+	"github.com/percona/pmm-managed/services"
 )
 
 // registry stores alerts and delay information by IDs.
 type registry struct {
 	rw sync.RWMutex
 	// Results stored grouped by interval and by check name. It allows us to remove results for specific group.
-	checkResults map[check.Interval]map[string][]sttCheckResult
+	checkResults map[check.Interval]map[string][]services.STTCheckResult
 
 	alertTTL time.Duration
 	nowF     func() time.Time // for tests
@@ -42,28 +44,28 @@ type registry struct {
 // newRegistry creates a new registry.
 func newRegistry(alertTTL time.Duration) *registry {
 	return &registry{
-		checkResults: make(map[check.Interval]map[string][]sttCheckResult),
+		checkResults: make(map[check.Interval]map[string][]services.STTCheckResult),
 		alertTTL:     alertTTL,
 		nowF:         time.Now,
 	}
 }
 
 // set adds check results.
-func (r *registry) set(checkResults []sttCheckResult) {
+func (r *registry) set(checkResults []services.STTCheckResult) {
 	r.rw.Lock()
 	defer r.rw.Unlock()
 
 	for _, result := range checkResults {
 		// Empty interval means standard.
-		if result.interval == "" {
-			result.interval = check.Standard
+		if result.Interval == "" {
+			result.Interval = check.Standard
 		}
 
-		if _, ok := r.checkResults[result.interval]; !ok {
-			r.checkResults[result.interval] = make(map[string][]sttCheckResult)
+		if _, ok := r.checkResults[result.Interval]; !ok {
+			r.checkResults[result.Interval] = make(map[string][]services.STTCheckResult)
 		}
 
-		r.checkResults[result.interval][result.checkName] = append(r.checkResults[result.interval][result.checkName], result)
+		r.checkResults[result.Interval][result.CheckName] = append(r.checkResults[result.Interval][result.CheckName], result)
 	}
 }
 
@@ -91,7 +93,7 @@ func (r *registry) cleanup() {
 	r.rw.Lock()
 	defer r.rw.Unlock()
 
-	r.checkResults = make(map[check.Interval]map[string][]sttCheckResult)
+	r.checkResults = make(map[check.Interval]map[string][]services.STTCheckResult)
 }
 
 // collect returns a slice of alerts created from the stored check results.
@@ -103,18 +105,18 @@ func (r *registry) collect() ammodels.PostableAlerts {
 	for _, intervalGroup := range r.checkResults {
 		for _, checkNameGroup := range intervalGroup {
 			for _, checkResult := range checkNameGroup {
-				alerts = append(alerts, r.createAlert(checkResult.checkName, &checkResult.target, &checkResult.result, r.alertTTL))
+				alerts = append(alerts, r.createAlert(checkResult.CheckName, &checkResult.Target, &checkResult.Result, r.alertTTL))
 			}
 		}
 	}
 	return alerts
 }
 
-func (r *registry) getCheckResults() []sttCheckResult {
+func (r *registry) getCheckResults() []services.STTCheckResult {
 	r.rw.RLock()
 	defer r.rw.RUnlock()
 
-	var results []sttCheckResult
+	var results []services.STTCheckResult
 	for _, intervalGroup := range r.checkResults {
 		for _, checkNameGroup := range intervalGroup {
 			results = append(results, checkNameGroup...)
@@ -124,10 +126,10 @@ func (r *registry) getCheckResults() []sttCheckResult {
 	return results
 }
 
-func (r *registry) createAlert(name string, target *target, result *check.Result, alertTTL time.Duration) *ammodels.PostableAlert {
-	labels := make(map[string]string, len(target.labels)+len(result.Labels)+4)
+func (r *registry) createAlert(name string, target *services.Target, result *check.Result, alertTTL time.Duration) *ammodels.PostableAlert {
+	labels := make(map[string]string, len(target.Labels)+len(result.Labels)+4)
 	annotations := make(map[string]string, 2)
-	for k, v := range target.labels {
+	for k, v := range target.Labels {
 		labels[k] = v
 	}
 	for k, v := range result.Labels {
@@ -155,10 +157,10 @@ func (r *registry) createAlert(name string, target *target, result *check.Result
 }
 
 // makeID creates an ID for STT check alert.
-func makeID(target *target, result *check.Result) string {
+func makeID(target *services.Target, result *check.Result) string {
 	s := sha1.New() //nolint:gosec
-	fmt.Fprintf(s, "%s\n", target.agentID)
-	fmt.Fprintf(s, "%s\n", target.serviceID)
+	fmt.Fprintf(s, "%s\n", target.AgentID)
+	fmt.Fprintf(s, "%s\n", target.ServiceID)
 	fmt.Fprintf(s, "%s\n", result.Summary)
 	fmt.Fprintf(s, "%s\n", result.Description)
 	fmt.Fprintf(s, "%s\n", result.ReadMoreURL)

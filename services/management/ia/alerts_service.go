@@ -23,7 +23,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang/protobuf/ptypes"
 	"github.com/percona-platform/saas/pkg/common"
 	"github.com/percona/pmm/api/alertmanager/ammodels"
 	"github.com/percona/pmm/api/managementpb"
@@ -32,6 +31,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
@@ -78,13 +78,13 @@ func (s *AlertsService) ListAlerts(ctx context.Context, req *iav1beta1.ListAlert
 			continue
 		}
 
-		updatedAt, err := ptypes.TimestampProto(time.Time(*alert.UpdatedAt))
-		if err != nil {
+		updatedAt := timestamppb.New(time.Time(*alert.UpdatedAt))
+		if err := updatedAt.CheckValid(); err != nil {
 			return nil, errors.Wrap(err, "failed to convert timestamp")
 		}
 
-		createdAt, err := ptypes.TimestampProto(time.Time(*alert.StartsAt))
-		if err != nil {
+		createdAt := timestamppb.New(time.Time(*alert.StartsAt))
+		if err := updatedAt.CheckValid(); err != nil {
 			return nil, errors.Wrap(err, "failed to convert timestamp")
 		}
 

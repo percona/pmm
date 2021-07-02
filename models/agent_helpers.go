@@ -54,7 +54,6 @@ type MongoDBOptionsParams interface {
 	GetTlsCertificateKey() string
 	GetTlsCertificateKeyFilePassword() string
 	GetTlsCa() string
-	GetAuthenticationMechanism() string
 }
 
 // MongoDBOptionsFromRequest creates MongoDBOptionsParams object from request.
@@ -64,7 +63,6 @@ func MongoDBOptionsFromRequest(params MongoDBOptionsParams) *MongoDBOptions {
 			TLSCertificateKey:             params.GetTlsCertificateKey(),
 			TLSCertificateKeyFilePassword: params.GetTlsCertificateKeyFilePassword(),
 			TLSCa:                         params.GetTlsCa(),
-			AuthenticationMechanism:       params.GetAuthenticationMechanism(),
 		}
 	}
 	return nil
@@ -215,10 +213,10 @@ func FindAgentsByIDs(q *reform.Querier, ids []string) ([]*Agent, error) {
 }
 
 // FindDBConfigForService find DB config from agents running on service specified by serviceID.
-func FindDBConfigForService(q *reform.Querier, serviceID string) (DBConfig, error) {
+func FindDBConfigForService(q *reform.Querier, serviceID string) (*DBConfig, error) {
 	svc, err := FindServiceByID(q, serviceID)
 	if err != nil {
-		return DBConfig{}, err
+		return nil, err
 	}
 	var agentTypes []AgentType
 	switch svc.ServiceType {
@@ -242,7 +240,7 @@ func FindDBConfigForService(q *reform.Querier, serviceID string) (DBConfig, erro
 	case ExternalServiceType, HAProxyServiceType, ProxySQLServiceType:
 		fallthrough
 	default:
-		return DBConfig{}, status.Error(codes.FailedPrecondition, "Unsupported service.")
+		return nil, status.Error(codes.FailedPrecondition, "Unsupported service.")
 	}
 	p := strings.Join(q.Placeholders(2, len(agentTypes)), ", ")
 	tail := fmt.Sprintf("WHERE service_id = $1 AND agent_type IN (%s) ORDER BY agent_id", p)
@@ -255,7 +253,7 @@ func FindDBConfigForService(q *reform.Querier, serviceID string) (DBConfig, erro
 
 	structs, err := q.SelectAllFrom(AgentTable, tail, args...)
 	if err != nil {
-		return DBConfig{}, errors.WithStack(err)
+		return nil, errors.WithStack(err)
 	}
 
 	res := make([]*Agent, len(structs))
@@ -264,7 +262,7 @@ func FindDBConfigForService(q *reform.Querier, serviceID string) (DBConfig, erro
 	}
 
 	if len(res) == 0 {
-		return DBConfig{}, status.Error(codes.FailedPrecondition, "No agents available.")
+		return nil, status.Error(codes.FailedPrecondition, "No agents available.")
 	}
 
 	// Find config with specified user.
@@ -275,7 +273,7 @@ func FindDBConfigForService(q *reform.Querier, serviceID string) (DBConfig, erro
 		}
 	}
 
-	return DBConfig{}, status.Error(codes.FailedPrecondition, "No DB config found.")
+	return nil, status.Error(codes.FailedPrecondition, "No DB config found.")
 }
 
 // FindPMMAgentsRunningOnNode gets pmm-agents for node where it runs.
