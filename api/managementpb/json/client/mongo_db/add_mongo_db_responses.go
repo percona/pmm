@@ -202,6 +202,9 @@ type AddMongoDBBody struct {
 	// for details.
 	AuthenticationMechanism string `json:"authentication_mechanism,omitempty"`
 
+	// Authentication database.
+	AuthenticationDatabase string `json:"authentication_database,omitempty"`
+
 	// add node
 	AddNode *AddMongoDBParamsBodyAddNode `json:"add_node,omitempty"`
 }

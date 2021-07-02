@@ -83,6 +83,8 @@ message AddMongoDBRequest {
   // See https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism
   // for details.
   string authentication_mechanism = 25;
+  // Authentication database.
+  string authentication_database = 26;
 }
 
 message AddMongoDBResponse {

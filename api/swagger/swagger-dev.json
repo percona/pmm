@@ -3598,6 +3598,11 @@
                   "description": "Authentication mechanism.\nSee https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism\nfor details.",
                   "type": "string",
                   "x-order": 13
+                },
+                "authentication_database": {
+                  "description": "Authentication database.",
+                  "type": "string",
+                  "x-order": 14
                 }
               }
             }
@@ -4771,6 +4776,11 @@
                   "description": "Authentication mechanism.\nSee https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism\nfor details.",
                   "type": "string",
                   "x-order": 11
+                },
+                "authentication_database": {
+                  "description": "Authentication database.",
+                  "type": "string",
+                  "x-order": 12
                 }
               }
             }
@@ -20446,6 +20456,11 @@
                   "description": "Authentication mechanism.\nSee https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism\nfor details.",
                   "type": "string",
                   "x-order": 23
+                },
+                "authentication_database": {
+                  "description": "Authentication database.",
+                  "type": "string",
+                  "x-order": 24
                 }
               }
             }

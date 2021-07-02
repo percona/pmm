@@ -167,6 +167,9 @@ type AddMongoDBExporterBody struct {
 	// See https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism
 	// for details.
 	AuthenticationMechanism string `json:"authentication_mechanism,omitempty"`
+
+	// Authentication database.
+	AuthenticationDatabase string `json:"authentication_database,omitempty"`
 }
 
 // Validate validates this add mongo DB exporter body

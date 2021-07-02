@@ -710,6 +710,8 @@ message AddMongoDBExporterRequest {
   // See https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism
   // for details.
   string authentication_mechanism = 14;
+  // Authentication database.
+  string authentication_database = 15;
 }
 
 message AddMongoDBExporterResponse {
@@ -993,6 +995,8 @@ message AddQANMongoDBProfilerAgentRequest {
   // See https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism
   // for details.
   string authentication_mechanism = 12;
+  // Authentication database.
+  string authentication_database = 13;
 }
 
 message AddQANMongoDBProfilerAgentResponse {
