@@ -45,7 +45,7 @@ Here are the benefits and drawbacks of *Slow query log* and *Performance Schema*
 | | <i class="uil uil-thumbs-up"></i> Benefits | <i class="uil uil-thumbs-down"></i> Drawbacks
 |---|---|-------------
 | **Slow query log** | 1. More detail.<br>2. Lower resource impact (with query sampling feature in Percona Server for MySQL). | 1. PMM Client must be on same host as database server or have access to slow query log.<br>2. Log files grow and must be actively managed.
-| **Performance Schema** | 1. Faster parsing. 2. Enabled by default on newer versions of MySQL. | 1. Less detail.
+| **Performance Schema** | 1. Faster parsing.<br>2. Enabled by default on newer versions of MySQL. | 1. Less detail.
 
 ### Data source recommendations
 
