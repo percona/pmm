@@ -79,6 +79,7 @@ Here are the benefits and drawbacks of each.
 |                      | <i class="uil uil-thumbs-up"></i> Benefits     | <i class="uil uil-thumbs-down"></i> Drawbacks
 |----------------------|------------------------------------------------|---------------------------------------------------
 | `pg_stat_statements` | Part of official `postgresql-contrib` package  | No aggregated statistics or histograms
+|                      |                                                | No Query Examples 
 | `pg_stat_monitor`    | Builds on `pg_stat_monitor` features           | Beta software
 |                      | Bucket-based aggregation                       |
 
