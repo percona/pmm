@@ -78,10 +78,8 @@ Here are the benefits and drawbacks of each.
 
 |                      | <i class="uil uil-thumbs-up"></i> Benefits     | <i class="uil uil-thumbs-down"></i> Drawbacks
 |----------------------|------------------------------------------------|---------------------------------------------------
-| `pg_stat_statements` | Part of official `postgresql-contrib` package  | No aggregated statistics or histograms
-|                      |                                                | No Query Examples 
-| `pg_stat_monitor`    | Builds on `pg_stat_monitor` features           | Beta software
-|                      | Bucket-based aggregation                       |
+| `pg_stat_statements` | Part of official `postgresql-contrib` package  | No aggregated statistics or histograms<br>No Query Examples
+| `pg_stat_monitor`    | Builds on `pg_stat_monitor` features<br>Bucket-based aggregation | Beta software
 
 !!! note alert alert-primary "Bucket-based data aggregation"
     `pg_stat_monitor` collects statistics and aggregates data in a data collection unit called a *bucket*. These are linked together to form a *bucket chain*.
