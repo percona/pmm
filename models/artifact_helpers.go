@@ -46,15 +46,17 @@ type ArtifactFilters struct {
 func FindArtifacts(q *reform.Querier, filters *ArtifactFilters) ([]*Artifact, error) {
 	var conditions []string
 	var args []interface{}
+	idx := 1
 	if filters != nil && filters.ServiceID != "" {
-		conditions = append(conditions, fmt.Sprintf("service_id = %s", q.Placeholder(1)))
+		conditions = append(conditions, fmt.Sprintf("service_id = %s", q.Placeholder(idx)))
 		args = append(args, filters.ServiceID)
+		idx++
 	}
 	if filters != nil && filters.LocationID != "" {
 		if _, err := FindBackupLocationByID(q, filters.LocationID); err != nil {
 			return nil, err
 		}
-		conditions = append(conditions, fmt.Sprintf("location_id = %s", q.Placeholder(1)))
+		conditions = append(conditions, fmt.Sprintf("location_id = %s", q.Placeholder(idx)))
 		args = append(args, filters.LocationID)
 	}
 

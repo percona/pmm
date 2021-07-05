@@ -363,8 +363,25 @@ func RemoveBackupLocation(q *reform.Querier, id string, mode RemoveMode) error {
 		return err
 	}
 
-	if len(artifacts) != 0 && mode == RemoveRestrict {
-		return status.Errorf(codes.FailedPrecondition, "backup location with ID %q has artifacts.", id)
+	var restoreItems []*RestoreHistoryItem
+	for _, a := range artifacts {
+		items, err := FindRestoreHistoryItems(q, &RestoreHistoryItemFilters{ArtifactID: a.ID})
+		if err != nil {
+			return err
+		}
+
+		restoreItems = append(restoreItems, items...)
+	}
+
+	if mode == RemoveRestrict && (len(artifacts) != 0 || len(restoreItems) != 0) {
+		return status.Errorf(codes.FailedPrecondition,
+			"backup location with ID %q has artifacts or restore history items.", id)
+	}
+
+	for _, i := range restoreItems {
+		if err := RemoveRestoreHistoryItem(q, i.ID); err != nil {
+			return err
+		}
 	}
 
 	for _, a := range artifacts {
