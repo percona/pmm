@@ -465,12 +465,14 @@ How to remove (uninstall) PMM Client.
     ```
 
 ## Unregister
+
 How to unregister PMM Client from PMM Server.
+
 ```sh
 pmm-admin unregister --force
 ```
-All services that are monitored by this node will be removed from monitoring.
 
+All services monitored by this node will be removed from monitoring.
 
 ## Remove services
 
