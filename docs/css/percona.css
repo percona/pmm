@@ -19,3 +19,6 @@ ul li p {
     display: block;
     margin: 0 auto;
 }
+dd {
+    margin: 1em 0 1.5em px2em(30px) !important;
+}
