@@ -466,12 +466,14 @@ How to remove (uninstall) PMM Client.
 
 ## Remove services
 
-You should specify service type and service name for removing from monitoring
-One of next types has to be set: `mysql`, `mongodb`, `postgresql`, `proxysql`, `haproxy`, `external`.
+You must specify the service type and service name to remove services from monitoring.
 
 ```sh
 pmm-admin remove <service-type> <service-name>
 ```
+
+`service-type`
+: One of `mysql`, `mongodb`, `postgresql`, `proxysql`, `haproxy`, `external`.
 
 !!! seealso alert alert-info "See also"
     - [Percona release]
