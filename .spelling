@@ -13,6 +13,7 @@ autodetect
 autovacuum
 Barth
 Beata
+Biete
 binlog
 binlogs
 Burgos
@@ -41,6 +42,7 @@ ElasticSearch
 ESXi
 ethernet
 Fedorov
+foosinn
 freeable
 fsync
 fsyncs
@@ -50,8 +52,8 @@ GitHub
 goroutine
 goroutines
 GovCloud
+grafana
 gRPC
-Grafana
 Guzman
 Handzelova
 haproxy
@@ -9156,6 +9158,7 @@ Rouillard
 rq
 rseg
 runtime
+S3
 SaaS
 schema
 schemas
@@ -9172,6 +9175,7 @@ slowlog
 smarthost
 softirq
 Solovyev
+spaceform
 sparkline
 sparklines
 ssl-enabled
@@ -9191,6 +9195,7 @@ templated
 timespan
 timestamp
 timestamps
+Tokarchuk
 TokuDB
 tooltip
 tooltips
