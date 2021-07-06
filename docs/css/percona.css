@@ -20,5 +20,5 @@ ul li p {
     margin: 0 auto;
 }
 dd {
-    margin: 1em 0 1.5em px2em(30px) !important;
+    margin-left: 2em !important;
 }
