@@ -28,7 +28,7 @@
 
     - name: detect containers
       set_fact:
-        is_container: '{{ lookup("file", "/srv/pmm-distribution") == "docker" }}'
+        is_docker: '{{ lookup("file", "/srv/pmm-distribution") == "docker" }}'
       no_log: yes
       when: srv_pmm_distribution.stat.exists
 
@@ -39,26 +39,26 @@
 
     - name: force container
       set_fact:
-        is_container: True
-      when: is_container is undefined
+        is_docker: True
+      when: is_docker is undefined
 
   tasks:
     # Replace forking type with simple. New config will be applied after next reboot.
     - name: Configure systemd
-      when: not is_container
+      when: not is_docker
       copy:
         src: supervisord.service
         dest: /usr/lib/systemd/system/supervisord.service
         mode: 0644
 
     - name: Remove old supervisord service confiuration
-      when: not is_container
+      when: not is_docker
       file:
         path: /etc/systemd/system/supervisord.service
         state: absent
 
     - name: Increase number of open files for jobs
-      when: not is_container
+      when: not is_docker
       ini_file:
         dest: /etc/supervisord.conf
         section: supervisord
@@ -105,6 +105,13 @@
 
     # Fix things that should be fixed before restarts.
 
+    - name: Stop systemd pmm-agent service, if running
+      systemd:
+        name: pmm-agent
+        state: stopped
+        enabled: no
+      when: not is_docker
+
     - name: Remove old packages
       yum:
         state: absent
@@ -118,7 +125,7 @@
 
     # https://jira.percona.com/browse/PMM-5271
     - name: Check volume size
-      when: not is_container
+      when: not is_docker
       replace:
         dest: /var/lib/cloud/scripts/per-boot/resize-xfs
         regexp: "set -o errexit"
