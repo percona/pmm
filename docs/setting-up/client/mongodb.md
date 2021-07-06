@@ -196,8 +196,9 @@ where:
 2. Look in the *Services* tab for a matching *Service Type* (MongoDB), *Service name*, *Addresses*, and any other values used when adding the service.
 3. Look in the *Agents* tab to check the desired data source is being used.
 4. If your MongoDB instance is configured to use TLS, click on the **Use TLS for database connection** checkbox and fill in TLS certificates and keys.
-![!](../../_images/PMM_Add_Instance_MongoDB_TLS.jpg)
-                                                                                    
+
+![!](../../_images/PMM_Add_Instance_MongoDB_TLS.png)
+
 ### On the command line
 
 Look for your service in the output of this command.
