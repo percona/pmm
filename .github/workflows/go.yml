@@ -8,8 +8,8 @@ jobs:
     strategy:
       matrix:
         go-version:
-          - 1.15
           - 1.16
+          - tip
         include:
           - go-version: tip
             os: ubuntu-latest
