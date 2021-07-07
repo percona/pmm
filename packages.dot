@@ -16,6 +16,7 @@ digraph packages {
 	"/" -> "/services/minio";
 	"/" -> "/services/platform";
 	"/" -> "/services/qan";
+	"/" -> "/services/scheduler";
 	"/" -> "/services/server";
 	"/" -> "/services/supervisord";
 	"/" -> "/services/telemetry";

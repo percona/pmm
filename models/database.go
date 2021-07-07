@@ -517,6 +517,25 @@ var databaseSchema = [][]string{
 		`ALTER TABLE artifacts ADD FOREIGN KEY (location_id) REFERENCES backup_locations (id)`,
 		`ALTER TABLE artifacts DROP CONSTRAINT artifacts_service_id_check`,
 	},
+	39: {
+		`CREATE TABLE scheduled_tasks (
+			id VARCHAR NOT NULL,
+			cron_expression VARCHAR NOT NULL CHECK (cron_expression <> ''),
+			type VARCHAR NOT NULL CHECK (type <> ''),
+			start_at TIMESTAMP,
+			last_run TIMESTAMP,
+			next_run TIMESTAMP,
+			data JSONB,
+			disabled BOOLEAN,
+			running BOOLEAN,
+			error VARCHAR,
+
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (id)
+		)`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
