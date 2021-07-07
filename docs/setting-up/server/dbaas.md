@@ -69,7 +69,7 @@ alias kubectl='minikube kubectl --'
 ## Create a Kubernetes cluster
 
 !!! note alert alert-primary ""
-    The DBaaS feature uses Kubernetes clusters to deploy database clusters. You must first create a Kubernetes cluster and then add it to PMM using `kubeconfig` to get a successful setup
+    The DBaaS feature uses Kubernetes clusters to deploy database clusters. You must first create a Kubernetes cluster and then add it to PMM using `kubeconfig` to get a successful setup.
 
 ### Minikube
 
@@ -314,9 +314,9 @@ For example, if you only run `eksctl delete cluster` to delete an Amazon EKS clu
     kubectl delete namespace <your-namespace>
     ```
 
-4. Delete the Kubernetes cluster. The way is based on your cloud provider.
-    - [Delete GKE cluster](https://cloud.google.com/kubernetes-engine/docs/how-to/deleting-a-cluster)
-    - [Delete Amazon EKS cluster](https://docs.aws.amazon.com/eks/latest/userguide/delete-cluster.html)
+4. Delete the Kubernetes cluster. The method depends on your cloud provider:
+    - [Delete GKE cluster](https://cloud.google.com/kubernetes-engine/docs/how-to/deleting-a-cluster).
+    - [Delete Amazon EKS cluster](https://docs.aws.amazon.com/eks/latest/userguide/delete-cluster.html).
 
 ## Run PMM Server as a Docker container for DBaaS
 

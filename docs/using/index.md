@@ -2,21 +2,21 @@
 
 - [User Interface](interface.md)
 
-    - Using the web-based user interface
-    - Finding dashboards
-    - Rendering dashboard images
-    - Viewing graph details
-    - Annotating events
+    - Using the web-based user interface.
+    - Finding dashboards.
+    - Rendering dashboard images.
+    - Viewing graph details.
+    - Annotating events.
 
 - [Integrated alerting](alerting.md)
 
 - [Backup and Restore](backup.md)
 
-- [Query Analytics](query-analytics.md), a specialized dashboard for detailed query analysis
+- [Query Analytics](query-analytics.md), a specialized dashboard for detailed query analysis.
 
-- [Security Threat Tool](security-threat-tool.md): Enabling and seeing the results of database security checks
+- [Security Threat Tool](security-threat-tool.md): Enabling and seeing the results of database security checks.
 
-- [DBaaS](dbaas.md): Configuration for DBaaS and UI for creating Database clusters
+- [DBaaS](dbaas.md): Configuration for DBaaS and UI for creating Database clusters.
 
 !!! note alert alert-primary ""
     These features are currently only available for PMM Admin users:

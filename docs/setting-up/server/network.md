@@ -17,12 +17,12 @@ Other ports:
 
 | PMM component | TCP port      | Direction     | Description
 |---------------|---------------|---------------|---------------------------------------------------------------
-| PMM Server    | 7771          | both          | gRPC, used for communication between `pmm-agent`, `pmm-admin`
-| PMM Server    | 7772          | out           | HTTP1 server, used for older links like `logs.zip`
-| PMM Server    | 7773          | out           | Debugging
-| `pmm-agent`   | 7777          | out           | Default `pmm-agent` listen port
-| `vm-agent`    | 8428          | both          | VictoriaMetrics port
-| `pmm-agent`   | 42000 - 51999 | in            | Default range for `pmm-agent` connected agents
+| PMM Server    | 7771          | both          | gRPC, used for communication between `pmm-agent`, `pmm-admin`.
+| PMM Server    | 7772          | out           | HTTP1 server, used for older links like `logs.zip`.
+| PMM Server    | 7773          | out           | Debugging.
+| `pmm-agent`   | 7777          | out           | Default `pmm-agent` listen port.
+| `vm-agent`    | 8428          | both          | VictoriaMetrics port.
+| `pmm-agent`   | 42000 - 51999 | in            | Default range for `pmm-agent` connected agents.
 
 !!! caution alert alert-warning "Important"
     Depending on your architecture other ports may also need to be exposed.

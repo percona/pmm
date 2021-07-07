@@ -26,7 +26,7 @@ From the left menu, select <i class="uil uil-database"></i> *DBaaS*.
 !!! note alert alert-primary ""
     PXC and PSMDB operators are installed as part of the Kubernetes cluster registration process. It enables you to deploy database clusters into the Kubernetes cluster.
 
-1. Click *Register new Kubernetes Cluster*
+1. Click *Register new Kubernetes Cluster*.
 
 2. Enter values for the *Kubernetes Cluster Name* and *Kubeconfig file* in the corresponding fields.
 

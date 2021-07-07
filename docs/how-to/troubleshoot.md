@@ -27,7 +27,7 @@ PMM is also able to generate diagnostics data which can be examined and/or share
 
 Logs obtained in this way includes PMM Client logs and logs which were received from the PMM Server, stored separately in the `client` and `server` folders. The `server` folder also contains its own `client` subfolder with the self-monitoring client information collected on the PMM Server.
 
-Beginning with PMM version 2.4.0, there is an additional flag that enables the fetching of [`pprof`](https://github.com/google/pprof) debug profiles and adds them to the diagnostics data. To enable, run `pmm-admin summary --pprof`.
+Beginning with [PMM 2.4.0](../release-notes/2.4.0.md), there is an additional flag that enables the fetching of [`pprof`](https://github.com/google/pprof) debug profiles and adds them to the diagnostics data. To enable, run `pmm-admin summary --pprof`.
 
 You can get PMM Server logs with either of these methods:
 
@@ -111,7 +111,7 @@ It depends on what kind of authentication your system uses:
 
 Built-In alerts are not editable.
 
-However, you can copy them and edit the copies. (PMM >=2.14.0).
+However, you can copy them and edit the copies. (In [PMM 2.14.0](../release-notes/2.14.0.md) and above).
 
 If you create a custom alert rule template you will have access to edit.
 

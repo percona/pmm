@@ -12,8 +12,8 @@ The *Failed security checks* panel on the *Home Dashboard* shows the number of f
 
 ![!Failed security checks panel](../_images/PMM_Home_Dashboard_Panels_Failed_Security_Checks.jpg)
 
-!!! note alert alert-light ""
-    **Key:** <b style="color:#e02f44;">Critical</b> (Red) / <b style="color:#e36526;">Major</b> (Amber) / <b style="color:#5794f2;">Trivial</b> (Blue)
+!!! note alert alert-light "Key"
+    <b style="color:#e02f44;">Critical</b> (Red) / <b style="color:#e36526;">Major</b> (Amber) / <b style="color:#5794f2;">Trivial</b> (Blue)
 
 Details are in the *PMM Database Checks* dashboard (select *PMM* → *PMM Database Checks*).
 
@@ -21,7 +21,7 @@ Details are in the *PMM Database Checks* dashboard (select *PMM* → *PMM Databa
 
 ## How to enable
 
-The Security Threat Tool (STT) is disabled by default. To enable it, select <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings*. [(Read more.)](../how-to/configure.md#advanced-settings).
+The Security Threat Tool (STT) is disabled by default. To enable it, select <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings*. ([Read more](../how-to/configure.md#advanced-settings)).
 
 Enabling STT in the settings also causes the PMM server to download STT checks from Percona Platform and run them once. This operation runs in the background so even though the settings update finishes instantly it might take some time for the checks to complete download and execution and the results (if any) to be visible in the *PMM Database Checks* dashboard.
 

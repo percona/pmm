@@ -2,7 +2,7 @@
 
 ## NAME
 
-`pmm-agent` - The PMM Client daemon program
+`pmm-agent` - The PMM Client daemon program.
 
 ## SYNOPSIS
 
@@ -10,18 +10,18 @@
 
 ## DESCRIPTION
 
-pmm-agent, part of the PMM Client package, runs as a daemon process on all monitored hosts.
+`pmm-agent`, part of the PMM Client package, runs as a daemon process on all monitored hosts.
 
 ## COMMANDS
 
 `pmm-agent run`
-: Run pmm-agent (default)
+: Run pmm-agent (default).
 
 `pmm-agent setup [node-address] [node-type] [node-name]`
-: Configure local pmm-agent
+: Configure local pmm-agent.
 
 `pmm-agent help [command]`
-: Show help (for command) and exit
+: Show help (for command) and exit.
 
 ## OPTIONS AND ENVIRONMENT
 
@@ -78,7 +78,9 @@ To get a separate log file, edit the `pmm-agent` start-up script.
 
 Example:
 
-    StandardError=file:/var/log/pmm-agent.log
+```ini
+StandardError=file:/var/log/pmm-agent.log
+```
 
 **`initd`-based systems**
 
@@ -88,6 +90,8 @@ Example:
 
 Example:
 
-        pmm_log="/var/log/pmm-agent.log"
+```ini
+pmm_log="/var/log/pmm-agent.log"
+```
 
 If you change the default log file name, reflect the change in the log rotation rules file `/etc/logrotate.d/pmm-agent-logrotate`.

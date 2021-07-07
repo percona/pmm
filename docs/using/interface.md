@@ -22,7 +22,7 @@ PMM's user interface is a browser application based on [Grafana].
 
 5. If this is your first time logging in, you'll be asked to set a new password. (We recommend you do.)
 
-    - Either enter a new password in both fields and click *Submit*, or
+    - Either enter a new password in both fields and click *Submit*, or,
 
     - click *Skip* to use the default password.
 

@@ -6,7 +6,7 @@ The connection can be direct, or indirect using [Cloud SQL Proxy][GOOGLE_CLOUD_S
 
 ## MySQL
 
-1. [Set up a MySQL instance on Google Cloud][GOOGLE_CLOUD_MYSQL]
+1. [Set up a MySQL instance on Google Cloud][GOOGLE_CLOUD_MYSQL].
 
 2. The database server must be accessible by PMM Client. If PMM Client is not also hosted on GCP, you will need to add a network interface with a public interface.
 

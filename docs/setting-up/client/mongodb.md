@@ -3,10 +3,10 @@
 How to set up PMM to monitor a [MongoDB] or [Percona Server for MongoDB] database instance.
 
 !!! summary alert alert-info "Summary"
-    - Create PMM account and set permissions
-    - Configure profiling
-    - Add service
-    - Check service
+    - Create PMM account and set permissions.
+    - Configure profiling.
+    - Add service.
+    - Check service.
 
 ## Before you start
 

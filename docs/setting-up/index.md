@@ -3,9 +3,9 @@
 There are three stages to installing and setting up PMM.
 
 !!! summary alert alert-info "Summary"
-    1. [Set up a PMM Server](#set-up-pmm-server)
-    2. [Set up PMM Client(s)](#set-up-pmm-client)
-    3. [Add services](#add-services)
+    1. [Set up a PMM Server](#set-up-pmm-server).
+    2. [Set up PMM Client(s)](#set-up-pmm-client).
+    3. [Add services](#add-services).
 
 ## Set up PMM Server
 
@@ -25,7 +25,7 @@ Install and run PMM Client on every node where there is a service you want to mo
 
 The choices:
 
-- With [Docker](client/index.md#docker)
+- With [Docker](client/index.md#docker);
 - Natively, installed from:
     - [Linux package](client/index.md#package-manager) (installed with `apt`, `apt-get`, `dnf`, `yum`);
     - [Binary package](client/index.md#binary-package) (a downloaded `.tar.gz` file).
@@ -36,17 +36,17 @@ On each PMM Client, you configure then add to PMM Server's inventory the node or
 
 How you do this depends on the type of service. You can monitor:
 
-- [MySQL] (and variants: Percona Server for MySQL, Percona XtraDB Cluster, MariaDB)
-- [MongoDB]
-- [PostgreSQL]
-- [ProxySQL]
-- [Amazon RDS]
-- [Microsoft Azure]
-- [Google Cloud Platform] (MySQL and PostgreSQL)
-- [Linux]
-- [External services]
-- [HAProxy]
-- [Remote instances]
+- [MySQL] (and variants: Percona Server for MySQL, Percona XtraDB Cluster, MariaDB);
+- [MongoDB];
+- [PostgreSQL];
+- [ProxySQL];
+- [Amazon RDS];
+- [Microsoft Azure];
+- [Google Cloud Platform] (MySQL and PostgreSQL);
+- [Linux];
+- [External services];
+- [HAProxy];
+- [Remote instances].
 
 [MySQL]: client/mysql.md
 [MongoDB]: client/mongodb.md

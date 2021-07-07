@@ -89,10 +89,10 @@ PMM communicates with the PMM Server via a PMM agent process.
 `pmm-admin status --server-url=server-url [FLAGS]`
 :    Show the following information about a local pmm-agent, and its connected server and clients:
 
-    * Agent: Agent ID, Node ID.
-    * PMM Server: URL and version.
-    * PMM Client: connection status, time drift, latency, vmagent status, pmm-admin version.
-    * Agents: Agent ID path and client name.
+    - Agent: Agent ID, Node ID.
+    - PMM Server: URL and version.
+    - PMM Client: connection status, time drift, latency, `vmagent` status, `pmm-admin` version.
+    - Agents: Agent ID path and client name.
 
     FLAGS:
 
@@ -126,19 +126,19 @@ PMM communicates with the PMM Server via a PMM agent process.
     : Node ID (default is auto-detected).
 
     `--node-model=node-model`
-    : Node model
+    : Node model.
 
     `--region=region`
-    : Node region
+    : Node region.
 
     `--az=availability-zone`
-    : Node availability zone
+    : Node availability zone.
 
     `--metrics-mode=mode`
     : Metrics flow mode for agents node-exporter. Allowed values:
-        - `auto`: chosen by server (default)
-        - `push`: agent will push metrics
-        - `pull`: server scrapes metrics from agent
+        - `auto`: chosen by server (default).
+        - `push`: agent will push metrics.
+        - `pull`: server scrapes metrics from agent.
 
 #### `pmm-admin register`
 
@@ -213,43 +213,43 @@ When you remove a service, collected data remains on PMM Server for the specifie
     Flags may be combined as shown in the following examples.
 
     `--node`
-    : current node
+    : Current node.
 
     `--node-name`
-    : node with name
+    : Node with name.
 
     `--node --node-name=NODE_NAME`
-    : node with name
+    : Node with name.
 
     `--node --service-name`
-    : current node and service with name
+    : Current node and service with name.
 
     `--node --node-name --service-name`
-    : node with name and service with name
+    : Node with name and service with name.
 
     `--node --service`
-    : current node and all services of current node
+    : Current node and all services of current node.
 
     `-node --node-name --service --service-name`
-    : service with name and node with name
+    : Service with name and node with name.
 
     `--service`
-    : all services of the current node
+    : All services of the current node.
 
     `--service-name`
-    : service with name
+    : Service with name.
 
     `--service --service-name`
-    : service with name
+    : Service with name.
 
     `--service --node-name`
-    : all services of current node and node with name
+    : All services of current node and node with name.
 
     `--service-name --node-name`
-    : service with name and node with name
+    : Service with name and node with name.
 
     `--service --service-name -node-name`
-    : service with name and node with name
+    : Service with name and node with name.
 
     !!! hint alert alert-success "Tip"
         If node or service name is specified, they are used instead of other parameters.
@@ -310,9 +310,9 @@ When you remove a service, collected data remains on PMM Server for the specifie
 
     `--metrics-mode=mode`
     : Metrics flow mode for agents node-exporter. Allowed values:
-        - `auto`: chosen by server (default)
-        - `push`: agent will push metrics
-        - `pull`: server scrapes metrics from agent
+        - `auto`: chosen by server (default).
+        - `push`: agent will push metrics.
+        - `pull`: server scrapes metrics from agent.
 
 #### MySQL
 
@@ -414,9 +414,9 @@ When you remove a service, collected data remains on PMM Server for the specifie
 
     `--metrics-mode=mode`
     : Metrics flow mode for agents node-exporter. Allowed values:
-        - `auto`: chosen by server (default)
-        - `push`: agent will push metrics
-        - `pull`: server scrapes metrics from agent
+        - `auto`: chosen by server (default).
+        - `push`: agent will push metrics.
+        - `pull`: server scrapes metrics from agent.
 
 #### PostgreSQL
 
@@ -447,7 +447,7 @@ When you remove a service, collected data remains on PMM Server for the specifie
     : Cluster name.
 
     `--replication-set=<replication set>`
-    : Replication set name
+    : Replication set name.
 
     `--custom-labels=<custom labels>`
     : Custom user-assigned labels.
@@ -463,9 +463,9 @@ When you remove a service, collected data remains on PMM Server for the specifie
 
     `--metrics-mode=mode`
     : Metrics flow mode for agents node-exporter. Allowed values:
-        - `auto`: chosen by server (default)
-        - `push`: agent will push metrics
-        - `pull`: server scrapes metrics from agent
+        - `auto`: chosen by server (default).
+        - `push`: agent will push metrics.
+        - `pull`: server scrapes metrics from agent.
 
 #### ProxySQL
 
@@ -509,12 +509,12 @@ When you remove a service, collected data remains on PMM Server for the specifie
 
     `--metrics-mode=mode`
     : Metrics flow mode for agents node-exporter. Allowed values:
-        - `auto`: chosen by server (default)
-        - `push`: agent will push metrics
-        - `pull`: server scrapes metrics from agent
+        - `auto`: chosen by server (default).
+        - `push`: agent will push metrics.
+        - `pull`: server scrapes metrics from agent.
 
     `--disable-collectors`
-    : Comma-separated list of collector names to exclude from exporter
+    : Comma-separated list of collector names to exclude from exporter.
 
 #### HAProxy
 
@@ -524,7 +524,7 @@ When you remove a service, collected data remains on PMM Server for the specifie
     FLAGS:
 
     `--server-url=SERVER-URL`
-    : PMM Server URL in `https://username:password@pmm-server-host/` format
+    : PMM Server URL in `https://username:password@pmm-server-host/` format.
 
     `--server-insecure-tls`
     : Skip PMM Server TLS certificate validation.
@@ -561,9 +561,9 @@ When you remove a service, collected data remains on PMM Server for the specifie
 
     `--metrics-mode=MODE`
     : Metrics flow mode for agents node-exporter. Allowed values:
-        - `auto`: chosen by server (default)
-        - `push`: agent will push metrics
-        - `pull`: server scrapes metrics from agent
+        - `auto`: chosen by server (default).
+        - `push`: agent will push metrics.
+        - `pull`: server scrapes metrics from agent.
 
     `--skip-connection-check`
     : Skip connection check.
@@ -572,82 +572,81 @@ When you remove a service, collected data remains on PMM Server for the specifie
 
 `pmm-admin add external [FLAGS]`
 
-: Add External source of data (like a custom exporter running on a port) to the monitoring
+: Add External source of data (like a custom exporter running on a port) to be monitored.
 
     FLAGS:
 
     `--service-name="current-hostname"`
-    : Service name (autodetected defaults to the hostname where pmm-admin is running)
+    : Service name (autodetected defaults to the hostname where `pmm-admin` is running).
 
     `--agent-node-id=AGENT-NODE-ID`
-    : Node ID where agent runs (default is autodetected)
+    : Node ID where agent runs (default is autodetected).
 
     `--username=USERNAME`
-    : External username
+    : External username.
 
     `--password=PASSWORD`
-    : External password
+    : External password.
 
     `--scheme=http or https`
-    : Scheme to generate URI to exporter metrics endpoints
+    : Scheme to generate URI to exporter metrics endpoints.
 
     `--metrics-path=/metrics`
     : Path under which metrics are exposed, used to generate URI.
 
     `--listen-port=LISTEN-PORT`
-    : Listen port of external exporter for scraping metrics. (Required)
+    : Listen port of external exporter for scraping metrics. (Required.)
 
     `--service-node-id=SERVICE-NODE-ID`
-    : Node ID where service runs (default is autodetected)
+    : Node ID where service runs (default is autodetected).
 
     `--environment=prod`
-    : Environment name like 'production' or 'qa'
+    : Environment name like 'production' or 'qa'.
 
     `--cluster=east-cluster`
-    : Cluster name
+    : Cluster name.
 
     `--replication-set=rs1`
-    : Replication set name
+    : Replication set name.
 
     `--custom-labels=CUSTOM-LABELS`
-    : Custom user-assigned labels. Example: region=east,app=app1
+    : Custom user-assigned labels. Example: `region=east,app=app1`.
 
     `--metrics-mode=auto`
     : Metrics flow mode, can be `push`: agent will push metrics, `pull`: server scrape metrics from agent or `auto`: chosen by server.
 
     `--group="external"`
-    : Group name of external service (default: external)
+    : Group name of external service. (Default: `external`.)
 
 `pmm-admin add external-serverless [FLAGS]`
 
 : Add External Service on Remote node to monitoring.
 
-    Usage example: `pmm-admin add external-serverless --url=http://1.2.3.4:9093/metrics`
+    Usage example: `pmm-admin add external-serverless --url=http://1.2.3.4:9093/metrics`.
 
-    Also, individual parameters can be set instead of `--url` like: `pmm-admin add external-serverless --scheme=http --host=1.2.3.4 --listen-port=9093 --metrics-path=/metrics --container-name=ddd --external-name=e125`
+    Also, individual parameters can be set instead of `--url` like: `pmm-admin add external-serverless --scheme=http --host=1.2.3.4 --listen-port=9093 --metrics-path=/metrics --container-name=ddd --external-name=e125`.
 
-    Notice that some parameters are mandatory depending on the context. For example, if you specify `--url`, `--schema` and other related parameters are not mandatory but, if you specify `--host` you must provide all other parameters needed to
-    build the destination URL or even you can specify `--address` instead of host and port as individual parameters.
+    Note that some parameters are mandatory depending on the context. For example, if you specify `--url`, `--schema` and other related parameters are not mandatory. But if you specify `--host` you must provide all other parameters needed to build the destination URL, or you can specify `--address` instead of host and port as individual parameters.
 
     FLAGS:
 
     `--url=URL`
-    : Full URL to exporter metrics endpoints
+    : Full URL to exporter metrics endpoints.
 
     `--scheme=https`
-    : Scheme to generate URL to exporter metrics endpoints
+    : Scheme to generate URL to exporter metrics endpoints.
 
     `--username=USERNAME`
-    : External username
+    : External username.
 
     `--password=PASSWORD`
-    : External password
+    : External password.
 
     `--address=1.2.3.4:9000`
-    : External exporter address and port
+    : External exporter address and port.
 
     `--host=1.2.3.4`
-    : External exporters hostname or IP address
+    : External exporters hostname or IP address.
 
     `--listen-port=9999`
     : Listen port of external exporter for scraping metrics.
@@ -656,40 +655,40 @@ When you remove a service, collected data remains on PMM Server for the specifie
     : Path under which metrics are exposed, used to generate URL.
 
     `--environment=testing`
-    : Environment name
+    : Environment name.
 
     `--cluster=CLUSTER`
-    : Cluster name
+    : Cluster name.
 
     `--replication-set=rs1`
-    : Replication set name
+    : Replication set name.
 
     `--custom-labels='app=myapp,region=s1'`
-    : Custom user-assigned labels
+    : Custom user-assigned labels.
 
     `--group="external"`
-    : Group name of external service (default: external)
+    : Group name of external service. (Default: `external`.)
 
     `--machine-id=MACHINE-ID`
-    : Node machine-id
+    : Node machine-id.
 
     `--distro=DISTRO`
-    : Node OS distribution
+    : Node OS distribution.
 
     `--container-id=CONTAINER-ID`
-    : Container ID
+    : Container ID.
 
     `--container-name=CONTAINER-NAME`
-    : Container name
+    : Container name.
 
     `--node-model=NODE-MODEL`
-    : Node model
+    : Node model.
 
     `--region=REGION`
-    : Node region
+    : Node region.
 
     `--az=AZ`
-    : Node availability zone
+    : Node availability zone.
 
 ## EXAMPLES
 
@@ -736,8 +735,8 @@ pmm-admin add mysql --disable-collectors='heartbeat,global_status,info_schema.in
 
 For other collectors that you can disable with the `--disable-collectors` option, please visit the official repositories for each exporter:
 
-- [node_exporter](https://github.com/percona/node_exporter)
-- [mysqld_exporter](https://github.com/percona/mysqld_exporter)
-- [mongodb_exporter](https://github.com/percona/mongodb_exporter)
-- [postgres_exporter](https://github.com/percona/postgres_exporter)
-- [proxysql_exporter](https://github.com/percona/proxysql_exporter)
+- [`node_exporter`](https://github.com/percona/node_exporter)
+- [`mysqld_exporter`](https://github.com/percona/mysqld_exporter)
+- [`mongodb_exporter`](https://github.com/percona/mongodb_exporter)
+- [`postgres_exporter`](https://github.com/percona/postgres_exporter)
+- [`proxysql_exporter`](https://github.com/percona/proxysql_exporter)

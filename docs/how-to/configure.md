@@ -58,7 +58,7 @@ Each preset is a group of low, medium and high resolutions. The values are in se
 The default values (in seconds) for the fixed presets and their resolution names are:
 
 | Editable? | Preset            | Low  | Medium | High |
-|:---------:|-------------------|:----:|:------:|:----:|
+|-----------|-------------------|------|--------|------|
 | No        | Rare              | 300  | 180    | 60   |
 | No        | Standard          | 60   | 10     | 5    |
 | No        | Frequent          | 30   | 5      | 1    |
@@ -83,10 +83,10 @@ The *Telemetry* switch enables gathering and sending basic **anonymous** data to
 
 Currently, only the following information is gathered:
 
-- PMM Version,
-- Installation Method (Docker, AMI, OVF),
-- the Server Uptime,
-- Security Threat Tool Status (enabled or disabled),
+- PMM Version;
+- Installation Method (Docker, AMI, OVF);
+- the Server Uptime;
+- Security Threat Tool Status (enabled or disabled);
 - Integrated Alerting Status (enabled or disabled).
 
 We do not gather anything that would make the system identifiable, but the following two things are to be mentioned:

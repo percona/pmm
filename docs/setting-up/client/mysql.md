@@ -5,16 +5,16 @@ How to set up PMM to monitor a MySQL or MySQL-based database instance.
 PMM Client collects metrics from [MySQL][ORACLE_MYSQL], [Percona Server for MySQL][PERCONA_SERVER_MYSQL], [Percona XtraDB Cluster][PERCONA_XTRADB_CLUSTER], and [MariaDB][MARIADB]. (Amazon RDS is also supported and explained in a [separate section](aws.md).)
 
 !!! summary alert alert-info "Summary"
-    - Create PMM account and set permissions
+    - Create PMM account and set permissions.
     - Choose a data source:
-        - Slow query log, or
+        - Slow query log, or,
         - Performance Schema.
     - Configure:
         - Query response time,
         - Tablestats,
         - User statistics.
-    - Add service
-    - Check service
+    - Add service.
+    - Check service.
 
 ## Before you start
 
@@ -84,7 +84,7 @@ The *slow query log* records the details of queries that take more than a certai
 
 #### Examples
 
-- Configuration file
+- Configuration file.
 
     ```ini
     slow_query_log=ON
@@ -94,7 +94,7 @@ The *slow query log* records the details of queries that take more than a certai
     log_slow_slave_statements=ON
     ```
 
-- Session
+- Session.
 
     ```sql
     SET GLOBAL slow_query_log = 1;
@@ -128,7 +128,7 @@ Some MySQL-based database servers support extended slow query log variables.
 
 ##### Examples
 
-- Configuration file (Percona Server for MySQL, Percona XtraDB Cluster)
+- Configuration file (Percona Server for MySQL, Percona XtraDB Cluster).
 
     ```ini
     log_slow_rate_limit=100
@@ -138,13 +138,13 @@ Some MySQL-based database servers support extended slow query log variables.
     slow_query_log_use_global_control='all'
     ```
 
-- Configuration file (MariaDB)
+- Configuration file (MariaDB).
 
     ```ini
     log_slow_rate_limit=100
     ```
 
-- Session (Percona Server for MySQL, Percona XtraDB Cluster)
+- Session (Percona Server for MySQL, Percona XtraDB Cluster).
 
     ```sql
     SET GLOBAL log_slow_rate_limit = 100;
@@ -195,7 +195,7 @@ To use *Performance Schema*, set these variables.
 
 #### Examples
 
-- Configuration file
+- Configuration file.
 
     ```ini
     performance_schema=ON
@@ -204,7 +204,7 @@ To use *Performance Schema*, set these variables.
     innodb_monitor_enable=all
     ```
 
-- Session
+- Session.
 
     (`performance_schema` cannot be set in a session and must be set at server start-up.)
 
@@ -222,7 +222,7 @@ There is no *Explain* or *Example* data shown by default in Query Analytics when
 |---------------------------------------------------------------------------|-----------------|-----------------------------
 | [`performance_schema.setup_instruments`][mariadb_perfschema_instr_table]  | `'statement/%'` | List of instrumented object classes.
 
-- Session
+- Session.
 
     ```sql
     UPDATE performance_schema.setup_instruments SET ENABLED = 'YES', TIMED = 'YES' WHERE NAME LIKE 'statement/%';
@@ -246,7 +246,7 @@ Set this variable to see query time distribution charts.
 |-------------------------------------------------------------|-------|-----------------------------------------------------------------------------------
 | [`query_response_time_stats`][ps_query_response_time_stats] | ON    | Report *query response time distributions*. (Requires plugin installation. See below.)
 
-- Configuration file
+- Configuration file.
 
     ```ini
     query_response_time_stats=ON
@@ -254,7 +254,7 @@ Set this variable to see query time distribution charts.
 
 You must also install the plugins.
 
-- Session
+- Session.
 
     1. Check that `/usr/lib/mysql/plugin/query_response_time.so` exists.
     2. Install the plugins and activate.
@@ -302,13 +302,13 @@ User activity, individual table and index access details are shown on the [MySQL
 
 ### Examples
 
-- Configuration file
+- Configuration file.
 
     ```ini
     userstat=ON
     ```
 
-- Session
+- Session.
 
     ```sql
     SET GLOBAL userstat = ON;
@@ -374,7 +374,7 @@ pmm-admin add mysql --username=pmm --password=pass --socket=/var/run/mysqld/mysq
 
 #### Performance Schema
 
-Performance schema query source, service name (`MYSQL_NODE`) and default service address/port (`127.0.0.1:3306`)
+Performance schema query source, service name (`MYSQL_NODE`) and default service address/port (`127.0.0.1:3306`).
 
 ```sh
 pmm-admin add mysql --query-source=perfschema --username=pmm --password=pass MYSQL_NODE

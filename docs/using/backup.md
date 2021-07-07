@@ -94,9 +94,9 @@
 ## Restoring a backup
 
 !!! note alert alert-primary ""
-    For this release, you can only restore a backup to the same service. I.e. a MySQL backup of service `mymsql-service-1` can only be restored to a MySQL database server registered with the same service name. Future releases will give more flexibility to restore backups to other service types.
+    For this release, you can only restore a backup to the same service. I.e. a MySQL backup of service `mysql-service-1` can only be restored to a MySQL database server registered with the same service name. Future releases will give more flexibility to restore backups to other service types.
 
-1. Navigate to *Backup Management* → *Backup Inventory*
+1. Navigate to *Backup Management* → *Backup Inventory*.
 
 2. Find the row with the backup you want to restore.
 
