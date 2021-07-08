@@ -1093,6 +1093,11 @@
             "schema": {
               "type": "object",
               "properties": {
+                "error_message": {
+                  "type": "string",
+                  "title": "Contains error message during request, if any",
+                  "x-order": 6
+                },
                 "installed": {
                   "description": "VersionInfo describes component version, or PMM Server as a whole.",
                   "type": "object",
