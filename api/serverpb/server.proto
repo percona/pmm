@@ -55,6 +55,8 @@ message ReadinessResponse {
 message CheckUpdatesRequest {
   // If false, cached information may be returned.
   bool force = 1;
+  // If true, only installed version will be in response.
+  bool only_installed_version = 2;
 }
 
 message CheckUpdatesResponse {
@@ -68,6 +70,8 @@ message CheckUpdatesResponse {
   string latest_news_url = 4;
   // Last check time.
   google.protobuf.Timestamp last_check = 5;
+  // If true, PMM is working in offline mode.
+  bool offline_mode = 6;
 }
 
 message StartUpdateRequest {}

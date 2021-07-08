@@ -125,6 +125,9 @@ type CheckUpdatesBody struct {
 
 	// If false, cached information may be returned.
 	Force bool `json:"force,omitempty"`
+
+	// If true, only installed version will be in response.
+	OnlyInstalledVersion bool `json:"only_installed_version,omitempty"`
 }
 
 // Validate validates this check updates body
@@ -239,6 +242,9 @@ type CheckUpdatesOKBody struct {
 	// Last check time.
 	// Format: date-time
 	LastCheck strfmt.DateTime `json:"last_check,omitempty"`
+
+	// If true, PMM is working in offline mode.
+	OfflineMode bool `json:"offline_mode,omitempty"`
 
 	// installed
 	Installed *CheckUpdatesOKBodyInstalled `json:"installed,omitempty"`
