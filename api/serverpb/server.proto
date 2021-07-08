@@ -70,10 +70,6 @@ message CheckUpdatesResponse {
   string latest_news_url = 4;
   // Last check time.
   google.protobuf.Timestamp last_check = 5;
-  // If true, PMM is working in offline mode.
-  bool offline_mode = 6;
-  // Contains error message during request, if any
-  string error_message = 7;
 }
 
 message StartUpdateRequest {}

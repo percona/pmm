@@ -1093,11 +1093,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "error_message": {
-                  "type": "string",
-                  "title": "Contains error message during request, if any",
-                  "x-order": 6
-                },
                 "installed": {
                   "description": "VersionInfo describes component version, or PMM Server as a whole.",
                   "type": "object",
@@ -1154,11 +1149,6 @@
                   "description": "Latest available PMM Server release announcement URL.",
                   "type": "string",
                   "x-order": 3
-                },
-                "offline_mode": {
-                  "description": "If true, PMM is working in offline mode.",
-                  "type": "boolean",
-                  "x-order": 5
                 },
                 "update_available": {
                   "description": "True if there is a PMM Server update available.",

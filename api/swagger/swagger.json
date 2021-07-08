@@ -1154,16 +1154,6 @@
                   "type": "string",
                   "format": "date-time",
                   "x-order": 4
-                },
-                "offline_mode": {
-                  "description": "If true, PMM is working in offline mode.",
-                  "type": "boolean",
-                  "x-order": 5
-                },
-                "error_message": {
-                  "type": "string",
-                  "title": "Contains error message during request, if any",
-                  "x-order": 6
                 }
               }
             }

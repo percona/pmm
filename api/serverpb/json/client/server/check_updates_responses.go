@@ -243,12 +243,6 @@ type CheckUpdatesOKBody struct {
 	// Format: date-time
 	LastCheck strfmt.DateTime `json:"last_check,omitempty"`
 
-	// If true, PMM is working in offline mode.
-	OfflineMode bool `json:"offline_mode,omitempty"`
-
-	// Contains error message during request, if any
-	ErrorMessage string `json:"error_message,omitempty"`
-
 	// installed
 	Installed *CheckUpdatesOKBodyInstalled `json:"installed,omitempty"`
 
