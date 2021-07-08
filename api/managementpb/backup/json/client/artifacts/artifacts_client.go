@@ -44,7 +44,7 @@ func (a *Client) DeleteArtifact(params *DeleteArtifactParams) (*DeleteArtifactOK
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "DeleteArtifact",
 		Method:             "POST",
-		PathPattern:        "/v1/management/backup/Artifacts/Remove",
+		PathPattern:        "/v1/management/backup/Artifacts/Delete",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

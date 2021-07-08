@@ -240,7 +240,7 @@ func RegisterArtifactsHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 var (
 	pattern_Artifacts_ListArtifacts_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "Artifacts", "List"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Artifacts_DeleteArtifact_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "Artifacts", "Remove"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Artifacts_DeleteArtifact_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "Artifacts", "Delete"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (

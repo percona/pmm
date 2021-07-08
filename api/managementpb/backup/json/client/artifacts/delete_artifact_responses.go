@@ -56,7 +56,7 @@ type DeleteArtifactOK struct {
 }
 
 func (o *DeleteArtifactOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/backup/Artifacts/Remove][%d] deleteArtifactOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/backup/Artifacts/Delete][%d] deleteArtifactOk  %+v", 200, o.Payload)
 }
 
 func (o *DeleteArtifactOK) GetPayload() interface{} {
@@ -96,7 +96,7 @@ func (o *DeleteArtifactDefault) Code() int {
 }
 
 func (o *DeleteArtifactDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/backup/Artifacts/Remove][%d] DeleteArtifact default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/backup/Artifacts/Delete][%d] DeleteArtifact default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *DeleteArtifactDefault) GetPayload() *DeleteArtifactDefaultBody {

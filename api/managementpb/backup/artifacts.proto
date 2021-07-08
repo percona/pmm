@@ -69,7 +69,7 @@ service Artifacts {
   // DeleteArtifact deletes specified artifact.
   rpc DeleteArtifact(DeleteArtifactRequest) returns (DeleteArtifactResponse) {
     option (google.api.http) = {
-      post: "/v1/management/backup/Artifacts/Remove"
+      post: "/v1/management/backup/Artifacts/Delete"
       body: "*"
     };
   }
