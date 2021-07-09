@@ -722,6 +722,12 @@ type SparklineItems0 struct {
 
 	// Total number of FPI (full page images) in WAL (Write-ahead logging) records.
 	MWalFpiSumPerSec float32 `json:"m_wal_fpi_sum_per_sec,omitempty"`
+
+	// Total bytes of WAL (Write-ahead logging) records.
+	MWalBytesSumPerSec float32 `json:"m_wal_bytes_sum_per_sec,omitempty"`
+
+	// Plan time in per seconds.
+	MPlanTimeSumPerSec float32 `json:"m_plan_time_sum_per_sec,omitempty"`
 }
 
 // Validate validates this sparkline items0
