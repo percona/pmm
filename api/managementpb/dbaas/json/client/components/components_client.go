@@ -29,6 +29,8 @@ type ClientService interface {
 
 	ChangePXCComponents(params *ChangePXCComponentsParams) (*ChangePXCComponentsOK, error)
 
+	CheckForOperatorUpdate(params *CheckForOperatorUpdateParams) (*CheckForOperatorUpdateOK, error)
+
 	GetPSMDBComponents(params *GetPSMDBComponentsParams) (*GetPSMDBComponentsOK, error)
 
 	GetPXCComponents(params *GetPXCComponentsParams) (*GetPXCComponentsOK, error)
@@ -101,6 +103,39 @@ func (a *Client) ChangePXCComponents(params *ChangePXCComponentsParams) (*Change
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*ChangePXCComponentsDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  CheckForOperatorUpdate checks for operator update checks if a new version of an operator is available
+*/
+func (a *Client) CheckForOperatorUpdate(params *CheckForOperatorUpdateParams) (*CheckForOperatorUpdateOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewCheckForOperatorUpdateParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "CheckForOperatorUpdate",
+		Method:             "POST",
+		PathPattern:        "/v1/management/DBaaS/Components/CheckForOperatorUpdate",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &CheckForOperatorUpdateReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*CheckForOperatorUpdateOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*CheckForOperatorUpdateDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

@@ -134,3 +134,17 @@ func (this *InstallOperatorRequest) Validate() error {
 func (this *InstallOperatorResponse) Validate() error {
 	return nil
 }
+func (this *CheckForOperatorUpdateRequest) Validate() error {
+	return nil
+}
+func (this *ComponentUpdateInformation) Validate() error {
+	return nil
+}
+func (this *ComponentsUpdateInformation) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
+func (this *CheckForOperatorUpdateResponse) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
