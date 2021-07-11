@@ -150,7 +150,7 @@ type ArtifactsItems0 struct {
 	DataModel *string `json:"data_model,omitempty"`
 
 	// BackupStatus shows the current status of execution of backup.
-	// Enum: [BACKUP_STATUS_INVALID BACKUP_STATUS_PENDING BACKUP_STATUS_IN_PROGRESS BACKUP_STATUS_PAUSED BACKUP_STATUS_SUCCESS BACKUP_STATUS_ERROR]
+	// Enum: [BACKUP_STATUS_INVALID BACKUP_STATUS_PENDING BACKUP_STATUS_IN_PROGRESS BACKUP_STATUS_PAUSED BACKUP_STATUS_SUCCESS BACKUP_STATUS_ERROR BACKUP_STATUS_DELETING BACKUP_STATUS_FAILED_TO_DELETE]
 	Status *string `json:"status,omitempty"`
 
 	// Artifact creation time.
@@ -230,7 +230,7 @@ var artifactsItems0TypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["BACKUP_STATUS_INVALID","BACKUP_STATUS_PENDING","BACKUP_STATUS_IN_PROGRESS","BACKUP_STATUS_PAUSED","BACKUP_STATUS_SUCCESS","BACKUP_STATUS_ERROR"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["BACKUP_STATUS_INVALID","BACKUP_STATUS_PENDING","BACKUP_STATUS_IN_PROGRESS","BACKUP_STATUS_PAUSED","BACKUP_STATUS_SUCCESS","BACKUP_STATUS_ERROR","BACKUP_STATUS_DELETING","BACKUP_STATUS_FAILED_TO_DELETE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -257,6 +257,12 @@ const (
 
 	// ArtifactsItems0StatusBACKUPSTATUSERROR captures enum value "BACKUP_STATUS_ERROR"
 	ArtifactsItems0StatusBACKUPSTATUSERROR string = "BACKUP_STATUS_ERROR"
+
+	// ArtifactsItems0StatusBACKUPSTATUSDELETING captures enum value "BACKUP_STATUS_DELETING"
+	ArtifactsItems0StatusBACKUPSTATUSDELETING string = "BACKUP_STATUS_DELETING"
+
+	// ArtifactsItems0StatusBACKUPSTATUSFAILEDTODELETE captures enum value "BACKUP_STATUS_FAILED_TO_DELETE"
+	ArtifactsItems0StatusBACKUPSTATUSFAILEDTODELETE string = "BACKUP_STATUS_FAILED_TO_DELETE"
 )
 
 // prop value enum

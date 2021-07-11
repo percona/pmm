@@ -24585,7 +24585,9 @@
                           "BACKUP_STATUS_IN_PROGRESS",
                           "BACKUP_STATUS_PAUSED",
                           "BACKUP_STATUS_SUCCESS",
-                          "BACKUP_STATUS_ERROR"
+                          "BACKUP_STATUS_ERROR",
+                          "BACKUP_STATUS_DELETING",
+                          "BACKUP_STATUS_FAILED_TO_DELETE"
                         ],
                         "x-order": 8
                       },

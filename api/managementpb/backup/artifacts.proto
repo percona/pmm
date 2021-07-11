@@ -16,6 +16,8 @@ enum BackupStatus {
   BACKUP_STATUS_PAUSED = 3;
   BACKUP_STATUS_SUCCESS = 4;
   BACKUP_STATUS_ERROR = 5;
+  BACKUP_STATUS_DELETING = 6;
+  BACKUP_STATUS_FAILED_TO_DELETE = 7;
 }
 
 // Artifact represents single backup artifact.
