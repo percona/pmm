@@ -820,6 +820,18 @@
                               "type": "number",
                               "format": "float",
                               "x-order": 59
+                            },
+                            "m_wal_bytes_sum_per_sec": {
+                              "description": "Total bytes of WAL (Write-ahead logging) records.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 60
+                            },
+                            "m_plan_time_sum_per_sec": {
+                              "description": "Plan time in per seconds.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 61
                             }
                           }
                         },
@@ -1497,6 +1509,18 @@
                         "type": "number",
                         "format": "float",
                         "x-order": 59
+                      },
+                      "m_wal_bytes_sum_per_sec": {
+                        "description": "Total bytes of WAL (Write-ahead logging) records.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 60
+                      },
+                      "m_plan_time_sum_per_sec": {
+                        "description": "Plan time in per seconds.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 61
                       }
                     }
                   },
