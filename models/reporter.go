@@ -115,6 +115,23 @@ func inSlice(slice []string, val string) bool {
 	return false
 }
 
+// workaround to issues in closed PR https://github.com/jmoiron/sqlx/pull/579
+func escapeColons(in string) string {
+	return strings.ReplaceAll(in, ":", "::")
+}
+
+func escapeColonsInMap(m map[string][]string) map[string][]string {
+	escapedMap := make(map[string][]string, len(m))
+	for k, v := range m {
+		key := escapeColons(k)
+		escapedMap[key] = make([]string, len(v))
+		for i, value := range v {
+			escapedMap[key][i] = escapeColons(value)
+		}
+	}
+	return escapedMap
+}
+
 // Select select metrics for report.
 func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartToSec int64,
 	dimensions map[string][]string, labels map[string][]string,
@@ -148,20 +165,20 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 		SumColumns          []string
 		IsQueryTimeInSelect bool
 	}{
-		periodStartFromSec,
-		periodStartToSec,
-		periodStartToSec - periodStartFromSec,
-		dimensions,
-		labels,
-		group,
-		order,
-		search,
-		offset,
-		limit,
-		specialColumns,
-		commonColumns,
-		sumColumns,
-		inSlice(commonColumns, "query_time"),
+		PeriodStartFrom:     periodStartFromSec,
+		PeriodStartTo:       periodStartToSec,
+		PeriodDuration:      periodStartToSec - periodStartFromSec,
+		Dimensions:          dimensions,
+		Labels:              escapeColonsInMap(labels),
+		Group:               group,
+		Order:               order,
+		Search:              search,
+		Offset:              offset,
+		Limit:               limit,
+		SpecialColumns:      specialColumns,
+		CommonColumns:       commonColumns,
+		SumColumns:          sumColumns,
+		IsQueryTimeInSelect: inSlice(commonColumns, "query_time"),
 	}
 
 	var queryBuffer bytes.Buffer
@@ -296,17 +313,17 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 		TimeFrame       int64
 		IsTotal         bool
 	}{
-		dimensionVal,
-		periodStartFromSec,
-		periodStartToSec,
-		periodStartToSec - periodStartFromSec,
-		dimensions,
-		labels,
-		group,
-		column,
-		!inSlice([]string{"load", "num_queries", "num_queries_with_errors", "num_queries_with_warnings"}, column),
-		timeFrame,
-		isTotal,
+		DimensionVal:    dimensionVal,
+		PeriodStartFrom: periodStartFromSec,
+		PeriodStartTo:   periodStartToSec,
+		PeriodDuration:  periodStartToSec - periodStartFromSec,
+		Dimensions:      dimensions,
+		Labels:          escapeColonsInMap(labels),
+		Group:           group,
+		Column:          column,
+		IsCommon:        !inSlice([]string{"load", "num_queries", "num_queries_with_errors", "num_queries_with_warnings"}, column),
+		TimeFrame:       timeFrame,
+		IsTotal:         isTotal,
 	}
 
 	var results []*qanpb.Point

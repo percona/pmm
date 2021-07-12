@@ -65,14 +65,14 @@ func (m *Metrics) Get(ctx context.Context, periodStartFromSec, periodStartToSec 
 		Group           string
 		Totals          bool
 	}{
-		periodStartFromSec,
-		periodStartToSec,
-		periodStartToSec - periodStartFromSec,
-		dimensions,
-		labels,
-		filter,
-		group,
-		totals,
+		PeriodStartFrom: periodStartFromSec,
+		PeriodStartTo:   periodStartToSec,
+		PeriodDuration:  periodStartToSec - periodStartFromSec,
+		Dimensions:      dimensions,
+		Labels:          escapeColonsInMap(labels),
+		DimensionVal:    filter,
+		Group:           group,
+		Totals:          totals,
 	}
 	var queryBuffer bytes.Buffer
 	if tmpl, err := template.New("queryMetricsTmpl").Funcs(funcMap).Parse(queryMetricsTmpl); err != nil {
@@ -445,14 +445,14 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 		TimeFrame       int64
 		Group           string
 	}{
-		periodStartFromSec,
-		periodStartToSec,
-		periodStartToSec - periodStartFromSec,
-		dimensions,
-		labels,
-		filter,
-		timeFrame,
-		group,
+		PeriodStartFrom: periodStartFromSec,
+		PeriodStartTo:   periodStartToSec,
+		PeriodDuration:  periodStartToSec - periodStartFromSec,
+		Dimensions:      dimensions,
+		Labels:          escapeColonsInMap(labels),
+		DimensionVal:    filter,
+		TimeFrame:       timeFrame,
+		Group:           group,
 	}
 
 	var results []*qanpb.Point
@@ -544,10 +544,10 @@ func (m *Metrics) SelectQueryExamples(ctx context.Context, periodStartFrom, peri
 		DimensionVal string
 		Group        string
 	}{
-		dimensions,
-		labels,
-		filter,
-		group,
+		Dimensions:   dimensions,
+		Labels:       escapeColonsInMap(labels),
+		DimensionVal: filter,
+		Group:        group,
 	}
 
 	var queryBuffer bytes.Buffer
