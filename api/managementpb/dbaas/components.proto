@@ -102,6 +102,25 @@ message ChangePXCComponentsRequest {
 
 message ChangePXCComponentsResponse {}
 
+message CheckForOperatorUpdateRequest {}
+
+// ComponentUpdateInformation contains version we can update to for certain component.
+message ComponentUpdateInformation {
+  string available_version = 1;
+}
+
+// ComponentsUpdateInformation contains info about components and their available latest versions.
+message ComponentsUpdateInformation {
+  // component_to_update_information stores, under the name of the component, information about the update.
+  // "pxc-operator", "psmdb-operator" are names used by backend for our operators.
+  map<string, ComponentUpdateInformation> component_to_update_information = 1;
+}
+
+message CheckForOperatorUpdateResponse {
+  // The cluster name is used as a key for this map, value contains components and their inforamtion about update.
+  map<string, ComponentsUpdateInformation> cluster_to_components = 1;
+}
+
 // Components service provides public methods for managing components.
 service Components {
   // GetPSMDBComponents returns list of available components for PSMDB Clusters.
@@ -129,6 +148,13 @@ service Components {
   rpc ChangePXCComponents(ChangePXCComponentsRequest) returns (ChangePXCComponentsResponse) {
     option (google.api.http) = {
       post: "/v1/management/DBaaS/Components/ChangePXC"
+      body: "*"
+    };
+  }
+  // CheckForOperatorUpdate checks if a new version of an operator is available.
+  rpc CheckForOperatorUpdate(CheckForOperatorUpdateRequest) returns (CheckForOperatorUpdateResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/Components/CheckForOperatorUpdate"
       body: "*"
     };
   }
