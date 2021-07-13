@@ -536,6 +536,12 @@ var databaseSchema = [][]string{
 			PRIMARY KEY (id)
 		)`,
 	},
+	40: {
+		`ALTER TABLE artifacts
+			ADD COLUMN type VARCHAR NOT NULL CHECK (type <> '') DEFAULT 'on_demand',
+			ADD COLUMN schedule_id VARCHAR`,
+		`ALTER TABLE artifacts ALTER COLUMN type DROP DEFAULT`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

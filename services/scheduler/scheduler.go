@@ -32,8 +32,9 @@ import (
 
 // Service is responsible for executing tasks and storing them to DB.
 type Service struct {
-	db *reform.DB
-	l  *logrus.Entry
+	db            *reform.DB
+	l             *logrus.Entry
+	backupService backupService
 
 	mx        sync.Mutex
 	scheduler *gocron.Scheduler
@@ -46,16 +47,17 @@ type Service struct {
 }
 
 // New creates new scheduler service.
-func New(db *reform.DB) *Service {
+func New(db *reform.DB, backupService backupService) *Service {
 	scheduler := gocron.NewScheduler(time.UTC)
 	scheduler.TagsUnique()
 	scheduler.WaitForScheduleAll()
 	return &Service{
-		db:        db,
-		scheduler: scheduler,
-		tasks:     make(map[string]context.CancelFunc),
-		jobs:      make(map[string]*gocron.Job),
-		l:         logrus.WithField("component", "scheduler"),
+		db:            db,
+		scheduler:     scheduler,
+		l:             logrus.WithField("component", "scheduler"),
+		backupService: backupService,
+		tasks:         make(map[string]context.CancelFunc),
+		jobs:          make(map[string]*gocron.Job),
 	}
 }
 
@@ -100,16 +102,20 @@ func (s *Service) Add(task Task, params AddParams) (*models.ScheduledTask, error
 		s.jobsMx.RLock()
 		scheduleJob := s.jobs[scheduledTask.ID]
 		s.jobsMx.RUnlock()
-		scheduledTask, err = models.ChangeScheduledTask(tx.Querier, scheduledTask.ID, models.ChangeScheduledTaskParams{
-			NextRun: pointer.ToTime(scheduleJob.NextRun().UTC()),
-			LastRun: pointer.ToTime(scheduleJob.LastRun().UTC()),
-		})
-		if err != nil {
-			s.l.WithField("id", scheduledTask.ID).Errorf("failed to set next run for new created task")
-			s.mx.Lock()
-			s.scheduler.RemoveByReference(scheduleJob)
-			s.mx.Unlock()
-			return err
+
+		// If it's not disabled, update next run.
+		if scheduleJob != nil {
+			scheduledTask, err = models.ChangeScheduledTask(tx.Querier, scheduledTask.ID, models.ChangeScheduledTaskParams{
+				NextRun: pointer.ToTime(scheduleJob.NextRun().UTC()),
+				LastRun: pointer.ToTime(scheduleJob.LastRun().UTC()),
+			})
+			if err != nil {
+				s.l.WithField("id", scheduledTask.ID).Errorf("failed to set next run for new created task")
+				s.mx.Lock()
+				s.scheduler.RemoveByReference(scheduleJob)
+				s.mx.Unlock()
+				return err
+			}
 		}
 
 		return nil
@@ -290,8 +296,12 @@ func (s *Service) taskFinished(id string, taskErr error) {
 func (s *Service) convertDBTask(dbTask *models.ScheduledTask) (Task, error) {
 	var task Task
 	switch dbTask.Type {
-	case models.ScheduledPrintTask:
-		task = NewPrintTask(dbTask.Data.Print.Message)
+	case models.ScheduledMySQLBackupTask:
+		data := dbTask.Data.MySQLBackupTask
+		task = NewMySQLBackupTask(s.backupService, data.ServiceID, data.LocationID, data.Name, data.Description)
+	case models.ScheduledMongoDBBackupTask:
+		data := dbTask.Data.MongoDBBackupTask
+		task = NewMongoBackupTask(s.backupService, data.ServiceID, data.LocationID, data.Name, data.Description)
 	default:
 		return task, errors.Errorf("unknown task type: %s", dbTask.Type)
 	}

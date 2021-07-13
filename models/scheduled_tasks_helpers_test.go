@@ -43,10 +43,13 @@ func TestScheduledTaskHelpers(t *testing.T) {
 
 	createParams := models.CreateScheduledTaskParams{
 		CronExpression: "* * * * *",
-		Type:           models.ScheduledPrintTask,
+		Type:           models.ScheduledMySQLBackupTask,
 		Data: models.ScheduledTaskData{
-			Print: &models.PrintTaskData{
-				Message: "test",
+			MySQLBackupTask: &models.MySQLBackupTaskData{
+				ServiceID:   "",
+				LocationID:  "",
+				Name:        "task",
+				Description: "",
 			},
 		},
 		Disabled: false,
@@ -62,12 +65,12 @@ func TestScheduledTaskHelpers(t *testing.T) {
 		assert.Equal(t, createParams.CronExpression, task.CronExpression)
 		assert.Equal(t, createParams.Type, task.Type)
 		assert.Equal(t, createParams.Disabled, task.Disabled)
-		require.NotNil(t, task.Data.Print)
-		assert.Equal(t, createParams.Data.Print.Message, task.Data.Print.Message)
+		require.NotNil(t, task.Data.MySQLBackupTask)
+		assert.Equal(t, createParams.Data.MySQLBackupTask.Name, task.Data.MySQLBackupTask.Name)
 
 		_, err = models.CreateScheduledTask(tx.Querier, models.CreateScheduledTaskParams{
 			CronExpression: "a * * * *",
-			Type:           models.ScheduledPrintTask,
+			Type:           models.ScheduledMySQLBackupTask,
 		})
 		require.NotNil(t, err)
 		assert.Contains(t, err.Error(), "Invalid cron expression")
@@ -118,6 +121,28 @@ func TestScheduledTaskHelpers(t *testing.T) {
 		task2, err := models.CreateScheduledTask(findTX.Querier, createParams2)
 		require.NoError(t, err)
 
+		createParams2.Disabled = false
+		createParams2.Type = models.ScheduledMySQLBackupTask
+		createParams2.Data = models.ScheduledTaskData{
+			MySQLBackupTask: &models.MySQLBackupTaskData{
+				ServiceID:  "svc1",
+				LocationID: "loc1",
+				Name:       "mysql",
+			},
+		}
+		task3, err := models.CreateScheduledTask(findTX.Querier, createParams2)
+		require.NoError(t, err)
+
+		createParams2.Type = models.ScheduledMongoDBBackupTask
+		createParams2.Data = models.ScheduledTaskData{
+			MongoDBBackupTask: &models.MongoBackupTaskData{
+				ServiceID:  "svc2",
+				LocationID: "loc1",
+				Name:       "mongo",
+			},
+		}
+		task4, err := models.CreateScheduledTask(findTX.Querier, createParams2)
+		require.NoError(t, err)
 		type testCase struct {
 			filter models.ScheduledTasksFilter
 			ids    []string
@@ -126,7 +151,7 @@ func TestScheduledTaskHelpers(t *testing.T) {
 		tests := []testCase{
 			{
 				filter: models.ScheduledTasksFilter{},
-				ids:    []string{task1.ID, task2.ID},
+				ids:    []string{task1.ID, task2.ID, task3.ID, task4.ID},
 			},
 			{
 				filter: models.ScheduledTasksFilter{
@@ -138,7 +163,27 @@ func TestScheduledTaskHelpers(t *testing.T) {
 				filter: models.ScheduledTasksFilter{
 					Disabled: pointer.ToBool(false),
 				},
-				ids: []string{task1.ID},
+				ids: []string{task1.ID, task3.ID, task4.ID},
+			},
+			{
+				filter: models.ScheduledTasksFilter{
+					Types: []models.ScheduledTaskType{
+						models.ScheduledMongoDBBackupTask,
+					},
+				},
+				ids: []string{task4.ID},
+			},
+			{
+				filter: models.ScheduledTasksFilter{
+					LocationID: "loc1",
+				},
+				ids: []string{task3.ID, task4.ID},
+			},
+			{
+				filter: models.ScheduledTasksFilter{
+					ServiceID: "svc2",
+				},
+				ids: []string{task4.ID},
 			},
 		}
 

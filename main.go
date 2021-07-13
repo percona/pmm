@@ -66,13 +66,14 @@ import (
 	"github.com/percona/pmm-managed/services/agents"
 	agentgrpc "github.com/percona/pmm-managed/services/agents/grpc"
 	"github.com/percona/pmm-managed/services/alertmanager"
+	"github.com/percona/pmm-managed/services/backup"
 	"github.com/percona/pmm-managed/services/checks"
 	"github.com/percona/pmm-managed/services/dbaas"
 	"github.com/percona/pmm-managed/services/grafana"
 	"github.com/percona/pmm-managed/services/inventory"
 	inventorygrpc "github.com/percona/pmm-managed/services/inventory/grpc"
 	"github.com/percona/pmm-managed/services/management"
-	"github.com/percona/pmm-managed/services/management/backup"
+	managementbackup "github.com/percona/pmm-managed/services/management/backup"
 	managementdbaas "github.com/percona/pmm-managed/services/management/dbaas"
 	managementgrpc "github.com/percona/pmm-managed/services/management/grpc"
 	"github.com/percona/pmm-managed/services/management/ia"
@@ -138,6 +139,8 @@ type gRPCServerDeps struct {
 	rulesService         *ia.RulesService
 	jobsService          *agents.JobsService
 	versionServiceClient *managementdbaas.VersionServiceClient
+	schedulerService     *scheduler.Service
+	backupService        *backup.Service
 	minio                *minio.Service
 }
 
@@ -201,10 +204,10 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	iav1beta1.RegisterRulesServer(gRPCServer, deps.rulesService)
 	iav1beta1.RegisterAlertsServer(gRPCServer, deps.alertsService)
 
-	backupv1beta1.RegisterBackupsServer(gRPCServer, backup.NewBackupsService(deps.db, deps.jobsService))
-	backupv1beta1.RegisterLocationsServer(gRPCServer, backup.NewLocationsService(deps.db, deps.minio))
-	backupv1beta1.RegisterArtifactsServer(gRPCServer, backup.NewArtifactsService(deps.db))
-	backupv1beta1.RegisterRestoreHistoryServer(gRPCServer, backup.NewRestoreHistoryService(deps.db))
+	backupv1beta1.RegisterBackupsServer(gRPCServer, managementbackup.NewBackupsService(deps.db, deps.backupService, deps.schedulerService))
+	backupv1beta1.RegisterLocationsServer(gRPCServer, managementbackup.NewLocationsService(deps.db, deps.minio))
+	backupv1beta1.RegisterArtifactsServer(gRPCServer, managementbackup.NewArtifactsService(deps.db))
+	backupv1beta1.RegisterRestoreHistoryServer(gRPCServer, managementbackup.NewRestoreHistoryService(deps.db))
 
 	dbaasv1beta1.RegisterKubernetesServer(gRPCServer, managementdbaas.NewKubernetesServer(deps.db, deps.dbaasClient))
 	dbaasv1beta1.RegisterXtraDBClusterServer(gRPCServer, managementdbaas.NewXtraDBClusterService(deps.db, deps.dbaasClient, deps.grafanaClient))
@@ -639,7 +642,8 @@ func main() {
 	versionService := managementdbaas.NewVersionServiceClient(*versionServiceAPIURLF)
 
 	dbaasClient := dbaas.NewClient(*dbaasControllerAPIAddrF)
-	schedulerService := scheduler.New(db)
+	backupService := backup.NewService(db, jobsService)
+	schedulerService := scheduler.New(db, backupService)
 
 	serverParams := &server.Params{
 		DB:                   db,
@@ -656,6 +660,7 @@ func main() {
 		VMAlertExternalRules: externalRules,
 		RulesService:         rulesService,
 		DbaasClient:          dbaasClient,
+		BackupService:        backupService,
 	}
 
 	server, err := server.NewServer(serverParams)
@@ -824,6 +829,8 @@ func main() {
 			rulesService:         rulesService,
 			jobsService:          jobsService,
 			versionServiceClient: versionService,
+			schedulerService:     schedulerService,
+			backupService:        backupService,
 			minio:                &minio.Service{},
 		})
 	}()

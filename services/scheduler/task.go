@@ -18,8 +18,7 @@ package scheduler
 
 import (
 	"context"
-
-	"github.com/sirupsen/logrus"
+	"time"
 
 	"github.com/percona/pmm-managed/models"
 )
@@ -46,36 +45,86 @@ func (c *common) SetID(id string) {
 	c.id = id
 }
 
-// PrintTask implements Task for logging mesage.
-type PrintTask struct {
+type mySQLBackupTask struct {
 	*common
-	Message string
+	backupService backupService
+	ServiceID     string
+	LocationID    string
+	Name          string
+	Description   string
 }
 
-// NewPrintTask creates new task which prints message.
-func NewPrintTask(message string) *PrintTask {
-	return &PrintTask{
-		common:  &common{},
-		Message: message,
+// NewMySQLBackupTask create new task for mysql backup.
+func NewMySQLBackupTask(backupService backupService, serviceID, locationID, name, description string) Task {
+	return &mySQLBackupTask{
+		common:        &common{},
+		backupService: backupService,
+		ServiceID:     serviceID,
+		LocationID:    locationID,
+		Name:          name,
+		Description:   description,
 	}
 }
 
-// Run starts task.
-func (j *PrintTask) Run(ctx context.Context) error {
-	logrus.Info(j.Message)
-	return nil
+func (t *mySQLBackupTask) Run(ctx context.Context) error {
+	name := t.Name + "_" + time.Now().Format(time.RFC3339)
+	_, err := t.backupService.PerformBackup(ctx, t.ServiceID, t.LocationID, name, t.ID())
+	return err
 }
 
-// Type returns task type.
-func (j *PrintTask) Type() models.ScheduledTaskType {
-	return models.ScheduledPrintTask
+func (t *mySQLBackupTask) Type() models.ScheduledTaskType {
+	return models.ScheduledMySQLBackupTask
 }
 
-// Data returns data needed for running a task.
-func (j *PrintTask) Data() models.ScheduledTaskData {
+func (t *mySQLBackupTask) Data() models.ScheduledTaskData {
 	return models.ScheduledTaskData{
-		Print: &models.PrintTaskData{
-			Message: j.Message,
+		MySQLBackupTask: &models.MySQLBackupTaskData{
+			ServiceID:   t.ServiceID,
+			LocationID:  t.LocationID,
+			Name:        t.Name,
+			Description: t.Description,
+		},
+	}
+}
+
+type mongoBackupTask struct {
+	*common
+	backupService backupService
+	ServiceID     string
+	LocationID    string
+	Name          string
+	Description   string
+}
+
+// NewMongoBackupTask create new task for mongo backup.
+func NewMongoBackupTask(backupService backupService, serviceID, locationID, name, description string) Task {
+	return &mongoBackupTask{
+		common:        &common{},
+		backupService: backupService,
+		ServiceID:     serviceID,
+		LocationID:    locationID,
+		Name:          name,
+		Description:   description,
+	}
+}
+
+func (t *mongoBackupTask) Run(ctx context.Context) error {
+	name := t.Name + "_" + time.Now().Format(time.RFC3339)
+	_, err := t.backupService.PerformBackup(ctx, t.ServiceID, t.LocationID, name, t.ID())
+	return err
+}
+
+func (t *mongoBackupTask) Type() models.ScheduledTaskType {
+	return models.ScheduledMongoDBBackupTask
+}
+
+func (t *mongoBackupTask) Data() models.ScheduledTaskData {
+	return models.ScheduledTaskData{
+		MongoDBBackupTask: &models.MongoBackupTaskData{
+			ServiceID:   t.ServiceID,
+			LocationID:  t.LocationID,
+			Name:        t.Name,
+			Description: t.Description,
 		},
 	}
 }

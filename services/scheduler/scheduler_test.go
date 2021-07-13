@@ -36,8 +36,41 @@ func setup(t *testing.T) *Service {
 	t.Helper()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-	return New(db)
+	backupService := &mockBackupService{}
+	return New(db, backupService)
 }
+
+type dummyTask struct {
+	id string
+}
+
+func (t *dummyTask) Run(ctx context.Context) error {
+	return nil
+}
+
+func (t *dummyTask) Type() models.ScheduledTaskType {
+	return models.ScheduledMySQLBackupTask
+}
+
+func (t *dummyTask) Data() models.ScheduledTaskData {
+	return models.ScheduledTaskData{
+		MySQLBackupTask: &models.MySQLBackupTaskData{
+			ServiceID:   "",
+			LocationID:  "",
+			Name:        "",
+			Description: "",
+		},
+	}
+}
+
+func (t *dummyTask) ID() string {
+	return t.id
+}
+
+func (t *dummyTask) SetID(s string) {
+	t.id = s
+}
+
 func TestService(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -50,7 +83,7 @@ func TestService(t *testing.T) {
 		time.Sleep(time.Millisecond * 10)
 	}
 
-	task := NewPrintTask("test")
+	task := &dummyTask{}
 	cronExpr := "* * * * *"
 	startAt := time.Now().Truncate(time.Second).UTC()
 	dbTask, err := svc.Add(task, AddParams{

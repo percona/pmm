@@ -18,53 +18,31 @@ package backup
 
 import (
 	"context"
-	"time"
+
+	"github.com/percona/pmm-managed/services/scheduler"
 
 	"github.com/percona/pmm-managed/models"
 )
 
-//go:generate mockery -name=jobsService -case=snake -inpkg -testonly
 //go:generate mockery -name=awsS3 -case=snake -inpkg -testonly
-
-// jobsService is a subset of methods of agents.JobsService used by this package.
-// We use it instead of real type for testing and to avoid dependency cycle.
-type jobsService interface {
-	StopJob(jobID string) error
-	StartMySQLBackupJob(
-		jobID string,
-		pmmAgentID string,
-		timeout time.Duration,
-		name string,
-		dbConfig *models.DBConfig,
-		locationConfig *models.BackupLocationConfig,
-	) error
-	StartMySQLRestoreBackupJob(
-		jobID string,
-		pmmAgentID string,
-		serviceID string,
-		timeout time.Duration,
-		name string,
-		locationConfig *models.BackupLocationConfig,
-	) error
-	StartMongoDBBackupJob(
-		jobID string,
-		pmmAgentID string,
-		timeout time.Duration,
-		name string,
-		dbConfig *models.DBConfig,
-		locationConfig *models.BackupLocationConfig,
-	) error
-	StartMongoDBRestoreBackupJob(
-		jobID string,
-		pmmAgentID string,
-		timeout time.Duration,
-		name string,
-		dbConfig *models.DBConfig,
-		locationConfig *models.BackupLocationConfig,
-	) error
-}
+//go:generate mockery -name=backupService -case=snake -inpkg -testonly
+//go:generate mockery -name=scheduleService -case=snake -inpkg -testonly
 
 type awsS3 interface {
 	GetBucketLocation(ctx context.Context, host string, accessKey, secretKey, name string) (string, error)
 	BucketExists(ctx context.Context, host string, accessKey, secretKey, name string) (bool, error)
+}
+
+type backupService interface {
+	PerformBackup(ctx context.Context, serviceID, locationID, name, scheduleID string) (string, error)
+	RestoreBackup(ctx context.Context, serviceID, artifactID string) (string, error)
+}
+
+// schedulerService is a subset of method of scheduler.Service used by this package.
+// We use it instead of real type for testing and to avoid dependency cycle.
+type scheduleService interface {
+	Run(ctx context.Context)
+	Add(task scheduler.Task, params scheduler.AddParams) (*models.ScheduledTask, error)
+	Remove(id string) error
+	Update(id string, params models.ChangeScheduledTaskParams) error
 }

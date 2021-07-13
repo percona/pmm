@@ -68,7 +68,9 @@ type Server struct {
 	grafanaClient        grafanaClient
 	rulesService         rulesService
 	dbaasClient          dbaasClient
-	l                    *logrus.Entry
+	backupService        backupService
+
+	l *logrus.Entry
 
 	pmmUpdateAuthFileM sync.Mutex
 	pmmUpdateAuthFile  string
@@ -104,6 +106,7 @@ type Params struct {
 	GrafanaClient        grafanaClient
 	RulesService         rulesService
 	DbaasClient          dbaasClient
+	BackupService        backupService
 }
 
 // NewServer returns new server for Server service.

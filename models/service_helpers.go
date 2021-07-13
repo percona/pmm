@@ -279,32 +279,53 @@ func RemoveService(q *reform.Querier, id string, mode RemoveMode) error {
 		return errors.Wrap(err, "failed to select restore history items")
 	}
 
-	if len(agents) != 0 || len(artifacts) != 0 || len(restoreItems) != 0 {
-		switch mode {
-		case RemoveRestrict:
-			return status.Errorf(codes.FailedPrecondition,
-				"Service with ID %q has agents, artifacts or restore history items.", id)
-		case RemoveCascade:
-			for _, a := range agents {
-				if _, err := RemoveAgent(q, a.AgentID, RemoveCascade); err != nil {
-					return err
-				}
-			}
-			for _, a := range artifacts {
-				if _, err := ChangeArtifact(q, a.ID, ChangeArtifactParams{
-					ServiceID: pointer.ToString(""),
-				}); err != nil {
-					return err
-				}
-			}
-			for _, i := range restoreItems {
-				if err := RemoveRestoreHistoryItem(q, i.ID); err != nil {
-					return err
-				}
-			}
-		default:
-			panic(fmt.Errorf("unhandled RemoveMode %v", mode))
+	tasks, err := FindScheduledTasks(q, ScheduledTasksFilter{ServiceID: id})
+	if err != nil {
+		return errors.Wrap(err, "failed to select scheduled tasks")
+	}
+
+	switch mode {
+	case RemoveRestrict:
+		if len(agents) != 0 {
+			return status.Errorf(codes.FailedPrecondition, "Service with ID %q has agents.", id)
 		}
+
+		if len(artifacts) != 0 {
+			return status.Errorf(codes.FailedPrecondition, "Service with ID %q has artifacts.", id)
+		}
+
+		if len(restoreItems) != 0 {
+			return status.Errorf(codes.FailedPrecondition, "Service with ID %q has restore history items.", id)
+		}
+
+		if len(tasks) != 0 {
+			return status.Errorf(codes.FailedPrecondition, "Service with ID %q has scheduled tasks.", id)
+		}
+	case RemoveCascade:
+		for _, a := range agents {
+			if _, err := RemoveAgent(q, a.AgentID, RemoveCascade); err != nil {
+				return err
+			}
+		}
+		for _, a := range artifacts {
+			if _, err := ChangeArtifact(q, a.ID, ChangeArtifactParams{
+				ServiceID: pointer.ToString(""),
+			}); err != nil {
+				return err
+			}
+		}
+		for _, i := range restoreItems {
+			if err := RemoveRestoreHistoryItem(q, i.ID); err != nil {
+				return err
+			}
+		}
+		for _, t := range tasks {
+			if err := RemoveScheduledTask(q, t.ID); err != nil {
+				return err
+			}
+		}
+	default:
+		panic(fmt.Errorf("unhandled RemoveMode %v", mode))
 	}
 
 	return errors.Wrap(q.Delete(s), "failed to delete Service")

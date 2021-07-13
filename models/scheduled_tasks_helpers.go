@@ -127,7 +127,8 @@ type CreateScheduledTaskParams struct {
 // Validate checks if required params are set and valid.
 func (p CreateScheduledTaskParams) Validate() error {
 	switch p.Type {
-	case ScheduledPrintTask:
+	case ScheduledMySQLBackupTask:
+	case ScheduledMongoDBBackupTask:
 	default:
 		return status.Errorf(codes.InvalidArgument, "Unknown type: %s", p.Type)
 	}
@@ -166,15 +167,32 @@ func CreateScheduledTask(q *reform.Querier, params CreateScheduledTaskParams) (*
 
 // ChangeScheduledTaskParams are params for updating existing schedule task.
 type ChangeScheduledTaskParams struct {
-	NextRun *time.Time
-	LastRun *time.Time
-	Disable *bool
-	Running *bool
-	Error   *string
+	NextRun        *time.Time
+	LastRun        *time.Time
+	Disable        *bool
+	Running        *bool
+	Error          *string
+	Data           *ScheduledTaskData
+	CronExpression *string
+}
+
+// Validate checks if params for scheduled tasks are valid.
+func (p ChangeScheduledTaskParams) Validate() error {
+	if p.CronExpression != nil {
+		_, err := cron.ParseStandard(*p.CronExpression)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // ChangeScheduledTask updates existing scheduled task.
 func ChangeScheduledTask(q *reform.Querier, id string, params ChangeScheduledTaskParams) (*ScheduledTask, error) {
+	if err := params.Validate(); err != nil {
+		return nil, err
+	}
+
 	row, err := FindScheduledTaskByID(q, id)
 	if err != nil {
 		return nil, err
@@ -194,6 +212,14 @@ func ChangeScheduledTask(q *reform.Querier, id string, params ChangeScheduledTas
 
 	if params.Running != nil {
 		row.Running = *params.Running
+	}
+
+	if params.Data != nil {
+		row.Data = params.Data
+	}
+
+	if params.CronExpression != nil {
+		row.CronExpression = *params.CronExpression
 	}
 
 	if params.Error != nil {

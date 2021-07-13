@@ -373,9 +373,25 @@ func RemoveBackupLocation(q *reform.Querier, id string, mode RemoveMode) error {
 		restoreItems = append(restoreItems, items...)
 	}
 
-	if mode == RemoveRestrict && (len(artifacts) != 0 || len(restoreItems) != 0) {
-		return status.Errorf(codes.FailedPrecondition,
-			"backup location with ID %q has artifacts or restore history items.", id)
+	tasks, err := FindScheduledTasks(q, ScheduledTasksFilter{
+		LocationID: id,
+	})
+	if err != nil {
+		return err
+	}
+
+	if mode == RemoveRestrict {
+		if len(artifacts) != 0 {
+			return status.Errorf(codes.FailedPrecondition, "backup location with ID %q has artifacts.", id)
+		}
+
+		if len(restoreItems) != 0 {
+			return status.Errorf(codes.FailedPrecondition, "backup location with ID %q has restore history items.", id)
+		}
+
+		if len(tasks) != 0 {
+			return status.Errorf(codes.FailedPrecondition, "backup location with ID %q has scheduled tasks.", id)
+		}
 	}
 
 	for _, i := range restoreItems {
@@ -386,6 +402,12 @@ func RemoveBackupLocation(q *reform.Querier, id string, mode RemoveMode) error {
 
 	for _, a := range artifacts {
 		if err := RemoveArtifact(q, a.ID); err != nil {
+			return err
+		}
+	}
+
+	for _, t := range tasks {
+		if err := RemoveScheduledTask(q, t.ID); err != nil {
 			return err
 		}
 	}

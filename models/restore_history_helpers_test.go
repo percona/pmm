@@ -83,6 +83,7 @@ func TestRestoreHistory(t *testing.T) {
 				ServiceID:  serviceID1,
 				DataModel:  models.PhysicalDataModel,
 				Status:     models.SuccessBackupStatus,
+				Type:       models.OnDemandArtifactType,
 				CreatedAt:  time.Now(),
 			},
 			&models.Artifact{
@@ -93,6 +94,7 @@ func TestRestoreHistory(t *testing.T) {
 				ServiceID:  serviceID2,
 				DataModel:  models.PhysicalDataModel,
 				Status:     models.SuccessBackupStatus,
+				Type:       models.OnDemandArtifactType,
 				CreatedAt:  time.Now(),
 			},
 		} {
