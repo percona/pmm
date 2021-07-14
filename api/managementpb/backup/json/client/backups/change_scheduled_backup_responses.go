@@ -139,6 +139,9 @@ type ChangeScheduledBackupBody struct {
 
 	// Human-readable description.
 	Description string `json:"description,omitempty"`
+
+	// How many artifacts keep. 0 - infinity.
+	Retention int64 `json:"retention,omitempty"`
 }
 
 // Validate validates this change scheduled backup body

@@ -97,6 +97,8 @@ message ScheduledBackup {
   google.protobuf.Timestamp last_run = 16;
   // Next run.
   google.protobuf.Timestamp next_run = 17;
+  // How many artifacts keep. 0 - infinity.
+  uint32 retention = 18;
 }
 
 message ScheduleBackupRequest {
@@ -130,6 +132,8 @@ message ScheduleBackupRequest {
   //uint32 retry_times = 8;
   // If scheduling is enabled.
   bool enabled = 9;
+  // How many artifacts keep. 0 - infinity.
+  uint32 retention = 10;
 }
 
 message ScheduleBackupResponse {
@@ -162,6 +166,8 @@ message ChangeScheduledBackupRequest {
   // How many times to retry a failed backup before giving up.
   //google.protobuf.UInt32Value retry_times = 8;
 
+  // How many artifacts keep. 0 - infinity.
+  google.protobuf.UInt32Value retention = 9;
 }
 
 message ChangeScheduledBackupResponse {}

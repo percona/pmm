@@ -316,6 +316,9 @@ type ScheduledBackupsItems0 struct {
 	// Next run.
 	// Format: date-time
 	NextRun strfmt.DateTime `json:"next_run,omitempty"`
+
+	// How many artifacts keep. 0 - infinity.
+	Retention int64 `json:"retention,omitempty"`
 }
 
 // Validate validates this scheduled backups items0
