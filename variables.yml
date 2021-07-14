@@ -4,16 +4,6 @@ release: '2.19.0'
 version: '2.19'
 release_date: 2021-06-30
 
-# Setting Up/Server/DBaaS operator versions
-op:
-  pxc_vers: 'v1.8.0'
-  psmdb_vers: 'v1.7.0'
-  # Miscellaneous values
-extra:
-  # Used in Setting Up/Client pages
-  'pmm_password': 'password'  #'s3cR#tpa$$worD'
-  'pmm_mongodb_user': 'pmm_mongodb'
-
 # SVG icons. Use in markdown as {{icon.<name>}}
 # For the Percona image icon (encoded inline SVG), see https://css-tricks.com/using-svg/
 icon:
