@@ -43,6 +43,7 @@ import (
 	"github.com/percona/pmm-managed/services"
 	"github.com/percona/pmm-managed/utils/envvars"
 	"github.com/percona/pmm-managed/utils/saasdial"
+	"github.com/percona/pmm-managed/utils/signatures"
 )
 
 const (
@@ -77,12 +78,6 @@ var (
 	pmmAgent270     = version.MustParse("2.7.0")
 	pmmAgentInvalid = version.MustParse("3.0.0-invalid")
 )
-
-var defaultPublicKeys = []string{
-	"RWTfyQTP3R7VzZggYY7dzuCbuCQWqTiGCqOvWRRAMVEiw0eSxHMVBBE5", // PMM 2.6
-	"RWRxgu1w3alvJsQf+sHVUYiF6guAdEsBWXDe8jHZuB9dXVE9b5vw7ONM", // PMM 2.12
-	"RWTHhufOlJ38dWt+DrprOg702YvZgqQJsx1XKfzF+MaB/pe9eCJgKkiF", // PMM 2.17
-}
 
 // Service is responsible for interactions with Percona Check service.
 type Service struct {
@@ -135,7 +130,6 @@ func New(agentsRegistry agentsRegistry, alertmanagerService alertmanagerService,
 
 		l:               l,
 		host:            host,
-		publicKeys:      defaultPublicKeys,
 		startDelay:      defaultStartDelay,
 		resendInterval:  defaultResendInterval,
 		localChecksFile: os.Getenv(envCheckFile),
@@ -155,6 +149,7 @@ func New(agentsRegistry agentsRegistry, alertmanagerService alertmanagerService,
 		}, []string{"service_type", "check_type"}),
 	}
 
+	// TODO: same code exists in templates service, move it to a better place.
 	if k := os.Getenv(envPublicKey); k != "" {
 		s.publicKeys = strings.Split(k, ",")
 		l.Warnf("Public keys changed to %q.", k)
@@ -1081,7 +1076,7 @@ func (s *Service) downloadChecks(ctx context.Context) ([]check.Check, error) {
 		return nil, errors.Wrap(err, "failed to request checks service")
 	}
 
-	if err = s.verifySignatures(resp); err != nil {
+	if err = signatures.Verify(s.l, resp.File, resp.Signatures, s.publicKeys); err != nil {
 		return nil, err
 	}
 
@@ -1145,26 +1140,6 @@ func (s *Service) UpdateIntervals(rare, standard, frequent time.Duration) {
 	s.tm.Unlock()
 
 	s.l.Infof("Intervals are changed: rare %s, standard %s, frequent %s", rare, standard, frequent)
-}
-
-// verifySignatures verifies checks signatures and returns error in case of verification problem.
-func (s *Service) verifySignatures(resp *api.GetAllChecksResponse) error {
-	if len(resp.Signatures) == 0 {
-		return errors.New("zero signatures received")
-	}
-
-	var err error
-	for _, sign := range resp.Signatures {
-		for _, key := range s.publicKeys {
-			if err = check.Verify([]byte(resp.File), key, sign); err == nil {
-				s.l.Debugf("Key %q matches signature %q.", key, sign)
-				return nil
-			}
-			s.l.Debugf("Key %q doesn't match signature %q: %s.", key, sign, err)
-		}
-	}
-
-	return errors.New("no verified signatures")
 }
 
 // Describe implements prom.Collector.

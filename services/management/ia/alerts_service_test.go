@@ -271,7 +271,8 @@ func TestListAlerts(t *testing.T) {
 	}
 	mockAlert.On("GetAlerts", ctx).Return(mockedAlerts, nil)
 
-	tmplSvc := NewTemplatesService(db)
+	tmplSvc, err := NewTemplatesService(db)
+	require.NoError(t, err)
 	tmplSvc.Collect(ctx)
 	svc := NewAlertsService(db, mockAlert, tmplSvc)
 
