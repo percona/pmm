@@ -72,8 +72,7 @@ func TestCreateAlertRule(t *testing.T) {
 	channelID := respC.ChannelId
 
 	// Load test templates
-	templates, err := NewTemplatesService(db)
-	require.NoError(t, err)
+	templates := NewTemplatesService(db)
 	templates.userTemplatesPath = testTemplates2
 	templates.Collect(ctx)
 

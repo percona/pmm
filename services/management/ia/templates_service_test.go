@@ -44,17 +44,15 @@ func TestCollect(t *testing.T) {
 	t.Run("builtin are valid", func(t *testing.T) {
 		t.Parallel()
 
-		svc, err := NewTemplatesService(db)
-		require.NoError(t, err)
-		_, err = svc.loadTemplatesFromAssets(ctx)
+		svc := NewTemplatesService(db)
+		_, err := svc.loadTemplatesFromAssets(ctx)
 		require.NoError(t, err)
 	})
 
 	t.Run("bad template paths", func(t *testing.T) {
 		t.Parallel()
 
-		svc, err := NewTemplatesService(db)
-		require.NoError(t, err)
+		svc := NewTemplatesService(db)
 		svc.userTemplatesPath = testBadTemplates
 		templates, err := svc.loadTemplatesFromUserFiles(ctx)
 		assert.NoError(t, err)
@@ -64,8 +62,7 @@ func TestCollect(t *testing.T) {
 	t.Run("valid template paths", func(t *testing.T) {
 		t.Parallel()
 
-		svc, err := NewTemplatesService(db)
-		require.NoError(t, err)
+		svc := NewTemplatesService(db)
 		svc.userTemplatesPath = testTemplates2
 		svc.Collect(ctx)
 
@@ -139,8 +136,7 @@ templates:
       summary: MySQL too many connections (instance {{ $labels.instance }})
 `
 
-		svc, err := NewTemplatesService(db)
-		require.NoError(t, err)
+		svc := NewTemplatesService(db)
 		resp, err := svc.CreateTemplate(ctx, &iav1beta1.CreateTemplateRequest{
 			Yaml: templateWithMissingParam,
 		})
@@ -232,8 +228,7 @@ templates:
       summary: MySQL too many connections (instance {{ $labels.instance }})
 `
 
-		svc, err := NewTemplatesService(db)
-		require.NoError(t, err)
+		svc := NewTemplatesService(db)
 		createResp, err := svc.CreateTemplate(ctx, &iav1beta1.CreateTemplateRequest{
 			Yaml: validTemplate,
 		})

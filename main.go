@@ -635,10 +635,7 @@ func main() {
 	jobsService := agents.NewJobsService(db, agentsRegistry)
 
 	// Integrated alerts services
-	templatesService, err := ia.NewTemplatesService(db)
-	if err != nil {
-		l.Fatalf("Could not create templates service: %s", err)
-	}
+	templatesService := ia.NewTemplatesService(db)
 	rulesService := ia.NewRulesService(db, templatesService, vmalert, alertmanager)
 	alertsService := ia.NewAlertsService(db, alertmanager, templatesService)
 
