@@ -351,7 +351,7 @@ type ScheduledBackup struct {
 	LastRun *timestamp.Timestamp `protobuf:"bytes,16,opt,name=last_run,json=lastRun,proto3" json:"last_run,omitempty"`
 	// Next run.
 	NextRun *timestamp.Timestamp `protobuf:"bytes,17,opt,name=next_run,json=nextRun,proto3" json:"next_run,omitempty"`
-	// How many artifacts keep. 0 - infinity.
+	// How many artifacts keep. 0 - unlimited.
 	Retention uint32 `protobuf:"varint,18,opt,name=retention,proto3" json:"retention,omitempty"`
 }
 
@@ -515,7 +515,7 @@ type ScheduleBackupRequest struct {
 	//uint32 retry_times = 8;
 	// If scheduling is enabled.
 	Enabled bool `protobuf:"varint,9,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	// How many artifacts keep. 0 - infinity.
+	// How many artifacts keep. 0 - unlimited.
 	Retention uint32 `protobuf:"varint,10,opt,name=retention,proto3" json:"retention,omitempty"`
 }
 
@@ -754,7 +754,7 @@ type ChangeScheduledBackupRequest struct {
 	Name *wrappers.StringValue `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty"`
 	// Human-readable description.
 	Description *wrappers.StringValue `protobuf:"bytes,6,opt,name=description,proto3" json:"description,omitempty"`
-	// How many artifacts keep. 0 - infinity.
+	// How many artifacts keep. 0 - unlimited.
 	Retention *wrappers.UInt32Value `protobuf:"bytes,9,opt,name=retention,proto3" json:"retention,omitempty"`
 }
 

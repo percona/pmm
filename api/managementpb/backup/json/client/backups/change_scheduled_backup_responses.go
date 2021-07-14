@@ -140,7 +140,7 @@ type ChangeScheduledBackupBody struct {
 	// Human-readable description.
 	Description string `json:"description,omitempty"`
 
-	// How many artifacts keep. 0 - infinity.
+	// How many artifacts keep. 0 - unlimited.
 	Retention int64 `json:"retention,omitempty"`
 }
 

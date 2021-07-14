@@ -24705,7 +24705,7 @@
                   "x-order": 5
                 },
                 "retention": {
-                  "description": "How many artifacts keep. 0 - infinity.",
+                  "description": "How many artifacts keep. 0 - unlimited.",
                   "type": "integer",
                   "format": "int64",
                   "x-order": 6
@@ -24872,7 +24872,7 @@
                         "x-order": 13
                       },
                       "retention": {
-                        "description": "How many artifacts keep. 0 - infinity.",
+                        "description": "How many artifacts keep. 0 - unlimited.",
                         "type": "integer",
                         "format": "int64",
                         "x-order": 14
@@ -25135,7 +25135,7 @@
                   "x-order": 6
                 },
                 "retention": {
-                  "description": "How many artifacts keep. 0 - infinity.",
+                  "description": "How many artifacts keep. 0 - unlimited.",
                   "type": "integer",
                   "format": "int64",
                   "x-order": 7

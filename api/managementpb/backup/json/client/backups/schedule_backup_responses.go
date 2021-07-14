@@ -149,7 +149,7 @@ type ScheduleBackupBody struct {
 	// If scheduling is enabled.
 	Enabled bool `json:"enabled,omitempty"`
 
-	// How many artifacts keep. 0 - infinity.
+	// How many artifacts keep. 0 - unlimited.
 	Retention int64 `json:"retention,omitempty"`
 }
 
