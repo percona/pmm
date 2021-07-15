@@ -16,6 +16,8 @@ enum BackupStatus {
   BACKUP_STATUS_PAUSED = 3;
   BACKUP_STATUS_SUCCESS = 4;
   BACKUP_STATUS_ERROR = 5;
+  BACKUP_STATUS_DELETING = 6;
+  BACKUP_STATUS_FAILED_TO_DELETE = 7;
 }
 
 // Artifact represents single backup artifact.
@@ -48,12 +50,28 @@ message ListArtifactsResponse {
   repeated Artifact artifacts = 1;
 }
 
+message DeleteArtifactRequest {
+  // Machine-readable artifact ID.
+  string artifact_id = 1;
+  // Removes all the backup files associated with artifact if flag is set.
+  bool remove_files = 2;
+}
+
+message DeleteArtifactResponse {}
+
 // Artifacts service provides public methods for managing backup artifacts.
 service Artifacts {
   // ListArtifacts returns a list of all backup artifacts.
   rpc ListArtifacts(ListArtifactsRequest) returns (ListArtifactsResponse) {
     option (google.api.http) = {
       post: "/v1/management/backup/Artifacts/List"
+      body: "*"
+    };
+  }
+  // DeleteArtifact deletes specified artifact.
+  rpc DeleteArtifact(DeleteArtifactRequest) returns (DeleteArtifactResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/backup/Artifacts/Delete"
       body: "*"
     };
   }
