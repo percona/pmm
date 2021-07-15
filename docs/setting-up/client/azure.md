@@ -114,3 +114,24 @@ PMM can use 3 exporters to collect metrics:
 - `mysql_exporter` or `postgres_exporter` – to collect database related metrics.
 
 - PMM Agent to collect queries related metrics using [`pg_stat_statements`](postgresql.md#pg_stat_statements) for PostgreSQL or Performance Schema for MySQL (MariaDB)
+
+### Adding an Azure Instance on pmm-client side
+
+TLS/SSL is enforced on the server by default. So please download the certificate needed to communicate over SSL with your Azure Database.
+It can be done on Networking tab for your Azure Database instance.
+
+![!](../../_images/azure_certificate.png)
+
+Also enforced TLS/SSL connection option can be disabled on server side.
+
+Command for adding an azure database service for monitoring without TLS/SSL.
+
+```sh
+pmm-admin add mysql --username=azureuser --password=secure --host=azuremysql.mysql.database.azure.com --service-name=azure1 --query-source=perfschema
+```
+
+Downloaded ceritificate is named DigiCertGlobalRootCA.crt.pem. So command for adding an azure database service for monitoring with TLS/SSL is next.
+
+```sh
+pmm-admin add mysql --username=azureuser --password=secure --host=azuremysql.mysql.database.azure.com --service-name=azure1 --query-source=perfschema --tls --tls-ca=DigiCertGlobalRootCA.crt.pem --tls-cert=client-cert.pem --tls-key=client-key.pem --tls-skip-verify
+```
