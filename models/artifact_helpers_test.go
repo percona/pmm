@@ -190,7 +190,7 @@ func TestArtifacts(t *testing.T) {
 		b, err := models.CreateArtifact(q, params)
 		require.NoError(t, err)
 
-		err = models.RemoveArtifact(q, b.ID)
+		err = models.DeleteArtifact(q, b.ID)
 		require.NoError(t, err)
 
 		artifacts, err := models.FindArtifacts(q, nil)

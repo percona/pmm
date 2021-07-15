@@ -51,11 +51,13 @@ type BackupStatus string
 
 // BackupStatus status (in the same order as in artifacts.proto).
 const (
-	PendingBackupStatus    BackupStatus = "pending"
-	InProgressBackupStatus BackupStatus = "in_progress"
-	PausedBackupStatus     BackupStatus = "paused"
-	SuccessBackupStatus    BackupStatus = "success"
-	ErrorBackupStatus      BackupStatus = "error"
+	PendingBackupStatus        BackupStatus = "pending"
+	InProgressBackupStatus     BackupStatus = "in_progress"
+	PausedBackupStatus         BackupStatus = "paused"
+	SuccessBackupStatus        BackupStatus = "success"
+	ErrorBackupStatus          BackupStatus = "error"
+	DeletingBackupStatus       BackupStatus = "deleting"
+	FailedToDeleteBackupStatus BackupStatus = "failed_to_delete"
 )
 
 // Validate validates backup status.
@@ -66,6 +68,8 @@ func (bs BackupStatus) Validate() error {
 	case PausedBackupStatus:
 	case SuccessBackupStatus:
 	case ErrorBackupStatus:
+	case DeletingBackupStatus:
+	case FailedToDeleteBackupStatus:
 	default:
 		return errors.Wrapf(ErrInvalidArgument, "invalid status '%s'", bs)
 	}
@@ -73,9 +77,9 @@ func (bs BackupStatus) Validate() error {
 	return nil
 }
 
-// Pointer returns a pointer of backup status.
-func (bs BackupStatus) Pointer() *BackupStatus {
-	return &bs
+// BackupStatusPointer returns a pointer of backup status.
+func BackupStatusPointer(status BackupStatus) *BackupStatus {
+	return &status
 }
 
 // ArtifactType represents type how artifact was created.

@@ -226,6 +226,9 @@ func (s *Service) prepareRestoreJob(
 	if err != nil {
 		return nil, err
 	}
+	if artifact.Status != models.SuccessBackupStatus {
+		return nil, errors.Errorf("artifact %q status is not successful, status: %q", artifactID, artifact.Status)
+	}
 
 	location, err := models.FindBackupLocationByID(q, artifact.LocationID)
 	if err != nil {
@@ -339,7 +342,6 @@ func (s *Service) prepareBackupJob(
 	}
 
 	res, err := models.CreateJobResult(q, pmmAgents[0].AgentID, jobType, jobResultData)
-
 	if err != nil {
 		return nil, nil, err
 	}

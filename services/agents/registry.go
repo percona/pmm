@@ -312,8 +312,8 @@ func (r *Registry) handleJobResult(l *logrus.Entry, result *agentpb.JobResult) {
 				return errors.Errorf("result type %s doesn't match job type %s", models.MySQLBackupJob, res.Type)
 			}
 
-			_, err := models.ChangeArtifact(t.Querier, res.Result.MySQLBackup.ArtifactID, models.ChangeArtifactParams{
-				Status: models.SuccessBackupStatus.Pointer(),
+			_, err := models.UpdateArtifact(t.Querier, res.Result.MySQLBackup.ArtifactID, models.UpdateArtifactParams{
+				Status: models.BackupStatusPointer(models.SuccessBackupStatus),
 			})
 			if err != nil {
 				return err
@@ -323,8 +323,8 @@ func (r *Registry) handleJobResult(l *logrus.Entry, result *agentpb.JobResult) {
 				return errors.Errorf("result type %s doesn't match job type %s", models.MongoDBBackupJob, res.Type)
 			}
 
-			_, err := models.ChangeArtifact(t.Querier, res.Result.MongoDBBackup.ArtifactID, models.ChangeArtifactParams{
-				Status: models.SuccessBackupStatus.Pointer(),
+			_, err := models.UpdateArtifact(t.Querier, res.Result.MongoDBBackup.ArtifactID, models.UpdateArtifactParams{
+				Status: models.BackupStatusPointer(models.SuccessBackupStatus),
 			})
 			if err != nil {
 				return err
@@ -374,12 +374,12 @@ func (r *Registry) handleJobError(jobResult *models.JobResult) error {
 	case models.Echo:
 		// nothing
 	case models.MySQLBackupJob:
-		_, err = models.ChangeArtifact(r.db.Querier, jobResult.Result.MySQLBackup.ArtifactID, models.ChangeArtifactParams{
-			Status: models.ErrorBackupStatus.Pointer(),
+		_, err = models.UpdateArtifact(r.db.Querier, jobResult.Result.MySQLBackup.ArtifactID, models.UpdateArtifactParams{
+			Status: models.BackupStatusPointer(models.ErrorBackupStatus),
 		})
 	case models.MongoDBBackupJob:
-		_, err = models.ChangeArtifact(r.db.Querier, jobResult.Result.MongoDBBackup.ArtifactID, models.ChangeArtifactParams{
-			Status: models.ErrorBackupStatus.Pointer(),
+		_, err = models.UpdateArtifact(r.db.Querier, jobResult.Result.MongoDBBackup.ArtifactID, models.UpdateArtifactParams{
+			Status: models.BackupStatusPointer(models.ErrorBackupStatus),
 		})
 	case models.MySQLRestoreBackupJob:
 		_, err = models.ChangeRestoreHistoryItem(

@@ -122,7 +122,7 @@ func (s *LocationsService) AddLocation(ctx context.Context, req *backupv1beta1.A
 	var loc *models.BackupLocation
 	err := s.db.InTransaction(func(tx *reform.TX) error {
 		var err error
-		loc, err = models.CreateBackupLocation(s.db.Querier, params)
+		loc, err = models.CreateBackupLocation(tx.Querier, params)
 		if err != nil {
 			return err
 		}
@@ -246,11 +246,9 @@ func (s *LocationsService) RemoveLocation(ctx context.Context, req *backupv1beta
 	if req.Force {
 		mode = models.RemoveCascade
 	}
+
 	err := s.db.InTransaction(func(tx *reform.TX) error {
-		if err := models.RemoveBackupLocation(s.db.Querier, req.LocationId, mode); err != nil {
-			return err
-		}
-		return nil
+		return models.RemoveBackupLocation(tx.Querier, req.LocationId, mode)
 	})
 
 	if err != nil {

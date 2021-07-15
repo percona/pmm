@@ -68,9 +68,9 @@ func (s *ServiceService) RemoveService(ctx context.Context, req *managementpb.Re
 		var err error
 		switch {
 		case req.ServiceName != "":
-			service, err = models.FindServiceByName(s.db.Querier, req.ServiceName)
+			service, err = models.FindServiceByName(tx.Querier, req.ServiceName)
 		case req.ServiceId != "":
-			service, err = models.FindServiceByID(s.db.Querier, req.ServiceId)
+			service, err = models.FindServiceByID(tx.Querier, req.ServiceId)
 		}
 		if err != nil {
 			return err
@@ -82,12 +82,12 @@ func (s *ServiceService) RemoveService(ctx context.Context, req *managementpb.Re
 			}
 		}
 
-		agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{ServiceID: service.ServiceID})
+		agents, err := models.FindAgents(tx.Querier, models.AgentFilters{ServiceID: service.ServiceID})
 		if err != nil {
 			return err
 		}
 		for _, agent := range agents {
-			_, err := models.RemoveAgent(s.db.Querier, agent.AgentID, models.RemoveRestrict)
+			_, err := models.RemoveAgent(tx.Querier, agent.AgentID, models.RemoveRestrict)
 			if err != nil {
 				return err
 			}
@@ -97,7 +97,7 @@ func (s *ServiceService) RemoveService(ctx context.Context, req *managementpb.Re
 				reloadPrometheusConfig = true
 			}
 		}
-		err = models.RemoveService(s.db.Querier, service.ServiceID, models.RemoveCascade)
+		err = models.RemoveService(tx.Querier, service.ServiceID, models.RemoveCascade)
 		if err != nil {
 			return err
 		}

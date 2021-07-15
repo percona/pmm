@@ -22,12 +22,23 @@ import (
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
+	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/percona/pmm-managed/models"
 )
 
 // Service is wrapper around minio client.
 type Service struct {
+	l *logrus.Entry
+}
+
+// New creates new minio service.
+func New() *Service {
+	return &Service{
+		l: logrus.WithField("component", "minio-client"),
+	}
 }
 
 // BucketExists return true if bucket can be accessed with provided credentials and exists.
@@ -46,6 +57,59 @@ func (s *Service) GetBucketLocation(ctx context.Context, endpoint, accessKey, se
 		return "", err
 	}
 	return minioClient.GetBucketLocation(ctx, name)
+}
+
+// RemoveRecursive removes objects recursively from storage with given prefix.
+func (s *Service) RemoveRecursive(ctx context.Context, endpoint, accessKey, secretKey, bucketName, prefix string) (rerr error) {
+	minioClient, err := newClient(endpoint, accessKey, secretKey)
+	if err != nil {
+		return err
+	}
+
+	objectsCh := make(chan minio.ObjectInfo)
+	var g errgroup.Group
+	g.Go(func() error {
+		defer close(objectsCh)
+
+		options := minio.ListObjectsOptions{
+			Prefix:    prefix,
+			Recursive: true,
+		}
+		for object := range minioClient.ListObjects(ctx, bucketName, options) {
+			if object.Err != nil {
+				return errors.WithStack(object.Err)
+			}
+
+			objectsCh <- object
+		}
+
+		return nil
+	})
+
+	defer func() {
+		err := g.Wait()
+		if err == nil {
+			return
+		}
+
+		if rerr != nil {
+			rerr = errors.Wrapf(rerr, "listing objects error: %s", err.Error())
+		} else {
+			rerr = errors.WithStack(err)
+		}
+	}()
+
+	var errorsEncountered bool
+	for rErr := range minioClient.RemoveObjects(ctx, bucketName, objectsCh, minio.RemoveObjectsOptions{}) {
+		errorsEncountered = true
+		s.l.WithError(rErr.Err).Debugf("failed to remove object %q", rErr.ObjectName)
+	}
+
+	if errorsEncountered {
+		return errors.Errorf("errors encountered while removing objects from bucket %q", bucketName)
+	}
+
+	return nil
 }
 
 func newClient(endpoint, accessKey, secretKey string) (*minio.Client, error) {

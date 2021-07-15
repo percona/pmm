@@ -19,9 +19,8 @@ package backup
 import (
 	"context"
 
-	"github.com/percona/pmm-managed/services/scheduler"
-
 	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm-managed/services/scheduler"
 )
 
 //go:generate mockery -name=awsS3 -case=snake -inpkg -testonly
@@ -31,6 +30,7 @@ import (
 type awsS3 interface {
 	GetBucketLocation(ctx context.Context, host string, accessKey, secretKey, name string) (string, error)
 	BucketExists(ctx context.Context, host string, accessKey, secretKey, name string) (bool, error)
+	RemoveRecursive(ctx context.Context, endpoint, accessKey, secretKey, bucketName, prefix string) error
 }
 
 type backupService interface {

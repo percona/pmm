@@ -107,7 +107,7 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 			return e
 		}
 
-		_, err := models.CreateKubernetesCluster(k.db.Querier, &models.CreateKubernetesClusterParams{
+		_, err := models.CreateKubernetesCluster(t.Querier, &models.CreateKubernetesClusterParams{
 			KubernetesClusterName: req.KubernetesClusterName,
 			KubeConfig:            req.KubeAuth.Kubeconfig,
 		})
@@ -139,13 +139,13 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 // UnregisterKubernetesCluster removes a registered Kubernetes cluster from PMM.
 func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *dbaasv1beta1.UnregisterKubernetesClusterRequest) (*dbaasv1beta1.UnregisterKubernetesClusterResponse, error) {
 	err := k.db.InTransaction(func(t *reform.TX) error {
-		kubernetesCluster, err := models.FindKubernetesClusterByName(k.db.Querier, req.KubernetesClusterName)
+		kubernetesCluster, err := models.FindKubernetesClusterByName(t.Querier, req.KubernetesClusterName)
 		if err != nil {
 			return err
 		}
 
 		if req.Force {
-			return models.RemoveKubernetesCluster(k.db.Querier, req.KubernetesClusterName)
+			return models.RemoveKubernetesCluster(t.Querier, req.KubernetesClusterName)
 		}
 
 		xtraDBClusters, err := k.dbaasClient.ListXtraDBClusters(ctx,
@@ -176,7 +176,7 @@ func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *
 		case len(psmdbClusters.Clusters) > 0:
 			return status.Errorf(codes.FailedPrecondition, "Kubernetes cluster %s has PSMDB clusters", req.KubernetesClusterName)
 		}
-		return models.RemoveKubernetesCluster(k.db.Querier, req.KubernetesClusterName)
+		return models.RemoveKubernetesCluster(t.Querier, req.KubernetesClusterName)
 	})
 	if err != nil {
 		return nil, err

@@ -201,7 +201,8 @@ func TestClient(t *testing.T) {
 			req.SetBasicAuth("nouser", "wrongpassword")
 			authorization := req.Header.Get("Authorization")
 			_, err = c.CreateAnnotation(ctx, nil, time.Now(), "", authorization)
-			require.EqualError(t, err, `failed to create annotation: clientError: POST http://127.0.0.1:3000/api/annotations -> 401 {"message":"invalid username or password"}`)
+			require.EqualError(t, err, "failed to create annotation: clientError: "+
+				"POST http://127.0.0.1:3000/api/annotations -> 401 {\"message\":\"invalid username or password\"}")
 		})
 	})
 

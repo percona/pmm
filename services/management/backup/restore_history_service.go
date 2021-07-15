@@ -67,7 +67,7 @@ func (s *RestoreHistoryService) ListRestoreHistory(
 		q := tx.Querier
 
 		var err error
-		items, err = models.FindRestoreHistoryItems(q, nil)
+		items, err = models.FindRestoreHistoryItems(q, models.RestoreHistoryItemFilters{})
 		if err != nil {
 			return err
 		}

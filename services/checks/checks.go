@@ -448,10 +448,10 @@ func (s *Service) ChangeInterval(params map[string]check.Interval) error {
 		// to check intervals in the DB so that they can be re-applied
 		// once the checks have been re-loaded on restarts.
 		e := s.db.InTransaction(func(tx *reform.TX) error {
-			cs, err := models.FindCheckSettingsByName(s.db.Querier, c.Name)
+			cs, err := models.FindCheckSettingsByName(tx.Querier, c.Name)
 			// record interval change for the first time.
 			if err == reform.ErrNoRows {
-				cs, err := models.CreateCheckSettings(s.db.Querier, c.Name, models.Interval(c.Interval))
+				cs, err := models.CreateCheckSettings(tx.Querier, c.Name, models.Interval(c.Interval))
 				if err != nil {
 					return err
 				}
@@ -462,7 +462,7 @@ func (s *Service) ChangeInterval(params map[string]check.Interval) error {
 
 			// update existing interval change.
 			if cs != nil {
-				cs, err := models.ChangeCheckSettings(s.db.Querier, c.Name, models.Interval(c.Interval))
+				cs, err := models.ChangeCheckSettings(tx.Querier, c.Name, models.Interval(c.Interval))
 				if err != nil {
 					return err
 				}
@@ -898,7 +898,7 @@ func (s *Service) findTargets(serviceType models.ServiceType, minPMMAgentVersion
 		}
 
 		e := s.db.InTransaction(func(tx *reform.TX) error {
-			pmmAgents, err := models.FindPMMAgentsForService(s.db.Querier, service.ServiceID)
+			pmmAgents, err := models.FindPMMAgentsForService(tx.Querier, service.ServiceID)
 			if err != nil {
 				return err
 			}
@@ -912,12 +912,12 @@ func (s *Service) findTargets(serviceType models.ServiceType, minPMMAgentVersion
 			}
 			pmmAgent := pmmAgents[0]
 
-			DSN, agent, err := models.FindDSNByServiceIDandPMMAgentID(s.db.Querier, service.ServiceID, pmmAgents[0].AgentID, "")
+			DSN, agent, err := models.FindDSNByServiceIDandPMMAgentID(tx.Querier, service.ServiceID, pmmAgents[0].AgentID, "")
 			if err != nil {
 				return err
 			}
 
-			node, err := models.FindNodeByID(s.db.Querier, service.NodeID)
+			node, err := models.FindNodeByID(tx.Querier, service.NodeID)
 			if err != nil {
 				return err
 			}

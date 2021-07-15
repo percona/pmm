@@ -223,15 +223,15 @@ func CreateArtifact(q *reform.Querier, params CreateArtifactParams) (*Artifact, 
 	return row, nil
 }
 
-// ChangeArtifactParams are params for changing existing artifact.
-type ChangeArtifactParams struct {
+// UpdateArtifactParams are params for changing existing artifact.
+type UpdateArtifactParams struct {
 	ServiceID  *string
 	Status     *BackupStatus
 	ScheduleID *string
 }
 
-// ChangeArtifact updates existing artifact.
-func ChangeArtifact(q *reform.Querier, artifactID string, params ChangeArtifactParams) (*Artifact, error) {
+// UpdateArtifact updates existing artifact.
+func UpdateArtifact(q *reform.Querier, artifactID string, params UpdateArtifactParams) (*Artifact, error) {
 	row, err := FindArtifactByID(q, artifactID)
 	if err != nil {
 		return nil, err
@@ -253,8 +253,8 @@ func ChangeArtifact(q *reform.Querier, artifactID string, params ChangeArtifactP
 	return row, nil
 }
 
-// RemoveArtifact removes artifact by ID.
-func RemoveArtifact(q *reform.Querier, id string) error {
+// DeleteArtifact removes artifact by ID.
+func DeleteArtifact(q *reform.Querier, id string) error {
 	if _, err := FindArtifactByID(q, id); err != nil {
 		return err
 	}

@@ -54,3 +54,17 @@ func (_m *mockAwsS3) GetBucketLocation(ctx context.Context, host string, accessK
 
 	return r0, r1
 }
+
+// RemoveRecursive provides a mock function with given fields: ctx, endpoint, accessKey, secretKey, bucketName, prefix
+func (_m *mockAwsS3) RemoveRecursive(ctx context.Context, endpoint string, accessKey string, secretKey string, bucketName string, prefix string) error {
+	ret := _m.Called(ctx, endpoint, accessKey, secretKey, bucketName, prefix)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, string, string) error); ok {
+		r0 = rf(ctx, endpoint, accessKey, secretKey, bucketName, prefix)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}

@@ -206,7 +206,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	backupv1beta1.RegisterBackupsServer(gRPCServer, managementbackup.NewBackupsService(deps.db, deps.backupService, deps.schedulerService))
 	backupv1beta1.RegisterLocationsServer(gRPCServer, managementbackup.NewLocationsService(deps.db, deps.minio))
-	backupv1beta1.RegisterArtifactsServer(gRPCServer, managementbackup.NewArtifactsService(deps.db))
+	backupv1beta1.RegisterArtifactsServer(gRPCServer, managementbackup.NewArtifactsService(deps.db, deps.minio))
 	backupv1beta1.RegisterRestoreHistoryServer(gRPCServer, managementbackup.NewRestoreHistoryService(deps.db))
 
 	dbaasv1beta1.RegisterKubernetesServer(gRPCServer, managementdbaas.NewKubernetesServer(deps.db, deps.dbaasClient))
@@ -831,7 +831,7 @@ func main() {
 			versionServiceClient: versionService,
 			schedulerService:     schedulerService,
 			backupService:        backupService,
-			minio:                &minio.Service{},
+			minio:                minio.New(),
 		})
 	}()
 

@@ -258,7 +258,7 @@ func (s *BackupsService) RemoveScheduledBackup(ctx context.Context, req *backupv
 		}
 
 		for _, artifact := range artifacts {
-			_, err := models.ChangeArtifact(tx.Querier, artifact.ID, models.ChangeArtifactParams{
+			_, err := models.UpdateArtifact(tx.Querier, artifact.ID, models.UpdateArtifactParams{
 				ScheduleID: pointer.ToString(""),
 			})
 			if err != nil {
