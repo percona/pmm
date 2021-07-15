@@ -19,6 +19,8 @@
       - dbaas-controller
       - dbaas-tools
       - pmm2-client
+  roles:
+    - nginx
   pre_tasks:
     - name: detect /srv/pmm-distribution
       stat:
@@ -76,16 +78,7 @@
     - name: Check reread results
       debug: var=reread_result.stdout_lines
 
-    - name: Remove old packages
-      yum:
-        state: absent
-        name:
-          - mariadb-libs # https://jira.percona.com/browse/PMM-5215
-          - logrotate # https://jira.percona.com/browse/PMM-7627
-          - screen
-
     # Split download and update to produce a bit more of progress output.
-
     - name: Download pmm2 packages
       yum:
         name: "{{ pmm_packages }}"
@@ -117,6 +110,9 @@
         state: absent
         name:
           - percona-qan-app # https://jira.percona.com/browse/PMM-6766
+          - mariadb-libs # https://jira.percona.com/browse/PMM-5215
+          - logrotate # https://jira.percona.com/browse/PMM-7627
+          - screen
 
     - name: Check pg_stat_statements extension
       postgresql_ext:
@@ -130,13 +126,6 @@
         dest: /var/lib/cloud/scripts/per-boot/resize-xfs
         regexp: "set -o errexit"
         replace: ""
-
-    - name: Update nginx configuration
-      file: name=/etc/nginx/conf.d/default.conf state=absent
-
-    - name: Check nginx configuration
-      command: nginx -t
-      changed_when: False
 
     - name: Enable external snapshots in Grafana
       ini_file:
@@ -213,8 +202,7 @@
       command: supervisorctl {{ item.1 }} {{ item.0 }}
       changed_when: True
       with_nested:
-        - - nginx
-          - postgresql
+        - - postgresql
           - alertmanager
           - clickhouse
           - grafana
@@ -257,6 +245,7 @@
 
     - name: Check supervisord log
       debug: var=maintail_result.stdout_lines
+
 
     - name: Cleanup yum cache
       command: yum clean all
