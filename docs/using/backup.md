@@ -23,13 +23,9 @@
 
     1. Select <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings*.
 
-    2. Activate *Backup Management*.
+    1. Activate *Backup Management*.
 
-    3. Click *Apply changes*.
-
-    4. Visit `<pmm-server-IP>/graph/backup` or click <i class="uil uil-history"></i> → *Backup* in the left menu bar.
-
-        ![!](../_images/PMM_Backup_Management.jpg)
+    1. Click *Apply changes*.
 
     !!! note alert alert-primary ""
         If PMM Server runs as a Docker container, enable backup features at container creation time by adding `-e ENABLE_BACKUP_MANAGEMENT=1` to your `docker run` command.
@@ -38,9 +34,11 @@
 
 1. Select <i class="uil uil-history"></i> → *Backup* → *Storage locations*.
 
-2. Click *Add*.
+    ![!](../_images/PMM_Backup_Management.jpg)
 
-3. Fill in the form fields.
+1. Click *Add*.
+
+1. Fill in the form fields.
 
     ![!](../_images/PMM_Backup_Management_Locations_Add_Storage_Location.jpg)
 
@@ -55,7 +53,7 @@
         - *Local Client:* (Not currently implemented)
         - *Local Server:* (Not currently implemented)
 
-4. Click *Add* to add the location or *Test* to test the connection.
+1. Click *Add* to add the location or *Test* to test the connection.
 
 ## MySQL backup preconditions
 
@@ -100,9 +98,9 @@
 
 1. Select <i class="uil uil-history"></i> → *Backup* → *Backup Inventory*.
 
-2. Click <i class="uil uil-plus-square"></i> *Add*.
+1. Click <i class="uil uil-plus-square"></i> *Add*.
 
-3. In the *Backup On Demand* dialog, enter values for:
+1. In the *Backup On Demand* dialog, enter values for:
 
     - *Service name*: Choose from the menu the service to back up.
     - *Vendor*: A value is automatically selected based on the service type.
@@ -110,9 +108,9 @@
     - *Description*: Enter a long description for this backup.
     - *Location*: Choose from the menu the [storage location](#add-a-storage-location).
 
-4. Click *Backup*.
+1. Click *Backup*.
 
-5. In the *Backup Inventory* pane, watch the *Status* column.
+1. In the *Backup Inventory* pane, watch the *Status* column.
 
 ## Restore a backup
 
@@ -121,26 +119,25 @@
 
 1. Select <i class="uil uil-history"></i> → *Backup* → *Backup Inventory*.
 
-2. Find the row with the backup you want to restore.
+1. Find the row with the backup you want to restore.
 
-3. In the *Actions* column for that row, click *Restore from backup*.
+1. In the *Actions* column for that row, click *Restore from backup*.
 
-4. In the *Restore from backup* dialog, check the values and click *Restore*.
+1. In the *Restore from backup* dialog, check the values and click *Restore*.
 
-5. Navigate to the *Restore History* tab to check the status of the restored backup.
-
+1. Navigate to the *Restore History* tab to check the status of the restored backup.
 
 ## Deleting a backup
 
 1. Navigate to *Backup Management* → *Backup Inventory*.
 
-2. Find the row with the backup you want to delete.
+1. Find the row with the backup you want to delete.
 
-3. In the *Actions* column for that row, click *Delete backup*.
+1. In the *Actions* column for that row, click *Delete backup*.
 
-4. (Optional) Check "Delete from storage" to also delete the actual backup content besides just the backup register.
+1. (Optional) Check "Delete from storage" to also delete the actual backup content besides just the backup register.
 
-5. Click "Delete" to proceed.
+1. Click "Delete" to proceed.
 
 [Amazon AWS S3]: https://aws.amazon.com/s3/
 [Percona Backup for MongoDB]: https://www.percona.com/doc/percona-backup-mongodb/installation.html
