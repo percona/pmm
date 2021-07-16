@@ -127,18 +127,6 @@
 
 1. Navigate to the *Restore History* tab to check the status of the restored backup.
 
-## Deleting a backup
-
-1. Select <i class="uil uil-history"></i> → *Backup* → *Backup Inventory*.
-
-1. Find the row with the backup you want to delete.
-
-1. In the *Actions* column for that row, click *Delete backup*.
-
-1. (Optional) Check *Delete from storage* to also delete the actual backup content besides just the backup register.
-
-1. Click *Delete* to proceed.
-
 [Amazon AWS S3]: https://aws.amazon.com/s3/
 [Percona Backup for MongoDB]: https://www.percona.com/doc/percona-backup-mongodb/installation.html
 [PERCONA_QPRESS]: https://www.percona.com/doc/percona-xtrabackup/LATEST/backup_scenarios/compressed_backup.html
