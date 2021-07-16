@@ -117,6 +117,8 @@ The [PMM Client Docker image] is a convenient way to run PMM Client as a preconf
     --volumes-from pmm-client-data \
     percona/pmm-client:2
     ```
+!!! hint alert-success "Tips"
+    You can find a complete list of compatible environment variables [here](https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/commands/pmm-agent.html)
 
 4. Check status.
 
