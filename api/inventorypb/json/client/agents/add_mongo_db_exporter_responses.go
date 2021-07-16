@@ -363,7 +363,8 @@ type AddMongoDBExporterOKBodyMongodbExporter struct {
 	//  - WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -388,7 +389,7 @@ var addMongoDbExporterOkBodyMongodbExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -415,6 +416,9 @@ const (
 
 	// AddMongoDBExporterOKBodyMongodbExporterStatusDONE captures enum value "DONE"
 	AddMongoDBExporterOKBodyMongodbExporterStatusDONE string = "DONE"
+
+	// AddMongoDBExporterOKBodyMongodbExporterStatusUNKNOWN captures enum value "UNKNOWN"
+	AddMongoDBExporterOKBodyMongodbExporterStatusUNKNOWN string = "UNKNOWN"
 )
 
 // prop value enum

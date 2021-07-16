@@ -772,7 +772,8 @@ type AddRDSOKBodyMysqldExporter struct {
 	//  - WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -800,7 +801,7 @@ var addRdsOkBodyMysqldExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -827,6 +828,9 @@ const (
 
 	// AddRDSOKBodyMysqldExporterStatusDONE captures enum value "DONE"
 	AddRDSOKBodyMysqldExporterStatusDONE string = "DONE"
+
+	// AddRDSOKBodyMysqldExporterStatusUNKNOWN captures enum value "UNKNOWN"
+	AddRDSOKBodyMysqldExporterStatusUNKNOWN string = "UNKNOWN"
 )
 
 // prop value enum
@@ -1023,7 +1027,8 @@ type AddRDSOKBodyPostgresqlExporter struct {
 	//  - WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -1048,7 +1053,7 @@ var addRdsOkBodyPostgresqlExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1075,6 +1080,9 @@ const (
 
 	// AddRDSOKBodyPostgresqlExporterStatusDONE captures enum value "DONE"
 	AddRDSOKBodyPostgresqlExporterStatusDONE string = "DONE"
+
+	// AddRDSOKBodyPostgresqlExporterStatusUNKNOWN captures enum value "UNKNOWN"
+	AddRDSOKBodyPostgresqlExporterStatusUNKNOWN string = "UNKNOWN"
 )
 
 // prop value enum
@@ -1165,7 +1173,8 @@ type AddRDSOKBodyQANMysqlPerfschema struct {
 	//  - WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 }
 
@@ -1187,7 +1196,7 @@ var addRdsOkBodyQanMysqlPerfschemaTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1214,6 +1223,9 @@ const (
 
 	// AddRDSOKBodyQANMysqlPerfschemaStatusDONE captures enum value "DONE"
 	AddRDSOKBodyQANMysqlPerfschemaStatusDONE string = "DONE"
+
+	// AddRDSOKBodyQANMysqlPerfschemaStatusUNKNOWN captures enum value "UNKNOWN"
+	AddRDSOKBodyQANMysqlPerfschemaStatusUNKNOWN string = "UNKNOWN"
 )
 
 // prop value enum
@@ -1292,7 +1304,8 @@ type AddRDSOKBodyQANPostgresqlPgstatements struct {
 	//  - WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 }
 
@@ -1314,7 +1327,7 @@ var addRdsOkBodyQanPostgresqlPgstatementsTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1341,6 +1354,9 @@ const (
 
 	// AddRDSOKBodyQANPostgresqlPgstatementsStatusDONE captures enum value "DONE"
 	AddRDSOKBodyQANPostgresqlPgstatementsStatusDONE string = "DONE"
+
+	// AddRDSOKBodyQANPostgresqlPgstatementsStatusUNKNOWN captures enum value "UNKNOWN"
+	AddRDSOKBodyQANPostgresqlPgstatementsStatusUNKNOWN string = "UNKNOWN"
 )
 
 // prop value enum
@@ -1413,7 +1429,8 @@ type AddRDSOKBodyRDSExporter struct {
 	//  - WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics (the same for several configurations).
@@ -1447,7 +1464,7 @@ var addRdsOkBodyRdsExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1474,6 +1491,9 @@ const (
 
 	// AddRDSOKBodyRDSExporterStatusDONE captures enum value "DONE"
 	AddRDSOKBodyRDSExporterStatusDONE string = "DONE"
+
+	// AddRDSOKBodyRDSExporterStatusUNKNOWN captures enum value "UNKNOWN"
+	AddRDSOKBodyRDSExporterStatusUNKNOWN string = "UNKNOWN"
 )
 
 // prop value enum

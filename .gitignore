@@ -1,6 +1,10 @@
 /.idea/
 /.vscode/
 
-/vendor/
 /api/prototool
 /api/nginx/*.pem
+/bin
+/third_party
+
+# System Files
+.DS_Store

@@ -293,6 +293,100 @@
         }
       }
     },
+    "/v1/management/DBaaS/Components/CheckForOperatorUpdate": {
+      "post": {
+        "tags": [
+          "Components"
+        ],
+        "summary": "CheckForOperatorUpdate checks if a new version of an operator is available.",
+        "operationId": "CheckForOperatorUpdate",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "cluster_to_components": {
+                  "description": "The cluster name is used as a key for this map, value contains components and their inforamtion about update.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "description": "ComponentsUpdateInformation contains info about components and their available latest versions.",
+                    "type": "object",
+                    "properties": {
+                      "component_to_update_information": {
+                        "description": "component_to_update_information stores, under the name of the component, information about the update.\n\"pxc-operator\", \"psmdb-operator\" are names used by backend for our operators.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "description": "ComponentUpdateInformation contains version we can update to for certain component.",
+                          "type": "object",
+                          "properties": {
+                            "available_version": {
+                              "type": "string",
+                              "x-order": 0
+                            }
+                          }
+                        },
+                        "x-order": 0
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/DBaaS/Components/GetPSMDB": {
       "post": {
         "tags": [
@@ -1686,6 +1780,11 @@
             "schema": {
               "type": "object",
               "properties": {
+                "expose": {
+                  "description": "Make DB cluster accessible outside of K8s cluster.",
+                  "type": "boolean",
+                  "x-order": 3
+                },
                 "kubernetes_cluster_name": {
                   "description": "Kubernetes cluster name.",
                   "type": "string",
@@ -2377,6 +2476,11 @@
                     "description": "Cluster represents PSMDB cluster information.\nTODO Do not use inner messages in all public APIs (for consistency).",
                     "type": "object",
                     "properties": {
+                      "exposed": {
+                        "description": "DB cluster accessible outside of K8s cluster.",
+                        "type": "boolean",
+                        "x-order": 4
+                      },
                       "name": {
                         "description": "Cluster name.",
                         "type": "string",
@@ -2534,6 +2638,11 @@
             "schema": {
               "type": "object",
               "properties": {
+                "expose": {
+                  "description": "Make DB cluster accessible outside of K8s cluster.",
+                  "type": "boolean",
+                  "x-order": 3
+                },
                 "kubernetes_cluster_name": {
                   "description": "Kubernetes cluster name.",
                   "type": "string",
@@ -3408,6 +3517,11 @@
                     "description": "Cluster represents XtraDB cluster information.\nTODO Do not use inner messages in all public APIs (for consistency).",
                     "type": "object",
                     "properties": {
+                      "exposed": {
+                        "description": "DB cluster accessible outside of K8s cluster.",
+                        "type": "boolean",
+                        "x-order": 4
+                      },
                       "name": {
                         "description": "Cluster name.",
                         "type": "string",

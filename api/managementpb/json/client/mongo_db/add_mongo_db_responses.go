@@ -527,7 +527,8 @@ type AddMongoDBOKBodyMongodbExporter struct {
 	//  - WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -552,7 +553,7 @@ var addMongoDbOkBodyMongodbExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -579,6 +580,9 @@ const (
 
 	// AddMongoDBOKBodyMongodbExporterStatusDONE captures enum value "DONE"
 	AddMongoDBOKBodyMongodbExporterStatusDONE string = "DONE"
+
+	// AddMongoDBOKBodyMongodbExporterStatusUNKNOWN captures enum value "UNKNOWN"
+	AddMongoDBOKBodyMongodbExporterStatusUNKNOWN string = "UNKNOWN"
 )
 
 // prop value enum
@@ -657,7 +661,8 @@ type AddMongoDBOKBodyQANMongodbProfiler struct {
 	//  - WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 }
 
@@ -679,7 +684,7 @@ var addMongoDbOkBodyQanMongodbProfilerTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -706,6 +711,9 @@ const (
 
 	// AddMongoDBOKBodyQANMongodbProfilerStatusDONE captures enum value "DONE"
 	AddMongoDBOKBodyQANMongodbProfilerStatusDONE string = "DONE"
+
+	// AddMongoDBOKBodyQANMongodbProfilerStatusUNKNOWN captures enum value "UNKNOWN"
+	AddMongoDBOKBodyQANMongodbProfilerStatusUNKNOWN string = "UNKNOWN"
 )
 
 // prop value enum

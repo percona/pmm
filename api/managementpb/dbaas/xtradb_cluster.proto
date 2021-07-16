@@ -116,6 +116,8 @@ message ListXtraDBClustersResponse {
     RunningOperation operation = 3;
     // Cluster parameters.
     XtraDBClusterParams params = 4;
+    // DB cluster accessible outside of K8s cluster.
+    bool exposed = 5;
   }
   // XtraDB clusters information.
   repeated Cluster clusters = 1;
@@ -175,6 +177,8 @@ message CreateXtraDBClusterRequest {
       msg_exists: true
     }
   ];
+  // Make DB cluster accessible outside of K8s cluster.
+  bool expose = 4;
 }
 
 message CreateXtraDBClusterResponse {}

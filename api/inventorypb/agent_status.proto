@@ -17,4 +17,6 @@ enum AgentStatus {
   STOPPING = 4;
   // Agent finished.
   DONE = 5;
+  // Agent is not connected, we don't know anything about it's state.
+  UNKNOWN = 6;
 }
