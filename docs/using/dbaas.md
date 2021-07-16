@@ -36,7 +36,7 @@ From the left menu, select <i class="uil uil-database"></i> *DBaaS*.
 
 4. A message will momentarily display telling you whether the registration was successful or not.
 
-    ![!](../_images/PMM_DBaaS_Kubernetes_Cluster_Added.jpg)
+    ![!](../_images/PMM_DBaaS_Kubernetes_Cluster_Added.png)
 
 ### Unregister a Kubernetes cluster
 
@@ -76,6 +76,22 @@ Administrators can select allowed and default versions of components versions fo
 The Kubernetes Cluster tab shows the status of operators.
 
 ![!](../_images/PMM_DBaaS_Kubernetes_Cluster_Operator_Status.png)
+
+### Kubernetes operator update
+
+When a new version of the operator is available the *Operators* column shows a message with this information. Click the message to go to the operator release notes to find out more about the update.
+
+![!](../_images/PMM_DBaaS_Kubernetes_Cluster_Operator_Update.png)
+
+To update the cluster:
+
+1. Find the row with the operator you want to update.
+
+2. Click the *Update* button in front of the operator.
+
+3. Confirm the action by clicking *Update*, or abandon by clicking *Cancel*.
+
+    ![!](../_images/PMM_DBaaS_Kubernetes_Cluster_Operator_Update_Confirmation.png)
 
 ## DB clusters
 
