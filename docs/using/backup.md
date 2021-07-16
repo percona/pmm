@@ -106,6 +106,18 @@
 
 5. Navigate to the *Restore History* tab to check the status of the restored backup.
 
+## Deleting a backup
+
+1. Navigate to *Backup Management* → *Backup Inventory*.
+
+2. Find the row with the backup you want to delete.
+
+3. In the *Actions* column for that row, click *Delete backup*.
+
+4. (Optional) Check "Delete from storage" to also delete the actual backup content besides just the backup register.
+
+5. Click "Delete" to proceed.
+
 [PERCONA_XTRABACKUP]: https://www.percona.com/software/mysql-database/percona-xtrabackup
 [PERCONA_XBCLOUD]: https://www.percona.com/doc/percona-xtrabackup/2.3/xbcloud/xbcloud.html
 [PERCONA_XBSTREAM]: https://www.percona.com/doc/percona-xtrabackup/2.3/xbstream/xbstream.html
