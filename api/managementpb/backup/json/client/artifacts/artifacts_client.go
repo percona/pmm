@@ -25,9 +25,44 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
+	DeleteArtifact(params *DeleteArtifactParams) (*DeleteArtifactOK, error)
+
 	ListArtifacts(params *ListArtifactsParams) (*ListArtifactsOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+  DeleteArtifact deletes artifact deletes specified artifact
+*/
+func (a *Client) DeleteArtifact(params *DeleteArtifactParams) (*DeleteArtifactOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewDeleteArtifactParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "DeleteArtifact",
+		Method:             "POST",
+		PathPattern:        "/v1/management/backup/Artifacts/Delete",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &DeleteArtifactReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*DeleteArtifactOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*DeleteArtifactDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*

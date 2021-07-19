@@ -38,3 +38,9 @@ func (this *ListArtifactsResponse) Validate() error {
 	}
 	return nil
 }
+func (this *DeleteArtifactRequest) Validate() error {
+	return nil
+}
+func (this *DeleteArtifactResponse) Validate() error {
+	return nil
+}
