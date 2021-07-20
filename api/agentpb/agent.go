@@ -41,7 +41,7 @@ type ServerRequestPayload interface {
 	sealed()
 }
 
-// A list of AgentMessage request payloads
+// A list of AgentMessage request payloads.
 
 func (m *Ping) AgentMessageRequestPayload() isAgentMessage_Payload {
 	return &AgentMessage_Ping{Ping: m}
@@ -62,7 +62,7 @@ func (m *JobResult) AgentMessageRequestPayload() isAgentMessage_Payload {
 	return &AgentMessage_JobResult{JobResult: m}
 }
 
-// A list of AgentMessage response payloads
+// A list of AgentMessage response payloads.
 
 func (m *Pong) AgentMessageResponsePayload() isAgentMessage_Payload {
 	return &AgentMessage_Pong{Pong: m}
@@ -98,7 +98,7 @@ func (m *GetVersionsResponse) AgentMessageResponsePayload() isAgentMessage_Paylo
 	return &AgentMessage_GetVersions{GetVersions: m}
 }
 
-// A list of ServerMessage response payloads
+// A list of ServerMessage response payloads.
 
 func (m *Pong) ServerMessageResponsePayload() isServerMessage_Payload {
 	return &ServerMessage_Pong{Pong: m}
@@ -113,7 +113,7 @@ func (m *ActionResultResponse) ServerMessageResponsePayload() isServerMessage_Pa
 	return &ServerMessage_ActionResult{ActionResult: m}
 }
 
-// A list of ServerMessage request payloads
+// A list of ServerMessage request payloads.
 
 func (m *Ping) ServerMessageRequestPayload() isServerMessage_Payload {
 	return &ServerMessage_Ping{Ping: m}
@@ -173,13 +173,13 @@ func (*GetVersionsResponse) sealed()     {}
 
 // check interfaces
 var (
-	// A list of AgentMessage request payloads
+	// A list of AgentMessage request payloads.
 	_ AgentRequestPayload = (*Ping)(nil)
 	_ AgentRequestPayload = (*StateChangedRequest)(nil)
 	_ AgentRequestPayload = (*QANCollectRequest)(nil)
 	_ AgentRequestPayload = (*ActionResultRequest)(nil)
 
-	// A list of AgentMessage response payloads
+	// A list of AgentMessage response payloads.
 	_ AgentResponsePayload = (*Pong)(nil)
 	_ AgentResponsePayload = (*SetStateResponse)(nil)
 	_ AgentResponsePayload = (*StartActionResponse)(nil)
@@ -192,13 +192,13 @@ var (
 	_ AgentResponsePayload = (*JobStatusResponse)(nil)
 	_ AgentResponsePayload = (*GetVersionsResponse)(nil)
 
-	// A list of ServerMessage response payloads
+	// A list of ServerMessage response payloads.
 	_ ServerResponsePayload = (*Pong)(nil)
 	_ ServerResponsePayload = (*StateChangedResponse)(nil)
 	_ ServerResponsePayload = (*QANCollectResponse)(nil)
 	_ ServerResponsePayload = (*ActionResultResponse)(nil)
 
-	// A list of ServerMessage request payloads
+	// A list of ServerMessage request payloads.
 	_ ServerRequestPayload = (*Ping)(nil)
 	_ ServerRequestPayload = (*SetStateRequest)(nil)
 	_ ServerRequestPayload = (*StartActionRequest)(nil)
