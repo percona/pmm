@@ -4781,11 +4781,6 @@
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 10
-                },
-                "agent_password": {
-                  "description": "Custom password for pmm endpoint /metrics.",
-                  "type": "string",
-                  "x-order": 11
                 }
               }
             }
@@ -4984,11 +4979,6 @@
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 11
-                },
-                "agent_password": {
-                  "description": "Custom password for pmm endpoint /metrics.",
-                  "type": "string",
-                  "x-order": 12
                 }
               }
             }
@@ -5213,11 +5203,6 @@
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 12
-                },
-                "agent_password": {
-                  "description": "Custom password for pmm endpoint /metrics.",
-                  "type": "string",
-                  "x-order": 13
                 }
               }
             }
@@ -5427,11 +5412,6 @@
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 8
-                },
-                "agent_password": {
-                  "description": "Custom password for pmm endpoint /metrics.",
-                  "type": "string",
-                  "x-order": 9
                 }
               }
             }
@@ -5615,11 +5595,6 @@
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 7
-                },
-                "agent_password": {
-                  "description": "Custom password for pmm endpoint /metrics.",
-                  "type": "string",
-                  "x-order": 8
                 }
               }
             }
@@ -5803,6 +5778,11 @@
                   "description": "Enables push metrics mode for exporter.",
                   "type": "boolean",
                   "x-order": 8
+                },
+                "agent_password": {
+                  "description": "Custom password for pmm endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 9
                 }
               }
             }

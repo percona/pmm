@@ -880,8 +880,6 @@ message AddQANMySQLPerfSchemaAgentRequest {
   map<string, string> custom_labels = 8;
   // Skip connection check.
   bool skip_connection_check = 9;
-  // Custom password for pmm endpoint /metrics.
-  string agent_password = 13;
 }
 
 message AddQANMySQLPerfSchemaAgentResponse {
@@ -943,8 +941,6 @@ message AddQANMySQLSlowlogAgentRequest {
   map<string, string> custom_labels = 9;
   // Skip connection check.
   bool skip_connection_check = 10;
-  // Custom password for pmm endpoint /metrics.
-  string agent_password = 14;
 }
 
 message AddQANMySQLSlowlogAgentResponse {
@@ -997,8 +993,6 @@ message AddQANMongoDBProfilerAgentRequest {
   map<string, string> custom_labels = 7;
   // Skip connection check.
   bool skip_connection_check = 8;
-  // Custom password for pmm endpoint /metrics.
-  string agent_password = 12;
 }
 
 message AddQANMongoDBProfilerAgentResponse {
@@ -1049,8 +1043,6 @@ message AddQANPostgreSQLPgStatementsAgentRequest {
   map<string, string> custom_labels = 7;
   // Skip connection check.
   bool skip_connection_check = 8;
-  // Custom password for pmm endpoint /metrics.
-  string agent_password = 9;
 }
 
 message AddQANPostgreSQLPgStatementsAgentResponse {
@@ -1103,8 +1095,6 @@ message AddQANPostgreSQLPgStatMonitorAgentRequest {
   map<string, string> custom_labels = 8;
   // Skip connection check.
   bool skip_connection_check = 9;
-  // Custom password for pmm endpoint /metrics.
-  string agent_password = 10;
 }
 
 message AddQANPostgreSQLPgStatMonitorAgentResponse {
@@ -1153,6 +1143,8 @@ message AddRDSExporterRequest {
   bool disable_enhanced_metrics = 8;
   // Enables push metrics mode for exporter.
   bool push_metrics = 9;
+  // Custom password for pmm endpoint /metrics.
+  string agent_password = 10;
 }
 
 message AddRDSExporterResponse {

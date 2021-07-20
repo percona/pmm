@@ -150,6 +150,9 @@ type AddRDSExporterBody struct {
 
 	// Enables push metrics mode for exporter.
 	PushMetrics bool `json:"push_metrics,omitempty"`
+
+	// Custom password for pmm endpoint /metrics.
+	AgentPassword string `json:"agent_password,omitempty"`
 }
 
 // Validate validates this add RDS exporter body

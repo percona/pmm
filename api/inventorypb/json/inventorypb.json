@@ -1610,11 +1610,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "agent_password": {
-                  "description": "Custom password for pmm endpoint /metrics.",
-                  "type": "string",
-                  "x-order": 11
-                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
                   "type": "object",
@@ -1808,11 +1803,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "agent_password": {
-                  "description": "Custom password for pmm endpoint /metrics.",
-                  "type": "string",
-                  "x-order": 12
-                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
                   "type": "object",
@@ -2031,11 +2021,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "agent_password": {
-                  "description": "Custom password for pmm endpoint /metrics.",
-                  "type": "string",
-                  "x-order": 13
-                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
                   "type": "object",
@@ -2266,11 +2251,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "agent_password": {
-                  "description": "Custom password for pmm endpoint /metrics.",
-                  "type": "string",
-                  "x-order": 9
-                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
                   "type": "object",
@@ -2459,11 +2439,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "agent_password": {
-                  "description": "Custom password for pmm endpoint /metrics.",
-                  "type": "string",
-                  "x-order": 8
-                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
                   "type": "object",
@@ -2642,6 +2617,11 @@
             "schema": {
               "type": "object",
               "properties": {
+                "agent_password": {
+                  "description": "Custom password for pmm endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 9
+                },
                 "aws_access_key": {
                   "description": "AWS Access Key.",
                   "type": "string",
