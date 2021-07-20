@@ -534,6 +534,38 @@ message JobProgress {
   }
 }
 
+// GetVersionRequest represents a request for version retrieving of different software.
+message GetVersionRequest {
+  // MySQLd is used for mysqld binary version retrieving using `mysqld --version`.
+  message MySQLd {}
+
+  // Xtrabackup is used for xtrabackup binary version retrieving.
+  message Xtrabackup {}
+
+  // Xbcloud is used for xbcloud binary version retrieving.
+  message Xbcloud {}
+
+  // Qpress is used for qpress binary version retrieving.
+  message Qpress {}
+
+  // Software is used to select software for which retrieve version.
+  message Software {
+    oneof software {
+      MySQLd mysqld = 1;
+      Xtrabackup xtrabackup = 2;
+      Xbcloud xbcloud = 3;
+      Qpress qpress = 4;
+    }
+  }
+  repeated Software softwares = 1;
+}
+
+// GetVersionResponse represents a response containing versions of software in the same order as in the request.
+message GetVersionResponse {
+  repeated string versions = 1;
+  repeated string errors = 2;
+}
+
 message AgentMessage {
   // TODO https://jira.percona.com/browse/PMM-3449
 
@@ -561,6 +593,7 @@ message AgentMessage {
     JobStatusResponse job_status = 15;
     JobResult job_result = 16;
     JobProgress job_progress = 17;
+    GetVersionResponse get_version = 18;
   }
 }
 
@@ -589,6 +622,7 @@ message ServerMessage {
     StartJobRequest start_job = 13;
     StopJobRequest stop_job = 14;
     JobStatusRequest job_status = 15;
+    GetVersionRequest get_version = 16;
   }
 }
 
