@@ -213,6 +213,9 @@ type AddMySQLBody struct {
 	// List of collector names to disable in this exporter.
 	DisableCollectors []string `json:"disable_collectors"`
 
+	// Custom password for pmm endpoint /metrics.
+	AgentPassword string `json:"agent_password,omitempty"`
+
 	// add node
 	AddNode *AddMySQLParamsBodyAddNode `json:"add_node,omitempty"`
 }

@@ -1838,6 +1838,11 @@
                     "type": "string"
                   },
                   "x-order": 12
+                },
+                "agent_password": {
+                  "description": "Custom password for pmm endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 13
                 }
               }
             }
@@ -2069,6 +2074,11 @@
                     "type": "string"
                   },
                   "x-order": 13
+                },
+                "agent_password": {
+                  "description": "Custom password for pmm endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 14
                 }
               }
             }
@@ -2584,6 +2594,11 @@
                     "type": "string"
                   },
                   "x-order": 9
+                },
+                "agent_password": {
+                  "description": "Custom password for pmm endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 10
                 }
               }
             }
@@ -2794,6 +2809,11 @@
                     "type": "string"
                   },
                   "x-order": 9
+                },
+                "agent_password": {
+                  "description": "Custom password for pmm endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 10
                 }
               }
             }
@@ -3006,6 +3026,11 @@
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 10
+                },
+                "agent_password": {
+                  "description": "Custom password for pmm endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 11
                 }
               }
             }
@@ -3204,6 +3229,11 @@
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 11
+                },
+                "agent_password": {
+                  "description": "Custom password for pmm endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 12
                 }
               }
             }
@@ -3428,6 +3458,11 @@
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 12
+                },
+                "agent_password": {
+                  "description": "Custom password for pmm endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 13
                 }
               }
             }
@@ -3637,6 +3672,11 @@
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 8
+                },
+                "agent_password": {
+                  "description": "Custom password for pmm endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 9
                 }
               }
             }
@@ -3820,6 +3860,11 @@
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 7
+                },
+                "agent_password": {
+                  "description": "Custom password for pmm endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 8
                 }
               }
             }
@@ -15053,6 +15098,11 @@
                     "type": "string"
                   },
                   "x-order": 22
+                },
+                "agent_password": {
+                  "description": "Custom password for pmm endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 23
                 }
               }
             }
@@ -15550,6 +15600,11 @@
                     "type": "string"
                   },
                   "x-order": 26
+                },
+                "agent_password": {
+                  "description": "Custom password for pmm endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 27
                 }
               }
             }
@@ -16472,6 +16527,11 @@
                     "type": "string"
                   },
                   "x-order": 21
+                },
+                "agent_password": {
+                  "description": "Custom password for pmm endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 22
                 }
               }
             }
@@ -16997,6 +17057,11 @@
                     "type": "string"
                   },
                   "x-order": 18
+                },
+                "agent_password": {
+                  "description": "Custom password for pmm endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 19
                 }
               }
             }
@@ -17372,6 +17437,11 @@
                   "type": "boolean",
                   "title": "If true, add qan-pgstatements",
                   "x-order": 27
+                },
+                "agent_password": {
+                  "description": "Custom password for pmm endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 28
                 }
               }
             }

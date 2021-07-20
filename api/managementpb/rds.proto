@@ -129,6 +129,8 @@ message AddRDSRequest {
   MetricsMode metrics_mode = 27;
   // If true, add qan-pgstatements
   bool qan_postgresql_pgstatements = 28;
+  // Custom password for pmm endpoint /metrics.
+  string agent_password = 29;
 }
 
 message AddRDSResponse {

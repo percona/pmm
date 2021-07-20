@@ -147,6 +147,9 @@ type AddQANPostgreSQLPgStatementsAgentBody struct {
 
 	// Skip connection check.
 	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
+
+	// Custom password for pmm endpoint /metrics.
+	AgentPassword string `json:"agent_password,omitempty"`
 }
 
 // Validate validates this add QAN postgre SQL pg statements agent body

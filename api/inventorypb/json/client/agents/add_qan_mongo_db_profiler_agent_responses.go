@@ -156,6 +156,9 @@ type AddQANMongoDBProfilerAgentBody struct {
 
 	// Skip connection check.
 	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
+
+	// Custom password for pmm endpoint /metrics.
+	AgentPassword string `json:"agent_password,omitempty"`
 }
 
 // Validate validates this add QAN mongo DB profiler agent body
