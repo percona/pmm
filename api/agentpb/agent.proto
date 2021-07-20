@@ -534,8 +534,8 @@ message JobProgress {
   }
 }
 
-// GetVersionRequest represents a request for version retrieving of different software.
-message GetVersionRequest {
+// GetVersionsRequest represents a request for version retrieving of different software.
+message GetVersionsRequest {
   // MySQLd is used for mysqld binary version retrieving using `mysqld --version`.
   message MySQLd {}
 
@@ -560,10 +560,15 @@ message GetVersionRequest {
   repeated Software softwares = 1;
 }
 
-// GetVersionResponse represents a response containing versions of software in the same order as in the request.
-message GetVersionResponse {
-  repeated string versions = 1;
-  repeated string errors = 2;
+// GetVersionsResponse represents a response containing versions of software in the same order as in the request.
+message GetVersionsResponse {
+  // Version contains the version field of the requested software and
+  // the error field which is set in case of version retrieving error.
+  message Version {
+    string version = 1;
+    string error = 2;
+  }
+  repeated Version versions = 1;
 }
 
 message AgentMessage {
@@ -593,7 +598,7 @@ message AgentMessage {
     JobStatusResponse job_status = 15;
     JobResult job_result = 16;
     JobProgress job_progress = 17;
-    GetVersionResponse get_version = 18;
+    GetVersionsResponse get_versions = 18;
   }
 }
 
@@ -622,7 +627,7 @@ message ServerMessage {
     StartJobRequest start_job = 13;
     StopJobRequest stop_job = 14;
     JobStatusRequest job_status = 15;
-    GetVersionRequest get_version = 16;
+    GetVersionsRequest get_versions = 16;
   }
 }
 
