@@ -1143,8 +1143,6 @@ message AddRDSExporterRequest {
   bool disable_enhanced_metrics = 8;
   // Enables push metrics mode for exporter.
   bool push_metrics = 9;
-  // Custom password for pmm endpoint /metrics.
-  string agent_password = 10;
 }
 
 message AddRDSExporterResponse {
