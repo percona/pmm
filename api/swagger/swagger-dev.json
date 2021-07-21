@@ -25300,6 +25300,17 @@
                   "description": "Human-readable description.",
                   "type": "string",
                   "x-order": 3
+                },
+                "mode": {
+                  "description": "BackupMode sdfadfasd.",
+                  "type": "string",
+                  "default": "BACKUP_MODE_INVALID",
+                  "enum": [
+                    "BACKUP_MODE_INVALID",
+                    "SNAPSHOT",
+                    "INCREMENTAL"
+                  ],
+                  "x-order": 4
                 }
               }
             }

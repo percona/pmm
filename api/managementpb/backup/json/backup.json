@@ -785,6 +785,17 @@
                   "type": "string",
                   "x-order": 1
                 },
+                "mode": {
+                  "description": "BackupMode sdfadfasd.",
+                  "type": "string",
+                  "default": "BACKUP_MODE_INVALID",
+                  "enum": [
+                    "BACKUP_MODE_INVALID",
+                    "SNAPSHOT",
+                    "INCREMENTAL"
+                  ],
+                  "x-order": 4
+                },
                 "name": {
                   "description": "If empty then name is auto-generated.",
                   "type": "string",

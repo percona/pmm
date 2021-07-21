@@ -17,6 +17,13 @@ enum RetryMode {
   MANUAL = 2;
 }
 
+// BackupMode specifies backup mode.
+enum BackupMode {
+  BACKUP_MODE_INVALID = 0;
+  SNAPSHOT = 1;
+  INCREMENTAL = 2;
+}
+
 message StartBackupRequest {
   // Service identifier.
   string service_id = 1 [
@@ -34,6 +41,8 @@ message StartBackupRequest {
   string name = 3;
   // Human-readable description.
   string description = 4;
+  // Backup mode.
+  BackupMode mode = 5;
 }
 
 message StartBackupResponse {

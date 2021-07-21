@@ -496,6 +496,11 @@ func (this *StartJobRequest_MongoDBBackup) Validate() error {
 	return nil
 }
 func (this *StartJobRequest_MongoDBRestoreBackup) Validate() error {
+	if this.PitrTimestamp != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PitrTimestamp); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("PitrTimestamp", err)
+		}
+	}
 	if oneOfNester, ok := this.GetLocationConfig().(*StartJobRequest_MongoDBRestoreBackup_S3Config); ok {
 		if oneOfNester.S3Config != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.S3Config); err != nil {
