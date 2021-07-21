@@ -1077,6 +1077,11 @@
                   "description": "If false, cached information may be returned.",
                   "type": "boolean",
                   "x-order": 0
+                },
+                "only_installed_version": {
+                  "description": "If true, only installed version will be in response.",
+                  "type": "boolean",
+                  "x-order": 1
                 }
               }
             }
