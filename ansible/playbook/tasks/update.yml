@@ -19,8 +19,6 @@
       - dbaas-controller
       - dbaas-tools
       - pmm2-client
-  roles:
-    - nginx
   pre_tasks:
     - name: detect /srv/pmm-distribution
       stat:
@@ -95,6 +93,12 @@
         name: "*"
         state: latest
         security: yes
+        exclude:
+          - nginx
+
+    - name: Install nginx
+      include_role:
+        name: nginx
 
     # Fix things that should be fixed before restarts.
 
