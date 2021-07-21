@@ -24521,6 +24521,84 @@
         }
       }
     },
+    "/v1/management/backup/Artifacts/Delete": {
+      "post": {
+        "tags": [
+          "Artifacts"
+        ],
+        "summary": "DeleteArtifact deletes specified artifact.",
+        "operationId": "DeleteArtifact",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "artifact_id": {
+                  "description": "Machine-readable artifact ID.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "remove_files": {
+                  "description": "Removes all the backup files associated with artifact if flag is set.",
+                  "type": "boolean",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/backup/Artifacts/List": {
       "post": {
         "tags": [
@@ -24606,7 +24684,9 @@
                           "BACKUP_STATUS_IN_PROGRESS",
                           "BACKUP_STATUS_PAUSED",
                           "BACKUP_STATUS_SUCCESS",
-                          "BACKUP_STATUS_ERROR"
+                          "BACKUP_STATUS_ERROR",
+                          "BACKUP_STATUS_DELETING",
+                          "BACKUP_STATUS_FAILED_TO_DELETE"
                         ],
                         "x-order": 8
                       },
