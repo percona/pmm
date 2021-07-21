@@ -2617,11 +2617,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "agent_password": {
-                  "description": "Custom password for pmm endpoint /metrics.",
-                  "type": "string",
-                  "x-order": 9
-                },
                 "aws_access_key": {
                   "description": "AWS Access Key.",
                   "type": "string",

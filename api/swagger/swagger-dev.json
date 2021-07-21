@@ -5783,11 +5783,6 @@
                   "description": "Enables push metrics mode for exporter.",
                   "type": "boolean",
                   "x-order": 8
-                },
-                "agent_password": {
-                  "description": "Custom password for pmm endpoint /metrics.",
-                  "type": "string",
-                  "x-order": 9
                 }
               }
             }
