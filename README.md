@@ -72,7 +72,7 @@ and all API definitions (including technical preview, development and testing AP
 * [Percona-Lab/jenkins-pipelines](https://github.com/Percona-Lab/jenkins-pipelines)
 
 ### QA, Testing and Documentation
-
+* [percona/pmm-ui-tests](https://github.com/percona/pmm-ui-tests)
 * [percona/pmm-qa](https://github.com/percona/pmm-qa)
 * [Percona-Lab/pmm-api-tests](https://github.com/Percona-Lab/pmm-api-tests)
 * [percona/pmm-doc](https://github.com/percona/pmm-doc)
