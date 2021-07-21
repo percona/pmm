@@ -242,11 +242,34 @@ func (s *Server) Readiness(ctx context.Context, req *serverpb.ReadinessRequest) 
 	return &serverpb.ReadinessResponse{}, nil
 }
 
+func (s *Server) onlyInstalledVersionResponse(ctx context.Context) *serverpb.CheckUpdatesResponse {
+	v := s.supervisord.InstalledPMMVersion(ctx)
+	r := &serverpb.CheckUpdatesResponse{
+		Installed: &serverpb.VersionInfo{
+			Version:     v.Version,
+			FullVersion: v.FullVersion,
+		},
+	}
+
+	if v.BuildTime != nil {
+		t := v.BuildTime.UTC().Truncate(24 * time.Hour) // return only date
+		r.Installed.Timestamp = timestamppb.New(t)
+	}
+
+	r.LastCheck = timestamppb.New(time.Now())
+
+	return r
+}
+
 // CheckUpdates checks PMM Server updates availability.
 func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesRequest) (*serverpb.CheckUpdatesResponse, error) {
 	s.envRW.RLock()
 	updatesDisabled := s.envSettings.DisableUpdates
 	s.envRW.RUnlock()
+
+	if req.OnlyInstalledVersion {
+		return s.onlyInstalledVersionResponse(ctx), nil
+	}
 
 	if req.Force {
 		if err := s.supervisord.ForceCheckUpdates(ctx); err != nil {
