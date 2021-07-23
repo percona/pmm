@@ -362,7 +362,7 @@ type AddRDSRequest struct {
 	MetricsMode MetricsMode `protobuf:"varint,27,opt,name=metrics_mode,json=metricsMode,proto3,enum=management.MetricsMode" json:"metrics_mode,omitempty"`
 	// If true, add qan-pgstatements
 	QanPostgresqlPgstatements bool `protobuf:"varint,28,opt,name=qan_postgresql_pgstatements,json=qanPostgresqlPgstatements,proto3" json:"qan_postgresql_pgstatements,omitempty"`
-	// Custom password for pmm endpoint /metrics.
+	// Custom password for exporter endpoint /metrics.
 	AgentPassword string `protobuf:"bytes,29,opt,name=agent_password,json=agentPassword,proto3" json:"agent_password,omitempty"`
 }
 

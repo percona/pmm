@@ -3600,7 +3600,7 @@
                   "x-order": 12
                 },
                 "agent_password": {
-                  "description": "Custom password for pmm endpoint /metrics.",
+                  "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 13
                 }
@@ -3836,7 +3836,7 @@
                   "x-order": 13
                 },
                 "agent_password": {
-                  "description": "Custom password for pmm endpoint /metrics.",
+                  "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 14
                 }
@@ -4356,7 +4356,7 @@
                   "x-order": 9
                 },
                 "agent_password": {
-                  "description": "Custom password for pmm endpoint /metrics.",
+                  "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 10
                 }
@@ -4571,7 +4571,7 @@
                   "x-order": 9
                 },
                 "agent_password": {
-                  "description": "Custom password for pmm endpoint /metrics.",
+                  "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 10
                 }
@@ -20552,7 +20552,7 @@
                   "x-order": 22
                 },
                 "agent_password": {
-                  "description": "Custom password for pmm endpoint /metrics.",
+                  "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 23
                 }
@@ -21054,7 +21054,7 @@
                   "x-order": 26
                 },
                 "agent_password": {
-                  "description": "Custom password for pmm endpoint /metrics.",
+                  "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 27
                 }
@@ -21981,7 +21981,7 @@
                   "x-order": 21
                 },
                 "agent_password": {
-                  "description": "Custom password for pmm endpoint /metrics.",
+                  "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 22
                 }
@@ -22511,7 +22511,7 @@
                   "x-order": 18
                 },
                 "agent_password": {
-                  "description": "Custom password for pmm endpoint /metrics.",
+                  "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 19
                 }
@@ -22891,7 +22891,7 @@
                   "x-order": 27
                 },
                 "agent_password": {
-                  "description": "Custom password for pmm endpoint /metrics.",
+                  "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 28
                 }

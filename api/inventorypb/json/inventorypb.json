@@ -410,7 +410,7 @@
               "type": "object",
               "properties": {
                 "agent_password": {
-                  "description": "Custom password for pmm endpoint /metrics.",
+                  "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 13
                 },
@@ -640,7 +640,7 @@
               "type": "object",
               "properties": {
                 "agent_password": {
-                  "description": "Custom password for pmm endpoint /metrics.",
+                  "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 14
                 },
@@ -1181,7 +1181,7 @@
               "type": "object",
               "properties": {
                 "agent_password": {
-                  "description": "Custom password for pmm endpoint /metrics.",
+                  "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 10
                 },
@@ -1396,7 +1396,7 @@
               "type": "object",
               "properties": {
                 "agent_password": {
-                  "description": "Custom password for pmm endpoint /metrics.",
+                  "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 10
                 },

@@ -103,7 +103,7 @@ type AddMySQLRequest struct {
 	MetricsMode MetricsMode `protobuf:"varint,23,opt,name=metrics_mode,json=metricsMode,proto3,enum=management.MetricsMode" json:"metrics_mode,omitempty"`
 	// List of collector names to disable in this exporter.
 	DisableCollectors []string `protobuf:"bytes,24,rep,name=disable_collectors,json=disableCollectors,proto3" json:"disable_collectors,omitempty"`
-	// Custom password for pmm endpoint /metrics.
+	// Custom password for exporter endpoint /metrics.
 	AgentPassword string `protobuf:"bytes,28,opt,name=agent_password,json=agentPassword,proto3" json:"agent_password,omitempty"`
 }
 

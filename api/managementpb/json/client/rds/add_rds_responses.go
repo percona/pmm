@@ -213,7 +213,7 @@ type AddRDSBody struct {
 	// If true, add qan-pgstatements
 	QANPostgresqlPgstatements bool `json:"qan_postgresql_pgstatements,omitempty"`
 
-	// Custom password for pmm endpoint /metrics.
+	// Custom password for exporter endpoint /metrics.
 	AgentPassword string `json:"agent_password,omitempty"`
 }
 

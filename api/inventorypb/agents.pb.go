@@ -3116,7 +3116,7 @@ type AddMySQLdExporterRequest struct {
 	PushMetrics bool `protobuf:"varint,10,opt,name=push_metrics,json=pushMetrics,proto3" json:"push_metrics,omitempty"`
 	// List of collector names to disable in this exporter.
 	DisableCollectors []string `protobuf:"bytes,11,rep,name=disable_collectors,json=disableCollectors,proto3" json:"disable_collectors,omitempty"`
-	// Custom password for pmm endpoint /metrics.
+	// Custom password for exporter endpoint /metrics.
 	AgentPassword string `protobuf:"bytes,15,opt,name=agent_password,json=agentPassword,proto3" json:"agent_password,omitempty"`
 }
 
@@ -3446,7 +3446,7 @@ type AddMongoDBExporterRequest struct {
 	PushMetrics bool `protobuf:"varint,9,opt,name=push_metrics,json=pushMetrics,proto3" json:"push_metrics,omitempty"`
 	// List of collector names to disable in this exporter.
 	DisableCollectors []string `protobuf:"bytes,13,rep,name=disable_collectors,json=disableCollectors,proto3" json:"disable_collectors,omitempty"`
-	// Custom password for pmm endpoint /metrics.
+	// Custom password for exporter endpoint /metrics.
 	AgentPassword string `protobuf:"bytes,14,opt,name=agent_password,json=agentPassword,proto3" json:"agent_password,omitempty"`
 }
 
@@ -3754,7 +3754,7 @@ type AddPostgresExporterRequest struct {
 	PushMetrics bool `protobuf:"varint,9,opt,name=push_metrics,json=pushMetrics,proto3" json:"push_metrics,omitempty"`
 	// List of collector names to disable in this exporter.
 	DisableCollectors []string `protobuf:"bytes,10,rep,name=disable_collectors,json=disableCollectors,proto3" json:"disable_collectors,omitempty"`
-	// Custom password for pmm endpoint /metrics.
+	// Custom password for exporter endpoint /metrics.
 	AgentPassword string `protobuf:"bytes,11,opt,name=agent_password,json=agentPassword,proto3" json:"agent_password,omitempty"`
 }
 
@@ -4041,7 +4041,7 @@ type AddProxySQLExporterRequest struct {
 	PushMetrics bool `protobuf:"varint,9,opt,name=push_metrics,json=pushMetrics,proto3" json:"push_metrics,omitempty"`
 	// List of collector names to disable in this exporter.
 	DisableCollectors []string `protobuf:"bytes,10,rep,name=disable_collectors,json=disableCollectors,proto3" json:"disable_collectors,omitempty"`
-	// Custom password for pmm endpoint /metrics.
+	// Custom password for exporter endpoint /metrics.
 	AgentPassword string `protobuf:"bytes,11,opt,name=agent_password,json=agentPassword,proto3" json:"agent_password,omitempty"`
 }
 
