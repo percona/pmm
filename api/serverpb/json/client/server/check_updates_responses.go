@@ -125,6 +125,9 @@ type CheckUpdatesBody struct {
 
 	// If false, cached information may be returned.
 	Force bool `json:"force,omitempty"`
+
+	// If true, only installed version will be in response.
+	OnlyInstalledVersion bool `json:"only_installed_version,omitempty"`
 }
 
 // Validate validates this check updates body

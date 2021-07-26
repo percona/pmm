@@ -55,6 +55,8 @@ message ReadinessResponse {
 message CheckUpdatesRequest {
   // If false, cached information may be returned.
   bool force = 1;
+  // If true, only installed version will be in response.
+  bool only_installed_version = 2;
 }
 
 message CheckUpdatesResponse {

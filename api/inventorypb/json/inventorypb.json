@@ -409,6 +409,16 @@
             "schema": {
               "type": "object",
               "properties": {
+                "authentication_database": {
+                  "description": "Authentication database.",
+                  "type": "string",
+                  "x-order": 14
+                },
+                "authentication_mechanism": {
+                  "description": "Authentication mechanism.\nSee https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism\nfor details.",
+                  "type": "string",
+                  "x-order": 13
+                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
                   "type": "object",
@@ -1605,6 +1615,16 @@
             "schema": {
               "type": "object",
               "properties": {
+                "authentication_database": {
+                  "description": "Authentication database.",
+                  "type": "string",
+                  "x-order": 12
+                },
+                "authentication_mechanism": {
+                  "description": "Authentication mechanism.\nSee https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism\nfor details.",
+                  "type": "string",
+                  "x-order": 11
+                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
                   "type": "object",
