@@ -64,6 +64,8 @@ type dbaasClient interface {
 	InstallXtraDBOperator(ctx context.Context, in *controllerv1beta1.InstallXtraDBOperatorRequest, opts ...grpc.CallOption) (*controllerv1beta1.InstallXtraDBOperatorResponse, error)
 	// InstallPSMDBOperator installs kubernetes psmdb operator.
 	InstallPSMDBOperator(ctx context.Context, in *controllerv1beta1.InstallPSMDBOperatorRequest, opts ...grpc.CallOption) (*controllerv1beta1.InstallPSMDBOperatorResponse, error)
+	// StartMonitoring sets up victoria metrics operator to monitor kubernetes cluster.
+	StartMonitoring(ctx context.Context, in *controllerv1beta1.StartMonitoringRequest, opts ...grpc.CallOption) (*controllerv1beta1.StartMonitoringResponse, error)
 }
 
 type versionService interface {

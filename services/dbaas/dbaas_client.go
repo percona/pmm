@@ -231,3 +231,10 @@ func (c *Client) InstallPSMDBOperator(ctx context.Context, in *controllerv1beta1
 	defer c.connM.RUnlock()
 	return c.psmdbOperatorClient.InstallPSMDBOperator(ctx, in, opts...)
 }
+
+// StartMonitoring sets up victoria metrics operator to monitor kubernetes cluster.
+func (c *Client) StartMonitoring(ctx context.Context, in *controllerv1beta1.StartMonitoringRequest, opts ...grpc.CallOption) (*controllerv1beta1.StartMonitoringResponse, error) {
+	c.connM.RLock()
+	defer c.connM.RUnlock()
+	return c.kubernetesClient.StartMonitoring(ctx, in, opts...)
+}

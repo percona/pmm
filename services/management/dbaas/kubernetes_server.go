@@ -18,6 +18,8 @@ package dbaas
 
 import (
 	"context"
+	"fmt"
+	"math/rand"
 	"regexp"
 	"sync"
 
@@ -37,15 +39,21 @@ var (
 )
 
 type kubernetesServer struct {
-	l           *logrus.Entry
-	db          *reform.DB
-	dbaasClient dbaasClient
+	l             *logrus.Entry
+	db            *reform.DB
+	dbaasClient   dbaasClient
+	grafanaClient grafanaClient
 }
 
 // NewKubernetesServer creates Kubernetes Server.
-func NewKubernetesServer(db *reform.DB, dbaasClient dbaasClient) dbaasv1beta1.KubernetesServer {
+func NewKubernetesServer(db *reform.DB, dbaasClient dbaasClient, grafanaClient grafanaClient) dbaasv1beta1.KubernetesServer {
 	l := logrus.WithField("component", "kubernetes_server")
-	return &kubernetesServer{l: l, db: db, dbaasClient: dbaasClient}
+	return &kubernetesServer{
+		l:             l,
+		db:            db,
+		dbaasClient:   dbaasClient,
+		grafanaClient: grafanaClient,
+	}
 }
 
 // Enabled returns if service is enabled and can be used.
@@ -131,6 +139,40 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 	})
 	if err != nil {
 		return nil, err
+	}
+
+	settings, err := models.GetSettings(k.db.Querier)
+	if err != nil {
+		return nil, err
+	}
+	if settings.PMMPublicAddress != "" {
+		var apiKeyID int64
+		var apiKey string
+		apiKeyName := fmt.Sprintf("pmm-vmagent-%s-%d", req.KubernetesClusterName, rand.Int63())
+		apiKeyID, apiKey, err = k.grafanaClient.CreateAdminAPIKey(ctx, apiKeyName)
+		if err != nil {
+			return nil, err
+		}
+		pmmParams := &dbaascontrollerv1beta1.PMMParams{
+			PublicAddress: fmt.Sprintf("https://%s", settings.PMMPublicAddress),
+			Login:         "api_key",
+			Password:      apiKey,
+		}
+
+		_, err := k.dbaasClient.StartMonitoring(ctx, &dbaascontrollerv1beta1.StartMonitoringRequest{
+			KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
+				Kubeconfig: req.KubeAuth.Kubeconfig,
+			},
+			Pmm: pmmParams,
+		})
+		if err != nil {
+			e := k.grafanaClient.DeleteAPIKeyByID(ctx, apiKeyID)
+			if e != nil {
+				k.l.Warnf("couldn't delete created API Key %v: %s", apiKeyID, e)
+			}
+			k.l.Warnf("couldn't start monitoring of the kubernetes cluster: %s", err)
+			return nil, status.Errorf(codes.Internal, "couldn't start monitoring of the kubernetes cluster: %s", err.Error())
+		}
 	}
 
 	return &dbaasv1beta1.RegisterKubernetesClusterResponse{}, nil

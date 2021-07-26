@@ -47,6 +47,7 @@ func TestKubernetesServer(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		dbaasClient = new(mockDbaasClient)
+		grafanaClient := new(mockGrafanaClient)
 
 		teardown = func(t *testing.T) {
 			uuid.SetRand(nil)
@@ -54,7 +55,7 @@ func TestKubernetesServer(t *testing.T) {
 			require.NoError(t, sqlDB.Close())
 		}
 
-		ks = NewKubernetesServer(db, dbaasClient)
+		ks = NewKubernetesServer(db, dbaasClient, grafanaClient)
 
 		return
 	}
