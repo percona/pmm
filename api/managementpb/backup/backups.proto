@@ -41,8 +41,6 @@ message StartBackupRequest {
   string name = 3;
   // Human-readable description.
   string description = 4;
-  // Backup mode.
-  BackupMode mode = 5;
 }
 
 message StartBackupResponse {
@@ -106,6 +104,8 @@ message ScheduledBackup {
   google.protobuf.Timestamp last_run = 16;
   // Next run.
   google.protobuf.Timestamp next_run = 17;
+  // Backup mode.
+  BackupMode mode = 18;
 }
 
 message ScheduleBackupRequest {
@@ -139,6 +139,10 @@ message ScheduleBackupRequest {
   //uint32 retry_times = 8;
   // If scheduling is enabled.
   bool enabled = 9;
+  // Backup data model.
+  DataModel data_model = 10;
+  // Backup mode.
+  BackupMode mode = 11;
 }
 
 message ScheduleBackupResponse {

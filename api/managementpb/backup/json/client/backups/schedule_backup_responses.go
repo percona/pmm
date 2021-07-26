@@ -6,6 +6,7 @@ package backups
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -148,6 +149,14 @@ type ScheduleBackupBody struct {
 	// uint32 retry_times = 8;
 	// If scheduling is enabled.
 	Enabled bool `json:"enabled,omitempty"`
+
+	// DataModel is a model used for performing a backup.
+	// Enum: [DATA_MODEL_INVALID PHYSICAL LOGICAL]
+	DataModel *string `json:"data_model,omitempty"`
+
+	// BackupMode specifies backup mode.
+	// Enum: [BACKUP_MODE_INVALID SNAPSHOT INCREMENTAL]
+	Mode *string `json:"mode,omitempty"`
 }
 
 // Validate validates this schedule backup body
@@ -155,6 +164,14 @@ func (o *ScheduleBackupBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateStartTime(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateDataModel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -171,6 +188,98 @@ func (o *ScheduleBackupBody) validateStartTime(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("body"+"."+"start_time", "body", "date-time", o.StartTime.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var scheduleBackupBodyTypeDataModelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["DATA_MODEL_INVALID","PHYSICAL","LOGICAL"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		scheduleBackupBodyTypeDataModelPropEnum = append(scheduleBackupBodyTypeDataModelPropEnum, v)
+	}
+}
+
+const (
+
+	// ScheduleBackupBodyDataModelDATAMODELINVALID captures enum value "DATA_MODEL_INVALID"
+	ScheduleBackupBodyDataModelDATAMODELINVALID string = "DATA_MODEL_INVALID"
+
+	// ScheduleBackupBodyDataModelPHYSICAL captures enum value "PHYSICAL"
+	ScheduleBackupBodyDataModelPHYSICAL string = "PHYSICAL"
+
+	// ScheduleBackupBodyDataModelLOGICAL captures enum value "LOGICAL"
+	ScheduleBackupBodyDataModelLOGICAL string = "LOGICAL"
+)
+
+// prop value enum
+func (o *ScheduleBackupBody) validateDataModelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, scheduleBackupBodyTypeDataModelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ScheduleBackupBody) validateDataModel(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.DataModel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateDataModelEnum("body"+"."+"data_model", "body", *o.DataModel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var scheduleBackupBodyTypeModePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["BACKUP_MODE_INVALID","SNAPSHOT","INCREMENTAL"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		scheduleBackupBodyTypeModePropEnum = append(scheduleBackupBodyTypeModePropEnum, v)
+	}
+}
+
+const (
+
+	// ScheduleBackupBodyModeBACKUPMODEINVALID captures enum value "BACKUP_MODE_INVALID"
+	ScheduleBackupBodyModeBACKUPMODEINVALID string = "BACKUP_MODE_INVALID"
+
+	// ScheduleBackupBodyModeSNAPSHOT captures enum value "SNAPSHOT"
+	ScheduleBackupBodyModeSNAPSHOT string = "SNAPSHOT"
+
+	// ScheduleBackupBodyModeINCREMENTAL captures enum value "INCREMENTAL"
+	ScheduleBackupBodyModeINCREMENTAL string = "INCREMENTAL"
+)
+
+// prop value enum
+func (o *ScheduleBackupBody) validateModeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, scheduleBackupBodyTypeModePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ScheduleBackupBody) validateMode(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Mode) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateModeEnum("body"+"."+"mode", "body", *o.Mode); err != nil {
 		return err
 	}
 

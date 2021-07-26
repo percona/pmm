@@ -6,7 +6,6 @@ package backups
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -15,7 +14,6 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
 // StartBackupReader is a Reader for the StartBackup structure.
@@ -135,69 +133,10 @@ type StartBackupBody struct {
 
 	// Human-readable description.
 	Description string `json:"description,omitempty"`
-
-	// BackupMode sdfadfasd.
-	// Enum: [BACKUP_MODE_INVALID SNAPSHOT INCREMENTAL]
-	Mode *string `json:"mode,omitempty"`
 }
 
 // Validate validates this start backup body
 func (o *StartBackupBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateMode(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-var startBackupBodyTypeModePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["BACKUP_MODE_INVALID","SNAPSHOT","INCREMENTAL"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		startBackupBodyTypeModePropEnum = append(startBackupBodyTypeModePropEnum, v)
-	}
-}
-
-const (
-
-	// StartBackupBodyModeBACKUPMODEINVALID captures enum value "BACKUP_MODE_INVALID"
-	StartBackupBodyModeBACKUPMODEINVALID string = "BACKUP_MODE_INVALID"
-
-	// StartBackupBodyModeSNAPSHOT captures enum value "SNAPSHOT"
-	StartBackupBodyModeSNAPSHOT string = "SNAPSHOT"
-
-	// StartBackupBodyModeINCREMENTAL captures enum value "INCREMENTAL"
-	StartBackupBodyModeINCREMENTAL string = "INCREMENTAL"
-)
-
-// prop value enum
-func (o *StartBackupBody) validateModeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, startBackupBodyTypeModePropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *StartBackupBody) validateMode(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Mode) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateModeEnum("body"+"."+"mode", "body", *o.Mode); err != nil {
-		return err
-	}
-
 	return nil
 }
 
