@@ -206,6 +206,9 @@ message UpdateXtraDBClusterRequest {
     message PXC {
       // Requested compute resources.
       ComputeResources compute_resources = 1;
+      // Image to use. If it's the same image but with different version tag, upgrade of database cluster to version
+      // in given tag is triggered. If entirely different image is given, error is returned.
+      string image = 2;
     }
     // ProxySQL container parameters.
     message ProxySQL {
@@ -229,8 +232,6 @@ message UpdateXtraDBClusterRequest {
     bool resume = 5;
     // HAProxy container parameters.
     HAProxy haproxy = 6;
-    // XtraDB Cluster version to trigger upgrade to.
-    string db_version = 7;
   }
   // Cluster parameters.
   UpdateXtraDBClusterParams params = 3;

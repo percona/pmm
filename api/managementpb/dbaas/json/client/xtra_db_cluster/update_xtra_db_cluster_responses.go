@@ -269,9 +269,6 @@ type UpdateXtraDBClusterParamsBodyParams struct {
 	// Resume cluster `pause: false`.
 	Resume bool `json:"resume,omitempty"`
 
-	// XtraDB Cluster version to trigger upgrade to.
-	DBVersion string `json:"db_version,omitempty"`
-
 	// haproxy
 	Haproxy *UpdateXtraDBClusterParamsBodyParamsHaproxy `json:"haproxy,omitempty"`
 
@@ -568,6 +565,10 @@ func (o *UpdateXtraDBClusterParamsBodyParamsProxysqlComputeResources) UnmarshalB
 swagger:model UpdateXtraDBClusterParamsBodyParamsPxc
 */
 type UpdateXtraDBClusterParamsBodyParamsPxc struct {
+
+	// Image to use. If it's the same image but with different version tag, upgrade of database cluster to version
+	// in given tag is triggered. If entirely different image is given, error is returned.
+	Image string `json:"image,omitempty"`
 
 	// compute resources
 	ComputeResources *UpdateXtraDBClusterParamsBodyParamsPxcComputeResources `json:"compute_resources,omitempty"`

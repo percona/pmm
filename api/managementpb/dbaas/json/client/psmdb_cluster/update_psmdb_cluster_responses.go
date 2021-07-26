@@ -269,8 +269,9 @@ type UpdatePSMDBClusterParamsBodyParams struct {
 	// Resume cluster `pause: false`.
 	Resume bool `json:"resume,omitempty"`
 
-	// PSMDB Cluster version to trigger upgrade to.
-	DBVersion string `json:"db_version,omitempty"`
+	// PSMDB image to use. If it's the same image but with different version tag, upgrade of database cluster to version
+	// in given tag is triggered. If entirely different image is given, error is returned.
+	Image string `json:"image,omitempty"`
 
 	// replicaset
 	Replicaset *UpdatePSMDBClusterParamsBodyParamsReplicaset `json:"replicaset,omitempty"`

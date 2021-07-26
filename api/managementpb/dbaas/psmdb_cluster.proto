@@ -175,8 +175,9 @@ message UpdatePSMDBClusterRequest {
     bool suspend = 3;
     // Resume cluster `pause: false`.
     bool resume = 4;
-    // PSMDB Cluster version to trigger upgrade to.
-    string db_version = 5;
+    // PSMDB image to use. If it's the same image but with different version tag, upgrade of database cluster to version
+    // in given tag is triggered. If entirely different image is given, error is returned.
+    string image = 5;
   }
   // Cluster parameters.
   UpdatePSMDBClusterParams params = 3;

@@ -18201,8 +18201,8 @@
                       "type": "boolean",
                       "x-order": 3
                     },
-                    "db_version": {
-                      "description": "PSMDB Cluster version to trigger upgrade to.",
+                    "image": {
+                      "description": "PSMDB image to use. If it's the same image but with different version tag, upgrade of database cluster to version\nin given tag is triggered. If entirely different image is given, error is returned.",
                       "type": "string",
                       "x-order": 4
                     }
@@ -19196,6 +19196,11 @@
                             }
                           },
                           "x-order": 0
+                        },
+                        "image": {
+                          "description": "Image to use. If it's the same image but with different version tag, upgrade of database cluster to version\nin given tag is triggered. If entirely different image is given, error is returned.",
+                          "type": "string",
+                          "x-order": 1
                         }
                       },
                       "x-order": 1
@@ -19261,11 +19266,6 @@
                         }
                       },
                       "x-order": 5
-                    },
-                    "db_version": {
-                      "description": "XtraDB Cluster version to trigger upgrade to.",
-                      "type": "string",
-                      "x-order": 6
                     }
                   },
                   "x-order": 2
