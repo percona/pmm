@@ -39,6 +39,7 @@ env:
 
   matrix:
     - PMM_SERVER_IMAGE=percona/pmm-server:2.0.0 # oldest production version
+    - PMM_SERVER_IMAGE=percona/pmm-server:2.16.0 # version with enabled expirimental repo
     - PMM_SERVER_IMAGE=percona/pmm-server:2 # latest production version
     - PMM_SERVER_IMAGE=perconalab/pmm-server:dev-latest # latest development version
 

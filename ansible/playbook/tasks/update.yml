@@ -76,6 +76,23 @@
     - name: Check reread results
       debug: var=reread_result.stdout_lines
 
+
+    # see https://jira.percona.com/browse/PMM-8492 for details about a issue
+    - name: Delete experimental repo file in 2.16 version
+      file:
+        path: "/etc/yum.repos.d/percona-original-experimental.repo"
+        state: absent
+      register: experimetal_repo_existed
+
+    - name: Cleanup yum metadata
+      command: yum clean metadata
+      register: yum_clean_result
+      changed_when: "'Cleaning repos' in yum_clean_result.stdout"
+      when: experimetal_repo_existed.changed
+      tags:
+        - skip_ansible_lint # '503 Tasks that run when changed should likely be handlers'.
+                            # The handler looks bad in this case
+
     # Split download and update to produce a bit more of progress output.
     - name: Download pmm2 packages
       yum:
@@ -87,6 +104,21 @@
       yum:
         name: "{{ pmm_packages }}"
         state: latest
+
+    # TODO START: It seems we'll be able to remove it after 2.21 release (We'll need test it). see https://jira.percona.com/browse/PMM-8492
+    - name: Reinstall pmm2-client after removing experimental repo
+      when: experimetal_repo_existed.changed
+      block:
+      - name: Remove pmm2-client
+        yum:
+          name: pmm2-client
+          state: absent
+
+      - name: install pmm2-client again
+        yum:
+          name: pmm2-client
+          state: latest
+    # TODO END
 
     - name: Update system packages
       yum:
