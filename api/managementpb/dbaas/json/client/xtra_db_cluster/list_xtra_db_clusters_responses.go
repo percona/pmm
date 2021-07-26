@@ -142,6 +142,12 @@ type ClustersItems0 struct {
 	// DB cluster accessible outside of K8s cluster.
 	Exposed bool `json:"exposed,omitempty"`
 
+	// Installed XtraDB version.
+	InstalledVersion string `json:"installed_version,omitempty"`
+
+	// Available version is a version of database user can update to. If it's empty, no update is available.
+	AvalableVersion string `json:"avalable_version,omitempty"`
+
 	// operation
 	Operation *ClustersItems0Operation `json:"operation,omitempty"`
 

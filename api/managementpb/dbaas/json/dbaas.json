@@ -2481,10 +2481,20 @@
                     "description": "Cluster represents PSMDB cluster information.\nTODO Do not use inner messages in all public APIs (for consistency).",
                     "type": "object",
                     "properties": {
+                      "avalable_version": {
+                        "description": "Available version is a version of database user can update to. If it's empty, no update is available.",
+                        "type": "string",
+                        "x-order": 6
+                      },
                       "exposed": {
                         "description": "DB cluster accessible outside of K8s cluster.",
                         "type": "boolean",
                         "x-order": 4
+                      },
+                      "installed_version": {
+                        "description": "Installed PSMDB version.",
+                        "type": "string",
+                        "x-order": 5
                       },
                       "name": {
                         "description": "Cluster name.",
@@ -3527,10 +3537,20 @@
                     "description": "Cluster represents XtraDB cluster information.\nTODO Do not use inner messages in all public APIs (for consistency).",
                     "type": "object",
                     "properties": {
+                      "avalable_version": {
+                        "description": "Available version is a version of database user can update to. If it's empty, no update is available.",
+                        "type": "string",
+                        "x-order": 6
+                      },
                       "exposed": {
                         "description": "DB cluster accessible outside of K8s cluster.",
                         "type": "boolean",
                         "x-order": 4
+                      },
+                      "installed_version": {
+                        "description": "Installed XtraDB version.",
+                        "type": "string",
+                        "x-order": 5
                       },
                       "name": {
                         "description": "Cluster name.",

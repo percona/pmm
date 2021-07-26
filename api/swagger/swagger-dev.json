@@ -18509,6 +18509,16 @@
                         "description": "DB cluster accessible outside of K8s cluster.",
                         "type": "boolean",
                         "x-order": 4
+                      },
+                      "installed_version": {
+                        "description": "Installed PSMDB version.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "avalable_version": {
+                        "description": "Available version is a version of database user can update to. If it's empty, no update is available.",
+                        "type": "string",
+                        "x-order": 6
                       }
                     }
                   },
@@ -19623,6 +19633,16 @@
                         "description": "DB cluster accessible outside of K8s cluster.",
                         "type": "boolean",
                         "x-order": 4
+                      },
+                      "installed_version": {
+                        "description": "Installed XtraDB version.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "avalable_version": {
+                        "description": "Available version is a version of database user can update to. If it's empty, no update is available.",
+                        "type": "string",
+                        "x-order": 6
                       }
                     }
                   },
