@@ -111,7 +111,7 @@ You are creating a username and password that will be used for two purposes:
 
 1. authentication as a user to PMM - the credentials to log in to PMM.
 
-2. authentication between PMM Server and PMM Clients - you will re-use these credentials when configuring PMM Client for the first time on a server, for example:
+2. authentication between PMM Server and PMM Clients - you will re-use these credentials on another host when configuring PMM Client for the first time on a server, for example (DO NOT RUN ON THIS PMM SERVER YOU JUST CREATED):
 
     ```sh
     pmm-admin config --server-insecure-tls --server-url=https://admin:admin@<IP Address>:443
