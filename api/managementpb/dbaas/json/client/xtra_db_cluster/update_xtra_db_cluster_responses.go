@@ -269,6 +269,9 @@ type UpdateXtraDBClusterParamsBodyParams struct {
 	// Resume cluster `pause: false`.
 	Resume bool `json:"resume,omitempty"`
 
+	// XtraDB Cluster version to trigger upgrade to.
+	DBVersion string `json:"db_version,omitempty"`
+
 	// haproxy
 	Haproxy *UpdateXtraDBClusterParamsBodyParamsHaproxy `json:"haproxy,omitempty"`
 

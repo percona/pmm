@@ -225,6 +225,8 @@ message UpdateXtraDBClusterRequest {
     bool resume = 5;
     // HAProxy container parameters.
     HAProxy haproxy = 6;
+    // XtraDB Cluster version to trigger upgrade to.
+    string db_version = 7;
   }
   // Cluster parameters.
   UpdateXtraDBClusterParams params = 3;

@@ -2234,6 +2234,11 @@
                       "format": "int32",
                       "x-order": 0
                     },
+                    "db_version": {
+                      "description": "PSMDB Cluster version to trigger upgrade to.",
+                      "type": "string",
+                      "x-order": 4
+                    },
                     "replicaset": {
                       "description": "ReplicaSet container parameters.",
                       "type": "object",
@@ -3227,6 +3232,11 @@
                       "type": "integer",
                       "format": "int32",
                       "x-order": 0
+                    },
+                    "db_version": {
+                      "description": "XtraDB Cluster version to trigger upgrade to.",
+                      "type": "string",
+                      "x-order": 6
                     },
                     "haproxy": {
                       "description": "HAProxy container parameters.",
