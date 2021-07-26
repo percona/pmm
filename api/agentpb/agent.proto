@@ -288,6 +288,8 @@ message StartActionRequest {
     // DSN for the service. May contain connection (dial) timeout.
     // May contain placeholders for file paths in DSN.
     string dsn = 1;
+    // Contains files and their contents which can be used in DSN.
+    TextFiles text_files = 2;
   }
   string action_id = 1;
   oneof params {

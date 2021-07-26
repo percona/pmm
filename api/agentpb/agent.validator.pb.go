@@ -374,6 +374,11 @@ func (this *StartActionRequest_MongoDBQueryGetCmdLineOptsParams) Validate() erro
 	return nil
 }
 func (this *StartActionRequest_PBMGetAvailablePITRTimestamps) Validate() error {
+	if this.TextFiles != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.TextFiles); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("TextFiles", err)
+		}
+	}
 	return nil
 }
 func (this *StartActionResponse) Validate() error {
