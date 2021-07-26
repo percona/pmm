@@ -283,6 +283,12 @@ message StartActionRequest {
     // Contains files and their contents which can be used in DSN.
     TextFiles text_files = 2;
   }
+  // PBMGetAvailablePITRTimestamps describes pbm get available point-in-time recovery timestamps action parameters.
+  message PBMGetAvailablePITRTimestamps {
+    // DSN for the service. May contain connection (dial) timeout.
+    // May contain placeholders for file paths in DSN.
+    string dsn = 1;
+  }
   string action_id = 1;
   oneof params {
     MySQLExplainParams mysql_explain_params = 2;
@@ -303,6 +309,7 @@ message StartActionRequest {
     MongoDBQueryGetParameterParams mongodb_query_getparameter_params = 54;
     MongoDBQueryBuildInfoParams mongodb_query_buildinfo_params = 55;
     MongoDBQueryGetCmdLineOptsParams mongodb_query_getcmdlineopts_params = 56;
+    PBMGetAvailablePITRTimestamps pbm_get_available_pitr_timestamps = 57;
   }
   // Timeout for the whole action. If zero or absent, pmm-agent will pick one itself.
   google.protobuf.Duration timeout = 9;

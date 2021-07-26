@@ -255,6 +255,13 @@ func (this *StartActionRequest) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetParams().(*StartActionRequest_PbmGetAvailablePitrTimestamps); ok {
+		if oneOfNester.PbmGetAvailablePitrTimestamps != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.PbmGetAvailablePitrTimestamps); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("PbmGetAvailablePitrTimestamps", err)
+			}
+		}
+	}
 	if this.Timeout != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Timeout); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Timeout", err)
@@ -364,6 +371,9 @@ func (this *StartActionRequest_MongoDBQueryGetCmdLineOptsParams) Validate() erro
 			return github_com_mwitkow_go_proto_validators.FieldError("TextFiles", err)
 		}
 	}
+	return nil
+}
+func (this *StartActionRequest_PBMGetAvailablePITRTimestamps) Validate() error {
 	return nil
 }
 func (this *StartActionResponse) Validate() error {
