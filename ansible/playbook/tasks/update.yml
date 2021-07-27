@@ -105,21 +105,6 @@
         name: "{{ pmm_packages }}"
         state: latest
 
-    # TODO START: It seems we'll be able to remove it after 2.21 release (We'll need test it). see https://jira.percona.com/browse/PMM-8492
-    - name: Reinstall pmm2-client after removing experimental repo
-      when: experimetal_repo_existed.changed
-      block:
-      - name: Remove pmm2-client
-        yum:
-          name: pmm2-client
-          state: absent
-
-      - name: install pmm2-client again
-        yum:
-          name: pmm2-client
-          state: latest
-    # TODO END
-
     - name: Update system packages
       yum:
         name: "*"
