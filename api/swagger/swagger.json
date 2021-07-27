@@ -2610,12 +2610,6 @@
                   },
                   "x-order": 9
                 },
-<<<<<<< HEAD
-                "agent_password": {
-                  "description": "Custom password for exporter endpoint /metrics.",
-                  "type": "string",
-                  "x-order": 10
-=======
                 "tls_ca": {
                   "description": "TLS CA certificate.",
                   "type": "string",
@@ -2630,7 +2624,11 @@
                   "description": "TLS Certificate Key.",
                   "type": "string",
                   "x-order": 12
->>>>>>> PMM-2.0
+                },
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 13
                 }
               }
             }
@@ -16585,12 +16583,6 @@
                   },
                   "x-order": 21
                 },
-<<<<<<< HEAD
-                "agent_password": {
-                  "description": "Custom password for exporter endpoint /metrics.",
-                  "type": "string",
-                  "x-order": 22
-=======
                 "tls_ca": {
                   "description": "TLS CA certificate.",
                   "type": "string",
@@ -16605,7 +16597,11 @@
                   "description": "TLS Certificate Key.",
                   "type": "string",
                   "x-order": 24
->>>>>>> PMM-2.0
+                },
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 25
                 }
               }
             }

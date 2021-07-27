@@ -154,10 +154,6 @@ type AddPostgresExporterBody struct {
 	// List of collector names to disable in this exporter.
 	DisableCollectors []string `json:"disable_collectors"`
 
-<<<<<<< HEAD
-	// Custom password for exporter endpoint /metrics.
-	AgentPassword string `json:"agent_password,omitempty"`
-=======
 	// TLS CA certificate.
 	TLSCa string `json:"tls_ca,omitempty"`
 
@@ -166,7 +162,9 @@ type AddPostgresExporterBody struct {
 
 	// TLS Certificate Key.
 	TLSKey string `json:"tls_key,omitempty"`
->>>>>>> PMM-2.0
+
+	// Custom password for exporter endpoint /metrics.
+	AgentPassword string `json:"agent_password,omitempty"`
 }
 
 // Validate validates this add postgres exporter body

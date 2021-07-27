@@ -85,7 +85,7 @@ message AddPostgreSQLRequest {
   // TLS Certificate Key.
   string tls_key = 25;
   // Custom password for exporter endpoint /metrics.
-  string agent_password = 23;
+  string agent_password = 26;
 }
 
 message AddPostgreSQLResponse {

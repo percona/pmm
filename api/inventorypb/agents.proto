@@ -773,7 +773,7 @@ message AddPostgresExporterRequest {
   // TLS Certificate Key.
   string tls_key = 13;
   // Custom password for exporter endpoint /metrics.
-  string agent_password = 11;
+  string agent_password = 14;
 }
 
 message AddPostgresExporterResponse {
