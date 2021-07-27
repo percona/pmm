@@ -262,6 +262,13 @@ func (this *StartActionRequest) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetParams().(*StartActionRequest_PbmSwitchPitrParams); ok {
+		if oneOfNester.PbmSwitchPitrParams != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.PbmSwitchPitrParams); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("PbmSwitchPitrParams", err)
+			}
+		}
+	}
 	if this.Timeout != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Timeout); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Timeout", err)
@@ -374,6 +381,14 @@ func (this *StartActionRequest_MongoDBQueryGetCmdLineOptsParams) Validate() erro
 	return nil
 }
 func (this *StartActionRequest_PBMStatusParams) Validate() error {
+	if this.TextFiles != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.TextFiles); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("TextFiles", err)
+		}
+	}
+	return nil
+}
+func (this *StartActionRequest_PBMSwitchPITRParams) Validate() error {
 	if this.TextFiles != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.TextFiles); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("TextFiles", err)

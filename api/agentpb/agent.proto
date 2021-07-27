@@ -291,6 +291,16 @@ message StartActionRequest {
     // Contains files and their contents which can be used in DSN.
     TextFiles text_files = 2;
   }
+  // PBMSwitchPITRParams describes parameters for pbm PITR switch action.
+  message PBMSwitchPITRParams {
+    // DSN for the service. May contain connection (dial) timeout.
+    // May contain placeholders for file paths in DSN.
+    string dsn = 1;
+    // Contains files and their contents which can be used in DSN.
+    TextFiles text_files = 2;
+    // Specifies if PITR should be enabled or disabled.
+    bool enabled = 3;
+  }
   string action_id = 1;
   oneof params {
     MySQLExplainParams mysql_explain_params = 2;
@@ -312,6 +322,7 @@ message StartActionRequest {
     MongoDBQueryBuildInfoParams mongodb_query_buildinfo_params = 55;
     MongoDBQueryGetCmdLineOptsParams mongodb_query_getcmdlineopts_params = 56;
     PBMStatusParams pbm_status_params = 57;
+    PBMSwitchPITRParams pbm_switch_pitr_params = 58;
   }
   // Timeout for the whole action. If zero or absent, pmm-agent will pick one itself.
   google.protobuf.Duration timeout = 9;
