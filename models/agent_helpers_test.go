@@ -115,6 +115,22 @@ func TestAgentHelpers(t *testing.T) {
 				PushMetrics:  false,
 				ListenPort:   pointer.ToUint16(8200),
 			},
+			&models.Agent{
+				AgentID:       "A7",
+				AgentType:     models.PostgresExporterType,
+				PMMAgentID:    pointer.ToString("A4"),
+				RunsOnNodeID:  nil,
+				NodeID:        pointer.ToString("N1"),
+				PushMetrics:   false,
+				ListenPort:    pointer.ToUint16(8200),
+				TLS:           true,
+				TLSSkipVerify: true,
+				PostgreSQLOptions: &models.PostgreSQLOptions{
+					SSLCa:   "ssl_ca",
+					SSLCert: "ssl_cert",
+					SSLKey:  "ssl_key",
+				},
+			},
 		} {
 			require.NoError(t, q.Insert(str))
 		}
@@ -131,16 +147,35 @@ func TestAgentHelpers(t *testing.T) {
 
 		agents, err := models.FindAgents(q, models.AgentFilters{NodeID: "N1"})
 		require.NoError(t, err)
-		expected := []*models.Agent{{
-			AgentID:      "A3",
-			AgentType:    models.NodeExporterType,
-			PMMAgentID:   pointer.ToStringOrNil("A1"),
-			RunsOnNodeID: nil,
-			CreatedAt:    now,
-			UpdatedAt:    now,
-			NodeID:       pointer.ToString("N1"),
-			Status:       models.AgentStatusUnknown,
-		}}
+		expected := []*models.Agent{
+			{
+				AgentID:      "A3",
+				AgentType:    models.NodeExporterType,
+				PMMAgentID:   pointer.ToStringOrNil("A1"),
+				RunsOnNodeID: nil,
+				CreatedAt:    now,
+				UpdatedAt:    now,
+				NodeID:       pointer.ToString("N1"),
+				Status:       models.AgentStatusUnknown,
+			},
+			{
+				AgentID:       "A7",
+				AgentType:     "postgres_exporter",
+				NodeID:        pointer.ToStringOrNil("N1"),
+				PMMAgentID:    pointer.ToStringOrNil("A4"),
+				CreatedAt:     now,
+				UpdatedAt:     now,
+				Status:        models.AgentStatusUnknown,
+				ListenPort:    pointer.ToUint16OrNil(8200),
+				TLS:           true,
+				TLSSkipVerify: true,
+				PostgreSQLOptions: &models.PostgreSQLOptions{
+					SSLCa:   "ssl_ca",
+					SSLCert: "ssl_cert",
+					SSLKey:  "ssl_key",
+				},
+			},
+		}
 		assert.Equal(t, expected, agents)
 	})
 
@@ -375,8 +410,9 @@ func TestAgentHelpers(t *testing.T) {
 
 		// find all agents without push_metrics
 		agents, err = models.FindAgentsForScrapeConfig(q, nil, false)
-		assert.Equal(t, 1, len(agents))
+		assert.Equal(t, 2, len(agents))
 		assert.Equal(t, "A6", agents[0].AgentID)
+		assert.Equal(t, "A7", agents[1].AgentID)
 		require.NoError(t, err)
 	})
 

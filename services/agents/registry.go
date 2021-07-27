@@ -994,10 +994,18 @@ func (r *Registry) CheckConnectionToService(ctx context.Context, q *reform.Queri
 			TlsSkipVerify: agent.TLSSkipVerify,
 		}
 	case models.PostgreSQLServiceType:
+		dsn := agent.DSN(service, 2*time.Second, "postgres", nil)
+		tdp := agent.TemplateDelimiters(service)
+		l.Infof("\n\n\n DSN: %+v \n\n\n tdp: %+v \n\n\n", dsn, tdp)
 		request = &agentpb.CheckConnectionRequest{
 			Type:    inventorypb.ServiceType_POSTGRESQL_SERVICE,
 			Dsn:     agent.DSN(service, 2*time.Second, "postgres", nil),
 			Timeout: durationpb.New(3 * time.Second),
+			TextFiles: &agentpb.TextFiles{
+				Files:              agent.Files(),
+				TemplateLeftDelim:  tdp.Left,
+				TemplateRightDelim: tdp.Right,
+			},
 		}
 	case models.MongoDBServiceType:
 		tdp := agent.TemplateDelimiters(service)

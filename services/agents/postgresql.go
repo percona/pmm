@@ -82,6 +82,7 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent, red
 			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, timeout, "postgres", nil)),
 			fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.AgentID),
 		},
+		TextFiles: exporter.Files(),
 	}
 	if redactMode != exposeSecrets {
 		res.RedactWords = redactWords(exporter)
@@ -91,17 +92,29 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent, red
 
 // qanPostgreSQLPgStatementsAgentConfig returns desired configuration of qan-mongodb-profiler-agent built-in agent.
 func qanPostgreSQLPgStatementsAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
+	tdp := agent.TemplateDelimiters(service)
 	return &agentpb.SetStateRequest_BuiltinAgent{
 		Type: inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
 		Dsn:  agent.DSN(service, 5*time.Second, "postgres", nil),
+		TextFiles: &agentpb.TextFiles{
+			Files:              agent.Files(),
+			TemplateLeftDelim:  tdp.Left,
+			TemplateRightDelim: tdp.Right,
+		},
 	}
 }
 
 // qanPostgreSQLPgStatMonitorAgentConfig returns desired configuration of qan-mongodb-profiler-agent built-in agent.
 func qanPostgreSQLPgStatMonitorAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
+	tdp := agent.TemplateDelimiters(service)
 	return &agentpb.SetStateRequest_BuiltinAgent{
 		Type:                 inventorypb.AgentType_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
 		Dsn:                  agent.DSN(service, time.Second, "postgres", nil),
 		DisableQueryExamples: agent.QueryExamplesDisabled,
+		TextFiles: &agentpb.TextFiles{
+			Files:              agent.Files(),
+			TemplateLeftDelim:  tdp.Left,
+			TemplateRightDelim: tdp.Right,
+		},
 	}
 }

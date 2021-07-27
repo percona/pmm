@@ -39,6 +39,7 @@ import (
 type AgentType string
 
 const (
+	certificateFilePlaceholder    = "certificateFilePlaceholder"
 	certificateKeyFilePlaceholder = "certificateKeyFilePlaceholder"
 	caFilePlaceholder             = "caFilePlaceholder"
 	// AgentStatusUnknown indicates we know nothing about agent because it is not connected.
@@ -108,6 +109,19 @@ func (c AzureOptions) Value() (driver.Value, error) { return jsonValue(c) }
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *AzureOptions) Scan(src interface{}) error { return jsonScan(c, src) }
 
+// PostgreSQLOptions represents structure for special MySQL options.
+type PostgreSQLOptions struct {
+	SSLCa   string `json:"ssl_ca"`
+	SSLCert string `json:"ssl_cert"`
+	SSLKey  string `json:"ssl_key"`
+}
+
+// Value implements database/sql/driver.Valuer interface. Should be defined on the value.
+func (c PostgreSQLOptions) Value() (driver.Value, error) { return jsonValue(c) }
+
+// Scan implements database/sql.Scanner interface. Should be defined on the pointer.
+func (c *PostgreSQLOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+
 // PMMAgentWithPushMetricsSupport - version of pmmAgent,
 // that support vmagent and push metrics mode
 // will be released with PMM Agent v2.12.
@@ -160,8 +174,9 @@ type Agent struct {
 	PushMetrics                bool           `reform:"push_metrics"`
 	DisabledCollectors         pq.StringArray `reform:"disabled_collectors"`
 
-	MySQLOptions   *MySQLOptions   `reform:"mysql_options"`
-	MongoDBOptions *MongoDBOptions `reform:"mongo_db_tls_options"`
+	MySQLOptions      *MySQLOptions      `reform:"mysql_options"`
+	MongoDBOptions    *MongoDBOptions    `reform:"mongo_db_tls_options"`
+	PostgreSQLOptions *PostgreSQLOptions `reform:"postgresql_options"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
@@ -422,6 +437,21 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 		}
 		q.Set("sslmode", sslmode)
 
+		if s.PostgreSQLOptions != nil {
+			if files := s.Files(); len(files) > 0 {
+				for key := range files {
+					switch key {
+					case caFilePlaceholder:
+						q.Add("sslrootcert", tdp.Left+".TextFiles."+caFilePlaceholder+tdp.Right)
+					case certificateFilePlaceholder:
+						q.Add("sslcert", tdp.Left+".TextFiles."+certificateFilePlaceholder+tdp.Right)
+					case certificateKeyFilePlaceholder:
+						q.Add("sslkey", tdp.Left+".TextFiles."+certificateKeyFilePlaceholder+tdp.Right)
+					}
+				}
+			}
+		}
+
 		if dialTimeout != 0 {
 			q.Set("connect_timeout", strconv.Itoa(int(dialTimeout.Seconds())))
 		}
@@ -448,7 +478,12 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 		case username != "":
 			u.User = url.User(username)
 		}
-		return u.String()
+
+		dsn := u.String()
+		dsn = strings.ReplaceAll(dsn, url.QueryEscape(tdp.Left), tdp.Left)
+		dsn = strings.ReplaceAll(dsn, url.QueryEscape(tdp.Right), tdp.Right)
+
+		return dsn
 	default:
 		panic(fmt.Errorf("unhandled AgentType %q", s.AgentType))
 	}
@@ -527,6 +562,13 @@ func (s Agent) Files() map[string]string {
 		}
 		return nil
 	case PostgresExporterType, QANPostgreSQLPgStatementsAgentType, QANPostgreSQLPgStatMonitorAgentType:
+		if s.PostgreSQLOptions != nil {
+			return map[string]string{
+				caFilePlaceholder:             s.PostgreSQLOptions.SSLCa,
+				certificateFilePlaceholder:    s.PostgreSQLOptions.SSLCert,
+				certificateKeyFilePlaceholder: s.PostgreSQLOptions.SSLKey,
+			}
+		}
 		return nil
 	default:
 		panic(fmt.Errorf("unhandled AgentType %q", s.AgentType))
@@ -552,6 +594,9 @@ func (s Agent) TemplateDelimiters(svc *Service) *DelimiterPair {
 			templateParams = append(templateParams, s.MongoDBOptions.TLSCertificateKeyFilePassword)
 		}
 	case PostgreSQLServiceType:
+		if s.PostgreSQLOptions != nil {
+			templateParams = append(templateParams, s.PostgreSQLOptions.SSLKey)
+		}
 	case ProxySQLServiceType:
 	case HAProxyServiceType:
 	case ExternalServiceType:
@@ -563,7 +608,7 @@ func (s Agent) TemplateDelimiters(svc *Service) *DelimiterPair {
 	return &tdp
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ reform.BeforeInserter = (*Agent)(nil)
 	_ reform.BeforeUpdater  = (*Agent)(nil)

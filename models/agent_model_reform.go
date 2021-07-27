@@ -60,6 +60,7 @@ func (v *agentTableType) Columns() []string {
 		"disabled_collectors",
 		"mysql_options",
 		"mongo_db_tls_options",
+		"postgresql_options",
 	}
 }
 
@@ -116,6 +117,7 @@ var AgentTable = &agentTableType{
 			{Name: "DisabledCollectors", Type: "pq.StringArray", Column: "disabled_collectors"},
 			{Name: "MySQLOptions", Type: "*MySQLOptions", Column: "mysql_options"},
 			{Name: "MongoDBOptions", Type: "*MongoDBOptions", Column: "mongo_db_tls_options"},
+			{Name: "PostgreSQLOptions", Type: "*PostgreSQLOptions", Column: "postgresql_options"},
 		},
 		PKFieldIndex: 0,
 	},
@@ -124,7 +126,7 @@ var AgentTable = &agentTableType{
 
 // String returns a string representation of this struct or record.
 func (s Agent) String() string {
-	res := make([]string, 32)
+	res := make([]string, 33)
 	res[0] = "AgentID: " + reform.Inspect(s.AgentID, true)
 	res[1] = "AgentType: " + reform.Inspect(s.AgentType, true)
 	res[2] = "RunsOnNodeID: " + reform.Inspect(s.RunsOnNodeID, true)
@@ -157,6 +159,7 @@ func (s Agent) String() string {
 	res[29] = "DisabledCollectors: " + reform.Inspect(s.DisabledCollectors, true)
 	res[30] = "MySQLOptions: " + reform.Inspect(s.MySQLOptions, true)
 	res[31] = "MongoDBOptions: " + reform.Inspect(s.MongoDBOptions, true)
+	res[32] = "PostgreSQLOptions: " + reform.Inspect(s.PostgreSQLOptions, true)
 	return strings.Join(res, ", ")
 }
 
@@ -196,6 +199,7 @@ func (s *Agent) Values() []interface{} {
 		s.DisabledCollectors,
 		s.MySQLOptions,
 		s.MongoDBOptions,
+		s.PostgreSQLOptions,
 	}
 }
 
@@ -235,6 +239,7 @@ func (s *Agent) Pointers() []interface{} {
 		&s.DisabledCollectors,
 		&s.MySQLOptions,
 		&s.MongoDBOptions,
+		&s.PostgreSQLOptions,
 	}
 }
 

@@ -537,9 +537,12 @@ var databaseSchema = [][]string{
 		)`,
 	},
 	40: {
+		`ALTER TABLE agents ADD COLUMN postgresql_options JSONB`,
+	},
+	41: {
 		`ALTER TABLE artifacts
-			ADD COLUMN type VARCHAR NOT NULL CHECK (type <> '') DEFAULT 'on_demand',
-			ADD COLUMN schedule_id VARCHAR`,
+      ADD COLUMN type VARCHAR NOT NULL CHECK (type <> '') DEFAULT 'on_demand',
+      ADD COLUMN schedule_id VARCHAR`,
 		`ALTER TABLE artifacts ALTER COLUMN type DROP DEFAULT`,
 	},
 }

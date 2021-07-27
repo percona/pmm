@@ -49,6 +49,25 @@ func MySQLOptionsFromRequest(params MySQLOptionsParams) *MySQLOptions {
 	return nil
 }
 
+// PostgreSQLOptionsParams contains methods to create PostgreSQLOptions object.
+type PostgreSQLOptionsParams interface {
+	GetTlsCa() string
+	GetTlsCert() string
+	GetTlsKey() string
+}
+
+// PostgreSQLOptionsFromRequest creates PostgreSQLOptions object from request.
+func PostgreSQLOptionsFromRequest(params PostgreSQLOptionsParams) *PostgreSQLOptions {
+	if params.GetTlsCa() != "" || params.GetTlsCert() != "" || params.GetTlsKey() != "" {
+		return &PostgreSQLOptions{
+			SSLCa:   params.GetTlsCa(),
+			SSLCert: params.GetTlsCert(),
+			SSLKey:  params.GetTlsKey(),
+		}
+	}
+	return nil
+}
+
 // MongoDBOptionsParams contains methods to create MongoDBOptions object.
 type MongoDBOptionsParams interface {
 	GetTlsCertificateKey() string
@@ -625,6 +644,7 @@ type CreateAgentParams struct {
 	TLSSkipVerify                  bool
 	MySQLOptions                   *MySQLOptions
 	MongoDBOptions                 *MongoDBOptions
+	PostgreSQLOptions              *PostgreSQLOptions
 	TableCountTablestatsGroupLimit int32
 	QueryExamplesDisabled          bool
 	MaxQueryLogSize                int64
@@ -680,6 +700,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		TLSSkipVerify:                  params.TLSSkipVerify,
 		MySQLOptions:                   params.MySQLOptions,
 		MongoDBOptions:                 params.MongoDBOptions,
+		PostgreSQLOptions:              params.PostgreSQLOptions,
 		TableCountTablestatsGroupLimit: params.TableCountTablestatsGroupLimit,
 		QueryExamplesDisabled:          params.QueryExamplesDisabled,
 		MaxQueryLogSize:                params.MaxQueryLogSize,

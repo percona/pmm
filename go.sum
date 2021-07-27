@@ -432,14 +432,14 @@ github.com/pact-foundation/pact-go v1.0.4/go.mod h1:uExwJY4kCzNPcHRj+hCR/HBbOOIw
 github.com/pascaldekloe/goe v0.0.0-20180627143212-57f6aae5913c/go.mod h1:lzWF7FIEvWOWxwDKqyGYQf6ZUaNfKdP144TG7ZOy1lc=
 github.com/pborman/uuid v1.2.0/go.mod h1:X/NO0urCmaxf9VXbdlT7C2Yzkj2IKimNn4k+gtPdI/k=
 github.com/pelletier/go-toml v1.4.0/go.mod h1:PN7xzY2wHTK0K9p34ErDQMlFxa51Fk0OUruD3k1mMwo=
-github.com/percona-platform/dbaas-api v0.0.0-20210630090346-f95d2ec8b7c1 h1:NVOKRVwN+W6DGqhFltP33+w87HTg2IiHl3nRqFGMeeU=
-github.com/percona-platform/dbaas-api v0.0.0-20210630090346-f95d2ec8b7c1/go.mod h1:zgb9gTJusc8Jv2zRNAlWV0/XQ8IK+hwHMc9lIqfK0tM=
 github.com/percona-platform/dbaas-api v0.0.0-20210726192627-670b3725d0ac h1:AVICbiADttgpHLSLa3gb0/QcR1Yc2ywbnaNCNQuw7DQ=
 github.com/percona-platform/dbaas-api v0.0.0-20210726192627-670b3725d0ac/go.mod h1:zgb9gTJusc8Jv2zRNAlWV0/XQ8IK+hwHMc9lIqfK0tM=
 github.com/percona-platform/saas v0.0.0-20210628125953-5bf84e6eefa0 h1:PwmQIqBMTsoYSSbpNjw6H1LYNULG6bxbj2OaAk3XnMk=
 github.com/percona-platform/saas v0.0.0-20210628125953-5bf84e6eefa0/go.mod h1:jJRyGMxxDJaSiU7AaHNS+8j1TFQQhX6lcYp8s0t8Knc=
 github.com/percona/pmm v0.0.0-20210721092629-8d0bba52fe8a h1:YpPgxdSwBeBmz35DiOLE7FQiUtGHhL/NoemEl+lTk2M=
 github.com/percona/pmm v0.0.0-20210721092629-8d0bba52fe8a/go.mod h1:Cm2JKvJMlMimtAhmF/1BUvz3qVJZ2O2zxQXRvtQh93Q=
+github.com/percona/pmm v0.0.0-20210727064651-c6dbbddd9850 h1:sV3uHzOKjZ1OgAi/6Eiq5Il9lJGNCAO4QTacPDG2h68=
+github.com/percona/pmm v0.0.0-20210727064651-c6dbbddd9850/go.mod h1:Cm2JKvJMlMimtAhmF/1BUvz3qVJZ2O2zxQXRvtQh93Q=
 github.com/percona/promconfig v0.2.1 h1:LBbCDSQRfy0aTHFJMgrVQIE2WvmPkMTkIoznTfBAvj8=
 github.com/percona/promconfig v0.2.1/go.mod h1:Y2uXi5QNk71+ceJHuI9poank+0S1kjxd3K105fXKVkg=
 github.com/performancecopilot/speed v3.0.0+incompatible/go.mod h1:/CLtqpZ5gBg1M9iaPbIdPPGyKcA8hKdoy6hAWba7Yac=
