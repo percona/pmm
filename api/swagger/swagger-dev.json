@@ -4354,6 +4354,21 @@
                     "type": "string"
                   },
                   "x-order": 9
+                },
+                "tls_ca": {
+                  "description": "TLS CA certificate.",
+                  "type": "string",
+                  "x-order": 10
+                },
+                "tls_cert": {
+                  "description": "TLS Certifcate.",
+                  "type": "string",
+                  "x-order": 11
+                },
+                "tls_key": {
+                  "description": "TLS Certificate Key.",
+                  "type": "string",
+                  "x-order": 12
                 }
               }
             }
@@ -5417,6 +5432,21 @@
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 8
+                },
+                "tls_ca": {
+                  "description": "TLS CA certificate.",
+                  "type": "string",
+                  "x-order": 9
+                },
+                "tls_cert": {
+                  "description": "TLS Certifcate.",
+                  "type": "string",
+                  "x-order": 10
+                },
+                "tls_key": {
+                  "description": "TLS Certificate Key.",
+                  "type": "string",
+                  "x-order": 11
                 }
               }
             }
@@ -5600,6 +5630,21 @@
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 7
+                },
+                "tls_ca": {
+                  "description": "TLS CA certificate.",
+                  "type": "string",
+                  "x-order": 8
+                },
+                "tls_cert": {
+                  "description": "TLS Certifcate.",
+                  "type": "string",
+                  "x-order": 9
+                },
+                "tls_key": {
+                  "description": "TLS Certificate Key.",
+                  "type": "string",
+                  "x-order": 10
                 }
               }
             }
@@ -21979,6 +22024,21 @@
                     "type": "string"
                   },
                   "x-order": 21
+                },
+                "tls_ca": {
+                  "description": "TLS CA certificate.",
+                  "type": "string",
+                  "x-order": 22
+                },
+                "tls_cert": {
+                  "description": "TLS Certifcate.",
+                  "type": "string",
+                  "x-order": 23
+                },
+                "tls_key": {
+                  "description": "TLS Certificate Key.",
+                  "type": "string",
+                  "x-order": 24
                 }
               }
             }

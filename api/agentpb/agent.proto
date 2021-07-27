@@ -184,12 +184,20 @@ message StartActionRequest {
     // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
     string table = 2;
+    // Contains files and their contents which can be used in DSN.
+    TextFiles tls_files = 3;
+    // TLS certificate wont be verified.
+    bool tls_skip_verify = 4;
   }
   // PostgreSQLShowIndexParams describes PostgreSQL SHOW INDEX action parameters.
   message PostgreSQLShowIndexParams {
     // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
     string table = 2;
+    // Contains files and their contents which can be used in DSN.
+    TextFiles tls_files = 3;
+    // TLS certificate wont be verified.
+    bool tls_skip_verify = 4;
   }
   // MongoDBExplainParams describes MongoDB EXPLAIN action parameters.
   message MongoDBExplainParams {
@@ -251,6 +259,10 @@ message StartActionRequest {
   message PostgreSQLQueryShowParams {
     // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
+    // Contains files and their contents which can be used in DSN.
+    TextFiles tls_files = 2;
+    // TLS certificate wont be verified.
+    bool tls_skip_verify = 3;
   }
   // PostgreSQLQuerySelectParams describes PostgreSQL SELECT query action parameters.
   message PostgreSQLQuerySelectParams {
@@ -258,6 +270,10 @@ message StartActionRequest {
     string dsn = 1;
     // Query suffix (without leading SELECT).
     string query = 2;
+    // Contains files and their contents which can be used in DSN.
+    TextFiles tls_files = 3;
+    // TLS certificate wont be verified.
+    bool tls_skip_verify = 4;
   }
   // MongoDBQueryGetParameterParams describes MongoDB getParameter query action parameters.
   message MongoDBQueryGetParameterParams {

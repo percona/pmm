@@ -194,6 +194,15 @@ type AddPostgreSQLBody struct {
 	// List of collector names to disable in this exporter.
 	DisableCollectors []string `json:"disable_collectors"`
 
+	// TLS CA certificate.
+	TLSCa string `json:"tls_ca,omitempty"`
+
+	// TLS Certifcate.
+	TLSCert string `json:"tls_cert,omitempty"`
+
+	// TLS Certificate Key.
+	TLSKey string `json:"tls_key,omitempty"`
+
 	// add node
 	AddNode *AddPostgreSQLParamsBodyAddNode `json:"add_node,omitempty"`
 }
