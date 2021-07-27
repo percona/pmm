@@ -60,7 +60,7 @@ func (s *ServiceService) RemoveService(ctx context.Context, req *managementpb.Re
 	if err != nil {
 		return nil, err
 	}
-	pmmAgentIDs := make(map[string]bool)
+	pmmAgentIDs := make(map[string]struct{})
 	var reloadPrometheusConfig bool
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {
@@ -92,15 +92,45 @@ func (s *ServiceService) RemoveService(ctx context.Context, req *managementpb.Re
 				return err
 			}
 			if agent.PMMAgentID != nil {
-				pmmAgentIDs[pointer.GetString(agent.PMMAgentID)] = true
+				pmmAgentIDs[pointer.GetString(agent.PMMAgentID)] = struct{}{}
 			} else {
 				reloadPrometheusConfig = true
 			}
 		}
+
 		err = models.RemoveService(tx.Querier, service.ServiceID, models.RemoveCascade)
 		if err != nil {
 			return err
 		}
+
+		node, err := models.FindNodeByID(s.db.Querier, service.NodeID)
+		if err != nil {
+			return err
+		}
+
+		// For RDS and Azure remove also node.
+		if node.NodeType == models.RemoteRDSNodeType || node.NodeType == models.RemoteAzureDatabaseNodeType {
+			agents, err = models.FindAgents(tx.Querier, models.AgentFilters{NodeID: node.NodeID})
+			if err != nil {
+				return err
+			}
+			for _, a := range agents {
+				_, err := models.RemoveAgent(s.db.Querier, a.AgentID, models.RemoveRestrict)
+				if err != nil {
+					return err
+				}
+				if a.PMMAgentID != nil {
+					pmmAgentIDs[pointer.GetString(a.PMMAgentID)] = struct{}{}
+				}
+			}
+
+			if len(pmmAgentIDs) <= 1 {
+				if err = models.RemoveNode(tx.Querier, node.NodeID, models.RemoveCascade); err != nil {
+					return err
+				}
+			}
+		}
+
 		return nil
 	}); e != nil {
 		return nil, e

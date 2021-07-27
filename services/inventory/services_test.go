@@ -18,12 +18,15 @@ package inventory
 
 import (
 	"context"
+	"fmt"
+	"reflect"
 	"testing"
 
 	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -36,39 +39,39 @@ import (
 	"github.com/percona/pmm-managed/utils/tests"
 )
 
-func TestServices(t *testing.T) {
-	var ctx context.Context
+func setup(t *testing.T) (*ServicesService, *AgentsService, *NodesService, func(t *testing.T), context.Context) {
+	t.Helper()
 
-	setup := func(t *testing.T) (ss *ServicesService, teardown func(t *testing.T)) {
-		t.Helper()
+	uuid.SetRand(new(tests.IDReader))
 
-		ctx = logger.Set(context.Background(), t.Name())
-		uuid.SetRand(new(tests.IDReader))
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
-		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+	r := new(mockAgentsRegistry)
+	r.Test(t)
 
-		r := new(mockAgentsRegistry)
-		r.Test(t)
+	vmdb := new(mockPrometheusService)
+	vmdb.Test(t)
 
-		vmdb := new(mockPrometheusService)
-		vmdb.Test(t)
+	teardown := func(t *testing.T) {
+		uuid.SetRand(nil)
 
-		teardown = func(t *testing.T) {
-			uuid.SetRand(nil)
+		require.NoError(t, sqlDB.Close())
 
-			require.NoError(t, sqlDB.Close())
-
-			r.AssertExpectations(t)
-			vmdb.AssertExpectations(t)
-		}
-		ss = NewServicesService(db, r, vmdb)
-
-		return
+		r.AssertExpectations(t)
+		vmdb.AssertExpectations(t)
 	}
 
+	return NewServicesService(db, r, vmdb),
+		NewAgentsService(db, r, vmdb),
+		NewNodesService(db, r, vmdb),
+		teardown,
+		logger.Set(context.Background(), t.Name())
+}
+
+func TestServices(t *testing.T) {
 	t.Run("BasicMySQL", func(t *testing.T) {
-		ss, teardown := setup(t)
+		ss, _, _, teardown, ctx := setup(t)
 		defer teardown(t)
 
 		actualServices, err := ss.List(ctx, models.ServiceFilters{})
@@ -107,8 +110,123 @@ func TestServices(t *testing.T) {
 		assert.Nil(t, actualService)
 	})
 
+	t.Run("RDSServiceRemoving", func(t *testing.T) {
+		ss, as, ns, teardown, ctx := setup(t)
+		defer teardown(t)
+
+		actualServices, err := ss.List(ctx, models.ServiceFilters{})
+		require.NoError(t, err)
+		require.Len(t, actualServices, 1) // PMM Server PostgreSQL
+
+		as.r.(*mockAgentsRegistry).On("RequestStateUpdate", ctx, "pmm-server")
+		as.vmdb.(*mockPrometheusService).On("RequestConfigurationUpdate")
+		as.r.(*mockAgentsRegistry).On("CheckConnectionToService", ctx,
+			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
+			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
+			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name()),
+		).Return(nil)
+
+		node, err := ns.AddRemoteRDSNode(ctx, &inventorypb.AddRemoteRDSNodeRequest{NodeName: "test1", Region: "test-region", Address: "test"})
+		require.NoError(t, err)
+
+		rdsAgent, err := as.AddRDSExporter(ctx, &inventorypb.AddRDSExporterRequest{
+			PmmAgentId:   "pmm-server",
+			NodeId:       node.NodeId,
+			AwsAccessKey: "EXAMPLE_ACCESS_KEY",
+			AwsSecretKey: "EXAMPLE_SECRET_KEY",
+			PushMetrics:  true,
+		})
+		require.NoError(t, err)
+
+		mySQLService, err := ss.AddMySQL(ctx, &models.AddDBMSServiceParams{
+			ServiceName: "test-mysql-socket",
+			NodeID:      node.NodeId,
+			Socket:      pointer.ToString("/var/run/mysqld/mysqld.sock"),
+		})
+		require.NoError(t, err)
+
+		mySQLAgent, _, err := as.AddMySQLdExporter(ctx, &inventorypb.AddMySQLdExporterRequest{
+			PmmAgentId: "pmm-server",
+			ServiceId:  mySQLService.ServiceId,
+			Username:   "username",
+		})
+		require.NoError(t, err)
+
+		err = ss.Remove(ctx, mySQLService.ServiceId, true)
+		require.NoError(t, err)
+
+		_, err = ss.Get(ctx, mySQLService.ServiceId)
+		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Service with ID "%s" not found.`, mySQLService.ServiceId)), err)
+
+		_, err = as.Get(ctx, rdsAgent.AgentId)
+		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID "%s" not found.`, rdsAgent.AgentId)), err)
+
+		_, err = as.Get(ctx, mySQLAgent.AgentId)
+		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID "%s" not found.`, mySQLAgent.AgentId)), err)
+
+		_, err = ns.Get(ctx, &inventorypb.GetNodeRequest{NodeId: node.NodeId})
+		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Node with ID "%s" not found.`, node.NodeId)), err)
+	})
+
+	t.Run("AzureServiceRemoving", func(t *testing.T) {
+		ss, as, ns, teardown, ctx := setup(t)
+		defer teardown(t)
+
+		actualServices, err := ss.List(ctx, models.ServiceFilters{})
+		require.NoError(t, err)
+		require.Len(t, actualServices, 1) // PMM Server PostgreSQL
+
+		as.vmdb.(*mockPrometheusService).On("RequestConfigurationUpdate")
+		as.r.(*mockAgentsRegistry).On("RequestStateUpdate", ctx, "pmm-server").Times(0)
+		as.r.(*mockAgentsRegistry).On("CheckConnectionToService", ctx,
+			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
+			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
+			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name()),
+		).Return(nil)
+
+		node, err := ns.AddRemoteAzureDatabaseNode(ctx, &inventorypb.AddRemoteAzureDatabaseNodeRequest{NodeName: "test1", Region: "test-region", Address: "test"})
+		require.NoError(t, err)
+
+		rdsAgent, err := as.AddAzureDatabaseExporter(ctx, &inventorypb.AddAzureDatabaseExporterRequest{
+			PmmAgentId:    "pmm-server",
+			NodeId:        node.NodeId,
+			PushMetrics:   true,
+			AzureClientId: "test",
+		})
+		require.NoError(t, err)
+
+		mySQLService, err := ss.AddMySQL(ctx, &models.AddDBMSServiceParams{
+			ServiceName: "test-mysql-socket",
+			NodeID:      node.NodeId,
+			Socket:      pointer.ToString("/var/run/mysqld/mysqld.sock"),
+		})
+		require.NoError(t, err)
+
+		mySQLAgent, _, err := as.AddMySQLdExporter(ctx, &inventorypb.AddMySQLdExporterRequest{
+			PmmAgentId: "pmm-server",
+			ServiceId:  mySQLService.ServiceId,
+			Username:   "username",
+		})
+		require.NoError(t, err)
+
+		err = ss.Remove(ctx, mySQLService.ServiceId, true)
+		require.NoError(t, err)
+
+		_, err = ss.Get(ctx, mySQLService.ServiceId)
+		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Service with ID "%s" not found.`, mySQLService.ServiceId)), err)
+
+		_, err = as.Get(ctx, rdsAgent.AgentId)
+		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID "%s" not found.`, rdsAgent.AgentId)), err)
+
+		_, err = as.Get(ctx, mySQLAgent.AgentId)
+		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID "%s" not found.`, mySQLAgent.AgentId)), err)
+
+		_, err = ns.Get(ctx, &inventorypb.GetNodeRequest{NodeId: node.NodeId})
+		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Node with ID "%s" not found.`, node.NodeId)), err)
+	})
+
 	t.Run("BasicMySQLWithSocket", func(t *testing.T) {
-		ss, teardown := setup(t)
+		ss, _, _, teardown, ctx := setup(t)
 		defer teardown(t)
 
 		actualServices, err := ss.List(ctx, models.ServiceFilters{})
@@ -146,7 +264,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("MySQLSocketAddressConflict", func(t *testing.T) {
-		ss, teardown := setup(t)
+		ss, _, _, teardown, ctx := setup(t)
 		defer teardown(t)
 
 		actualServices, err := ss.List(ctx, models.ServiceFilters{})
@@ -163,7 +281,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("MySQLSocketAndPort", func(t *testing.T) {
-		ss, teardown := setup(t)
+		ss, _, _, teardown, ctx := setup(t)
 		defer teardown(t)
 
 		actualServices, err := ss.List(ctx, models.ServiceFilters{})
@@ -180,7 +298,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("BasicMongoDB", func(t *testing.T) {
-		ss, teardown := setup(t)
+		ss, _, _, teardown, ctx := setup(t)
 		defer teardown(t)
 
 		actualServices, err := ss.List(ctx, models.ServiceFilters{})
@@ -222,7 +340,7 @@ func TestServices(t *testing.T) {
 
 	t.Run("PostgreSQL", func(t *testing.T) {
 		t.Run("Basic", func(t *testing.T) {
-			ss, teardown := setup(t)
+			ss, _, _, teardown, ctx := setup(t)
 			defer teardown(t)
 
 			actualServices, err := ss.List(ctx, models.ServiceFilters{})
@@ -262,7 +380,7 @@ func TestServices(t *testing.T) {
 		})
 
 		t.Run("WithSocket", func(t *testing.T) {
-			ss, teardown := setup(t)
+			ss, _, _, teardown, ctx := setup(t)
 			defer teardown(t)
 
 			actualServices, err := ss.List(ctx, models.ServiceFilters{})
@@ -300,7 +418,7 @@ func TestServices(t *testing.T) {
 		})
 
 		t.Run("WithSocketAddressConflict", func(t *testing.T) {
-			ss, teardown := setup(t)
+			ss, _, _, teardown, ctx := setup(t)
 			defer teardown(t)
 
 			actualServices, err := ss.List(ctx, models.ServiceFilters{})
@@ -319,7 +437,7 @@ func TestServices(t *testing.T) {
 		})
 
 		t.Run("WithSocketAndPort", func(t *testing.T) {
-			ss, teardown := setup(t)
+			ss, _, _, teardown, ctx := setup(t)
 			defer teardown(t)
 
 			actualServices, err := ss.List(ctx, models.ServiceFilters{})
@@ -338,7 +456,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("BasicProxySQL", func(t *testing.T) {
-		ss, teardown := setup(t)
+		ss, _, _, teardown, ctx := setup(t)
 		defer teardown(t)
 
 		actualServices, err := ss.List(ctx, models.ServiceFilters{})
@@ -378,7 +496,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("BasicProxySQLWithSocket", func(t *testing.T) {
-		ss, teardown := setup(t)
+		ss, _, _, teardown, ctx := setup(t)
 		defer teardown(t)
 
 		actualServices, err := ss.List(ctx, models.ServiceFilters{})
@@ -416,7 +534,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("ProxySQLSocketAddressConflict", func(t *testing.T) {
-		ss, teardown := setup(t)
+		ss, _, _, teardown, ctx := setup(t)
 		defer teardown(t)
 
 		actualServices, err := ss.List(ctx, models.ServiceFilters{})
@@ -433,7 +551,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("ProxySQLSocketAndPort", func(t *testing.T) {
-		ss, teardown := setup(t)
+		ss, _, _, teardown, ctx := setup(t)
 		defer teardown(t)
 
 		actualServices, err := ss.List(ctx, models.ServiceFilters{})
@@ -450,7 +568,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("BasicHAProxyService", func(t *testing.T) {
-		ss, teardown := setup(t)
+		ss, _, _, teardown, ctx := setup(t)
 		defer teardown(t)
 
 		actualServices, err := ss.List(ctx, models.ServiceFilters{})
@@ -486,7 +604,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("BasicExternalService", func(t *testing.T) {
-		ss, teardown := setup(t)
+		ss, _, _, teardown, ctx := setup(t)
 		defer teardown(t)
 
 		actualServices, err := ss.List(ctx, models.ServiceFilters{})
@@ -524,7 +642,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("GetEmptyID", func(t *testing.T) {
-		ss, teardown := setup(t)
+		ss, _, _, teardown, ctx := setup(t)
 		defer teardown(t)
 
 		actualNode, err := ss.Get(ctx, "")
@@ -533,7 +651,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("AddNameNotUnique", func(t *testing.T) {
-		ss, teardown := setup(t)
+		ss, _, _, teardown, ctx := setup(t)
 		defer teardown(t)
 
 		_, err := ss.AddMySQL(ctx, &models.AddDBMSServiceParams{
@@ -554,7 +672,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("AddNodeNotFound", func(t *testing.T) {
-		ss, teardown := setup(t)
+		ss, _, _, teardown, ctx := setup(t)
 		defer teardown(t)
 
 		_, err := ss.AddMySQL(ctx, &models.AddDBMSServiceParams{
@@ -567,7 +685,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("RemoveNotFound", func(t *testing.T) {
-		ss, teardown := setup(t)
+		ss, _, _, teardown, ctx := setup(t)
 		defer teardown(t)
 
 		err := ss.Remove(ctx, "no-such-id", false)
@@ -576,7 +694,7 @@ func TestServices(t *testing.T) {
 
 	t.Run("MongoDB", func(t *testing.T) {
 		t.Run("WithSocket", func(t *testing.T) {
-			ss, teardown := setup(t)
+			ss, _, _, teardown, ctx := setup(t)
 			defer teardown(t)
 
 			actualServices, err := ss.List(ctx, models.ServiceFilters{})
@@ -614,7 +732,7 @@ func TestServices(t *testing.T) {
 		})
 
 		t.Run("SocketAddressConflict", func(t *testing.T) {
-			ss, teardown := setup(t)
+			ss, _, _, teardown, ctx := setup(t)
 			defer teardown(t)
 
 			actualServices, err := ss.List(ctx, models.ServiceFilters{})
@@ -631,7 +749,7 @@ func TestServices(t *testing.T) {
 		})
 
 		t.Run("SocketAndPort", func(t *testing.T) {
-			ss, teardown := setup(t)
+			ss, _, _, teardown, ctx := setup(t)
 			defer teardown(t)
 
 			actualServices, err := ss.List(ctx, models.ServiceFilters{})

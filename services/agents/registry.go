@@ -627,12 +627,13 @@ func updateAgentStatus(ctx context.Context, q *reform.Querier, agentID string, s
 
 	// FIXME that requires more investigation: https://jira.percona.com/browse/PMM-4932
 	if err == reform.ErrNoRows {
-		l.Warnf("Failed to select Agent by ID for (%s, %s).", agentID, status)
-
 		switch status {
 		case inventorypb.AgentStatus_STOPPING, inventorypb.AgentStatus_DONE:
+			// Agent already was removed from the server.
 			return nil
 		}
+
+		l.Warnf("Failed to select Agent by ID for (%s, %s).", agentID, status)
 	}
 	if err != nil {
 		return errors.Wrap(err, "failed to select Agent by ID")
@@ -666,6 +667,13 @@ func (r *Registry) stateChanged(ctx context.Context, req *agentpb.StateChangedRe
 	r.vmdb.RequestConfigurationUpdate()
 	agent, err := models.FindAgentByID(r.db.Querier, req.AgentId)
 	if err != nil {
+		if s, ok := status.FromError(err); ok && s.Code() == codes.NotFound {
+			switch req.Status {
+			case inventorypb.AgentStatus_STOPPING, inventorypb.AgentStatus_DONE:
+				// Agent already was removed from the server.
+				return nil
+			}
+		}
 		return err
 	}
 	if agent.PMMAgentID == nil {

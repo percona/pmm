@@ -18,6 +18,7 @@ package management
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/AlekSi/pointer"
@@ -145,6 +146,116 @@ func TestServiceService(t *testing.T) {
 			service, err = models.FindServiceByID(s.db.Querier, service.ServiceID)
 			assert.Nil(t, service)
 			tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "/service_id/00000000-0000-4000-8000-000000000005" not found.`), err)
+		})
+
+		t.Run("RDS", func(t *testing.T) {
+			ctx, s, teardown := setup(t)
+			defer teardown(t)
+
+			node, err := models.CreateNode(s.db.Querier, models.RemoteRDSNodeType, &models.CreateNodeParams{
+				NodeName: "test",
+				Address:  "test-address",
+				Region:   pointer.ToString("test-region"),
+			})
+			require.NoError(t, err)
+
+			service, err := models.AddNewService(s.db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
+				ServiceName: "test-mysql",
+				NodeID:      node.NodeID,
+				Address:     pointer.ToString("127.0.0.1"),
+				Port:        pointer.ToUint16(3306),
+			})
+			require.NoError(t, err)
+
+			pmmAgent, err := models.CreatePMMAgent(s.db.Querier, models.PMMServerNodeID, nil)
+			require.NoError(t, err)
+
+			mysqldExporter, err := models.CreateAgent(s.db.Querier, models.MySQLdExporterType, &models.CreateAgentParams{
+				PMMAgentID: pmmAgent.AgentID,
+				ServiceID:  service.ServiceID,
+				Password:   "password",
+				Username:   "username",
+				// TODO TLS
+			})
+			require.NoError(t, err)
+
+			rdsExporter, err := models.CreateAgent(s.db.Querier, models.RDSExporterType, &models.CreateAgentParams{
+				PMMAgentID: pmmAgent.AgentID,
+				NodeID:     node.NodeID,
+			})
+			require.NoError(t, err)
+
+			s.registry.(*mockAgentsRegistry).On("RequestStateUpdate", ctx, pmmAgent.AgentID)
+			s.vmdb.(*mockPrometheusService).On("RequestConfigurationUpdate")
+			_, err = s.RemoveService(ctx, &managementpb.RemoveServiceRequest{ServiceName: service.ServiceName, ServiceType: inventorypb.ServiceType_MYSQL_SERVICE})
+			assert.NoError(t, err)
+
+			_, err = models.FindServiceByID(s.db.Querier, service.ServiceID)
+			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Service with ID "%s" not found.`, service.ServiceID)), err)
+
+			_, err = models.FindAgentByID(s.db.Querier, mysqldExporter.AgentID)
+			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID "%s" not found.`, mysqldExporter.AgentID)), err)
+
+			_, err = models.FindAgentByID(s.db.Querier, rdsExporter.AgentID)
+			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID "%s" not found.`, rdsExporter.AgentID)), err)
+
+			_, err = models.FindNodeByID(s.db.Querier, node.NodeID)
+			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Node with ID "%s" not found.`, node.NodeID)), err)
+		})
+
+		t.Run("Azure", func(t *testing.T) {
+			ctx, s, teardown := setup(t)
+			defer teardown(t)
+
+			node, err := models.CreateNode(s.db.Querier, models.RemoteAzureDatabaseNodeType, &models.CreateNodeParams{
+				NodeName: "test",
+				Address:  "test-address",
+				Region:   pointer.ToString("test-region"),
+			})
+			require.NoError(t, err)
+
+			service, err := models.AddNewService(s.db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
+				ServiceName: "test-mysql",
+				NodeID:      node.NodeID,
+				Address:     pointer.ToString("127.0.0.1"),
+				Port:        pointer.ToUint16(3306),
+			})
+			require.NoError(t, err)
+
+			pmmAgent, err := models.CreatePMMAgent(s.db.Querier, models.PMMServerNodeID, nil)
+			require.NoError(t, err)
+
+			mysqldExporter, err := models.CreateAgent(s.db.Querier, models.MySQLdExporterType, &models.CreateAgentParams{
+				PMMAgentID: pmmAgent.AgentID,
+				ServiceID:  service.ServiceID,
+				Password:   "password",
+				Username:   "username",
+				// TODO TLS
+			})
+			require.NoError(t, err)
+
+			azureExporter, err := models.CreateAgent(s.db.Querier, models.AzureDatabaseExporterType, &models.CreateAgentParams{
+				PMMAgentID: pmmAgent.AgentID,
+				NodeID:     node.NodeID,
+			})
+			require.NoError(t, err)
+
+			s.registry.(*mockAgentsRegistry).On("RequestStateUpdate", ctx, pmmAgent.AgentID)
+			s.vmdb.(*mockPrometheusService).On("RequestConfigurationUpdate")
+			_, err = s.RemoveService(ctx, &managementpb.RemoveServiceRequest{ServiceName: service.ServiceName, ServiceType: inventorypb.ServiceType_MYSQL_SERVICE})
+			assert.NoError(t, err)
+
+			_, err = models.FindServiceByID(s.db.Querier, service.ServiceID)
+			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Service with ID "%s" not found.`, service.ServiceID)), err)
+
+			_, err = models.FindAgentByID(s.db.Querier, mysqldExporter.AgentID)
+			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID "%s" not found.`, mysqldExporter.AgentID)), err)
+
+			_, err = models.FindAgentByID(s.db.Querier, azureExporter.AgentID)
+			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID "%s" not found.`, azureExporter.AgentID)), err)
+
+			_, err = models.FindNodeByID(s.db.Querier, node.NodeID)
+			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Node with ID "%s" not found.`, node.NodeID)), err)
 		})
 	})
 }

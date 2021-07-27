@@ -19,6 +19,7 @@ package inventory
 import (
 	"context"
 
+	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/inventorypb"
 	"gopkg.in/reform.v1"
 
@@ -223,28 +224,66 @@ func (ss *ServicesService) AddExternalService(ctx context.Context, params *model
 // Removes Service with the Agents if force == true.
 // Returns an error if force == false and Service has Agents.
 func (ss *ServicesService) Remove(ctx context.Context, id string, force bool) error {
-	var agents []*models.Agent
+	pmmAgentIds := make(map[string]struct{})
 
 	if e := ss.db.InTransaction(func(tx *reform.TX) error {
+		service, err := models.FindServiceByID(tx.Querier, id)
+		if err != nil {
+			return err
+		}
+
 		mode := models.RemoveRestrict
 		if force {
 			mode = models.RemoveCascade
 
-			foundAgents, err := models.FindPMMAgentsForService(tx.Querier, id)
+			agents, err := models.FindPMMAgentsForService(tx.Querier, id)
 			if err != nil {
 				return err
 			}
 
-			agents = foundAgents
+			for _, agent := range agents {
+				pmmAgentIds[agent.AgentID] = struct{}{}
+			}
 		}
 
-		return models.RemoveService(tx.Querier, id, mode)
+		err = models.RemoveService(tx.Querier, id, mode)
+		if err != nil {
+			return err
+		}
+
+		if force {
+			node, err := models.FindNodeByID(tx.Querier, service.NodeID)
+			if err != nil {
+				return err
+			}
+
+			// For RDS and Azure remove also node.
+			if node.NodeType == models.RemoteRDSNodeType || node.NodeType == models.RemoteAzureDatabaseNodeType {
+				agents, err := models.FindAgents(tx.Querier, models.AgentFilters{NodeID: node.NodeID})
+				if err != nil {
+					return err
+				}
+				for _, agent := range agents {
+					if agent.PMMAgentID != nil {
+						pmmAgentIds[pointer.GetString(agent.PMMAgentID)] = struct{}{}
+					}
+				}
+
+				if len(pmmAgentIds) <= 1 {
+					if err = models.RemoveNode(tx.Querier, node.NodeID, models.RemoveCascade); err != nil {
+						return err
+					}
+				}
+			}
+		}
+
+		return nil
 	}); e != nil {
 		return e
 	}
 
-	for _, a := range agents {
-		ss.r.RequestStateUpdate(ctx, a.AgentID)
+	for pmmAgentID := range pmmAgentIds {
+		ss.r.RequestStateUpdate(ctx, pmmAgentID)
 	}
 
 	if force {

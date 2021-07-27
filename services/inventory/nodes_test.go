@@ -17,57 +17,21 @@
 package inventory
 
 import (
-	"context"
 	"testing"
 
-	"github.com/google/uuid"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"gopkg.in/reform.v1"
-	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/utils/logger"
-	"github.com/percona/pmm-managed/utils/testdb"
 	"github.com/percona/pmm-managed/utils/tests"
 )
 
 func TestNodes(t *testing.T) {
-	var ctx context.Context
-
-	setup := func(t *testing.T) (ns *NodesService, teardown func(t *testing.T)) {
-		t.Helper()
-
-		ctx = logger.Set(context.Background(), t.Name())
-		uuid.SetRand(new(tests.IDReader))
-
-		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
-		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-
-		r := new(mockAgentsRegistry)
-		r.Test(t)
-
-		vmdb := new(mockPrometheusService)
-		vmdb.Test(t)
-
-		teardown = func(t *testing.T) {
-			uuid.SetRand(nil)
-
-			require.NoError(t, sqlDB.Close())
-
-			r.AssertExpectations(t)
-			vmdb.AssertExpectations(t)
-		}
-		ns = NewNodesService(db, r, vmdb)
-
-		return
-	}
-
 	t.Run("Basic", func(t *testing.T) {
-		ns, teardown := setup(t)
+		_, _, ns, teardown, ctx := setup(t)
 		defer teardown(t)
 
 		actualNodes, err := ns.List(ctx, models.NodeFilters{})
@@ -99,7 +63,7 @@ func TestNodes(t *testing.T) {
 	})
 
 	t.Run("GetEmptyID", func(t *testing.T) {
-		ns, teardown := setup(t)
+		_, _, ns, teardown, ctx := setup(t)
 		defer teardown(t)
 
 		getNodeResponse, err := ns.Get(ctx, &inventorypb.GetNodeRequest{NodeId: ""})
@@ -108,7 +72,7 @@ func TestNodes(t *testing.T) {
 	})
 
 	t.Run("AddNameEmpty", func(t *testing.T) {
-		ns, teardown := setup(t)
+		_, _, ns, teardown, ctx := setup(t)
 		defer teardown(t)
 
 		_, err := ns.AddGenericNode(ctx, &inventorypb.AddGenericNodeRequest{NodeName: ""})
@@ -116,7 +80,7 @@ func TestNodes(t *testing.T) {
 	})
 
 	t.Run("AddNameNotUnique", func(t *testing.T) {
-		ns, teardown := setup(t)
+		_, _, ns, teardown, ctx := setup(t)
 		defer teardown(t)
 
 		_, err := ns.AddGenericNode(ctx, &inventorypb.AddGenericNodeRequest{NodeName: "test", Address: "test"})
@@ -127,7 +91,7 @@ func TestNodes(t *testing.T) {
 	})
 
 	t.Run("AddHostnameNotUnique", func(t *testing.T) {
-		ns, teardown := setup(t)
+		_, _, ns, teardown, ctx := setup(t)
 		defer teardown(t)
 
 		_, err := ns.AddGenericNode(ctx, &inventorypb.AddGenericNodeRequest{NodeName: "test1", Address: "test"})
@@ -153,7 +117,7 @@ func TestNodes(t *testing.T) {
 	*/
 
 	t.Run("AddRemoteRDSNode", func(t *testing.T) {
-		ns, teardown := setup(t)
+		_, _, ns, teardown, ctx := setup(t)
 		defer teardown(t)
 
 		_, err := ns.AddRemoteRDSNode(ctx, &inventorypb.AddRemoteRDSNodeRequest{NodeName: "test1", Region: "test-region", Address: "test"})
@@ -165,7 +129,7 @@ func TestNodes(t *testing.T) {
 	})
 
 	t.Run("RemoveNotFound", func(t *testing.T) {
-		ns, teardown := setup(t)
+		_, _, ns, teardown, ctx := setup(t)
 		defer teardown(t)
 
 		err := ns.Remove(ctx, "no-such-id", false)
