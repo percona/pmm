@@ -428,8 +428,9 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 
 	case inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT:
 		params := &pgstatstatements.Params{
-			DSN:     dsn,
-			AgentID: agentID,
+			DSN:       dsn,
+			AgentID:   agentID,
+			TextFiles: builtinAgent.GetTextFiles(),
 		}
 		agent, err = pgstatstatements.New(params, l)
 
@@ -437,6 +438,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 		params := &pgstatmonitor.Params{
 			DSN:                  dsn,
 			AgentID:              agentID,
+			TextFiles:            builtinAgent.GetTextFiles(),
 			DisableQueryExamples: builtinAgent.DisableQueryExamples,
 		}
 		agent, err = pgstatmonitor.New(params, l)

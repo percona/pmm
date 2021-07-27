@@ -17,6 +17,7 @@ package actions
 
 import (
 	"context"
+	"os"
 	"testing"
 	"time"
 
@@ -39,7 +40,7 @@ func TestPostgreSQLQueryShow(t *testing.T) {
 		params := &agentpb.StartActionRequest_PostgreSQLQueryShowParams{
 			Dsn: dsn,
 		}
-		a := NewPostgreSQLQueryShowAction("", params)
+		a := NewPostgreSQLQueryShowAction("", params, os.TempDir())
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 

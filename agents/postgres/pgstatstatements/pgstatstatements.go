@@ -55,8 +55,9 @@ type PGStatStatementsQAN struct {
 
 // Params represent Agent parameters.
 type Params struct {
-	DSN     string
-	AgentID string
+	DSN       string
+	AgentID   string
+	TextFiles *agentpb.TextFiles
 }
 
 const queryTag = "pmm-agent:pgstatstatements"

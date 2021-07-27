@@ -72,7 +72,7 @@ func (cc *ConnectionChecker) Check(ctx context.Context, msg *agentpb.CheckConnec
 	case inventorypb.ServiceType_MONGODB_SERVICE:
 		return cc.checkMongoDBConnection(ctx, msg.Dsn, msg.TextFiles, id)
 	case inventorypb.ServiceType_POSTGRESQL_SERVICE:
-		return cc.checkPostgreSQLConnection(ctx, msg.Dsn)
+		return cc.checkPostgreSQLConnection(ctx, msg.Dsn, msg.TextFiles, id)
 	case inventorypb.ServiceType_PROXYSQL_SERVICE:
 		return cc.checkProxySQLConnection(ctx, msg.Dsn)
 	case inventorypb.ServiceType_EXTERNAL_SERVICE, inventorypb.ServiceType_HAPROXY_SERVICE:
@@ -187,8 +187,17 @@ func (cc *ConnectionChecker) checkMongoDBConnection(ctx context.Context, dsn str
 	return &res
 }
 
-func (cc *ConnectionChecker) checkPostgreSQLConnection(ctx context.Context, dsn string) *agentpb.CheckConnectionResponse {
+func (cc *ConnectionChecker) checkPostgreSQLConnection(ctx context.Context, dsn string, files *agentpb.TextFiles, id uint32) *agentpb.CheckConnectionResponse {
 	var res agentpb.CheckConnectionResponse
+	var err error
+
+	tempdir := filepath.Join(cc.paths.TempDir, strings.ToLower("check-postgresql-connection"), strconv.Itoa(int(id)))
+	dsn, err = templates.RenderDSN(dsn, files, tempdir)
+	if err != nil {
+		cc.l.Debugf("checkPostgreSQLConnection: failed to Render DSN: %s", err)
+		res.Error = err.Error()
+		return &res
+	}
 
 	c, err := pq.NewConnector(dsn)
 	if err != nil {

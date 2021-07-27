@@ -18,22 +18,28 @@ package actions
 import (
 	"context"
 	"database/sql"
+	"path/filepath"
+	"strings"
 
 	"github.com/lib/pq"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
+
+	"github.com/percona/pmm-agent/utils/templates"
 )
 
 type postgresqlQueryShowAction struct {
-	id     string
-	params *agentpb.StartActionRequest_PostgreSQLQueryShowParams
+	id      string
+	params  *agentpb.StartActionRequest_PostgreSQLQueryShowParams
+	tempDir string
 }
 
 // NewPostgreSQLQueryShowAction creates PostgreSQL SHOW query Action.
-func NewPostgreSQLQueryShowAction(id string, params *agentpb.StartActionRequest_PostgreSQLQueryShowParams) Action {
+func NewPostgreSQLQueryShowAction(id string, params *agentpb.StartActionRequest_PostgreSQLQueryShowParams, tempDir string) Action {
 	return &postgresqlQueryShowAction{
-		id:     id,
-		params: params,
+		id:      id,
+		params:  params,
+		tempDir: tempDir,
 	}
 }
 
@@ -49,7 +55,12 @@ func (a *postgresqlQueryShowAction) Type() string {
 
 // Run runs an Action and returns output and error.
 func (a *postgresqlQueryShowAction) Run(ctx context.Context) ([]byte, error) {
-	connector, err := pq.NewConnector(a.params.Dsn)
+	dsn, err := templates.RenderDSN(a.params.Dsn, a.params.TlsFiles, filepath.Join(a.tempDir, strings.ToLower(a.Type()), a.id))
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	connector, err := pq.NewConnector(dsn)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}

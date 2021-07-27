@@ -18,6 +18,7 @@ package actions
 import (
 	"context"
 	"encoding/json"
+	"os"
 	"testing"
 	"time"
 
@@ -40,7 +41,7 @@ func TestPostgreSQLShowIndex(t *testing.T) {
 			Dsn:   dsn,
 			Table: "city",
 		}
-		a := NewPostgreSQLShowIndexAction("", params)
+		a := NewPostgreSQLShowIndexAction("", params, os.TempDir())
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 
@@ -64,7 +65,7 @@ func TestPostgreSQLShowIndex(t *testing.T) {
 			Dsn:   dsn,
 			Table: "public.city",
 		}
-		a := NewPostgreSQLShowIndexAction("", params)
+		a := NewPostgreSQLShowIndexAction("", params, os.TempDir())
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 

@@ -17,6 +17,7 @@ package actions
 
 import (
 	"context"
+	"os"
 	"testing"
 	"time"
 
@@ -40,7 +41,7 @@ func TestPostgreSQLQuerySelect(t *testing.T) {
 			Dsn:   dsn,
 			Query: "* FROM pg_extension",
 		}
-		a := NewPostgreSQLQuerySelectAction("", params)
+		a := NewPostgreSQLQuerySelectAction("", params, os.TempDir())
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 
@@ -72,7 +73,7 @@ func TestPostgreSQLQuerySelect(t *testing.T) {
 			Dsn:   dsn,
 			Query: `'\x0001feff'::bytea AS bytes`,
 		}
-		a := NewPostgreSQLQuerySelectAction("", params)
+		a := NewPostgreSQLQuerySelectAction("", params, os.TempDir())
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 
@@ -95,7 +96,7 @@ func TestPostgreSQLQuerySelect(t *testing.T) {
 			Dsn:   dsn,
 			Query: "* FROM city; DROP TABLE city CASCADE; --",
 		}
-		a := NewPostgreSQLQuerySelectAction("", params)
+		a := NewPostgreSQLQuerySelectAction("", params, os.TempDir())
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 

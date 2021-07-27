@@ -17,6 +17,7 @@ package actions
 
 import (
 	"context"
+	"os"
 	"testing"
 	"time"
 
@@ -39,7 +40,7 @@ func TestPostgreSQLShowCreateTable(t *testing.T) {
 			Dsn:   dsn,
 			Table: "public.country",
 		}
-		a := NewPostgreSQLShowCreateTableAction("", params)
+		a := NewPostgreSQLShowCreateTableAction("", params, os.TempDir())
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 
@@ -81,7 +82,7 @@ Referenced by:
 			Dsn:   dsn,
 			Table: "city",
 		}
-		a := NewPostgreSQLShowCreateTableAction("", params)
+		a := NewPostgreSQLShowCreateTableAction("", params, os.TempDir())
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 
@@ -109,7 +110,7 @@ Referenced by:
 			Dsn:   dsn,
 			Table: "countrylanguage",
 		}
-		a := NewPostgreSQLShowCreateTableAction("", params)
+		a := NewPostgreSQLShowCreateTableAction("", params, os.TempDir())
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 
@@ -136,7 +137,7 @@ Foreign-key constraints:
 			Dsn:   dsn,
 			Table: `city; DROP TABLE city; --`,
 		}
-		a := NewPostgreSQLShowCreateTableAction("", params)
+		a := NewPostgreSQLShowCreateTableAction("", params, os.TempDir())
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 

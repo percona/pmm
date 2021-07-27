@@ -65,7 +65,7 @@ func (tr *TemplateRenderer) RenderFiles(templateParams map[string]interface{}) (
 	if err := os.RemoveAll(tr.TempDir); err != nil {
 		return nil, errors.WithStack(err)
 	}
-	if err := os.MkdirAll(tr.TempDir, 0750); err != nil {
+	if err := os.MkdirAll(tr.TempDir, 0700); err != nil {
 		return nil, errors.WithStack(err)
 	}
 
@@ -82,7 +82,7 @@ func (tr *TemplateRenderer) RenderFiles(templateParams map[string]interface{}) (
 		}
 
 		path := filepath.Join(tr.TempDir, name)
-		if err = ioutil.WriteFile(path, b, 0640); err != nil { //nolint:gosec
+		if err = ioutil.WriteFile(path, b, 0600); err != nil { //nolint:gosec
 			return nil, errors.WithStack(err)
 		}
 		textFiles[name] = path

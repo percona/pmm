@@ -18,23 +18,28 @@ package actions
 import (
 	"context"
 	"database/sql"
+	"path/filepath"
 	"strings"
 
 	"github.com/lib/pq"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
+
+	"github.com/percona/pmm-agent/utils/templates"
 )
 
 type postgresqlQuerySelectAction struct {
-	id     string
-	params *agentpb.StartActionRequest_PostgreSQLQuerySelectParams
+	id      string
+	params  *agentpb.StartActionRequest_PostgreSQLQuerySelectParams
+	tempDir string
 }
 
 // NewPostgreSQLQuerySelectAction creates PostgreSQL SELECT query Action.
-func NewPostgreSQLQuerySelectAction(id string, params *agentpb.StartActionRequest_PostgreSQLQuerySelectParams) Action {
+func NewPostgreSQLQuerySelectAction(id string, params *agentpb.StartActionRequest_PostgreSQLQuerySelectParams, tempDir string) Action {
 	return &postgresqlQuerySelectAction{
-		id:     id,
-		params: params,
+		id:      id,
+		params:  params,
+		tempDir: tempDir,
 	}
 }
 
@@ -50,7 +55,12 @@ func (a *postgresqlQuerySelectAction) Type() string {
 
 // Run runs an Action and returns output and error.
 func (a *postgresqlQuerySelectAction) Run(ctx context.Context) ([]byte, error) {
-	connector, err := pq.NewConnector(a.params.Dsn)
+	dsn, err := templates.RenderDSN(a.params.Dsn, a.params.TlsFiles, filepath.Join(a.tempDir, strings.ToLower(a.Type()), a.id))
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	connector, err := pq.NewConnector(dsn)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}

@@ -311,10 +311,10 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 				action = actions.NewMySQLShowIndexAction(p.ActionId, params.MysqlShowIndexParams)
 
 			case *agentpb.StartActionRequest_PostgresqlShowCreateTableParams:
-				action = actions.NewPostgreSQLShowCreateTableAction(p.ActionId, params.PostgresqlShowCreateTableParams)
+				action = actions.NewPostgreSQLShowCreateTableAction(p.ActionId, params.PostgresqlShowCreateTableParams, c.cfg.Paths.TempDir)
 
 			case *agentpb.StartActionRequest_PostgresqlShowIndexParams:
-				action = actions.NewPostgreSQLShowIndexAction(p.ActionId, params.PostgresqlShowIndexParams)
+				action = actions.NewPostgreSQLShowIndexAction(p.ActionId, params.PostgresqlShowIndexParams, c.cfg.Paths.TempDir)
 
 			case *agentpb.StartActionRequest_MongodbExplainParams:
 				action = actions.NewMongoDBExplainAction(p.ActionId, params.MongodbExplainParams, c.cfg.Paths.TempDir)
@@ -326,10 +326,10 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 				action = actions.NewMySQLQuerySelectAction(p.ActionId, params.MysqlQuerySelectParams)
 
 			case *agentpb.StartActionRequest_PostgresqlQueryShowParams:
-				action = actions.NewPostgreSQLQueryShowAction(p.ActionId, params.PostgresqlQueryShowParams)
+				action = actions.NewPostgreSQLQueryShowAction(p.ActionId, params.PostgresqlQueryShowParams, c.cfg.Paths.TempDir)
 
 			case *agentpb.StartActionRequest_PostgresqlQuerySelectParams:
-				action = actions.NewPostgreSQLQuerySelectAction(p.ActionId, params.PostgresqlQuerySelectParams)
+				action = actions.NewPostgreSQLQuerySelectAction(p.ActionId, params.PostgresqlQuerySelectParams, c.cfg.Paths.TempDir)
 
 			case *agentpb.StartActionRequest_MongodbQueryGetparameterParams:
 				action = actions.NewMongoDBQueryAdmincommandAction(actions.MongoDBQueryAdmincommandActionParams{
