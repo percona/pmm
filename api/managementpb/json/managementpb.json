@@ -3914,6 +3914,21 @@
                   "type": "boolean",
                   "x-order": 18
                 },
+                "tls_ca": {
+                  "description": "TLS CA certificate.",
+                  "type": "string",
+                  "x-order": 22
+                },
+                "tls_cert": {
+                  "description": "TLS Certifcate.",
+                  "type": "string",
+                  "x-order": 23
+                },
+                "tls_key": {
+                  "description": "TLS Certificate Key.",
+                  "type": "string",
+                  "x-order": 24
+                },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                   "type": "boolean",
