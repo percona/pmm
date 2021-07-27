@@ -53,8 +53,12 @@ type addAgentQANPostgreSQLPgStatementsAgentCommand struct {
 	Password            string
 	CustomLabels        string
 	SkipConnectionCheck bool
-	TLS                 bool
-	TLSSkipVerify       bool
+
+	TLS           bool
+	TLSSkipVerify bool
+	TLSCAFile     string
+	TLSCertFile   string
+	TLSKeyFile    string
 }
 
 func (cmd *addAgentQANPostgreSQLPgStatementsAgentCommand) Run() (commands.Result, error) {
@@ -62,6 +66,25 @@ func (cmd *addAgentQANPostgreSQLPgStatementsAgentCommand) Run() (commands.Result
 	if err != nil {
 		return nil, err
 	}
+
+	var tlsCa, tlsCert, tlsKey string
+	if cmd.TLS {
+		tlsCa, err = commands.ReadFile(cmd.TLSCAFile)
+		if err != nil {
+			return nil, err
+		}
+
+		tlsCert, err = commands.ReadFile(cmd.TLSCertFile)
+		if err != nil {
+			return nil, err
+		}
+
+		tlsKey, err = commands.ReadFile(cmd.TLSKeyFile)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	params := &agents.AddQANPostgreSQLPgStatementsAgentParams{
 		Body: agents.AddQANPostgreSQLPgStatementsAgentBody{
 			PMMAgentID:          cmd.PMMAgentID,
@@ -70,8 +93,12 @@ func (cmd *addAgentQANPostgreSQLPgStatementsAgentCommand) Run() (commands.Result
 			Password:            cmd.Password,
 			CustomLabels:        customLabels,
 			SkipConnectionCheck: cmd.SkipConnectionCheck,
-			TLS:                 cmd.TLS,
-			TLSSkipVerify:       cmd.TLSSkipVerify,
+
+			TLS:           cmd.TLS,
+			TLSSkipVerify: cmd.TLSSkipVerify,
+			TLSCa:         tlsCa,
+			TLSCert:       tlsCert,
+			TLSKey:        tlsKey,
 		},
 		Context: commands.Ctx,
 	}
@@ -98,6 +125,10 @@ func init() {
 	AddAgentQANPostgreSQLPgStatementsAgentC.Flag("password", "PostgreSQL password for QAN agent").StringVar(&AddAgentQANPostgreSQLPgStatementsAgent.Password)
 	AddAgentQANPostgreSQLPgStatementsAgentC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentQANPostgreSQLPgStatementsAgent.CustomLabels)
 	AddAgentQANPostgreSQLPgStatementsAgentC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddAgentQANPostgreSQLPgStatementsAgent.SkipConnectionCheck)
+
 	AddAgentQANPostgreSQLPgStatementsAgentC.Flag("tls", "Use TLS to connect to the database").BoolVar(&AddAgentQANPostgreSQLPgStatementsAgent.TLS)
 	AddAgentQANPostgreSQLPgStatementsAgentC.Flag("tls-skip-verify", "Skip TLS certificates validation").BoolVar(&AddAgentQANPostgreSQLPgStatementsAgent.TLSSkipVerify)
+	AddAgentQANPostgreSQLPgStatementsAgentC.Flag("tls-ca-file", "TLS CA certificate file").StringVar(&AddAgentQANPostgreSQLPgStatementsAgent.TLSCAFile)
+	AddAgentQANPostgreSQLPgStatementsAgentC.Flag("tls-cert-file", "TLS certificate file").StringVar(&AddAgentQANPostgreSQLPgStatementsAgent.TLSCertFile)
+	AddAgentQANPostgreSQLPgStatementsAgentC.Flag("tls-key-file", "TLS certificate key file").StringVar(&AddAgentQANPostgreSQLPgStatementsAgent.TLSKeyFile)
 }

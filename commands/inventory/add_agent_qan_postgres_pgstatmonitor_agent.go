@@ -54,9 +54,13 @@ type addAgentQANPostgreSQLPgStatMonitorAgentCommand struct {
 	Password              string
 	CustomLabels          string
 	SkipConnectionCheck   bool
-	TLS                   bool
-	TLSSkipVerify         bool
 	QueryExamplesDisabled bool
+
+	TLS           bool
+	TLSSkipVerify bool
+	TLSCAFile     string
+	TLSCertFile   string
+	TLSKeyFile    string
 }
 
 func (cmd *addAgentQANPostgreSQLPgStatMonitorAgentCommand) Run() (commands.Result, error) {
@@ -64,6 +68,25 @@ func (cmd *addAgentQANPostgreSQLPgStatMonitorAgentCommand) Run() (commands.Resul
 	if err != nil {
 		return nil, err
 	}
+
+	var tlsCa, tlsCert, tlsKey string
+	if cmd.TLS {
+		tlsCa, err = commands.ReadFile(cmd.TLSCAFile)
+		if err != nil {
+			return nil, err
+		}
+
+		tlsCert, err = commands.ReadFile(cmd.TLSCertFile)
+		if err != nil {
+			return nil, err
+		}
+
+		tlsKey, err = commands.ReadFile(cmd.TLSKeyFile)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	params := &agents.AddQANPostgreSQLPgStatMonitorAgentParams{
 		Body: agents.AddQANPostgreSQLPgStatMonitorAgentBody{
 			PMMAgentID:           cmd.PMMAgentID,
@@ -72,9 +95,13 @@ func (cmd *addAgentQANPostgreSQLPgStatMonitorAgentCommand) Run() (commands.Resul
 			Password:             cmd.Password,
 			CustomLabels:         customLabels,
 			SkipConnectionCheck:  cmd.SkipConnectionCheck,
-			TLS:                  cmd.TLS,
-			TLSSkipVerify:        cmd.TLSSkipVerify,
 			DisableQueryExamples: cmd.QueryExamplesDisabled,
+
+			TLS:           cmd.TLS,
+			TLSSkipVerify: cmd.TLSSkipVerify,
+			TLSCa:         tlsCa,
+			TLSCert:       tlsCert,
+			TLSKey:        tlsKey,
 		},
 		Context: commands.Ctx,
 	}
@@ -101,7 +128,11 @@ func init() {
 	AddAgentQANPostgreSQLPgStatMonitorAgentC.Flag("password", "PostgreSQL password for QAN agent").StringVar(&AddAgentQANPostgreSQLPgStatMonitorAgent.Password)
 	AddAgentQANPostgreSQLPgStatMonitorAgentC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentQANPostgreSQLPgStatMonitorAgent.CustomLabels)
 	AddAgentQANPostgreSQLPgStatMonitorAgentC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddAgentQANPostgreSQLPgStatMonitorAgent.SkipConnectionCheck)
+	AddAgentQANPostgreSQLPgStatMonitorAgentC.Flag("disable-queryexamples", "Disable collection of query examples").BoolVar(&AddAgentQANPostgreSQLPgStatMonitorAgent.QueryExamplesDisabled)
+
 	AddAgentQANPostgreSQLPgStatMonitorAgentC.Flag("tls", "Use TLS to connect to the database").BoolVar(&AddAgentQANPostgreSQLPgStatMonitorAgent.TLS)
 	AddAgentQANPostgreSQLPgStatMonitorAgentC.Flag("tls-skip-verify", "Skip TLS certificates validation").BoolVar(&AddAgentQANPostgreSQLPgStatMonitorAgent.TLSSkipVerify)
-	AddAgentQANPostgreSQLPgStatMonitorAgentC.Flag("disable-queryexamples", "Disable collection of query examples").BoolVar(&AddAgentQANPostgreSQLPgStatMonitorAgent.QueryExamplesDisabled)
+	AddAgentQANPostgreSQLPgStatMonitorAgentC.Flag("tls-ca-file", "TLS CA certificate file").StringVar(&AddAgentQANPostgreSQLPgStatMonitorAgent.TLSCAFile)
+	AddAgentQANPostgreSQLPgStatMonitorAgentC.Flag("tls-cert-file", "TLS certificate file").StringVar(&AddAgentQANPostgreSQLPgStatMonitorAgent.TLSCertFile)
+	AddAgentQANPostgreSQLPgStatMonitorAgentC.Flag("tls-key-file", "TLS certificate key file").StringVar(&AddAgentQANPostgreSQLPgStatMonitorAgent.TLSKeyFile)
 }

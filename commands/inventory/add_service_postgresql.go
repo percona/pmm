@@ -66,6 +66,7 @@ func (cmd *addServicePostgreSQLCommand) Run() (commands.Result, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	params := &services.AddPostgreSQLServiceParams{
 		Body: services.AddPostgreSQLServiceBody{
 			ServiceName:    cmd.ServiceName,
