@@ -514,18 +514,13 @@
                       "type": "string",
                       "x-order": 0
                     },
-                    "agent_password": {
-                      "description": "Custom password for exporter endpoint /metrics.",
-                      "type": "string",
-                      "x-order": 5
-                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -538,13 +533,13 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 12
+                      "x-order": 11
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -554,7 +549,7 @@
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -574,17 +569,17 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "username": {
                       "description": "MongoDB username for scraping metrics.",
@@ -755,18 +750,13 @@
                       "type": "string",
                       "x-order": 0
                     },
-                    "agent_password": {
-                      "description": "Custom password for exporter endpoint /metrics.",
-                      "type": "string",
-                      "x-order": 5
-                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 12
+                      "x-order": 11
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -779,13 +769,13 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 14
+                      "x-order": 13
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 16
+                      "x-order": 15
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -795,7 +785,7 @@
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 13
+                      "x-order": 12
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -815,43 +805,43 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 15
+                      "x-order": 14
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 17
+                      "x-order": 16
                     },
                     "tablestats_group_table_limit": {
                       "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 5
                     },
                     "tls_ca": {
                       "description": "Certificate Authority certificate chain.",
                       "type": "string",
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "tls_cert": {
                       "description": "Client certificate.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "tls_key": {
                       "description": "Password for decrypting tls_cert.",
                       "type": "string",
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "username": {
                       "description": "MySQL username for scraping metrics.",
@@ -1295,18 +1285,13 @@
                       "type": "string",
                       "x-order": 0
                     },
-                    "agent_password": {
-                      "description": "Custom password for exporter endpoint /metrics.",
-                      "type": "string",
-                      "x-order": 5
-                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -1319,13 +1304,13 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 12
+                      "x-order": 11
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -1335,7 +1320,7 @@
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -1355,17 +1340,17 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "username": {
                       "description": "PostgreSQL username for scraping metrics.",
@@ -1515,18 +1500,13 @@
                       "type": "string",
                       "x-order": 0
                     },
-                    "agent_password": {
-                      "description": "Custom password for exporter endpoint /metrics.",
-                      "type": "string",
-                      "x-order": 5
-                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -1539,13 +1519,13 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 12
+                      "x-order": 11
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -1555,7 +1535,7 @@
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -1575,17 +1555,17 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "username": {
                       "description": "ProxySQL username for scraping metrics.",
@@ -3319,18 +3299,13 @@
                       "type": "string",
                       "x-order": 0
                     },
-                    "agent_password": {
-                      "description": "Custom password for exporter endpoint /metrics.",
-                      "type": "string",
-                      "x-order": 5
-                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -3343,13 +3318,13 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 12
+                      "x-order": 11
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -3359,7 +3334,7 @@
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -3379,17 +3354,17 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "username": {
                       "description": "MongoDB username for scraping metrics.",
@@ -3522,18 +3497,13 @@
                       "type": "string",
                       "x-order": 0
                     },
-                    "agent_password": {
-                      "description": "Custom password for exporter endpoint /metrics.",
-                      "type": "string",
-                      "x-order": 5
-                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 12
+                      "x-order": 11
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -3546,13 +3516,13 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 14
+                      "x-order": 13
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 16
+                      "x-order": 15
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -3562,7 +3532,7 @@
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 13
+                      "x-order": 12
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -3582,43 +3552,43 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 15
+                      "x-order": 14
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 17
+                      "x-order": 16
                     },
                     "tablestats_group_table_limit": {
                       "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 5
                     },
                     "tls_ca": {
                       "description": "Certificate Authority certificate chain.",
                       "type": "string",
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "tls_cert": {
                       "description": "Client certificate.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "tls_key": {
                       "description": "Password for decrypting tls_cert.",
                       "type": "string",
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "username": {
                       "description": "MySQL username for scraping metrics.",
@@ -3929,18 +3899,13 @@
                       "type": "string",
                       "x-order": 0
                     },
-                    "agent_password": {
-                      "description": "Custom password for exporter endpoint /metrics.",
-                      "type": "string",
-                      "x-order": 5
-                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -3953,13 +3918,13 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 12
+                      "x-order": 11
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -3969,7 +3934,7 @@
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -3989,17 +3954,17 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "username": {
                       "description": "PostgreSQL username for scraping metrics.",
@@ -4132,18 +4097,13 @@
                       "type": "string",
                       "x-order": 0
                     },
-                    "agent_password": {
-                      "description": "Custom password for exporter endpoint /metrics.",
-                      "type": "string",
-                      "x-order": 5
-                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -4156,13 +4116,13 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 12
+                      "x-order": 11
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -4172,7 +4132,7 @@
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -4192,17 +4152,17 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "username": {
                       "description": "ProxySQL username for scraping metrics.",
@@ -5564,18 +5524,13 @@
                       "type": "string",
                       "x-order": 0
                     },
-                    "agent_password": {
-                      "description": "Custom password for exporter endpoint /metrics.",
-                      "type": "string",
-                      "x-order": 5
-                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -5588,13 +5543,13 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 12
+                      "x-order": 11
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -5604,7 +5559,7 @@
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -5624,17 +5579,17 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "username": {
                       "description": "MongoDB username for scraping metrics.",
@@ -5653,18 +5608,13 @@
                       "type": "string",
                       "x-order": 0
                     },
-                    "agent_password": {
-                      "description": "Custom password for exporter endpoint /metrics.",
-                      "type": "string",
-                      "x-order": 5
-                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 12
+                      "x-order": 11
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -5677,13 +5627,13 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 14
+                      "x-order": 13
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 16
+                      "x-order": 15
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -5693,7 +5643,7 @@
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 13
+                      "x-order": 12
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -5713,43 +5663,43 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 15
+                      "x-order": 14
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 17
+                      "x-order": 16
                     },
                     "tablestats_group_table_limit": {
                       "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 5
                     },
                     "tls_ca": {
                       "description": "Certificate Authority certificate chain.",
                       "type": "string",
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "tls_cert": {
                       "description": "Client certificate.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "tls_key": {
                       "description": "Password for decrypting tls_cert.",
                       "type": "string",
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "username": {
                       "description": "MySQL username for scraping metrics.",
@@ -5862,18 +5812,13 @@
                       "type": "string",
                       "x-order": 0
                     },
-                    "agent_password": {
-                      "description": "Custom password for exporter endpoint /metrics.",
-                      "type": "string",
-                      "x-order": 5
-                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -5886,13 +5831,13 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 12
+                      "x-order": 11
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -5902,7 +5847,7 @@
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -5922,17 +5867,17 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "username": {
                       "description": "PostgreSQL username for scraping metrics.",
@@ -5951,18 +5896,13 @@
                       "type": "string",
                       "x-order": 0
                     },
-                    "agent_password": {
-                      "description": "Custom password for exporter endpoint /metrics.",
-                      "type": "string",
-                      "x-order": 5
-                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -5975,13 +5915,13 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 12
+                      "x-order": 11
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -5991,7 +5931,7 @@
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -6011,17 +5951,17 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "username": {
                       "description": "ProxySQL username for scraping metrics.",
@@ -6773,18 +6713,13 @@
                         "type": "string",
                         "x-order": 0
                       },
-                      "agent_password": {
-                        "description": "Custom password for exporter endpoint /metrics.",
-                        "type": "string",
-                        "x-order": 5
-                      },
                       "custom_labels": {
                         "description": "Custom user-assigned labels.",
                         "type": "object",
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 8
+                        "x-order": 7
                       },
                       "disabled": {
                         "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -6797,13 +6732,13 @@
                         "items": {
                           "type": "string"
                         },
-                        "x-order": 10
+                        "x-order": 9
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 12
+                        "x-order": 11
                       },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
@@ -6813,7 +6748,7 @@
                       "push_metrics_enabled": {
                         "description": "True if exporter uses push metrics mode.",
                         "type": "boolean",
-                        "x-order": 9
+                        "x-order": 8
                       },
                       "service_id": {
                         "description": "Service identifier.",
@@ -6833,17 +6768,17 @@
                           "DONE",
                           "UNKNOWN"
                         ],
-                        "x-order": 11
+                        "x-order": 10
                       },
                       "tls": {
                         "description": "Use TLS for database connections.",
                         "type": "boolean",
-                        "x-order": 6
+                        "x-order": 5
                       },
                       "tls_skip_verify": {
                         "description": "Skip TLS certificate and hostname validation.",
                         "type": "boolean",
-                        "x-order": 7
+                        "x-order": 6
                       },
                       "username": {
                         "description": "MongoDB username for scraping metrics.",
@@ -6865,18 +6800,13 @@
                         "type": "string",
                         "x-order": 0
                       },
-                      "agent_password": {
-                        "description": "Custom password for exporter endpoint /metrics.",
-                        "type": "string",
-                        "x-order": 5
-                      },
                       "custom_labels": {
                         "description": "Custom user-assigned labels.",
                         "type": "object",
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 12
+                        "x-order": 11
                       },
                       "disabled": {
                         "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -6889,13 +6819,13 @@
                         "items": {
                           "type": "string"
                         },
-                        "x-order": 14
+                        "x-order": 13
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 16
+                        "x-order": 15
                       },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
@@ -6905,7 +6835,7 @@
                       "push_metrics_enabled": {
                         "description": "True if exporter uses push metrics mode.",
                         "type": "boolean",
-                        "x-order": 13
+                        "x-order": 12
                       },
                       "service_id": {
                         "description": "Service identifier.",
@@ -6925,43 +6855,43 @@
                           "DONE",
                           "UNKNOWN"
                         ],
-                        "x-order": 15
+                        "x-order": 14
                       },
                       "tablestats_group_disabled": {
                         "description": "True if tablestats group collectors are currently disabled.",
                         "type": "boolean",
-                        "x-order": 17
+                        "x-order": 16
                       },
                       "tablestats_group_table_limit": {
                         "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
                         "type": "integer",
                         "format": "int32",
-                        "x-order": 11
+                        "x-order": 10
                       },
                       "tls": {
                         "description": "Use TLS for database connections.",
                         "type": "boolean",
-                        "x-order": 6
+                        "x-order": 5
                       },
                       "tls_ca": {
                         "description": "Certificate Authority certificate chain.",
                         "type": "string",
-                        "x-order": 8
+                        "x-order": 7
                       },
                       "tls_cert": {
                         "description": "Client certificate.",
                         "type": "string",
-                        "x-order": 9
+                        "x-order": 8
                       },
                       "tls_key": {
                         "description": "Password for decrypting tls_cert.",
                         "type": "string",
-                        "x-order": 10
+                        "x-order": 9
                       },
                       "tls_skip_verify": {
                         "description": "Skip TLS certificate and hostname validation.",
                         "type": "boolean",
-                        "x-order": 7
+                        "x-order": 6
                       },
                       "username": {
                         "description": "MySQL username for scraping metrics.",
@@ -7083,18 +7013,13 @@
                         "type": "string",
                         "x-order": 0
                       },
-                      "agent_password": {
-                        "description": "Custom password for exporter endpoint /metrics.",
-                        "type": "string",
-                        "x-order": 5
-                      },
                       "custom_labels": {
                         "description": "Custom user-assigned labels.",
                         "type": "object",
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 8
+                        "x-order": 7
                       },
                       "disabled": {
                         "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -7107,13 +7032,13 @@
                         "items": {
                           "type": "string"
                         },
-                        "x-order": 10
+                        "x-order": 9
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 12
+                        "x-order": 11
                       },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
@@ -7123,7 +7048,7 @@
                       "push_metrics_enabled": {
                         "description": "True if exporter uses push metrics mode.",
                         "type": "boolean",
-                        "x-order": 9
+                        "x-order": 8
                       },
                       "service_id": {
                         "description": "Service identifier.",
@@ -7143,17 +7068,17 @@
                           "DONE",
                           "UNKNOWN"
                         ],
-                        "x-order": 11
+                        "x-order": 10
                       },
                       "tls": {
                         "description": "Use TLS for database connections.",
                         "type": "boolean",
-                        "x-order": 6
+                        "x-order": 5
                       },
                       "tls_skip_verify": {
                         "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                         "type": "boolean",
-                        "x-order": 7
+                        "x-order": 6
                       },
                       "username": {
                         "description": "PostgreSQL username for scraping metrics.",
@@ -7175,18 +7100,13 @@
                         "type": "string",
                         "x-order": 0
                       },
-                      "agent_password": {
-                        "description": "Custom password for exporter endpoint /metrics.",
-                        "type": "string",
-                        "x-order": 5
-                      },
                       "custom_labels": {
                         "description": "Custom user-assigned labels.",
                         "type": "object",
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 8
+                        "x-order": 7
                       },
                       "disabled": {
                         "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -7199,13 +7119,13 @@
                         "items": {
                           "type": "string"
                         },
-                        "x-order": 10
+                        "x-order": 9
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 12
+                        "x-order": 11
                       },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
@@ -7215,7 +7135,7 @@
                       "push_metrics_enabled": {
                         "description": "True if exporter uses push metrics mode.",
                         "type": "boolean",
-                        "x-order": 9
+                        "x-order": 8
                       },
                       "service_id": {
                         "description": "Service identifier.",
@@ -7235,17 +7155,17 @@
                           "DONE",
                           "UNKNOWN"
                         ],
-                        "x-order": 11
+                        "x-order": 10
                       },
                       "tls": {
                         "description": "Use TLS for database connections.",
                         "type": "boolean",
-                        "x-order": 6
+                        "x-order": 5
                       },
                       "tls_skip_verify": {
                         "description": "Skip TLS certificate and hostname validation.",
                         "type": "boolean",
-                        "x-order": 7
+                        "x-order": 6
                       },
                       "username": {
                         "description": "ProxySQL username for scraping metrics.",

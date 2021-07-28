@@ -352,9 +352,6 @@ type AddMongoDBExporterOKBodyMongodbExporter struct {
 	// MongoDB username for scraping metrics.
 	Username string `json:"username,omitempty"`
 
-	// Custom password for exporter endpoint /metrics.
-	AgentPassword string `json:"agent_password,omitempty"`
-
 	// Use TLS for database connections.
 	TLS bool `json:"tls,omitempty"`
 

@@ -1898,20 +1898,15 @@
                       "type": "string",
                       "x-order": 4
                     },
-                    "agent_password": {
-                      "description": "Custom password for exporter endpoint /metrics.",
-                      "type": "string",
-                      "x-order": 5
-                    },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -1919,12 +1914,12 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "disabled_collectors": {
                       "description": "List of disabled collector names.",
@@ -1932,7 +1927,7 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -1947,13 +1942,13 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 12
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -2139,41 +2134,36 @@
                       "type": "string",
                       "x-order": 4
                     },
-                    "agent_password": {
-                      "description": "Custom password for exporter endpoint /metrics.",
-                      "type": "string",
-                      "x-order": 5
-                    },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "tls_ca": {
                       "description": "Certificate Authority certificate chain.",
                       "type": "string",
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "tls_cert": {
                       "description": "Client certificate.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "tls_key": {
                       "description": "Password for decrypting tls_cert.",
                       "type": "string",
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "tablestats_group_table_limit": {
                       "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -2181,12 +2171,12 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 12
+                      "x-order": 11
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 13
+                      "x-order": 12
                     },
                     "disabled_collectors": {
                       "description": "List of disabled collector names.",
@@ -2194,7 +2184,7 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 14
+                      "x-order": 13
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -2209,18 +2199,18 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 15
+                      "x-order": 14
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 16
+                      "x-order": 15
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 17
+                      "x-order": 16
                     }
                   },
                   "x-order": 0
@@ -2679,20 +2669,15 @@
                       "type": "string",
                       "x-order": 4
                     },
-                    "agent_password": {
-                      "description": "Custom password for exporter endpoint /metrics.",
-                      "type": "string",
-                      "x-order": 5
-                    },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -2700,12 +2685,12 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "disabled_collectors": {
                       "description": "List of disabled collector names.",
@@ -2713,7 +2698,7 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -2728,13 +2713,13 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 12
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -2899,20 +2884,15 @@
                       "type": "string",
                       "x-order": 4
                     },
-                    "agent_password": {
-                      "description": "Custom password for exporter endpoint /metrics.",
-                      "type": "string",
-                      "x-order": 5
-                    },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -2920,12 +2900,12 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "disabled_collectors": {
                       "description": "List of disabled collector names.",
@@ -2933,7 +2913,7 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -2948,13 +2928,13 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 12
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -4703,20 +4683,15 @@
                       "type": "string",
                       "x-order": 4
                     },
-                    "agent_password": {
-                      "description": "Custom password for exporter endpoint /metrics.",
-                      "type": "string",
-                      "x-order": 5
-                    },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -4724,12 +4699,12 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "disabled_collectors": {
                       "description": "List of disabled collector names.",
@@ -4737,7 +4712,7 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -4752,13 +4727,13 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 12
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -4906,41 +4881,36 @@
                       "type": "string",
                       "x-order": 4
                     },
-                    "agent_password": {
-                      "description": "Custom password for exporter endpoint /metrics.",
-                      "type": "string",
-                      "x-order": 5
-                    },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "tls_ca": {
                       "description": "Certificate Authority certificate chain.",
                       "type": "string",
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "tls_cert": {
                       "description": "Client certificate.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "tls_key": {
                       "description": "Password for decrypting tls_cert.",
                       "type": "string",
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "tablestats_group_table_limit": {
                       "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -4948,12 +4918,12 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 12
+                      "x-order": 11
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 13
+                      "x-order": 12
                     },
                     "disabled_collectors": {
                       "description": "List of disabled collector names.",
@@ -4961,7 +4931,7 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 14
+                      "x-order": 13
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -4976,18 +4946,18 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 15
+                      "x-order": 14
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 16
+                      "x-order": 15
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 17
+                      "x-order": 16
                     }
                   },
                   "x-order": 0
@@ -5313,20 +5283,15 @@
                       "type": "string",
                       "x-order": 4
                     },
-                    "agent_password": {
-                      "description": "Custom password for exporter endpoint /metrics.",
-                      "type": "string",
-                      "x-order": 5
-                    },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -5334,12 +5299,12 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "disabled_collectors": {
                       "description": "List of disabled collector names.",
@@ -5347,7 +5312,7 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -5362,13 +5327,13 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 12
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -5516,20 +5481,15 @@
                       "type": "string",
                       "x-order": 4
                     },
-                    "agent_password": {
-                      "description": "Custom password for exporter endpoint /metrics.",
-                      "type": "string",
-                      "x-order": 5
-                    },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -5537,12 +5497,12 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "disabled_collectors": {
                       "description": "List of disabled collector names.",
@@ -5550,7 +5510,7 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -5565,13 +5525,13 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 12
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -6942,41 +6902,36 @@
                       "type": "string",
                       "x-order": 4
                     },
-                    "agent_password": {
-                      "description": "Custom password for exporter endpoint /metrics.",
-                      "type": "string",
-                      "x-order": 5
-                    },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "tls_ca": {
                       "description": "Certificate Authority certificate chain.",
                       "type": "string",
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "tls_cert": {
                       "description": "Client certificate.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "tls_key": {
                       "description": "Password for decrypting tls_cert.",
                       "type": "string",
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "tablestats_group_table_limit": {
                       "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -6984,12 +6939,12 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 12
+                      "x-order": 11
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 13
+                      "x-order": 12
                     },
                     "disabled_collectors": {
                       "description": "List of disabled collector names.",
@@ -6997,7 +6952,7 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 14
+                      "x-order": 13
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -7012,18 +6967,18 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 15
+                      "x-order": 14
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 16
+                      "x-order": 15
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 17
+                      "x-order": 16
                     }
                   },
                   "x-order": 3
@@ -7057,20 +7012,15 @@
                       "type": "string",
                       "x-order": 4
                     },
-                    "agent_password": {
-                      "description": "Custom password for exporter endpoint /metrics.",
-                      "type": "string",
-                      "x-order": 5
-                    },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -7078,12 +7028,12 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "disabled_collectors": {
                       "description": "List of disabled collector names.",
@@ -7091,7 +7041,7 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -7106,13 +7056,13 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 12
+                      "x-order": 11
                     }
                   },
                   "x-order": 4
@@ -7146,20 +7096,15 @@
                       "type": "string",
                       "x-order": 4
                     },
-                    "agent_password": {
-                      "description": "Custom password for exporter endpoint /metrics.",
-                      "type": "string",
-                      "x-order": 5
-                    },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -7167,12 +7112,12 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "disabled_collectors": {
                       "description": "List of disabled collector names.",
@@ -7180,7 +7125,7 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -7195,13 +7140,13 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 12
+                      "x-order": 11
                     }
                   },
                   "x-order": 5
@@ -7235,20 +7180,15 @@
                       "type": "string",
                       "x-order": 4
                     },
-                    "agent_password": {
-                      "description": "Custom password for exporter endpoint /metrics.",
-                      "type": "string",
-                      "x-order": 5
-                    },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -7256,12 +7196,12 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "disabled_collectors": {
                       "description": "List of disabled collector names.",
@@ -7269,7 +7209,7 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -7284,13 +7224,13 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 12
+                      "x-order": 11
                     }
                   },
                   "x-order": 6
@@ -8154,41 +8094,36 @@
                         "type": "string",
                         "x-order": 4
                       },
-                      "agent_password": {
-                        "description": "Custom password for exporter endpoint /metrics.",
-                        "type": "string",
-                        "x-order": 5
-                      },
                       "tls": {
                         "description": "Use TLS for database connections.",
                         "type": "boolean",
-                        "x-order": 6
+                        "x-order": 5
                       },
                       "tls_skip_verify": {
                         "description": "Skip TLS certificate and hostname validation.",
                         "type": "boolean",
-                        "x-order": 7
+                        "x-order": 6
                       },
                       "tls_ca": {
                         "description": "Certificate Authority certificate chain.",
                         "type": "string",
-                        "x-order": 8
+                        "x-order": 7
                       },
                       "tls_cert": {
                         "description": "Client certificate.",
                         "type": "string",
-                        "x-order": 9
+                        "x-order": 8
                       },
                       "tls_key": {
                         "description": "Password for decrypting tls_cert.",
                         "type": "string",
-                        "x-order": 10
+                        "x-order": 9
                       },
                       "tablestats_group_table_limit": {
                         "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
                         "type": "integer",
                         "format": "int32",
-                        "x-order": 11
+                        "x-order": 10
                       },
                       "custom_labels": {
                         "description": "Custom user-assigned labels.",
@@ -8196,12 +8131,12 @@
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 12
+                        "x-order": 11
                       },
                       "push_metrics_enabled": {
                         "description": "True if exporter uses push metrics mode.",
                         "type": "boolean",
-                        "x-order": 13
+                        "x-order": 12
                       },
                       "disabled_collectors": {
                         "description": "List of disabled collector names.",
@@ -8209,7 +8144,7 @@
                         "items": {
                           "type": "string"
                         },
-                        "x-order": 14
+                        "x-order": 13
                       },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -8224,18 +8159,18 @@
                           "DONE",
                           "UNKNOWN"
                         ],
-                        "x-order": 15
+                        "x-order": 14
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 16
+                        "x-order": 15
                       },
                       "tablestats_group_disabled": {
                         "description": "True if tablestats group collectors are currently disabled.",
                         "type": "boolean",
-                        "x-order": 17
+                        "x-order": 16
                       }
                     }
                   },
@@ -8272,20 +8207,15 @@
                         "type": "string",
                         "x-order": 4
                       },
-                      "agent_password": {
-                        "description": "Custom password for exporter endpoint /metrics.",
-                        "type": "string",
-                        "x-order": 5
-                      },
                       "tls": {
                         "description": "Use TLS for database connections.",
                         "type": "boolean",
-                        "x-order": 6
+                        "x-order": 5
                       },
                       "tls_skip_verify": {
                         "description": "Skip TLS certificate and hostname validation.",
                         "type": "boolean",
-                        "x-order": 7
+                        "x-order": 6
                       },
                       "custom_labels": {
                         "description": "Custom user-assigned labels.",
@@ -8293,12 +8223,12 @@
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 8
+                        "x-order": 7
                       },
                       "push_metrics_enabled": {
                         "description": "True if exporter uses push metrics mode.",
                         "type": "boolean",
-                        "x-order": 9
+                        "x-order": 8
                       },
                       "disabled_collectors": {
                         "description": "List of disabled collector names.",
@@ -8306,7 +8236,7 @@
                         "items": {
                           "type": "string"
                         },
-                        "x-order": 10
+                        "x-order": 9
                       },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -8321,13 +8251,13 @@
                           "DONE",
                           "UNKNOWN"
                         ],
-                        "x-order": 11
+                        "x-order": 10
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 12
+                        "x-order": 11
                       }
                     }
                   },
@@ -8364,20 +8294,15 @@
                         "type": "string",
                         "x-order": 4
                       },
-                      "agent_password": {
-                        "description": "Custom password for exporter endpoint /metrics.",
-                        "type": "string",
-                        "x-order": 5
-                      },
                       "tls": {
                         "description": "Use TLS for database connections.",
                         "type": "boolean",
-                        "x-order": 6
+                        "x-order": 5
                       },
                       "tls_skip_verify": {
                         "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                         "type": "boolean",
-                        "x-order": 7
+                        "x-order": 6
                       },
                       "custom_labels": {
                         "description": "Custom user-assigned labels.",
@@ -8385,12 +8310,12 @@
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 8
+                        "x-order": 7
                       },
                       "push_metrics_enabled": {
                         "description": "True if exporter uses push metrics mode.",
                         "type": "boolean",
-                        "x-order": 9
+                        "x-order": 8
                       },
                       "disabled_collectors": {
                         "description": "List of disabled collector names.",
@@ -8398,7 +8323,7 @@
                         "items": {
                           "type": "string"
                         },
-                        "x-order": 10
+                        "x-order": 9
                       },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -8413,13 +8338,13 @@
                           "DONE",
                           "UNKNOWN"
                         ],
-                        "x-order": 11
+                        "x-order": 10
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 12
+                        "x-order": 11
                       }
                     }
                   },
@@ -8456,20 +8381,15 @@
                         "type": "string",
                         "x-order": 4
                       },
-                      "agent_password": {
-                        "description": "Custom password for exporter endpoint /metrics.",
-                        "type": "string",
-                        "x-order": 5
-                      },
                       "tls": {
                         "description": "Use TLS for database connections.",
                         "type": "boolean",
-                        "x-order": 6
+                        "x-order": 5
                       },
                       "tls_skip_verify": {
                         "description": "Skip TLS certificate and hostname validation.",
                         "type": "boolean",
-                        "x-order": 7
+                        "x-order": 6
                       },
                       "custom_labels": {
                         "description": "Custom user-assigned labels.",
@@ -8477,12 +8397,12 @@
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 8
+                        "x-order": 7
                       },
                       "push_metrics_enabled": {
                         "description": "True if exporter uses push metrics mode.",
                         "type": "boolean",
-                        "x-order": 9
+                        "x-order": 8
                       },
                       "disabled_collectors": {
                         "description": "List of disabled collector names.",
@@ -8490,7 +8410,7 @@
                         "items": {
                           "type": "string"
                         },
-                        "x-order": 10
+                        "x-order": 9
                       },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -8505,13 +8425,13 @@
                           "DONE",
                           "UNKNOWN"
                         ],
-                        "x-order": 11
+                        "x-order": 10
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 12
+                        "x-order": 11
                       }
                     }
                   },
@@ -15339,20 +15259,15 @@
                       "type": "string",
                       "x-order": 4
                     },
-                    "agent_password": {
-                      "description": "Custom password for exporter endpoint /metrics.",
-                      "type": "string",
-                      "x-order": 5
-                    },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -15360,12 +15275,12 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "disabled_collectors": {
                       "description": "List of disabled collector names.",
@@ -15373,7 +15288,7 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -15388,13 +15303,13 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 12
+                      "x-order": 11
                     }
                   },
                   "x-order": 1
@@ -15846,41 +15761,36 @@
                       "type": "string",
                       "x-order": 4
                     },
-                    "agent_password": {
-                      "description": "Custom password for exporter endpoint /metrics.",
-                      "type": "string",
-                      "x-order": 5
-                    },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "tls_ca": {
                       "description": "Certificate Authority certificate chain.",
                       "type": "string",
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "tls_cert": {
                       "description": "Client certificate.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "tls_key": {
                       "description": "Password for decrypting tls_cert.",
                       "type": "string",
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "tablestats_group_table_limit": {
                       "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -15888,12 +15798,12 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 12
+                      "x-order": 11
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 13
+                      "x-order": 12
                     },
                     "disabled_collectors": {
                       "description": "List of disabled collector names.",
@@ -15901,7 +15811,7 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 14
+                      "x-order": 13
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -15916,18 +15826,18 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 15
+                      "x-order": 14
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 16
+                      "x-order": 15
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 17
+                      "x-order": 16
                     }
                   },
                   "x-order": 1
@@ -16793,20 +16703,15 @@
                       "type": "string",
                       "x-order": 4
                     },
-                    "agent_password": {
-                      "description": "Custom password for exporter endpoint /metrics.",
-                      "type": "string",
-                      "x-order": 5
-                    },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -16814,12 +16719,12 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "disabled_collectors": {
                       "description": "List of disabled collector names.",
@@ -16827,7 +16732,7 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -16842,13 +16747,13 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 12
+                      "x-order": 11
                     }
                   },
                   "x-order": 1
@@ -17328,20 +17233,15 @@
                       "type": "string",
                       "x-order": 4
                     },
-                    "agent_password": {
-                      "description": "Custom password for exporter endpoint /metrics.",
-                      "type": "string",
-                      "x-order": 5
-                    },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -17349,12 +17249,12 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "disabled_collectors": {
                       "description": "List of disabled collector names.",
@@ -17362,7 +17262,7 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -17377,13 +17277,13 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 12
+                      "x-order": 11
                     }
                   },
                   "x-order": 1
@@ -17834,41 +17734,36 @@
                       "type": "string",
                       "x-order": 4
                     },
-                    "agent_password": {
-                      "description": "Custom password for exporter endpoint /metrics.",
-                      "type": "string",
-                      "x-order": 5
-                    },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "tls_ca": {
                       "description": "Certificate Authority certificate chain.",
                       "type": "string",
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "tls_cert": {
                       "description": "Client certificate.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "tls_key": {
                       "description": "Password for decrypting tls_cert.",
                       "type": "string",
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "tablestats_group_table_limit": {
                       "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -17876,12 +17771,12 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 12
+                      "x-order": 11
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 13
+                      "x-order": 12
                     },
                     "disabled_collectors": {
                       "description": "List of disabled collector names.",
@@ -17889,7 +17784,7 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 14
+                      "x-order": 13
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -17904,18 +17799,18 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 15
+                      "x-order": 14
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 16
+                      "x-order": 15
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 17
+                      "x-order": 16
                     }
                   },
                   "x-order": 3
@@ -18101,20 +17996,15 @@
                       "type": "string",
                       "x-order": 4
                     },
-                    "agent_password": {
-                      "description": "Custom password for exporter endpoint /metrics.",
-                      "type": "string",
-                      "x-order": 5
-                    },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -18122,12 +18012,12 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "disabled_collectors": {
                       "description": "List of disabled collector names.",
@@ -18135,7 +18025,7 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -18150,13 +18040,13 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 12
+                      "x-order": 11
                     }
                   },
                   "x-order": 7
