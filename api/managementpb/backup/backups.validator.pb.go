@@ -137,3 +137,29 @@ func (this *RemoveScheduledBackupRequest) Validate() error {
 func (this *RemoveScheduledBackupResponse) Validate() error {
 	return nil
 }
+func (this *GetMongoPITRRangesRequest) Validate() error {
+	return nil
+}
+func (this *GetMongoPITRRangesResponse) Validate() error {
+	for _, item := range this.Ranges {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Ranges", err)
+			}
+		}
+	}
+	return nil
+}
+func (this *GetMongoPITRRangesResponse_Timerange) Validate() error {
+	if this.Start != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Start); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Start", err)
+		}
+	}
+	if this.End != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.End); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("End", err)
+		}
+	}
+	return nil
+}
