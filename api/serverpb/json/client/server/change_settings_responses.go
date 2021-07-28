@@ -122,6 +122,9 @@ swagger:model ChangeSettingsBody
 */
 type ChangeSettingsBody struct {
 
+	// enable updates
+	EnableUpdates bool `json:"enable_updates,omitempty"`
+
 	// disable updates
 	DisableUpdates bool `json:"disable_updates,omitempty"`
 
