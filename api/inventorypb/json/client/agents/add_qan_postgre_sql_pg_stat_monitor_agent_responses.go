@@ -150,6 +150,15 @@ type AddQANPostgreSQLPgStatMonitorAgentBody struct {
 
 	// Skip connection check.
 	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
+
+	// TLS CA certificate.
+	TLSCa string `json:"tls_ca,omitempty"`
+
+	// TLS Certifcate.
+	TLSCert string `json:"tls_cert,omitempty"`
+
+	// TLS Certificate Key.
+	TLSKey string `json:"tls_key,omitempty"`
 }
 
 // Validate validates this add QAN postgre SQL pg stat monitor agent body

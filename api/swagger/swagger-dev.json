@@ -2832,6 +2832,11 @@
                   "description": "If false, cached information may be returned.",
                   "type": "boolean",
                   "x-order": 0
+                },
+                "only_installed_version": {
+                  "description": "If true, only installed version will be in response.",
+                  "type": "boolean",
+                  "x-order": 1
                 }
               }
             }
@@ -3593,6 +3598,16 @@
                     "type": "string"
                   },
                   "x-order": 12
+                },
+                "authentication_mechanism": {
+                  "description": "Authentication mechanism.\nSee https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism\nfor details.",
+                  "type": "string",
+                  "x-order": 13
+                },
+                "authentication_database": {
+                  "description": "Authentication database.",
+                  "type": "string",
+                  "x-order": 14
                 }
               }
             }
@@ -4339,6 +4354,21 @@
                     "type": "string"
                   },
                   "x-order": 9
+                },
+                "tls_ca": {
+                  "description": "TLS CA certificate.",
+                  "type": "string",
+                  "x-order": 10
+                },
+                "tls_cert": {
+                  "description": "TLS Certifcate.",
+                  "type": "string",
+                  "x-order": 11
+                },
+                "tls_key": {
+                  "description": "TLS Certificate Key.",
+                  "type": "string",
+                  "x-order": 12
                 }
               }
             }
@@ -4761,6 +4791,16 @@
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 10
+                },
+                "authentication_mechanism": {
+                  "description": "Authentication mechanism.\nSee https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism\nfor details.",
+                  "type": "string",
+                  "x-order": 11
+                },
+                "authentication_database": {
+                  "description": "Authentication database.",
+                  "type": "string",
+                  "x-order": 12
                 }
               }
             }
@@ -5392,6 +5432,21 @@
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 8
+                },
+                "tls_ca": {
+                  "description": "TLS CA certificate.",
+                  "type": "string",
+                  "x-order": 9
+                },
+                "tls_cert": {
+                  "description": "TLS Certifcate.",
+                  "type": "string",
+                  "x-order": 10
+                },
+                "tls_key": {
+                  "description": "TLS Certificate Key.",
+                  "type": "string",
+                  "x-order": 11
                 }
               }
             }
@@ -5575,6 +5630,21 @@
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 7
+                },
+                "tls_ca": {
+                  "description": "TLS CA certificate.",
+                  "type": "string",
+                  "x-order": 8
+                },
+                "tls_cert": {
+                  "description": "TLS Certifcate.",
+                  "type": "string",
+                  "x-order": 9
+                },
+                "tls_key": {
+                  "description": "TLS Certificate Key.",
+                  "type": "string",
+                  "x-order": 10
                 }
               }
             }
@@ -20622,6 +20692,16 @@
                     "type": "string"
                   },
                   "x-order": 22
+                },
+                "authentication_mechanism": {
+                  "description": "Authentication mechanism.\nSee https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism\nfor details.",
+                  "type": "string",
+                  "x-order": 23
+                },
+                "authentication_database": {
+                  "description": "Authentication database.",
+                  "type": "string",
+                  "x-order": 24
                 }
               }
             }
@@ -22041,6 +22121,21 @@
                     "type": "string"
                   },
                   "x-order": 21
+                },
+                "tls_ca": {
+                  "description": "TLS CA certificate.",
+                  "type": "string",
+                  "x-order": 22
+                },
+                "tls_cert": {
+                  "description": "TLS Certifcate.",
+                  "type": "string",
+                  "x-order": 23
+                },
+                "tls_key": {
+                  "description": "TLS Certificate Key.",
+                  "type": "string",
+                  "x-order": 24
                 }
               }
             }
@@ -24613,6 +24708,84 @@
         }
       }
     },
+    "/v1/management/backup/Artifacts/Delete": {
+      "post": {
+        "tags": [
+          "Artifacts"
+        ],
+        "summary": "DeleteArtifact deletes specified artifact.",
+        "operationId": "DeleteArtifact",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "artifact_id": {
+                  "description": "Machine-readable artifact ID.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "remove_files": {
+                  "description": "Removes all the backup files associated with artifact if flag is set.",
+                  "type": "boolean",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/backup/Artifacts/List": {
       "post": {
         "tags": [
@@ -24698,7 +24871,9 @@
                           "BACKUP_STATUS_IN_PROGRESS",
                           "BACKUP_STATUS_PAUSED",
                           "BACKUP_STATUS_SUCCESS",
-                          "BACKUP_STATUS_ERROR"
+                          "BACKUP_STATUS_ERROR",
+                          "BACKUP_STATUS_DELETING",
+                          "BACKUP_STATUS_FAILED_TO_DELETE"
                         ],
                         "x-order": 8
                       },
