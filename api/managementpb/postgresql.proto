@@ -78,6 +78,12 @@ message AddPostgreSQLRequest {
   MetricsMode metrics_mode = 21;
   // List of collector names to disable in this exporter.
   repeated string disable_collectors = 22;
+  // TLS CA certificate.
+  string tls_ca = 23;
+  // TLS Certifcate.
+  string tls_cert = 24;
+  // TLS Certificate Key.
+  string tls_key = 25;
 }
 
 message AddPostgreSQLResponse {
