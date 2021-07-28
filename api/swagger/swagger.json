@@ -374,21 +374,17 @@
             "schema": {
               "type": "object",
               "properties": {
-                "enable_updates": {
+                "disable_updates": {
                   "type": "boolean",
                   "x-order": 0
                 },
-                "disable_updates": {
+                "enable_telemetry": {
                   "type": "boolean",
                   "x-order": 1
                 },
-                "enable_telemetry": {
-                  "type": "boolean",
-                  "x-order": 2
-                },
                 "disable_telemetry": {
                   "type": "boolean",
-                  "x-order": 3
+                  "x-order": 2
                 },
                 "metrics_resolutions": {
                   "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -410,63 +406,63 @@
                       "x-order": 2
                     }
                   },
-                  "x-order": 4
+                  "x-order": 3
                 },
                 "data_retention": {
                   "description": "A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h.",
                   "type": "string",
-                  "x-order": 5
+                  "x-order": 4
                 },
                 "ssh_key": {
                   "type": "string",
-                  "x-order": 6
+                  "x-order": 5
                 },
                 "aws_partitions": {
                   "type": "array",
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 7
+                  "x-order": 6
                 },
                 "alert_manager_url": {
                   "description": "External AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
                   "type": "string",
-                  "x-order": 8
+                  "x-order": 7
                 },
                 "remove_alert_manager_url": {
                   "description": "Remove external AlertManager URL.",
                   "type": "boolean",
-                  "x-order": 9
+                  "x-order": 8
                 },
                 "alert_manager_rules": {
                   "description": "Custom alerting or recording rules.",
                   "type": "string",
-                  "x-order": 10
+                  "x-order": 9
                 },
                 "remove_alert_manager_rules": {
                   "description": "Remove custom alerting or recording rules.",
                   "type": "boolean",
-                  "x-order": 11
+                  "x-order": 10
                 },
                 "enable_stt": {
                   "description": "Enable Security Threat Tool.",
                   "type": "boolean",
-                  "x-order": 12
+                  "x-order": 11
                 },
                 "disable_stt": {
                   "description": "Disable Security Threat Tool.",
                   "type": "boolean",
-                  "x-order": 13
+                  "x-order": 12
                 },
                 "enable_alerting": {
                   "description": "Enable Integrated Alerting.",
                   "type": "boolean",
-                  "x-order": 14
+                  "x-order": 13
                 },
                 "disable_alerting": {
                   "description": "Disable Integrated Alerting.",
                   "type": "boolean",
-                  "x-order": 15
+                  "x-order": 14
                 },
                 "email_alerting_settings": {
                   "description": "EmailAlertingSettings represents email (SMTP) configuration for Integrated Alerting.",
@@ -508,12 +504,12 @@
                       "x-order": 6
                     }
                   },
-                  "x-order": 16
+                  "x-order": 15
                 },
                 "remove_email_alerting_settings": {
                   "description": "If true, removes Integrated Alerting email (SMTP) settings.",
                   "type": "boolean",
-                  "x-order": 17
+                  "x-order": 16
                 },
                 "slack_alerting_settings": {
                   "description": "SlackAlertingSettings represents Slack configuration for Integrated Alerting.",
@@ -525,21 +521,21 @@
                       "x-order": 0
                     }
                   },
-                  "x-order": 18
+                  "x-order": 17
                 },
                 "remove_slack_alerting_settings": {
                   "description": "If true, removes Integrated Alerting Slack settings.",
                   "type": "boolean",
-                  "x-order": 19
+                  "x-order": 18
                 },
                 "pmm_public_address": {
                   "description": "PMM Server public address.",
                   "type": "string",
-                  "x-order": 20
+                  "x-order": 19
                 },
                 "remove_pmm_public_address": {
                   "type": "boolean",
-                  "x-order": 21
+                  "x-order": 20
                 },
                 "stt_check_intervals": {
                   "description": "STTCheckIntervals represents intervals between STT checks.",
@@ -561,37 +557,37 @@
                       "x-order": 2
                     }
                   },
-                  "x-order": 22
+                  "x-order": 21
                 },
                 "enable_azurediscover": {
                   "description": "Enable Azure Discover.",
                   "type": "boolean",
-                  "x-order": 23
+                  "x-order": 22
                 },
                 "disable_azurediscover": {
                   "description": "Disable Azure Discover.",
                   "type": "boolean",
-                  "x-order": 24
+                  "x-order": 23
                 },
                 "enable_backup_management": {
                   "description": "Enable Backup Management.",
                   "type": "boolean",
-                  "x-order": 25
+                  "x-order": 24
                 },
                 "disable_backup_management": {
                   "description": "Disable Backup Management.",
                   "type": "boolean",
-                  "x-order": 26
+                  "x-order": 25
                 },
                 "enable_dbaas": {
                   "description": "Enable DBaaS.",
                   "type": "boolean",
-                  "x-order": 27
+                  "x-order": 26
                 },
                 "disable_dbaas": {
                   "description": "Disable DBaaS.",
                   "type": "boolean",
-                  "x-order": 28
+                  "x-order": 27
                 }
               }
             }

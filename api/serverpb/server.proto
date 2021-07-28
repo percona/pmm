@@ -199,8 +199,7 @@ message GetSettingsResponse {
 }
 
 message ChangeSettingsRequest {
-  bool enable_updates = 28;
-  bool disable_updates = 29;
+  bool disable_updates = 28;
   bool enable_telemetry = 1;
   bool disable_telemetry = 2;
   MetricsResolutions metrics_resolutions = 3;
