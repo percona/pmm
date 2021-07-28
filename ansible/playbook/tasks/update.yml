@@ -1,6 +1,5 @@
 ---
 # This playbook contains tasks executed during PMM Server update.
-
 - hosts: localhost
   become: yes
   gather_facts: yes
@@ -14,8 +13,6 @@
       - pmm-server
       - pmm-managed
       - pmm-update
-      - percona-clickhouse-client
-      - percona-clickhouse-server
       - dbaas-controller
       - dbaas-tools
       - pmm2-client
@@ -41,7 +38,6 @@
       set_fact:
         is_docker: True
       when: is_docker is undefined
-
   tasks:
     # Replace forking type with simple. New config will be applied after next reboot.
     - name: Configure systemd
@@ -117,6 +113,10 @@
       include_role:
         name: nginx
 
+    - name: Install clickhouse
+      include_role:
+        name: clickhouse
+
     # Fix things that should be fixed before restarts.
 
     - name: Stop systemd pmm-agent service, if running
@@ -176,17 +176,6 @@
         option: allow_loading_unsigned_plugins
         value: vertamedia-clickhouse-datasource
 
-    - name: Clickhouse logger         | Configure clickhouse logger
-      replace:
-        path: /etc/clickhouse-server/config.xml
-        regexp: '<logger>[\s\S]*</logger>'
-        replace: |-
-          <logger>
-                  <!-- Possible levels: https://github.com/pocoproject/poco/blob/develop/Foundation/include/Poco/Logger.h#L105 -->
-                  <level>trace</level>
-                  <console>1</console>
-              </logger>
-
     # TODO: Create /srv/alertmanager/data and /srv/victoriametrics/data in pmm-managed
     # to support Docker-way (swap image) updates.
     # https://jira.percona.com/browse/PMM-7024
@@ -225,7 +214,6 @@
       with_nested:
         - - postgresql
           - alertmanager
-          - clickhouse
           - grafana
           - qan-api2
           - pmm-agent

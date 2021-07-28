@@ -1,0 +1,97 @@
+---
+- name: Stop clickhouse before update
+  command: supervisorctl {{ item }} clickhouse
+  changed_when: True
+  loop:
+    - "stop"
+    - "remove"
+
+- name: Remove old clickhouse packages
+  yum:
+    state: absent
+    name:
+      - percona-clickhouse-client
+      - percona-clickhouse-server
+      - percona-clickhouse-common-static
+      - percona-clickhouse-server-common
+
+- name: Disable clickhouse-server in systemd
+  when: not is_docker
+  service:
+    name: clickhouse-server
+    state: stopped
+    enabled: no
+
+- name: Create clickhouse data directory
+  file:
+    path: "/srv/clickhouse"
+    state: directory
+    owner: root
+    group: pmm
+
+- name: Import clickhouse repo GPG key
+  rpm_key:
+    state: present
+    key: "https://repo.clickhouse.tech/CLICKHOUSE-KEY.GPG"
+
+- name: Install clickhouse repo
+  yum_repository:
+    name: clickhouse
+    file: clickhouse
+    description: "Clickhouse repo"
+    baseurl: "https://repo.clickhouse.tech/rpm/stable/x86_64/"
+    enabled: no
+    gpgcheck: 1
+    gpgkey: "https://repo.clickhouse.tech/CLICKHOUSE-KEY.GPG"
+
+- name: Install clickhouse package
+  yum:
+    name:
+      - clickhouse-client-{{ clickhouse_version}}
+      - clickhouse-server-{{ clickhouse_version}}
+      - clickhouse-common-static-{{ clickhouse_version}}
+    state: installed
+    enablerepo: clickhouse
+  ignore_errors: '{{ ansible_check_mode }}' # We don't have clickhouse repo when we run ansible with --check
+
+- name: Copy clickhouse config to image
+  copy:
+    src: config.xml
+    dest: /etc/clickhouse-server/config.xml
+    mode: 0600
+
+# We need to remove capabilities because we run PMM in unprivileged container and we can't use it
+# But we run clickhouse under root user
+- name: Remove cap_ipc_lock from clickhouse binary
+  capabilities:
+    path: /usr/bin/clickhouse
+    state: absent
+    capability: "{{ item}}"
+  loop:
+    - cap_ipc_lock
+    - cap_sys_nice
+    - cap_net_admin
+
+- name: Start clickhouse
+  command: supervisorctl add clickhouse
+  changed_when: True
+
+- name: Clickhouse                | Wait for clickhouse start
+  wait_for:
+    port: 8123
+    state: present
+    delay: 30
+    timeout: 60
+
+
+# Why we use Ordinary engine in next query?
+# TLDR: Clickhouse changed default engine and there is officially no way to migrate other than...renaming the table.
+# https://github.com/ClickHouse/ClickHouse/issues/6787
+# TODO we need to think about migration in future
+- name: Cickhouse                 | Create ClickHouse database
+  command: clickhouse-client --host 127.0.0.1 --query="CREATE DATABASE IF NOT EXISTS pmm ENGINE = Ordinary"
+  changed_when: False
+
+- name: Cickhouse                 | Show ClickHouse database
+  command: clickhouse-client --host 127.0.0.1 --query="SHOW DATABASES"
+  changed_when: False
