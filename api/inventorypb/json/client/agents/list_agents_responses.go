@@ -1060,6 +1060,9 @@ type MongodbExporterItems0 struct {
 	// MongoDB username for scraping metrics.
 	Username string `json:"username,omitempty"`
 
+	// Custom password for exporter endpoint /metrics.
+	AgentPassword string `json:"agent_password,omitempty"`
+
 	// Use TLS for database connections.
 	TLS bool `json:"tls,omitempty"`
 
@@ -1199,6 +1202,9 @@ type MysqldExporterItems0 struct {
 
 	// MySQL username for scraping metrics.
 	Username string `json:"username,omitempty"`
+
+	// Custom password for exporter endpoint /metrics.
+	AgentPassword string `json:"agent_password,omitempty"`
 
 	// Use TLS for database connections.
 	TLS bool `json:"tls,omitempty"`
@@ -1526,6 +1532,9 @@ type PostgresExporterItems0 struct {
 	// PostgreSQL username for scraping metrics.
 	Username string `json:"username,omitempty"`
 
+	// Custom password for exporter endpoint /metrics.
+	AgentPassword string `json:"agent_password,omitempty"`
+
 	// Use TLS for database connections.
 	TLS bool `json:"tls,omitempty"`
 
@@ -1665,6 +1674,9 @@ type ProxysqlExporterItems0 struct {
 
 	// ProxySQL username for scraping metrics.
 	Username string `json:"username,omitempty"`
+
+	// Custom password for exporter endpoint /metrics.
+	AgentPassword string `json:"agent_password,omitempty"`
 
 	// Use TLS for database connections.
 	TLS bool `json:"tls,omitempty"`

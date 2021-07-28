@@ -96,6 +96,8 @@ message MySQLdExporter {
   string service_id = 4;
   // MySQL username for scraping metrics.
   string username = 5;
+  // Custom password for exporter endpoint /metrics.
+  string agent_password = 18;
   // Use TLS for database connections.
   bool tls = 6;
   // Skip TLS certificate and hostname validation.
@@ -140,6 +142,8 @@ message MongoDBExporter {
   string service_id = 4;
   // MongoDB username for scraping metrics.
   string username = 5;
+  // Custom password for exporter endpoint /metrics.
+  string agent_password = 13;
   // Use TLS for database connections.
   bool tls = 6;
   // Skip TLS certificate and hostname validation.
@@ -172,6 +176,8 @@ message PostgresExporter {
   string service_id = 4;
   // PostgreSQL username for scraping metrics.
   string username = 5;
+  // Custom password for exporter endpoint /metrics.
+  string agent_password = 13;
   // Use TLS for database connections.
   bool tls = 6;
   // Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
@@ -200,6 +206,8 @@ message ProxySQLExporter {
   string service_id = 4;
   // ProxySQL username for scraping metrics.
   string username = 5;
+  // Custom password for exporter endpoint /metrics.
+  string agent_password = 13;
   // Use TLS for database connections.
   bool tls = 6;
   // Skip TLS certificate and hostname validation.
