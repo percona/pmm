@@ -401,8 +401,6 @@ type ScheduledBackup struct {
 	LastRun *timestamp.Timestamp `protobuf:"bytes,16,opt,name=last_run,json=lastRun,proto3" json:"last_run,omitempty"`
 	// Next run.
 	NextRun *timestamp.Timestamp `protobuf:"bytes,17,opt,name=next_run,json=nextRun,proto3" json:"next_run,omitempty"`
-	// Backup mode.
-	Mode BackupMode `protobuf:"varint,18,opt,name=mode,proto3,enum=backup.v1beta1.BackupMode" json:"mode,omitempty"`
 }
 
 func (x *ScheduledBackup) Reset() {
@@ -533,13 +531,6 @@ func (x *ScheduledBackup) GetNextRun() *timestamp.Timestamp {
 		return x.NextRun
 	}
 	return nil
-}
-
-func (x *ScheduledBackup) GetMode() BackupMode {
-	if x != nil {
-		return x.Mode
-	}
-	return BackupMode_BACKUP_MODE_INVALID
 }
 
 type ScheduleBackupRequest struct {
@@ -1194,7 +1185,7 @@ var file_managementpb_backup_backups_proto_rawDesc = []byte{
 	0x74, 0x6f, 0x72, 0x65, 0x42, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
 	0x73, 0x65, 0x12, 0x1d, 0x0a, 0x0a, 0x72, 0x65, 0x73, 0x74, 0x6f, 0x72, 0x65, 0x5f, 0x69, 0x64,
 	0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x72, 0x65, 0x73, 0x74, 0x6f, 0x72, 0x65, 0x49,
-	0x64, 0x22, 0xed, 0x04, 0x0a, 0x0f, 0x53, 0x63, 0x68, 0x65, 0x64, 0x75, 0x6c, 0x65, 0x64, 0x42,
+	0x64, 0x22, 0xbd, 0x04, 0x0a, 0x0f, 0x53, 0x63, 0x68, 0x65, 0x64, 0x75, 0x6c, 0x65, 0x64, 0x42,
 	0x61, 0x63, 0x6b, 0x75, 0x70, 0x12, 0x2e, 0x0a, 0x13, 0x73, 0x63, 0x68, 0x65, 0x64, 0x75, 0x6c,
 	0x65, 0x64, 0x5f, 0x62, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01,
 	0x28, 0x09, 0x52, 0x11, 0x73, 0x63, 0x68, 0x65, 0x64, 0x75, 0x6c, 0x65, 0x64, 0x42, 0x61, 0x63,
@@ -1230,10 +1221,7 @@ var file_managementpb_backup_backups_proto_rawDesc = []byte{
 	0x78, 0x74, 0x5f, 0x72, 0x75, 0x6e, 0x18, 0x11, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x67,
 	0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x54,
 	0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x52, 0x07, 0x6e, 0x65, 0x78, 0x74, 0x52, 0x75,
-	0x6e, 0x12, 0x2e, 0x0a, 0x04, 0x6d, 0x6f, 0x64, 0x65, 0x18, 0x12, 0x20, 0x01, 0x28, 0x0e, 0x32,
-	0x1a, 0x2e, 0x62, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
-	0x2e, 0x42, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x4d, 0x6f, 0x64, 0x65, 0x52, 0x04, 0x6d, 0x6f, 0x64,
-	0x65, 0x22, 0x8d, 0x03, 0x0a, 0x15, 0x53, 0x63, 0x68, 0x65, 0x64, 0x75, 0x6c, 0x65, 0x42, 0x61,
+	0x6e, 0x22, 0x8d, 0x03, 0x0a, 0x15, 0x53, 0x63, 0x68, 0x65, 0x64, 0x75, 0x6c, 0x65, 0x42, 0x61,
 	0x63, 0x6b, 0x75, 0x70, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x25, 0x0a, 0x0a, 0x73,
 	0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42,
 	0x06, 0xe2, 0xdf, 0x1f, 0x02, 0x58, 0x01, 0x52, 0x09, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65,
@@ -1449,38 +1437,37 @@ var file_managementpb_backup_backups_proto_depIdxs = []int32{
 	19, // 1: backup.v1beta1.ScheduledBackup.data_model:type_name -> backup.v1beta1.DataModel
 	18, // 2: backup.v1beta1.ScheduledBackup.last_run:type_name -> google.protobuf.Timestamp
 	18, // 3: backup.v1beta1.ScheduledBackup.next_run:type_name -> google.protobuf.Timestamp
-	1,  // 4: backup.v1beta1.ScheduledBackup.mode:type_name -> backup.v1beta1.BackupMode
-	18, // 5: backup.v1beta1.ScheduleBackupRequest.start_time:type_name -> google.protobuf.Timestamp
-	19, // 6: backup.v1beta1.ScheduleBackupRequest.data_model:type_name -> backup.v1beta1.DataModel
-	1,  // 7: backup.v1beta1.ScheduleBackupRequest.mode:type_name -> backup.v1beta1.BackupMode
-	6,  // 8: backup.v1beta1.ListScheduledBackupsResponse.scheduled_backups:type_name -> backup.v1beta1.ScheduledBackup
-	20, // 9: backup.v1beta1.ChangeScheduledBackupRequest.enabled:type_name -> google.protobuf.BoolValue
-	21, // 10: backup.v1beta1.ChangeScheduledBackupRequest.cron_expression:type_name -> google.protobuf.StringValue
-	18, // 11: backup.v1beta1.ChangeScheduledBackupRequest.start_time:type_name -> google.protobuf.Timestamp
-	21, // 12: backup.v1beta1.ChangeScheduledBackupRequest.name:type_name -> google.protobuf.StringValue
-	21, // 13: backup.v1beta1.ChangeScheduledBackupRequest.description:type_name -> google.protobuf.StringValue
-	17, // 14: backup.v1beta1.GetMongoPITRRangesResponse.ranges:type_name -> backup.v1beta1.GetMongoPITRRangesResponse.Timerange
-	18, // 15: backup.v1beta1.GetMongoPITRRangesResponse.Timerange.start:type_name -> google.protobuf.Timestamp
-	18, // 16: backup.v1beta1.GetMongoPITRRangesResponse.Timerange.end:type_name -> google.protobuf.Timestamp
-	2,  // 17: backup.v1beta1.Backups.StartBackup:input_type -> backup.v1beta1.StartBackupRequest
-	4,  // 18: backup.v1beta1.Backups.RestoreBackup:input_type -> backup.v1beta1.RestoreBackupRequest
-	7,  // 19: backup.v1beta1.Backups.ScheduleBackup:input_type -> backup.v1beta1.ScheduleBackupRequest
-	9,  // 20: backup.v1beta1.Backups.ListScheduledBackups:input_type -> backup.v1beta1.ListScheduledBackupsRequest
-	11, // 21: backup.v1beta1.Backups.ChangeScheduledBackup:input_type -> backup.v1beta1.ChangeScheduledBackupRequest
-	13, // 22: backup.v1beta1.Backups.RemoveScheduledBackup:input_type -> backup.v1beta1.RemoveScheduledBackupRequest
-	15, // 23: backup.v1beta1.Backups.GetMongoPITRRanges:input_type -> backup.v1beta1.GetMongoPITRRangesRequest
-	3,  // 24: backup.v1beta1.Backups.StartBackup:output_type -> backup.v1beta1.StartBackupResponse
-	5,  // 25: backup.v1beta1.Backups.RestoreBackup:output_type -> backup.v1beta1.RestoreBackupResponse
-	8,  // 26: backup.v1beta1.Backups.ScheduleBackup:output_type -> backup.v1beta1.ScheduleBackupResponse
-	10, // 27: backup.v1beta1.Backups.ListScheduledBackups:output_type -> backup.v1beta1.ListScheduledBackupsResponse
-	12, // 28: backup.v1beta1.Backups.ChangeScheduledBackup:output_type -> backup.v1beta1.ChangeScheduledBackupResponse
-	14, // 29: backup.v1beta1.Backups.RemoveScheduledBackup:output_type -> backup.v1beta1.RemoveScheduledBackupResponse
-	16, // 30: backup.v1beta1.Backups.GetMongoPITRRanges:output_type -> backup.v1beta1.GetMongoPITRRangesResponse
-	24, // [24:31] is the sub-list for method output_type
-	17, // [17:24] is the sub-list for method input_type
-	17, // [17:17] is the sub-list for extension type_name
-	17, // [17:17] is the sub-list for extension extendee
-	0,  // [0:17] is the sub-list for field type_name
+	18, // 4: backup.v1beta1.ScheduleBackupRequest.start_time:type_name -> google.protobuf.Timestamp
+	19, // 5: backup.v1beta1.ScheduleBackupRequest.data_model:type_name -> backup.v1beta1.DataModel
+	1,  // 6: backup.v1beta1.ScheduleBackupRequest.mode:type_name -> backup.v1beta1.BackupMode
+	6,  // 7: backup.v1beta1.ListScheduledBackupsResponse.scheduled_backups:type_name -> backup.v1beta1.ScheduledBackup
+	20, // 8: backup.v1beta1.ChangeScheduledBackupRequest.enabled:type_name -> google.protobuf.BoolValue
+	21, // 9: backup.v1beta1.ChangeScheduledBackupRequest.cron_expression:type_name -> google.protobuf.StringValue
+	18, // 10: backup.v1beta1.ChangeScheduledBackupRequest.start_time:type_name -> google.protobuf.Timestamp
+	21, // 11: backup.v1beta1.ChangeScheduledBackupRequest.name:type_name -> google.protobuf.StringValue
+	21, // 12: backup.v1beta1.ChangeScheduledBackupRequest.description:type_name -> google.protobuf.StringValue
+	17, // 13: backup.v1beta1.GetMongoPITRRangesResponse.ranges:type_name -> backup.v1beta1.GetMongoPITRRangesResponse.Timerange
+	18, // 14: backup.v1beta1.GetMongoPITRRangesResponse.Timerange.start:type_name -> google.protobuf.Timestamp
+	18, // 15: backup.v1beta1.GetMongoPITRRangesResponse.Timerange.end:type_name -> google.protobuf.Timestamp
+	2,  // 16: backup.v1beta1.Backups.StartBackup:input_type -> backup.v1beta1.StartBackupRequest
+	4,  // 17: backup.v1beta1.Backups.RestoreBackup:input_type -> backup.v1beta1.RestoreBackupRequest
+	7,  // 18: backup.v1beta1.Backups.ScheduleBackup:input_type -> backup.v1beta1.ScheduleBackupRequest
+	9,  // 19: backup.v1beta1.Backups.ListScheduledBackups:input_type -> backup.v1beta1.ListScheduledBackupsRequest
+	11, // 20: backup.v1beta1.Backups.ChangeScheduledBackup:input_type -> backup.v1beta1.ChangeScheduledBackupRequest
+	13, // 21: backup.v1beta1.Backups.RemoveScheduledBackup:input_type -> backup.v1beta1.RemoveScheduledBackupRequest
+	15, // 22: backup.v1beta1.Backups.GetMongoPITRRanges:input_type -> backup.v1beta1.GetMongoPITRRangesRequest
+	3,  // 23: backup.v1beta1.Backups.StartBackup:output_type -> backup.v1beta1.StartBackupResponse
+	5,  // 24: backup.v1beta1.Backups.RestoreBackup:output_type -> backup.v1beta1.RestoreBackupResponse
+	8,  // 25: backup.v1beta1.Backups.ScheduleBackup:output_type -> backup.v1beta1.ScheduleBackupResponse
+	10, // 26: backup.v1beta1.Backups.ListScheduledBackups:output_type -> backup.v1beta1.ListScheduledBackupsResponse
+	12, // 27: backup.v1beta1.Backups.ChangeScheduledBackup:output_type -> backup.v1beta1.ChangeScheduledBackupResponse
+	14, // 28: backup.v1beta1.Backups.RemoveScheduledBackup:output_type -> backup.v1beta1.RemoveScheduledBackupResponse
+	16, // 29: backup.v1beta1.Backups.GetMongoPITRRanges:output_type -> backup.v1beta1.GetMongoPITRRangesResponse
+	23, // [23:30] is the sub-list for method output_type
+	16, // [16:23] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_managementpb_backup_backups_proto_init() }

@@ -316,10 +316,6 @@ type ScheduledBackupsItems0 struct {
 	// Next run.
 	// Format: date-time
 	NextRun strfmt.DateTime `json:"next_run,omitempty"`
-
-	// BackupMode specifies backup mode.
-	// Enum: [BACKUP_MODE_INVALID SNAPSHOT INCREMENTAL]
-	Mode *string `json:"mode,omitempty"`
 }
 
 // Validate validates this scheduled backups items0
@@ -339,10 +335,6 @@ func (o *ScheduledBackupsItems0) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateNextRun(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateMode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -431,52 +423,6 @@ func (o *ScheduledBackupsItems0) validateNextRun(formats strfmt.Registry) error 
 	}
 
 	if err := validate.FormatOf("next_run", "body", "date-time", o.NextRun.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-var scheduledBackupsItems0TypeModePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["BACKUP_MODE_INVALID","SNAPSHOT","INCREMENTAL"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		scheduledBackupsItems0TypeModePropEnum = append(scheduledBackupsItems0TypeModePropEnum, v)
-	}
-}
-
-const (
-
-	// ScheduledBackupsItems0ModeBACKUPMODEINVALID captures enum value "BACKUP_MODE_INVALID"
-	ScheduledBackupsItems0ModeBACKUPMODEINVALID string = "BACKUP_MODE_INVALID"
-
-	// ScheduledBackupsItems0ModeSNAPSHOT captures enum value "SNAPSHOT"
-	ScheduledBackupsItems0ModeSNAPSHOT string = "SNAPSHOT"
-
-	// ScheduledBackupsItems0ModeINCREMENTAL captures enum value "INCREMENTAL"
-	ScheduledBackupsItems0ModeINCREMENTAL string = "INCREMENTAL"
-)
-
-// prop value enum
-func (o *ScheduledBackupsItems0) validateModeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, scheduledBackupsItems0TypeModePropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *ScheduledBackupsItems0) validateMode(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Mode) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateModeEnum("mode", "body", *o.Mode); err != nil {
 		return err
 	}
 

@@ -104,8 +104,6 @@ message ScheduledBackup {
   google.protobuf.Timestamp last_run = 16;
   // Next run.
   google.protobuf.Timestamp next_run = 17;
-  // Backup mode.
-  BackupMode mode = 18;
 }
 
 message ScheduleBackupRequest {
