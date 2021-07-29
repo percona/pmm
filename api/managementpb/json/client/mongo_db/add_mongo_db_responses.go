@@ -205,6 +205,9 @@ type AddMongoDBBody struct {
 	// Authentication database.
 	AuthenticationDatabase string `json:"authentication_database,omitempty"`
 
+	// Custom password for exporter endpoint /metrics.
+	AgentPassword string `json:"agent_password,omitempty"`
+
 	// add node
 	AddNode *AddMongoDBParamsBodyAddNode `json:"add_node,omitempty"`
 }
