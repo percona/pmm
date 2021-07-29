@@ -197,6 +197,17 @@ type AddMongoDBBody struct {
 	// List of collector names to disable in this exporter.
 	DisableCollectors []string `json:"disable_collectors"`
 
+	// Authentication mechanism.
+	// See https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism
+	// for details.
+	AuthenticationMechanism string `json:"authentication_mechanism,omitempty"`
+
+	// Authentication database.
+	AuthenticationDatabase string `json:"authentication_database,omitempty"`
+
+	// Custom password for exporter endpoint /metrics.
+	AgentPassword string `json:"agent_password,omitempty"`
+
 	// add node
 	AddNode *AddMongoDBParamsBodyAddNode `json:"add_node,omitempty"`
 }
