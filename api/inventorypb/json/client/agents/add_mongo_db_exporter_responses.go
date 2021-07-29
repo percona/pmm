@@ -170,6 +170,9 @@ type AddMongoDBExporterBody struct {
 
 	// Authentication database.
 	AuthenticationDatabase string `json:"authentication_database,omitempty"`
+
+	// Custom password for exporter endpoint /metrics.
+	AgentPassword string `json:"agent_password,omitempty"`
 }
 
 // Validate validates this add mongo DB exporter body

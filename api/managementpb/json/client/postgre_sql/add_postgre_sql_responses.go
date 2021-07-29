@@ -203,6 +203,9 @@ type AddPostgreSQLBody struct {
 	// TLS Certificate Key.
 	TLSKey string `json:"tls_key,omitempty"`
 
+	// Custom password for exporter endpoint /metrics.
+	AgentPassword string `json:"agent_password,omitempty"`
+
 	// add node
 	AddNode *AddPostgreSQLParamsBodyAddNode `json:"add_node,omitempty"`
 }

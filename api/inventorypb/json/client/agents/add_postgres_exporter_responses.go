@@ -162,6 +162,9 @@ type AddPostgresExporterBody struct {
 
 	// TLS Certificate Key.
 	TLSKey string `json:"tls_key,omitempty"`
+
+	// Custom password for exporter endpoint /metrics.
+	AgentPassword string `json:"agent_password,omitempty"`
 }
 
 // Validate validates this add postgres exporter body
