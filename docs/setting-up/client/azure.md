@@ -130,7 +130,9 @@ Command for adding an azure database service for monitoring without TLS/SSL.
 pmm-admin add mysql --username=azureuser --password=secure --host=azuremysql.mysql.database.azure.com --service-name=azure1 --query-source=perfschema
 ```
 
-Downloaded ceritificate is named DigiCertGlobalRootCA.crt.pem. So command for adding an azure database service for monitoring with TLS/SSL is next.
+Downloaded certificate is named `DigiCertGlobalRootCA.crt.pem`.
+
+An example of the command for adding an Azure database service for monitoring with TLS/SSL would be:
 
 ```sh
 pmm-admin add mysql --username=azureuser --password=secure --host=azuremysql.mysql.database.azure.com --service-name=azure1 --query-source=perfschema --tls --tls-ca=DigiCertGlobalRootCA.crt.pem --tls-cert=client-cert.pem --tls-key=client-key.pem --tls-skip-verify
