@@ -52,6 +52,7 @@ type addAgentMongodbExporterCommand struct {
 	ServiceID                     string
 	Username                      string
 	Password                      string
+	AgentPassword                 string
 	CustomLabels                  string
 	SkipConnectionCheck           bool
 	TLS                           bool
@@ -84,6 +85,7 @@ func (cmd *addAgentMongodbExporterCommand) Run() (commands.Result, error) {
 			ServiceID:                     cmd.ServiceID,
 			Username:                      cmd.Username,
 			Password:                      cmd.Password,
+			AgentPassword:                 cmd.AgentPassword,
 			CustomLabels:                  customLabels,
 			SkipConnectionCheck:           cmd.SkipConnectionCheck,
 			TLS:                           cmd.TLS,
@@ -117,6 +119,7 @@ func init() {
 	AddAgentMongodbExporterC.Arg("service-id", "Service identifier").Required().StringVar(&AddAgentMongodbExporter.ServiceID)
 	AddAgentMongodbExporterC.Arg("username", "MongoDB username for scraping metrics").StringVar(&AddAgentMongodbExporter.Username)
 	AddAgentMongodbExporterC.Flag("password", "MongoDB password for scraping metrics").StringVar(&AddAgentMongodbExporter.Password)
+	AddAgentMongodbExporterC.Flag("agent-password", "Custom password for /metrics endpoint").StringVar(&AddAgentMongodbExporter.AgentPassword)
 	AddAgentMongodbExporterC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentMongodbExporter.CustomLabels)
 	AddAgentMongodbExporterC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddAgentMongodbExporter.SkipConnectionCheck)
 	AddAgentMongodbExporterC.Flag("tls", "Use TLS to connect to the database").BoolVar(&AddAgentMongodbExporter.TLS)

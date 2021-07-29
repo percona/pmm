@@ -52,6 +52,7 @@ type addAgentPostgresExporterCommand struct {
 	ServiceID           string
 	Username            string
 	Password            string
+	AgentPassword       string
 	CustomLabels        string
 	SkipConnectionCheck bool
 	PushMetrics         bool
@@ -94,6 +95,7 @@ func (cmd *addAgentPostgresExporterCommand) Run() (commands.Result, error) {
 			ServiceID:           cmd.ServiceID,
 			Username:            cmd.Username,
 			Password:            cmd.Password,
+			AgentPassword:       cmd.AgentPassword,
 			CustomLabels:        customLabels,
 			SkipConnectionCheck: cmd.SkipConnectionCheck,
 			PushMetrics:         cmd.PushMetrics,
@@ -128,6 +130,7 @@ func init() {
 	AddAgentPostgresExporterC.Arg("service-id", "Service identifier").Required().StringVar(&AddAgentPostgresExporter.ServiceID)
 	AddAgentPostgresExporterC.Arg("username", "PostgreSQL username for scraping metrics").Default("postgres").StringVar(&AddAgentPostgresExporter.Username)
 	AddAgentPostgresExporterC.Flag("password", "PostgreSQL password for scraping metrics").StringVar(&AddAgentPostgresExporter.Password)
+	AddAgentPostgresExporterC.Flag("agent-password", "Custom password for /metrics endpoint").StringVar(&AddAgentPostgresExporter.AgentPassword)
 	AddAgentPostgresExporterC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentPostgresExporter.CustomLabels)
 	AddAgentPostgresExporterC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddAgentPostgresExporter.SkipConnectionCheck)
 	AddAgentPostgresExporterC.Flag("push-metrics", "Enables push metrics model flow,"+

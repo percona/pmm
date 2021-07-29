@@ -49,6 +49,7 @@ type addPostgreSQLCommand struct {
 	Socket              string
 	Username            string
 	Password            string
+	AgentPassword       string
 	SkipConnectionCheck bool
 
 	NodeID            string
@@ -150,6 +151,7 @@ func (cmd *addPostgreSQLCommand) Run() (commands.Result, error) {
 			Port:                int64(port),
 			Username:            cmd.Username,
 			Password:            cmd.Password,
+			AgentPassword:       cmd.AgentPassword,
 			Socket:              socket,
 			SkipConnectionCheck: cmd.SkipConnectionCheck,
 
@@ -200,6 +202,7 @@ func init() {
 	AddPostgreSQLC.Flag("socket", "Path to socket").StringVar(&AddPostgreSQL.Socket)
 	AddPostgreSQLC.Flag("username", "PostgreSQL username").Default("postgres").StringVar(&AddPostgreSQL.Username)
 	AddPostgreSQLC.Flag("password", "PostgreSQL password").StringVar(&AddPostgreSQL.Password)
+	AddPostgreSQLC.Flag("agent-password", "Custom password for /metrics endpoint").StringVar(&AddPostgreSQL.AgentPassword)
 
 	AddPostgreSQLC.Flag("node-id", "Node ID (default is autodetected)").StringVar(&AddPostgreSQL.NodeID)
 	AddPostgreSQLC.Flag("pmm-agent-id", "The pmm-agent identifier which runs this instance (default is autodetected)").StringVar(&AddPostgreSQL.PMMAgentID)

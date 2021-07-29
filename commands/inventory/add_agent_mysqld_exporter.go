@@ -85,6 +85,7 @@ type addAgentMysqldExporterCommand struct {
 	ServiceID                 string
 	Username                  string
 	Password                  string
+	AgentPassword             string
 	CustomLabels              string
 	SkipConnectionCheck       bool
 	TLS                       bool
@@ -127,6 +128,7 @@ func (cmd *addAgentMysqldExporterCommand) Run() (commands.Result, error) {
 			ServiceID:                 cmd.ServiceID,
 			Username:                  cmd.Username,
 			Password:                  cmd.Password,
+			AgentPassword:             cmd.AgentPassword,
 			CustomLabels:              customLabels,
 			SkipConnectionCheck:       cmd.SkipConnectionCheck,
 			TLS:                       cmd.TLS,
@@ -162,6 +164,7 @@ func init() {
 	AddAgentMysqldExporterC.Arg("service-id", "Service identifier").Required().StringVar(&AddAgentMysqldExporter.ServiceID)
 	AddAgentMysqldExporterC.Arg("username", "MySQL username for scraping metrics").Default("root").StringVar(&AddAgentMysqldExporter.Username)
 	AddAgentMysqldExporterC.Flag("password", "MySQL password for scraping metrics").StringVar(&AddAgentMysqldExporter.Password)
+	AddAgentMysqldExporterC.Flag("agent-password", "Custom password for /metrics endpoint").StringVar(&AddAgentMysqldExporter.AgentPassword)
 	AddAgentMysqldExporterC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentMysqldExporter.CustomLabels)
 	AddAgentMysqldExporterC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddAgentMysqldExporter.SkipConnectionCheck)
 	AddAgentMysqldExporterC.Flag("tls", "Use TLS to connect to the database").BoolVar(&AddAgentMysqldExporter.TLS)

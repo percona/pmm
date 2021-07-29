@@ -52,6 +52,7 @@ type addAgentProxysqlExporterCommand struct {
 	ServiceID           string
 	Username            string
 	Password            string
+	AgentPassword       string
 	CustomLabels        string
 	SkipConnectionCheck bool
 	TLS                 bool
@@ -71,6 +72,7 @@ func (cmd *addAgentProxysqlExporterCommand) Run() (commands.Result, error) {
 			ServiceID:           cmd.ServiceID,
 			Username:            cmd.Username,
 			Password:            cmd.Password,
+			AgentPassword:       cmd.AgentPassword,
 			CustomLabels:        customLabels,
 			SkipConnectionCheck: cmd.SkipConnectionCheck,
 			TLS:                 cmd.TLS,
@@ -101,6 +103,7 @@ func init() {
 	AddAgentProxysqlExporterC.Arg("service-id", "Service identifier").Required().StringVar(&AddAgentProxysqlExporter.ServiceID)
 	AddAgentProxysqlExporterC.Arg("username", "ProxySQL username for scraping metrics").Default("admin").StringVar(&AddAgentProxysqlExporter.Username)
 	AddAgentProxysqlExporterC.Flag("password", "ProxySQL password for scraping metrics").Default("admin").StringVar(&AddAgentProxysqlExporter.Password)
+	AddAgentProxysqlExporterC.Flag("agent-password", "Custom password for /metrics endpoint").StringVar(&AddAgentProxysqlExporter.AgentPassword)
 	AddAgentProxysqlExporterC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentProxysqlExporter.CustomLabels)
 	AddAgentProxysqlExporterC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddAgentProxysqlExporter.SkipConnectionCheck)
 	AddAgentProxysqlExporterC.Flag("tls", "Use TLS to connect to the database").BoolVar(&AddAgentProxysqlExporter.TLS)

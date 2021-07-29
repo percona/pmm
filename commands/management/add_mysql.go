@@ -93,6 +93,7 @@ type addMySQLCommand struct {
 	ServiceName       string
 	Username          string
 	Password          string
+	AgentPassword     string
 	Environment       string
 	Cluster           string
 	ReplicationSet    string
@@ -200,6 +201,7 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 			ReplicationSet: cmd.ReplicationSet,
 			Username:       cmd.Username,
 			Password:       cmd.Password,
+			AgentPassword:  cmd.AgentPassword,
 			CustomLabels:   customLabels,
 
 			QANMysqlSlowlog:    cmd.QuerySource == mysqlQuerySourceSlowLog,
@@ -251,6 +253,7 @@ func init() {
 
 	AddMySQLC.Flag("username", "MySQL username").Default("root").StringVar(&AddMySQL.Username)
 	AddMySQLC.Flag("password", "MySQL password").StringVar(&AddMySQL.Password)
+	AddMySQLC.Flag("agent-password", "Custom password for /metrics endpoint").StringVar(&AddMySQL.AgentPassword)
 
 	querySources := []string{mysqlQuerySourceSlowLog, mysqlQuerySourcePerfSchema, mysqlQuerySourceNone} // TODO add "auto", make it default
 	querySourceHelp := fmt.Sprintf("Source of SQL queries, one of: %s (default: %s)", strings.Join(querySources, ", "), querySources[0])

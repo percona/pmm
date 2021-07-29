@@ -57,6 +57,7 @@ type addMongoDBCommand struct {
 	ServiceName       string
 	Username          string
 	Password          string
+	AgentPassword     string
 	Environment       string
 	Cluster           string
 	ReplicationSet    string
@@ -136,6 +137,7 @@ func (cmd *addMongoDBCommand) Run() (commands.Result, error) {
 			ReplicationSet: cmd.ReplicationSet,
 			Username:       cmd.Username,
 			Password:       cmd.Password,
+			AgentPassword:  cmd.AgentPassword,
 
 			QANMongodbProfiler: cmd.QuerySource == mongodbQuerySourceProfiler,
 
@@ -180,6 +182,7 @@ func init() {
 
 	AddMongoDBC.Flag("username", "MongoDB username").StringVar(&AddMongoDB.Username)
 	AddMongoDBC.Flag("password", "MongoDB password").StringVar(&AddMongoDB.Password)
+	AddMongoDBC.Flag("agent-password", "Custom password for /metrics endpoint").StringVar(&AddMongoDB.AgentPassword)
 
 	querySources := []string{mongodbQuerySourceProfiler, mongodbQuerySourceNone} // TODO add "auto"
 	querySourceHelp := fmt.Sprintf("Source of queries, one of: %s (default: %s)", strings.Join(querySources, ", "), querySources[0])

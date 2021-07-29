@@ -52,6 +52,7 @@ type addProxySQLCommand struct {
 	ServiceName       string
 	Username          string
 	Password          string
+	AgentPassword     string
 	Environment       string
 	Cluster           string
 	ReplicationSet    string
@@ -117,6 +118,7 @@ func (cmd *addProxySQLCommand) Run() (commands.Result, error) {
 			ReplicationSet: cmd.ReplicationSet,
 			Username:       cmd.Username,
 			Password:       cmd.Password,
+			AgentPassword:  cmd.AgentPassword,
 
 			CustomLabels:        customLabels,
 			SkipConnectionCheck: cmd.SkipConnectionCheck,
@@ -157,6 +159,7 @@ func init() {
 
 	AddProxySQLC.Flag("username", "ProxySQL username").Default("admin").StringVar(&AddProxySQL.Username)
 	AddProxySQLC.Flag("password", "ProxySQL password").Default("admin").StringVar(&AddProxySQL.Password)
+	AddProxySQLC.Flag("agent-password", "Custom password for /metrics endpoint").StringVar(&AddProxySQL.AgentPassword)
 
 	AddProxySQLC.Flag("environment", "Environment name").StringVar(&AddProxySQL.Environment)
 	AddProxySQLC.Flag("cluster", "Cluster name").StringVar(&AddProxySQL.Cluster)
