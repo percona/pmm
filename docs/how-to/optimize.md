@@ -8,8 +8,8 @@ If a MySQL instance has a lot of schemas or tables, there are two options to hel
 - `--disable-tablestats-limit`.
 
 !!! caution alert alert-warning "Important"
-    - These settings can only be used when adding an instance. To change them, you must remove and re-add the instances.
-    - You can only use one of these options when adding an instance.
+    - These settings are only for adding an instance. To change them, you must remove and re-add the instances.
+    - Only one of these options can be used when adding an instance.
 
 ## Disable per-table statistics for an instance
 

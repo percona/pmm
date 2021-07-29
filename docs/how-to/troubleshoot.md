@@ -21,13 +21,15 @@ Refresh The Home page in 2-5 minutes and you should see that PMM was updated.
 
 ## PMM Server/PMM Client connection {: #troubleshoot-connection }
 
-Broken network connectivity may be due to many reasons.  Particularly, when [using Docker](../setting-up/server/docker.md), the container is constrained by the host-level routing and firewall rules. For example, your hosting provider might have default `iptables` rules on their hosts that block communication between PMM Server and PMM Client, resulting in *DOWN* targets in VictoriaMetrics. If this happens, check the firewall and routing settings on the Docker host.
+There are many causes of broken network connectivity.
 
-PMM is also able to generate diagnostics data which can be examined and/or shared with our support team to help quickly solve an issue. You can get collected logs from PMM Client using the `pmm-admin summary` command.
+When [using Docker](../setting-up/server/docker.md) the container is constrained by the host-level routing and firewall rules. For example, your hosting provider might have default `iptables` rules on their hosts that block communication between PMM Server and PMM Client, resulting in *DOWN* targets in VictoriaMetrics. If this happens, check the firewall and routing settings on the Docker host.
+
+PMM is also able to generate diagnostics data which can be examined and/or shared with our support team to help solve an issue. You can get collected logs from PMM Client using the `pmm-admin summary` command.
 
 Logs obtained in this way includes PMM Client logs and logs which were received from the PMM Server, stored separately in the `client` and `server` folders. The `server` folder also contains its own `client` subfolder with the self-monitoring client information collected on the PMM Server.
 
-Beginning with [PMM 2.4.0](../release-notes/2.4.0.md), there is an additional flag that enables the fetching of [`pprof`](https://github.com/google/pprof) debug profiles and adds them to the diagnostics data. To enable, run `pmm-admin summary --pprof`.
+Beginning with [PMM 2.4.0](../release-notes/2.4.0.md), there is a flag that enables the fetching of [`pprof`](https://github.com/google/pprof) debug profiles and adds them to the diagnostics data. To enable, run `pmm-admin summary --pprof`.
 
 You can get PMM Server logs with either of these methods:
 
@@ -45,11 +47,11 @@ In a browser, visit `https://<address-of-your-pmm-server>/logs.zip`.
 
 ### Passwords
 
-When adding a service, the host might not be detected correctly if the password contains special symbols (e.g. `@`, `%`, etc.).
+When adding a service, the host might not be detected if the password contains special symbols (e.g. `@`, `%`, etc.).
 
 In such cases, you should convert any password, replacing special characters with their escape sequence equivalents.
 
-One way to do this is to use the [`encodeURIComponent`][ENCODE_URI] JavaScript function in your browser's web console (usually found under *Development Tools*). Evaluate the function with your password as the parameter. For example:
+One way to do this is to use the [`encodeURIComponent`][ENCODE_URI] JavaScript function in your browser's web console (commonly found under a *Development Tools* menu). Run the function with your password as the parameter. For example:
 
 ```js
 > encodeURIComponent("s3cR#tpa$$worD")
@@ -109,9 +111,7 @@ It depends on what kind of authentication your system uses:
 
 ### Alert Rule Templates is disabled
 
-Built-In alerts are not editable.
-
-However, you can copy them and edit the copies. (In [PMM 2.14.0](../release-notes/2.14.0.md) and above).
+Built-In alerts are not editable, but you can copy them and edit the copies. (In [PMM 2.14.0](../release-notes/2.14.0.md) and above).
 
 If you create a custom alert rule template you will have access to edit.
 
@@ -133,7 +133,7 @@ If you create a custom alert rule template you will have access to edit.
 
 ### Variables in Templates
 
-**The concept of *template* implies things like variable substitutions...where can I use these? Where can I find a complete list of them?**
+**The concept of *template* implies features like variable substitutions...where can I use these? Where can I find a complete list of them?**
 
 Here is a guide to creating templates for Alertmanager: <https://prometheus.io/docs/prometheus/latest/configuration/template_examples/>
 

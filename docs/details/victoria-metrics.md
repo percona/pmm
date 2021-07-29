@@ -4,7 +4,7 @@
 
 ## Push/Pull modes
 
-VictoriaMetrics allows metrics data to be 'pushed' to the server in addition to it being 'pulled' by the server. When setting up services, you can decide which mode to use.
+VictoriaMetrics metrics data can be both 'pushed' to the server and 'pulled' by the server. When setting up services, you can decide which mode to use.
 
 !!! note alert alert-primary ""
     The 'push' mode is now default for newly-added services.
@@ -12,7 +12,7 @@ VictoriaMetrics allows metrics data to be 'pushed' to the server in addition to 
 
 The mode (push/pull) is controlled by the `--metrics-mode` flag for the `pmm-admin config` and `pmm-admin add` commands.
 
-If you need to change the metrics mode for an existing Service, you must remove it and re-add it with the same name and the required flags. (There is currently no ability to update a service.)
+If you need to change the metrics mode for an existing Service, you must remove it and re-add it with the same name and the required flags. (You cannot update a service.)
 
 ## Remapped targets for direct Prometheus paths
 
@@ -25,7 +25,7 @@ As a result of the move to VictoriaMetrics some direct Prometheus paths are no l
 | Prometheus path                 | VictoriaMetrics equivalent
 |---------------------------------|--------------------------------------------------------------------------------------------------------------------------
 | `/prometheus/alerts`            | No change.
-| `/prometheus/config`            | No equivalent. However, some information is at `/prometheus/targets`.
+| `/prometheus/config`            | No equivalent, but there is some information at `/prometheus/targets`.
 | `/prometheus/flags`             | The `flag` metrics at `/prometheus/metrics`.
 | `/prometheus/graph`             | `/graph/explore` (Grafana) or `graph/d/prometheus-advanced/advanced-data-exploration` (PMM dashboard).
 | `/prometheus/rules`             | No change.
