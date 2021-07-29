@@ -16,6 +16,6 @@ The objects visible are nodes, services, and agents:
 
 - An **Agent** represents something that runs on the Node which is not useful in itself but instead provides insights (metrics, query performance data, etc) about Nodes and/or Services. An agent always runs on the single Node (except External Exporters), and provides insights for zero or more Services and Nodes.
 
-Nodes, Services, and Agents have **Types** which define specific their properties, and the specific logic they implement.
+Nodes, Services, and Agents have **Types** which define specific their properties, and their specific logic.
 
-Nodes and Services are external by nature – we do not manage them (create, destroy), but merely maintain a list of them (add to inventory, remove from inventory) in `pmm-managed`. Most Agents, however, are started and stopped by `pmm-agent`. The only exception is the External Exporter Type which is started externally.
+Nodes and Services are external by nature – we do not manage them (create, destroy), but merely maintain a list of them (add to inventory, remove from inventory) in `pmm-managed`. Most Agents are started and stopped by `pmm-agent`. One exception is the External Exporter Type which is started externally.
