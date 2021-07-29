@@ -22,6 +22,9 @@ enum PSMDBClusterState {
   PSMDB_CLUSTER_STATE_DELETING = 4;
   // PSMDB_CLUSTER_STATE_PAUSED represents a cluster is paused.
   PSMDB_CLUSTER_STATE_PAUSED = 5;
+  // PSMDB_CLUSTER_STATE_UPGRADING is a special case of PSMDB_CLUSTER_STATE_CHANGING.
+  // It indicates database cluster upgrade is ongoing.
+  PSMDB_CLUSTER_STATE_UPGRADING = 6;
 }
 
 // PSMDBClusterParams represents PSMDB cluster parameters that can be updated.
