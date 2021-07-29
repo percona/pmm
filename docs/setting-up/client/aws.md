@@ -111,7 +111,9 @@ When adding a monitoring instance for Amazon RDS, specify a unique name to disti
 Create the `pmm` user with the following privileges on the Amazon RDS instance that you want to monitor:
 
 ```sql
-GRANT SELECT, PROCESS, REPLICATION CLIENT ON *.* TO 'pmm'@'%' IDENTIFIED BY 'pass' WITH MAX_USER_CONNECTIONS 10;
+CREATE USER 'pmm'@'%' IDENTIFIED BY 'pass';
+GRANT SELECT, PROCESS, REPLICATION CLIENT ON *.* TO 'pmm'@'%';
+ALTER USER 'pmm'@'%' WITH MAX_USER_CONNECTIONS 10;
 GRANT SELECT, UPDATE, DELETE, DROP ON performance_schema.* TO 'pmm'@'%';
 ```
 
