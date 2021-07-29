@@ -147,6 +147,7 @@ type Agent struct {
 
 	Username      *string `reform:"username"`
 	Password      *string `reform:"password"`
+	AgentPassword *string `reform:"agent_password"`
 	TLS           bool    `reform:"tls"`
 	TLSSkipVerify bool    `reform:"tls_skip_verify"`
 
@@ -220,6 +221,16 @@ func (s *Agent) GetCustomLabels() (map[string]string, error) {
 // SetCustomLabels encodes custom labels.
 func (s *Agent) SetCustomLabels(m map[string]string) error {
 	return setLabels(m, &s.CustomLabels)
+}
+
+// GetAgentPassword returns agent password, if it is empty then agent ID.
+func (s *Agent) GetAgentPassword() string {
+	password := s.AgentID
+	if pointer.GetString(s.AgentPassword) != "" {
+		password = *s.AgentPassword
+	}
+
+	return password
 }
 
 // UnifiedLabels returns combined standard and custom labels with empty labels removed.

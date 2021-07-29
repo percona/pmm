@@ -126,7 +126,7 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent, redac
 		Args:               args,
 		Env: []string{
 			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, time.Second, "", nil)),
-			fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.AgentID),
+			fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.GetAgentPassword()),
 		},
 		TextFiles: exporter.Files(),
 	}

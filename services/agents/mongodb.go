@@ -67,7 +67,7 @@ func mongodbExporterConfig(service *models.Service, exporter *models.Agent, reda
 
 	env := []string{
 		fmt.Sprintf("MONGODB_URI=%s", exporter.DSN(service, time.Second, "", tdp)),
-		fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.AgentID),
+		fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.GetAgentPassword()),
 	}
 
 	res := &agentpb.SetStateRequest_AgentProcess{

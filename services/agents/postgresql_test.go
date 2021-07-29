@@ -36,10 +36,11 @@ func TestPostgresExporterConfig(t *testing.T) {
 		Port:    pointer.ToUint16(5432),
 	}
 	exporter := &models.Agent{
-		AgentID:   "agent-id",
-		AgentType: models.PostgresExporterType,
-		Username:  pointer.ToString("username"),
-		Password:  pointer.ToString("s3cur3 p@$$w0r4."),
+		AgentID:       "agent-id",
+		AgentType:     models.PostgresExporterType,
+		Username:      pointer.ToString("username"),
+		Password:      pointer.ToString("s3cur3 p@$$w0r4."),
+		AgentPassword: pointer.ToString("agent-password"),
 	}
 	actual := postgresExporterConfig(postgresql, exporter, redactSecrets, pmmAgentVersion)
 	expected := &agentpb.SetStateRequest_AgentProcess{
@@ -57,9 +58,9 @@ func TestPostgresExporterConfig(t *testing.T) {
 		},
 		Env: []string{
 			"DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=1&sslmode=disable",
-			"HTTP_AUTH=pmm:agent-id",
+			"HTTP_AUTH=pmm:agent-password",
 		},
-		RedactWords: []string{"s3cur3 p@$$w0r4."},
+		RedactWords: []string{"s3cur3 p@$$w0r4.", "agent-password"},
 	}
 	requireNoDuplicateFlags(t, actual.Args)
 	require.Equal(t, expected.Args, actual.Args)

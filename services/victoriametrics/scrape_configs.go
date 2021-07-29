@@ -154,7 +154,7 @@ func httpClientConfig(agent *models.Agent) config.HTTPClientConfig {
 	return config.HTTPClientConfig{
 		BasicAuth: &config.BasicAuth{
 			Username: "pmm",
-			Password: agent.AgentID,
+			Password: agent.GetAgentPassword(),
 		},
 	}
 }

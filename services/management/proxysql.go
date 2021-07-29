@@ -79,6 +79,7 @@ func (s *ProxySQLService) Add(ctx context.Context, req *managementpb.AddProxySQL
 			ServiceID:         service.ServiceID,
 			Username:          req.Username,
 			Password:          req.Password,
+			AgentPassword:     req.AgentPassword,
 			TLS:               req.Tls,
 			TLSSkipVerify:     req.TlsSkipVerify,
 			PushMetrics:       isPushMode(req.MetricsMode),

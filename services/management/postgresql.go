@@ -80,6 +80,7 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 			ServiceID:         service.ServiceID,
 			Username:          req.Username,
 			Password:          req.Password,
+			AgentPassword:     req.AgentPassword,
 			TLS:               req.Tls,
 			TLSSkipVerify:     req.TlsSkipVerify,
 			PushMetrics:       isPushMode(req.MetricsMode),

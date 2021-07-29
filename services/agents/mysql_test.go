@@ -34,10 +34,11 @@ func TestMySQLdExporterConfig(t *testing.T) {
 		Port:    pointer.ToUint16(3306),
 	}
 	exporter := &models.Agent{
-		AgentID:   "agent-id",
-		AgentType: models.MySQLdExporterType,
-		Username:  pointer.ToString("username"),
-		Password:  pointer.ToString("s3cur3 p@$$w0r4."),
+		AgentID:       "agent-id",
+		AgentType:     models.MySQLdExporterType,
+		Username:      pointer.ToString("username"),
+		Password:      pointer.ToString("s3cur3 p@$$w0r4."),
+		AgentPassword: pointer.ToString("agent-password"),
 	}
 	actual := mysqldExporterConfig(mysql, exporter, redactSecrets)
 	expected := &agentpb.SetStateRequest_AgentProcess{
@@ -86,9 +87,9 @@ func TestMySQLdExporterConfig(t *testing.T) {
 		},
 		Env: []string{
 			"DATA_SOURCE_NAME=username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:3306)/?timeout=1s",
-			"HTTP_AUTH=pmm:agent-id",
+			"HTTP_AUTH=pmm:agent-password",
 		},
-		RedactWords: []string{"s3cur3 p@$$w0r4."},
+		RedactWords: []string{"s3cur3 p@$$w0r4.", "agent-password"},
 	}
 	requireNoDuplicateFlags(t, actual.Args)
 	require.Equal(t, expected.Args, actual.Args)

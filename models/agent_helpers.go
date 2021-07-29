@@ -639,6 +639,7 @@ type CreateAgentParams struct {
 	ServiceID                      string
 	Username                       string
 	Password                       string
+	AgentPassword                  string
 	CustomLabels                   map[string]string
 	TLS                            bool
 	TLSSkipVerify                  bool
@@ -785,6 +786,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		NodeID:                         pointer.ToStringOrNil(params.NodeID),
 		Username:                       pointer.ToStringOrNil(params.Username),
 		Password:                       pointer.ToStringOrNil(params.Password),
+		AgentPassword:                  pointer.ToStringOrNil(params.AgentPassword),
 		TLS:                            params.TLS,
 		TLSSkipVerify:                  params.TLSSkipVerify,
 		MySQLOptions:                   params.MySQLOptions,

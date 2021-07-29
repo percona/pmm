@@ -37,10 +37,11 @@ func TestMongodbExporterConfig(t *testing.T) {
 		Port:    pointer.ToUint16(27017),
 	}
 	exporter := &models.Agent{
-		AgentID:   "agent-id",
-		AgentType: models.MongoDBExporterType,
-		Username:  pointer.ToString("username"),
-		Password:  pointer.ToString("s3cur3 p@$$w0r4."),
+		AgentID:       "agent-id",
+		AgentType:     models.MongoDBExporterType,
+		Username:      pointer.ToString("username"),
+		Password:      pointer.ToString("s3cur3 p@$$w0r4."),
+		AgentPassword: pointer.ToString("agent-password"),
 	}
 	actual := mongodbExporterConfig(mongodb, exporter, redactSecrets, pmmAgentVersion)
 	expected := &agentpb.SetStateRequest_AgentProcess{
@@ -57,9 +58,9 @@ func TestMongodbExporterConfig(t *testing.T) {
 		},
 		Env: []string{
 			"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:27017/?connectTimeoutMS=1000",
-			"HTTP_AUTH=pmm:agent-id",
+			"HTTP_AUTH=pmm:agent-password",
 		},
-		RedactWords: []string{"s3cur3 p@$$w0r4."},
+		RedactWords: []string{"s3cur3 p@$$w0r4.", "agent-password"},
 	}
 	requireNoDuplicateFlags(t, actual.Args)
 	require.Equal(t, expected.Args, actual.Args)
