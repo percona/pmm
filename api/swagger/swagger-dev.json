@@ -3598,6 +3598,21 @@
                     "type": "string"
                   },
                   "x-order": 12
+                },
+                "authentication_mechanism": {
+                  "description": "Authentication mechanism.\nSee https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism\nfor details.",
+                  "type": "string",
+                  "x-order": 13
+                },
+                "authentication_database": {
+                  "description": "Authentication database.",
+                  "type": "string",
+                  "x-order": 14
+                },
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 15
                 }
               }
             }
@@ -3829,6 +3844,11 @@
                     "type": "string"
                   },
                   "x-order": 13
+                },
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 14
                 }
               }
             }
@@ -4344,6 +4364,26 @@
                     "type": "string"
                   },
                   "x-order": 9
+                },
+                "tls_ca": {
+                  "description": "TLS CA certificate.",
+                  "type": "string",
+                  "x-order": 10
+                },
+                "tls_cert": {
+                  "description": "TLS Certifcate.",
+                  "type": "string",
+                  "x-order": 11
+                },
+                "tls_key": {
+                  "description": "TLS Certificate Key.",
+                  "type": "string",
+                  "x-order": 12
+                },
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 13
                 }
               }
             }
@@ -4554,6 +4594,11 @@
                     "type": "string"
                   },
                   "x-order": 9
+                },
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 10
                 }
               }
             }
@@ -4766,6 +4811,16 @@
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 10
+                },
+                "authentication_mechanism": {
+                  "description": "Authentication mechanism.\nSee https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism\nfor details.",
+                  "type": "string",
+                  "x-order": 11
+                },
+                "authentication_database": {
+                  "description": "Authentication database.",
+                  "type": "string",
+                  "x-order": 12
                 }
               }
             }
@@ -5397,6 +5452,21 @@
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 8
+                },
+                "tls_ca": {
+                  "description": "TLS CA certificate.",
+                  "type": "string",
+                  "x-order": 9
+                },
+                "tls_cert": {
+                  "description": "TLS Certifcate.",
+                  "type": "string",
+                  "x-order": 10
+                },
+                "tls_key": {
+                  "description": "TLS Certificate Key.",
+                  "type": "string",
+                  "x-order": 11
                 }
               }
             }
@@ -5580,6 +5650,21 @@
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 7
+                },
+                "tls_ca": {
+                  "description": "TLS CA certificate.",
+                  "type": "string",
+                  "x-order": 8
+                },
+                "tls_cert": {
+                  "description": "TLS Certifcate.",
+                  "type": "string",
+                  "x-order": 9
+                },
+                "tls_key": {
+                  "description": "TLS Certificate Key.",
+                  "type": "string",
+                  "x-order": 10
                 }
               }
             }
@@ -20530,6 +20615,21 @@
                     "type": "string"
                   },
                   "x-order": 22
+                },
+                "authentication_mechanism": {
+                  "description": "Authentication mechanism.\nSee https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism\nfor details.",
+                  "type": "string",
+                  "x-order": 23
+                },
+                "authentication_database": {
+                  "description": "Authentication database.",
+                  "type": "string",
+                  "x-order": 24
+                },
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 25
                 }
               }
             }
@@ -21027,6 +21127,11 @@
                     "type": "string"
                   },
                   "x-order": 26
+                },
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 27
                 }
               }
             }
@@ -21949,6 +22054,26 @@
                     "type": "string"
                   },
                   "x-order": 21
+                },
+                "tls_ca": {
+                  "description": "TLS CA certificate.",
+                  "type": "string",
+                  "x-order": 22
+                },
+                "tls_cert": {
+                  "description": "TLS Certifcate.",
+                  "type": "string",
+                  "x-order": 23
+                },
+                "tls_key": {
+                  "description": "TLS Certificate Key.",
+                  "type": "string",
+                  "x-order": 24
+                },
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 25
                 }
               }
             }
@@ -22474,6 +22599,11 @@
                     "type": "string"
                   },
                   "x-order": 18
+                },
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 19
                 }
               }
             }
@@ -22849,6 +22979,11 @@
                   "type": "boolean",
                   "title": "If true, add qan-pgstatements",
                   "x-order": 27
+                },
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 28
                 }
               }
             }

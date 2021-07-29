@@ -295,9 +295,19 @@ func (this *StartActionRequest_MySQLShowIndexParams) Validate() error {
 	return nil
 }
 func (this *StartActionRequest_PostgreSQLShowCreateTableParams) Validate() error {
+	if this.TlsFiles != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.TlsFiles); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("TlsFiles", err)
+		}
+	}
 	return nil
 }
 func (this *StartActionRequest_PostgreSQLShowIndexParams) Validate() error {
+	if this.TlsFiles != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.TlsFiles); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("TlsFiles", err)
+		}
+	}
 	return nil
 }
 func (this *StartActionRequest_MongoDBExplainParams) Validate() error {
@@ -337,9 +347,19 @@ func (this *StartActionRequest_MySQLQuerySelectParams) Validate() error {
 	return nil
 }
 func (this *StartActionRequest_PostgreSQLQueryShowParams) Validate() error {
+	if this.TlsFiles != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.TlsFiles); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("TlsFiles", err)
+		}
+	}
 	return nil
 }
 func (this *StartActionRequest_PostgreSQLQuerySelectParams) Validate() error {
+	if this.TlsFiles != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.TlsFiles); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("TlsFiles", err)
+		}
+	}
 	return nil
 }
 func (this *StartActionRequest_MongoDBQueryGetParameterParams) Validate() error {
