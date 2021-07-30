@@ -24923,6 +24923,12 @@
                   "description": "Human-readable description.",
                   "type": "string",
                   "x-order": 5
+                },
+                "retention": {
+                  "description": "How many artifacts keep. 0 - unlimited.",
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 6
                 }
               }
             }
@@ -25084,6 +25090,12 @@
                         "type": "string",
                         "format": "date-time",
                         "x-order": 13
+                      },
+                      "retention": {
+                        "description": "How many artifacts keep. 0 - unlimited.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 14
                       }
                     }
                   },
@@ -25341,6 +25353,12 @@
                   "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.\ngoogle.protobuf.Duration retry_interval = 7;\nHow many times to retry a failed backup before giving up.\nuint32 retry_times = 8;\nIf scheduling is enabled.",
                   "type": "boolean",
                   "x-order": 6
+                },
+                "retention": {
+                  "description": "How many artifacts keep. 0 - unlimited.",
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 7
                 }
               }
             }
