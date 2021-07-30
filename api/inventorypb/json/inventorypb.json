@@ -409,6 +409,11 @@
             "schema": {
               "type": "object",
               "properties": {
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 15
+                },
                 "authentication_database": {
                   "description": "Authentication database.",
                   "type": "string",
@@ -644,6 +649,11 @@
             "schema": {
               "type": "object",
               "properties": {
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 14
+                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
                   "type": "object",
@@ -1180,6 +1190,11 @@
             "schema": {
               "type": "object",
               "properties": {
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 13
+                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
                   "type": "object",
@@ -1225,6 +1240,21 @@
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
                   "x-order": 4
+                },
+                "tls_ca": {
+                  "description": "TLS CA certificate.",
+                  "type": "string",
+                  "x-order": 10
+                },
+                "tls_cert": {
+                  "description": "TLS Certifcate.",
+                  "type": "string",
+                  "x-order": 11
+                },
+                "tls_key": {
+                  "description": "TLS Certificate Key.",
+                  "type": "string",
+                  "x-order": 12
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
@@ -1390,6 +1420,11 @@
             "schema": {
               "type": "object",
               "properties": {
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 10
+                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
                   "type": "object",
@@ -2289,6 +2324,21 @@
                   "type": "boolean",
                   "x-order": 4
                 },
+                "tls_ca": {
+                  "description": "TLS CA certificate.",
+                  "type": "string",
+                  "x-order": 9
+                },
+                "tls_cert": {
+                  "description": "TLS Certifcate.",
+                  "type": "string",
+                  "x-order": 10
+                },
+                "tls_key": {
+                  "description": "TLS Certificate Key.",
+                  "type": "string",
+                  "x-order": 11
+                },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",
                   "type": "boolean",
@@ -2471,6 +2521,21 @@
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
                   "x-order": 4
+                },
+                "tls_ca": {
+                  "description": "TLS CA certificate.",
+                  "type": "string",
+                  "x-order": 8
+                },
+                "tls_cert": {
+                  "description": "TLS Certifcate.",
+                  "type": "string",
+                  "x-order": 9
+                },
+                "tls_key": {
+                  "description": "TLS Certificate Key.",
+                  "type": "string",
+                  "x-order": 10
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",
