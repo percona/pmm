@@ -78,7 +78,7 @@ alias kubectl='minikube kubectl --'
     ```sh
     minikube config set cpus 16
     minikube config set memory 32768
-    minikube config set kubernetes-version 1.16.15
+    minikube config set kubernetes-version 1.20.1
     minikube start
     ```
 
