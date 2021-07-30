@@ -269,7 +269,7 @@ func RemoveService(q *reform.Querier, id string, mode RemoveMode) error {
 		return errors.Wrap(err, "failed to select Agent IDs")
 	}
 
-	artifacts, err := FindArtifacts(q, &ArtifactFilters{ServiceID: id})
+	artifacts, err := FindArtifacts(q, ArtifactFilters{ServiceID: id})
 	if err != nil {
 		return errors.Wrap(err, "failed to select artifacts")
 	}

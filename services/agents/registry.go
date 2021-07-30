@@ -98,9 +98,10 @@ type pmmAgentInfo struct {
 //
 // TODO Split into several types https://jira.percona.com/browse/PMM-4932
 type Registry struct {
-	db        *reform.DB
-	vmdb      prometheusService
-	qanClient qanClient
+	db               *reform.DB
+	vmdb             prometheusService
+	qanClient        qanClient
+	retentionService retentionService
 
 	rw     sync.RWMutex
 	agents map[string]*pmmAgentInfo // id -> info
@@ -115,12 +116,13 @@ type Registry struct {
 }
 
 // NewRegistry creates a new registry with given database connection.
-func NewRegistry(db *reform.DB, qanClient qanClient, vmdb prometheusService) *Registry {
+func NewRegistry(db *reform.DB, qanClient qanClient, vmdb prometheusService, retentionService retentionService) *Registry {
 	agents := make(map[string]*pmmAgentInfo)
 	r := &Registry{
-		db:        db,
-		vmdb:      vmdb,
-		qanClient: qanClient,
+		db:               db,
+		vmdb:             vmdb,
+		qanClient:        qanClient,
+		retentionService: retentionService,
 
 		agents: agents,
 
@@ -274,7 +276,7 @@ func (r *Registry) Run(stream agentpb.Agent_ConnectServer) error {
 				})
 
 			case *agentpb.JobResult:
-				r.handleJobResult(l, p)
+				r.handleJobResult(ctx, l, p)
 			case *agentpb.JobProgress:
 				// TODO Handle job progress messages https://jira.percona.com/browse/PMM-7756
 
@@ -285,7 +287,8 @@ func (r *Registry) Run(stream agentpb.Agent_ConnectServer) error {
 	}
 }
 
-func (r *Registry) handleJobResult(l *logrus.Entry, result *agentpb.JobResult) {
+func (r *Registry) handleJobResult(ctx context.Context, l *logrus.Entry, result *agentpb.JobResult) {
+	var scheduleID string
 	if e := r.db.InTransaction(func(t *reform.TX) error {
 		res, err := models.FindJobResultByID(t.Querier, result.JobId)
 		if err != nil {
@@ -312,22 +315,30 @@ func (r *Registry) handleJobResult(l *logrus.Entry, result *agentpb.JobResult) {
 				return errors.Errorf("result type %s doesn't match job type %s", models.MySQLBackupJob, res.Type)
 			}
 
-			_, err := models.UpdateArtifact(t.Querier, res.Result.MySQLBackup.ArtifactID, models.UpdateArtifactParams{
+			artifact, err := models.UpdateArtifact(t.Querier, res.Result.MySQLBackup.ArtifactID, models.UpdateArtifactParams{
 				Status: models.BackupStatusPointer(models.SuccessBackupStatus),
 			})
 			if err != nil {
 				return err
+			}
+
+			if artifact.Type == models.ScheduledArtifactType {
+				scheduleID = artifact.ScheduleID
 			}
 		case *agentpb.JobResult_MongodbBackup:
 			if res.Type != models.MongoDBBackupJob {
 				return errors.Errorf("result type %s doesn't match job type %s", models.MongoDBBackupJob, res.Type)
 			}
 
-			_, err := models.UpdateArtifact(t.Querier, res.Result.MongoDBBackup.ArtifactID, models.UpdateArtifactParams{
+			artifact, err := models.UpdateArtifact(t.Querier, res.Result.MongoDBBackup.ArtifactID, models.UpdateArtifactParams{
 				Status: models.BackupStatusPointer(models.SuccessBackupStatus),
 			})
 			if err != nil {
 				return err
+			}
+
+			if artifact.Type == models.ScheduledArtifactType {
+				scheduleID = artifact.ScheduleID
 			}
 		case *agentpb.JobResult_MysqlRestoreBackup:
 			if res.Type != models.MySQLRestoreBackupJob {
@@ -365,6 +376,14 @@ func (r *Registry) handleJobResult(l *logrus.Entry, result *agentpb.JobResult) {
 		return t.Update(res)
 	}); e != nil {
 		l.Errorf("Failed to save job result: %+v", e)
+	}
+
+	if scheduleID != "" {
+		go func() {
+			if err := r.retentionService.EnforceRetention(context.Background(), scheduleID); err != nil {
+				l.Errorf("failed to enforce retention: %v", err)
+			}
+		}()
 	}
 }
 

@@ -38,7 +38,7 @@ type Service struct {
 // NewService creates new backups logic service.
 func NewService(db *reform.DB, jobsService jobsService) *Service {
 	return &Service{
-		l:           logrus.WithField("component", "management/backup/backups-logic"),
+		l:           logrus.WithField("component", "management/backup/backup"),
 		db:          db,
 		jobsService: jobsService,
 	}

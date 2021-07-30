@@ -17,12 +17,14 @@
 package backup
 
 import (
+	"context"
 	"time"
 
 	"github.com/percona/pmm-managed/models"
 )
 
 //go:generate mockery -name=jobsService -case=snake -inpkg -testonly
+//go:generate mockery -name=s3 -case=snake -inpkg -testonly
 
 // jobsService is a subset of methods of agents.JobsService used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
@@ -60,4 +62,12 @@ type jobsService interface {
 		dbConfig *models.DBConfig,
 		locationConfig *models.BackupLocationConfig,
 	) error
+}
+
+type s3 interface {
+	RemoveRecursive(ctx context.Context, endpoint, accessKey, secretKey, bucketName, prefix string) error
+}
+
+type removalService interface {
+	DeleteArtifact(ctx context.Context, artifactID string, removeFiles bool) error
 }

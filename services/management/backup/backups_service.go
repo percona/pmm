@@ -97,9 +97,9 @@ func (s *BackupsService) ScheduleBackup(ctx context.Context, req *backupv1beta1.
 		var task scheduler.Task
 		switch svc.ServiceType {
 		case models.MySQLServiceType:
-			task = scheduler.NewMySQLBackupTask(s.backupService, req.ServiceId, req.LocationId, req.Name, req.Description)
+			task = scheduler.NewMySQLBackupTask(s.backupService, req.ServiceId, req.LocationId, req.Name, req.Description, req.Retention)
 		case models.MongoDBServiceType:
-			task = scheduler.NewMongoBackupTask(s.backupService, req.ServiceId, req.LocationId, req.Name, req.Description)
+			task = scheduler.NewMongoBackupTask(s.backupService, req.ServiceId, req.LocationId, req.Name, req.Description, req.Retention)
 		case models.PostgreSQLServiceType,
 			models.ProxySQLServiceType,
 			models.HAProxyServiceType,
@@ -203,6 +203,9 @@ func (s *BackupsService) ChangeScheduledBackup(ctx context.Context, req *backupv
 		if req.Description != nil {
 			data.Description = req.Description.Value
 		}
+		if req.Retention != nil {
+			data.Retention = req.Retention.Value
+		}
 	case models.ScheduledMongoDBBackupTask:
 		data := scheduledTask.Data.MongoDBBackupTask
 		if req.Name != nil {
@@ -210,6 +213,9 @@ func (s *BackupsService) ChangeScheduledBackup(ctx context.Context, req *backupv
 		}
 		if req.Description != nil {
 			data.Description = req.Description.Value
+		}
+		if req.Retention != nil {
+			data.Retention = req.Retention.Value
 		}
 	default:
 		return nil, status.Errorf(codes.InvalidArgument, "Unknown type: %s", scheduledTask.Type)
@@ -220,13 +226,11 @@ func (s *BackupsService) ChangeScheduledBackup(ctx context.Context, req *backupv
 	}
 
 	if req.Enabled != nil {
-		disabled := !req.Enabled.Value
-		params.Disable = &disabled
+		params.Disable = pointer.ToBool(!req.Enabled.Value)
 	}
 
 	if req.CronExpression != nil {
-		val := req.CronExpression.Value
-		params.CronExpression = &val
+		params.CronExpression = pointer.ToString(req.CronExpression.Value)
 	}
 
 	if err := s.scheduleService.Update(req.ScheduledBackupId, params); err != nil {
@@ -250,7 +254,7 @@ func (s *BackupsService) RemoveScheduledBackup(ctx context.Context, req *backupv
 	}
 
 	errTx := s.db.InTransaction(func(tx *reform.TX) error {
-		artifacts, err := models.FindArtifacts(tx.Querier, &models.ArtifactFilters{
+		artifacts, err := models.FindArtifacts(tx.Querier, models.ArtifactFilters{
 			ScheduleID: req.ScheduledBackupId,
 		})
 		if err != nil {
@@ -305,6 +309,7 @@ func convertTaskToScheduledBackup(task *models.ScheduledTask,
 		backup.Name = data.Name
 		backup.Description = data.Description
 		backup.DataModel = backupv1beta1.DataModel_PHYSICAL
+		backup.Retention = data.Retention
 	case models.ScheduledMongoDBBackupTask:
 		data := task.Data.MongoDBBackupTask
 		backup.ServiceId = data.ServiceID
@@ -312,6 +317,7 @@ func convertTaskToScheduledBackup(task *models.ScheduledTask,
 		backup.Name = data.Name
 		backup.Description = data.Description
 		backup.DataModel = backupv1beta1.DataModel_LOGICAL
+		backup.Retention = data.Retention
 	default:
 		return nil, fmt.Errorf("unknown task type: %s", task.Type)
 	}

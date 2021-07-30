@@ -358,7 +358,7 @@ func RemoveBackupLocation(q *reform.Querier, id string, mode RemoveMode) error {
 		return err
 	}
 
-	artifacts, err := FindArtifacts(q, &ArtifactFilters{LocationID: id})
+	artifacts, err := FindArtifacts(q, ArtifactFilters{LocationID: id})
 	if err != nil {
 		return err
 	}

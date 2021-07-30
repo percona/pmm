@@ -63,6 +63,7 @@ type MySQLBackupTaskData struct {
 	LocationID  string `json:"location_id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
+	Retention   uint32 `json:"retention"`
 }
 
 // MongoBackupTaskData contains data for mysql backup task.
@@ -71,6 +72,7 @@ type MongoBackupTaskData struct {
 	LocationID  string `json:"location_id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
+	Retention   uint32 `json:"retention"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.

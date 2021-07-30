@@ -42,33 +42,39 @@ type ArtifactFilters struct {
 	LocationID string
 	// Return only artifacts that was created by specified scheduled task.
 	ScheduleID string
+	// Return only artifacts by specified status.
+	Status BackupStatus
 }
 
 // FindArtifacts returns artifacts list.
-func FindArtifacts(q *reform.Querier, filters *ArtifactFilters) ([]*Artifact, error) {
+func FindArtifacts(q *reform.Querier, filters ArtifactFilters) ([]*Artifact, error) {
 	var conditions []string
 	var args []interface{}
 	idx := 1
-	if filters != nil {
-		if filters.ServiceID != "" {
-			conditions = append(conditions, fmt.Sprintf("service_id = %s", q.Placeholder(idx)))
-			args = append(args, filters.ServiceID)
-			idx++
-		}
+	if filters.ServiceID != "" {
+		conditions = append(conditions, fmt.Sprintf("service_id = %s", q.Placeholder(idx)))
+		args = append(args, filters.ServiceID)
+		idx++
+	}
 
-		if filters.LocationID != "" {
-			if _, err := FindBackupLocationByID(q, filters.LocationID); err != nil {
-				return nil, err
-			}
-			conditions = append(conditions, fmt.Sprintf("location_id = %s", q.Placeholder(idx)))
-			args = append(args, filters.LocationID)
-			idx++
+	if filters.LocationID != "" {
+		if _, err := FindBackupLocationByID(q, filters.LocationID); err != nil {
+			return nil, err
 		}
+		conditions = append(conditions, fmt.Sprintf("location_id = %s", q.Placeholder(idx)))
+		args = append(args, filters.LocationID)
+		idx++
+	}
 
-		if filters.ScheduleID != "" {
-			conditions = append(conditions, fmt.Sprintf("schedule_id = %s", q.Placeholder(idx)))
-			args = append(args, filters.ScheduleID)
-		}
+	if filters.ScheduleID != "" {
+		conditions = append(conditions, fmt.Sprintf("schedule_id = %s", q.Placeholder(idx)))
+		args = append(args, filters.ScheduleID)
+		idx++
+	}
+
+	if filters.Status != "" {
+		conditions = append(conditions, fmt.Sprintf("status = %s", q.Placeholder(idx)))
+		args = append(args, filters.Status)
 	}
 
 	var whereClause string
