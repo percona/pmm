@@ -187,17 +187,6 @@ message RemoveScheduledBackupRequest {
 
 message RemoveScheduledBackupResponse {}
 
-message GetMongoPITRRangesRequest {}
-
-message GetMongoPITRRangesResponse {
-  // Timerange holds time range start and end values.
-  message Timerange {
-    google.protobuf.Timestamp start = 1;
-    google.protobuf.Timestamp end = 2;
-  }
-  repeated Timerange ranges = 1;
-}
-
 // Backups service handles backup operations to DB.
 service Backups {
   // StartBackup request backup specified service to location.
@@ -239,13 +228,6 @@ service Backups {
   rpc RemoveScheduledBackup(RemoveScheduledBackupRequest) returns (RemoveScheduledBackupResponse) {
     option (google.api.http) = {
       post: "/v1/management/backup/Backups/RemoveScheduled"
-      body: "*"
-    };
-  }
-  // GetMongoPITRRanges returns available Point-in-Time Recovery time ranges for MongoDB.
-  rpc GetMongoPITRRanges(GetMongoPITRRangesRequest) returns (GetMongoPITRRangesResponse) {
-    option (google.api.http) = {
-      post: "/v1/management/backup/Backups/GetMongoPITRRanges"
       body: "*"
     };
   }
