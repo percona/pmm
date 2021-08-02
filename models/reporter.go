@@ -168,7 +168,7 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 		PeriodStartFrom:     periodStartFromSec,
 		PeriodStartTo:       periodStartToSec,
 		PeriodDuration:      periodStartToSec - periodStartFromSec,
-		Dimensions:          dimensions,
+		Dimensions:          escapeColonsInMap(dimensions),
 		Labels:              escapeColonsInMap(labels),
 		Group:               group,
 		Order:               order,
@@ -313,11 +313,11 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 		TimeFrame       int64
 		IsTotal         bool
 	}{
-		DimensionVal:    dimensionVal,
+		DimensionVal:    escapeColons(dimensionVal),
 		PeriodStartFrom: periodStartFromSec,
 		PeriodStartTo:   periodStartToSec,
 		PeriodDuration:  periodStartToSec - periodStartFromSec,
-		Dimensions:      dimensions,
+		Dimensions:      escapeColonsInMap(dimensions),
 		Labels:          escapeColonsInMap(labels),
 		Group:           group,
 		Column:          column,

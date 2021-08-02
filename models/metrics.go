@@ -68,9 +68,9 @@ func (m *Metrics) Get(ctx context.Context, periodStartFromSec, periodStartToSec 
 		PeriodStartFrom: periodStartFromSec,
 		PeriodStartTo:   periodStartToSec,
 		PeriodDuration:  periodStartToSec - periodStartFromSec,
-		Dimensions:      dimensions,
+		Dimensions:      escapeColonsInMap(dimensions),
 		Labels:          escapeColonsInMap(labels),
-		DimensionVal:    filter,
+		DimensionVal:    escapeColons(filter),
 		Group:           group,
 		Totals:          totals,
 	}
@@ -448,9 +448,9 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 		PeriodStartFrom: periodStartFromSec,
 		PeriodStartTo:   periodStartToSec,
 		PeriodDuration:  periodStartToSec - periodStartFromSec,
-		Dimensions:      dimensions,
+		Dimensions:      escapeColonsInMap(dimensions),
 		Labels:          escapeColonsInMap(labels),
-		DimensionVal:    filter,
+		DimensionVal:    escapeColons(filter),
 		TimeFrame:       timeFrame,
 		Group:           group,
 	}
@@ -544,9 +544,9 @@ func (m *Metrics) SelectQueryExamples(ctx context.Context, periodStartFrom, peri
 		DimensionVal string
 		Group        string
 	}{
-		Dimensions:   dimensions,
+		Dimensions:   escapeColonsInMap(dimensions),
 		Labels:       escapeColonsInMap(labels),
-		DimensionVal: filter,
+		DimensionVal: escapeColons(filter),
 		Group:        group,
 	}
 
