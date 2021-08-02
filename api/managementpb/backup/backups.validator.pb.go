@@ -123,6 +123,11 @@ func (this *ChangeScheduledBackupRequest) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("Description", err)
 		}
 	}
+	if this.Retention != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Retention); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Retention", err)
+		}
+	}
 	return nil
 }
 func (this *ChangeScheduledBackupResponse) Validate() error {
