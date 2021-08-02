@@ -53,6 +53,12 @@ func setup(t *testing.T) (*ServicesService, *AgentsService, *NodesService, func(
 	vmdb := new(mockPrometheusService)
 	vmdb.Test(t)
 
+	state := new(mockAgentsStateUpdater)
+	state.Test(t)
+
+	cc := new(mockConnectionChecker)
+	cc.Test(t)
+
 	teardown := func(t *testing.T) {
 		uuid.SetRand(nil)
 
@@ -60,11 +66,13 @@ func setup(t *testing.T) (*ServicesService, *AgentsService, *NodesService, func(
 
 		r.AssertExpectations(t)
 		vmdb.AssertExpectations(t)
+		state.AssertExpectations(t)
+		cc.Test(t)
 	}
 
-	return NewServicesService(db, r, vmdb),
-		NewAgentsService(db, r, vmdb),
-		NewNodesService(db, r, vmdb),
+	return NewServicesService(db, r, state, vmdb),
+		NewAgentsService(db, r, state, vmdb, cc),
+		NewNodesService(db, r, state, vmdb),
 		teardown,
 		logger.Set(context.Background(), t.Name())
 }
@@ -118,9 +126,9 @@ func TestServices(t *testing.T) {
 		require.NoError(t, err)
 		require.Len(t, actualServices, 1) // PMM Server PostgreSQL
 
-		as.r.(*mockAgentsRegistry).On("RequestStateUpdate", ctx, "pmm-server")
+		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "pmm-server")
 		as.vmdb.(*mockPrometheusService).On("RequestConfigurationUpdate")
-		as.r.(*mockAgentsRegistry).On("CheckConnectionToService", ctx,
+		as.cc.(*mockConnectionChecker).On("CheckConnectionToService", ctx,
 			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
 			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
 			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name()),
@@ -177,8 +185,8 @@ func TestServices(t *testing.T) {
 		require.Len(t, actualServices, 1) // PMM Server PostgreSQL
 
 		as.vmdb.(*mockPrometheusService).On("RequestConfigurationUpdate")
-		as.r.(*mockAgentsRegistry).On("RequestStateUpdate", ctx, "pmm-server").Times(0)
-		as.r.(*mockAgentsRegistry).On("CheckConnectionToService", ctx,
+		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "pmm-server").Times(0)
+		as.cc.(*mockConnectionChecker).On("CheckConnectionToService", ctx,
 			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
 			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
 			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name()),

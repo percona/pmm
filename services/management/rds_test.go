@@ -53,10 +53,16 @@ func TestRDSService(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 	defer sqlDB.Close() //nolint:errcheck
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-	r := new(mockAgentsRegistry)
-	r.Test(t)
-	defer r.AssertExpectations(t)
-	s := NewRDSService(db, r)
+
+	cc := new(mockConnectionChecker)
+	cc.Test(t)
+	state := new(mockAgentsStateUpdater)
+	state.Test(t)
+	defer func() {
+		cc.AssertExpectations(t)
+		state.AssertExpectations(t)
+	}()
+	s := NewRDSService(db, state, cc)
 
 	t.Run("DiscoverRDS", func(t *testing.T) {
 		t.Run("ListRegions", func(t *testing.T) {
@@ -248,7 +254,7 @@ func TestRDSService(t *testing.T) {
 			TablestatsGroupTableLimit: 0,
 		}
 
-		r.On("RequestStateUpdate", ctx, "pmm-server")
+		state.On("RequestStateUpdate", ctx, "pmm-server")
 		resp, err := s.AddRDS(ctx, req)
 		require.NoError(t, err)
 
@@ -335,7 +341,7 @@ func TestRDSService(t *testing.T) {
 			TablestatsGroupTableLimit: 0,
 		}
 
-		r.On("RequestStateUpdate", ctx, "pmm-server")
+		state.On("RequestStateUpdate", ctx, "pmm-server")
 		resp, err := s.AddRDS(ctx, req)
 		require.NoError(t, err)
 

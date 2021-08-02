@@ -56,7 +56,7 @@ const platformAPITimeout = 10 * time.Second
 type Server struct {
 	db                   *reform.DB
 	vmdb                 prometheusService
-	r                    agentsRegistry
+	agentsState          agentsStateUpdater
 	vmalert              vmAlertService
 	vmalertExternalRules vmAlertExternalRules
 	alertmanager         alertmanagerService
@@ -93,7 +93,7 @@ type pmmUpdateAuth struct {
 // Params holds the parameters needed to create a new service.
 type Params struct {
 	DB                   *reform.DB
-	AgentsRegistry       agentsRegistry
+	AgentsStateUpdater   agentsStateUpdater
 	VMDB                 prometheusService
 	VMAlert              prometheusService
 	Alertmanager         alertmanagerService
@@ -120,7 +120,7 @@ func NewServer(params *Params) (*Server, error) {
 	s := &Server{
 		db:                   params.DB,
 		vmdb:                 params.VMDB,
-		r:                    params.AgentsRegistry,
+		agentsState:          params.AgentsStateUpdater,
 		vmalert:              params.VMAlert,
 		alertmanager:         params.Alertmanager,
 		checksService:        params.ChecksService,
@@ -722,7 +722,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 	}
 
 	if isAgentsStateUpdateNeeded(req.MetricsResolutions) {
-		if err := s.r.UpdateAgentsState(ctx); err != nil {
+		if err := s.agentsState.UpdateAgentsState(ctx); err != nil {
 			return nil, err
 		}
 	}

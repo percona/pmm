@@ -46,9 +46,9 @@ func TestServer(t *testing.T) {
 		mvmdb := new(mockPrometheusService)
 		mvmdb.Test(t)
 		mvmdb.On("RequestConfigurationUpdate").Return(nil)
-		mAgents := new(mockAgentsRegistry)
-		mAgents.Test(t)
-		mAgents.On("UpdateAgentsState", context.TODO()).Return(nil)
+		mState := new(mockAgentsStateUpdater)
+		mState.Test(t)
+		mState.On("UpdateAgentsState", context.TODO()).Return(nil)
 
 		mvmalert := new(mockPrometheusService)
 		mvmalert.Test(t)
@@ -73,7 +73,7 @@ func TestServer(t *testing.T) {
 			VMDB:                 mvmdb,
 			VMAlert:              mvmalert,
 			Alertmanager:         malertmanager,
-			AgentsRegistry:       mAgents,
+			AgentsStateUpdater:   mState,
 			Supervisord:          r,
 			VMAlertExternalRules: par,
 			TelemetryService:     ts,

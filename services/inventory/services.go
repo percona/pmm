@@ -29,17 +29,19 @@ import (
 
 // ServicesService works with inventory API Services.
 type ServicesService struct {
-	db   *reform.DB
-	r    agentsRegistry
-	vmdb prometheusService
+	db    *reform.DB
+	r     agentsRegistry
+	state agentsStateUpdater
+	vmdb  prometheusService
 }
 
 // NewServicesService creates new ServicesService
-func NewServicesService(db *reform.DB, r agentsRegistry, vmdb prometheusService) *ServicesService {
+func NewServicesService(db *reform.DB, r agentsRegistry, state agentsStateUpdater, vmdb prometheusService) *ServicesService {
 	return &ServicesService{
-		db:   db,
-		r:    r,
-		vmdb: vmdb,
+		db:    db,
+		r:     r,
+		state: state,
+		vmdb:  vmdb,
 	}
 }
 
@@ -283,7 +285,7 @@ func (ss *ServicesService) Remove(ctx context.Context, id string, force bool) er
 	}
 
 	for pmmAgentID := range pmmAgentIds {
-		ss.r.RequestStateUpdate(ctx, pmmAgentID)
+		ss.state.RequestStateUpdate(ctx, pmmAgentID)
 	}
 
 	if force {

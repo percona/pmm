@@ -24,19 +24,19 @@ import (
 
 // AgentServer provides methods for pmm-agent <-> pmm-managed interactions.
 type agentServer struct {
-	registry *agents.Registry
+	handler *agents.Handler
 }
 
 // NewAgentServer creates new agents server.
-func NewAgentServer(r *agents.Registry) agentpb.AgentServer {
+func NewAgentServer(r *agents.Handler) agentpb.AgentServer {
 	return &agentServer{
-		registry: r,
+		handler: r,
 	}
 }
 
 // Connect establishes two-way communication channel between pmm-agent and pmm-managed.
 func (s *agentServer) Connect(stream agentpb.Agent_ConnectServer) error {
-	return s.registry.Run(stream)
+	return s.handler.Run(stream)
 }
 
 // check interfaces

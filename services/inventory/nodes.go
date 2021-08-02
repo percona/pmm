@@ -30,17 +30,19 @@ import (
 
 // NodesService works with inventory API Nodes.
 type NodesService struct {
-	db   *reform.DB
-	r    agentsRegistry
-	vmdb prometheusService
+	db    *reform.DB
+	r     agentsRegistry
+	state agentsStateUpdater
+	vmdb  prometheusService
 }
 
 // NewNodesService returns Inventory API handler for managing Nodes.
-func NewNodesService(db *reform.DB, r agentsRegistry, vmdb prometheusService) *NodesService {
+func NewNodesService(db *reform.DB, r agentsRegistry, state agentsStateUpdater, vmdb prometheusService) *NodesService {
 	return &NodesService{
-		db:   db,
-		r:    r,
-		vmdb: vmdb,
+		db:    db,
+		r:     r,
+		state: state,
+		vmdb:  vmdb,
 	}
 }
 
@@ -305,7 +307,7 @@ func (s *NodesService) Remove(ctx context.Context, id string, force bool) error 
 	}
 
 	for id := range idsToSetState {
-		s.r.RequestStateUpdate(ctx, id)
+		s.state.RequestStateUpdate(ctx, id)
 	}
 	for id := range idsToKick {
 		s.r.Kick(ctx, id)

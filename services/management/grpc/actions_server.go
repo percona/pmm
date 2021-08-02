@@ -33,20 +33,20 @@ import (
 )
 
 type actionsServer struct {
-	r  *agents.Registry
+	a  *agents.ActionsService
 	db *reform.DB
 	l  *logrus.Entry
 }
 
 var (
 	pmmAgent2100 = version.MustParse("2.10.0")
-	pmmAgent2150 = version.MustParse("2.15.0-HEAD") // TODO: Remove HEAD later once 2.16.0 is released.
+	pmmAgent2150 = version.MustParse("2.15.0")
 )
 
 // NewActionsServer creates Management Actions Server.
-func NewActionsServer(r *agents.Registry, db *reform.DB) managementpb.ActionsServer {
-	l := logrus.WithField("component", "actions")
-	return &actionsServer{r, db, l}
+func NewActionsServer(a *agents.ActionsService, db *reform.DB) managementpb.ActionsServer {
+	l := logrus.WithField("component", "actions.go")
+	return &actionsServer{a, db, l}
 }
 
 // GetAction gets an action result.
@@ -144,7 +144,7 @@ func (s *actionsServer) StartMySQLExplainAction(ctx context.Context, req *manage
 		return nil, status.Errorf(codes.FailedPrecondition, "Cannot find right agent")
 	}
 
-	err = s.r.StartMySQLExplainAction(ctx, res.ID, res.PMMAgentID, dsn, req.Query, agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT, files, tdp, agents[0].TLSSkipVerify)
+	err = s.a.StartMySQLExplainAction(ctx, res.ID, res.PMMAgentID, dsn, req.Query, agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT, files, tdp, agents[0].TLSSkipVerify)
 	if err != nil {
 		return nil, err
 	}
@@ -171,7 +171,7 @@ func (s *actionsServer) StartMySQLExplainJSONAction(ctx context.Context, req *ma
 		return nil, status.Errorf(codes.FailedPrecondition, "Cannot find right agent")
 	}
 
-	err = s.r.StartMySQLExplainAction(ctx, res.ID, res.PMMAgentID, dsn, req.Query, agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_JSON, files, tdp, agents[0].TLSSkipVerify)
+	err = s.a.StartMySQLExplainAction(ctx, res.ID, res.PMMAgentID, dsn, req.Query, agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_JSON, files, tdp, agents[0].TLSSkipVerify)
 	if err != nil {
 		return nil, err
 	}
@@ -198,7 +198,7 @@ func (s *actionsServer) StartMySQLExplainTraditionalJSONAction(ctx context.Conte
 		return nil, status.Errorf(codes.FailedPrecondition, "Cannot find right agent")
 	}
 
-	err = s.r.StartMySQLExplainAction(ctx, res.ID, res.PMMAgentID, dsn, req.Query, agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_TRADITIONAL_JSON, files, tdp, agents[0].TLSSkipVerify)
+	err = s.a.StartMySQLExplainAction(ctx, res.ID, res.PMMAgentID, dsn, req.Query, agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_TRADITIONAL_JSON, files, tdp, agents[0].TLSSkipVerify)
 	if err != nil {
 		return nil, err
 	}
@@ -225,7 +225,7 @@ func (s *actionsServer) StartMySQLShowCreateTableAction(ctx context.Context, req
 		return nil, status.Errorf(codes.FailedPrecondition, "Cannot find right agent")
 	}
 
-	err = s.r.StartMySQLShowCreateTableAction(ctx, res.ID, res.PMMAgentID, dsn, req.TableName, files, tdp, agents[0].TLSSkipVerify)
+	err = s.a.StartMySQLShowCreateTableAction(ctx, res.ID, res.PMMAgentID, dsn, req.TableName, files, tdp, agents[0].TLSSkipVerify)
 	if err != nil {
 		return nil, err
 	}
@@ -252,7 +252,7 @@ func (s *actionsServer) StartMySQLShowTableStatusAction(ctx context.Context, req
 		return nil, status.Errorf(codes.FailedPrecondition, "Cannot find right agent")
 	}
 
-	err = s.r.StartMySQLShowTableStatusAction(ctx, res.ID, res.PMMAgentID, dsn, req.TableName, files, tdp, agents[0].TLSSkipVerify)
+	err = s.a.StartMySQLShowTableStatusAction(ctx, res.ID, res.PMMAgentID, dsn, req.TableName, files, tdp, agents[0].TLSSkipVerify)
 	if err != nil {
 		return nil, err
 	}
@@ -279,7 +279,7 @@ func (s *actionsServer) StartMySQLShowIndexAction(ctx context.Context, req *mana
 		return nil, status.Errorf(codes.FailedPrecondition, "Cannot find right agent")
 	}
 
-	err = s.r.StartMySQLShowIndexAction(ctx, res.ID, res.PMMAgentID, dsn, req.TableName, files, tdp, agents[0].TLSSkipVerify)
+	err = s.a.StartMySQLShowIndexAction(ctx, res.ID, res.PMMAgentID, dsn, req.TableName, files, tdp, agents[0].TLSSkipVerify)
 	if err != nil {
 		return nil, err
 	}
@@ -298,7 +298,7 @@ func (s *actionsServer) StartPostgreSQLShowCreateTableAction(ctx context.Context
 		return nil, err
 	}
 
-	err = s.r.StartPostgreSQLShowCreateTableAction(ctx, res.ID, res.PMMAgentID, dsn, req.TableName)
+	err = s.a.StartPostgreSQLShowCreateTableAction(ctx, res.ID, res.PMMAgentID, dsn, req.TableName)
 	if err != nil {
 		return nil, err
 	}
@@ -317,7 +317,7 @@ func (s *actionsServer) StartPostgreSQLShowIndexAction(ctx context.Context, req 
 		return nil, err
 	}
 
-	err = s.r.StartPostgreSQLShowIndexAction(ctx, res.ID, res.PMMAgentID, dsn, req.TableName)
+	err = s.a.StartPostgreSQLShowIndexAction(ctx, res.ID, res.PMMAgentID, dsn, req.TableName)
 	if err != nil {
 		return nil, err
 	}
@@ -338,7 +338,7 @@ func (s *actionsServer) StartMongoDBExplainAction(ctx context.Context, req *mana
 		return nil, err
 	}
 
-	err = s.r.StartMongoDBExplainAction(ctx, res.ID, res.PMMAgentID, dsn, req.Query, files, tdp)
+	err = s.a.StartMongoDBExplainAction(ctx, res.ID, res.PMMAgentID, dsn, req.Query, files, tdp)
 	if err != nil {
 		return nil, err
 	}
@@ -376,7 +376,7 @@ func (s *actionsServer) StartPTSummaryAction(ctx context.Context, req *managemen
 		return nil, err
 	}
 
-	err = s.r.StartPTSummaryAction(ctx, res.ID, agentID)
+	err = s.a.StartPTSummaryAction(ctx, res.ID, agentID)
 	if err != nil {
 		return nil, err
 	}
@@ -446,7 +446,7 @@ func (s *actionsServer) StartPTPgSummaryAction(ctx context.Context, req *managem
 		service.Address = service.Socket
 	}
 
-	err = s.r.StartPTPgSummaryAction(ctx, res.ID, pmmAgentID, pointer.GetString(service.Address), pointer.GetUint16(service.Port),
+	err = s.a.StartPTPgSummaryAction(ctx, res.ID, pmmAgentID, pointer.GetString(service.Address), pointer.GetUint16(service.Port),
 		pointer.GetString(postgresExporters[0].Username), pointer.GetString(postgresExporters[0].Password))
 	if err != nil {
 		return nil, err
@@ -504,7 +504,7 @@ func (s *actionsServer) StartPTMongoDBSummaryAction(ctx context.Context, req *ma
 	}
 
 	// Starts the pt-pg-summary with the host address, port, username and password
-	err = s.r.StartPTMongoDBSummaryAction(ctx, res.ID, pmmAgentID, pointer.GetString(service.Address), pointer.GetUint16(service.Port),
+	err = s.a.StartPTMongoDBSummaryAction(ctx, res.ID, pmmAgentID, pointer.GetString(service.Address), pointer.GetUint16(service.Port),
 		pointer.GetString(mongoDBExporters[0].Username), pointer.GetString(mongoDBExporters[0].Password))
 	if err != nil {
 		return nil, err
@@ -570,7 +570,7 @@ func (s *actionsServer) StartPTMySQLSummaryAction(ctx context.Context, req *mana
 		return nil, status.Errorf(codes.FailedPrecondition, "Found more than one mysql exporter")
 	}
 
-	err = s.r.StartPTMySQLSummaryAction(ctx, res.ID, pmmAgentID, pointer.GetString(service.Address), pointer.GetUint16(service.Port),
+	err = s.a.StartPTMySQLSummaryAction(ctx, res.ID, pmmAgentID, pointer.GetString(service.Address), pointer.GetUint16(service.Port),
 		pointer.GetString(service.Socket), pointer.GetString(mysqldExporters[0].Username),
 		pointer.GetString(mysqldExporters[0].Password))
 	if err != nil {
@@ -587,7 +587,7 @@ func (s *actionsServer) CancelAction(ctx context.Context, req *managementpb.Canc
 		return nil, err
 	}
 
-	err = s.r.StopAction(ctx, ar.ID)
+	err = s.a.StopAction(ctx, ar.ID)
 	if err != nil {
 		return nil, err
 	}

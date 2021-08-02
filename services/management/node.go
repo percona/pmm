@@ -32,15 +32,13 @@ import (
 
 // NodeService represents service for working with nodes.
 type NodeService struct {
-	db       *reform.DB
-	registry agentsRegistry
+	db *reform.DB
 }
 
 // NewNodeService creates NodeService instance.
-func NewNodeService(db *reform.DB, registry agentsRegistry) *NodeService {
+func NewNodeService(db *reform.DB) *NodeService {
 	return &NodeService{
-		db:       db,
-		registry: registry,
+		db: db,
 	}
 }
 

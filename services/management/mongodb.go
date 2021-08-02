@@ -31,13 +31,18 @@ import (
 // MongoDBService MongoDB Management Service.
 //nolint:unused
 type MongoDBService struct {
-	db       *reform.DB
-	registry agentsRegistry
+	db    *reform.DB
+	state agentsStateUpdater
+	cc    connectionChecker
 }
 
 // NewMongoDBService creates new MongoDB Management Service.
-func NewMongoDBService(db *reform.DB, registry agentsRegistry) *MongoDBService {
-	return &MongoDBService{db, registry}
+func NewMongoDBService(db *reform.DB, state agentsStateUpdater, cc connectionChecker) *MongoDBService {
+	return &MongoDBService{
+		db:    db,
+		state: state,
+		cc:    cc,
+	}
 }
 
 // Add adds "MongoDB Service", "MongoDB Exporter Agent" and "QAN MongoDB Profiler".
@@ -94,7 +99,7 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 		}
 
 		if !req.SkipConnectionCheck {
-			if err = s.registry.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+			if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
 				return err
 			}
 		}
@@ -133,6 +138,6 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 		return nil, e
 	}
 
-	s.registry.RequestStateUpdate(ctx, req.PmmAgentId)
+	s.state.RequestStateUpdate(ctx, req.PmmAgentId)
 	return res, nil
 }

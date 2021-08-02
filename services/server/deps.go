@@ -35,7 +35,7 @@ import (
 //go:generate mockery -name=supervisordService -case=snake -inpkg -testonly
 //go:generate mockery -name=telemetryService -case=snake -inpkg -testonly
 //go:generate mockery -name=platformService -case=snake -inpkg -testonly
-//go:generate mockery -name=agentsRegistry -case=snake -inpkg -testonly
+//go:generate mockery -name=agentsStateUpdater -case=snake -inpkg -testonly
 //go:generate mockery -name=rulesService -case=snake -inpkg -testonly
 
 // healthChecker interface wraps all services that implements the IsReady method to report the
@@ -118,9 +118,9 @@ type platformService interface {
 	SignOut(ctx context.Context) error
 }
 
-// agentsRegistry is subset of methods of agents.Registry used by this package.
+// agentsStateUpdater is subset of methods of agents.StateUpdater used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
-type agentsRegistry interface {
+type agentsStateUpdater interface {
 	UpdateAgentsState(ctx context.Context) error
 }
 

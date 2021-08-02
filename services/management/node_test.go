@@ -46,16 +46,12 @@ func TestNodeService(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-		r := new(mockAgentsRegistry)
-		r.Test(t)
-
 		teardown = func(t *testing.T) {
 			uuid.SetRand(nil)
 
 			require.NoError(t, sqlDB.Close())
-			r.AssertExpectations(t)
 		}
-		s = NewNodeService(db, r)
+		s = NewNodeService(db)
 
 		return
 	}
