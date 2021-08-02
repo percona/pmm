@@ -273,6 +273,12 @@
                   "type": "string",
                   "x-order": 4
                 },
+                "retention": {
+                  "description": "How many artifacts keep. 0 - unlimited.",
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 6
+                },
                 "scheduled_backup_id": {
                   "type": "string",
                   "x-order": 0
@@ -417,6 +423,12 @@
                         "type": "string",
                         "format": "date-time",
                         "x-order": 13
+                      },
+                      "retention": {
+                        "description": "How many artifacts keep. 0 - unlimited.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 14
                       },
                       "scheduled_backup_id": {
                         "description": "Machine-readable ID.",
@@ -679,7 +691,7 @@
                     "PHYSICAL",
                     "LOGICAL"
                   ],
-                  "x-order": 7
+                  "x-order": 8
                 },
                 "description": {
                   "description": "Human-readable description.",
@@ -705,12 +717,18 @@
                     "SNAPSHOT",
                     "INCREMENTAL"
                   ],
-                  "x-order": 8
+                  "x-order": 9
                 },
                 "name": {
                   "description": "Name of backup.",
                   "type": "string",
                   "x-order": 4
+                },
+                "retention": {
+                  "description": "How many artifacts keep. 0 - unlimited.",
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 7
                 },
                 "service_id": {
                   "description": "Service identifier where backup should be performed.",

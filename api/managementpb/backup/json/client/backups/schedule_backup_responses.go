@@ -150,6 +150,9 @@ type ScheduleBackupBody struct {
 	// If scheduling is enabled.
 	Enabled bool `json:"enabled,omitempty"`
 
+	// How many artifacts keep. 0 - unlimited.
+	Retention int64 `json:"retention,omitempty"`
+
 	// DataModel is a model used for performing a backup.
 	// Enum: [DATA_MODEL_INVALID PHYSICAL LOGICAL]
 	DataModel *string `json:"data_model,omitempty"`
