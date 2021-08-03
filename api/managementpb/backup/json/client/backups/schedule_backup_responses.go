@@ -148,6 +148,9 @@ type ScheduleBackupBody struct {
 	// uint32 retry_times = 8;
 	// If scheduling is enabled.
 	Enabled bool `json:"enabled,omitempty"`
+
+	// How many artifacts keep. 0 - unlimited.
+	Retention int64 `json:"retention,omitempty"`
 }
 
 // Validate validates this schedule backup body

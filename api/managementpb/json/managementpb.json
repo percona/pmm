@@ -2362,6 +2362,11 @@
                   "type": "string",
                   "x-order": 4
                 },
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 25
+                },
                 "authentication_database": {
                   "description": "Authentication database.",
                   "type": "string",
@@ -2846,6 +2851,11 @@
                   "description": "Node and Service access address (DNS name or IP).\nAddress (and port) or socket is required.",
                   "type": "string",
                   "x-order": 4
+                },
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 27
                 },
                 "cluster": {
                   "description": "Cluster name.",
@@ -3796,6 +3806,11 @@
                   "type": "string",
                   "x-order": 4
                 },
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 25
+                },
                 "cluster": {
                   "description": "Cluster name.",
                   "type": "string",
@@ -4351,6 +4366,11 @@
                   "type": "string",
                   "x-order": 4
                 },
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 19
+                },
                 "cluster": {
                   "description": "Cluster name.",
                   "type": "string",
@@ -4671,6 +4691,11 @@
                   "description": "Address used to connect to it.",
                   "type": "string",
                   "x-order": 4
+                },
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 28
                 },
                 "aws_access_key": {
                   "description": "AWS Access key.",
