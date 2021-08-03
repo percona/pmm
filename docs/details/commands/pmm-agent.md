@@ -18,7 +18,7 @@
 : Run pmm-agent (default).
 
 `pmm-agent setup [node-address] [node-type] [node-name]`
-: Configure local pmm-agent.
+: Configure local pmm-agent (requires root permissions)
 
 `pmm-agent help [command]`
 : Show help (for command) and exit.

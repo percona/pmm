@@ -241,8 +241,12 @@ Add any custom dictionary words to `.spelling`. If spell checking fails, the Git
 
 Grammar is checked using [`write-good`](https://github.com/btford/write-good). (The results of this check are ignored and don't affect the GitHub action.)
 
+!!! hint "Root permissions"
+    ```sh
+    npm i write-good -g
+    ```
+
 ```sh
-npm i write-good -g
 write-good docs/<path to file>.md
 ```
 

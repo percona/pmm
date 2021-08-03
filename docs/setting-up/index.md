@@ -30,6 +30,8 @@ The choices:
     - [Linux package](client/index.md#package-manager) (installed with `apt`, `apt-get`, `dnf`, `yum`);
     - [Binary package](client/index.md#binary-package) (a downloaded `.tar.gz` file).
 
+!!! hint alert "Binary is only way to install PMM client without root permissions"
+
 ## Add services
 
 On each PMM Client, you configure then add to PMM Server's inventory the node or service you want to monitor.

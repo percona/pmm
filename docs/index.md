@@ -25,7 +25,7 @@ A minimal PMM set-up comprises one [server](details/architecture.md#pmm-server) 
 
 ## Start here
 
-- An [easy install] script, which you download, make executable and run. The script installs Docker and runs PMM Server as a container. (Caution: this is a [Technical Preview].)
+- An [easy install] script, which you download, make executable and run. The script installs Docker and runs PMM Server as a container.
 
 - The [Quickstart install guide] shows how to run PMM Server as a Docker container, and how to install PMM Client on Ubuntu or Red Hat Linux hosts.
 

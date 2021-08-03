@@ -340,7 +340,8 @@ When you remove a service, collected data remains on PMM Server for the specifie
     : MySQL password.
 
     `--query-source=slowlog`
-    : Source of SQL queries, one of: `slowlog`, `perfschema`, `none` (default: `slowlog`).
+    : Source of SQL queries, one of: `slowlog`, `perfschema`, `none` (default: `slowlog`). For `slowlog` query source you need change permissions for
+    specific files. Root permissions are needed for this.
 
     `--size-slow-logs=N`
     : Rotate slow log file at this size. If `0`, use server-defined default. Negative values disable log rotation. A unit suffix must be appended to the number and can be one of:

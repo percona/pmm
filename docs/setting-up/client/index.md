@@ -8,7 +8,8 @@ There are different ways to install PMM Client on a node and register it with PM
     - On Debian or Red Hat Linux, install `percona-release` and use a Linux package manager (`apt`/`dnf`) to install PMM Client.
     - On Debian or Red Hat, download `.deb`/`.rpm` PMM Client packages and manually install them.
 
-- [Binary package](#binary-package): For other Linux distributions, download and unpack generic PMM Client Linux binaries.
+!!! hint alert "Binary is only way to install PMM client without root permissions"
+    - [Binary package](#binary-package): For other Linux distributions, download and unpack generic PMM Client Linux binaries. 
 
 When you have installed PMM Client, you must:
 
@@ -236,10 +237,11 @@ You can now add services with [`pmm-admin`](../../details/commands/pmm-admin.md)
 
 2. Install the PMM Client package.
 
-    ```sh
-    apt update
-    apt install -y pmm2-client
-    ```
+    !!! hint "Root permissions"
+        ```sh
+        apt update
+        apt install -y pmm2-client
+        ```
 
 3. Check.
 
@@ -331,31 +333,55 @@ dnf localinstall *.rpm
     tar xfz pmm2-client-{{release}}.tar.gz && cd pmm2-client-{{release}}
     ```
 
-5. Run the installer.
+5. Choose one of these two commands (depends on your permissions):
+
+    !!! caution alert alert-warning "Without root permissions"
+        ```sh
+        export PMM_DIR=YOURPATH
+        ```
+        where YOURPATH replace with you real path, where you have required access.  
+
+        **Node, MySQL and PostgreSQL exporters wont be avalaible.**
+
+    !!! caution alert alert-warning "With root permissions"
+        ```sh
+        export PMM_DIR=/usr/local/percona/pmm2
+        ```
+
+6. Run the installer.
+
+    !!! hint "Root permissions (if you skipped step 5 for non root users)"
+        ```sh
+        ./install_tarball
+        ```
+
+7. Change the path.
 
     ```sh
-    ./install_tarball
+    PATH=$PATH:$PMM_DIR/bin
     ```
 
-6. Change the path.
+8. Set up the agent (pick the command for you depending on permissions)
 
-    ```sh
-    PATH=$PATH:/usr/local/percona/pmm2/bin
-    ```
-
-7. Set up the agent
-
+    !!! hint "Root permissions"
     ```sh
     pmm-agent setup --config-file=/usr/local/percona/pmm2/config/pmm-agent.yaml --server-address=192.168.1.123 --server-insecure-tls --server-username=admin --server-password=admin
     ```
 
-8. Open a new terminal and run the agent.
-
+    !!! caution alert alert-warning "Non root users"
     ```sh
-    PATH=$PATH:/usr/local/percona/pmm2/bin pmm-agent --config-file=/usr/local/percona/pmm2/config/pmm-agent.yaml
+    pmm-agent setup --config-file=${PMM_DIR}/config/pmm-agent.yaml --server-address=192.168.1.123 --server-insecure-tls --server-username=admin --server-password=admin --paths-tempdir=$PMM_DIR/tmp --paths-exporters_base=$PMM_DIR/exporters --paths-node_exporter=$PMM_DIR/exporters/node_exporter --paths-mongodb_exporter=$PMM_DIR/exporters/mongodb_exporter --paths-postgres_exporter=$PMM_DIR/exporters/postgres_exporter --paths-proxysql_exporter=$PMM_DIR/exporters/proxysql_exporter --paths-azure_exporter=$PMM_DIR/exporters/azure_exporter --paths-pt-summary=$PMM_DIR/tools/pt-summary --paths-pt-pg-summary=$PMM_DIR/tools/pt-pg-summary --paths-pt-mongodb-summary=$PMM_DIR/tools/pt-mongodb-summary --paths-pt-mysql-summary=$PMM_DIR/tools/pt-mysql-summary
     ```
 
-9. In the first terminal, check.
+
+
+9. Run the agent.
+
+    ```sh
+    pmm-agent --config-file=${PMM_DIR}/config/pmm-agent.yaml
+    ```
+
+10. Open a new terminal and check.
 
     ```sh
     pmm-admin status

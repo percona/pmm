@@ -143,35 +143,39 @@ Use HTML for icons:
 | <i class="uil uil-bell"></i>                  | Bell                               | PMM UI - Alerting
 | <i class="uil uil-bolt"></i>                  | Lightening flash/bolt              | PMM UI - Nodes compare
 | <i class="uil uil-caret-right"></i>           | Right caret                        | General
+| <i class="uil uil-clock-nine"></i>            | Clock (at nine)                    | PMM UI - Time range selector
 | <i class="uil uil-cog"></i>                   | Cog wheel                          | PMM UI Configuration
 | <i class="uil uil-comment-alt-share"></i>     | Share comment symbol               | PMM UI - Share dashboard image
 | <i class="uil uil-compass"></i>               | Compass                            | PMM UI - Explore
+| <i class="uil uil-copy"></i>                  | Copy                               | PMM UI - Copy (e.g. backup schedule)
 | <i class="uil uil-cube"></i>                  | Cube                               | PMM UI
 | <i class="uil uil-database"></i>              | Database                           | PMM UI DBaaS symbol
 | <i class="uil uil-ellipsis-v"></i>            | Vertical ellipsis                  | PMM UI column menus
 | <i class="uil uil-exclamation-triangle"></i>  | Exclamation mark in triangle       | PMM UI - Warnings
+| <i class="uil uil-eye-slash"></i>             | Eye with slash                     | PMM UI Password hide
 | <i class="uil uil-eye"></i>                   | Eye                                | PMM UI Password reveal
 | <i class="uil uil-file-alt"></i>              | File symbol                        | PMM UI - Home dashboard
 | <i class="uil uil-graph-bar"></i>             | 3-bar chart                        | PMM UI link to dashboard
 | <i class="uil uil-history"></i>               | Backward arrow circle around clock | PMM UI - Backups and checks
 | <i class="uil uil-list-ul"></i>               | List                               | PMM UI - Alert rules
+| <i class="uil uil-monitor"></i>               | Computer monitor                   | PMM UI - Cycle view mode
+| <i class="uil uil-pen"></i>                   | Pen                                | PMM UI - Edit
 | <i class="uil uil-plus-circle"></i>           | Plus within circle                 | PMM UI Inventory->Add Instance
 | <i class="uil uil-plus-square"></i>           | Plus within square                 | PMM UI - Add
-| <i class="uil uil-search"></i>                | Magnifying glass                   | PMM UI - Search
+| <i class="uil uil-question-circle"></i>       | Question mark in circle            | PMM UI - Help
 | <i class="uil uil-search-minus"></i>          | Minus in magnifying glass          | PMM UI - Time range zoom out
+| <i class="uil uil-search"></i>                | Magnifying glass                   | PMM UI - Search
 | <i class="uil uil-setting"></i>               | Cog wheel                          | PMM UI Configuration->Settings
 | <i class="uil uil-share-alt"></i>             | Share symbol                       | PMM UI - Share dashboard
 | <i class="uil uil-shield"></i>                | Shield                             | PMM UI - Server admin
+| <i class="uil uil-star"></i>                  | Star                               | PMM UI - Dashboard favourites
 | <i class="uil uil-sync"></i>                  | Twin backward arrows               | PMM UI - Refresh dashboard
 | <i class="uil uil-thumbs-down"></i>           | Hand, thumbs down                  | For Benefits/Drawbacks tables
 | <i class="uil uil-thumbs-up"></i>             | Hand, thumbs up                    | For Benefits/Drawbacks tables
 | <i class="uil uil-times"></i>                 | Large 'X'                          | PMM UI
-| <i class="uil uil-toggle-off"></i>            | Toggle (off)                       | PMM UI Feature toggle
+| <i class="uil uil-toggle-off"></i>            | Toggle (off)                       | PMM UI - Toggle switch
+| <i class="uil uil-toggle-on"></i>             | Toggle (on)                        | PMM UI - Toggle switch
 | <i class="uil uil-trash-alt"></i>             | Trash can                          | PMM UI - Various 'Delete' operation
-| <i class="uil uil-question-circle"></i>       | Question mark in circle            | PMM UI - Help
-| <i class="uil uil-star"></i>                  | Star                               | PMM UI - Dashboard favourites
-| <i class="uil uil-monitor"></i>               | Computer monitor                   | PMM UI - Cycle view mode
-| <i class="uil uil-clock-nine"></i>            | Clock (at nine)                    | PMM UI - Time range selector
 
 Custom (in-house design) icons are defined as SVG code in `variables.yml`.
 

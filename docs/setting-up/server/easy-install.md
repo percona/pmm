@@ -1,8 +1,7 @@
 # Easy-install script
 
 !!! caution alert alert-warning "Caution"
-    - This is a [technical preview] and is subject to change.
-    - Download and check `get-pmm2.sh` before running it to make sure you know what it does.
+    Download and check `get-pmm2.sh` before running it to make sure you know what it does.
 
 ## Linux
 

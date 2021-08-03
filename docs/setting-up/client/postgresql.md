@@ -102,15 +102,17 @@ Here are the benefits and drawbacks of each.
 
 - Debian/Ubuntu
 
-    ```sh
-    apt install -y postgresql-contrib
-    ```
+    !!! hint "Root permissions"
+        ```sh
+        apt install -y postgresql-contrib
+        ```
 
 - Red Hat/CentOS
 
-    ```sh
-    yum install -y postgresql-contrib
-    ```
+    !!! hint "Root permissions"
+        ```sh
+        yum install -y postgresql-contrib
+        ```
 
 #### Configure
 
