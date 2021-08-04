@@ -1,66 +1,84 @@
 # Integrated Alerting
 
-*Integrated Alerting* lets you know when certain system events occur.
-
 !!! caution alert alert-warning "Caution"
     Integrated Alerting is a [technical preview](../details/glossary.md#technical-preview) and is subject to change.
 
-**To activate *Integrated Alerting***, select <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings*, turn on *Integrated Alerting* and click *Apply changes*.
+*Integrated Alerting* lets you know when certain system events occur.
 
-This short (3:36) video shows how to activate and configure Integrated Alerting.
+- Alerts are generated when their criteria (*alert rules*) are met; an *alert* is the result of an *alert rule* expression evaluating to *true*.
+- Alert rules are based on *alert rule templates*. We provide a default set of templates. You can also create your own.
+
+!!! summary alert alert-info "Summary"
+    - [Activate Integrated Alerting](#activate-integrated-alerting)
+    - [Set up a communication channel](#set-up-a-communication-channel)
+    - [Add a notification channel](#add-a-notification-channel)
+    - [Add an alert rule](#add-an-alert-rule) (based on a built-in alert rule template)
+    - (Optional) [Create your own alert rule template](#add-an-alert-rule-template)
+
+This short video (3m 36s) shows how to activate and configure Integrated Alerting.
 
 <video width="100%" controls>
   <source src="../_images/Integrated-Alerting.mp4" type="video/mp4">
   Your browser does not support playing this video.
 </video>
 
-## Definitions
-
-- Alerts are generated when their criteria (*alert rules*) are met; an *alert* is the result of an *alert rule* expression evaluating to *true*.
-- Alert rules are based on *alert rule templates*. We provide a default set of templates. You can also create your own.
-
-!!! note alert alert-primary ""
-    PMM's *Integrated Alerting* is a customized and separate instance of the Prometheus Alertmanager, and distinct from Grafana's alerting functionality.
-
 ## Before you start
 
-- Set up a communication channel:
+Before you can get alerts, you must activate the feature, and set up a *communication channel* (define by how alerts should arrive, as emails or slack messages).
 
-    - When the *Communication* tab appears, select it.
-    - Enter details for *Email* or *Slack*. ([Read more](../how-to/configure.md#communication).)
+### Activate Integrated Alerting
 
-## Open the *Integrated Alerting* page
+1. Select <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings*.
 
-- From the left menu, select <i class="uil uil-bell"></i> *Alerting* → <i class="uil uil-list-ul"></i> *Integrated Alerting*.
+1. Under *Technical preview features*, turn on *Integrated Alerting*.
 
-!!! note alert alert-primary ""
-    The *Alerting* menu also lists <i class="uil uil-list-ul"></i> *Alert Rules* and <i class="uil uil-comment-alt-share"></i> *Notification Channels*. These are for Grafana's alerting functionality.
+1. Click *Apply changes*. A new *Communication* tab will appear.
 
-This page has four tabs.
+### Set up a communication channel
 
-1. *Alerts*: Shows alerts (if any).
+1. When the *Communication* tab appears, select it.
+
+1. Select the tab for an alert method, *Email* or *Slack*.
+
+    1. For *Email*, enter values to define the SMTP email server
+
+        - *Server Address*: The default SMTP smarthost used for sending emails, including port number.
+        - *Hello*: The default hostname to identify to the SMTP server.
+        - *From*: The sender's email address.
+        - *Auth type*: Authentication type. Choose from:
+            - *None*
+            - *Plain*
+            - *Login*
+            - *CRAM-MD5*
+        - *Username*: Username for SMTP Auth using CRAM-MD5, LOGIN and PLAIN.
+        - *Password*: Password for SMTP Auth using CRAM-MD5, LOGIN and PLAIN.
+
+    1. For *Slack*, enter a value for *URL*, the Slack webhook URL to use.
+
+1. Click *Apply changes*.
+
+1. From the left menu, select <i class="uil uil-bell"></i> *Alerting* → <i class="uil uil-list-ul"></i> *Integrated Alerting*. The default tab of the *Integrated Alerting* page lists alerts, if any are set up.
 
     ![!](../_images/PMM_Integrated_Alerting_Alerts.jpg)
 
-2. *Alert Rules*: Shows rule definitions.
-
-    ![!](../_images/PMM_Integrated_Alerting_Alert_Rules.jpg)
-
-3. *Alert Rule Templates*: Lists rule templates.
-
-    ![!](../_images/PMM_Integrated_Alerting_Alert_Rule_Templates.jpg)
-
-4. *Notification Channels*: Lists notification channels.
-
-    ![!](../_images/PMM_Integrated_Alerting_Notification_Channels.jpg)
+!!! note alert alert-primary ""
+    - The *Alerting* menu also lists <i class="uil uil-list-ul"></i> *Alert Rules* and <i class="uil uil-comment-alt-share"></i> *Notification Channels*. These are for Grafana's alerting functionality.
+    - PMM's *Integrated Alerting* is a customized and separate instance of the Prometheus Alertmanager, and distinct from Grafana's alerting functionality.
 
 ## Add a Notification Channel
 
-1. On the *Integrated Alerting* page, go to the *Notification Channels* tab.
+!!! note alert alert-primary ""
+    A *notification channel* is a specific instance of a *communication channel*. For example, for email, the communication channel defines a server, while the notification channel specifies recipients (one or more email addresses) who receive alerts sent via the email server.
 
-2. Click <i class="uil uil-plus-square"></i> *Add*.
+1. Select <i class="uil uil-bell"></i> *Alerting* → <i class="uil uil-list-ul"></i> *Integrated Alerting*.
 
-3. Fill in the details:
+1. Select the *Notification Channels* tab.
+
+    ![!](../_images/PMM_Integrated_Alerting_Notification_Channels.jpg)
+
+1. Click <i class="uil uil-plus-square"></i> *Add*.
+
+1. Fill in the details:
 
     ![!](../_images/PMM_Integrated_Alerting_Notification_Channels_Add_Form.jpg)
 
@@ -74,15 +92,17 @@ This page has four tabs.
         - Slack:
             - Channel:
 
-4. Click *Add* to add the notification channel, or *Cancel* to abort the operation.
+1. Click *Add* to add the notification channel, or *Cancel* to abort the operation.
 
 ## Add an Alert Rule
 
-1. On the *Integrated Alerting* page, go to the *Alert Rules* tab.
+1. Select the *Alert Rules* tab.
 
-2. Click <i class="uil uil-plus-square"></i> *Add*.
+    ![!](../_images/PMM_Integrated_Alerting_Alert_Rules.jpg)
 
-3. Fill in the details
+1. Click <i class="uil uil-plus-square"></i> *Add*.
+
+1. Fill in the details
 
     ![!](../_images/PMM_Integrated_Alerting_Alert_Rules_Add_Form.jpg)
 
@@ -95,15 +115,19 @@ This page has four tabs.
     - Channels:
     - Activate:
 
-4. Click *Add* to add the alert rule, or *Cancel* to abort the operation.
+1. Click *Add* to add the alert rule, or *Cancel* to abort the operation.
 
 ## Add an Alert Rule Template
 
-1. On the *Integrated Alerting* page, go to the *Alert Rule Templates* tab.
+If the provided alert rule templates don't do what you want, you can create your own.
 
-2. Click <i class="uil uil-plus-square"></i> *Add*.
+1. Select the *Alert Rule Templates* tab.
 
-3. Enter a template in the *Alert Rule Template* text box.
+    ![!](../_images/PMM_Integrated_Alerting_Alert_Rule_Templates.jpg)
+
+1. Click <i class="uil uil-plus-square"></i> *Add*.
+
+1. Enter a template in the *Alert Rule Template* text box.
 
     ```yaml
     {% raw %}
@@ -155,4 +179,4 @@ This page has four tabs.
         - Value strings must not include any of these special characters: `<` `>` `!` `@` `#` `$` `%` `^` `&` `*` `(` `)` `_` `/` `\` `'` `+` `-` `=` ` ` (space)
         - Any variables must be predefined.
 
-4. Click *Add* to add the alert rule template, or *Cancel* to abort the operation.
+1. Click *Add* to add the alert rule template, or *Cancel* to abort the operation.
