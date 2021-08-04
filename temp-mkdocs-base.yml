@@ -1,5 +1,9 @@
 # MkDocs configuration
 # Used as base - look for .yml files with INHERIT
+# Maintained in parallel with existing config pending release of mike 1.1.0
+# https://github.com/jimporter/mike/issues/59
+# Thereafter tests to confirm working.
+# New config simplifies maintenance by keeping nav element in one place (this file).
 site_name: Percona Monitoring and Management
 site_description: Documentation
 site_author: Percona LLC
