@@ -24,7 +24,7 @@ This short video (3m 36s) shows how to activate and configure Integrated Alertin
 
 ## Before you start
 
-Before you can get alerts, you must activate the feature, and set up a *communication channel* (define by how alerts should arrive, as emails or slack messages).
+Before you can get alerts, you must [activate the feature](#activate-integrated-alerting), and [set up a *communication channel*](#set-up-a-communication-channel) (define how alerts should arrive, as emails or slack messages).
 
 ### Activate Integrated Alerting
 
