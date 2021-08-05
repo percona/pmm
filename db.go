@@ -19,9 +19,10 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/url"
 	"strings"
 
-	_ "github.com/ClickHouse/clickhouse-go" // register database/sql driver
+	"github.com/ClickHouse/clickhouse-go" // register database/sql driver
 	"github.com/golang-migrate/migrate"
 	_ "github.com/golang-migrate/migrate/database/clickhouse" // register golang-migrate driver
 	bindata "github.com/golang-migrate/migrate/source/go_bindata"
@@ -31,11 +32,26 @@ import (
 	"github.com/percona/qan-api2/migrations"
 )
 
+const (
+	databaseNotExistErrorCode = 81
+)
+
 // NewDB return updated db.
 func NewDB(dsn string, maxIdleConns, maxOpenConns int) *sqlx.DB {
 	db, err := sqlx.Connect("clickhouse", dsn)
 	if err != nil {
-		log.Fatal("Connection: ", err)
+		if exception, ok := err.(*clickhouse.Exception); ok && exception.Code == databaseNotExistErrorCode {
+			err = createDB(dsn)
+			if err != nil {
+				log.Fatalf("Database wasn't created: %v", err)
+			}
+			db, err = sqlx.Connect("clickhouse", dsn)
+			if err != nil {
+				log.Fatalf("Connection: %v", err)
+			}
+		} else {
+			log.Fatalf("Connection: %v", err)
+		}
 	}
 
 	// TODO: find solution with better performance
@@ -55,6 +71,34 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int) *sqlx.DB {
 	}
 	log.Println("Migrations applied.")
 	return db
+}
+
+func createDB(dsn string) error {
+	log.Println("Creating database")
+	clickhouseURL, err := url.Parse(dsn)
+	if err != nil {
+		return err
+	}
+	q := clickhouseURL.Query()
+	databaseName := q.Get("database")
+	q.Set("database", "default")
+
+	clickhouseURL.RawQuery = q.Encode()
+
+	defaultDB, err := sqlx.Connect("clickhouse", clickhouseURL.String())
+	if err != nil {
+		return err
+	}
+	defer defaultDB.Close()
+
+	result, err := defaultDB.Exec(fmt.Sprintf(`CREATE DATABASE %s ENGINE = Ordinary`, databaseName))
+	if err != nil {
+		log.Printf("Result: %v", result)
+		return err
+	}
+	log.Println("Database was created")
+	return nil
+	// The qan-api2 will exit after creating the database, it'll be restarted by supervisor
 }
 
 func runMigrations(dsn string) error {

@@ -3,7 +3,7 @@ module github.com/percona/qan-api2
 go 1.15
 
 require (
-	github.com/ClickHouse/clickhouse-go v1.4.1
+	github.com/ClickHouse/clickhouse-go v1.4.5
 	github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d // indirect
 	github.com/golang-migrate/migrate v3.5.4+incompatible
 	github.com/golang/protobuf v1.4.3

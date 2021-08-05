@@ -246,7 +246,6 @@ func main() {
 	debugBindF := kingpin.Flag("listen-debug-addr", "Debug server listen address").Default("127.0.0.1:9933").String()
 	dataRetentionF := kingpin.Flag("data-retention", "QAN data Retention (in days)").Default("30").Uint()
 	dsnF := kingpin.Flag("dsn", "ClickHouse database DSN").Default("clickhouse://127.0.0.1:9000?database=pmm&block_size=10000&pool_size=2").String()
-
 	debugF := kingpin.Flag("debug", "Enable debug logging").Bool()
 	traceF := kingpin.Flag("trace", "Enable trace logging (implies debug)").Bool()
 
@@ -290,6 +289,7 @@ func main() {
 	defer l.Info("Done.")
 
 	db := NewDB(*dsnF, 5, 10)
+
 	prom.MustRegister(sqlmetrics.NewCollector("clickhouse", "qan-api2", db.DB))
 
 	// handle termination signals
