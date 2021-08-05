@@ -2832,6 +2832,11 @@
                   "description": "If false, cached information may be returned.",
                   "type": "boolean",
                   "x-order": 0
+                },
+                "only_installed_version": {
+                  "description": "If true, only installed version will be in response.",
+                  "type": "boolean",
+                  "x-order": 1
                 }
               }
             }
@@ -3593,6 +3598,21 @@
                     "type": "string"
                   },
                   "x-order": 12
+                },
+                "authentication_mechanism": {
+                  "description": "Authentication mechanism.\nSee https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism\nfor details.",
+                  "type": "string",
+                  "x-order": 13
+                },
+                "authentication_database": {
+                  "description": "Authentication database.",
+                  "type": "string",
+                  "x-order": 14
+                },
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 15
                 }
               }
             }
@@ -3824,6 +3844,11 @@
                     "type": "string"
                   },
                   "x-order": 13
+                },
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 14
                 }
               }
             }
@@ -4339,6 +4364,26 @@
                     "type": "string"
                   },
                   "x-order": 9
+                },
+                "tls_ca": {
+                  "description": "TLS CA certificate.",
+                  "type": "string",
+                  "x-order": 10
+                },
+                "tls_cert": {
+                  "description": "TLS Certifcate.",
+                  "type": "string",
+                  "x-order": 11
+                },
+                "tls_key": {
+                  "description": "TLS Certificate Key.",
+                  "type": "string",
+                  "x-order": 12
+                },
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 13
                 }
               }
             }
@@ -4549,6 +4594,11 @@
                     "type": "string"
                   },
                   "x-order": 9
+                },
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 10
                 }
               }
             }
@@ -4761,6 +4811,16 @@
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 10
+                },
+                "authentication_mechanism": {
+                  "description": "Authentication mechanism.\nSee https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism\nfor details.",
+                  "type": "string",
+                  "x-order": 11
+                },
+                "authentication_database": {
+                  "description": "Authentication database.",
+                  "type": "string",
+                  "x-order": 12
                 }
               }
             }
@@ -5392,6 +5452,21 @@
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 8
+                },
+                "tls_ca": {
+                  "description": "TLS CA certificate.",
+                  "type": "string",
+                  "x-order": 9
+                },
+                "tls_cert": {
+                  "description": "TLS Certifcate.",
+                  "type": "string",
+                  "x-order": 10
+                },
+                "tls_key": {
+                  "description": "TLS Certificate Key.",
+                  "type": "string",
+                  "x-order": 11
                 }
               }
             }
@@ -5575,6 +5650,21 @@
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 7
+                },
+                "tls_ca": {
+                  "description": "TLS CA certificate.",
+                  "type": "string",
+                  "x-order": 8
+                },
+                "tls_cert": {
+                  "description": "TLS Certifcate.",
+                  "type": "string",
+                  "x-order": 9
+                },
+                "tls_key": {
+                  "description": "TLS Certificate Key.",
+                  "type": "string",
+                  "x-order": 10
                 }
               }
             }
@@ -16199,6 +16289,100 @@
         }
       }
     },
+    "/v1/management/DBaaS/Components/CheckForOperatorUpdate": {
+      "post": {
+        "tags": [
+          "Components"
+        ],
+        "summary": "CheckForOperatorUpdate checks if a new version of an operator is available.",
+        "operationId": "CheckForOperatorUpdate",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "cluster_to_components": {
+                  "description": "The cluster name is used as a key for this map, value contains components and their inforamtion about update.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "description": "ComponentsUpdateInformation contains info about components and their available latest versions.",
+                    "type": "object",
+                    "properties": {
+                      "component_to_update_information": {
+                        "description": "component_to_update_information stores, under the name of the component, information about the update.\n\"pxc-operator\", \"psmdb-operator\" are names used by backend for our operators.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "description": "ComponentUpdateInformation contains version we can update to for certain component.",
+                          "type": "object",
+                          "properties": {
+                            "available_version": {
+                              "type": "string",
+                              "x-order": 0
+                            }
+                          }
+                        },
+                        "x-order": 0
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/DBaaS/Components/GetPSMDB": {
       "post": {
         "tags": [
@@ -20431,6 +20615,21 @@
                     "type": "string"
                   },
                   "x-order": 22
+                },
+                "authentication_mechanism": {
+                  "description": "Authentication mechanism.\nSee https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism\nfor details.",
+                  "type": "string",
+                  "x-order": 23
+                },
+                "authentication_database": {
+                  "description": "Authentication database.",
+                  "type": "string",
+                  "x-order": 24
+                },
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 25
                 }
               }
             }
@@ -20928,6 +21127,11 @@
                     "type": "string"
                   },
                   "x-order": 26
+                },
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 27
                 }
               }
             }
@@ -21850,6 +22054,26 @@
                     "type": "string"
                   },
                   "x-order": 21
+                },
+                "tls_ca": {
+                  "description": "TLS CA certificate.",
+                  "type": "string",
+                  "x-order": 22
+                },
+                "tls_cert": {
+                  "description": "TLS Certifcate.",
+                  "type": "string",
+                  "x-order": 23
+                },
+                "tls_key": {
+                  "description": "TLS Certificate Key.",
+                  "type": "string",
+                  "x-order": 24
+                },
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 25
                 }
               }
             }
@@ -22375,6 +22599,11 @@
                     "type": "string"
                   },
                   "x-order": 18
+                },
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 19
                 }
               }
             }
@@ -22750,6 +22979,11 @@
                   "type": "boolean",
                   "title": "If true, add qan-pgstatements",
                   "x-order": 27
+                },
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 28
                 }
               }
             }
@@ -24422,6 +24656,84 @@
         }
       }
     },
+    "/v1/management/backup/Artifacts/Delete": {
+      "post": {
+        "tags": [
+          "Artifacts"
+        ],
+        "summary": "DeleteArtifact deletes specified artifact.",
+        "operationId": "DeleteArtifact",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "artifact_id": {
+                  "description": "Machine-readable artifact ID.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "remove_files": {
+                  "description": "Removes all the backup files associated with artifact if flag is set.",
+                  "type": "boolean",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/backup/Artifacts/List": {
       "post": {
         "tags": [
@@ -24507,7 +24819,9 @@
                           "BACKUP_STATUS_IN_PROGRESS",
                           "BACKUP_STATUS_PAUSED",
                           "BACKUP_STATUS_SUCCESS",
-                          "BACKUP_STATUS_ERROR"
+                          "BACKUP_STATUS_ERROR",
+                          "BACKUP_STATUS_DELETING",
+                          "BACKUP_STATUS_FAILED_TO_DELETE"
                         ],
                         "x-order": 8
                       },
@@ -24522,6 +24836,344 @@
                   "x-order": 0
                 }
               }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/backup/Backups/ChangeScheduled": {
+      "post": {
+        "tags": [
+          "Backups"
+        ],
+        "summary": "ChangeScheduledBackup changes existing scheduled backup.",
+        "operationId": "ChangeScheduledBackup",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "scheduled_backup_id": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "enabled": {
+                  "type": "boolean",
+                  "x-order": 1
+                },
+                "cron_expression": {
+                  "description": "How often backup should be run in cron format.",
+                  "type": "string",
+                  "x-order": 2
+                },
+                "start_time": {
+                  "description": "First backup wouldn't happen before this time.",
+                  "type": "string",
+                  "format": "date-time",
+                  "x-order": 3
+                },
+                "name": {
+                  "description": "Name of backup.",
+                  "type": "string",
+                  "x-order": 4
+                },
+                "description": {
+                  "description": "Human-readable description.",
+                  "type": "string",
+                  "x-order": 5
+                },
+                "retention": {
+                  "description": "How many artifacts keep. 0 - unlimited.",
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 6
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/backup/Backups/ListScheduled": {
+      "post": {
+        "tags": [
+          "Backups"
+        ],
+        "summary": "ListScheduledBackups returns all scheduled backups.",
+        "operationId": "ListScheduledBackups",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "scheduled_backups": {
+                  "type": "array",
+                  "items": {
+                    "description": "ScheduledBackup represents scheduled task for backup.",
+                    "type": "object",
+                    "properties": {
+                      "scheduled_backup_id": {
+                        "description": "Machine-readable ID.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "service_id": {
+                        "description": "Machine-readable service ID.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "service_name": {
+                        "description": "Service name.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "location_id": {
+                        "description": "Machine-readable location ID.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "location_name": {
+                        "description": "Location name.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "cron_expression": {
+                        "description": "How often backup will be run in cron format.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "start_time": {
+                        "description": "First backup wouldn't happen before this time.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 6
+                      },
+                      "name": {
+                        "description": "Artifact name.",
+                        "type": "string",
+                        "x-order": 7
+                      },
+                      "description": {
+                        "description": "Description.",
+                        "type": "string",
+                        "x-order": 8
+                      },
+                      "enabled": {
+                        "description": "Retry mode.\nRetryMode retry_mode = 10;\nDelay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.\ngoogle.protobuf.Duration retry_interval = 11;\nHow many times to retry a failed backup before giving up.\nuint32 retry_times = 12;\nIf scheduling is enabled.",
+                        "type": "boolean",
+                        "x-order": 9
+                      },
+                      "data_model": {
+                        "description": "DataModel is a model used for performing a backup.",
+                        "type": "string",
+                        "default": "DATA_MODEL_INVALID",
+                        "enum": [
+                          "DATA_MODEL_INVALID",
+                          "PHYSICAL",
+                          "LOGICAL"
+                        ],
+                        "x-order": 10
+                      },
+                      "vendor": {
+                        "description": "Database vendor e.g. PostgreSQL, MongoDB, MySQL.",
+                        "type": "string",
+                        "x-order": 11
+                      },
+                      "last_run": {
+                        "description": "Last run.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 12
+                      },
+                      "next_run": {
+                        "description": "Next run.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 13
+                      },
+                      "retention": {
+                        "description": "How many artifacts keep. 0 - unlimited.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 14
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/backup/Backups/RemoveScheduled": {
+      "post": {
+        "tags": [
+          "Backups"
+        ],
+        "summary": "RemoveScheduledBackup removes existing scheduled backup.",
+        "operationId": "RemoveScheduledBackup",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "scheduled_backup_id": {
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
             }
           },
           "default": {
@@ -24651,7 +25303,123 @@
         }
       }
     },
-    "/v1/management/backup/Backups/StartBackup": {
+    "/v1/management/backup/Backups/Schedule": {
+      "post": {
+        "tags": [
+          "Backups"
+        ],
+        "summary": "ScheduleBackup schedules repeated backup.",
+        "operationId": "ScheduleBackup",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "service_id": {
+                  "description": "Service identifier where backup should be performed.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "location_id": {
+                  "description": "Machine-readable location ID.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "cron_expression": {
+                  "description": "How often backup should be run in cron format.",
+                  "type": "string",
+                  "x-order": 2
+                },
+                "start_time": {
+                  "description": "First backup wouldn't happen before this time.",
+                  "type": "string",
+                  "format": "date-time",
+                  "x-order": 3
+                },
+                "name": {
+                  "description": "Name of backup.",
+                  "type": "string",
+                  "x-order": 4
+                },
+                "description": {
+                  "description": "Human-readable description.",
+                  "type": "string",
+                  "x-order": 5
+                },
+                "enabled": {
+                  "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.\ngoogle.protobuf.Duration retry_interval = 7;\nHow many times to retry a failed backup before giving up.\nuint32 retry_times = 8;\nIf scheduling is enabled.",
+                  "type": "boolean",
+                  "x-order": 6
+                },
+                "retention": {
+                  "description": "How many artifacts keep. 0 - unlimited.",
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 7
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "scheduled_backup_id": {
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/backup/Backups/Start": {
       "post": {
         "tags": [
           "Backups"
