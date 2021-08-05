@@ -75,23 +75,3 @@
 - name: Start clickhouse
   command: supervisorctl add clickhouse
   changed_when: True
-
-- name: Clickhouse                | Wait for clickhouse start
-  wait_for:
-    port: 8123
-    state: present
-    delay: 30
-    timeout: 60
-
-
-# Why we use Ordinary engine in next query?
-# TLDR: Clickhouse changed default engine and there is officially no way to migrate other than...renaming the table.
-# https://github.com/ClickHouse/ClickHouse/issues/6787
-# TODO we need to think about migration in future
-- name: Cickhouse                 | Create ClickHouse database
-  command: clickhouse-client --host 127.0.0.1 --query="CREATE DATABASE IF NOT EXISTS pmm ENGINE = Ordinary"
-  changed_when: False
-
-- name: Cickhouse                 | Show ClickHouse database
-  command: clickhouse-client --host 127.0.0.1 --query="SHOW DATABASES"
-  changed_when: False
