@@ -24924,11 +24924,22 @@
                   "type": "string",
                   "x-order": 5
                 },
+                "retry_interval": {
+                  "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
+                  "type": "string",
+                  "x-order": 6
+                },
+                "retry_times": {
+                  "description": "How many times to retry a failed backup before giving up.",
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 7
+                },
                 "retention": {
                   "description": "How many artifacts keep. 0 - unlimited.",
                   "type": "integer",
                   "format": "int64",
-                  "x-order": 6
+                  "x-order": 8
                 }
               }
             }
@@ -25058,10 +25069,21 @@
                         "type": "string",
                         "x-order": 8
                       },
-                      "enabled": {
-                        "description": "Retry mode.\nRetryMode retry_mode = 10;\nDelay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.\ngoogle.protobuf.Duration retry_interval = 11;\nHow many times to retry a failed backup before giving up.\nuint32 retry_times = 12;\nIf scheduling is enabled.",
-                        "type": "boolean",
+                      "retry_interval": {
+                        "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
+                        "type": "string",
                         "x-order": 9
+                      },
+                      "retry_times": {
+                        "description": "How many times to retry a failed backup before giving up.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 10
+                      },
+                      "enabled": {
+                        "description": "If scheduling is enabled.",
+                        "type": "boolean",
+                        "x-order": 11
                       },
                       "data_model": {
                         "description": "DataModel is a model used for performing a backup.",
@@ -25072,30 +25094,30 @@
                           "PHYSICAL",
                           "LOGICAL"
                         ],
-                        "x-order": 10
+                        "x-order": 12
                       },
                       "vendor": {
                         "description": "Database vendor e.g. PostgreSQL, MongoDB, MySQL.",
                         "type": "string",
-                        "x-order": 11
+                        "x-order": 13
                       },
                       "last_run": {
                         "description": "Last run.",
                         "type": "string",
                         "format": "date-time",
-                        "x-order": 12
+                        "x-order": 14
                       },
                       "next_run": {
                         "description": "Next run.",
                         "type": "string",
                         "format": "date-time",
-                        "x-order": 13
+                        "x-order": 15
                       },
                       "retention": {
                         "description": "How many artifacts keep. 0 - unlimited.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 14
+                        "x-order": 16
                       }
                     }
                   },
@@ -25349,16 +25371,27 @@
                   "type": "string",
                   "x-order": 5
                 },
-                "enabled": {
-                  "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.\ngoogle.protobuf.Duration retry_interval = 7;\nHow many times to retry a failed backup before giving up.\nuint32 retry_times = 8;\nIf scheduling is enabled.",
-                  "type": "boolean",
+                "retry_interval": {
+                  "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
+                  "type": "string",
                   "x-order": 6
+                },
+                "retry_times": {
+                  "description": "How many times to retry a failed backup before giving up.",
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 7
+                },
+                "enabled": {
+                  "description": "If scheduling is enabled.",
+                  "type": "boolean",
+                  "x-order": 8
                 },
                 "retention": {
                   "description": "How many artifacts keep. 0 - unlimited.",
                   "type": "integer",
                   "format": "int64",
-                  "x-order": 7
+                  "x-order": 9
                 }
               }
             }
@@ -25453,6 +25486,17 @@
                   "description": "Human-readable description.",
                   "type": "string",
                   "x-order": 3
+                },
+                "retry_interval": {
+                  "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
+                  "type": "string",
+                  "x-order": 4
+                },
+                "retry_times": {
+                  "description": "How many times to retry a failed backup before giving up.",
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 5
                 }
               }
             }

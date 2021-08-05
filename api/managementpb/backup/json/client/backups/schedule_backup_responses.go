@@ -143,9 +143,11 @@ type ScheduleBackupBody struct {
 	Description string `json:"description,omitempty"`
 
 	// Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.
-	// google.protobuf.Duration retry_interval = 7;
+	RetryInterval string `json:"retry_interval,omitempty"`
+
 	// How many times to retry a failed backup before giving up.
-	// uint32 retry_times = 8;
+	RetryTimes int64 `json:"retry_times,omitempty"`
+
 	// If scheduling is enabled.
 	Enabled bool `json:"enabled,omitempty"`
 

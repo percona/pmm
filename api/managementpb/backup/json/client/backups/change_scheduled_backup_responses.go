@@ -140,6 +140,12 @@ type ChangeScheduledBackupBody struct {
 	// Human-readable description.
 	Description string `json:"description,omitempty"`
 
+	// Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.
+	RetryInterval string `json:"retry_interval,omitempty"`
+
+	// How many times to retry a failed backup before giving up.
+	RetryTimes int64 `json:"retry_times,omitempty"`
+
 	// How many artifacts keep. 0 - unlimited.
 	Retention int64 `json:"retention,omitempty"`
 }
