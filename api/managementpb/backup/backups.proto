@@ -31,7 +31,7 @@ message StartBackupRequest {
   // Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.
   google.protobuf.Duration retry_interval = 5;
   // How many times to retry a failed backup before giving up.
-  uint32 retry_times = 6;
+  uint32 retries = 6;
 }
 
 message StartBackupResponse {
@@ -82,7 +82,7 @@ message ScheduledBackup {
   // Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.
   google.protobuf.Duration retry_interval = 11;
   // How many times to retry a failed backup before giving up.
-  uint32 retry_times = 12;
+  uint32 retries = 12;
   // If scheduling is enabled.
   bool enabled = 13;
   // Backup data model.
@@ -125,7 +125,7 @@ message ScheduleBackupRequest {
   // Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.
   google.protobuf.Duration retry_interval = 7;
   // How many times to retry a failed backup before giving up.
-  uint32 retry_times = 8;
+  uint32 retries = 8;
   // If scheduling is enabled.
   bool enabled = 9;
   // How many artifacts keep. 0 - unlimited.
@@ -160,7 +160,7 @@ message ChangeScheduledBackupRequest {
   // Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.
   google.protobuf.Duration retry_interval = 7;
   // How many times to retry a failed backup before giving up.
-  google.protobuf.UInt32Value retry_times = 8;
+  google.protobuf.UInt32Value retries = 8;
   // How many artifacts keep. 0 - unlimited.
   google.protobuf.UInt32Value retention = 9;
 }

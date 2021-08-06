@@ -144,9 +144,9 @@ func (this *ChangeScheduledBackupRequest) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("RetryInterval", err)
 		}
 	}
-	if this.RetryTimes != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.RetryTimes); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("RetryTimes", err)
+	if this.Retries != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Retries); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Retries", err)
 		}
 	}
 	if this.Retention != nil {

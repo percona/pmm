@@ -24929,7 +24929,7 @@
                   "type": "string",
                   "x-order": 6
                 },
-                "retry_times": {
+                "retries": {
                   "description": "How many times to retry a failed backup before giving up.",
                   "type": "integer",
                   "format": "int64",
@@ -25074,7 +25074,7 @@
                         "type": "string",
                         "x-order": 9
                       },
-                      "retry_times": {
+                      "retries": {
                         "description": "How many times to retry a failed backup before giving up.",
                         "type": "integer",
                         "format": "int64",
@@ -25376,7 +25376,7 @@
                   "type": "string",
                   "x-order": 6
                 },
-                "retry_times": {
+                "retries": {
                   "description": "How many times to retry a failed backup before giving up.",
                   "type": "integer",
                   "format": "int64",
@@ -25492,7 +25492,7 @@
                   "type": "string",
                   "x-order": 4
                 },
-                "retry_times": {
+                "retries": {
                   "description": "How many times to retry a failed backup before giving up.",
                   "type": "integer",
                   "format": "int64",

@@ -144,7 +144,7 @@ type ChangeScheduledBackupBody struct {
 	RetryInterval string `json:"retry_interval,omitempty"`
 
 	// How many times to retry a failed backup before giving up.
-	RetryTimes int64 `json:"retry_times,omitempty"`
+	Retries int64 `json:"retries,omitempty"`
 
 	// How many artifacts keep. 0 - unlimited.
 	Retention int64 `json:"retention,omitempty"`

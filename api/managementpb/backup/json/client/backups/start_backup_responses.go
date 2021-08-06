@@ -138,7 +138,7 @@ type StartBackupBody struct {
 	RetryInterval string `json:"retry_interval,omitempty"`
 
 	// How many times to retry a failed backup before giving up.
-	RetryTimes int64 `json:"retry_times,omitempty"`
+	Retries int64 `json:"retries,omitempty"`
 }
 
 // Validate validates this start backup body
