@@ -226,6 +226,8 @@ github.com/percona/pmm v0.0.0-20210729102440-72f70c96c89b h1:YlfHOmTLCgd/db8jNEb
 github.com/percona/pmm v0.0.0-20210729102440-72f70c96c89b/go.mod h1:Cm2JKvJMlMimtAhmF/1BUvz3qVJZ2O2zxQXRvtQh93Q=
 github.com/percona/pmm v0.0.0-20210729105219-685e1d7efb1e h1:p0FiSjHr0T48mcvaTOeIhpxoecnuLmShGpdss2StgDs=
 github.com/percona/pmm v0.0.0-20210729105219-685e1d7efb1e/go.mod h1:Cm2JKvJMlMimtAhmF/1BUvz3qVJZ2O2zxQXRvtQh93Q=
+github.com/percona/pmm v0.0.0-20210730110700-154612d18048 h1:jXsMe/Twq9SVXqw6fdR9RFRm2tV9xTY9N3+SePANSZ8=
+github.com/percona/pmm v0.0.0-20210730110700-154612d18048/go.mod h1:Cm2JKvJMlMimtAhmF/1BUvz3qVJZ2O2zxQXRvtQh93Q=
 github.com/pkg/errors v0.8.0/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=

@@ -73,6 +73,8 @@ type addMongoDBCommand struct {
 	TLSCertificateKeyFile         string
 	TLSCertificateKeyFilePassword string
 	TLSCaFile                     string
+	AuthenticationMechanism       string
+	AuthenticationDatabase        string
 }
 
 func (cmd *addMongoDBCommand) GetServiceName() string {
@@ -148,8 +150,11 @@ func (cmd *addMongoDBCommand) Run() (commands.Result, error) {
 			TLSCertificateKey:             tlsCertificateKey,
 			TLSCertificateKeyFilePassword: cmd.TLSCertificateKeyFilePassword,
 			TLSCa:                         tlsCa,
-			MetricsMode:                   pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
-			DisableCollectors:             commands.ParseDisableCollectors(cmd.DisableCollectors),
+			AuthenticationMechanism:       cmd.AuthenticationMechanism,
+			AuthenticationDatabase:        cmd.AuthenticationDatabase,
+
+			MetricsMode:       pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
+			DisableCollectors: commands.ParseDisableCollectors(cmd.DisableCollectors),
 		},
 		Context: commands.Ctx,
 	}
@@ -199,6 +204,11 @@ func init() {
 	AddMongoDBC.Flag("tls-certificate-key-file", "Path to TLS certificate PEM file").StringVar(&AddMongoDB.TLSCertificateKeyFile)
 	AddMongoDBC.Flag("tls-certificate-key-file-password", "Password for certificate").StringVar(&AddMongoDB.TLSCertificateKeyFilePassword)
 	AddMongoDBC.Flag("tls-ca-file", "Path to certificate authority file").StringVar(&AddMongoDB.TLSCaFile)
+	AddMongoDBC.Flag("authentication-mechanism", "Authentication mechanism. Default is empty. Use MONGODB-X509 for ssl certificates").
+		StringVar(&AddMongoDB.AuthenticationMechanism)
+	AddMongoDBC.Flag("authentication-database", "Authentication database. Default is empty. Use $external for ssl certificates").
+		StringVar(&AddMongoDB.AuthenticationDatabase)
+
 	AddMongoDBC.Flag("metrics-mode", "Metrics flow mode, can be push - agent will push metrics,"+
 		" pull - server scrape metrics from agent  or auto - chosen by server.").
 		Default("auto").
