@@ -73,6 +73,8 @@ type MongoDBOptionsParams interface {
 	GetTlsCertificateKey() string
 	GetTlsCertificateKeyFilePassword() string
 	GetTlsCa() string
+	GetAuthenticationMechanism() string
+	GetAuthenticationDatabase() string
 }
 
 // MongoDBOptionsFromRequest creates MongoDBOptionsParams object from request.
@@ -82,6 +84,8 @@ func MongoDBOptionsFromRequest(params MongoDBOptionsParams) *MongoDBOptions {
 			TLSCertificateKey:             params.GetTlsCertificateKey(),
 			TLSCertificateKeyFilePassword: params.GetTlsCertificateKeyFilePassword(),
 			TLSCa:                         params.GetTlsCa(),
+			AuthenticationMechanism:       params.GetAuthenticationMechanism(),
+			AuthenticationDatabase:        params.GetAuthenticationDatabase(),
 		}
 	}
 	return nil
