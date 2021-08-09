@@ -190,6 +190,15 @@ func (s *Service) Run(ctx context.Context) {
 		return
 	}
 
+	s.rareTicker = time.NewTicker(settings.SaaS.STTCheckIntervals.RareInterval)
+	defer s.rareTicker.Stop()
+
+	s.standardTicker = time.NewTicker(settings.SaaS.STTCheckIntervals.StandardInterval)
+	defer s.standardTicker.Stop()
+
+	s.frequentTicker = time.NewTicker(settings.SaaS.STTCheckIntervals.FrequentInterval)
+	defer s.frequentTicker.Stop()
+
 	// delay for the first run to allow all agents to connect
 	startCtx, startCancel := context.WithTimeout(ctx, s.startDelay)
 	<-startCtx.Done()
@@ -205,15 +214,6 @@ func (s *Service) Run(ctx context.Context) {
 		defer wg.Done()
 		s.resendAlerts(ctx)
 	}()
-
-	s.rareTicker = time.NewTicker(settings.SaaS.STTCheckIntervals.RareInterval)
-	defer s.rareTicker.Stop()
-
-	s.standardTicker = time.NewTicker(settings.SaaS.STTCheckIntervals.StandardInterval)
-	defer s.standardTicker.Stop()
-
-	s.frequentTicker = time.NewTicker(settings.SaaS.STTCheckIntervals.FrequentInterval)
-	defer s.frequentTicker.Stop()
 
 	wg.Add(1)
 	go func() {
