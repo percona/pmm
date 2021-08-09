@@ -180,6 +180,8 @@ pmm-admin add mongodb --tls \
 --tls-certificate-key-file=PATHTOCER \
 --tls-certificate-key-file-password=IFPASSWORDTOCERTISSET \
 --tls-ca-file=PATHTOCACERT
+--authentication-mechanism=AUTHENTICATION-MECHANISM
+--authentication-database=AUTHENTICATION-DATABASE
 ```
 
 where:
@@ -187,6 +189,9 @@ where:
 - `PATHTOCERT`: Path to TLS certificate file.
 - `IFPASSWORDTOCERTISSET`: Password for TLS certificate file.
 - `PATHTOCACERT`: Path to certificate authority file.
+- `AUTHENTICATION-MECHANISM`: Authentication mechanism. Default is empty. Use `MONGODB-X509` for SSL certificates.
+- `AUTHENTICATION-DATABASE`: Authentication database. Default is empty. Use `$external` for SSL certificates.
+
 
 ## Check the service
 
@@ -196,6 +201,7 @@ where:
 2. Look in the *Services* tab for a matching *Service Type* (MongoDB), *Service name*, *Addresses*, and any other values used when adding the service.
 3. Look in the *Agents* tab to check the desired data source is being used.
 4. If your MongoDB instance is configured to use TLS, click on the **Use TLS for database connection** check box and fill in TLS certificates and keys.
+    1. If you use TLS, the authentication mechanism is automatically set to `MONGODB-X509`.
 
 ![!](../../_images/PMM_Add_Instance_MongoDB_TLS.png)
 
