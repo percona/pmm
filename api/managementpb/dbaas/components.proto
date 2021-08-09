@@ -111,9 +111,9 @@ message InstallOperatorRequest {
     }
   ];
   // operator_type tells what operator we are interested in updating.
-  string operator_type = 2 [
+  OperatorType operator_type = 2 [
     (validator.field) = {
-      string_not_empty: true
+      msg_exists: true
     }
   ];
   // version tells what version of the operator we should update to.
