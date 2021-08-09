@@ -12,6 +12,7 @@
 // iatemplates/postgresql_down.yml (361B)
 // iatemplates/postgresql_restarted.yml (595B)
 // iatemplates/postgresql_too_many_connections.yml (720B)
+// iatemplates/proxysql_server_status.yml (770B)
 
 package data
 
@@ -320,6 +321,26 @@ func iatemplatesPostgresql_too_many_connectionsYml() (*asset, error) {
 	return a, nil
 }
 
+var _iatemplatesProxysql_server_statusYml = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\xac\x52\x4d\xab\x13\x31\x14\xdd\xcf\xaf\x38\x14\x17\x0a\x9d\x82\xb4\x6e\x02\x0a\x82\x16\x85\x62\xd5\x0a\x2e\x4a\x19\x62\x7b\x3b\x0d\x4c\x6e\x62\x92\x19\x3b\xd4\xf9\xef\x32\x5f\xe9\xf8\x1e\x6f\xf7\xb2\xbb\xe7\x7e\x9c\x7b\xce\x4d\x9a\xa6\x49\x20\x6d\x0b\x19\xc8\x8b\x04\x48\xc1\x52\x93\x80\xd5\x3a\xb3\xce\x5c\x6b\xff\xbb\xc8\x3c\xb9\x8a\x5c\xe6\x83\x0c\xa5\x4f\x00\xa0\x22\xe7\x95\x61\x81\xd7\x5d\xe8\x4b\xad\xa5\xab\x05\xbe\xb6\x2d\xbb\x6f\x1b\xf4\x2d\x98\xb4\xd0\xd5\x3a\x81\xbf\x69\x17\x00\x71\xb8\x2b\x39\x28\x4d\x03\x89\x9f\xb2\x00\xef\xde\x62\xbf\xc7\xa2\xc7\x70\x38\x74\xb0\x95\x4e\xea\x6e\xdb\xf6\x8d\x1b\x0f\x35\x03\x3a\xd9\xe9\xa7\x74\xac\x38\x1f\x0b\x96\x48\xb1\x5d\xaf\x37\x9f\xbf\x7c\xcc\x76\xdb\xf5\x8f\x39\x56\x13\xe4\xd3\xfb\xef\x1f\xee\x33\x4a\x56\x41\x60\x36\x8b\x40\xa8\x2d\x09\x9c\x0b\x23\x43\xc4\x9c\xe4\x9c\x04\xf6\xcb\x39\x56\x87\x88\x56\xb2\x28\x49\x60\xd5\x0f\x3b\x1b\x27\xf0\x46\xf7\x66\x51\x45\x4e\x85\x5a\xe0\x4f\xbf\x59\x87\x4a\x66\x13\x64\x50\x86\xa3\xb2\xc7\xae\xbe\xbc\xdd\xf0\xa2\x90\xbf\xa8\xf0\x8b\xd6\x2f\x75\xa4\xac\x55\x8f\xa6\x79\x35\x5a\x3e\x29\x21\x3e\x59\xa3\x38\xa0\x69\xa0\x18\xd3\xd4\xc5\xf8\x90\x3b\x53\xda\x36\x77\x0f\x2e\xd2\x23\x37\x61\xb4\x03\xff\x1d\xe3\x44\xfe\xe8\x94\x0d\xdd\xe1\xe3\x21\xf1\xac\xc4\x92\x1f\x70\xf7\x9a\x3b\x37\x5b\x95\x91\x74\xfc\x3f\x18\x7c\xc0\xd3\xd6\xc0\xf0\x34\xcb\xe6\x14\x53\x8b\xe4\x5f\x00\x00\x00\xff\xff\x27\xdf\x25\x51\x02\x03\x00\x00")
+
+func iatemplatesProxysql_server_statusYmlBytes() ([]byte, error) {
+	return bindataRead(
+		_iatemplatesProxysql_server_statusYml,
+		"iatemplates/proxysql_server_status.yml",
+	)
+}
+
+func iatemplatesProxysql_server_statusYml() (*asset, error) {
+	bytes, err := iatemplatesProxysql_server_statusYmlBytes()
+	if err != nil {
+		return nil, err
+	}
+
+	info := bindataFileInfo{name: "iatemplates/proxysql_server_status.yml", size: 0, mode: os.FileMode(0), modTime: time.Unix(0, 0)}
+	a := &asset{bytes: bytes, info: info, digest: [32]uint8{0x54, 0x2d, 0x3c, 0x4b, 0xf8, 0x42, 0x2f, 0x3a, 0x4e, 0xe7, 0x9b, 0xaf, 0xc8, 0x21, 0x28, 0x5d, 0x38, 0x39, 0x7b, 0x14, 0xed, 0x27, 0x86, 0x1f, 0xf6, 0xd4, 0xcd, 0xe7, 0x3c, 0x8, 0x9, 0x6b}}
+	return a, nil
+}
+
 // Asset loads and returns the asset for the given name.
 // It returns an error if the asset could not be found or
 // could not be loaded.
@@ -423,6 +444,7 @@ var _bindata = map[string]func() (*asset, error){
 	"iatemplates/postgresql_down.yml":                  iatemplatesPostgresql_downYml,
 	"iatemplates/postgresql_restarted.yml":             iatemplatesPostgresql_restartedYml,
 	"iatemplates/postgresql_too_many_connections.yml":  iatemplatesPostgresql_too_many_connectionsYml,
+	"iatemplates/proxysql_server_status.yml":           iatemplatesProxysql_server_statusYml,
 }
 
 // AssetDebug is true if the assets were built with the debug flag enabled.
@@ -482,6 +504,7 @@ var _bintree = &bintree{nil, map[string]*bintree{
 		"postgresql_down.yml":                  {iatemplatesPostgresql_downYml, map[string]*bintree{}},
 		"postgresql_restarted.yml":             {iatemplatesPostgresql_restartedYml, map[string]*bintree{}},
 		"postgresql_too_many_connections.yml":  {iatemplatesPostgresql_too_many_connectionsYml, map[string]*bintree{}},
+		"proxysql_server_status.yml":           {iatemplatesProxysql_server_statusYml, map[string]*bintree{}},
 	}},
 }}
 
