@@ -1162,14 +1162,8 @@
                   "x-order": 0
                 },
                 "operator_type": {
-                  "description": "OperatorType defines operator types(PXC, PSMDB, etc.).\n\n - OPERATOR_TYPE_INVALID: OPERATOR_TYPE_INVALID represents unknown operator type.\n - OPERATOR_TYPE_PXC: OPERATOR_TYPE_PXC represents PXC operator.\n - OPERATOR_TYPE_PSMDB: OPERATOR_TYPE_PSMDB represents PSMDB operator.",
+                  "description": "operator_type tells what operator we are interested in updating.",
                   "type": "string",
-                  "default": "OPERATOR_TYPE_INVALID",
-                  "enum": [
-                    "OPERATOR_TYPE_INVALID",
-                    "OPERATOR_TYPE_PXC",
-                    "OPERATOR_TYPE_PSMDB"
-                  ],
                   "x-order": 1
                 },
                 "version": {

@@ -46,13 +46,3 @@ enum OperatorsStatus {
   // OPERATORS_STATUS_NOT_INSTALLED represents that operators are not installed.
   OPERATORS_STATUS_NOT_INSTALLED = 3;
 }
-
-// OperatorType defines operator types(PXC, PSMDB, etc.).
-enum OperatorType {
-  // OPERATOR_TYPE_INVALID represents unknown operator type.
-  OPERATOR_TYPE_INVALID = 0;
-  // OPERATOR_TYPE_PXC represents PXC operator.
-  OPERATOR_TYPE_PXC = 1;
-  // OPERATOR_TYPE_PSMDB represents PSMDB operator.
-  OPERATOR_TYPE_PSMDB = 2;
-}

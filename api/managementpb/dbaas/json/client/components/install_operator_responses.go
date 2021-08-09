@@ -127,13 +127,8 @@ type InstallOperatorBody struct {
 	// Kubernetes cluster name.
 	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
 
-	// OperatorType defines operator types(PXC, PSMDB, etc.).
-	//
-	//  - OPERATOR_TYPE_INVALID: OPERATOR_TYPE_INVALID represents unknown operator type.
-	//  - OPERATOR_TYPE_PXC: OPERATOR_TYPE_PXC represents PXC operator.
-	//  - OPERATOR_TYPE_PSMDB: OPERATOR_TYPE_PSMDB represents PSMDB operator.
-	// Enum: [OPERATOR_TYPE_INVALID OPERATOR_TYPE_PXC OPERATOR_TYPE_PSMDB]
-	OperatorType *string `json:"operator_type,omitempty"`
+	// operator_type tells what operator we are interested in updating.
+	OperatorType string `json:"operator_type,omitempty"`
 
 	// version tells what version of the operator we should update to.
 	Version string `json:"version,omitempty"`
@@ -141,61 +136,6 @@ type InstallOperatorBody struct {
 
 // Validate validates this install operator body
 func (o *InstallOperatorBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateOperatorType(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-var installOperatorBodyTypeOperatorTypePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["OPERATOR_TYPE_INVALID","OPERATOR_TYPE_PXC","OPERATOR_TYPE_PSMDB"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		installOperatorBodyTypeOperatorTypePropEnum = append(installOperatorBodyTypeOperatorTypePropEnum, v)
-	}
-}
-
-const (
-
-	// InstallOperatorBodyOperatorTypeOPERATORTYPEINVALID captures enum value "OPERATOR_TYPE_INVALID"
-	InstallOperatorBodyOperatorTypeOPERATORTYPEINVALID string = "OPERATOR_TYPE_INVALID"
-
-	// InstallOperatorBodyOperatorTypeOPERATORTYPEPXC captures enum value "OPERATOR_TYPE_PXC"
-	InstallOperatorBodyOperatorTypeOPERATORTYPEPXC string = "OPERATOR_TYPE_PXC"
-
-	// InstallOperatorBodyOperatorTypeOPERATORTYPEPSMDB captures enum value "OPERATOR_TYPE_PSMDB"
-	InstallOperatorBodyOperatorTypeOPERATORTYPEPSMDB string = "OPERATOR_TYPE_PSMDB"
-)
-
-// prop value enum
-func (o *InstallOperatorBody) validateOperatorTypeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, installOperatorBodyTypeOperatorTypePropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *InstallOperatorBody) validateOperatorType(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.OperatorType) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateOperatorTypeEnum("body"+"."+"operator_type", "body", *o.OperatorType); err != nil {
-		return err
-	}
-
 	return nil
 }
 
