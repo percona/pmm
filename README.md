@@ -167,9 +167,9 @@ View the site at <http://0.0.0.0:8000>
 
 ## Version switching
 
-We are trialing the use of [mike] to build different versions.
+We use [mike] to build different versions of the documentation. Currently, only two are built, the latest PMM 1 and PMM 2 versions.
 
-With this, a [GitHub actions] workflow runs `mike` (which runs `mkdocs`). The HTML is committed and pushed to the `publish` branch. The whole branch is then copied (by us, naturally) to our web server.
+A [GitHub actions] workflow runs `mike` which in turn runs `mkdocs`. The HTML is committed and pushed to the `publish` branch. The whole branch is then copied (by an internal Percona Jenkins job) to our web server.
 
 ## Image overlays
 
@@ -180,7 +180,6 @@ Here's how it's done.
 - `PMM_Home_Dashboard.jpg` is created by [pmm-screenshots-pw](https://github.com/PaulJacobs-percona/pmm-screenshots-pw). If snapped by hand, it should be 1280x1280 pixels, to match the overlay image.
 
 - `PMM_Home_Dashboard_Overlay.png` is exported from `docs/_images/PMM_Home_Dashboard_Overlay.drawio` using <https://app.diagrams.net/>.
-
 
     1. Go to <https://app.diagrams.net/>
 
