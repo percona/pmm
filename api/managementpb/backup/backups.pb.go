@@ -212,7 +212,7 @@ type ListServicesForRestoreRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// Artifact id used for for determining restore compatability.
+	// Artifact id used to determine restore compatibility.
 	ArtifactId string `protobuf:"bytes,1,opt,name=artifact_id,json=artifactId,proto3" json:"artifact_id,omitempty"`
 }
 

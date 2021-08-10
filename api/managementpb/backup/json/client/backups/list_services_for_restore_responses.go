@@ -122,7 +122,7 @@ swagger:model ListServicesForRestoreBody
 */
 type ListServicesForRestoreBody struct {
 
-	// Artifact id used for for determining restore compatability.
+	// Artifact id used to determine restore compatibility.
 	ArtifactID string `json:"artifact_id,omitempty"`
 }
 

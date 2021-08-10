@@ -43,7 +43,7 @@ message StartBackupResponse {
 }
 
 message ListServicesForRestoreRequest {
-  // Artifact id used for for determining restore compatability.
+  // Artifact id used to determine restore compatibility.
   string artifact_id = 1 [
     (validator.field) = {
       string_not_empty: true

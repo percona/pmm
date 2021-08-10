@@ -521,7 +521,7 @@
               "type": "object",
               "properties": {
                 "artifact_id": {
-                  "description": "Artifact id used for for determining restore compatability.",
+                  "description": "Artifact id used to determine restore compatibility.",
                   "type": "string",
                   "x-order": 0
                 }
