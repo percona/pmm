@@ -640,30 +640,70 @@ func (this *JobProgress_MySQLBackup) Validate() error {
 func (this *JobProgress_MySQLRestoreBackup) Validate() error {
 	return nil
 }
-func (this *GetVersionRequest) Validate() error {
-	if oneOfNester, ok := this.GetSoftware().(*GetVersionRequest_LocalMysql); ok {
-		if oneOfNester.LocalMysql != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.LocalMysql); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("LocalMysql", err)
+func (this *GetVersionsRequest) Validate() error {
+	for _, item := range this.Softwares {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Softwares", err)
 			}
 		}
 	}
-	if oneOfNester, ok := this.GetSoftware().(*GetVersionRequest_Xtrabackup); ok {
+	return nil
+}
+func (this *GetVersionsRequest_MySQLd) Validate() error {
+	return nil
+}
+func (this *GetVersionsRequest_Xtrabackup) Validate() error {
+	return nil
+}
+func (this *GetVersionsRequest_Xbcloud) Validate() error {
+	return nil
+}
+func (this *GetVersionsRequest_Qpress) Validate() error {
+	return nil
+}
+func (this *GetVersionsRequest_Software) Validate() error {
+	if oneOfNester, ok := this.GetSoftware().(*GetVersionsRequest_Software_Mysqld); ok {
+		if oneOfNester.Mysqld != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Mysqld); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Mysqld", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetSoftware().(*GetVersionsRequest_Software_Xtrabackup); ok {
 		if oneOfNester.Xtrabackup != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Xtrabackup); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("Xtrabackup", err)
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetSoftware().(*GetVersionsRequest_Software_Xbcloud); ok {
+		if oneOfNester.Xbcloud != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Xbcloud); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Xbcloud", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetSoftware().(*GetVersionsRequest_Software_Qpress); ok {
+		if oneOfNester.Qpress != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Qpress); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Qpress", err)
+			}
+		}
+	}
 	return nil
 }
-func (this *GetVersionRequest_LocalMySQL) Validate() error {
+func (this *GetVersionsResponse) Validate() error {
+	for _, item := range this.Versions {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Versions", err)
+			}
+		}
+	}
 	return nil
 }
-func (this *GetVersionRequest_XtraBackup) Validate() error {
-	return nil
-}
-func (this *GetVersionResponse) Validate() error {
+func (this *GetVersionsResponse_Version) Validate() error {
 	return nil
 }
 func (this *AgentMessage) Validate() error {
@@ -770,10 +810,10 @@ func (this *AgentMessage) Validate() error {
 			}
 		}
 	}
-	if oneOfNester, ok := this.GetPayload().(*AgentMessage_GetVersion); ok {
-		if oneOfNester.GetVersion != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.GetVersion); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("GetVersion", err)
+	if oneOfNester, ok := this.GetPayload().(*AgentMessage_GetVersions); ok {
+		if oneOfNester.GetVersions != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.GetVersions); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("GetVersions", err)
 			}
 		}
 	}
@@ -869,10 +909,10 @@ func (this *ServerMessage) Validate() error {
 			}
 		}
 	}
-	if oneOfNester, ok := this.GetPayload().(*ServerMessage_GetVersion); ok {
-		if oneOfNester.GetVersion != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.GetVersion); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("GetVersion", err)
+	if oneOfNester, ok := this.GetPayload().(*ServerMessage_GetVersions); ok {
+		if oneOfNester.GetVersions != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.GetVersions); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("GetVersions", err)
 			}
 		}
 	}
