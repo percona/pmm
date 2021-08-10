@@ -549,6 +549,10 @@ var databaseSchema = [][]string{
 		`ALTER TABLE agents
 		ADD COLUMN agent_password VARCHAR CHECK (agent_password <> '')`,
 	},
+	43: {
+		`UPDATE artifacts SET schedule_id = '' WHERE schedule_id IS NULL`,
+		`ALTER TABLE artifacts ALTER COLUMN schedule_id SET NOT NULL`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
