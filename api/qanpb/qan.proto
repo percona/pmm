@@ -158,6 +158,10 @@ message Point {
   float m_wal_records_sum_per_sec = 59;
   // Total number of FPI (full page images) in WAL (Write-ahead logging) records.
   float m_wal_fpi_sum_per_sec = 60;
+  // Total bytes of WAL (Write-ahead logging) records.
+  float m_wal_bytes_sum_per_sec = 61;
+  // Plan time in per seconds.
+  float m_plan_time_sum_per_sec = 62;
 }
 
 // MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.
