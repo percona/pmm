@@ -46,6 +46,13 @@ func (this *ListServicesForRestoreResponse) Validate() error {
 			}
 		}
 	}
+	for _, item := range this.Mongodb {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Mongodb", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *RestoreBackupRequest) Validate() error {
