@@ -32,7 +32,7 @@ jobs:
       # no `-mod=readonly` to test PRs made by @dependabot;
       # `git diff --exit-code` step below still checks what we need
       GOFLAGS: -v
-      PMM_SERVER_IMAGE: perconalab/pmm-server:dev-latest
+      PMM_SERVER_IMAGE: public.ecr.aws/e7j3v3n0/pmm-server:dev-latest
       AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
       AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
       GO_VERSION: ${{ matrix.go-version }}
