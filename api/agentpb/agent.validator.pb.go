@@ -440,13 +440,6 @@ func (this *StartJobRequest) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("Timeout", err)
 		}
 	}
-	if oneOfNester, ok := this.GetJob().(*StartJobRequest_Echo_); ok {
-		if oneOfNester.Echo != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Echo); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("Echo", err)
-			}
-		}
-	}
 	if oneOfNester, ok := this.GetJob().(*StartJobRequest_MysqlBackup); ok {
 		if oneOfNester.MysqlBackup != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.MysqlBackup); err != nil {
@@ -473,14 +466,6 @@ func (this *StartJobRequest) Validate() error {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.MongodbRestoreBackup); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("MongodbRestoreBackup", err)
 			}
-		}
-	}
-	return nil
-}
-func (this *StartJobRequest_Echo) Validate() error {
-	if this.Delay != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Delay); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Delay", err)
 		}
 	}
 	return nil
@@ -547,13 +532,6 @@ func (this *JobResult) Validate() error {
 			}
 		}
 	}
-	if oneOfNester, ok := this.GetResult().(*JobResult_Echo_); ok {
-		if oneOfNester.Echo != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Echo); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("Echo", err)
-			}
-		}
-	}
 	if oneOfNester, ok := this.GetResult().(*JobResult_MysqlBackup); ok {
 		if oneOfNester.MysqlBackup != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.MysqlBackup); err != nil {
@@ -587,9 +565,6 @@ func (this *JobResult) Validate() error {
 func (this *JobResult_Error) Validate() error {
 	return nil
 }
-func (this *JobResult_Echo) Validate() error {
-	return nil
-}
 func (this *JobResult_MongoDBBackup) Validate() error {
 	return nil
 }
@@ -608,13 +583,6 @@ func (this *JobProgress) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("Timestamp", err)
 		}
 	}
-	if oneOfNester, ok := this.GetResult().(*JobProgress_Echo_); ok {
-		if oneOfNester.Echo != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Echo); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("Echo", err)
-			}
-		}
-	}
 	if oneOfNester, ok := this.GetResult().(*JobProgress_MysqlBackup); ok {
 		if oneOfNester.MysqlBackup != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.MysqlBackup); err != nil {
@@ -629,9 +597,6 @@ func (this *JobProgress) Validate() error {
 			}
 		}
 	}
-	return nil
-}
-func (this *JobProgress_Echo) Validate() error {
 	return nil
 }
 func (this *JobProgress_MySQLBackup) Validate() error {

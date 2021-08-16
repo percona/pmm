@@ -6,7 +6,6 @@ package jobs1beta1
 import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
-	_ "github.com/golang/protobuf/ptypes/duration"
 	_ "github.com/mwitkow/go-proto-validators"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
@@ -32,38 +31,9 @@ func (this *GetJobResponse) Validate() error {
 			}
 		}
 	}
-	if oneOfNester, ok := this.GetResult().(*GetJobResponse_Echo_); ok {
-		if oneOfNester.Echo != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Echo); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("Echo", err)
-			}
-		}
-	}
 	return nil
 }
 func (this *GetJobResponse_Error) Validate() error {
-	return nil
-}
-func (this *GetJobResponse_Echo) Validate() error {
-	return nil
-}
-func (this *StartEchoJobRequest) Validate() error {
-	if this.PmmAgentId == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("PmmAgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.PmmAgentId))
-	}
-	if this.Timeout != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Timeout); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Timeout", err)
-		}
-	}
-	if this.Delay != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Delay); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Delay", err)
-		}
-	}
-	return nil
-}
-func (this *StartEchoJobResponse) Validate() error {
 	return nil
 }
 func (this *CancelJobRequest) Validate() error {

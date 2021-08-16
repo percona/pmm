@@ -6,7 +6,6 @@ option go_package = "api/managementpb/jobs;jobs1beta1";
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
-import "google/protobuf/duration.proto";
 
 message GetJobRequest {
   // Unique Job ID.
@@ -22,10 +21,6 @@ message GetJobResponse {
   message Error {
     string message = 1;
   }
-  // Echo contains result for echo job.
-  message Echo {
-    string message = 1;
-  }
   // Unique Job ID.
   string job_id = 1;
   // pmm-agent ID where this Job is running / was run.
@@ -35,28 +30,7 @@ message GetJobResponse {
   oneof result {
     // Error result.
     Error error = 10;
-    // Echo job result.
-    Echo echo = 11;
   }
-}
-
-message StartEchoJobRequest {
-  // pmm-agent ID where to run this Job.
-  string pmm_agent_id = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  google.protobuf.Duration timeout = 2;
-  string message = 3;
-  google.protobuf.Duration delay = 4;
-}
-
-message StartEchoJobResponse {
-  // Unique Job ID.
-  string job_id = 1;
-  // pmm-agent ID where to this Job was started.
-  string pmm_agent_id = 2;
 }
 
 message CancelJobRequest {
@@ -76,13 +50,6 @@ service Jobs {
   rpc GetJob(GetJobRequest) returns (GetJobResponse) {
     option (google.api.http) = {
       post: "/v1/management/Jobs/Get"
-      body: "*"
-    };
-  }
-  // StartEchoJob starts echo job.
-  rpc StartEchoJob(StartEchoJobRequest) returns (StartEchoJobResponse) {
-    option (google.api.http) = {
-      post: "/v1/management/Jobs/StartEcho"
       body: "*"
     };
   }
