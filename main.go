@@ -84,6 +84,7 @@ import (
 	"github.com/percona/pmm-managed/services/server"
 	"github.com/percona/pmm-managed/services/supervisord"
 	"github.com/percona/pmm-managed/services/telemetry"
+	"github.com/percona/pmm-managed/services/versioncache"
 	"github.com/percona/pmm-managed/services/victoriametrics"
 	"github.com/percona/pmm-managed/services/vmalert"
 	"github.com/percona/pmm-managed/utils/clean"
@@ -147,6 +148,7 @@ type gRPCServerDeps struct {
 	backupService        *backup.Service
 	backupRemovalService *backup.RemovalService
 	minioService         *minio.Service
+	versionCache         *versioncache.Service
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -174,7 +176,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	agentpb.RegisterAgentServer(gRPCServer, agentgrpc.NewAgentServer(deps.handler))
 
 	nodesSvc := inventory.NewNodesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb)
-	servicesSvc := inventory.NewServicesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb)
+	servicesSvc := inventory.NewServicesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, deps.versionCache)
 	agentsSvc := inventory.NewAgentsService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, deps.connectionCheck)
 
 	inventorypb.RegisterNodesServer(gRPCServer, inventorygrpc.NewNodesServer(nodesSvc))
@@ -183,7 +185,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	nodeSvc := management.NewNodeService(deps.db)
 	serviceSvc := management.NewServiceService(deps.db, deps.agentsStateUpdater, deps.vmdb)
-	mysqlSvc := management.NewMySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck)
+	mysqlSvc := management.NewMySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.versionCache)
 	mongodbSvc := management.NewMongoDBService(deps.db, deps.agentsStateUpdater, deps.connectionCheck)
 	postgresqlSvc := management.NewPostgreSQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck)
 	proxysqlSvc := management.NewProxySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck)
@@ -659,6 +661,8 @@ func main() {
 	dbaasClient := dbaas.NewClient(*dbaasControllerAPIAddrF)
 	backupService := backup.NewService(db, jobsService)
 	schedulerService := scheduler.New(db, backupService)
+	versioner := agents.NewVersionerService(agentsRegistry)
+	versionCache := versioncache.New(db, versioner)
 
 	serverParams := &server.Params{
 		DB:                   db,
@@ -828,6 +832,12 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
+		versionCache.Run(ctx)
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
 		runGRPCServer(ctx, &gRPCServerDeps{
 			db:                   db,
 			vmdb:                 vmdb,
@@ -852,6 +862,7 @@ func main() {
 			backupService:        backupService,
 			backupRemovalService: backupRemovalService,
 			minioService:         minioService,
+			versionCache:         versionCache,
 		})
 	}()
 

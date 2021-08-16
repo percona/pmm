@@ -38,14 +38,16 @@ type MySQLService struct {
 	db    *reform.DB
 	state agentsStateUpdater
 	cc    connectionChecker
+	vc    versionCache
 }
 
 // NewMySQLService creates new MySQL Management Service.
-func NewMySQLService(db *reform.DB, state agentsStateUpdater, cc connectionChecker) *MySQLService {
+func NewMySQLService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, vc versionCache) *MySQLService {
 	return &MySQLService{
 		db:    db,
 		state: state,
 		cc:    cc,
+		vc:    vc,
 	}
 }
 
@@ -183,5 +185,7 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 	}
 
 	s.state.RequestStateUpdate(ctx, req.PmmAgentId)
+	s.vc.RequestSoftwareVersionsUpdate()
+
 	return res, nil
 }

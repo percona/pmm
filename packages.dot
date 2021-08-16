@@ -21,6 +21,7 @@ digraph packages {
 	"/" -> "/services/server";
 	"/" -> "/services/supervisord";
 	"/" -> "/services/telemetry";
+	"/" -> "/services/versioncache";
 	"/" -> "/services/victoriametrics";
 	"/" -> "/services/vmalert";
 	"/cmd/pmm-managed-init" -> "/models";

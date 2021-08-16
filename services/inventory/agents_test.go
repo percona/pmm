@@ -96,6 +96,7 @@ func TestAgents(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, expectedNodeExporter, actualAgent)
 
+		ss.vc.(*mockVersionCache).On("RequestSoftwareVersionsUpdate").Once()
 		s, err := ss.AddMySQL(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-mysql",
 			NodeID:      models.PMMServerNodeID,
@@ -604,6 +605,8 @@ func TestAgents(t *testing.T) {
 			Connected:    true,
 		}
 		assert.Equal(t, expectedPMMAgent, pmmAgent)
+
+		ss.vc.(*mockVersionCache).On("RequestSoftwareVersionsUpdate").Once()
 		s, err := ss.AddMySQL(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-mysql",
 			NodeID:      models.PMMServerNodeID,

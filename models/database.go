@@ -553,6 +553,37 @@ var databaseSchema = [][]string{
 		`UPDATE artifacts SET schedule_id = '' WHERE schedule_id IS NULL`,
 		`ALTER TABLE artifacts ALTER COLUMN schedule_id SET NOT NULL`,
 	},
+	44: {
+		`CREATE TABLE service_software_versions (
+			service_id VARCHAR NOT NULL CHECK (service_id <> ''),
+			service_type VARCHAR NOT NULL CHECK (service_type <> ''),
+			software_versions JSONB,
+			next_check_at TIMESTAMP,
+
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (service_id),
+			FOREIGN KEY (service_id) REFERENCES services (service_id) ON DELETE CASCADE
+		);`,
+		`INSERT INTO service_software_versions(
+			service_id,
+			service_type,
+			software_versions,
+			next_check_at,
+			created_at,
+			updated_at
+		)
+		SELECT
+			service_id,
+			service_type,
+			'[]' AS software_versions,
+			(NOW() AT TIME ZONE 'utc') AS next_check_at,
+			(NOW() AT TIME ZONE 'utc') AS created_at,
+			(NOW() AT TIME ZONE 'utc') AS updated_at
+		FROM services
+        WHERE service_type = 'mysql';`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

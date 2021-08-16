@@ -33,15 +33,23 @@ type ServicesService struct {
 	r     agentsRegistry
 	state agentsStateUpdater
 	vmdb  prometheusService
+	vc    versionCache
 }
 
 // NewServicesService creates new ServicesService
-func NewServicesService(db *reform.DB, r agentsRegistry, state agentsStateUpdater, vmdb prometheusService) *ServicesService {
+func NewServicesService(
+	db *reform.DB,
+	r agentsRegistry,
+	state agentsStateUpdater,
+	vmdb prometheusService,
+	vc versionCache,
+) *ServicesService {
 	return &ServicesService{
 		db:    db,
 		r:     r,
 		state: state,
 		vmdb:  vmdb,
+		vc:    vc,
 	}
 }
 
@@ -108,6 +116,9 @@ func (ss *ServicesService) AddMySQL(ctx context.Context, params *models.AddDBMSS
 	if err != nil {
 		return nil, err
 	}
+
+	ss.vc.RequestSoftwareVersionsUpdate()
+
 	return res.(*inventorypb.MySQLService), nil
 }
 

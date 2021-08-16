@@ -59,6 +59,9 @@ func setup(t *testing.T) (*ServicesService, *AgentsService, *NodesService, func(
 	cc := new(mockConnectionChecker)
 	cc.Test(t)
 
+	vc := new(mockVersionCache)
+	vc.Test(t)
+
 	teardown := func(t *testing.T) {
 		uuid.SetRand(nil)
 
@@ -70,7 +73,7 @@ func setup(t *testing.T) (*ServicesService, *AgentsService, *NodesService, func(
 		cc.Test(t)
 	}
 
-	return NewServicesService(db, r, state, vmdb),
+	return NewServicesService(db, r, state, vmdb, vc),
 		NewAgentsService(db, r, state, vmdb, cc),
 		NewNodesService(db, r, state, vmdb),
 		teardown,
@@ -86,6 +89,7 @@ func TestServices(t *testing.T) {
 		require.NoError(t, err)
 		require.Len(t, actualServices, 1) // PMM Server PostgreSQL
 
+		ss.vc.(*mockVersionCache).On("RequestSoftwareVersionsUpdate").Once()
 		actualMySQLService, err := ss.AddMySQL(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-mysql",
 			NodeID:      models.PMMServerNodeID,
@@ -146,6 +150,7 @@ func TestServices(t *testing.T) {
 		})
 		require.NoError(t, err)
 
+		ss.vc.(*mockVersionCache).On("RequestSoftwareVersionsUpdate").Once()
 		mySQLService, err := ss.AddMySQL(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-mysql-socket",
 			NodeID:      node.NodeId,
@@ -203,6 +208,7 @@ func TestServices(t *testing.T) {
 		})
 		require.NoError(t, err)
 
+		ss.vc.(*mockVersionCache).On("RequestSoftwareVersionsUpdate").Once()
 		mySQLService, err := ss.AddMySQL(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-mysql-socket",
 			NodeID:      node.NodeId,
@@ -241,6 +247,7 @@ func TestServices(t *testing.T) {
 		require.NoError(t, err)
 		require.Len(t, actualServices, 1) // PMM Server PostgreSQL
 
+		ss.vc.(*mockVersionCache).On("RequestSoftwareVersionsUpdate").Once()
 		actualMySQLService, err := ss.AddMySQL(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-mysql-socket",
 			NodeID:      models.PMMServerNodeID,
@@ -662,6 +669,7 @@ func TestServices(t *testing.T) {
 		ss, _, _, teardown, ctx := setup(t)
 		defer teardown(t)
 
+		ss.vc.(*mockVersionCache).On("RequestSoftwareVersionsUpdate").Once()
 		_, err := ss.AddMySQL(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-mysql",
 			NodeID:      models.PMMServerNodeID,
