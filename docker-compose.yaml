@@ -4,7 +4,7 @@ services:
 
   pmm-server:
     container_name: pmm-server
-    image: perconalab/pmm-server:dev-latest
+    image: public.ecr.aws/e7j3v3n0/pmm-server:dev-latest
     ports:
       - 80:80
       - 443:443
