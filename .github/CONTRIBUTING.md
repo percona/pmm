@@ -23,5 +23,5 @@ git, make, curl, go, nginx
 
 ## To run PMM-Server in Docker
 
-1. Run `docker run -d -p 80:80 -p 443:443  --name pmm-server perconalab/pmm-server:dev-latest`.
+1. Run `docker run -d -p 80:80 -p 443:443  --name pmm-server public.ecr.aws/e7j3v3n0/pmm-server:dev-latest`.
 2. Open http://localhost/.
