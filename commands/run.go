@@ -28,6 +28,7 @@ import (
 	"github.com/percona/pmm-agent/client"
 	"github.com/percona/pmm-agent/config"
 	"github.com/percona/pmm-agent/connectionchecker"
+	"github.com/percona/pmm-agent/versioner"
 )
 
 // Run implements `pmm-agent run` default command.
@@ -74,7 +75,8 @@ func run(ctx context.Context, cfg *config.Config, configFilepath string) {
 
 	supervisor := supervisor.NewSupervisor(ctx, &cfg.Paths, &cfg.Ports, &cfg.Server)
 	connectionChecker := connectionchecker.New(&cfg.Paths)
-	client := client.New(cfg, supervisor, connectionChecker)
+	v := versioner.New(&versioner.RealExecFunctions{})
+	client := client.New(cfg, supervisor, connectionChecker, v)
 	localServer := agentlocal.NewServer(cfg, supervisor, client, configFilepath)
 
 	go func() {

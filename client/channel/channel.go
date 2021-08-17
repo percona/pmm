@@ -266,6 +266,11 @@ func (c *Channel) runReceiver() {
 				ID:      msg.Id,
 				Payload: p.JobStatus,
 			}
+		case *agentpb.ServerMessage_GetVersions:
+			c.requests <- &ServerRequest{
+				ID:      msg.Id,
+				Payload: p.GetVersions,
+			}
 
 		// responses
 		case *agentpb.ServerMessage_Pong:
