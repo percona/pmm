@@ -67,8 +67,8 @@ func local_request_Backups_StartBackup_0(ctx context.Context, marshaler runtime.
 
 }
 
-func request_Backups_ListServicesForRestore_0(ctx context.Context, marshaler runtime.Marshaler, client BackupsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListServicesForRestoreRequest
+func request_Backups_ListArtifactCompatibleServices_0(ctx context.Context, marshaler runtime.Marshaler, client BackupsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ListArtifactCompatibleServicesRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -79,13 +79,13 @@ func request_Backups_ListServicesForRestore_0(ctx context.Context, marshaler run
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := client.ListServicesForRestore(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.ListArtifactCompatibleServices(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_Backups_ListServicesForRestore_0(ctx context.Context, marshaler runtime.Marshaler, server BackupsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListServicesForRestoreRequest
+func local_request_Backups_ListArtifactCompatibleServices_0(ctx context.Context, marshaler runtime.Marshaler, server BackupsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ListArtifactCompatibleServicesRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -96,7 +96,7 @@ func local_request_Backups_ListServicesForRestore_0(ctx context.Context, marshal
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := server.ListServicesForRestore(ctx, &protoReq)
+	msg, err := server.ListArtifactCompatibleServices(ctx, &protoReq)
 	return msg, metadata, err
 
 }
@@ -300,7 +300,7 @@ func RegisterBackupsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 
 	})
 
-	mux.Handle("POST", pattern_Backups_ListServicesForRestore_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_Backups_ListArtifactCompatibleServices_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -311,7 +311,7 @@ func RegisterBackupsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Backups_ListServicesForRestore_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Backups_ListArtifactCompatibleServices_0(rctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -319,7 +319,7 @@ func RegisterBackupsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_Backups_ListServicesForRestore_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Backups_ListArtifactCompatibleServices_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -499,7 +499,7 @@ func RegisterBackupsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 
 	})
 
-	mux.Handle("POST", pattern_Backups_ListServicesForRestore_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_Backups_ListArtifactCompatibleServices_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -508,14 +508,14 @@ func RegisterBackupsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Backups_ListServicesForRestore_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Backups_ListArtifactCompatibleServices_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Backups_ListServicesForRestore_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Backups_ListArtifactCompatibleServices_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -625,7 +625,7 @@ func RegisterBackupsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 var (
 	pattern_Backups_StartBackup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "Backups", "Start"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Backups_ListServicesForRestore_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "Backups", "ListServicesForRestore"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Backups_ListArtifactCompatibleServices_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "Backups", "ListArtifactCompatibleServices"}, "", runtime.AssumeColonVerbOpt(true)))
 
 	pattern_Backups_RestoreBackup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "Backups", "Restore"}, "", runtime.AssumeColonVerbOpt(true)))
 
@@ -641,7 +641,7 @@ var (
 var (
 	forward_Backups_StartBackup_0 = runtime.ForwardResponseMessage
 
-	forward_Backups_ListServicesForRestore_0 = runtime.ForwardResponseMessage
+	forward_Backups_ListArtifactCompatibleServices_0 = runtime.ForwardResponseMessage
 
 	forward_Backups_RestoreBackup_0 = runtime.ForwardResponseMessage
 

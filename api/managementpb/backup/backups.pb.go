@@ -207,7 +207,7 @@ func (x *StartBackupResponse) GetArtifactId() string {
 	return ""
 }
 
-type ListServicesForRestoreRequest struct {
+type ListArtifactCompatibleServicesRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -216,8 +216,8 @@ type ListServicesForRestoreRequest struct {
 	ArtifactId string `protobuf:"bytes,1,opt,name=artifact_id,json=artifactId,proto3" json:"artifact_id,omitempty"`
 }
 
-func (x *ListServicesForRestoreRequest) Reset() {
-	*x = ListServicesForRestoreRequest{}
+func (x *ListArtifactCompatibleServicesRequest) Reset() {
+	*x = ListArtifactCompatibleServicesRequest{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_managementpb_backup_backups_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -225,13 +225,13 @@ func (x *ListServicesForRestoreRequest) Reset() {
 	}
 }
 
-func (x *ListServicesForRestoreRequest) String() string {
+func (x *ListArtifactCompatibleServicesRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListServicesForRestoreRequest) ProtoMessage() {}
+func (*ListArtifactCompatibleServicesRequest) ProtoMessage() {}
 
-func (x *ListServicesForRestoreRequest) ProtoReflect() protoreflect.Message {
+func (x *ListArtifactCompatibleServicesRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_managementpb_backup_backups_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -243,19 +243,19 @@ func (x *ListServicesForRestoreRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListServicesForRestoreRequest.ProtoReflect.Descriptor instead.
-func (*ListServicesForRestoreRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListArtifactCompatibleServicesRequest.ProtoReflect.Descriptor instead.
+func (*ListArtifactCompatibleServicesRequest) Descriptor() ([]byte, []int) {
 	return file_managementpb_backup_backups_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *ListServicesForRestoreRequest) GetArtifactId() string {
+func (x *ListArtifactCompatibleServicesRequest) GetArtifactId() string {
 	if x != nil {
 		return x.ArtifactId
 	}
 	return ""
 }
 
-type ListServicesForRestoreResponse struct {
+type ListArtifactCompatibleServicesResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -264,8 +264,8 @@ type ListServicesForRestoreResponse struct {
 	Mongodb []*inventorypb.MongoDBService `protobuf:"bytes,2,rep,name=mongodb,proto3" json:"mongodb,omitempty"`
 }
 
-func (x *ListServicesForRestoreResponse) Reset() {
-	*x = ListServicesForRestoreResponse{}
+func (x *ListArtifactCompatibleServicesResponse) Reset() {
+	*x = ListArtifactCompatibleServicesResponse{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_managementpb_backup_backups_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -273,13 +273,13 @@ func (x *ListServicesForRestoreResponse) Reset() {
 	}
 }
 
-func (x *ListServicesForRestoreResponse) String() string {
+func (x *ListArtifactCompatibleServicesResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListServicesForRestoreResponse) ProtoMessage() {}
+func (*ListArtifactCompatibleServicesResponse) ProtoMessage() {}
 
-func (x *ListServicesForRestoreResponse) ProtoReflect() protoreflect.Message {
+func (x *ListArtifactCompatibleServicesResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_managementpb_backup_backups_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -291,19 +291,19 @@ func (x *ListServicesForRestoreResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListServicesForRestoreResponse.ProtoReflect.Descriptor instead.
-func (*ListServicesForRestoreResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListArtifactCompatibleServicesResponse.ProtoReflect.Descriptor instead.
+func (*ListArtifactCompatibleServicesResponse) Descriptor() ([]byte, []int) {
 	return file_managementpb_backup_backups_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *ListServicesForRestoreResponse) GetMysql() []*inventorypb.MySQLService {
+func (x *ListArtifactCompatibleServicesResponse) GetMysql() []*inventorypb.MySQLService {
 	if x != nil {
 		return x.Mysql
 	}
 	return nil
 }
 
-func (x *ListServicesForRestoreResponse) GetMongodb() []*inventorypb.MongoDBService {
+func (x *ListArtifactCompatibleServicesResponse) GetMongodb() []*inventorypb.MongoDBService {
 	if x != nil {
 		return x.Mongodb
 	}
@@ -1098,14 +1098,15 @@ var file_managementpb_backup_backups_proto_rawDesc = []byte{
 	0x70, 0x74, 0x69, 0x6f, 0x6e, 0x22, 0x36, 0x0a, 0x13, 0x53, 0x74, 0x61, 0x72, 0x74, 0x42, 0x61,
 	0x63, 0x6b, 0x75, 0x70, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x1f, 0x0a, 0x0b,
 	0x61, 0x72, 0x74, 0x69, 0x66, 0x61, 0x63, 0x74, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28,
-	0x09, 0x52, 0x0a, 0x61, 0x72, 0x74, 0x69, 0x66, 0x61, 0x63, 0x74, 0x49, 0x64, 0x22, 0x48, 0x0a,
-	0x1d, 0x4c, 0x69, 0x73, 0x74, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x46, 0x6f, 0x72,
-	0x52, 0x65, 0x73, 0x74, 0x6f, 0x72, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x27,
-	0x0a, 0x0b, 0x61, 0x72, 0x74, 0x69, 0x66, 0x61, 0x63, 0x74, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20,
-	0x01, 0x28, 0x09, 0x42, 0x06, 0xe2, 0xdf, 0x1f, 0x02, 0x58, 0x01, 0x52, 0x0a, 0x61, 0x72, 0x74,
-	0x69, 0x66, 0x61, 0x63, 0x74, 0x49, 0x64, 0x22, 0x84, 0x01, 0x0a, 0x1e, 0x4c, 0x69, 0x73, 0x74,
-	0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x46, 0x6f, 0x72, 0x52, 0x65, 0x73, 0x74, 0x6f,
-	0x72, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x2d, 0x0a, 0x05, 0x6d, 0x79,
+	0x09, 0x52, 0x0a, 0x61, 0x72, 0x74, 0x69, 0x66, 0x61, 0x63, 0x74, 0x49, 0x64, 0x22, 0x50, 0x0a,
+	0x25, 0x4c, 0x69, 0x73, 0x74, 0x41, 0x72, 0x74, 0x69, 0x66, 0x61, 0x63, 0x74, 0x43, 0x6f, 0x6d,
+	0x70, 0x61, 0x74, 0x69, 0x62, 0x6c, 0x65, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x52,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x27, 0x0a, 0x0b, 0x61, 0x72, 0x74, 0x69, 0x66, 0x61,
+	0x63, 0x74, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x06, 0xe2, 0xdf, 0x1f,
+	0x02, 0x58, 0x01, 0x52, 0x0a, 0x61, 0x72, 0x74, 0x69, 0x66, 0x61, 0x63, 0x74, 0x49, 0x64, 0x22,
+	0x8c, 0x01, 0x0a, 0x26, 0x4c, 0x69, 0x73, 0x74, 0x41, 0x72, 0x74, 0x69, 0x66, 0x61, 0x63, 0x74,
+	0x43, 0x6f, 0x6d, 0x70, 0x61, 0x74, 0x69, 0x62, 0x6c, 0x65, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63,
+	0x65, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x2d, 0x0a, 0x05, 0x6d, 0x79,
 	0x73, 0x71, 0x6c, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x17, 0x2e, 0x69, 0x6e, 0x76, 0x65,
 	0x6e, 0x74, 0x6f, 0x72, 0x79, 0x2e, 0x4d, 0x79, 0x53, 0x51, 0x4c, 0x53, 0x65, 0x72, 0x76, 0x69,
 	0x63, 0x65, 0x52, 0x05, 0x6d, 0x79, 0x73, 0x71, 0x6c, 0x12, 0x33, 0x0a, 0x07, 0x6d, 0x6f, 0x6e,
@@ -1234,7 +1235,7 @@ var file_managementpb_backup_backups_proto_rawDesc = []byte{
 	0x2a, 0x39, 0x0a, 0x09, 0x52, 0x65, 0x74, 0x72, 0x79, 0x4d, 0x6f, 0x64, 0x65, 0x12, 0x16, 0x0a,
 	0x12, 0x52, 0x45, 0x54, 0x52, 0x59, 0x5f, 0x4d, 0x4f, 0x44, 0x45, 0x5f, 0x49, 0x4e, 0x56, 0x41,
 	0x4c, 0x49, 0x44, 0x10, 0x00, 0x12, 0x08, 0x0a, 0x04, 0x41, 0x55, 0x54, 0x4f, 0x10, 0x01, 0x12,
-	0x0a, 0x0a, 0x06, 0x4d, 0x41, 0x4e, 0x55, 0x41, 0x4c, 0x10, 0x02, 0x32, 0x81, 0x09, 0x0a, 0x07,
+	0x0a, 0x0a, 0x06, 0x4d, 0x41, 0x4e, 0x55, 0x41, 0x4c, 0x10, 0x02, 0x32, 0xa1, 0x09, 0x0a, 0x07,
 	0x42, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x73, 0x12, 0x86, 0x01, 0x0a, 0x0b, 0x53, 0x74, 0x61, 0x72,
 	0x74, 0x42, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x12, 0x22, 0x2e, 0x62, 0x61, 0x63, 0x6b, 0x75, 0x70,
 	0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x53, 0x74, 0x61, 0x72, 0x74, 0x42, 0x61,
@@ -1244,18 +1245,20 @@ var file_managementpb_backup_backups_proto_rawDesc = []byte{
 	0x22, 0x2e, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x28, 0x22, 0x23, 0x2f, 0x76, 0x31, 0x2f, 0x6d, 0x61,
 	0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2f, 0x62, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x2f,
 	0x42, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x73, 0x2f, 0x53, 0x74, 0x61, 0x72, 0x74, 0x3a, 0x01, 0x2a,
-	0x12, 0xb8, 0x01, 0x0a, 0x16, 0x4c, 0x69, 0x73, 0x74, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65,
-	0x73, 0x46, 0x6f, 0x72, 0x52, 0x65, 0x73, 0x74, 0x6f, 0x72, 0x65, 0x12, 0x2d, 0x2e, 0x62, 0x61,
-	0x63, 0x6b, 0x75, 0x70, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4c, 0x69, 0x73,
-	0x74, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x46, 0x6f, 0x72, 0x52, 0x65, 0x73, 0x74,
-	0x6f, 0x72, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x2e, 0x2e, 0x62, 0x61, 0x63,
+	0x12, 0xd8, 0x01, 0x0a, 0x1e, 0x4c, 0x69, 0x73, 0x74, 0x41, 0x72, 0x74, 0x69, 0x66, 0x61, 0x63,
+	0x74, 0x43, 0x6f, 0x6d, 0x70, 0x61, 0x74, 0x69, 0x62, 0x6c, 0x65, 0x53, 0x65, 0x72, 0x76, 0x69,
+	0x63, 0x65, 0x73, 0x12, 0x35, 0x2e, 0x62, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x2e, 0x76, 0x31, 0x62,
+	0x65, 0x74, 0x61, 0x31, 0x2e, 0x4c, 0x69, 0x73, 0x74, 0x41, 0x72, 0x74, 0x69, 0x66, 0x61, 0x63,
+	0x74, 0x43, 0x6f, 0x6d, 0x70, 0x61, 0x74, 0x69, 0x62, 0x6c, 0x65, 0x53, 0x65, 0x72, 0x76, 0x69,
+	0x63, 0x65, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x36, 0x2e, 0x62, 0x61, 0x63,
 	0x6b, 0x75, 0x70, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4c, 0x69, 0x73, 0x74,
-	0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x46, 0x6f, 0x72, 0x52, 0x65, 0x73, 0x74, 0x6f,
-	0x72, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x3f, 0x82, 0xd3, 0xe4, 0x93,
-	0x02, 0x39, 0x22, 0x34, 0x2f, 0x76, 0x31, 0x2f, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65,
-	0x6e, 0x74, 0x2f, 0x62, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x2f, 0x42, 0x61, 0x63, 0x6b, 0x75, 0x70,
-	0x73, 0x2f, 0x4c, 0x69, 0x73, 0x74, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x46, 0x6f,
-	0x72, 0x52, 0x65, 0x73, 0x74, 0x6f, 0x72, 0x65, 0x3a, 0x01, 0x2a, 0x12, 0x8e, 0x01, 0x0a, 0x0d,
+	0x41, 0x72, 0x74, 0x69, 0x66, 0x61, 0x63, 0x74, 0x43, 0x6f, 0x6d, 0x70, 0x61, 0x74, 0x69, 0x62,
+	0x6c, 0x65, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x22, 0x47, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x41, 0x22, 0x3c, 0x2f, 0x76, 0x31, 0x2f,
+	0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2f, 0x62, 0x61, 0x63, 0x6b, 0x75,
+	0x70, 0x2f, 0x42, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x73, 0x2f, 0x4c, 0x69, 0x73, 0x74, 0x41, 0x72,
+	0x74, 0x69, 0x66, 0x61, 0x63, 0x74, 0x43, 0x6f, 0x6d, 0x70, 0x61, 0x74, 0x69, 0x62, 0x6c, 0x65,
+	0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x3a, 0x01, 0x2a, 0x12, 0x8e, 0x01, 0x0a, 0x0d,
 	0x52, 0x65, 0x73, 0x74, 0x6f, 0x72, 0x65, 0x42, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x12, 0x24, 0x2e,
 	0x62, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x52,
 	0x65, 0x73, 0x74, 0x6f, 0x72, 0x65, 0x42, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x52, 0x65, 0x71, 0x75,
@@ -1327,33 +1330,33 @@ func file_managementpb_backup_backups_proto_rawDescGZIP() []byte {
 var file_managementpb_backup_backups_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_managementpb_backup_backups_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_managementpb_backup_backups_proto_goTypes = []interface{}{
-	(RetryMode)(0),                         // 0: backup.v1beta1.RetryMode
-	(*StartBackupRequest)(nil),             // 1: backup.v1beta1.StartBackupRequest
-	(*StartBackupResponse)(nil),            // 2: backup.v1beta1.StartBackupResponse
-	(*ListServicesForRestoreRequest)(nil),  // 3: backup.v1beta1.ListServicesForRestoreRequest
-	(*ListServicesForRestoreResponse)(nil), // 4: backup.v1beta1.ListServicesForRestoreResponse
-	(*RestoreBackupRequest)(nil),           // 5: backup.v1beta1.RestoreBackupRequest
-	(*RestoreBackupResponse)(nil),          // 6: backup.v1beta1.RestoreBackupResponse
-	(*ScheduledBackup)(nil),                // 7: backup.v1beta1.ScheduledBackup
-	(*ScheduleBackupRequest)(nil),          // 8: backup.v1beta1.ScheduleBackupRequest
-	(*ScheduleBackupResponse)(nil),         // 9: backup.v1beta1.ScheduleBackupResponse
-	(*ListScheduledBackupsRequest)(nil),    // 10: backup.v1beta1.ListScheduledBackupsRequest
-	(*ListScheduledBackupsResponse)(nil),   // 11: backup.v1beta1.ListScheduledBackupsResponse
-	(*ChangeScheduledBackupRequest)(nil),   // 12: backup.v1beta1.ChangeScheduledBackupRequest
-	(*ChangeScheduledBackupResponse)(nil),  // 13: backup.v1beta1.ChangeScheduledBackupResponse
-	(*RemoveScheduledBackupRequest)(nil),   // 14: backup.v1beta1.RemoveScheduledBackupRequest
-	(*RemoveScheduledBackupResponse)(nil),  // 15: backup.v1beta1.RemoveScheduledBackupResponse
-	(*inventorypb.MySQLService)(nil),       // 16: inventory.MySQLService
-	(*inventorypb.MongoDBService)(nil),     // 17: inventory.MongoDBService
-	(*timestamp.Timestamp)(nil),            // 18: google.protobuf.Timestamp
-	(DataModel)(0),                         // 19: backup.v1beta1.DataModel
-	(*wrappers.BoolValue)(nil),             // 20: google.protobuf.BoolValue
-	(*wrappers.StringValue)(nil),           // 21: google.protobuf.StringValue
-	(*wrappers.UInt32Value)(nil),           // 22: google.protobuf.UInt32Value
+	(RetryMode)(0),                                 // 0: backup.v1beta1.RetryMode
+	(*StartBackupRequest)(nil),                     // 1: backup.v1beta1.StartBackupRequest
+	(*StartBackupResponse)(nil),                    // 2: backup.v1beta1.StartBackupResponse
+	(*ListArtifactCompatibleServicesRequest)(nil),  // 3: backup.v1beta1.ListArtifactCompatibleServicesRequest
+	(*ListArtifactCompatibleServicesResponse)(nil), // 4: backup.v1beta1.ListArtifactCompatibleServicesResponse
+	(*RestoreBackupRequest)(nil),                   // 5: backup.v1beta1.RestoreBackupRequest
+	(*RestoreBackupResponse)(nil),                  // 6: backup.v1beta1.RestoreBackupResponse
+	(*ScheduledBackup)(nil),                        // 7: backup.v1beta1.ScheduledBackup
+	(*ScheduleBackupRequest)(nil),                  // 8: backup.v1beta1.ScheduleBackupRequest
+	(*ScheduleBackupResponse)(nil),                 // 9: backup.v1beta1.ScheduleBackupResponse
+	(*ListScheduledBackupsRequest)(nil),            // 10: backup.v1beta1.ListScheduledBackupsRequest
+	(*ListScheduledBackupsResponse)(nil),           // 11: backup.v1beta1.ListScheduledBackupsResponse
+	(*ChangeScheduledBackupRequest)(nil),           // 12: backup.v1beta1.ChangeScheduledBackupRequest
+	(*ChangeScheduledBackupResponse)(nil),          // 13: backup.v1beta1.ChangeScheduledBackupResponse
+	(*RemoveScheduledBackupRequest)(nil),           // 14: backup.v1beta1.RemoveScheduledBackupRequest
+	(*RemoveScheduledBackupResponse)(nil),          // 15: backup.v1beta1.RemoveScheduledBackupResponse
+	(*inventorypb.MySQLService)(nil),               // 16: inventory.MySQLService
+	(*inventorypb.MongoDBService)(nil),             // 17: inventory.MongoDBService
+	(*timestamp.Timestamp)(nil),                    // 18: google.protobuf.Timestamp
+	(DataModel)(0),                                 // 19: backup.v1beta1.DataModel
+	(*wrappers.BoolValue)(nil),                     // 20: google.protobuf.BoolValue
+	(*wrappers.StringValue)(nil),                   // 21: google.protobuf.StringValue
+	(*wrappers.UInt32Value)(nil),                   // 22: google.protobuf.UInt32Value
 }
 var file_managementpb_backup_backups_proto_depIdxs = []int32{
-	16, // 0: backup.v1beta1.ListServicesForRestoreResponse.mysql:type_name -> inventory.MySQLService
-	17, // 1: backup.v1beta1.ListServicesForRestoreResponse.mongodb:type_name -> inventory.MongoDBService
+	16, // 0: backup.v1beta1.ListArtifactCompatibleServicesResponse.mysql:type_name -> inventory.MySQLService
+	17, // 1: backup.v1beta1.ListArtifactCompatibleServicesResponse.mongodb:type_name -> inventory.MongoDBService
 	18, // 2: backup.v1beta1.ScheduledBackup.start_time:type_name -> google.protobuf.Timestamp
 	19, // 3: backup.v1beta1.ScheduledBackup.data_model:type_name -> backup.v1beta1.DataModel
 	18, // 4: backup.v1beta1.ScheduledBackup.last_run:type_name -> google.protobuf.Timestamp
@@ -1367,14 +1370,14 @@ var file_managementpb_backup_backups_proto_depIdxs = []int32{
 	21, // 12: backup.v1beta1.ChangeScheduledBackupRequest.description:type_name -> google.protobuf.StringValue
 	22, // 13: backup.v1beta1.ChangeScheduledBackupRequest.retention:type_name -> google.protobuf.UInt32Value
 	1,  // 14: backup.v1beta1.Backups.StartBackup:input_type -> backup.v1beta1.StartBackupRequest
-	3,  // 15: backup.v1beta1.Backups.ListServicesForRestore:input_type -> backup.v1beta1.ListServicesForRestoreRequest
+	3,  // 15: backup.v1beta1.Backups.ListArtifactCompatibleServices:input_type -> backup.v1beta1.ListArtifactCompatibleServicesRequest
 	5,  // 16: backup.v1beta1.Backups.RestoreBackup:input_type -> backup.v1beta1.RestoreBackupRequest
 	8,  // 17: backup.v1beta1.Backups.ScheduleBackup:input_type -> backup.v1beta1.ScheduleBackupRequest
 	10, // 18: backup.v1beta1.Backups.ListScheduledBackups:input_type -> backup.v1beta1.ListScheduledBackupsRequest
 	12, // 19: backup.v1beta1.Backups.ChangeScheduledBackup:input_type -> backup.v1beta1.ChangeScheduledBackupRequest
 	14, // 20: backup.v1beta1.Backups.RemoveScheduledBackup:input_type -> backup.v1beta1.RemoveScheduledBackupRequest
 	2,  // 21: backup.v1beta1.Backups.StartBackup:output_type -> backup.v1beta1.StartBackupResponse
-	4,  // 22: backup.v1beta1.Backups.ListServicesForRestore:output_type -> backup.v1beta1.ListServicesForRestoreResponse
+	4,  // 22: backup.v1beta1.Backups.ListArtifactCompatibleServices:output_type -> backup.v1beta1.ListArtifactCompatibleServicesResponse
 	6,  // 23: backup.v1beta1.Backups.RestoreBackup:output_type -> backup.v1beta1.RestoreBackupResponse
 	9,  // 24: backup.v1beta1.Backups.ScheduleBackup:output_type -> backup.v1beta1.ScheduleBackupResponse
 	11, // 25: backup.v1beta1.Backups.ListScheduledBackups:output_type -> backup.v1beta1.ListScheduledBackupsResponse
@@ -1419,7 +1422,7 @@ func file_managementpb_backup_backups_proto_init() {
 			}
 		}
 		file_managementpb_backup_backups_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ListServicesForRestoreRequest); i {
+			switch v := v.(*ListArtifactCompatibleServicesRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1431,7 +1434,7 @@ func file_managementpb_backup_backups_proto_init() {
 			}
 		}
 		file_managementpb_backup_backups_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ListServicesForRestoreResponse); i {
+			switch v := v.(*ListArtifactCompatibleServicesResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1610,8 +1613,8 @@ const _ = grpc.SupportPackageIsVersion6
 type BackupsClient interface {
 	// StartBackup request backup specified service to location.
 	StartBackup(ctx context.Context, in *StartBackupRequest, opts ...grpc.CallOption) (*StartBackupResponse, error)
-	// ListServicesForRestore lists compatible services for restoring a backup.
-	ListServicesForRestore(ctx context.Context, in *ListServicesForRestoreRequest, opts ...grpc.CallOption) (*ListServicesForRestoreResponse, error)
+	// ListArtifactCompatibleServices lists compatible services for restoring a backup.
+	ListArtifactCompatibleServices(ctx context.Context, in *ListArtifactCompatibleServicesRequest, opts ...grpc.CallOption) (*ListArtifactCompatibleServicesResponse, error)
 	// RestoreBackup requests the backup restore.
 	RestoreBackup(ctx context.Context, in *RestoreBackupRequest, opts ...grpc.CallOption) (*RestoreBackupResponse, error)
 	// ScheduleBackup schedules repeated backup.
@@ -1641,9 +1644,9 @@ func (c *backupsClient) StartBackup(ctx context.Context, in *StartBackupRequest,
 	return out, nil
 }
 
-func (c *backupsClient) ListServicesForRestore(ctx context.Context, in *ListServicesForRestoreRequest, opts ...grpc.CallOption) (*ListServicesForRestoreResponse, error) {
-	out := new(ListServicesForRestoreResponse)
-	err := c.cc.Invoke(ctx, "/backup.v1beta1.Backups/ListServicesForRestore", in, out, opts...)
+func (c *backupsClient) ListArtifactCompatibleServices(ctx context.Context, in *ListArtifactCompatibleServicesRequest, opts ...grpc.CallOption) (*ListArtifactCompatibleServicesResponse, error) {
+	out := new(ListArtifactCompatibleServicesResponse)
+	err := c.cc.Invoke(ctx, "/backup.v1beta1.Backups/ListArtifactCompatibleServices", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1699,8 +1702,8 @@ func (c *backupsClient) RemoveScheduledBackup(ctx context.Context, in *RemoveSch
 type BackupsServer interface {
 	// StartBackup request backup specified service to location.
 	StartBackup(context.Context, *StartBackupRequest) (*StartBackupResponse, error)
-	// ListServicesForRestore lists compatible services for restoring a backup.
-	ListServicesForRestore(context.Context, *ListServicesForRestoreRequest) (*ListServicesForRestoreResponse, error)
+	// ListArtifactCompatibleServices lists compatible services for restoring a backup.
+	ListArtifactCompatibleServices(context.Context, *ListArtifactCompatibleServicesRequest) (*ListArtifactCompatibleServicesResponse, error)
 	// RestoreBackup requests the backup restore.
 	RestoreBackup(context.Context, *RestoreBackupRequest) (*RestoreBackupResponse, error)
 	// ScheduleBackup schedules repeated backup.
@@ -1720,8 +1723,8 @@ type UnimplementedBackupsServer struct {
 func (*UnimplementedBackupsServer) StartBackup(context.Context, *StartBackupRequest) (*StartBackupResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartBackup not implemented")
 }
-func (*UnimplementedBackupsServer) ListServicesForRestore(context.Context, *ListServicesForRestoreRequest) (*ListServicesForRestoreResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListServicesForRestore not implemented")
+func (*UnimplementedBackupsServer) ListArtifactCompatibleServices(context.Context, *ListArtifactCompatibleServicesRequest) (*ListArtifactCompatibleServicesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListArtifactCompatibleServices not implemented")
 }
 func (*UnimplementedBackupsServer) RestoreBackup(context.Context, *RestoreBackupRequest) (*RestoreBackupResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RestoreBackup not implemented")
@@ -1761,20 +1764,20 @@ func _Backups_StartBackup_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Backups_ListServicesForRestore_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListServicesForRestoreRequest)
+func _Backups_ListArtifactCompatibleServices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListArtifactCompatibleServicesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BackupsServer).ListServicesForRestore(ctx, in)
+		return srv.(BackupsServer).ListArtifactCompatibleServices(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/backup.v1beta1.Backups/ListServicesForRestore",
+		FullMethod: "/backup.v1beta1.Backups/ListArtifactCompatibleServices",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BackupsServer).ListServicesForRestore(ctx, req.(*ListServicesForRestoreRequest))
+		return srv.(BackupsServer).ListArtifactCompatibleServices(ctx, req.(*ListArtifactCompatibleServicesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1878,8 +1881,8 @@ var _Backups_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Backups_StartBackup_Handler,
 		},
 		{
-			MethodName: "ListServicesForRestore",
-			Handler:    _Backups_ListServicesForRestore_Handler,
+			MethodName: "ListArtifactCompatibleServices",
+			Handler:    _Backups_ListArtifactCompatibleServices_Handler,
 		},
 		{
 			MethodName: "RestoreBackup",

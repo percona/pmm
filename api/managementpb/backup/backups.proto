@@ -42,7 +42,7 @@ message StartBackupResponse {
   string artifact_id = 1;
 }
 
-message ListServicesForRestoreRequest {
+message ListArtifactCompatibleServicesRequest {
   // Artifact id used to determine restore compatibility.
   string artifact_id = 1 [
     (validator.field) = {
@@ -51,7 +51,7 @@ message ListServicesForRestoreRequest {
   ];
 }
 
-message ListServicesForRestoreResponse {
+message ListArtifactCompatibleServicesResponse {
   repeated inventory.MySQLService mysql = 1;
   repeated inventory.MongoDBService mongodb = 2;
 }
@@ -206,10 +206,10 @@ service Backups {
       body: "*"
     };
   }
-  // ListServicesForRestore lists compatible services for restoring a backup.
-  rpc ListServicesForRestore(ListServicesForRestoreRequest) returns (ListServicesForRestoreResponse) {
+  // ListArtifactCompatibleServices lists compatible services for restoring a backup.
+  rpc ListArtifactCompatibleServices(ListArtifactCompatibleServicesRequest) returns (ListArtifactCompatibleServicesResponse) {
     option (google.api.http) = {
-      post: "/v1/management/backup/Backups/ListServicesForRestore"
+      post: "/v1/management/backup/Backups/ListArtifactCompatibleServices"
       body: "*"
     };
   }

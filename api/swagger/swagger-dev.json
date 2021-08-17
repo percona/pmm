@@ -24983,176 +24983,13 @@
         }
       }
     },
-    "/v1/management/backup/Backups/ListScheduled": {
+    "/v1/management/backup/Backups/ListArtifactCompatibleServices": {
       "post": {
         "tags": [
           "Backups"
         ],
-        "summary": "ListScheduledBackups returns all scheduled backups.",
-        "operationId": "ListScheduledBackups",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "scheduled_backups": {
-                  "type": "array",
-                  "items": {
-                    "description": "ScheduledBackup represents scheduled task for backup.",
-                    "type": "object",
-                    "properties": {
-                      "scheduled_backup_id": {
-                        "description": "Machine-readable ID.",
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "service_id": {
-                        "description": "Machine-readable service ID.",
-                        "type": "string",
-                        "x-order": 1
-                      },
-                      "service_name": {
-                        "description": "Service name.",
-                        "type": "string",
-                        "x-order": 2
-                      },
-                      "location_id": {
-                        "description": "Machine-readable location ID.",
-                        "type": "string",
-                        "x-order": 3
-                      },
-                      "location_name": {
-                        "description": "Location name.",
-                        "type": "string",
-                        "x-order": 4
-                      },
-                      "cron_expression": {
-                        "description": "How often backup will be run in cron format.",
-                        "type": "string",
-                        "x-order": 5
-                      },
-                      "start_time": {
-                        "description": "First backup wouldn't happen before this time.",
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 6
-                      },
-                      "name": {
-                        "description": "Artifact name.",
-                        "type": "string",
-                        "x-order": 7
-                      },
-                      "description": {
-                        "description": "Description.",
-                        "type": "string",
-                        "x-order": 8
-                      },
-                      "enabled": {
-                        "description": "Retry mode.\nRetryMode retry_mode = 10;\nDelay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.\ngoogle.protobuf.Duration retry_interval = 11;\nHow many times to retry a failed backup before giving up.\nuint32 retry_times = 12;\nIf scheduling is enabled.",
-                        "type": "boolean",
-                        "x-order": 9
-                      },
-                      "data_model": {
-                        "description": "DataModel is a model used for performing a backup.",
-                        "type": "string",
-                        "default": "DATA_MODEL_INVALID",
-                        "enum": [
-                          "DATA_MODEL_INVALID",
-                          "PHYSICAL",
-                          "LOGICAL"
-                        ],
-                        "x-order": 10
-                      },
-                      "vendor": {
-                        "description": "Database vendor e.g. PostgreSQL, MongoDB, MySQL.",
-                        "type": "string",
-                        "x-order": 11
-                      },
-                      "last_run": {
-                        "description": "Last run.",
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 12
-                      },
-                      "next_run": {
-                        "description": "Next run.",
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 13
-                      },
-                      "retention": {
-                        "description": "How many artifacts keep. 0 - unlimited.",
-                        "type": "integer",
-                        "format": "int64",
-                        "x-order": 14
-                      }
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 1
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 2
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "type_url": {
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
-                      }
-                    }
-                  },
-                  "x-order": 3
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/management/backup/Backups/ListServicesForRestore": {
-      "post": {
-        "tags": [
-          "Backups"
-        ],
-        "summary": "ListServicesForRestore lists compatible services for restoring a backup.",
-        "operationId": "ListServicesForRestore",
+        "summary": "ListArtifactCompatibleServices lists compatible services for restoring a backup.",
+        "operationId": "ListArtifactCompatibleServices",
         "parameters": [
           {
             "name": "body",
@@ -25303,6 +25140,169 @@
                     }
                   },
                   "x-order": 1
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/backup/Backups/ListScheduled": {
+      "post": {
+        "tags": [
+          "Backups"
+        ],
+        "summary": "ListScheduledBackups returns all scheduled backups.",
+        "operationId": "ListScheduledBackups",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "scheduled_backups": {
+                  "type": "array",
+                  "items": {
+                    "description": "ScheduledBackup represents scheduled task for backup.",
+                    "type": "object",
+                    "properties": {
+                      "scheduled_backup_id": {
+                        "description": "Machine-readable ID.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "service_id": {
+                        "description": "Machine-readable service ID.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "service_name": {
+                        "description": "Service name.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "location_id": {
+                        "description": "Machine-readable location ID.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "location_name": {
+                        "description": "Location name.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "cron_expression": {
+                        "description": "How often backup will be run in cron format.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "start_time": {
+                        "description": "First backup wouldn't happen before this time.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 6
+                      },
+                      "name": {
+                        "description": "Artifact name.",
+                        "type": "string",
+                        "x-order": 7
+                      },
+                      "description": {
+                        "description": "Description.",
+                        "type": "string",
+                        "x-order": 8
+                      },
+                      "enabled": {
+                        "description": "Retry mode.\nRetryMode retry_mode = 10;\nDelay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.\ngoogle.protobuf.Duration retry_interval = 11;\nHow many times to retry a failed backup before giving up.\nuint32 retry_times = 12;\nIf scheduling is enabled.",
+                        "type": "boolean",
+                        "x-order": 9
+                      },
+                      "data_model": {
+                        "description": "DataModel is a model used for performing a backup.",
+                        "type": "string",
+                        "default": "DATA_MODEL_INVALID",
+                        "enum": [
+                          "DATA_MODEL_INVALID",
+                          "PHYSICAL",
+                          "LOGICAL"
+                        ],
+                        "x-order": 10
+                      },
+                      "vendor": {
+                        "description": "Database vendor e.g. PostgreSQL, MongoDB, MySQL.",
+                        "type": "string",
+                        "x-order": 11
+                      },
+                      "last_run": {
+                        "description": "Last run.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 12
+                      },
+                      "next_run": {
+                        "description": "Next run.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 13
+                      },
+                      "retention": {
+                        "description": "How many artifacts keep. 0 - unlimited.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 14
+                      }
+                    }
+                  },
+                  "x-order": 0
                 }
               }
             }

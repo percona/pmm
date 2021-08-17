@@ -32,13 +32,13 @@ func (this *StartBackupRequest) Validate() error {
 func (this *StartBackupResponse) Validate() error {
 	return nil
 }
-func (this *ListServicesForRestoreRequest) Validate() error {
+func (this *ListArtifactCompatibleServicesRequest) Validate() error {
 	if this.ArtifactId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ArtifactId", fmt.Errorf(`value '%v' must not be an empty string`, this.ArtifactId))
 	}
 	return nil
 }
-func (this *ListServicesForRestoreResponse) Validate() error {
+func (this *ListArtifactCompatibleServicesResponse) Validate() error {
 	for _, item := range this.Mysql {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {

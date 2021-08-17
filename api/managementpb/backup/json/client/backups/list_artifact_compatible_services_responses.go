@@ -16,22 +16,22 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// ListServicesForRestoreReader is a Reader for the ListServicesForRestore structure.
-type ListServicesForRestoreReader struct {
+// ListArtifactCompatibleServicesReader is a Reader for the ListArtifactCompatibleServices structure.
+type ListArtifactCompatibleServicesReader struct {
 	formats strfmt.Registry
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ListServicesForRestoreReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ListArtifactCompatibleServicesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 	case 200:
-		result := NewListServicesForRestoreOK()
+		result := NewListArtifactCompatibleServicesOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
 	default:
-		result := NewListServicesForRestoreDefault(response.Code())
+		result := NewListArtifactCompatibleServicesDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
@@ -42,30 +42,30 @@ func (o *ListServicesForRestoreReader) ReadResponse(response runtime.ClientRespo
 	}
 }
 
-// NewListServicesForRestoreOK creates a ListServicesForRestoreOK with default headers values
-func NewListServicesForRestoreOK() *ListServicesForRestoreOK {
-	return &ListServicesForRestoreOK{}
+// NewListArtifactCompatibleServicesOK creates a ListArtifactCompatibleServicesOK with default headers values
+func NewListArtifactCompatibleServicesOK() *ListArtifactCompatibleServicesOK {
+	return &ListArtifactCompatibleServicesOK{}
 }
 
-/*ListServicesForRestoreOK handles this case with default header values.
+/*ListArtifactCompatibleServicesOK handles this case with default header values.
 
 A successful response.
 */
-type ListServicesForRestoreOK struct {
-	Payload *ListServicesForRestoreOKBody
+type ListArtifactCompatibleServicesOK struct {
+	Payload *ListArtifactCompatibleServicesOKBody
 }
 
-func (o *ListServicesForRestoreOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/backup/Backups/ListServicesForRestore][%d] listServicesForRestoreOk  %+v", 200, o.Payload)
+func (o *ListArtifactCompatibleServicesOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/backup/Backups/ListArtifactCompatibleServices][%d] listArtifactCompatibleServicesOk  %+v", 200, o.Payload)
 }
 
-func (o *ListServicesForRestoreOK) GetPayload() *ListServicesForRestoreOKBody {
+func (o *ListArtifactCompatibleServicesOK) GetPayload() *ListArtifactCompatibleServicesOKBody {
 	return o.Payload
 }
 
-func (o *ListServicesForRestoreOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *ListArtifactCompatibleServicesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(ListServicesForRestoreOKBody)
+	o.Payload = new(ListArtifactCompatibleServicesOKBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -75,39 +75,39 @@ func (o *ListServicesForRestoreOK) readResponse(response runtime.ClientResponse,
 	return nil
 }
 
-// NewListServicesForRestoreDefault creates a ListServicesForRestoreDefault with default headers values
-func NewListServicesForRestoreDefault(code int) *ListServicesForRestoreDefault {
-	return &ListServicesForRestoreDefault{
+// NewListArtifactCompatibleServicesDefault creates a ListArtifactCompatibleServicesDefault with default headers values
+func NewListArtifactCompatibleServicesDefault(code int) *ListArtifactCompatibleServicesDefault {
+	return &ListArtifactCompatibleServicesDefault{
 		_statusCode: code,
 	}
 }
 
-/*ListServicesForRestoreDefault handles this case with default header values.
+/*ListArtifactCompatibleServicesDefault handles this case with default header values.
 
 An unexpected error response.
 */
-type ListServicesForRestoreDefault struct {
+type ListArtifactCompatibleServicesDefault struct {
 	_statusCode int
 
-	Payload *ListServicesForRestoreDefaultBody
+	Payload *ListArtifactCompatibleServicesDefaultBody
 }
 
-// Code gets the status code for the list services for restore default response
-func (o *ListServicesForRestoreDefault) Code() int {
+// Code gets the status code for the list artifact compatible services default response
+func (o *ListArtifactCompatibleServicesDefault) Code() int {
 	return o._statusCode
 }
 
-func (o *ListServicesForRestoreDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/backup/Backups/ListServicesForRestore][%d] ListServicesForRestore default  %+v", o._statusCode, o.Payload)
+func (o *ListArtifactCompatibleServicesDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/backup/Backups/ListArtifactCompatibleServices][%d] ListArtifactCompatibleServices default  %+v", o._statusCode, o.Payload)
 }
 
-func (o *ListServicesForRestoreDefault) GetPayload() *ListServicesForRestoreDefaultBody {
+func (o *ListArtifactCompatibleServicesDefault) GetPayload() *ListArtifactCompatibleServicesDefaultBody {
 	return o.Payload
 }
 
-func (o *ListServicesForRestoreDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *ListArtifactCompatibleServicesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(ListServicesForRestoreDefaultBody)
+	o.Payload = new(ListArtifactCompatibleServicesDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -117,22 +117,22 @@ func (o *ListServicesForRestoreDefault) readResponse(response runtime.ClientResp
 	return nil
 }
 
-/*ListServicesForRestoreBody list services for restore body
-swagger:model ListServicesForRestoreBody
+/*ListArtifactCompatibleServicesBody list artifact compatible services body
+swagger:model ListArtifactCompatibleServicesBody
 */
-type ListServicesForRestoreBody struct {
+type ListArtifactCompatibleServicesBody struct {
 
 	// Artifact id used to determine restore compatibility.
 	ArtifactID string `json:"artifact_id,omitempty"`
 }
 
-// Validate validates this list services for restore body
-func (o *ListServicesForRestoreBody) Validate(formats strfmt.Registry) error {
+// Validate validates this list artifact compatible services body
+func (o *ListArtifactCompatibleServicesBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *ListServicesForRestoreBody) MarshalBinary() ([]byte, error) {
+func (o *ListArtifactCompatibleServicesBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -140,8 +140,8 @@ func (o *ListServicesForRestoreBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *ListServicesForRestoreBody) UnmarshalBinary(b []byte) error {
-	var res ListServicesForRestoreBody
+func (o *ListArtifactCompatibleServicesBody) UnmarshalBinary(b []byte) error {
+	var res ListArtifactCompatibleServicesBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -149,10 +149,10 @@ func (o *ListServicesForRestoreBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListServicesForRestoreDefaultBody list services for restore default body
-swagger:model ListServicesForRestoreDefaultBody
+/*ListArtifactCompatibleServicesDefaultBody list artifact compatible services default body
+swagger:model ListArtifactCompatibleServicesDefaultBody
 */
-type ListServicesForRestoreDefaultBody struct {
+type ListArtifactCompatibleServicesDefaultBody struct {
 
 	// error
 	Error string `json:"error,omitempty"`
@@ -167,8 +167,8 @@ type ListServicesForRestoreDefaultBody struct {
 	Details []*DetailsItems0 `json:"details"`
 }
 
-// Validate validates this list services for restore default body
-func (o *ListServicesForRestoreDefaultBody) Validate(formats strfmt.Registry) error {
+// Validate validates this list artifact compatible services default body
+func (o *ListArtifactCompatibleServicesDefaultBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateDetails(formats); err != nil {
@@ -181,7 +181,7 @@ func (o *ListServicesForRestoreDefaultBody) Validate(formats strfmt.Registry) er
 	return nil
 }
 
-func (o *ListServicesForRestoreDefaultBody) validateDetails(formats strfmt.Registry) error {
+func (o *ListArtifactCompatibleServicesDefaultBody) validateDetails(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Details) { // not required
 		return nil
@@ -195,7 +195,7 @@ func (o *ListServicesForRestoreDefaultBody) validateDetails(formats strfmt.Regis
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("ListServicesForRestore default" + "." + "details" + "." + strconv.Itoa(i))
+					return ve.ValidateName("ListArtifactCompatibleServices default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -207,7 +207,7 @@ func (o *ListServicesForRestoreDefaultBody) validateDetails(formats strfmt.Regis
 }
 
 // MarshalBinary interface implementation
-func (o *ListServicesForRestoreDefaultBody) MarshalBinary() ([]byte, error) {
+func (o *ListArtifactCompatibleServicesDefaultBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -215,8 +215,8 @@ func (o *ListServicesForRestoreDefaultBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *ListServicesForRestoreDefaultBody) UnmarshalBinary(b []byte) error {
-	var res ListServicesForRestoreDefaultBody
+func (o *ListArtifactCompatibleServicesDefaultBody) UnmarshalBinary(b []byte) error {
+	var res ListArtifactCompatibleServicesDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -224,10 +224,10 @@ func (o *ListServicesForRestoreDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListServicesForRestoreOKBody list services for restore OK body
-swagger:model ListServicesForRestoreOKBody
+/*ListArtifactCompatibleServicesOKBody list artifact compatible services OK body
+swagger:model ListArtifactCompatibleServicesOKBody
 */
-type ListServicesForRestoreOKBody struct {
+type ListArtifactCompatibleServicesOKBody struct {
 
 	// mysql
 	Mysql []*MysqlItems0 `json:"mysql"`
@@ -236,8 +236,8 @@ type ListServicesForRestoreOKBody struct {
 	Mongodb []*MongodbItems0 `json:"mongodb"`
 }
 
-// Validate validates this list services for restore OK body
-func (o *ListServicesForRestoreOKBody) Validate(formats strfmt.Registry) error {
+// Validate validates this list artifact compatible services OK body
+func (o *ListArtifactCompatibleServicesOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateMysql(formats); err != nil {
@@ -254,7 +254,7 @@ func (o *ListServicesForRestoreOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *ListServicesForRestoreOKBody) validateMysql(formats strfmt.Registry) error {
+func (o *ListArtifactCompatibleServicesOKBody) validateMysql(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Mysql) { // not required
 		return nil
@@ -268,7 +268,7 @@ func (o *ListServicesForRestoreOKBody) validateMysql(formats strfmt.Registry) er
 		if o.Mysql[i] != nil {
 			if err := o.Mysql[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listServicesForRestoreOk" + "." + "mysql" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listArtifactCompatibleServicesOk" + "." + "mysql" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -279,7 +279,7 @@ func (o *ListServicesForRestoreOKBody) validateMysql(formats strfmt.Registry) er
 	return nil
 }
 
-func (o *ListServicesForRestoreOKBody) validateMongodb(formats strfmt.Registry) error {
+func (o *ListArtifactCompatibleServicesOKBody) validateMongodb(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Mongodb) { // not required
 		return nil
@@ -293,7 +293,7 @@ func (o *ListServicesForRestoreOKBody) validateMongodb(formats strfmt.Registry) 
 		if o.Mongodb[i] != nil {
 			if err := o.Mongodb[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listServicesForRestoreOk" + "." + "mongodb" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listArtifactCompatibleServicesOk" + "." + "mongodb" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -305,7 +305,7 @@ func (o *ListServicesForRestoreOKBody) validateMongodb(formats strfmt.Registry) 
 }
 
 // MarshalBinary interface implementation
-func (o *ListServicesForRestoreOKBody) MarshalBinary() ([]byte, error) {
+func (o *ListArtifactCompatibleServicesOKBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -313,8 +313,8 @@ func (o *ListServicesForRestoreOKBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *ListServicesForRestoreOKBody) UnmarshalBinary(b []byte) error {
-	var res ListServicesForRestoreOKBody
+func (o *ListArtifactCompatibleServicesOKBody) UnmarshalBinary(b []byte) error {
+	var res ListArtifactCompatibleServicesOKBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
