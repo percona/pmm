@@ -1,0 +1,66 @@
+// pmm-managed
+// Copyright (C) 2017 Percona LLC
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+package action
+
+import (
+	"context"
+	"testing"
+	"time"
+
+	"github.com/percona/pmm/api/managementpb/json/client"
+	"github.com/percona/pmm/api/managementpb/json/client/actions"
+	"github.com/stretchr/testify/require"
+
+	pmmapitests "github.com/percona/pmm-managed/api-tests"
+)
+
+func TestPTSummary(t *testing.T) {
+	ctx, cancel := context.WithTimeout(pmmapitests.Context, 30*time.Second)
+	defer cancel()
+
+	explainActionOK, err := client.Default.Actions.StartPTSummaryAction(&actions.StartPTSummaryActionParams{
+		Context: ctx,
+		Body: actions.StartPTSummaryActionBody{
+			NodeID: "pmm-server",
+		},
+	})
+	require.NoError(t, err)
+	require.NotEmpty(t, explainActionOK.Payload.ActionID)
+
+	for {
+		actionOK, err := client.Default.Actions.GetAction(&actions.GetActionParams{
+			Context: ctx,
+			Body: actions.GetActionBody{
+				ActionID: explainActionOK.Payload.ActionID,
+			},
+		})
+		require.NoError(t, err)
+
+		if !actionOK.Payload.Done {
+			time.Sleep(1 * time.Second)
+
+			continue
+		}
+
+		require.True(t, actionOK.Payload.Done)
+		require.Empty(t, actionOK.Payload.Error)
+		require.NotEmpty(t, actionOK.Payload.Output)
+		t.Log(actionOK.Payload.Output)
+
+		break
+	}
+}

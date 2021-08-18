@@ -5,6 +5,8 @@ on:
     # run every Sunday to re-populate caches after they are cleaned on Saturday
     - cron: "0 12 * * 0"
   push:
+    paths-ignore:
+      - 'api-tests/**'
     branches:
       - PMM-2.0
       - release-*

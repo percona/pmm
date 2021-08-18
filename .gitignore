@@ -1,8 +1,12 @@
-/.idea/
-/.vscode/
-/bin/
+.idea/
+.vscode/
+bin/
 fuzzdata/
 cover.out
 crosscover.out
 packages.png
 *.zip
+*.test
+pmm-api-tests-output.txt
+pmm-api-tests-junit-report.xml
+
