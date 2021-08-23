@@ -74,9 +74,6 @@ To discover an Amazon RDS DB instance in PMM, you either need to use the access 
 
 To create the access key, open the *Security credentials* tab and click the *Create access key* button. The system automatically generates a new access key ID and a secret access key that you can provide on the *PMM Add Instance* dashboard to have your Amazon RDS DB instances discovered.
 
-!!! hint alert alert-success "Tip"
-    You may use an IAM role instead of IAM user provided your Amazon RDS DB instances are associated with the same AWS account as PMM.
-
 In case, the PMM Server and Amazon RDS DB instance were created by using the same AWS account, you do not need create the access key ID and secret access key manually. PMM retrieves this information automatically and attempts to discover your Amazon RDS DB instances.
 
 ## Attaching a policy to an IAM user
@@ -98,6 +95,35 @@ First, make sure that the Identity and Access Management page is open and open *
 The `AmazonRDSforPMMPolicy` is now added to your IAM user.
 
 ![!image](../../_images/aws.iam.add-permissions.png)
+
+## Creating an IAM role
+
+Instead of creating an IAM user you can create an IAM role for a service, to discover Amazon RDS DB instances automatically without the need for access and secret keys. (But this only works if you are running PMM through AWS.)
+
+To create an IAM role open the IAM console and click *Roles* on the navigation pane.
+
+1. Click the *Create role* button.
+
+2. Select *AWS service* and select *EC2* for the use case.
+
+3. Click the *Next: Permissions* button.
+
+4. Find the policy created previously and select it.
+
+5. Click the *Next: Tags* button.
+
+6. (Optional) Add a metadata tag to the role.
+
+7. Click the *Next: Review* button.
+
+8. Fill the role name and description.
+
+9. Click the *Create role* button
+
+After the role is created EC2 instances running PMM will have permissions to discover RDS DB instances.
+
+!!! note alert alert-primary ""
+    It’s also possible to create an IAM role to delegate permissions to an IAM user or to add permissions to a user belonging to another AWS account. See the [official AWS documentation on creating IAM roles](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create.html).
 
 ## Setting up the Amazon RDS DB Instance
 
@@ -138,7 +164,7 @@ The following steps are needed to add an Amazon RDS database instance to PMM:
 
     ![!image](../../_images/PMM_Add_Instance_AWS_RDS.jpg)
 
-3. Enter the access key ID and the secret access key of your IAM user.
+3. Enter the access key ID and the secret access key of your IAM user or leave these fields empty if an IAM role was created.
 
 4. Click the *Discover* button for PMM to retrieve the available Amazon RDS
 instances.
