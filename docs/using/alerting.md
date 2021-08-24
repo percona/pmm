@@ -15,7 +15,7 @@
     - [Add an alert rule](#add-an-alert-rule) (based on a built-in alert rule template)
     - (Optional) [Create your own alert rule template](#add-an-alert-rule-template)
 
-This short video (3m 36s) shows how to activate and configure Integrated Alerting.
+This short video shows how to activate and configure Integrated Alerting.
 
 <video width="100%" controls>
   <source src="../_images/Integrated-Alerting.mp4" type="video/mp4">
