@@ -629,6 +629,13 @@ func (this *JobProgress) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetResult().(*JobProgress_Logs_); ok {
+		if oneOfNester.Logs != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Logs); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Logs", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *JobProgress_Echo) Validate() error {
@@ -638,6 +645,9 @@ func (this *JobProgress_MySQLBackup) Validate() error {
 	return nil
 }
 func (this *JobProgress_MySQLRestoreBackup) Validate() error {
+	return nil
+}
+func (this *JobProgress_Logs) Validate() error {
 	return nil
 }
 func (this *GetVersionsRequest) Validate() error {
