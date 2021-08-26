@@ -78,7 +78,6 @@ type grafanaClient interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type jobsService interface {
 	StopJob(jobID string) error
-	StartEchoJob(id, pmmAgentID string, timeout time.Duration, message string, delay time.Duration) error
 }
 
 // connectionChecker is a subset of methods of agents.ConnectionCheck.

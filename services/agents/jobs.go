@@ -18,58 +18,271 @@
 package agents
 
 import (
+	"context"
 	"time"
 
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
 )
 
+// ErrRetriesExhausted is returned when remaining retries are 0.
+var ErrRetriesExhausted = errors.New("retries exhausted")
+
+const (
+	maxRestartInterval = 8 * time.Hour
+)
+
 // JobsService provides methods for managing jobs.
 type JobsService struct {
 	r  *Registry
 	db *reform.DB
+
+	retentionService retentionService
+	l                *logrus.Entry
 }
 
 // NewJobsService returns new jobs service.
-func NewJobsService(db *reform.DB, registry *Registry) *JobsService {
+func NewJobsService(db *reform.DB, registry *Registry, retention retentionService) *JobsService {
 	return &JobsService{
-		r:  registry,
-		db: db,
+		db:               db,
+		r:                registry,
+		retentionService: retention,
+		l:                logrus.WithField("component", "agents/jobsService"),
 	}
 }
 
-// StartEchoJob starts echo job on the pmm-agent.
-func (s *JobsService) StartEchoJob(jobID, pmmAgentID string, timeout time.Duration, message string, delay time.Duration) error {
-	req := &agentpb.StartJobRequest{
-		JobId:   jobID,
-		Timeout: durationpb.New(timeout),
-		Job: &agentpb.StartJobRequest_Echo_{
-			Echo: &agentpb.StartJobRequest_Echo{
-				Message: message,
-				Delay:   durationpb.New(delay),
-			},
-		},
+func (s *JobsService) RestartJob(ctx context.Context, jobID string) error {
+	var job *models.Job
+	var artifact *models.Artifact
+	var location *models.BackupLocation
+	var locationConfig *models.BackupLocationConfig
+	var dbConfig *models.DBConfig
+	errTx := s.db.InTransaction(func(tx *reform.TX) error {
+		var err error
+		job, err = models.FindJobByID(tx.Querier, jobID)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+
+		if job.Retries == 0 {
+			return ErrRetriesExhausted
+		}
+
+		job.Retries--
+		if err = tx.Update(job); err != nil {
+			return err
+		}
+
+		switch job.Type {
+		case models.MySQLBackupJob:
+			artifact, err = models.FindArtifactByID(tx.Querier, job.Data.MySQLBackup.ArtifactID)
+			if err != nil {
+				return errors.WithStack(err)
+			}
+
+			location, err = models.FindBackupLocationByID(tx.Querier, artifact.LocationID)
+			if err != nil {
+				return errors.WithStack(err)
+			}
+			dbConfig, err = models.FindDBConfigForService(tx.Querier, job.Data.MySQLBackup.ServiceID)
+			if err != nil {
+				return errors.WithStack(err)
+			}
+		case models.MongoDBBackupJob:
+			artifact, err = models.FindArtifactByID(tx.Querier, job.Data.MongoDBBackup.ArtifactID)
+			if err != nil {
+				return errors.WithStack(err)
+			}
+
+			location, err = models.FindBackupLocationByID(tx.Querier, artifact.LocationID)
+			if err != nil {
+				return errors.WithStack(err)
+			}
+
+			dbConfig, err = models.FindDBConfigForService(tx.Querier, job.Data.MongoDBBackup.ServiceID)
+			if err != nil {
+				return errors.WithStack(err)
+			}
+
+		case models.MySQLRestoreBackupJob, models.MongoDBRestoreBackupJob:
+			fallthrough
+		default:
+			return errors.Errorf("job type %v can't be restarted", job.Type)
+		}
+
+		return nil
+	})
+	if errTx != nil {
+		return errTx
 	}
 
-	agent, err := s.r.get(pmmAgentID)
-	if err != nil {
-		return err
+	if location != nil {
+		locationConfig = &models.BackupLocationConfig{
+			PMMServerConfig: location.PMMServerConfig,
+			PMMClientConfig: location.PMMClientConfig,
+			S3Config:        location.S3Config,
+		}
 	}
 
-	resp, err := agent.channel.SendAndWaitResponse(req)
-	if err != nil {
-		return err
+	s.l.Debugf("restarting job: %s, delay: %v", jobID, job.Interval)
+
+	select {
+	case <-time.After(job.Interval):
+	case <-ctx.Done():
+		return ctx.Err()
 	}
 
-	if e := resp.(*agentpb.StartJobResponse).Error; e != "" {
-		return errors.Errorf("failed to start echo job: %s", e)
+	switch job.Type {
+	case models.MySQLBackupJob:
+		if err := s.StartMySQLBackupJob(job.ID, job.PMMAgentID, job.Timeout, artifact.Name, dbConfig, locationConfig); err != nil {
+			return errors.WithStack(err)
+		}
+	case models.MongoDBBackupJob:
+		if err := s.StartMongoDBBackupJob(job.ID, job.PMMAgentID, job.Timeout, artifact.Name, dbConfig, locationConfig); err != nil {
+			return errors.WithStack(err)
+		}
+	case models.MySQLRestoreBackupJob:
+	case models.MongoDBRestoreBackupJob:
 	}
 
 	return nil
+}
+
+func (s *JobsService) handleJobResult(ctx context.Context, l *logrus.Entry, result *agentpb.JobResult) {
+	var scheduleID string
+	if errTx := s.db.InTransaction(func(t *reform.TX) error {
+		job, err := models.FindJobByID(t.Querier, result.JobId)
+		if err != nil {
+			return err
+		}
+
+		switch result := result.Result.(type) {
+		case *agentpb.JobResult_Error_:
+			if err := s.handleJobError(job); err != nil {
+				l.Errorf("failed to handle job error: %s", err)
+			}
+			job.Error = result.Error.Message
+		case *agentpb.JobResult_MysqlBackup:
+			if job.Type != models.MySQLBackupJob {
+				return errors.Errorf("result type %s doesn't match job type %s", models.MySQLBackupJob, job.Type)
+			}
+
+			artifact, err := models.UpdateArtifact(t.Querier, job.Data.MySQLBackup.ArtifactID, models.UpdateArtifactParams{
+				Status: models.BackupStatusPointer(models.SuccessBackupStatus),
+			})
+			if err != nil {
+				return err
+			}
+
+			if artifact.Type == models.ScheduledArtifactType {
+				scheduleID = artifact.ScheduleID
+			}
+		case *agentpb.JobResult_MongodbBackup:
+			if job.Type != models.MongoDBBackupJob {
+				return errors.Errorf("result type %s doesn't match job type %s", models.MongoDBBackupJob, job.Type)
+			}
+
+			artifact, err := models.UpdateArtifact(t.Querier, job.Data.MongoDBBackup.ArtifactID, models.UpdateArtifactParams{
+				Status: models.BackupStatusPointer(models.SuccessBackupStatus),
+			})
+			if err != nil {
+				return err
+			}
+
+			if artifact.Type == models.ScheduledArtifactType {
+				scheduleID = artifact.ScheduleID
+			}
+		case *agentpb.JobResult_MysqlRestoreBackup:
+			if job.Type != models.MySQLRestoreBackupJob {
+				return errors.Errorf("result type %s doesn't match job type %s", models.MySQLRestoreBackupJob, job.Type)
+			}
+
+			_, err := models.ChangeRestoreHistoryItem(
+				t.Querier,
+				job.Data.MySQLRestoreBackup.RestoreID,
+				models.ChangeRestoreHistoryItemParams{
+					Status: models.SuccessRestoreStatus,
+				})
+			if err != nil {
+				return err
+			}
+
+		case *agentpb.JobResult_MongodbRestoreBackup:
+			if job.Type != models.MongoDBRestoreBackupJob {
+				return errors.Errorf("result type %s doesn't match job type %s", models.MongoDBRestoreBackupJob, job.Type)
+			}
+
+			_, err := models.ChangeRestoreHistoryItem(
+				t.Querier,
+				job.Data.MongoDBRestoreBackup.RestoreID,
+				models.ChangeRestoreHistoryItemParams{
+					Status: models.SuccessRestoreStatus,
+				})
+			if err != nil {
+				return err
+			}
+		default:
+			return errors.Errorf("unexpected job result type: %T", result)
+		}
+		job.Done = true
+		return t.Update(job)
+	}); errTx != nil {
+		l.Errorf("Failed to save job result: %+v", errTx)
+	}
+
+	if scheduleID != "" {
+		go func() {
+			if err := s.retentionService.EnforceRetention(context.Background(), scheduleID); err != nil {
+				l.Errorf("failed to enforce retention: %v", err)
+			}
+		}()
+	}
+}
+
+func (s *JobsService) handleJobError(job *models.Job) error {
+	var err error
+	switch job.Type {
+	case models.MySQLBackupJob:
+		_, err = models.UpdateArtifact(s.db.Querier, job.Data.MySQLBackup.ArtifactID, models.UpdateArtifactParams{
+			Status: models.BackupStatusPointer(models.ErrorBackupStatus),
+		})
+	case models.MongoDBBackupJob:
+		_, err = models.UpdateArtifact(s.db.Querier, job.Data.MongoDBBackup.ArtifactID, models.UpdateArtifactParams{
+			Status: models.BackupStatusPointer(models.ErrorBackupStatus),
+		})
+	case models.MySQLRestoreBackupJob:
+		_, err = models.ChangeRestoreHistoryItem(
+			s.db.Querier,
+			job.Data.MySQLRestoreBackup.RestoreID,
+			models.ChangeRestoreHistoryItemParams{
+				Status: models.ErrorRestoreStatus,
+			})
+	case models.MongoDBRestoreBackupJob:
+		_, err = models.ChangeRestoreHistoryItem(
+			s.db.Querier,
+			job.Data.MongoDBRestoreBackup.RestoreID,
+			models.ChangeRestoreHistoryItemParams{
+				Status: models.ErrorRestoreStatus,
+			})
+	default:
+		// Don't do anything without explicit handling
+	}
+
+	go func() {
+		restartCtx, cancel := context.WithTimeout(context.Background(), maxRestartInterval)
+		defer cancel()
+		restartErr := s.RestartJob(restartCtx, job.ID)
+		if restartErr != nil && restartErr != ErrRetriesExhausted {
+			s.l.Errorf("restart job %s: %v", job.ID, restartErr)
+		}
+	}()
+
+	return err
 }
 
 // StartMySQLBackupJob starts mysql backup job on the pmm-agent.
@@ -261,7 +474,7 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 
 // StopJob stops job with given given id.
 func (s *JobsService) StopJob(jobID string) error {
-	jobResult, err := models.FindJobResultByID(s.db.Querier, jobID)
+	jobResult, err := models.FindJobByID(s.db.Querier, jobID)
 	if err != nil {
 		return errors.WithStack(err)
 	}

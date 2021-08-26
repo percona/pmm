@@ -16,10 +16,14 @@
 
 package scheduler
 
-import "context"
+import (
+	"context"
+
+	"github.com/percona/pmm-managed/services/backup"
+)
 
 //go:generate mockery -name=backupService -case=snake -inpkg -testonly
 
 type backupService interface {
-	PerformBackup(ctx context.Context, serviceID, locationID, name, scheduleID string) (string, error)
+	PerformBackup(ctx context.Context, params backup.PerformBackupParams) (string, error)
 }

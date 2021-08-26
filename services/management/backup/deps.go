@@ -20,6 +20,7 @@ import (
 	"context"
 
 	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm-managed/services/backup"
 	"github.com/percona/pmm-managed/services/scheduler"
 )
 
@@ -35,7 +36,7 @@ type awsS3 interface {
 }
 
 type backupService interface {
-	PerformBackup(ctx context.Context, serviceID, locationID, name, scheduleID string) (string, error)
+	PerformBackup(ctx context.Context, params backup.PerformBackupParams) (string, error)
 	RestoreBackup(ctx context.Context, serviceID, artifactID string) (string, error)
 }
 

@@ -25,7 +25,6 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -38,24 +37,24 @@ import (
 
 // Handler handles agent requests.
 type Handler struct {
-	db               *reform.DB
-	r                *Registry
-	vmdb             prometheusService
-	qanClient        qanClient
-	state            *StateUpdater
-	retentionService retentionService
+	db          *reform.DB
+	r           *Registry
+	vmdb        prometheusService
+	qanClient   qanClient
+	state       *StateUpdater
+	jobsService jobsService
 }
 
 // NewHandler creates new agents handler.
 func NewHandler(db *reform.DB, qanClient qanClient, vmdb prometheusService, registry *Registry, state *StateUpdater,
-	retention retentionService) *Handler {
+	jobsService jobsService) *Handler {
 	h := &Handler{
-		db:               db,
-		r:                registry,
-		vmdb:             vmdb,
-		qanClient:        qanClient,
-		state:            state,
-		retentionService: retention,
+		db:          db,
+		r:           registry,
+		vmdb:        vmdb,
+		qanClient:   qanClient,
+		state:       state,
+		jobsService: jobsService,
 	}
 	return h
 
@@ -160,7 +159,7 @@ func (h *Handler) Run(stream agentpb.Agent_ConnectServer) error {
 				})
 
 			case *agentpb.JobResult:
-				h.handleJobResult(ctx, l, p)
+				h.jobsService.handleJobResult(ctx, l, p)
 			case *agentpb.JobProgress:
 				// TODO Handle job progress messages https://jira.percona.com/browse/PMM-7756
 
@@ -169,139 +168,6 @@ func (h *Handler) Run(stream agentpb.Agent_ConnectServer) error {
 			}
 		}
 	}
-}
-
-func (h *Handler) handleJobResult(ctx context.Context, l *logrus.Entry, result *agentpb.JobResult) {
-	var scheduleID string
-	if e := h.db.InTransaction(func(t *reform.TX) error {
-		res, err := models.FindJobResultByID(t.Querier, result.JobId)
-		if err != nil {
-			return err
-		}
-
-		switch result := result.Result.(type) {
-		case *agentpb.JobResult_Error_:
-			if err := h.handleJobError(res); err != nil {
-				l.Errorf("failed to handle job error: %s", err)
-			}
-			res.Error = result.Error.Message
-		case *agentpb.JobResult_Echo_:
-			if res.Type != models.Echo {
-				return errors.Errorf("result type echo doesn't match job type %s", res.Type)
-			}
-			res.Result = &models.JobResultData{
-				Echo: &models.EchoJobResult{
-					Message: result.Echo.Message,
-				},
-			}
-		case *agentpb.JobResult_MysqlBackup:
-			if res.Type != models.MySQLBackupJob {
-				return errors.Errorf("result type %s doesn't match job type %s", models.MySQLBackupJob, res.Type)
-			}
-
-			artifact, err := models.UpdateArtifact(t.Querier, res.Result.MySQLBackup.ArtifactID, models.UpdateArtifactParams{
-				Status: models.BackupStatusPointer(models.SuccessBackupStatus),
-			})
-			if err != nil {
-				return err
-			}
-
-			if artifact.Type == models.ScheduledArtifactType {
-				scheduleID = artifact.ScheduleID
-			}
-		case *agentpb.JobResult_MongodbBackup:
-			if res.Type != models.MongoDBBackupJob {
-				return errors.Errorf("result type %s doesn't match job type %s", models.MongoDBBackupJob, res.Type)
-			}
-
-			artifact, err := models.UpdateArtifact(t.Querier, res.Result.MongoDBBackup.ArtifactID, models.UpdateArtifactParams{
-				Status: models.BackupStatusPointer(models.SuccessBackupStatus),
-			})
-			if err != nil {
-				return err
-			}
-
-			if artifact.Type == models.ScheduledArtifactType {
-				scheduleID = artifact.ScheduleID
-			}
-		case *agentpb.JobResult_MysqlRestoreBackup:
-			if res.Type != models.MySQLRestoreBackupJob {
-				return errors.Errorf("result type %s doesn't match job type %s", models.MySQLRestoreBackupJob, res.Type)
-			}
-
-			_, err := models.ChangeRestoreHistoryItem(
-				t.Querier,
-				res.Result.MySQLRestoreBackup.RestoreID,
-				models.ChangeRestoreHistoryItemParams{
-					Status: models.SuccessRestoreStatus,
-				})
-			if err != nil {
-				return err
-			}
-
-		case *agentpb.JobResult_MongodbRestoreBackup:
-			if res.Type != models.MongoDBRestoreBackupJob {
-				return errors.Errorf("result type %s doesn't match job type %s", models.MongoDBRestoreBackupJob, res.Type)
-			}
-
-			_, err := models.ChangeRestoreHistoryItem(
-				t.Querier,
-				res.Result.MongoDBRestoreBackup.RestoreID,
-				models.ChangeRestoreHistoryItemParams{
-					Status: models.SuccessRestoreStatus,
-				})
-			if err != nil {
-				return err
-			}
-		default:
-			return errors.Errorf("unexpected job result type: %T", result)
-		}
-		res.Done = true
-		return t.Update(res)
-	}); e != nil {
-		l.Errorf("Failed to save job result: %+v", e)
-	}
-
-	if scheduleID != "" {
-		go func() {
-			if err := h.retentionService.EnforceRetention(context.Background(), scheduleID); err != nil {
-				l.Errorf("failed to enforce retention: %v", err)
-			}
-		}()
-	}
-}
-
-func (h *Handler) handleJobError(jobResult *models.JobResult) error {
-	var err error
-	switch jobResult.Type {
-	case models.Echo:
-		// nothing
-	case models.MySQLBackupJob:
-		_, err = models.UpdateArtifact(h.db.Querier, jobResult.Result.MySQLBackup.ArtifactID, models.UpdateArtifactParams{
-			Status: models.BackupStatusPointer(models.ErrorBackupStatus),
-		})
-	case models.MongoDBBackupJob:
-		_, err = models.UpdateArtifact(h.db.Querier, jobResult.Result.MongoDBBackup.ArtifactID, models.UpdateArtifactParams{
-			Status: models.BackupStatusPointer(models.ErrorBackupStatus),
-		})
-	case models.MySQLRestoreBackupJob:
-		_, err = models.ChangeRestoreHistoryItem(
-			h.db.Querier,
-			jobResult.Result.MySQLRestoreBackup.RestoreID,
-			models.ChangeRestoreHistoryItemParams{
-				Status: models.ErrorRestoreStatus,
-			})
-	case models.MongoDBRestoreBackupJob:
-		_, err = models.ChangeRestoreHistoryItem(
-			h.db.Querier,
-			jobResult.Result.MongoDBRestoreBackup.RestoreID,
-			models.ChangeRestoreHistoryItemParams{
-				Status: models.ErrorRestoreStatus,
-			})
-	default:
-		// Don't do anything without explicit handling
-	}
-	return err
 }
 
 func (h *Handler) updateAgentStatusForChildren(ctx context.Context, agentID string, status inventorypb.AgentStatus, listenPort uint32) error {

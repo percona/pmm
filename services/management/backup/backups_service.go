@@ -27,10 +27,12 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm-managed/services/backup"
 	"github.com/percona/pmm-managed/services/scheduler"
 )
 
@@ -41,6 +43,11 @@ type BackupsService struct {
 	scheduleService scheduleService
 	l               *logrus.Entry
 }
+
+const (
+	maxRetriesAttempts = 10
+	maxRetryInterval   = 8 * time.Hour
+)
 
 // NewBackupsService creates new backups API service.
 func NewBackupsService(db *reform.DB, backupService backupService, scheduleService scheduleService) *BackupsService {
@@ -54,7 +61,21 @@ func NewBackupsService(db *reform.DB, backupService backupService, scheduleServi
 
 // StartBackup starts on-demand backup.
 func (s *BackupsService) StartBackup(ctx context.Context, req *backupv1beta1.StartBackupRequest) (*backupv1beta1.StartBackupResponse, error) {
-	artifactID, err := s.backupService.PerformBackup(ctx, req.ServiceId, req.LocationId, req.Name, "")
+	if req.Retries > maxRetriesAttempts {
+		return nil, errors.Errorf("exceeded max retries %d", maxRetriesAttempts)
+	}
+
+	if req.RetryInterval.AsDuration() > maxRetryInterval {
+		return nil, errors.Errorf("exceeded max retry interval %s", maxRetryInterval)
+	}
+
+	artifactID, err := s.backupService.PerformBackup(ctx, backup.PerformBackupParams{
+		ServiceID:     req.ServiceId,
+		LocationID:    req.LocationId,
+		Name:          req.Name,
+		Retries:       req.Retries,
+		RetryInterval: req.RetryInterval.AsDuration(),
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +104,16 @@ func (s *BackupsService) RestoreBackup(
 // ScheduleBackup add new backup task to scheduler.
 func (s *BackupsService) ScheduleBackup(ctx context.Context, req *backupv1beta1.ScheduleBackupRequest) (*backupv1beta1.ScheduleBackupResponse, error) {
 	var id string
-	err := s.db.InTransaction(func(tx *reform.TX) error {
+
+	if req.Retries > maxRetriesAttempts {
+		return nil, errors.Errorf("exceeded max retries %d", maxRetriesAttempts)
+	}
+
+	if req.RetryInterval.AsDuration() > maxRetryInterval {
+		return nil, errors.Errorf("exceeded max retry interval %s", maxRetryInterval)
+	}
+
+	errTx := s.db.InTransaction(func(tx *reform.TX) error {
 		svc, err := models.FindServiceByID(tx.Querier, req.ServiceId)
 		if err != nil {
 			return err
@@ -94,12 +124,22 @@ func (s *BackupsService) ScheduleBackup(ctx context.Context, req *backupv1beta1.
 			return err
 		}
 
+		backupParams := scheduler.CommonBackupTaskParams{
+			ServiceID:     req.ServiceId,
+			LocationID:    req.LocationId,
+			Name:          req.Name,
+			Description:   req.Description,
+			Retention:     req.Retention,
+			Retries:       req.Retries,
+			RetryInterval: req.RetryInterval.AsDuration(),
+		}
+
 		var task scheduler.Task
 		switch svc.ServiceType {
 		case models.MySQLServiceType:
-			task = scheduler.NewMySQLBackupTask(s.backupService, req.ServiceId, req.LocationId, req.Name, req.Description, req.Retention)
+			task = scheduler.NewMySQLBackupTask(s.backupService, backupParams)
 		case models.MongoDBServiceType:
-			task = scheduler.NewMongoBackupTask(s.backupService, req.ServiceId, req.LocationId, req.Name, req.Description, req.Retention)
+			task = scheduler.NewMongoBackupTask(s.backupService, backupParams)
 		case models.PostgreSQLServiceType,
 			models.ProxySQLServiceType,
 			models.HAProxyServiceType,
@@ -126,8 +166,8 @@ func (s *BackupsService) ScheduleBackup(ctx context.Context, req *backupv1beta1.
 		id = scheduledTask.ID
 		return nil
 	})
-	if err != nil {
-		return nil, err
+	if errTx != nil {
+		return nil, errTx
 	}
 	return &backupv1beta1.ScheduleBackupResponse{ScheduledBackupId: id}, nil
 }
@@ -174,12 +214,12 @@ func (s *BackupsService) ListScheduledBackups(ctx context.Context, req *backupv1
 
 	scheduledBackups := make([]*backupv1beta1.ScheduledBackup, 0, len(tasks))
 	for _, task := range tasks {
-		backup, err := convertTaskToScheduledBackup(task, services, locations)
+		scheduledBackup, err := convertTaskToScheduledBackup(task, services, locations)
 		if err != nil {
-			s.l.WithError(err).Warnf("convert task to scheduled backup")
+			s.l.WithError(err).Warnf("convert task to scheduledBackup")
 			continue
 		}
-		scheduledBackups = append(scheduledBackups, backup)
+		scheduledBackups = append(scheduledBackups, scheduledBackup)
 	}
 
 	return &backupv1beta1.ListScheduledBackupsResponse{
@@ -194,31 +234,37 @@ func (s *BackupsService) ChangeScheduledBackup(ctx context.Context, req *backupv
 	if err != nil {
 		return nil, err
 	}
+
+	var data *models.CommonBackupTaskData
 	switch scheduledTask.Type {
 	case models.ScheduledMySQLBackupTask:
-		data := scheduledTask.Data.MySQLBackupTask
-		if req.Name != nil {
-			data.Name = req.Name.Value
-		}
-		if req.Description != nil {
-			data.Description = req.Description.Value
-		}
-		if req.Retention != nil {
-			data.Retention = req.Retention.Value
-		}
+		data = &scheduledTask.Data.MySQLBackupTask.CommonBackupTaskData
 	case models.ScheduledMongoDBBackupTask:
-		data := scheduledTask.Data.MongoDBBackupTask
-		if req.Name != nil {
-			data.Name = req.Name.Value
-		}
-		if req.Description != nil {
-			data.Description = req.Description.Value
-		}
-		if req.Retention != nil {
-			data.Retention = req.Retention.Value
-		}
+		data = &scheduledTask.Data.MongoDBBackupTask.CommonBackupTaskData
 	default:
 		return nil, status.Errorf(codes.InvalidArgument, "Unknown type: %s", scheduledTask.Type)
+	}
+
+	if req.Name != nil {
+		data.Name = req.Name.Value
+	}
+	if req.Description != nil {
+		data.Description = req.Description.Value
+	}
+	if req.Retention != nil {
+		data.Retention = req.Retention.Value
+	}
+	if req.Retries != nil {
+		if req.Retries.Value > maxRetriesAttempts {
+			return nil, errors.Errorf("exceeded max retries %d", maxRetriesAttempts)
+		}
+		data.Retries = req.Retries.Value
+	}
+	if req.RetryInterval != nil {
+		if req.RetryInterval.AsDuration() > maxRetryInterval {
+			return nil, errors.Errorf("exceeded max retry interval %s", maxRetryInterval)
+		}
+		data.RetryInterval = req.RetryInterval.AsDuration()
 	}
 
 	params := models.ChangeScheduledTaskParams{
@@ -283,50 +329,53 @@ func (s *BackupsService) RemoveScheduledBackup(ctx context.Context, req *backupv
 func convertTaskToScheduledBackup(task *models.ScheduledTask,
 	services map[string]*models.Service,
 	locations map[string]*models.BackupLocation) (*backupv1beta1.ScheduledBackup, error) {
-	backup := &backupv1beta1.ScheduledBackup{
+	scheduledBackup := &backupv1beta1.ScheduledBackup{
 		ScheduledBackupId: task.ID,
 		CronExpression:    task.CronExpression,
 		Enabled:           !task.Disabled,
 	}
 
 	if !task.LastRun.IsZero() {
-		backup.LastRun = timestamppb.New(task.LastRun)
+		scheduledBackup.LastRun = timestamppb.New(task.LastRun)
 	}
 
 	if !task.NextRun.IsZero() {
-		backup.NextRun = timestamppb.New(task.NextRun)
+		scheduledBackup.NextRun = timestamppb.New(task.NextRun)
 	}
 
 	if !task.StartAt.IsZero() {
-		backup.StartTime = timestamppb.New(task.StartAt)
+		scheduledBackup.StartTime = timestamppb.New(task.StartAt)
 	}
 
+	var commonBackupData models.CommonBackupTaskData
 	switch task.Type {
 	case models.ScheduledMySQLBackupTask:
-		data := task.Data.MySQLBackupTask
-		backup.ServiceId = data.ServiceID
-		backup.LocationId = data.LocationID
-		backup.Name = data.Name
-		backup.Description = data.Description
-		backup.DataModel = backupv1beta1.DataModel_PHYSICAL
-		backup.Retention = data.Retention
+		commonBackupData = task.Data.MySQLBackupTask.CommonBackupTaskData
+		scheduledBackup.DataModel = backupv1beta1.DataModel_PHYSICAL
+
 	case models.ScheduledMongoDBBackupTask:
-		data := task.Data.MongoDBBackupTask
-		backup.ServiceId = data.ServiceID
-		backup.LocationId = data.LocationID
-		backup.Name = data.Name
-		backup.Description = data.Description
-		backup.DataModel = backupv1beta1.DataModel_LOGICAL
-		backup.Retention = data.Retention
+		commonBackupData = task.Data.MongoDBBackupTask.CommonBackupTaskData
+		scheduledBackup.DataModel = backupv1beta1.DataModel_LOGICAL
 	default:
 		return nil, fmt.Errorf("unknown task type: %s", task.Type)
 	}
 
-	backup.ServiceName = services[backup.ServiceId].ServiceName
-	backup.Vendor = string(services[backup.ServiceId].ServiceType)
-	backup.LocationName = locations[backup.LocationId].Name
+	scheduledBackup.ServiceId = commonBackupData.ServiceID
+	scheduledBackup.LocationId = commonBackupData.LocationID
+	scheduledBackup.Name = commonBackupData.Name
+	scheduledBackup.Description = commonBackupData.Description
+	scheduledBackup.Retention = commonBackupData.Retention
+	scheduledBackup.Retries = commonBackupData.Retries
 
-	return backup, nil
+	if commonBackupData.RetryInterval > 0 {
+		scheduledBackup.RetryInterval = durationpb.New(commonBackupData.RetryInterval)
+	}
+
+	scheduledBackup.ServiceName = services[scheduledBackup.ServiceId].ServiceName
+	scheduledBackup.Vendor = string(services[scheduledBackup.ServiceId].ServiceType)
+	scheduledBackup.LocationName = locations[scheduledBackup.LocationId].Name
+
+	return scheduledBackup, nil
 }
 
 // Check interfaces.

@@ -70,10 +70,12 @@ func TestEnsureRetention(t *testing.T) {
 		Type:           models.ScheduledMongoDBBackupTask,
 		Data: models.ScheduledTaskData{
 			MongoDBBackupTask: &models.MongoBackupTaskData{
-				ServiceID:  *agent.ServiceID,
-				LocationID: locationRes.ID,
-				Name:       "test",
-				Retention:  0,
+				CommonBackupTaskData: models.CommonBackupTaskData{
+					ServiceID:  *agent.ServiceID,
+					LocationID: locationRes.ID,
+					Name:       "test",
+					Retention:  0,
+				},
 			},
 		},
 		Disabled: false,

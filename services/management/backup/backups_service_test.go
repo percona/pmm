@@ -27,6 +27,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 	"gopkg.in/reform.v1"
@@ -103,6 +104,8 @@ func TestScheduledBackups(t *testing.T) {
 			Name:           t.Name(),
 			Description:    t.Name(),
 			Enabled:        true,
+			Retries:        maxRetriesAttempts - 1,
+			RetryInterval:  durationpb.New(maxRetryInterval),
 		}
 		res, err := backupSvc.ScheduleBackup(ctx, req)
 
@@ -118,6 +121,8 @@ func TestScheduledBackups(t *testing.T) {
 		assert.Equal(t, req.Description, data.Description)
 		assert.Equal(t, req.ServiceId, data.ServiceID)
 		assert.Equal(t, req.LocationId, data.LocationID)
+		assert.Equal(t, req.Retries, data.Retries)
+		assert.Equal(t, req.RetryInterval.AsDuration(), data.RetryInterval)
 
 		changeReq := &backupv1beta1.ChangeScheduledBackupRequest{
 			ScheduledBackupId: task.ID,
@@ -126,6 +131,8 @@ func TestScheduledBackups(t *testing.T) {
 			StartTime:         timestamppb.New(time.Now()),
 			Name:              wrapperspb.String("test"),
 			Description:       wrapperspb.String("test"),
+			Retries:           wrapperspb.UInt32(0),
+			RetryInterval:     durationpb.New(time.Second),
 		}
 		_, err = backupSvc.ChangeScheduledBackup(ctx, changeReq)
 
@@ -137,6 +144,8 @@ func TestScheduledBackups(t *testing.T) {
 		assert.Equal(t, changeReq.Enabled.GetValue(), !task.Disabled)
 		assert.Equal(t, changeReq.Name.GetValue(), data.Name)
 		assert.Equal(t, changeReq.Description.GetValue(), data.Description)
+		assert.Equal(t, changeReq.Retries.GetValue(), data.Retries)
+		assert.Equal(t, changeReq.RetryInterval.AsDuration(), data.RetryInterval)
 	})
 
 	t.Run("list", func(t *testing.T) {

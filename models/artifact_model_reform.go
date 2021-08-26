@@ -38,6 +38,7 @@ func (v *artifactTableType) Columns() []string {
 		"type",
 		"schedule_id",
 		"created_at",
+		"updated_at",
 	}
 }
 
@@ -72,6 +73,7 @@ var ArtifactTable = &artifactTableType{
 			{Name: "Type", Type: "ArtifactType", Column: "type"},
 			{Name: "ScheduleID", Type: "string", Column: "schedule_id"},
 			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
+			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},
 		},
 		PKFieldIndex: 0,
 	},
@@ -80,7 +82,7 @@ var ArtifactTable = &artifactTableType{
 
 // String returns a string representation of this struct or record.
 func (s Artifact) String() string {
-	res := make([]string, 10)
+	res := make([]string, 11)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "Name: " + reform.Inspect(s.Name, true)
 	res[2] = "Vendor: " + reform.Inspect(s.Vendor, true)
@@ -91,6 +93,7 @@ func (s Artifact) String() string {
 	res[7] = "Type: " + reform.Inspect(s.Type, true)
 	res[8] = "ScheduleID: " + reform.Inspect(s.ScheduleID, true)
 	res[9] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
+	res[10] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
 	return strings.Join(res, ", ")
 }
 
@@ -108,6 +111,7 @@ func (s *Artifact) Values() []interface{} {
 		s.Type,
 		s.ScheduleID,
 		s.CreatedAt,
+		s.UpdatedAt,
 	}
 }
 
@@ -125,6 +129,7 @@ func (s *Artifact) Pointers() []interface{} {
 		&s.Type,
 		&s.ScheduleID,
 		&s.CreatedAt,
+		&s.UpdatedAt,
 	}
 }
 

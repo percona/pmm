@@ -104,22 +104,33 @@ type Artifact struct {
 	Type       ArtifactType `reform:"type"`
 	ScheduleID string       `reform:"schedule_id"`
 	CreatedAt  time.Time    `reform:"created_at"`
+	UpdatedAt  time.Time    `reform:"updated_at"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
 func (s *Artifact) BeforeInsert() error {
-	s.CreatedAt = Now()
+	now := Now()
+	s.CreatedAt = now
+	s.UpdatedAt = now
+	return nil
+}
+
+// BeforeUpdate implements reform.BeforeUpdater interface.
+func (s *Artifact) BeforeUpdate() error {
+	s.UpdatedAt = Now()
 	return nil
 }
 
 // AfterFind implements reform.AfterFinder interface.
 func (s *Artifact) AfterFind() error {
 	s.CreatedAt = s.CreatedAt.UTC()
+	s.UpdatedAt = s.UpdatedAt.UTC()
 	return nil
 }
 
 // check interfaces.
 var (
 	_ reform.BeforeInserter = (*Artifact)(nil)
+	_ reform.BeforeUpdater  = (*Artifact)(nil)
 	_ reform.AfterFinder    = (*Artifact)(nil)
 )

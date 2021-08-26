@@ -26,30 +26,59 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-// FindJobResultByID finds JobResult by ID.
-func FindJobResultByID(q *reform.Querier, id string) (*JobResult, error) {
+// FindJobByID finds Job by ID.
+func FindJobByID(q *reform.Querier, id string) (*Job, error) {
 	if id == "" {
-		return nil, status.Error(codes.InvalidArgument, "Empty JobResult ID.")
+		return nil, status.Error(codes.InvalidArgument, "Empty Job ID.")
 	}
 
-	res := &JobResult{ID: id}
+	res := &Job{ID: id}
 	switch err := q.Reload(res); err {
 	case nil:
 		return res, nil
 	case reform.ErrNoRows:
-		return nil, status.Errorf(codes.NotFound, "JobResult with ID %q not found.", id)
+		return nil, status.Errorf(codes.NotFound, "Job with ID %q not found.", id)
 	default:
 		return nil, errors.WithStack(err)
 	}
 }
 
-// CreateJobResult stores a job result in the storage.
-func CreateJobResult(q *reform.Querier, pmmAgentID string, jobType JobType, data *JobResultData) (*JobResult, error) {
-	result := &JobResult{
+// CreateJobParams are params for creating a new job.
+type CreateJobParams struct {
+	PMMAgentID string
+	Type       JobType
+	Data       *JobData
+	Timeout    time.Duration
+	Interval   time.Duration
+	Retries    uint32
+}
+
+// Validate validates CreateJobParams
+func (p CreateJobParams) Validate() error {
+	switch p.Type {
+	case MySQLBackupJob:
+	case MySQLRestoreBackupJob:
+	case MongoDBBackupJob:
+	case MongoDBRestoreBackupJob:
+	default:
+		return errors.Errorf("unknown job type: %v", p.Type)
+	}
+	return nil
+}
+
+// CreateJob stores a job result in the storage.
+func CreateJob(q *reform.Querier, params CreateJobParams) (*Job, error) {
+	if err := params.Validate(); err != nil {
+		return nil, err
+	}
+	result := &Job{
 		ID:         "/job_id/" + uuid.New().String(),
-		PMMAgentID: pmmAgentID,
-		Type:       jobType,
-		Result:     data,
+		PMMAgentID: params.PMMAgentID,
+		Type:       params.Type,
+		Data:       params.Data,
+		Timeout:    params.Timeout,
+		Interval:   params.Interval,
+		Retries:    params.Retries,
 	}
 	if err := q.Insert(result); err != nil {
 		return nil, errors.WithStack(err)
@@ -57,8 +86,8 @@ func CreateJobResult(q *reform.Querier, pmmAgentID string, jobType JobType, data
 	return result, nil
 }
 
-// CleanupOldJobResults deletes jobs results older than a specified date.
-func CleanupOldJobResults(q *reform.Querier, olderThan time.Time) error {
-	_, err := q.DeleteFrom(JobResultTable, " WHERE updated_at <= $1", olderThan)
+// CleanupOldJobs deletes jobs results older than a specified date.
+func CleanupOldJobs(q *reform.Querier, olderThan time.Time) error {
+	_, err := q.DeleteFrom(JobTable, " WHERE updated_at <= $1", olderThan)
 	return err
 }

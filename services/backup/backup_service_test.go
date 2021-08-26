@@ -89,7 +89,11 @@ func TestStartBackup(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	artifactID, err := backupService.PerformBackup(ctx, pointer.GetString(agent.ServiceID), locationRes.ID, "test_backup", "")
+	artifactID, err := backupService.PerformBackup(ctx, PerformBackupParams{
+		ServiceID:  pointer.GetString(agent.ServiceID),
+		LocationID: locationRes.ID,
+		Name:       "test_backup",
+	})
 	assert.NoError(t, err)
 
 	assert.NoError(t, err)
