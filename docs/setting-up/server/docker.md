@@ -101,6 +101,9 @@ How to run PMM Server with Docker based on our [Docker image].
 
 ---
 
+!!! caution alert alert-warning "Important"
+    Downgrades are not possible. To go back to using a previous version you must have created a backup of it before upgrading.
+
 !!! hint alert alert-success "Tip"
     To see what release you are running, use the *PMM Upgrade* panel on the *Home Dashboard*, or run:
 
@@ -130,6 +133,7 @@ How to run PMM Server with Docker based on our [Docker image].
     --name pmm-server \
     percona/pmm-server:2
     ```
+4. Perform a [restore](#restore)
 
 ## Restore
 
