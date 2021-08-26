@@ -16,6 +16,7 @@
     - [Make a backup](#make-a-backup), or,
     - [Make](#make-a-scheduled-backup) or [edit](#edit-a-scheduled-backup) a scheduled backup, or,
     - [Restore a backup](#restore-a-backup).
+    - [Delete a backup](#delete-a-backup).
 
 ## Before you start
 
@@ -122,7 +123,7 @@ Make a single on-demand backup.
 
 1. Click *Backup*.
 
-1. In the *Backup Inventory* pane, watch the *Status* column.
+1. In the *Backup Inventory* pane, watch the *Status* column. An animated ellipsis indicator {{icon.bouncingellipsis}} shows activity in progress.
 
 ## Make a scheduled backup
 
@@ -161,6 +162,8 @@ Make regular scheduled backups.
             - *Start time, h/m*: The hour and minute for the backup.
                 - In the first field, select one or more hours (*00* to *23*, *00* is midnight).
                 - In the second field, select one or more minutes (*00* to *59*).
+
+        - *Retention*: How many backups to keep. For unlimited, use `0` (zero).
         - *Enable*: Deselect to define the scheduled backup without enabling it.
 
         ![!](../_images/PMM_Backup_Management_Schedule.png)
@@ -200,6 +203,18 @@ Make regular scheduled backups.
 1. In the *Restore from backup* dialog, check the values and click *Restore*.
 
 1. Navigate to the *Restore History* tab to check the status of the restored backup.
+
+## Delete a backup
+
+1. Select <i class="uil uil-history"></i> → *Backup* → *Backup Inventory*.
+
+1. Find the row with the backup you want to delete.
+
+1. In the *Actions* column for that row, click *Delete backup*.
+
+1. (Optional) Check *Delete from storage* to also delete the actual backup content besides just the backup register.
+
+1. Click *Delete* to proceed.
 
 [Amazon AWS S3]: https://aws.amazon.com/s3/
 [Percona Backup for MongoDB]: https://www.percona.com/doc/percona-backup-mongodb/installation.html

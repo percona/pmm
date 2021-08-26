@@ -202,6 +202,7 @@ nav:
   - faq.md
   - Release Notes:
       - release-notes/index.md
+      - 'PMM 2.21.0': release-notes/2.21.0.md
       - 'PMM 2.20.0': release-notes/2.20.0.md
       - 'PMM 2.19.0': release-notes/2.19.0.md
       - 'PMM 2.18.0': release-notes/2.18.0.md

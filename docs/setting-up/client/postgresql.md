@@ -204,6 +204,13 @@ When you have configured your database server, you can add a PostgreSQL service 
 
 ![!](../../_images/PMM_Add_Instance_PostgreSQL.jpg)
 
+If your PostgreSQL instance is configured to use TLS, click on the *Use TLS for database connections* check box and fill in your TLS certificates and key.
+
+![!](../../_images/PMM_Add_Instance_PostgreSQL_TLS.png)
+
+!!! hint alert alert-success "Note"
+    For TLS connection to work SSL needs to be configured in your PostgreSQL instance. Make sure SSL is enabled in the server configuration file `postgresql.conf`, and that hosts are allowed to connect in the client authentication configuration file `pg_hba.conf`. (See PostgreSQL documentation on [Secure TCP/IP Connections with SSL].)
+
 ### On the command line
 
 Add the database server as a service using one of these example commands. If successful, PMM Client will print `PostgreSQL Service added` with the service's ID and name. Use the `--environment` and `-custom-labels` options to set tags for the service to help identify them.
@@ -241,20 +248,29 @@ Add instance to connect with a UNIX socket.
 pmm-admin add postgresql --socket=/var/run/postgresql
 ```
 
-Add instance to connect with SSL/TLS.
+#### Connecting via SSL/TLS
 
 ```sh
-pmm-admin add postgresql \
---username=pmm \
---password=password \
---tls \
---tls-skip-verify
+pmm-admin add postgresql --tls \
+--tls-cert-file=PATHTOCERT \
+--tls-ca-file=PATHTOCACERT \
+--tls-key-file=PATHTOKEY \
+--host=HOST \
+--port=PORT \
+--username=USER \
+--service-name=SERVICE
 ```
 
 where:
 
-- `--tls`: Use TLS to connect to the database.
-- `--tls-skip-verify`: Skip TLS certificates validation.
+- `PATHTOCERT`: Path to client certificate file.
+- `PATHTOCACERT`: Path to certificate authority file.
+- `PATHTOKEY`: Path to client key file.
+- `HOST`: Instance hostname or IP.
+- `PORT`: PostgreSQL service port number.
+- `USER`: Database user allowed to connect via TLS. Should match the common name (CN) used in the client certificate.
+- `SERVICE`: Name to give to the service within PMM.
+
 
 ## Check the service
 
@@ -295,3 +311,4 @@ pmm-admin inventory list services
 [PERCONA_POSTGRESQL_INSTALL]: https://www.percona.com/doc/postgresql/LATEST/installing.html
 [PG_STAT_MONITOR_INSTALL]: https://github.com/percona/pg_stat_monitor#installation
 [PMM_ADMIN]: ../../details/pmm-admin.md
+[Secure TCP/IP Connections with SSL]: https://www.postgresql.org/docs/current/ssl-tcp.html
