@@ -104,7 +104,8 @@ nav:
       - using/query-analytics.md
       - using/dbaas.md
       - using/security-threat-tool.md
-#      - using/advisors/innodb_log_buffer_flushed_to_disk_after_each_trx.md
+#      - Advisors:
+#          - using/advisors/index.md
   - How to:
       - how-to/index.md
       - how-to/configure.md
