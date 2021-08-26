@@ -408,11 +408,6 @@ message S3LocationConfig {
 
 // StartJobRequest is a ServerMessage asking pmm-agent to start job.
 message StartJobRequest {
-  // Echo is a simple echo job that can be delayed.
-  message Echo {
-    string message = 1;
-    google.protobuf.Duration delay = 2;
-  }
   // MySQLBackup is job for backup MySQL service.
   message MySQLBackup {
     // Database user;
@@ -489,7 +484,6 @@ message StartJobRequest {
   // Timeout for the job.
   google.protobuf.Duration timeout = 2;
   oneof job {
-    Echo echo = 10;
     MySQLBackup mysql_backup = 11;
     MySQLRestoreBackup mysql_restore_backup = 12;
     MongoDBBackup mongodb_backup = 13;
@@ -516,10 +510,6 @@ message JobResult {
   message Error {
     string message = 1;
   }
-  // Echo contains result for echo job.
-  message Echo {
-    string message = 1;
-  }
   // MongoDBBackup contains result for MongoDB backup job.
   message MongoDBBackup {}
 
@@ -536,7 +526,6 @@ message JobResult {
   google.protobuf.Timestamp timestamp = 2;
   oneof result {
     Error error = 10;
-    Echo echo = 11;
     MySQLBackup mysql_backup = 12;
     MySQLRestoreBackup mysql_restore_backup = 13;
     MongoDBBackup mongodb_backup = 14;
@@ -546,10 +535,6 @@ message JobResult {
 
 // JobProgress represents job progress messages like percentage of completion, status updates, etc.
 message JobProgress {
-  // Echo contains echo job status update.
-  message Echo {
-    string status = 1;
-  }
   // MySQLBackup contains backup job status update.
   message MySQLBackup {}
 
@@ -559,7 +544,6 @@ message JobProgress {
   string job_id = 1;
   google.protobuf.Timestamp timestamp = 2;
   oneof result {
-    Echo echo = 10;
     MySQLBackup mysql_backup = 11;
     MySQLRestoreBackup mysql_restore_backup = 12;
   }
