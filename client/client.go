@@ -536,9 +536,7 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 		return errors.Errorf("unknown job type: %T", j)
 	}
 
-	c.jobsRunner.Start(job)
-
-	return nil
+	return c.jobsRunner.Start(job)
 }
 
 func (c *Client) getActionTimeout(req *agentpb.StartActionRequest) time.Duration {

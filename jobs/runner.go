@@ -23,6 +23,7 @@ import (
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/percona/pmm/api/agentpb"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm-agent/client/channel"
@@ -30,7 +31,7 @@ import (
 
 const jobsBufferSize = 32
 
-// Runner allows to execute jobs.
+// Runner executes jobs.
 type Runner struct {
 	l *logrus.Entry
 
@@ -119,8 +120,13 @@ func (r *Runner) send(payload agentpb.AgentResponsePayload) {
 }
 
 // Start starts given job.
-func (r *Runner) Start(job Job) {
-	r.jobs <- job
+func (r *Runner) Start(job Job) error {
+	select {
+	case r.jobs <- job:
+		return nil
+	default:
+		return errors.New("jobs queue overflowed")
+	}
 }
 
 // Stop stops running Job.

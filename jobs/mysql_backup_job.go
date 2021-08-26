@@ -81,7 +81,27 @@ func (j *MySQLBackupJob) Timeout() time.Duration {
 }
 
 // Run starts Job execution.
-func (j *MySQLBackupJob) Run(ctx context.Context, send Send) (rerr error) {
+func (j *MySQLBackupJob) Run(ctx context.Context, send Send) error {
+	if err := j.binariesInstalled(); err != nil {
+		return errors.WithStack(err)
+	}
+
+	if err := j.backup(ctx); err != nil {
+		return errors.WithStack(err)
+	}
+
+	send(&agentpb.JobResult{
+		JobId:     j.id,
+		Timestamp: ptypes.TimestampNow(),
+		Result: &agentpb.JobResult_MysqlBackup{
+			MysqlBackup: &agentpb.JobResult_MySQLBackup{},
+		},
+	})
+
+	return nil
+}
+
+func (j *MySQLBackupJob) binariesInstalled() error {
 	if _, err := exec.LookPath(xtrabackupBin); err != nil {
 		return errors.Wrapf(err, "lookpath: %s", xtrabackupBin)
 	}
@@ -96,7 +116,14 @@ func (j *MySQLBackupJob) Run(ctx context.Context, send Send) (rerr error) {
 		}
 	}
 
-	xtrabackupCmd := exec.CommandContext(ctx, xtrabackupBin, "--compress", "--backup") // #nosec G204
+	return nil
+}
+
+func (j *MySQLBackupJob) backup(ctx context.Context) (rerr error) {
+	pipeCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	xtrabackupCmd := exec.CommandContext(pipeCtx, xtrabackupBin, "--compress", "--backup") // #nosec G204
 
 	if j.connConf.User != "" {
 		xtrabackupCmd.Args = append(xtrabackupCmd.Args, "--user="+j.connConf.User)
@@ -117,7 +144,7 @@ func (j *MySQLBackupJob) Run(ctx context.Context, send Send) (rerr error) {
 	switch {
 	case j.location.S3Config != nil:
 		xtrabackupCmd.Args = append(xtrabackupCmd.Args, "--stream=xbstream")
-		xbcloudCmd = exec.CommandContext(ctx, xbcloudBin,
+		xbcloudCmd = exec.CommandContext(pipeCtx, xbcloudBin,
 			"put",
 			"--storage=s3",
 			"--s3-endpoint="+j.location.S3Config.Endpoint,
@@ -146,43 +173,42 @@ func (j *MySQLBackupJob) Run(ctx context.Context, send Send) (rerr error) {
 			errBackupBuffer.String(), outBuffer.String(), errCloudBuffer.String())
 	}
 
+	if err := xtrabackupCmd.Start(); err != nil {
+		cancel()
+		return wrapError(err)
+	}
+
+	defer func() {
+		if err := xtrabackupCmd.Wait(); err != nil {
+			cancel()
+			if rerr != nil {
+				rerr = errors.Wrapf(rerr, "xtrabackup wait error: %s", err)
+			} else {
+				rerr = wrapError(err)
+			}
+		}
+	}()
+
 	if xbcloudCmd != nil {
 		xbcloudCmd.Stdin = xtrabackupStdout
 		xbcloudCmd.Stdout = &outBuffer
 		xbcloudCmd.Stderr = &errCloudBuffer
 		if err := xbcloudCmd.Start(); err != nil {
+			cancel()
 			return wrapError(err)
 		}
 
 		defer func() {
-			err := xbcloudCmd.Wait()
-			if err == nil {
-				return
-			}
-
-			if rerr != nil {
-				rerr = errors.Wrapf(rerr, "xbcloud wait error: %s", err)
-			} else {
-				rerr = wrapError(err)
+			if err := xbcloudCmd.Wait(); err != nil {
+				cancel()
+				if rerr != nil {
+					rerr = errors.Wrapf(rerr, "xbcloud wait error: %s", err)
+				} else {
+					rerr = wrapError(err)
+				}
 			}
 		}()
 	}
-
-	if err := xtrabackupCmd.Start(); err != nil {
-		return wrapError(err)
-	}
-
-	if err := xtrabackupCmd.Wait(); err != nil {
-		return wrapError(err)
-	}
-
-	send(&agentpb.JobResult{
-		JobId:     j.id,
-		Timestamp: ptypes.TimestampNow(),
-		Result: &agentpb.JobResult_MysqlBackup{
-			MysqlBackup: &agentpb.JobResult_MySQLBackup{},
-		},
-	})
 
 	return nil
 }

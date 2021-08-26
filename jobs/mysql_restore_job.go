@@ -77,7 +77,64 @@ func (j *MySQLRestoreJob) Timeout() time.Duration {
 	return j.timeout
 }
 
-func binariesInstalled() error {
+// Run executes backup restore steps.
+func (j *MySQLRestoreJob) Run(ctx context.Context, send Send) (rerr error) {
+	if j.location.S3Config == nil {
+		return errors.New("S3 config is not set")
+	}
+
+	if err := j.binariesInstalled(); err != nil {
+		return errors.WithStack(err)
+	}
+
+	if _, _, err := mySQLUserAndGroupIDs(); err != nil {
+		return errors.WithStack(err)
+	}
+
+	tmpDir, err := ioutil.TempDir("", "backup-restore")
+	if err != nil {
+		return errors.Wrap(err, "cannot create temporary directory")
+	}
+	defer func() {
+		if err := os.RemoveAll(tmpDir); err != nil {
+			j.l.WithError(err).Error("failed to remove temporary directory")
+		}
+	}()
+
+	if err := j.restoreMySQLFromS3(ctx, tmpDir); err != nil {
+		return errors.WithStack(err)
+	}
+
+	active, err := mySQLActive(ctx)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	if active {
+		if err := stopMySQL(ctx); err != nil {
+			return errors.WithStack(err)
+		}
+	}
+
+	if err := restoreBackup(ctx, tmpDir, mySQLDirectory); err != nil {
+		return errors.WithStack(err)
+	}
+
+	if err := startMySQL(ctx); err != nil {
+		return errors.WithStack(err)
+	}
+
+	send(&agentpb.JobResult{
+		JobId:     j.id,
+		Timestamp: ptypes.TimestampNow(),
+		Result: &agentpb.JobResult_MysqlRestoreBackup{
+			MysqlRestoreBackup: &agentpb.JobResult_MySQLRestoreBackup{},
+		},
+	})
+
+	return nil
+}
+
+func (j *MySQLRestoreJob) binariesInstalled() error {
 	if _, err := exec.LookPath(xtrabackupBin); err != nil {
 		return errors.Wrapf(err, "lookpath: %s", xtrabackupBin)
 	}
@@ -141,20 +198,15 @@ func prepareRestoreCommands(
 	return xbcloudCmd, xbstreamCmd, nil
 }
 
-func restoreMySQLFromS3(
-	ctx context.Context,
-	backupName string,
-	config *BackupLocationConfig,
-	targetDirectory string,
-) (rerr error) {
-	ctx, cancel := context.WithCancel(ctx)
+func (j *MySQLRestoreJob) restoreMySQLFromS3(ctx context.Context, targetDirectory string) (rerr error) {
+	pipeCtx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
 	var stderr, stdout bytes.Buffer
 	xbcloudCmd, xbstreamCmd, err := prepareRestoreCommands(
-		ctx,
-		backupName,
-		config,
+		pipeCtx,
+		j.name,
+		&j.location,
 		targetDirectory,
 		&stderr,
 		&stdout,
@@ -168,28 +220,34 @@ func restoreMySQLFromS3(
 	}
 
 	if err := xbcloudCmd.Start(); err != nil {
+		cancel()
 		return errors.Wrap(wrapError(err), "xbcloud start failed")
 	}
 	defer func() {
-		err := xbcloudCmd.Wait()
-		if err == nil {
-			return
-		}
-
-		if rerr != nil {
-			rerr = errors.Wrapf(rerr, "xbcloud wait error: %s", err)
-		} else {
-			rerr = errors.Wrap(wrapError(err), "xbcloud wait failed")
+		if err := xbcloudCmd.Wait(); err != nil {
+			cancel()
+			if rerr != nil {
+				rerr = errors.Wrapf(rerr, "xbcloud wait error: %s", err)
+			} else {
+				rerr = errors.Wrap(wrapError(err), "xbcloud wait failed")
+			}
 		}
 	}()
 
 	if err := xbstreamCmd.Start(); err != nil {
+		cancel()
 		return errors.Wrap(wrapError(err), "xbstream start failed")
 	}
-
-	if err := xbstreamCmd.Wait(); err != nil {
-		return errors.Wrap(wrapError(err), "xbstream wait failed")
-	}
+	defer func() {
+		if err := xbstreamCmd.Wait(); err != nil {
+			cancel()
+			if rerr != nil {
+				rerr = errors.Wrapf(rerr, "xbstream wait error: %s", err)
+			} else {
+				rerr = errors.Wrap(wrapError(err), "xbstream wait failed")
+			}
+		}
+	}()
 
 	return nil
 }
@@ -324,74 +382,6 @@ func restoreBackup(ctx context.Context, backupDirectory, mySQLDirectory string) 
 	if err := chownRecursive(mySQLDirectory, uid, gid); err != nil {
 		return errors.WithStack(err)
 	}
-
-	return nil
-}
-
-// Run executes backup restore steps.
-func (j *MySQLRestoreJob) Run(ctx context.Context, send Send) (rerr error) {
-	j.l.Info("MySQL restore started")
-	defer func(start time.Time) {
-		entry := j.l.WithField("duration", time.Since(start).String())
-
-		if rerr != nil {
-			entry.Error("MySQL restore finished with error")
-		} else {
-			entry.Info("MySQL restore finished")
-		}
-	}(time.Now())
-
-	if j.location.S3Config == nil {
-		return errors.New("S3 config is not set")
-	}
-
-	if err := binariesInstalled(); err != nil {
-		return errors.WithStack(err)
-	}
-
-	if _, _, err := mySQLUserAndGroupIDs(); err != nil {
-		return errors.WithStack(err)
-	}
-
-	tmpDir, err := ioutil.TempDir("", "backup-restore")
-	if err != nil {
-		return errors.Wrap(err, "cannot create temporary directory")
-	}
-	defer func() {
-		if err := os.RemoveAll(tmpDir); err != nil {
-			j.l.WithError(err).Error("failed to remove temporary directory")
-		}
-	}()
-
-	if err := restoreMySQLFromS3(ctx, j.name, &j.location, tmpDir); err != nil {
-		return errors.WithStack(err)
-	}
-
-	active, err := mySQLActive(ctx)
-	if err != nil {
-		return errors.WithStack(err)
-	}
-	if active {
-		if err := stopMySQL(ctx); err != nil {
-			return errors.WithStack(err)
-		}
-	}
-
-	if err := restoreBackup(ctx, tmpDir, mySQLDirectory); err != nil {
-		return errors.WithStack(err)
-	}
-
-	if err := startMySQL(ctx); err != nil {
-		return errors.WithStack(err)
-	}
-
-	send(&agentpb.JobResult{
-		JobId:     j.id,
-		Timestamp: ptypes.TimestampNow(),
-		Result: &agentpb.JobResult_MysqlRestoreBackup{
-			MysqlRestoreBackup: &agentpb.JobResult_MySQLRestoreBackup{},
-		},
-	})
 
 	return nil
 }
