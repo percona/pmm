@@ -83,10 +83,6 @@ By default, the RDS discovery works with the default `aws` partition. But you ca
 
 To specify other than the default value, or to use several, use the JSON Array syntax: `["aws", "aws-cn"]`.
 
-## How do I troubleshoot communication issues between PMM Client and PMM Server?
-
-See [Troubleshoot PMM Server/PMM Client connection](how-to/troubleshoot.md#troubleshoot-connection).
-
 ## What resolution is used for metrics?
 
 The default values (in seconds):

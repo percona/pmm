@@ -19,7 +19,7 @@ If PMM server wasn't updated properly, or if you have concerns about the release
 
 Refresh The Home page in 2-5 minutes and you should see that PMM was updated.
 
-## PMM Server/PMM Client connection {: #troubleshoot-connection }
+## Client-server connections
 
 There are many causes of broken network connectivity.
 
