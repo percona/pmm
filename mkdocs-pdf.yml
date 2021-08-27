@@ -69,7 +69,7 @@ plugins:
         custom_template_path: _resources/templates
     # Check links - but extends build time significantly
     # https://pypi.org/project/mkdocs-htmlproofer-plugin/
-    - htmlproofer
+#    - htmlproofer
 
 nav:
   - Welcome: index.md
