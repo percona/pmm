@@ -279,7 +279,7 @@ When you remove a service, collected data remains on PMM Server for the specifie
     :  Override the default password for accessing the `/metrics` endpoint. (Username is `pmm` and default password is the agent ID.)
 
         !!! caution ""
-            This password is visible in the [inventory].
+            Avoid using special characters like '\', ';' and '$' in the custom password.
 
     `--query-source=profiler`
     :  Source of queries, one of: `profiler`, `none` (default: `profiler`).
@@ -349,7 +349,7 @@ When you remove a service, collected data remains on PMM Server for the specifie
     :  Override the default password for accessing the `/metrics` endpoint. (Username is `pmm` and default password is the agent ID.)
 
         !!! caution ""
-            This password is visible in the [inventory].
+            Avoid using special characters like '\', ';' and '$' in the custom password.
 
     `--query-source=slowlog`
     : Source of SQL queries, one of: `slowlog`, `perfschema`, `none` (default: `slowlog`). For `slowlog` query source you need change permissions for
@@ -454,7 +454,7 @@ When you remove a service, collected data remains on PMM Server for the specifie
     :  Override the default password for accessing the `/metrics` endpoint. (Username is `pmm` and default password is the agent ID.)
 
         !!! caution ""
-            This password is visible in the [inventory].
+            Avoid using special characters like '\', ';' and '$' in the custom password.
 
     `--query-source=<query source>`
     : Source of SQL queries, one of: `pgstatements`, `pgstatmonitor`, `none` (default: `pgstatements`).
@@ -518,7 +518,7 @@ When you remove a service, collected data remains on PMM Server for the specifie
     :  Override the default password for accessing the `/metrics` endpoint. (Username is `pmm` and default password is the agent ID.)
 
         !!! caution ""
-            This password is visible in the [inventory].
+            Avoid using special characters like '\', ';' and '$' in the custom password.
 
     `--environment=environment`
     : Environment name.
