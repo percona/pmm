@@ -9,7 +9,7 @@ There are different ways to install PMM Client on a node and register it with PM
     - On Debian or Red Hat, download `.deb`/`.rpm` PMM Client packages and manually install them.
 
 !!! hint alert "Binary is only way to install PMM client without root permissions"
-    - [Binary package](#binary-package): For other Linux distributions, download and unpack generic PMM Client Linux binaries. 
+    - [Binary package](#binary-package): For other Linux distributions, download and unpack generic PMM Client Linux binaries.
 
 When you have installed PMM Client, you must:
 
@@ -133,7 +133,7 @@ The [PMM Client Docker image] is a convenient way to run PMM Client as a preconf
 You can now add services with [`pmm-admin`](../../details/commands/pmm-admin.md) by prefixing commands with `docker exec pmm-client`.
 
 !!! hint alert alert-success "Tips"
-    - Adjust host firewall and routing rules to allow Docker communications. ([Read more in the FAQ.](../../faq.md#how-do-i-troubleshoot-communication-issues-between-pmm-client-and-pmm-server))
+    - Adjust host firewall and routing rules to allow Docker communications. ([Read more](../../how-to/troubleshoot.md))
     - For help: `docker run --rm percona/pmm-client:2 --help`
 
 ### Docker compose
@@ -339,7 +339,7 @@ dnf localinstall *.rpm
         ```sh
         export PMM_DIR=YOURPATH
         ```
-        where YOURPATH replace with you real path, where you have required access.  
+        where YOURPATH replace with you real path, where you have required access.
 
         **Node, MySQL and PostgreSQL exporters wont be avalaible.**
 

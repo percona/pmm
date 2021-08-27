@@ -183,7 +183,7 @@ PMM communicates with the PMM Server via a PMM agent process.
     `--force`
     : Remove service with that name or ID and all dependent services and agents.
 
-When you remove a service, collected data remains on PMM Server for the specified [retention period](../../faq.md#how-to-control-data-retention).
+When you remove a service, collected data remains on PMM Server for the specified [retention period](../../faq.md).
 
 #### `pmm-admin annotate`
 

@@ -31,7 +31,7 @@ When all data is registered in PMM2 and expired in PMM1, decommission your PMM1 
     - [Upgrade from PMM1](how-to/upgrade.md#upgrade-from-pmm-1)
     - [Percona blog: Running PMM1 and PMM2 Clients on the Same Host](https://www.percona.com/blog/2019/11/27/running-pmm1-and-pmm2-clients-on-the-same-host/)
 
-## How to control data retention?
+## How to control data retention? {: #retention }
 
 Go to <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings* → *Data retention* to adjust the value in days.
 
