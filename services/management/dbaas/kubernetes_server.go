@@ -23,8 +23,10 @@ import (
 	"regexp"
 	"sync"
 
+	goversion "github.com/hashicorp/go-version"
 	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
+	pmmversion "github.com/percona/pmm/version"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -39,20 +41,22 @@ var (
 )
 
 type kubernetesServer struct {
-	l             *logrus.Entry
-	db            *reform.DB
-	dbaasClient   dbaasClient
-	grafanaClient grafanaClient
+	l              *logrus.Entry
+	db             *reform.DB
+	dbaasClient    dbaasClient
+	versionService versionService
+	grafanaClient  grafanaClient
 }
 
 // NewKubernetesServer creates Kubernetes Server.
-func NewKubernetesServer(db *reform.DB, dbaasClient dbaasClient, grafanaClient grafanaClient) dbaasv1beta1.KubernetesServer {
+func NewKubernetesServer(db *reform.DB, dbaasClient dbaasClient, grafanaClient grafanaClient, versionService versionService) dbaasv1beta1.KubernetesServer {
 	l := logrus.WithField("component", "kubernetes_server")
 	return &kubernetesServer{
-		l:             l,
-		db:            db,
-		dbaasClient:   dbaasClient,
-		grafanaClient: grafanaClient,
+		l:              l,
+		db:             db,
+		dbaasClient:    dbaasClient,
+		grafanaClient:  grafanaClient,
+		versionService: versionService,
 	}
 }
 
@@ -64,6 +68,24 @@ func (k *kubernetesServer) Enabled() bool {
 		return false
 	}
 	return settings.DBaaS.Enabled
+}
+
+// getOperatorStatus exists mainly to assign appropriate status when installed operator is unsupported.
+// dbaas-controller does not have a clue what's supported, so we have to do it here.
+func (k kubernetesServer) convertToOperatorStatus(ctx context.Context, operatorType string, operatorVersion string) (dbaasv1beta1.OperatorsStatus, error) {
+	if operatorVersion == "" {
+		return dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_NOT_INSTALLED, nil
+	}
+
+	supported, err := k.versionService.IsOperatorVersionSupported(ctx, operatorType, pmmversion.PMMVersion, operatorVersion)
+	if err != nil {
+		return dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_INVALID, err
+	}
+	if supported {
+		return dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_OK, nil
+	}
+
+	return dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_UNSUPPORTED, nil
 }
 
 // ListKubernetesClusters returns a list of all registered Kubernetes clusters.
@@ -99,8 +121,15 @@ func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1
 			if resp.Operators == nil {
 				return
 			}
-			clusters[i].Operators.Xtradb.Status = dbaasv1beta1.OperatorsStatus(resp.Operators.Xtradb.Status)
-			clusters[i].Operators.Psmdb.Status = dbaasv1beta1.OperatorsStatus(resp.Operators.Psmdb.Status)
+
+			clusters[i].Operators.Xtradb.Status, err = k.convertToOperatorStatus(ctx, pxcOperator, resp.Operators.XtradbOperatorVersion)
+			if err != nil {
+				k.l.Errorf("failed to convert dbaas-controller operator status to PMM status: %v", err)
+			}
+			clusters[i].Operators.Psmdb.Status, err = k.convertToOperatorStatus(ctx, psmdbOperator, resp.Operators.PsmdbOperatorVersion)
+			if err != nil {
+				k.l.Errorf("failed to convert dbaas-controller operator status to PMM status: %v", err)
+			}
 		}()
 	}
 	wg.Wait()
@@ -124,21 +153,38 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 	if err != nil {
 		return nil, err
 	}
-	_, err = k.dbaasClient.InstallXtraDBOperator(ctx, &dbaascontrollerv1beta1.InstallXtraDBOperatorRequest{
-		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-			Kubeconfig: req.KubeAuth.Kubeconfig,
-		},
-	})
+
+	pmmVersion, err := goversion.NewVersion(pmmversion.PMMVersion)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	pxcOperatorVersion, psmdbOperatorVersion, err := k.versionService.LatestOperatorVersion(ctx, pmmVersion.Core().String())
 	if err != nil {
 		return nil, err
 	}
-	_, err = k.dbaasClient.InstallPSMDBOperator(ctx, &dbaascontrollerv1beta1.InstallPSMDBOperatorRequest{
-		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-			Kubeconfig: req.KubeAuth.Kubeconfig,
-		},
-	})
-	if err != nil {
-		return nil, err
+
+	if pxcOperatorVersion != nil {
+		_, err = k.dbaasClient.InstallXtraDBOperator(ctx, &dbaascontrollerv1beta1.InstallXtraDBOperatorRequest{
+			KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
+				Kubeconfig: req.KubeAuth.Kubeconfig,
+			},
+			Version: pxcOperatorVersion.String(),
+		})
+		if err != nil {
+			return nil, err
+		}
+	}
+	if psmdbOperatorVersion != nil {
+		_, err = k.dbaasClient.InstallPSMDBOperator(ctx, &dbaascontrollerv1beta1.InstallPSMDBOperatorRequest{
+			KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
+				Kubeconfig: req.KubeAuth.Kubeconfig,
+			},
+			Version: psmdbOperatorVersion.String(),
+		})
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	settings, err := models.GetSettings(k.db.Querier)

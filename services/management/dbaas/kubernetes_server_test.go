@@ -55,8 +55,7 @@ func TestKubernetesServer(t *testing.T) {
 			require.NoError(t, sqlDB.Close())
 		}
 
-		ks = NewKubernetesServer(db, dbaasClient, grafanaClient)
-
+		ks = NewKubernetesServer(db, dbaasClient, grafanaClient, NewVersionServiceClient("https://check-dev.percona.com/versions/v1"))
 		return
 	}
 	t.Run("Basic", func(t *testing.T) {
@@ -66,8 +65,8 @@ func TestKubernetesServer(t *testing.T) {
 
 		dc.On("CheckKubernetesClusterConnection", ctx, kubeconfig).Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
 			Operators: &controllerv1beta1.Operators{
-				Xtradb: &controllerv1beta1.Operator{Status: controllerv1beta1.OperatorsStatus_OPERATORS_STATUS_UNSUPPORTED},
-				Psmdb:  &controllerv1beta1.Operator{Status: controllerv1beta1.OperatorsStatus_OPERATORS_STATUS_OK},
+				XtradbOperatorVersion: "",
+				PsmdbOperatorVersion:  onePointEight,
 			},
 			Status: controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
 		}, nil)
@@ -101,7 +100,7 @@ func TestKubernetesServer(t *testing.T) {
 			{
 				KubernetesClusterName: kubernetesClusterName,
 				Operators: &dbaasv1beta1.Operators{
-					Xtradb: &dbaasv1beta1.Operator{Status: dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_UNSUPPORTED},
+					Xtradb: &dbaasv1beta1.Operator{Status: dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_NOT_INSTALLED},
 					Psmdb:  &dbaasv1beta1.Operator{Status: dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_OK},
 				},
 				Status: dbaasv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,

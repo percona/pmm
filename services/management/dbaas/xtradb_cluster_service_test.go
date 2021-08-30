@@ -95,11 +95,11 @@ func TestXtraDBClusterService(t *testing.T) {
 	ctx, db, dbaasClient, grafanaClient, teardown := setup(t)
 	defer teardown(t)
 
-	ks := NewKubernetesServer(db, dbaasClient, grafanaClient)
+	ks := NewKubernetesServer(db, dbaasClient, grafanaClient, NewVersionServiceClient(versionServiceURL))
 	dbaasClient.On("CheckKubernetesClusterConnection", ctx, pxcKubeconfigTest).Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
 		Operators: &controllerv1beta1.Operators{
-			Xtradb: &controllerv1beta1.Operator{Status: controllerv1beta1.OperatorsStatus_OPERATORS_STATUS_NOT_INSTALLED},
-			Psmdb:  &controllerv1beta1.Operator{Status: controllerv1beta1.OperatorsStatus_OPERATORS_STATUS_OK},
+			XtradbOperatorVersion: "",
+			PsmdbOperatorVersion:  onePointEight,
 		},
 		Status: controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
 	}, nil)
