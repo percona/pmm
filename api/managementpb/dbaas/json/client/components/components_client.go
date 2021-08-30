@@ -35,6 +35,8 @@ type ClientService interface {
 
 	GetPXCComponents(params *GetPXCComponentsParams) (*GetPXCComponentsOK, error)
 
+	InstallOperator(params *InstallOperatorParams) (*InstallOperatorOK, error)
+
 	SetTransport(transport runtime.ClientTransport)
 }
 
@@ -200,6 +202,39 @@ func (a *Client) GetPXCComponents(params *GetPXCComponentsParams) (*GetPXCCompon
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*GetPXCComponentsDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  InstallOperator installs operator installs given operator in given version
+*/
+func (a *Client) InstallOperator(params *InstallOperatorParams) (*InstallOperatorOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewInstallOperatorParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "InstallOperator",
+		Method:             "POST",
+		PathPattern:        "/v1/management/DBaaS/Components/InstallOperator",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &InstallOperatorReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*InstallOperatorOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*InstallOperatorDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
