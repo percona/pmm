@@ -6,6 +6,7 @@ option go_package = "api/managementpb/dbaas;dbaasv1beta1";
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
+import "managementpb/dbaas/dbaas.proto";
 
 // TODO move it to parent directory / package once API is v1-stable
 
@@ -102,6 +103,32 @@ message ChangePXCComponentsRequest {
 
 message ChangePXCComponentsResponse {}
 
+message InstallOperatorRequest {
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // operator_type tells what operator we are interested in updating.
+  string operator_type = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // version tells what version of the operator we should update to.
+  string version = 3 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
+
+message InstallOperatorResponse {
+  // Status tells if installation was successfull.
+  OperatorsStatus status = 1;
+}
+
 message CheckForOperatorUpdateRequest {}
 
 // ComponentUpdateInformation contains version we can update to for certain component.
@@ -148,6 +175,13 @@ service Components {
   rpc ChangePXCComponents(ChangePXCComponentsRequest) returns (ChangePXCComponentsResponse) {
     option (google.api.http) = {
       post: "/v1/management/DBaaS/Components/ChangePXC"
+      body: "*"
+    };
+  }
+  // InstallOperator installs given operator in given version.
+  rpc InstallOperator(InstallOperatorRequest) returns (InstallOperatorResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/Components/InstallOperator"
       body: "*"
     };
   }

@@ -119,6 +119,21 @@ func (this *ChangePXCComponentsRequest) Validate() error {
 func (this *ChangePXCComponentsResponse) Validate() error {
 	return nil
 }
+func (this *InstallOperatorRequest) Validate() error {
+	if this.KubernetesClusterName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
+	}
+	if this.OperatorType == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("OperatorType", fmt.Errorf(`value '%v' must not be an empty string`, this.OperatorType))
+	}
+	if this.Version == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Version", fmt.Errorf(`value '%v' must not be an empty string`, this.Version))
+	}
+	return nil
+}
+func (this *InstallOperatorResponse) Validate() error {
+	return nil
+}
 func (this *CheckForOperatorUpdateRequest) Validate() error {
 	return nil
 }

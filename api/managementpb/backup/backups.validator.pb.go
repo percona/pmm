@@ -6,6 +6,7 @@ package backupv1beta1
 import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
+	_ "github.com/golang/protobuf/ptypes/duration"
 	_ "github.com/golang/protobuf/ptypes/timestamp"
 	_ "github.com/golang/protobuf/ptypes/wrappers"
 	_ "github.com/mwitkow/go-proto-validators"
@@ -26,6 +27,11 @@ func (this *StartBackupRequest) Validate() error {
 	}
 	if this.LocationId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("LocationId", fmt.Errorf(`value '%v' must not be an empty string`, this.LocationId))
+	}
+	if this.RetryInterval != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.RetryInterval); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("RetryInterval", err)
+		}
 	}
 	return nil
 }
@@ -73,6 +79,11 @@ func (this *ScheduledBackup) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("StartTime", err)
 		}
 	}
+	if this.RetryInterval != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.RetryInterval); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("RetryInterval", err)
+		}
+	}
 	if this.LastRun != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.LastRun); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("LastRun", err)
@@ -98,6 +109,11 @@ func (this *ScheduleBackupRequest) Validate() error {
 	if this.StartTime != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.StartTime); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("StartTime", err)
+		}
+	}
+	if this.RetryInterval != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.RetryInterval); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("RetryInterval", err)
 		}
 	}
 	return nil
@@ -145,6 +161,16 @@ func (this *ChangeScheduledBackupRequest) Validate() error {
 	if this.Description != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Description); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Description", err)
+		}
+	}
+	if this.RetryInterval != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.RetryInterval); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("RetryInterval", err)
+		}
+	}
+	if this.Retries != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Retries); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Retries", err)
 		}
 	}
 	if this.Retention != nil {

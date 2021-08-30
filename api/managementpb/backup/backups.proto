@@ -6,17 +6,11 @@ option go_package = "api/managementpb/backup;backupv1beta1";
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
+import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
 import "inventorypb/services.proto";
 import "managementpb/backup/common.proto";
-
-// RetryMode specifies how backup should retry in case of failure.
-enum RetryMode {
-  RETRY_MODE_INVALID = 0;
-  AUTO = 1;
-  MANUAL = 2;
-}
 
 message StartBackupRequest {
   // Service identifier.
@@ -35,6 +29,10 @@ message StartBackupRequest {
   string name = 3;
   // Human-readable description.
   string description = 4;
+  // Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.
+  google.protobuf.Duration retry_interval = 5;
+  // How many times to retry a failed backup before giving up.
+  uint32 retries = 6;
 }
 
 message StartBackupResponse {
@@ -96,12 +94,10 @@ message ScheduledBackup {
   string name = 8;
   // Description.
   string description = 9;
-  // Retry mode.
-  //RetryMode retry_mode = 10;
   // Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.
-  //google.protobuf.Duration retry_interval = 11;
+  google.protobuf.Duration retry_interval = 11;
   // How many times to retry a failed backup before giving up.
-  //uint32 retry_times = 12;
+  uint32 retries = 12;
   // If scheduling is enabled.
   bool enabled = 13;
   // Backup data model.
@@ -142,9 +138,9 @@ message ScheduleBackupRequest {
   // Human-readable description.
   string description = 6;
   // Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.
-  //google.protobuf.Duration retry_interval = 7;
+  google.protobuf.Duration retry_interval = 7;
   // How many times to retry a failed backup before giving up.
-  //uint32 retry_times = 8;
+  uint32 retries = 8;
   // If scheduling is enabled.
   bool enabled = 9;
   // How many artifacts keep. 0 - unlimited.
@@ -177,10 +173,9 @@ message ChangeScheduledBackupRequest {
   // Human-readable description.
   google.protobuf.StringValue description = 6;
   // Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.
-  //google.protobuf.Duration retry_interval = 7;
+  google.protobuf.Duration retry_interval = 7;
   // How many times to retry a failed backup before giving up.
-  //google.protobuf.UInt32Value retry_times = 8;
-
+  google.protobuf.UInt32Value retries = 8;
   // How many artifacts keep. 0 - unlimited.
   google.protobuf.UInt32Value retention = 9;
 }
