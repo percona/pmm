@@ -85,6 +85,8 @@ message AddMongoDBRequest {
   string authentication_mechanism = 25;
   // Authentication database.
   string authentication_database = 26;
+  // Custom password for exporter endpoint /metrics.
+  string agent_password = 27;
 }
 
 message AddMongoDBResponse {

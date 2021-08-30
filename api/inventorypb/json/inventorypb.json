@@ -409,6 +409,11 @@
             "schema": {
               "type": "object",
               "properties": {
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 15
+                },
                 "authentication_database": {
                   "description": "Authentication database.",
                   "type": "string",
@@ -644,6 +649,11 @@
             "schema": {
               "type": "object",
               "properties": {
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 14
+                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
                   "type": "object",
@@ -1180,6 +1190,11 @@
             "schema": {
               "type": "object",
               "properties": {
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 13
+                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
                   "type": "object",
@@ -1405,6 +1420,11 @@
             "schema": {
               "type": "object",
               "properties": {
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 10
+                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
                   "type": "object",

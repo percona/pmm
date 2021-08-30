@@ -2129,13 +2129,21 @@
             "schema": {
               "type": "object",
               "properties": {
-                "enable_telemetry": {
+                "enable_updates": {
                   "type": "boolean",
                   "x-order": 0
                 },
-                "disable_telemetry": {
+                "disable_updates": {
                   "type": "boolean",
                   "x-order": 1
+                },
+                "enable_telemetry": {
+                  "type": "boolean",
+                  "x-order": 2
+                },
+                "disable_telemetry": {
+                  "type": "boolean",
+                  "x-order": 3
                 },
                 "metrics_resolutions": {
                   "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -2157,63 +2165,63 @@
                       "x-order": 2
                     }
                   },
-                  "x-order": 2
+                  "x-order": 4
                 },
                 "data_retention": {
                   "description": "A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h.",
                   "type": "string",
-                  "x-order": 3
+                  "x-order": 5
                 },
                 "ssh_key": {
                   "type": "string",
-                  "x-order": 4
+                  "x-order": 6
                 },
                 "aws_partitions": {
                   "type": "array",
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 5
+                  "x-order": 7
                 },
                 "alert_manager_url": {
                   "description": "External AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
                   "type": "string",
-                  "x-order": 6
+                  "x-order": 8
                 },
                 "remove_alert_manager_url": {
                   "description": "Remove external AlertManager URL.",
                   "type": "boolean",
-                  "x-order": 7
+                  "x-order": 9
                 },
                 "alert_manager_rules": {
                   "description": "Custom alerting or recording rules.",
                   "type": "string",
-                  "x-order": 8
+                  "x-order": 10
                 },
                 "remove_alert_manager_rules": {
                   "description": "Remove custom alerting or recording rules.",
                   "type": "boolean",
-                  "x-order": 9
+                  "x-order": 11
                 },
                 "enable_stt": {
                   "description": "Enable Security Threat Tool.",
                   "type": "boolean",
-                  "x-order": 10
+                  "x-order": 12
                 },
                 "disable_stt": {
                   "description": "Disable Security Threat Tool.",
                   "type": "boolean",
-                  "x-order": 11
+                  "x-order": 13
                 },
                 "enable_alerting": {
                   "description": "Enable Integrated Alerting.",
                   "type": "boolean",
-                  "x-order": 12
+                  "x-order": 14
                 },
                 "disable_alerting": {
                   "description": "Disable Integrated Alerting.",
                   "type": "boolean",
-                  "x-order": 13
+                  "x-order": 15
                 },
                 "email_alerting_settings": {
                   "description": "EmailAlertingSettings represents email (SMTP) configuration for Integrated Alerting.",
@@ -2255,12 +2263,12 @@
                       "x-order": 6
                     }
                   },
-                  "x-order": 14
+                  "x-order": 16
                 },
                 "remove_email_alerting_settings": {
                   "description": "If true, removes Integrated Alerting email (SMTP) settings.",
                   "type": "boolean",
-                  "x-order": 15
+                  "x-order": 17
                 },
                 "slack_alerting_settings": {
                   "description": "SlackAlertingSettings represents Slack configuration for Integrated Alerting.",
@@ -2272,21 +2280,21 @@
                       "x-order": 0
                     }
                   },
-                  "x-order": 16
+                  "x-order": 18
                 },
                 "remove_slack_alerting_settings": {
                   "description": "If true, removes Integrated Alerting Slack settings.",
                   "type": "boolean",
-                  "x-order": 17
+                  "x-order": 19
                 },
                 "pmm_public_address": {
                   "description": "PMM Server public address.",
                   "type": "string",
-                  "x-order": 18
+                  "x-order": 20
                 },
                 "remove_pmm_public_address": {
                   "type": "boolean",
-                  "x-order": 19
+                  "x-order": 21
                 },
                 "stt_check_intervals": {
                   "description": "STTCheckIntervals represents intervals between STT checks.",
@@ -2308,37 +2316,37 @@
                       "x-order": 2
                     }
                   },
-                  "x-order": 20
+                  "x-order": 22
                 },
                 "enable_azurediscover": {
                   "description": "Enable Azure Discover.",
                   "type": "boolean",
-                  "x-order": 21
+                  "x-order": 23
                 },
                 "disable_azurediscover": {
                   "description": "Disable Azure Discover.",
                   "type": "boolean",
-                  "x-order": 22
+                  "x-order": 24
                 },
                 "enable_backup_management": {
                   "description": "Enable Backup Management.",
                   "type": "boolean",
-                  "x-order": 23
+                  "x-order": 25
                 },
                 "disable_backup_management": {
                   "description": "Disable Backup Management.",
                   "type": "boolean",
-                  "x-order": 24
+                  "x-order": 26
                 },
                 "enable_dbaas": {
                   "description": "Enable DBaaS.",
                   "type": "boolean",
-                  "x-order": 25
+                  "x-order": 27
                 },
                 "disable_dbaas": {
                   "description": "Disable DBaaS.",
                   "type": "boolean",
-                  "x-order": 26
+                  "x-order": 28
                 }
               }
             }
@@ -3608,6 +3616,11 @@
                   "description": "Authentication database.",
                   "type": "string",
                   "x-order": 14
+                },
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 15
                 }
               }
             }
@@ -3839,6 +3852,11 @@
                     "type": "string"
                   },
                   "x-order": 13
+                },
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 14
                 }
               }
             }
@@ -4369,6 +4387,11 @@
                   "description": "TLS Certificate Key.",
                   "type": "string",
                   "x-order": 12
+                },
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 13
                 }
               }
             }
@@ -4579,6 +4602,11 @@
                     "type": "string"
                   },
                   "x-order": 9
+                },
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 10
                 }
               }
             }
@@ -17117,6 +17145,103 @@
         }
       }
     },
+    "/v1/management/DBaaS/Components/InstallOperator": {
+      "post": {
+        "tags": [
+          "Components"
+        ],
+        "summary": "InstallOperator installs given operator in given version.",
+        "operationId": "InstallOperator",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "kubernetes_cluster_name": {
+                  "description": "Kubernetes cluster name.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "operator_type": {
+                  "description": "operator_type tells what operator we are interested in updating.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "version": {
+                  "description": "version tells what version of the operator we should update to.",
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "description": "OperatorsStatus defines status of operators installed in Kubernetes cluster.\n\n - OPERATORS_STATUS_INVALID: OPERATORS_STATUS_INVALID represents unknown state.\n - OPERATORS_STATUS_OK: OPERATORS_STATUS_OK represents that operators are installed and have supported API version.\n - OPERATORS_STATUS_UNSUPPORTED: OPERATORS_STATUS_UNSUPPORTED represents that operators are installed, but doesn't have supported API version.\n - OPERATORS_STATUS_NOT_INSTALLED: OPERATORS_STATUS_NOT_INSTALLED represents that operators are not installed.",
+                  "type": "string",
+                  "default": "OPERATORS_STATUS_INVALID",
+                  "enum": [
+                    "OPERATORS_STATUS_INVALID",
+                    "OPERATORS_STATUS_OK",
+                    "OPERATORS_STATUS_UNSUPPORTED",
+                    "OPERATORS_STATUS_NOT_INSTALLED"
+                  ],
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/DBaaS/GetLogs": {
       "post": {
         "tags": [
@@ -20613,6 +20738,11 @@
                   "description": "Authentication database.",
                   "type": "string",
                   "x-order": 24
+                },
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 25
                 }
               }
             }
@@ -21110,6 +21240,11 @@
                     "type": "string"
                   },
                   "x-order": 26
+                },
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 27
                 }
               }
             }
@@ -22047,6 +22182,11 @@
                   "description": "TLS Certificate Key.",
                   "type": "string",
                   "x-order": 24
+                },
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 25
                 }
               }
             }
@@ -22572,6 +22712,11 @@
                     "type": "string"
                   },
                   "x-order": 18
+                },
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 19
                 }
               }
             }
@@ -22947,6 +23092,11 @@
                   "type": "boolean",
                   "title": "If true, add qan-pgstatements",
                   "x-order": 27
+                },
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 28
                 }
               }
             }
@@ -24886,6 +25036,23 @@
                   "description": "Human-readable description.",
                   "type": "string",
                   "x-order": 5
+                },
+                "retry_interval": {
+                  "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
+                  "type": "string",
+                  "x-order": 6
+                },
+                "retries": {
+                  "description": "How many times to retry a failed backup before giving up.",
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 7
+                },
+                "retention": {
+                  "description": "How many artifacts keep. 0 - unlimited.",
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 8
                 }
               }
             }
@@ -25015,10 +25182,21 @@
                         "type": "string",
                         "x-order": 8
                       },
-                      "enabled": {
-                        "description": "Retry mode.\nRetryMode retry_mode = 10;\nDelay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.\ngoogle.protobuf.Duration retry_interval = 11;\nHow many times to retry a failed backup before giving up.\nuint32 retry_times = 12;\nIf scheduling is enabled.",
-                        "type": "boolean",
+                      "retry_interval": {
+                        "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
+                        "type": "string",
                         "x-order": 9
+                      },
+                      "retries": {
+                        "description": "How many times to retry a failed backup before giving up.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 10
+                      },
+                      "enabled": {
+                        "description": "If scheduling is enabled.",
+                        "type": "boolean",
+                        "x-order": 11
                       },
                       "data_model": {
                         "description": "DataModel is a model used for performing a backup.",
@@ -25029,24 +25207,30 @@
                           "PHYSICAL",
                           "LOGICAL"
                         ],
-                        "x-order": 10
+                        "x-order": 12
                       },
                       "vendor": {
                         "description": "Database vendor e.g. PostgreSQL, MongoDB, MySQL.",
                         "type": "string",
-                        "x-order": 11
+                        "x-order": 13
                       },
                       "last_run": {
                         "description": "Last run.",
                         "type": "string",
                         "format": "date-time",
-                        "x-order": 12
+                        "x-order": 14
                       },
                       "next_run": {
                         "description": "Next run.",
                         "type": "string",
                         "format": "date-time",
-                        "x-order": 13
+                        "x-order": 15
+                      },
+                      "retention": {
+                        "description": "How many artifacts keep. 0 - unlimited.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 16
                       }
                     }
                   },
@@ -25300,10 +25484,27 @@
                   "type": "string",
                   "x-order": 5
                 },
-                "enabled": {
-                  "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.\ngoogle.protobuf.Duration retry_interval = 7;\nHow many times to retry a failed backup before giving up.\nuint32 retry_times = 8;\nIf scheduling is enabled.",
-                  "type": "boolean",
+                "retry_interval": {
+                  "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
+                  "type": "string",
                   "x-order": 6
+                },
+                "retries": {
+                  "description": "How many times to retry a failed backup before giving up.",
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 7
+                },
+                "enabled": {
+                  "description": "If scheduling is enabled.",
+                  "type": "boolean",
+                  "x-order": 8
+                },
+                "retention": {
+                  "description": "How many artifacts keep. 0 - unlimited.",
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 9
                 }
               }
             }
@@ -25398,6 +25599,17 @@
                   "description": "Human-readable description.",
                   "type": "string",
                   "x-order": 3
+                },
+                "retry_interval": {
+                  "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
+                  "type": "string",
+                  "x-order": 4
+                },
+                "retries": {
+                  "description": "How many times to retry a failed backup before giving up.",
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 5
                 }
               }
             }
