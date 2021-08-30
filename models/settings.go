@@ -54,6 +54,10 @@ type IntegratedAlerting struct {
 type Settings struct {
 	PMMPublicAddress string `json:"pmm_public_address"`
 
+	Updates struct {
+		Disabled bool `json:"disabled"`
+	} `json:"updates"`
+
 	Telemetry struct {
 		Disabled bool   `json:"disabled"`
 		UUID     string `json:"uuid"`

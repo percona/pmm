@@ -59,6 +59,7 @@ func TestSettings(t *testing.T) {
 		assert.Equal(t, expectedSTTCheckIntervals, res.Payload.Settings.SttCheckIntervals)
 		assert.Equal(t, "2592000s", res.Payload.Settings.DataRetention)
 		assert.Equal(t, []string{"aws"}, res.Payload.Settings.AWSPartitions)
+		assert.False(t, res.Payload.Settings.UpdatesDisabled)
 		assert.True(t, res.Payload.Settings.AlertingEnabled)
 		assert.Empty(t, res.Payload.Settings.EmailAlertingSettings)
 		assert.Empty(t, res.Payload.Settings.SlackAlertingSettings)
@@ -66,6 +67,53 @@ func TestSettings(t *testing.T) {
 		t.Run("ChangeSettings", func(t *testing.T) {
 
 			defer restoreSettingsDefaults(t)
+
+			t.Run("Updates", func(t *testing.T) {
+				t.Run("DisableAndEnableUpdatesSettingsUpdate", func(t *testing.T) {
+					defer restoreSettingsDefaults(t)
+					res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+						Body: server.ChangeSettingsBody{
+							DisableUpdates: true,
+						},
+						Context: pmmapitests.Context,
+					})
+					require.NoError(t, err)
+					assert.True(t, res.Payload.Settings.UpdatesDisabled)
+					assert.Empty(t, err)
+
+					resg, err := serverClient.Default.Server.GetSettings(nil)
+					require.NoError(t, err)
+					assert.True(t, resg.Payload.Settings.UpdatesDisabled)
+
+					res, err = serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+						Body: server.ChangeSettingsBody{
+							EnableUpdates: true,
+						},
+						Context: pmmapitests.Context,
+					})
+					require.NoError(t, err)
+					assert.False(t, res.Payload.Settings.UpdatesDisabled)
+					assert.Empty(t, err)
+
+					resg, err = serverClient.Default.Server.GetSettings(nil)
+					require.NoError(t, err)
+					assert.False(t, resg.Payload.Settings.UpdatesDisabled)
+				})
+
+				t.Run("InvalidBothEnableAndDisableUpdates", func(t *testing.T) {
+					defer restoreSettingsDefaults(t)
+
+					res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+						Body: server.ChangeSettingsBody{
+							EnableUpdates:  true,
+							DisableUpdates: true,
+						},
+						Context: pmmapitests.Context,
+					})
+					pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `Both enable_updates and disable_updates are present.`)
+					assert.Empty(t, res)
+				})
+			})
 
 			t.Run("ValidAlertingSettingsUpdate", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)

@@ -169,6 +169,26 @@ func TestSettings(t *testing.T) {
 			assert.EqualError(t, err, `data_retention: minimal resolution is 24h`)
 		})
 
+		t.Run("Updates validation", func(t *testing.T) {
+			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+				DisableUpdates: false,
+			})
+			assert.NoError(t, err)
+			assert.False(t, ns.Updates.Disabled)
+
+			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+				EnableUpdates:  true,
+				DisableUpdates: true,
+			})
+			assert.EqualError(t, err, `Both enable_updates and disable_updates are present.`)
+
+			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+				DisableUpdates: true,
+			})
+			assert.NoError(t, err)
+			assert.True(t, ns.Updates.Disabled)
+		})
+
 		t.Run("Telemetry and STT validation", func(t *testing.T) {
 			// ensure initial default state
 			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
