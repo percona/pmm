@@ -21,7 +21,7 @@ require (
 	github.com/prometheus/common v0.10.0 // indirect
 	github.com/prometheus/procfs v0.1.3 // indirect
 	github.com/stretchr/testify v1.6.1
-	go.mongodb.org/mongo-driver v1.3.5
+	go.mongodb.org/mongo-driver v1.7.1
 	golang.org/x/net v0.0.0-20200707034311-ab3426394381 // indirect
 	golang.org/x/sys v0.0.0-20200722175500-76b94024e4b6
 	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013
