@@ -130,6 +130,9 @@ func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1
 			if err != nil {
 				k.l.Errorf("failed to convert dbaas-controller operator status to PMM status: %v", err)
 			}
+
+			clusters[i].Operators.Xtradb.Version = resp.Operators.XtradbOperatorVersion
+			clusters[i].Operators.Psmdb.Version = resp.Operators.PsmdbOperatorVersion
 		}()
 	}
 	wg.Wait()
