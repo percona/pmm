@@ -1488,6 +1488,10 @@
                                   "OPERATORS_STATUS_NOT_INSTALLED"
                                 ],
                                 "x-order": 0
+                              },
+                              "version": {
+                                "type": "string",
+                                "x-order": 1
                               }
                             },
                             "x-order": 1
@@ -1507,6 +1511,10 @@
                                   "OPERATORS_STATUS_NOT_INSTALLED"
                                 ],
                                 "x-order": 0
+                              },
+                              "version": {
+                                "type": "string",
+                                "x-order": 1
                               }
                             },
                             "x-order": 0
