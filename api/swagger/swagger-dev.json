@@ -17477,7 +17477,7 @@
                         "description": "Operators contains list of operators installed in Kubernetes cluster.",
                         "type": "object",
                         "properties": {
-                          "xtradb": {
+                          "pxc": {
                             "description": "Operator contains all information about operator installed in Kubernetes cluster.",
                             "type": "object",
                             "properties": {
