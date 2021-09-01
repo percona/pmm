@@ -58,7 +58,7 @@ jobs:
           mike retitle 2.x "PMM2 (LATEST)" -b netlify  -p
 
       - name: Install Node.js 14.x
-        uses: percona-platform/setup-node@v2.1.2
+        uses: percona-platform/setup-node@v2
         with:
           node-version: "14"
 
