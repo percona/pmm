@@ -154,6 +154,17 @@
                         "type": "string",
                         "x-order": 4
                       },
+                      "mode": {
+                        "description": "BackupMode specifies backup mode.",
+                        "type": "string",
+                        "default": "BACKUP_MODE_INVALID",
+                        "enum": [
+                          "BACKUP_MODE_INVALID",
+                          "SNAPSHOT",
+                          "INCREMENTAL"
+                        ],
+                        "x-order": 10
+                      },
                       "name": {
                         "type": "string",
                         "title": "Artifact name",

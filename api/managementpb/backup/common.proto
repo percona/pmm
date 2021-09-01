@@ -10,3 +10,10 @@ enum DataModel {
   PHYSICAL = 1;
   LOGICAL = 2;
 }
+
+// BackupMode specifies backup mode.
+enum BackupMode {
+  BACKUP_MODE_INVALID = 0;
+  SNAPSHOT = 1;
+  INCREMENTAL = 2;
+}

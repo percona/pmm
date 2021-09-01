@@ -11,13 +11,6 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
 import "managementpb/backup/common.proto";
 
-// BackupMode specifies backup mode.
-enum BackupMode {
-  BACKUP_MODE_INVALID = 0;
-  SNAPSHOT = 1;
-  INCREMENTAL = 2;
-}
-
 message StartBackupRequest {
   // Service identifier.
   string service_id = 1 [

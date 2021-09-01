@@ -24943,6 +24943,17 @@
                         "type": "string",
                         "format": "date-time",
                         "x-order": 9
+                      },
+                      "mode": {
+                        "description": "BackupMode specifies backup mode.",
+                        "type": "string",
+                        "default": "BACKUP_MODE_INVALID",
+                        "enum": [
+                          "BACKUP_MODE_INVALID",
+                          "SNAPSHOT",
+                          "INCREMENTAL"
+                        ],
+                        "x-order": 10
                       }
                     }
                   },
