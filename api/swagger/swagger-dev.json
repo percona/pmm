@@ -25231,6 +25231,17 @@
                         "type": "integer",
                         "format": "int64",
                         "x-order": 16
+                      },
+                      "mode": {
+                        "description": "BackupMode specifies backup mode.",
+                        "type": "string",
+                        "default": "BACKUP_MODE_INVALID",
+                        "enum": [
+                          "BACKUP_MODE_INVALID",
+                          "SNAPSHOT",
+                          "INCREMENTAL"
+                        ],
+                        "x-order": 17
                       }
                     }
                   },
@@ -25506,17 +25517,6 @@
                   "format": "int64",
                   "x-order": 9
                 },
-                "data_model": {
-                  "description": "DataModel is a model used for performing a backup.",
-                  "type": "string",
-                  "default": "DATA_MODEL_INVALID",
-                  "enum": [
-                    "DATA_MODEL_INVALID",
-                    "PHYSICAL",
-                    "LOGICAL"
-                  ],
-                  "x-order": 10
-                },
                 "mode": {
                   "description": "BackupMode specifies backup mode.",
                   "type": "string",
@@ -25526,7 +25526,7 @@
                     "SNAPSHOT",
                     "INCREMENTAL"
                   ],
-                  "x-order": 11
+                  "x-order": 10
                 }
               }
             }

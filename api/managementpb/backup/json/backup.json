@@ -424,6 +424,17 @@
                         "type": "string",
                         "x-order": 4
                       },
+                      "mode": {
+                        "description": "BackupMode specifies backup mode.",
+                        "type": "string",
+                        "default": "BACKUP_MODE_INVALID",
+                        "enum": [
+                          "BACKUP_MODE_INVALID",
+                          "SNAPSHOT",
+                          "INCREMENTAL"
+                        ],
+                        "x-order": 17
+                      },
                       "name": {
                         "description": "Artifact name.",
                         "type": "string",
@@ -704,17 +715,6 @@
                   "type": "string",
                   "x-order": 2
                 },
-                "data_model": {
-                  "description": "DataModel is a model used for performing a backup.",
-                  "type": "string",
-                  "default": "DATA_MODEL_INVALID",
-                  "enum": [
-                    "DATA_MODEL_INVALID",
-                    "PHYSICAL",
-                    "LOGICAL"
-                  ],
-                  "x-order": 10
-                },
                 "description": {
                   "description": "Human-readable description.",
                   "type": "string",
@@ -739,7 +739,7 @@
                     "SNAPSHOT",
                     "INCREMENTAL"
                   ],
-                  "x-order": 11
+                  "x-order": 10
                 },
                 "name": {
                   "description": "Name of backup.",

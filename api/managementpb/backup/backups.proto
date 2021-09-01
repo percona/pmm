@@ -102,6 +102,8 @@ message ScheduledBackup {
   google.protobuf.Timestamp next_run = 17;
   // How many artifacts keep. 0 - unlimited.
   uint32 retention = 18;
+  // Backup mode.
+  BackupMode mode = 19;
 }
 
 message ScheduleBackupRequest {
@@ -137,10 +139,8 @@ message ScheduleBackupRequest {
   bool enabled = 9;
   // How many artifacts keep. 0 - unlimited.
   uint32 retention = 10;
-  // Backup data model.
-  DataModel data_model = 11;
   // Backup mode.
-  BackupMode mode = 12;
+  BackupMode mode = 11;
 }
 
 message ScheduleBackupResponse {
