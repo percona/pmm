@@ -82,6 +82,9 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 		case "PMM_DEBUG", "PMM_TRACE":
 			// skip cross-component environment variables that are already handled by kingpin
 			continue
+		case "PERCONA_TEST_VERSION_SERVICE_URL":
+			// skip pmm-managed environment variables that are already handled by kingpin
+			continue
 		case "DISABLE_UPDATES":
 			envSettings.DisableUpdates, err = strconv.ParseBool(v)
 			if err != nil {
@@ -120,10 +123,6 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 				// disable cache explicitly
 				envSettings.DisableVMCache = true
 			}
-
-		case "PERCONA_TEST_IA": // FIXME remove
-			warns = append(warns, fmt.Sprintf("Environment variable %q WILL BE REMOVED SOON, please use %q instead.", k, "ENABLE_ALERTING"))
-			fallthrough
 		case "ENABLE_ALERTING":
 			envSettings.EnableAlerting, err = strconv.ParseBool(v)
 			if err != nil {
