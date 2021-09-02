@@ -223,7 +223,7 @@ composite docs/_images/PMM_Home_Dashboard_Overlay.png docs/_images/PMM_Home_Dash
 
 ## Spelling and grammar
 
-The GitHub actions build job performs a basic spell and grammar check. You can do these yourself on the command line if you have [Node.js] installed.
+The GitHub actions build job performs a basic spell check. (A grammar check is currently commented out in the actions file.) You can do these yourself on the command line if you have [Node.js] installed.
 
 ```sh
 npm i markdown-spellcheck -g
@@ -236,9 +236,9 @@ To check all files:
 mdspell --report --en-us --ignore-acronyms --ignore-numbers "docs/**/*.md"
 ```
 
-Add any custom dictionary words to `.spelling`. If spell checking fails, the GitHub action will fail too, but after the MkDocs build and so can be safely ignored. The `publish` branch will still have the latest build and can be used. Meanwhile, see what the spelling error is and either fix it or add the word to `.spelling`.
+Add any custom dictionary words to `.spelling`. The results of the spell check are printed but the job ignores the return status.
 
-Grammar is checked using [`write-good`](https://github.com/btford/write-good). (The results of this check are ignored and don't affect the GitHub action.)
+Grammar is checked using [`write-good`](https://github.com/btford/write-good).
 
 ```sh
 npm i write-good -g
