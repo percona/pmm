@@ -161,7 +161,8 @@
                         "enum": [
                           "BACKUP_MODE_INVALID",
                           "SNAPSHOT",
-                          "INCREMENTAL"
+                          "INCREMENTAL",
+                          "PITR"
                         ],
                         "x-order": 10
                       },
@@ -442,7 +443,8 @@
                         "enum": [
                           "BACKUP_MODE_INVALID",
                           "SNAPSHOT",
-                          "INCREMENTAL"
+                          "INCREMENTAL",
+                          "PITR"
                         ],
                         "x-order": 17
                       },
@@ -748,7 +750,8 @@
                   "enum": [
                     "BACKUP_MODE_INVALID",
                     "SNAPSHOT",
-                    "INCREMENTAL"
+                    "INCREMENTAL",
+                    "PITR"
                   ],
                   "x-order": 10
                 },

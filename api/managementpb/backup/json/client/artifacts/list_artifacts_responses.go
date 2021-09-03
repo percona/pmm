@@ -158,7 +158,7 @@ type ArtifactsItems0 struct {
 	CreatedAt strfmt.DateTime `json:"created_at,omitempty"`
 
 	// BackupMode specifies backup mode.
-	// Enum: [BACKUP_MODE_INVALID SNAPSHOT INCREMENTAL]
+	// Enum: [BACKUP_MODE_INVALID SNAPSHOT INCREMENTAL PITR]
 	Mode *string `json:"mode,omitempty"`
 }
 
@@ -312,7 +312,7 @@ var artifactsItems0TypeModePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["BACKUP_MODE_INVALID","SNAPSHOT","INCREMENTAL"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["BACKUP_MODE_INVALID","SNAPSHOT","INCREMENTAL","PITR"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -330,6 +330,9 @@ const (
 
 	// ArtifactsItems0ModeINCREMENTAL captures enum value "INCREMENTAL"
 	ArtifactsItems0ModeINCREMENTAL string = "INCREMENTAL"
+
+	// ArtifactsItems0ModePITR captures enum value "PITR"
+	ArtifactsItems0ModePITR string = "PITR"
 )
 
 // prop value enum

@@ -156,7 +156,7 @@ type ScheduleBackupBody struct {
 	Retention int64 `json:"retention,omitempty"`
 
 	// BackupMode specifies backup mode.
-	// Enum: [BACKUP_MODE_INVALID SNAPSHOT INCREMENTAL]
+	// Enum: [BACKUP_MODE_INVALID SNAPSHOT INCREMENTAL PITR]
 	Mode *string `json:"mode,omitempty"`
 }
 
@@ -195,7 +195,7 @@ var scheduleBackupBodyTypeModePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["BACKUP_MODE_INVALID","SNAPSHOT","INCREMENTAL"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["BACKUP_MODE_INVALID","SNAPSHOT","INCREMENTAL","PITR"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -213,6 +213,9 @@ const (
 
 	// ScheduleBackupBodyModeINCREMENTAL captures enum value "INCREMENTAL"
 	ScheduleBackupBodyModeINCREMENTAL string = "INCREMENTAL"
+
+	// ScheduleBackupBodyModePITR captures enum value "PITR"
+	ScheduleBackupBodyModePITR string = "PITR"
 )
 
 // prop value enum

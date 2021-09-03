@@ -16,4 +16,5 @@ enum BackupMode {
   BACKUP_MODE_INVALID = 0;
   SNAPSHOT = 1;
   INCREMENTAL = 2;
+  PITR = 3;
 }
