@@ -277,6 +277,17 @@
                   "description": "How many artifacts keep. 0 - unlimited.",
                   "type": "integer",
                   "format": "int64",
+                  "x-order": 8
+                },
+                "retries": {
+                  "description": "How many times to retry a failed backup before giving up.",
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 7
+                },
+                "retry_interval": {
+                  "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
+                  "type": "string",
                   "x-order": 6
                 },
                 "scheduled_backup_id": {
@@ -463,7 +474,7 @@
                           "PHYSICAL",
                           "LOGICAL"
                         ],
-                        "x-order": 10
+                        "x-order": 12
                       },
                       "description": {
                         "description": "Description.",
@@ -471,15 +482,15 @@
                         "x-order": 8
                       },
                       "enabled": {
-                        "description": "Retry mode.\nRetryMode retry_mode = 10;\nDelay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.\ngoogle.protobuf.Duration retry_interval = 11;\nHow many times to retry a failed backup before giving up.\nuint32 retry_times = 12;\nIf scheduling is enabled.",
+                        "description": "If scheduling is enabled.",
                         "type": "boolean",
-                        "x-order": 9
+                        "x-order": 11
                       },
                       "last_run": {
                         "description": "Last run.",
                         "type": "string",
                         "format": "date-time",
-                        "x-order": 12
+                        "x-order": 14
                       },
                       "location_id": {
                         "description": "Machine-readable location ID.",
@@ -500,13 +511,24 @@
                         "description": "Next run.",
                         "type": "string",
                         "format": "date-time",
-                        "x-order": 13
+                        "x-order": 15
                       },
                       "retention": {
                         "description": "How many artifacts keep. 0 - unlimited.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 14
+                        "x-order": 16
+                      },
+                      "retries": {
+                        "description": "How many times to retry a failed backup before giving up.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 10
+                      },
+                      "retry_interval": {
+                        "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
+                        "type": "string",
+                        "x-order": 9
                       },
                       "scheduled_backup_id": {
                         "description": "Machine-readable ID.",
@@ -532,7 +554,7 @@
                       "vendor": {
                         "description": "Database vendor e.g. PostgreSQL, MongoDB, MySQL.",
                         "type": "string",
-                        "x-order": 11
+                        "x-order": 13
                       }
                     }
                   },
@@ -766,9 +788,9 @@
                   "x-order": 5
                 },
                 "enabled": {
-                  "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.\ngoogle.protobuf.Duration retry_interval = 7;\nHow many times to retry a failed backup before giving up.\nuint32 retry_times = 8;\nIf scheduling is enabled.",
+                  "description": "If scheduling is enabled.",
                   "type": "boolean",
-                  "x-order": 6
+                  "x-order": 8
                 },
                 "location_id": {
                   "description": "Machine-readable location ID.",
@@ -784,7 +806,18 @@
                   "description": "How many artifacts keep. 0 - unlimited.",
                   "type": "integer",
                   "format": "int64",
+                  "x-order": 9
+                },
+                "retries": {
+                  "description": "How many times to retry a failed backup before giving up.",
+                  "type": "integer",
+                  "format": "int64",
                   "x-order": 7
+                },
+                "retry_interval": {
+                  "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
+                  "type": "string",
+                  "x-order": 6
                 },
                 "service_id": {
                   "description": "Service identifier where backup should be performed.",
@@ -885,6 +918,17 @@
                   "description": "If empty then name is auto-generated.",
                   "type": "string",
                   "x-order": 2
+                },
+                "retries": {
+                  "description": "How many times to retry a failed backup before giving up.",
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 5
+                },
+                "retry_interval": {
+                  "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
+                  "type": "string",
+                  "x-order": 4
                 },
                 "service_id": {
                   "description": "Service identifier.",
