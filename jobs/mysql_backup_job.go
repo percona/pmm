@@ -18,6 +18,8 @@ package jobs
 import (
 	"bytes"
 	"context"
+	"io/ioutil"
+	"os"
 	"os/exec"
 	"strconv"
 	"time"
@@ -123,7 +125,25 @@ func (j *MySQLBackupJob) backup(ctx context.Context) (rerr error) {
 	pipeCtx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	xtrabackupCmd := exec.CommandContext(pipeCtx, xtrabackupBin, "--compress", "--backup") // #nosec G204
+	tmpDir, err := ioutil.TempDir("", "mysql-backup")
+	if err != nil {
+		return errors.Wrapf(err, "failed to create tempdir")
+	}
+
+	defer func() {
+		if err := os.RemoveAll(tmpDir); err != nil {
+			j.l.WithError(err).Warn("failed to remove temporary directory")
+		}
+	}()
+
+	xtrabackupCmd := exec.CommandContext(pipeCtx,
+		xtrabackupBin,
+		"--compress",
+		"--backup",
+		// Target dir is created, even though it's empty, because we are streaming it to cloud.
+		// https://jira.percona.com/browse/PXB-2602
+		"--target-dir="+tmpDir,
+	) // #nosec G204
 
 	if j.connConf.User != "" {
 		xtrabackupCmd.Args = append(xtrabackupCmd.Args, "--user="+j.connConf.User)

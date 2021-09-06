@@ -97,7 +97,7 @@ func (j *MySQLRestoreJob) Run(ctx context.Context, send Send) (rerr error) {
 	}
 	defer func() {
 		if err := os.RemoveAll(tmpDir); err != nil {
-			j.l.WithError(err).Error("failed to remove temporary directory")
+			j.l.WithError(err).Warn("failed to remove temporary directory")
 		}
 	}()
 
@@ -189,7 +189,6 @@ func prepareRestoreCommands(
 		"-x",
 		"--directory="+targetDirectory,
 		"--parallel=10",
-		"--decompress",
 	)
 	xbstreamCmd.Stdin = xbcloudStdout
 	xbstreamCmd.Stderr = stderr
@@ -346,6 +345,15 @@ func isPathExists(path string) (bool, error) {
 }
 
 func restoreBackup(ctx context.Context, backupDirectory, mySQLDirectory string) error {
+	if output, err := exec.CommandContext( //nolint:gosec
+		ctx,
+		xtrabackupBin,
+		"--decompress",
+		"--target-dir="+backupDirectory,
+	).CombinedOutput(); err != nil {
+		return errors.Wrapf(err, "failed to decompress, output: %s", string(output))
+	}
+
 	if output, err := exec.CommandContext( //nolint:gosec
 		ctx,
 		xtrabackupBin,
