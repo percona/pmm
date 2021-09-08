@@ -437,13 +437,6 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 
 	var job jobs.Job
 	switch j := p.Job.(type) {
-	case *agentpb.StartJobRequest_Echo_:
-		delay, err := ptypes.Duration(j.Echo.Delay)
-		if err != nil {
-			return err
-		}
-
-		job = jobs.NewEchoJob(p.JobId, timeout, j.Echo.Message, delay)
 	case *agentpb.StartJobRequest_MysqlBackup:
 		var locationConfig jobs.BackupLocationConfig
 		switch cfg := j.MysqlBackup.LocationConfig.(type) {
