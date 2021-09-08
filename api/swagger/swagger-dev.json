@@ -25125,6 +25125,16 @@
                 "artifact_id": {
                   "type": "string",
                   "x-order": 0
+                },
+                "from_chunk": {
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 1
+                },
+                "limit": {
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 2
                 }
               }
             }

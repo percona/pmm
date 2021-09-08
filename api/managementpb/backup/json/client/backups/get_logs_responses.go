@@ -124,6 +124,12 @@ type GetLogsBody struct {
 
 	// artifact id
 	ArtifactID string `json:"artifact_id,omitempty"`
+
+	// from chunk
+	FromChunk int64 `json:"from_chunk,omitempty"`
+
+	// limit
+	Limit int64 `json:"limit,omitempty"`
 }
 
 // Validate validates this get logs body

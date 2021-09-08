@@ -183,6 +183,8 @@ message GetLogsRequest {
       string_not_empty: true
     }
   ];
+  uint32 from_chunk = 2;
+  uint32 limit = 3;
 }
 
 message GetLogsResponse {
