@@ -188,7 +188,14 @@ message GetLogsRequest {
 }
 
 message GetLogsResponse {
-  string logs = 1;
+  repeated LogChunk logs = 1;
+}
+
+// LogChunk represent one chunk of logs.
+message LogChunk {
+  uint32 chunk_id = 1;
+  string message = 2;
+  bool last_chunk = 3;
 }
 
 // Backups service handles backup operations to DB.
