@@ -1,0 +1,95 @@
+syntax = "proto3";
+
+package dbaas.v1beta1;
+
+option go_package = "api/managementpb/dbaas;dbaasv1beta1";
+
+import "github.com/mwitkow/go-proto-validators/validator.proto";
+import "google/api/annotations.proto";
+import "managementpb/dbaas/dbaas.proto";
+import "managementpb/dbaas/psmdb_clusters.proto";
+import "managementpb/dbaas/pxc_clusters.proto";
+
+// PSMDBCluster represents PSMDB cluster information.
+message PSMDBCluster {
+  // Cluster name.
+  string name = 1;
+  // Cluster state.
+  PSMDBClusterState state = 2;
+  // Currently running operation, if any.
+  RunningOperation operation = 3;
+  // Cluster parameters.
+  PSMDBClusterParams params = 4;
+  // DB cluster accessible outside of K8s cluster.
+  bool exposed = 5;
+}
+
+// PXCCluster represents PXC cluster information.
+message PXCCluster {
+  // Cluster name.
+  string name = 1;
+  // Cluster state.
+  PXCClusterState state = 2;
+  // Currently running operation, if any.
+  RunningOperation operation = 3;
+  // Cluster parameters.
+  PXCClusterParams params = 4;
+  // DB cluster accessible outside of K8s cluster.
+  bool exposed = 5;
+}
+
+message ListDBClustersRequest {
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
+
+message ListDBClustersResponse {
+  // PXC clusters information.
+  repeated PXCCluster pxc_clusters = 1;
+  // PXC clusters information.
+  repeated PSMDBCluster psmdb_clusters = 2;
+}
+
+message DeleteClusterRequest {
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // DB cluster name.
+  string name = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  DBClusterType cluster_type = 3 [
+    (validator.field) = {
+      msg_exists: true
+    }
+  ];
+}
+
+message DeleteDBClusterResponse {}
+
+// DBCluster service provides public methods for managing db clusters.
+service DBCluster {
+  // ListDBClusters returns a list of DB clusters.
+  rpc ListDBClusters(ListDBClustersRequest) returns (ListDBClustersResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/DBClusters/List"
+      body: "*"
+    };
+  }
+  // DeleteDBCluster deletes DB cluster.
+  rpc DeleteDBCluster(DeleteClusterRequest) returns (DeleteDBClusterResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/DBClusters/Delete"
+      body: "*"
+    };
+  }
+}
