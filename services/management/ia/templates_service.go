@@ -27,6 +27,7 @@ import (
 	"text/template"
 	"time"
 
+	api "github.com/percona-platform/saas/gen/check/retrieval"
 	"github.com/percona-platform/saas/pkg/alert"
 	"github.com/percona-platform/saas/pkg/common"
 	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
@@ -40,9 +41,14 @@ import (
 	"github.com/percona/pmm-managed/data"
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/utils/dir"
+	"github.com/percona/pmm-managed/utils/envvars"
+	"github.com/percona/pmm-managed/utils/saasdial"
+	"github.com/percona/pmm-managed/utils/signatures"
 )
 
-const templatesDir = "/srv/ia/templates"
+const (
+	templatesDir = "/srv/ia/templates"
+)
 
 // templateInfo represents alerting rule template information from various sources.
 //
@@ -61,12 +67,15 @@ type TemplatesService struct {
 	l                 *logrus.Entry
 	userTemplatesPath string
 
+	host       string
+	publicKeys []string
+
 	rw        sync.RWMutex
 	templates map[string]templateInfo
 }
 
 // NewTemplatesService creates a new TemplatesService.
-func NewTemplatesService(db *reform.DB) *TemplatesService {
+func NewTemplatesService(db *reform.DB) (*TemplatesService, error) {
 	l := logrus.WithField("component", "management/ia/templates")
 
 	err := dir.CreateDataDir(templatesDir, "pmm", "pmm", dirPerm)
@@ -74,12 +83,25 @@ func NewTemplatesService(db *reform.DB) *TemplatesService {
 		l.Error(err)
 	}
 
-	return &TemplatesService{
+	host, err := envvars.GetSAASHost()
+	if err != nil {
+		return nil, err
+	}
+
+	s := &TemplatesService{
 		db:                db,
 		l:                 l,
 		userTemplatesPath: templatesDir,
+		host:              host,
 		templates:         make(map[string]templateInfo),
 	}
+
+	if k := envvars.GetPublicKeys(); k != nil {
+		l.Warnf("Public keys changed to %q.", k)
+		s.publicKeys = k
+	}
+
+	return s, nil
 }
 
 // Enabled returns if service is enabled and can be used.
@@ -110,6 +132,7 @@ func (s *TemplatesService) getTemplates() map[string]templateInfo {
 
 // Collect collects IA rule templates from various sources like:
 // builtin templates: read from the generated code in bindata.go.
+// SaaS templates: templates downloaded from checks service.
 // user file templates: read from yaml files created by the user in `/srv/ia/templates`
 // user API templates: in the DB created using the API.
 func (s *TemplatesService) Collect(ctx context.Context) {
@@ -131,7 +154,14 @@ func (s *TemplatesService) Collect(ctx context.Context) {
 		return
 	}
 
-	templates := make([]templateInfo, 0, len(builtInTemplates)+len(userDefinedTemplates)+len(dbTemplates))
+	saasTemplates, err := s.downloadTemplates(ctx)
+	if err != nil {
+		// just log the error and don't return, if the user is not connected to SaaS
+		// we should still collect and show the Built-In templates.
+		s.l.Errorf("Failed to download rule templates from SaaS: %s.", err)
+	}
+
+	templates := make([]templateInfo, 0, len(builtInTemplates)+len(userDefinedTemplates)+len(dbTemplates)+len(saasTemplates))
 
 	for _, t := range builtInTemplates {
 		templates = append(templates, templateInfo{
@@ -147,9 +177,14 @@ func (s *TemplatesService) Collect(ctx context.Context) {
 		})
 	}
 
-	templates = append(templates, dbTemplates...)
+	for _, t := range saasTemplates {
+		templates = append(templates, templateInfo{
+			Template: t,
+			Source:   iav1beta1.TemplateSource_SAAS,
+		})
+	}
 
-	// TODO download templates from SAAS.
+	templates = append(templates, dbTemplates...)
 
 	// replace previously stored templates with newly collected ones.
 	s.rw.Lock()
@@ -329,6 +364,49 @@ func (s *TemplatesService) loadTemplatesFromDB() ([]templateInfo, error) {
 	}
 
 	return res, nil
+}
+
+// downloadTemplates downloads IA templates from SaaS.
+func (s *TemplatesService) downloadTemplates(ctx context.Context) ([]alert.Template, error) {
+	s.l.Infof("Downloading templates from %s ...", s.host)
+
+	settings, err := models.GetSettings(s.db)
+	if err != nil {
+		return nil, err
+	}
+
+	cc, err := saasdial.Dial(ctx, settings.SaaS.SessionID, s.host)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to dial")
+	}
+	defer cc.Close() //nolint:errcheck
+
+	resp, err := api.NewRetrievalAPIClient(cc).GetAllAlertRuleTemplates(ctx, &api.GetAllAlertRuleTemplatesRequest{})
+	if err != nil {
+		// if credentials are invalid then force a logout so that the next check download
+		// attempt can be successful.
+		logoutErr := saasdial.LogoutIfInvalidAuth(s.db, s.l, err)
+		if logoutErr != nil {
+			s.l.Warnf("Failed to force logout: %v", logoutErr)
+		}
+		return nil, errors.Wrap(err, "failed to request checks service")
+	}
+
+	if err = signatures.Verify(s.l, resp.File, resp.Signatures, s.publicKeys); err != nil {
+		return nil, err
+	}
+
+	// be liberal about files from SaaS for smooth transition to future versions
+	params := &alert.ParseParams{
+		DisallowUnknownFields:    false,
+		DisallowInvalidTemplates: false,
+	}
+	templates, err := alert.Parse(strings.NewReader(resp.File), params)
+	if err != nil {
+		return nil, err
+	}
+
+	return templates, nil
 }
 
 // validateUserTemplate validates user-provided template (API or file).

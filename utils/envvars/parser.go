@@ -34,6 +34,7 @@ import (
 const (
 	defaultSaaSHost = "check.percona.com:443"
 	envSaaSHost     = "PERCONA_TEST_SAAS_HOST"
+	envPublicKey    = "PERCONA_TEST_CHECKS_PUBLIC_KEY"
 	// TODO REMOVE PERCONA_TEST_DBAAS IN FUTURE RELEASES.
 	envTestDbaas   = "PERCONA_TEST_DBAAS"
 	envEnableDbaas = "ENABLE_DBAAS"
@@ -204,6 +205,15 @@ func GetSAASHost() (string, error) {
 
 	logrus.Infof("Using SaaS host %q.", host)
 	return host, nil
+}
+
+// GetPublicKeys returns public keys used to dowload checks from SaaS.
+func GetPublicKeys() []string {
+	if v := os.Getenv(envPublicKey); v != "" {
+		return strings.Split(v, ",")
+	}
+
+	return nil
 }
 
 // parseSAASHost parses, validates and returns SAAS host, otherwise returns error.
