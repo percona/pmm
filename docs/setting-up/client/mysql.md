@@ -229,6 +229,18 @@ There is no *Explain* or *Example* data shown by default in Query Analytics when
     UPDATE performance_schema.setup_consumers SET ENABLED = 'YES' WHERE NAME LIKE '%statements%';
     ```
 
+- Transactions
+
+    MariaDB doesn't implement queries history for transactions. All queries executed within a transaction won't have query examples since PMM relies on the `performance_schema.events_statements_history` to grab the query example but that table won't have any query executed as part of a transaction.  
+
+    This behavior is because MariaDB doesn't implement these consumers:
+
+    ```
+    events_transactions_current
+    events_transactions_history
+    events_transactions_history_long
+    ```
+
 ## Query response time
 
 *Query time distribution* is a chart in the [*Details* tab of Query Analytics](../../using/query-analytics.md#details-tab) showing the proportion of query time spent on various activities. It is enabled with the `query_response_time_stats` variable and associated plugins.
