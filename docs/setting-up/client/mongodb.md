@@ -111,11 +111,12 @@ mongod --dbpath=DATABASEDIR --profile 2 --slowms 200 --rateLimit 100
 
 ### Set profiling in a `mongo` session
 
-In a `mongo` session:
+In a `mongo` session, the profiler should be enabled **per** database.
+For example, to enable the profiler in the `testdb`, run this:
 
 ```json
-use admin
-db.setProfilingLevel(2)
+use testdb
+db.setProfilingLevel(2, {slowms: 0})
 ```
 
 !!! note alert alert-primary ""
