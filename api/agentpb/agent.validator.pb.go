@@ -613,6 +613,11 @@ func (this *JobProgress_MySQLRestoreBackup) Validate() error {
 	return nil
 }
 func (this *JobProgress_Logs) Validate() error {
+	if this.Time != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Time); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Time", err)
+		}
+	}
 	return nil
 }
 func (this *GetVersionsRequest) Validate() error {

@@ -183,19 +183,20 @@ message GetLogsRequest {
       string_not_empty: true
     }
   ];
-  uint32 from_chunk = 2;
+  uint32 offset = 2;
   uint32 limit = 3;
 }
 
 message GetLogsResponse {
   repeated LogChunk logs = 1;
+  bool end = 2;
 }
 
 // LogChunk represent one chunk of logs.
 message LogChunk {
   uint32 chunk_id = 1;
   string message = 2;
-  bool last_chunk = 3;
+  google.protobuf.Timestamp time = 3;
 }
 
 // Backups service handles backup operations to DB.

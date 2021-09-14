@@ -14,6 +14,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // GetLogsReader is a Reader for the GetLogs structure.
@@ -125,8 +126,8 @@ type GetLogsBody struct {
 	// artifact id
 	ArtifactID string `json:"artifact_id,omitempty"`
 
-	// from chunk
-	FromChunk int64 `json:"from_chunk,omitempty"`
+	// offset
+	Offset int64 `json:"offset,omitempty"`
 
 	// limit
 	Limit int64 `json:"limit,omitempty"`
@@ -237,6 +238,9 @@ type GetLogsOKBody struct {
 
 	// logs
 	Logs []*LogsItems0 `json:"logs"`
+
+	// end
+	End bool `json:"end,omitempty"`
 }
 
 // Validate validates this get logs OK body
@@ -307,12 +311,35 @@ type LogsItems0 struct {
 	// message
 	Message string `json:"message,omitempty"`
 
-	// last chunk
-	LastChunk bool `json:"last_chunk,omitempty"`
+	// time
+	// Format: date-time
+	Time strfmt.DateTime `json:"time,omitempty"`
 }
 
 // Validate validates this logs items0
 func (o *LogsItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateTime(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *LogsItems0) validateTime(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Time) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("time", "body", "date-time", o.Time.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 

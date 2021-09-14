@@ -185,5 +185,10 @@ func (this *GetLogsResponse) Validate() error {
 	return nil
 }
 func (this *LogChunk) Validate() error {
+	if this.Time != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Time); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Time", err)
+		}
+	}
 	return nil
 }
