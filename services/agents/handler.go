@@ -106,7 +106,7 @@ func (h *Handler) Run(stream agentpb.Agent_ConnectServer) error {
 				if err != nil {
 					l.Error(errors.WithStack(err))
 				}
-				return h.updateAgentStatusForChildren(ctx, agent.id, inventorypb.AgentStatus_DONE, 0)
+				return h.updateAgentStatusForChildren(ctx, agent.id, inventorypb.AgentStatus_DONE)
 			}
 
 			switch p := req.Payload.(type) {
@@ -170,7 +170,7 @@ func (h *Handler) Run(stream agentpb.Agent_ConnectServer) error {
 	}
 }
 
-func (h *Handler) updateAgentStatusForChildren(ctx context.Context, agentID string, status inventorypb.AgentStatus, listenPort uint32) error {
+func (h *Handler) updateAgentStatusForChildren(ctx context.Context, agentID string, status inventorypb.AgentStatus) error {
 	return h.db.InTransaction(func(t *reform.TX) error {
 		agents, err := models.FindAgents(t.Querier, models.AgentFilters{
 			PMMAgentID: agentID,
@@ -179,7 +179,7 @@ func (h *Handler) updateAgentStatusForChildren(ctx context.Context, agentID stri
 			return errors.Wrap(err, "failed to get pmm-agent's child agents")
 		}
 		for _, agent := range agents {
-			if err := updateAgentStatus(ctx, t.Querier, agent.AgentID, status, listenPort); err != nil {
+			if err := updateAgentStatus(ctx, t.Querier, agent.AgentID, status, uint32(pointer.GetUint16(agent.ListenPort))); err != nil {
 				return errors.Wrap(err, "failed to update agent's status")
 			}
 		}
@@ -226,7 +226,7 @@ func (h *Handler) SetAllAgentsStatusUnknown(ctx context.Context) error {
 	}
 	for _, agent := range agents {
 		if !h.r.IsConnected(agent.AgentID) {
-			err = h.updateAgentStatusForChildren(ctx, agent.AgentID, inventorypb.AgentStatus_UNKNOWN, 0)
+			err = h.updateAgentStatusForChildren(ctx, agent.AgentID, inventorypb.AgentStatus_UNKNOWN)
 			if err != nil {
 				return err
 			}
