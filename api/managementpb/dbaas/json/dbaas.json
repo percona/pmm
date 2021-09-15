@@ -2586,8 +2586,8 @@
                     "description": "Cluster represents PSMDB cluster information.\nTODO Do not use inner messages in all public APIs (for consistency).",
                     "type": "object",
                     "properties": {
-                      "avalable_version": {
-                        "description": "Available version is a version of database user can update to. If it's empty, no update is available.",
+                      "avalable_image": {
+                        "description": "Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.\nIf it's empty, no upgrade is available.",
                         "type": "string",
                         "x-order": 6
                       },
@@ -2596,8 +2596,8 @@
                         "type": "boolean",
                         "x-order": 4
                       },
-                      "installed_version": {
-                        "description": "Installed PSMDB version.",
+                      "installed_image": {
+                        "description": "Installed PSMDB image.",
                         "type": "string",
                         "x-order": 5
                       },
@@ -3643,8 +3643,8 @@
                     "description": "Cluster represents XtraDB cluster information.\nTODO Do not use inner messages in all public APIs (for consistency).",
                     "type": "object",
                     "properties": {
-                      "avalable_version": {
-                        "description": "Available version is a version of database user can update to. If it's empty, no update is available.",
+                      "avalable_image": {
+                        "description": "Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.\nIf it's empty, no upgrade is available.",
                         "type": "string",
                         "x-order": 6
                       },
@@ -3653,8 +3653,8 @@
                         "type": "boolean",
                         "x-order": 4
                       },
-                      "installed_version": {
-                        "description": "Installed XtraDB version.",
+                      "installed_image": {
+                        "description": "Installed XtraDB image.",
                         "type": "string",
                         "x-order": 5
                       },
