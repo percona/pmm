@@ -230,47 +230,6 @@ How to run PMM Server with Docker based on our [Docker image].
     docker rmi $(docker images | grep "percona/pmm-server" | awk {'print $3'})
     ```
 
-## Docker compose
-
-!!! summary alert alert-info "Summary"
-    - Copy and paste the `docker-compose.yml` file.
-    - Run `docker-compose up`.
-
----
-
-!!! note alert alert-primary ""
-    With this approach, data is stored in a volume, not in a `pmm-data` container.
-
-1. Copy and paste this text into a file called `docker-compose.yml`.
-
-    ```yaml
-    version: '2'
-    services:
-      pmm-server:
-        image: percona/pmm-server:2
-        hostname: pmm-server
-        container_name: pmm-server
-        restart: always
-        logging:
-          driver: json-file
-          options:
-            max-size: "10m"
-            max-file: "5"
-        ports:
-          - "443:443"
-        volumes:
-          - data:/srv
-    volumes:
-      data:
-    ```
-
-2. Run:
-
-    ```sh
-    docker-compose up
-    ```
-
-3. In a web browser, visit `https://localhost:443` to see the PMM user interface. (If you are accessing the docker host remotely, replace `localhost` with the IP or server name of the host.)
 
 ## Environment variables
 
