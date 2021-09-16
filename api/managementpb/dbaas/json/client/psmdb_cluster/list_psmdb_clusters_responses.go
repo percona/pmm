@@ -149,7 +149,7 @@ type ClustersItems0 struct {
 
 	// Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.
 	// If it's empty, no upgrade is available.
-	AvalableImage string `json:"avalable_image,omitempty"`
+	AvailableImage string `json:"available_image,omitempty"`
 
 	// operation
 	Operation *ClustersItems0Operation `json:"operation,omitempty"`

@@ -84,7 +84,7 @@ message ListPSMDBClustersResponse {
     string installed_image = 6;
     // Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.
     // If it's empty, no upgrade is available.
-    string avalable_image = 7;
+    string available_image = 7;
   }
   // PSMDB clusters information.
   repeated Cluster clusters = 1;

@@ -18694,7 +18694,7 @@
                         "type": "string",
                         "x-order": 5
                       },
-                      "avalable_image": {
+                      "available_image": {
                         "description": "Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.\nIf it's empty, no upgrade is available.",
                         "type": "string",
                         "x-order": 6
@@ -19819,7 +19819,7 @@
                         "type": "string",
                         "x-order": 5
                       },
-                      "avalable_image": {
+                      "available_image": {
                         "description": "Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.\nIf it's empty, no upgrade is available.",
                         "type": "string",
                         "x-order": 6
