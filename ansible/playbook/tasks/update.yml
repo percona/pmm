@@ -29,11 +29,6 @@
       no_log: yes
       when: srv_pmm_distribution.stat.exists
 
-    - name: set dbaas toggle
-      set_fact:
-        is_dbaas_on: "{{ lookup('env', 'PERCONA_TEST_DBAAS') == '1' }}"
-      no_log: yes
-
     - name: force container
       set_fact:
         is_docker: True
@@ -218,15 +213,6 @@
           - qan-api2
           - pmm-agent
         - ["stop", "remove", "add"]
-
-    - name: Restart dbaas-controller
-      command: supervisorctl {{ item }} dbaas-controller
-      changed_when: True
-      when: is_dbaas_on
-      loop:
-        - "stop"
-        - "remove"
-        - "add"
 
     # set folder names of panels to format that's supported by grafana-cli
     - name: Rename Grafana community panels
