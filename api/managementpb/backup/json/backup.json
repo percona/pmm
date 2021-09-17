@@ -407,7 +407,7 @@
                         "format": "int64",
                         "x-order": 0
                       },
-                      "message": {
+                      "data": {
                         "type": "string",
                         "x-order": 1
                       },

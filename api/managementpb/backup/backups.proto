@@ -195,7 +195,7 @@ message GetLogsResponse {
 // LogChunk represent one chunk of logs.
 message LogChunk {
   uint32 chunk_id = 1;
-  string message = 2;
+  string data = 2;
   google.protobuf.Timestamp time = 3;
 }
 

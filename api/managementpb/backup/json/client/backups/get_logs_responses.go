@@ -308,8 +308,8 @@ type LogsItems0 struct {
 	// chunk id
 	ChunkID int64 `json:"chunk_id,omitempty"`
 
-	// message
-	Message string `json:"message,omitempty"`
+	// data
+	Data string `json:"data,omitempty"`
 
 	// time
 	// Format: date-time

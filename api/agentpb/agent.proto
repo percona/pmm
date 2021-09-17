@@ -529,7 +529,7 @@ message JobProgress {
   // Logs contains generic logs from job.
   message Logs {
     uint32 chunk_id = 1;
-    string message = 2;
+    string data = 2;
     bool done = 3;
     google.protobuf.Timestamp time = 4;
   }
