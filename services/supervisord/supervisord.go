@@ -533,6 +533,12 @@ func (s *Service) UpdateConfiguration(settings *models.Settings) error {
 	return err
 }
 
+// RestartSupervisedService restarts given service.
+func (s *Service) RestartSupervisedService(serviceName string) error {
+	_, err := s.supervisorctl("restart", serviceName)
+	return err
+}
+
 var templates = template.Must(template.New("").Option("missingkey=error").Parse(`
 {{define "dbaas-controller"}}
 [program:dbaas-controller]
