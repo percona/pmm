@@ -196,7 +196,6 @@ message GetLogsResponse {
 message LogChunk {
   uint32 chunk_id = 1;
   string data = 2;
-  google.protobuf.Timestamp time = 3;
 }
 
 // Backups service handles backup operations to DB.

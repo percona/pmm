@@ -410,11 +410,6 @@
                       "data": {
                         "type": "string",
                         "x-order": 1
-                      },
-                      "time": {
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 2
                       }
                     }
                   },

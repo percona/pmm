@@ -531,7 +531,6 @@ message JobProgress {
     uint32 chunk_id = 1;
     string data = 2;
     bool done = 3;
-    google.protobuf.Timestamp time = 4;
   }
   string job_id = 1;
   google.protobuf.Timestamp timestamp = 2;

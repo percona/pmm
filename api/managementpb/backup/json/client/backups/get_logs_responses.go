@@ -14,7 +14,6 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
 // GetLogsReader is a Reader for the GetLogs structure.
@@ -310,36 +309,10 @@ type LogsItems0 struct {
 
 	// data
 	Data string `json:"data,omitempty"`
-
-	// time
-	// Format: date-time
-	Time strfmt.DateTime `json:"time,omitempty"`
 }
 
 // Validate validates this logs items0
 func (o *LogsItems0) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateTime(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *LogsItems0) validateTime(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Time) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("time", "body", "date-time", o.Time.String(), formats); err != nil {
-		return err
-	}
-
 	return nil
 }
 
