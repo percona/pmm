@@ -211,9 +211,17 @@
                                               "type": "string",
                                               "x-order": 0
                                             },
+                                            "ca_file_content": {
+                                              "type": "string",
+                                              "x-order": 5
+                                            },
                                             "cert_file": {
                                               "type": "string",
                                               "x-order": 1
+                                            },
+                                            "cert_file_content": {
+                                              "type": "string",
+                                              "x-order": 6
                                             },
                                             "insecure_skip_verify": {
                                               "type": "boolean",
@@ -222,6 +230,10 @@
                                             "key_file": {
                                               "type": "string",
                                               "x-order": 2
+                                            },
+                                            "key_file_content": {
+                                              "type": "string",
+                                              "x-order": 7
                                             },
                                             "server_name": {
                                               "type": "string",
@@ -907,9 +919,17 @@
                               "type": "string",
                               "x-order": 0
                             },
+                            "ca_file_content": {
+                              "type": "string",
+                              "x-order": 5
+                            },
                             "cert_file": {
                               "type": "string",
                               "x-order": 1
+                            },
+                            "cert_file_content": {
+                              "type": "string",
+                              "x-order": 6
                             },
                             "insecure_skip_verify": {
                               "type": "boolean",
@@ -918,6 +938,10 @@
                             "key_file": {
                               "type": "string",
                               "x-order": 2
+                            },
+                            "key_file_content": {
+                              "type": "string",
+                              "x-order": 7
                             },
                             "server_name": {
                               "type": "string",
@@ -1136,9 +1160,17 @@
                               "type": "string",
                               "x-order": 0
                             },
+                            "ca_file_content": {
+                              "type": "string",
+                              "x-order": 5
+                            },
                             "cert_file": {
                               "type": "string",
                               "x-order": 1
+                            },
+                            "cert_file_content": {
+                              "type": "string",
+                              "x-order": 6
                             },
                             "insecure_skip_verify": {
                               "type": "boolean",
@@ -1147,6 +1179,10 @@
                             "key_file": {
                               "type": "string",
                               "x-order": 2
+                            },
+                            "key_file_content": {
+                              "type": "string",
+                              "x-order": 7
                             },
                             "server_name": {
                               "type": "string",
@@ -1393,9 +1429,17 @@
                                     "type": "string",
                                     "x-order": 0
                                   },
+                                  "ca_file_content": {
+                                    "type": "string",
+                                    "x-order": 5
+                                  },
                                   "cert_file": {
                                     "type": "string",
                                     "x-order": 1
+                                  },
+                                  "cert_file_content": {
+                                    "type": "string",
+                                    "x-order": 6
                                   },
                                   "insecure_skip_verify": {
                                     "type": "boolean",
@@ -1404,6 +1448,10 @@
                                   "key_file": {
                                     "type": "string",
                                     "x-order": 2
+                                  },
+                                  "key_file_content": {
+                                    "type": "string",
+                                    "x-order": 7
                                   },
                                   "server_name": {
                                     "type": "string",
@@ -2019,9 +2067,17 @@
                                           "type": "string",
                                           "x-order": 0
                                         },
+                                        "ca_file_content": {
+                                          "type": "string",
+                                          "x-order": 5
+                                        },
                                         "cert_file": {
                                           "type": "string",
                                           "x-order": 1
+                                        },
+                                        "cert_file_content": {
+                                          "type": "string",
+                                          "x-order": 6
                                         },
                                         "insecure_skip_verify": {
                                           "type": "boolean",
@@ -2030,6 +2086,10 @@
                                         "key_file": {
                                           "type": "string",
                                           "x-order": 2
+                                        },
+                                        "key_file_content": {
+                                          "type": "string",
+                                          "x-order": 7
                                         },
                                         "server_name": {
                                           "type": "string",

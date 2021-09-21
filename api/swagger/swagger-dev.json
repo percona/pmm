@@ -26970,6 +26970,18 @@
                                             "insecure_skip_verify": {
                                               "type": "boolean",
                                               "x-order": 4
+                                            },
+                                            "ca_file_content": {
+                                              "type": "string",
+                                              "x-order": 5
+                                            },
+                                            "cert_file_content": {
+                                              "type": "string",
+                                              "x-order": 6
+                                            },
+                                            "key_file_content": {
+                                              "type": "string",
+                                              "x-order": 7
                                             }
                                           },
                                           "x-order": 3
@@ -27315,6 +27327,18 @@
                             "insecure_skip_verify": {
                               "type": "boolean",
                               "x-order": 4
+                            },
+                            "ca_file_content": {
+                              "type": "string",
+                              "x-order": 5
+                            },
+                            "cert_file_content": {
+                              "type": "string",
+                              "x-order": 6
+                            },
+                            "key_file_content": {
+                              "type": "string",
+                              "x-order": 7
                             }
                           },
                           "x-order": 3
@@ -27544,6 +27568,18 @@
                             "insecure_skip_verify": {
                               "type": "boolean",
                               "x-order": 4
+                            },
+                            "ca_file_content": {
+                              "type": "string",
+                              "x-order": 5
+                            },
+                            "cert_file_content": {
+                              "type": "string",
+                              "x-order": 6
+                            },
+                            "key_file_content": {
+                              "type": "string",
+                              "x-order": 7
                             }
                           },
                           "x-order": 3
@@ -27801,6 +27837,18 @@
                                   "insecure_skip_verify": {
                                     "type": "boolean",
                                     "x-order": 4
+                                  },
+                                  "ca_file_content": {
+                                    "type": "string",
+                                    "x-order": 5
+                                  },
+                                  "cert_file_content": {
+                                    "type": "string",
+                                    "x-order": 6
+                                  },
+                                  "key_file_content": {
+                                    "type": "string",
+                                    "x-order": 7
                                   }
                                 },
                                 "x-order": 3
@@ -28749,6 +28797,18 @@
                                         "insecure_skip_verify": {
                                           "type": "boolean",
                                           "x-order": 4
+                                        },
+                                        "ca_file_content": {
+                                          "type": "string",
+                                          "x-order": 5
+                                        },
+                                        "cert_file_content": {
+                                          "type": "string",
+                                          "x-order": 6
+                                        },
+                                        "key_file_content": {
+                                          "type": "string",
+                                          "x-order": 7
                                         }
                                       },
                                       "x-order": 3

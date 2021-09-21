@@ -659,6 +659,15 @@ type ChangeChannelParamsBodyWebhookConfigHTTPConfigTLSConfig struct {
 
 	// insecure skip verify
 	InsecureSkipVerify bool `json:"insecure_skip_verify,omitempty"`
+
+	// ca file content
+	CaFileContent string `json:"ca_file_content,omitempty"`
+
+	// cert file content
+	CertFileContent string `json:"cert_file_content,omitempty"`
+
+	// key file content
+	KeyFileContent string `json:"key_file_content,omitempty"`
 }
 
 // Validate validates this change channel params body webhook config HTTP config TLS config

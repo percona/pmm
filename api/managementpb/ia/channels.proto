@@ -24,6 +24,9 @@ message TLSConfig {
   string key_file = 3;
   string server_name = 4;
   bool insecure_skip_verify = 5;
+  string ca_file_content = 6;
+  string cert_file_content = 7;
+  string key_file_content = 8;
 }
 
 // HTTPConfig represents HTTP client configuration.
