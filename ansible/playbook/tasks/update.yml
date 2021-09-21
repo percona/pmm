@@ -96,6 +96,17 @@
         name: "{{ pmm_packages }}"
         state: latest
 
+    # restart pmm-managed first as it may update supervisord configuration on start
+    - name: Restart pmm-managed
+      command: supervisorctl {{ item }} pmm-managed
+      changed_when: True
+      with_items: ["stop", "remove", "add"]
+
+    # give pmm-managed time to update supervisord configuration,
+    # and give update UI time to catch up after pmm-managed restart
+    - name: Wait for pmm-managed
+      pause: seconds=5
+
     - name: Update system packages
       yum:
         name: "*"
@@ -183,17 +194,6 @@
 
     - name: Create empty configuration file for VictoriaMetrics
       file: path=/etc/victoriametrics-promscrape.yml state=touch owner=pmm group=pmm
-
-    # restart pmm-managed first as it may update supervisord configuration on start
-    - name: Restart pmm-managed
-      command: supervisorctl {{ item }} pmm-managed
-      changed_when: True
-      with_items: ["stop", "remove", "add"]
-
-    # give pmm-managed time to update supervisord configuration,
-    # and give update UI time to catch up after pmm-managed restart
-    - name: Wait for pmm-managed
-      pause: seconds=5
 
     - name: Reread supervisord configuration again
       command: supervisorctl reread
