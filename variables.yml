@@ -1,8 +1,8 @@
 # PMM Version for HTML
 # See also mkdocs.yml plugins.with-pdf.cover_subtitle and output_path
-release: '2.21.0'
-version: '2.21'
-release_date: 2021-08-26
+release: '2.22.0'
+version: '2.22'
+release_date: 2021-09-23
 
 # SVG icons. Use in markdown as {{icon.<name>}}
 # For the Percona image icon (encoded inline SVG), see https://css-tricks.com/using-svg/

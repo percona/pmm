@@ -164,6 +164,8 @@ Make regular scheduled backups.
                 - In the second field, select one or more minutes (*00* to *59*).
 
         - *Retention*: How many backups to keep. For unlimited, use `0` (zero).
+        - *Retry mode*: In case of error, either let PMM retry the backup again ("Auto") or do it again yourself ("Manual").
+        - *Retry times and interval*: If "Auto" retry mode is selected, the maximum number of retries - up to 10 - and the interval between them - up to 8 hours - can be set here.
         - *Enable*: Deselect to define the scheduled backup without enabling it.
 
         ![!](../_images/PMM_Backup_Management_Schedule.png)
