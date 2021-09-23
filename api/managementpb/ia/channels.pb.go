@@ -95,20 +95,35 @@ func (x *BasicAuth) GetPasswordFile() string {
 	return ""
 }
 
-// TLSConfig represents TLS configuration.
+// TLSConfig represents TLS configuration for alertmanager
+// https://prometheus.io/docs/alerting/latest/configuration/#tls_config
 type TLSConfig struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	CaFile             string `protobuf:"bytes,1,opt,name=ca_file,json=caFile,proto3" json:"ca_file,omitempty"`
-	CertFile           string `protobuf:"bytes,2,opt,name=cert_file,json=certFile,proto3" json:"cert_file,omitempty"`
-	KeyFile            string `protobuf:"bytes,3,opt,name=key_file,json=keyFile,proto3" json:"key_file,omitempty"`
-	ServerName         string `protobuf:"bytes,4,opt,name=server_name,json=serverName,proto3" json:"server_name,omitempty"`
-	InsecureSkipVerify bool   `protobuf:"varint,5,opt,name=insecure_skip_verify,json=insecureSkipVerify,proto3" json:"insecure_skip_verify,omitempty"`
-	CaFileContent      string `protobuf:"bytes,6,opt,name=ca_file_content,json=caFileContent,proto3" json:"ca_file_content,omitempty"`
-	CertFileContent    string `protobuf:"bytes,7,opt,name=cert_file_content,json=certFileContent,proto3" json:"cert_file_content,omitempty"`
-	KeyFileContent     string `protobuf:"bytes,8,opt,name=key_file_content,json=keyFileContent,proto3" json:"key_file_content,omitempty"`
+	// A path to the CA certificate file to validate the server certificate with.
+	// ca_file and ca_file_content should not be set at the same time.
+	CaFile string `protobuf:"bytes,1,opt,name=ca_file,json=caFile,proto3" json:"ca_file,omitempty"`
+	// A path to the certificate file for client cert authentication to the server.
+	// cert_file and cert_file_content should not be set at the same time.
+	CertFile string `protobuf:"bytes,2,opt,name=cert_file,json=certFile,proto3" json:"cert_file,omitempty"`
+	// A path to the key file for client cert authentication to the server.
+	// key_file and key_file_content should not be set at the same time.
+	KeyFile string `protobuf:"bytes,3,opt,name=key_file,json=keyFile,proto3" json:"key_file,omitempty"`
+	// Name of the server.
+	ServerName string `protobuf:"bytes,4,opt,name=server_name,json=serverName,proto3" json:"server_name,omitempty"`
+	// Disable validation of the server certificate.
+	InsecureSkipVerify bool `protobuf:"varint,5,opt,name=insecure_skip_verify,json=insecureSkipVerify,proto3" json:"insecure_skip_verify,omitempty"`
+	// CA certificate to validate the server certificate with.
+	// ca_file and ca_file_content should not be set at the same time.
+	CaFileContent string `protobuf:"bytes,6,opt,name=ca_file_content,json=caFileContent,proto3" json:"ca_file_content,omitempty"`
+	// A certificate for client cert authentication to the server.
+	// cert_file and cert_file_content should not be set at the same time.
+	CertFileContent string `protobuf:"bytes,7,opt,name=cert_file_content,json=certFileContent,proto3" json:"cert_file_content,omitempty"`
+	// A key for client cert authentication to the server.
+	// key_file and key_file_content should not be set at the same time.
+	KeyFileContent string `protobuf:"bytes,8,opt,name=key_file_content,json=keyFileContent,proto3" json:"key_file_content,omitempty"`
 }
 
 func (x *TLSConfig) Reset() {
