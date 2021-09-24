@@ -362,7 +362,10 @@ message PBMSwitchPITRRequest {
 }
 
 // PBMSwitchPITRResponse is an AgentMessage for PBMSwitchPITRRequest success result.
-message PBMSwitchPITRResponse {}
+message PBMSwitchPITRResponse {
+  // Error message.
+  string error = 1;
+}
 
 // CheckConnectionRequest is a ServerMessage asking pmm-agent to check connection with Service.
 message CheckConnectionRequest {
