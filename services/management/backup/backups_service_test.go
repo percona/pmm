@@ -72,6 +72,7 @@ func TestScheduledBackups(t *testing.T) {
 	ctx := context.Background()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
 	backupService := &mockBackupService{}
 	schedulerService := scheduler.New(db, backupService)
 	backupSvc := NewBackupsService(db, backupService, schedulerService)

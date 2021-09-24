@@ -157,6 +157,7 @@ func checkUniqueArtifactName(q *reform.Querier, name string) error {
 type CreateArtifactParams struct {
 	Name       string
 	Vendor     string
+	DBVersion  string
 	LocationID string
 	ServiceID  string
 	DataModel  DataModel
@@ -210,6 +211,7 @@ func CreateArtifact(q *reform.Querier, params CreateArtifactParams) (*Artifact, 
 		ID:         id,
 		Name:       params.Name,
 		Vendor:     params.Vendor,
+		DBVersion:  params.DBVersion,
 		LocationID: params.LocationID,
 		ServiceID:  params.ServiceID,
 		DataModel:  params.DataModel,

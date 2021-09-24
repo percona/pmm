@@ -154,7 +154,7 @@ func TestSoftwareVersions(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, ssv2)
 
-		actual, err := models.FindServicesSoftwareVersions(q, models.FindServicesSoftwareVersionsFilter{})
+		actual, err := models.FindServicesSoftwareVersions(q, models.FindServicesSoftwareVersionsFilter{}, models.SoftwareVersionsOrderByNextCheckAt)
 		require.NoError(t, err)
 		require.Len(t, actual, 2)
 
@@ -171,13 +171,13 @@ func TestSoftwareVersions(t *testing.T) {
 		assertEqual(params2, actual[0])
 
 		require.NoError(t, models.RemoveService(q, serviceID1, models.RemoveRestrict))
-		actual, err = models.FindServicesSoftwareVersions(q, models.FindServicesSoftwareVersionsFilter{})
+		actual, err = models.FindServicesSoftwareVersions(q, models.FindServicesSoftwareVersionsFilter{}, models.SoftwareVersionsOrderByNextCheckAt)
 		require.NoError(t, err)
 		require.Len(t, actual, 1)
 		assertEqual(params2, actual[0])
 
 		require.NoError(t, models.DeleteServiceSoftwareVersions(q, serviceID2))
-		actual, err = models.FindServicesSoftwareVersions(q, models.FindServicesSoftwareVersionsFilter{})
+		actual, err = models.FindServicesSoftwareVersions(q, models.FindServicesSoftwareVersionsFilter{}, models.SoftwareVersionsOrderByNextCheckAt)
 		require.NoError(t, err)
 		require.Len(t, actual, 0)
 	})

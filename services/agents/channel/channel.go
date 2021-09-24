@@ -153,7 +153,7 @@ func (c *Channel) Send(resp *ServerResponse) {
 }
 
 // SendAndWaitResponse sends request to pmm-managed, blocks until response is available.
-// If error occurred - subscription got canceled - returned payload is nil and error contains reason for cancelation.
+// If error occurred - subscription got canceled - returned payload is nil and error contains reason for cancellation.
 // Response and error will be both nil if channel is closed.
 // It is no-op once channel is closed (see Wait).
 func (c *Channel) SendAndWaitResponse(payload agentpb.ServerRequestPayload) (agentpb.AgentResponsePayload, error) {

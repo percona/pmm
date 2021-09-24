@@ -76,7 +76,11 @@ func (s *Service) findServiceForUpdate() (*service, error) {
 
 	if err := s.db.InTransaction(func(tx *reform.TX) error {
 		filter := models.FindServicesSoftwareVersionsFilter{Limit: pointer.ToInt(1)}
-		servicesVersions, err := models.FindServicesSoftwareVersions(tx.Querier, filter)
+		servicesVersions, err := models.FindServicesSoftwareVersions(
+			tx.Querier,
+			filter,
+			models.SoftwareVersionsOrderByNextCheckAt,
+		)
 		if err != nil {
 			return err
 		}
@@ -111,6 +115,7 @@ func (s *Service) findServiceForUpdate() (*service, error) {
 		if len(pmmAgents) == 0 {
 			return errors.Errorf("pmmAgent not found for service")
 		}
+
 		results.PMMAgentID = pmmAgents[0].AgentID
 
 		// shift the next check time for this service, so, in case of versions fetch error,

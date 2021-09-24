@@ -24,6 +24,15 @@ import (
 	"gopkg.in/reform.v1"
 )
 
+// SoftwareVersionsOrderBy is a type used for results ordering either by next check time or service id.
+type SoftwareVersionsOrderBy int
+
+// Supported ordering of service software versions entries.
+const (
+	SoftwareVersionsOrderByNextCheckAt SoftwareVersionsOrderBy = iota
+	SoftwareVersionsOrderByServiceID
+)
+
 // CreateServiceSoftwareVersionsParams are params for creating a new service software versions entry.
 type CreateServiceSoftwareVersionsParams struct {
 	ServiceID        string
@@ -157,15 +166,25 @@ func FindServiceSoftwareVersionsByServiceID(q *reform.Querier, serviceID string)
 
 // FindServicesSoftwareVersionsFilter represents a filter for finding service software versions.
 type FindServicesSoftwareVersionsFilter struct {
-	Limit *int
+	Limit       *int
+	ServiceType *ServiceType
 }
 
 // FindServicesSoftwareVersions returns all services software versions sorted by next_check_at in ascending order
 // if limit is not specified and limited number of entries otherwise.
-func FindServicesSoftwareVersions(q *reform.Querier, filter FindServicesSoftwareVersionsFilter) ([]*ServiceSoftwareVersions, error) {
+func FindServicesSoftwareVersions(
+	q *reform.Querier,
+	filter FindServicesSoftwareVersionsFilter,
+	orderBy SoftwareVersionsOrderBy,
+) ([]*ServiceSoftwareVersions, error) {
 	var args []interface{}
 	var tail strings.Builder
-	tail.WriteString("ORDER BY next_check_at ASC ")
+	if orderBy == SoftwareVersionsOrderByServiceID {
+		tail.WriteString("ORDER BY service_id ")
+	} else {
+		tail.WriteString("ORDER BY next_check_at ")
+	}
+
 	if filter.Limit != nil {
 		tail.WriteString("LIMIT $1")
 		args = append(args, *filter.Limit)

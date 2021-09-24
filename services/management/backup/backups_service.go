@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
+	"github.com/percona/pmm/api/inventorypb"
 	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -32,6 +33,7 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm-managed/services"
 	"github.com/percona/pmm-managed/services/backup"
 	"github.com/percona/pmm-managed/services/scheduler"
 )
@@ -50,7 +52,11 @@ const (
 )
 
 // NewBackupsService creates new backups API service.
-func NewBackupsService(db *reform.DB, backupService backupService, scheduleService scheduleService) *BackupsService {
+func NewBackupsService(
+	db *reform.DB,
+	backupService backupService,
+	scheduleService scheduleService,
+) *BackupsService {
 	return &BackupsService{
 		l:               logrus.WithField("component", "management/backup/backups"),
 		db:              db,
@@ -207,14 +213,14 @@ func (s *BackupsService) ListScheduledBackups(ctx context.Context, req *backupv1
 		return nil, err
 	}
 
-	services, err := models.FindServicesByIDs(s.db.Querier, serviceIDs)
+	svcs, err := models.FindServicesByIDs(s.db.Querier, serviceIDs)
 	if err != nil {
 		return nil, err
 	}
 
 	scheduledBackups := make([]*backupv1beta1.ScheduledBackup, 0, len(tasks))
 	for _, task := range tasks {
-		scheduledBackup, err := convertTaskToScheduledBackup(task, services, locations)
+		scheduledBackup, err := convertTaskToScheduledBackup(task, svcs, locations)
 		if err != nil {
 			s.l.WithError(err).Warnf("convert task to scheduledBackup")
 			continue
@@ -324,6 +330,41 @@ func (s *BackupsService) RemoveScheduledBackup(ctx context.Context, req *backupv
 	}
 
 	return &backupv1beta1.RemoveScheduledBackupResponse{}, nil
+}
+
+// ListArtifactCompatibleServices lists compatible service for restoring given artifact.
+func (s *BackupsService) ListArtifactCompatibleServices(
+	ctx context.Context,
+	req *backupv1beta1.ListArtifactCompatibleServicesRequest,
+) (*backupv1beta1.ListArtifactCompatibleServicesResponse, error) {
+	compatibleServices, err := s.backupService.FindArtifactCompatibleServices(ctx, req.ArtifactId)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &backupv1beta1.ListArtifactCompatibleServicesResponse{}
+	for _, service := range compatibleServices {
+		apiService, err := services.ToAPIService(service)
+		if err != nil {
+			return nil, err
+		}
+
+		switch s := apiService.(type) {
+		case *inventorypb.MySQLService:
+			res.Mysql = append(res.Mysql, s)
+		case *inventorypb.MongoDBService:
+			res.Mongodb = append(res.Mongodb, s)
+		case *inventorypb.PostgreSQLService,
+			*inventorypb.ProxySQLService,
+			*inventorypb.HAProxyService,
+			*inventorypb.ExternalService:
+			return nil, status.Errorf(codes.Unimplemented, "unimplemented service type %T", service)
+		default:
+			return nil, status.Errorf(codes.Internal, "unhandled inventory service type %T", service)
+		}
+	}
+
+	return res, nil
 }
 
 func convertTaskToScheduledBackup(task *models.ScheduledTask,

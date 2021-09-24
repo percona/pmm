@@ -94,9 +94,9 @@ func TestVersionCache(t *testing.T) {
 		&agents.Qpress{},
 	}
 	versions1 := []agents.Version{
-		{Version: "8.0.0"},
-		{Version: "8.0.1"},
-		{Version: "8.0.2"},
+		{Version: "8.0.23"},
+		{Version: "8.0.23"},
+		{Version: "8.0.23"},
 		{Version: "1.1"},
 	}
 	versionerMock.On("GetVersions", agentID1, softwares).Return(versions1, nil).Once()
@@ -137,9 +137,9 @@ func TestVersionCache(t *testing.T) {
 	}
 
 	versions2 := []agents.Version{
-		{Version: "5.0.0"},
-		{Version: "5.0.1"},
-		{Version: "5.0.2"},
+		{Version: "8.0.24"},
+		{Version: "5.0.25"},
+		{Version: "5.0.25"},
 		{Version: "0.1"},
 	}
 	mockGetVersions(versions1, versions2, false)

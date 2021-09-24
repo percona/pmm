@@ -21,10 +21,12 @@ import (
 	"time"
 
 	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm-managed/services/agents"
 )
 
 //go:generate mockery -name=jobsService -case=snake -inpkg -testonly
 //go:generate mockery -name=s3 -case=snake -inpkg -testonly
+//go:generate mockery -name=versioner -case=snake -inpkg -testonly
 
 // jobsService is a subset of methods of agents.JobsService used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
@@ -70,4 +72,9 @@ type s3 interface {
 
 type removalService interface {
 	DeleteArtifact(ctx context.Context, artifactID string, removeFiles bool) error
+}
+
+// versioner contains method for retrieving versions of different software.
+type versioner interface {
+	GetVersions(pmmAgentID string, softwares []agents.Software) ([]agents.Version, error)
 }

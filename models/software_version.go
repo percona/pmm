@@ -20,6 +20,7 @@ import (
 	"database/sql/driver"
 	"time"
 
+	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 )
 
@@ -27,6 +28,20 @@ import (
 
 // SoftwareName represents software name.
 type SoftwareName string
+
+// Validate validates data model.
+func (sn SoftwareName) Validate() error {
+	switch sn {
+	case MysqldSoftwareName,
+		XtrabackupSoftwareName,
+		XbcloudSoftwareName,
+		QpressSoftwareName:
+	default:
+		return errors.Errorf("invalid software name %q", sn)
+	}
+
+	return nil
+}
 
 // SoftwareName types of different software.
 const (
@@ -46,10 +61,14 @@ type SoftwareVersion struct {
 type SoftwareVersions []SoftwareVersion
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (sv SoftwareVersions) Value() (driver.Value, error) { return jsonValue(sv) }
+func (sv SoftwareVersions) Value() (driver.Value, error) {
+	return jsonValue(sv)
+}
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (sv *SoftwareVersions) Scan(src interface{}) error { return jsonScan(sv, src) }
+func (sv *SoftwareVersions) Scan(src interface{}) error {
+	return jsonScan(sv, src)
+}
 
 // ServiceSoftwareVersions represents service software versions.
 // It has a one-to-one relationship with the services table.

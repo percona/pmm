@@ -97,6 +97,7 @@ type Artifact struct {
 	ID         string       `reform:"id,pk"`
 	Name       string       `reform:"name"`
 	Vendor     string       `reform:"vendor"`
+	DBVersion  string       `reform:"db_version"`
 	LocationID string       `reform:"location_id"`
 	ServiceID  string       `reform:"service_id"`
 	DataModel  DataModel    `reform:"data_model"`

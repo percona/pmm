@@ -597,6 +597,10 @@ var databaseSchema = [][]string{
 			ADD COLUMN timeout BIGINT
 		`,
 	},
+	46: {
+		`ALTER TABLE artifacts ADD COLUMN db_version VARCHAR NOT NULL DEFAULT ''`,
+		`ALTER TABLE artifacts ALTER COLUMN db_version DROP DEFAULT`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
