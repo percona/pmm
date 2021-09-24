@@ -97,6 +97,9 @@ func (m *JobResult) AgentMessageResponsePayload() isAgentMessage_Payload {
 func (m *GetVersionsResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
 	return &AgentMessage_GetVersions{GetVersions: m}
 }
+func (m *PBMSwitchPITRResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
+	return &AgentMessage_PbmSwitchPitr{PbmSwitchPitr: m}
+}
 
 // A list of ServerMessage response payloads.
 
@@ -142,6 +145,9 @@ func (m *JobStatusRequest) ServerMessageRequestPayload() isServerMessage_Payload
 func (m *GetVersionsRequest) ServerMessageRequestPayload() isServerMessage_Payload {
 	return &ServerMessage_GetVersions{GetVersions: m}
 }
+func (m *PBMSwitchPITRRequest) ServerMessageRequestPayload() isServerMessage_Payload {
+	return &ServerMessage_PbmSwitchPitr{PbmSwitchPitr: m}
+}
 
 // in alphabetical order
 func (*ActionResultRequest) sealed()     {}
@@ -170,6 +176,8 @@ func (*StopJobRequest) sealed()          {}
 func (*StopJobResponse) sealed()         {}
 func (*GetVersionsRequest) sealed()      {}
 func (*GetVersionsResponse) sealed()     {}
+func (*PBMSwitchPITRRequest) sealed()    {}
+func (*PBMSwitchPITRResponse) sealed()   {}
 
 // check interfaces
 var (
@@ -208,6 +216,7 @@ var (
 	_ ServerRequestPayload = (*StopJobRequest)(nil)
 	_ ServerRequestPayload = (*JobStatusRequest)(nil)
 	_ ServerRequestPayload = (*GetVersionsRequest)(nil)
+	_ ServerRequestPayload = (*PBMSwitchPITRRequest)(nil)
 )
 
 //go-sumtype:decl AgentParams
