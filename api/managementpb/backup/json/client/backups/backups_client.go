@@ -27,6 +27,8 @@ type Client struct {
 type ClientService interface {
 	ChangeScheduledBackup(params *ChangeScheduledBackupParams) (*ChangeScheduledBackupOK, error)
 
+	ListArtifactCompatibleServices(params *ListArtifactCompatibleServicesParams) (*ListArtifactCompatibleServicesOK, error)
+
 	ListScheduledBackups(params *ListScheduledBackupsParams) (*ListScheduledBackupsOK, error)
 
 	RemoveScheduledBackup(params *RemoveScheduledBackupParams) (*RemoveScheduledBackupOK, error)
@@ -70,6 +72,39 @@ func (a *Client) ChangeScheduledBackup(params *ChangeScheduledBackupParams) (*Ch
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*ChangeScheduledBackupDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  ListArtifactCompatibleServices lists artifact compatible services lists compatible services for restoring a backup
+*/
+func (a *Client) ListArtifactCompatibleServices(params *ListArtifactCompatibleServicesParams) (*ListArtifactCompatibleServicesOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewListArtifactCompatibleServicesParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "ListArtifactCompatibleServices",
+		Method:             "POST",
+		PathPattern:        "/v1/management/backup/Backups/ListArtifactCompatibleServices",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ListArtifactCompatibleServicesReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ListArtifactCompatibleServicesOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ListArtifactCompatibleServicesDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

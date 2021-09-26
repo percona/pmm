@@ -9,6 +9,7 @@ import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
+import "inventorypb/services.proto";
 import "managementpb/backup/common.proto";
 
 message StartBackupRequest {
@@ -37,6 +38,20 @@ message StartBackupRequest {
 message StartBackupResponse {
   // Unique identifier.
   string artifact_id = 1;
+}
+
+message ListArtifactCompatibleServicesRequest {
+  // Artifact id used to determine restore compatibility.
+  string artifact_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
+
+message ListArtifactCompatibleServicesResponse {
+  repeated inventory.MySQLService mysql = 1;
+  repeated inventory.MongoDBService mongodb = 2;
 }
 
 message RestoreBackupRequest {
@@ -183,6 +198,13 @@ service Backups {
   rpc StartBackup(StartBackupRequest) returns (StartBackupResponse) {
     option (google.api.http) = {
       post: "/v1/management/backup/Backups/Start"
+      body: "*"
+    };
+  }
+  // ListArtifactCompatibleServices lists compatible services for restoring a backup.
+  rpc ListArtifactCompatibleServices(ListArtifactCompatibleServicesRequest) returns (ListArtifactCompatibleServicesResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/backup/Backups/ListArtifactCompatibleServices"
       body: "*"
     };
   }
