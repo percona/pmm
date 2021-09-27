@@ -54,7 +54,7 @@ message ListDBClustersResponse {
   repeated PSMDBCluster psmdb_clusters = 2;
 }
 
-message DeleteClusterRequest {
+message DeleteDBClusterRequest {
   // Kubernetes cluster name.
   string kubernetes_cluster_name = 1 [
     (validator.field) = {
@@ -86,7 +86,7 @@ service DBCluster {
     };
   }
   // DeleteDBCluster deletes DB cluster.
-  rpc DeleteDBCluster(DeleteClusterRequest) returns (DeleteDBClusterResponse) {
+  rpc DeleteDBCluster(DeleteDBClusterRequest) returns (DeleteDBClusterResponse) {
     option (google.api.http) = {
       post: "/v1/management/DBaaS/DBClusters/Delete"
       body: "*"

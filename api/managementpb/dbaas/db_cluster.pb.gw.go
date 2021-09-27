@@ -68,7 +68,7 @@ func local_request_DBCluster_ListDBClusters_0(ctx context.Context, marshaler run
 }
 
 func request_DBCluster_DeleteDBCluster_0(ctx context.Context, marshaler runtime.Marshaler, client DBClusterClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq DeleteClusterRequest
+	var protoReq DeleteDBClusterRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -85,7 +85,7 @@ func request_DBCluster_DeleteDBCluster_0(ctx context.Context, marshaler runtime.
 }
 
 func local_request_DBCluster_DeleteDBCluster_0(ctx context.Context, marshaler runtime.Marshaler, server DBClusterServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq DeleteClusterRequest
+	var protoReq DeleteDBClusterRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
