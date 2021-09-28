@@ -17539,7 +17539,7 @@
                   "x-order": 0
                 },
                 "psmdb_clusters": {
-                  "description": "PXC clusters information.",
+                  "description": "PSMDB clusters information.",
                   "type": "array",
                   "items": {
                     "description": "PSMDBCluster represents PSMDB cluster information.",
@@ -18403,84 +18403,6 @@
                   "description": "Make DB cluster accessible outside of K8s cluster.",
                   "type": "boolean",
                   "x-order": 3
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 1
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 2
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "type_url": {
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
-                      }
-                    }
-                  },
-                  "x-order": 3
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/management/DBaaS/PSMDBCluster/Delete": {
-      "post": {
-        "tags": [
-          "PSMDBClusters"
-        ],
-        "summary": "DeletePSMDBCluster deletes PSMDB cluster.",
-        "operationId": "DeletePSMDBCluster",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "kubernetes_cluster_name": {
-                  "description": "Kubernetes cluster name.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "name": {
-                  "description": "PSMDB cluster name.",
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }

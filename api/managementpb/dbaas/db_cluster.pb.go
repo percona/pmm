@@ -256,7 +256,7 @@ type ListDBClustersResponse struct {
 
 	// PXC clusters information.
 	PxcClusters []*PXCCluster `protobuf:"bytes,1,rep,name=pxc_clusters,json=pxcClusters,proto3" json:"pxc_clusters,omitempty"`
-	// PXC clusters information.
+	// PSMDB clusters information.
 	PsmdbClusters []*PSMDBCluster `protobuf:"bytes,2,rep,name=psmdb_clusters,json=psmdbClusters,proto3" json:"psmdb_clusters,omitempty"`
 }
 

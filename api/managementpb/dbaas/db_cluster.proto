@@ -50,7 +50,7 @@ message ListDBClustersRequest {
 message ListDBClustersResponse {
   // PXC clusters information.
   repeated PXCCluster pxc_clusters = 1;
-  // PXC clusters information.
+  // PSMDB clusters information.
   repeated PSMDBCluster psmdb_clusters = 2;
 }
 

@@ -234,7 +234,7 @@ type ListDBClustersOKBody struct {
 	// PXC clusters information.
 	PXCClusters []*PXCClustersItems0 `json:"pxc_clusters"`
 
-	// PXC clusters information.
+	// PSMDB clusters information.
 	PSMDBClusters []*PSMDBClustersItems0 `json:"psmdb_clusters"`
 }
 

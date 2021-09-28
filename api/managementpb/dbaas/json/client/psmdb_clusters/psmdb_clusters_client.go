@@ -27,8 +27,6 @@ type Client struct {
 type ClientService interface {
 	CreatePSMDBCluster(params *CreatePSMDBClusterParams) (*CreatePSMDBClusterOK, error)
 
-	DeletePSMDBCluster(params *DeletePSMDBClusterParams) (*DeletePSMDBClusterOK, error)
-
 	GetPSMDBClusterCredentials(params *GetPSMDBClusterCredentialsParams) (*GetPSMDBClusterCredentialsOK, error)
 
 	GetPSMDBClusterResources(params *GetPSMDBClusterResourcesParams) (*GetPSMDBClusterResourcesOK, error)
@@ -70,39 +68,6 @@ func (a *Client) CreatePSMDBCluster(params *CreatePSMDBClusterParams) (*CreatePS
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*CreatePSMDBClusterDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-  DeletePSMDBCluster deletes PSMDB cluster deletes PSMDB cluster
-*/
-func (a *Client) DeletePSMDBCluster(params *DeletePSMDBClusterParams) (*DeletePSMDBClusterOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewDeletePSMDBClusterParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "DeletePSMDBCluster",
-		Method:             "POST",
-		PathPattern:        "/v1/management/DBaaS/PSMDBCluster/Delete",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &DeletePSMDBClusterReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*DeletePSMDBClusterOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*DeletePSMDBClusterDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
