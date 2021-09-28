@@ -25,7 +25,7 @@ If there is no existing report, submit a report following these steps:
 
 1. [Sign in to Percona JIRA.](https://jira.percona.com/login.jsp) You will need to create an account if you do not have one.
 2. [Go to the Create Issue screen and select the relevant project.](https://jira.percona.com/secure/CreateIssueDetails!init.jspa?pid=11600&issuetype=1&priority=3)
-3. Fill in the fields of Summary, Description, Steps To Reproduce, and Affects Version to the best you can. If the bug corresponds to a crash, attach the stack trace from the logs.
+3. Fill in the fields of *Summary*, *Description*, *Steps To Reproduce*, and *Affects Version* the best you can. If the bug corresponds to a crash, attach the stack trace from the logs.
 
 An excellent resource is [Elika Etemad's article on filing good bug reports.](http://fantasai.inkedblade.net/style/talks/filing-good-bugs/).
 
