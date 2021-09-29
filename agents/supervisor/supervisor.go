@@ -496,12 +496,15 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentpb.SetStat
 	}
 	switch agentProcess.Type {
 	case inventorypb.AgentType_NODE_EXPORTER:
+		templateParams["paths_base"] = s.paths.PathsBase
 		processParams.Path = s.paths.NodeExporter
 	case inventorypb.AgentType_MYSQLD_EXPORTER:
+		templateParams["paths_base"] = s.paths.PathsBase
 		processParams.Path = s.paths.MySQLdExporter
 	case inventorypb.AgentType_MONGODB_EXPORTER:
 		processParams.Path = s.paths.MongoDBExporter
 	case inventorypb.AgentType_POSTGRES_EXPORTER:
+		templateParams["paths_base"] = s.paths.PathsBase
 		processParams.Path = s.paths.PostgresExporter
 	case inventorypb.AgentType_PROXYSQL_EXPORTER:
 		processParams.Path = s.paths.ProxySQLExporter

@@ -96,6 +96,7 @@ func TestGet(t *testing.T) {
 				Address: "127.0.0.1:443",
 			},
 			Paths: Paths{
+				PathsBase:        "/usr/local/percona/pmm2",
 				ExportersBase:    "/usr/local/percona/pmm2/exporters",
 				NodeExporter:     "/usr/local/percona/pmm2/exporters/node_exporter",
 				MySQLdExporter:   "/usr/local/percona/pmm2/exporters/mysqld_exporter",
@@ -143,6 +144,7 @@ func TestGet(t *testing.T) {
 				Address: "127.0.0.1:443",
 			},
 			Paths: Paths{
+				PathsBase:        "/usr/local/percona/pmm2",
 				ExportersBase:    "/usr/local/percona/pmm2/exporters",
 				NodeExporter:     "/usr/local/percona/pmm2/exporters/node_exporter",
 				MySQLdExporter:   "/usr/local/percona/pmm2/exporters/mysqld_exporter",
@@ -191,6 +193,7 @@ func TestGet(t *testing.T) {
 				Address: "127.0.0.1:443",
 			},
 			Paths: Paths{
+				PathsBase:        "/usr/local/percona/pmm2",
 				ExportersBase:    "/usr/local/percona/pmm2/exporters",
 				NodeExporter:     "/usr/local/percona/pmm2/exporters/node_exporter",
 				MySQLdExporter:   "/usr/local/percona/pmm2/exporters/mysqld_exporter",
@@ -247,6 +250,7 @@ func TestGet(t *testing.T) {
 				Address: "127.0.0.1:443",
 			},
 			Paths: Paths{
+				PathsBase:        "/usr/local/percona/pmm2",
 				ExportersBase:    "/base",
 				NodeExporter:     "/base/node_exporter",    // default value
 				MySQLdExporter:   "/foo/mysqld_exporter",   // respect absolute value from flag
@@ -272,6 +276,117 @@ func TestGet(t *testing.T) {
 		assert.Equal(t, name, configFilepath)
 	})
 
+	t.Run("MixPathsBase", func(t *testing.T) {
+		name := writeConfig(t, &Config{
+			ID: "config-id",
+			Server: Server{
+				Address: "127.0.0.1",
+			},
+			Paths: Paths{
+				PostgresExporter: "/foo/postgres_exporter",
+				ProxySQLExporter: "/base/exporters/pro_exporter",
+			},
+		})
+		defer removeConfig(t, name)
+
+		actual, configFilepath, err := get([]string{
+			"--config-file=" + name,
+			"--id=flag-id",
+			"--debug",
+			"--paths-base=/base",
+			"--paths-mysqld_exporter=/foo/mysqld_exporter",
+			"--paths-mongodb_exporter=dir/mongo_exporter",
+		}, logrus.WithField("test", t.Name()))
+		require.NoError(t, err)
+
+		expected := &Config{
+			ID:            "flag-id",
+			ListenAddress: "127.0.0.1",
+			ListenPort:    7777,
+			Server: Server{
+				Address: "127.0.0.1:443",
+			},
+			Paths: Paths{
+				PathsBase:        "/base",
+				ExportersBase:    "/base/exporters",
+				NodeExporter:     "/base/exporters/node_exporter",      // default value
+				MySQLdExporter:   "/foo/mysqld_exporter",               // respect absolute value from flag
+				MongoDBExporter:  "/base/exporters/dir/mongo_exporter", // respect relative value from flag
+				PostgresExporter: "/foo/postgres_exporter",             // respect absolute value from config file
+				ProxySQLExporter: "/base/exporters/pro_exporter",       // respect relative value from config file
+				RDSExporter:      "/base/exporters/rds_exporter",       // default value
+				AzureExporter:    "/base/exporters/azure_exporter",     // default value
+				VMAgent:          "/base/exporters/vmagent",            // default value
+				TempDir:          os.TempDir(),
+				PTSummary:        "/base/tools/pt-summary",
+				PTPgSummary:      "/base/tools/pt-pg-summary",
+				PTMongoDBSummary: "/base/tools/pt-mongodb-summary",
+				PTMySqlSummary:   "/base/tools/pt-mysql-summary",
+			},
+			Ports: Ports{
+				Min: 42000,
+				Max: 51999,
+			},
+			Debug: true,
+		}
+		assert.Equal(t, expected, actual)
+		assert.Equal(t, name, configFilepath)
+	})
+
+	t.Run("MixPathsBaseExporterBase", func(t *testing.T) {
+		name := writeConfig(t, &Config{
+			ID: "config-id",
+			Server: Server{
+				Address: "127.0.0.1",
+			},
+			Paths: Paths{
+				ExportersBase: "/foo/exporters",
+			},
+		})
+		defer removeConfig(t, name)
+
+		actual, configFilepath, err := get([]string{
+			"--config-file=" + name,
+			"--id=flag-id",
+			"--debug",
+			"--paths-base=/base",
+		}, logrus.WithField("test", t.Name()))
+		require.NoError(t, err)
+
+		expected := &Config{
+			ID:            "flag-id",
+			ListenAddress: "127.0.0.1",
+			ListenPort:    7777,
+			Server: Server{
+				Address: "127.0.0.1:443",
+			},
+			Paths: Paths{
+				PathsBase:        "/base",
+				ExportersBase:    "/foo/exporters",
+				NodeExporter:     "/foo/exporters/node_exporter",     // default value
+				MySQLdExporter:   "/foo/exporters/mysqld_exporter",   // default value
+				MongoDBExporter:  "/foo/exporters/mongodb_exporter",  // default value
+				PostgresExporter: "/foo/exporters/postgres_exporter", // default value
+				ProxySQLExporter: "/foo/exporters/proxysql_exporter", // default value
+				RDSExporter:      "/foo/exporters/rds_exporter",      // default value
+				AzureExporter:    "/foo/exporters/azure_exporter",    // default value
+				VMAgent:          "/foo/exporters/vmagent",           // default value
+				TempDir:          os.TempDir(),
+				PTSummary:        "/base/tools/pt-summary",
+				PTPgSummary:      "/base/tools/pt-pg-summary",
+				PTMongoDBSummary: "/base/tools/pt-mongodb-summary",
+				PTMySqlSummary:   "/base/tools/pt-mysql-summary",
+			},
+			Ports: Ports{
+				Min: 42000,
+				Max: 51999,
+			},
+			Debug: true,
+		}
+		assert.Equal(t, expected, actual)
+		assert.Equal(t, name, configFilepath)
+	})
+
 	t.Run("NoFile", func(t *testing.T) {
 		wd, err := os.Getwd()
 		require.NoError(t, err)
@@ -286,6 +401,7 @@ func TestGet(t *testing.T) {
 			ListenAddress: "127.0.0.1",
 			ListenPort:    7777,
 			Paths: Paths{
+				PathsBase:        "/usr/local/percona/pmm2",
 				ExportersBase:    "/usr/local/percona/pmm2/exporters",
 				NodeExporter:     "/usr/local/percona/pmm2/exporters/node_exporter",
 				MySQLdExporter:   "/usr/local/percona/pmm2/exporters/mysqld_exporter",

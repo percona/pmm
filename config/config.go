@@ -34,6 +34,8 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+const pathBaseDefault = "/usr/local/percona/pmm2"
+
 // Server represents PMM Server configuration.
 type Server struct {
 	Address     string `yaml:"address"`
@@ -82,6 +84,7 @@ func (s *Server) FilteredURL() string {
 
 // Paths represents binaries paths configuration.
 type Paths struct {
+	PathsBase        string `yaml:"paths_base"`
 	ExportersBase    string `yaml:"exporters_base"`
 	NodeExporter     string `yaml:"node_exporter"`
 	MySQLdExporter   string `yaml:"mysqld_exporter"`
@@ -189,7 +192,6 @@ func get(args []string, l *logrus.Entry) (cfg *Config, configFileF string, err e
 			cfg.Ports.Max = 51999
 		}
 		for sp, v := range map[*string]string{
-			&cfg.Paths.ExportersBase:    "/usr/local/percona/pmm2/exporters",
 			&cfg.Paths.NodeExporter:     "node_exporter",
 			&cfg.Paths.MySQLdExporter:   "mysqld_exporter",
 			&cfg.Paths.MongoDBExporter:  "mongodb_exporter",
@@ -199,20 +201,41 @@ func get(args []string, l *logrus.Entry) (cfg *Config, configFileF string, err e
 			&cfg.Paths.AzureExporter:    "azure_exporter",
 			&cfg.Paths.VMAgent:          "vmagent",
 			&cfg.Paths.TempDir:          os.TempDir(),
-			&cfg.Paths.PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
-			&cfg.Paths.PTPgSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
-			&cfg.Paths.PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
-			&cfg.Paths.PTMySqlSummary:   "/usr/local/percona/pmm2/tools/pt-mysql-summary",
+			&cfg.Paths.PTSummary:        "tools/pt-summary",
+			&cfg.Paths.PTPgSummary:      "tools/pt-pg-summary",
+			&cfg.Paths.PTMongoDBSummary: "tools/pt-mongodb-summary",
+			&cfg.Paths.PTMySqlSummary:   "tools/pt-mysql-summary",
 		} {
 			if *sp == "" {
 				*sp = v
 			}
 		}
 
-		if cfg.Paths.ExportersBase != "" {
-			if abs, _ := filepath.Abs(cfg.Paths.ExportersBase); abs != "" {
-				cfg.Paths.ExportersBase = abs
-			}
+		if cfg.Paths.PathsBase == "" {
+			cfg.Paths.PathsBase = pathBaseDefault
+		}
+		if cfg.Paths.ExportersBase == "" {
+			cfg.Paths.ExportersBase = filepath.Join(cfg.Paths.PathsBase, "exporters")
+		}
+
+		if abs, _ := filepath.Abs(cfg.Paths.PathsBase); abs != "" {
+			cfg.Paths.PathsBase = abs
+		}
+		if abs, _ := filepath.Abs(cfg.Paths.ExportersBase); abs != "" {
+			cfg.Paths.ExportersBase = abs
+		}
+
+		if !filepath.IsAbs(cfg.Paths.PTSummary) {
+			cfg.Paths.PTSummary = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.PTSummary)
+		}
+		if !filepath.IsAbs(cfg.Paths.PTPgSummary) {
+			cfg.Paths.PTPgSummary = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.PTPgSummary)
+		}
+		if !filepath.IsAbs(cfg.Paths.PTMongoDBSummary) {
+			cfg.Paths.PTMongoDBSummary = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.PTMongoDBSummary)
+		}
+		if !filepath.IsAbs(cfg.Paths.PTMySqlSummary) {
+			cfg.Paths.PTMySqlSummary = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.PTMySqlSummary)
 		}
 
 		for _, sp := range []*string{
@@ -310,6 +333,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_SERVER_INSECURE_TLS").BoolVar(&cfg.Server.InsecureTLS)
 	// no flag for WithoutTLS - it is only for development and testing
 
+	app.Flag("paths-base", "Base path for exporters/collectors/tools to use [PMM_AGENT_PATHS_BASE]").
+		Envar("PMM_AGENT_PATHS_BASE").StringVar(&cfg.Paths.PathsBase)
 	app.Flag("paths-exporters_base", "Base path for exporters to use [PMM_AGENT_PATHS_EXPORTERS_BASE]").
 		Envar("PMM_AGENT_PATHS_EXPORTERS_BASE").StringVar(&cfg.Paths.ExportersBase)
 	app.Flag("paths-node_exporter", "Path to node_exporter to use [PMM_AGENT_PATHS_NODE_EXPORTER]").
