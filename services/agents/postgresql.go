@@ -47,9 +47,9 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent, red
 		// HR
 		"--collect.custom_query.hr",
 
-		"--collect.custom_query.lr.directory=/usr/local/percona/pmm2/collectors/custom-queries/postgresql/low-resolution",
-		"--collect.custom_query.mr.directory=/usr/local/percona/pmm2/collectors/custom-queries/postgresql/medium-resolution",
-		"--collect.custom_query.hr.directory=/usr/local/percona/pmm2/collectors/custom-queries/postgresql/high-resolution",
+		"--collect.custom_query.lr.directory=" + tdp.Left + " .paths_base " + tdp.Right + "/collectors/custom-queries/postgresql/low-resolution",
+		"--collect.custom_query.mr.directory=" + tdp.Left + " .paths_base " + tdp.Right + "/collectors/custom-queries/postgresql/medium-resolution",
+		"--collect.custom_query.hr.directory=" + tdp.Left + " .paths_base " + tdp.Right + "/collectors/custom-queries/postgresql/high-resolution",
 		"--web.listen-address=:" + tdp.Left + " .listen_port " + tdp.Right,
 	}
 

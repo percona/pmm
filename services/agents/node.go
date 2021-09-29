@@ -34,9 +34,9 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent) *agentpb.SetS
 	)
 
 	args := []string{
-		"--collector.textfile.directory.lr=/usr/local/percona/pmm2/collectors/textfile-collector/low-resolution",
-		"--collector.textfile.directory.mr=/usr/local/percona/pmm2/collectors/textfile-collector/medium-resolution",
-		"--collector.textfile.directory.hr=/usr/local/percona/pmm2/collectors/textfile-collector/high-resolution",
+		"--collector.textfile.directory.lr=" + tdp.Left + " .paths_base " + tdp.Right + "/collectors/textfile-collector/low-resolution",
+		"--collector.textfile.directory.mr=" + tdp.Left + " .paths_base " + tdp.Right + "/collectors/textfile-collector/medium-resolution",
+		"--collector.textfile.directory.hr=" + tdp.Left + " .paths_base " + tdp.Right + "/collectors/textfile-collector/high-resolution",
 
 		"--web.disable-exporter-metrics", // we enable them as a part of HR metrics
 

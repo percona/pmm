@@ -62,9 +62,9 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent, redac
 		"--collect.standard.go",
 		"--collect.standard.process",
 
-		"--collect.custom_query.lr.directory=/usr/local/percona/pmm2/collectors/custom-queries/mysql/low-resolution",
-		"--collect.custom_query.mr.directory=/usr/local/percona/pmm2/collectors/custom-queries/mysql/medium-resolution",
-		"--collect.custom_query.hr.directory=/usr/local/percona/pmm2/collectors/custom-queries/mysql/high-resolution",
+		"--collect.custom_query.lr.directory=" + tdp.Left + " .paths_base " + tdp.Right + "/collectors/custom-queries/mysql/low-resolution",
+		"--collect.custom_query.mr.directory=" + tdp.Left + " .paths_base " + tdp.Right + "/collectors/custom-queries/mysql/medium-resolution",
+		"--collect.custom_query.hr.directory=" + tdp.Left + " .paths_base " + tdp.Right + "/collectors/custom-queries/mysql/high-resolution",
 
 		"--exporter.max-idle-conns=3",
 		"--exporter.max-open-conns=3",
