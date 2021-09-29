@@ -1,6 +1,4 @@
 ---
-# FIXME This file is not used yet; see https://jira.percona.com/browse/PMM-5106
-
 version: '3.7'
 
 services:
