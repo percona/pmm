@@ -340,7 +340,7 @@ func TestDeleteTemplate(t *testing.T) {
 		require.NoError(t, err)
 		defer deleteTemplate(t, templatesClient.Default.Templates, name)
 
-		channelID := createChannel(t)
+		channelID, _ := createChannel(t)
 		defer deleteChannel(t, templatesClient.Default.Channels, channelID)
 
 		params := createAlertRuleParams(name, channelID, "param2", &rules.FiltersItems0{
@@ -359,7 +359,7 @@ func TestDeleteTemplate(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, "Failed to delete rule template %s, as it is being used by some rule.", name)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `You can't delete the "%s" rule template when it's being used by a rule.`, "Test summary")
 
 		resp, err := client.ListTemplates(&templates.ListTemplatesParams{
 			Body: templates.ListTemplatesBody{

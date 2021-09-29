@@ -50,7 +50,7 @@ func TestRulesAPI(t *testing.T) {
 	templateName := createTemplate(t)
 	defer deleteTemplate(t, client.Default.Templates, templateName)
 
-	channelID := createChannel(t)
+	channelID, _ := createChannel(t)
 	defer deleteChannel(t, channelsClient, channelID)
 
 	t.Run("add", func(t *testing.T) {
@@ -130,7 +130,7 @@ func TestRulesAPI(t *testing.T) {
 	})
 
 	t.Run("update", func(t *testing.T) {
-		newChannelID := createChannel(t)
+		newChannelID, _ := createChannel(t)
 		defer deleteChannel(t, channelsClient, newChannelID)
 
 		t.Run("normal", func(t *testing.T) {
@@ -544,18 +544,19 @@ func createTemplate(t *testing.T) string {
 	return templateName
 }
 
-func createChannel(t *testing.T) string {
-	resp, err := client.Default.Channels.AddChannel(&channels.AddChannelParams{
-		Body: channels.AddChannelBody{
-			Summary:  gofakeit.Quote(),
-			Disabled: gofakeit.Bool(),
-			EmailConfig: &channels.AddChannelParamsBodyEmailConfig{
-				SendResolved: false,
-				To:           []string{gofakeit.Email()},
-			},
+func createChannel(t *testing.T) (string, channels.AddChannelBody) {
+	body := channels.AddChannelBody{
+		Summary:  gofakeit.Quote(),
+		Disabled: gofakeit.Bool(),
+		EmailConfig: &channels.AddChannelParamsBodyEmailConfig{
+			SendResolved: false,
+			To:           []string{gofakeit.Email()},
 		},
+	}
+	resp, err := client.Default.Channels.AddChannel(&channels.AddChannelParams{
+		Body:    body,
 		Context: pmmapitests.Context,
 	})
 	require.NoError(t, err)
-	return resp.Payload.ChannelID
+	return resp.Payload.ChannelID, body
 }

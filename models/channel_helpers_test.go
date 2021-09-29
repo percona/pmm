@@ -122,7 +122,7 @@ func TestNotificationChannels(t *testing.T) {
 
 		q := tx.Querier
 
-		channelID := createChannel(t, q)
+		channelID := createChannel(t, q).ID
 
 		err = models.RemoveChannel(q, channelID)
 		require.NoError(t, err)
@@ -146,12 +146,12 @@ func TestNotificationChannels(t *testing.T) {
 		_, err = models.CreateTemplate(q, createTemplateParams(templateName))
 		require.NoError(t, err)
 
-		channelID := createChannel(t, q)
+		channel := createChannel(t, q)
 
-		_ = createRule(t, q, channelID, templateName)
+		_ = createRule(t, q, channel.ID, templateName)
 
-		err = models.RemoveChannel(q, channelID)
-		tests.AssertGRPCError(t, status.Newf(codes.FailedPrecondition, "Failed to delete notification channel %s, as it is being used by some rule.", channelID), err)
+		err = models.RemoveChannel(q, channel.ID)
+		tests.AssertGRPCError(t, status.Newf(codes.FailedPrecondition, `You can't delete the "%s" channel when it's being used by a rule.`, channel.Summary), err)
 
 		cs, err := models.FindChannels(q)
 		require.NoError(t, err)

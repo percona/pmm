@@ -341,7 +341,8 @@ func ChangeChannel(q *reform.Querier, channelID string, params *ChangeChannelPar
 
 // RemoveChannel removes notification channel with specified id.
 func RemoveChannel(q *reform.Querier, id string) error {
-	if _, err := FindChannelByID(q, id); err != nil {
+	channel, err := FindChannelByID(q, id)
+	if err != nil {
 		return err
 	}
 
@@ -351,7 +352,7 @@ func RemoveChannel(q *reform.Querier, id string) error {
 	}
 
 	if inUse {
-		return status.Errorf(codes.FailedPrecondition, "Failed to delete notification channel %s, as it is being used by some rule.", id)
+		return status.Errorf(codes.FailedPrecondition, `You can't delete the "%s" channel when it's being used by a rule.`, channel.Summary)
 	}
 
 	if err = q.Delete(&Channel{ID: id}); err != nil {

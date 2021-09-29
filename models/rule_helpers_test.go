@@ -51,7 +51,7 @@ func TestRules(t *testing.T) {
 			q := tx.Querier
 
 			templateName := createTemplate(t, q)
-			channelID := createChannel(t, q)
+			channelID := createChannel(t, q).ID
 
 			params := createCreateRuleParams(templateName, channelID, nonEmptyFilters)
 			rule, err := models.CreateRule(q, params)
@@ -131,11 +131,11 @@ func TestRules(t *testing.T) {
 			q := tx.Querier
 
 			templateName := createTemplate(t, q)
-			channelID := createChannel(t, q)
+			channelID := createChannel(t, q).ID
 			rule, err := models.CreateRule(q, createCreateRuleParams(templateName, channelID, nonEmptyFilters))
 			require.NoError(t, err)
 
-			newChannelID := createChannel(t, q)
+			newChannelID := createChannel(t, q).ID
 
 			params := &models.ChangeRuleParams{
 				Summary:      "summary",
@@ -176,7 +176,7 @@ func TestRules(t *testing.T) {
 			q := tx.Querier
 
 			templateName := createTemplate(t, q)
-			channelID := createChannel(t, q)
+			channelID := createChannel(t, q).ID
 			rule, err := models.CreateRule(q, createCreateRuleParams(templateName, channelID, nonEmptyFilters))
 			require.NoError(t, err)
 
@@ -207,7 +207,7 @@ func TestRules(t *testing.T) {
 		q := tx.Querier
 
 		templateName := createTemplate(t, q)
-		channelID := createChannel(t, q)
+		channelID := createChannel(t, q).ID
 
 		params := createCreateRuleParams(templateName, channelID, nonEmptyFilters)
 		rule, err := models.CreateRule(q, params)
@@ -231,7 +231,7 @@ func TestRules(t *testing.T) {
 		q := tx.Querier
 
 		templateName := createTemplate(t, q)
-		channelID := createChannel(t, q)
+		channelID := createChannel(t, q).ID
 
 		params := createCreateRuleParams(templateName, channelID, nonEmptyFilters)
 		rule, err := models.CreateRule(q, params)
@@ -288,7 +288,7 @@ func createTemplate(t *testing.T, q *reform.Querier) string {
 	return templateName
 }
 
-func createChannel(t *testing.T, q *reform.Querier) string {
+func createChannel(t *testing.T, q *reform.Querier) *models.Channel {
 	params := models.CreateChannelParams{
 		Summary: "some summary",
 		EmailConfig: &models.EmailConfig{
@@ -297,8 +297,8 @@ func createChannel(t *testing.T, q *reform.Querier) string {
 		Disabled: false,
 	}
 
-	expected, err := models.CreateChannel(q, &params)
+	channel, err := models.CreateChannel(q, &params)
 	require.NoError(t, err)
 
-	return expected.ID
+	return channel
 }

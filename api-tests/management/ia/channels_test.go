@@ -198,7 +198,7 @@ func TestRemoveChannel(t *testing.T) {
 		templateName := createTemplate(t)
 		defer deleteTemplate(t, channelsClient.Default.Templates, templateName)
 
-		channelID := createChannel(t)
+		channelID, body := createChannel(t)
 		defer deleteChannel(t, channelsClient.Default.Channels, channelID)
 
 		params := createAlertRuleParams(templateName, channelID, "param2", nil)
@@ -212,7 +212,7 @@ func TestRemoveChannel(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, "Failed to delete notification channel %s, as it is being used by some rule.", channelID)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `You can't delete the "%s" channel when it's being used by a rule.`, body.Summary)
 
 		resp, err := client.ListChannels(&channels.ListChannelsParams{
 			Context: pmmapitests.Context,

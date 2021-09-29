@@ -193,15 +193,15 @@ func TestRuleTemplates(t *testing.T) {
 
 		templateName := gofakeit.UUID()
 
-		_, err = models.CreateTemplate(q, createTemplateParams(templateName))
+		template, err := models.CreateTemplate(q, createTemplateParams(templateName))
 		require.NoError(t, err)
 
-		channelID := createChannel(t, q)
+		channelID := createChannel(t, q).ID
 
 		_ = createRule(t, q, channelID, templateName)
 
 		err = models.RemoveTemplate(q, templateName)
-		tests.AssertGRPCError(t, status.Newf(codes.FailedPrecondition, "Failed to delete rule template %s, as it is being used by some rule.", templateName), err)
+		tests.AssertGRPCError(t, status.Newf(codes.FailedPrecondition, `You can't delete the "%s" rule template when it's being used by a rule.`, template.Summary), err)
 
 		templates, err := models.FindTemplates(q)
 		require.NoError(t, err)
