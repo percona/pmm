@@ -341,7 +341,7 @@ message MetricsBucket {
     // cmd_type, cmd_type_text, elevel, sqlcode, message, state_code, state
     string top_queryid = 43;
     string application_name = 44;
-    string plan_id = 45;
+    string planid = 45;
   }
   Common common = 1;
   MySQL mysql = 2;

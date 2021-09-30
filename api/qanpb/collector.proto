@@ -369,7 +369,7 @@ message MetricsBucket {
   // cmd_type, cmd_type_text, elevel, sqlcode, message, state_code, state
   string top_queryid = 246;
   string application_name = 247;
-  string plan_id = 248;
+  string planid = 248;
 }
 
 message CollectResponse {}
