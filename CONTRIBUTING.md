@@ -7,7 +7,7 @@ pmm-managed is highly integrated with PMM Server environment. As a result, devel
 
 Install Docker and Docker Compose.
 
-Checkout `PMM-2.0` branch which is the main branch for PMM 2.x development.
+Checkout `main` branch which is the main branch for PMM 2.x development.
 
 Run `make` to see a list of targets that can be run on host:
 ```

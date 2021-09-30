@@ -119,7 +119,7 @@ receivers:
 	// Don't call updateConfiguration() there as Alertmanager is likely to be in the crash loop at the moment.
 	// Instead, write alertmanager.yml directly. main.go will request configuration update.
 	stat, err := os.Stat(alertmanagerConfigPath)
-	if err != nil || int(stat.Size()) <= len("---\n") { // https://github.com/percona/pmm-server/blob/PMM-2.0/alertmanager.yml
+	if err != nil || int(stat.Size()) <= len("---\n") { // https://github.com/percona/pmm-server/blob/main/alertmanager.yml
 		svc.l.Infof("Creating %s", alertmanagerConfigPath)
 		err = ioutil.WriteFile(alertmanagerConfigPath, []byte(defaultBase), 0o644) //nolint:gosec
 		if err != nil {
