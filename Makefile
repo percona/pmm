@@ -57,7 +57,7 @@ check:                          ## Run required checkers and linters.
 	ansible-lint ansible/playbook/tasks/update.yml
 
 check-all: check                ## Run all linters for new code.
-	$(BIN_PATH)/golangci-lint run -c=.golangci.yml --new-from-rev=PMM-2.0
+	$(BIN_PATH)/golangci-lint run -c=.golangci.yml --new-from-rev=main
 
 FILES = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 
