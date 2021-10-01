@@ -165,7 +165,7 @@ You can now [add the service](#add-service).
 
     In your `postgresql.conf` file:
     ```ini
-    pg_stat_monitor.pgsm_query_max_len settings = 2048
+    pg_stat_monitor.pgsm_query_max_len = 2048
     ```
 
     !!! caution alert alert-warning
