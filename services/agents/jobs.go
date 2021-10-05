@@ -270,7 +270,7 @@ func (s *JobsService) handleJobError(job *models.Job) error {
 				Status: models.ErrorRestoreStatus,
 			})
 	default:
-		// Don't do anything without explicit handling
+		return errors.Errorf("unknown job type %s", job.Type)
 	}
 
 	go func() {
@@ -283,6 +283,23 @@ func (s *JobsService) handleJobError(job *models.Job) error {
 	}()
 
 	return err
+}
+
+func (s *JobsService) handleJobProgress(ctx context.Context, progress *agentpb.JobProgress) {
+	switch result := progress.Result.(type) {
+	case *agentpb.JobProgress_Logs_:
+		_, err := models.CreateJobLog(s.db.Querier, models.CreateJobLogParams{
+			JobID:     progress.JobId,
+			ChunkID:   int(result.Logs.ChunkId),
+			Data:      result.Logs.Data,
+			LastChunk: result.Logs.Done,
+		})
+		if err != nil {
+			s.l.WithError(err).Errorf("failed to create log for job %s [chunk: %d]", progress.JobId, result.Logs.ChunkId)
+		}
+	default:
+		s.l.Errorf("unexpected job progress type: %T", result)
+	}
 }
 
 // StartMySQLBackupJob starts mysql backup job on the pmm-agent.

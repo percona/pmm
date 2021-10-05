@@ -48,4 +48,5 @@ type retentionService interface {
 // We use it instead of real type to avoid dependency cycle.
 type jobsService interface {
 	handleJobResult(ctx context.Context, l *logrus.Entry, result *agentpb.JobResult)
+	handleJobProgress(ctx context.Context, progress *agentpb.JobProgress)
 }

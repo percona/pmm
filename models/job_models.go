@@ -145,6 +145,15 @@ func (r *Job) AfterFind() error {
 	return nil
 }
 
+// JobLog stores chunk of logs from job.
+//reform:job_logs
+type JobLog struct {
+	JobID     string `reform:"job_id"`
+	ChunkID   int    `reform:"chunk_id"`
+	Data      string `reform:"data"`
+	LastChunk bool   `reform:"last_chunk"`
+}
+
 // check interfaces.
 var (
 	_ reform.BeforeInserter = (*Job)(nil)

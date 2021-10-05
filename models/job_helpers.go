@@ -17,6 +17,8 @@
 package models
 
 import (
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -24,6 +26,10 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
+)
+
+const (
+	defaultLimit = 50
 )
 
 // FindJobByID finds Job by ID.
@@ -41,6 +47,56 @@ func FindJobByID(q *reform.Querier, id string) (*Job, error) {
 	default:
 		return nil, errors.WithStack(err)
 	}
+}
+
+// JobsFilter represents filter for jobs.
+type JobsFilter struct {
+	ArtifactID string
+	Types      []JobType
+}
+
+// FindJobs returns logs satisfying filters.
+func FindJobs(q *reform.Querier, filters JobsFilter) ([]*Job, error) {
+	var args []interface{}
+	var andConds []string
+	idx := 1
+	if len(filters.Types) > 0 {
+		p := strings.Join(q.Placeholders(idx, len(filters.Types)), ", ")
+		for _, fType := range filters.Types {
+			args = append(args, fType)
+		}
+		idx += len(filters.Types)
+		andConds = append(andConds, fmt.Sprintf("type IN (%s)", p))
+	}
+
+	crossJoin := false
+	if filters.ArtifactID != "" {
+		crossJoin = true
+		andConds = append(andConds, "value ->> 'artifact_id' = "+q.Placeholder(idx))
+		args = append(args, filters.ArtifactID)
+	}
+
+	var tail strings.Builder
+	if crossJoin {
+		tail.WriteString("CROSS JOIN jsonb_each(data) ")
+	}
+
+	if len(andConds) > 0 {
+		tail.WriteString("WHERE ")
+		tail.WriteString(strings.Join(andConds, " AND "))
+		tail.WriteRune(' ')
+	}
+	tail.WriteString("ORDER BY created_at DESC")
+
+	structs, err := q.SelectAllFrom(JobTable, tail.String(), args...)
+	if err != nil {
+		return nil, err
+	}
+	jobs := make([]*Job, len(structs))
+	for i, s := range structs {
+		jobs[i] = s.(*Job)
+	}
+	return jobs, nil
 }
 
 // CreateJobParams are params for creating a new job.
@@ -90,4 +146,58 @@ func CreateJob(q *reform.Querier, params CreateJobParams) (*Job, error) {
 func CleanupOldJobs(q *reform.Querier, olderThan time.Time) error {
 	_, err := q.DeleteFrom(JobTable, " WHERE updated_at <= $1", olderThan)
 	return err
+}
+
+// CreateJobLogParams are params for creating a new job jog.
+type CreateJobLogParams struct {
+	JobID     string
+	ChunkID   int
+	Data      string
+	LastChunk bool
+}
+
+// CreateJobLog inserts new chunk log.
+func CreateJobLog(q *reform.Querier, params CreateJobLogParams) (*JobLog, error) {
+	log := &JobLog{
+		JobID:     params.JobID,
+		ChunkID:   params.ChunkID,
+		Data:      params.Data,
+		LastChunk: params.LastChunk,
+	}
+	if err := q.Insert(log); err != nil {
+		return nil, errors.WithStack(err)
+	}
+	return log, nil
+}
+
+// JobLogsFilter represents filter for job logs.
+type JobLogsFilter struct {
+	JobID  string
+	Offset int
+	Limit  *int
+}
+
+// FindJobLogs returns logs that belongs to job.
+func FindJobLogs(q *reform.Querier, filters JobLogsFilter) ([]*JobLog, error) {
+	limit := defaultLimit
+	tail := "WHERE job_id = $1 AND chunk_id >= $2 ORDER BY chunk_id LIMIT $3"
+	if filters.Limit != nil {
+		limit = *filters.Limit
+	}
+	args := []interface{}{
+		filters.JobID,
+		filters.Offset,
+		limit,
+	}
+
+	rows, err := q.SelectAllFrom(JobLogView, tail, args...)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to select artifacts")
+	}
+
+	logs := make([]*JobLog, 0, len(rows))
+	for _, r := range rows {
+		logs = append(logs, r.(*JobLog))
+	}
+	return logs, nil
 }

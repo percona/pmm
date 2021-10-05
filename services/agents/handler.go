@@ -161,8 +161,7 @@ func (h *Handler) Run(stream agentpb.Agent_ConnectServer) error {
 			case *agentpb.JobResult:
 				h.jobsService.handleJobResult(ctx, l, p)
 			case *agentpb.JobProgress:
-				// TODO Handle job progress messages https://jira.percona.com/browse/PMM-7756
-
+				h.jobsService.handleJobProgress(ctx, p)
 			case nil:
 				l.Errorf("Unexpected request: %+v.", req)
 			}

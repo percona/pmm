@@ -181,6 +181,97 @@ var (
 	_ fmt.Stringer  = (*Job)(nil)
 )
 
+type jobLogViewType struct {
+	s parse.StructInfo
+	z []interface{}
+}
+
+// Schema returns a schema name in SQL database ("").
+func (v *jobLogViewType) Schema() string {
+	return v.s.SQLSchema
+}
+
+// Name returns a view or table name in SQL database ("job_logs").
+func (v *jobLogViewType) Name() string {
+	return v.s.SQLName
+}
+
+// Columns returns a new slice of column names for that view or table in SQL database.
+func (v *jobLogViewType) Columns() []string {
+	return []string{
+		"job_id",
+		"chunk_id",
+		"data",
+		"last_chunk",
+	}
+}
+
+// NewStruct makes a new struct for that view or table.
+func (v *jobLogViewType) NewStruct() reform.Struct {
+	return new(JobLog)
+}
+
+// JobLogView represents job_logs view or table in SQL database.
+var JobLogView = &jobLogViewType{
+	s: parse.StructInfo{
+		Type:    "JobLog",
+		SQLName: "job_logs",
+		Fields: []parse.FieldInfo{
+			{Name: "JobID", Type: "string", Column: "job_id"},
+			{Name: "ChunkID", Type: "int", Column: "chunk_id"},
+			{Name: "Data", Type: "string", Column: "data"},
+			{Name: "LastChunk", Type: "bool", Column: "last_chunk"},
+		},
+		PKFieldIndex: -1,
+	},
+	z: new(JobLog).Values(),
+}
+
+// String returns a string representation of this struct or record.
+func (s JobLog) String() string {
+	res := make([]string, 4)
+	res[0] = "JobID: " + reform.Inspect(s.JobID, true)
+	res[1] = "ChunkID: " + reform.Inspect(s.ChunkID, true)
+	res[2] = "Data: " + reform.Inspect(s.Data, true)
+	res[3] = "LastChunk: " + reform.Inspect(s.LastChunk, true)
+	return strings.Join(res, ", ")
+}
+
+// Values returns a slice of struct or record field values.
+// Returned interface{} values are never untyped nils.
+func (s *JobLog) Values() []interface{} {
+	return []interface{}{
+		s.JobID,
+		s.ChunkID,
+		s.Data,
+		s.LastChunk,
+	}
+}
+
+// Pointers returns a slice of pointers to struct or record fields.
+// Returned interface{} values are never untyped nils.
+func (s *JobLog) Pointers() []interface{} {
+	return []interface{}{
+		&s.JobID,
+		&s.ChunkID,
+		&s.Data,
+		&s.LastChunk,
+	}
+}
+
+// View returns View object for that struct.
+func (s *JobLog) View() reform.View {
+	return JobLogView
+}
+
+// check interfaces
+var (
+	_ reform.View   = JobLogView
+	_ reform.Struct = (*JobLog)(nil)
+	_ fmt.Stringer  = (*JobLog)(nil)
+)
+
 func init() {
 	parse.AssertUpToDate(&JobTable.s, new(Job))
+	parse.AssertUpToDate(&JobLogView.s, new(JobLog))
 }
