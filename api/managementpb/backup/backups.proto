@@ -196,6 +196,27 @@ message RemoveScheduledBackupRequest {
 
 message RemoveScheduledBackupResponse {}
 
+message GetLogsRequest {
+  string artifact_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  uint32 offset = 2;
+  uint32 limit = 3;
+}
+
+message GetLogsResponse {
+  repeated LogChunk logs = 1;
+  bool end = 2;
+}
+
+// LogChunk represent one chunk of logs.
+message LogChunk {
+  uint32 chunk_id = 1;
+  string data = 2;
+}
+
 // Backups service handles backup operations to DB.
 service Backups {
   // StartBackup request backup specified service to location.
@@ -244,6 +265,13 @@ service Backups {
   rpc RemoveScheduledBackup(RemoveScheduledBackupRequest) returns (RemoveScheduledBackupResponse) {
     option (google.api.http) = {
       post: "/v1/management/backup/Backups/RemoveScheduled"
+      body: "*"
+    };
+  }
+  // GetLogs returns logs for provided artifact.
+  rpc GetLogs(GetLogsRequest) returns (GetLogsResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/backup/Backups/GetLogs"
       body: "*"
     };
   }
