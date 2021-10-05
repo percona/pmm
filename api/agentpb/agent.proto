@@ -526,11 +526,18 @@ message JobProgress {
   // MySQLRestoreBackup contains restore backup job status update.
   message MySQLRestoreBackup {}
 
+  // Logs contains generic logs from job.
+  message Logs {
+    uint32 chunk_id = 1;
+    string data = 2;
+    bool done = 3;
+  }
   string job_id = 1;
   google.protobuf.Timestamp timestamp = 2;
   oneof result {
     MySQLBackup mysql_backup = 11;
     MySQLRestoreBackup mysql_restore_backup = 12;
+    Logs logs = 20;
   }
 }
 
