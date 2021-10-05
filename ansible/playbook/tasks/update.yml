@@ -175,6 +175,18 @@
         option: external_snapshot_name
         value: Share with Percona
 
+    - name: Set Grafana folder for plugins on /srv partition
+      ini_file:
+        dest: /etc/grafana/grafana.ini
+        section: paths
+        option: plugins
+        value: /srv/grafana/plugins
+
+    - name: Set Grafana folder for plugins on /srv partition for all users
+      lineinfile:
+        path: /etc/bashrc
+        line: 'export GF_PLUGIN_DIR=/srv/grafana/plugins'
+
     - name: Add ClickHouse datasource to the list of unsigned plugins in Grafana
       ini_file:
         dest: /etc/grafana/grafana.ini
@@ -214,10 +226,31 @@
           - pmm-agent
         - ["stop", "remove", "add"]
 
+    - name: Check if grafana plugins folder is new
+      find:
+        paths: '/srv/grafana/plugins'
+        file_type: directory
+      register: grafanaPluginFolderEmpty
+
+    # copy grafana plugins to /srv partition
+    - name: Copy plugins to /srv
+      copy:
+        src: /var/lib/grafana/plugins/
+        dest: /srv/grafana/plugins/
+        remote_src: yes
+        directory_mode: yes
+        mode: '0775'
+      when: grafanaPluginFolderEmpty.matched == 0
+
     # set folder names of panels to format that's supported by grafana-cli
     - name: Rename Grafana community panels
       command: /usr/share/percona-dashboards/fix-panels.py
       changed_when: False
+
+    - name: Delete old folder for grafana plugins
+      file:
+        state: absent
+        path: /var/lib/grafana/plugins/
 
     - name: Start Grafana dashboards update
       command: supervisorctl start dashboard-upgrade
