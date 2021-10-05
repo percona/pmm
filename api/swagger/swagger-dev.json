@@ -24943,6 +24943,18 @@
                         "type": "string",
                         "format": "date-time",
                         "x-order": 9
+                      },
+                      "mode": {
+                        "description": "BackupMode specifies backup mode.",
+                        "type": "string",
+                        "default": "BACKUP_MODE_INVALID",
+                        "enum": [
+                          "BACKUP_MODE_INVALID",
+                          "SNAPSHOT",
+                          "INCREMENTAL",
+                          "PITR"
+                        ],
+                        "x-order": 10
                       }
                     }
                   },
@@ -25541,6 +25553,18 @@
                         "type": "integer",
                         "format": "int64",
                         "x-order": 16
+                      },
+                      "mode": {
+                        "description": "BackupMode specifies backup mode.",
+                        "type": "string",
+                        "default": "BACKUP_MODE_INVALID",
+                        "enum": [
+                          "BACKUP_MODE_INVALID",
+                          "SNAPSHOT",
+                          "INCREMENTAL",
+                          "PITR"
+                        ],
+                        "x-order": 17
                       }
                     }
                   },
@@ -25815,6 +25839,18 @@
                   "type": "integer",
                   "format": "int64",
                   "x-order": 9
+                },
+                "mode": {
+                  "description": "BackupMode specifies backup mode.",
+                  "type": "string",
+                  "default": "BACKUP_MODE_INVALID",
+                  "enum": [
+                    "BACKUP_MODE_INVALID",
+                    "SNAPSHOT",
+                    "INCREMENTAL",
+                    "PITR"
+                  ],
+                  "x-order": 10
                 }
               }
             }

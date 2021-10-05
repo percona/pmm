@@ -424,6 +424,8 @@ type ScheduledBackup struct {
 	NextRun *timestamp.Timestamp `protobuf:"bytes,17,opt,name=next_run,json=nextRun,proto3" json:"next_run,omitempty"`
 	// How many artifacts keep. 0 - unlimited.
 	Retention uint32 `protobuf:"varint,18,opt,name=retention,proto3" json:"retention,omitempty"`
+	// Backup mode.
+	Mode BackupMode `protobuf:"varint,19,opt,name=mode,proto3,enum=backup.v1beta1.BackupMode" json:"mode,omitempty"`
 }
 
 func (x *ScheduledBackup) Reset() {
@@ -577,6 +579,13 @@ func (x *ScheduledBackup) GetRetention() uint32 {
 	return 0
 }
 
+func (x *ScheduledBackup) GetMode() BackupMode {
+	if x != nil {
+		return x.Mode
+	}
+	return BackupMode_BACKUP_MODE_INVALID
+}
+
 type ScheduleBackupRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -602,6 +611,8 @@ type ScheduleBackupRequest struct {
 	Enabled bool `protobuf:"varint,9,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	// How many artifacts keep. 0 - unlimited.
 	Retention uint32 `protobuf:"varint,10,opt,name=retention,proto3" json:"retention,omitempty"`
+	// Backup mode.
+	Mode BackupMode `protobuf:"varint,11,opt,name=mode,proto3,enum=backup.v1beta1.BackupMode" json:"mode,omitempty"`
 }
 
 func (x *ScheduleBackupRequest) Reset() {
@@ -704,6 +715,13 @@ func (x *ScheduleBackupRequest) GetRetention() uint32 {
 		return x.Retention
 	}
 	return 0
+}
+
+func (x *ScheduleBackupRequest) GetMode() BackupMode {
+	if x != nil {
+		return x.Mode
+	}
+	return BackupMode_BACKUP_MODE_INVALID
 }
 
 type ScheduleBackupResponse struct {
@@ -1317,7 +1335,7 @@ var file_managementpb_backup_backups_proto_rawDesc = []byte{
 	0x49, 0x64, 0x22, 0x36, 0x0a, 0x15, 0x52, 0x65, 0x73, 0x74, 0x6f, 0x72, 0x65, 0x42, 0x61, 0x63,
 	0x6b, 0x75, 0x70, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x1d, 0x0a, 0x0a, 0x72,
 	0x65, 0x73, 0x74, 0x6f, 0x72, 0x65, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52,
-	0x09, 0x72, 0x65, 0x73, 0x74, 0x6f, 0x72, 0x65, 0x49, 0x64, 0x22, 0xb7, 0x05, 0x0a, 0x0f, 0x53,
+	0x09, 0x72, 0x65, 0x73, 0x74, 0x6f, 0x72, 0x65, 0x49, 0x64, 0x22, 0xe7, 0x05, 0x0a, 0x0f, 0x53,
 	0x63, 0x68, 0x65, 0x64, 0x75, 0x6c, 0x65, 0x64, 0x42, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x12, 0x2e,
 	0x0a, 0x13, 0x73, 0x63, 0x68, 0x65, 0x64, 0x75, 0x6c, 0x65, 0x64, 0x5f, 0x62, 0x61, 0x63, 0x6b,
 	0x75, 0x70, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x11, 0x73, 0x63, 0x68,
@@ -1361,7 +1379,10 @@ var file_managementpb_backup_backups_proto_rawDesc = []byte{
 	0x62, 0x75, 0x66, 0x2e, 0x54, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x52, 0x07, 0x6e,
 	0x65, 0x78, 0x74, 0x52, 0x75, 0x6e, 0x12, 0x1c, 0x0a, 0x09, 0x72, 0x65, 0x74, 0x65, 0x6e, 0x74,
 	0x69, 0x6f, 0x6e, 0x18, 0x12, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x09, 0x72, 0x65, 0x74, 0x65, 0x6e,
-	0x74, 0x69, 0x6f, 0x6e, 0x22, 0x9d, 0x03, 0x0a, 0x15, 0x53, 0x63, 0x68, 0x65, 0x64, 0x75, 0x6c,
+	0x74, 0x69, 0x6f, 0x6e, 0x12, 0x2e, 0x0a, 0x04, 0x6d, 0x6f, 0x64, 0x65, 0x18, 0x13, 0x20, 0x01,
+	0x28, 0x0e, 0x32, 0x1a, 0x2e, 0x62, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x2e, 0x76, 0x31, 0x62, 0x65,
+	0x74, 0x61, 0x31, 0x2e, 0x42, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x4d, 0x6f, 0x64, 0x65, 0x52, 0x04,
+	0x6d, 0x6f, 0x64, 0x65, 0x22, 0xcd, 0x03, 0x0a, 0x15, 0x53, 0x63, 0x68, 0x65, 0x64, 0x75, 0x6c,
 	0x65, 0x42, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x25,
 	0x0a, 0x0a, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01,
 	0x28, 0x09, 0x42, 0x06, 0xe2, 0xdf, 0x1f, 0x02, 0x58, 0x01, 0x52, 0x09, 0x73, 0x65, 0x72, 0x76,
@@ -1387,7 +1408,10 @@ var file_managementpb_backup_backups_proto_rawDesc = []byte{
 	0x65, 0x6e, 0x61, 0x62, 0x6c, 0x65, 0x64, 0x18, 0x09, 0x20, 0x01, 0x28, 0x08, 0x52, 0x07, 0x65,
 	0x6e, 0x61, 0x62, 0x6c, 0x65, 0x64, 0x12, 0x1c, 0x0a, 0x09, 0x72, 0x65, 0x74, 0x65, 0x6e, 0x74,
 	0x69, 0x6f, 0x6e, 0x18, 0x0a, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x09, 0x72, 0x65, 0x74, 0x65, 0x6e,
-	0x74, 0x69, 0x6f, 0x6e, 0x22, 0x48, 0x0a, 0x16, 0x53, 0x63, 0x68, 0x65, 0x64, 0x75, 0x6c, 0x65,
+	0x74, 0x69, 0x6f, 0x6e, 0x12, 0x2e, 0x0a, 0x04, 0x6d, 0x6f, 0x64, 0x65, 0x18, 0x0b, 0x20, 0x01,
+	0x28, 0x0e, 0x32, 0x1a, 0x2e, 0x62, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x2e, 0x76, 0x31, 0x62, 0x65,
+	0x74, 0x61, 0x31, 0x2e, 0x42, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x4d, 0x6f, 0x64, 0x65, 0x52, 0x04,
+	0x6d, 0x6f, 0x64, 0x65, 0x22, 0x48, 0x0a, 0x16, 0x53, 0x63, 0x68, 0x65, 0x64, 0x75, 0x6c, 0x65,
 	0x42, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x2e,
 	0x0a, 0x13, 0x73, 0x63, 0x68, 0x65, 0x64, 0x75, 0x6c, 0x65, 0x64, 0x5f, 0x62, 0x61, 0x63, 0x6b,
 	0x75, 0x70, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x11, 0x73, 0x63, 0x68,
@@ -1586,9 +1610,10 @@ var file_managementpb_backup_backups_proto_goTypes = []interface{}{
 	(*inventorypb.MongoDBService)(nil),             // 20: inventory.MongoDBService
 	(*timestamp.Timestamp)(nil),                    // 21: google.protobuf.Timestamp
 	(DataModel)(0),                                 // 22: backup.v1beta1.DataModel
-	(*wrappers.BoolValue)(nil),                     // 23: google.protobuf.BoolValue
-	(*wrappers.StringValue)(nil),                   // 24: google.protobuf.StringValue
-	(*wrappers.UInt32Value)(nil),                   // 25: google.protobuf.UInt32Value
+	(BackupMode)(0),                                // 23: backup.v1beta1.BackupMode
+	(*wrappers.BoolValue)(nil),                     // 24: google.protobuf.BoolValue
+	(*wrappers.StringValue)(nil),                   // 25: google.protobuf.StringValue
+	(*wrappers.UInt32Value)(nil),                   // 26: google.protobuf.UInt32Value
 }
 var file_managementpb_backup_backups_proto_depIdxs = []int32{
 	18, // 0: backup.v1beta1.StartBackupRequest.retry_interval:type_name -> google.protobuf.Duration
@@ -1599,39 +1624,41 @@ var file_managementpb_backup_backups_proto_depIdxs = []int32{
 	22, // 5: backup.v1beta1.ScheduledBackup.data_model:type_name -> backup.v1beta1.DataModel
 	21, // 6: backup.v1beta1.ScheduledBackup.last_run:type_name -> google.protobuf.Timestamp
 	21, // 7: backup.v1beta1.ScheduledBackup.next_run:type_name -> google.protobuf.Timestamp
-	21, // 8: backup.v1beta1.ScheduleBackupRequest.start_time:type_name -> google.protobuf.Timestamp
-	18, // 9: backup.v1beta1.ScheduleBackupRequest.retry_interval:type_name -> google.protobuf.Duration
-	6,  // 10: backup.v1beta1.ListScheduledBackupsResponse.scheduled_backups:type_name -> backup.v1beta1.ScheduledBackup
-	23, // 11: backup.v1beta1.ChangeScheduledBackupRequest.enabled:type_name -> google.protobuf.BoolValue
-	24, // 12: backup.v1beta1.ChangeScheduledBackupRequest.cron_expression:type_name -> google.protobuf.StringValue
-	21, // 13: backup.v1beta1.ChangeScheduledBackupRequest.start_time:type_name -> google.protobuf.Timestamp
-	24, // 14: backup.v1beta1.ChangeScheduledBackupRequest.name:type_name -> google.protobuf.StringValue
-	24, // 15: backup.v1beta1.ChangeScheduledBackupRequest.description:type_name -> google.protobuf.StringValue
-	18, // 16: backup.v1beta1.ChangeScheduledBackupRequest.retry_interval:type_name -> google.protobuf.Duration
-	25, // 17: backup.v1beta1.ChangeScheduledBackupRequest.retries:type_name -> google.protobuf.UInt32Value
-	25, // 18: backup.v1beta1.ChangeScheduledBackupRequest.retention:type_name -> google.protobuf.UInt32Value
-	17, // 19: backup.v1beta1.GetLogsResponse.logs:type_name -> backup.v1beta1.LogChunk
-	0,  // 20: backup.v1beta1.Backups.StartBackup:input_type -> backup.v1beta1.StartBackupRequest
-	2,  // 21: backup.v1beta1.Backups.ListArtifactCompatibleServices:input_type -> backup.v1beta1.ListArtifactCompatibleServicesRequest
-	4,  // 22: backup.v1beta1.Backups.RestoreBackup:input_type -> backup.v1beta1.RestoreBackupRequest
-	7,  // 23: backup.v1beta1.Backups.ScheduleBackup:input_type -> backup.v1beta1.ScheduleBackupRequest
-	9,  // 24: backup.v1beta1.Backups.ListScheduledBackups:input_type -> backup.v1beta1.ListScheduledBackupsRequest
-	11, // 25: backup.v1beta1.Backups.ChangeScheduledBackup:input_type -> backup.v1beta1.ChangeScheduledBackupRequest
-	13, // 26: backup.v1beta1.Backups.RemoveScheduledBackup:input_type -> backup.v1beta1.RemoveScheduledBackupRequest
-	15, // 27: backup.v1beta1.Backups.GetLogs:input_type -> backup.v1beta1.GetLogsRequest
-	1,  // 28: backup.v1beta1.Backups.StartBackup:output_type -> backup.v1beta1.StartBackupResponse
-	3,  // 29: backup.v1beta1.Backups.ListArtifactCompatibleServices:output_type -> backup.v1beta1.ListArtifactCompatibleServicesResponse
-	5,  // 30: backup.v1beta1.Backups.RestoreBackup:output_type -> backup.v1beta1.RestoreBackupResponse
-	8,  // 31: backup.v1beta1.Backups.ScheduleBackup:output_type -> backup.v1beta1.ScheduleBackupResponse
-	10, // 32: backup.v1beta1.Backups.ListScheduledBackups:output_type -> backup.v1beta1.ListScheduledBackupsResponse
-	12, // 33: backup.v1beta1.Backups.ChangeScheduledBackup:output_type -> backup.v1beta1.ChangeScheduledBackupResponse
-	14, // 34: backup.v1beta1.Backups.RemoveScheduledBackup:output_type -> backup.v1beta1.RemoveScheduledBackupResponse
-	16, // 35: backup.v1beta1.Backups.GetLogs:output_type -> backup.v1beta1.GetLogsResponse
-	28, // [28:36] is the sub-list for method output_type
-	20, // [20:28] is the sub-list for method input_type
-	20, // [20:20] is the sub-list for extension type_name
-	20, // [20:20] is the sub-list for extension extendee
-	0,  // [0:20] is the sub-list for field type_name
+	23, // 8: backup.v1beta1.ScheduledBackup.mode:type_name -> backup.v1beta1.BackupMode
+	21, // 9: backup.v1beta1.ScheduleBackupRequest.start_time:type_name -> google.protobuf.Timestamp
+	18, // 10: backup.v1beta1.ScheduleBackupRequest.retry_interval:type_name -> google.protobuf.Duration
+	23, // 11: backup.v1beta1.ScheduleBackupRequest.mode:type_name -> backup.v1beta1.BackupMode
+	6,  // 12: backup.v1beta1.ListScheduledBackupsResponse.scheduled_backups:type_name -> backup.v1beta1.ScheduledBackup
+	24, // 13: backup.v1beta1.ChangeScheduledBackupRequest.enabled:type_name -> google.protobuf.BoolValue
+	25, // 14: backup.v1beta1.ChangeScheduledBackupRequest.cron_expression:type_name -> google.protobuf.StringValue
+	21, // 15: backup.v1beta1.ChangeScheduledBackupRequest.start_time:type_name -> google.protobuf.Timestamp
+	25, // 16: backup.v1beta1.ChangeScheduledBackupRequest.name:type_name -> google.protobuf.StringValue
+	25, // 17: backup.v1beta1.ChangeScheduledBackupRequest.description:type_name -> google.protobuf.StringValue
+	18, // 18: backup.v1beta1.ChangeScheduledBackupRequest.retry_interval:type_name -> google.protobuf.Duration
+	26, // 19: backup.v1beta1.ChangeScheduledBackupRequest.retries:type_name -> google.protobuf.UInt32Value
+	26, // 20: backup.v1beta1.ChangeScheduledBackupRequest.retention:type_name -> google.protobuf.UInt32Value
+	17, // 21: backup.v1beta1.GetLogsResponse.logs:type_name -> backup.v1beta1.LogChunk
+	0,  // 22: backup.v1beta1.Backups.StartBackup:input_type -> backup.v1beta1.StartBackupRequest
+	2,  // 23: backup.v1beta1.Backups.ListArtifactCompatibleServices:input_type -> backup.v1beta1.ListArtifactCompatibleServicesRequest
+	4,  // 24: backup.v1beta1.Backups.RestoreBackup:input_type -> backup.v1beta1.RestoreBackupRequest
+	7,  // 25: backup.v1beta1.Backups.ScheduleBackup:input_type -> backup.v1beta1.ScheduleBackupRequest
+	9,  // 26: backup.v1beta1.Backups.ListScheduledBackups:input_type -> backup.v1beta1.ListScheduledBackupsRequest
+	11, // 27: backup.v1beta1.Backups.ChangeScheduledBackup:input_type -> backup.v1beta1.ChangeScheduledBackupRequest
+	13, // 28: backup.v1beta1.Backups.RemoveScheduledBackup:input_type -> backup.v1beta1.RemoveScheduledBackupRequest
+	15, // 29: backup.v1beta1.Backups.GetLogs:input_type -> backup.v1beta1.GetLogsRequest
+	1,  // 30: backup.v1beta1.Backups.StartBackup:output_type -> backup.v1beta1.StartBackupResponse
+	3,  // 31: backup.v1beta1.Backups.ListArtifactCompatibleServices:output_type -> backup.v1beta1.ListArtifactCompatibleServicesResponse
+	5,  // 32: backup.v1beta1.Backups.RestoreBackup:output_type -> backup.v1beta1.RestoreBackupResponse
+	8,  // 33: backup.v1beta1.Backups.ScheduleBackup:output_type -> backup.v1beta1.ScheduleBackupResponse
+	10, // 34: backup.v1beta1.Backups.ListScheduledBackups:output_type -> backup.v1beta1.ListScheduledBackupsResponse
+	12, // 35: backup.v1beta1.Backups.ChangeScheduledBackup:output_type -> backup.v1beta1.ChangeScheduledBackupResponse
+	14, // 36: backup.v1beta1.Backups.RemoveScheduledBackup:output_type -> backup.v1beta1.RemoveScheduledBackupResponse
+	16, // 37: backup.v1beta1.Backups.GetLogs:output_type -> backup.v1beta1.GetLogsResponse
+	30, // [30:38] is the sub-list for method output_type
+	22, // [22:30] is the sub-list for method input_type
+	22, // [22:22] is the sub-list for extension type_name
+	22, // [22:22] is the sub-list for extension extendee
+	0,  // [0:22] is the sub-list for field type_name
 }
 
 func init() { file_managementpb_backup_backups_proto_init() }

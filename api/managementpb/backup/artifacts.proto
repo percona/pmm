@@ -42,6 +42,8 @@ message Artifact {
   BackupStatus status = 9;
   // Artifact creation time.
   google.protobuf.Timestamp created_at = 10;
+  // Backup mode.
+  BackupMode mode = 11;
 }
 
 message ListArtifactsRequest {}
