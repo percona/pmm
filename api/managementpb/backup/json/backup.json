@@ -353,6 +353,316 @@
         }
       }
     },
+    "/v1/management/backup/Backups/GetLogs": {
+      "post": {
+        "tags": [
+          "Backups"
+        ],
+        "summary": "GetLogs returns logs for provided artifact.",
+        "operationId": "GetLogs",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "artifact_id": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "limit": {
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 2
+                },
+                "offset": {
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "end": {
+                  "type": "boolean",
+                  "x-order": 1
+                },
+                "logs": {
+                  "type": "array",
+                  "items": {
+                    "description": "LogChunk represent one chunk of logs.",
+                    "type": "object",
+                    "properties": {
+                      "chunk_id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 0
+                      },
+                      "data": {
+                        "type": "string",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/backup/Backups/ListArtifactCompatibleServices": {
+      "post": {
+        "tags": [
+          "Backups"
+        ],
+        "summary": "ListArtifactCompatibleServices lists compatible services for restoring a backup.",
+        "operationId": "ListArtifactCompatibleServices",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "artifact_id": {
+                  "description": "Artifact id used to determine restore compatibility.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "mongodb": {
+                  "type": "array",
+                  "items": {
+                    "description": "MongoDBService represents a generic MongoDB instance.",
+                    "type": "object",
+                    "properties": {
+                      "address": {
+                        "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "cluster": {
+                        "description": "Cluster name.",
+                        "type": "string",
+                        "x-order": 7
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 9
+                      },
+                      "environment": {
+                        "description": "Environment name.",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "node_id": {
+                        "description": "Node identifier where this instance runs.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "port": {
+                        "description": "Access port.\nPort is required when the address present.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 4
+                      },
+                      "replication_set": {
+                        "description": "Replication set name.",
+                        "type": "string",
+                        "x-order": 8
+                      },
+                      "service_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "service_name": {
+                        "description": "Unique across all Services user-defined name.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "socket": {
+                        "description": "Access unix socket.\nAddress (and port) or socket is required.",
+                        "type": "string",
+                        "x-order": 5
+                      }
+                    }
+                  },
+                  "x-order": 1
+                },
+                "mysql": {
+                  "type": "array",
+                  "items": {
+                    "description": "MySQLService represents a generic MySQL instance.",
+                    "type": "object",
+                    "properties": {
+                      "address": {
+                        "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "cluster": {
+                        "description": "Cluster name.",
+                        "type": "string",
+                        "x-order": 7
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 9
+                      },
+                      "environment": {
+                        "description": "Environment name.",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "node_id": {
+                        "description": "Node identifier where this instance runs.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "port": {
+                        "description": "Access port.\nPort is required when the address present.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 4
+                      },
+                      "replication_set": {
+                        "description": "Replication set name.",
+                        "type": "string",
+                        "x-order": 8
+                      },
+                      "service_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "service_name": {
+                        "description": "Unique across all Services user-defined name.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "socket": {
+                        "description": "Access unix socket.\nAddress (and port) or socket is required.",
+                        "type": "string",
+                        "x-order": 5
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/backup/Backups/ListScheduled": {
       "post": {
         "tags": [
