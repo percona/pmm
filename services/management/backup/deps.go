@@ -38,6 +38,7 @@ type awsS3 interface {
 type backupService interface {
 	PerformBackup(ctx context.Context, params backup.PerformBackupParams) (string, error)
 	RestoreBackup(ctx context.Context, serviceID, artifactID string) (string, error)
+	SwitchMongoPITR(ctx context.Context, serviceID string, enabled bool) error
 	FindArtifactCompatibleServices(ctx context.Context, artifactID string) ([]*models.Service, error)
 }
 

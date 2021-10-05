@@ -143,7 +143,8 @@ func (s *JobsService) RestartJob(ctx context.Context, jobID string) error {
 			return errors.WithStack(err)
 		}
 	case models.MongoDBBackupJob:
-		if err := s.StartMongoDBBackupJob(job.ID, job.PMMAgentID, job.Timeout, artifact.Name, dbConfig, locationConfig); err != nil {
+		if err := s.StartMongoDBBackupJob(job.ID, job.PMMAgentID, job.Timeout, artifact.Name, dbConfig,
+			job.Data.MongoDBBackup.Mode, locationConfig); err != nil {
 			return errors.WithStack(err)
 		}
 	case models.MySQLRestoreBackupJob:
@@ -352,15 +353,17 @@ func (s *JobsService) StartMongoDBBackupJob(
 	timeout time.Duration,
 	name string,
 	dbConfig *models.DBConfig,
+	mode models.BackupMode,
 	locationConfig *models.BackupLocationConfig,
 ) error {
 	mongoDBReq := &agentpb.StartJobRequest_MongoDBBackup{
-		Name:     name,
-		User:     dbConfig.User,
-		Password: dbConfig.Password,
-		Address:  dbConfig.Address,
-		Port:     int32(dbConfig.Port),
-		Socket:   dbConfig.Socket,
+		Name:       name,
+		User:       dbConfig.User,
+		Password:   dbConfig.Password,
+		Address:    dbConfig.Address,
+		Port:       int32(dbConfig.Port),
+		Socket:     dbConfig.Socket,
+		EnablePitr: mode == models.PITR,
 	}
 
 	switch {

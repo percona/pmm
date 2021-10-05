@@ -149,6 +149,27 @@ func (r *Registry) IsConnected(pmmAgentID string) bool {
 	return err == nil
 }
 
+// PBMSwitchPITR switches Point-in-Time Recovery feature for pbm on the pmm-agent.
+func (r *Registry) PBMSwitchPITR(pmmAgentID, dsn string, files map[string]string, tdp *models.DelimiterPair, enabled bool) error {
+	agent, err := r.get(pmmAgentID)
+	if err != nil {
+		return err
+	}
+
+	req := &agentpb.PBMSwitchPITRRequest{
+		Dsn: dsn,
+		TextFiles: &agentpb.TextFiles{
+			Files:              files,
+			TemplateLeftDelim:  tdp.Left,
+			TemplateRightDelim: tdp.Right,
+		},
+		Enabled: enabled,
+	}
+
+	_, err = agent.channel.SendAndWaitResponse(req)
+	return err
+}
+
 func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, error) {
 	ctx := stream.Context()
 	l := logger.Get(ctx)

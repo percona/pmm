@@ -21,7 +21,7 @@ require (
 	github.com/aws/aws-sdk-go v1.34.28
 	github.com/brianvoe/gofakeit v3.18.0+incompatible
 	github.com/brianvoe/gofakeit/v6 v6.4.0
-	github.com/go-co-op/gocron v1.6.1
+	github.com/go-co-op/gocron v1.7.1
 	github.com/go-openapi/runtime v0.19.20
 	github.com/go-openapi/spec v0.19.9 // indirect
 	github.com/go-openapi/strfmt v0.19.5
@@ -35,8 +35,8 @@ require (
 	github.com/lib/pq v1.8.0
 	github.com/minio/minio-go/v7 v7.0.10
 	github.com/percona-platform/dbaas-api v0.0.0-20210830094230-60d2a17b710c
-	github.com/percona-platform/saas v0.0.0-20210628125953-5bf84e6eefa0
-	github.com/percona/pmm v0.0.0-20210927102747-322a01e939d7
+	github.com/percona-platform/saas v0.0.0-20210505183502-c18b6f47c932
+	github.com/percona/pmm v0.0.0-20211005161431-e1e8665057f2
 	github.com/percona/promconfig v0.2.1
 	github.com/pkg/errors v0.9.1
 	github.com/pmezard/go-difflib v1.0.0

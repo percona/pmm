@@ -64,6 +64,8 @@ type CommonBackupTaskData struct {
 	Name          string        `json:"name"`
 	Description   string        `json:"description"`
 	Retention     uint32        `json:"retention"`
+	DataModel     DataModel     `json:"data_model"`
+	Mode          BackupMode    `json:"mode"`
 	Retries       uint32        `json:"retries"`
 	RetryInterval time.Duration `json:"retry_interval"`
 }

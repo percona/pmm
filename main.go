@@ -660,7 +660,7 @@ func main() {
 
 	versioner := agents.NewVersionerService(agentsRegistry)
 	dbaasClient := dbaas.NewClient(*dbaasControllerAPIAddrF)
-	backupService := backup.NewService(db, jobsService, versioner)
+	backupService := backup.NewService(db, jobsService, agentsRegistry, versioner)
 	schedulerService := scheduler.New(db, backupService)
 	versionCache := versioncache.New(db, versioner)
 

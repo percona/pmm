@@ -24,6 +24,7 @@ import (
 	"github.com/AlekSi/pointer"
 	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -74,6 +75,7 @@ func TestScheduledBackups(t *testing.T) {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	backupService := &mockBackupService{}
+	backupService.On("SwitchMongoPITR", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	schedulerService := scheduler.New(db, backupService)
 	backupSvc := NewBackupsService(db, backupService, schedulerService)
 	t.Cleanup(func() {
@@ -105,6 +107,7 @@ func TestScheduledBackups(t *testing.T) {
 			Name:           t.Name(),
 			Description:    t.Name(),
 			Enabled:        true,
+			Mode:           backupv1beta1.BackupMode_SNAPSHOT,
 			Retries:        maxRetriesAttempts - 1,
 			RetryInterval:  durationpb.New(maxRetryInterval),
 		}
@@ -160,7 +163,6 @@ func TestScheduledBackups(t *testing.T) {
 		task, err := models.CreateScheduledTask(db.Querier, models.CreateScheduledTaskParams{
 			CronExpression: "* * * * *",
 			Type:           models.ScheduledMySQLBackupTask,
-			Data:           models.ScheduledTaskData{},
 		})
 		require.NoError(t, err)
 
@@ -171,8 +173,9 @@ func TestScheduledBackups(t *testing.T) {
 			Vendor:     "mysql",
 			LocationID: locationRes.ID,
 			ServiceID:  *agent.ServiceID,
-			DataModel:  "physical",
-			Status:     "pending",
+			DataModel:  models.PhysicalDataModel,
+			Mode:       models.Snapshot,
+			Status:     models.PendingBackupStatus,
 			ScheduleID: id,
 		})
 		require.NoError(t, err)

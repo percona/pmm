@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -32,80 +33,89 @@ import (
 	"github.com/percona/pmm-managed/utils/tests"
 )
 
-func setup(t *testing.T) *Service {
-	t.Helper()
-	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
-	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-	backupService := &mockBackupService{}
-	return New(db, backupService)
-}
-
-type dummyTask struct {
-	id string
-}
-
-func (t *dummyTask) Run(ctx context.Context) error {
-	return nil
-}
-
-func (t *dummyTask) Type() models.ScheduledTaskType {
-	return models.ScheduledMySQLBackupTask
-}
-
-func (t *dummyTask) Data() models.ScheduledTaskData {
-	return models.ScheduledTaskData{
-		MySQLBackupTask: &models.MySQLBackupTaskData{
-			CommonBackupTaskData: models.CommonBackupTaskData{
-				ServiceID:   "",
-				LocationID:  "",
-				Name:        "",
-				Description: "",
-			},
-		},
-	}
-}
-
-func (t *dummyTask) ID() string {
-	return t.id
-}
-
-func (t *dummyTask) SetID(s string) {
-	t.id = s
-}
-
 func TestService(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	svc := setup(t)
-	go func() {
-		svc.Run(ctx)
-	}()
-	for !svc.scheduler.IsRunning() {
-		// Wait a while, so scheduler is running
-		time.Sleep(time.Millisecond * 10)
+	setup := func(t *testing.T, ctx context.Context) *Service {
+		t.Helper()
+		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+		backupService := &mockBackupService{}
+		svc := New(db, backupService)
+
+		go svc.Run(ctx)
+		for !svc.scheduler.IsRunning() {
+			// Wait a while, so scheduler is running
+			time.Sleep(time.Millisecond * 10)
+		}
+
+		return svc
 	}
 
-	task := &dummyTask{}
-	cronExpr := "* * * * *"
-	startAt := time.Now().Truncate(time.Second).UTC()
-	dbTask, err := svc.Add(task, AddParams{
-		CronExpression: cronExpr,
-		StartAt:        startAt,
+	t.Run("invalid cron expression", func(t *testing.T) {
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		svc := setup(t, ctx)
+
+		task, err := NewMongoDBBackupTask(&BackupTaskParams{
+			ServiceID:     "/service/test",
+			LocationID:    "/location/test",
+			Name:          "test",
+			Description:   "test backup task",
+			DataModel:     models.LogicalDataModel,
+			Mode:          models.Snapshot,
+			Retention:     7,
+			Retries:       3,
+			RetryInterval: 5 * time.Second,
+		})
+		require.NoError(t, err)
+
+		cronExpr := "invalid * cron * expression"
+		startAt := time.Now().Truncate(time.Second).UTC()
+		_, err = svc.Add(task, AddParams{
+			CronExpression: cronExpr,
+			StartAt:        startAt,
+		})
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Invalid cron expression: failed to parse int from invalid: strconv.Atoi: parsing \"invalid\": invalid syntax"), err)
 	})
-	assert.NoError(t, err)
 
-	assert.Len(t, svc.scheduler.Jobs(), 1)
-	findJob, err := models.FindScheduledTaskByID(svc.db.Querier, dbTask.ID)
-	assert.NoError(t, err)
+	t.Run("normal", func(t *testing.T) {
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		svc := setup(t, ctx)
 
-	assert.Equal(t, startAt, dbTask.StartAt)
-	assert.Equal(t, cronExpr, findJob.CronExpression)
-	assert.Truef(t, dbTask.NextRun.After(startAt), "next run %s is before startAt %s", dbTask.NextRun, startAt)
+		task, err := NewMongoDBBackupTask(&BackupTaskParams{
+			ServiceID:     "/service/test",
+			LocationID:    "/location/test",
+			Name:          "test",
+			Description:   "test backup task",
+			DataModel:     models.LogicalDataModel,
+			Mode:          models.Snapshot,
+			Retention:     7,
+			Retries:       3,
+			RetryInterval: 5 * time.Second,
+		})
+		require.NoError(t, err)
 
-	err = svc.Remove(dbTask.ID)
-	assert.NoError(t, err)
-	assert.Len(t, svc.scheduler.Jobs(), 0)
-	_, err = models.FindScheduledTaskByID(svc.db.Querier, dbTask.ID)
-	tests.AssertGRPCError(t, status.Newf(codes.NotFound, `ScheduledTask with ID "%s" not found.`, dbTask.ID), err)
+		cronExpr := "* * * * *"
+		startAt := time.Now().Truncate(time.Second).UTC()
+		dbTask, err := svc.Add(task, AddParams{
+			CronExpression: cronExpr,
+			StartAt:        startAt,
+		})
+		require.NoError(t, err)
+		assert.Len(t, svc.scheduler.Jobs(), 1)
 
+		findJob, err := models.FindScheduledTaskByID(svc.db.Querier, dbTask.ID)
+		require.NoError(t, err)
+
+		assert.Equal(t, startAt, dbTask.StartAt)
+		assert.Equal(t, cronExpr, findJob.CronExpression)
+		assert.Truef(t, dbTask.NextRun.After(startAt), "next run %s is before startAt %s", dbTask.NextRun, startAt)
+
+		err = svc.Remove(dbTask.ID)
+		require.NoError(t, err)
+		assert.Len(t, svc.scheduler.Jobs(), 0)
+
+		_, err = models.FindScheduledTaskByID(svc.db.Querier, dbTask.ID)
+		tests.AssertGRPCError(t, status.Newf(codes.NotFound, `ScheduledTask with ID "%s" not found.`, dbTask.ID), err)
+	})
 }

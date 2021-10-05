@@ -191,7 +191,7 @@ func convertRestoreHistoryItem(
 		LocationName: l.Name,
 		ServiceId:    i.ServiceID,
 		ServiceName:  s.ServiceName,
-		DataModel:    *dm,
+		DataModel:    dm,
 		Status:       *status,
 		StartedAt:    startedAt,
 		FinishedAt:   finishedAt,

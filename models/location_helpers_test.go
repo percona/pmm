@@ -313,6 +313,7 @@ func TestBackupLocations(t *testing.T) {
 			LocationID: loc.ID,
 			ServiceID:  serviceID1,
 			DataModel:  models.PhysicalDataModel,
+			Mode:       models.Snapshot,
 			Status:     models.SuccessBackupStatus,
 		})
 		require.NoError(t, err)

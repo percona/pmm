@@ -111,42 +111,36 @@ func (s *ArtifactsService) DeleteArtifact(
 	return &backupv1beta1.DeleteArtifactResponse{}, nil
 }
 
-func convertDataModel(dataModel models.DataModel) (*backupv1beta1.DataModel, error) {
-	var dm backupv1beta1.DataModel
-	switch dataModel {
+func convertDataModel(model models.DataModel) (backupv1beta1.DataModel, error) {
+	switch model {
 	case models.PhysicalDataModel:
-		dm = backupv1beta1.DataModel_PHYSICAL
+		return backupv1beta1.DataModel_PHYSICAL, nil
 	case models.LogicalDataModel:
-		dm = backupv1beta1.DataModel_LOGICAL
+		return backupv1beta1.DataModel_LOGICAL, nil
 	default:
-		return nil, errors.Errorf("invalid data model '%s'", dataModel)
+		return 0, errors.Errorf("unknown data model: %s", model)
 	}
-
-	return &dm, nil
 }
 
-func convertBackupStatus(status models.BackupStatus) (*backupv1beta1.BackupStatus, error) {
-	var s backupv1beta1.BackupStatus
+func convertBackupStatus(status models.BackupStatus) (backupv1beta1.BackupStatus, error) {
 	switch status {
 	case models.PendingBackupStatus:
-		s = backupv1beta1.BackupStatus_BACKUP_STATUS_PENDING
+		return backupv1beta1.BackupStatus_BACKUP_STATUS_PENDING, nil
 	case models.InProgressBackupStatus:
-		s = backupv1beta1.BackupStatus_BACKUP_STATUS_IN_PROGRESS
+		return backupv1beta1.BackupStatus_BACKUP_STATUS_IN_PROGRESS, nil
 	case models.PausedBackupStatus:
-		s = backupv1beta1.BackupStatus_BACKUP_STATUS_PAUSED
+		return backupv1beta1.BackupStatus_BACKUP_STATUS_PAUSED, nil
 	case models.SuccessBackupStatus:
-		s = backupv1beta1.BackupStatus_BACKUP_STATUS_SUCCESS
+		return backupv1beta1.BackupStatus_BACKUP_STATUS_SUCCESS, nil
 	case models.ErrorBackupStatus:
-		s = backupv1beta1.BackupStatus_BACKUP_STATUS_ERROR
+		return backupv1beta1.BackupStatus_BACKUP_STATUS_ERROR, nil
 	case models.DeletingBackupStatus:
-		s = backupv1beta1.BackupStatus_BACKUP_STATUS_DELETING
+		return backupv1beta1.BackupStatus_BACKUP_STATUS_DELETING, nil
 	case models.FailedToDeleteBackupStatus:
-		s = backupv1beta1.BackupStatus_BACKUP_STATUS_FAILED_TO_DELETE
+		return backupv1beta1.BackupStatus_BACKUP_STATUS_FAILED_TO_DELETE, nil
 	default:
-		return nil, errors.Errorf("invalid status '%s'", status)
+		return 0, errors.Errorf("invalid status '%s'", status)
 	}
-
-	return &s, nil
 }
 
 func convertArtifact(
@@ -170,12 +164,17 @@ func convertArtifact(
 		serviceName = s.ServiceName
 	}
 
-	dm, err := convertDataModel(a.DataModel)
+	dataModel, err := convertDataModel(a.DataModel)
 	if err != nil {
 		return nil, errors.Wrapf(err, "artifact id '%s'", a.ID)
 	}
 
 	backupStatus, err := convertBackupStatus(a.Status)
+	if err != nil {
+		return nil, errors.Wrapf(err, "artifact id '%s'", a.ID)
+	}
+
+	backupMode, err := convertModelToBackupMode(a.Mode)
 	if err != nil {
 		return nil, errors.Wrapf(err, "artifact id '%s'", a.ID)
 	}
@@ -188,8 +187,9 @@ func convertArtifact(
 		LocationName: l.Name,
 		ServiceId:    a.ServiceID,
 		ServiceName:  serviceName,
-		DataModel:    *dm,
-		Status:       *backupStatus,
+		DataModel:    dataModel,
+		Mode:         backupMode,
+		Status:       backupStatus,
 		CreatedAt:    createdAt,
 	}, nil
 }

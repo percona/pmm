@@ -35,6 +35,7 @@ func (v *artifactTableType) Columns() []string {
 		"location_id",
 		"service_id",
 		"data_model",
+		"mode",
 		"status",
 		"type",
 		"schedule_id",
@@ -71,6 +72,7 @@ var ArtifactTable = &artifactTableType{
 			{Name: "LocationID", Type: "string", Column: "location_id"},
 			{Name: "ServiceID", Type: "string", Column: "service_id"},
 			{Name: "DataModel", Type: "DataModel", Column: "data_model"},
+			{Name: "Mode", Type: "BackupMode", Column: "mode"},
 			{Name: "Status", Type: "BackupStatus", Column: "status"},
 			{Name: "Type", Type: "ArtifactType", Column: "type"},
 			{Name: "ScheduleID", Type: "string", Column: "schedule_id"},
@@ -84,7 +86,7 @@ var ArtifactTable = &artifactTableType{
 
 // String returns a string representation of this struct or record.
 func (s Artifact) String() string {
-	res := make([]string, 12)
+	res := make([]string, 13)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "Name: " + reform.Inspect(s.Name, true)
 	res[2] = "Vendor: " + reform.Inspect(s.Vendor, true)
@@ -92,11 +94,12 @@ func (s Artifact) String() string {
 	res[4] = "LocationID: " + reform.Inspect(s.LocationID, true)
 	res[5] = "ServiceID: " + reform.Inspect(s.ServiceID, true)
 	res[6] = "DataModel: " + reform.Inspect(s.DataModel, true)
-	res[7] = "Status: " + reform.Inspect(s.Status, true)
-	res[8] = "Type: " + reform.Inspect(s.Type, true)
-	res[9] = "ScheduleID: " + reform.Inspect(s.ScheduleID, true)
-	res[10] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
-	res[11] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
+	res[7] = "Mode: " + reform.Inspect(s.Mode, true)
+	res[8] = "Status: " + reform.Inspect(s.Status, true)
+	res[9] = "Type: " + reform.Inspect(s.Type, true)
+	res[10] = "ScheduleID: " + reform.Inspect(s.ScheduleID, true)
+	res[11] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
+	res[12] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
 	return strings.Join(res, ", ")
 }
 
@@ -111,6 +114,7 @@ func (s *Artifact) Values() []interface{} {
 		s.LocationID,
 		s.ServiceID,
 		s.DataModel,
+		s.Mode,
 		s.Status,
 		s.Type,
 		s.ScheduleID,
@@ -130,6 +134,7 @@ func (s *Artifact) Pointers() []interface{} {
 		&s.LocationID,
 		&s.ServiceID,
 		&s.DataModel,
+		&s.Mode,
 		&s.Status,
 		&s.Type,
 		&s.ScheduleID,

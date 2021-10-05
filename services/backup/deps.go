@@ -26,6 +26,7 @@ import (
 
 //go:generate mockery -name=jobsService -case=snake -inpkg -testonly
 //go:generate mockery -name=s3 -case=snake -inpkg -testonly
+//go:generate mockery -name=agentsRegistry -case=snake -inpkg -testonly
 //go:generate mockery -name=versioner -case=snake -inpkg -testonly
 
 // jobsService is a subset of methods of agents.JobsService used by this package.
@@ -54,6 +55,7 @@ type jobsService interface {
 		timeout time.Duration,
 		name string,
 		dbConfig *models.DBConfig,
+		mode models.BackupMode,
 		locationConfig *models.BackupLocationConfig,
 	) error
 	StartMongoDBRestoreBackupJob(
@@ -72,6 +74,12 @@ type s3 interface {
 
 type removalService interface {
 	DeleteArtifact(ctx context.Context, artifactID string, removeFiles bool) error
+}
+
+// agentsRegistry is a subset of methods of agents.Registry used by this package.
+// We use it instead of real type for testing and to avoid dependency cycle
+type agentsRegistry interface {
+	PBMSwitchPITR(pmmAgentID, dsn string, files map[string]string, tdp *models.DelimiterPair, enabled bool) error
 }
 
 // versioner contains method for retrieving versions of different software.

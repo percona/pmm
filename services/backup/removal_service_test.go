@@ -63,7 +63,8 @@ func TestDeleteArtifact(t *testing.T) {
 		Vendor:     "MySQL",
 		LocationID: locationRes.ID,
 		ServiceID:  *agent.ServiceID,
-		DataModel:  "physical",
+		DataModel:  models.PhysicalDataModel,
+		Mode:       models.Snapshot,
 		Status:     models.SuccessBackupStatus,
 	})
 	require.NoError(t, err)

@@ -68,13 +68,14 @@ func TestEnsureRetention(t *testing.T) {
 	task, err := models.CreateScheduledTask(db.Querier, models.CreateScheduledTaskParams{
 		CronExpression: "* * * * *",
 		Type:           models.ScheduledMongoDBBackupTask,
-		Data: models.ScheduledTaskData{
+		Data: &models.ScheduledTaskData{
 			MongoDBBackupTask: &models.MongoBackupTaskData{
 				CommonBackupTaskData: models.CommonBackupTaskData{
 					ServiceID:  *agent.ServiceID,
 					LocationID: locationRes.ID,
 					Name:       "test",
 					Retention:  0,
+					Mode:       models.Snapshot,
 				},
 			},
 		},
@@ -88,7 +89,8 @@ func TestEnsureRetention(t *testing.T) {
 			Vendor:     "MongoDB",
 			LocationID: locationRes.ID,
 			ServiceID:  *agent.ServiceID,
-			DataModel:  "physical",
+			DataModel:  models.PhysicalDataModel,
+			Mode:       models.Snapshot,
 			Status:     models.SuccessBackupStatus,
 			ScheduleID: task.ID,
 		})

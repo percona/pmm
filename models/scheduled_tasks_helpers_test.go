@@ -44,7 +44,7 @@ func TestScheduledTaskHelpers(t *testing.T) {
 	createParams := models.CreateScheduledTaskParams{
 		CronExpression: "* * * * *",
 		Type:           models.ScheduledMySQLBackupTask,
-		Data: models.ScheduledTaskData{
+		Data: &models.ScheduledTaskData{
 			MySQLBackupTask: &models.MySQLBackupTaskData{
 				CommonBackupTaskData: models.CommonBackupTaskData{
 					ServiceID:   "",
@@ -125,7 +125,7 @@ func TestScheduledTaskHelpers(t *testing.T) {
 
 		createParams2.Disabled = false
 		createParams2.Type = models.ScheduledMySQLBackupTask
-		createParams2.Data = models.ScheduledTaskData{
+		createParams2.Data = &models.ScheduledTaskData{
 			MySQLBackupTask: &models.MySQLBackupTaskData{
 				CommonBackupTaskData: models.CommonBackupTaskData{
 					ServiceID:  "svc1",
@@ -138,7 +138,7 @@ func TestScheduledTaskHelpers(t *testing.T) {
 		require.NoError(t, err)
 
 		createParams2.Type = models.ScheduledMongoDBBackupTask
-		createParams2.Data = models.ScheduledTaskData{
+		createParams2.Data = &models.ScheduledTaskData{
 			MongoDBBackupTask: &models.MongoBackupTaskData{
 				CommonBackupTaskData: models.CommonBackupTaskData{
 					ServiceID:  "svc2",

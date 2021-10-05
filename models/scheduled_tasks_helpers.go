@@ -52,6 +52,7 @@ type ScheduledTasksFilter struct {
 	Types      []ScheduledTaskType
 	ServiceID  string
 	LocationID string
+	Mode       BackupMode
 }
 
 // FindScheduledTasks returns all scheduled tasks satisfying filter.
@@ -89,6 +90,12 @@ func FindScheduledTasks(q *reform.Querier, filters ScheduledTasksFilter) ([]*Sch
 		crossJoin = true
 		andConds = append(andConds, "value ->> 'location_id' = "+q.Placeholder(idx))
 		args = append(args, filters.LocationID)
+		idx++
+	}
+	if filters.Mode != "" {
+		crossJoin = true
+		andConds = append(andConds, "value ->> 'mode' = "+q.Placeholder(idx))
+		args = append(args, filters.Mode)
 	}
 
 	var tail strings.Builder
@@ -120,7 +127,7 @@ type CreateScheduledTaskParams struct {
 	StartAt        time.Time
 	NextRun        time.Time
 	Type           ScheduledTaskType
-	Data           ScheduledTaskData
+	Data           *ScheduledTaskData
 	Disabled       bool
 }
 
@@ -157,7 +164,7 @@ func CreateScheduledTask(q *reform.Querier, params CreateScheduledTaskParams) (*
 		StartAt:        params.StartAt,
 		NextRun:        params.NextRun,
 		Type:           params.Type,
-		Data:           &params.Data,
+		Data:           params.Data,
 	}
 	if err := q.Insert(task); err != nil {
 		return nil, errors.WithStack(err)

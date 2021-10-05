@@ -68,8 +68,10 @@ func TestBackupAndRestore(t *testing.T) {
 	mockedJobsService := &mockJobsService{}
 	mockedJobsService.On("StartMySQLBackupJob", mock.Anything, mock.Anything, mock.Anything,
 		mock.Anything, mock.Anything, mock.Anything).Return(nil)
+	mockedAgentsRegistry := &mockAgentsRegistry{}
+	mockedAgentsRegistry.On("StartPBMSwitchPITRActions").Return(nil)
 	mockedVersioner := &mockVersioner{}
-	backupService := NewService(db, mockedJobsService, mockedVersioner)
+	backupService := NewService(db, mockedJobsService, mockedAgentsRegistry, mockedVersioner)
 
 	t.Cleanup(func() {
 		_ = sqlDB.Close()
@@ -108,13 +110,14 @@ func TestBackupAndRestore(t *testing.T) {
 		ServiceID:  pointer.GetString(agent.ServiceID),
 		LocationID: locationRes.ID,
 		Name:       "test_backup",
+		DataModel:  models.PhysicalDataModel,
+		Mode:       models.Snapshot,
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
-	assert.NoError(t, err)
 	var artifact models.Artifact
 	err = db.SelectOneTo(&artifact, "WHERE id = $1", artifactID)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, locationRes.ID, artifact.LocationID)
 	assert.Equal(t, *agent.ServiceID, artifact.ServiceID)
 	assert.EqualValues(t, models.MySQLServiceType, artifact.Vendor)

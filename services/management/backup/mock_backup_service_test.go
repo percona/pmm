@@ -80,3 +80,17 @@ func (_m *mockBackupService) RestoreBackup(ctx context.Context, serviceID string
 
 	return r0, r1
 }
+
+// SwitchMongoPITR provides a mock function with given fields: ctx, serviceID, enabled
+func (_m *mockBackupService) SwitchMongoPITR(ctx context.Context, serviceID string, enabled bool) error {
+	ret := _m.Called(ctx, serviceID, enabled)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, bool) error); ok {
+		r0 = rf(ctx, serviceID, enabled)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
