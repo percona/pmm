@@ -271,6 +271,11 @@ func (c *Channel) runReceiver() {
 				ID:      msg.Id,
 				Payload: p.GetVersions,
 			}
+		case *agentpb.ServerMessage_PbmSwitchPitr:
+			c.requests <- &ServerRequest{
+				ID:      msg.Id,
+				Payload: p.PbmSwitchPitr,
+			}
 
 		// responses
 		case *agentpb.ServerMessage_Pong:
@@ -282,7 +287,7 @@ func (c *Channel) runReceiver() {
 		case *agentpb.ServerMessage_ActionResult:
 			c.publish(msg.Id, msg.Status, p.ActionResult)
 
-		case nil:
+		default:
 			c.cancel(msg.Id, errors.Errorf("unimplemented: failed to handle received message %s", msg))
 			if msg.Status != nil && grpcstatus.FromProto(msg.Status).Code() == codes.Unimplemented {
 				// This means pmm-managed does not know the message payload type we just sent.

@@ -68,8 +68,8 @@ func (j *MySQLRestoreJob) ID() string {
 }
 
 // Type returns job type.
-func (j *MySQLRestoreJob) Type() string {
-	return "mysql_restore"
+func (j *MySQLRestoreJob) Type() JobType {
+	return MySQLRestore
 }
 
 // Timeout returns job timeout.

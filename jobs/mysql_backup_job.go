@@ -73,8 +73,8 @@ func (j *MySQLBackupJob) ID() string {
 }
 
 // Type returns Job type.
-func (j *MySQLBackupJob) Type() string {
-	return "mysql_backup"
+func (j *MySQLBackupJob) Type() JobType {
+	return MySQLBackup
 }
 
 // Timeout returns Job timeout.

@@ -60,6 +60,7 @@ func (r *Runner) Run(ctx context.Context) {
 		select {
 		case job := <-r.jobs:
 			jobID, jobType := job.ID(), job.Type()
+			l := r.l.WithFields(logrus.Fields{"id": jobID, "type": jobType})
 
 			var nCtx context.Context
 			var cancel context.CancelFunc
@@ -72,7 +73,6 @@ func (r *Runner) Run(ctx context.Context) {
 			r.addJobCancel(jobID, cancel)
 			r.runningJobs.Add(1)
 			run := func(ctx context.Context) {
-				l := r.l.WithFields(logrus.Fields{"id": jobID, "type": jobType})
 				l.Infof("Job started.")
 
 				defer func(start time.Time) {
@@ -98,7 +98,7 @@ func (r *Runner) Run(ctx context.Context) {
 				}
 			}
 
-			go pprof.Do(nCtx, pprof.Labels("jobID", jobID, "type", jobType), run)
+			go pprof.Do(nCtx, pprof.Labels("jobID", jobID, "type", string(jobType)), run)
 		case <-ctx.Done():
 			r.runningJobs.Wait() // wait for all jobs termination
 			close(r.messages)

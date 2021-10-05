@@ -375,7 +375,7 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 			case *agentpb.StartActionRequest_PtMongodbSummaryParams:
 				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTMongoDBSummary, argListFromMongoDBParams(params.PtMongodbSummaryParams))
 
-			case nil:
+			default:
 				c.l.Errorf("Unhandled StartAction request: %v.", req)
 				responsePayload = nil
 				status = grpcstatus.New(codes.Unimplemented, "can't handle start action type send, it is not implemented")
@@ -409,7 +409,13 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 
 		case *agentpb.GetVersionsRequest:
 			responsePayload = &agentpb.GetVersionsResponse{Versions: c.handleVersionsRequest(p)}
-		case nil:
+		case *agentpb.PBMSwitchPITRRequest:
+			var resp agentpb.PBMSwitchPITRResponse
+			if err := c.handlePBMSwitchRequest(ctx, p, req.ID); err != nil {
+				resp.Error = err.Error()
+			}
+			responsePayload = &resp
+		default:
 			c.l.Errorf("Unhandled server request: %v.", req)
 		}
 		response := &channel.AgentResponse{
@@ -500,7 +506,7 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 			Port:     int(j.MongodbBackup.Port),
 			Socket:   j.MongodbBackup.Socket,
 		}
-		job = jobs.NewMongoDBBackupJob(p.JobId, timeout, j.MongodbBackup.Name, cfg, locationConfig)
+		job = jobs.NewMongoDBBackupJob(p.JobId, timeout, j.MongodbBackup.Name, cfg, locationConfig, j.MongodbBackup.EnablePitr)
 	case *agentpb.StartJobRequest_MongodbRestoreBackup:
 		var locationConfig jobs.BackupLocationConfig
 		switch cfg := j.MongodbRestoreBackup.LocationConfig.(type) {

@@ -47,11 +47,19 @@ type MongoDBBackupJob struct {
 	name       string
 	dbURL      *url.URL
 	location   BackupLocationConfig
+	pitr       bool
 	logChunkID uint32
 }
 
 // NewMongoDBBackupJob creates new Job for MongoDB backup.
-func NewMongoDBBackupJob(id string, timeout time.Duration, name string, dbConfig DBConnConfig, locationConfig BackupLocationConfig) *MongoDBBackupJob {
+func NewMongoDBBackupJob(
+	id string,
+	timeout time.Duration,
+	name string,
+	dbConfig DBConnConfig,
+	locationConfig BackupLocationConfig,
+	pitr bool,
+) *MongoDBBackupJob {
 	return &MongoDBBackupJob{
 		id:       id,
 		timeout:  timeout,
@@ -59,6 +67,7 @@ func NewMongoDBBackupJob(id string, timeout time.Duration, name string, dbConfig
 		name:     name,
 		dbURL:    createDBURL(dbConfig),
 		location: locationConfig,
+		pitr:     pitr,
 	}
 }
 
@@ -68,8 +77,8 @@ func (j *MongoDBBackupJob) ID() string {
 }
 
 // Type returns Job type.
-func (j *MongoDBBackupJob) Type() string {
-	return "mongodb_backup"
+func (j *MongoDBBackupJob) Type() JobType {
+	return MongoDBBackup
 }
 
 // Timeout returns Job timeout.
@@ -85,19 +94,38 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 		return errors.Wrapf(err, "lookpath: %s", pbmBin)
 	}
 
+	conf := &PBMConfig{
+		PITR: PITR{
+			Enabled: j.pitr,
+		},
+	}
 	switch {
 	case j.location.S3Config != nil:
-		if err := pbmSetupS3(ctx, j.l, j.dbURL, j.name, j.location.S3Config, false); err != nil {
-			return errors.Wrap(err, "failed to setup S3 location")
+		conf.Storage = Storage{
+			Type: "s3",
+			S3: S3{
+				EndpointURL: j.location.S3Config.Endpoint,
+				Region:      j.location.S3Config.BucketRegion,
+				Bucket:      j.location.S3Config.BucketName,
+				Prefix:      j.name,
+				Credentials: Credentials{
+					AccessKeyID:     j.location.S3Config.AccessKey,
+					SecretAccessKey: j.location.S3Config.SecretKey,
+				},
+			},
 		}
 	default:
 		return errors.New("unknown location config")
 	}
 
+	if err := pbmConfigure(ctx, j.l, j.dbURL, conf); err != nil {
+		return errors.Wrap(err, "failed to configure pbm")
+	}
+
 	rCtx, cancel := context.WithTimeout(ctx, resyncTimeout)
 	if err := waitForPBMState(rCtx, j.l, j.dbURL, pbmNoRunningOperations); err != nil {
 		cancel()
-		return errors.Wrap(err, "failed to wait pbm resync completion")
+		return errors.Wrap(err, "failed to wait configuration completion")
 	}
 	cancel()
 
@@ -218,7 +246,6 @@ func (j *MongoDBBackupJob) streamLogs(ctx context.Context, send Send, name strin
 			return ctx.Err()
 		}
 	}
-
 }
 
 func (j *MongoDBBackupJob) sendLog(send Send, data string, done bool) {

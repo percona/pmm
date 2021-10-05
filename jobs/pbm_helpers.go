@@ -170,49 +170,6 @@ func execPBMCommand(ctx context.Context, dbURL *url.URL, to interface{}, args ..
 	return json.Unmarshal(b, to)
 }
 
-func pbmSetupS3(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL, prefix string, s3Config *S3LocationConfig, resync bool) error {
-	l.Info("Configuring S3 location.")
-	nCtx, cancel := context.WithTimeout(ctx, cmdTimeout)
-	defer cancel()
-
-	confFile, err := writePBMConfigFile(prefix, s3Config)
-	if err != nil {
-		return errors.WithStack(err)
-	}
-	defer os.Remove(confFile) //nolint:errcheck
-
-	output, err := exec.CommandContext( //nolint:gosec
-		nCtx,
-		pbmBin,
-		"config",
-		"--mongodb-uri="+dbURL.String(),
-		"--file="+confFile,
-	).CombinedOutput()
-
-	if err != nil {
-		return errors.Wrapf(err, "pbm config error: %s", string(output))
-	}
-
-	if resync {
-		nCtx, cancel := context.WithTimeout(ctx, cmdTimeout)
-		defer cancel()
-
-		output, err = exec.CommandContext( //nolint:gosec
-			nCtx,
-			pbmBin,
-			"config",
-			"--mongodb-uri="+dbURL.String(),
-			"--force-resync",
-		).CombinedOutput()
-
-		if err != nil {
-			return errors.Wrapf(err, "pbm config error: %s", string(output))
-		}
-	}
-
-	return nil
-}
-
 func retrieveLogs(ctx context.Context, dbURL *url.URL, event string) ([]pbmLogEntry, error) {
 	var logs []pbmLogEntry
 
@@ -333,45 +290,49 @@ func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL
 		}
 	}
 }
-func writePBMConfigFile(prefix string, s3Config *S3LocationConfig) (string, error) {
+
+func pbmConfigure(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL, conf *PBMConfig) error {
+	l.Info("Configuring S3 location.")
+	nCtx, cancel := context.WithTimeout(ctx, cmdTimeout)
+	defer cancel()
+
+	confFile, err := writePBMConfigFile(conf)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	defer os.Remove(confFile) //nolint:errcheck
+
+	output, err := exec.CommandContext( //nolint:gosec
+		nCtx,
+		pbmBin,
+		"config",
+		"--mongodb-uri="+dbURL.String(),
+		"--file="+confFile,
+	).CombinedOutput()
+
+	if err != nil {
+		return errors.Wrapf(err, "pbm config error: %s", string(output))
+	}
+
+	return nil
+}
+
+func writePBMConfigFile(conf *PBMConfig) (string, error) {
 	tmp, err := ioutil.TempFile("", "pbm-config-*.yml")
 	if err != nil {
 		return "", errors.Wrap(err, "failed to create pbm configuration file")
 	}
-	defer tmp.Close() //nolint:errcheck
-
-	var conf struct {
-		Storage struct {
-			Type string `yaml:"type"`
-			S3   struct {
-				Region      string `yaml:"region"`
-				Bucket      string `yaml:"bucket"`
-				Prefix      string `yaml:"prefix"`
-				EndpointURL string `yaml:"endpointUrl"`
-				Credentials struct {
-					AccessKeyID     string `yaml:"access-key-id"`
-					SecretAccessKey string `yaml:"secret-access-key"`
-				}
-			} `yaml:"s3"`
-		} `yaml:"storage"`
-	}
-
-	conf.Storage.Type = "s3"
-	conf.Storage.S3.EndpointURL = s3Config.Endpoint
-	conf.Storage.S3.Region = s3Config.BucketRegion
-	conf.Storage.S3.Bucket = s3Config.BucketName
-	conf.Storage.S3.Prefix = prefix
-	conf.Storage.S3.Credentials.AccessKeyID = s3Config.AccessKey
-	conf.Storage.S3.Credentials.SecretAccessKey = s3Config.SecretKey
 
 	bytes, err := yaml.Marshal(&conf)
 	if err != nil {
+		tmp.Close() //nolint:errcheck
 		return "", errors.Wrap(err, "failed to marshall pbm configuration")
 	}
 
 	if _, err := tmp.Write(bytes); err != nil {
+		tmp.Close() //nolint:errcheck
 		return "", errors.Wrap(err, "failed to write pbm configuration file")
 	}
 
-	return tmp.Name(), nil
+	return tmp.Name(), tmp.Close()
 }

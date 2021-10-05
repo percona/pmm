@@ -74,6 +74,7 @@ func (r *ConcurrentRunner) Start(a Action, timeout time.Duration) {
 		r.l.Errorf("Ignoring Start: %s.", err)
 		return
 	}
+	actionID, actionType := a.ID(), a.Type()
 
 	// FIXME There is a data race. Add must not be called concurrently with Wait, but it can be:
 	// 0. no actions are running, WaitGroup has 0
@@ -86,7 +87,6 @@ func (r *ConcurrentRunner) Start(a Action, timeout time.Duration) {
 	// https://jira.percona.com/browse/PMM-4112
 	// https://jira.percona.com/browse/PMM-7206
 	r.runningActions.Add(1)
-	actionID, actionType := a.ID(), a.Type()
 
 	ctx, cancel := context.WithTimeout(r.ctx, timeout)
 	run := func(ctx context.Context) {

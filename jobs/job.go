@@ -23,7 +23,16 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 )
 
+// JobType represents Job type.
+type JobType string
+
+// Available job types.
 const (
+	MySQLBackup    = JobType("mysql_backup")
+	MongoDBBackup  = JobType("mongodb_backup")
+	MongoDBRestore = JobType("mongodb_restore")
+	MySQLRestore   = JobType("mysql_restore")
+
 	maxLogsChunkSize = 50
 )
 
@@ -35,7 +44,7 @@ type Job interface {
 	// ID returns Job ID.
 	ID() string
 	// Type returns Job type.
-	Type() string
+	Type() JobType
 	// Timeout returns Job timeout.
 	Timeout() time.Duration
 	// Run starts Job execution.
