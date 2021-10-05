@@ -23,6 +23,10 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 )
 
+const (
+	maxLogsChunkSize = 50
+)
+
 // Send is interface for function that used by jobs to send messages back to pmm-server.
 type Send func(payload agentpb.AgentResponsePayload)
 
