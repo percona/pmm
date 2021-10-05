@@ -19,6 +19,7 @@ package agents
 import (
 	"testing"
 
+	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/stretchr/testify/require"
@@ -61,9 +62,9 @@ func TestNodeExporterConfig(t *testing.T) {
 				"--collector.standard.go",
 				"--collector.standard.process",
 				"--collector.stat",
-				"--collector.textfile.directory.hr={{ .paths_base }}/collectors/textfile-collector/high-resolution",
-				"--collector.textfile.directory.lr={{ .paths_base }}/collectors/textfile-collector/low-resolution",
-				"--collector.textfile.directory.mr={{ .paths_base }}/collectors/textfile-collector/medium-resolution",
+				"--collector.textfile.directory.hr=" + pathsBase(pointer.GetString(exporter.Version), "{{", "}}") + "/collectors/textfile-collector/high-resolution",
+				"--collector.textfile.directory.lr=" + pathsBase(pointer.GetString(exporter.Version), "{{", "}}") + "/collectors/textfile-collector/low-resolution",
+				"--collector.textfile.directory.mr=" + pathsBase(pointer.GetString(exporter.Version), "{{", "}}") + "/collectors/textfile-collector/medium-resolution",
 				"--collector.textfile.hr",
 				"--collector.textfile.lr",
 				"--collector.textfile.mr",
@@ -139,9 +140,9 @@ func TestNodeExporterConfig(t *testing.T) {
 				"--collector.standard.go",
 				"--collector.standard.process",
 				"--collector.stat",
-				"--collector.textfile.directory.hr={{ .paths_base }}/collectors/textfile-collector/high-resolution",
-				"--collector.textfile.directory.lr={{ .paths_base }}/collectors/textfile-collector/low-resolution",
-				"--collector.textfile.directory.mr={{ .paths_base }}/collectors/textfile-collector/medium-resolution",
+				"--collector.textfile.directory.hr=" + pathsBase(pointer.GetString(exporter.Version), "{{", "}}") + "/collectors/textfile-collector/high-resolution",
+				"--collector.textfile.directory.lr=" + pathsBase(pointer.GetString(exporter.Version), "{{", "}}") + "/collectors/textfile-collector/low-resolution",
+				"--collector.textfile.directory.mr=" + pathsBase(pointer.GetString(exporter.Version), "{{", "}}") + "/collectors/textfile-collector/medium-resolution",
 				"--collector.textfile.hr",
 				"--collector.textfile.lr",
 				"--collector.textfile.mr",
@@ -203,9 +204,9 @@ func TestNodeExporterConfig(t *testing.T) {
 			TemplateLeftDelim:  "{{",
 			TemplateRightDelim: "}}",
 			Args: []string{
-				"--collector.textfile.directory.hr={{ .paths_base }}/collectors/textfile-collector/high-resolution",
-				"--collector.textfile.directory.lr={{ .paths_base }}/collectors/textfile-collector/low-resolution",
-				"--collector.textfile.directory.mr={{ .paths_base }}/collectors/textfile-collector/medium-resolution",
+				"--collector.textfile.directory.hr=" + pathsBase(pointer.GetString(exporter.Version), "{{", "}}") + "/collectors/textfile-collector/high-resolution",
+				"--collector.textfile.directory.lr=" + pathsBase(pointer.GetString(exporter.Version), "{{", "}}") + "/collectors/textfile-collector/low-resolution",
+				"--collector.textfile.directory.mr=" + pathsBase(pointer.GetString(exporter.Version), "{{", "}}") + "/collectors/textfile-collector/medium-resolution",
 				"--web.disable-exporter-metrics",
 				"--web.listen-address=:{{ .listen_port }}",
 			},
