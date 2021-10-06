@@ -451,7 +451,7 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 			if s.TLSSkipVerify {
 				sslmode = "require"
 			} else {
-				sslmode = "verify-full"
+				sslmode = "verify-ca"
 			}
 		}
 		q.Set("sslmode", sslmode)

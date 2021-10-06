@@ -137,7 +137,7 @@ func TestAgent(t *testing.T) {
 			models.QANMySQLSlowlogAgentType:    "username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:12345)/database?clientFoundRows=true&parseTime=true&timeout=1s&tls=custom",
 			models.MongoDBExporterType:         "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/database?authMechanism=MONGODB-X509&connectTimeoutMS=1000&ssl=true&tlsCaFile={{.TextFiles.caFilePlaceholder}}&tlsCertificateKeyFile={{.TextFiles.certificateKeyFilePlaceholder}}&tlsCertificateKeyFilePassword=pass",
 			models.QANMongoDBProfilerAgentType: "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/database?authMechanism=MONGODB-X509&connectTimeoutMS=1000&ssl=true&tlsCaFile={{.TextFiles.caFilePlaceholder}}&tlsCertificateKeyFile={{.TextFiles.certificateKeyFilePlaceholder}}&tlsCertificateKeyFilePassword=pass",
-			models.PostgresExporterType:        "postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/database?connect_timeout=1&sslcert={{.TextFiles.certificateFilePlaceholder}}&sslkey={{.TextFiles.certificateKeyFilePlaceholder}}&sslmode=verify-full&sslrootcert={{.TextFiles.caFilePlaceholder}}",
+			models.PostgresExporterType:        "postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/database?connect_timeout=1&sslcert={{.TextFiles.certificateFilePlaceholder}}&sslkey={{.TextFiles.certificateKeyFilePlaceholder}}&sslmode=verify-ca&sslrootcert={{.TextFiles.caFilePlaceholder}}",
 		} {
 			t.Run(string(typ), func(t *testing.T) {
 				agent.AgentType = typ
@@ -231,7 +231,7 @@ func TestPostgresAgentTLS(t *testing.T) {
 	}{
 		{false, false, "postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/database?connect_timeout=1&sslmode=disable"},
 		{false, true, "postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/database?connect_timeout=1&sslmode=disable"},
-		{true, false, "postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/database?connect_timeout=1&sslmode=verify-full"},
+		{true, false, "postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/database?connect_timeout=1&sslmode=verify-ca"},
 		{true, true, "postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/database?connect_timeout=1&sslmode=require"},
 	} {
 		name := fmt.Sprintf("TLS:%v/TLSSkipVerify:%v", testCase.tls, testCase.tlsSkipVerify)
@@ -254,7 +254,7 @@ func TestPostgresWithSocket(t *testing.T) {
 		service := &models.Service{
 			Socket: pointer.ToString("/var/run/postgres"),
 		}
-		expect := "postgres://username@/database?connect_timeout=1&host=%2Fvar%2Frun%2Fpostgres&sslmode=verify-full"
+		expect := "postgres://username@/database?connect_timeout=1&host=%2Fvar%2Frun%2Fpostgres&sslmode=verify-ca"
 		assert.Equal(t, expect, agent.DSN(service, time.Second, "database", nil))
 	})
 
