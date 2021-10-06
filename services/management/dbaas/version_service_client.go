@@ -22,6 +22,7 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -249,6 +250,61 @@ func (c *VersionServiceClient) LatestOperatorVersion(ctx context.Context, pmmVer
 	return latestPXCOperator, latestPSMDBOperator, err
 }
 
+// GetNextDatabaseImage returns image of the version that is a direct successor of currently installed version.
+// It returns empty string if update is not available or error occurred.
+func (c *VersionServiceClient) GetNextDatabaseImage(ctx context.Context, operatorType, operatorVersion, installedDBVersion string) (string, error) {
+	// Get dependencies of operator type at given version.
+	params := componentsParams{
+		product:        operatorType,
+		productVersion: operatorVersion,
+	}
+	matrix, err := c.Matrix(ctx, params)
+	if err != nil {
+		return "", err
+	}
+	if len(matrix.Versions) != 1 {
+		return "", nil
+	}
+	operatorDependencies := matrix.Versions[0]
+
+	// Choose proper versions map.
+	var versions map[string]componentVersion
+	switch operatorType {
+	case psmdbOperator:
+		versions = operatorDependencies.Matrix.Mongod
+	case pxcOperator:
+		versions = operatorDependencies.Matrix.Pxc
+	default:
+		return "", errors.Errorf("%q operator not supported", operatorType)
+	}
+
+	// Convert slice of version structs to slice of strings so it can be used in generic function next.
+	stringVersions := make([]string, 0, len(versions))
+	for version := range versions {
+		stringVersions = append(stringVersions, version)
+	}
+
+	// Get direct successor of installed version.
+	nextVersion, err := next(stringVersions, installedDBVersion)
+	if err != nil {
+		return "", err
+	}
+	if nextVersion == nil {
+		return "", nil
+	}
+	return versions[nextVersion.String()].ImagePath, nil
+}
+
+// GetVersionServiceURL returns base URL for version service currently used
+func (c *VersionServiceClient) GetVersionServiceURL() string {
+	url, err := url.Parse(c.url)
+	if err != nil {
+		c.l.Warnf("failed to parse url %q: %v", c.url, err)
+		return c.url
+	}
+	return url.Scheme + "://" + url.Host
+}
+
 // NextOperatorVersion returns operator version that is direct successor of currently installed one.
 // It returns nil if update is not available or error occurred. It does not take PMM version into consideration.
 // We need to upgrade to current + 1 version for upgrade to be successful. So even if dbaas-controller does not support the
@@ -269,14 +325,22 @@ func (c *VersionServiceClient) NextOperatorVersion(ctx context.Context, operator
 		return
 	}
 
+	// Convert slice of version structs to slice of strings so it can be used in generic function next.
+	versions := make([]string, 0, len(matrix.Versions))
+	for _, version := range matrix.Versions {
+		versions = append(versions, version.ProductVersion)
+	}
+
 	// Find next versions if installed.
 	if installedVersion != "" {
-		return next(matrix.Versions, installedVersion)
+		return next(versions, installedVersion)
 	}
 	return
 }
 
-func next(versions []Version, installedVersion string) (*goversion.Version, error) {
+// next direct successor of given installed version, returns nil if there is none.
+// An error is returned if any of given version can't be parsed. It's nil otherwise.
+func next(versions []string, installedVersion string) (*goversion.Version, error) {
 	if len(versions) == 0 {
 		return nil, errNoVersionsFound
 	}
@@ -288,7 +352,7 @@ func next(versions []Version, installedVersion string) (*goversion.Version, erro
 	}
 
 	for _, version := range versions {
-		v, err := goversion.NewVersion(version.ProductVersion)
+		v, err := goversion.NewVersion(version)
 		if err != nil {
 			return nil, err
 		}

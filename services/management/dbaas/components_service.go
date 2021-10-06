@@ -42,6 +42,12 @@ type componentsService struct {
 	versionServiceClient versionService
 }
 
+type installedComponentsVersion struct {
+	kuberentesClusterName string
+	pxcOperatorVersion    string
+	psmdbOperatorVersion  string
+}
+
 // NewComponentsService creates Components Service.
 func NewComponentsService(db *reform.DB, dbaasClient dbaasClient, versionServiceClient versionService) dbaasv1beta1.ComponentsServer {
 	l := logrus.WithField("component", "components_service")
@@ -190,12 +196,6 @@ func (c componentsService) ChangePXCComponents(ctx context.Context, req *dbaasv1
 	}
 
 	return &dbaasv1beta1.ChangePXCComponentsResponse{}, nil
-}
-
-type installedComponentsVersion struct {
-	kuberentesClusterName string
-	pxcOperatorVersion    string
-	psmdbOperatorVersion  string
 }
 
 func (c componentsService) installedOperatorsVersion(ctx context.Context, wg *sync.WaitGroup, responseCh chan installedComponentsVersion, kuberentesCluster *models.KubernetesCluster) {

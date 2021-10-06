@@ -14,6 +14,41 @@ type mockVersionService struct {
 	mock.Mock
 }
 
+// GetNextDatabaseImage provides a mock function with given fields: ctx, operatorType, operatorVersion, installedDBVersion
+func (_m *mockVersionService) GetNextDatabaseImage(ctx context.Context, operatorType string, operatorVersion string, installedDBVersion string) (string, error) {
+	ret := _m.Called(ctx, operatorType, operatorVersion, installedDBVersion)
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string) string); ok {
+		r0 = rf(ctx, operatorType, operatorVersion, installedDBVersion)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, string, string, string) error); ok {
+		r1 = rf(ctx, operatorType, operatorVersion, installedDBVersion)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetVersionServiceURL provides a mock function with given fields:
+func (_m *mockVersionService) GetVersionServiceURL() string {
+	ret := _m.Called()
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func() string); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
 // IsDatabaseVersionSupportedByOperator provides a mock function with given fields: ctx, operatorType, operatorVersion, databaseVersion
 func (_m *mockVersionService) IsDatabaseVersionSupportedByOperator(ctx context.Context, operatorType string, operatorVersion string, databaseVersion string) (bool, error) {
 	ret := _m.Called(ctx, operatorType, operatorVersion, databaseVersion)

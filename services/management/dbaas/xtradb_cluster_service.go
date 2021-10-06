@@ -21,6 +21,7 @@ import (
 	"context"
 	"fmt"
 	"math/rand"
+	"strings"
 
 	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
@@ -35,16 +36,23 @@ import (
 
 // XtraDBClusterService implements XtraDBClusterServer methods.
 type XtraDBClusterService struct {
-	db               *reform.DB
-	l                *logrus.Entry
-	controllerClient dbaasClient
-	grafanaClient    grafanaClient
+	db                   *reform.DB
+	l                    *logrus.Entry
+	controllerClient     dbaasClient
+	grafanaClient        grafanaClient
+	versionServiceClient versionService
 }
 
 // NewXtraDBClusterService creates XtraDB Service.
-func NewXtraDBClusterService(db *reform.DB, client dbaasClient, grafanaClient grafanaClient) dbaasv1beta1.XtraDBClusterServer {
+func NewXtraDBClusterService(db *reform.DB, client dbaasClient, grafanaClient grafanaClient, versionServiceClient versionService) dbaasv1beta1.XtraDBClusterServer {
 	l := logrus.WithField("component", "xtradb_cluster")
-	return &XtraDBClusterService{db: db, l: l, controllerClient: client, grafanaClient: grafanaClient}
+	return &XtraDBClusterService{
+		db:                   db,
+		l:                    l,
+		controllerClient:     client,
+		grafanaClient:        grafanaClient,
+		versionServiceClient: versionServiceClient,
+	}
 }
 
 // ListXtraDBClusters returns a list of all XtraDB clusters.
@@ -65,6 +73,12 @@ func (s XtraDBClusterService) ListXtraDBClusters(ctx context.Context, req *dbaas
 		return nil, err
 	}
 
+	checkResponse, err := s.controllerClient.CheckKubernetesClusterConnection(ctx, kubernetesCluster.KubeConfig)
+	if err != nil {
+		return nil, err
+	}
+	operatorVersion := checkResponse.Operators.XtradbOperatorVersion
+
 	clusters := make([]*dbaasv1beta1.ListXtraDBClustersResponse_Cluster, len(out.Clusters))
 	for i, c := range out.Clusters {
 		cluster := dbaasv1beta1.ListXtraDBClustersResponse_Cluster{
@@ -83,8 +97,7 @@ func (s XtraDBClusterService) ListXtraDBClusters(ctx context.Context, req *dbaas
 
 		if c.Params.Pxc != nil {
 			cluster.Params.Pxc = &dbaasv1beta1.XtraDBClusterParams_PXC{
-				DiskSize: c.Params.Pxc.DiskSize,
-			}
+				DiskSize: c.Params.Pxc.DiskSize}
 			if c.Params.Pxc.ComputeResources != nil {
 				cluster.Params.Pxc.ComputeResources = &dbaasv1beta1.ComputeResources{
 					CpuM:        c.Params.Pxc.ComputeResources.CpuM,
@@ -112,6 +125,21 @@ func (s XtraDBClusterService) ListXtraDBClusters(ctx context.Context, req *dbaas
 					},
 				}
 			}
+		}
+
+		if c.Params.Pxc.Image != "" {
+			imageAndTag := strings.Split(c.Params.Pxc.Image, ":")
+			if len(imageAndTag) != 2 {
+				return nil, errors.Errorf("failed to parse Xtradb Cluster version out of %q", c.Params.Pxc.Image)
+			}
+			currentDBVersion := imageAndTag[1]
+
+			nextVersionImage, err := s.versionServiceClient.GetNextDatabaseImage(ctx, pxcOperator, operatorVersion, currentDBVersion)
+			if err != nil {
+				return nil, err
+			}
+			cluster.AvailableImage = nextVersionImage
+			cluster.InstalledImage = c.Params.Pxc.Image
 		}
 
 		clusters[i] = &cluster
@@ -199,6 +227,7 @@ func (s XtraDBClusterService) CreateXtraDBCluster(ctx context.Context, req *dbaa
 				ComputeResources: new(dbaascontrollerv1beta1.ComputeResources),
 				DiskSize:         req.Params.Pxc.DiskSize,
 			},
+			VersionServiceUrl: s.versionServiceClient.GetVersionServiceURL(),
 		},
 		Expose: req.Expose,
 	}
@@ -286,6 +315,7 @@ func (s XtraDBClusterService) UpdateXtraDBCluster(ctx context.Context, req *dbaa
 					MemoryBytes: req.Params.Pxc.ComputeResources.MemoryBytes,
 				},
 			}
+			in.Params.Pxc.Image = req.Params.Pxc.Image
 		}
 
 		if req.Params.Proxysql != nil && req.Params.Proxysql.ComputeResources != nil {
@@ -401,11 +431,12 @@ func (s XtraDBClusterService) GetXtraDBClusterResources(ctx context.Context, req
 
 func pxcStates() map[dbaascontrollerv1beta1.XtraDBClusterState]dbaasv1beta1.XtraDBClusterState {
 	return map[dbaascontrollerv1beta1.XtraDBClusterState]dbaasv1beta1.XtraDBClusterState{
-		dbaascontrollerv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_INVALID:  dbaasv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_INVALID,
-		dbaascontrollerv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_CHANGING: dbaasv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_CHANGING,
-		dbaascontrollerv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_READY:    dbaasv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_READY,
-		dbaascontrollerv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_FAILED:   dbaasv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_FAILED,
-		dbaascontrollerv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_DELETING: dbaasv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_DELETING,
-		dbaascontrollerv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_PAUSED:   dbaasv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_PAUSED,
+		dbaascontrollerv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_INVALID:   dbaasv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_INVALID,
+		dbaascontrollerv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_CHANGING:  dbaasv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_CHANGING,
+		dbaascontrollerv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_READY:     dbaasv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_READY,
+		dbaascontrollerv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_FAILED:    dbaasv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_FAILED,
+		dbaascontrollerv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_DELETING:  dbaasv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_DELETING,
+		dbaascontrollerv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_PAUSED:    dbaasv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_PAUSED,
+		dbaascontrollerv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_UPGRADING: dbaasv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_UPGRADING,
 	}
 }

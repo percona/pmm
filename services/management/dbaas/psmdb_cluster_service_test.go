@@ -113,9 +113,10 @@ func TestPSMDBClusterService(t *testing.T) {
 	})
 	require.NoError(t, err)
 	assert.NotNil(t, registerKubernetesClusterResponse)
+	versionService := NewVersionServiceClient(versionServiceURL)
 
 	t.Run("BasicListPSMDBClusters", func(t *testing.T) {
-		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient)
+		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient, versionService)
 		mockResp := controllerv1beta1.ListPSMDBClustersResponse{
 			Clusters: []*controllerv1beta1.ListPSMDBClustersResponse_Cluster{
 				{
@@ -152,7 +153,7 @@ func TestPSMDBClusterService(t *testing.T) {
 
 	//nolint:dupl
 	t.Run("BasicCreatePSMDBClusters", func(t *testing.T) {
-		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient)
+		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient, versionService)
 		mockReq := controllerv1beta1.CreatePSMDBClusterRequest{
 			KubeAuth: &controllerv1beta1.KubeAuth{
 				Kubeconfig: kubeconfTest,
@@ -167,6 +168,7 @@ func TestPSMDBClusterService(t *testing.T) {
 					},
 					DiskSize: 1024 * 1024 * 1024,
 				},
+				VersionServiceUrl: versionService.GetVersionServiceURL(),
 			},
 		}
 
@@ -193,7 +195,7 @@ func TestPSMDBClusterService(t *testing.T) {
 
 	//nolint:dupl
 	t.Run("BasicUpdatePSMDBCluster", func(t *testing.T) {
-		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient)
+		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient, versionService)
 		mockReq := controllerv1beta1.UpdatePSMDBClusterRequest{
 			KubeAuth: &controllerv1beta1.KubeAuth{
 				Kubeconfig: kubeconfTest,
@@ -231,7 +233,7 @@ func TestPSMDBClusterService(t *testing.T) {
 	})
 
 	t.Run("BasicGetPSMDBClusterCredentials", func(t *testing.T) {
-		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient)
+		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient, versionService)
 
 		mockReq := controllerv1beta1.GetPSMDBClusterCredentialsRequest{
 			KubeAuth: &controllerv1beta1.KubeAuth{
@@ -262,7 +264,7 @@ func TestPSMDBClusterService(t *testing.T) {
 	})
 
 	t.Run("BasicGetPSMDBClusterCredentialsWithHost", func(t *testing.T) {
-		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient)
+		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient, versionService)
 		name := "another-third-psmdb-test"
 
 		mockReq := controllerv1beta1.GetPSMDBClusterCredentialsRequest{
@@ -291,7 +293,7 @@ func TestPSMDBClusterService(t *testing.T) {
 	})
 
 	t.Run("BasicRestartPSMDBCluster", func(t *testing.T) {
-		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient)
+		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient, versionService)
 		mockReq := controllerv1beta1.RestartPSMDBClusterRequest{
 			KubeAuth: &controllerv1beta1.KubeAuth{
 				Kubeconfig: kubeconfTest,
@@ -311,7 +313,7 @@ func TestPSMDBClusterService(t *testing.T) {
 	})
 
 	t.Run("BasicDeletePSMDBCluster", func(t *testing.T) {
-		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient)
+		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient, versionService)
 		dbClusterName := "delete-psmdb-test"
 		mockReq := controllerv1beta1.DeletePSMDBClusterRequest{
 			KubeAuth: &controllerv1beta1.KubeAuth{
@@ -333,7 +335,7 @@ func TestPSMDBClusterService(t *testing.T) {
 	})
 
 	t.Run("BasicGetPSMDBClusterResources", func(t *testing.T) {
-		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient)
+		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient, versionService)
 
 		in := dbaasv1beta1.GetPSMDBClusterResourcesRequest{
 			Params: &dbaasv1beta1.PSMDBClusterParams{

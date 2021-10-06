@@ -71,6 +71,10 @@ type dbaasClient interface {
 type versionService interface {
 	// Matrix calls version service with given params and returns components matrix.
 	Matrix(ctx context.Context, params componentsParams) (*VersionServiceResponse, error)
+	// GetNextDatabaseImage returns image of the dabase version that is a direct successor of currently installed version.
+	GetNextDatabaseImage(ctx context.Context, operatorType, operatorVersion, installedDBVersion string) (string, error)
+	// GetVersionServiceURL version service used by version service client.
+	GetVersionServiceURL() string
 	// IsDatabaseVersionSupportedByOperator returns false and err when request to version service fails. Otherwise returns boolen telling
 	// if given database version is supported by given operator version, error is nil in that case.
 	IsDatabaseVersionSupportedByOperator(ctx context.Context, operatorType, operatorVersion, databaseVersion string) (bool, error)
