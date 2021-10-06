@@ -154,6 +154,18 @@
                         "type": "string",
                         "x-order": 4
                       },
+                      "mode": {
+                        "description": "BackupMode specifies backup mode.",
+                        "type": "string",
+                        "default": "BACKUP_MODE_INVALID",
+                        "enum": [
+                          "BACKUP_MODE_INVALID",
+                          "SNAPSHOT",
+                          "INCREMENTAL",
+                          "PITR"
+                        ],
+                        "x-order": 10
+                      },
                       "name": {
                         "type": "string",
                         "title": "Artifact name",
@@ -734,6 +746,18 @@
                         "type": "string",
                         "x-order": 4
                       },
+                      "mode": {
+                        "description": "BackupMode specifies backup mode.",
+                        "type": "string",
+                        "default": "BACKUP_MODE_INVALID",
+                        "enum": [
+                          "BACKUP_MODE_INVALID",
+                          "SNAPSHOT",
+                          "INCREMENTAL",
+                          "PITR"
+                        ],
+                        "x-order": 17
+                      },
                       "name": {
                         "description": "Artifact name.",
                         "type": "string",
@@ -1028,6 +1052,18 @@
                   "description": "Machine-readable location ID.",
                   "type": "string",
                   "x-order": 1
+                },
+                "mode": {
+                  "description": "BackupMode specifies backup mode.",
+                  "type": "string",
+                  "default": "BACKUP_MODE_INVALID",
+                  "enum": [
+                    "BACKUP_MODE_INVALID",
+                    "SNAPSHOT",
+                    "INCREMENTAL",
+                    "PITR"
+                  ],
+                  "x-order": 10
                 },
                 "name": {
                   "description": "Name of backup.",
