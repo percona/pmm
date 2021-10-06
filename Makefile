@@ -57,7 +57,7 @@ check:                          ## Run required checkers and linters.
 	go run .github/check-license.go
 
 check-style:                    ## Run style checkers and linters.
-	$(BIN_PATH)/golangci-lint run -c=.golangci.yml ./... --new-from-rev=master
+	$(BIN_PATH)/golangci-lint run -c=.golangci.yml ./... --new-from-rev=main
 	$(BIN_PATH)/go-consistent -pedantic ./...
 
 check-all: check check-style    ## Run all linters for new code..
