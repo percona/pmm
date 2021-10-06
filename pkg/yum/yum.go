@@ -30,6 +30,7 @@ import (
 const (
 	yumInfoCancelTimeout   = 30 * time.Second  // must be _much_ less than stopwaitsecs in supervisord config
 	yumUpdateCancelTimeout = 120 * time.Second // must be less than stopwaitsecs in supervisord config
+	changeLogURLPath       = "https://per.co.na/pmm/"
 )
 
 // http://man7.org/linux/man-pages/man8/yum.8.html#LIST_OPTIONS
@@ -124,11 +125,7 @@ func Check(ctx context.Context, name string) (*version.UpdateCheckResult, error)
 		res.Latest.BuildTime = &releaseTime
 	}
 
-	cmdLine = "yum update " + name + " --changelog --cacheonly --assumeno"
-	stdout, _, _ = run.Run(ctx, yumInfoCancelTimeout, cmdLine, nil)
-	if changeLog, _ := parseChangeLog(stdout); changeLog != nil {
-		res.LatestNewsURL = changeLog.url
-	}
+	res.LatestNewsURL = changeLogURLPath + res.Latest.Version
 
 	res.UpdateAvailable = true
 	return res, nil
