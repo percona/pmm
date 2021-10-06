@@ -6,4 +6,5 @@
 - [Optimize](optimize.md) the performance of your PMM installation.
 - [Annotate](annotate.md) charts to mark significant events.
 - [Render dashboard images](render-dashboard-images.md) to save or share.
+- [Extend Metrics](extend-metrics.md) with textfile collector.
 - [Troubleshoot](troubleshoot.md)

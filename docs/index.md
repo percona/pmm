@@ -126,6 +126,7 @@ mindmapDiagram {
 +++_ [[$base/how-to/optimize.html Optimize]]
 +++_ [[$base/how-to/annotate.html Annotate]]
 +++_ [[$base/how-to/render-dashboard-images.html Render\ndashboard\nimages]]
++++_ [[$base/how-to/extend-metrics.html Extend\nmetrics]]
 +++_ [[$base/how-to/troubleshoot.html Troubleshoot]]
 ++ <&magnifying-glass> [[$base/details/ Details]]
 +++_ [[$base/details/architecture.html Architecture]]

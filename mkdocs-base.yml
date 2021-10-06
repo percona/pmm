@@ -134,6 +134,7 @@ nav:
       - how-to/optimize.md
       - how-to/annotate.md
       - how-to/render-dashboard-images.md
+      - how-to/extend-metrics.md
       - how-to/troubleshoot.md
   - Details:
       - details/index.md
