@@ -98,8 +98,8 @@ check:                          ## Run required checkers and linters.
 	go run .github/check-license.go
 	$(BIN_PATH)/golangci-lint run -c=.golangci-required.yml
 
-check-all: check                ## Run golang ci linter to check new changes from master.
-	$(BIN_PATH)/golangci-lint run -c=.golangci.yml --new-from-rev=master
+check-all: check                ## Run golang ci linter to check new changes from main.
+	$(BIN_PATH)/golangci-lint run -c=.golangci.yml --new-from-rev=main
 
 FILES = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 
