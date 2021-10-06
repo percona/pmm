@@ -386,6 +386,7 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 		q := make(url.Values)
 		if dialTimeout != 0 {
 			q.Set("connectTimeoutMS", strconv.Itoa(int(dialTimeout/time.Millisecond)))
+			q.Set("serverSelectionTimeoutMS", strconv.Itoa(int(dialTimeout/time.Millisecond)))
 		}
 
 		// https://docs.mongodb.com/manual/reference/connection-string/

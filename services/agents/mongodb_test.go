@@ -57,7 +57,7 @@ func TestMongodbExporterConfig(t *testing.T) {
 			"--web.listen-address=:{{ .listen_port }}",
 		},
 		Env: []string{
-			"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:27017/?connectTimeoutMS=1000",
+			"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:27017/?connectTimeoutMS=1000&serverSelectionTimeoutMS=1000",
 			"HTTP_AUTH=pmm:agent-password",
 		},
 		RedactWords: []string{"s3cur3 p@$$w0r4.", "agent-password"},
@@ -70,13 +70,13 @@ func TestMongodbExporterConfig(t *testing.T) {
 	t.Run("EmptyPassword", func(t *testing.T) {
 		exporter.Password = nil
 		actual := mongodbExporterConfig(mongodb, exporter, exposeSecrets, pmmAgentVersion)
-		assert.Equal(t, "MONGODB_URI=mongodb://username@1.2.3.4:27017/?connectTimeoutMS=1000", actual.Env[0])
+		assert.Equal(t, "MONGODB_URI=mongodb://username@1.2.3.4:27017/?connectTimeoutMS=1000&serverSelectionTimeoutMS=1000", actual.Env[0])
 	})
 
 	t.Run("EmptyUsername", func(t *testing.T) {
 		exporter.Username = nil
 		actual := mongodbExporterConfig(mongodb, exporter, exposeSecrets, pmmAgentVersion)
-		assert.Equal(t, "MONGODB_URI=mongodb://1.2.3.4:27017/?connectTimeoutMS=1000", actual.Env[0])
+		assert.Equal(t, "MONGODB_URI=mongodb://1.2.3.4:27017/?connectTimeoutMS=1000&serverSelectionTimeoutMS=1000", actual.Env[0])
 	})
 	t.Run("SSLEnabled", func(t *testing.T) {
 		exporter.TLS = true
@@ -86,7 +86,7 @@ func TestMongodbExporterConfig(t *testing.T) {
 			TLSCa:                         "content-of-tls-ca",
 		}
 		actual := mongodbExporterConfig(mongodb, exporter, exposeSecrets, pmmAgentVersion)
-		expected := "MONGODB_URI=mongodb://1.2.3.4:27017/?connectTimeoutMS=1000&ssl=true&" +
+		expected := "MONGODB_URI=mongodb://1.2.3.4:27017/?connectTimeoutMS=1000&serverSelectionTimeoutMS=1000&ssl=true&" +
 			"tlsCaFile={{.TextFiles.caFilePlaceholder}}&tlsCertificateKeyFile={{.TextFiles.certificateKeyFilePlaceholder}}&tlsCertificateKeyFilePassword=passwordoftls"
 		assert.Equal(t, expected, actual.Env[0])
 		expectedFiles := map[string]string{
@@ -107,7 +107,7 @@ func TestMongodbExporterConfig(t *testing.T) {
 		}
 		actual := mongodbExporterConfig(mongodb, exporter, exposeSecrets, pmmAgentVersion)
 		expected := `MONGODB_URI=mongodb://1.2.3.4:27017/$external?authMechanism=MONGODB-X509` +
-			`&authSource=%24external&connectTimeoutMS=1000&ssl=true` +
+			`&authSource=%24external&connectTimeoutMS=1000&serverSelectionTimeoutMS=1000&ssl=true` +
 			`&tlsCaFile={{.TextFiles.caFilePlaceholder}}` +
 			`&tlsCertificateKeyFile={{.TextFiles.certificateKeyFilePlaceholder}}` +
 			`&tlsCertificateKeyFilePassword=passwordoftls`
@@ -163,7 +163,7 @@ func TestNewMongodbExporterConfig(t *testing.T) {
 			"--web.listen-address=:{{ .listen_port }}",
 		},
 		Env: []string{
-			"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:27017/?connectTimeoutMS=1000",
+			"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:27017/?connectTimeoutMS=1000&serverSelectionTimeoutMS=1000",
 			"HTTP_AUTH=pmm:agent-id",
 		},
 		RedactWords: []string{"s3cur3 p@$$w0r4."},
@@ -176,12 +176,12 @@ func TestNewMongodbExporterConfig(t *testing.T) {
 	t.Run("EmptyPassword", func(t *testing.T) {
 		exporter.Password = nil
 		actual := mongodbExporterConfig(mongodb, exporter, exposeSecrets, pmmAgentVersion)
-		assert.Equal(t, "MONGODB_URI=mongodb://username@1.2.3.4:27017/?connectTimeoutMS=1000", actual.Env[0])
+		assert.Equal(t, "MONGODB_URI=mongodb://username@1.2.3.4:27017/?connectTimeoutMS=1000&serverSelectionTimeoutMS=1000", actual.Env[0])
 	})
 
 	t.Run("EmptyUsername", func(t *testing.T) {
 		exporter.Username = nil
 		actual := mongodbExporterConfig(mongodb, exporter, exposeSecrets, pmmAgentVersion)
-		assert.Equal(t, "MONGODB_URI=mongodb://1.2.3.4:27017/?connectTimeoutMS=1000", actual.Env[0])
+		assert.Equal(t, "MONGODB_URI=mongodb://1.2.3.4:27017/?connectTimeoutMS=1000&serverSelectionTimeoutMS=1000", actual.Env[0])
 	})
 }
