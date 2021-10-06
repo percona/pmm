@@ -401,6 +401,17 @@ func (this *ActionResultRequest) Validate() error {
 func (this *ActionResultResponse) Validate() error {
 	return nil
 }
+func (this *PBMSwitchPITRRequest) Validate() error {
+	if this.TextFiles != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.TextFiles); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("TextFiles", err)
+		}
+	}
+	return nil
+}
+func (this *PBMSwitchPITRResponse) Validate() error {
+	return nil
+}
 func (this *CheckConnectionRequest) Validate() error {
 	if this.Timeout != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Timeout); err != nil {
@@ -501,6 +512,11 @@ func (this *StartJobRequest_MongoDBBackup) Validate() error {
 	return nil
 }
 func (this *StartJobRequest_MongoDBRestoreBackup) Validate() error {
+	if this.PitrTimestamp != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PitrTimestamp); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("PitrTimestamp", err)
+		}
+	}
 	if oneOfNester, ok := this.GetLocationConfig().(*StartJobRequest_MongoDBRestoreBackup_S3Config); ok {
 		if oneOfNester.S3Config != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.S3Config); err != nil {
@@ -597,12 +613,22 @@ func (this *JobProgress) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetResult().(*JobProgress_Logs_); ok {
+		if oneOfNester.Logs != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Logs); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Logs", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *JobProgress_MySQLBackup) Validate() error {
 	return nil
 }
 func (this *JobProgress_MySQLRestoreBackup) Validate() error {
+	return nil
+}
+func (this *JobProgress_Logs) Validate() error {
 	return nil
 }
 func (this *GetVersionsRequest) Validate() error {
@@ -782,6 +808,13 @@ func (this *AgentMessage) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetPayload().(*AgentMessage_PbmSwitchPitr); ok {
+		if oneOfNester.PbmSwitchPitr != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.PbmSwitchPitr); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("PbmSwitchPitr", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *ServerMessage) Validate() error {
@@ -878,6 +911,13 @@ func (this *ServerMessage) Validate() error {
 		if oneOfNester.GetVersions != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.GetVersions); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("GetVersions", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetPayload().(*ServerMessage_PbmSwitchPitr); ok {
+		if oneOfNester.PbmSwitchPitr != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.PbmSwitchPitr); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("PbmSwitchPitr", err)
 			}
 		}
 	}

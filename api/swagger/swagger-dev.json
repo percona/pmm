@@ -24943,6 +24943,18 @@
                         "type": "string",
                         "format": "date-time",
                         "x-order": 9
+                      },
+                      "mode": {
+                        "description": "BackupMode specifies backup mode.",
+                        "type": "string",
+                        "default": "BACKUP_MODE_INVALID",
+                        "enum": [
+                          "BACKUP_MODE_INVALID",
+                          "SNAPSHOT",
+                          "INCREMENTAL",
+                          "PITR"
+                        ],
+                        "x-order": 10
                       }
                     }
                   },
@@ -25063,6 +25075,113 @@
             "description": "A successful response.",
             "schema": {
               "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/backup/Backups/GetLogs": {
+      "post": {
+        "tags": [
+          "Backups"
+        ],
+        "summary": "GetLogs returns logs for provided artifact.",
+        "operationId": "GetLogsMixin5",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "artifact_id": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "offset": {
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 1
+                },
+                "limit": {
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "logs": {
+                  "type": "array",
+                  "items": {
+                    "description": "LogChunk represent one chunk of logs.",
+                    "type": "object",
+                    "properties": {
+                      "chunk_id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 0
+                      },
+                      "data": {
+                        "type": "string",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 0
+                },
+                "end": {
+                  "type": "boolean",
+                  "x-order": 1
+                }
+              }
             }
           },
           "default": {
@@ -25434,6 +25553,18 @@
                         "type": "integer",
                         "format": "int64",
                         "x-order": 16
+                      },
+                      "mode": {
+                        "description": "BackupMode specifies backup mode.",
+                        "type": "string",
+                        "default": "BACKUP_MODE_INVALID",
+                        "enum": [
+                          "BACKUP_MODE_INVALID",
+                          "SNAPSHOT",
+                          "INCREMENTAL",
+                          "PITR"
+                        ],
+                        "x-order": 17
                       }
                     }
                   },
@@ -25708,6 +25839,18 @@
                   "type": "integer",
                   "format": "int64",
                   "x-order": 9
+                },
+                "mode": {
+                  "description": "BackupMode specifies backup mode.",
+                  "type": "string",
+                  "default": "BACKUP_MODE_INVALID",
+                  "enum": [
+                    "BACKUP_MODE_INVALID",
+                    "SNAPSHOT",
+                    "INCREMENTAL",
+                    "PITR"
+                  ],
+                  "x-order": 10
                 }
               }
             }
