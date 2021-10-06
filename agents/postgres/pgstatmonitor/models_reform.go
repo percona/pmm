@@ -216,6 +216,7 @@ func (v *pgStatMonitorDefaultViewType) Columns() []string {
 		"cpu_user_time",
 		"cpu_sys_time",
 		"relations",
+		"elevel",
 	}
 }
 
@@ -256,6 +257,7 @@ var pgStatMonitorDefaultView = &pgStatMonitorDefaultViewType{
 			{Name: "CPUUserTime", Type: "float64", Column: "cpu_user_time"},
 			{Name: "CPUSysTime", Type: "float64", Column: "cpu_sys_time"},
 			{Name: "Relations", Type: "pq.StringArray", Column: "relations"},
+			{Name: "Elevel", Type: "int32", Column: "elevel"},
 		},
 		PKFieldIndex: -1,
 	},
@@ -264,7 +266,7 @@ var pgStatMonitorDefaultView = &pgStatMonitorDefaultViewType{
 
 // String returns a string representation of this struct or record.
 func (s pgStatMonitorDefault) String() string {
-	res := make([]string, 26)
+	res := make([]string, 27)
 	res[0] = "Bucket: " + reform.Inspect(s.Bucket, true)
 	res[1] = "BucketStartTime: " + reform.Inspect(s.BucketStartTime, true)
 	res[2] = "UserID: " + reform.Inspect(s.UserID, true)
@@ -291,6 +293,7 @@ func (s pgStatMonitorDefault) String() string {
 	res[23] = "CPUUserTime: " + reform.Inspect(s.CPUUserTime, true)
 	res[24] = "CPUSysTime: " + reform.Inspect(s.CPUSysTime, true)
 	res[25] = "Relations: " + reform.Inspect(s.Relations, true)
+	res[26] = "Elevel: " + reform.Inspect(s.Elevel, true)
 	return strings.Join(res, ", ")
 }
 
@@ -324,6 +327,7 @@ func (s *pgStatMonitorDefault) Values() []interface{} {
 		s.CPUUserTime,
 		s.CPUSysTime,
 		s.Relations,
+		s.Elevel,
 	}
 }
 
@@ -357,6 +361,7 @@ func (s *pgStatMonitorDefault) Pointers() []interface{} {
 		&s.CPUUserTime,
 		&s.CPUSysTime,
 		&s.Relations,
+		&s.Elevel,
 	}
 }
 
@@ -416,6 +421,7 @@ func (v *pgStatMonitor08ViewType) Columns() []string {
 		"cpu_user_time",
 		"cpu_sys_time",
 		"relations",
+		"elevel",
 	}
 }
 
@@ -456,6 +462,7 @@ var pgStatMonitor08View = &pgStatMonitor08ViewType{
 			{Name: "CPUUserTime", Type: "float64", Column: "cpu_user_time"},
 			{Name: "CPUSysTime", Type: "float64", Column: "cpu_sys_time"},
 			{Name: "Relations", Type: "pq.StringArray", Column: "relations"},
+			{Name: "Elevel", Type: "int32", Column: "elevel"},
 		},
 		PKFieldIndex: -1,
 	},
@@ -464,7 +471,7 @@ var pgStatMonitor08View = &pgStatMonitor08ViewType{
 
 // String returns a string representation of this struct or record.
 func (s pgStatMonitor08) String() string {
-	res := make([]string, 26)
+	res := make([]string, 27)
 	res[0] = "Bucket: " + reform.Inspect(s.Bucket, true)
 	res[1] = "BucketStartTime: " + reform.Inspect(s.BucketStartTime, true)
 	res[2] = "User: " + reform.Inspect(s.User, true)
@@ -491,6 +498,7 @@ func (s pgStatMonitor08) String() string {
 	res[23] = "CPUUserTime: " + reform.Inspect(s.CPUUserTime, true)
 	res[24] = "CPUSysTime: " + reform.Inspect(s.CPUSysTime, true)
 	res[25] = "Relations: " + reform.Inspect(s.Relations, true)
+	res[26] = "Elevel: " + reform.Inspect(s.Elevel, true)
 	return strings.Join(res, ", ")
 }
 
@@ -524,6 +532,7 @@ func (s *pgStatMonitor08) Values() []interface{} {
 		s.CPUUserTime,
 		s.CPUSysTime,
 		s.Relations,
+		s.Elevel,
 	}
 }
 
@@ -557,6 +566,7 @@ func (s *pgStatMonitor08) Pointers() []interface{} {
 		&s.CPUUserTime,
 		&s.CPUSysTime,
 		&s.Relations,
+		&s.Elevel,
 	}
 }
 

@@ -150,16 +150,30 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 			example := ""
 			if !normalizedQuery {
 				example = c.Query
-				fingerprint = ssc.generateFingerprint(c.Query)
+				fingerprint, err = ssc.generateFingerprint(c.Query)
 			}
-			var isTruncated bool
-			c.Fingerprint, isTruncated = truncate.Query(fingerprint)
-			if isTruncated {
-				c.IsQueryTruncated = isTruncated
-			}
-			c.Example, isTruncated = truncate.Query(example)
-			if isTruncated {
-				c.IsQueryTruncated = isTruncated
+			if err != nil {
+				// Either real syntax error in the query or pg_stat_monitor truncated the query and it causes the syntax error.
+				if c.pgStatMonitor.Elevel != 0 {
+					c.IsQueryTruncated = false
+					ssc.l.Warnf("generating fingerprint failed for query with id %v: %v", c.QueryID, err)
+				} else {
+					// We failed to normalize the query but the query was executed successfully.
+					// That means the query was truncated by pg_stat_monitor. Let's state the query was truncated.
+					c.IsQueryTruncated = true
+				}
+				c.Example = c.Query
+				c.Fingerprint = c.Query
+			} else {
+				var isTruncated bool
+				c.Fingerprint, isTruncated = truncate.Query(fingerprint)
+				if isTruncated {
+					c.IsQueryTruncated = isTruncated
+				}
+				c.Example, isTruncated = truncate.Query(example)
+				if isTruncated {
+					c.IsQueryTruncated = isTruncated
+				}
 			}
 		}
 
@@ -180,12 +194,12 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 	return current, cache, err
 }
 
-func (ssc *statMonitorCache) generateFingerprint(example string) string {
+func (ssc *statMonitorCache) generateFingerprint(example string) (string, error) {
 	fingerprint, e := pgquery.Normalize(example)
 	if e != nil {
-		ssc.l.Errorln(e)
+		return "", errors.Wrap(e, "failed to normalize the query")
 	}
-	return fingerprint
+	return fingerprint, nil
 }
 
 // stats returns statMonitorCache statistics.

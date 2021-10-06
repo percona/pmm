@@ -27,6 +27,7 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/utils/sqlmetrics"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
@@ -87,7 +88,6 @@ func newPgStatMonitorQAN(q *reform.Querier, dbCloser io.Closer, agentID string, 
 	if err != nil {
 		return nil, err
 	}
-
 	var normalizedQuery bool
 	waitTime := defaultWaitTime
 	for _, row := range settings {
@@ -142,7 +142,7 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 		running = true
 		m.changes <- agents.Change{Status: inventorypb.AgentStatus_RUNNING}
 	} else {
-		m.l.Error(err)
+		m.l.Error(errors.Wrap(err, "failed to get extended monitor status"))
 		m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
 	}
 
@@ -172,7 +172,7 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 			t.Reset(m.waitTime)
 
 			if err != nil {
-				m.l.Error(err)
+				m.l.Error(errors.Wrap(err, "getNewBuckets failed"))
 				running = false
 				m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
 				continue
