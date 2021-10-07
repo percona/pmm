@@ -731,6 +731,9 @@ type SparklineItems0 struct {
 
 	// Plan time in per seconds.
 	MPlanTimeSumPerSec float32 `json:"m_plan_time_sum_per_sec,omitempty"`
+
+	// Top Query plain text.
+	TopQuery string `json:"top_query,omitempty"`
 }
 
 // Validate validates this sparkline items0
