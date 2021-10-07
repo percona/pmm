@@ -136,11 +136,20 @@ type ClustersItems0 struct {
 	//  - PSMDB_CLUSTER_STATE_FAILED: PSMDB_CLUSTER_STATE_FAILED represents a failed cluster.
 	//  - PSMDB_CLUSTER_STATE_DELETING: PSMDB_CLUSTER_STATE_DELETING represents a cluster being deleting.
 	//  - PSMDB_CLUSTER_STATE_PAUSED: PSMDB_CLUSTER_STATE_PAUSED represents a cluster is paused.
-	// Enum: [PSMDB_CLUSTER_STATE_INVALID PSMDB_CLUSTER_STATE_CHANGING PSMDB_CLUSTER_STATE_READY PSMDB_CLUSTER_STATE_FAILED PSMDB_CLUSTER_STATE_DELETING PSMDB_CLUSTER_STATE_PAUSED]
+	//  - PSMDB_CLUSTER_STATE_UPGRADING: PSMDB_CLUSTER_STATE_UPGRADING is a special case of PSMDB_CLUSTER_STATE_CHANGING.
+	// It indicates database cluster upgrade is ongoing.
+	// Enum: [PSMDB_CLUSTER_STATE_INVALID PSMDB_CLUSTER_STATE_CHANGING PSMDB_CLUSTER_STATE_READY PSMDB_CLUSTER_STATE_FAILED PSMDB_CLUSTER_STATE_DELETING PSMDB_CLUSTER_STATE_PAUSED PSMDB_CLUSTER_STATE_UPGRADING]
 	State *string `json:"state,omitempty"`
 
 	// DB cluster accessible outside of K8s cluster.
 	Exposed bool `json:"exposed,omitempty"`
+
+	// Installed PSMDB image.
+	InstalledImage string `json:"installed_image,omitempty"`
+
+	// Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.
+	// If it's empty, no upgrade is available.
+	AvailableImage string `json:"available_image,omitempty"`
 
 	// operation
 	Operation *ClustersItems0Operation `json:"operation,omitempty"`
@@ -175,7 +184,7 @@ var clustersItems0TypeStatePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["PSMDB_CLUSTER_STATE_INVALID","PSMDB_CLUSTER_STATE_CHANGING","PSMDB_CLUSTER_STATE_READY","PSMDB_CLUSTER_STATE_FAILED","PSMDB_CLUSTER_STATE_DELETING","PSMDB_CLUSTER_STATE_PAUSED"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["PSMDB_CLUSTER_STATE_INVALID","PSMDB_CLUSTER_STATE_CHANGING","PSMDB_CLUSTER_STATE_READY","PSMDB_CLUSTER_STATE_FAILED","PSMDB_CLUSTER_STATE_DELETING","PSMDB_CLUSTER_STATE_PAUSED","PSMDB_CLUSTER_STATE_UPGRADING"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -202,6 +211,9 @@ const (
 
 	// ClustersItems0StatePSMDBCLUSTERSTATEPAUSED captures enum value "PSMDB_CLUSTER_STATE_PAUSED"
 	ClustersItems0StatePSMDBCLUSTERSTATEPAUSED string = "PSMDB_CLUSTER_STATE_PAUSED"
+
+	// ClustersItems0StatePSMDBCLUSTERSTATEUPGRADING captures enum value "PSMDB_CLUSTER_STATE_UPGRADING"
+	ClustersItems0StatePSMDBCLUSTERSTATEUPGRADING string = "PSMDB_CLUSTER_STATE_UPGRADING"
 )
 
 // prop value enum
