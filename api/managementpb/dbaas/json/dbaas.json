@@ -2339,6 +2339,11 @@
                       "format": "int32",
                       "x-order": 0
                     },
+                    "image": {
+                      "description": "PSMDB image to use. If it's the same image but with different version tag, upgrade of database cluster to version\nin given tag is triggered. If entirely different image is given, error is returned.",
+                      "type": "string",
+                      "x-order": 4
+                    },
                     "replicaset": {
                       "description": "ReplicaSet container parameters.",
                       "type": "object",
@@ -2581,10 +2586,20 @@
                     "description": "Cluster represents PSMDB cluster information.\nTODO Do not use inner messages in all public APIs (for consistency).",
                     "type": "object",
                     "properties": {
+                      "available_image": {
+                        "description": "Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.\nIf it's empty, no upgrade is available.",
+                        "type": "string",
+                        "x-order": 6
+                      },
                       "exposed": {
                         "description": "DB cluster accessible outside of K8s cluster.",
                         "type": "boolean",
                         "x-order": 4
+                      },
+                      "installed_image": {
+                        "description": "Installed PSMDB image.",
+                        "type": "string",
+                        "x-order": 5
                       },
                       "name": {
                         "description": "Cluster name.",
@@ -2666,7 +2681,7 @@
                         "x-order": 3
                       },
                       "state": {
-                        "description": "PSMDBClusterState represents PSMDB cluster CR state.\n\n - PSMDB_CLUSTER_STATE_INVALID: PSMDB_CLUSTER_STATE_INVALID represents unknown state.\n - PSMDB_CLUSTER_STATE_CHANGING: PSMDB_CLUSTER_STATE_CHANGING represents a cluster being changed.\n - PSMDB_CLUSTER_STATE_READY: PSMDB_CLUSTER_STATE_READY represents a cluster without pending changes.\n - PSMDB_CLUSTER_STATE_FAILED: PSMDB_CLUSTER_STATE_FAILED represents a failed cluster.\n - PSMDB_CLUSTER_STATE_DELETING: PSMDB_CLUSTER_STATE_DELETING represents a cluster being deleting.\n - PSMDB_CLUSTER_STATE_PAUSED: PSMDB_CLUSTER_STATE_PAUSED represents a cluster is paused.",
+                        "description": "PSMDBClusterState represents PSMDB cluster CR state.\n\n - PSMDB_CLUSTER_STATE_INVALID: PSMDB_CLUSTER_STATE_INVALID represents unknown state.\n - PSMDB_CLUSTER_STATE_CHANGING: PSMDB_CLUSTER_STATE_CHANGING represents a cluster being changed.\n - PSMDB_CLUSTER_STATE_READY: PSMDB_CLUSTER_STATE_READY represents a cluster without pending changes.\n - PSMDB_CLUSTER_STATE_FAILED: PSMDB_CLUSTER_STATE_FAILED represents a failed cluster.\n - PSMDB_CLUSTER_STATE_DELETING: PSMDB_CLUSTER_STATE_DELETING represents a cluster being deleting.\n - PSMDB_CLUSTER_STATE_PAUSED: PSMDB_CLUSTER_STATE_PAUSED represents a cluster is paused.\n - PSMDB_CLUSTER_STATE_UPGRADING: PSMDB_CLUSTER_STATE_UPGRADING is a special case of PSMDB_CLUSTER_STATE_CHANGING.\nIt indicates database cluster upgrade is ongoing.",
                         "type": "string",
                         "default": "PSMDB_CLUSTER_STATE_INVALID",
                         "enum": [
@@ -2675,7 +2690,8 @@
                           "PSMDB_CLUSTER_STATE_READY",
                           "PSMDB_CLUSTER_STATE_FAILED",
                           "PSMDB_CLUSTER_STATE_DELETING",
-                          "PSMDB_CLUSTER_STATE_PAUSED"
+                          "PSMDB_CLUSTER_STATE_PAUSED",
+                          "PSMDB_CLUSTER_STATE_UPGRADING"
                         ],
                         "x-order": 1
                       }
@@ -3407,6 +3423,11 @@
                             }
                           },
                           "x-order": 0
+                        },
+                        "image": {
+                          "description": "Image to use. If it's the same image but with different version tag, upgrade of database cluster to version\nin given tag is triggered. If entirely different image is given, error is returned.",
+                          "type": "string",
+                          "x-order": 1
                         }
                       },
                       "x-order": 1
@@ -3622,10 +3643,20 @@
                     "description": "Cluster represents XtraDB cluster information.\nTODO Do not use inner messages in all public APIs (for consistency).",
                     "type": "object",
                     "properties": {
+                      "available_image": {
+                        "description": "Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.\nIf it's empty, no upgrade is available.",
+                        "type": "string",
+                        "x-order": 6
+                      },
                       "exposed": {
                         "description": "DB cluster accessible outside of K8s cluster.",
                         "type": "boolean",
                         "x-order": 4
+                      },
+                      "installed_image": {
+                        "description": "Installed XtraDB image.",
+                        "type": "string",
+                        "x-order": 5
                       },
                       "name": {
                         "description": "Cluster name.",
@@ -3775,7 +3806,7 @@
                         "x-order": 3
                       },
                       "state": {
-                        "description": "XtraDBClusterState represents XtraDB cluster CR state.\n\n - XTRA_DB_CLUSTER_STATE_INVALID: XTRA_DB_CLUSTER_STATE_INVALID represents unknown state.\n - XTRA_DB_CLUSTER_STATE_CHANGING: XTRA_DB_CLUSTER_STATE_CHANGING represents a cluster being changed.\n - XTRA_DB_CLUSTER_STATE_READY: XTRA_DB_CLUSTER_STATE_READY represents a cluster without pending changes.\n - XTRA_DB_CLUSTER_STATE_FAILED: XTRA_DB_CLUSTER_STATE_FAILED represents a failed cluster.\n - XTRA_DB_CLUSTER_STATE_DELETING: XTRA_DB_CLUSTER_STATE_DELETING represents a cluster being deleting.\n - XTRA_DB_CLUSTER_STATE_PAUSED: XTRA_DB_CLUSTER_STATE_PAUSED represents a cluster is paused.",
+                        "description": "XtraDBClusterState represents XtraDB cluster CR state.\n\n - XTRA_DB_CLUSTER_STATE_INVALID: XTRA_DB_CLUSTER_STATE_INVALID represents unknown state.\n - XTRA_DB_CLUSTER_STATE_CHANGING: XTRA_DB_CLUSTER_STATE_CHANGING represents a cluster being changed.\n - XTRA_DB_CLUSTER_STATE_READY: XTRA_DB_CLUSTER_STATE_READY represents a cluster without pending changes.\n - XTRA_DB_CLUSTER_STATE_FAILED: XTRA_DB_CLUSTER_STATE_FAILED represents a failed cluster.\n - XTRA_DB_CLUSTER_STATE_DELETING: XTRA_DB_CLUSTER_STATE_DELETING represents a cluster being deleting.\n - XTRA_DB_CLUSTER_STATE_PAUSED: XTRA_DB_CLUSTER_STATE_PAUSED represents a cluster is paused.\n - XTRA_DB_CLUSTER_STATE_UPGRADING: XTRA_DB_CLUSTER_STATE_UPGRADING is a special case of XTRA_DB_CLUSTER_STATE_CHANGING.\nIt indicates database cluster upgrade is ongoing.",
                         "type": "string",
                         "default": "XTRA_DB_CLUSTER_STATE_INVALID",
                         "enum": [
@@ -3784,7 +3815,8 @@
                           "XTRA_DB_CLUSTER_STATE_READY",
                           "XTRA_DB_CLUSTER_STATE_FAILED",
                           "XTRA_DB_CLUSTER_STATE_DELETING",
-                          "XTRA_DB_CLUSTER_STATE_PAUSED"
+                          "XTRA_DB_CLUSTER_STATE_PAUSED",
+                          "XTRA_DB_CLUSTER_STATE_UPGRADING"
                         ],
                         "x-order": 1
                       }

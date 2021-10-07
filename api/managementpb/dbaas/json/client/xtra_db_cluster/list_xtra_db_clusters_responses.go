@@ -136,11 +136,20 @@ type ClustersItems0 struct {
 	//  - XTRA_DB_CLUSTER_STATE_FAILED: XTRA_DB_CLUSTER_STATE_FAILED represents a failed cluster.
 	//  - XTRA_DB_CLUSTER_STATE_DELETING: XTRA_DB_CLUSTER_STATE_DELETING represents a cluster being deleting.
 	//  - XTRA_DB_CLUSTER_STATE_PAUSED: XTRA_DB_CLUSTER_STATE_PAUSED represents a cluster is paused.
-	// Enum: [XTRA_DB_CLUSTER_STATE_INVALID XTRA_DB_CLUSTER_STATE_CHANGING XTRA_DB_CLUSTER_STATE_READY XTRA_DB_CLUSTER_STATE_FAILED XTRA_DB_CLUSTER_STATE_DELETING XTRA_DB_CLUSTER_STATE_PAUSED]
+	//  - XTRA_DB_CLUSTER_STATE_UPGRADING: XTRA_DB_CLUSTER_STATE_UPGRADING is a special case of XTRA_DB_CLUSTER_STATE_CHANGING.
+	// It indicates database cluster upgrade is ongoing.
+	// Enum: [XTRA_DB_CLUSTER_STATE_INVALID XTRA_DB_CLUSTER_STATE_CHANGING XTRA_DB_CLUSTER_STATE_READY XTRA_DB_CLUSTER_STATE_FAILED XTRA_DB_CLUSTER_STATE_DELETING XTRA_DB_CLUSTER_STATE_PAUSED XTRA_DB_CLUSTER_STATE_UPGRADING]
 	State *string `json:"state,omitempty"`
 
 	// DB cluster accessible outside of K8s cluster.
 	Exposed bool `json:"exposed,omitempty"`
+
+	// Installed XtraDB image.
+	InstalledImage string `json:"installed_image,omitempty"`
+
+	// Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.
+	// If it's empty, no upgrade is available.
+	AvailableImage string `json:"available_image,omitempty"`
 
 	// operation
 	Operation *ClustersItems0Operation `json:"operation,omitempty"`
@@ -175,7 +184,7 @@ var clustersItems0TypeStatePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["XTRA_DB_CLUSTER_STATE_INVALID","XTRA_DB_CLUSTER_STATE_CHANGING","XTRA_DB_CLUSTER_STATE_READY","XTRA_DB_CLUSTER_STATE_FAILED","XTRA_DB_CLUSTER_STATE_DELETING","XTRA_DB_CLUSTER_STATE_PAUSED"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["XTRA_DB_CLUSTER_STATE_INVALID","XTRA_DB_CLUSTER_STATE_CHANGING","XTRA_DB_CLUSTER_STATE_READY","XTRA_DB_CLUSTER_STATE_FAILED","XTRA_DB_CLUSTER_STATE_DELETING","XTRA_DB_CLUSTER_STATE_PAUSED","XTRA_DB_CLUSTER_STATE_UPGRADING"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -202,6 +211,9 @@ const (
 
 	// ClustersItems0StateXTRADBCLUSTERSTATEPAUSED captures enum value "XTRA_DB_CLUSTER_STATE_PAUSED"
 	ClustersItems0StateXTRADBCLUSTERSTATEPAUSED string = "XTRA_DB_CLUSTER_STATE_PAUSED"
+
+	// ClustersItems0StateXTRADBCLUSTERSTATEUPGRADING captures enum value "XTRA_DB_CLUSTER_STATE_UPGRADING"
+	ClustersItems0StateXTRADBCLUSTERSTATEUPGRADING string = "XTRA_DB_CLUSTER_STATE_UPGRADING"
 )
 
 // prop value enum
