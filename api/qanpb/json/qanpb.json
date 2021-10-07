@@ -806,6 +806,16 @@
                               "description": "Time of point in format RFC3339.",
                               "type": "string",
                               "x-order": 2
+                            },
+                            "top_query": {
+                              "description": "Top Query plain text.",
+                              "type": "string",
+                              "x-order": 63
+                            },
+                            "top_queryid": {
+                              "description": "Top Query ID.",
+                              "type": "string",
+                              "x-order": 62
                             }
                           }
                         },
@@ -1485,6 +1495,16 @@
                         "description": "Time of point in format RFC3339.",
                         "type": "string",
                         "x-order": 2
+                      },
+                      "top_query": {
+                        "description": "Top Query plain text.",
+                        "type": "string",
+                        "x-order": 63
+                      },
+                      "top_queryid": {
+                        "description": "Top Query ID.",
+                        "type": "string",
+                        "x-order": 62
                       }
                     }
                   },

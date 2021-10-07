@@ -832,6 +832,16 @@
                               "type": "number",
                               "format": "float",
                               "x-order": 61
+                            },
+                            "top_queryid": {
+                              "description": "Top Query ID.",
+                              "type": "string",
+                              "x-order": 62
+                            },
+                            "top_query": {
+                              "description": "Top Query plain text.",
+                              "type": "string",
+                              "x-order": 63
                             }
                           }
                         },
@@ -1528,6 +1538,16 @@
                         "type": "number",
                         "format": "float",
                         "x-order": 61
+                      },
+                      "top_queryid": {
+                        "description": "Top Query ID.",
+                        "type": "string",
+                        "x-order": 62
+                      },
+                      "top_query": {
+                        "description": "Top Query plain text.",
+                        "type": "string",
+                        "x-order": 63
                       }
                     }
                   },
