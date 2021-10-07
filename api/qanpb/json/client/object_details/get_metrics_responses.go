@@ -321,6 +321,9 @@ type GetMetricsOKBody struct {
 	// metrics
 	Metrics map[string]MetricsAnon `json:"metrics,omitempty"`
 
+	// text metrics
+	TextMetrics map[string]string `json:"text_metrics,omitempty"`
+
 	// sparkline
 	Sparkline []*SparklineItems0 `json:"sparkline"`
 
@@ -503,9 +506,6 @@ type MetricsAnon struct {
 
 	// percent of total
 	PercentOfTotal float32 `json:"percent_of_total,omitempty"`
-
-	// value
-	Value string `json:"value,omitempty"`
 }
 
 // Validate validates this metrics anon
@@ -731,9 +731,6 @@ type SparklineItems0 struct {
 
 	// Plan time in per seconds.
 	MPlanTimeSumPerSec float32 `json:"m_plan_time_sum_per_sec,omitempty"`
-
-	// Top Query plain text.
-	TopQuery string `json:"top_query,omitempty"`
 }
 
 // Validate validates this sparkline items0
@@ -787,9 +784,6 @@ type TotalsAnon struct {
 
 	// percent of total
 	PercentOfTotal float32 `json:"percent_of_total,omitempty"`
-
-	// value
-	Value string `json:"value,omitempty"`
 }
 
 // Validate validates this totals anon
