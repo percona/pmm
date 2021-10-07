@@ -832,11 +832,6 @@
                               "type": "number",
                               "format": "float",
                               "x-order": 61
-                            },
-                            "top_query": {
-                              "description": "Top Query plain text.",
-                              "type": "string",
-                              "x-order": 62
                             }
                           }
                         },
@@ -1144,6 +1139,10 @@
                         "type": "number",
                         "format": "float",
                         "x-order": 7
+                      },
+                      "value": {
+                        "type": "string",
+                        "x-order": 8
                       }
                     }
                   },
@@ -1526,11 +1525,6 @@
                         "type": "number",
                         "format": "float",
                         "x-order": 61
-                      },
-                      "top_query": {
-                        "description": "Top Query plain text.",
-                        "type": "string",
-                        "x-order": 62
                       }
                     }
                   },
@@ -1581,6 +1575,10 @@
                         "type": "number",
                         "format": "float",
                         "x-order": 7
+                      },
+                      "value": {
+                        "type": "string",
+                        "x-order": 8
                       }
                     }
                   },
