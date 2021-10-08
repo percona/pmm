@@ -31,6 +31,13 @@ service ObjectDetails {
       body: "*"
     };
   }
+  // GetQueryPlan gets query plan and plan id for specific filtering.
+  rpc GetQueryPlan(QueryPlanRequest) returns (QueryPlanReply) {
+    option (google.api.http) = {
+      post: "/v0/qan/ObjectDetails/GetQueryPlan"
+      body: "*"
+    };
+  }
 }
 
 // MetricsRequest defines filtering of metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
@@ -124,4 +131,21 @@ message ObjectDetailsLabelsReply {
 // ListLabelValues is list of label's values.
 message ListLabelValues {
   repeated string values = 1;
+}
+
+// QueryPlanRequest defines filtering of query plans for specific value of
+// dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
+message QueryPlanRequest {
+  google.protobuf.Timestamp period_start_from = 1;
+  google.protobuf.Timestamp period_start_to = 2;
+  // dimension value: ex: queryid - 1D410B4BE5060972.
+  string filter_by = 3;
+  // one of dimension: queryid | host ...
+  string group_by = 4;
+}
+
+// QueryPlanReply contains query plan and plan ID.
+message QueryPlanReply {
+  string plan_id = 1;
+  string query_plan = 2;
 }
