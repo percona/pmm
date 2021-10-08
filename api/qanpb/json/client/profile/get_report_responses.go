@@ -902,6 +902,12 @@ type RowsItems0SparklineItems0 struct {
 
 	// Top Query plain text.
 	TopQuery string `json:"top_query,omitempty"`
+
+	// Plan ID.
+	Planid string `json:"planid,omitempty"`
+
+	// Query Plan plain text.
+	QueryPlan string `json:"query_plan,omitempty"`
 }
 
 // Validate validates this rows items0 sparkline items0

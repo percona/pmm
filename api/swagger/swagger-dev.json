@@ -842,6 +842,16 @@
                               "description": "Top Query plain text.",
                               "type": "string",
                               "x-order": 63
+                            },
+                            "planid": {
+                              "description": "Plan ID.",
+                              "type": "string",
+                              "x-order": 64
+                            },
+                            "query_plan": {
+                              "description": "Query Plan plain text.",
+                              "type": "string",
+                              "x-order": 65
                             }
                           }
                         },
@@ -1548,6 +1558,16 @@
                         "description": "Top Query plain text.",
                         "type": "string",
                         "x-order": 63
+                      },
+                      "planid": {
+                        "description": "Plan ID.",
+                        "type": "string",
+                        "x-order": 64
+                      },
+                      "query_plan": {
+                        "description": "Query Plan plain text.",
+                        "type": "string",
+                        "x-order": 65
                       }
                     }
                   },

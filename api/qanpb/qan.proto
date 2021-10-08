@@ -166,6 +166,10 @@ message Point {
   string top_queryid = 63;
   // Top Query plain text.
   string top_query = 64;
+  // Plan ID.
+  string planid = 65;
+  // Query Plan plain text.
+  string query_plan = 66;
 }
 
 // MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.
