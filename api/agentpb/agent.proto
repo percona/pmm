@@ -350,6 +350,23 @@ message ActionResultRequest {
 // ActionResultResponse is an ServerMessage for ActionResultRequest acceptance.
 message ActionResultResponse {}
 
+// PBMSwitchPITRRequest is a ServerMessage asking pmm-agent to switch PITR pbm feature.
+message PBMSwitchPITRRequest {
+  // DSN for the MongoDB service. May contain connection (dial) timeout.
+  // May contain placeholders for file paths in DSN.
+  string dsn = 1;
+  // Contains files and their contents which can be used in DSN.
+  TextFiles text_files = 2;
+  // Specifies if PITR should be enabled or disabled.
+  bool enabled = 3;
+}
+
+// PBMSwitchPITRResponse is an AgentMessage for PBMSwitchPITRRequest success result.
+message PBMSwitchPITRResponse {
+  // Error message.
+  string error = 1;
+}
+
 // CheckConnectionRequest is a ServerMessage asking pmm-agent to check connection with Service.
 message CheckConnectionRequest {
   // Service type.
@@ -441,6 +458,8 @@ message StartJobRequest {
     string socket = 5;
     // Backup name.
     string name = 6;
+    // Enable Point-in-Time recovery feature.
+    bool enable_pitr = 7;
     // Backup target location.
     oneof location_config {
       S3LocationConfig s3_config = 10;
@@ -460,6 +479,8 @@ message StartJobRequest {
     string socket = 5;
     // Backup name.
     string name = 6;
+    // Point-in-Time recovery timestamp.
+    google.protobuf.Timestamp pitr_timestamp = 7;
     // Where backup is stored.
     oneof location_config {
       S3LocationConfig s3_config = 10;
@@ -526,11 +547,18 @@ message JobProgress {
   // MySQLRestoreBackup contains restore backup job status update.
   message MySQLRestoreBackup {}
 
+  // Logs contains generic logs from job.
+  message Logs {
+    uint32 chunk_id = 1;
+    string data = 2;
+    bool done = 3;
+  }
   string job_id = 1;
   google.protobuf.Timestamp timestamp = 2;
   oneof result {
     MySQLBackup mysql_backup = 11;
     MySQLRestoreBackup mysql_restore_backup = 12;
+    Logs logs = 20;
   }
 }
 
@@ -599,6 +627,7 @@ message AgentMessage {
     JobResult job_result = 16;
     JobProgress job_progress = 17;
     GetVersionsResponse get_versions = 18;
+    PBMSwitchPITRResponse pbm_switch_pitr = 19;
   }
 }
 
@@ -628,6 +657,7 @@ message ServerMessage {
     StopJobRequest stop_job = 14;
     JobStatusRequest job_status = 15;
     GetVersionsRequest get_versions = 16;
+    PBMSwitchPITRRequest pbm_switch_pitr = 17;
   }
 }
 

@@ -156,6 +156,10 @@ type ArtifactsItems0 struct {
 	// Artifact creation time.
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"created_at,omitempty"`
+
+	// BackupMode specifies backup mode.
+	// Enum: [BACKUP_MODE_INVALID SNAPSHOT INCREMENTAL PITR]
+	Mode *string `json:"mode,omitempty"`
 }
 
 // Validate validates this artifacts items0
@@ -171,6 +175,10 @@ func (o *ArtifactsItems0) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateCreatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -294,6 +302,55 @@ func (o *ArtifactsItems0) validateCreatedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("created_at", "body", "date-time", o.CreatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var artifactsItems0TypeModePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["BACKUP_MODE_INVALID","SNAPSHOT","INCREMENTAL","PITR"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		artifactsItems0TypeModePropEnum = append(artifactsItems0TypeModePropEnum, v)
+	}
+}
+
+const (
+
+	// ArtifactsItems0ModeBACKUPMODEINVALID captures enum value "BACKUP_MODE_INVALID"
+	ArtifactsItems0ModeBACKUPMODEINVALID string = "BACKUP_MODE_INVALID"
+
+	// ArtifactsItems0ModeSNAPSHOT captures enum value "SNAPSHOT"
+	ArtifactsItems0ModeSNAPSHOT string = "SNAPSHOT"
+
+	// ArtifactsItems0ModeINCREMENTAL captures enum value "INCREMENTAL"
+	ArtifactsItems0ModeINCREMENTAL string = "INCREMENTAL"
+
+	// ArtifactsItems0ModePITR captures enum value "PITR"
+	ArtifactsItems0ModePITR string = "PITR"
+)
+
+// prop value enum
+func (o *ArtifactsItems0) validateModeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, artifactsItems0TypeModePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ArtifactsItems0) validateMode(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Mode) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateModeEnum("mode", "body", *o.Mode); err != nil {
 		return err
 	}
 
