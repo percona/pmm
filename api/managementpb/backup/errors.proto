@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package backup.v1beta1;
+
+option go_package = "api/managementpb/backup;backupv1beta1";
+
+// ErrorCode is a set of specific errors that are not present in the standard set of errors
+// and returned in the details field of the response.
+enum ErrorCode {
+  ERROR_CODE_INVALID = 0;
+  ERROR_CODE_XTRABACKUP_NOT_INSTALLED = 1;
+  ERROR_CODE_INVALID_XTRABACKUP = 2;
+  ERROR_CODE_INCOMPATIBLE_XTRABACKUP = 3;
+  ERROR_CODE_INCOMPATIBLE_TARGET_MYSQL = 4;
+}
+
+// Error represents error message returned in the details field in the response.
+message Error {
+  ErrorCode code = 1;
+}
