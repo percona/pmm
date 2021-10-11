@@ -17242,456 +17242,6 @@
         }
       }
     },
-    "/v1/management/DBaaS/DBClusters/Delete": {
-      "post": {
-        "tags": [
-          "DBCluster"
-        ],
-        "summary": "DeleteDBCluster deletes DB cluster.",
-        "operationId": "DeleteDBCluster",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "kubernetes_cluster_name": {
-                  "description": "Kubernetes cluster name.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "name": {
-                  "description": "DB cluster name.",
-                  "type": "string",
-                  "x-order": 1
-                },
-                "cluster_type": {
-                  "description": "DBClusterType represents database cluster type.\n\n - DB_CLUSTER_TYPE_INVALID: DB_CLUSTER_TYPE_INVALID represents unknown cluster type.\n - DB_CLUSTER_TYPE_PXC: DB_CLUSTER_TYPE_PXC represents pxc cluster type.\n - DB_CLUSTER_TYPE_PSMDB: DB_CLUSTER_TYPE_PXC represents psmdb cluster type.",
-                  "type": "string",
-                  "default": "DB_CLUSTER_TYPE_INVALID",
-                  "enum": [
-                    "DB_CLUSTER_TYPE_INVALID",
-                    "DB_CLUSTER_TYPE_PXC",
-                    "DB_CLUSTER_TYPE_PSMDB"
-                  ],
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 1
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 2
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "type_url": {
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
-                      }
-                    }
-                  },
-                  "x-order": 3
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/management/DBaaS/DBClusters/List": {
-      "post": {
-        "tags": [
-          "DBCluster"
-        ],
-        "summary": "ListDBClusters returns a list of DB clusters.",
-        "operationId": "ListDBClusters",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "kubernetes_cluster_name": {
-                  "description": "Kubernetes cluster name.",
-                  "type": "string",
-                  "x-order": 0
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "pxc_clusters": {
-                  "description": "PXC clusters information.",
-                  "type": "array",
-                  "items": {
-                    "description": "PXCCluster represents PXC cluster information.",
-                    "type": "object",
-                    "properties": {
-                      "name": {
-                        "description": "Cluster name.",
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "state": {
-                        "description": "PXCClusterState represents PXC cluster CR state.\n\n - PXC_CLUSTER_STATE_INVALID: PXC_CLUSTER_STATE_INVALID represents unknown state.\n - PXC_CLUSTER_STATE_CHANGING: PXC_CLUSTER_STATE_CHANGING represents a cluster being changed.\n - PXC_CLUSTER_STATE_READY: PXC_CLUSTER_STATE_READY represents a cluster without pending changes.\n - PXC_CLUSTER_STATE_FAILED: PXC_CLUSTER_STATE_FAILED represents a failed cluster.\n - PXC_CLUSTER_STATE_DELETING: PXC_CLUSTER_STATE_DELETING represents a cluster being deleting.\n - PXC_CLUSTER_STATE_PAUSED: PXC_CLUSTER_STATE_PAUSED represents a cluster is paused.",
-                        "type": "string",
-                        "default": "PXC_CLUSTER_STATE_INVALID",
-                        "enum": [
-                          "PXC_CLUSTER_STATE_INVALID",
-                          "PXC_CLUSTER_STATE_CHANGING",
-                          "PXC_CLUSTER_STATE_READY",
-                          "PXC_CLUSTER_STATE_FAILED",
-                          "PXC_CLUSTER_STATE_DELETING",
-                          "PXC_CLUSTER_STATE_PAUSED"
-                        ],
-                        "x-order": 1
-                      },
-                      "operation": {
-                        "description": "RunningOperation respresents a long-running operation.",
-                        "type": "object",
-                        "properties": {
-                          "finished_steps": {
-                            "description": "Finished steps of the operaion; can decrease or increase compared to the previous value.",
-                            "type": "integer",
-                            "format": "int32",
-                            "x-order": 0
-                          },
-                          "message": {
-                            "description": "Text describing the current operation progress step.",
-                            "type": "string",
-                            "x-order": 1
-                          },
-                          "total_steps": {
-                            "description": "Total steps needed to finish the operation; can decrease or increase compared to the previous value.",
-                            "type": "integer",
-                            "format": "int32",
-                            "x-order": 2
-                          }
-                        },
-                        "x-order": 2
-                      },
-                      "params": {
-                        "description": "PXCClusterParams represents PXC cluster parameters that can be updated.",
-                        "type": "object",
-                        "properties": {
-                          "cluster_size": {
-                            "description": "Cluster size.",
-                            "type": "integer",
-                            "format": "int32",
-                            "x-order": 0
-                          },
-                          "pxc": {
-                            "description": "PXC container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
-                            "type": "object",
-                            "properties": {
-                              "image": {
-                                "description": "Docker image used for PXC.",
-                                "type": "string",
-                                "x-order": 0
-                              },
-                              "compute_resources": {
-                                "description": "ComputeResources represents container computer resources requests or limits.",
-                                "type": "object",
-                                "properties": {
-                                  "cpu_m": {
-                                    "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
-                                    "type": "integer",
-                                    "format": "int32",
-                                    "x-order": 0
-                                  },
-                                  "memory_bytes": {
-                                    "description": "Memory in bytes.",
-                                    "type": "string",
-                                    "format": "int64",
-                                    "x-order": 1
-                                  }
-                                },
-                                "x-order": 1
-                              },
-                              "disk_size": {
-                                "description": "Disk size in bytes.",
-                                "type": "string",
-                                "format": "int64",
-                                "x-order": 2
-                              }
-                            },
-                            "x-order": 1
-                          },
-                          "proxysql": {
-                            "description": "ProxySQL container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
-                            "type": "object",
-                            "properties": {
-                              "image": {
-                                "description": "Docker image used for ProxySQL.",
-                                "type": "string",
-                                "x-order": 0
-                              },
-                              "compute_resources": {
-                                "description": "ComputeResources represents container computer resources requests or limits.",
-                                "type": "object",
-                                "properties": {
-                                  "cpu_m": {
-                                    "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
-                                    "type": "integer",
-                                    "format": "int32",
-                                    "x-order": 0
-                                  },
-                                  "memory_bytes": {
-                                    "description": "Memory in bytes.",
-                                    "type": "string",
-                                    "format": "int64",
-                                    "x-order": 1
-                                  }
-                                },
-                                "x-order": 1
-                              },
-                              "disk_size": {
-                                "description": "Disk size in bytes.",
-                                "type": "string",
-                                "format": "int64",
-                                "x-order": 2
-                              }
-                            },
-                            "x-order": 2
-                          },
-                          "haproxy": {
-                            "description": "HAProxy container parameters.\nNOTE: HAProxy does not need disk size as ProxySQL does because the container does not require it.",
-                            "type": "object",
-                            "properties": {
-                              "image": {
-                                "description": "Docker image used for HAProxy.",
-                                "type": "string",
-                                "x-order": 0
-                              },
-                              "compute_resources": {
-                                "description": "ComputeResources represents container computer resources requests or limits.",
-                                "type": "object",
-                                "properties": {
-                                  "cpu_m": {
-                                    "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
-                                    "type": "integer",
-                                    "format": "int32",
-                                    "x-order": 0
-                                  },
-                                  "memory_bytes": {
-                                    "description": "Memory in bytes.",
-                                    "type": "string",
-                                    "format": "int64",
-                                    "x-order": 1
-                                  }
-                                },
-                                "x-order": 1
-                              }
-                            },
-                            "x-order": 3
-                          }
-                        },
-                        "x-order": 3
-                      },
-                      "exposed": {
-                        "description": "DB cluster accessible outside of K8s cluster.",
-                        "type": "boolean",
-                        "x-order": 4
-                      }
-                    }
-                  },
-                  "x-order": 0
-                },
-                "psmdb_clusters": {
-                  "description": "PSMDB clusters information.",
-                  "type": "array",
-                  "items": {
-                    "description": "PSMDBCluster represents PSMDB cluster information.",
-                    "type": "object",
-                    "properties": {
-                      "name": {
-                        "description": "Cluster name.",
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "state": {
-                        "description": "PSMDBClusterState represents PSMDB cluster CR state.\n\n - PSMDB_CLUSTER_STATE_INVALID: PSMDB_CLUSTER_STATE_INVALID represents unknown state.\n - PSMDB_CLUSTER_STATE_CHANGING: PSMDB_CLUSTER_STATE_CHANGING represents a cluster being changed.\n - PSMDB_CLUSTER_STATE_READY: PSMDB_CLUSTER_STATE_READY represents a cluster without pending changes.\n - PSMDB_CLUSTER_STATE_FAILED: PSMDB_CLUSTER_STATE_FAILED represents a failed cluster.\n - PSMDB_CLUSTER_STATE_DELETING: PSMDB_CLUSTER_STATE_DELETING represents a cluster being deleting.\n - PSMDB_CLUSTER_STATE_PAUSED: PSMDB_CLUSTER_STATE_PAUSED represents a cluster is paused.",
-                        "type": "string",
-                        "default": "PSMDB_CLUSTER_STATE_INVALID",
-                        "enum": [
-                          "PSMDB_CLUSTER_STATE_INVALID",
-                          "PSMDB_CLUSTER_STATE_CHANGING",
-                          "PSMDB_CLUSTER_STATE_READY",
-                          "PSMDB_CLUSTER_STATE_FAILED",
-                          "PSMDB_CLUSTER_STATE_DELETING",
-                          "PSMDB_CLUSTER_STATE_PAUSED"
-                        ],
-                        "x-order": 1
-                      },
-                      "operation": {
-                        "description": "RunningOperation respresents a long-running operation.",
-                        "type": "object",
-                        "properties": {
-                          "finished_steps": {
-                            "description": "Finished steps of the operaion; can decrease or increase compared to the previous value.",
-                            "type": "integer",
-                            "format": "int32",
-                            "x-order": 0
-                          },
-                          "message": {
-                            "description": "Text describing the current operation progress step.",
-                            "type": "string",
-                            "x-order": 1
-                          },
-                          "total_steps": {
-                            "description": "Total steps needed to finish the operation; can decrease or increase compared to the previous value.",
-                            "type": "integer",
-                            "format": "int32",
-                            "x-order": 2
-                          }
-                        },
-                        "x-order": 2
-                      },
-                      "params": {
-                        "description": "PSMDBClusterParams represents PSMDB cluster parameters that can be updated.",
-                        "type": "object",
-                        "properties": {
-                          "cluster_size": {
-                            "description": "Cluster size.",
-                            "type": "integer",
-                            "format": "int32",
-                            "x-order": 0
-                          },
-                          "replicaset": {
-                            "description": "ReplicaSet container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
-                            "type": "object",
-                            "properties": {
-                              "compute_resources": {
-                                "description": "ComputeResources represents container computer resources requests or limits.",
-                                "type": "object",
-                                "properties": {
-                                  "cpu_m": {
-                                    "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
-                                    "type": "integer",
-                                    "format": "int32",
-                                    "x-order": 0
-                                  },
-                                  "memory_bytes": {
-                                    "description": "Memory in bytes.",
-                                    "type": "string",
-                                    "format": "int64",
-                                    "x-order": 1
-                                  }
-                                },
-                                "x-order": 0
-                              },
-                              "disk_size": {
-                                "description": "Disk size in bytes.",
-                                "type": "string",
-                                "format": "int64",
-                                "x-order": 1
-                              }
-                            },
-                            "x-order": 1
-                          },
-                          "image": {
-                            "description": "Docker image used for PSMDB.",
-                            "type": "string",
-                            "x-order": 2
-                          }
-                        },
-                        "x-order": 3
-                      },
-                      "exposed": {
-                        "description": "DB cluster accessible outside of K8s cluster.",
-                        "type": "boolean",
-                        "x-order": 4
-                      }
-                    }
-                  },
-                  "x-order": 1
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 1
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 2
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "type_url": {
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
-                      }
-                    }
-                  },
-                  "x-order": 3
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v1/management/DBaaS/GetLogs": {
       "post": {
         "tags": [
@@ -17927,7 +17477,7 @@
                         "description": "Operators contains list of operators installed in Kubernetes cluster.",
                         "type": "object",
                         "properties": {
-                          "pxc": {
+                          "xtradb": {
                             "description": "Operator contains all information about operator installed in Kubernetes cluster.",
                             "type": "object",
                             "properties": {
@@ -18327,7 +17877,7 @@
     "/v1/management/DBaaS/PSMDBCluster/Create": {
       "post": {
         "tags": [
-          "PSMDBClusters"
+          "PSMDBCluster"
         ],
         "summary": "CreatePSMDBCluster creates a new PSMDB cluster.",
         "operationId": "CreatePSMDBCluster",
@@ -18457,10 +18007,88 @@
         }
       }
     },
+    "/v1/management/DBaaS/PSMDBCluster/Delete": {
+      "post": {
+        "tags": [
+          "PSMDBCluster"
+        ],
+        "summary": "DeletePSMDBCluster deletes PSMDB cluster.",
+        "operationId": "DeletePSMDBCluster",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "kubernetes_cluster_name": {
+                  "description": "Kubernetes cluster name.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "name": {
+                  "description": "PSMDB cluster name.",
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/DBaaS/PSMDBCluster/Resources/Get": {
       "post": {
         "tags": [
-          "PSMDBClusters"
+          "PSMDBCluster"
         ],
         "summary": "GetPSMDBClusterResources returns expected resources to be consumed by the cluster.",
         "operationId": "GetPSMDBClusterResources",
@@ -18605,7 +18233,7 @@
     "/v1/management/DBaaS/PSMDBCluster/Restart": {
       "post": {
         "tags": [
-          "PSMDBClusters"
+          "PSMDBCluster"
         ],
         "summary": "RestartPSMDBCluster restarts PSMDB cluster.",
         "operationId": "RestartPSMDBCluster",
@@ -18683,7 +18311,7 @@
     "/v1/management/DBaaS/PSMDBCluster/Update": {
       "post": {
         "tags": [
-          "PSMDBClusters"
+          "PSMDBCluster"
         ],
         "summary": "UpdatePSMDBCluster updates existing PSMDB cluster.",
         "operationId": "UpdatePSMDBCluster",
@@ -18750,6 +18378,11 @@
                       "description": "Resume cluster `pause: false`.",
                       "type": "boolean",
                       "x-order": 3
+                    },
+                    "image": {
+                      "description": "PSMDB image to use. If it's the same image but with different version tag, upgrade of database cluster to version\nin given tag is triggered. If entirely different image is given, error is returned.",
+                      "type": "string",
+                      "x-order": 4
                     }
                   },
                   "x-order": 2
@@ -18810,7 +18443,7 @@
     "/v1/management/DBaaS/PSMDBClusters/GetCredentials": {
       "post": {
         "tags": [
-          "PSMDBClusters"
+          "PSMDBCluster"
         ],
         "summary": "GetPSMDBClusterCredentials returns a PSMDB cluster credentials by cluster name.",
         "operationId": "GetPSMDBClusterCredentials",
@@ -18920,13 +18553,208 @@
         }
       }
     },
-    "/v1/management/DBaaS/PXCCluster/Create": {
+    "/v1/management/DBaaS/PSMDBClusters/List": {
       "post": {
         "tags": [
-          "PXCClusters"
+          "PSMDBCluster"
         ],
-        "summary": "CreatePXCCluster creates a new PXC cluster.",
-        "operationId": "CreatePXCCluster",
+        "summary": "ListPSMDBClusters returns a list of PSMDB clusters.",
+        "operationId": "ListPSMDBClusters",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "kubernetes_cluster_name": {
+                  "description": "Kubernetes cluster name.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "clusters": {
+                  "description": "PSMDB clusters information.",
+                  "type": "array",
+                  "items": {
+                    "description": "Cluster represents PSMDB cluster information.\nTODO Do not use inner messages in all public APIs (for consistency).",
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "description": "Cluster name.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "state": {
+                        "description": "PSMDBClusterState represents PSMDB cluster CR state.\n\n - PSMDB_CLUSTER_STATE_INVALID: PSMDB_CLUSTER_STATE_INVALID represents unknown state.\n - PSMDB_CLUSTER_STATE_CHANGING: PSMDB_CLUSTER_STATE_CHANGING represents a cluster being changed.\n - PSMDB_CLUSTER_STATE_READY: PSMDB_CLUSTER_STATE_READY represents a cluster without pending changes.\n - PSMDB_CLUSTER_STATE_FAILED: PSMDB_CLUSTER_STATE_FAILED represents a failed cluster.\n - PSMDB_CLUSTER_STATE_DELETING: PSMDB_CLUSTER_STATE_DELETING represents a cluster being deleting.\n - PSMDB_CLUSTER_STATE_PAUSED: PSMDB_CLUSTER_STATE_PAUSED represents a cluster is paused.\n - PSMDB_CLUSTER_STATE_UPGRADING: PSMDB_CLUSTER_STATE_UPGRADING is a special case of PSMDB_CLUSTER_STATE_CHANGING.\nIt indicates database cluster upgrade is ongoing.",
+                        "type": "string",
+                        "default": "PSMDB_CLUSTER_STATE_INVALID",
+                        "enum": [
+                          "PSMDB_CLUSTER_STATE_INVALID",
+                          "PSMDB_CLUSTER_STATE_CHANGING",
+                          "PSMDB_CLUSTER_STATE_READY",
+                          "PSMDB_CLUSTER_STATE_FAILED",
+                          "PSMDB_CLUSTER_STATE_DELETING",
+                          "PSMDB_CLUSTER_STATE_PAUSED",
+                          "PSMDB_CLUSTER_STATE_UPGRADING"
+                        ],
+                        "x-order": 1
+                      },
+                      "operation": {
+                        "description": "RunningOperation respresents a long-running operation.",
+                        "type": "object",
+                        "properties": {
+                          "finished_steps": {
+                            "description": "Finished steps of the operaion; can decrease or increase compared to the previous value.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 0
+                          },
+                          "message": {
+                            "description": "Text describing the current operation progress step.",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "total_steps": {
+                            "description": "Total steps needed to finish the operation; can decrease or increase compared to the previous value.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 2
+                          }
+                        },
+                        "x-order": 2
+                      },
+                      "params": {
+                        "description": "PSMDBClusterParams represents PSMDB cluster parameters that can be updated.",
+                        "type": "object",
+                        "properties": {
+                          "cluster_size": {
+                            "description": "Cluster size.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 0
+                          },
+                          "replicaset": {
+                            "description": "ReplicaSet container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
+                            "type": "object",
+                            "properties": {
+                              "compute_resources": {
+                                "description": "ComputeResources represents container computer resources requests or limits.",
+                                "type": "object",
+                                "properties": {
+                                  "cpu_m": {
+                                    "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
+                                    "type": "integer",
+                                    "format": "int32",
+                                    "x-order": 0
+                                  },
+                                  "memory_bytes": {
+                                    "description": "Memory in bytes.",
+                                    "type": "string",
+                                    "format": "int64",
+                                    "x-order": 1
+                                  }
+                                },
+                                "x-order": 0
+                              },
+                              "disk_size": {
+                                "description": "Disk size in bytes.",
+                                "type": "string",
+                                "format": "int64",
+                                "x-order": 1
+                              }
+                            },
+                            "x-order": 1
+                          },
+                          "image": {
+                            "description": "Docker image used for PSMDB.",
+                            "type": "string",
+                            "x-order": 2
+                          }
+                        },
+                        "x-order": 3
+                      },
+                      "exposed": {
+                        "description": "DB cluster accessible outside of K8s cluster.",
+                        "type": "boolean",
+                        "x-order": 4
+                      },
+                      "installed_image": {
+                        "description": "Installed PSMDB image.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "available_image": {
+                        "description": "Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.\nIf it's empty, no upgrade is available.",
+                        "type": "string",
+                        "x-order": 6
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/DBaaS/XtraDBCluster/Create": {
+      "post": {
+        "tags": [
+          "XtraDBCluster"
+        ],
+        "summary": "CreateXtraDBCluster creates a new XtraDB cluster.",
+        "operationId": "CreateXtraDBCluster",
         "parameters": [
           {
             "name": "body",
@@ -18942,11 +18770,11 @@
                 },
                 "name": {
                   "type": "string",
-                  "title": "PXC cluster name.\na DNS-1035 label must consist of lower case alphanumeric characters or '-',\nstart with an alphabetic character, and end with an alphanumeric character\n(e.g. 'my-name',  or 'abc-123', regex used for validation is '[a-z]([-a-z0-9]*[a-z0-9])?')",
+                  "title": "XtraDB cluster name.\na DNS-1035 label must consist of lower case alphanumeric characters or '-',\nstart with an alphabetic character, and end with an alphanumeric character\n(e.g. 'my-name',  or 'abc-123', regex used for validation is '[a-z]([-a-z0-9]*[a-z0-9])?')",
                   "x-order": 1
                 },
                 "params": {
-                  "description": "PXCClusterParams represents PXC cluster parameters that can be updated.",
+                  "description": "XtraDBClusterParams represents XtraDB cluster parameters that can be updated.",
                   "type": "object",
                   "properties": {
                     "cluster_size": {
@@ -19121,13 +18949,91 @@
         }
       }
     },
-    "/v1/management/DBaaS/PXCCluster/Resources/Get": {
+    "/v1/management/DBaaS/XtraDBCluster/Delete": {
       "post": {
         "tags": [
-          "PXCClusters"
+          "XtraDBCluster"
         ],
-        "summary": "GetPXCClusterResources returns expected resources to be consumed by the cluster.",
-        "operationId": "GetPXCClusterResources",
+        "summary": "DeleteXtraDBCluster deletes XtraDB cluster.",
+        "operationId": "DeleteXtraDBCluster",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "kubernetes_cluster_name": {
+                  "description": "Kubernetes cluster name.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "name": {
+                  "description": "XtraDB cluster name.",
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/DBaaS/XtraDBCluster/Resources/Get": {
+      "post": {
+        "tags": [
+          "XtraDBCluster"
+        ],
+        "summary": "GetXtraDBClusterResources returns expected resources to be consumed by the cluster.",
+        "operationId": "GetXtraDBClusterResources",
         "parameters": [
           {
             "name": "body",
@@ -19137,7 +19043,7 @@
               "type": "object",
               "properties": {
                 "params": {
-                  "description": "PXCClusterParams represents PXC cluster parameters that can be updated.",
+                  "description": "XtraDBClusterParams represents XtraDB cluster parameters that can be updated.",
                   "type": "object",
                   "properties": {
                     "cluster_size": {
@@ -19334,13 +19240,13 @@
         }
       }
     },
-    "/v1/management/DBaaS/PXCCluster/Restart": {
+    "/v1/management/DBaaS/XtraDBCluster/Restart": {
       "post": {
         "tags": [
-          "PXCClusters"
+          "XtraDBCluster"
         ],
-        "summary": "RestartPXCCluster restarts PXC cluster.",
-        "operationId": "RestartPXCCluster",
+        "summary": "RestartXtraDBCluster restarts XtraDB cluster.",
+        "operationId": "RestartXtraDBCluster",
         "parameters": [
           {
             "name": "body",
@@ -19355,7 +19261,7 @@
                   "x-order": 0
                 },
                 "name": {
-                  "description": "PXC cluster name.",
+                  "description": "XtraDB cluster name.",
                   "type": "string",
                   "x-order": 1
                 }
@@ -19412,13 +19318,13 @@
         }
       }
     },
-    "/v1/management/DBaaS/PXCCluster/Update": {
+    "/v1/management/DBaaS/XtraDBCluster/Update": {
       "post": {
         "tags": [
-          "PXCClusters"
+          "XtraDBCluster"
         ],
-        "summary": "UpdatePXCCluster updates existing PXC cluster.",
-        "operationId": "UpdatePXCCluster",
+        "summary": "UpdateXtraDBCluster updates existing XtraDB cluster.",
+        "operationId": "UpdateXtraDBCluster",
         "parameters": [
           {
             "name": "body",
@@ -19433,12 +19339,12 @@
                   "x-order": 0
                 },
                 "name": {
-                  "description": "PXC cluster name.",
+                  "description": "XtraDB cluster name.",
                   "type": "string",
                   "x-order": 1
                 },
                 "params": {
-                  "description": "UpdatePXCClusterParams represents PXC cluster parameters that can be updated.",
+                  "description": "UpdateXtraDBClusterParams represents XtraDB cluster parameters that can be updated.",
                   "type": "object",
                   "properties": {
                     "cluster_size": {
@@ -19469,6 +19375,11 @@
                             }
                           },
                           "x-order": 0
+                        },
+                        "image": {
+                          "description": "Image to use. If it's the same image but with different version tag, upgrade of database cluster to version\nin given tag is triggered. If entirely different image is given, error is returned.",
+                          "type": "string",
+                          "x-order": 1
                         }
                       },
                       "x-order": 1
@@ -19591,13 +19502,13 @@
         }
       }
     },
-    "/v1/management/DBaaS/PXCClusters/GetCredentials": {
+    "/v1/management/DBaaS/XtraDBClusters/GetCredentials": {
       "post": {
         "tags": [
-          "PXCClusters"
+          "XtraDBCluster"
         ],
-        "summary": "GetPXCClusterCredentials returns a PXC cluster credentials by cluster name.",
-        "operationId": "GetPXCClusterCredentials",
+        "summary": "GetXtraDBClusterCredentials returns a XtraDB cluster credentials by cluster name.",
+        "operationId": "GetXtraDBClusterCredentials",
         "parameters": [
           {
             "name": "body",
@@ -19612,7 +19523,7 @@
                   "x-order": 0
                 },
                 "name": {
-                  "description": "PXC cluster name.",
+                  "description": "XtraDB cluster name.",
                   "type": "string",
                   "x-order": 1
                 }
@@ -19627,7 +19538,7 @@
               "type": "object",
               "properties": {
                 "connection_credentials": {
-                  "description": "PXCClusterConnectionCredentials is cluster connection credentials.",
+                  "description": "XtraDBClusterConnectionCredentials is cluster connection credentials.",
                   "type": "object",
                   "properties": {
                     "username": {
@@ -19650,6 +19561,269 @@
                       "type": "integer",
                       "format": "int32",
                       "x-order": 3
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/DBaaS/XtraDBClusters/List": {
+      "post": {
+        "tags": [
+          "XtraDBCluster"
+        ],
+        "summary": "ListXtraDBClusters returns a list of XtraDB clusters.",
+        "operationId": "ListXtraDBClusters",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "kubernetes_cluster_name": {
+                  "description": "Kubernetes cluster name.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "clusters": {
+                  "description": "XtraDB clusters information.",
+                  "type": "array",
+                  "items": {
+                    "description": "Cluster represents XtraDB cluster information.\nTODO Do not use inner messages in all public APIs (for consistency).",
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "description": "Cluster name.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "state": {
+                        "description": "XtraDBClusterState represents XtraDB cluster CR state.\n\n - XTRA_DB_CLUSTER_STATE_INVALID: XTRA_DB_CLUSTER_STATE_INVALID represents unknown state.\n - XTRA_DB_CLUSTER_STATE_CHANGING: XTRA_DB_CLUSTER_STATE_CHANGING represents a cluster being changed.\n - XTRA_DB_CLUSTER_STATE_READY: XTRA_DB_CLUSTER_STATE_READY represents a cluster without pending changes.\n - XTRA_DB_CLUSTER_STATE_FAILED: XTRA_DB_CLUSTER_STATE_FAILED represents a failed cluster.\n - XTRA_DB_CLUSTER_STATE_DELETING: XTRA_DB_CLUSTER_STATE_DELETING represents a cluster being deleting.\n - XTRA_DB_CLUSTER_STATE_PAUSED: XTRA_DB_CLUSTER_STATE_PAUSED represents a cluster is paused.\n - XTRA_DB_CLUSTER_STATE_UPGRADING: XTRA_DB_CLUSTER_STATE_UPGRADING is a special case of XTRA_DB_CLUSTER_STATE_CHANGING.\nIt indicates database cluster upgrade is ongoing.",
+                        "type": "string",
+                        "default": "XTRA_DB_CLUSTER_STATE_INVALID",
+                        "enum": [
+                          "XTRA_DB_CLUSTER_STATE_INVALID",
+                          "XTRA_DB_CLUSTER_STATE_CHANGING",
+                          "XTRA_DB_CLUSTER_STATE_READY",
+                          "XTRA_DB_CLUSTER_STATE_FAILED",
+                          "XTRA_DB_CLUSTER_STATE_DELETING",
+                          "XTRA_DB_CLUSTER_STATE_PAUSED",
+                          "XTRA_DB_CLUSTER_STATE_UPGRADING"
+                        ],
+                        "x-order": 1
+                      },
+                      "operation": {
+                        "description": "RunningOperation respresents a long-running operation.",
+                        "type": "object",
+                        "properties": {
+                          "finished_steps": {
+                            "description": "Finished steps of the operaion; can decrease or increase compared to the previous value.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 0
+                          },
+                          "message": {
+                            "description": "Text describing the current operation progress step.",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "total_steps": {
+                            "description": "Total steps needed to finish the operation; can decrease or increase compared to the previous value.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 2
+                          }
+                        },
+                        "x-order": 2
+                      },
+                      "params": {
+                        "description": "XtraDBClusterParams represents XtraDB cluster parameters that can be updated.",
+                        "type": "object",
+                        "properties": {
+                          "cluster_size": {
+                            "description": "Cluster size.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 0
+                          },
+                          "pxc": {
+                            "description": "PXC container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
+                            "type": "object",
+                            "properties": {
+                              "image": {
+                                "description": "Docker image used for PXC.",
+                                "type": "string",
+                                "x-order": 0
+                              },
+                              "compute_resources": {
+                                "description": "ComputeResources represents container computer resources requests or limits.",
+                                "type": "object",
+                                "properties": {
+                                  "cpu_m": {
+                                    "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
+                                    "type": "integer",
+                                    "format": "int32",
+                                    "x-order": 0
+                                  },
+                                  "memory_bytes": {
+                                    "description": "Memory in bytes.",
+                                    "type": "string",
+                                    "format": "int64",
+                                    "x-order": 1
+                                  }
+                                },
+                                "x-order": 1
+                              },
+                              "disk_size": {
+                                "description": "Disk size in bytes.",
+                                "type": "string",
+                                "format": "int64",
+                                "x-order": 2
+                              }
+                            },
+                            "x-order": 1
+                          },
+                          "proxysql": {
+                            "description": "ProxySQL container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
+                            "type": "object",
+                            "properties": {
+                              "image": {
+                                "description": "Docker image used for ProxySQL.",
+                                "type": "string",
+                                "x-order": 0
+                              },
+                              "compute_resources": {
+                                "description": "ComputeResources represents container computer resources requests or limits.",
+                                "type": "object",
+                                "properties": {
+                                  "cpu_m": {
+                                    "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
+                                    "type": "integer",
+                                    "format": "int32",
+                                    "x-order": 0
+                                  },
+                                  "memory_bytes": {
+                                    "description": "Memory in bytes.",
+                                    "type": "string",
+                                    "format": "int64",
+                                    "x-order": 1
+                                  }
+                                },
+                                "x-order": 1
+                              },
+                              "disk_size": {
+                                "description": "Disk size in bytes.",
+                                "type": "string",
+                                "format": "int64",
+                                "x-order": 2
+                              }
+                            },
+                            "x-order": 2
+                          },
+                          "haproxy": {
+                            "description": "HAProxy container parameters.\nNOTE: HAProxy does not need disk size as ProxySQL does because the container does not require it.",
+                            "type": "object",
+                            "properties": {
+                              "image": {
+                                "description": "Docker image used for HAProxy.",
+                                "type": "string",
+                                "x-order": 0
+                              },
+                              "compute_resources": {
+                                "description": "ComputeResources represents container computer resources requests or limits.",
+                                "type": "object",
+                                "properties": {
+                                  "cpu_m": {
+                                    "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
+                                    "type": "integer",
+                                    "format": "int32",
+                                    "x-order": 0
+                                  },
+                                  "memory_bytes": {
+                                    "description": "Memory in bytes.",
+                                    "type": "string",
+                                    "format": "int64",
+                                    "x-order": 1
+                                  }
+                                },
+                                "x-order": 1
+                              }
+                            },
+                            "x-order": 3
+                          }
+                        },
+                        "x-order": 3
+                      },
+                      "exposed": {
+                        "description": "DB cluster accessible outside of K8s cluster.",
+                        "type": "boolean",
+                        "x-order": 4
+                      },
+                      "installed_image": {
+                        "description": "Installed XtraDB image.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "available_image": {
+                        "description": "Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.\nIf it's empty, no upgrade is available.",
+                        "type": "string",
+                        "x-order": 6
+                      }
                     }
                   },
                   "x-order": 0
@@ -24801,6 +24975,18 @@
                         "type": "string",
                         "format": "date-time",
                         "x-order": 9
+                      },
+                      "mode": {
+                        "description": "BackupMode specifies backup mode.",
+                        "type": "string",
+                        "default": "BACKUP_MODE_INVALID",
+                        "enum": [
+                          "BACKUP_MODE_INVALID",
+                          "SNAPSHOT",
+                          "INCREMENTAL",
+                          "PITR"
+                        ],
+                        "x-order": 10
                       }
                     }
                   },
@@ -24921,6 +25107,113 @@
             "description": "A successful response.",
             "schema": {
               "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/backup/Backups/GetLogs": {
+      "post": {
+        "tags": [
+          "Backups"
+        ],
+        "summary": "GetLogs returns logs for provided artifact.",
+        "operationId": "GetLogsMixin5",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "artifact_id": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "offset": {
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 1
+                },
+                "limit": {
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "logs": {
+                  "type": "array",
+                  "items": {
+                    "description": "LogChunk represent one chunk of logs.",
+                    "type": "object",
+                    "properties": {
+                      "chunk_id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 0
+                      },
+                      "data": {
+                        "type": "string",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 0
+                },
+                "end": {
+                  "type": "boolean",
+                  "x-order": 1
+                }
+              }
             }
           },
           "default": {
@@ -25292,6 +25585,18 @@
                         "type": "integer",
                         "format": "int64",
                         "x-order": 16
+                      },
+                      "mode": {
+                        "description": "BackupMode specifies backup mode.",
+                        "type": "string",
+                        "default": "BACKUP_MODE_INVALID",
+                        "enum": [
+                          "BACKUP_MODE_INVALID",
+                          "SNAPSHOT",
+                          "INCREMENTAL",
+                          "PITR"
+                        ],
+                        "x-order": 17
                       }
                     }
                   },
@@ -25566,6 +25871,18 @@
                   "type": "integer",
                   "format": "int64",
                   "x-order": 9
+                },
+                "mode": {
+                  "description": "BackupMode specifies backup mode.",
+                  "type": "string",
+                  "default": "BACKUP_MODE_INVALID",
+                  "enum": [
+                    "BACKUP_MODE_INVALID",
+                    "SNAPSHOT",
+                    "INCREMENTAL",
+                    "PITR"
+                  ],
+                  "x-order": 10
                 }
               }
             }
