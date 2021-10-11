@@ -1889,7 +1889,7 @@
               "description": "QueryPlanReply list of query planes.",
               "type": "object",
               "properties": {
-                "query_planes": {
+                "query_plans": {
                   "type": "array",
                   "items": {
                     "description": "QueryPlan shows query planes and their metrics.",

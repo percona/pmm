@@ -130,10 +130,10 @@ func (this *QueryPlanRequest) Validate() error {
 	return nil
 }
 func (this *QueryPlanReply) Validate() error {
-	for _, item := range this.QueryPlanes {
+	for _, item := range this.QueryPlans {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("QueryPlanes", err)
+				return github_com_mwitkow_go_proto_validators.FieldError("QueryPlans", err)
 			}
 		}
 	}

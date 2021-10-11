@@ -148,7 +148,7 @@ message QueryPlanRequest {
 
 // QueryPlanReply list of query planes.
 message QueryPlanReply {
-  repeated QueryPlan query_planes = 1;
+  repeated QueryPlan query_plans = 1;
 }
 
 // QueryPlan shows query planes and their metrics.
