@@ -120,6 +120,13 @@ func (this *QueryPlanRequest) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("PeriodStartTo", err)
 		}
 	}
+	for _, item := range this.Labels {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Labels", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *QueryPlanReply) Validate() error {

@@ -1842,6 +1842,32 @@
                   "type": "string",
                   "x-order": 3
                 },
+                "labels": {
+                  "type": "array",
+                  "items": {
+                    "description": "MapFieldEntry allows to pass labels/dimensions in form like {\"server\": [\"db1\", \"db2\"...]}.",
+                    "type": "object",
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 4
+                },
+                "limit": {
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 5
+                },
                 "period_start_from": {
                   "type": "string",
                   "format": "date-time",

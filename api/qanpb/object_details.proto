@@ -142,6 +142,8 @@ message QueryPlanRequest {
   string filter_by = 3;
   // one of dimension: queryid | host ...
   string group_by = 4;
+  repeated MapFieldEntry labels = 5;
+  uint32 limit = 6;
 }
 
 // QueryPlanReply contains query plan and plan ID.
