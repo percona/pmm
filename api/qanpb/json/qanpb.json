@@ -1895,13 +1895,13 @@
                     "description": "QueryPlan shows query planes and their metrics.",
                     "type": "object",
                     "properties": {
+                      "planid": {
+                        "type": "string",
+                        "x-order": 0
+                      },
                       "query_plan": {
                         "type": "string",
                         "x-order": 1
-                      },
-                      "queryid": {
-                        "type": "string",
-                        "x-order": 0
                       }
                     }
                   },

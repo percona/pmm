@@ -153,6 +153,6 @@ message QueryPlanReply {
 
 // QueryPlan shows query planes and their metrics.
 message QueryPlan {
-  string queryid = 1;
+  string planid = 1;
   string query_plan = 2;
 }

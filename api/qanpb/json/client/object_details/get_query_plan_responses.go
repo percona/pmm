@@ -382,8 +382,8 @@ swagger:model QueryPlansItems0
 */
 type QueryPlansItems0 struct {
 
-	// queryid
-	Queryid string `json:"queryid,omitempty"`
+	// planid
+	Planid string `json:"planid,omitempty"`
 
 	// query plan
 	QueryPlan string `json:"query_plan,omitempty"`
