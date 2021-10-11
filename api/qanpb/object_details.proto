@@ -146,8 +146,13 @@ message QueryPlanRequest {
   uint32 limit = 6;
 }
 
-// QueryPlanReply contains query plan and plan ID.
+// QueryPlanReply list of query planes.
 message QueryPlanReply {
-  string plan_id = 1;
+  repeated QueryPlan query_planes = 1;
+}
+
+// QueryPlan shows query planes and their metrics.
+message QueryPlan {
+  string queryid = 1;
   string query_plan = 2;
 }

@@ -311,20 +311,51 @@ func (o *GetQueryPlanDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetQueryPlanOKBody QueryPlanReply contains query plan and plan ID.
+/*GetQueryPlanOKBody QueryPlanReply list of query planes.
 swagger:model GetQueryPlanOKBody
 */
 type GetQueryPlanOKBody struct {
 
-	// plan id
-	PlanID string `json:"plan_id,omitempty"`
-
-	// query plan
-	QueryPlan string `json:"query_plan,omitempty"`
+	// query planes
+	QueryPlanes []*QueryPlanesItems0 `json:"query_planes"`
 }
 
 // Validate validates this get query plan OK body
 func (o *GetQueryPlanOKBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateQueryPlanes(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetQueryPlanOKBody) validateQueryPlanes(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.QueryPlanes) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.QueryPlanes); i++ {
+		if swag.IsZero(o.QueryPlanes[i]) { // not required
+			continue
+		}
+
+		if o.QueryPlanes[i] != nil {
+			if err := o.QueryPlanes[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("getQueryPlanOk" + "." + "query_planes" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
 	return nil
 }
 
@@ -339,6 +370,41 @@ func (o *GetQueryPlanOKBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetQueryPlanOKBody) UnmarshalBinary(b []byte) error {
 	var res GetQueryPlanOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*QueryPlanesItems0 QueryPlan shows query planes and their metrics.
+swagger:model QueryPlanesItems0
+*/
+type QueryPlanesItems0 struct {
+
+	// queryid
+	Queryid string `json:"queryid,omitempty"`
+
+	// query plan
+	QueryPlan string `json:"query_plan,omitempty"`
+}
+
+// Validate validates this query planes items0
+func (o *QueryPlanesItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *QueryPlanesItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *QueryPlanesItems0) UnmarshalBinary(b []byte) error {
+	var res QueryPlanesItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
