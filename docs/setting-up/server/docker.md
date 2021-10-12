@@ -68,8 +68,8 @@ How to run PMM Server with Docker based on our [Docker image].
 ---
 
 !!! caution alert alert-warning "Important"
-    Grafana plugins have been moved to the data volume `/srv` since 2.23.0 version. So if any plugin is installed manually then it should be installed again after the upgrade.
-
+    Grafana plugins have been moved to the data volume `/srv` since the 2.23.0 version. So if you are upgrading PMM from any version before 2.23.0 and have installed additional plugins then plugins should be installed again after the upgrade.
+    
     To check used grafana plugins:
 
     ```sh
