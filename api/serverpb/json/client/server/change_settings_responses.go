@@ -495,7 +495,7 @@ type ChangeSettingsOKBodySettings struct {
 	// True if DBaaS is enabled.
 	DbaasEnabled bool `json:"dbaas_enabled,omitempty"`
 
-	// True if Integrated Alerting is enabled.
+	// Alerting is always enabled and cannot be disabled.
 	AlertingEnabled bool `json:"alerting_enabled,omitempty"`
 
 	// PMM Server public address.

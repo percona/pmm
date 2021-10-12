@@ -176,8 +176,8 @@ message Settings {
   string platform_email = 10;
   // True if DBaaS is enabled.
   bool dbaas_enabled = 11;
-  // True if Integrated Alerting is enabled.
-  bool alerting_enabled = 12;
+  // Alerting is always enabled and cannot be disabled.
+  bool alerting_enabled = 12 [deprecated = true];
   // Integrated Alerting email (SMTP) settings.
   EmailAlertingSettings email_alerting_settings = 13;
   // Integrated Alerting Slack settings.
@@ -224,9 +224,9 @@ message ChangeSettingsRequest {
   // Disable Security Threat Tool.
   bool disable_stt = 12;
   // Enable Integrated Alerting.
-  bool enable_alerting = 13;
+  bool enable_alerting = 13 [deprecated = true];
   // Disable Integrated Alerting.
-  bool disable_alerting = 14;
+  bool disable_alerting = 14 [deprecated = true];
   // Change Integrated Alerting email (SMTP) settings, if set.
   EmailAlertingSettings email_alerting_settings = 15;
   // If true, removes Integrated Alerting email (SMTP) settings.

@@ -618,7 +618,7 @@
                       "x-order": 6
                     },
                     "alerting_enabled": {
-                      "description": "True if Integrated Alerting is enabled.",
+                      "description": "Alerting is always enabled and cannot be disabled.",
                       "type": "boolean",
                       "x-order": 11
                     },
@@ -861,7 +861,7 @@
                       "x-order": 6
                     },
                     "alerting_enabled": {
-                      "description": "True if Integrated Alerting is enabled.",
+                      "description": "Alerting is always enabled and cannot be disabled.",
                       "type": "boolean",
                       "x-order": 11
                     },
