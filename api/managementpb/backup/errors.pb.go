@@ -30,10 +30,14 @@ const _ = proto.ProtoPackageIsVersion4
 type ErrorCode int32
 
 const (
-	ErrorCode_ERROR_CODE_INVALID                   ErrorCode = 0
-	ErrorCode_ERROR_CODE_XTRABACKUP_NOT_INSTALLED  ErrorCode = 1
-	ErrorCode_ERROR_CODE_INVALID_XTRABACKUP        ErrorCode = 2
-	ErrorCode_ERROR_CODE_INCOMPATIBLE_XTRABACKUP   ErrorCode = 3
+	ErrorCode_ERROR_CODE_INVALID ErrorCode = 0
+	// ERROR_CODE_XTRABACKUP_NOT_INSTALLED is returned if some xtrabackup component is missing.
+	ErrorCode_ERROR_CODE_XTRABACKUP_NOT_INSTALLED ErrorCode = 1
+	// ERROR_CODE_INVALID_XTRABACKUP is returned if xtrabackup components have different version.
+	ErrorCode_ERROR_CODE_INVALID_XTRABACKUP ErrorCode = 2
+	// ERROR_CODE_INCOMPATIBLE_XTRABACKUP is returned if xtrabackup is not compatible with the MySQL.
+	ErrorCode_ERROR_CODE_INCOMPATIBLE_XTRABACKUP ErrorCode = 3
+	// ERROR_CODE_INCOMPATIBLE_TARGET_MYSQL is returned if target version of MySQL is not compatible for restoring selected artifact.
 	ErrorCode_ERROR_CODE_INCOMPATIBLE_TARGET_MYSQL ErrorCode = 4
 )
 
