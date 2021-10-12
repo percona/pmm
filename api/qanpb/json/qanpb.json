@@ -790,21 +790,11 @@
                               "format": "float",
                               "x-order": 6
                             },
-                            "planid": {
-                              "description": "Plan ID.",
-                              "type": "string",
-                              "x-order": 64
-                            },
                             "point": {
                               "description": "The serial number of the chart point from the largest time in the time interval to the lowest time in the time range.",
                               "type": "integer",
                               "format": "int64",
                               "x-order": 0
-                            },
-                            "query_plan": {
-                              "description": "Query Plan plain text.",
-                              "type": "string",
-                              "x-order": 65
                             },
                             "time_frame": {
                               "description": "Duration beetween two points.",
@@ -1479,21 +1469,11 @@
                         "format": "float",
                         "x-order": 6
                       },
-                      "planid": {
-                        "description": "Plan ID.",
-                        "type": "string",
-                        "x-order": 64
-                      },
                       "point": {
                         "description": "The serial number of the chart point from the largest time in the time interval to the lowest time in the time range.",
                         "type": "integer",
                         "format": "int64",
                         "x-order": 0
-                      },
-                      "query_plan": {
-                        "description": "Query Plan plain text.",
-                        "type": "string",
-                        "x-order": 65
                       },
                       "time_frame": {
                         "description": "Duration beetween two points.",

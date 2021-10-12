@@ -896,21 +896,6 @@ type RowsItems0SparklineItems0 struct {
 
 	// Plan time in per seconds.
 	MPlanTimeSumPerSec float32 `json:"m_plan_time_sum_per_sec,omitempty"`
-<<<<<<< HEAD
-
-	// Top Query ID.
-	TopQueryid string `json:"top_queryid,omitempty"`
-
-	// Top Query plain text.
-	TopQuery string `json:"top_query,omitempty"`
-
-	// Plan ID.
-	Planid string `json:"planid,omitempty"`
-
-	// Query Plan plain text.
-	QueryPlan string `json:"query_plan,omitempty"`
-=======
->>>>>>> PMM-8895-top-query-details
 }
 
 // Validate validates this rows items0 sparkline items0
