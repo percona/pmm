@@ -19,5 +19,5 @@ FILE=$1
 for n in "${NAMES[@]}"; do
     PATT=$(printf "s/${PATTERN}//\n" "${n}")
     echo "Removing thanks for $n"
-    sed -i '' -e "${PATT}" $FILE
+    sed -i "${PATT}" $FILE
 done
