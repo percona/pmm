@@ -832,6 +832,7 @@
                               "type": "number",
                               "format": "float",
                               "x-order": 61
+<<<<<<< HEAD
                             },
                             "top_queryid": {
                               "description": "Top Query ID.",
@@ -852,6 +853,8 @@
                               "description": "Query Plan plain text.",
                               "type": "string",
                               "x-order": 65
+=======
+>>>>>>> PMM-8895-top-query-details
                             }
                           }
                         },
@@ -1548,6 +1551,7 @@
                         "type": "number",
                         "format": "float",
                         "x-order": 61
+<<<<<<< HEAD
                       },
                       "top_queryid": {
                         "description": "Top Query ID.",
@@ -1568,6 +1572,8 @@
                         "description": "Query Plan plain text.",
                         "type": "string",
                         "x-order": 65
+=======
+>>>>>>> PMM-8895-top-query-details
                       }
                     }
                   },

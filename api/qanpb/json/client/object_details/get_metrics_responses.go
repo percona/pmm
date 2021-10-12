@@ -731,6 +731,7 @@ type SparklineItems0 struct {
 
 	// Plan time in per seconds.
 	MPlanTimeSumPerSec float32 `json:"m_plan_time_sum_per_sec,omitempty"`
+<<<<<<< HEAD
 
 	// Top Query ID.
 	TopQueryid string `json:"top_queryid,omitempty"`
@@ -743,6 +744,8 @@ type SparklineItems0 struct {
 
 	// Query Plan plain text.
 	QueryPlan string `json:"query_plan,omitempty"`
+=======
+>>>>>>> PMM-8895-top-query-details
 }
 
 // Validate validates this sparkline items0
