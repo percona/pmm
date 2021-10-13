@@ -616,6 +616,7 @@ command =
 		--external.url=http://localhost:9090/prometheus
 		--datasource.url=http://127.0.0.1:9090/prometheus
 		--remoteRead.url=http://127.0.0.1:9090/prometheus
+		--remoteRead.ignoreRestoreErrors=false
 		--remoteWrite.url=http://127.0.0.1:9090/prometheus
 		--rule=/srv/prometheus/rules/*.yml
 		--rule=/etc/ia/rules/*.yml
