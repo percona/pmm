@@ -240,7 +240,7 @@ groups:
 		})
 
 		// Create test rule
-		rules := NewRulesService(db, templates, nil, alertManager)
+		rules := NewRulesService(db, templates, vmAlert, alertManager)
 		rules.rulesPath = testDir
 		_, err = rules.CreateAlertRule(context.Background(), &iav1beta1.CreateAlertRuleRequest{
 			TemplateName: "test_template",
@@ -277,7 +277,7 @@ groups:
 		})
 
 		// Create test rule
-		rules := NewRulesService(db, templates, nil, alertManager)
+		rules := NewRulesService(db, templates, vmAlert, alertManager)
 		rules.rulesPath = testDir
 		_, err = rules.CreateAlertRule(context.Background(), &iav1beta1.CreateAlertRuleRequest{
 			TemplateName: "unknown template",

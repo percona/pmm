@@ -204,7 +204,6 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	managementpb.RegisterSecurityChecksServer(gRPCServer, management.NewChecksAPIService(deps.checksService))
 
 	iav1beta1.RegisterChannelsServer(gRPCServer, ia.NewChannelsService(deps.db, deps.alertmanager))
-	deps.templatesService.Collect(ctx)
 	iav1beta1.RegisterTemplatesServer(gRPCServer, deps.templatesService)
 	iav1beta1.RegisterRulesServer(gRPCServer, deps.rulesService)
 	iav1beta1.RegisterAlertsServer(gRPCServer, deps.alertsService)
@@ -653,6 +652,8 @@ func main() {
 	if err != nil {
 		l.Fatalf("Could not create templates service: %s", err)
 	}
+	// We should collect templates before rules service created, because it will regenerate rule files on startup.
+	templatesService.Collect(ctx)
 	rulesService := ia.NewRulesService(db, templatesService, vmalert, alertmanager)
 	alertsService := ia.NewAlertsService(db, alertmanager, templatesService)
 

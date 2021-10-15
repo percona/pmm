@@ -65,7 +65,7 @@ func NewRulesService(db *reform.DB, templates *TemplatesService, vmalert vmAlert
 		l.Error(err)
 	}
 
-	return &RulesService{
+	s := &RulesService{
 		db:           db,
 		l:            l,
 		templates:    templates,
@@ -73,6 +73,9 @@ func NewRulesService(db *reform.DB, templates *TemplatesService, vmalert vmAlert
 		alertManager: alertManager,
 		rulesPath:    rulesDir,
 	}
+	s.updateConfigurations()
+
+	return s
 }
 
 // Enabled returns if service is enabled and can be used.
@@ -422,9 +425,7 @@ func (s *RulesService) CreateAlertRule(ctx context.Context, req *iav1beta1.Creat
 		return nil, e
 	}
 
-	s.WriteVMAlertRulesFiles()
-	s.vmalert.RequestConfigurationUpdate()
-	s.alertManager.RequestConfigurationUpdate()
+	s.updateConfigurations()
 
 	return &iav1beta1.CreateAlertRuleResponse{RuleId: rule.ID}, nil
 }
@@ -565,9 +566,7 @@ func (s *RulesService) UpdateAlertRule(ctx context.Context, req *iav1beta1.Updat
 		return nil, e
 	}
 
-	s.WriteVMAlertRulesFiles()
-	s.vmalert.RequestConfigurationUpdate()
-	s.alertManager.RequestConfigurationUpdate()
+	s.updateConfigurations()
 
 	return &iav1beta1.UpdateAlertRuleResponse{}, nil
 }
@@ -594,9 +593,7 @@ func (s *RulesService) ToggleAlertRule(ctx context.Context, req *iav1beta1.Toggl
 		return nil, e
 	}
 
-	s.WriteVMAlertRulesFiles()
-	s.vmalert.RequestConfigurationUpdate()
-	s.alertManager.RequestConfigurationUpdate()
+	s.updateConfigurations()
 
 	return &iav1beta1.ToggleAlertRuleResponse{}, nil
 }
@@ -610,11 +607,15 @@ func (s *RulesService) DeleteAlertRule(ctx context.Context, req *iav1beta1.Delet
 		return nil, e
 	}
 
+	s.updateConfigurations()
+
+	return &iav1beta1.DeleteAlertRuleResponse{}, nil
+}
+
+func (s *RulesService) updateConfigurations() {
 	s.WriteVMAlertRulesFiles()
 	s.vmalert.RequestConfigurationUpdate()
 	s.alertManager.RequestConfigurationUpdate()
-
-	return &iav1beta1.DeleteAlertRuleResponse{}, nil
 }
 
 func convertModelToRuleParams(params models.RuleParams) ([]*iav1beta1.RuleParam, error) {
