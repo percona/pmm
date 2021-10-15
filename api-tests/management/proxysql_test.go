@@ -323,7 +323,7 @@ func TestAddProxySQL(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addProxySQLOK, err := client.Default.ProxySQL.AddProxySQL(params)
+		_, err := client.Default.ProxySQL.AddProxySQL(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "add_node structure can be used only for remote nodes")
 
 		params = &proxysql.AddProxySQLParams{
@@ -342,7 +342,7 @@ func TestAddProxySQL(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addProxySQLOK, err = client.Default.ProxySQL.AddProxySQL(params)
+		_, err = client.Default.ProxySQL.AddProxySQL(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "add_node structure can be used only for remote nodes")
 
 		params = &proxysql.AddProxySQLParams{
@@ -361,7 +361,7 @@ func TestAddProxySQL(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addProxySQLOK, err = client.Default.ProxySQL.AddProxySQL(params)
+		addProxySQLOK, err := client.Default.ProxySQL.AddProxySQL(params)
 		require.NoError(t, err)
 		require.NotNil(t, addProxySQLOK)
 		require.NotNil(t, addProxySQLOK.Payload.Service)

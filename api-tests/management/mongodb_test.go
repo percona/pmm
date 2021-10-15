@@ -328,7 +328,7 @@ func TestAddMongoDB(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addMongoDBOK, err := client.Default.MongoDB.AddMongoDB(params)
+		_, err := client.Default.MongoDB.AddMongoDB(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "add_node structure can be used only for remote nodes")
 
 		params = &mongodb.AddMongoDBParams{
@@ -346,7 +346,7 @@ func TestAddMongoDB(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addMongoDBOK, err = client.Default.MongoDB.AddMongoDB(params)
+		_, err = client.Default.MongoDB.AddMongoDB(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "add_node structure can be used only for remote nodes")
 
 		params = &mongodb.AddMongoDBParams{
@@ -364,7 +364,7 @@ func TestAddMongoDB(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addMongoDBOK, err = client.Default.MongoDB.AddMongoDB(params)
+		addMongoDBOK, err := client.Default.MongoDB.AddMongoDB(params)
 		require.NoError(t, err)
 		require.NotNil(t, addMongoDBOK)
 		require.NotNil(t, addMongoDBOK.Payload.Service)

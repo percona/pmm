@@ -31,7 +31,7 @@ install-debug:  ## Install pmm-managed binaries with debug symbols.
 	go build -gcflags="all=-N -l" -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-managed-init ./cmd/pmm-managed-init
 	go build -gcflags="all=-N -l" -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-managed-starlark ./cmd/pmm-managed-starlark
 
-PMM_TEST_PACKAGES ?= ./...
+PMM_TEST_PACKAGES ?= $(shell go list ./... | grep -v /api-tests)
 PMM_TEST_FLAGS ?= -timeout=90s
 PMM_TEST_RUN_UPDATE ?= 0
 

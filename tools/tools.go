@@ -33,3 +33,15 @@ import (
 	_ "gopkg.in/reform.v1/reform-db"
 	_ "mvdan.cc/gofumpt"
 )
+
+//go:generate go build -o ../bin/benchstat golang.org/x/perf/cmd/benchstat
+//go:generate go build -o ../bin/dlv github.com/go-delve/delve/cmd/dlv
+//go:generate go build -o ../bin/go-bindata github.com/kevinburke/go-bindata/go-bindata
+//go:generate go build -o ../bin/go-sumtype github.com/BurntSushi/go-sumtype
+//go:generate go build -o ../bin/gofumpt mvdan.cc/gofumpt
+//go:generate go build -o ../bin/goimports golang.org/x/tools/cmd/goimports
+//go:generate go build -o ../bin/golangci-lint github.com/golangci/golangci-lint/cmd/golangci-lint
+//go:generate go build -o ../bin/gopls golang.org/x/tools/gopls
+//go:generate go build -o ../bin/mockery github.com/vektra/mockery/cmd/mockery
+//go:generate go build -o ../bin/reform gopkg.in/reform.v1/reform
+//go:generate go build -o ../bin/reviewdog github.com/reviewdog/reviewdog/cmd/reviewdog

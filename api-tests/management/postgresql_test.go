@@ -342,7 +342,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addPostgreSQLOK, err := client.Default.PostgreSQL.AddPostgreSQL(params)
+		_, err := client.Default.PostgreSQL.AddPostgreSQL(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "add_node structure can be used only for remote nodes")
 
 		params = &postgresql.AddPostgreSQLParams{
@@ -361,7 +361,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addPostgreSQLOK, err = client.Default.PostgreSQL.AddPostgreSQL(params)
+		_, err = client.Default.PostgreSQL.AddPostgreSQL(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "add_node structure can be used only for remote nodes")
 
 		params = &postgresql.AddPostgreSQLParams{
@@ -380,7 +380,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addPostgreSQLOK, err = client.Default.PostgreSQL.AddPostgreSQL(params)
+		addPostgreSQLOK, err := client.Default.PostgreSQL.AddPostgreSQL(params)
 		require.NoError(t, err)
 		require.NotNil(t, addPostgreSQLOK)
 		require.NotNil(t, addPostgreSQLOK.Payload.Service)

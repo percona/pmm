@@ -350,7 +350,7 @@ func TestAddMySQL(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addMySQLOK, err := client.Default.MySQL.AddMySQL(params)
+		_, err := client.Default.MySQL.AddMySQL(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "add_node structure can be used only for remote nodes")
 
 		params = &mysql.AddMySQLParams{
@@ -369,7 +369,7 @@ func TestAddMySQL(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addMySQLOK, err = client.Default.MySQL.AddMySQL(params)
+		_, err = client.Default.MySQL.AddMySQL(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "add_node structure can be used only for remote nodes")
 
 		params = &mysql.AddMySQLParams{
@@ -388,7 +388,7 @@ func TestAddMySQL(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addMySQLOK, err = client.Default.MySQL.AddMySQL(params)
+		addMySQLOK, err := client.Default.MySQL.AddMySQL(params)
 		require.NoError(t, err)
 		require.NotNil(t, addMySQLOK)
 		require.NotNil(t, addMySQLOK.Payload.Service)
