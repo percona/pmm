@@ -33,7 +33,7 @@ var _ = utilities.NewDoubleArray
 var _ = descriptor.ForMessage
 var _ = metadata.Join
 
-func request_DBCluster_ListDBClusters_0(ctx context.Context, marshaler runtime.Marshaler, client DBClusterClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_DBClusters_ListDBClusters_0(ctx context.Context, marshaler runtime.Marshaler, client DBClustersClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListDBClustersRequest
 	var metadata runtime.ServerMetadata
 
@@ -50,7 +50,7 @@ func request_DBCluster_ListDBClusters_0(ctx context.Context, marshaler runtime.M
 
 }
 
-func local_request_DBCluster_ListDBClusters_0(ctx context.Context, marshaler runtime.Marshaler, server DBClusterServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_DBClusters_ListDBClusters_0(ctx context.Context, marshaler runtime.Marshaler, server DBClustersServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListDBClustersRequest
 	var metadata runtime.ServerMetadata
 
@@ -67,7 +67,7 @@ func local_request_DBCluster_ListDBClusters_0(ctx context.Context, marshaler run
 
 }
 
-func request_DBCluster_DeleteDBCluster_0(ctx context.Context, marshaler runtime.Marshaler, client DBClusterClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_DBClusters_DeleteDBCluster_0(ctx context.Context, marshaler runtime.Marshaler, client DBClustersClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq DeleteDBClusterRequest
 	var metadata runtime.ServerMetadata
 
@@ -84,7 +84,7 @@ func request_DBCluster_DeleteDBCluster_0(ctx context.Context, marshaler runtime.
 
 }
 
-func local_request_DBCluster_DeleteDBCluster_0(ctx context.Context, marshaler runtime.Marshaler, server DBClusterServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_DBClusters_DeleteDBCluster_0(ctx context.Context, marshaler runtime.Marshaler, server DBClustersServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq DeleteDBClusterRequest
 	var metadata runtime.ServerMetadata
 
@@ -101,13 +101,13 @@ func local_request_DBCluster_DeleteDBCluster_0(ctx context.Context, marshaler ru
 
 }
 
-// RegisterDBClusterHandlerServer registers the http handlers for service DBCluster to "mux".
-// UnaryRPC     :call DBClusterServer directly.
+// RegisterDBClustersHandlerServer registers the http handlers for service DBClusters to "mux".
+// UnaryRPC     :call DBClustersServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
-// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterDBClusterHandlerFromEndpoint instead.
-func RegisterDBClusterHandlerServer(ctx context.Context, mux *runtime.ServeMux, server DBClusterServer) error {
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterDBClustersHandlerFromEndpoint instead.
+func RegisterDBClustersHandlerServer(ctx context.Context, mux *runtime.ServeMux, server DBClustersServer) error {
 
-	mux.Handle("POST", pattern_DBCluster_ListDBClusters_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_DBClusters_ListDBClusters_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -118,7 +118,7 @@ func RegisterDBClusterHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_DBCluster_ListDBClusters_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_DBClusters_ListDBClusters_0(rctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -126,11 +126,11 @@ func RegisterDBClusterHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 			return
 		}
 
-		forward_DBCluster_ListDBClusters_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_DBClusters_ListDBClusters_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_DBCluster_DeleteDBCluster_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_DBClusters_DeleteDBCluster_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -141,7 +141,7 @@ func RegisterDBClusterHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_DBCluster_DeleteDBCluster_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_DBClusters_DeleteDBCluster_0(rctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -149,16 +149,16 @@ func RegisterDBClusterHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 			return
 		}
 
-		forward_DBCluster_DeleteDBCluster_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_DBClusters_DeleteDBCluster_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
 	return nil
 }
 
-// RegisterDBClusterHandlerFromEndpoint is same as RegisterDBClusterHandler but
+// RegisterDBClustersHandlerFromEndpoint is same as RegisterDBClustersHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterDBClusterHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterDBClustersHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 	conn, err := grpc.Dial(endpoint, opts...)
 	if err != nil {
 		return err
@@ -178,23 +178,23 @@ func RegisterDBClusterHandlerFromEndpoint(ctx context.Context, mux *runtime.Serv
 		}()
 	}()
 
-	return RegisterDBClusterHandler(ctx, mux, conn)
+	return RegisterDBClustersHandler(ctx, mux, conn)
 }
 
-// RegisterDBClusterHandler registers the http handlers for service DBCluster to "mux".
+// RegisterDBClustersHandler registers the http handlers for service DBClusters to "mux".
 // The handlers forward requests to the grpc endpoint over "conn".
-func RegisterDBClusterHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterDBClusterHandlerClient(ctx, mux, NewDBClusterClient(conn))
+func RegisterDBClustersHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterDBClustersHandlerClient(ctx, mux, NewDBClustersClient(conn))
 }
 
-// RegisterDBClusterHandlerClient registers the http handlers for service DBCluster
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "DBClusterClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "DBClusterClient"
+// RegisterDBClustersHandlerClient registers the http handlers for service DBClusters
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "DBClustersClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "DBClustersClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "DBClusterClient" to call the correct interceptors.
-func RegisterDBClusterHandlerClient(ctx context.Context, mux *runtime.ServeMux, client DBClusterClient) error {
+// "DBClustersClient" to call the correct interceptors.
+func RegisterDBClustersHandlerClient(ctx context.Context, mux *runtime.ServeMux, client DBClustersClient) error {
 
-	mux.Handle("POST", pattern_DBCluster_ListDBClusters_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_DBClusters_ListDBClusters_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -203,18 +203,18 @@ func RegisterDBClusterHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_DBCluster_ListDBClusters_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_DBClusters_ListDBClusters_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_DBCluster_ListDBClusters_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_DBClusters_ListDBClusters_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_DBCluster_DeleteDBCluster_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_DBClusters_DeleteDBCluster_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -223,14 +223,14 @@ func RegisterDBClusterHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_DBCluster_DeleteDBCluster_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_DBClusters_DeleteDBCluster_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_DBCluster_DeleteDBCluster_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_DBClusters_DeleteDBCluster_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -238,13 +238,13 @@ func RegisterDBClusterHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 }
 
 var (
-	pattern_DBCluster_ListDBClusters_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "DBClusters", "List"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_DBClusters_ListDBClusters_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "DBClusters", "List"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_DBCluster_DeleteDBCluster_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "DBClusters", "Delete"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_DBClusters_DeleteDBCluster_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "DBClusters", "Delete"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (
-	forward_DBCluster_ListDBClusters_0 = runtime.ForwardResponseMessage
+	forward_DBClusters_ListDBClusters_0 = runtime.ForwardResponseMessage
 
-	forward_DBCluster_DeleteDBCluster_0 = runtime.ForwardResponseMessage
+	forward_DBClusters_DeleteDBCluster_0 = runtime.ForwardResponseMessage
 )

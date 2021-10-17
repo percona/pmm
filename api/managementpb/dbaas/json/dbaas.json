@@ -1241,7 +1241,7 @@
     "/v1/management/DBaaS/DBClusters/Delete": {
       "post": {
         "tags": [
-          "DBCluster"
+          "DBClusters"
         ],
         "summary": "DeleteDBCluster deletes DB cluster.",
         "operationId": "DeleteDBCluster",
@@ -1330,7 +1330,7 @@
     "/v1/management/DBaaS/DBClusters/List": {
       "post": {
         "tags": [
-          "DBCluster"
+          "DBClusters"
         ],
         "summary": "ListDBClusters returns a list of DB clusters.",
         "operationId": "ListDBClusters",

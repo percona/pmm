@@ -11,7 +11,7 @@ import (
 	"github.com/go-openapi/strfmt"
 
 	"github.com/percona/pmm/api/managementpb/dbaas/json/client/components"
-	"github.com/percona/pmm/api/managementpb/dbaas/json/client/db_cluster"
+	"github.com/percona/pmm/api/managementpb/dbaas/json/client/db_clusters"
 	"github.com/percona/pmm/api/managementpb/dbaas/json/client/kubernetes"
 	"github.com/percona/pmm/api/managementpb/dbaas/json/client/logs_api"
 	"github.com/percona/pmm/api/managementpb/dbaas/json/client/psmdb_clusters"
@@ -61,7 +61,7 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMDBaaS {
 	cli := new(PMMDBaaS)
 	cli.Transport = transport
 	cli.Components = components.New(transport, formats)
-	cli.DBCluster = db_cluster.New(transport, formats)
+	cli.DBClusters = db_clusters.New(transport, formats)
 	cli.Kubernetes = kubernetes.New(transport, formats)
 	cli.LogsAPI = logs_api.New(transport, formats)
 	cli.PSMDBClusters = psmdb_clusters.New(transport, formats)
@@ -112,7 +112,7 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 type PMMDBaaS struct {
 	Components components.ClientService
 
-	DBCluster db_cluster.ClientService
+	DBClusters db_clusters.ClientService
 
 	Kubernetes kubernetes.ClientService
 
@@ -129,7 +129,7 @@ type PMMDBaaS struct {
 func (c *PMMDBaaS) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
 	c.Components.SetTransport(transport)
-	c.DBCluster.SetTransport(transport)
+	c.DBClusters.SetTransport(transport)
 	c.Kubernetes.SetTransport(transport)
 	c.LogsAPI.SetTransport(transport)
 	c.PSMDBClusters.SetTransport(transport)

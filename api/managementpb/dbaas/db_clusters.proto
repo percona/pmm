@@ -86,8 +86,8 @@ message DeleteDBClusterRequest {
 
 message DeleteDBClusterResponse {}
 
-// DBCluster service provides public methods for managing db clusters.
-service DBCluster {
+// DBClusters service provides public methods for managing db clusters.
+service DBClusters {
   // ListDBClusters returns a list of DB clusters.
   rpc ListDBClusters(ListDBClustersRequest) returns (ListDBClustersResponse) {
     option (google.api.http) = {
