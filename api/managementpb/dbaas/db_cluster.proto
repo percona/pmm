@@ -22,6 +22,11 @@ message PSMDBCluster {
   PSMDBClusterParams params = 4;
   // DB cluster accessible outside of K8s cluster.
   bool exposed = 5;
+  // Installed PSMDB image.
+  string installed_image = 6;
+  // Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.
+  // If it's empty, no upgrade is available.
+  string available_image = 7;
 }
 
 // PXCCluster represents PXC cluster information.
@@ -36,6 +41,11 @@ message PXCCluster {
   PXCClusterParams params = 4;
   // DB cluster accessible outside of K8s cluster.
   bool exposed = 5;
+  // Installed XtraDB image.
+  string installed_image = 6;
+  // Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.
+  // If it's empty, no upgrade is available.
+  string available_image = 7;
 }
 
 message ListDBClustersRequest {

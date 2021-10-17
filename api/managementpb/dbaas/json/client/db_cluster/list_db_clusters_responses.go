@@ -340,11 +340,20 @@ type PSMDBClustersItems0 struct {
 	//  - PSMDB_CLUSTER_STATE_FAILED: PSMDB_CLUSTER_STATE_FAILED represents a failed cluster.
 	//  - PSMDB_CLUSTER_STATE_DELETING: PSMDB_CLUSTER_STATE_DELETING represents a cluster being deleting.
 	//  - PSMDB_CLUSTER_STATE_PAUSED: PSMDB_CLUSTER_STATE_PAUSED represents a cluster is paused.
-	// Enum: [PSMDB_CLUSTER_STATE_INVALID PSMDB_CLUSTER_STATE_CHANGING PSMDB_CLUSTER_STATE_READY PSMDB_CLUSTER_STATE_FAILED PSMDB_CLUSTER_STATE_DELETING PSMDB_CLUSTER_STATE_PAUSED]
+	//  - PSMDB_CLUSTER_STATE_UPGRADING: PSMDB_CLUSTER_STATE_UPGRADING is a special case of PSMDB_CLUSTER_STATE_CHANGING.
+	// It indicates database cluster upgrade is ongoing.
+	// Enum: [PSMDB_CLUSTER_STATE_INVALID PSMDB_CLUSTER_STATE_CHANGING PSMDB_CLUSTER_STATE_READY PSMDB_CLUSTER_STATE_FAILED PSMDB_CLUSTER_STATE_DELETING PSMDB_CLUSTER_STATE_PAUSED PSMDB_CLUSTER_STATE_UPGRADING]
 	State *string `json:"state,omitempty"`
 
 	// DB cluster accessible outside of K8s cluster.
 	Exposed bool `json:"exposed,omitempty"`
+
+	// Installed PSMDB image.
+	InstalledImage string `json:"installed_image,omitempty"`
+
+	// Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.
+	// If it's empty, no upgrade is available.
+	AvailableImage string `json:"available_image,omitempty"`
 
 	// operation
 	Operation *PSMDBClustersItems0Operation `json:"operation,omitempty"`
@@ -379,7 +388,7 @@ var psmdbClustersItems0TypeStatePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["PSMDB_CLUSTER_STATE_INVALID","PSMDB_CLUSTER_STATE_CHANGING","PSMDB_CLUSTER_STATE_READY","PSMDB_CLUSTER_STATE_FAILED","PSMDB_CLUSTER_STATE_DELETING","PSMDB_CLUSTER_STATE_PAUSED"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["PSMDB_CLUSTER_STATE_INVALID","PSMDB_CLUSTER_STATE_CHANGING","PSMDB_CLUSTER_STATE_READY","PSMDB_CLUSTER_STATE_FAILED","PSMDB_CLUSTER_STATE_DELETING","PSMDB_CLUSTER_STATE_PAUSED","PSMDB_CLUSTER_STATE_UPGRADING"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -406,6 +415,9 @@ const (
 
 	// PSMDBClustersItems0StatePSMDBCLUSTERSTATEPAUSED captures enum value "PSMDB_CLUSTER_STATE_PAUSED"
 	PSMDBClustersItems0StatePSMDBCLUSTERSTATEPAUSED string = "PSMDB_CLUSTER_STATE_PAUSED"
+
+	// PSMDBClustersItems0StatePSMDBCLUSTERSTATEUPGRADING captures enum value "PSMDB_CLUSTER_STATE_UPGRADING"
+	PSMDBClustersItems0StatePSMDBCLUSTERSTATEUPGRADING string = "PSMDB_CLUSTER_STATE_UPGRADING"
 )
 
 // prop value enum
@@ -701,11 +713,20 @@ type PXCClustersItems0 struct {
 	//  - PXC_CLUSTER_STATE_FAILED: PXC_CLUSTER_STATE_FAILED represents a failed cluster.
 	//  - PXC_CLUSTER_STATE_DELETING: PXC_CLUSTER_STATE_DELETING represents a cluster being deleting.
 	//  - PXC_CLUSTER_STATE_PAUSED: PXC_CLUSTER_STATE_PAUSED represents a cluster is paused.
-	// Enum: [PXC_CLUSTER_STATE_INVALID PXC_CLUSTER_STATE_CHANGING PXC_CLUSTER_STATE_READY PXC_CLUSTER_STATE_FAILED PXC_CLUSTER_STATE_DELETING PXC_CLUSTER_STATE_PAUSED]
+	//  - PXC_CLUSTER_STATE_UPGRADING: PXC_CLUSTER_STATE_UPGRADING is a special case of PXC_CLUSTER_STATE_CHANGING.
+	// It indicates database cluster upgrade is ongoing.
+	// Enum: [PXC_CLUSTER_STATE_INVALID PXC_CLUSTER_STATE_CHANGING PXC_CLUSTER_STATE_READY PXC_CLUSTER_STATE_FAILED PXC_CLUSTER_STATE_DELETING PXC_CLUSTER_STATE_PAUSED PXC_CLUSTER_STATE_UPGRADING]
 	State *string `json:"state,omitempty"`
 
 	// DB cluster accessible outside of K8s cluster.
 	Exposed bool `json:"exposed,omitempty"`
+
+	// Installed XtraDB image.
+	InstalledImage string `json:"installed_image,omitempty"`
+
+	// Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.
+	// If it's empty, no upgrade is available.
+	AvailableImage string `json:"available_image,omitempty"`
 
 	// operation
 	Operation *PXCClustersItems0Operation `json:"operation,omitempty"`
@@ -740,7 +761,7 @@ var pxcClustersItems0TypeStatePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["PXC_CLUSTER_STATE_INVALID","PXC_CLUSTER_STATE_CHANGING","PXC_CLUSTER_STATE_READY","PXC_CLUSTER_STATE_FAILED","PXC_CLUSTER_STATE_DELETING","PXC_CLUSTER_STATE_PAUSED"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["PXC_CLUSTER_STATE_INVALID","PXC_CLUSTER_STATE_CHANGING","PXC_CLUSTER_STATE_READY","PXC_CLUSTER_STATE_FAILED","PXC_CLUSTER_STATE_DELETING","PXC_CLUSTER_STATE_PAUSED","PXC_CLUSTER_STATE_UPGRADING"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -767,6 +788,9 @@ const (
 
 	// PXCClustersItems0StatePXCCLUSTERSTATEPAUSED captures enum value "PXC_CLUSTER_STATE_PAUSED"
 	PXCClustersItems0StatePXCCLUSTERSTATEPAUSED string = "PXC_CLUSTER_STATE_PAUSED"
+
+	// PXCClustersItems0StatePXCCLUSTERSTATEUPGRADING captures enum value "PXC_CLUSTER_STATE_UPGRADING"
+	PXCClustersItems0StatePXCCLUSTERSTATEUPGRADING string = "PXC_CLUSTER_STATE_UPGRADING"
 )
 
 // prop value enum

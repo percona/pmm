@@ -472,6 +472,10 @@ swagger:model UpdatePXCClusterParamsBodyParamsPXC
 */
 type UpdatePXCClusterParamsBodyParamsPXC struct {
 
+	// Image to use. If it's the same image but with different version tag, upgrade of database cluster to version
+	// in given tag is triggered. If entirely different image is given, error is returned.
+	Image string `json:"image,omitempty"`
+
 	// compute resources
 	ComputeResources *UpdatePXCClusterParamsBodyParamsPXCComputeResources `json:"compute_resources,omitempty"`
 }

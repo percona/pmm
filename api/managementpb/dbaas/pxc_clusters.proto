@@ -24,6 +24,9 @@ enum PXCClusterState {
   PXC_CLUSTER_STATE_DELETING = 4;
   // PXC_CLUSTER_STATE_PAUSED represents a cluster is paused.
   PXC_CLUSTER_STATE_PAUSED = 5;
+  // PXC_CLUSTER_STATE_UPGRADING is a special case of PXC_CLUSTER_STATE_CHANGING.
+  // It indicates database cluster upgrade is ongoing.
+  PXC_CLUSTER_STATE_UPGRADING = 6;
 }
 
 // PXCBackupState represents PXC backup CR state.
@@ -174,6 +177,9 @@ message UpdatePXCClusterRequest {
     message PXC {
       // Requested compute resources.
       ComputeResources compute_resources = 1;
+      // Image to use. If it's the same image but with different version tag, upgrade of database cluster to version
+      // in given tag is triggered. If entirely different image is given, error is returned.
+      string image = 2;
     }
     // ProxySQL container parameters.
     message ProxySQL {
