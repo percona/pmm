@@ -8,7 +8,7 @@ go 1.16
 // replace github.com/percona-platform/dbaas-api => ../dbaas-api
 
 // Update depedencies with:
-// go get -v github.com/percona/pmm@PMM-2.0
+// go get -v github.com/percona/pmm@main
 // go get -v github.com/percona-platform/saas@latest
 // go get -v github.com/percona-platform/dbaas-api@latest
 
