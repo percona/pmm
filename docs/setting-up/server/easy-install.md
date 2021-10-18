@@ -6,8 +6,8 @@
 ## Linux or macOS
 
 ```sh
-curl -fsSL -O https://raw.githubusercontent.com/percona/pmm/PMM-2.0/get-pmm.sh \
--O https://raw.githubusercontent.com/percona/pmm/PMM-2.0/.sha256-oneline && \
+curl -fsSL -O https://raw.githubusercontent.com/percona/pmm/main/get-pmm.sh \
+-O https://raw.githubusercontent.com/percona/pmm/main/.sha256-oneline && \
 shasum -a 256 .sha256-oneline -c && \
 chmod +x ./get-pmm.sh && \
 ./get-pmm.sh
