@@ -110,23 +110,6 @@ func (this *ListLabelValues) Validate() error {
 	return nil
 }
 func (this *QueryPlanRequest) Validate() error {
-	if this.PeriodStartFrom != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PeriodStartFrom); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("PeriodStartFrom", err)
-		}
-	}
-	if this.PeriodStartTo != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PeriodStartTo); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("PeriodStartTo", err)
-		}
-	}
-	for _, item := range this.Labels {
-		if item != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("Labels", err)
-			}
-		}
-	}
 	return nil
 }
 func (this *QueryPlanReply) Validate() error {

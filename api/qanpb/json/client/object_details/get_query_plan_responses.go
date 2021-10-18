@@ -14,7 +14,6 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
 // GetQueryPlanReader is a Reader for the GetQueryPlan structure.
@@ -118,103 +117,17 @@ func (o *GetQueryPlanDefault) readResponse(response runtime.ClientResponse, cons
 	return nil
 }
 
-/*GetQueryPlanBody QueryPlanRequest defines filtering of query plans for specific value of
-// dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
+/*GetQueryPlanBody QueryPlanRequest defines filtering by queryid.
 swagger:model GetQueryPlanBody
 */
 type GetQueryPlanBody struct {
 
-	// period start from
-	// Format: date-time
-	PeriodStartFrom strfmt.DateTime `json:"period_start_from,omitempty"`
-
-	// period start to
-	// Format: date-time
-	PeriodStartTo strfmt.DateTime `json:"period_start_to,omitempty"`
-
-	// dimension value: ex: queryid - 1D410B4BE5060972.
-	FilterBy string `json:"filter_by,omitempty"`
-
-	// one of dimension: queryid | host ...
-	GroupBy string `json:"group_by,omitempty"`
-
-	// labels
-	Labels []*LabelsItems0 `json:"labels"`
-
-	// limit
-	Limit int64 `json:"limit,omitempty"`
+	// queryid
+	Queryid string `json:"queryid,omitempty"`
 }
 
 // Validate validates this get query plan body
 func (o *GetQueryPlanBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validatePeriodStartFrom(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validatePeriodStartTo(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateLabels(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *GetQueryPlanBody) validatePeriodStartFrom(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.PeriodStartFrom) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("body"+"."+"period_start_from", "body", "date-time", o.PeriodStartFrom.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *GetQueryPlanBody) validatePeriodStartTo(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.PeriodStartTo) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("body"+"."+"period_start_to", "body", "date-time", o.PeriodStartTo.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *GetQueryPlanBody) validateLabels(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Labels) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(o.Labels); i++ {
-		if swag.IsZero(o.Labels[i]) { // not required
-			continue
-		}
-
-		if o.Labels[i] != nil {
-			if err := o.Labels[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
 	return nil
 }
 
@@ -311,7 +224,7 @@ func (o *GetQueryPlanDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetQueryPlanOKBody QueryPlanReply are planid and query_plan.
+/*GetQueryPlanOKBody QueryPlanReply contains planid and query_plan.
 swagger:model GetQueryPlanOKBody
 */
 type GetQueryPlanOKBody struct {

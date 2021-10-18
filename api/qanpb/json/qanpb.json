@@ -1789,54 +1789,12 @@
             "in": "body",
             "required": true,
             "schema": {
-              "description": "QueryPlanRequest defines filtering of query plans for specific value of\ndimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
+              "description": "QueryPlanRequest defines filtering by queryid.",
               "type": "object",
               "properties": {
-                "filter_by": {
-                  "description": "dimension value: ex: queryid - 1D410B4BE5060972.",
+                "queryid": {
                   "type": "string",
-                  "x-order": 2
-                },
-                "group_by": {
-                  "description": "one of dimension: queryid | host ...",
-                  "type": "string",
-                  "x-order": 3
-                },
-                "labels": {
-                  "type": "array",
-                  "items": {
-                    "description": "MapFieldEntry allows to pass labels/dimensions in form like {\"server\": [\"db1\", \"db2\"...]}.",
-                    "type": "object",
-                    "properties": {
-                      "key": {
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "value": {
-                        "type": "array",
-                        "items": {
-                          "type": "string"
-                        },
-                        "x-order": 1
-                      }
-                    }
-                  },
-                  "x-order": 4
-                },
-                "limit": {
-                  "type": "integer",
-                  "format": "int64",
-                  "x-order": 5
-                },
-                "period_start_from": {
-                  "type": "string",
-                  "format": "date-time",
                   "x-order": 0
-                },
-                "period_start_to": {
-                  "type": "string",
-                  "format": "date-time",
-                  "x-order": 1
                 }
               }
             }
@@ -1846,7 +1804,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "QueryPlanReply are planid and query_plan.",
+              "description": "QueryPlanReply contains planid and query_plan.",
               "type": "object",
               "properties": {
                 "planid": {

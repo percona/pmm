@@ -133,20 +133,12 @@ message ListLabelValues {
   repeated string values = 1;
 }
 
-// QueryPlanRequest defines filtering of query plans for specific value of
-// dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
+// QueryPlanRequest defines filtering by queryid.
 message QueryPlanRequest {
-  google.protobuf.Timestamp period_start_from = 1;
-  google.protobuf.Timestamp period_start_to = 2;
-  // dimension value: ex: queryid - 1D410B4BE5060972.
-  string filter_by = 3;
-  // one of dimension: queryid | host ...
-  string group_by = 4;
-  repeated MapFieldEntry labels = 5;
-  uint32 limit = 6;
+  string queryid = 1;
 }
 
-// QueryPlanReply are planid and query_plan.
+// QueryPlanReply contains planid and query_plan.
 message QueryPlanReply {
   string planid = 1;
   string query_plan = 2;
