@@ -1886,26 +1886,16 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "QueryPlanReply list of query planes.",
+              "description": "QueryPlanReply are planid and query_plan.",
               "type": "object",
               "properties": {
-                "query_plans": {
-                  "type": "array",
-                  "items": {
-                    "description": "QueryPlan shows query planes and their metrics.",
-                    "type": "object",
-                    "properties": {
-                      "planid": {
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "query_plan": {
-                        "type": "string",
-                        "x-order": 1
-                      }
-                    }
-                  },
+                "planid": {
+                  "type": "string",
                   "x-order": 0
+                },
+                "query_plan": {
+                  "type": "string",
+                  "x-order": 1
                 }
               }
             }
