@@ -421,6 +421,8 @@ func runDebugServer(ctx context.Context) {
 
 type setupDeps struct {
 	sqlDB        *sql.DB
+	dbName       string
+	dbAddress    string
 	dbUsername   string
 	dbPassword   string
 	supervisord  *supervisord.Service
@@ -436,6 +438,8 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 	deps.l.Infof("Migrating database...")
 	db, err := models.SetupDB(deps.sqlDB, &models.SetupDBParams{
 		Logf:          deps.l.Debugf,
+		Name:          deps.dbName,
+		Address:       deps.dbAddress,
 		Username:      deps.dbUsername,
 		Password:      deps.dbPassword,
 		SetupFixtures: models.SetupFixtures,
@@ -715,6 +719,8 @@ func main() {
 	// try synchronously once, then retry in the background
 	deps := &setupDeps{
 		sqlDB:        sqlDB,
+		dbName:       *postgresDBNameF,
+		dbAddress:    *postgresAddrF,
 		dbUsername:   *postgresDBUsernameF,
 		dbPassword:   *postgresDBPasswordF,
 		supervisord:  supervisord,

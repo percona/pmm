@@ -670,13 +670,15 @@ const (
 // SetupDBParams represents SetupDB parameters.
 type SetupDBParams struct {
 	Logf             reform.Printf
+	Address          string
+	Name             string
 	Username         string
 	Password         string
 	SetupFixtures    SetupFixturesMode
 	MigrationVersion *int
 }
 
-// SetupDB runs PostgreSQL database migrations and optionally adds initial data.
+// SetupDB runs PostgreSQL database migrations and optionally creates database and adds initial data.
 func SetupDB(sqlDB *sql.DB, params *SetupDBParams) (*reform.DB, error) {
 	var logger reform.Logger
 	if params.Logf != nil {
@@ -689,19 +691,68 @@ func SetupDB(sqlDB *sql.DB, params *SetupDBParams) (*reform.DB, error) {
 		latestVersion = *params.MigrationVersion
 	}
 	var currentVersion int
-	err := db.QueryRow("SELECT id FROM schema_migrations ORDER BY id DESC LIMIT 1").Scan(&currentVersion)
-	if pErr, ok := err.(*pq.Error); ok && pErr.Code == "42P01" { // undefined_table (see https://www.postgresql.org/docs/current/errcodes-appendix.html)
-		err = nil
+	errDB := db.QueryRow("SELECT id FROM schema_migrations ORDER BY id DESC LIMIT 1").Scan(&currentVersion)
+
+	if pErr, ok := errDB.(*pq.Error); ok && pErr.Code == "28000" {
+		// invalid_authorization_specification	(see https://www.postgresql.org/docs/current/errcodes-appendix.html)
+		var databaseName = params.Name
+		var roleName = params.Username
+
+		if params.Logf != nil {
+			params.Logf("Creating database %s and role %s", databaseName, roleName)
+		}
+		// we use empty password/db and postgres user for creating database
+		db, err := OpenDB(params.Address, "", "postgres", "")
+		if err != nil {
+			return nil, errors.WithStack(err)
+		}
+		defer db.Close() //nolint:errcheck
+
+		var countDatabases int
+		err = db.QueryRow(`SELECT COUNT(*) FROM pg_database WHERE datname = $1`, databaseName).Scan(&countDatabases)
+		if err != nil {
+			return nil, errors.WithStack(err)
+		}
+
+		if countDatabases == 0 {
+			_, err = db.Exec(fmt.Sprintf(`CREATE DATABASE "%s"`, databaseName))
+			if err != nil {
+				return nil, errors.WithStack(err)
+			}
+		}
+
+		var countRoles int
+		err = db.QueryRow(`SELECT COUNT(*) FROM pg_roles WHERE rolname=$1`, roleName).Scan(&countRoles)
+		if err != nil {
+			return nil, errors.WithStack(err)
+		}
+
+		if countRoles == 0 {
+			_, err = db.Exec(fmt.Sprintf(`CREATE USER "%s" LOGIN PASSWORD '%s'`, roleName, params.Password))
+			if err != nil {
+				return nil, errors.WithStack(err)
+			}
+
+			_, err = db.Exec(`GRANT ALL PRIVILEGES ON DATABASE $1 TO $2`, databaseName, roleName)
+			if err != nil {
+				return nil, errors.WithStack(err)
+			}
+		}
+		errDB = db.QueryRow("SELECT id FROM schema_migrations ORDER BY id DESC LIMIT 1").Scan(&currentVersion)
 	}
-	if err != nil {
-		return nil, errors.WithStack(err)
+	if pErr, ok := errDB.(*pq.Error); ok && pErr.Code == "42P01" { // undefined_table (see https://www.postgresql.org/docs/current/errcodes-appendix.html)
+		errDB = nil
+	}
+
+	if errDB != nil {
+		return nil, errors.WithStack(errDB)
 	}
 	if params.Logf != nil {
 		params.Logf("Current database schema version: %d. Latest version: %d.", currentVersion, latestVersion)
 	}
 
 	// rollback all migrations if one of them fails; PostgreSQL supports DDL transactions
-	err = db.InTransaction(func(tx *reform.TX) error {
+	err := db.InTransaction(func(tx *reform.TX) error {
 		for version := currentVersion + 1; version <= latestVersion; version++ {
 			if params.Logf != nil {
 				params.Logf("Migrating database to schema version %d ...", version)
@@ -711,7 +762,7 @@ func SetupDB(sqlDB *sql.DB, params *SetupDBParams) (*reform.DB, error) {
 			queries = append(queries, fmt.Sprintf(`INSERT INTO schema_migrations (id) VALUES (%d)`, version))
 			for _, q := range queries {
 				q = strings.TrimSpace(q)
-				if _, err = tx.Exec(q); err != nil {
+				if _, err := tx.Exec(q); err != nil {
 					return errors.Wrapf(err, "failed to execute statement:\n%s", q)
 				}
 			}
