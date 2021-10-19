@@ -1,6 +1,6 @@
 # Percona Monitoring and Management 2.x
 
-[![Build Status](https://travis-ci.com/percona/pmm.svg?branch=PMM-2.0)](https://travis-ci.com/percona/pmm)
+[![Build Status](https://travis-ci.com/percona/pmm.svg?branch=main)](https://travis-ci.com/percona/pmm)
 [![CLA assistant](https://cla-assistant.percona.com/readme/badge/percona/pmm)](https://cla-assistant.percona.com/percona/pmm)
 
 ![PMM](https://www.percona.com/sites/default/files/pmm-logo.png)
@@ -41,9 +41,9 @@ As a general rule of thumb, please try to create bug reports that are:
 
 ## APIs
 
-See stable API definitions [there](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/percona/pmm/PMM-2.0/api/swagger/swagger.json),
+See stable API definitions [there](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/percona/pmm/main/api/swagger/swagger.json),
 and all API definitions (including technical preview, development and testing APIs)
-[there](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/percona/pmm/PMM-2.0/api/swagger/swagger-dev.json).
+[there](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/percona/pmm/main/api/swagger/swagger-dev.json).
 
 
 ## Repositories
