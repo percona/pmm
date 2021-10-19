@@ -115,3 +115,16 @@ func (this *QueryPlanRequest) Validate() error {
 func (this *QueryPlanReply) Validate() error {
 	return nil
 }
+func (this *HistogramRequest) Validate() error {
+	return nil
+}
+func (this *HistogramReply) Validate() error {
+	for _, item := range this.HistogramItems {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("HistogramItems", err)
+			}
+		}
+	}
+	return nil
+}

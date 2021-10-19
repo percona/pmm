@@ -20,3 +20,6 @@ func (this *Point) Validate() error {
 func (this *MapFieldEntry) Validate() error {
 	return nil
 }
+func (this *HistogramItem) Validate() error {
+	return nil
+}

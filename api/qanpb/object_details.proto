@@ -38,6 +38,13 @@ service ObjectDetails {
       body: "*"
     };
   }
+  // GetHistogram gets histogram items for specific filtering.
+  rpc GetHistogram(HistogramRequest) returns (HistogramReply) {
+    option (google.api.http) = {
+      post: "/v0/qan/ObjectDetails/GetHistogram"
+      body: "*"
+    };
+  }
 }
 
 // MetricsRequest defines filtering of metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
@@ -142,4 +149,14 @@ message QueryPlanRequest {
 message QueryPlanReply {
   string planid = 1;
   string query_plan = 2;
+}
+
+// HistogramRequest defines filtering by queryid.
+message HistogramRequest {
+  string queryid = 1;
+}
+
+// HistogramReply contains is a map of histogram items as a list.
+message HistogramReply {
+  repeated HistogramItem histogram_items = 1;
 }

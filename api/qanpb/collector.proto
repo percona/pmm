@@ -372,6 +372,7 @@ message MetricsBucket {
   string application_name = 247;
   string planid = 248;
   string query_plan = 250;
+  repeated HistogramItem histogram_items = 251;
 }
 
 message CollectResponse {}
