@@ -17374,17 +17374,17 @@
                         "x-order": 0
                       },
                       "state": {
-                        "description": "PXCClusterState represents PXC cluster CR state.\n\n - PXC_CLUSTER_STATE_INVALID: PXC_CLUSTER_STATE_INVALID represents unknown state.\n - PXC_CLUSTER_STATE_CHANGING: PXC_CLUSTER_STATE_CHANGING represents a cluster being changed.\n - PXC_CLUSTER_STATE_READY: PXC_CLUSTER_STATE_READY represents a cluster without pending changes.\n - PXC_CLUSTER_STATE_FAILED: PXC_CLUSTER_STATE_FAILED represents a failed cluster.\n - PXC_CLUSTER_STATE_DELETING: PXC_CLUSTER_STATE_DELETING represents a cluster being deleting.\n - PXC_CLUSTER_STATE_PAUSED: PXC_CLUSTER_STATE_PAUSED represents a cluster is paused.\n - PXC_CLUSTER_STATE_UPGRADING: PXC_CLUSTER_STATE_UPGRADING is a special case of PXC_CLUSTER_STATE_CHANGING.\nIt indicates database cluster upgrade is ongoing.",
+                        "description": "DBClusterState represents DB cluster CR state.\n\n - DB_CLUSTER_STATE_INVALID: DB_CLUSTER_STATE_INVALID represents unknown state.\n - DB_CLUSTER_STATE_CHANGING: DB_CLUSTER_STATE_CHANGING represents a cluster being changed.\n - DB_CLUSTER_STATE_READY: DB_CLUSTER_STATE_READY represents a cluster without pending changes.\n - DB_CLUSTER_STATE_FAILED: DB_CLUSTER_STATE_FAILED represents a failed cluster.\n - DB_CLUSTER_STATE_DELETING: DB_CLUSTER_STATE_DELETING represents a cluster being deleting.\n - DB_CLUSTER_STATE_PAUSED: DB_CLUSTER_STATE_PAUSED represents a cluster is paused.\n - DB_CLUSTER_STATE_UPGRADING: DB_CLUSTER_STATE_UPGRADING is a special case of DB_CLUSTER_STATE_CHANGING.\nIt indicates database cluster upgrade is ongoing.",
                         "type": "string",
-                        "default": "PXC_CLUSTER_STATE_INVALID",
+                        "default": "DB_CLUSTER_STATE_INVALID",
                         "enum": [
-                          "PXC_CLUSTER_STATE_INVALID",
-                          "PXC_CLUSTER_STATE_CHANGING",
-                          "PXC_CLUSTER_STATE_READY",
-                          "PXC_CLUSTER_STATE_FAILED",
-                          "PXC_CLUSTER_STATE_DELETING",
-                          "PXC_CLUSTER_STATE_PAUSED",
-                          "PXC_CLUSTER_STATE_UPGRADING"
+                          "DB_CLUSTER_STATE_INVALID",
+                          "DB_CLUSTER_STATE_CHANGING",
+                          "DB_CLUSTER_STATE_READY",
+                          "DB_CLUSTER_STATE_FAILED",
+                          "DB_CLUSTER_STATE_DELETING",
+                          "DB_CLUSTER_STATE_PAUSED",
+                          "DB_CLUSTER_STATE_UPGRADING"
                         ],
                         "x-order": 1
                       },
@@ -17562,17 +17562,17 @@
                         "x-order": 0
                       },
                       "state": {
-                        "description": "PSMDBClusterState represents PSMDB cluster CR state.\n\n - PSMDB_CLUSTER_STATE_INVALID: PSMDB_CLUSTER_STATE_INVALID represents unknown state.\n - PSMDB_CLUSTER_STATE_CHANGING: PSMDB_CLUSTER_STATE_CHANGING represents a cluster being changed.\n - PSMDB_CLUSTER_STATE_READY: PSMDB_CLUSTER_STATE_READY represents a cluster without pending changes.\n - PSMDB_CLUSTER_STATE_FAILED: PSMDB_CLUSTER_STATE_FAILED represents a failed cluster.\n - PSMDB_CLUSTER_STATE_DELETING: PSMDB_CLUSTER_STATE_DELETING represents a cluster being deleting.\n - PSMDB_CLUSTER_STATE_PAUSED: PSMDB_CLUSTER_STATE_PAUSED represents a cluster is paused.\n - PSMDB_CLUSTER_STATE_UPGRADING: PSMDB_CLUSTER_STATE_UPGRADING is a special case of PSMDB_CLUSTER_STATE_CHANGING.\nIt indicates database cluster upgrade is ongoing.",
+                        "description": "DBClusterState represents DB cluster CR state.\n\n - DB_CLUSTER_STATE_INVALID: DB_CLUSTER_STATE_INVALID represents unknown state.\n - DB_CLUSTER_STATE_CHANGING: DB_CLUSTER_STATE_CHANGING represents a cluster being changed.\n - DB_CLUSTER_STATE_READY: DB_CLUSTER_STATE_READY represents a cluster without pending changes.\n - DB_CLUSTER_STATE_FAILED: DB_CLUSTER_STATE_FAILED represents a failed cluster.\n - DB_CLUSTER_STATE_DELETING: DB_CLUSTER_STATE_DELETING represents a cluster being deleting.\n - DB_CLUSTER_STATE_PAUSED: DB_CLUSTER_STATE_PAUSED represents a cluster is paused.\n - DB_CLUSTER_STATE_UPGRADING: DB_CLUSTER_STATE_UPGRADING is a special case of DB_CLUSTER_STATE_CHANGING.\nIt indicates database cluster upgrade is ongoing.",
                         "type": "string",
-                        "default": "PSMDB_CLUSTER_STATE_INVALID",
+                        "default": "DB_CLUSTER_STATE_INVALID",
                         "enum": [
-                          "PSMDB_CLUSTER_STATE_INVALID",
-                          "PSMDB_CLUSTER_STATE_CHANGING",
-                          "PSMDB_CLUSTER_STATE_READY",
-                          "PSMDB_CLUSTER_STATE_FAILED",
-                          "PSMDB_CLUSTER_STATE_DELETING",
-                          "PSMDB_CLUSTER_STATE_PAUSED",
-                          "PSMDB_CLUSTER_STATE_UPGRADING"
+                          "DB_CLUSTER_STATE_INVALID",
+                          "DB_CLUSTER_STATE_CHANGING",
+                          "DB_CLUSTER_STATE_READY",
+                          "DB_CLUSTER_STATE_FAILED",
+                          "DB_CLUSTER_STATE_DELETING",
+                          "DB_CLUSTER_STATE_PAUSED",
+                          "DB_CLUSTER_STATE_UPGRADING"
                         ],
                         "x-order": 1
                       },
@@ -18624,84 +18624,6 @@
         }
       }
     },
-    "/v1/management/DBaaS/PSMDBCluster/Restart": {
-      "post": {
-        "tags": [
-          "PSMDBClusters"
-        ],
-        "summary": "RestartPSMDBCluster restarts PSMDB cluster.",
-        "operationId": "RestartPSMDBCluster",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "kubernetes_cluster_name": {
-                  "description": "Kubernetes cluster name.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "name": {
-                  "description": "PSMDB cluster name.",
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 1
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 2
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "type_url": {
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
-                      }
-                    }
-                  },
-                  "x-order": 3
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v1/management/DBaaS/PSMDBCluster/Update": {
       "post": {
         "tags": [
@@ -19364,10 +19286,10 @@
     "/v1/management/DBaaS/PXCCluster/Restart": {
       "post": {
         "tags": [
-          "PXCClusters"
+          "DBClusters"
         ],
-        "summary": "RestartPXCCluster restarts PXC cluster.",
-        "operationId": "RestartPXCCluster",
+        "summary": "RestartDBCluster restarts DB cluster.",
+        "operationId": "RestartDBCluster",
         "parameters": [
           {
             "name": "body",
@@ -19385,6 +19307,17 @@
                   "description": "PXC cluster name.",
                   "type": "string",
                   "x-order": 1
+                },
+                "cluster_type": {
+                  "description": "DBClusterType represents database cluster type.\n\n - DB_CLUSTER_TYPE_INVALID: DB_CLUSTER_TYPE_INVALID represents unknown cluster type.\n - DB_CLUSTER_TYPE_PXC: DB_CLUSTER_TYPE_PXC represents pxc cluster type.\n - DB_CLUSTER_TYPE_PSMDB: DB_CLUSTER_TYPE_PXC represents psmdb cluster type.",
+                  "type": "string",
+                  "default": "DB_CLUSTER_TYPE_INVALID",
+                  "enum": [
+                    "DB_CLUSTER_TYPE_INVALID",
+                    "DB_CLUSTER_TYPE_PXC",
+                    "DB_CLUSTER_TYPE_PSMDB"
+                  ],
+                  "x-order": 2
                 }
               }
             }

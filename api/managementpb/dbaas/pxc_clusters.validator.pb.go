@@ -174,18 +174,6 @@ func (this *UpdatePXCClusterRequest_UpdatePXCClusterParams_HAProxy) Validate() e
 func (this *UpdatePXCClusterResponse) Validate() error {
 	return nil
 }
-func (this *RestartPXCClusterRequest) Validate() error {
-	if this.KubernetesClusterName == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
-	}
-	if this.Name == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
-	}
-	return nil
-}
-func (this *RestartPXCClusterResponse) Validate() error {
-	return nil
-}
 func (this *GetPXCClusterResourcesRequest) Validate() error {
 	if nil == this.Params {
 		return github_com_mwitkow_go_proto_validators.FieldError("Params", fmt.Errorf("message must exist"))

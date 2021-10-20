@@ -31,8 +31,6 @@ type ClientService interface {
 
 	GetPSMDBClusterResources(params *GetPSMDBClusterResourcesParams) (*GetPSMDBClusterResourcesOK, error)
 
-	RestartPSMDBCluster(params *RestartPSMDBClusterParams) (*RestartPSMDBClusterOK, error)
-
 	UpdatePSMDBCluster(params *UpdatePSMDBClusterParams) (*UpdatePSMDBClusterOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
@@ -134,39 +132,6 @@ func (a *Client) GetPSMDBClusterResources(params *GetPSMDBClusterResourcesParams
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*GetPSMDBClusterResourcesDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-  RestartPSMDBCluster restarts PSMDB cluster restarts PSMDB cluster
-*/
-func (a *Client) RestartPSMDBCluster(params *RestartPSMDBClusterParams) (*RestartPSMDBClusterOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewRestartPSMDBClusterParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "RestartPSMDBCluster",
-		Method:             "POST",
-		PathPattern:        "/v1/management/DBaaS/PSMDBCluster/Restart",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &RestartPSMDBClusterReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*RestartPSMDBClusterOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*RestartPSMDBClusterDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

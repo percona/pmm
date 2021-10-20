@@ -29,6 +29,8 @@ type ClientService interface {
 
 	ListDBClusters(params *ListDBClustersParams) (*ListDBClustersOK, error)
 
+	RestartDBCluster(params *RestartDBClusterParams) (*RestartDBClusterOK, error)
+
 	SetTransport(transport runtime.ClientTransport)
 }
 
@@ -95,6 +97,39 @@ func (a *Client) ListDBClusters(params *ListDBClustersParams) (*ListDBClustersOK
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*ListDBClustersDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  RestartDBCluster restarts DB cluster restarts DB cluster
+*/
+func (a *Client) RestartDBCluster(params *RestartDBClusterParams) (*RestartDBClusterOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewRestartDBClusterParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "RestartDBCluster",
+		Method:             "POST",
+		PathPattern:        "/v1/management/DBaaS/PXCCluster/Restart",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &RestartDBClusterReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*RestartDBClusterOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*RestartDBClusterDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

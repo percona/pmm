@@ -31,76 +31,6 @@ const (
 // of the legacy proto package is being used.
 const _ = proto.ProtoPackageIsVersion4
 
-// PXCClusterState represents PXC cluster CR state.
-type PXCClusterState int32
-
-const (
-	// PXC_CLUSTER_STATE_INVALID represents unknown state.
-	PXCClusterState_PXC_CLUSTER_STATE_INVALID PXCClusterState = 0
-	// PXC_CLUSTER_STATE_CHANGING represents a cluster being changed.
-	PXCClusterState_PXC_CLUSTER_STATE_CHANGING PXCClusterState = 1
-	// PXC_CLUSTER_STATE_READY represents a cluster without pending changes.
-	PXCClusterState_PXC_CLUSTER_STATE_READY PXCClusterState = 2
-	// PXC_CLUSTER_STATE_FAILED represents a failed cluster.
-	PXCClusterState_PXC_CLUSTER_STATE_FAILED PXCClusterState = 3
-	// PXC_CLUSTER_STATE_DELETING represents a cluster being deleting.
-	PXCClusterState_PXC_CLUSTER_STATE_DELETING PXCClusterState = 4
-	// PXC_CLUSTER_STATE_PAUSED represents a cluster is paused.
-	PXCClusterState_PXC_CLUSTER_STATE_PAUSED PXCClusterState = 5
-	// PXC_CLUSTER_STATE_UPGRADING is a special case of PXC_CLUSTER_STATE_CHANGING.
-	// It indicates database cluster upgrade is ongoing.
-	PXCClusterState_PXC_CLUSTER_STATE_UPGRADING PXCClusterState = 6
-)
-
-// Enum value maps for PXCClusterState.
-var (
-	PXCClusterState_name = map[int32]string{
-		0: "PXC_CLUSTER_STATE_INVALID",
-		1: "PXC_CLUSTER_STATE_CHANGING",
-		2: "PXC_CLUSTER_STATE_READY",
-		3: "PXC_CLUSTER_STATE_FAILED",
-		4: "PXC_CLUSTER_STATE_DELETING",
-		5: "PXC_CLUSTER_STATE_PAUSED",
-		6: "PXC_CLUSTER_STATE_UPGRADING",
-	}
-	PXCClusterState_value = map[string]int32{
-		"PXC_CLUSTER_STATE_INVALID":   0,
-		"PXC_CLUSTER_STATE_CHANGING":  1,
-		"PXC_CLUSTER_STATE_READY":     2,
-		"PXC_CLUSTER_STATE_FAILED":    3,
-		"PXC_CLUSTER_STATE_DELETING":  4,
-		"PXC_CLUSTER_STATE_PAUSED":    5,
-		"PXC_CLUSTER_STATE_UPGRADING": 6,
-	}
-)
-
-func (x PXCClusterState) Enum() *PXCClusterState {
-	p := new(PXCClusterState)
-	*p = x
-	return p
-}
-
-func (x PXCClusterState) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (PXCClusterState) Descriptor() protoreflect.EnumDescriptor {
-	return file_managementpb_dbaas_pxc_clusters_proto_enumTypes[0].Descriptor()
-}
-
-func (PXCClusterState) Type() protoreflect.EnumType {
-	return &file_managementpb_dbaas_pxc_clusters_proto_enumTypes[0]
-}
-
-func (x PXCClusterState) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use PXCClusterState.Descriptor instead.
-func (PXCClusterState) EnumDescriptor() ([]byte, []int) {
-	return file_managementpb_dbaas_pxc_clusters_proto_rawDescGZIP(), []int{0}
-}
-
 // PXCBackupState represents PXC backup CR state.
 type PXCBackupState int32
 
@@ -142,11 +72,11 @@ func (x PXCBackupState) String() string {
 }
 
 func (PXCBackupState) Descriptor() protoreflect.EnumDescriptor {
-	return file_managementpb_dbaas_pxc_clusters_proto_enumTypes[1].Descriptor()
+	return file_managementpb_dbaas_pxc_clusters_proto_enumTypes[0].Descriptor()
 }
 
 func (PXCBackupState) Type() protoreflect.EnumType {
-	return &file_managementpb_dbaas_pxc_clusters_proto_enumTypes[1]
+	return &file_managementpb_dbaas_pxc_clusters_proto_enumTypes[0]
 }
 
 func (x PXCBackupState) Number() protoreflect.EnumNumber {
@@ -155,7 +85,7 @@ func (x PXCBackupState) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use PXCBackupState.Descriptor instead.
 func (PXCBackupState) EnumDescriptor() ([]byte, []int) {
-	return file_managementpb_dbaas_pxc_clusters_proto_rawDescGZIP(), []int{1}
+	return file_managementpb_dbaas_pxc_clusters_proto_rawDescGZIP(), []int{0}
 }
 
 // PXCClusterParams represents PXC cluster parameters that can be updated.
@@ -636,101 +566,6 @@ func (*UpdatePXCClusterResponse) Descriptor() ([]byte, []int) {
 	return file_managementpb_dbaas_pxc_clusters_proto_rawDescGZIP(), []int{7}
 }
 
-type RestartPXCClusterRequest struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	// Kubernetes cluster name.
-	KubernetesClusterName string `protobuf:"bytes,1,opt,name=kubernetes_cluster_name,json=kubernetesClusterName,proto3" json:"kubernetes_cluster_name,omitempty"`
-	// PXC cluster name.
-	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-}
-
-func (x *RestartPXCClusterRequest) Reset() {
-	*x = RestartPXCClusterRequest{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[8]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *RestartPXCClusterRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*RestartPXCClusterRequest) ProtoMessage() {}
-
-func (x *RestartPXCClusterRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[8]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use RestartPXCClusterRequest.ProtoReflect.Descriptor instead.
-func (*RestartPXCClusterRequest) Descriptor() ([]byte, []int) {
-	return file_managementpb_dbaas_pxc_clusters_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *RestartPXCClusterRequest) GetKubernetesClusterName() string {
-	if x != nil {
-		return x.KubernetesClusterName
-	}
-	return ""
-}
-
-func (x *RestartPXCClusterRequest) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-type RestartPXCClusterResponse struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-}
-
-func (x *RestartPXCClusterResponse) Reset() {
-	*x = RestartPXCClusterResponse{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[9]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *RestartPXCClusterResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*RestartPXCClusterResponse) ProtoMessage() {}
-
-func (x *RestartPXCClusterResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[9]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use RestartPXCClusterResponse.ProtoReflect.Descriptor instead.
-func (*RestartPXCClusterResponse) Descriptor() ([]byte, []int) {
-	return file_managementpb_dbaas_pxc_clusters_proto_rawDescGZIP(), []int{9}
-}
-
 type GetPXCClusterResourcesRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -743,7 +578,7 @@ type GetPXCClusterResourcesRequest struct {
 func (x *GetPXCClusterResourcesRequest) Reset() {
 	*x = GetPXCClusterResourcesRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[10]
+		mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[8]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -756,7 +591,7 @@ func (x *GetPXCClusterResourcesRequest) String() string {
 func (*GetPXCClusterResourcesRequest) ProtoMessage() {}
 
 func (x *GetPXCClusterResourcesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[10]
+	mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[8]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -769,7 +604,7 @@ func (x *GetPXCClusterResourcesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPXCClusterResourcesRequest.ProtoReflect.Descriptor instead.
 func (*GetPXCClusterResourcesRequest) Descriptor() ([]byte, []int) {
-	return file_managementpb_dbaas_pxc_clusters_proto_rawDescGZIP(), []int{10}
+	return file_managementpb_dbaas_pxc_clusters_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetPXCClusterResourcesRequest) GetParams() *PXCClusterParams {
@@ -791,7 +626,7 @@ type GetPXCClusterResourcesResponse struct {
 func (x *GetPXCClusterResourcesResponse) Reset() {
 	*x = GetPXCClusterResourcesResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[11]
+		mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[9]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -804,7 +639,7 @@ func (x *GetPXCClusterResourcesResponse) String() string {
 func (*GetPXCClusterResourcesResponse) ProtoMessage() {}
 
 func (x *GetPXCClusterResourcesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[11]
+	mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[9]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -817,7 +652,7 @@ func (x *GetPXCClusterResourcesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPXCClusterResourcesResponse.ProtoReflect.Descriptor instead.
 func (*GetPXCClusterResourcesResponse) Descriptor() ([]byte, []int) {
-	return file_managementpb_dbaas_pxc_clusters_proto_rawDescGZIP(), []int{11}
+	return file_managementpb_dbaas_pxc_clusters_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GetPXCClusterResourcesResponse) GetExpected() *Resources {
@@ -845,7 +680,7 @@ type PXCClusterParams_PXC struct {
 func (x *PXCClusterParams_PXC) Reset() {
 	*x = PXCClusterParams_PXC{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[12]
+		mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[10]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -858,7 +693,7 @@ func (x *PXCClusterParams_PXC) String() string {
 func (*PXCClusterParams_PXC) ProtoMessage() {}
 
 func (x *PXCClusterParams_PXC) ProtoReflect() protoreflect.Message {
-	mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[12]
+	mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[10]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -913,7 +748,7 @@ type PXCClusterParams_ProxySQL struct {
 func (x *PXCClusterParams_ProxySQL) Reset() {
 	*x = PXCClusterParams_ProxySQL{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[13]
+		mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[11]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -926,7 +761,7 @@ func (x *PXCClusterParams_ProxySQL) String() string {
 func (*PXCClusterParams_ProxySQL) ProtoMessage() {}
 
 func (x *PXCClusterParams_ProxySQL) ProtoReflect() protoreflect.Message {
-	mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[13]
+	mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[11]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -979,7 +814,7 @@ type PXCClusterParams_HAProxy struct {
 func (x *PXCClusterParams_HAProxy) Reset() {
 	*x = PXCClusterParams_HAProxy{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[14]
+		mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[12]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -992,7 +827,7 @@ func (x *PXCClusterParams_HAProxy) String() string {
 func (*PXCClusterParams_HAProxy) ProtoMessage() {}
 
 func (x *PXCClusterParams_HAProxy) ProtoReflect() protoreflect.Message {
-	mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[14]
+	mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[12]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1045,7 +880,7 @@ type UpdatePXCClusterRequest_UpdatePXCClusterParams struct {
 func (x *UpdatePXCClusterRequest_UpdatePXCClusterParams) Reset() {
 	*x = UpdatePXCClusterRequest_UpdatePXCClusterParams{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[15]
+		mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[13]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1058,7 +893,7 @@ func (x *UpdatePXCClusterRequest_UpdatePXCClusterParams) String() string {
 func (*UpdatePXCClusterRequest_UpdatePXCClusterParams) ProtoMessage() {}
 
 func (x *UpdatePXCClusterRequest_UpdatePXCClusterParams) ProtoReflect() protoreflect.Message {
-	mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[15]
+	mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[13]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1132,7 +967,7 @@ type UpdatePXCClusterRequest_UpdatePXCClusterParams_PXC struct {
 func (x *UpdatePXCClusterRequest_UpdatePXCClusterParams_PXC) Reset() {
 	*x = UpdatePXCClusterRequest_UpdatePXCClusterParams_PXC{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[16]
+		mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[14]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1145,7 +980,7 @@ func (x *UpdatePXCClusterRequest_UpdatePXCClusterParams_PXC) String() string {
 func (*UpdatePXCClusterRequest_UpdatePXCClusterParams_PXC) ProtoMessage() {}
 
 func (x *UpdatePXCClusterRequest_UpdatePXCClusterParams_PXC) ProtoReflect() protoreflect.Message {
-	mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[16]
+	mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[14]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1188,7 +1023,7 @@ type UpdatePXCClusterRequest_UpdatePXCClusterParams_ProxySQL struct {
 func (x *UpdatePXCClusterRequest_UpdatePXCClusterParams_ProxySQL) Reset() {
 	*x = UpdatePXCClusterRequest_UpdatePXCClusterParams_ProxySQL{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[17]
+		mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[15]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1201,7 +1036,7 @@ func (x *UpdatePXCClusterRequest_UpdatePXCClusterParams_ProxySQL) String() strin
 func (*UpdatePXCClusterRequest_UpdatePXCClusterParams_ProxySQL) ProtoMessage() {}
 
 func (x *UpdatePXCClusterRequest_UpdatePXCClusterParams_ProxySQL) ProtoReflect() protoreflect.Message {
-	mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[17]
+	mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[15]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1237,7 +1072,7 @@ type UpdatePXCClusterRequest_UpdatePXCClusterParams_HAProxy struct {
 func (x *UpdatePXCClusterRequest_UpdatePXCClusterParams_HAProxy) Reset() {
 	*x = UpdatePXCClusterRequest_UpdatePXCClusterParams_HAProxy{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[18]
+		mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[16]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1250,7 +1085,7 @@ func (x *UpdatePXCClusterRequest_UpdatePXCClusterParams_HAProxy) String() string
 func (*UpdatePXCClusterRequest_UpdatePXCClusterParams_HAProxy) ProtoMessage() {}
 
 func (x *UpdatePXCClusterRequest_UpdatePXCClusterParams_HAProxy) ProtoReflect() protoreflect.Message {
-	mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[18]
+	mi := &file_managementpb_dbaas_pxc_clusters_proto_msgTypes[16]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1427,107 +1262,73 @@ var file_managementpb_dbaas_pxc_clusters_proto_rawDesc = []byte{
 	0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x73, 0x52, 0x10, 0x63, 0x6f, 0x6d, 0x70, 0x75, 0x74, 0x65,
 	0x52, 0x65, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x73, 0x22, 0x1a, 0x0a, 0x18, 0x55, 0x70, 0x64,
 	0x61, 0x74, 0x65, 0x50, 0x58, 0x43, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x73,
-	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x76, 0x0a, 0x18, 0x52, 0x65, 0x73, 0x74, 0x61, 0x72, 0x74,
-	0x50, 0x58, 0x43, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
-	0x74, 0x12, 0x3e, 0x0a, 0x17, 0x6b, 0x75, 0x62, 0x65, 0x72, 0x6e, 0x65, 0x74, 0x65, 0x73, 0x5f,
-	0x63, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x5f, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x01, 0x20, 0x01,
-	0x28, 0x09, 0x42, 0x06, 0xe2, 0xdf, 0x1f, 0x02, 0x58, 0x01, 0x52, 0x15, 0x6b, 0x75, 0x62, 0x65,
-	0x72, 0x6e, 0x65, 0x74, 0x65, 0x73, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x4e, 0x61, 0x6d,
-	0x65, 0x12, 0x1a, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x42,
-	0x06, 0xe2, 0xdf, 0x1f, 0x02, 0x58, 0x01, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x22, 0x1b, 0x0a,
-	0x19, 0x52, 0x65, 0x73, 0x74, 0x61, 0x72, 0x74, 0x50, 0x58, 0x43, 0x43, 0x6c, 0x75, 0x73, 0x74,
-	0x65, 0x72, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x60, 0x0a, 0x1d, 0x47, 0x65,
-	0x74, 0x50, 0x58, 0x43, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x73, 0x6f, 0x75,
-	0x72, 0x63, 0x65, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x3f, 0x0a, 0x06, 0x70,
-	0x61, 0x72, 0x61, 0x6d, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1f, 0x2e, 0x64, 0x62,
-	0x61, 0x61, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x50, 0x58, 0x43, 0x43,
-	0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x42, 0x06, 0xe2, 0xdf,
-	0x1f, 0x02, 0x20, 0x01, 0x52, 0x06, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x22, 0x56, 0x0a, 0x1e,
-	0x47, 0x65, 0x74, 0x50, 0x58, 0x43, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x73,
-	0x6f, 0x75, 0x72, 0x63, 0x65, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x34,
-	0x0a, 0x08, 0x65, 0x78, 0x70, 0x65, 0x63, 0x74, 0x65, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b,
-	0x32, 0x18, 0x2e, 0x64, 0x62, 0x61, 0x61, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
-	0x2e, 0x52, 0x65, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x73, 0x52, 0x08, 0x65, 0x78, 0x70, 0x65,
-	0x63, 0x74, 0x65, 0x64, 0x2a, 0xea, 0x01, 0x0a, 0x0f, 0x50, 0x58, 0x43, 0x43, 0x6c, 0x75, 0x73,
-	0x74, 0x65, 0x72, 0x53, 0x74, 0x61, 0x74, 0x65, 0x12, 0x1d, 0x0a, 0x19, 0x50, 0x58, 0x43, 0x5f,
-	0x43, 0x4c, 0x55, 0x53, 0x54, 0x45, 0x52, 0x5f, 0x53, 0x54, 0x41, 0x54, 0x45, 0x5f, 0x49, 0x4e,
-	0x56, 0x41, 0x4c, 0x49, 0x44, 0x10, 0x00, 0x12, 0x1e, 0x0a, 0x1a, 0x50, 0x58, 0x43, 0x5f, 0x43,
-	0x4c, 0x55, 0x53, 0x54, 0x45, 0x52, 0x5f, 0x53, 0x54, 0x41, 0x54, 0x45, 0x5f, 0x43, 0x48, 0x41,
-	0x4e, 0x47, 0x49, 0x4e, 0x47, 0x10, 0x01, 0x12, 0x1b, 0x0a, 0x17, 0x50, 0x58, 0x43, 0x5f, 0x43,
-	0x4c, 0x55, 0x53, 0x54, 0x45, 0x52, 0x5f, 0x53, 0x54, 0x41, 0x54, 0x45, 0x5f, 0x52, 0x45, 0x41,
-	0x44, 0x59, 0x10, 0x02, 0x12, 0x1c, 0x0a, 0x18, 0x50, 0x58, 0x43, 0x5f, 0x43, 0x4c, 0x55, 0x53,
-	0x54, 0x45, 0x52, 0x5f, 0x53, 0x54, 0x41, 0x54, 0x45, 0x5f, 0x46, 0x41, 0x49, 0x4c, 0x45, 0x44,
-	0x10, 0x03, 0x12, 0x1e, 0x0a, 0x1a, 0x50, 0x58, 0x43, 0x5f, 0x43, 0x4c, 0x55, 0x53, 0x54, 0x45,
-	0x52, 0x5f, 0x53, 0x54, 0x41, 0x54, 0x45, 0x5f, 0x44, 0x45, 0x4c, 0x45, 0x54, 0x49, 0x4e, 0x47,
-	0x10, 0x04, 0x12, 0x1c, 0x0a, 0x18, 0x50, 0x58, 0x43, 0x5f, 0x43, 0x4c, 0x55, 0x53, 0x54, 0x45,
-	0x52, 0x5f, 0x53, 0x54, 0x41, 0x54, 0x45, 0x5f, 0x50, 0x41, 0x55, 0x53, 0x45, 0x44, 0x10, 0x05,
-	0x12, 0x1f, 0x0a, 0x1b, 0x50, 0x58, 0x43, 0x5f, 0x43, 0x4c, 0x55, 0x53, 0x54, 0x45, 0x52, 0x5f,
-	0x53, 0x54, 0x41, 0x54, 0x45, 0x5f, 0x55, 0x50, 0x47, 0x52, 0x41, 0x44, 0x49, 0x4e, 0x47, 0x10,
-	0x06, 0x2a, 0x89, 0x01, 0x0a, 0x0e, 0x50, 0x58, 0x43, 0x42, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x53,
-	0x74, 0x61, 0x74, 0x65, 0x12, 0x1c, 0x0a, 0x18, 0x50, 0x58, 0x43, 0x5f, 0x42, 0x41, 0x43, 0x4b,
-	0x55, 0x50, 0x5f, 0x53, 0x54, 0x41, 0x54, 0x45, 0x5f, 0x49, 0x4e, 0x56, 0x41, 0x4c, 0x49, 0x44,
-	0x10, 0x00, 0x12, 0x1c, 0x0a, 0x18, 0x50, 0x58, 0x43, 0x5f, 0x42, 0x41, 0x43, 0x4b, 0x55, 0x50,
-	0x5f, 0x53, 0x54, 0x41, 0x54, 0x45, 0x5f, 0x52, 0x55, 0x4e, 0x4e, 0x49, 0x4e, 0x47, 0x10, 0x01,
-	0x12, 0x1e, 0x0a, 0x1a, 0x50, 0x58, 0x43, 0x5f, 0x42, 0x41, 0x43, 0x4b, 0x55, 0x50, 0x5f, 0x53,
-	0x54, 0x41, 0x54, 0x45, 0x5f, 0x53, 0x55, 0x43, 0x43, 0x45, 0x45, 0x44, 0x45, 0x44, 0x10, 0x02,
-	0x12, 0x1b, 0x0a, 0x17, 0x50, 0x58, 0x43, 0x5f, 0x42, 0x41, 0x43, 0x4b, 0x55, 0x50, 0x5f, 0x53,
-	0x54, 0x41, 0x54, 0x45, 0x5f, 0x46, 0x41, 0x49, 0x4c, 0x45, 0x44, 0x10, 0x03, 0x32, 0xc8, 0x06,
-	0x0a, 0x0b, 0x50, 0x58, 0x43, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x73, 0x12, 0xb7, 0x01,
-	0x0a, 0x18, 0x47, 0x65, 0x74, 0x50, 0x58, 0x43, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x43,
-	0x72, 0x65, 0x64, 0x65, 0x6e, 0x74, 0x69, 0x61, 0x6c, 0x73, 0x12, 0x2e, 0x2e, 0x64, 0x62, 0x61,
-	0x61, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x47, 0x65, 0x74, 0x50, 0x58,
-	0x43, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x43, 0x72, 0x65, 0x64, 0x65, 0x6e, 0x74, 0x69,
-	0x61, 0x6c, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x2f, 0x2e, 0x64, 0x62, 0x61,
-	0x61, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x47, 0x65, 0x74, 0x50, 0x58,
-	0x43, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x43, 0x72, 0x65, 0x64, 0x65, 0x6e, 0x74, 0x69,
-	0x61, 0x6c, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x3a, 0x82, 0xd3, 0xe4,
-	0x93, 0x02, 0x34, 0x22, 0x2f, 0x2f, 0x76, 0x31, 0x2f, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d,
-	0x65, 0x6e, 0x74, 0x2f, 0x44, 0x42, 0x61, 0x61, 0x53, 0x2f, 0x50, 0x58, 0x43, 0x43, 0x6c, 0x75,
-	0x73, 0x74, 0x65, 0x72, 0x73, 0x2f, 0x47, 0x65, 0x74, 0x43, 0x72, 0x65, 0x64, 0x65, 0x6e, 0x74,
-	0x69, 0x61, 0x6c, 0x73, 0x3a, 0x01, 0x2a, 0x12, 0x96, 0x01, 0x0a, 0x10, 0x43, 0x72, 0x65, 0x61,
-	0x74, 0x65, 0x50, 0x58, 0x43, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x12, 0x26, 0x2e, 0x64,
-	0x62, 0x61, 0x61, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x43, 0x72, 0x65,
-	0x61, 0x74, 0x65, 0x50, 0x58, 0x43, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x71,
-	0x75, 0x65, 0x73, 0x74, 0x1a, 0x27, 0x2e, 0x64, 0x62, 0x61, 0x61, 0x73, 0x2e, 0x76, 0x31, 0x62,
-	0x65, 0x74, 0x61, 0x31, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x50, 0x58, 0x43, 0x43, 0x6c,
-	0x75, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x31, 0x82,
-	0xd3, 0xe4, 0x93, 0x02, 0x2b, 0x22, 0x26, 0x2f, 0x76, 0x31, 0x2f, 0x6d, 0x61, 0x6e, 0x61, 0x67,
-	0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2f, 0x44, 0x42, 0x61, 0x61, 0x53, 0x2f, 0x50, 0x58, 0x43, 0x43,
-	0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x2f, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x3a, 0x01, 0x2a,
-	0x12, 0x96, 0x01, 0x0a, 0x10, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x58, 0x43, 0x43, 0x6c,
-	0x75, 0x73, 0x74, 0x65, 0x72, 0x12, 0x26, 0x2e, 0x64, 0x62, 0x61, 0x61, 0x73, 0x2e, 0x76, 0x31,
-	0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x58, 0x43, 0x43,
-	0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x27, 0x2e,
-	0x64, 0x62, 0x61, 0x61, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x55, 0x70,
-	0x64, 0x61, 0x74, 0x65, 0x50, 0x58, 0x43, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65,
-	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x31, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x2b, 0x22, 0x26,
-	0x2f, 0x76, 0x31, 0x2f, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2f, 0x44,
-	0x42, 0x61, 0x61, 0x53, 0x2f, 0x50, 0x58, 0x43, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x2f,
-	0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x3a, 0x01, 0x2a, 0x12, 0x9a, 0x01, 0x0a, 0x11, 0x52, 0x65,
-	0x73, 0x74, 0x61, 0x72, 0x74, 0x50, 0x58, 0x43, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x12,
-	0x27, 0x2e, 0x64, 0x62, 0x61, 0x61, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e,
-	0x52, 0x65, 0x73, 0x74, 0x61, 0x72, 0x74, 0x50, 0x58, 0x43, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65,
-	0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x28, 0x2e, 0x64, 0x62, 0x61, 0x61, 0x73,
-	0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x52, 0x65, 0x73, 0x74, 0x61, 0x72, 0x74,
-	0x50, 0x58, 0x43, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
-	0x73, 0x65, 0x22, 0x32, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x2c, 0x22, 0x27, 0x2f, 0x76, 0x31, 0x2f,
-	0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2f, 0x44, 0x42, 0x61, 0x61, 0x53,
-	0x2f, 0x50, 0x58, 0x43, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x2f, 0x52, 0x65, 0x73, 0x74,
-	0x61, 0x72, 0x74, 0x3a, 0x01, 0x2a, 0x12, 0xaf, 0x01, 0x0a, 0x16, 0x47, 0x65, 0x74, 0x50, 0x58,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x60, 0x0a, 0x1d, 0x47, 0x65, 0x74, 0x50, 0x58, 0x43, 0x43,
+	0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x73, 0x52,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x3f, 0x0a, 0x06, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1f, 0x2e, 0x64, 0x62, 0x61, 0x61, 0x73, 0x2e, 0x76,
+	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x50, 0x58, 0x43, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65,
+	0x72, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x42, 0x06, 0xe2, 0xdf, 0x1f, 0x02, 0x20, 0x01, 0x52,
+	0x06, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x22, 0x56, 0x0a, 0x1e, 0x47, 0x65, 0x74, 0x50, 0x58,
 	0x43, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65,
-	0x73, 0x12, 0x2c, 0x2e, 0x64, 0x62, 0x61, 0x61, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
-	0x31, 0x2e, 0x47, 0x65, 0x74, 0x50, 0x58, 0x43, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x52,
-	0x65, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a,
-	0x2d, 0x2e, 0x64, 0x62, 0x61, 0x61, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e,
-	0x47, 0x65, 0x74, 0x50, 0x58, 0x43, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x73,
-	0x6f, 0x75, 0x72, 0x63, 0x65, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x38,
-	0x82, 0xd3, 0xe4, 0x93, 0x02, 0x32, 0x22, 0x2d, 0x2f, 0x76, 0x31, 0x2f, 0x6d, 0x61, 0x6e, 0x61,
-	0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2f, 0x44, 0x42, 0x61, 0x61, 0x53, 0x2f, 0x50, 0x58, 0x43,
-	0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x2f, 0x52, 0x65, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65,
-	0x73, 0x2f, 0x47, 0x65, 0x74, 0x3a, 0x01, 0x2a, 0x42, 0x25, 0x5a, 0x23, 0x61, 0x70, 0x69, 0x2f,
-	0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x70, 0x62, 0x2f, 0x64, 0x62, 0x61,
-	0x61, 0x73, 0x3b, 0x64, 0x62, 0x61, 0x61, 0x73, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x62,
-	0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x34, 0x0a, 0x08, 0x65, 0x78, 0x70,
+	0x65, 0x63, 0x74, 0x65, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x18, 0x2e, 0x64, 0x62,
+	0x61, 0x61, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x52, 0x65, 0x73, 0x6f,
+	0x75, 0x72, 0x63, 0x65, 0x73, 0x52, 0x08, 0x65, 0x78, 0x70, 0x65, 0x63, 0x74, 0x65, 0x64, 0x2a,
+	0x89, 0x01, 0x0a, 0x0e, 0x50, 0x58, 0x43, 0x42, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x53, 0x74, 0x61,
+	0x74, 0x65, 0x12, 0x1c, 0x0a, 0x18, 0x50, 0x58, 0x43, 0x5f, 0x42, 0x41, 0x43, 0x4b, 0x55, 0x50,
+	0x5f, 0x53, 0x54, 0x41, 0x54, 0x45, 0x5f, 0x49, 0x4e, 0x56, 0x41, 0x4c, 0x49, 0x44, 0x10, 0x00,
+	0x12, 0x1c, 0x0a, 0x18, 0x50, 0x58, 0x43, 0x5f, 0x42, 0x41, 0x43, 0x4b, 0x55, 0x50, 0x5f, 0x53,
+	0x54, 0x41, 0x54, 0x45, 0x5f, 0x52, 0x55, 0x4e, 0x4e, 0x49, 0x4e, 0x47, 0x10, 0x01, 0x12, 0x1e,
+	0x0a, 0x1a, 0x50, 0x58, 0x43, 0x5f, 0x42, 0x41, 0x43, 0x4b, 0x55, 0x50, 0x5f, 0x53, 0x54, 0x41,
+	0x54, 0x45, 0x5f, 0x53, 0x55, 0x43, 0x43, 0x45, 0x45, 0x44, 0x45, 0x44, 0x10, 0x02, 0x12, 0x1b,
+	0x0a, 0x17, 0x50, 0x58, 0x43, 0x5f, 0x42, 0x41, 0x43, 0x4b, 0x55, 0x50, 0x5f, 0x53, 0x54, 0x41,
+	0x54, 0x45, 0x5f, 0x46, 0x41, 0x49, 0x4c, 0x45, 0x44, 0x10, 0x03, 0x32, 0xab, 0x05, 0x0a, 0x0b,
+	0x50, 0x58, 0x43, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x73, 0x12, 0xb7, 0x01, 0x0a, 0x18,
+	0x47, 0x65, 0x74, 0x50, 0x58, 0x43, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x43, 0x72, 0x65,
+	0x64, 0x65, 0x6e, 0x74, 0x69, 0x61, 0x6c, 0x73, 0x12, 0x2e, 0x2e, 0x64, 0x62, 0x61, 0x61, 0x73,
+	0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x47, 0x65, 0x74, 0x50, 0x58, 0x43, 0x43,
+	0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x43, 0x72, 0x65, 0x64, 0x65, 0x6e, 0x74, 0x69, 0x61, 0x6c,
+	0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x2f, 0x2e, 0x64, 0x62, 0x61, 0x61, 0x73,
+	0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x47, 0x65, 0x74, 0x50, 0x58, 0x43, 0x43,
+	0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x43, 0x72, 0x65, 0x64, 0x65, 0x6e, 0x74, 0x69, 0x61, 0x6c,
+	0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x3a, 0x82, 0xd3, 0xe4, 0x93, 0x02,
+	0x34, 0x22, 0x2f, 0x2f, 0x76, 0x31, 0x2f, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e,
+	0x74, 0x2f, 0x44, 0x42, 0x61, 0x61, 0x53, 0x2f, 0x50, 0x58, 0x43, 0x43, 0x6c, 0x75, 0x73, 0x74,
+	0x65, 0x72, 0x73, 0x2f, 0x47, 0x65, 0x74, 0x43, 0x72, 0x65, 0x64, 0x65, 0x6e, 0x74, 0x69, 0x61,
+	0x6c, 0x73, 0x3a, 0x01, 0x2a, 0x12, 0x96, 0x01, 0x0a, 0x10, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65,
+	0x50, 0x58, 0x43, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x12, 0x26, 0x2e, 0x64, 0x62, 0x61,
+	0x61, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74,
+	0x65, 0x50, 0x58, 0x43, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x1a, 0x27, 0x2e, 0x64, 0x62, 0x61, 0x61, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74,
+	0x61, 0x31, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x50, 0x58, 0x43, 0x43, 0x6c, 0x75, 0x73,
+	0x74, 0x65, 0x72, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x31, 0x82, 0xd3, 0xe4,
+	0x93, 0x02, 0x2b, 0x22, 0x26, 0x2f, 0x76, 0x31, 0x2f, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d,
+	0x65, 0x6e, 0x74, 0x2f, 0x44, 0x42, 0x61, 0x61, 0x53, 0x2f, 0x50, 0x58, 0x43, 0x43, 0x6c, 0x75,
+	0x73, 0x74, 0x65, 0x72, 0x2f, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x3a, 0x01, 0x2a, 0x12, 0x96,
+	0x01, 0x0a, 0x10, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x58, 0x43, 0x43, 0x6c, 0x75, 0x73,
+	0x74, 0x65, 0x72, 0x12, 0x26, 0x2e, 0x64, 0x62, 0x61, 0x61, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65,
+	0x74, 0x61, 0x31, 0x2e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x58, 0x43, 0x43, 0x6c, 0x75,
+	0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x27, 0x2e, 0x64, 0x62,
+	0x61, 0x61, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x55, 0x70, 0x64, 0x61,
+	0x74, 0x65, 0x50, 0x58, 0x43, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x73, 0x70,
+	0x6f, 0x6e, 0x73, 0x65, 0x22, 0x31, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x2b, 0x22, 0x26, 0x2f, 0x76,
+	0x31, 0x2f, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2f, 0x44, 0x42, 0x61,
+	0x61, 0x53, 0x2f, 0x50, 0x58, 0x43, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x2f, 0x55, 0x70,
+	0x64, 0x61, 0x74, 0x65, 0x3a, 0x01, 0x2a, 0x12, 0xaf, 0x01, 0x0a, 0x16, 0x47, 0x65, 0x74, 0x50,
+	0x58, 0x43, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x73, 0x6f, 0x75, 0x72, 0x63,
+	0x65, 0x73, 0x12, 0x2c, 0x2e, 0x64, 0x62, 0x61, 0x61, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74,
+	0x61, 0x31, 0x2e, 0x47, 0x65, 0x74, 0x50, 0x58, 0x43, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72,
+	0x52, 0x65, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
+	0x1a, 0x2d, 0x2e, 0x64, 0x62, 0x61, 0x61, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
+	0x2e, 0x47, 0x65, 0x74, 0x50, 0x58, 0x43, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65,
+	0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22,
+	0x38, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x32, 0x22, 0x2d, 0x2f, 0x76, 0x31, 0x2f, 0x6d, 0x61, 0x6e,
+	0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2f, 0x44, 0x42, 0x61, 0x61, 0x53, 0x2f, 0x50, 0x58,
+	0x43, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x2f, 0x52, 0x65, 0x73, 0x6f, 0x75, 0x72, 0x63,
+	0x65, 0x73, 0x2f, 0x47, 0x65, 0x74, 0x3a, 0x01, 0x2a, 0x42, 0x25, 0x5a, 0x23, 0x61, 0x70, 0x69,
+	0x2f, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x70, 0x62, 0x2f, 0x64, 0x62,
+	0x61, 0x61, 0x73, 0x3b, 0x64, 0x62, 0x61, 0x61, 0x73, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
+	0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -1542,63 +1343,58 @@ func file_managementpb_dbaas_pxc_clusters_proto_rawDescGZIP() []byte {
 	return file_managementpb_dbaas_pxc_clusters_proto_rawDescData
 }
 
-var file_managementpb_dbaas_pxc_clusters_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_managementpb_dbaas_pxc_clusters_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
+var file_managementpb_dbaas_pxc_clusters_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_managementpb_dbaas_pxc_clusters_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
 var file_managementpb_dbaas_pxc_clusters_proto_goTypes = []interface{}{
-	(PXCClusterState)(0),                                            // 0: dbaas.v1beta1.PXCClusterState
-	(PXCBackupState)(0),                                             // 1: dbaas.v1beta1.PXCBackupState
-	(*PXCClusterParams)(nil),                                        // 2: dbaas.v1beta1.PXCClusterParams
-	(*GetPXCClusterCredentialsRequest)(nil),                         // 3: dbaas.v1beta1.GetPXCClusterCredentialsRequest
-	(*PXCClusterConnectionCredentials)(nil),                         // 4: dbaas.v1beta1.PXCClusterConnectionCredentials
-	(*GetPXCClusterCredentialsResponse)(nil),                        // 5: dbaas.v1beta1.GetPXCClusterCredentialsResponse
-	(*CreatePXCClusterRequest)(nil),                                 // 6: dbaas.v1beta1.CreatePXCClusterRequest
-	(*CreatePXCClusterResponse)(nil),                                // 7: dbaas.v1beta1.CreatePXCClusterResponse
-	(*UpdatePXCClusterRequest)(nil),                                 // 8: dbaas.v1beta1.UpdatePXCClusterRequest
-	(*UpdatePXCClusterResponse)(nil),                                // 9: dbaas.v1beta1.UpdatePXCClusterResponse
-	(*RestartPXCClusterRequest)(nil),                                // 10: dbaas.v1beta1.RestartPXCClusterRequest
-	(*RestartPXCClusterResponse)(nil),                               // 11: dbaas.v1beta1.RestartPXCClusterResponse
-	(*GetPXCClusterResourcesRequest)(nil),                           // 12: dbaas.v1beta1.GetPXCClusterResourcesRequest
-	(*GetPXCClusterResourcesResponse)(nil),                          // 13: dbaas.v1beta1.GetPXCClusterResourcesResponse
-	(*PXCClusterParams_PXC)(nil),                                    // 14: dbaas.v1beta1.PXCClusterParams.PXC
-	(*PXCClusterParams_ProxySQL)(nil),                               // 15: dbaas.v1beta1.PXCClusterParams.ProxySQL
-	(*PXCClusterParams_HAProxy)(nil),                                // 16: dbaas.v1beta1.PXCClusterParams.HAProxy
-	(*UpdatePXCClusterRequest_UpdatePXCClusterParams)(nil),          // 17: dbaas.v1beta1.UpdatePXCClusterRequest.UpdatePXCClusterParams
-	(*UpdatePXCClusterRequest_UpdatePXCClusterParams_PXC)(nil),      // 18: dbaas.v1beta1.UpdatePXCClusterRequest.UpdatePXCClusterParams.PXC
-	(*UpdatePXCClusterRequest_UpdatePXCClusterParams_ProxySQL)(nil), // 19: dbaas.v1beta1.UpdatePXCClusterRequest.UpdatePXCClusterParams.ProxySQL
-	(*UpdatePXCClusterRequest_UpdatePXCClusterParams_HAProxy)(nil),  // 20: dbaas.v1beta1.UpdatePXCClusterRequest.UpdatePXCClusterParams.HAProxy
-	(*Resources)(nil),                                               // 21: dbaas.v1beta1.Resources
-	(*ComputeResources)(nil),                                        // 22: dbaas.v1beta1.ComputeResources
+	(PXCBackupState)(0),                                             // 0: dbaas.v1beta1.PXCBackupState
+	(*PXCClusterParams)(nil),                                        // 1: dbaas.v1beta1.PXCClusterParams
+	(*GetPXCClusterCredentialsRequest)(nil),                         // 2: dbaas.v1beta1.GetPXCClusterCredentialsRequest
+	(*PXCClusterConnectionCredentials)(nil),                         // 3: dbaas.v1beta1.PXCClusterConnectionCredentials
+	(*GetPXCClusterCredentialsResponse)(nil),                        // 4: dbaas.v1beta1.GetPXCClusterCredentialsResponse
+	(*CreatePXCClusterRequest)(nil),                                 // 5: dbaas.v1beta1.CreatePXCClusterRequest
+	(*CreatePXCClusterResponse)(nil),                                // 6: dbaas.v1beta1.CreatePXCClusterResponse
+	(*UpdatePXCClusterRequest)(nil),                                 // 7: dbaas.v1beta1.UpdatePXCClusterRequest
+	(*UpdatePXCClusterResponse)(nil),                                // 8: dbaas.v1beta1.UpdatePXCClusterResponse
+	(*GetPXCClusterResourcesRequest)(nil),                           // 9: dbaas.v1beta1.GetPXCClusterResourcesRequest
+	(*GetPXCClusterResourcesResponse)(nil),                          // 10: dbaas.v1beta1.GetPXCClusterResourcesResponse
+	(*PXCClusterParams_PXC)(nil),                                    // 11: dbaas.v1beta1.PXCClusterParams.PXC
+	(*PXCClusterParams_ProxySQL)(nil),                               // 12: dbaas.v1beta1.PXCClusterParams.ProxySQL
+	(*PXCClusterParams_HAProxy)(nil),                                // 13: dbaas.v1beta1.PXCClusterParams.HAProxy
+	(*UpdatePXCClusterRequest_UpdatePXCClusterParams)(nil),          // 14: dbaas.v1beta1.UpdatePXCClusterRequest.UpdatePXCClusterParams
+	(*UpdatePXCClusterRequest_UpdatePXCClusterParams_PXC)(nil),      // 15: dbaas.v1beta1.UpdatePXCClusterRequest.UpdatePXCClusterParams.PXC
+	(*UpdatePXCClusterRequest_UpdatePXCClusterParams_ProxySQL)(nil), // 16: dbaas.v1beta1.UpdatePXCClusterRequest.UpdatePXCClusterParams.ProxySQL
+	(*UpdatePXCClusterRequest_UpdatePXCClusterParams_HAProxy)(nil),  // 17: dbaas.v1beta1.UpdatePXCClusterRequest.UpdatePXCClusterParams.HAProxy
+	(*Resources)(nil),                                               // 18: dbaas.v1beta1.Resources
+	(*ComputeResources)(nil),                                        // 19: dbaas.v1beta1.ComputeResources
 }
 var file_managementpb_dbaas_pxc_clusters_proto_depIdxs = []int32{
-	14, // 0: dbaas.v1beta1.PXCClusterParams.pxc:type_name -> dbaas.v1beta1.PXCClusterParams.PXC
-	15, // 1: dbaas.v1beta1.PXCClusterParams.proxysql:type_name -> dbaas.v1beta1.PXCClusterParams.ProxySQL
-	16, // 2: dbaas.v1beta1.PXCClusterParams.haproxy:type_name -> dbaas.v1beta1.PXCClusterParams.HAProxy
-	4,  // 3: dbaas.v1beta1.GetPXCClusterCredentialsResponse.connection_credentials:type_name -> dbaas.v1beta1.PXCClusterConnectionCredentials
-	2,  // 4: dbaas.v1beta1.CreatePXCClusterRequest.params:type_name -> dbaas.v1beta1.PXCClusterParams
-	17, // 5: dbaas.v1beta1.UpdatePXCClusterRequest.params:type_name -> dbaas.v1beta1.UpdatePXCClusterRequest.UpdatePXCClusterParams
-	2,  // 6: dbaas.v1beta1.GetPXCClusterResourcesRequest.params:type_name -> dbaas.v1beta1.PXCClusterParams
-	21, // 7: dbaas.v1beta1.GetPXCClusterResourcesResponse.expected:type_name -> dbaas.v1beta1.Resources
-	22, // 8: dbaas.v1beta1.PXCClusterParams.PXC.compute_resources:type_name -> dbaas.v1beta1.ComputeResources
-	22, // 9: dbaas.v1beta1.PXCClusterParams.ProxySQL.compute_resources:type_name -> dbaas.v1beta1.ComputeResources
-	22, // 10: dbaas.v1beta1.PXCClusterParams.HAProxy.compute_resources:type_name -> dbaas.v1beta1.ComputeResources
-	18, // 11: dbaas.v1beta1.UpdatePXCClusterRequest.UpdatePXCClusterParams.pxc:type_name -> dbaas.v1beta1.UpdatePXCClusterRequest.UpdatePXCClusterParams.PXC
-	19, // 12: dbaas.v1beta1.UpdatePXCClusterRequest.UpdatePXCClusterParams.proxysql:type_name -> dbaas.v1beta1.UpdatePXCClusterRequest.UpdatePXCClusterParams.ProxySQL
-	20, // 13: dbaas.v1beta1.UpdatePXCClusterRequest.UpdatePXCClusterParams.haproxy:type_name -> dbaas.v1beta1.UpdatePXCClusterRequest.UpdatePXCClusterParams.HAProxy
-	22, // 14: dbaas.v1beta1.UpdatePXCClusterRequest.UpdatePXCClusterParams.PXC.compute_resources:type_name -> dbaas.v1beta1.ComputeResources
-	22, // 15: dbaas.v1beta1.UpdatePXCClusterRequest.UpdatePXCClusterParams.ProxySQL.compute_resources:type_name -> dbaas.v1beta1.ComputeResources
-	22, // 16: dbaas.v1beta1.UpdatePXCClusterRequest.UpdatePXCClusterParams.HAProxy.compute_resources:type_name -> dbaas.v1beta1.ComputeResources
-	3,  // 17: dbaas.v1beta1.PXCClusters.GetPXCClusterCredentials:input_type -> dbaas.v1beta1.GetPXCClusterCredentialsRequest
-	6,  // 18: dbaas.v1beta1.PXCClusters.CreatePXCCluster:input_type -> dbaas.v1beta1.CreatePXCClusterRequest
-	8,  // 19: dbaas.v1beta1.PXCClusters.UpdatePXCCluster:input_type -> dbaas.v1beta1.UpdatePXCClusterRequest
-	10, // 20: dbaas.v1beta1.PXCClusters.RestartPXCCluster:input_type -> dbaas.v1beta1.RestartPXCClusterRequest
-	12, // 21: dbaas.v1beta1.PXCClusters.GetPXCClusterResources:input_type -> dbaas.v1beta1.GetPXCClusterResourcesRequest
-	5,  // 22: dbaas.v1beta1.PXCClusters.GetPXCClusterCredentials:output_type -> dbaas.v1beta1.GetPXCClusterCredentialsResponse
-	7,  // 23: dbaas.v1beta1.PXCClusters.CreatePXCCluster:output_type -> dbaas.v1beta1.CreatePXCClusterResponse
-	9,  // 24: dbaas.v1beta1.PXCClusters.UpdatePXCCluster:output_type -> dbaas.v1beta1.UpdatePXCClusterResponse
-	11, // 25: dbaas.v1beta1.PXCClusters.RestartPXCCluster:output_type -> dbaas.v1beta1.RestartPXCClusterResponse
-	13, // 26: dbaas.v1beta1.PXCClusters.GetPXCClusterResources:output_type -> dbaas.v1beta1.GetPXCClusterResourcesResponse
-	22, // [22:27] is the sub-list for method output_type
-	17, // [17:22] is the sub-list for method input_type
+	11, // 0: dbaas.v1beta1.PXCClusterParams.pxc:type_name -> dbaas.v1beta1.PXCClusterParams.PXC
+	12, // 1: dbaas.v1beta1.PXCClusterParams.proxysql:type_name -> dbaas.v1beta1.PXCClusterParams.ProxySQL
+	13, // 2: dbaas.v1beta1.PXCClusterParams.haproxy:type_name -> dbaas.v1beta1.PXCClusterParams.HAProxy
+	3,  // 3: dbaas.v1beta1.GetPXCClusterCredentialsResponse.connection_credentials:type_name -> dbaas.v1beta1.PXCClusterConnectionCredentials
+	1,  // 4: dbaas.v1beta1.CreatePXCClusterRequest.params:type_name -> dbaas.v1beta1.PXCClusterParams
+	14, // 5: dbaas.v1beta1.UpdatePXCClusterRequest.params:type_name -> dbaas.v1beta1.UpdatePXCClusterRequest.UpdatePXCClusterParams
+	1,  // 6: dbaas.v1beta1.GetPXCClusterResourcesRequest.params:type_name -> dbaas.v1beta1.PXCClusterParams
+	18, // 7: dbaas.v1beta1.GetPXCClusterResourcesResponse.expected:type_name -> dbaas.v1beta1.Resources
+	19, // 8: dbaas.v1beta1.PXCClusterParams.PXC.compute_resources:type_name -> dbaas.v1beta1.ComputeResources
+	19, // 9: dbaas.v1beta1.PXCClusterParams.ProxySQL.compute_resources:type_name -> dbaas.v1beta1.ComputeResources
+	19, // 10: dbaas.v1beta1.PXCClusterParams.HAProxy.compute_resources:type_name -> dbaas.v1beta1.ComputeResources
+	15, // 11: dbaas.v1beta1.UpdatePXCClusterRequest.UpdatePXCClusterParams.pxc:type_name -> dbaas.v1beta1.UpdatePXCClusterRequest.UpdatePXCClusterParams.PXC
+	16, // 12: dbaas.v1beta1.UpdatePXCClusterRequest.UpdatePXCClusterParams.proxysql:type_name -> dbaas.v1beta1.UpdatePXCClusterRequest.UpdatePXCClusterParams.ProxySQL
+	17, // 13: dbaas.v1beta1.UpdatePXCClusterRequest.UpdatePXCClusterParams.haproxy:type_name -> dbaas.v1beta1.UpdatePXCClusterRequest.UpdatePXCClusterParams.HAProxy
+	19, // 14: dbaas.v1beta1.UpdatePXCClusterRequest.UpdatePXCClusterParams.PXC.compute_resources:type_name -> dbaas.v1beta1.ComputeResources
+	19, // 15: dbaas.v1beta1.UpdatePXCClusterRequest.UpdatePXCClusterParams.ProxySQL.compute_resources:type_name -> dbaas.v1beta1.ComputeResources
+	19, // 16: dbaas.v1beta1.UpdatePXCClusterRequest.UpdatePXCClusterParams.HAProxy.compute_resources:type_name -> dbaas.v1beta1.ComputeResources
+	2,  // 17: dbaas.v1beta1.PXCClusters.GetPXCClusterCredentials:input_type -> dbaas.v1beta1.GetPXCClusterCredentialsRequest
+	5,  // 18: dbaas.v1beta1.PXCClusters.CreatePXCCluster:input_type -> dbaas.v1beta1.CreatePXCClusterRequest
+	7,  // 19: dbaas.v1beta1.PXCClusters.UpdatePXCCluster:input_type -> dbaas.v1beta1.UpdatePXCClusterRequest
+	9,  // 20: dbaas.v1beta1.PXCClusters.GetPXCClusterResources:input_type -> dbaas.v1beta1.GetPXCClusterResourcesRequest
+	4,  // 21: dbaas.v1beta1.PXCClusters.GetPXCClusterCredentials:output_type -> dbaas.v1beta1.GetPXCClusterCredentialsResponse
+	6,  // 22: dbaas.v1beta1.PXCClusters.CreatePXCCluster:output_type -> dbaas.v1beta1.CreatePXCClusterResponse
+	8,  // 23: dbaas.v1beta1.PXCClusters.UpdatePXCCluster:output_type -> dbaas.v1beta1.UpdatePXCClusterResponse
+	10, // 24: dbaas.v1beta1.PXCClusters.GetPXCClusterResources:output_type -> dbaas.v1beta1.GetPXCClusterResourcesResponse
+	21, // [21:25] is the sub-list for method output_type
+	17, // [17:21] is the sub-list for method input_type
 	17, // [17:17] is the sub-list for extension type_name
 	17, // [17:17] is the sub-list for extension extendee
 	0,  // [0:17] is the sub-list for field type_name
@@ -1708,30 +1504,6 @@ func file_managementpb_dbaas_pxc_clusters_proto_init() {
 			}
 		}
 		file_managementpb_dbaas_pxc_clusters_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*RestartPXCClusterRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_managementpb_dbaas_pxc_clusters_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*RestartPXCClusterResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_managementpb_dbaas_pxc_clusters_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*GetPXCClusterResourcesRequest); i {
 			case 0:
 				return &v.state
@@ -1743,7 +1515,7 @@ func file_managementpb_dbaas_pxc_clusters_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_dbaas_pxc_clusters_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_dbaas_pxc_clusters_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*GetPXCClusterResourcesResponse); i {
 			case 0:
 				return &v.state
@@ -1755,7 +1527,7 @@ func file_managementpb_dbaas_pxc_clusters_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_dbaas_pxc_clusters_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_dbaas_pxc_clusters_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*PXCClusterParams_PXC); i {
 			case 0:
 				return &v.state
@@ -1767,7 +1539,7 @@ func file_managementpb_dbaas_pxc_clusters_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_dbaas_pxc_clusters_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_dbaas_pxc_clusters_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*PXCClusterParams_ProxySQL); i {
 			case 0:
 				return &v.state
@@ -1779,7 +1551,7 @@ func file_managementpb_dbaas_pxc_clusters_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_dbaas_pxc_clusters_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_dbaas_pxc_clusters_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*PXCClusterParams_HAProxy); i {
 			case 0:
 				return &v.state
@@ -1791,7 +1563,7 @@ func file_managementpb_dbaas_pxc_clusters_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_dbaas_pxc_clusters_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_dbaas_pxc_clusters_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*UpdatePXCClusterRequest_UpdatePXCClusterParams); i {
 			case 0:
 				return &v.state
@@ -1803,7 +1575,7 @@ func file_managementpb_dbaas_pxc_clusters_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_dbaas_pxc_clusters_proto_msgTypes[16].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_dbaas_pxc_clusters_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*UpdatePXCClusterRequest_UpdatePXCClusterParams_PXC); i {
 			case 0:
 				return &v.state
@@ -1815,7 +1587,7 @@ func file_managementpb_dbaas_pxc_clusters_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_dbaas_pxc_clusters_proto_msgTypes[17].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_dbaas_pxc_clusters_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*UpdatePXCClusterRequest_UpdatePXCClusterParams_ProxySQL); i {
 			case 0:
 				return &v.state
@@ -1827,7 +1599,7 @@ func file_managementpb_dbaas_pxc_clusters_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_dbaas_pxc_clusters_proto_msgTypes[18].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_dbaas_pxc_clusters_proto_msgTypes[16].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*UpdatePXCClusterRequest_UpdatePXCClusterParams_HAProxy); i {
 			case 0:
 				return &v.state
@@ -1845,8 +1617,8 @@ func file_managementpb_dbaas_pxc_clusters_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_managementpb_dbaas_pxc_clusters_proto_rawDesc,
-			NumEnums:      2,
-			NumMessages:   19,
+			NumEnums:      1,
+			NumMessages:   17,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
@@ -1879,8 +1651,6 @@ type PXCClustersClient interface {
 	CreatePXCCluster(ctx context.Context, in *CreatePXCClusterRequest, opts ...grpc.CallOption) (*CreatePXCClusterResponse, error)
 	// UpdatePXCCluster updates existing PXC cluster.
 	UpdatePXCCluster(ctx context.Context, in *UpdatePXCClusterRequest, opts ...grpc.CallOption) (*UpdatePXCClusterResponse, error)
-	// RestartPXCCluster restarts PXC cluster.
-	RestartPXCCluster(ctx context.Context, in *RestartPXCClusterRequest, opts ...grpc.CallOption) (*RestartPXCClusterResponse, error)
 	// GetPXCClusterResources returns expected resources to be consumed by the cluster.
 	GetPXCClusterResources(ctx context.Context, in *GetPXCClusterResourcesRequest, opts ...grpc.CallOption) (*GetPXCClusterResourcesResponse, error)
 }
@@ -1920,15 +1690,6 @@ func (c *pXCClustersClient) UpdatePXCCluster(ctx context.Context, in *UpdatePXCC
 	return out, nil
 }
 
-func (c *pXCClustersClient) RestartPXCCluster(ctx context.Context, in *RestartPXCClusterRequest, opts ...grpc.CallOption) (*RestartPXCClusterResponse, error) {
-	out := new(RestartPXCClusterResponse)
-	err := c.cc.Invoke(ctx, "/dbaas.v1beta1.PXCClusters/RestartPXCCluster", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *pXCClustersClient) GetPXCClusterResources(ctx context.Context, in *GetPXCClusterResourcesRequest, opts ...grpc.CallOption) (*GetPXCClusterResourcesResponse, error) {
 	out := new(GetPXCClusterResourcesResponse)
 	err := c.cc.Invoke(ctx, "/dbaas.v1beta1.PXCClusters/GetPXCClusterResources", in, out, opts...)
@@ -1946,8 +1707,6 @@ type PXCClustersServer interface {
 	CreatePXCCluster(context.Context, *CreatePXCClusterRequest) (*CreatePXCClusterResponse, error)
 	// UpdatePXCCluster updates existing PXC cluster.
 	UpdatePXCCluster(context.Context, *UpdatePXCClusterRequest) (*UpdatePXCClusterResponse, error)
-	// RestartPXCCluster restarts PXC cluster.
-	RestartPXCCluster(context.Context, *RestartPXCClusterRequest) (*RestartPXCClusterResponse, error)
 	// GetPXCClusterResources returns expected resources to be consumed by the cluster.
 	GetPXCClusterResources(context.Context, *GetPXCClusterResourcesRequest) (*GetPXCClusterResourcesResponse, error)
 }
@@ -1964,9 +1723,6 @@ func (*UnimplementedPXCClustersServer) CreatePXCCluster(context.Context, *Create
 }
 func (*UnimplementedPXCClustersServer) UpdatePXCCluster(context.Context, *UpdatePXCClusterRequest) (*UpdatePXCClusterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdatePXCCluster not implemented")
-}
-func (*UnimplementedPXCClustersServer) RestartPXCCluster(context.Context, *RestartPXCClusterRequest) (*RestartPXCClusterResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RestartPXCCluster not implemented")
 }
 func (*UnimplementedPXCClustersServer) GetPXCClusterResources(context.Context, *GetPXCClusterResourcesRequest) (*GetPXCClusterResourcesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPXCClusterResources not implemented")
@@ -2030,24 +1786,6 @@ func _PXCClusters_UpdatePXCCluster_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PXCClusters_RestartPXCCluster_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RestartPXCClusterRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(PXCClustersServer).RestartPXCCluster(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/dbaas.v1beta1.PXCClusters/RestartPXCCluster",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PXCClustersServer).RestartPXCCluster(ctx, req.(*RestartPXCClusterRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _PXCClusters_GetPXCClusterResources_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetPXCClusterResourcesRequest)
 	if err := dec(in); err != nil {
@@ -2081,10 +1819,6 @@ var _PXCClusters_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdatePXCCluster",
 			Handler:    _PXCClusters_UpdatePXCCluster_Handler,
-		},
-		{
-			MethodName: "RestartPXCCluster",
-			Handler:    _PXCClusters_RestartPXCCluster_Handler,
 		},
 		{
 			MethodName: "GetPXCClusterResources",

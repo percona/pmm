@@ -31,8 +31,6 @@ type ClientService interface {
 
 	GetPXCClusterResources(params *GetPXCClusterResourcesParams) (*GetPXCClusterResourcesOK, error)
 
-	RestartPXCCluster(params *RestartPXCClusterParams) (*RestartPXCClusterOK, error)
-
 	UpdatePXCCluster(params *UpdatePXCClusterParams) (*UpdatePXCClusterOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
@@ -134,39 +132,6 @@ func (a *Client) GetPXCClusterResources(params *GetPXCClusterResourcesParams) (*
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*GetPXCClusterResourcesDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-  RestartPXCCluster restarts PXC cluster restarts PXC cluster
-*/
-func (a *Client) RestartPXCCluster(params *RestartPXCClusterParams) (*RestartPXCClusterOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewRestartPXCClusterParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "RestartPXCCluster",
-		Method:             "POST",
-		PathPattern:        "/v1/management/DBaaS/PXCCluster/Restart",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &RestartPXCClusterReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*RestartPXCClusterOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*RestartPXCClusterDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
