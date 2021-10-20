@@ -409,12 +409,12 @@ type MetricsBucket struct {
 	// stddev_time
 	// Other metrics skipped for now (empty values, codes):
 	// cmd_type, cmd_type_text, elevel, sqlcode, message, state_code, state
-	TopQueryid      string `protobuf:"bytes,246,opt,name=top_queryid,json=topQueryid,proto3" json:"top_queryid,omitempty"`
-	TopQuery        string `protobuf:"bytes,249,opt,name=top_query,json=topQuery,proto3" json:"top_query,omitempty"`
-	ApplicationName string `protobuf:"bytes,247,opt,name=application_name,json=applicationName,proto3" json:"application_name,omitempty"`
-	Planid          string `protobuf:"bytes,248,opt,name=planid,proto3" json:"planid,omitempty"`
-	QueryPlan       string `protobuf:"bytes,250,opt,name=query_plan,json=queryPlan,proto3" json:"query_plan,omitempty"`
-	RespCalls       string `protobuf:"bytes,251,opt,name=resp_calls,json=respCalls,proto3" json:"resp_calls,omitempty"`
+	TopQueryid      string   `protobuf:"bytes,246,opt,name=top_queryid,json=topQueryid,proto3" json:"top_queryid,omitempty"`
+	TopQuery        string   `protobuf:"bytes,249,opt,name=top_query,json=topQuery,proto3" json:"top_query,omitempty"`
+	ApplicationName string   `protobuf:"bytes,247,opt,name=application_name,json=applicationName,proto3" json:"application_name,omitempty"`
+	Planid          string   `protobuf:"bytes,248,opt,name=planid,proto3" json:"planid,omitempty"`
+	QueryPlan       string   `protobuf:"bytes,250,opt,name=query_plan,json=queryPlan,proto3" json:"query_plan,omitempty"`
+	RespCalls       []string `protobuf:"bytes,251,rep,name=resp_calls,json=respCalls,proto3" json:"resp_calls,omitempty"`
 }
 
 func (x *MetricsBucket) Reset() {
@@ -1969,11 +1969,11 @@ func (x *MetricsBucket) GetQueryPlan() string {
 	return ""
 }
 
-func (x *MetricsBucket) GetRespCalls() string {
+func (x *MetricsBucket) GetRespCalls() []string {
 	if x != nil {
 		return x.RespCalls
 	}
-	return ""
+	return nil
 }
 
 type CollectResponse struct {
@@ -2648,7 +2648,7 @@ var file_qanpb_collector_proto_rawDesc = []byte{
 	0x64, 0x12, 0x1e, 0x0a, 0x0a, 0x71, 0x75, 0x65, 0x72, 0x79, 0x5f, 0x70, 0x6c, 0x61, 0x6e, 0x18,
 	0xfa, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x71, 0x75, 0x65, 0x72, 0x79, 0x50, 0x6c, 0x61,
 	0x6e, 0x12, 0x1e, 0x0a, 0x0a, 0x72, 0x65, 0x73, 0x70, 0x5f, 0x63, 0x61, 0x6c, 0x6c, 0x73, 0x18,
-	0xfb, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x72, 0x65, 0x73, 0x70, 0x43, 0x61, 0x6c, 0x6c,
+	0xfb, 0x01, 0x20, 0x03, 0x28, 0x09, 0x52, 0x09, 0x72, 0x65, 0x73, 0x70, 0x43, 0x61, 0x6c, 0x6c,
 	0x73, 0x1a, 0x39, 0x0a, 0x0b, 0x4c, 0x61, 0x62, 0x65, 0x6c, 0x73, 0x45, 0x6e, 0x74, 0x72, 0x79,
 	0x12, 0x10, 0x0a, 0x03, 0x6b, 0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x6b,
 	0x65, 0x79, 0x12, 0x14, 0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28,

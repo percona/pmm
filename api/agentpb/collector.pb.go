@@ -1710,12 +1710,12 @@ type MetricsBucket_PostgreSQL struct {
 	// stddev_time
 	// Other metrics skipped for now (empty values, codes):
 	// cmd_type, cmd_type_text, elevel, sqlcode, message, state_code, state
-	TopQueryid      string `protobuf:"bytes,43,opt,name=top_queryid,json=topQueryid,proto3" json:"top_queryid,omitempty"`
-	TopQuery        string `protobuf:"bytes,46,opt,name=top_query,json=topQuery,proto3" json:"top_query,omitempty"`
-	ApplicationName string `protobuf:"bytes,44,opt,name=application_name,json=applicationName,proto3" json:"application_name,omitempty"`
-	Planid          string `protobuf:"bytes,45,opt,name=planid,proto3" json:"planid,omitempty"`
-	QueryPlan       string `protobuf:"bytes,47,opt,name=query_plan,json=queryPlan,proto3" json:"query_plan,omitempty"`
-	RespCalls       string `protobuf:"bytes,48,opt,name=resp_calls,json=respCalls,proto3" json:"resp_calls,omitempty"`
+	TopQueryid      string   `protobuf:"bytes,43,opt,name=top_queryid,json=topQueryid,proto3" json:"top_queryid,omitempty"`
+	TopQuery        string   `protobuf:"bytes,46,opt,name=top_query,json=topQuery,proto3" json:"top_query,omitempty"`
+	ApplicationName string   `protobuf:"bytes,44,opt,name=application_name,json=applicationName,proto3" json:"application_name,omitempty"`
+	Planid          string   `protobuf:"bytes,45,opt,name=planid,proto3" json:"planid,omitempty"`
+	QueryPlan       string   `protobuf:"bytes,47,opt,name=query_plan,json=queryPlan,proto3" json:"query_plan,omitempty"`
+	RespCalls       []string `protobuf:"bytes,48,rep,name=resp_calls,json=respCalls,proto3" json:"resp_calls,omitempty"`
 }
 
 func (x *MetricsBucket_PostgreSQL) Reset() {
@@ -2079,11 +2079,11 @@ func (x *MetricsBucket_PostgreSQL) GetQueryPlan() string {
 	return ""
 }
 
-func (x *MetricsBucket_PostgreSQL) GetRespCalls() string {
+func (x *MetricsBucket_PostgreSQL) GetRespCalls() []string {
 	if x != nil {
 		return x.RespCalls
 	}
-	return ""
+	return nil
 }
 
 var File_agentpb_collector_proto protoreflect.FileDescriptor
@@ -2691,7 +2691,7 @@ var file_agentpb_collector_proto_rawDesc = []byte{
 	0x18, 0x2d, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x70, 0x6c, 0x61, 0x6e, 0x69, 0x64, 0x12, 0x1d,
 	0x0a, 0x0a, 0x71, 0x75, 0x65, 0x72, 0x79, 0x5f, 0x70, 0x6c, 0x61, 0x6e, 0x18, 0x2f, 0x20, 0x01,
 	0x28, 0x09, 0x52, 0x09, 0x71, 0x75, 0x65, 0x72, 0x79, 0x50, 0x6c, 0x61, 0x6e, 0x12, 0x1d, 0x0a,
-	0x0a, 0x72, 0x65, 0x73, 0x70, 0x5f, 0x63, 0x61, 0x6c, 0x6c, 0x73, 0x18, 0x30, 0x20, 0x01, 0x28,
+	0x0a, 0x72, 0x65, 0x73, 0x70, 0x5f, 0x63, 0x61, 0x6c, 0x6c, 0x73, 0x18, 0x30, 0x20, 0x03, 0x28,
 	0x09, 0x52, 0x09, 0x72, 0x65, 0x73, 0x70, 0x43, 0x61, 0x6c, 0x6c, 0x73, 0x2a, 0x55, 0x0a, 0x0d,
 	0x45, 0x78, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x46, 0x6f, 0x72, 0x6d, 0x61, 0x74, 0x12, 0x1e, 0x0a,
 	0x16, 0x45, 0x58, 0x41, 0x4d, 0x50, 0x4c, 0x45, 0x5f, 0x46, 0x4f, 0x52, 0x4d, 0x41, 0x54, 0x5f,
