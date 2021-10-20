@@ -158,5 +158,11 @@ message HistogramRequest {
 
 // HistogramReply contains is a map of histogram items as a list.
 message HistogramReply {
-  map<string, int32> histogram_items = 1;
+  repeated HistogramItem histogram_items = 1;
+}
+
+// HistogramItem represents range and frequency.
+message HistogramItem {
+  string range = 1;
+  int32 frequency = 2;
 }
