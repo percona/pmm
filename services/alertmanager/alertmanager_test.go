@@ -17,11 +17,10 @@
 package alertmanager
 
 import (
-	"bytes"
 	"context"
+	"fmt"
 	"strings"
 	"testing"
-	"text/template"
 	"time"
 
 	"github.com/percona-platform/saas/pkg/alert"
@@ -199,7 +198,7 @@ templates: []
 		require.NoError(t, err)
 
 		// create another rule without channelID and check if it is absent in the config.
-		rule3, err := models.CreateRule(db.Querier, &models.CreateRuleParams{
+		_, err = models.CreateRule(db.Querier, &models.CreateRuleParams{
 			TemplateName: "test_template",
 			Disabled:     true,
 			RuleParams: []models.RuleParam{{
@@ -255,7 +254,7 @@ templates: []
 		require.NoError(t, err)
 
 		actual := marshalAndValidate(t, svc, svc.loadBaseConfig())
-		expected := strings.TrimSpace(`
+		expected := strings.TrimSpace(fmt.Sprintf(`
 # Managed by pmm-managed. DO NOT EDIT.
 ---
 global:
@@ -273,25 +272,25 @@ route:
     receiver: empty
     continue: false
     routes:
-        - receiver: {{ .channel1ID }} + {{ .channel2ID }}
+        - receiver: %[1]s + %[2]s
           match:
-            rule_id: {{ .rule1ID }}
+            rule_id: %[3]s
             service_name: mysql1
           continue: false
-        - receiver: {{ .channel1ID }} + {{ .channel2ID }}
+        - receiver: %[1]s + %[2]s
           match:
-            rule_id: {{ .rule2ID }}
+            rule_id: %[4]s
             service_name: mysql2
           continue: false
         - receiver: disabled
           match:
-            rule_id: {{ .rule4ID }}
+            rule_id: %[5]s
             service_name: mysql3
           continue: false
 receivers:
     - name: empty
     - name: disabled
-    - name: {{ .channel1ID }} + {{ .channel2ID }}
+    - name: %[1]s + %[2]s
       email_configs:
         - send_resolved: false
           to: test@test.test
@@ -300,22 +299,31 @@ receivers:
       pagerduty_configs:
         - send_resolved: false
           routing_key: ms-pagerduty-dev
+          description: '[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}]{{ range .Alerts -}}{{ if .Labels.severity }}[{{ .Labels.severity | toUpper }}]{{ end }} {{ .Annotations.summary }}{{ end }}'
+          details:
+            firing: |-
+                {{ range .Alerts -}}
+                Alert: {{ if .Labels.severity }}[{{ .Labels.severity | toUpper }}]{{ end }} {{ .Annotations.summary }}
+                Description: {{ .Annotations.description }}
+                Details:
+                {{ if .Labels.node_name }}  - node_name: {{ .Labels.node_name }}
+                {{ end }}{{ if .Labels.node_id }}  - node_id: {{ .Labels.node_id }}
+                {{ end }}{{ if .Labels.service_name }}  - service_name: {{ .Labels.service_name }}
+                {{ end }}{{ if .Labels.service_id }}  - service_id: {{ .Labels.service_id }}
+                {{ end }}{{ if .Labels.service_type }}  - service_type: {{ .Labels.service_type }}
+                {{ end }}{{ if .Labels.rule_id }}  - rule_id: {{ .Labels.rule_id }}
+                {{ end }}{{ if .Labels.alertgroup }}  - alertgroup: {{ .Labels.alertgroup }}
+                {{ end }}{{ if .Labels.template_name }}  - template_name: {{ .Labels.template_name }}
+                {{ end }}{{ if .Labels.severity }}  - severity: {{ .Labels.severity }}
+                {{ end }}{{ if .Labels.agent_id }}  - agent_id: {{ .Labels.agent_id }}
+                {{ end }}{{ if .Labels.agent_type }}  - agent_type: {{ .Labels.agent_type }}
+                {{ end }}{{ if .Labels.job }}  - job: {{ .Labels.job }}
+                {{ end }}
+
+                {{ end }}
 templates: []
-`) + "\n"
-		tmpl, err := template.New("").Parse(expected)
-		require.NoError(t, err)
-		var b bytes.Buffer
-		err = tmpl.Execute(&b, map[string]string{
-			"rule1ID":    rule1.ID,
-			"rule2ID":    rule2.ID,
-			"rule3ID":    rule3.ID,
-			"rule4ID":    rule4.ID,
-			"channel1ID": channel1.ID,
-			"channel2ID": channel2.ID,
-			"channel3ID": channel3.ID,
-		})
-		require.NoError(t, err)
-		assert.Equal(t, b.String(), actual, "actual:\n%s", actual)
+`, channel1.ID, channel2.ID, rule1.ID, rule2.ID, rule4.ID)) + "\n"
+		assert.Equal(t, expected, actual, "actual:\n%s", actual)
 	})
 }
 
@@ -362,22 +370,106 @@ func TestGenerateReceivers(t *testing.T) {
   slack_configs:
     - send_resolved: false
       channel: channel1
+      title: '[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}]'
+      text: |-
+        {{ range .Alerts -}}
+        *Alert:* {{ if .Labels.severity }}`+"`{{ .Labels.severity | toUpper }}`"+`{{ end }} {{ .Annotations.summary }}
+        *Description:* {{ .Annotations.description }}
+        *Details:*
+        {{ if .Labels.node_name }}     • *node_name:* `+"`{{ .Labels.node_name }}`"+`
+        {{ end }}{{ if .Labels.node_id }}     • *node_id:* `+"`{{ .Labels.node_id }}`"+`
+        {{ end }}{{ if .Labels.service_name }}     • *service_name:* `+"`{{ .Labels.service_name }}`"+`
+        {{ end }}{{ if .Labels.service_id }}     • *service_id:* `+"`{{ .Labels.service_id }}`"+`
+        {{ end }}{{ if .Labels.service_type }}     • *service_type:* `+"`{{ .Labels.service_type }}`"+`
+        {{ end }}{{ if .Labels.rule_id }}     • *rule_id:* `+"`{{ .Labels.rule_id }}`"+`
+        {{ end }}{{ if .Labels.alertgroup }}     • *alertgroup:* `+"`{{ .Labels.alertgroup }}`"+`
+        {{ end }}{{ if .Labels.template_name }}     • *template_name:* `+"`{{ .Labels.template_name }}`"+`
+        {{ end }}{{ if .Labels.severity }}     • *severity:* `+"`{{ .Labels.severity }}`"+`
+        {{ end }}{{ if .Labels.agent_id }}     • *agent_id:* `+"`{{ .Labels.agent_id }}`"+`
+        {{ end }}{{ if .Labels.agent_type }}     • *agent_type:* `+"`{{ .Labels.agent_type }}`"+`
+        {{ end }}{{ if .Labels.job }}     • *job:* `+"`{{ .Labels.job }}`"+`
+        {{ end }}
+
+        {{ end }}
       short_fields: false
       link_names: false
 - name: 1+2
   slack_configs:
     - send_resolved: false
       channel: channel1
+      title: '[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}]'
+      text: |-
+        {{ range .Alerts -}}
+        *Alert:* {{ if .Labels.severity }}`+"`{{ .Labels.severity | toUpper }}`"+`{{ end }} {{ .Annotations.summary }}
+        *Description:* {{ .Annotations.description }}
+        *Details:*
+        {{ if .Labels.node_name }}     • *node_name:* `+"`{{ .Labels.node_name }}`"+`
+        {{ end }}{{ if .Labels.node_id }}     • *node_id:* `+"`{{ .Labels.node_id }}`"+`
+        {{ end }}{{ if .Labels.service_name }}     • *service_name:* `+"`{{ .Labels.service_name }}`"+`
+        {{ end }}{{ if .Labels.service_id }}     • *service_id:* `+"`{{ .Labels.service_id }}`"+`
+        {{ end }}{{ if .Labels.service_type }}     • *service_type:* `+"`{{ .Labels.service_type }}`"+`
+        {{ end }}{{ if .Labels.rule_id }}     • *rule_id:* `+"`{{ .Labels.rule_id }}`"+`
+        {{ end }}{{ if .Labels.alertgroup }}     • *alertgroup:* `+"`{{ .Labels.alertgroup }}`"+`
+        {{ end }}{{ if .Labels.template_name }}     • *template_name:* `+"`{{ .Labels.template_name }}`"+`
+        {{ end }}{{ if .Labels.severity }}     • *severity:* `+"`{{ .Labels.severity }}`"+`
+        {{ end }}{{ if .Labels.agent_id }}     • *agent_id:* `+"`{{ .Labels.agent_id }}`"+`
+        {{ end }}{{ if .Labels.agent_type }}     • *agent_type:* `+"`{{ .Labels.agent_type }}`"+`
+        {{ end }}{{ if .Labels.job }}     • *job:* `+"`{{ .Labels.job }}`"+`
+        {{ end }}
+
+        {{ end }}
       short_fields: false
       link_names: false
     - send_resolved: false
       channel: channel2
+      title: '[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}]'
+      text: |-
+        {{ range .Alerts -}}
+        *Alert:* {{ if .Labels.severity }}`+"`{{ .Labels.severity | toUpper }}`"+`{{ end }} {{ .Annotations.summary }}
+        *Description:* {{ .Annotations.description }}
+        *Details:*
+        {{ if .Labels.node_name }}     • *node_name:* `+"`{{ .Labels.node_name }}`"+`
+        {{ end }}{{ if .Labels.node_id }}     • *node_id:* `+"`{{ .Labels.node_id }}`"+`
+        {{ end }}{{ if .Labels.service_name }}     • *service_name:* `+"`{{ .Labels.service_name }}`"+`
+        {{ end }}{{ if .Labels.service_id }}     • *service_id:* `+"`{{ .Labels.service_id }}`"+`
+        {{ end }}{{ if .Labels.service_type }}     • *service_type:* `+"`{{ .Labels.service_type }}`"+`
+        {{ end }}{{ if .Labels.rule_id }}     • *rule_id:* `+"`{{ .Labels.rule_id }}`"+`
+        {{ end }}{{ if .Labels.alertgroup }}     • *alertgroup:* `+"`{{ .Labels.alertgroup }}`"+`
+        {{ end }}{{ if .Labels.template_name }}     • *template_name:* `+"`{{ .Labels.template_name }}`"+`
+        {{ end }}{{ if .Labels.severity }}     • *severity:* `+"`{{ .Labels.severity }}`"+`
+        {{ end }}{{ if .Labels.agent_id }}     • *agent_id:* `+"`{{ .Labels.agent_id }}`"+`
+        {{ end }}{{ if .Labels.agent_type }}     • *agent_type:* `+"`{{ .Labels.agent_type }}`"+`
+        {{ end }}{{ if .Labels.job }}     • *job:* `+"`{{ .Labels.job }}`"+`
+        {{ end }}
+
+        {{ end }}
       short_fields: false
       link_names: false
 - name: "2"
   slack_configs:
     - send_resolved: false
       channel: channel2
+      title: '[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}]'
+      text: |-
+        {{ range .Alerts -}}
+        *Alert:* {{ if .Labels.severity }}`+"`{{ .Labels.severity | toUpper }}`"+`{{ end }} {{ .Annotations.summary }}
+        *Description:* {{ .Annotations.description }}
+        *Details:*
+        {{ if .Labels.node_name }}     • *node_name:* `+"`{{ .Labels.node_name }}`"+`
+        {{ end }}{{ if .Labels.node_id }}     • *node_id:* `+"`{{ .Labels.node_id }}`"+`
+        {{ end }}{{ if .Labels.service_name }}     • *service_name:* `+"`{{ .Labels.service_name }}`"+`
+        {{ end }}{{ if .Labels.service_id }}     • *service_id:* `+"`{{ .Labels.service_id }}`"+`
+        {{ end }}{{ if .Labels.service_type }}     • *service_type:* `+"`{{ .Labels.service_type }}`"+`
+        {{ end }}{{ if .Labels.rule_id }}     • *rule_id:* `+"`{{ .Labels.rule_id }}`"+`
+        {{ end }}{{ if .Labels.alertgroup }}     • *alertgroup:* `+"`{{ .Labels.alertgroup }}`"+`
+        {{ end }}{{ if .Labels.template_name }}     • *template_name:* `+"`{{ .Labels.template_name }}`"+`
+        {{ end }}{{ if .Labels.severity }}     • *severity:* `+"`{{ .Labels.severity }}`"+`
+        {{ end }}{{ if .Labels.agent_id }}     • *agent_id:* `+"`{{ .Labels.agent_id }}`"+`
+        {{ end }}{{ if .Labels.agent_type }}     • *agent_type:* `+"`{{ .Labels.agent_type }}`"+`
+        {{ end }}{{ if .Labels.job }}     • *job:* `+"`{{ .Labels.job }}`"+`
+        {{ end }}
+
+        {{ end }}
       short_fields: false
       link_names: false
 `) + "\n"

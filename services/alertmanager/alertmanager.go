@@ -19,6 +19,7 @@ package alertmanager
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -62,6 +63,9 @@ const (
 
 	receiverNameSeparator = " + "
 )
+
+var notificationLabels = []string{"node_name", "node_id", "service_name", "service_id", "service_type", "rule_id",
+	"alertgroup", "template_name", "severity", "agent_id", "agent_type", "job"}
 
 // Service is responsible for interactions with Alertmanager.
 type Service struct {
@@ -467,6 +471,38 @@ func (svc *Service) populateConfig(cfg *alertmanager.Config) error {
 	return nil
 }
 
+func formatSlackText(labels ...string) string {
+	const listEntryFormat = "{{ if .Labels.%[1]s }}     • *%[1]s:* `{{ .Labels.%[1]s }}`\n{{ end }}"
+
+	text := "{{ range .Alerts -}}\n" +
+		"*Alert:* {{ if .Labels.severity }}`{{ .Labels.severity | toUpper }}`{{ end }} {{ .Annotations.summary }}\n" +
+		"*Description:* {{ .Annotations.description }}\n" +
+		"*Details:*\n"
+	for _, l := range labels {
+		text += fmt.Sprintf(listEntryFormat, l)
+	}
+
+	text += "\n\n{{ end }}"
+
+	return text
+}
+
+func formatPagerDutyFiringDetails(labels ...string) string {
+	const listEntryFormat = "{{ if .Labels.%[1]s }}  - %[1]s: {{ .Labels.%[1]s }}\n{{ end }}"
+
+	text := "{{ range .Alerts -}}\n" +
+		"Alert: {{ if .Labels.severity }}[{{ .Labels.severity | toUpper }}]{{ end }} {{ .Annotations.summary }}\n" +
+		"Description: {{ .Annotations.description }}\n" +
+		"Details:\n"
+	for _, l := range labels {
+		text += fmt.Sprintf(listEntryFormat, l)
+	}
+
+	text += "\n\n{{ end }}"
+
+	return text
+}
+
 // generateReceivers takes the channel map and a unique set of rule combinations and generates a slice of receivers.
 func (svc *Service) generateReceivers(chanMap map[string]*models.Channel, recvSet map[string]models.ChannelIDs) ([]*alertmanager.Receiver, error) {
 	receivers := make([]*alertmanager.Receiver, 0, len(recvSet))
@@ -498,6 +534,11 @@ func (svc *Service) generateReceivers(chanMap map[string]*models.Channel, recvSe
 					NotifierConfig: alertmanager.NotifierConfig{
 						SendResolved: channel.PagerDutyConfig.SendResolved,
 					},
+					Description: `[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}]` +
+						"{{ range .Alerts -}}{{ if .Labels.severity }}[{{ .Labels.severity | toUpper }}]{{ end }} {{ .Annotations.summary }}{{ end }}",
+					Details: map[string]string{
+						"firing": formatPagerDutyFiringDetails(notificationLabels...),
+					},
 				}
 				if channel.PagerDutyConfig.RoutingKey != "" {
 					pdConfig.RoutingKey = channel.PagerDutyConfig.RoutingKey
@@ -513,6 +554,8 @@ func (svc *Service) generateReceivers(chanMap map[string]*models.Channel, recvSe
 						SendResolved: channel.SlackConfig.SendResolved,
 					},
 					Channel: channel.SlackConfig.Channel,
+					Title:   `[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}]`,
+					Text:    formatSlackText(notificationLabels...),
 				})
 
 			case models.WebHook:
