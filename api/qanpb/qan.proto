@@ -169,10 +169,3 @@ message MapFieldEntry {
   string key = 1;
   repeated string value = 2;
 }
-
-// HistogramItem has range, frequency and bar values.
-message HistogramItem {
-  string range = 1;
-  int32 frequency = 2;
-  string bar = 3;
-}

@@ -158,5 +158,5 @@ message HistogramRequest {
 
 // HistogramReply contains is a map of histogram items as a list.
 message HistogramReply {
-  repeated HistogramItem histogram_items = 1;
+  map<string, int32> histogram_items = 1;
 }

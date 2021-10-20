@@ -344,17 +344,9 @@ message MetricsBucket {
     string application_name = 44;
     string planid = 45;
     string query_plan = 47;
-    repeated HistogramItem histogram_items = 48;
   }
   Common common = 1;
   MySQL mysql = 2;
   MongoDB mongodb = 3;
   PostgreSQL postgresql = 4;
-}
-
-// HistogramItem has range, frequency and bar values.
-message HistogramItem {
-  string range = 1;
-  int32 frequency = 2;
-  string bar = 3;
 }

@@ -937,25 +937,10 @@
               "type": "object",
               "properties": {
                 "histogram_items": {
-                  "type": "array",
-                  "items": {
-                    "description": "HistogramItem has range, frequency and bar values.",
-                    "type": "object",
-                    "properties": {
-                      "range": {
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "frequency": {
-                        "type": "integer",
-                        "format": "int32",
-                        "x-order": 1
-                      },
-                      "bar": {
-                        "type": "string",
-                        "x-order": 2
-                      }
-                    }
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "integer",
+                    "format": "int32"
                   },
                   "x-order": 0
                 }
