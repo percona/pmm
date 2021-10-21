@@ -151,7 +151,7 @@ To monitor a DB cluster, set up a [public address](../how-to/configure.md#public
     ![!](../_images/PMM_DBaaS_DB_Cluster_Created.png)
 
     - *Name*: The cluster name.
-    - *Database type*: The cluster database type.
+    - *Database*: The cluster database type and version.
     - *Connection*:
         - *Host*: The hostname.
         - *Port*: The port number.
@@ -167,6 +167,7 @@ To monitor a DB cluster, set up a [public address](../how-to/configure.md#public
         - *ACTIVE*: The cluster is active.
         - *FAILED*: The cluster could not be created.
         - *DELETING*: The cluster is being deleted.
+        - *UPDATING*: The cluster is being updated.
 
 ### Delete a DB Cluster
 
