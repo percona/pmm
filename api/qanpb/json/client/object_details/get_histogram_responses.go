@@ -14,6 +14,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // GetHistogramReader is a Reader for the GetHistogram structure.
@@ -153,10 +154,21 @@ func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetHistogramBody HistogramRequest defines filtering by queryid.
+/*GetHistogramBody HistogramRequest defines filtering by time range, labels and queryid.
 swagger:model GetHistogramBody
 */
 type GetHistogramBody struct {
+
+	// period start from
+	// Format: date-time
+	PeriodStartFrom strfmt.DateTime `json:"period_start_from,omitempty"`
+
+	// period start to
+	// Format: date-time
+	PeriodStartTo strfmt.DateTime `json:"period_start_to,omitempty"`
+
+	// labels
+	Labels []*LabelsItems0 `json:"labels"`
 
 	// queryid
 	Queryid string `json:"queryid,omitempty"`
@@ -164,6 +176,74 @@ type GetHistogramBody struct {
 
 // Validate validates this get histogram body
 func (o *GetHistogramBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validatePeriodStartFrom(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validatePeriodStartTo(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLabels(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetHistogramBody) validatePeriodStartFrom(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.PeriodStartFrom) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("body"+"."+"period_start_from", "body", "date-time", o.PeriodStartFrom.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *GetHistogramBody) validatePeriodStartTo(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.PeriodStartTo) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("body"+"."+"period_start_to", "body", "date-time", o.PeriodStartTo.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *GetHistogramBody) validateLabels(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Labels) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Labels); i++ {
+		if swag.IsZero(o.Labels[i]) { // not required
+			continue
+		}
+
+		if o.Labels[i] != nil {
+			if err := o.Labels[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
 	return nil
 }
 
@@ -354,6 +434,41 @@ func (o *HistogramItemsItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *HistogramItemsItems0) UnmarshalBinary(b []byte) error {
 	var res HistogramItemsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*LabelsItems0 MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.
+swagger:model LabelsItems0
+*/
+type LabelsItems0 struct {
+
+	// key
+	Key string `json:"key,omitempty"`
+
+	// value
+	Value []string `json:"value"`
+}
+
+// Validate validates this labels items0
+func (o *LabelsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *LabelsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *LabelsItems0) UnmarshalBinary(b []byte) error {
+	var res LabelsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

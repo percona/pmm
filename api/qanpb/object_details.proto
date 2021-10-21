@@ -151,9 +151,12 @@ message QueryPlanReply {
   string query_plan = 2;
 }
 
-// HistogramRequest defines filtering by queryid.
+// HistogramRequest defines filtering by time range, labels and queryid.
 message HistogramRequest {
-  string queryid = 1;
+  google.protobuf.Timestamp period_start_from = 1;
+  google.protobuf.Timestamp period_start_to = 2;
+  repeated MapFieldEntry labels = 3;
+  string queryid = 4;
 }
 
 // HistogramReply contains is a map of histogram items as a list.
