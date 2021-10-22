@@ -89,8 +89,13 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 		err = errors.Wrap(e, "failed to get row and view for pg_stat_monitor version")
 		return
 	}
-
-	rows, e := q.SelectRows(view, "WHERE queryid IS NOT NULL AND query IS NOT NULL")
+	conditions := "WHERE queryid IS NOT NULL AND query IS NOT NULL"
+	if _, ok := row.(*pgStatMonitor09); ok {
+		// only pg_stat_monitor 0.9.0 and above supports state_code. It tells what is the query's current state.
+		// To have correct data in QAN, we have to get only queries that are either 'FINISHED' or 'FINISHED WITH ERROR'.
+		conditions += " AND (state_code = 3 OR state_code = 4)"
+	}
+	rows, e := q.SelectRows(view, conditions)
 	if e != nil {
 		err = errors.Wrap(e, "failed to query pg_stat_monitor")
 		return
