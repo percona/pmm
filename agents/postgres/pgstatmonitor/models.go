@@ -17,6 +17,7 @@ package pgstatmonitor
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/lib/pq"
@@ -234,6 +235,11 @@ func (m pgStatMonitor09) ToPgStatMonitor() (pgStatMonitor, error) {
 	bucketStartTime, err := time.Parse("2006-01-02 15:04:05", m.BucketStartTime)
 	if err != nil {
 		return pgStatMonitor{}, errors.Wrap(err, "cannot parse bucket start time")
+	}
+
+	// Views contain asterisk as a suffix so we need to trim them. Introduced in pg_stat_monitor 0.9.2.
+	for i, relation := range m.Relations {
+		m.Relations[i] = strings.TrimSuffix(relation, "*")
 	}
 
 	return pgStatMonitor{
