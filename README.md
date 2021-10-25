@@ -1,11 +1,23 @@
 # Percona Monitoring and Management 2.x
 
-[![Build Status](https://travis-ci.com/percona/pmm.svg?branch=PMM-2.0)](https://travis-ci.com/percona/pmm)
+[![Build Status](https://travis-ci.com/percona/pmm.svg?branch=main)](https://travis-ci.com/percona/pmm)
 [![CLA assistant](https://cla-assistant.percona.com/readme/badge/percona/pmm)](https://cla-assistant.percona.com/percona/pmm)
 
 ![PMM](https://www.percona.com/sites/default/files/pmm-logo.png)
 
-See the [PMM 2.x docs](https://www.percona.com/doc/percona-monitoring-and-management/2.x/index.html) for more information.
+
+## Percona Monitoring and Management
+
+A 'single pane of glass' to easily view and monitor the performance of your MySQL, MongoDB, PostgreSQL, and MariaDB databases.
+
+[Percona Monitoring and Management (PMM)](https://www.percona.com/software/database-tools/percona-monitoring-and-management) is a best-of-breed open source database monitoring solution. It helps you reduce complexity, optimize performance, and improve the security of your business-critical database environments, no matter where they are located or deployed.
+PMM helps users to:
+* Reduce Complexity
+* Optimize Database Performance
+* Improve Data Security
+
+
+See the [PMM Documentation](https://www.percona.com/doc/percona-monitoring-and-management/2.x/index.html) for more information.
 
 ## Submitting Bug Reports
 
@@ -29,9 +41,9 @@ As a general rule of thumb, please try to create bug reports that are:
 
 ## APIs
 
-See stable API definitions [there](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/percona/pmm/PMM-2.0/api/swagger/swagger.json),
+See stable API definitions [there](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/percona/pmm/main/api/swagger/swagger.json),
 and all API definitions (including technical preview, development and testing APIs)
-[there](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/percona/pmm/PMM-2.0/api/swagger/swagger-dev.json).
+[there](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/percona/pmm/main/api/swagger/swagger-dev.json).
 
 
 ## Repositories

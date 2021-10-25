@@ -18378,6 +18378,11 @@
                       "description": "Resume cluster `pause: false`.",
                       "type": "boolean",
                       "x-order": 3
+                    },
+                    "image": {
+                      "description": "PSMDB image to use. If it's the same image but with different version tag, upgrade of database cluster to version\nin given tag is triggered. If entirely different image is given, error is returned.",
+                      "type": "string",
+                      "x-order": 4
                     }
                   },
                   "x-order": 2
@@ -18591,7 +18596,7 @@
                         "x-order": 0
                       },
                       "state": {
-                        "description": "PSMDBClusterState represents PSMDB cluster CR state.\n\n - PSMDB_CLUSTER_STATE_INVALID: PSMDB_CLUSTER_STATE_INVALID represents unknown state.\n - PSMDB_CLUSTER_STATE_CHANGING: PSMDB_CLUSTER_STATE_CHANGING represents a cluster being changed.\n - PSMDB_CLUSTER_STATE_READY: PSMDB_CLUSTER_STATE_READY represents a cluster without pending changes.\n - PSMDB_CLUSTER_STATE_FAILED: PSMDB_CLUSTER_STATE_FAILED represents a failed cluster.\n - PSMDB_CLUSTER_STATE_DELETING: PSMDB_CLUSTER_STATE_DELETING represents a cluster being deleting.\n - PSMDB_CLUSTER_STATE_PAUSED: PSMDB_CLUSTER_STATE_PAUSED represents a cluster is paused.",
+                        "description": "PSMDBClusterState represents PSMDB cluster CR state.\n\n - PSMDB_CLUSTER_STATE_INVALID: PSMDB_CLUSTER_STATE_INVALID represents unknown state.\n - PSMDB_CLUSTER_STATE_CHANGING: PSMDB_CLUSTER_STATE_CHANGING represents a cluster being changed.\n - PSMDB_CLUSTER_STATE_READY: PSMDB_CLUSTER_STATE_READY represents a cluster without pending changes.\n - PSMDB_CLUSTER_STATE_FAILED: PSMDB_CLUSTER_STATE_FAILED represents a failed cluster.\n - PSMDB_CLUSTER_STATE_DELETING: PSMDB_CLUSTER_STATE_DELETING represents a cluster being deleting.\n - PSMDB_CLUSTER_STATE_PAUSED: PSMDB_CLUSTER_STATE_PAUSED represents a cluster is paused.\n - PSMDB_CLUSTER_STATE_UPGRADING: PSMDB_CLUSTER_STATE_UPGRADING is a special case of PSMDB_CLUSTER_STATE_CHANGING.\nIt indicates database cluster upgrade is ongoing.",
                         "type": "string",
                         "default": "PSMDB_CLUSTER_STATE_INVALID",
                         "enum": [
@@ -18600,7 +18605,8 @@
                           "PSMDB_CLUSTER_STATE_READY",
                           "PSMDB_CLUSTER_STATE_FAILED",
                           "PSMDB_CLUSTER_STATE_DELETING",
-                          "PSMDB_CLUSTER_STATE_PAUSED"
+                          "PSMDB_CLUSTER_STATE_PAUSED",
+                          "PSMDB_CLUSTER_STATE_UPGRADING"
                         ],
                         "x-order": 1
                       },
@@ -18682,6 +18688,16 @@
                         "description": "DB cluster accessible outside of K8s cluster.",
                         "type": "boolean",
                         "x-order": 4
+                      },
+                      "installed_image": {
+                        "description": "Installed PSMDB image.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "available_image": {
+                        "description": "Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.\nIf it's empty, no upgrade is available.",
+                        "type": "string",
+                        "x-order": 6
                       }
                     }
                   },
@@ -19359,6 +19375,11 @@
                             }
                           },
                           "x-order": 0
+                        },
+                        "image": {
+                          "description": "Image to use. If it's the same image but with different version tag, upgrade of database cluster to version\nin given tag is triggered. If entirely different image is given, error is returned.",
+                          "type": "string",
+                          "x-order": 1
                         }
                       },
                       "x-order": 1
@@ -19632,7 +19653,7 @@
                         "x-order": 0
                       },
                       "state": {
-                        "description": "XtraDBClusterState represents XtraDB cluster CR state.\n\n - XTRA_DB_CLUSTER_STATE_INVALID: XTRA_DB_CLUSTER_STATE_INVALID represents unknown state.\n - XTRA_DB_CLUSTER_STATE_CHANGING: XTRA_DB_CLUSTER_STATE_CHANGING represents a cluster being changed.\n - XTRA_DB_CLUSTER_STATE_READY: XTRA_DB_CLUSTER_STATE_READY represents a cluster without pending changes.\n - XTRA_DB_CLUSTER_STATE_FAILED: XTRA_DB_CLUSTER_STATE_FAILED represents a failed cluster.\n - XTRA_DB_CLUSTER_STATE_DELETING: XTRA_DB_CLUSTER_STATE_DELETING represents a cluster being deleting.\n - XTRA_DB_CLUSTER_STATE_PAUSED: XTRA_DB_CLUSTER_STATE_PAUSED represents a cluster is paused.",
+                        "description": "XtraDBClusterState represents XtraDB cluster CR state.\n\n - XTRA_DB_CLUSTER_STATE_INVALID: XTRA_DB_CLUSTER_STATE_INVALID represents unknown state.\n - XTRA_DB_CLUSTER_STATE_CHANGING: XTRA_DB_CLUSTER_STATE_CHANGING represents a cluster being changed.\n - XTRA_DB_CLUSTER_STATE_READY: XTRA_DB_CLUSTER_STATE_READY represents a cluster without pending changes.\n - XTRA_DB_CLUSTER_STATE_FAILED: XTRA_DB_CLUSTER_STATE_FAILED represents a failed cluster.\n - XTRA_DB_CLUSTER_STATE_DELETING: XTRA_DB_CLUSTER_STATE_DELETING represents a cluster being deleting.\n - XTRA_DB_CLUSTER_STATE_PAUSED: XTRA_DB_CLUSTER_STATE_PAUSED represents a cluster is paused.\n - XTRA_DB_CLUSTER_STATE_UPGRADING: XTRA_DB_CLUSTER_STATE_UPGRADING is a special case of XTRA_DB_CLUSTER_STATE_CHANGING.\nIt indicates database cluster upgrade is ongoing.",
                         "type": "string",
                         "default": "XTRA_DB_CLUSTER_STATE_INVALID",
                         "enum": [
@@ -19641,7 +19662,8 @@
                           "XTRA_DB_CLUSTER_STATE_READY",
                           "XTRA_DB_CLUSTER_STATE_FAILED",
                           "XTRA_DB_CLUSTER_STATE_DELETING",
-                          "XTRA_DB_CLUSTER_STATE_PAUSED"
+                          "XTRA_DB_CLUSTER_STATE_PAUSED",
+                          "XTRA_DB_CLUSTER_STATE_UPGRADING"
                         ],
                         "x-order": 1
                       },
@@ -19791,6 +19813,16 @@
                         "description": "DB cluster accessible outside of K8s cluster.",
                         "type": "boolean",
                         "x-order": 4
+                      },
+                      "installed_image": {
+                        "description": "Installed XtraDB image.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "available_image": {
+                        "description": "Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.\nIf it's empty, no upgrade is available.",
+                        "type": "string",
+                        "x-order": 6
                       }
                     }
                   },
@@ -24943,6 +24975,18 @@
                         "type": "string",
                         "format": "date-time",
                         "x-order": 9
+                      },
+                      "mode": {
+                        "description": "BackupMode specifies backup mode.",
+                        "type": "string",
+                        "default": "BACKUP_MODE_INVALID",
+                        "enum": [
+                          "BACKUP_MODE_INVALID",
+                          "SNAPSHOT",
+                          "INCREMENTAL",
+                          "PITR"
+                        ],
+                        "x-order": 10
                       }
                     }
                   },
@@ -25063,6 +25107,316 @@
             "description": "A successful response.",
             "schema": {
               "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/backup/Backups/GetLogs": {
+      "post": {
+        "tags": [
+          "Backups"
+        ],
+        "summary": "GetLogs returns logs for provided artifact.",
+        "operationId": "GetLogsMixin5",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "artifact_id": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "offset": {
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 1
+                },
+                "limit": {
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "logs": {
+                  "type": "array",
+                  "items": {
+                    "description": "LogChunk represent one chunk of logs.",
+                    "type": "object",
+                    "properties": {
+                      "chunk_id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 0
+                      },
+                      "data": {
+                        "type": "string",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 0
+                },
+                "end": {
+                  "type": "boolean",
+                  "x-order": 1
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/backup/Backups/ListArtifactCompatibleServices": {
+      "post": {
+        "tags": [
+          "Backups"
+        ],
+        "summary": "ListArtifactCompatibleServices lists compatible services for restoring a backup.",
+        "operationId": "ListArtifactCompatibleServices",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "artifact_id": {
+                  "description": "Artifact id used to determine restore compatibility.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "mysql": {
+                  "type": "array",
+                  "items": {
+                    "description": "MySQLService represents a generic MySQL instance.",
+                    "type": "object",
+                    "properties": {
+                      "service_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "service_name": {
+                        "description": "Unique across all Services user-defined name.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "node_id": {
+                        "description": "Node identifier where this instance runs.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "address": {
+                        "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "port": {
+                        "description": "Access port.\nPort is required when the address present.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 4
+                      },
+                      "socket": {
+                        "description": "Access unix socket.\nAddress (and port) or socket is required.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "environment": {
+                        "description": "Environment name.",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "cluster": {
+                        "description": "Cluster name.",
+                        "type": "string",
+                        "x-order": 7
+                      },
+                      "replication_set": {
+                        "description": "Replication set name.",
+                        "type": "string",
+                        "x-order": 8
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 9
+                      }
+                    }
+                  },
+                  "x-order": 0
+                },
+                "mongodb": {
+                  "type": "array",
+                  "items": {
+                    "description": "MongoDBService represents a generic MongoDB instance.",
+                    "type": "object",
+                    "properties": {
+                      "service_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "service_name": {
+                        "description": "Unique across all Services user-defined name.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "node_id": {
+                        "description": "Node identifier where this instance runs.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "address": {
+                        "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "port": {
+                        "description": "Access port.\nPort is required when the address present.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 4
+                      },
+                      "socket": {
+                        "description": "Access unix socket.\nAddress (and port) or socket is required.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "environment": {
+                        "description": "Environment name.",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "cluster": {
+                        "description": "Cluster name.",
+                        "type": "string",
+                        "x-order": 7
+                      },
+                      "replication_set": {
+                        "description": "Replication set name.",
+                        "type": "string",
+                        "x-order": 8
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 9
+                      }
+                    }
+                  },
+                  "x-order": 1
+                }
+              }
             }
           },
           "default": {
@@ -25231,6 +25585,18 @@
                         "type": "integer",
                         "format": "int64",
                         "x-order": 16
+                      },
+                      "mode": {
+                        "description": "BackupMode specifies backup mode.",
+                        "type": "string",
+                        "default": "BACKUP_MODE_INVALID",
+                        "enum": [
+                          "BACKUP_MODE_INVALID",
+                          "SNAPSHOT",
+                          "INCREMENTAL",
+                          "PITR"
+                        ],
+                        "x-order": 17
                       }
                     }
                   },
@@ -25505,6 +25871,18 @@
                   "type": "integer",
                   "format": "int64",
                   "x-order": 9
+                },
+                "mode": {
+                  "description": "BackupMode specifies backup mode.",
+                  "type": "string",
+                  "default": "BACKUP_MODE_INVALID",
+                  "enum": [
+                    "BACKUP_MODE_INVALID",
+                    "SNAPSHOT",
+                    "INCREMENTAL",
+                    "PITR"
+                  ],
+                  "x-order": 10
                 }
               }
             }
