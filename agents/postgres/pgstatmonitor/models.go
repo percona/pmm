@@ -71,6 +71,7 @@ type pgStatMonitorDefault struct {
 	CPUSysTime        float64        `reform:"cpu_sys_time"`
 	Relations         pq.StringArray `reform:"relations"`
 	Elevel            int32          `reform:"elevel"`
+	CmdType           int32          `reform:"cmd_type"`
 }
 
 func (m pgStatMonitorDefault) ToPgStatMonitor() pgStatMonitor {
@@ -102,6 +103,7 @@ func (m pgStatMonitorDefault) ToPgStatMonitor() pgStatMonitor {
 		CPUSysTime:        m.CPUSysTime,
 		Relations:         m.Relations,
 		Elevel:            m.Elevel,
+		CmdType:           m.CmdType,
 	}
 }
 
@@ -136,6 +138,7 @@ type pgStatMonitor08 struct {
 	CPUSysTime        float64        `reform:"cpu_sys_time"`
 	Relations         pq.StringArray `reform:"relations"`
 	Elevel            int32          `reform:"elevel"`
+	CmdType           int32          `reform:"cmd_type"`
 }
 
 func (m pgStatMonitor08) ToPgStatMonitor() (pgStatMonitor, error) {
@@ -172,6 +175,7 @@ func (m pgStatMonitor08) ToPgStatMonitor() (pgStatMonitor, error) {
 		CPUSysTime:        m.CPUSysTime,
 		Relations:         m.Relations,
 		Elevel:            m.Elevel,
+		CmdType:           m.CmdType,
 	}, nil
 }
 
@@ -284,6 +288,7 @@ func (m pgStatMonitor09) ToPgStatMonitor() (pgStatMonitor, error) {
 		PlanMinTime:       m.PlanMinTime,
 		PlanMaxTime:       m.PlanMaxTime,
 		Elevel:            m.Elevel,
+		CmdType:           m.CmdType,
 	}, nil
 }
 
@@ -325,6 +330,7 @@ type pgStatMonitor struct {
 	PlanMinTime       float64
 	PlanMaxTime       float64
 	Elevel            int32
+	CmdType           int32
 }
 
 // pgStatMonitorSettings represents a row in pg_stat_monitor_settings view.

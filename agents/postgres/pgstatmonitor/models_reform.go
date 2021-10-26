@@ -217,6 +217,7 @@ func (v *pgStatMonitorDefaultViewType) Columns() []string {
 		"cpu_sys_time",
 		"relations",
 		"elevel",
+		"cmd_type",
 	}
 }
 
@@ -258,6 +259,7 @@ var pgStatMonitorDefaultView = &pgStatMonitorDefaultViewType{
 			{Name: "CPUSysTime", Type: "float64", Column: "cpu_sys_time"},
 			{Name: "Relations", Type: "pq.StringArray", Column: "relations"},
 			{Name: "Elevel", Type: "int32", Column: "elevel"},
+			{Name: "CmdType", Type: "int32", Column: "cmd_type"},
 		},
 		PKFieldIndex: -1,
 	},
@@ -266,7 +268,7 @@ var pgStatMonitorDefaultView = &pgStatMonitorDefaultViewType{
 
 // String returns a string representation of this struct or record.
 func (s pgStatMonitorDefault) String() string {
-	res := make([]string, 27)
+	res := make([]string, 28)
 	res[0] = "Bucket: " + reform.Inspect(s.Bucket, true)
 	res[1] = "BucketStartTime: " + reform.Inspect(s.BucketStartTime, true)
 	res[2] = "UserID: " + reform.Inspect(s.UserID, true)
@@ -294,6 +296,7 @@ func (s pgStatMonitorDefault) String() string {
 	res[24] = "CPUSysTime: " + reform.Inspect(s.CPUSysTime, true)
 	res[25] = "Relations: " + reform.Inspect(s.Relations, true)
 	res[26] = "Elevel: " + reform.Inspect(s.Elevel, true)
+	res[27] = "CmdType: " + reform.Inspect(s.CmdType, true)
 	return strings.Join(res, ", ")
 }
 
@@ -328,6 +331,7 @@ func (s *pgStatMonitorDefault) Values() []interface{} {
 		s.CPUSysTime,
 		s.Relations,
 		s.Elevel,
+		s.CmdType,
 	}
 }
 
@@ -362,6 +366,7 @@ func (s *pgStatMonitorDefault) Pointers() []interface{} {
 		&s.CPUSysTime,
 		&s.Relations,
 		&s.Elevel,
+		&s.CmdType,
 	}
 }
 
@@ -422,6 +427,7 @@ func (v *pgStatMonitor08ViewType) Columns() []string {
 		"cpu_sys_time",
 		"relations",
 		"elevel",
+		"cmd_type",
 	}
 }
 
@@ -463,6 +469,7 @@ var pgStatMonitor08View = &pgStatMonitor08ViewType{
 			{Name: "CPUSysTime", Type: "float64", Column: "cpu_sys_time"},
 			{Name: "Relations", Type: "pq.StringArray", Column: "relations"},
 			{Name: "Elevel", Type: "int32", Column: "elevel"},
+			{Name: "CmdType", Type: "int32", Column: "cmd_type"},
 		},
 		PKFieldIndex: -1,
 	},
@@ -471,7 +478,7 @@ var pgStatMonitor08View = &pgStatMonitor08ViewType{
 
 // String returns a string representation of this struct or record.
 func (s pgStatMonitor08) String() string {
-	res := make([]string, 27)
+	res := make([]string, 28)
 	res[0] = "Bucket: " + reform.Inspect(s.Bucket, true)
 	res[1] = "BucketStartTime: " + reform.Inspect(s.BucketStartTime, true)
 	res[2] = "User: " + reform.Inspect(s.User, true)
@@ -499,6 +506,7 @@ func (s pgStatMonitor08) String() string {
 	res[24] = "CPUSysTime: " + reform.Inspect(s.CPUSysTime, true)
 	res[25] = "Relations: " + reform.Inspect(s.Relations, true)
 	res[26] = "Elevel: " + reform.Inspect(s.Elevel, true)
+	res[27] = "CmdType: " + reform.Inspect(s.CmdType, true)
 	return strings.Join(res, ", ")
 }
 
@@ -533,6 +541,7 @@ func (s *pgStatMonitor08) Values() []interface{} {
 		s.CPUSysTime,
 		s.Relations,
 		s.Elevel,
+		s.CmdType,
 	}
 }
 
@@ -567,6 +576,7 @@ func (s *pgStatMonitor08) Pointers() []interface{} {
 		&s.CPUSysTime,
 		&s.Relations,
 		&s.Elevel,
+		&s.CmdType,
 	}
 }
 

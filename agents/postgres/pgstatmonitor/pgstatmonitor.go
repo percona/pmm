@@ -64,7 +64,21 @@ type Params struct {
 	AgentID              string
 }
 
-const queryTag = "pmm-agent:pgstatmonitor"
+const (
+	queryTag = "pmm-agent:pgstatmonitor"
+	// There is a feature in the FE that shows "n/a" for empty responses for dimensions.
+	commandTextNotAvailable = ""
+)
+
+var commandTypeToText = []string{
+	commandTextNotAvailable,
+	"SELECT",
+	"UPDATE",
+	"INSERT",
+	"DELETE",
+	"UTILITY",
+	commandTextNotAvailable,
+}
 
 // New creates new PGStatMonitorQAN QAN service.
 func New(params *Params, l *logrus.Entry) (*PGStatMonitorQAN, error) {
@@ -261,6 +275,13 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 				},
 				Postgresql: new(agentpb.MetricsBucket_PostgreSQL),
 			}
+			if currentPSM.pgStatMonitor.CmdType >= 0 && currentPSM.pgStatMonitor.CmdType < int32(len(commandTypeToText)) {
+				mb.Postgresql.CmdType = commandTypeToText[currentPSM.pgStatMonitor.CmdType]
+			} else {
+				mb.Postgresql.CmdType = commandTextNotAvailable
+				m.l.Warnf("failed to translate command type '%d' into text", currentPSM.pgStatMonitor.CmdType)
+			}
+
 			if (currentPSM.PlanTotalTime - prevPSM.PlanTotalTime) != 0 {
 				mb.Postgresql.MPlanTimeSum = float32(currentPSM.PlanTotalTime-prevPSM.PlanTotalTime) / 1000
 				mb.Postgresql.MPlanTimeMin = float32(currentPSM.PlanMinTime) / 1000
