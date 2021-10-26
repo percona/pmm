@@ -591,17 +591,17 @@ func (m *Metrics) SelectQueryExamples(ctx context.Context, periodStartFrom, peri
 const queryObjectDetailsLabelsTmpl = `
 SELECT service_name, database, schema, username, client_host, replication_set, cluster, service_type,
        service_id, environment, az, region, node_model, node_id, node_name, node_type, machine_id, container_name,
-       container_id, agent_id, agent_type, labels.key AS lkey, labels.value AS lvalue
+       container_id, agent_id, agent_type, labels.key AS lkey, labels.value AS lvalue, cmd_type
   FROM metrics
   LEFT ARRAY JOIN labels
  WHERE period_start >= :period_start_from AND period_start <= :period_start_to
        {{ if index . "filter" }} AND {{ index . "group" }} = :filter {{ end }}
  GROUP BY service_name, database, schema, username, client_host, replication_set, cluster, service_type,
        service_id, environment, az, region, node_model, node_id, node_name, node_type, machine_id, container_name,
-       container_id, agent_id, agent_type, labels.key, labels.value
+       container_id, agent_id, agent_type, labels.key, labels.value, cmd_type
  ORDER BY service_name, database, schema, username, client_host, replication_set, cluster, service_type,
        service_id, environment, az, region, node_model, node_id, node_name, node_type, machine_id, container_name,
-       container_id, agent_id, agent_type, labels.key, labels.value
+       container_id, agent_id, agent_type, labels.key, labels.value, cmd_type
 `
 
 //nolint
@@ -631,6 +631,7 @@ type queryRowsLabels struct {
 	AgentType      string
 	LabelKey       string
 	LabelValue     string
+	CmdType        string
 }
 
 // SelectObjectDetailsLabels selects object details labels for given time range and object.
@@ -682,6 +683,7 @@ func (m *Metrics) SelectObjectDetailsLabels(ctx context.Context, periodStartFrom
 	labels["container_id"] = map[string]struct{}{}
 	labels["agent_id"] = map[string]struct{}{}
 	labels["agent_type"] = map[string]struct{}{}
+	labels["cmd_type"] = map[string]struct{}{}
 
 	for rows.Next() {
 		var row queryRowsLabels
@@ -709,6 +711,7 @@ func (m *Metrics) SelectObjectDetailsLabels(ctx context.Context, periodStartFrom
 			&row.AgentType,
 			&row.LabelKey,
 			&row.LabelValue,
+			&row.CmdType,
 		)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to scan labels for object details")
@@ -741,6 +744,7 @@ func (m *Metrics) SelectObjectDetailsLabels(ctx context.Context, periodStartFrom
 			}
 			labels[row.LabelKey][row.LabelValue] = struct{}{}
 		}
+		labels["cmd_type"][row.CmdType] = struct{}{}
 	}
 	if err = rows.Err(); err != nil {
 		return nil, errors.Wrap(err, "failed to select labels dimensions")

@@ -124,6 +124,11 @@
 				"cluster1"
 			]
 		},
+		"cmd_type": {
+			"values": [
+				""
+			]
+		},
 		"container_id": {
 			"values": [
 				"container_id"

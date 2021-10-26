@@ -158,6 +158,14 @@
 				}
 			]
 		},
+		"cmd_type": {
+			"name": [
+				{
+					"mainMetricPercent": 1,
+					"mainMetricPerSec": 0.00034449997
+				}
+			]
+		},
 		"container_id": {
 			"name": [
 				{

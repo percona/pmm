@@ -132,6 +132,7 @@ func TestService_GetFilters(t *testing.T) {
 						{Key: "environment", Value: []string{"environment1"}},
 						{Key: "service_id", Value: []string{"service_id1"}},
 						{Key: "service_type", Value: []string{"service_type1"}},
+						{Key: "cmd_type", Value: []string{"1"}},
 					},
 				},
 			},

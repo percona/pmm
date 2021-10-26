@@ -462,6 +462,7 @@ var dimensionQueries = map[string]*template.Template{
 	"machine_id":      queryDimensionTmpl,
 	"container_name":  queryDimensionTmpl,
 	"container_id":    queryDimensionTmpl,
+	"cmd_type":        queryDimensionTmpl,
 }
 
 // SelectFilters selects dimension and their values, and also keys and values of labels.

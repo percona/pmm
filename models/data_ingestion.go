@@ -253,7 +253,8 @@ const insertSQL = `
     m_plan_time_cnt,
     m_plan_time_sum,
     m_plan_time_min,
-    m_plan_time_max
+    m_plan_time_max,
+    cmd_type
    )
   VALUES (
     :queryid,
@@ -470,7 +471,8 @@ const insertSQL = `
     :m_plan_time_cnt, 
     :m_plan_time_sum,
     :m_plan_time_min,
-    :m_plan_time_max
+    :m_plan_time_max,
+    :cmd_type
   )
 `
 
