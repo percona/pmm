@@ -313,6 +313,8 @@ message MetricsBucket {
     float m_cpu_sys_time_cnt = 29;
     // Total time system spent in query.
     float m_cpu_sys_time_sum = 30;
+    // Type of SQL command.
+    string cmd_type = 43;
     //
     // pg_stat_monitor 0.9 metrics
     //
@@ -337,11 +339,11 @@ message MetricsBucket {
     // min_time, max_time, mean_time
     // plan_mean_time
     // stddev_time
-    // Other metrics skipped for now (empty values, codes):
-    // cmd_type, cmd_type_text, elevel, sqlcode, message, state_code, state
-    string top_queryid = 43;
-    string application_name = 44;
-    string planid = 45;
+    // Other metrics skipped (empty values, codes):
+    // cmd_type_text, elevel, sqlcode, message, state_code, state
+    string top_queryid = 44;
+    string application_name = 45;
+    string planid = 46;
   }
   Common common = 1;
   MySQL mysql = 2;
