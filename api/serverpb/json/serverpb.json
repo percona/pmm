@@ -127,13 +127,13 @@
         }
       }
     },
-    "/v1/Platform/SignIn": {
+    "/v1/Platform/Connect": {
       "post": {
         "tags": [
           "Server"
         ],
-        "summary": "PlatformSignIn links that PMM instance to Percona Platform user.",
-        "operationId": "PlatformSignIn",
+        "summary": "PlatformConnect connects PMM instance to Portal. User is able to log in into the PMM server with Percona Account.",
+        "operationId": "PlatformConnect",
         "parameters": [
           {
             "name": "body",
@@ -145,12 +145,17 @@
                 "email": {
                   "description": "Existing Percona Platform user's email.",
                   "type": "string",
-                  "x-order": 0
+                  "x-order": 1
                 },
                 "password": {
                   "description": "Existing Percona Platform user's password.",
                   "type": "string",
-                  "x-order": 1
+                  "x-order": 2
+                },
+                "server_name": {
+                  "description": "User defined human readable PMM Server Name.",
+                  "type": "string",
+                  "x-order": 0
                 }
               }
             }
@@ -639,6 +644,11 @@
                       "type": "boolean",
                       "x-order": 16
                     },
+                    "connected_to_portal": {
+                      "type": "boolean",
+                      "title": "True if the PMM instance is connected to Portal",
+                      "x-order": 18
+                    },
                     "data_retention": {
                       "type": "string",
                       "x-order": 3
@@ -881,6 +891,11 @@
                       "description": "True if Backup Management is enabled.",
                       "type": "boolean",
                       "x-order": 16
+                    },
+                    "connected_to_portal": {
+                      "type": "boolean",
+                      "title": "True if the PMM instance is connected to Portal",
+                      "x-order": 18
                     },
                     "data_retention": {
                       "type": "string",

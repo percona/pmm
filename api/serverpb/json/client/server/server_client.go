@@ -37,7 +37,7 @@ type ClientService interface {
 
 	Logs(params *LogsParams, writer io.Writer) (*LogsOK, error)
 
-	PlatformSignIn(params *PlatformSignInParams) (*PlatformSignInOK, error)
+	PlatformConnect(params *PlatformConnectParams) (*PlatformConnectOK, error)
 
 	PlatformSignOut(params *PlatformSignOutParams) (*PlatformSignOutOK, error)
 
@@ -220,35 +220,35 @@ func (a *Client) Logs(params *LogsParams, writer io.Writer) (*LogsOK, error) {
 }
 
 /*
-  PlatformSignIn platforms sign in links that PMM instance to percona platform user
+  PlatformConnect platforms connect connects PMM instance to portal user is able to log in into the PMM server with percona account
 */
-func (a *Client) PlatformSignIn(params *PlatformSignInParams) (*PlatformSignInOK, error) {
+func (a *Client) PlatformConnect(params *PlatformConnectParams) (*PlatformConnectOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewPlatformSignInParams()
+		params = NewPlatformConnectParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "PlatformSignIn",
+		ID:                 "PlatformConnect",
 		Method:             "POST",
-		PathPattern:        "/v1/Platform/SignIn",
+		PathPattern:        "/v1/Platform/Connect",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &PlatformSignInReader{formats: a.formats},
+		Reader:             &PlatformConnectReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*PlatformSignInOK)
+	success, ok := result.(*PlatformConnectOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*PlatformSignInDefault)
+	unexpectedSuccess := result.(*PlatformConnectDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

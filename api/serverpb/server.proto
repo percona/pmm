@@ -190,6 +190,8 @@ message Settings {
   bool backup_management_enabled = 18;
   // True if Azure Discover is enabled.
   bool azurediscover_enabled = 17;
+  // True if the PMM instance is connected to Portal
+  bool connected_to_portal = 19;
 }
 
 message GetSettingsRequest {}
@@ -286,18 +288,28 @@ message PlatformSignUpRequest {
 
 message PlatformSignUpResponse {}
 
-message PlatformSignInRequest {
+message PlatformConnectRequest {
+  // User defined human readable PMM Server Name.
+  string server_name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
   // Existing Percona Platform user's email.
-  string email = 1 [
+  string email = 2 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // Existing Percona Platform user's password.
-  string password = 2;
+  string password = 3 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
 }
 
-message PlatformSignInResponse {}
+message PlatformConnectResponse {}
 
 message PlatformSignOutRequest {}
 
@@ -367,10 +379,10 @@ service Server {
       body: "*"
     };
   }
-  // PlatformSignIn links that PMM instance to Percona Platform user.
-  rpc PlatformSignIn(PlatformSignInRequest) returns (PlatformSignInResponse) {
+  // PlatformConnect connects PMM instance to Portal. User is able to log in into the PMM server with Percona Account.
+  rpc PlatformConnect(PlatformConnectRequest) returns (PlatformConnectResponse) {
     option (google.api.http) = {
-      post: "/v1/Platform/SignIn"
+      post: "/v1/Platform/Connect"
       body: "*"
     };
   }
