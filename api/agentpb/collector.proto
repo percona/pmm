@@ -342,14 +342,9 @@ message MetricsBucket {
     // Other metrics skipped (empty values, codes):
     // cmd_type_text, elevel, sqlcode, message, state_code, state
     string top_queryid = 44;
+    string top_query = 47;
     string application_name = 45;
     string planid = 46;
-    // Other metrics skipped for now (empty values, codes):
-    // cmd_type, cmd_type_text, elevel, sqlcode, message, state_code, state
-    string top_queryid = 43;
-    string top_query = 46;
-    string application_name = 44;
-    string planid = 45;
   }
   Common common = 1;
   MySQL mysql = 2;
