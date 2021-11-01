@@ -367,14 +367,14 @@ message MetricsBucket {
   // min_time, max_time, mean_time
   // plan_mean_time
   // stddev_time
-  // Other metrics skipped for now (empty values, codes):
-  // cmd_type, cmd_type_text, elevel, sqlcode, message, state_code, state
-  string top_queryid = 246;
-  string top_query = 249;
-  string application_name = 247;
-  string planid = 248;
-  string query_plan = 250;
-  repeated Histogram histogram = 251;
+  // Other metrics skipped (empty values, codes):
+  // cmd_type_text, elevel, sqlcode, message, state_code, state
+  string top_queryid = 247;
+  string top_query = 250;
+  string application_name = 248;
+  string planid = 249;
+  string query_plan = 251;
+  repeated Histogram histogram = 252;
 }
 
 // Histogram represents item of histogram.

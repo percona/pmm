@@ -340,16 +340,13 @@ message MetricsBucket {
     // plan_mean_time
     // stddev_time
     // Other metrics skipped (empty values, codes):
-    // application_name, cmd_type_text, elevel, sqlcode, message, state_code, state
-
-    // Other metrics skipped for now (empty values, codes):
-    // cmd_type, cmd_type_text, elevel, sqlcode, message, state_code, state
-    string top_queryid = 43;
-    string top_query = 46;
-    string application_name = 44;
-    string planid = 45;
-    string query_plan = 47;
-    repeated Histogram histogram = 48;
+    // cmd_type_text, elevel, sqlcode, message, state_code, state
+    string top_queryid = 44;
+    string top_query = 47;
+    string application_name = 45;
+    string planid = 46;
+    string query_plan = 48;
+    repeated Histogram histogram = 49;
   }
   Common common = 1;
   MySQL mysql = 2;
