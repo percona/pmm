@@ -346,11 +346,45 @@ swagger:model GetHistogramOKBody
 type GetHistogramOKBody struct {
 
 	// histogram items
-	HistogramItems []string `json:"histogram_items"`
+	HistogramItems []*HistogramItemsItems0 `json:"histogram_items"`
 }
 
 // Validate validates this get histogram OK body
 func (o *GetHistogramOKBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateHistogramItems(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetHistogramOKBody) validateHistogramItems(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.HistogramItems) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.HistogramItems); i++ {
+		if swag.IsZero(o.HistogramItems[i]) { // not required
+			continue
+		}
+
+		if o.HistogramItems[i] != nil {
+			if err := o.HistogramItems[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("getHistogramOk" + "." + "histogram_items" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
 	return nil
 }
 
@@ -365,6 +399,41 @@ func (o *GetHistogramOKBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetHistogramOKBody) UnmarshalBinary(b []byte) error {
 	var res GetHistogramOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*HistogramItemsItems0 Histogram represents histogram item.
+swagger:model HistogramItemsItems0
+*/
+type HistogramItemsItems0 struct {
+
+	// range
+	Range string `json:"range,omitempty"`
+
+	// frequency
+	Frequency int64 `json:"frequency,omitempty"`
+}
+
+// Validate validates this histogram items items0
+func (o *HistogramItemsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *HistogramItemsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *HistogramItemsItems0) UnmarshalBinary(b []byte) error {
+	var res HistogramItemsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
