@@ -372,7 +372,13 @@ message MetricsBucket {
   string application_name = 247;
   string planid = 248;
   string query_plan = 250;
-  repeated string resp_calls = 251;
+  repeated Histogram histogram = 251;
+}
+
+// Histogram represents item of histogram.
+message Histogram {
+  string range = 1;
+  uint32 frequency = 2;
 }
 
 message CollectResponse {}
