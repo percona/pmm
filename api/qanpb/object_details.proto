@@ -38,13 +38,6 @@ service ObjectDetails {
       body: "*"
     };
   }
-  // GetHistogram gets histogram items for specific filtering.
-  rpc GetHistogram(HistogramRequest) returns (HistogramReply) {
-    option (google.api.http) = {
-      post: "/v0/qan/ObjectDetails/GetHistogram"
-      body: "*"
-    };
-  }
 }
 
 // MetricsRequest defines filtering of metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
@@ -149,23 +142,4 @@ message QueryPlanRequest {
 message QueryPlanReply {
   string planid = 1;
   string query_plan = 2;
-}
-
-// HistogramRequest defines filtering by time range, labels and queryid.
-message HistogramRequest {
-  google.protobuf.Timestamp period_start_from = 1;
-  google.protobuf.Timestamp period_start_to = 2;
-  repeated MapFieldEntry labels = 3;
-  string queryid = 4;
-}
-
-// HistogramReply contains is a map of histogram items as a list.
-message HistogramReply {
-  repeated HistogramItem histogram_items = 1;
-}
-
-// HistogramItem represents range and frequency.
-message HistogramItem {
-  string range = 1;
-  int32 frequency = 2;
 }

@@ -25,8 +25,6 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	GetHistogram(params *GetHistogramParams) (*GetHistogramOK, error)
-
 	GetLabels(params *GetLabelsParams) (*GetLabelsOK, error)
 
 	GetMetrics(params *GetMetricsParams) (*GetMetricsOK, error)
@@ -36,39 +34,6 @@ type ClientService interface {
 	GetQueryPlan(params *GetQueryPlanParams) (*GetQueryPlanOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
-}
-
-/*
-  GetHistogram gets histogram gets histogram items for specific filtering
-*/
-func (a *Client) GetHistogram(params *GetHistogramParams) (*GetHistogramOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewGetHistogramParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "GetHistogram",
-		Method:             "POST",
-		PathPattern:        "/v0/qan/ObjectDetails/GetHistogram",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &GetHistogramReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*GetHistogramOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*GetHistogramDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
