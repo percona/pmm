@@ -30,6 +30,16 @@ func (this *MetricsBucket) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	// Validation of proto3 map<> fields is unsupported.
 	// Validation of proto3 map<> fields is unsupported.
+	for _, item := range this.Histogram {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Histogram", err)
+			}
+		}
+	}
+	return nil
+}
+func (this *Histogram) Validate() error {
 	return nil
 }
 func (this *CollectResponse) Validate() error {
