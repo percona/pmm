@@ -368,8 +368,10 @@ message MetricsBucket {
   // plan_mean_time
   // stddev_time
   // Other metrics skipped (empty values, codes):
-  // application_name, cmd_type, cmd_type_text, elevel, sqlcode, message, state_code, state
-
+  // cmd_type_text, elevel, sqlcode, message, state_code, state
+  string top_queryid = 247;
+  string application_name = 248;
+  string planid = 249;
 }
 
 message CollectResponse {}
