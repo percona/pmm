@@ -930,19 +930,7 @@
                 "histogram_items": {
                   "type": "array",
                   "items": {
-                    "description": "Histogram represents histogram item.",
-                    "type": "object",
-                    "properties": {
-                      "frequency": {
-                        "type": "integer",
-                        "format": "int64",
-                        "x-order": 1
-                      },
-                      "range": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    }
+                    "type": "string"
                   },
                   "x-order": 0
                 }
