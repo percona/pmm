@@ -964,13 +964,13 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "HistogramReply contains is a map of histogram items as a list.",
+              "description": "HistogramReply is histogram items as a list.",
               "type": "object",
               "properties": {
                 "histogram_items": {
                   "type": "array",
                   "items": {
-                    "description": "HistogramItem represents range and frequency.",
+                    "description": "Histogram represents histogram item.",
                     "type": "object",
                     "properties": {
                       "range": {
@@ -979,7 +979,7 @@
                       },
                       "frequency": {
                         "type": "integer",
-                        "format": "int32",
+                        "format": "int64",
                         "x-order": 1
                       }
                     }

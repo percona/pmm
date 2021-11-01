@@ -145,6 +145,3 @@ func (this *HistogramReply) Validate() error {
 	}
 	return nil
 }
-func (this *HistogramItem) Validate() error {
-	return nil
-}

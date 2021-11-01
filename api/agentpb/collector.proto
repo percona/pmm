@@ -346,7 +346,7 @@ message MetricsBucket {
     string application_name = 45;
     string planid = 46;
     string query_plan = 48;
-    repeated Histogram histogram = 49;
+    repeated Histogram histogram_items = 49;
   }
   Common common = 1;
   MySQL mysql = 2;

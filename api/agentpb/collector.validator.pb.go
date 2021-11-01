@@ -50,10 +50,10 @@ func (this *MetricsBucket_MongoDB) Validate() error {
 	return nil
 }
 func (this *MetricsBucket_PostgreSQL) Validate() error {
-	for _, item := range this.Histogram {
+	for _, item := range this.HistogramItems {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("Histogram", err)
+				return github_com_mwitkow_go_proto_validators.FieldError("HistogramItems", err)
 			}
 		}
 	}

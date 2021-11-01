@@ -340,7 +340,7 @@ func (o *GetHistogramDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetHistogramOKBody HistogramReply contains is a map of histogram items as a list.
+/*GetHistogramOKBody HistogramReply is histogram items as a list.
 swagger:model GetHistogramOKBody
 */
 type GetHistogramOKBody struct {
@@ -406,7 +406,7 @@ func (o *GetHistogramOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*HistogramItemsItems0 HistogramItem represents range and frequency.
+/*HistogramItemsItems0 Histogram represents histogram item.
 swagger:model HistogramItemsItems0
 */
 type HistogramItemsItems0 struct {
@@ -415,7 +415,7 @@ type HistogramItemsItems0 struct {
 	Range string `json:"range,omitempty"`
 
 	// frequency
-	Frequency int32 `json:"frequency,omitempty"`
+	Frequency int64 `json:"frequency,omitempty"`
 }
 
 // Validate validates this histogram items items0

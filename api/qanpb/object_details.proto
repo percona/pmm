@@ -6,6 +6,7 @@ option go_package = "api/qanpb;qanpb";
 
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
+import "qanpb/collector.proto";
 import "qanpb/qan.proto";
 
 // ObjectDetails serves agregated metrics filtered by given dimension value and period.
@@ -159,13 +160,7 @@ message HistogramRequest {
   string queryid = 4;
 }
 
-// HistogramReply contains is a map of histogram items as a list.
+// HistogramReply is histogram items as a list.
 message HistogramReply {
-  repeated HistogramItem histogram_items = 1;
-}
-
-// HistogramItem represents range and frequency.
-message HistogramItem {
-  string range = 1;
-  int32 frequency = 2;
+  repeated Histogram histogram_items = 1;
 }
