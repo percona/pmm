@@ -4,7 +4,6 @@ package qan.v1beta1;
 
 option go_package = "api/qanpb;qanpb";
 
-import "agentpb/collector.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "qanpb/qan.proto";
@@ -162,5 +161,11 @@ message HistogramRequest {
 
 // HistogramReply is histogram items as a list.
 message HistogramReply {
-  repeated agent.Histogram histogram_items = 1;
+  repeated Histogram histogram_items = 1;
+}
+
+// Histogram represents histogram item.
+message Histogram {
+  string range = 1;
+  uint32 frequency = 2;
 }

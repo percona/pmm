@@ -8,7 +8,6 @@ import (
 	proto "github.com/golang/protobuf/proto"
 	_ "github.com/golang/protobuf/ptypes/timestamp"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
-	_ "github.com/percona/pmm/api/agentpb"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	math "math"
 )
@@ -144,5 +143,8 @@ func (this *HistogramReply) Validate() error {
 			}
 		}
 	}
+	return nil
+}
+func (this *Histogram) Validate() error {
 	return nil
 }
