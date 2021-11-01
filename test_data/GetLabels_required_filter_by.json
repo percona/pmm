@@ -10,6 +10,11 @@
 				"qan-mysql-slowlog-agent"
 			]
 		},
+		"application_name": {
+			"values": [
+				""
+			]
+		},
 		"az": {
 			"values": [
 				"az1"
@@ -1214,6 +1219,11 @@
 				"node_type1"
 			]
 		},
+		"planid": {
+			"values": [
+				""
+			]
+		},
 		"region": {
 			"values": [
 				"region1"
@@ -1351,6 +1361,11 @@
 		"service_type": {
 			"values": [
 				"service_type1"
+			]
+		},
+		"top_queryid": {
+			"values": [
+				""
 			]
 		},
 		"username": {

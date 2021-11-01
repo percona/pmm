@@ -32,13 +32,16 @@ func NewService(rm models.Reporter, mm models.Metrics) *Service {
 }
 
 var standartDimensions = map[string]struct{}{
-	"queryid":      {},
-	"service_name": {},
-	"database":     {},
-	"schema":       {},
-	"username":     {},
-	"client_host":  {},
-	"cmd_type":     {},
+	"queryid":          {},
+	"service_name":     {},
+	"database":         {},
+	"schema":           {},
+	"username":         {},
+	"client_host":      {},
+	"cmd_type":         {},
+	"application_name": {},
+	"top_queryid":      {},
+	"planid":           {},
 }
 
 var sumColumnNames = map[string]struct{}{
@@ -149,21 +152,24 @@ func isDimension(name string) bool {
 		"username":     {},
 		"client_host":  {},
 		// Standard labels
-		"replication_set": {},
-		"cluster":         {},
-		"service_type":    {},
-		"service_id":      {},
-		"environment":     {},
-		"az":              {},
-		"region":          {},
-		"node_model":      {},
-		"node_id":         {},
-		"node_name":       {},
-		"node_type":       {},
-		"machine_id":      {},
-		"container_name":  {},
-		"container_id":    {},
-		"cmd_type":        {},
+		"replication_set":  {},
+		"cluster":          {},
+		"service_type":     {},
+		"service_id":       {},
+		"environment":      {},
+		"az":               {},
+		"region":           {},
+		"node_model":       {},
+		"node_id":          {},
+		"node_name":        {},
+		"node_type":        {},
+		"machine_id":       {},
+		"container_name":   {},
+		"container_id":     {},
+		"cmd_type":         {},
+		"application_name": {},
+		"top_queryid":      {},
+		"planid":           {},
 	}
 
 	_, ok := dimensionColumnNames[name]

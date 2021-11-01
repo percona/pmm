@@ -1,5 +1,13 @@
 {
 	"labels": {
+		"application_name": {
+			"name": [
+				{
+					"mainMetricPercent": 1,
+					"mainMetricPerSec": 0.00037833332
+				}
+			]
+		},
 		"az": {
 			"name": [
 				{
@@ -236,6 +244,14 @@
 				}
 			]
 		},
+		"planid": {
+			"name": [
+				{
+					"mainMetricPercent": 1,
+					"mainMetricPerSec": 0.00037833332
+				}
+			]
+		},
 		"region": {
 			"name": [
 				{
@@ -440,6 +456,14 @@
 			"name": [
 				{
 					"value": "service_type1",
+					"mainMetricPercent": 1,
+					"mainMetricPerSec": 0.00037833332
+				}
+			]
+		},
+		"top_queryid": {
+			"name": [
+				{
 					"mainMetricPercent": 1,
 					"mainMetricPerSec": 0.00037833332
 				}

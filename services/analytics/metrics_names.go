@@ -77,7 +77,15 @@ var metricsNames = map[string]string{
 	"m_blk_write_time":       "Time the statement spent writing blocks",
 	"m_cpu_user_time":        "Total time user spent in query",
 	"m_cpu_sys_time":         "Total time system spent in query",
+	"m_plans_calls":          "Total number of planned calls",
+	"m_wal_records":          "Total number of WAL (Write-ahead logging) records",
+	"m_wal_fpi":              "Total number of FPI (full page images) in WAL (Write-ahead logging) records",
+	"m_wal_bytes":            "Total bytes of WAL (Write-ahead logging) records",
+	"m_plan_time":            "Total plan time spent in query",
 	"cmd_type":               "Type of SQL command used in the query",
+	"top_queryid":            "Top parent query ID",
+	"application_name":       "Name provided by pg_stat_monitor",
+	"planid":                 "Plan ID for query",
 }
 
 // GetMetricsNames implements rpc to get list of available metrics.

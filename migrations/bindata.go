@@ -20,6 +20,8 @@
 // migrations/sql/09_pg_stat_monitor_09_columns.up.sql (450B)
 // migrations/sql/10_pg_stat_monitor_09_columns_plan.down.sql (218B)
 // migrations/sql/10_pg_stat_monitor_09_columns_plan.up.sql (433B)
+// migrations/sql/11_pg_stat_monitor_09_dimensions.down.sql (107B)
+// migrations/sql/11_pg_stat_monitor_09_dimensions.up.sql (173B)
 // migrations/sql/12_add_cmd_type_pg_stat_monitor.down.sql (46B)
 // migrations/sql/12_add_cmd_type_pg_stat_monitor.up.sql (68B)
 
@@ -490,6 +492,46 @@ func _10_pg_stat_monitor_09_columns_planUpSql() (*asset, error) {
 	return a, nil
 }
 
+var __11_pg_stat_monitor_09_dimensionsDownSql = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\x72\xf4\x09\x71\x0d\x52\x08\x71\x74\xf2\x71\x55\xc8\x4d\x2d\x29\xca\x4c\x2e\xe6\x52\x50\x70\x09\xf2\x0f\x50\x70\xf6\xf7\x09\xf5\xf5\x53\x48\x28\xc9\x2f\x88\x2f\x2c\x4d\x2d\xaa\xcc\x4c\x49\xd0\x41\x97\x4c\x2c\x28\xc8\xc9\x4c\x4e\x2c\xc9\xcc\xcf\x8b\xcf\x4b\xcc\x4d\xc5\x54\x51\x90\x93\x98\x97\x99\x92\x60\xcd\x05\x08\x00\x00\xff\xff\x8a\xfb\x0e\x54\x6b\x00\x00\x00")
+
+func _11_pg_stat_monitor_09_dimensionsDownSqlBytes() ([]byte, error) {
+	return bindataRead(
+		__11_pg_stat_monitor_09_dimensionsDownSql,
+		"11_pg_stat_monitor_09_dimensions.down.sql",
+	)
+}
+
+func _11_pg_stat_monitor_09_dimensionsDownSql() (*asset, error) {
+	bytes, err := _11_pg_stat_monitor_09_dimensionsDownSqlBytes()
+	if err != nil {
+		return nil, err
+	}
+
+	info := bindataFileInfo{name: "11_pg_stat_monitor_09_dimensions.down.sql", size: 0, mode: os.FileMode(0), modTime: time.Unix(0, 0)}
+	a := &asset{bytes: bytes, info: info, digest: [32]uint8{0xd6, 0x90, 0x93, 0x43, 0x9a, 0x86, 0x37, 0x6a, 0x9b, 0xae, 0x6f, 0xb6, 0xdd, 0x4b, 0x2f, 0x1a, 0x0, 0xf3, 0xab, 0x71, 0x91, 0x2, 0x80, 0xaa, 0xa1, 0x9d, 0xd1, 0xcf, 0x85, 0xbd, 0x81, 0xa}}
+	return a, nil
+}
+
+var __11_pg_stat_monitor_09_dimensionsUpSql = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\x72\xf4\x09\x71\x0d\x52\x08\x71\x74\xf2\x71\x55\xc8\x4d\x2d\x29\xca\x4c\x2e\xe6\x52\x50\x70\x74\x71\x51\x70\xf6\xf7\x09\xf5\xf5\x53\x48\x28\xc9\x2f\x88\x2f\x2c\x4d\x2d\xaa\xcc\x4c\x49\x50\xf0\xc9\x2f\x77\x4e\x2c\x4a\xc9\xcc\x4b\xcc\xc9\x2c\xa9\xd4\x08\x2e\x29\xca\xcc\x4b\xd7\xd4\x41\xd3\x92\x58\x50\x90\x93\x99\x9c\x58\x92\x99\x9f\x17\x9f\x97\x98\x9b\x4a\xac\xbe\x82\x9c\xc4\x3c\xdc\xb6\x58\x73\x01\x02\x00\x00\xff\xff\xb3\x00\xab\xcc\xad\x00\x00\x00")
+
+func _11_pg_stat_monitor_09_dimensionsUpSqlBytes() ([]byte, error) {
+	return bindataRead(
+		__11_pg_stat_monitor_09_dimensionsUpSql,
+		"11_pg_stat_monitor_09_dimensions.up.sql",
+	)
+}
+
+func _11_pg_stat_monitor_09_dimensionsUpSql() (*asset, error) {
+	bytes, err := _11_pg_stat_monitor_09_dimensionsUpSqlBytes()
+	if err != nil {
+		return nil, err
+	}
+
+	info := bindataFileInfo{name: "11_pg_stat_monitor_09_dimensions.up.sql", size: 0, mode: os.FileMode(0), modTime: time.Unix(0, 0)}
+	a := &asset{bytes: bytes, info: info, digest: [32]uint8{0xd0, 0x19, 0x76, 0xc8, 0x47, 0x73, 0x1d, 0x89, 0xa2, 0x5b, 0xc2, 0x98, 0xa5, 0xae, 0xe, 0xc0, 0x61, 0x3b, 0xbf, 0x1f, 0x41, 0x3b, 0x74, 0x18, 0x5e, 0x59, 0xe0, 0x57, 0xda, 0x58, 0xf1, 0x8b}}
+	return a, nil
+}
+
 var __12_add_cmd_type_pg_stat_monitorDownSql = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\x72\xf4\x09\x71\x0d\x52\x08\x71\x74\xf2\x71\x55\xc8\x4d\x2d\x29\xca\x4c\x2e\xe6\x52\x50\x70\x09\xf2\x0f\x50\x70\xf6\xf7\x09\xf5\xf5\x53\x48\x48\xce\x4d\x89\x2f\xa9\x2c\x48\x4d\xb0\xe6\x02\x04\x00\x00\xff\xff\x46\x1f\x41\x90\x2e\x00\x00\x00")
 
 func _12_add_cmd_type_pg_stat_monitorDownSqlBytes() ([]byte, error) {
@@ -641,6 +683,8 @@ var _bindata = map[string]func() (*asset, error){
 	"09_pg_stat_monitor_09_columns.up.sql":        _09_pg_stat_monitor_09_columnsUpSql,
 	"10_pg_stat_monitor_09_columns_plan.down.sql": _10_pg_stat_monitor_09_columns_planDownSql,
 	"10_pg_stat_monitor_09_columns_plan.up.sql":   _10_pg_stat_monitor_09_columns_planUpSql,
+	"11_pg_stat_monitor_09_dimensions.down.sql":   _11_pg_stat_monitor_09_dimensionsDownSql,
+	"11_pg_stat_monitor_09_dimensions.up.sql":     _11_pg_stat_monitor_09_dimensionsUpSql,
 	"12_add_cmd_type_pg_stat_monitor.down.sql":    _12_add_cmd_type_pg_stat_monitorDownSql,
 	"12_add_cmd_type_pg_stat_monitor.up.sql":      _12_add_cmd_type_pg_stat_monitorUpSql,
 }
@@ -709,6 +753,8 @@ var _bintree = &bintree{nil, map[string]*bintree{
 	"09_pg_stat_monitor_09_columns.up.sql":        {_09_pg_stat_monitor_09_columnsUpSql, map[string]*bintree{}},
 	"10_pg_stat_monitor_09_columns_plan.down.sql": {_10_pg_stat_monitor_09_columns_planDownSql, map[string]*bintree{}},
 	"10_pg_stat_monitor_09_columns_plan.up.sql":   {_10_pg_stat_monitor_09_columns_planUpSql, map[string]*bintree{}},
+	"11_pg_stat_monitor_09_dimensions.down.sql":   {_11_pg_stat_monitor_09_dimensionsDownSql, map[string]*bintree{}},
+	"11_pg_stat_monitor_09_dimensions.up.sql":     {_11_pg_stat_monitor_09_dimensionsUpSql, map[string]*bintree{}},
 	"12_add_cmd_type_pg_stat_monitor.down.sql":    {_12_add_cmd_type_pg_stat_monitorDownSql, map[string]*bintree{}},
 	"12_add_cmd_type_pg_stat_monitor.up.sql":      {_12_add_cmd_type_pg_stat_monitorUpSql, map[string]*bintree{}},
 }}

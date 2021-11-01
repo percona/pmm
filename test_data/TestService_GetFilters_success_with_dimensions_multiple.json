@@ -1,5 +1,12 @@
 {
 	"labels": {
+		"application_name": {
+			"name": [
+				{
+					"mainMetricPercent": "NaN"
+				}
+			]
+		},
 		"az": {
 			"name": [
 				{
@@ -183,8 +190,7 @@
 		"cmd_type": {
 			"name": [
 				{
-					"mainMetricPercent": 1,
-					"mainMetricPerSec": 0.004001833
+					"mainMetricPercent": "NaN"
 				}
 			]
 		},
@@ -255,6 +261,13 @@
 			"name": [
 				{
 					"value": "node_type1",
+					"mainMetricPercent": "NaN"
+				}
+			]
+		},
+		"planid": {
+			"name": [
+				{
 					"mainMetricPercent": "NaN"
 				}
 			]
@@ -499,6 +512,13 @@
 			"name": [
 				{
 					"value": "service_type1",
+					"mainMetricPercent": "NaN"
+				}
+			]
+		},
+		"top_queryid": {
+			"name": [
+				{
 					"mainMetricPercent": "NaN"
 				}
 			]
