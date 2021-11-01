@@ -20,6 +20,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
 )
@@ -289,6 +290,9 @@ func (m pgStatMonitor09) ToPgStatMonitor() (pgStatMonitor, error) {
 		PlanMaxTime:       m.PlanMaxTime,
 		Elevel:            m.Elevel,
 		CmdType:           m.CmdType,
+		TopQueryID:        pointer.GetString(m.TopQueryid),
+		ApplicationName:   pointer.GetString(m.ApplicationName),
+		PlanID:            pointer.GetString(m.Planid),
 	}, nil
 }
 
@@ -331,6 +335,9 @@ type pgStatMonitor struct {
 	PlanMaxTime       float64
 	Elevel            int32
 	CmdType           int32
+	TopQueryID        string
+	ApplicationName   string
+	PlanID            string
 }
 
 // pgStatMonitorSettings represents a row in pg_stat_monitor_settings view.
