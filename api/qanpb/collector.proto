@@ -373,13 +373,7 @@ message MetricsBucket {
   string top_query = 250;
   string application_name = 248;
   string planid = 249;
-  // Other metrics skipped for now (empty values, codes):
-  // cmd_type, cmd_type_text, elevel, sqlcode, message, state_code, state
-  string top_queryid = 246;
-  string top_query = 249;
-  string application_name = 247;
-  string planid = 248;
-  string query_plan = 250;
+  string query_plan = 251;
 }
 
 message CollectResponse {}
