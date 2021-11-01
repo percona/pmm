@@ -1684,6 +1684,8 @@ type MetricsBucket_PostgreSQL struct {
 	MCpuSysTimeCnt  float32 `protobuf:"fixed32,29,opt,name=m_cpu_sys_time_cnt,json=mCpuSysTimeCnt,proto3" json:"m_cpu_sys_time_cnt,omitempty"`
 	// Total time system spent in query.
 	MCpuSysTimeSum float32 `protobuf:"fixed32,30,opt,name=m_cpu_sys_time_sum,json=mCpuSysTimeSum,proto3" json:"m_cpu_sys_time_sum,omitempty"`
+	// Type of SQL command.
+	CmdType string `protobuf:"bytes,43,opt,name=cmd_type,json=cmdType,proto3" json:"cmd_type,omitempty"`
 	//
 	// pg_stat_monitor 0.9 metrics
 	//
@@ -1956,6 +1958,13 @@ func (x *MetricsBucket_PostgreSQL) GetMCpuSysTimeSum() float32 {
 		return x.MCpuSysTimeSum
 	}
 	return 0
+}
+
+func (x *MetricsBucket_PostgreSQL) GetCmdType() string {
+	if x != nil {
+		return x.CmdType
+	}
+	return ""
 }
 
 func (x *MetricsBucket_PostgreSQL) GetMPlansCallsSum() float32 {
