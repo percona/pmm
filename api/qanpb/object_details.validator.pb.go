@@ -39,6 +39,7 @@ func (this *MetricsRequest) Validate() error {
 }
 func (this *MetricsReply) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
+	// Validation of proto3 map<> fields is unsupported.
 	for _, item := range this.Sparkline {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {

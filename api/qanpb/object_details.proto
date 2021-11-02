@@ -50,6 +50,7 @@ message MetricsRequest {
 // MetricsReply defines metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
 message MetricsReply {
   map<string, MetricValues> metrics = 3;
+  map<string, string> text_metrics = 7;
   repeated Point sparkline = 4;
   map<string, MetricValues> totals = 5;
   string fingerprint = 6;
