@@ -135,6 +135,10 @@ The *Details* tab contains a *Query time distribution* bar (only for MySQL datab
 
 - Each row in the table is a metric. The contents depends on the chosen dimension.
 
+For PostgreSQL queries (when using *pg_stat_monitor*) the top query will also be shown in the details section if the query was called by an outer query.
+
+![!image](../_images/PMM_Query_Analytics_Tabs_Details_TopQuery.png)
+
 ### Examples Tab
 
 (For *Query* dimension.)
@@ -175,6 +179,14 @@ The *Explain* tab shows the `explain` output for the selected query, in Classic 
 The *Tables* tab shows information on the tables and indexes involved in the selected query.
 
 ![!image](../_images/PMM_Query_Analytics_Tabs_Tables.jpg)
+
+### Plan Tab
+
+(For *Query* dimension.)
+
+The *Plan* tab shows the plan for PostgreSQL queries (only available when using *pg_stat_monitor*).
+
+![!image](../_images/PMM_Query_Analytics_Tabs_Plan.png)
 
 ## Query Analytics for MongoDB
 
