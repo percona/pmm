@@ -18,6 +18,7 @@ package backup
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -64,6 +65,35 @@ func NewBackupsService(
 	}
 }
 
+func convertBackupError(restoreError error) error {
+	if restoreError == nil {
+		return nil
+	}
+
+	var code backupv1beta1.ErrorCode
+	switch {
+	case errors.Is(restoreError, backup.ErrIncompatibleService):
+		return status.Error(codes.FailedPrecondition, restoreError.Error())
+	case errors.Is(restoreError, backup.ErrXtrabackupNotInstalled):
+		code = backupv1beta1.ErrorCode_ERROR_CODE_XTRABACKUP_NOT_INSTALLED
+	case errors.Is(restoreError, backup.ErrInvalidXtrabackup):
+		code = backupv1beta1.ErrorCode_ERROR_CODE_INVALID_XTRABACKUP
+	case errors.Is(restoreError, backup.ErrIncompatibleXtrabackup):
+		code = backupv1beta1.ErrorCode_ERROR_CODE_INCOMPATIBLE_XTRABACKUP
+	default:
+		return restoreError
+	}
+
+	st, err := status.New(codes.FailedPrecondition, restoreError.Error()).WithDetails(&backupv1beta1.Error{
+		Code: code,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to construct status error: %w, restore error: %s", err, restoreError)
+	}
+
+	return st.Err()
+}
+
 // StartBackup starts on-demand backup.
 func (s *BackupsService) StartBackup(ctx context.Context, req *backupv1beta1.StartBackupRequest) (*backupv1beta1.StartBackupResponse, error) {
 	if req.Retries > maxRetriesAttempts {
@@ -96,12 +126,43 @@ func (s *BackupsService) StartBackup(ctx context.Context, req *backupv1beta1.Sta
 		RetryInterval: req.RetryInterval.AsDuration(),
 	})
 	if err != nil {
-		return nil, err
+		return nil, convertBackupError(err)
 	}
 
 	return &backupv1beta1.StartBackupResponse{
 		ArtifactId: artifactID,
 	}, nil
+}
+
+func convertRestoreBackupError(restoreError error) error {
+	if restoreError == nil {
+		return nil
+	}
+
+	var code backupv1beta1.ErrorCode
+	switch {
+	case errors.Is(restoreError, backup.ErrIncompatibleService):
+		return status.Error(codes.FailedPrecondition, restoreError.Error())
+	case errors.Is(restoreError, backup.ErrXtrabackupNotInstalled):
+		code = backupv1beta1.ErrorCode_ERROR_CODE_XTRABACKUP_NOT_INSTALLED
+	case errors.Is(restoreError, backup.ErrInvalidXtrabackup):
+		code = backupv1beta1.ErrorCode_ERROR_CODE_INVALID_XTRABACKUP
+	case errors.Is(restoreError, backup.ErrIncompatibleXtrabackup):
+		code = backupv1beta1.ErrorCode_ERROR_CODE_INCOMPATIBLE_XTRABACKUP
+	case errors.Is(restoreError, backup.ErrIncompatibleTargetMySQL):
+		code = backupv1beta1.ErrorCode_ERROR_CODE_INCOMPATIBLE_TARGET_MYSQL
+	default:
+		return restoreError
+	}
+
+	st, err := status.New(codes.FailedPrecondition, restoreError.Error()).WithDetails(&backupv1beta1.Error{
+		Code: code,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to construct status error: %w, restore error: %s", err, restoreError)
+	}
+
+	return st.Err()
 }
 
 // RestoreBackup starts restore backup job.
@@ -112,7 +173,7 @@ func (s *BackupsService) RestoreBackup(
 
 	id, err := s.backupService.RestoreBackup(ctx, req.ServiceId, req.ArtifactId)
 	if err != nil {
-		return nil, err
+		return nil, convertRestoreBackupError(err)
 	}
 
 	return &backupv1beta1.RestoreBackupResponse{

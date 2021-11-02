@@ -109,7 +109,7 @@ type CreateJobParams struct {
 	Retries    uint32
 }
 
-// Validate validates CreateJobParams
+// Validate validates CreateJobParams.
 func (p CreateJobParams) Validate() error {
 	switch p.Type {
 	case MySQLBackupJob:
