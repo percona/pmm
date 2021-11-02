@@ -802,3 +802,19 @@ func (m *Metrics) GetFingerprintByQueryID(ctx context.Context, queryID string) (
 
 	return fingerprint, nil
 }
+
+const planByQueryID = `SELECT planid, query_plan FROM metrics WHERE queryid = ? LIMIT 1`
+
+// SelectQueryPlan selects query plan and related stuff for given queryid.
+func (m *Metrics) SelectQueryPlan(ctx context.Context, queryID string) (*qanpb.QueryPlanReply, error) {
+	queryCtx, cancel := context.WithTimeout(ctx, queryTimeout)
+	defer cancel()
+
+	var res qanpb.QueryPlanReply
+	err := m.db.GetContext(queryCtx, &res, planByQueryID, []interface{}{queryID})
+	if err != nil && err != sql.ErrNoRows {
+		return nil, fmt.Errorf("QueryxContext error:%v", err)
+	}
+
+	return &res, nil
+}
