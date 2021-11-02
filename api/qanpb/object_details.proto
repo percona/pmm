@@ -31,6 +31,13 @@ service ObjectDetails {
       body: "*"
     };
   }
+  // GetQueryPlan gets query plan and plan id for specific filtering.
+  rpc GetQueryPlan(QueryPlanRequest) returns (QueryPlanReply) {
+    option (google.api.http) = {
+      post: "/v0/qan/ObjectDetails/GetQueryPlan"
+      body: "*"
+    };
+  }
 }
 
 // MetricsRequest defines filtering of metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
@@ -50,6 +57,7 @@ message MetricsRequest {
 // MetricsReply defines metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
 message MetricsReply {
   map<string, MetricValues> metrics = 3;
+  map<string, string> text_metrics = 7;
   repeated Point sparkline = 4;
   map<string, MetricValues> totals = 5;
   string fingerprint = 6;
@@ -123,4 +131,15 @@ message ObjectDetailsLabelsReply {
 // ListLabelValues is list of label's values.
 message ListLabelValues {
   repeated string values = 1;
+}
+
+// QueryPlanRequest defines filtering by queryid.
+message QueryPlanRequest {
+  string queryid = 1;
+}
+
+// QueryPlanReply contains planid and query_plan.
+message QueryPlanReply {
+  string planid = 1;
+  string query_plan = 2;
 }

@@ -1487,7 +1487,9 @@
                     "DISTRIBUTION_METHOD_INVALID",
                     "DOCKER",
                     "OVF",
-                    "AMI"
+                    "AMI",
+                    "AZURE",
+                    "DO"
                   ],
                   "x-order": 3
                 },
