@@ -39,8 +39,8 @@ message Filter {
   string value = 3;
 }
 
-// RuleParam represents a single rule parameter for List, Change and Update APIs.
-message RuleParam {
+// ParamValue represents a single rule parameter value for List, Change and Update APIs.
+message ParamValue {
   // Machine-readable name (ID) that is used in expression.
   string name = 1 [
     (validator.field) = {
@@ -62,16 +62,16 @@ message RuleParam {
 
 // Rule represents Alert Rule.
 message Rule {
-  // Template used to create that rule.
-  Template template = 1;
   // Rule ID.
-  string rule_id = 2;
+  string rule_id = 1;
   // True if that rule is disabled.
-  bool disabled = 3;
+  bool disabled = 2;
   // Rule human-readable summary.
-  string summary = 4;
+  string summary = 3;
+  // Template parameters.
+  repeated ParamDefinition params_definitions = 4;
   // Rule parameters.
-  repeated RuleParam params = 5;
+  repeated ParamValue params_values = 5;
   // Rule duration.
   google.protobuf.Duration for = 6;
   // Rule severity.
@@ -84,8 +84,10 @@ message Rule {
   repeated Channel channels = 10;
   // Rule creation time.
   google.protobuf.Timestamp created_at = 11;
-  // Template expression with rule parameters.
-  string expr = 12;
+  // Expression template.
+  string expr_template = 12;
+  // Expression filled with rule parameters.
+  string expr = 13;
 }
 
 message ListAlertRulesRequest {
@@ -107,7 +109,7 @@ message CreateAlertRuleRequest {
   // Rule human-readable summary.
   string summary = 3;
   // Rule parameters. All template parameters should be set.
-  repeated RuleParam params = 4;
+  repeated ParamValue params = 4;
   // Rule duration. Should be set.
   google.protobuf.Duration for = 5;
   // Rule severity. Should be set.
@@ -135,7 +137,7 @@ message UpdateAlertRuleRequest {
   // New rule status. Should be set.
   bool disabled = 2;
   // Rule parameters. All template parameters should be set.
-  repeated RuleParam params = 3;
+  repeated ParamValue params = 3;
   // Rule duration. Should be set.
   google.protobuf.Duration for = 4;
   // Rule severity. Should be set.

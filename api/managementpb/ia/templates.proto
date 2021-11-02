@@ -16,13 +16,13 @@ import "managementpb/severity.proto";
 // TODO move it to parent directory / package once API is v1-stable
 // https://jira.percona.com/browse/PMM-7001
 
-// TemplateBoolParam represents boolean parameter's default value.
-message TemplateBoolParam {
+// BoolParamDefinition represents boolean parameter's default value.
+message BoolParamDefinition {
   BooleanFlag default = 1;
 }
 
-// TemplateFloatParam represents float parameter's default value and valid range.
-message TemplateFloatParam {
+// FloatParamDefinition represents float parameter's default value and valid range.
+message FloatParamDefinition {
   // True if default value is set.
   bool has_default = 1;
   // Default value if has_default is true.
@@ -37,16 +37,16 @@ message TemplateFloatParam {
   float max = 6;
 }
 
-// TemplateStringParam represents string parameter's default value.
-message TemplateStringParam {
+// StringParamDefinition represents string parameter's default value.
+message StringParamDefinition {
   // True if default value is set.
   bool has_default = 1;
   // Default value if has_default is true.
   string default = 2;
 }
 
-// TemplateParam represents a single template parameter.
-message TemplateParam {
+// ParamDefinition represents a single query parameter.
+message ParamDefinition {
   // Machine-readable name (ID) that is used in expression.
   string name = 1 [
     (validator.field) = {
@@ -66,11 +66,11 @@ message TemplateParam {
   // Parameter value.
   oneof value {
     // Bool value.
-    TemplateBoolParam bool = 5;
+    BoolParamDefinition bool = 5;
     // Float value.
-    TemplateFloatParam float = 6;
+    FloatParamDefinition float = 6;
     // String value.
-    TemplateStringParam string = 7;
+    StringParamDefinition string = 7;
   }
 }
 
@@ -95,8 +95,8 @@ message Template {
   string summary = 2;
   // PromQL query expression with templating parameters.
   string expr = 3;
-  // Query templating parameters.
-  repeated TemplateParam params = 4;
+  // Query parameters definitions.
+  repeated ParamDefinition params = 4;
   // Default duration value.
   google.protobuf.Duration for = 5;
   // Severity.

@@ -380,8 +380,11 @@ type AlertsItems0Rule struct {
 	// Rule human-readable summary.
 	Summary string `json:"summary,omitempty"`
 
+	// Template parameters.
+	ParamsDefinitions []*AlertsItems0RuleParamsDefinitionsItems0 `json:"params_definitions"`
+
 	// Rule parameters.
-	Params []*AlertsItems0RuleParamsItems0 `json:"params"`
+	ParamsValues []*AlertsItems0RuleParamsValuesItems0 `json:"params_values"`
 
 	// Rule duration.
 	For string `json:"for,omitempty"`
@@ -403,18 +406,22 @@ type AlertsItems0Rule struct {
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"created_at,omitempty"`
 
-	// Template expression with rule parameters.
-	Expr string `json:"expr,omitempty"`
+	// Expression template.
+	ExprTemplate string `json:"expr_template,omitempty"`
 
-	// template
-	Template *AlertsItems0RuleTemplate `json:"template,omitempty"`
+	// Expression filled with rule parameters.
+	Expr string `json:"expr,omitempty"`
 }
 
 // Validate validates this alerts items0 rule
 func (o *AlertsItems0Rule) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateParams(formats); err != nil {
+	if err := o.validateParamsDefinitions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateParamsValues(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -434,31 +441,52 @@ func (o *AlertsItems0Rule) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := o.validateTemplate(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
 }
 
-func (o *AlertsItems0Rule) validateParams(formats strfmt.Registry) error {
+func (o *AlertsItems0Rule) validateParamsDefinitions(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.Params) { // not required
+	if swag.IsZero(o.ParamsDefinitions) { // not required
 		return nil
 	}
 
-	for i := 0; i < len(o.Params); i++ {
-		if swag.IsZero(o.Params[i]) { // not required
+	for i := 0; i < len(o.ParamsDefinitions); i++ {
+		if swag.IsZero(o.ParamsDefinitions[i]) { // not required
 			continue
 		}
 
-		if o.Params[i] != nil {
-			if err := o.Params[i].Validate(formats); err != nil {
+		if o.ParamsDefinitions[i] != nil {
+			if err := o.ParamsDefinitions[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("rule" + "." + "params" + "." + strconv.Itoa(i))
+					return ve.ValidateName("rule" + "." + "params_definitions" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *AlertsItems0Rule) validateParamsValues(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.ParamsValues) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.ParamsValues); i++ {
+		if swag.IsZero(o.ParamsValues[i]) { // not required
+			continue
+		}
+
+		if o.ParamsValues[i] != nil {
+			if err := o.ParamsValues[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("rule" + "." + "params_values" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -591,24 +619,6 @@ func (o *AlertsItems0Rule) validateCreatedAt(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("rule"+"."+"created_at", "body", "date-time", o.CreatedAt.String(), formats); err != nil {
 		return err
-	}
-
-	return nil
-}
-
-func (o *AlertsItems0Rule) validateTemplate(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Template) { // not required
-		return nil
-	}
-
-	if o.Template != nil {
-		if err := o.Template.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("rule" + "." + "template")
-			}
-			return err
-		}
 	}
 
 	return nil
@@ -1239,358 +1249,10 @@ func (o *AlertsItems0RuleFiltersItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AlertsItems0RuleParamsItems0 RuleParam represents a single rule parameter for List, Change and Update APIs.
-swagger:model AlertsItems0RuleParamsItems0
+/*AlertsItems0RuleParamsDefinitionsItems0 ParamDefinition represents a single query parameter.
+swagger:model AlertsItems0RuleParamsDefinitionsItems0
 */
-type AlertsItems0RuleParamsItems0 struct {
-
-	// Machine-readable name (ID) that is used in expression.
-	Name string `json:"name,omitempty"`
-
-	// ParamType represents template parameter type.
-	// Enum: [PARAM_TYPE_INVALID BOOL FLOAT STRING]
-	Type *string `json:"type,omitempty"`
-
-	// Bool value.
-	Bool bool `json:"bool,omitempty"`
-
-	// Float value.
-	Float float32 `json:"float,omitempty"`
-
-	// String value.
-	String string `json:"string,omitempty"`
-}
-
-// Validate validates this alerts items0 rule params items0
-func (o *AlertsItems0RuleParamsItems0) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateType(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-var alertsItems0RuleParamsItems0TypeTypePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["PARAM_TYPE_INVALID","BOOL","FLOAT","STRING"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		alertsItems0RuleParamsItems0TypeTypePropEnum = append(alertsItems0RuleParamsItems0TypeTypePropEnum, v)
-	}
-}
-
-const (
-
-	// AlertsItems0RuleParamsItems0TypePARAMTYPEINVALID captures enum value "PARAM_TYPE_INVALID"
-	AlertsItems0RuleParamsItems0TypePARAMTYPEINVALID string = "PARAM_TYPE_INVALID"
-
-	// AlertsItems0RuleParamsItems0TypeBOOL captures enum value "BOOL"
-	AlertsItems0RuleParamsItems0TypeBOOL string = "BOOL"
-
-	// AlertsItems0RuleParamsItems0TypeFLOAT captures enum value "FLOAT"
-	AlertsItems0RuleParamsItems0TypeFLOAT string = "FLOAT"
-
-	// AlertsItems0RuleParamsItems0TypeSTRING captures enum value "STRING"
-	AlertsItems0RuleParamsItems0TypeSTRING string = "STRING"
-)
-
-// prop value enum
-func (o *AlertsItems0RuleParamsItems0) validateTypeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, alertsItems0RuleParamsItems0TypeTypePropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *AlertsItems0RuleParamsItems0) validateType(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Type) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateTypeEnum("type", "body", *o.Type); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AlertsItems0RuleParamsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AlertsItems0RuleParamsItems0) UnmarshalBinary(b []byte) error {
-	var res AlertsItems0RuleParamsItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*AlertsItems0RuleTemplate Template represents Alert Template that is used to create Alert Rule.
-swagger:model AlertsItems0RuleTemplate
-*/
-type AlertsItems0RuleTemplate struct {
-
-	// Machine-readable name (ID).
-	Name string `json:"name,omitempty"`
-
-	// Short human-readable summary.
-	Summary string `json:"summary,omitempty"`
-
-	// PromQL query expression with templating parameters.
-	Expr string `json:"expr,omitempty"`
-
-	// Query templating parameters.
-	Params []*AlertsItems0RuleTemplateParamsItems0 `json:"params"`
-
-	// Default duration value.
-	For string `json:"for,omitempty"`
-
-	// Severity represents severity level of the check result or alert.
-	// Enum: [SEVERITY_INVALID SEVERITY_EMERGENCY SEVERITY_ALERT SEVERITY_CRITICAL SEVERITY_ERROR SEVERITY_WARNING SEVERITY_NOTICE SEVERITY_INFO SEVERITY_DEBUG]
-	Severity *string `json:"severity,omitempty"`
-
-	// Labels.
-	Labels map[string]string `json:"labels,omitempty"`
-
-	// Annotations.
-	Annotations map[string]string `json:"annotations,omitempty"`
-
-	// TemplateSource defines template source.
-	//
-	//  - BUILT_IN: Template that is shipped with PMM Server releases.
-	//  - SAAS: Template that is downloaded from check.percona.com.
-	//  - USER_FILE: Templated loaded from user-suplied file.
-	//  - USER_API: Templated created via API.
-	// Enum: [TEMPLATE_SOURCE_INVALID BUILT_IN SAAS USER_FILE USER_API]
-	Source *string `json:"source,omitempty"`
-
-	// Template creation time. Empty for built-in and SaaS templates.
-	// Format: date-time
-	CreatedAt strfmt.DateTime `json:"created_at,omitempty"`
-
-	// YAML (or JSON) template file content. Empty for built-in and SaaS templates.
-	Yaml string `json:"yaml,omitempty"`
-}
-
-// Validate validates this alerts items0 rule template
-func (o *AlertsItems0RuleTemplate) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateParams(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateSeverity(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateSource(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateCreatedAt(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *AlertsItems0RuleTemplate) validateParams(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Params) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(o.Params); i++ {
-		if swag.IsZero(o.Params[i]) { // not required
-			continue
-		}
-
-		if o.Params[i] != nil {
-			if err := o.Params[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("rule" + "." + "template" + "." + "params" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-var alertsItems0RuleTemplateTypeSeverityPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["SEVERITY_INVALID","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		alertsItems0RuleTemplateTypeSeverityPropEnum = append(alertsItems0RuleTemplateTypeSeverityPropEnum, v)
-	}
-}
-
-const (
-
-	// AlertsItems0RuleTemplateSeveritySEVERITYINVALID captures enum value "SEVERITY_INVALID"
-	AlertsItems0RuleTemplateSeveritySEVERITYINVALID string = "SEVERITY_INVALID"
-
-	// AlertsItems0RuleTemplateSeveritySEVERITYEMERGENCY captures enum value "SEVERITY_EMERGENCY"
-	AlertsItems0RuleTemplateSeveritySEVERITYEMERGENCY string = "SEVERITY_EMERGENCY"
-
-	// AlertsItems0RuleTemplateSeveritySEVERITYALERT captures enum value "SEVERITY_ALERT"
-	AlertsItems0RuleTemplateSeveritySEVERITYALERT string = "SEVERITY_ALERT"
-
-	// AlertsItems0RuleTemplateSeveritySEVERITYCRITICAL captures enum value "SEVERITY_CRITICAL"
-	AlertsItems0RuleTemplateSeveritySEVERITYCRITICAL string = "SEVERITY_CRITICAL"
-
-	// AlertsItems0RuleTemplateSeveritySEVERITYERROR captures enum value "SEVERITY_ERROR"
-	AlertsItems0RuleTemplateSeveritySEVERITYERROR string = "SEVERITY_ERROR"
-
-	// AlertsItems0RuleTemplateSeveritySEVERITYWARNING captures enum value "SEVERITY_WARNING"
-	AlertsItems0RuleTemplateSeveritySEVERITYWARNING string = "SEVERITY_WARNING"
-
-	// AlertsItems0RuleTemplateSeveritySEVERITYNOTICE captures enum value "SEVERITY_NOTICE"
-	AlertsItems0RuleTemplateSeveritySEVERITYNOTICE string = "SEVERITY_NOTICE"
-
-	// AlertsItems0RuleTemplateSeveritySEVERITYINFO captures enum value "SEVERITY_INFO"
-	AlertsItems0RuleTemplateSeveritySEVERITYINFO string = "SEVERITY_INFO"
-
-	// AlertsItems0RuleTemplateSeveritySEVERITYDEBUG captures enum value "SEVERITY_DEBUG"
-	AlertsItems0RuleTemplateSeveritySEVERITYDEBUG string = "SEVERITY_DEBUG"
-)
-
-// prop value enum
-func (o *AlertsItems0RuleTemplate) validateSeverityEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, alertsItems0RuleTemplateTypeSeverityPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *AlertsItems0RuleTemplate) validateSeverity(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Severity) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateSeverityEnum("rule"+"."+"template"+"."+"severity", "body", *o.Severity); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-var alertsItems0RuleTemplateTypeSourcePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["TEMPLATE_SOURCE_INVALID","BUILT_IN","SAAS","USER_FILE","USER_API"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		alertsItems0RuleTemplateTypeSourcePropEnum = append(alertsItems0RuleTemplateTypeSourcePropEnum, v)
-	}
-}
-
-const (
-
-	// AlertsItems0RuleTemplateSourceTEMPLATESOURCEINVALID captures enum value "TEMPLATE_SOURCE_INVALID"
-	AlertsItems0RuleTemplateSourceTEMPLATESOURCEINVALID string = "TEMPLATE_SOURCE_INVALID"
-
-	// AlertsItems0RuleTemplateSourceBUILTIN captures enum value "BUILT_IN"
-	AlertsItems0RuleTemplateSourceBUILTIN string = "BUILT_IN"
-
-	// AlertsItems0RuleTemplateSourceSAAS captures enum value "SAAS"
-	AlertsItems0RuleTemplateSourceSAAS string = "SAAS"
-
-	// AlertsItems0RuleTemplateSourceUSERFILE captures enum value "USER_FILE"
-	AlertsItems0RuleTemplateSourceUSERFILE string = "USER_FILE"
-
-	// AlertsItems0RuleTemplateSourceUSERAPI captures enum value "USER_API"
-	AlertsItems0RuleTemplateSourceUSERAPI string = "USER_API"
-)
-
-// prop value enum
-func (o *AlertsItems0RuleTemplate) validateSourceEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, alertsItems0RuleTemplateTypeSourcePropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *AlertsItems0RuleTemplate) validateSource(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Source) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateSourceEnum("rule"+"."+"template"+"."+"source", "body", *o.Source); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *AlertsItems0RuleTemplate) validateCreatedAt(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.CreatedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("rule"+"."+"template"+"."+"created_at", "body", "date-time", o.CreatedAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AlertsItems0RuleTemplate) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AlertsItems0RuleTemplate) UnmarshalBinary(b []byte) error {
-	var res AlertsItems0RuleTemplate
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*AlertsItems0RuleTemplateParamsItems0 TemplateParam represents a single template parameter.
-swagger:model AlertsItems0RuleTemplateParamsItems0
-*/
-type AlertsItems0RuleTemplateParamsItems0 struct {
+type AlertsItems0RuleParamsDefinitionsItems0 struct {
 
 	// Machine-readable name (ID) that is used in expression.
 	Name string `json:"name,omitempty"`
@@ -1611,17 +1273,17 @@ type AlertsItems0RuleTemplateParamsItems0 struct {
 	Type *string `json:"type,omitempty"`
 
 	// bool
-	Bool *AlertsItems0RuleTemplateParamsItems0Bool `json:"bool,omitempty"`
+	Bool *AlertsItems0RuleParamsDefinitionsItems0Bool `json:"bool,omitempty"`
 
 	// float
-	Float *AlertsItems0RuleTemplateParamsItems0Float `json:"float,omitempty"`
+	Float *AlertsItems0RuleParamsDefinitionsItems0Float `json:"float,omitempty"`
 
 	// string
-	String *AlertsItems0RuleTemplateParamsItems0String `json:"string,omitempty"`
+	String *AlertsItems0RuleParamsDefinitionsItems0String `json:"string,omitempty"`
 }
 
-// Validate validates this alerts items0 rule template params items0
-func (o *AlertsItems0RuleTemplateParamsItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this alerts items0 rule params definitions items0
+func (o *AlertsItems0RuleParamsDefinitionsItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateUnit(formats); err != nil {
@@ -1650,7 +1312,7 @@ func (o *AlertsItems0RuleTemplateParamsItems0) Validate(formats strfmt.Registry)
 	return nil
 }
 
-var alertsItems0RuleTemplateParamsItems0TypeUnitPropEnum []interface{}
+var alertsItems0RuleParamsDefinitionsItems0TypeUnitPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -1658,31 +1320,31 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		alertsItems0RuleTemplateParamsItems0TypeUnitPropEnum = append(alertsItems0RuleTemplateParamsItems0TypeUnitPropEnum, v)
+		alertsItems0RuleParamsDefinitionsItems0TypeUnitPropEnum = append(alertsItems0RuleParamsDefinitionsItems0TypeUnitPropEnum, v)
 	}
 }
 
 const (
 
-	// AlertsItems0RuleTemplateParamsItems0UnitPARAMUNITINVALID captures enum value "PARAM_UNIT_INVALID"
-	AlertsItems0RuleTemplateParamsItems0UnitPARAMUNITINVALID string = "PARAM_UNIT_INVALID"
+	// AlertsItems0RuleParamsDefinitionsItems0UnitPARAMUNITINVALID captures enum value "PARAM_UNIT_INVALID"
+	AlertsItems0RuleParamsDefinitionsItems0UnitPARAMUNITINVALID string = "PARAM_UNIT_INVALID"
 
-	// AlertsItems0RuleTemplateParamsItems0UnitPERCENTAGE captures enum value "PERCENTAGE"
-	AlertsItems0RuleTemplateParamsItems0UnitPERCENTAGE string = "PERCENTAGE"
+	// AlertsItems0RuleParamsDefinitionsItems0UnitPERCENTAGE captures enum value "PERCENTAGE"
+	AlertsItems0RuleParamsDefinitionsItems0UnitPERCENTAGE string = "PERCENTAGE"
 
-	// AlertsItems0RuleTemplateParamsItems0UnitSECONDS captures enum value "SECONDS"
-	AlertsItems0RuleTemplateParamsItems0UnitSECONDS string = "SECONDS"
+	// AlertsItems0RuleParamsDefinitionsItems0UnitSECONDS captures enum value "SECONDS"
+	AlertsItems0RuleParamsDefinitionsItems0UnitSECONDS string = "SECONDS"
 )
 
 // prop value enum
-func (o *AlertsItems0RuleTemplateParamsItems0) validateUnitEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, alertsItems0RuleTemplateParamsItems0TypeUnitPropEnum, true); err != nil {
+func (o *AlertsItems0RuleParamsDefinitionsItems0) validateUnitEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, alertsItems0RuleParamsDefinitionsItems0TypeUnitPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *AlertsItems0RuleTemplateParamsItems0) validateUnit(formats strfmt.Registry) error {
+func (o *AlertsItems0RuleParamsDefinitionsItems0) validateUnit(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Unit) { // not required
 		return nil
@@ -1696,7 +1358,7 @@ func (o *AlertsItems0RuleTemplateParamsItems0) validateUnit(formats strfmt.Regis
 	return nil
 }
 
-var alertsItems0RuleTemplateParamsItems0TypeTypePropEnum []interface{}
+var alertsItems0RuleParamsDefinitionsItems0TypeTypePropEnum []interface{}
 
 func init() {
 	var res []string
@@ -1704,34 +1366,34 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		alertsItems0RuleTemplateParamsItems0TypeTypePropEnum = append(alertsItems0RuleTemplateParamsItems0TypeTypePropEnum, v)
+		alertsItems0RuleParamsDefinitionsItems0TypeTypePropEnum = append(alertsItems0RuleParamsDefinitionsItems0TypeTypePropEnum, v)
 	}
 }
 
 const (
 
-	// AlertsItems0RuleTemplateParamsItems0TypePARAMTYPEINVALID captures enum value "PARAM_TYPE_INVALID"
-	AlertsItems0RuleTemplateParamsItems0TypePARAMTYPEINVALID string = "PARAM_TYPE_INVALID"
+	// AlertsItems0RuleParamsDefinitionsItems0TypePARAMTYPEINVALID captures enum value "PARAM_TYPE_INVALID"
+	AlertsItems0RuleParamsDefinitionsItems0TypePARAMTYPEINVALID string = "PARAM_TYPE_INVALID"
 
-	// AlertsItems0RuleTemplateParamsItems0TypeBOOL captures enum value "BOOL"
-	AlertsItems0RuleTemplateParamsItems0TypeBOOL string = "BOOL"
+	// AlertsItems0RuleParamsDefinitionsItems0TypeBOOL captures enum value "BOOL"
+	AlertsItems0RuleParamsDefinitionsItems0TypeBOOL string = "BOOL"
 
-	// AlertsItems0RuleTemplateParamsItems0TypeFLOAT captures enum value "FLOAT"
-	AlertsItems0RuleTemplateParamsItems0TypeFLOAT string = "FLOAT"
+	// AlertsItems0RuleParamsDefinitionsItems0TypeFLOAT captures enum value "FLOAT"
+	AlertsItems0RuleParamsDefinitionsItems0TypeFLOAT string = "FLOAT"
 
-	// AlertsItems0RuleTemplateParamsItems0TypeSTRING captures enum value "STRING"
-	AlertsItems0RuleTemplateParamsItems0TypeSTRING string = "STRING"
+	// AlertsItems0RuleParamsDefinitionsItems0TypeSTRING captures enum value "STRING"
+	AlertsItems0RuleParamsDefinitionsItems0TypeSTRING string = "STRING"
 )
 
 // prop value enum
-func (o *AlertsItems0RuleTemplateParamsItems0) validateTypeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, alertsItems0RuleTemplateParamsItems0TypeTypePropEnum, true); err != nil {
+func (o *AlertsItems0RuleParamsDefinitionsItems0) validateTypeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, alertsItems0RuleParamsDefinitionsItems0TypeTypePropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *AlertsItems0RuleTemplateParamsItems0) validateType(formats strfmt.Registry) error {
+func (o *AlertsItems0RuleParamsDefinitionsItems0) validateType(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Type) { // not required
 		return nil
@@ -1745,7 +1407,7 @@ func (o *AlertsItems0RuleTemplateParamsItems0) validateType(formats strfmt.Regis
 	return nil
 }
 
-func (o *AlertsItems0RuleTemplateParamsItems0) validateBool(formats strfmt.Registry) error {
+func (o *AlertsItems0RuleParamsDefinitionsItems0) validateBool(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Bool) { // not required
 		return nil
@@ -1763,7 +1425,7 @@ func (o *AlertsItems0RuleTemplateParamsItems0) validateBool(formats strfmt.Regis
 	return nil
 }
 
-func (o *AlertsItems0RuleTemplateParamsItems0) validateFloat(formats strfmt.Registry) error {
+func (o *AlertsItems0RuleParamsDefinitionsItems0) validateFloat(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Float) { // not required
 		return nil
@@ -1781,7 +1443,7 @@ func (o *AlertsItems0RuleTemplateParamsItems0) validateFloat(formats strfmt.Regi
 	return nil
 }
 
-func (o *AlertsItems0RuleTemplateParamsItems0) validateString(formats strfmt.Registry) error {
+func (o *AlertsItems0RuleParamsDefinitionsItems0) validateString(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.String) { // not required
 		return nil
@@ -1800,7 +1462,7 @@ func (o *AlertsItems0RuleTemplateParamsItems0) validateString(formats strfmt.Reg
 }
 
 // MarshalBinary interface implementation
-func (o *AlertsItems0RuleTemplateParamsItems0) MarshalBinary() ([]byte, error) {
+func (o *AlertsItems0RuleParamsDefinitionsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -1808,8 +1470,8 @@ func (o *AlertsItems0RuleTemplateParamsItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AlertsItems0RuleTemplateParamsItems0) UnmarshalBinary(b []byte) error {
-	var res AlertsItems0RuleTemplateParamsItems0
+func (o *AlertsItems0RuleParamsDefinitionsItems0) UnmarshalBinary(b []byte) error {
+	var res AlertsItems0RuleParamsDefinitionsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1817,10 +1479,10 @@ func (o *AlertsItems0RuleTemplateParamsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AlertsItems0RuleTemplateParamsItems0Bool TemplateBoolParam represents boolean parameter's default value.
-swagger:model AlertsItems0RuleTemplateParamsItems0Bool
+/*AlertsItems0RuleParamsDefinitionsItems0Bool BoolParamDefinition represents boolean parameter's default value.
+swagger:model AlertsItems0RuleParamsDefinitionsItems0Bool
 */
-type AlertsItems0RuleTemplateParamsItems0Bool struct {
+type AlertsItems0RuleParamsDefinitionsItems0Bool struct {
 
 	// BooleanFlag represent a command to set some boolean property to true,
 	// to false, or avoid changing that property.
@@ -1832,8 +1494,8 @@ type AlertsItems0RuleTemplateParamsItems0Bool struct {
 	Default *string `json:"default,omitempty"`
 }
 
-// Validate validates this alerts items0 rule template params items0 bool
-func (o *AlertsItems0RuleTemplateParamsItems0Bool) Validate(formats strfmt.Registry) error {
+// Validate validates this alerts items0 rule params definitions items0 bool
+func (o *AlertsItems0RuleParamsDefinitionsItems0Bool) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateDefault(formats); err != nil {
@@ -1846,7 +1508,7 @@ func (o *AlertsItems0RuleTemplateParamsItems0Bool) Validate(formats strfmt.Regis
 	return nil
 }
 
-var alertsItems0RuleTemplateParamsItems0BoolTypeDefaultPropEnum []interface{}
+var alertsItems0RuleParamsDefinitionsItems0BoolTypeDefaultPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -1854,31 +1516,31 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		alertsItems0RuleTemplateParamsItems0BoolTypeDefaultPropEnum = append(alertsItems0RuleTemplateParamsItems0BoolTypeDefaultPropEnum, v)
+		alertsItems0RuleParamsDefinitionsItems0BoolTypeDefaultPropEnum = append(alertsItems0RuleParamsDefinitionsItems0BoolTypeDefaultPropEnum, v)
 	}
 }
 
 const (
 
-	// AlertsItems0RuleTemplateParamsItems0BoolDefaultDONOTCHANGE captures enum value "DO_NOT_CHANGE"
-	AlertsItems0RuleTemplateParamsItems0BoolDefaultDONOTCHANGE string = "DO_NOT_CHANGE"
+	// AlertsItems0RuleParamsDefinitionsItems0BoolDefaultDONOTCHANGE captures enum value "DO_NOT_CHANGE"
+	AlertsItems0RuleParamsDefinitionsItems0BoolDefaultDONOTCHANGE string = "DO_NOT_CHANGE"
 
-	// AlertsItems0RuleTemplateParamsItems0BoolDefaultTRUE captures enum value "TRUE"
-	AlertsItems0RuleTemplateParamsItems0BoolDefaultTRUE string = "TRUE"
+	// AlertsItems0RuleParamsDefinitionsItems0BoolDefaultTRUE captures enum value "TRUE"
+	AlertsItems0RuleParamsDefinitionsItems0BoolDefaultTRUE string = "TRUE"
 
-	// AlertsItems0RuleTemplateParamsItems0BoolDefaultFALSE captures enum value "FALSE"
-	AlertsItems0RuleTemplateParamsItems0BoolDefaultFALSE string = "FALSE"
+	// AlertsItems0RuleParamsDefinitionsItems0BoolDefaultFALSE captures enum value "FALSE"
+	AlertsItems0RuleParamsDefinitionsItems0BoolDefaultFALSE string = "FALSE"
 )
 
 // prop value enum
-func (o *AlertsItems0RuleTemplateParamsItems0Bool) validateDefaultEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, alertsItems0RuleTemplateParamsItems0BoolTypeDefaultPropEnum, true); err != nil {
+func (o *AlertsItems0RuleParamsDefinitionsItems0Bool) validateDefaultEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, alertsItems0RuleParamsDefinitionsItems0BoolTypeDefaultPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *AlertsItems0RuleTemplateParamsItems0Bool) validateDefault(formats strfmt.Registry) error {
+func (o *AlertsItems0RuleParamsDefinitionsItems0Bool) validateDefault(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Default) { // not required
 		return nil
@@ -1893,7 +1555,7 @@ func (o *AlertsItems0RuleTemplateParamsItems0Bool) validateDefault(formats strfm
 }
 
 // MarshalBinary interface implementation
-func (o *AlertsItems0RuleTemplateParamsItems0Bool) MarshalBinary() ([]byte, error) {
+func (o *AlertsItems0RuleParamsDefinitionsItems0Bool) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -1901,8 +1563,8 @@ func (o *AlertsItems0RuleTemplateParamsItems0Bool) MarshalBinary() ([]byte, erro
 }
 
 // UnmarshalBinary interface implementation
-func (o *AlertsItems0RuleTemplateParamsItems0Bool) UnmarshalBinary(b []byte) error {
-	var res AlertsItems0RuleTemplateParamsItems0Bool
+func (o *AlertsItems0RuleParamsDefinitionsItems0Bool) UnmarshalBinary(b []byte) error {
+	var res AlertsItems0RuleParamsDefinitionsItems0Bool
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1910,10 +1572,10 @@ func (o *AlertsItems0RuleTemplateParamsItems0Bool) UnmarshalBinary(b []byte) err
 	return nil
 }
 
-/*AlertsItems0RuleTemplateParamsItems0Float TemplateFloatParam represents float parameter's default value and valid range.
-swagger:model AlertsItems0RuleTemplateParamsItems0Float
+/*AlertsItems0RuleParamsDefinitionsItems0Float FloatParamDefinition represents float parameter's default value and valid range.
+swagger:model AlertsItems0RuleParamsDefinitionsItems0Float
 */
-type AlertsItems0RuleTemplateParamsItems0Float struct {
+type AlertsItems0RuleParamsDefinitionsItems0Float struct {
 
 	// True if default value is set.
 	HasDefault bool `json:"has_default,omitempty"`
@@ -1934,13 +1596,13 @@ type AlertsItems0RuleTemplateParamsItems0Float struct {
 	Max float32 `json:"max,omitempty"`
 }
 
-// Validate validates this alerts items0 rule template params items0 float
-func (o *AlertsItems0RuleTemplateParamsItems0Float) Validate(formats strfmt.Registry) error {
+// Validate validates this alerts items0 rule params definitions items0 float
+func (o *AlertsItems0RuleParamsDefinitionsItems0Float) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *AlertsItems0RuleTemplateParamsItems0Float) MarshalBinary() ([]byte, error) {
+func (o *AlertsItems0RuleParamsDefinitionsItems0Float) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -1948,8 +1610,8 @@ func (o *AlertsItems0RuleTemplateParamsItems0Float) MarshalBinary() ([]byte, err
 }
 
 // UnmarshalBinary interface implementation
-func (o *AlertsItems0RuleTemplateParamsItems0Float) UnmarshalBinary(b []byte) error {
-	var res AlertsItems0RuleTemplateParamsItems0Float
+func (o *AlertsItems0RuleParamsDefinitionsItems0Float) UnmarshalBinary(b []byte) error {
+	var res AlertsItems0RuleParamsDefinitionsItems0Float
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1957,10 +1619,10 @@ func (o *AlertsItems0RuleTemplateParamsItems0Float) UnmarshalBinary(b []byte) er
 	return nil
 }
 
-/*AlertsItems0RuleTemplateParamsItems0String TemplateStringParam represents string parameter's default value.
-swagger:model AlertsItems0RuleTemplateParamsItems0String
+/*AlertsItems0RuleParamsDefinitionsItems0String StringParamDefinition represents string parameter's default value.
+swagger:model AlertsItems0RuleParamsDefinitionsItems0String
 */
-type AlertsItems0RuleTemplateParamsItems0String struct {
+type AlertsItems0RuleParamsDefinitionsItems0String struct {
 
 	// True if default value is set.
 	HasDefault bool `json:"has_default,omitempty"`
@@ -1969,13 +1631,13 @@ type AlertsItems0RuleTemplateParamsItems0String struct {
 	Default string `json:"default,omitempty"`
 }
 
-// Validate validates this alerts items0 rule template params items0 string
-func (o *AlertsItems0RuleTemplateParamsItems0String) Validate(formats strfmt.Registry) error {
+// Validate validates this alerts items0 rule params definitions items0 string
+func (o *AlertsItems0RuleParamsDefinitionsItems0String) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *AlertsItems0RuleTemplateParamsItems0String) MarshalBinary() ([]byte, error) {
+func (o *AlertsItems0RuleParamsDefinitionsItems0String) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -1983,8 +1645,111 @@ func (o *AlertsItems0RuleTemplateParamsItems0String) MarshalBinary() ([]byte, er
 }
 
 // UnmarshalBinary interface implementation
-func (o *AlertsItems0RuleTemplateParamsItems0String) UnmarshalBinary(b []byte) error {
-	var res AlertsItems0RuleTemplateParamsItems0String
+func (o *AlertsItems0RuleParamsDefinitionsItems0String) UnmarshalBinary(b []byte) error {
+	var res AlertsItems0RuleParamsDefinitionsItems0String
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AlertsItems0RuleParamsValuesItems0 ParamValue represents a single rule parameter value for List, Change and Update APIs.
+swagger:model AlertsItems0RuleParamsValuesItems0
+*/
+type AlertsItems0RuleParamsValuesItems0 struct {
+
+	// Machine-readable name (ID) that is used in expression.
+	Name string `json:"name,omitempty"`
+
+	// ParamType represents template parameter type.
+	// Enum: [PARAM_TYPE_INVALID BOOL FLOAT STRING]
+	Type *string `json:"type,omitempty"`
+
+	// Bool value.
+	Bool bool `json:"bool,omitempty"`
+
+	// Float value.
+	Float float32 `json:"float,omitempty"`
+
+	// String value.
+	String string `json:"string,omitempty"`
+}
+
+// Validate validates this alerts items0 rule params values items0
+func (o *AlertsItems0RuleParamsValuesItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var alertsItems0RuleParamsValuesItems0TypeTypePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["PARAM_TYPE_INVALID","BOOL","FLOAT","STRING"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		alertsItems0RuleParamsValuesItems0TypeTypePropEnum = append(alertsItems0RuleParamsValuesItems0TypeTypePropEnum, v)
+	}
+}
+
+const (
+
+	// AlertsItems0RuleParamsValuesItems0TypePARAMTYPEINVALID captures enum value "PARAM_TYPE_INVALID"
+	AlertsItems0RuleParamsValuesItems0TypePARAMTYPEINVALID string = "PARAM_TYPE_INVALID"
+
+	// AlertsItems0RuleParamsValuesItems0TypeBOOL captures enum value "BOOL"
+	AlertsItems0RuleParamsValuesItems0TypeBOOL string = "BOOL"
+
+	// AlertsItems0RuleParamsValuesItems0TypeFLOAT captures enum value "FLOAT"
+	AlertsItems0RuleParamsValuesItems0TypeFLOAT string = "FLOAT"
+
+	// AlertsItems0RuleParamsValuesItems0TypeSTRING captures enum value "STRING"
+	AlertsItems0RuleParamsValuesItems0TypeSTRING string = "STRING"
+)
+
+// prop value enum
+func (o *AlertsItems0RuleParamsValuesItems0) validateTypeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, alertsItems0RuleParamsValuesItems0TypeTypePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AlertsItems0RuleParamsValuesItems0) validateType(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Type) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateTypeEnum("type", "body", *o.Type); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AlertsItems0RuleParamsValuesItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AlertsItems0RuleParamsValuesItems0) UnmarshalBinary(b []byte) error {
+	var res AlertsItems0RuleParamsValuesItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

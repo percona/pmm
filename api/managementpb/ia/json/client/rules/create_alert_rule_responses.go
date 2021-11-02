@@ -547,7 +547,7 @@ func (o *FiltersItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ParamsItems0 RuleParam represents a single rule parameter for List, Change and Update APIs.
+/*ParamsItems0 ParamValue represents a single rule parameter value for List, Change and Update APIs.
 swagger:model ParamsItems0
 */
 type ParamsItems0 struct {
