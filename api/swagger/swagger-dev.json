@@ -1144,6 +1144,13 @@
                   },
                   "x-order": 0
                 },
+                "text_metrics": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "x-order": 1
+                },
                 "sparkline": {
                   "type": "array",
                   "items": {
@@ -1524,7 +1531,7 @@
                       }
                     }
                   },
-                  "x-order": 1
+                  "x-order": 2
                 },
                 "totals": {
                   "type": "object",
@@ -1574,11 +1581,11 @@
                       }
                     }
                   },
-                  "x-order": 2
+                  "x-order": 3
                 },
                 "fingerprint": {
                   "type": "string",
-                  "x-order": 3
+                  "x-order": 4
                 }
               }
             }
@@ -1763,6 +1770,90 @@
                     }
                   },
                   "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v0/qan/ObjectDetails/GetQueryPlan": {
+      "post": {
+        "tags": [
+          "ObjectDetails"
+        ],
+        "summary": "GetQueryPlan gets query plan and plan id for specific filtering.",
+        "operationId": "GetQueryPlan",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "QueryPlanRequest defines filtering by queryid.",
+              "type": "object",
+              "properties": {
+                "queryid": {
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "QueryPlanReply contains planid and query_plan.",
+              "type": "object",
+              "properties": {
+                "planid": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "query_plan": {
+                  "type": "string",
+                  "x-order": 1
                 }
               }
             }
@@ -30241,7 +30332,9 @@
                     "DISTRIBUTION_METHOD_INVALID",
                     "DOCKER",
                     "OVF",
-                    "AMI"
+                    "AMI",
+                    "AZURE",
+                    "DO"
                   ],
                   "x-order": 3
                 }
