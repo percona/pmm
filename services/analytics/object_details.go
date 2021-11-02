@@ -125,6 +125,8 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 	}
 	resp.Sparkline = sparklines
 
+	resp.TextMetrics = makeTextMetrics(metrics)
+
 	if in.GroupBy == "queryid" {
 		fp, err := s.mm.GetFingerprintByQueryID(ctx, in.FilterBy)
 		if err != nil {
@@ -134,6 +136,15 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 	}
 
 	return resp, err
+}
+
+func makeTextMetrics(mm models.M) map[string]string {
+	m := make(map[string]string)
+
+	m["top_queryid"] = interfaceToString(mm["top_queryid"])
+	m["top_query"] = interfaceToString(mm["top_query"])
+
+	return m
 }
 
 func makeMetrics(mm, t models.M, durationSec int64) map[string]*qanpb.MetricValues {

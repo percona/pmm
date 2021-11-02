@@ -142,6 +142,15 @@ func interfaceToFloat32(unk interface{}) float32 {
 	}
 }
 
+func interfaceToString(unk interface{}) string {
+	switch i := unk.(type) {
+	case string:
+		return i
+	default:
+		return ""
+	}
+}
+
 func isDimension(name string) bool {
 	dimensionColumnNames := map[string]struct{}{
 		// Main dimensions

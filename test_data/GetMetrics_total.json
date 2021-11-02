@@ -1,4 +1,8 @@
 {
+	"textMetrics": {
+		"top_query": "",
+		"top_queryid": ""
+	},
 	"sparkline": [
 		{
 			"timeFrame": 300,

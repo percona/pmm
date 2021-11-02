@@ -84,6 +84,7 @@ var metricsNames = map[string]string{
 	"m_plan_time":            "Total plan time spent in query",
 	"cmd_type":               "Type of SQL command used in the query",
 	"top_queryid":            "Top parent query ID",
+	"top_query":              "Top query plain text",
 	"application_name":       "Name provided by pg_stat_monitor",
 	"planid":                 "Plan ID for query",
 }
