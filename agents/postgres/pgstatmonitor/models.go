@@ -291,6 +291,7 @@ func (m pgStatMonitor09) ToPgStatMonitor() (pgStatMonitor, error) {
 		Elevel:            m.Elevel,
 		CmdType:           m.CmdType,
 		TopQueryID:        pointer.GetString(m.TopQueryid),
+		TopQuery:          pointer.GetString(m.TopQuery),
 		ApplicationName:   pointer.GetString(m.ApplicationName),
 		PlanID:            pointer.GetString(m.Planid),
 	}, nil
@@ -336,6 +337,7 @@ type pgStatMonitor struct {
 	Elevel            int32
 	CmdType           int32
 	TopQueryID        string
+	TopQuery          string
 	ApplicationName   string
 	PlanID            string
 }

@@ -283,6 +283,7 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 			}
 
 			mb.Postgresql.TopQueryid = currentPSM.TopQueryID
+			mb.Postgresql.TopQuery = currentPSM.TopQuery
 			mb.Postgresql.ApplicationName = currentPSM.ApplicationName
 			mb.Postgresql.Planid = currentPSM.PlanID
 
