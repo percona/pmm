@@ -342,6 +342,7 @@ message MetricsBucket {
     // Other metrics skipped (empty values, codes):
     // cmd_type_text, elevel, sqlcode, message, state_code, state
     string top_queryid = 44;
+    string top_query = 47;
     string application_name = 45;
     string planid = 46;
   }

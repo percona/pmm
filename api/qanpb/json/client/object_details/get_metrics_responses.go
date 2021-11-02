@@ -321,6 +321,9 @@ type GetMetricsOKBody struct {
 	// metrics
 	Metrics map[string]MetricsAnon `json:"metrics,omitempty"`
 
+	// text metrics
+	TextMetrics map[string]string `json:"text_metrics,omitempty"`
+
 	// sparkline
 	Sparkline []*SparklineItems0 `json:"sparkline"`
 
