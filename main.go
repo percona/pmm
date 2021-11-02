@@ -421,10 +421,6 @@ func runDebugServer(ctx context.Context) {
 
 type setupDeps struct {
 	sqlDB        *sql.DB
-	dbName       string
-	dbAddress    string
-	dbUsername   string
-	dbPassword   string
 	supervisord  *supervisord.Service
 	vmdb         *victoriametrics.Service
 	vmalert      *vmalert.Service
@@ -433,21 +429,10 @@ type setupDeps struct {
 	l            *logrus.Entry
 }
 
-// setup migrates database and performs other setup tasks that depend on database.
+// setup performs setup tasks that depend on database.
 func setup(ctx context.Context, deps *setupDeps) bool {
-	deps.l.Infof("Migrating database...")
-	db, err := models.SetupDB(deps.sqlDB, &models.SetupDBParams{
-		Logf:          deps.l.Debugf,
-		Name:          deps.dbName,
-		Address:       deps.dbAddress,
-		Username:      deps.dbUsername,
-		Password:      deps.dbPassword,
-		SetupFixtures: models.SetupFixtures,
-	})
-	if err != nil {
-		deps.l.Warnf("Failed to migrate database: %s.", err)
-		return false
-	}
+	l := reform.NewPrintfLogger(deps.l.Debugf)
+	db := reform.NewDB(deps.sqlDB, postgresql.Dialect, l)
 
 	// log and ignore validation errors; fail on other errors
 	deps.l.Infof("Updating settings...")
@@ -522,6 +507,36 @@ func getQANClient(ctx context.Context, sqlDB *sql.DB, dbName, qanAPIAddr string)
 	return qan.NewClient(conn, db)
 }
 
+func migrateDB(ctx context.Context, sqlDB *sql.DB, dbName, dbAddress, dbUsername, dbPassword string) {
+	l := logrus.WithField("component", "migration")
+
+	const timeout = 5 * time.Minute
+	timeoutCtx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+	for {
+		select {
+		case <-timeoutCtx.Done():
+			l.Fatalf("Could not migrate DB: timeout")
+		default:
+		}
+		l.Infof("Migrating database...")
+		_, err := models.SetupDB(sqlDB, &models.SetupDBParams{
+			Logf:          l.Debugf,
+			Name:          dbName,
+			Address:       dbAddress,
+			Username:      dbUsername,
+			Password:      dbPassword,
+			SetupFixtures: models.SetupFixtures,
+		})
+		if err == nil {
+			return
+		}
+
+		l.Warnf("Failed to migrate database: %s.", err)
+		time.Sleep(time.Second)
+	}
+}
+
 func main() {
 	// empty version breaks much of pmm-managed logic
 	if version.Version == "" {
@@ -581,6 +596,9 @@ func main() {
 		l.Panicf("Failed to connect to database: %+v", err)
 	}
 	defer sqlDB.Close() //nolint:errcheck
+
+	migrateDB(ctx, sqlDB, *postgresDBNameF, *postgresAddrF, *postgresDBUsernameF, *postgresDBPasswordF)
+
 	prom.MustRegister(sqlmetrics.NewCollector("postgres", *postgresDBNameF, sqlDB))
 	reformL := sqlmetrics.NewReform("postgres", *postgresDBNameF, logrus.WithField("component", "reform").Tracef)
 	prom.MustRegister(reformL)
@@ -719,10 +737,6 @@ func main() {
 	// try synchronously once, then retry in the background
 	deps := &setupDeps{
 		sqlDB:        sqlDB,
-		dbName:       *postgresDBNameF,
-		dbAddress:    *postgresAddrF,
-		dbUsername:   *postgresDBUsernameF,
-		dbPassword:   *postgresDBPasswordF,
 		supervisord:  supervisord,
 		vmdb:         vmdb,
 		vmalert:      vmalert,

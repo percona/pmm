@@ -301,7 +301,7 @@ func (s *TemplatesService) loadTemplatesFromDB() ([]templateInfo, error) {
 		return err
 	})
 	if e != nil {
-		return nil, errors.Wrap(e, "failed to load rule templates form DB")
+		return nil, errors.Wrap(e, "failed to load rule templates from DB")
 	}
 
 	res := make([]templateInfo, 0, len(templates))
