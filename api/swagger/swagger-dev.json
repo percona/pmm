@@ -27417,28 +27417,48 @@
                                           "x-order": 2
                                         },
                                         "tls_config": {
-                                          "description": "TLSConfig represents TLS configuration.",
                                           "type": "object",
+                                          "title": "TLSConfig represents TLS configuration for alertmanager\nhttps://prometheus.io/docs/alerting/latest/configuration/#tls_config",
                                           "properties": {
                                             "ca_file": {
+                                              "description": "A path to the CA certificate file to validate the server certificate with.\nca_file and ca_file_content should not be set at the same time.",
                                               "type": "string",
                                               "x-order": 0
                                             },
                                             "cert_file": {
+                                              "description": "A path to the certificate file for client cert authentication to the server.\ncert_file and cert_file_content should not be set at the same time.",
                                               "type": "string",
                                               "x-order": 1
                                             },
                                             "key_file": {
+                                              "description": "A path to the key file for client cert authentication to the server.\nkey_file and key_file_content should not be set at the same time.",
                                               "type": "string",
                                               "x-order": 2
                                             },
                                             "server_name": {
+                                              "description": "Name of the server.",
                                               "type": "string",
                                               "x-order": 3
                                             },
                                             "insecure_skip_verify": {
+                                              "description": "Disable validation of the server certificate.",
                                               "type": "boolean",
                                               "x-order": 4
+                                            },
+                                            "ca_file_content": {
+                                              "description": "CA certificate to validate the server certificate with.\nca_file and ca_file_content should not be set at the same time.",
+                                              "type": "string",
+                                              "x-order": 5
+                                            },
+                                            "cert_file_content": {
+                                              "description": "A certificate for client cert authentication to the server.\ncert_file and cert_file_content should not be set at the same time.",
+                                              "type": "string",
+                                              "x-order": 6
+                                            },
+                                            "key_file_content": {
+                                              "description": "A key for client cert authentication to the server.\nkey_file and key_file_content should not be set at the same time.",
+                                              "type": "string",
+                                              "x-order": 7
                                             }
                                           },
                                           "x-order": 3
@@ -27762,28 +27782,48 @@
                           "x-order": 2
                         },
                         "tls_config": {
-                          "description": "TLSConfig represents TLS configuration.",
                           "type": "object",
+                          "title": "TLSConfig represents TLS configuration for alertmanager\nhttps://prometheus.io/docs/alerting/latest/configuration/#tls_config",
                           "properties": {
                             "ca_file": {
+                              "description": "A path to the CA certificate file to validate the server certificate with.\nca_file and ca_file_content should not be set at the same time.",
                               "type": "string",
                               "x-order": 0
                             },
                             "cert_file": {
+                              "description": "A path to the certificate file for client cert authentication to the server.\ncert_file and cert_file_content should not be set at the same time.",
                               "type": "string",
                               "x-order": 1
                             },
                             "key_file": {
+                              "description": "A path to the key file for client cert authentication to the server.\nkey_file and key_file_content should not be set at the same time.",
                               "type": "string",
                               "x-order": 2
                             },
                             "server_name": {
+                              "description": "Name of the server.",
                               "type": "string",
                               "x-order": 3
                             },
                             "insecure_skip_verify": {
+                              "description": "Disable validation of the server certificate.",
                               "type": "boolean",
                               "x-order": 4
+                            },
+                            "ca_file_content": {
+                              "description": "CA certificate to validate the server certificate with.\nca_file and ca_file_content should not be set at the same time.",
+                              "type": "string",
+                              "x-order": 5
+                            },
+                            "cert_file_content": {
+                              "description": "A certificate for client cert authentication to the server.\ncert_file and cert_file_content should not be set at the same time.",
+                              "type": "string",
+                              "x-order": 6
+                            },
+                            "key_file_content": {
+                              "description": "A key for client cert authentication to the server.\nkey_file and key_file_content should not be set at the same time.",
+                              "type": "string",
+                              "x-order": 7
                             }
                           },
                           "x-order": 3
@@ -27991,28 +28031,48 @@
                           "x-order": 2
                         },
                         "tls_config": {
-                          "description": "TLSConfig represents TLS configuration.",
                           "type": "object",
+                          "title": "TLSConfig represents TLS configuration for alertmanager\nhttps://prometheus.io/docs/alerting/latest/configuration/#tls_config",
                           "properties": {
                             "ca_file": {
+                              "description": "A path to the CA certificate file to validate the server certificate with.\nca_file and ca_file_content should not be set at the same time.",
                               "type": "string",
                               "x-order": 0
                             },
                             "cert_file": {
+                              "description": "A path to the certificate file for client cert authentication to the server.\ncert_file and cert_file_content should not be set at the same time.",
                               "type": "string",
                               "x-order": 1
                             },
                             "key_file": {
+                              "description": "A path to the key file for client cert authentication to the server.\nkey_file and key_file_content should not be set at the same time.",
                               "type": "string",
                               "x-order": 2
                             },
                             "server_name": {
+                              "description": "Name of the server.",
                               "type": "string",
                               "x-order": 3
                             },
                             "insecure_skip_verify": {
+                              "description": "Disable validation of the server certificate.",
                               "type": "boolean",
                               "x-order": 4
+                            },
+                            "ca_file_content": {
+                              "description": "CA certificate to validate the server certificate with.\nca_file and ca_file_content should not be set at the same time.",
+                              "type": "string",
+                              "x-order": 5
+                            },
+                            "cert_file_content": {
+                              "description": "A certificate for client cert authentication to the server.\ncert_file and cert_file_content should not be set at the same time.",
+                              "type": "string",
+                              "x-order": 6
+                            },
+                            "key_file_content": {
+                              "description": "A key for client cert authentication to the server.\nkey_file and key_file_content should not be set at the same time.",
+                              "type": "string",
+                              "x-order": 7
                             }
                           },
                           "x-order": 3
@@ -28248,28 +28308,48 @@
                                 "x-order": 2
                               },
                               "tls_config": {
-                                "description": "TLSConfig represents TLS configuration.",
                                 "type": "object",
+                                "title": "TLSConfig represents TLS configuration for alertmanager\nhttps://prometheus.io/docs/alerting/latest/configuration/#tls_config",
                                 "properties": {
                                   "ca_file": {
+                                    "description": "A path to the CA certificate file to validate the server certificate with.\nca_file and ca_file_content should not be set at the same time.",
                                     "type": "string",
                                     "x-order": 0
                                   },
                                   "cert_file": {
+                                    "description": "A path to the certificate file for client cert authentication to the server.\ncert_file and cert_file_content should not be set at the same time.",
                                     "type": "string",
                                     "x-order": 1
                                   },
                                   "key_file": {
+                                    "description": "A path to the key file for client cert authentication to the server.\nkey_file and key_file_content should not be set at the same time.",
                                     "type": "string",
                                     "x-order": 2
                                   },
                                   "server_name": {
+                                    "description": "Name of the server.",
                                     "type": "string",
                                     "x-order": 3
                                   },
                                   "insecure_skip_verify": {
+                                    "description": "Disable validation of the server certificate.",
                                     "type": "boolean",
                                     "x-order": 4
+                                  },
+                                  "ca_file_content": {
+                                    "description": "CA certificate to validate the server certificate with.\nca_file and ca_file_content should not be set at the same time.",
+                                    "type": "string",
+                                    "x-order": 5
+                                  },
+                                  "cert_file_content": {
+                                    "description": "A certificate for client cert authentication to the server.\ncert_file and cert_file_content should not be set at the same time.",
+                                    "type": "string",
+                                    "x-order": 6
+                                  },
+                                  "key_file_content": {
+                                    "description": "A key for client cert authentication to the server.\nkey_file and key_file_content should not be set at the same time.",
+                                    "type": "string",
+                                    "x-order": 7
                                   }
                                 },
                                 "x-order": 3
@@ -29196,28 +29276,48 @@
                                       "x-order": 2
                                     },
                                     "tls_config": {
-                                      "description": "TLSConfig represents TLS configuration.",
                                       "type": "object",
+                                      "title": "TLSConfig represents TLS configuration for alertmanager\nhttps://prometheus.io/docs/alerting/latest/configuration/#tls_config",
                                       "properties": {
                                         "ca_file": {
+                                          "description": "A path to the CA certificate file to validate the server certificate with.\nca_file and ca_file_content should not be set at the same time.",
                                           "type": "string",
                                           "x-order": 0
                                         },
                                         "cert_file": {
+                                          "description": "A path to the certificate file for client cert authentication to the server.\ncert_file and cert_file_content should not be set at the same time.",
                                           "type": "string",
                                           "x-order": 1
                                         },
                                         "key_file": {
+                                          "description": "A path to the key file for client cert authentication to the server.\nkey_file and key_file_content should not be set at the same time.",
                                           "type": "string",
                                           "x-order": 2
                                         },
                                         "server_name": {
+                                          "description": "Name of the server.",
                                           "type": "string",
                                           "x-order": 3
                                         },
                                         "insecure_skip_verify": {
+                                          "description": "Disable validation of the server certificate.",
                                           "type": "boolean",
                                           "x-order": 4
+                                        },
+                                        "ca_file_content": {
+                                          "description": "CA certificate to validate the server certificate with.\nca_file and ca_file_content should not be set at the same time.",
+                                          "type": "string",
+                                          "x-order": 5
+                                        },
+                                        "cert_file_content": {
+                                          "description": "A certificate for client cert authentication to the server.\ncert_file and cert_file_content should not be set at the same time.",
+                                          "type": "string",
+                                          "x-order": 6
+                                        },
+                                        "key_file_content": {
+                                          "description": "A key for client cert authentication to the server.\nkey_file and key_file_content should not be set at the same time.",
+                                          "type": "string",
+                                          "x-order": 7
                                         }
                                       },
                                       "x-order": 3
