@@ -233,7 +233,7 @@ func (s *ChannelsService) ChangeChannel(ctx context.Context, req *iav1beta1.Chan
 			SendResolved: c.SendResolved,
 			URL:          c.Url,
 			MaxAlerts:    c.MaxAlerts,
-			HTTPConfig:   convertHTTPConfigToModel(c.HttpConfig),
+			HTTPConfig:   convertHTTPConfigToModel(req.WebhookConfig.HttpConfig),
 		}
 	}
 
@@ -335,11 +335,14 @@ func convertHTTPConfigToModel(config *iav1beta1.HTTPConfig) *models.HTTPConfig {
 
 	if tlsConfig := config.TlsConfig; tlsConfig != nil {
 		res.TLSConfig = &models.TLSConfig{
-			CaFile:             tlsConfig.CaFile,
+			CAFile:             tlsConfig.CaFile,
 			CertFile:           tlsConfig.CertFile,
 			KeyFile:            tlsConfig.KeyFile,
 			ServerName:         tlsConfig.ServerName,
 			InsecureSkipVerify: tlsConfig.InsecureSkipVerify,
+			CAFileContent:      tlsConfig.CaFileContent,
+			CertFileContent:    tlsConfig.CertFileContent,
+			KeyFileContent:     tlsConfig.KeyFileContent,
 		}
 	}
 
@@ -367,11 +370,14 @@ func convertModelToHTTPConfig(config *models.HTTPConfig) *iav1beta1.HTTPConfig {
 
 	if tlsConfig := config.TLSConfig; tlsConfig != nil {
 		res.TlsConfig = &iav1beta1.TLSConfig{
-			CaFile:             tlsConfig.CaFile,
+			CaFile:             tlsConfig.CAFile,
 			CertFile:           tlsConfig.CertFile,
 			KeyFile:            tlsConfig.KeyFile,
 			ServerName:         tlsConfig.ServerName,
 			InsecureSkipVerify: tlsConfig.InsecureSkipVerify,
+			CaFileContent:      tlsConfig.CAFileContent,
+			CertFileContent:    tlsConfig.CertFileContent,
+			KeyFileContent:     tlsConfig.KeyFileContent,
 		}
 	}
 

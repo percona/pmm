@@ -147,11 +147,14 @@ type HTTPBasicAuth struct {
 
 // TLSConfig is TLS configuration.
 type TLSConfig struct {
-	CaFile             string `json:"ca_file,omitempty"`
+	CAFile             string `json:"ca_file,omitempty"`
 	CertFile           string `json:"cert_file,omitempty"`
 	KeyFile            string `json:"key_file,omitempty"`
 	ServerName         string `json:"server_name,omitempty"`
 	InsecureSkipVerify bool   `json:"insecure_skip_verify,omitempty"`
+	CAFileContent      string `json:"ca_file_content,omitempty"`
+	CertFileContent    string `json:"cert_file_content,omitempty"`
+	KeyFileContent     string `json:"key_file_content,omitempty"`
 }
 
 // check interfaces.

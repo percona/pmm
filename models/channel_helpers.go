@@ -90,6 +90,22 @@ func checkWebHookConfig(c *WebHookConfig) error {
 		return status.Error(codes.InvalidArgument, "Webhook url field is empty.")
 	}
 
+	if c.HTTPConfig != nil && c.HTTPConfig.TLSConfig != nil {
+		tlsConfig := c.HTTPConfig.TLSConfig
+		if tlsConfig.CAFile != "" && tlsConfig.CAFileContent != "" {
+			return status.Error(codes.InvalidArgument,
+				"Fields CAFile and CAFileContent shouldn't be set at the same time.")
+		}
+		if tlsConfig.CertFile != "" && tlsConfig.CertFileContent != "" {
+			return status.Error(codes.InvalidArgument,
+				"Fields CertFile and CertFileContent shouldn't be set at the same time.")
+		}
+		if tlsConfig.KeyFile != "" && tlsConfig.KeyFileContent != "" {
+			return status.Error(codes.InvalidArgument,
+				"Fields KeyFile and KeyFileContent shouldn't be set at the same time.")
+		}
+	}
+
 	return nil
 }
 

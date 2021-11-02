@@ -68,6 +68,47 @@ func TestNotificationChannels(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, expected, actual)
 	})
+	t.Run("create with textual tls config", func(t *testing.T) {
+		tx, err := db.Begin()
+		require.NoError(t, err)
+		defer func() {
+			require.NoError(t, tx.Rollback())
+		}()
+
+		q := tx.Querier
+
+		tlsConfig := &models.TLSConfig{
+			CAFileContent:   "cafilecontent",
+			CertFileContent: "certfilecontent",
+			KeyFileContent:  "keyfilecontent",
+		}
+		params := models.CreateChannelParams{
+			Summary: "some summary",
+			WebHookConfig: &models.WebHookConfig{
+				URL: "example.com",
+				HTTPConfig: &models.HTTPConfig{
+					TLSConfig: tlsConfig,
+				},
+			},
+			Disabled: false,
+		}
+
+		expected, err := models.CreateChannel(q, &params)
+		require.NoError(t, err)
+		assert.Equal(t, models.WebHook, expected.Type)
+		assert.Equal(t, params.Summary, expected.Summary)
+		assert.Equal(t, params.Disabled, expected.Disabled)
+
+		actual, err := models.FindChannelByID(q, expected.ID)
+		require.NoError(t, err)
+		assert.Equal(t, expected, actual)
+		require.NotNil(t, actual.WebHookConfig)
+		require.NotNil(t, actual.WebHookConfig.HTTPConfig)
+		require.NotNil(t, actual.WebHookConfig.HTTPConfig.TLSConfig)
+		assert.Equal(t, tlsConfig.CAFileContent, actual.WebHookConfig.HTTPConfig.TLSConfig.CAFileContent)
+		assert.Equal(t, tlsConfig.CertFileContent, actual.WebHookConfig.HTTPConfig.TLSConfig.CertFileContent)
+		assert.Equal(t, tlsConfig.KeyFileContent, actual.WebHookConfig.HTTPConfig.TLSConfig.KeyFileContent)
+	})
 
 	t.Run("change", func(t *testing.T) {
 		tx, err := db.Begin()
@@ -211,161 +252,213 @@ func TestChannelValidation(t *testing.T) {
 	}()
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-	tests := []struct {
+	cases := []struct {
 		name     string
 		channel  models.CreateChannelParams
 		errorMsg string
-	}{{
-		name: "normal email config",
-		channel: models.CreateChannelParams{
-			Summary: "some summary",
-			EmailConfig: &models.EmailConfig{
-				To: []string{"test@test.test"},
+	}{
+		{
+			name: "normal email config",
+			channel: models.CreateChannelParams{
+				Summary: "some summary",
+				EmailConfig: &models.EmailConfig{
+					To: []string{"test@test.test"},
+				},
+				Disabled: false,
 			},
-			Disabled: false,
-		},
-		errorMsg: "",
-	}, {
-		name: "normal pager duty config",
-		channel: models.CreateChannelParams{
-			Summary: "some summary",
-			PagerDutyConfig: &models.PagerDutyConfig{
-				SendResolved: false,
-				RoutingKey:   "some key",
+			errorMsg: "",
+		}, {
+			name: "normal pager duty config",
+			channel: models.CreateChannelParams{
+				Summary: "some summary",
+				PagerDutyConfig: &models.PagerDutyConfig{
+					SendResolved: false,
+					RoutingKey:   "some key",
+				},
+				Disabled: false,
 			},
-			Disabled: false,
-		},
-		errorMsg: "",
-	}, {
-		name: "normal slack config",
-		channel: models.CreateChannelParams{
-			Summary: "some summary",
-			SlackConfig: &models.SlackConfig{
-				Channel: "channel",
+			errorMsg: "",
+		}, {
+			name: "normal slack config",
+			channel: models.CreateChannelParams{
+				Summary: "some summary",
+				SlackConfig: &models.SlackConfig{
+					Channel: "channel",
+				},
+				Disabled: false,
 			},
-			Disabled: false,
-		},
-		errorMsg: "",
-	}, {
-		name: "normal webhook config",
-		channel: models.CreateChannelParams{
-			Summary: "some summary",
-			WebHookConfig: &models.WebHookConfig{
-				URL: "test.test",
+			errorMsg: "",
+		}, {
+			name: "normal webhook config",
+			channel: models.CreateChannelParams{
+				Summary: "some summary",
+				WebHookConfig: &models.WebHookConfig{
+					URL: "test.test",
+				},
+				Disabled: false,
 			},
-			Disabled: false,
-		},
-		errorMsg: "",
-	}, {
-		name: "missing summary",
-		channel: models.CreateChannelParams{
-			Summary: "",
-			EmailConfig: &models.EmailConfig{
-				To: []string{"test@test.test"},
+			errorMsg: "",
+		}, {
+			name: "missing summary",
+			channel: models.CreateChannelParams{
+				Summary: "",
+				EmailConfig: &models.EmailConfig{
+					To: []string{"test@test.test"},
+				},
+				Disabled: false,
 			},
-			Disabled: false,
-		},
-		errorMsg: "rpc error: code = InvalidArgument desc = Channel summary can't be empty.",
-	}, {
-		name: "missing email config",
-		channel: models.CreateChannelParams{
-			Summary:     "some summary",
-			EmailConfig: nil,
-			Disabled:    false,
-		},
-		errorMsg: "rpc error: code = InvalidArgument desc = Missing channel configuration.",
-	}, {
-		name: "missing pager duty config",
-		channel: models.CreateChannelParams{
-			Summary:         "some summary",
-			PagerDutyConfig: nil,
-			Disabled:        false,
-		},
-		errorMsg: "rpc error: code = InvalidArgument desc = Missing channel configuration.",
-	}, {
-		name: "missing slack config",
-		channel: models.CreateChannelParams{
-			Summary:  "some summary",
-			Disabled: false,
-		},
-		errorMsg: "rpc error: code = InvalidArgument desc = Missing channel configuration.",
-	}, {
-		name: "missing webhook config",
-		channel: models.CreateChannelParams{
-			Summary:  "some summary",
-			Disabled: false,
-		},
-		errorMsg: "rpc error: code = InvalidArgument desc = Missing channel configuration.",
-	}, {
-		name: "missing to field in email configuration",
-		channel: models.CreateChannelParams{
-			Summary: "some summary",
-			EmailConfig: &models.EmailConfig{
-				To: nil,
+			errorMsg: "rpc error: code = InvalidArgument desc = Channel summary can't be empty.",
+		}, {
+			name: "missing email config",
+			channel: models.CreateChannelParams{
+				Summary:     "some summary",
+				EmailConfig: nil,
+				Disabled:    false,
 			},
-			Disabled: false,
-		},
-		errorMsg: "rpc error: code = InvalidArgument desc = Email to field is empty.",
-	}, {
-		name: "no keys set in pager duty config",
-		channel: models.CreateChannelParams{
-			Summary: "some summary",
-			PagerDutyConfig: &models.PagerDutyConfig{
-				SendResolved: false,
-				RoutingKey:   "",
-				ServiceKey:   "",
+			errorMsg: "rpc error: code = InvalidArgument desc = Missing channel configuration.",
+		}, {
+			name: "missing pager duty config",
+			channel: models.CreateChannelParams{
+				Summary:         "some summary",
+				PagerDutyConfig: nil,
+				Disabled:        false,
 			},
-			Disabled: false,
-		},
-		errorMsg: "rpc error: code = InvalidArgument desc = Exactly one key should be present in pager duty configuration.",
-	}, {
-		name: "both keys set in pager duty config",
-		channel: models.CreateChannelParams{
-			Summary: "some summary",
-			PagerDutyConfig: &models.PagerDutyConfig{
-				SendResolved: false,
-				RoutingKey:   "some key",
-				ServiceKey:   "some key",
+			errorMsg: "rpc error: code = InvalidArgument desc = Missing channel configuration.",
+		}, {
+			name: "missing slack config",
+			channel: models.CreateChannelParams{
+				Summary:  "some summary",
+				Disabled: false,
 			},
-			Disabled: false,
-		},
-		errorMsg: "rpc error: code = InvalidArgument desc = Exactly one key should be present in pager duty configuration.",
-	}, {
-		name: "missing channel in slack configuration",
-		channel: models.CreateChannelParams{
-			Summary: "some summary",
-			SlackConfig: &models.SlackConfig{
-				Channel: "",
+			errorMsg: "rpc error: code = InvalidArgument desc = Missing channel configuration.",
+		}, {
+			name: "missing webhook config",
+			channel: models.CreateChannelParams{
+				Summary:  "some summary",
+				Disabled: false,
 			},
-			Disabled: false,
-		},
-		errorMsg: "rpc error: code = InvalidArgument desc = Slack channel field is empty.",
-	}, {
-		name: "missing url in webhook configuration",
-		channel: models.CreateChannelParams{
-			Summary: "some summary",
-			WebHookConfig: &models.WebHookConfig{
-				URL: "",
+			errorMsg: "rpc error: code = InvalidArgument desc = Missing channel configuration.",
+		}, {
+			name: "missing to field in email configuration",
+			channel: models.CreateChannelParams{
+				Summary: "some summary",
+				EmailConfig: &models.EmailConfig{
+					To: nil,
+				},
+				Disabled: false,
 			},
-			Disabled: false,
-		},
-		errorMsg: "rpc error: code = InvalidArgument desc = Webhook url field is empty.",
-	}, {
-		name: "multiple configurations",
-		channel: models.CreateChannelParams{
-			Summary: "some summary",
-			EmailConfig: &models.EmailConfig{
-				To: []string{"test@test.test"},
+			errorMsg: "rpc error: code = InvalidArgument desc = Email to field is empty.",
+		}, {
+			name: "no keys set in pager duty config",
+			channel: models.CreateChannelParams{
+				Summary: "some summary",
+				PagerDutyConfig: &models.PagerDutyConfig{
+					SendResolved: false,
+					RoutingKey:   "",
+					ServiceKey:   "",
+				},
+				Disabled: false,
 			},
-			WebHookConfig: &models.WebHookConfig{
-				URL: "example.com",
+			errorMsg: "rpc error: code = InvalidArgument desc = Exactly one key should be present in pager duty configuration.",
+		}, {
+			name: "both keys set in pager duty config",
+			channel: models.CreateChannelParams{
+				Summary: "some summary",
+				PagerDutyConfig: &models.PagerDutyConfig{
+					SendResolved: false,
+					RoutingKey:   "some key",
+					ServiceKey:   "some key",
+				},
+				Disabled: false,
 			},
-			Disabled: false,
+			errorMsg: "rpc error: code = InvalidArgument desc = Exactly one key should be present in pager duty configuration.",
+		}, {
+			name: "missing channel in slack configuration",
+			channel: models.CreateChannelParams{
+				Summary: "some summary",
+				SlackConfig: &models.SlackConfig{
+					Channel: "",
+				},
+				Disabled: false,
+			},
+			errorMsg: "rpc error: code = InvalidArgument desc = Slack channel field is empty.",
+		}, {
+			name: "missing url in webhook configuration",
+			channel: models.CreateChannelParams{
+				Summary: "some summary",
+				WebHookConfig: &models.WebHookConfig{
+					URL: "",
+				},
+				Disabled: false,
+			},
+			errorMsg: "rpc error: code = InvalidArgument desc = Webhook url field is empty.",
+		}, {
+			name: "multiple configurations",
+			channel: models.CreateChannelParams{
+				Summary: "some summary",
+				EmailConfig: &models.EmailConfig{
+					To: []string{"test@test.test"},
+				},
+				WebHookConfig: &models.WebHookConfig{
+					URL: "example.com",
+				},
+				Disabled: false,
+			},
+			errorMsg: "rpc error: code = InvalidArgument desc = Channel should contain only one type of channel configuration.",
+		}, {
+			name: "both CAFile and CAFileContent are set",
+			channel: models.CreateChannelParams{
+				Summary: "some summary",
+				WebHookConfig: &models.WebHookConfig{
+					URL: "example.com",
+					HTTPConfig: &models.HTTPConfig{
+						TLSConfig: &models.TLSConfig{
+							CAFile:        "cafile",
+							CAFileContent: "cafile content",
+						},
+					},
+				},
+				Disabled: false,
+			},
+			errorMsg: "rpc error: code = InvalidArgument desc = Fields CAFile and CAFileContent shouldn't be set at the same time.",
 		},
-		errorMsg: "rpc error: code = InvalidArgument desc = Channel should contain only one type of channel configuration.",
-	}}
+		{
+			name: "both CertFile and CertFileContent are set",
+			channel: models.CreateChannelParams{
+				Summary: "some summary",
+				WebHookConfig: &models.WebHookConfig{
+					URL: "example.com",
+					HTTPConfig: &models.HTTPConfig{
+						TLSConfig: &models.TLSConfig{
+							CertFile:        "certfile",
+							CertFileContent: "certfile content",
+						},
+					},
+				},
+				Disabled: false,
+			},
+			errorMsg: "rpc error: code = InvalidArgument desc = Fields CertFile and CertFileContent shouldn't be set at the same time.",
+		},
+		{
+			name: "both KeyFile and KeyFileContent are set",
+			channel: models.CreateChannelParams{
+				Summary: "some summary",
+				WebHookConfig: &models.WebHookConfig{
+					URL: "example.com",
+					HTTPConfig: &models.HTTPConfig{
+						TLSConfig: &models.TLSConfig{
+							KeyFile:        "keyfile",
+							KeyFileContent: "keyfile content",
+						},
+					},
+				},
+				Disabled: false,
+			},
+			errorMsg: "rpc error: code = InvalidArgument desc = Fields KeyFile and KeyFileContent shouldn't be set at the same time.",
+		},
+	}
 
-	for _, test := range tests {
+	for _, test := range cases {
 		test := test
 
 		t.Run(test.name, func(t *testing.T) {
