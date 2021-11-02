@@ -31,6 +31,8 @@ type ClientService interface {
 
 	GetQueryExample(params *GetQueryExampleParams) (*GetQueryExampleOK, error)
 
+	GetQueryPlan(params *GetQueryPlanParams) (*GetQueryPlanOK, error)
+
 	SetTransport(transport runtime.ClientTransport)
 }
 
@@ -130,6 +132,39 @@ func (a *Client) GetQueryExample(params *GetQueryExampleParams) (*GetQueryExampl
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*GetQueryExampleDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  GetQueryPlan gets query plan gets query plan and plan id for specific filtering
+*/
+func (a *Client) GetQueryPlan(params *GetQueryPlanParams) (*GetQueryPlanOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetQueryPlanParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "GetQueryPlan",
+		Method:             "POST",
+		PathPattern:        "/v0/qan/ObjectDetails/GetQueryPlan",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &GetQueryPlanReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetQueryPlanOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*GetQueryPlanDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

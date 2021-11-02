@@ -109,3 +109,9 @@ func (this *ObjectDetailsLabelsReply) Validate() error {
 func (this *ListLabelValues) Validate() error {
 	return nil
 }
+func (this *QueryPlanRequest) Validate() error {
+	return nil
+}
+func (this *QueryPlanReply) Validate() error {
+	return nil
+}

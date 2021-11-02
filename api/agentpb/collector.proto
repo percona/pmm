@@ -345,6 +345,7 @@ message MetricsBucket {
     string top_query = 47;
     string application_name = 45;
     string planid = 46;
+    string query_plan = 48;
   }
   Common common = 1;
   MySQL mysql = 2;
