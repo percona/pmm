@@ -567,25 +567,41 @@ func (o *ChannelsItems0WebhookConfigHTTPConfigBasicAuth) UnmarshalBinary(b []byt
 	return nil
 }
 
-/*ChannelsItems0WebhookConfigHTTPConfigTLSConfig TLSConfig represents TLS configuration.
+/*ChannelsItems0WebhookConfigHTTPConfigTLSConfig TLSConfig represents TLS configuration for alertmanager
+// https://prometheus.io/docs/alerting/latest/configuration/#tls_config
 swagger:model ChannelsItems0WebhookConfigHTTPConfigTLSConfig
 */
 type ChannelsItems0WebhookConfigHTTPConfigTLSConfig struct {
 
-	// ca file
+	// A path to the CA certificate file to validate the server certificate with.
+	// ca_file and ca_file_content should not be set at the same time.
 	CaFile string `json:"ca_file,omitempty"`
 
-	// cert file
+	// A path to the certificate file for client cert authentication to the server.
+	// cert_file and cert_file_content should not be set at the same time.
 	CertFile string `json:"cert_file,omitempty"`
 
-	// key file
+	// A path to the key file for client cert authentication to the server.
+	// key_file and key_file_content should not be set at the same time.
 	KeyFile string `json:"key_file,omitempty"`
 
-	// server name
+	// Name of the server.
 	ServerName string `json:"server_name,omitempty"`
 
-	// insecure skip verify
+	// Disable validation of the server certificate.
 	InsecureSkipVerify bool `json:"insecure_skip_verify,omitempty"`
+
+	// CA certificate to validate the server certificate with.
+	// ca_file and ca_file_content should not be set at the same time.
+	CaFileContent string `json:"ca_file_content,omitempty"`
+
+	// A certificate for client cert authentication to the server.
+	// cert_file and cert_file_content should not be set at the same time.
+	CertFileContent string `json:"cert_file_content,omitempty"`
+
+	// A key for client cert authentication to the server.
+	// key_file and key_file_content should not be set at the same time.
+	KeyFileContent string `json:"key_file_content,omitempty"`
 }
 
 // Validate validates this channels items0 webhook config HTTP config TLS config
