@@ -161,11 +161,11 @@ message HistogramRequest {
 
 // HistogramReply is histogram items as a list.
 message HistogramReply {
-  repeated Histogram histogram_items = 1;
+  repeated HistogramItem histogram_items = 1;
 }
 
-// Histogram represents histogram item.
-message Histogram {
+// HistogramItem represents one item in histogram.
+message HistogramItem {
   string range = 1;
   uint32 frequency = 2;
 }

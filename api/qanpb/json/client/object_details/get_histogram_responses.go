@@ -406,7 +406,7 @@ func (o *GetHistogramOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*HistogramItemsItems0 Histogram represents histogram item.
+/*HistogramItemsItems0 HistogramItem represents one item in histogram.
 swagger:model HistogramItemsItems0
 */
 type HistogramItemsItems0 struct {
