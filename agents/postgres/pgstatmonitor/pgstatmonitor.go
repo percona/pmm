@@ -21,8 +21,10 @@ import (
 	"database/sql"
 	"fmt"
 	"io"
+	"strconv"
 	"time"
 
+	"github.com/lib/pq"
 	_ "github.com/lib/pq" // register SQL driver.
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
@@ -288,6 +290,13 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 			mb.Postgresql.Planid = currentPSM.PlanID
 			mb.Postgresql.QueryPlan = currentPSM.QueryPlan
 
+			histogram, err := parseHistogramFromRespCalls(currentPSM.RespCalls, prevPSM.RespCalls)
+			if err != nil {
+				m.l.Warnf(err.Error())
+			} else {
+				mb.Postgresql.HistogramItems = histogram
+			}
+
 			if (currentPSM.PlanTotalTime - prevPSM.PlanTotalTime) != 0 {
 				mb.Postgresql.MPlanTimeSum = float32(currentPSM.PlanTotalTime-prevPSM.PlanTotalTime) / 1000
 				mb.Postgresql.MPlanTimeMin = float32(currentPSM.PlanMinTime) / 1000
@@ -347,6 +356,47 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 	}
 
 	return res
+}
+
+func parseHistogramFromRespCalls(respCalls pq.StringArray, prevRespCalls pq.StringArray) ([]*agentpb.HistogramItem, error) {
+	histogram := getHistogramRangesArray()
+	for k, v := range respCalls {
+		val, err := strconv.ParseInt(v, 10, 32)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to parse histogram")
+		}
+
+		histogram[k].Frequency = uint32(val)
+	}
+
+	for k, v := range prevRespCalls {
+		val, err := strconv.ParseInt(v, 10, 32)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to parse histogram")
+		}
+
+		histogram[k].Frequency -= uint32(val)
+	}
+
+	return histogram, nil
+}
+
+func getHistogramRangesArray() []*agentpb.HistogramItem {
+	// For now we using static ranges.
+	// In future we will compute range values from pg_stat_monitor_settings.
+	// pgsm_histogram_min, pgsm_histogram_max, pgsm_histogram_buckets.
+	return []*agentpb.HistogramItem{
+		{Range: "(0 - 3)"},
+		{Range: "(3 - 10)"},
+		{Range: "(10 - 31)"},
+		{Range: "(31 - 100)"},
+		{Range: "(100 - 316)"},
+		{Range: "(316 - 1000)"},
+		{Range: "(1000 - 3162)"},
+		{Range: "(3162 - 10000)"},
+		{Range: "(10000 - 31622)"},
+		{Range: "(31622 - 100000)"},
+	}
 }
 
 // Changes returns channel that should be read until it is closed.
