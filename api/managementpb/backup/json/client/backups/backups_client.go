@@ -211,6 +211,12 @@ func (a *Client) RemoveScheduledBackup(params *RemoveScheduledBackupParams) (*Re
 
 /*
   RestoreBackup restores backup requests the backup restore
+
+  Could return the Error message in the details containing specific ErrorCode indicating failure reason:
+ERROR_CODE_XTRABACKUP_NOT_INSTALLED - xtrabackup is not installed on the service
+ERROR_CODE_INVALID_XTRABACKUP - different versions of xtrabackup and xbcloud
+ERROR_CODE_INCOMPATIBLE_XTRABACKUP - xtrabackup is not compatible with MySQL for taking a backup
+ERROR_CODE_INCOMPATIBLE_TARGET_MYSQL - target MySQL version is not compatible with the artifact for performing a restore of the backup
 */
 func (a *Client) RestoreBackup(params *RestoreBackupParams) (*RestoreBackupOK, error) {
 	// TODO: Validate the params before sending
@@ -277,6 +283,11 @@ func (a *Client) ScheduleBackup(params *ScheduleBackupParams) (*ScheduleBackupOK
 
 /*
   StartBackup starts backup request backup specified service to location
+
+  Could return the Error message in the details containing specific ErrorCode indicating failure reason:
+ERROR_CODE_XTRABACKUP_NOT_INSTALLED - xtrabackup is not installed on the service
+ERROR_CODE_INVALID_XTRABACKUP - different versions of xtrabackup and xbcloud
+ERROR_CODE_INCOMPATIBLE_XTRABACKUP - xtrabackup is not compatible with MySQL for taking a backup
 */
 func (a *Client) StartBackup(params *StartBackupParams) (*StartBackupOK, error) {
 	// TODO: Validate the params before sending
