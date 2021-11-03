@@ -395,6 +395,7 @@ func TestClient(t *testing.T) {
 				MCpuSysTimeSum:        24,
 				MCpuUserTimeCnt:       25,
 				MCpuUserTimeSum:       26,
+				HistogramItems:        []string{},
 			},
 		}}
 		c.AssertCalled(t, "Collect", ctx, expectedRequest)
