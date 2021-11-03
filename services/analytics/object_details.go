@@ -302,3 +302,44 @@ func (s *Service) GetQueryPlan(ctx context.Context, in *qanpb.QueryPlanRequest) 
 	}
 	return resp, nil
 }
+
+// GetHistogram gets histogram for given queryid.
+func (s *Service) GetHistogram(ctx context.Context, in *qanpb.HistogramRequest) (*qanpb.HistogramReply, error) {
+	if in.PeriodStartFrom == nil {
+		return nil, fmt.Errorf("period_start_from is required:%v", in.PeriodStartFrom)
+	}
+	periodStartFromSec := in.PeriodStartFrom.Seconds
+	if in.PeriodStartTo == nil {
+		return nil, fmt.Errorf("period_start_to is required:%v", in.PeriodStartTo)
+	}
+	periodStartToSec := in.PeriodStartTo.Seconds
+
+	if in.Queryid == "" {
+		return nil, fmt.Errorf("queryid is required:%v", in.Queryid)
+	}
+
+	labels := map[string][]string{}
+	dimensions := map[string][]string{}
+
+	for _, label := range in.GetLabels() {
+		if isDimension(label.Key) {
+			dimensions[label.Key] = label.Value
+			continue
+		}
+		labels[label.Key] = label.Value
+	}
+
+	resp, err := s.mm.SelectHistogram(
+		ctx,
+		periodStartFromSec,
+		periodStartToSec,
+		dimensions,
+		labels,
+		in.Queryid,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("error in selecting histogram:%v", err)
+	}
+
+	return resp, nil
+}

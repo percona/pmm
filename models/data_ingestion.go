@@ -259,7 +259,8 @@ const insertSQL = `
     top_query,
     application_name,
     planid,
-    query_plan
+    query_plan,
+    histogram_items
    )
   VALUES (
     :queryid,
@@ -482,7 +483,8 @@ const insertSQL = `
     :top_query,
     :application_name,
     :planid,
-    :query_plan
+    :query_plan,
+    :histogram_items
   )
 `
 
