@@ -632,6 +632,24 @@ var databaseSchema = [][]string{
 			created_at TIMESTAMP NOT NULL
 		)`,
 	},
+	50: {
+		`INSERT INTO job_logs(
+			job_id,
+			chunk_id,
+			data,
+			last_chunk
+		)
+        SELECT
+            id AS job_id,
+            0 AS chunk_id,
+            '' AS data,
+            TRUE AS last_chunk
+        FROM jobs j
+			WHERE type = 'mongodb_backup' AND NOT EXISTS (
+				SELECT FROM job_logs
+				WHERE job_id = j.id
+			);`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
