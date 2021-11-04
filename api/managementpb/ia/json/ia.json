@@ -88,6 +88,14 @@
                         "description": "Rule represents Alert Rule.",
                         "type": "object",
                         "properties": {
+                          "annotations": {
+                            "description": "Annotations.",
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "string"
+                            },
+                            "x-order": 9
+                          },
                           "channels": {
                             "description": "Channels.",
                             "type": "array",
@@ -271,13 +279,13 @@
                                 }
                               }
                             },
-                            "x-order": 9
+                            "x-order": 11
                           },
                           "created_at": {
                             "description": "Rule creation time.",
                             "type": "string",
                             "format": "date-time",
-                            "x-order": 10
+                            "x-order": 12
                           },
                           "custom_labels": {
                             "description": "Custom labels.",
@@ -295,12 +303,12 @@
                           "expr": {
                             "description": "Expression filled with rule parameters.",
                             "type": "string",
-                            "x-order": 12
+                            "x-order": 14
                           },
                           "expr_template": {
                             "description": "Expression template.",
                             "type": "string",
-                            "x-order": 11
+                            "x-order": 13
                           },
                           "filters": {
                             "description": "Filters.",
@@ -330,12 +338,20 @@
                                 }
                               }
                             },
-                            "x-order": 8
+                            "x-order": 10
                           },
                           "for": {
                             "description": "Rule duration.",
                             "type": "string",
                             "x-order": 5
+                          },
+                          "labels": {
+                            "description": "Labels.",
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "string"
+                            },
+                            "x-order": 8
                           },
                           "params_definitions": {
                             "description": "Template parameters.",
@@ -1897,6 +1913,14 @@
                     "description": "Rule represents Alert Rule.",
                     "type": "object",
                     "properties": {
+                      "annotations": {
+                        "description": "Annotations.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 9
+                      },
                       "channels": {
                         "description": "Channels.",
                         "type": "array",
@@ -2080,13 +2104,13 @@
                             }
                           }
                         },
-                        "x-order": 9
+                        "x-order": 11
                       },
                       "created_at": {
                         "description": "Rule creation time.",
                         "type": "string",
                         "format": "date-time",
-                        "x-order": 10
+                        "x-order": 12
                       },
                       "custom_labels": {
                         "description": "Custom labels.",
@@ -2104,12 +2128,12 @@
                       "expr": {
                         "description": "Expression filled with rule parameters.",
                         "type": "string",
-                        "x-order": 12
+                        "x-order": 14
                       },
                       "expr_template": {
                         "description": "Expression template.",
                         "type": "string",
-                        "x-order": 11
+                        "x-order": 13
                       },
                       "filters": {
                         "description": "Filters.",
@@ -2139,12 +2163,20 @@
                             }
                           }
                         },
-                        "x-order": 8
+                        "x-order": 10
                       },
                       "for": {
                         "description": "Rule duration.",
                         "type": "string",
                         "x-order": 5
+                      },
+                      "labels": {
+                        "description": "Labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 8
                       },
                       "params_definitions": {
                         "description": "Template parameters.",

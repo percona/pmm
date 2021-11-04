@@ -396,6 +396,12 @@ type AlertsItems0Rule struct {
 	// Custom labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
+	// Labels.
+	Labels map[string]string `json:"labels,omitempty"`
+
+	// Annotations.
+	Annotations map[string]string `json:"annotations,omitempty"`
+
 	// Filters.
 	Filters []*AlertsItems0RuleFiltersItems0 `json:"filters"`
 

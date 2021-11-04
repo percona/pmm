@@ -78,16 +78,20 @@ message Rule {
   management.Severity severity = 7;
   // Custom labels.
   map<string, string> custom_labels = 8;
+  // Labels.
+  map<string, string> labels = 9;
+  // Annotations.
+  map<string, string> annotations = 10;
   // Filters.
-  repeated Filter filters = 9;
+  repeated Filter filters = 11;
   // Channels.
-  repeated Channel channels = 10;
+  repeated Channel channels = 12;
   // Rule creation time.
-  google.protobuf.Timestamp created_at = 11;
+  google.protobuf.Timestamp created_at = 13;
   // Expression template.
-  string expr_template = 12;
+  string expr_template = 14;
   // Expression filled with rule parameters.
-  string expr = 13;
+  string expr = 15;
 }
 
 message ListAlertRulesRequest {

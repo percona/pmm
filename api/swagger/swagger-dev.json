@@ -27364,6 +27364,22 @@
                             },
                             "x-order": 7
                           },
+                          "labels": {
+                            "description": "Labels.",
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "string"
+                            },
+                            "x-order": 8
+                          },
+                          "annotations": {
+                            "description": "Annotations.",
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "string"
+                            },
+                            "x-order": 9
+                          },
                           "filters": {
                             "description": "Filters.",
                             "type": "array",
@@ -27392,7 +27408,7 @@
                                 }
                               }
                             },
-                            "x-order": 8
+                            "x-order": 10
                           },
                           "channels": {
                             "description": "Channels.",
@@ -27577,23 +27593,23 @@
                                 }
                               }
                             },
-                            "x-order": 9
+                            "x-order": 11
                           },
                           "created_at": {
                             "description": "Rule creation time.",
                             "type": "string",
                             "format": "date-time",
-                            "x-order": 10
+                            "x-order": 12
                           },
                           "expr_template": {
                             "description": "Expression template.",
                             "type": "string",
-                            "x-order": 11
+                            "x-order": 13
                           },
                           "expr": {
                             "description": "Expression filled with rule parameters.",
                             "type": "string",
-                            "x-order": 12
+                            "x-order": 14
                           }
                         },
                         "x-order": 5
@@ -29144,6 +29160,22 @@
                         },
                         "x-order": 7
                       },
+                      "labels": {
+                        "description": "Labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 8
+                      },
+                      "annotations": {
+                        "description": "Annotations.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 9
+                      },
                       "filters": {
                         "description": "Filters.",
                         "type": "array",
@@ -29172,7 +29204,7 @@
                             }
                           }
                         },
-                        "x-order": 8
+                        "x-order": 10
                       },
                       "channels": {
                         "description": "Channels.",
@@ -29357,23 +29389,23 @@
                             }
                           }
                         },
-                        "x-order": 9
+                        "x-order": 11
                       },
                       "created_at": {
                         "description": "Rule creation time.",
                         "type": "string",
                         "format": "date-time",
-                        "x-order": 10
+                        "x-order": 12
                       },
                       "expr_template": {
                         "description": "Expression template.",
                         "type": "string",
-                        "x-order": 11
+                        "x-order": 13
                       },
                       "expr": {
                         "description": "Expression filled with rule parameters.",
                         "type": "string",
-                        "x-order": 12
+                        "x-order": 14
                       }
                     }
                   },
