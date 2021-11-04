@@ -2104,7 +2104,7 @@
         "tags": [
           "Server"
         ],
-        "summary": "PlatformConnect connects PMM instance to Portal. User is able to log in into the PMM server with Percona Account.",
+        "summary": "PlatformConnect connects a PMM server to Portal organisation. That allows the user to sign in to PMM server with their Percona Account.",
         "operationId": "PlatformConnect",
         "parameters": [
           {

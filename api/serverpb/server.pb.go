@@ -2921,7 +2921,7 @@ type ServerClient interface {
 	AWSInstanceCheck(ctx context.Context, in *AWSInstanceCheckRequest, opts ...grpc.CallOption) (*AWSInstanceCheckResponse, error)
 	// PlatformSignUp creates a new Percona Platform user.
 	PlatformSignUp(ctx context.Context, in *PlatformSignUpRequest, opts ...grpc.CallOption) (*PlatformSignUpResponse, error)
-	// PlatformConnect connects PMM instance to Portal. User is able to log in into the PMM server with Percona Account.
+	// PlatformConnect connects a PMM server to Portal organisation. That allows the user to sign in to PMM server with their Percona Account.
 	PlatformConnect(ctx context.Context, in *PlatformConnectRequest, opts ...grpc.CallOption) (*PlatformConnectResponse, error)
 	// PlatformSignOut logouts this PMM instance from Percona Platform account.
 	PlatformSignOut(ctx context.Context, in *PlatformSignOutRequest, opts ...grpc.CallOption) (*PlatformSignOutResponse, error)
@@ -3055,7 +3055,7 @@ type ServerServer interface {
 	AWSInstanceCheck(context.Context, *AWSInstanceCheckRequest) (*AWSInstanceCheckResponse, error)
 	// PlatformSignUp creates a new Percona Platform user.
 	PlatformSignUp(context.Context, *PlatformSignUpRequest) (*PlatformSignUpResponse, error)
-	// PlatformConnect connects PMM instance to Portal. User is able to log in into the PMM server with Percona Account.
+	// PlatformConnect connects a PMM server to Portal organisation. That allows the user to sign in to PMM server with their Percona Account.
 	PlatformConnect(context.Context, *PlatformConnectRequest) (*PlatformConnectResponse, error)
 	// PlatformSignOut logouts this PMM instance from Percona Platform account.
 	PlatformSignOut(context.Context, *PlatformSignOutRequest) (*PlatformSignOutResponse, error)
