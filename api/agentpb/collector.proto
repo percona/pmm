@@ -340,11 +340,22 @@ message MetricsBucket {
     // plan_mean_time
     // stddev_time
     // Other metrics skipped (empty values, codes):
-    // application_name, cmd_type_text, elevel, sqlcode, message, state_code, state
-
+    // cmd_type_text, elevel, sqlcode, message, state_code, state
+    string top_queryid = 44;
+    string top_query = 47;
+    string application_name = 45;
+    string planid = 46;
+    string query_plan = 48;
+    repeated HistogramItem histogram_items = 49;
   }
   Common common = 1;
   MySQL mysql = 2;
   MongoDB mongodb = 3;
   PostgreSQL postgresql = 4;
+}
+
+// HistogramItem represents one item in histogram.
+message HistogramItem {
+  string range = 1;
+  uint32 frequency = 2;
 }

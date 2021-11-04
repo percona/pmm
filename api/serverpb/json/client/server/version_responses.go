@@ -203,7 +203,7 @@ type VersionOKBody struct {
 	Version string `json:"version,omitempty"`
 
 	// DistributionMethod defines PMM Server distribution method: Docker image, OVF/OVA, or AMI.
-	// Enum: [DISTRIBUTION_METHOD_INVALID DOCKER OVF AMI]
+	// Enum: [DISTRIBUTION_METHOD_INVALID DOCKER OVF AMI AZURE DO]
 	DistributionMethod *string `json:"distribution_method,omitempty"`
 
 	// managed
@@ -239,7 +239,7 @@ var versionOkBodyTypeDistributionMethodPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DISTRIBUTION_METHOD_INVALID","DOCKER","OVF","AMI"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DISTRIBUTION_METHOD_INVALID","DOCKER","OVF","AMI","AZURE","DO"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -260,6 +260,12 @@ const (
 
 	// VersionOKBodyDistributionMethodAMI captures enum value "AMI"
 	VersionOKBodyDistributionMethodAMI string = "AMI"
+
+	// VersionOKBodyDistributionMethodAZURE captures enum value "AZURE"
+	VersionOKBodyDistributionMethodAZURE string = "AZURE"
+
+	// VersionOKBodyDistributionMethodDO captures enum value "DO"
+	VersionOKBodyDistributionMethodDO string = "DO"
 )
 
 // prop value enum
