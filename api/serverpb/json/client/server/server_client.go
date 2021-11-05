@@ -220,7 +220,7 @@ func (a *Client) Logs(params *LogsParams, writer io.Writer) (*LogsOK, error) {
 }
 
 /*
-  PlatformConnect platforms connect connects a PMM server to portal organisation that allows the user to sign in to PMM server with their percona account
+  PlatformConnect platforms connect connects a PMM server to the organization created on percona portal that allows the user to sign in to the PMM server with their percona account
 */
 func (a *Client) PlatformConnect(params *PlatformConnectParams) (*PlatformConnectOK, error) {
 	// TODO: Validate the params before sending
