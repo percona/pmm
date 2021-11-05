@@ -38,7 +38,7 @@ env:
   matrix:
     - PMM_SERVER_IMAGE=percona/pmm-server:2.0.0
     - PMM_SERVER_IMAGE=percona/pmm-server:2
-    - PMM_SERVER_IMAGE=public.ecr.aws/e7j3v3n0/pmm-server:dev-latest
+    - PMM_SERVER_IMAGE=perconalab/pmm-server:dev-latest
 
 before_install:
   - docker-compose up -d
