@@ -301,9 +301,42 @@ pmm-admin inventory list services
 
 2. Set the *Service Name* to the newly-added service.
 
+### Running custom queries
+
+The Postgres exporter can run custom queries to add new metrics not provided by default.  
+Those custom queries must be defined in the `/usr/local/percona/pmm2/collectors/custom-queries/postgresql` in the same host where the exporter is
+running. There are 3 directories inside it:
+    - high-resolution/   - every 5 seconds
+    - medium-resolution/ - every 10 seconds
+    - low-resolution/ - every 60 seconds
+
+Depending on the desired resolution for your custom queries, you can place a file with the queries definition.
+The file is a yaml where each query can have these fields:
+
+query_name:
+   query: the query definition
+   master: boolean to specify if the query should be executed only in the master
+   metrics:
+     - metric name:
+         usage: GAUGE, LABEL, COUNTER, MAPPEDMETRIC or DURATION
+         description: a human readable description
+
+#### Example
+
+pg_postmaster_uptime:
+   query: "select extract(epoch from current_timestamp - pg_postmaster_start_time()) as seconds"
+   master: true
+   metrics:
+     - seconds:
+         usage: "GAUGE"
+         description: "Service uptime"
+
+Check the see also section for a more detailed description on MySQL custom queries with more examples about how to use custom queries in dashboards.
+
 !!! seealso alert alert-info "See also"
     - [`pmm-admin` man page for `pmm-admin add postgresql`](../../details/commands/pmm-admin.md#postgresql)
     - [Configuring Percona Repositories with percona-release][PERCONA_RELEASE]
+    - [Percona Blog -- Running Custom MySQL Queries in Percona Monitoring and Management][BLOG_CUSTOM_QUERIES_MYSQL]
 
 [PostgreSQL]: https://www.postgresql.org/
 [Percona Distribution for PostgreSQL]: https://www.percona.com/software/postgresql-distribution
@@ -314,3 +347,4 @@ pmm-admin inventory list services
 [PG_STAT_MONITOR_INSTALL]: https://github.com/percona/pg_stat_monitor#installation
 [PMM_ADMIN]: ../../details/pmm-admin.md
 [Secure TCP/IP Connections with SSL]: https://www.postgresql.org/docs/current/ssl-tcp.html
+[BLOG_CUSTOM_QUERIES_MYSQL]: https://www.percona.com/blog/2020/06/10/running-custom-queries-in-percona-monitoring-and-management/

@@ -445,6 +445,7 @@ Open the [*PXC/Galera Cluster Summary* dashboard][DASH_PXCGALERACLUSTER].
     - [Percona Blog -- MySQL's INNODB_METRICS table][BLOG_INNODB_METRICS]
     - [Percona Blog -- Rotating MySQL Slow Logs Safely][BLOG_LOG_ROTATION]
     - [Percona Blog -- Impact of logging on MySQL's performance][BLOG_LOGGING]
+    - [Percona Blog -- Running Custom MySQL Queries in Percona Monitoring and Management][BLOG_CUSTOM_QUERIES_MYSQL]
 
 [DASH_MYSQLUSERDETAILS]: ../../details/dashboards/dashboard-mysql-user-details.md
 [DASH_PXCGALERACLUSTER]: ../../details/dashboards/dashboard-pxc-galera-cluster-summary.md
@@ -453,6 +454,7 @@ Open the [*PXC/Galera Cluster Summary* dashboard][DASH_PXCGALERACLUSTER].
 [PERCONA_XTRADB_CLUSTER]: https://www.percona.com/software/mysql-database/percona-xtradb-cluster
 [ORACLE_MYSQL]: https://www.mysql.com/
 [MARIADB]: https://mariadb.org/
+[BLOG_CUSTOM_QUERIES_MYSQL]: https://www.percona.com/blog/2020/06/10/running-custom-queries-in-percona-monitoring-and-management/
 [BLOG_INNODB_METRICS]: https://www.percona.com/blog/2014/11/18/mysqls-innodb_metrics-table-how-much-is-the-overhead/
 [BLOG_LOGGING]: https://www.percona.com/blog/2009/02/10/impact-of-logging-on-mysql%E2%80%99s-performance/
 [BLOG_LOG_ROTATION]: https://www.percona.com/blog/2013/04/18/rotating-mysql-slow-logs-safely/
