@@ -133,6 +133,8 @@ message EmailAlertingSettings {
   string identity = 6;
   // Auth using CRAM-MD5.
   string secret = 7;
+  // Require TLS.
+  bool require_tls = 8;
 }
 
 // SlackAlertingSettings represents Slack configuration for Integrated Alerting.
