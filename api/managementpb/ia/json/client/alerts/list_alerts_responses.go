@@ -380,14 +380,30 @@ type AlertsItems0Rule struct {
 	// Rule human-readable summary.
 	Summary string `json:"summary,omitempty"`
 
-	// Template parameters.
+	// Description.
+	Description string `json:"description,omitempty"`
+
+	// Expression template.
+	ExprTemplate string `json:"expr_template,omitempty"`
+
+	// Expression filled with parameters.
+	Expr string `json:"expr,omitempty"`
+
+	// Expression parameters definitions.
 	ParamsDefinitions []*AlertsItems0RuleParamsDefinitionsItems0 `json:"params_definitions"`
 
-	// Rule parameters.
+	// Expression parameters values.
 	ParamsValues []*AlertsItems0RuleParamsValuesItems0 `json:"params_values"`
 
-	// Rule duration.
+	// Default for duration.
+	DefaultFor string `json:"default_for,omitempty"`
+
+	// For duration.
 	For string `json:"for,omitempty"`
+
+	// Severity represents severity level of the check result or alert.
+	// Enum: [SEVERITY_INVALID SEVERITY_EMERGENCY SEVERITY_ALERT SEVERITY_CRITICAL SEVERITY_ERROR SEVERITY_WARNING SEVERITY_NOTICE SEVERITY_INFO SEVERITY_DEBUG]
+	DefaultSeverity *string `json:"default_severity,omitempty"`
 
 	// Severity represents severity level of the check result or alert.
 	// Enum: [SEVERITY_INVALID SEVERITY_EMERGENCY SEVERITY_ALERT SEVERITY_CRITICAL SEVERITY_ERROR SEVERITY_WARNING SEVERITY_NOTICE SEVERITY_INFO SEVERITY_DEBUG]
@@ -411,12 +427,6 @@ type AlertsItems0Rule struct {
 	// Rule creation time.
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"created_at,omitempty"`
-
-	// Expression template.
-	ExprTemplate string `json:"expr_template,omitempty"`
-
-	// Expression filled with rule parameters.
-	Expr string `json:"expr,omitempty"`
 }
 
 // Validate validates this alerts items0 rule
@@ -428,6 +438,10 @@ func (o *AlertsItems0Rule) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateParamsValues(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateDefaultSeverity(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -498,6 +512,70 @@ func (o *AlertsItems0Rule) validateParamsValues(formats strfmt.Registry) error {
 			}
 		}
 
+	}
+
+	return nil
+}
+
+var alertsItems0RuleTypeDefaultSeverityPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["SEVERITY_INVALID","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		alertsItems0RuleTypeDefaultSeverityPropEnum = append(alertsItems0RuleTypeDefaultSeverityPropEnum, v)
+	}
+}
+
+const (
+
+	// AlertsItems0RuleDefaultSeveritySEVERITYINVALID captures enum value "SEVERITY_INVALID"
+	AlertsItems0RuleDefaultSeveritySEVERITYINVALID string = "SEVERITY_INVALID"
+
+	// AlertsItems0RuleDefaultSeveritySEVERITYEMERGENCY captures enum value "SEVERITY_EMERGENCY"
+	AlertsItems0RuleDefaultSeveritySEVERITYEMERGENCY string = "SEVERITY_EMERGENCY"
+
+	// AlertsItems0RuleDefaultSeveritySEVERITYALERT captures enum value "SEVERITY_ALERT"
+	AlertsItems0RuleDefaultSeveritySEVERITYALERT string = "SEVERITY_ALERT"
+
+	// AlertsItems0RuleDefaultSeveritySEVERITYCRITICAL captures enum value "SEVERITY_CRITICAL"
+	AlertsItems0RuleDefaultSeveritySEVERITYCRITICAL string = "SEVERITY_CRITICAL"
+
+	// AlertsItems0RuleDefaultSeveritySEVERITYERROR captures enum value "SEVERITY_ERROR"
+	AlertsItems0RuleDefaultSeveritySEVERITYERROR string = "SEVERITY_ERROR"
+
+	// AlertsItems0RuleDefaultSeveritySEVERITYWARNING captures enum value "SEVERITY_WARNING"
+	AlertsItems0RuleDefaultSeveritySEVERITYWARNING string = "SEVERITY_WARNING"
+
+	// AlertsItems0RuleDefaultSeveritySEVERITYNOTICE captures enum value "SEVERITY_NOTICE"
+	AlertsItems0RuleDefaultSeveritySEVERITYNOTICE string = "SEVERITY_NOTICE"
+
+	// AlertsItems0RuleDefaultSeveritySEVERITYINFO captures enum value "SEVERITY_INFO"
+	AlertsItems0RuleDefaultSeveritySEVERITYINFO string = "SEVERITY_INFO"
+
+	// AlertsItems0RuleDefaultSeveritySEVERITYDEBUG captures enum value "SEVERITY_DEBUG"
+	AlertsItems0RuleDefaultSeveritySEVERITYDEBUG string = "SEVERITY_DEBUG"
+)
+
+// prop value enum
+func (o *AlertsItems0Rule) validateDefaultSeverityEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, alertsItems0RuleTypeDefaultSeverityPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AlertsItems0Rule) validateDefaultSeverity(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.DefaultSeverity) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateDefaultSeverityEnum("rule"+"."+"default_severity", "body", *o.DefaultSeverity); err != nil {
+		return err
 	}
 
 	return nil

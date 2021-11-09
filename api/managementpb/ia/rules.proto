@@ -68,30 +68,36 @@ message Rule {
   bool disabled = 2;
   // Rule human-readable summary.
   string summary = 3;
-  // Template parameters.
-  repeated ParamDefinition params_definitions = 4;
-  // Rule parameters.
-  repeated ParamValue params_values = 5;
-  // Rule duration.
-  google.protobuf.Duration for = 6;
-  // Rule severity.
-  management.Severity severity = 7;
-  // Custom labels.
-  map<string, string> custom_labels = 8;
-  // Labels.
-  map<string, string> labels = 9;
-  // Annotations.
-  map<string, string> annotations = 10;
-  // Filters.
-  repeated Filter filters = 11;
-  // Channels.
-  repeated Channel channels = 12;
-  // Rule creation time.
-  google.protobuf.Timestamp created_at = 13;
+  // Description.
+  string description = 4;
   // Expression template.
-  string expr_template = 14;
-  // Expression filled with rule parameters.
-  string expr = 15;
+  string expr_template = 5;
+  // Expression filled with parameters.
+  string expr = 6;
+  // Expression parameters definitions.
+  repeated ParamDefinition params_definitions = 7;
+  // Expression parameters values.
+  repeated ParamValue params_values = 8;
+  // Default for duration.
+  google.protobuf.Duration default_for = 9;
+  // For duration.
+  google.protobuf.Duration for = 10;
+  // Default severity.
+  management.Severity default_severity = 11;
+  // Severity.
+  management.Severity severity = 12;
+  // Custom labels.
+  map<string, string> custom_labels = 13;
+  // Labels.
+  map<string, string> labels = 14;
+  // Annotations.
+  map<string, string> annotations = 15;
+  // Filters.
+  repeated Filter filters = 16;
+  // Channels.
+  repeated Channel channels = 17;
+  // Rule creation time.
+  google.protobuf.Timestamp created_at = 18;
 }
 
 message ListAlertRulesRequest {

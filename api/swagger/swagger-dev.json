@@ -27171,8 +27171,23 @@
                             "type": "string",
                             "x-order": 2
                           },
+                          "description": {
+                            "description": "Description.",
+                            "type": "string",
+                            "x-order": 3
+                          },
+                          "expr_template": {
+                            "description": "Expression template.",
+                            "type": "string",
+                            "x-order": 4
+                          },
+                          "expr": {
+                            "description": "Expression filled with parameters.",
+                            "type": "string",
+                            "x-order": 5
+                          },
                           "params_definitions": {
-                            "description": "Template parameters.",
+                            "description": "Expression parameters definitions.",
                             "type": "array",
                             "items": {
                               "description": "ParamDefinition represents a single query parameter.",
@@ -27288,10 +27303,10 @@
                                 }
                               }
                             },
-                            "x-order": 3
+                            "x-order": 6
                           },
                           "params_values": {
-                            "description": "Rule parameters.",
+                            "description": "Expression parameters values.",
                             "type": "array",
                             "items": {
                               "description": "ParamValue represents a single rule parameter value for List, Change and Update APIs.",
@@ -27332,12 +27347,34 @@
                                 }
                               }
                             },
-                            "x-order": 4
+                            "x-order": 7
+                          },
+                          "default_for": {
+                            "description": "Default for duration.",
+                            "type": "string",
+                            "x-order": 8
                           },
                           "for": {
-                            "description": "Rule duration.",
+                            "description": "For duration.",
                             "type": "string",
-                            "x-order": 5
+                            "x-order": 9
+                          },
+                          "default_severity": {
+                            "description": "Severity represents severity level of the check result or alert.",
+                            "type": "string",
+                            "default": "SEVERITY_INVALID",
+                            "enum": [
+                              "SEVERITY_INVALID",
+                              "SEVERITY_EMERGENCY",
+                              "SEVERITY_ALERT",
+                              "SEVERITY_CRITICAL",
+                              "SEVERITY_ERROR",
+                              "SEVERITY_WARNING",
+                              "SEVERITY_NOTICE",
+                              "SEVERITY_INFO",
+                              "SEVERITY_DEBUG"
+                            ],
+                            "x-order": 10
                           },
                           "severity": {
                             "description": "Severity represents severity level of the check result or alert.",
@@ -27354,7 +27391,7 @@
                               "SEVERITY_INFO",
                               "SEVERITY_DEBUG"
                             ],
-                            "x-order": 6
+                            "x-order": 11
                           },
                           "custom_labels": {
                             "description": "Custom labels.",
@@ -27362,7 +27399,7 @@
                             "additionalProperties": {
                               "type": "string"
                             },
-                            "x-order": 7
+                            "x-order": 12
                           },
                           "labels": {
                             "description": "Labels.",
@@ -27370,7 +27407,7 @@
                             "additionalProperties": {
                               "type": "string"
                             },
-                            "x-order": 8
+                            "x-order": 13
                           },
                           "annotations": {
                             "description": "Annotations.",
@@ -27378,7 +27415,7 @@
                             "additionalProperties": {
                               "type": "string"
                             },
-                            "x-order": 9
+                            "x-order": 14
                           },
                           "filters": {
                             "description": "Filters.",
@@ -27408,7 +27445,7 @@
                                 }
                               }
                             },
-                            "x-order": 10
+                            "x-order": 15
                           },
                           "channels": {
                             "description": "Channels.",
@@ -27593,23 +27630,13 @@
                                 }
                               }
                             },
-                            "x-order": 11
+                            "x-order": 16
                           },
                           "created_at": {
                             "description": "Rule creation time.",
                             "type": "string",
                             "format": "date-time",
-                            "x-order": 12
-                          },
-                          "expr_template": {
-                            "description": "Expression template.",
-                            "type": "string",
-                            "x-order": 13
-                          },
-                          "expr": {
-                            "description": "Expression filled with rule parameters.",
-                            "type": "string",
-                            "x-order": 14
+                            "x-order": 17
                           }
                         },
                         "x-order": 5
@@ -28967,8 +28994,23 @@
                         "type": "string",
                         "x-order": 2
                       },
+                      "description": {
+                        "description": "Description.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "expr_template": {
+                        "description": "Expression template.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "expr": {
+                        "description": "Expression filled with parameters.",
+                        "type": "string",
+                        "x-order": 5
+                      },
                       "params_definitions": {
-                        "description": "Template parameters.",
+                        "description": "Expression parameters definitions.",
                         "type": "array",
                         "items": {
                           "description": "ParamDefinition represents a single query parameter.",
@@ -29084,10 +29126,10 @@
                             }
                           }
                         },
-                        "x-order": 3
+                        "x-order": 6
                       },
                       "params_values": {
-                        "description": "Rule parameters.",
+                        "description": "Expression parameters values.",
                         "type": "array",
                         "items": {
                           "description": "ParamValue represents a single rule parameter value for List, Change and Update APIs.",
@@ -29128,12 +29170,34 @@
                             }
                           }
                         },
-                        "x-order": 4
+                        "x-order": 7
+                      },
+                      "default_for": {
+                        "description": "Default for duration.",
+                        "type": "string",
+                        "x-order": 8
                       },
                       "for": {
-                        "description": "Rule duration.",
+                        "description": "For duration.",
                         "type": "string",
-                        "x-order": 5
+                        "x-order": 9
+                      },
+                      "default_severity": {
+                        "description": "Severity represents severity level of the check result or alert.",
+                        "type": "string",
+                        "default": "SEVERITY_INVALID",
+                        "enum": [
+                          "SEVERITY_INVALID",
+                          "SEVERITY_EMERGENCY",
+                          "SEVERITY_ALERT",
+                          "SEVERITY_CRITICAL",
+                          "SEVERITY_ERROR",
+                          "SEVERITY_WARNING",
+                          "SEVERITY_NOTICE",
+                          "SEVERITY_INFO",
+                          "SEVERITY_DEBUG"
+                        ],
+                        "x-order": 10
                       },
                       "severity": {
                         "description": "Severity represents severity level of the check result or alert.",
@@ -29150,7 +29214,7 @@
                           "SEVERITY_INFO",
                           "SEVERITY_DEBUG"
                         ],
-                        "x-order": 6
+                        "x-order": 11
                       },
                       "custom_labels": {
                         "description": "Custom labels.",
@@ -29158,7 +29222,7 @@
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 7
+                        "x-order": 12
                       },
                       "labels": {
                         "description": "Labels.",
@@ -29166,7 +29230,7 @@
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 8
+                        "x-order": 13
                       },
                       "annotations": {
                         "description": "Annotations.",
@@ -29174,7 +29238,7 @@
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 9
+                        "x-order": 14
                       },
                       "filters": {
                         "description": "Filters.",
@@ -29204,7 +29268,7 @@
                             }
                           }
                         },
-                        "x-order": 10
+                        "x-order": 15
                       },
                       "channels": {
                         "description": "Channels.",
@@ -29389,23 +29453,13 @@
                             }
                           }
                         },
-                        "x-order": 11
+                        "x-order": 16
                       },
                       "created_at": {
                         "description": "Rule creation time.",
                         "type": "string",
                         "format": "date-time",
-                        "x-order": 12
-                      },
-                      "expr_template": {
-                        "description": "Expression template.",
-                        "type": "string",
-                        "x-order": 13
-                      },
-                      "expr": {
-                        "description": "Expression filled with rule parameters.",
-                        "type": "string",
-                        "x-order": 14
+                        "x-order": 17
                       }
                     }
                   },

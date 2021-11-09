@@ -428,14 +428,30 @@ type RulesItems0 struct {
 	// Rule human-readable summary.
 	Summary string `json:"summary,omitempty"`
 
-	// Template parameters.
+	// Description.
+	Description string `json:"description,omitempty"`
+
+	// Expression template.
+	ExprTemplate string `json:"expr_template,omitempty"`
+
+	// Expression filled with parameters.
+	Expr string `json:"expr,omitempty"`
+
+	// Expression parameters definitions.
 	ParamsDefinitions []*RulesItems0ParamsDefinitionsItems0 `json:"params_definitions"`
 
-	// Rule parameters.
+	// Expression parameters values.
 	ParamsValues []*RulesItems0ParamsValuesItems0 `json:"params_values"`
 
-	// Rule duration.
+	// Default for duration.
+	DefaultFor string `json:"default_for,omitempty"`
+
+	// For duration.
 	For string `json:"for,omitempty"`
+
+	// Severity represents severity level of the check result or alert.
+	// Enum: [SEVERITY_INVALID SEVERITY_EMERGENCY SEVERITY_ALERT SEVERITY_CRITICAL SEVERITY_ERROR SEVERITY_WARNING SEVERITY_NOTICE SEVERITY_INFO SEVERITY_DEBUG]
+	DefaultSeverity *string `json:"default_severity,omitempty"`
 
 	// Severity represents severity level of the check result or alert.
 	// Enum: [SEVERITY_INVALID SEVERITY_EMERGENCY SEVERITY_ALERT SEVERITY_CRITICAL SEVERITY_ERROR SEVERITY_WARNING SEVERITY_NOTICE SEVERITY_INFO SEVERITY_DEBUG]
@@ -459,12 +475,6 @@ type RulesItems0 struct {
 	// Rule creation time.
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"created_at,omitempty"`
-
-	// Expression template.
-	ExprTemplate string `json:"expr_template,omitempty"`
-
-	// Expression filled with rule parameters.
-	Expr string `json:"expr,omitempty"`
 }
 
 // Validate validates this rules items0
@@ -476,6 +486,10 @@ func (o *RulesItems0) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateParamsValues(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateDefaultSeverity(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -546,6 +560,70 @@ func (o *RulesItems0) validateParamsValues(formats strfmt.Registry) error {
 			}
 		}
 
+	}
+
+	return nil
+}
+
+var rulesItems0TypeDefaultSeverityPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["SEVERITY_INVALID","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		rulesItems0TypeDefaultSeverityPropEnum = append(rulesItems0TypeDefaultSeverityPropEnum, v)
+	}
+}
+
+const (
+
+	// RulesItems0DefaultSeveritySEVERITYINVALID captures enum value "SEVERITY_INVALID"
+	RulesItems0DefaultSeveritySEVERITYINVALID string = "SEVERITY_INVALID"
+
+	// RulesItems0DefaultSeveritySEVERITYEMERGENCY captures enum value "SEVERITY_EMERGENCY"
+	RulesItems0DefaultSeveritySEVERITYEMERGENCY string = "SEVERITY_EMERGENCY"
+
+	// RulesItems0DefaultSeveritySEVERITYALERT captures enum value "SEVERITY_ALERT"
+	RulesItems0DefaultSeveritySEVERITYALERT string = "SEVERITY_ALERT"
+
+	// RulesItems0DefaultSeveritySEVERITYCRITICAL captures enum value "SEVERITY_CRITICAL"
+	RulesItems0DefaultSeveritySEVERITYCRITICAL string = "SEVERITY_CRITICAL"
+
+	// RulesItems0DefaultSeveritySEVERITYERROR captures enum value "SEVERITY_ERROR"
+	RulesItems0DefaultSeveritySEVERITYERROR string = "SEVERITY_ERROR"
+
+	// RulesItems0DefaultSeveritySEVERITYWARNING captures enum value "SEVERITY_WARNING"
+	RulesItems0DefaultSeveritySEVERITYWARNING string = "SEVERITY_WARNING"
+
+	// RulesItems0DefaultSeveritySEVERITYNOTICE captures enum value "SEVERITY_NOTICE"
+	RulesItems0DefaultSeveritySEVERITYNOTICE string = "SEVERITY_NOTICE"
+
+	// RulesItems0DefaultSeveritySEVERITYINFO captures enum value "SEVERITY_INFO"
+	RulesItems0DefaultSeveritySEVERITYINFO string = "SEVERITY_INFO"
+
+	// RulesItems0DefaultSeveritySEVERITYDEBUG captures enum value "SEVERITY_DEBUG"
+	RulesItems0DefaultSeveritySEVERITYDEBUG string = "SEVERITY_DEBUG"
+)
+
+// prop value enum
+func (o *RulesItems0) validateDefaultSeverityEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, rulesItems0TypeDefaultSeverityPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *RulesItems0) validateDefaultSeverity(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.DefaultSeverity) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateDefaultSeverityEnum("default_severity", "body", *o.DefaultSeverity); err != nil {
+		return err
 	}
 
 	return nil

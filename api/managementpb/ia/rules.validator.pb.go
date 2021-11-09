@@ -44,6 +44,11 @@ func (this *Rule) Validate() error {
 			}
 		}
 	}
+	if this.DefaultFor != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.DefaultFor); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("DefaultFor", err)
+		}
+	}
 	if this.For != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.For); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("For", err)
