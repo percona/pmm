@@ -17,13 +17,31 @@ message BasicAuth {
   string password_file = 3;
 }
 
-// TLSConfig represents TLS configuration.
+// TLSConfig represents TLS configuration for alertmanager
+// https://prometheus.io/docs/alerting/latest/configuration/#tls_config
 message TLSConfig {
+  // A path to the CA certificate file to validate the server certificate with.
+  // ca_file and ca_file_content should not be set at the same time.
   string ca_file = 1;
+  // A path to the certificate file for client cert authentication to the server.
+  // cert_file and cert_file_content should not be set at the same time.
   string cert_file = 2;
+  // A path to the key file for client cert authentication to the server.
+  // key_file and key_file_content should not be set at the same time.
   string key_file = 3;
+  // Name of the server.
   string server_name = 4;
+  // Disable validation of the server certificate.
   bool insecure_skip_verify = 5;
+  // CA certificate to validate the server certificate with.
+  // ca_file and ca_file_content should not be set at the same time.
+  string ca_file_content = 6;
+  // A certificate for client cert authentication to the server.
+  // cert_file and cert_file_content should not be set at the same time.
+  string cert_file_content = 7;
+  // A key for client cert authentication to the server.
+  // key_file and key_file_content should not be set at the same time.
+  string key_file_content = 8;
 }
 
 // HTTPConfig represents HTTP client configuration.

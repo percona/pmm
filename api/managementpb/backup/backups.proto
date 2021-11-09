@@ -4,6 +4,7 @@ package backup.v1beta1;
 
 option go_package = "api/managementpb/backup;backupv1beta1";
 
+import "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options/annotations.proto";
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
@@ -225,6 +226,9 @@ service Backups {
       post: "/v1/management/backup/Backups/Start"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      description: "Could return the Error message in the details containing specific ErrorCode indicating failure reason:\nERROR_CODE_XTRABACKUP_NOT_INSTALLED - xtrabackup is not installed on the service\nERROR_CODE_INVALID_XTRABACKUP - different versions of xtrabackup and xbcloud\nERROR_CODE_INCOMPATIBLE_XTRABACKUP - xtrabackup is not compatible with MySQL for taking a backup"
+    };
   }
   // ListArtifactCompatibleServices lists compatible services for restoring a backup.
   rpc ListArtifactCompatibleServices(ListArtifactCompatibleServicesRequest) returns (ListArtifactCompatibleServicesResponse) {
@@ -238,6 +242,9 @@ service Backups {
     option (google.api.http) = {
       post: "/v1/management/backup/Backups/Restore"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      description: "Could return the Error message in the details containing specific ErrorCode indicating failure reason:\nERROR_CODE_XTRABACKUP_NOT_INSTALLED - xtrabackup is not installed on the service\nERROR_CODE_INVALID_XTRABACKUP - different versions of xtrabackup and xbcloud\nERROR_CODE_INCOMPATIBLE_XTRABACKUP - xtrabackup is not compatible with MySQL for taking a backup\nERROR_CODE_INCOMPATIBLE_TARGET_MYSQL - target MySQL version is not compatible with the artifact for performing a restore of the backup"
     };
   }
   // ScheduleBackup schedules repeated backup.

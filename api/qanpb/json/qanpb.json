@@ -865,6 +865,132 @@
         }
       }
     },
+    "/v0/qan/ObjectDetails/GetHistogram": {
+      "post": {
+        "tags": [
+          "ObjectDetails"
+        ],
+        "summary": "GetHistogram gets histogram items for specific filtering.",
+        "operationId": "GetHistogram",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "HistogramRequest defines filtering by time range, labels and queryid.",
+              "type": "object",
+              "properties": {
+                "labels": {
+                  "type": "array",
+                  "items": {
+                    "description": "MapFieldEntry allows to pass labels/dimensions in form like {\"server\": [\"db1\", \"db2\"...]}.",
+                    "type": "object",
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 2
+                },
+                "period_start_from": {
+                  "type": "string",
+                  "format": "date-time",
+                  "x-order": 0
+                },
+                "period_start_to": {
+                  "type": "string",
+                  "format": "date-time",
+                  "x-order": 1
+                },
+                "queryid": {
+                  "type": "string",
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "HistogramReply is histogram items as a list.",
+              "type": "object",
+              "properties": {
+                "histogram_items": {
+                  "type": "array",
+                  "items": {
+                    "description": "HistogramItem represents one item in histogram.",
+                    "type": "object",
+                    "properties": {
+                      "frequency": {
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 1
+                      },
+                      "range": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v0/qan/ObjectDetails/GetLabels": {
       "post": {
         "tags": [
@@ -1056,7 +1182,7 @@
               "properties": {
                 "fingerprint": {
                   "type": "string",
-                  "x-order": 3
+                  "x-order": 4
                 },
                 "metrics": {
                   "type": "object",
@@ -1488,6 +1614,13 @@
                       }
                     }
                   },
+                  "x-order": 2
+                },
+                "text_metrics": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
                   "x-order": 1
                 },
                 "totals": {
@@ -1538,7 +1671,7 @@
                       }
                     }
                   },
-                  "x-order": 2
+                  "x-order": 3
                 }
               }
             }
@@ -1723,6 +1856,90 @@
                     }
                   },
                   "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v0/qan/ObjectDetails/GetQueryPlan": {
+      "post": {
+        "tags": [
+          "ObjectDetails"
+        ],
+        "summary": "GetQueryPlan gets query plan and plan id for specific filtering.",
+        "operationId": "GetQueryPlan",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "QueryPlanRequest defines filtering by queryid.",
+              "type": "object",
+              "properties": {
+                "queryid": {
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "QueryPlanReply contains planid and query_plan.",
+              "type": "object",
+              "properties": {
+                "planid": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "query_plan": {
+                  "type": "string",
+                  "x-order": 1
                 }
               }
             }
