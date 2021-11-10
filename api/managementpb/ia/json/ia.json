@@ -281,6 +281,11 @@
                             },
                             "x-order": 16
                           },
+                          "comment": {
+                            "description": "Comment.",
+                            "type": "string",
+                            "x-order": 3
+                          },
                           "created_at": {
                             "description": "Rule creation time.",
                             "type": "string",
@@ -316,11 +321,6 @@
                               "SEVERITY_DEBUG"
                             ],
                             "x-order": 10
-                          },
-                          "description": {
-                            "description": "Description.",
-                            "type": "string",
-                            "x-order": 3
                           },
                           "disabled": {
                             "description": "True if that rule is disabled.",
@@ -2133,6 +2133,11 @@
                         },
                         "x-order": 16
                       },
+                      "comment": {
+                        "description": "Comment.",
+                        "type": "string",
+                        "x-order": 3
+                      },
                       "created_at": {
                         "description": "Rule creation time.",
                         "type": "string",
@@ -2168,11 +2173,6 @@
                           "SEVERITY_DEBUG"
                         ],
                         "x-order": 10
-                      },
-                      "description": {
-                        "description": "Description.",
-                        "type": "string",
-                        "x-order": 3
                       },
                       "disabled": {
                         "description": "True if that rule is disabled.",

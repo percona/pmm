@@ -27171,8 +27171,8 @@
                             "type": "string",
                             "x-order": 2
                           },
-                          "description": {
-                            "description": "Description.",
+                          "comment": {
+                            "description": "Comment.",
                             "type": "string",
                             "x-order": 3
                           },
@@ -28994,8 +28994,8 @@
                         "type": "string",
                         "x-order": 2
                       },
-                      "description": {
-                        "description": "Description.",
+                      "comment": {
+                        "description": "Comment.",
                         "type": "string",
                         "x-order": 3
                       },

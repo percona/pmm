@@ -428,8 +428,8 @@ type RulesItems0 struct {
 	// Rule human-readable summary.
 	Summary string `json:"summary,omitempty"`
 
-	// Description.
-	Description string `json:"description,omitempty"`
+	// Comment.
+	Comment string `json:"comment,omitempty"`
 
 	// Expression template.
 	ExprTemplate string `json:"expr_template,omitempty"`
