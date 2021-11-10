@@ -321,6 +321,9 @@ type GetMetricsOKBody struct {
 	// metrics
 	Metrics map[string]MetricsAnon `json:"metrics,omitempty"`
 
+	// text metrics
+	TextMetrics map[string]string `json:"text_metrics,omitempty"`
+
 	// sparkline
 	Sparkline []*SparklineItems0 `json:"sparkline"`
 
@@ -433,41 +436,6 @@ func (o *GetMetricsOKBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetMetricsOKBody) UnmarshalBinary(b []byte) error {
 	var res GetMetricsOKBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*LabelsItems0 MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.
-swagger:model LabelsItems0
-*/
-type LabelsItems0 struct {
-
-	// key
-	Key string `json:"key,omitempty"`
-
-	// value
-	Value []string `json:"value"`
-}
-
-// Validate validates this labels items0
-func (o *LabelsItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *LabelsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *LabelsItems0) UnmarshalBinary(b []byte) error {
-	var res LabelsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
