@@ -498,6 +498,7 @@ scrape_configs:
       basic_auth:
         username: pmm
         password: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
+      stream_parse: true
     - job_name: postgres_exporter_agent_id_29e14468-d479-4b4d-bfb7-4ac2fb865bac_mr-10s
       honor_timestamps: false
       params:
@@ -525,6 +526,7 @@ scrape_configs:
       basic_auth:
         username: pmm
         password: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
+      stream_parse: true
     - job_name: postgres_exporter_agent_id_29e14468-d479-4b4d-bfb7-4ac2fb865bac_lr-1m0s
       honor_timestamps: false
       params:
@@ -552,6 +554,7 @@ scrape_configs:
       basic_auth:
         username: pmm
         password: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
+      stream_parse: true
 `) + "\n"
 		actual, err := ioutil.ReadFile(configPath)
 		check.NoError(err)

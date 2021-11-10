@@ -125,10 +125,11 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, s 
 
 		case models.PostgresExporterType:
 			scfgs, err = scrapeConfigsForPostgresExporter(s, &scrapeConfigParams{
-				host:    paramsHost,
-				node:    paramsNode,
-				service: paramsService,
-				agent:   agent,
+				host:        paramsHost,
+				node:        paramsNode,
+				service:     paramsService,
+				agent:       agent,
+				streamParse: true,
 			})
 
 		case models.ProxySQLExporterType:

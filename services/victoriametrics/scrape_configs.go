@@ -160,10 +160,11 @@ func httpClientConfig(agent *models.Agent) config.HTTPClientConfig {
 }
 
 type scrapeConfigParams struct {
-	host    string // Node address where pmm-agent runs
-	node    *models.Node
-	service *models.Service
-	agent   *models.Agent
+	host        string // Node address where pmm-agent runs
+	node        *models.Node
+	service     *models.Service
+	agent       *models.Agent
+	streamParse bool
 }
 
 // scrapeConfigForStandardExporter returns scrape config for endpoint with given parameters.
@@ -174,6 +175,7 @@ func scrapeConfigForStandardExporter(intervalName string, interval time.Duration
 	}
 
 	cfg := &config.ScrapeConfig{
+		StreamParse:      params.streamParse,
 		JobName:          jobName(params.agent, intervalName, interval),
 		ScrapeInterval:   config.Duration(interval),
 		ScrapeTimeout:    scrapeTimeout(interval),
