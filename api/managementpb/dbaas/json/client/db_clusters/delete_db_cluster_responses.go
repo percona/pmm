@@ -132,7 +132,7 @@ type DeleteDBClusterBody struct {
 	//
 	//  - DB_CLUSTER_TYPE_INVALID: DB_CLUSTER_TYPE_INVALID represents unknown cluster type.
 	//  - DB_CLUSTER_TYPE_PXC: DB_CLUSTER_TYPE_PXC represents pxc cluster type.
-	//  - DB_CLUSTER_TYPE_PSMDB: DB_CLUSTER_TYPE_PXC represents psmdb cluster type.
+	//  - DB_CLUSTER_TYPE_PSMDB: DB_CLUSTER_TYPE_PSMDB represents psmdb cluster type.
 	// Enum: [DB_CLUSTER_TYPE_INVALID DB_CLUSTER_TYPE_PXC DB_CLUSTER_TYPE_PSMDB]
 	ClusterType *string `json:"cluster_type,omitempty"`
 }

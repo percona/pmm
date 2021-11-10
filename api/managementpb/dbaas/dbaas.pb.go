@@ -33,7 +33,7 @@ const (
 	DBClusterType_DB_CLUSTER_TYPE_INVALID DBClusterType = 0
 	// DB_CLUSTER_TYPE_PXC represents pxc cluster type.
 	DBClusterType_DB_CLUSTER_TYPE_PXC DBClusterType = 1
-	// DB_CLUSTER_TYPE_PXC represents psmdb cluster type.
+	// DB_CLUSTER_TYPE_PSMDB represents psmdb cluster type.
 	DBClusterType_DB_CLUSTER_TYPE_PSMDB DBClusterType = 2
 )
 

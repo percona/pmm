@@ -112,7 +112,7 @@ func (a *Client) RestartDBCluster(params *RestartDBClusterParams) (*RestartDBClu
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "RestartDBCluster",
 		Method:             "POST",
-		PathPattern:        "/v1/management/DBaaS/PXCCluster/Restart",
+		PathPattern:        "/v1/management/DBaaS/DBClusters/Restart",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

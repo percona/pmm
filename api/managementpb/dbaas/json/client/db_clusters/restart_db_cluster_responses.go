@@ -58,7 +58,7 @@ type RestartDBClusterOK struct {
 }
 
 func (o *RestartDBClusterOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/DBaaS/PXCCluster/Restart][%d] restartDbClusterOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/DBaaS/DBClusters/Restart][%d] restartDbClusterOk  %+v", 200, o.Payload)
 }
 
 func (o *RestartDBClusterOK) GetPayload() interface{} {
@@ -98,7 +98,7 @@ func (o *RestartDBClusterDefault) Code() int {
 }
 
 func (o *RestartDBClusterDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/DBaaS/PXCCluster/Restart][%d] RestartDBCluster default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/DBaaS/DBClusters/Restart][%d] RestartDBCluster default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *RestartDBClusterDefault) GetPayload() *RestartDBClusterDefaultBody {
@@ -132,7 +132,7 @@ type RestartDBClusterBody struct {
 	//
 	//  - DB_CLUSTER_TYPE_INVALID: DB_CLUSTER_TYPE_INVALID represents unknown cluster type.
 	//  - DB_CLUSTER_TYPE_PXC: DB_CLUSTER_TYPE_PXC represents pxc cluster type.
-	//  - DB_CLUSTER_TYPE_PSMDB: DB_CLUSTER_TYPE_PXC represents psmdb cluster type.
+	//  - DB_CLUSTER_TYPE_PSMDB: DB_CLUSTER_TYPE_PSMDB represents psmdb cluster type.
 	// Enum: [DB_CLUSTER_TYPE_INVALID DB_CLUSTER_TYPE_PXC DB_CLUSTER_TYPE_PSMDB]
 	ClusterType *string `json:"cluster_type,omitempty"`
 }

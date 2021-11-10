@@ -141,7 +141,7 @@ service DBClusters {
   // RestartDBCluster restarts DB cluster.
   rpc RestartDBCluster(RestartDBClusterRequest) returns (RestartDBClusterResponse) {
     option (google.api.http) = {
-      post: "/v1/management/DBaaS/PXCCluster/Restart"
+      post: "/v1/management/DBaaS/DBClusters/Restart"
       body: "*"
     };
   }

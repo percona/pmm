@@ -317,7 +317,7 @@ func RegisterDBClustersHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 var (
 	pattern_DBClusters_ListDBClusters_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "DBClusters", "List"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_DBClusters_RestartDBCluster_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "PXCCluster", "Restart"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_DBClusters_RestartDBCluster_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "DBClusters", "Restart"}, "", runtime.AssumeColonVerbOpt(true)))
 
 	pattern_DBClusters_DeleteDBCluster_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "DBClusters", "Delete"}, "", runtime.AssumeColonVerbOpt(true)))
 )
