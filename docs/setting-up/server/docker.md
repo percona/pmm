@@ -246,7 +246,7 @@ Use the following Docker container environment variables (with `-e var=value`) t
 
 | Variable                   | Description
 | -------------------------- | -----------------------------------------------------------------------
-| `DISABLE_UPDATES`          | Disable automatic updates.
+| `DISABLE_UPDATES`          | Disables a periodic check for new PMM versions as well as ability to apply upgrades using the UI
 | `DISABLE_TELEMETRY`        | Disable built-in telemetry and disable STT if telemetry is disabled.
 | `METRICS_RESOLUTION`       | High metrics resolution in seconds.
 | `METRICS_RESOLUTION_HR`    | High metrics resolution (same as above).
@@ -277,7 +277,7 @@ These variables will be ignored by `pmm-managed` when starting the server. If an
 
 ## Tips
 
-- Disable manual updates via the Home Dashboard *PMM Upgrade* panel by adding `-e DISABLE_UPDATES=true` to the `docker run` command.
+- To Disable the Home Dashboard *PMM Upgrade* panel you can either add `-e DISABLE_UPDATES=true` to the `docker run` command (for the life of the containter) or navigate to _PMM --> PMM Settings --> Advanced Settings_ and disable "Check for Updates" (can be turned back on by any admin in the UI).
 
 - Eliminate browser certificate warnings by configuring a [trusted certificate].
 
