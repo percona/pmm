@@ -19,7 +19,6 @@ package models
 import (
 	"time"
 
-	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 )
 
@@ -40,9 +39,9 @@ func (dm DataModel) Validate() error {
 	case PhysicalDataModel:
 	case LogicalDataModel:
 	case "":
-		return errors.Wrap(ErrInvalidArgument, "empty data model")
+		return NewInvalidArgumentError("empty data model")
 	default:
-		return errors.Wrapf(ErrInvalidArgument, "invalid data model '%s'", dm)
+		return NewInvalidArgumentError("invalid data model '%s'", dm)
 	}
 
 	return nil
@@ -73,7 +72,7 @@ func (bs BackupStatus) Validate() error {
 	case DeletingBackupStatus:
 	case FailedToDeleteBackupStatus:
 	default:
-		return errors.Wrapf(ErrInvalidArgument, "invalid status '%s'", bs)
+		return NewInvalidArgumentError("invalid status '%s'", bs)
 	}
 
 	return nil
@@ -110,9 +109,9 @@ func (m BackupMode) Validate() error {
 	case Incremental:
 	case PITR:
 	case "":
-		return errors.Wrapf(ErrInvalidArgument, "empty backup mode")
+		return NewInvalidArgumentError("empty backup mode")
 	default:
-		return errors.Wrapf(ErrInvalidArgument, "invalid backup mode '%s'", m)
+		return NewInvalidArgumentError("invalid backup mode '%s'", m)
 	}
 
 	return nil

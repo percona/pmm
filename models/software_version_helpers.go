@@ -44,7 +44,7 @@ type CreateServiceSoftwareVersionsParams struct {
 // Validate validates params used for creating a service software versions entry.
 func (p *CreateServiceSoftwareVersionsParams) Validate() error {
 	if p.ServiceID == "" {
-		return errors.Wrap(ErrInvalidArgument, "service_id shouldn't be empty")
+		return NewInvalidArgumentError("service_id shouldn't be empty")
 	}
 
 	switch p.ServiceType {
@@ -55,7 +55,7 @@ func (p *CreateServiceSoftwareVersionsParams) Validate() error {
 		HAProxyServiceType,
 		ExternalServiceType:
 	default:
-		return errors.Wrapf(ErrInvalidArgument, "invalid service type %q", p.ServiceType)
+		return NewInvalidArgumentError("invalid service type %q", p.ServiceType)
 	}
 
 	for _, sv := range p.SoftwareVersions {
@@ -65,11 +65,11 @@ func (p *CreateServiceSoftwareVersionsParams) Validate() error {
 		case XbcloudSoftwareName:
 		case QpressSoftwareName:
 		default:
-			return errors.Wrapf(ErrInvalidArgument, "invalid software name %q", sv.Name)
+			return NewInvalidArgumentError("invalid software name %q", sv.Name)
 		}
 
 		if sv.Version == "" {
-			return errors.Wrapf(ErrInvalidArgument, "empty version for software name %q", sv.Name)
+			return NewInvalidArgumentError("empty version for software name %q", sv.Name)
 		}
 	}
 
@@ -111,7 +111,7 @@ func (u *UpdateServiceSoftwareVersionsParams) Validate() error {
 		case XbcloudSoftwareName:
 		case QpressSoftwareName:
 		default:
-			return errors.Wrapf(ErrInvalidArgument, "invalid software name %q", sv.Name)
+			return NewInvalidArgumentError("invalid software name %q", sv.Name)
 		}
 	}
 

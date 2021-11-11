@@ -18,11 +18,11 @@ package models
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/url"
 	"strings"
 	"time"
 
+	"github.com/asaskevich/govalidator"
 	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 
@@ -128,7 +128,7 @@ type ChangeSettingsParams struct {
 func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, error) {
 	err := ValidateSettings(params)
 	if err != nil {
-		return nil, err
+		return nil, NewInvalidArgumentError(err.Error())
 	}
 
 	settings, err := GetSettings(q)
@@ -137,7 +137,7 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	}
 
 	if err := validateSettingsConflicts(params, settings); err != nil {
-		return nil, err
+		return nil, NewInvalidArgumentError(err.Error())
 	}
 
 	if params.DisableUpdates {
@@ -297,25 +297,73 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	return settings, nil
 }
 
+func validateSlackAlertingSettings(params *ChangeSettingsParams) error {
+	if params.SlackAlertingSettings != nil && params.RemoveSlackAlertingSettings {
+		return errors.New("both slack_alerting_settings and remove_slack_alerting_settings are present")
+	}
+
+	if params.SlackAlertingSettings == nil {
+		return nil
+	}
+
+	if !govalidator.IsURL(params.SlackAlertingSettings.URL) {
+		return errors.New("invalid url value")
+	}
+
+	return nil
+}
+
+func validateEmailAlertingSettings(params *ChangeSettingsParams) error {
+	if params.EmailAlertingSettings != nil && params.RemoveEmailAlertingSettings {
+		return errors.New("both email_alerting_settings and remove_email_alerting_settings are present")
+	}
+
+	if params.EmailAlertingSettings == nil {
+		return nil
+	}
+
+	if !govalidator.IsEmail(params.EmailAlertingSettings.From) {
+		return errors.Errorf("invalid \"from\" email %q", params.EmailAlertingSettings.From)
+	}
+
+	if !govalidator.IsDialString(params.EmailAlertingSettings.Smarthost) {
+		return errors.New("invalid server address, expected format host:port")
+	}
+
+	if params.EmailAlertingSettings.Hello != "" {
+		if !govalidator.IsHost(params.EmailAlertingSettings.Hello) {
+			return errors.New("invalid hello field, expected valid host")
+		}
+	}
+
+	return nil
+}
+
 // ValidateSettings validates settings changes.
 func ValidateSettings(params *ChangeSettingsParams) error {
 	if params.EnableUpdates && params.DisableUpdates {
-		return fmt.Errorf("Both enable_updates and disable_updates are present.") //nolint:golint,stylecheck
+		return errors.New("both enable_updates and disable_updates are present")
 	}
 	if params.EnableTelemetry && params.DisableTelemetry {
-		return fmt.Errorf("Both enable_telemetry and disable_telemetry are present.") //nolint:golint,stylecheck
+		return errors.New("both enable_telemetry and disable_telemetry are present")
 	}
 	if params.EnableSTT && params.DisableSTT {
-		return fmt.Errorf("Both enable_stt and disable_stt are present.") //nolint:golint,stylecheck
+		return errors.New("both enable_stt and disable_stt are present")
 	}
 	if params.EnableVMCache && params.DisableVMCache {
-		return fmt.Errorf("Both enable_vm_cache and disable_vm_cache are present.") //nolint:golint,stylecheck
+		return errors.New("both enable_vm_cache and disable_vm_cache are present")
 	}
 	if params.EnableAlerting && params.DisableAlerting {
-		return fmt.Errorf("Both enable_alerting and disable_alerting are present.") //nolint:golint,stylecheck
+		return errors.New("both enable_alerting and disable_alerting are present")
+	}
+	if err := validateEmailAlertingSettings(params); err != nil {
+		return err
+	}
+	if err := validateSlackAlertingSettings(params); err != nil {
+		return err
 	}
 	if params.EnableBackupManagement && params.DisableBackupManagement {
-		return fmt.Errorf("Both enable_backup_management and disable_backup_management are present.") //nolint:golint,stylecheck
+		return errors.New("both enable_backup_management and disable_backup_management are present")
 	}
 	// TODO: consider refactoring this and the validation for STT check intervals
 	checkCases := []struct {
@@ -334,11 +382,11 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 		if _, err := validators.ValidateMetricResolution(v.dur); err != nil {
 			switch err.(type) {
 			case validators.DurationNotAllowedError:
-				return fmt.Errorf("%s: should be a natural number of seconds", v.fieldName)
+				return errors.Errorf("%s: should be a natural number of seconds", v.fieldName)
 			case validators.MinDurationError:
-				return fmt.Errorf("%s: minimal resolution is 1s", v.fieldName)
+				return errors.Errorf("%s: minimal resolution is 1s", v.fieldName)
 			default:
-				return fmt.Errorf("%s: unknown error for", v.fieldName)
+				return errors.Errorf("%s: unknown error for", v.fieldName)
 			}
 		}
 	}
@@ -359,11 +407,11 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 		if _, err := validators.ValidateSTTCheckInterval(v.dur); err != nil {
 			switch err.(type) {
 			case validators.DurationNotAllowedError:
-				return fmt.Errorf("%s: should be a natural number of seconds", v.fieldName)
+				return errors.Errorf("%s: should be a natural number of seconds", v.fieldName)
 			case validators.MinDurationError:
-				return fmt.Errorf("%s: minimal resolution is 1s", v.fieldName)
+				return errors.Errorf("%s: minimal resolution is 1s", v.fieldName)
 			default:
-				return fmt.Errorf("%s: unknown error for", v.fieldName)
+				return errors.Errorf("%s: unknown error for", v.fieldName)
 			}
 		}
 	}
@@ -372,67 +420,59 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 		if _, err := validators.ValidateDataRetention(params.DataRetention); err != nil {
 			switch err.(type) {
 			case validators.DurationNotAllowedError:
-				return fmt.Errorf("data_retention: should be a natural number of days")
+				return errors.New("data_retention: should be a natural number of days")
 			case validators.MinDurationError:
-				return fmt.Errorf("data_retention: minimal resolution is 24h")
+				return errors.New("data_retention: minimal resolution is 24h")
 			default:
-				return fmt.Errorf("data_retention: unknown error")
+				return errors.New("data_retention: unknown error")
 			}
 		}
 	}
 
-	var err error
-	if err = validators.ValidateAWSPartitions(params.AWSPartitions); err != nil {
+	if err := validators.ValidateAWSPartitions(params.AWSPartitions); err != nil {
 		return err
 	}
 
 	if params.AlertManagerURL != "" {
 		if params.RemoveAlertManagerURL {
-			return fmt.Errorf("Both alert_manager_url and remove_alert_manager_url are present.") //nolint:golint,stylecheck
+			return errors.New("both alert_manager_url and remove_alert_manager_url are present")
 		}
 
 		// custom validation for typical error that is not handled well by url.Parse
 		if !strings.Contains(params.AlertManagerURL, "//") {
-			return fmt.Errorf("Invalid alert_manager_url: %s - missing protocol scheme.", params.AlertManagerURL) //nolint:golint,stylecheck
+			return errors.Errorf("invalid alert_manager_url: %s - missing protocol scheme", params.AlertManagerURL)
 		}
 		u, err := url.Parse(params.AlertManagerURL)
 		if err != nil {
-			return fmt.Errorf("Invalid alert_manager_url: %s.", err) //nolint:golint,stylecheck
+			return errors.Errorf("invalid alert_manager_url: %s", err)
 		}
 		if u.Scheme == "" {
-			return fmt.Errorf("Invalid alert_manager_url: %s - missing protocol scheme.", params.AlertManagerURL) //nolint:golint,stylecheck
+			return errors.Errorf("invalid alert_manager_url: %s - missing protocol scheme", params.AlertManagerURL)
 		}
 		if u.Host == "" {
-			return fmt.Errorf("Invalid alert_manager_url: %s - missing host.", params.AlertManagerURL) //nolint:golint,stylecheck
+			return errors.Errorf("invalid alert_manager_url: %s - missing host", params.AlertManagerURL)
 		}
 	}
 
 	if params.PMMPublicAddress != "" && params.RemovePMMPublicAddress {
-		return fmt.Errorf("Both pmm_public_address and remove_pmm_public_address are present.") //nolint:golint,stylecheck
+		return errors.New("both pmm_public_address and remove_pmm_public_address are present")
 	}
 
-	if params.EmailAlertingSettings != nil && params.RemoveEmailAlertingSettings {
-		return fmt.Errorf("Both email_alerting_settings and remove_email_alerting_settings are present.") //nolint:golint,stylecheck
-	}
-
-	if params.SlackAlertingSettings != nil && params.RemoveSlackAlertingSettings {
-		return fmt.Errorf("Both slack_alerting_settings and remove_slack_alerting_settings are present.") //nolint:golint,stylecheck
-	}
 	return nil
 }
 
 func validateSettingsConflicts(params *ChangeSettingsParams, settings *Settings) error {
 	if params.EnableSTT && !params.EnableTelemetry && settings.Telemetry.Disabled {
-		return fmt.Errorf("Cannot enable STT while telemetry is disabled.") //nolint:golint,stylecheck
+		return errors.New("cannot enable STT while telemetry is disabled")
 	}
 	if params.EnableSTT && params.DisableTelemetry {
-		return fmt.Errorf("Cannot enable STT while disabling telemetry.") //nolint:golint,stylecheck
+		return errors.New("cannot enable STT while disabling telemetry")
 	}
 	if params.DisableTelemetry && !params.DisableSTT && settings.SaaS.STTEnabled {
-		return fmt.Errorf("Cannot disable telemetry while STT is enabled.") //nolint:golint,stylecheck
+		return errors.New("cannot disable telemetry while STT is enabled")
 	}
 	if params.LogOut && (params.Email != "" || params.SessionID != "") {
-		return fmt.Errorf("Cannot logout while updating Percona Platform user data.") //nolint:golint,stylecheck
+		return errors.New("cannot logout while updating Percona Platform user data")
 	}
 
 	return nil

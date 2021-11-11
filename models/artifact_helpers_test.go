@@ -226,7 +226,7 @@ func TestArtifactValidation(t *testing.T) {
 				Status:     models.PendingBackupStatus,
 				Mode:       models.Snapshot,
 			},
-			errorMsg: "name shouldn't be empty: invalid argument",
+			errorMsg: "invalid argument: name shouldn't be empty",
 		},
 		{
 			name: "vendor missing",
@@ -238,7 +238,7 @@ func TestArtifactValidation(t *testing.T) {
 				Status:     models.PendingBackupStatus,
 				Mode:       models.Snapshot,
 			},
-			errorMsg: "vendor shouldn't be empty: invalid argument",
+			errorMsg: "invalid argument: vendor shouldn't be empty",
 		},
 		{
 			name: "location missing",
@@ -250,7 +250,7 @@ func TestArtifactValidation(t *testing.T) {
 				Status:    models.PendingBackupStatus,
 				Mode:      models.Snapshot,
 			},
-			errorMsg: "location_id shouldn't be empty: invalid argument",
+			errorMsg: "invalid argument: location_id shouldn't be empty",
 		},
 		{
 			name: "service missing",
@@ -262,7 +262,7 @@ func TestArtifactValidation(t *testing.T) {
 				Status:     models.PendingBackupStatus,
 				Mode:       models.Snapshot,
 			},
-			errorMsg: "service_id shouldn't be empty: invalid argument",
+			errorMsg: "invalid argument: service_id shouldn't be empty",
 		},
 		{
 			name: "empty backup mode",
@@ -275,7 +275,7 @@ func TestArtifactValidation(t *testing.T) {
 				DataModel:  models.PhysicalDataModel,
 				Status:     models.PendingBackupStatus,
 			},
-			errorMsg: "empty backup mode: invalid argument",
+			errorMsg: "invalid argument: empty backup mode",
 		},
 		{
 			name: "empty data model",
@@ -288,7 +288,7 @@ func TestArtifactValidation(t *testing.T) {
 				Status:     models.PendingBackupStatus,
 				Mode:       models.Snapshot,
 			},
-			errorMsg: "empty data model: invalid argument",
+			errorMsg: "invalid argument: empty data model",
 		},
 		{
 			name: "invalid data model",
@@ -301,7 +301,7 @@ func TestArtifactValidation(t *testing.T) {
 				Status:     models.PendingBackupStatus,
 				Mode:       models.Snapshot,
 			},
-			errorMsg: "invalid data model 'invalid': invalid argument",
+			errorMsg: "invalid argument: invalid data model 'invalid'",
 		},
 		{
 			name: "invalid status",
@@ -314,7 +314,7 @@ func TestArtifactValidation(t *testing.T) {
 				Status:     models.BackupStatus("invalid"),
 				Mode:       models.Snapshot,
 			},
-			errorMsg: "invalid status 'invalid': invalid argument",
+			errorMsg: "invalid argument: invalid status 'invalid'",
 		},
 		{
 			name: "invalid mode",
@@ -327,7 +327,7 @@ func TestArtifactValidation(t *testing.T) {
 				Status:     models.PendingBackupStatus,
 				Mode:       models.BackupMode("invalid"),
 			},
-			errorMsg: "invalid backup mode 'invalid': invalid argument",
+			errorMsg: "invalid argument: invalid backup mode 'invalid'",
 		},
 	}
 

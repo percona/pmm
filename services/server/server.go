@@ -498,8 +498,6 @@ func (s *Server) GetSettings(ctx context.Context, req *serverpb.GetSettingsReque
 func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverpb.ChangeSettingsRequest) error {
 	metricsRes := req.MetricsResolutions
 
-	// check request parameters
-
 	if req.AlertManagerRules != "" && req.RemoveAlertManagerRules {
 		return status.Error(codes.InvalidArgument, "Both alert_manager_rules and remove_alert_manager_rules are present.")
 	}
@@ -574,11 +572,10 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 	}
 
 	var newSettings, oldSettings *models.Settings
-	err := s.db.InTransaction(func(tx *reform.TX) error {
-		var e error
-
-		if oldSettings, e = models.GetSettings(tx); e != nil {
-			return errors.WithStack(e)
+	errTX := s.db.InTransaction(func(tx *reform.TX) error {
+		var err error
+		if oldSettings, err = models.GetSettings(tx); err != nil {
+			return errors.WithStack(err)
 		}
 
 		metricsRes := req.MetricsResolutions
@@ -641,32 +638,38 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 			}
 		}
 
-		if newSettings, e = models.UpdateSettings(tx, settingsParams); e != nil {
-			return status.Error(codes.InvalidArgument, e.Error())
+		var errInvalidArgument *models.ErrInvalidArgument
+		newSettings, err = models.UpdateSettings(tx, settingsParams)
+		switch {
+		case err == nil:
+		case errors.As(err, &errInvalidArgument):
+			return status.Error(codes.InvalidArgument, fmt.Sprintf("Invalid argument: %s.", errInvalidArgument.Details))
+		default:
+			return errors.WithStack(err)
 		}
 
 		// absent value means "do not change"
 		if req.SshKey != "" {
-			if e = s.writeSSHKey(req.SshKey); e != nil {
-				return errors.WithStack(e)
+			if err = s.writeSSHKey(req.SshKey); err != nil {
+				return errors.WithStack(err)
 			}
 		}
 
 		// absent value means "do not change"
 		if req.AlertManagerRules != "" {
-			if e = s.vmalertExternalRules.WriteRules(req.AlertManagerRules); e != nil {
-				return errors.WithStack(e)
+			if err = s.vmalertExternalRules.WriteRules(req.AlertManagerRules); err != nil {
+				return errors.WithStack(err)
 			}
 		}
 		if req.RemoveAlertManagerRules {
-			if e = s.vmalertExternalRules.RemoveRulesFile(); e != nil && !os.IsNotExist(e) {
-				return errors.WithStack(e)
+			if err = s.vmalertExternalRules.RemoveRulesFile(); err != nil && !os.IsNotExist(err) {
+				return errors.WithStack(err)
 			}
 		}
 		return nil
 	})
-	if err != nil {
-		return nil, err
+	if errTX != nil {
+		return nil, errTX
 	}
 
 	if err := s.UpdateConfigurations(); err != nil {
@@ -697,8 +700,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 	if !oldSettings.SaaS.STTEnabled && newSettings.SaaS.STTEnabled {
 		go func() {
 			// Start all checks from all groups.
-			err = s.checksService.StartChecks(context.Background(), "", nil)
-			if err != nil {
+			if err := s.checksService.StartChecks(context.Background(), "", nil); err != nil {
 				s.l.Error(err)
 			}
 		}()

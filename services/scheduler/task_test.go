@@ -89,7 +89,7 @@ func TestValidation(t *testing.T) {
 					DataModel:  "",
 					Mode:       models.Snapshot,
 				},
-				errMsg: "empty data model: invalid argument",
+				errMsg: "invalid argument: empty data model",
 			},
 			{
 				name: "empty mode",
@@ -100,7 +100,7 @@ func TestValidation(t *testing.T) {
 					DataModel:  models.PhysicalDataModel,
 					Mode:       "",
 				},
-				errMsg: "empty backup mode: invalid argument",
+				errMsg: "invalid argument: empty backup mode",
 			},
 			{
 				name: "invalid data model",
@@ -111,7 +111,7 @@ func TestValidation(t *testing.T) {
 					DataModel:  "invalid",
 					Mode:       models.Snapshot,
 				},
-				errMsg: "invalid data model 'invalid': invalid argument",
+				errMsg: "invalid argument: invalid data model 'invalid'",
 			},
 			{
 				name: "invalid backup mode",
@@ -122,7 +122,7 @@ func TestValidation(t *testing.T) {
 					DataModel:  models.PhysicalDataModel,
 					Mode:       "invalid",
 				},
-				errMsg: "invalid backup mode 'invalid': invalid argument",
+				errMsg: "invalid argument: invalid backup mode 'invalid'",
 			},
 			{
 				name: "unsupported data model",
@@ -247,7 +247,7 @@ func TestValidation(t *testing.T) {
 					DataModel:  "",
 					Mode:       models.Snapshot,
 				},
-				errMsg: "empty data model: invalid argument",
+				errMsg: "invalid argument: empty data model",
 			},
 			{
 				name: "empty mode",
@@ -258,7 +258,7 @@ func TestValidation(t *testing.T) {
 					DataModel:  models.PhysicalDataModel,
 					Mode:       "",
 				},
-				errMsg: "empty backup mode: invalid argument",
+				errMsg: "invalid argument: empty backup mode",
 			},
 			{
 				name: "invalid data model",
@@ -269,7 +269,7 @@ func TestValidation(t *testing.T) {
 					DataModel:  "invalid",
 					Mode:       models.Snapshot,
 				},
-				errMsg: "invalid data model 'invalid': invalid argument",
+				errMsg: "invalid argument: invalid data model 'invalid'",
 			},
 			{
 				name: "invalid backup mode",
@@ -280,7 +280,7 @@ func TestValidation(t *testing.T) {
 					DataModel:  models.LogicalDataModel,
 					Mode:       "invalid",
 				},
-				errMsg: "invalid backup mode 'invalid': invalid argument",
+				errMsg: "invalid argument: invalid backup mode 'invalid'",
 			},
 			{
 				name: "unsupported data model",

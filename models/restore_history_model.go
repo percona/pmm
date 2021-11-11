@@ -19,7 +19,6 @@ package models
 import (
 	"time"
 
-	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 )
 
@@ -42,7 +41,7 @@ func (rs RestoreStatus) Validate() error {
 	case SuccessRestoreStatus:
 	case ErrorRestoreStatus:
 	default:
-		return errors.Wrapf(ErrInvalidArgument, "invalid status '%s'", rs)
+		return NewInvalidArgumentError("invalid status %q", rs)
 	}
 
 	return nil

@@ -203,7 +203,7 @@ func TestSoftwareVersionsParamsValidation(t *testing.T) {
 				SoftwareVersions: []models.SoftwareVersion{},
 				NextCheckAt:      time.Now().UTC().Truncate(time.Second),
 			},
-			errorMsg: "service_id shouldn't be empty: invalid argument",
+			errorMsg: "invalid argument: service_id shouldn't be empty",
 		},
 		{
 			name: "invalid service type",
@@ -213,7 +213,7 @@ func TestSoftwareVersionsParamsValidation(t *testing.T) {
 				SoftwareVersions: []models.SoftwareVersion{},
 				NextCheckAt:      time.Now().UTC().Truncate(time.Second),
 			},
-			errorMsg: "invalid service type \"invalid\": invalid argument",
+			errorMsg: "invalid argument: invalid service type \"invalid\"",
 		},
 		{
 			name: "invalid software name",
@@ -223,7 +223,7 @@ func TestSoftwareVersionsParamsValidation(t *testing.T) {
 				SoftwareVersions: []models.SoftwareVersion{{Name: "invalid", Version: "8.0.0"}},
 				NextCheckAt:      time.Now().UTC().Truncate(time.Second),
 			},
-			errorMsg: "invalid software name \"invalid\": invalid argument",
+			errorMsg: "invalid argument: invalid software name \"invalid\"",
 		},
 		{
 			name: "empty software version",
@@ -233,7 +233,7 @@ func TestSoftwareVersionsParamsValidation(t *testing.T) {
 				SoftwareVersions: []models.SoftwareVersion{{Name: models.MysqldSoftwareName}},
 				NextCheckAt:      time.Now().UTC().Truncate(time.Second),
 			},
-			errorMsg: "empty version for software name \"mysqld\": invalid argument",
+			errorMsg: "invalid argument: empty version for software name \"mysqld\"",
 		},
 	}
 

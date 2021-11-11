@@ -30,9 +30,21 @@ import (
 var (
 	// ErrNotFound returned when entity is not found.
 	ErrNotFound = errors.New("not found")
-	// ErrInvalidArgument returned when some passed argument is invalid.
-	ErrInvalidArgument = errors.New("invalid argument")
 )
+
+// ErrInvalidArgument returned when some passed argument is invalid.
+type ErrInvalidArgument struct {
+	Details string
+}
+
+func (e *ErrInvalidArgument) Error() string {
+	return "invalid argument: " + e.Details
+}
+
+// NewInvalidArgumentError creates ErrInvalidArgument with given formatting.
+func NewInvalidArgumentError(format string, a ...interface{}) *ErrInvalidArgument {
+	return &ErrInvalidArgument{Details: fmt.Sprintf(format, a...)}
+}
 
 // ArtifactFilters represents filters for artifacts list.
 type ArtifactFilters struct {
@@ -186,16 +198,16 @@ type CreateArtifactParams struct {
 // Validate validates params used for creating an artifact entry.
 func (p *CreateArtifactParams) Validate() error {
 	if p.Name == "" {
-		return errors.Wrap(ErrInvalidArgument, "name shouldn't be empty")
+		return NewInvalidArgumentError("name shouldn't be empty")
 	}
 	if p.Vendor == "" {
-		return errors.Wrap(ErrInvalidArgument, "vendor shouldn't be empty")
+		return NewInvalidArgumentError("vendor shouldn't be empty")
 	}
 	if p.LocationID == "" {
-		return errors.Wrap(ErrInvalidArgument, "location_id shouldn't be empty")
+		return NewInvalidArgumentError("location_id shouldn't be empty")
 	}
 	if p.ServiceID == "" {
-		return errors.Wrap(ErrInvalidArgument, "service_id shouldn't be empty")
+		return NewInvalidArgumentError("service_id shouldn't be empty")
 	}
 
 	if err := p.Mode.Validate(); err != nil {
