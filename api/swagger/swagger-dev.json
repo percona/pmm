@@ -27171,8 +27171,8 @@
                             "type": "string",
                             "x-order": 2
                           },
-                          "comment": {
-                            "description": "Comment.",
+                          "name": {
+                            "description": "Rule name.",
                             "type": "string",
                             "x-order": 3
                           },
@@ -28679,8 +28679,8 @@
                   "type": "boolean",
                   "x-order": 1
                 },
-                "comment": {
-                  "description": "Rule comment.",
+                "name": {
+                  "description": "Rule name.",
                   "type": "string",
                   "x-order": 2
                 },
@@ -28994,8 +28994,8 @@
                         "type": "string",
                         "x-order": 2
                       },
-                      "comment": {
-                        "description": "Comment.",
+                      "name": {
+                        "description": "Rule name.",
                         "type": "string",
                         "x-order": 3
                       },

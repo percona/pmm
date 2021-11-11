@@ -68,8 +68,8 @@ message Rule {
   bool disabled = 2;
   // Rule human-readable summary.
   string summary = 3;
-  // Comment.
-  string comment = 4;
+  // Rule name.
+  string name = 4;
   // Expression template.
   string expr_template = 5;
   // Expression filled with parameters.
@@ -116,8 +116,8 @@ message CreateAlertRuleRequest {
   string template_name = 1;
   // New rule status.
   bool disabled = 2;
-  // Rule comment.
-  string comment = 3;
+  // Rule name.
+  string name = 3;
   // Rule parameters. All template parameters should be set.
   repeated ParamValue params = 4;
   // Rule duration. Should be set.

@@ -380,8 +380,8 @@ type AlertsItems0Rule struct {
 	// Rule human-readable summary.
 	Summary string `json:"summary,omitempty"`
 
-	// Comment.
-	Comment string `json:"comment,omitempty"`
+	// Rule name.
+	Name string `json:"name,omitempty"`
 
 	// Expression template.
 	ExprTemplate string `json:"expr_template,omitempty"`
