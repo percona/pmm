@@ -130,8 +130,8 @@ type CreateAlertRuleBody struct {
 	// New rule status.
 	Disabled bool `json:"disabled,omitempty"`
 
-	// Rule human-readable summary.
-	Summary string `json:"summary,omitempty"`
+	// Rule comment.
+	Comment string `json:"comment,omitempty"`
 
 	// Rule parameters. All template parameters should be set.
 	Params []*ParamsItems0 `json:"params"`

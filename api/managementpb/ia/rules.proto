@@ -116,8 +116,8 @@ message CreateAlertRuleRequest {
   string template_name = 1;
   // New rule status.
   bool disabled = 2;
-  // Rule human-readable summary.
-  string summary = 3;
+  // Rule comment.
+  string comment = 3;
   // Rule parameters. All template parameters should be set.
   repeated ParamValue params = 4;
   // Rule duration. Should be set.

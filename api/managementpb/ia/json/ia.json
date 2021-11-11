@@ -1638,6 +1638,11 @@
                   },
                   "x-order": 8
                 },
+                "comment": {
+                  "description": "Rule comment.",
+                  "type": "string",
+                  "x-order": 2
+                },
                 "custom_labels": {
                   "description": "All custom labels to add or remove (with empty values) to default labels from template.",
                   "type": "object",
@@ -1746,11 +1751,6 @@
                     "SEVERITY_DEBUG"
                   ],
                   "x-order": 5
-                },
-                "summary": {
-                  "description": "Rule human-readable summary.",
-                  "type": "string",
-                  "x-order": 2
                 },
                 "template_name": {
                   "description": "Template name.",

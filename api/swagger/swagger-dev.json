@@ -28679,8 +28679,8 @@
                   "type": "boolean",
                   "x-order": 1
                 },
-                "summary": {
-                  "description": "Rule human-readable summary.",
+                "comment": {
+                  "description": "Rule comment.",
                   "type": "string",
                   "x-order": 2
                 },
