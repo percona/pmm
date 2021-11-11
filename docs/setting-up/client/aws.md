@@ -212,7 +212,7 @@ For PostgreSQL, use the same method described above.
 
 3. Follow steps 4 to 6 as in the previous section. Fill the form and remember to select `PG Stat Statement` to enable Query Analytics.
 
-    To get queries for Query Analytics, you need to enable `pg_stat_statements` in your instance by running:
+    To get queries for Query Analytics, you need to enable `pg_stat_statements` in `postgres` database of your instance by running:
 
     ```sql
     CREATE EXTENSION pg_stat_statements SCHEMA public;
