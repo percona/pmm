@@ -127,11 +127,11 @@ type CreateAlertRuleBody struct {
 	// Template name.
 	TemplateName string `json:"template_name,omitempty"`
 
-	// New rule status.
-	Disabled bool `json:"disabled,omitempty"`
-
 	// Rule name.
 	Name string `json:"name,omitempty"`
+
+	// New rule status.
+	Disabled bool `json:"disabled,omitempty"`
 
 	// Rule parameters. All template parameters should be set.
 	Params []*ParamsItems0 `json:"params"`

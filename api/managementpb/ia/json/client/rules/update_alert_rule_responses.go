@@ -125,6 +125,9 @@ type UpdateAlertRuleBody struct {
 	// Rule ID.
 	RuleID string `json:"rule_id,omitempty"`
 
+	// Rule name. Should be set.
+	Name string `json:"name,omitempty"`
+
 	// New rule status. Should be set.
 	Disabled bool `json:"disabled,omitempty"`
 
@@ -146,9 +149,6 @@ type UpdateAlertRuleBody struct {
 
 	// Channels. Should be set.
 	ChannelIds []string `json:"channel_ids"`
-
-	// Rule human-readable summary. Should be set.
-	Summary string `json:"summary,omitempty"`
 }
 
 // Validate validates this update alert rule body

@@ -320,7 +320,7 @@
                           "disabled": {
                             "description": "True if that rule is disabled.",
                             "type": "boolean",
-                            "x-order": 2
+                            "x-order": 4
                           },
                           "expr": {
                             "description": "Expression filled with parameters.",
@@ -378,7 +378,7 @@
                           "name": {
                             "description": "Rule name.",
                             "type": "string",
-                            "x-order": 4
+                            "x-order": 1
                           },
                           "params_definitions": {
                             "description": "Expression parameters definitions.",
@@ -568,12 +568,12 @@
                           "summary": {
                             "description": "Rule human-readable summary.",
                             "type": "string",
-                            "x-order": 3
+                            "x-order": 2
                           },
                           "template_name": {
                             "description": "Template used for this rule.",
                             "type": "string",
-                            "x-order": 1
+                            "x-order": 3
                           }
                         },
                         "x-order": 5
@@ -1654,7 +1654,7 @@
                 "disabled": {
                   "description": "New rule status.",
                   "type": "boolean",
-                  "x-order": 1
+                  "x-order": 2
                 },
                 "filters": {
                   "description": "Filters. Should be set.",
@@ -1694,7 +1694,7 @@
                 "name": {
                   "description": "Rule name.",
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 },
                 "params": {
                   "description": "Rule parameters. All template parameters should be set.",
@@ -2177,7 +2177,7 @@
                       "disabled": {
                         "description": "True if that rule is disabled.",
                         "type": "boolean",
-                        "x-order": 2
+                        "x-order": 4
                       },
                       "expr": {
                         "description": "Expression filled with parameters.",
@@ -2235,7 +2235,7 @@
                       "name": {
                         "description": "Rule name.",
                         "type": "string",
-                        "x-order": 4
+                        "x-order": 1
                       },
                       "params_definitions": {
                         "description": "Expression parameters definitions.",
@@ -2425,12 +2425,12 @@
                       "summary": {
                         "description": "Rule human-readable summary.",
                         "type": "string",
-                        "x-order": 3
+                        "x-order": 2
                       },
                       "template_name": {
                         "description": "Template used for this rule.",
                         "type": "string",
-                        "x-order": 1
+                        "x-order": 3
                       }
                     }
                   },
@@ -2605,7 +2605,7 @@
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 7
+                  "x-order": 8
                 },
                 "custom_labels": {
                   "description": "All custom labels to add or remove (with empty values) to default labels from template.",
@@ -2613,12 +2613,12 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 5
+                  "x-order": 6
                 },
                 "disabled": {
                   "description": "New rule status. Should be set.",
                   "type": "boolean",
-                  "x-order": 1
+                  "x-order": 2
                 },
                 "filters": {
                   "description": "Filters. Should be set.",
@@ -2648,12 +2648,17 @@
                       }
                     }
                   },
-                  "x-order": 6
+                  "x-order": 7
                 },
                 "for": {
                   "description": "Rule duration. Should be set.",
                   "type": "string",
-                  "x-order": 3
+                  "x-order": 4
+                },
+                "name": {
+                  "description": "Rule name. Should be set.",
+                  "type": "string",
+                  "x-order": 1
                 },
                 "params": {
                   "description": "Rule parameters. All template parameters should be set.",
@@ -2697,7 +2702,7 @@
                       }
                     }
                   },
-                  "x-order": 2
+                  "x-order": 3
                 },
                 "rule_id": {
                   "description": "Rule ID.",
@@ -2719,12 +2724,7 @@
                     "SEVERITY_INFO",
                     "SEVERITY_DEBUG"
                   ],
-                  "x-order": 4
-                },
-                "summary": {
-                  "description": "Rule human-readable summary. Should be set.",
-                  "type": "string",
-                  "x-order": 8
+                  "x-order": 5
                 }
               }
             }

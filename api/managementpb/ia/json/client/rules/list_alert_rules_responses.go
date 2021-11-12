@@ -422,17 +422,17 @@ type RulesItems0 struct {
 	// Rule ID.
 	RuleID string `json:"rule_id,omitempty"`
 
+	// Rule name.
+	Name string `json:"name,omitempty"`
+
+	// Rule human-readable summary.
+	Summary string `json:"summary,omitempty"`
+
 	// Template used for this rule.
 	TemplateName string `json:"template_name,omitempty"`
 
 	// True if that rule is disabled.
 	Disabled bool `json:"disabled,omitempty"`
-
-	// Rule human-readable summary.
-	Summary string `json:"summary,omitempty"`
-
-	// Rule name.
-	Name string `json:"name,omitempty"`
 
 	// Expression template.
 	ExprTemplate string `json:"expr_template,omitempty"`
