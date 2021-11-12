@@ -64,40 +64,42 @@ message ParamValue {
 message Rule {
   // Rule ID.
   string rule_id = 1;
+  // Template used for this rule.
+  string template_name = 2;
   // True if that rule is disabled.
-  bool disabled = 2;
+  bool disabled = 3;
   // Rule human-readable summary.
-  string summary = 3;
+  string summary = 4;
   // Rule name.
-  string name = 4;
+  string name = 5;
   // Expression template.
-  string expr_template = 5;
+  string expr_template = 6;
   // Expression filled with parameters.
-  string expr = 6;
+  string expr = 7;
   // Expression parameters definitions.
-  repeated ParamDefinition params_definitions = 7;
+  repeated ParamDefinition params_definitions = 8;
   // Expression parameters values.
-  repeated ParamValue params_values = 8;
+  repeated ParamValue params_values = 9;
   // Default for duration.
-  google.protobuf.Duration default_for = 9;
+  google.protobuf.Duration default_for = 10;
   // For duration.
-  google.protobuf.Duration for = 10;
+  google.protobuf.Duration for = 11;
   // Default severity.
-  management.Severity default_severity = 11;
+  management.Severity default_severity = 12;
   // Severity.
-  management.Severity severity = 12;
+  management.Severity severity = 13;
   // Custom labels.
-  map<string, string> custom_labels = 13;
+  map<string, string> custom_labels = 14;
   // Labels.
-  map<string, string> labels = 14;
+  map<string, string> labels = 15;
   // Annotations.
-  map<string, string> annotations = 15;
+  map<string, string> annotations = 16;
   // Filters.
-  repeated Filter filters = 16;
+  repeated Filter filters = 17;
   // Channels.
-  repeated Channel channels = 17;
+  repeated Channel channels = 18;
   // Rule creation time.
-  google.protobuf.Timestamp created_at = 18;
+  google.protobuf.Timestamp created_at = 19;
 }
 
 message ListAlertRulesRequest {

@@ -374,6 +374,9 @@ type AlertsItems0Rule struct {
 	// Rule ID.
 	RuleID string `json:"rule_id,omitempty"`
 
+	// Template used for this rule.
+	TemplateName string `json:"template_name,omitempty"`
+
 	// True if that rule is disabled.
 	Disabled bool `json:"disabled,omitempty"`
 
