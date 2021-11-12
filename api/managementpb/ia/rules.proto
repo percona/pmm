@@ -54,7 +54,7 @@ message ParamValue {
     // Bool value.
     bool bool = 3;
     // Float value.
-    float float = 4;
+    double float = 4;
     // String value.
     string string = 5;
   }

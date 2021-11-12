@@ -412,7 +412,7 @@
                                     "default": {
                                       "description": "Default value if has_default is true.",
                                       "type": "number",
-                                      "format": "float",
+                                      "format": "double",
                                       "x-order": 1
                                     },
                                     "has_default": {
@@ -433,13 +433,13 @@
                                     "max": {
                                       "description": "Maximal valid value (inclusive) if has_max is true.",
                                       "type": "number",
-                                      "format": "float",
+                                      "format": "double",
                                       "x-order": 5
                                     },
                                     "min": {
                                       "description": "Minimal valid value (inclusive) if has_min is true.",
                                       "type": "number",
-                                      "format": "float",
+                                      "format": "double",
                                       "x-order": 3
                                     }
                                   },
@@ -514,7 +514,7 @@
                                 "float": {
                                   "description": "Float value.",
                                   "type": "number",
-                                  "format": "float",
+                                  "format": "double",
                                   "x-order": 3
                                 },
                                 "name": {
@@ -1711,7 +1711,7 @@
                       "float": {
                         "description": "Float value.",
                         "type": "number",
-                        "format": "float",
+                        "format": "double",
                         "x-order": 3
                       },
                       "name": {
@@ -2269,7 +2269,7 @@
                                 "default": {
                                   "description": "Default value if has_default is true.",
                                   "type": "number",
-                                  "format": "float",
+                                  "format": "double",
                                   "x-order": 1
                                 },
                                 "has_default": {
@@ -2290,13 +2290,13 @@
                                 "max": {
                                   "description": "Maximal valid value (inclusive) if has_max is true.",
                                   "type": "number",
-                                  "format": "float",
+                                  "format": "double",
                                   "x-order": 5
                                 },
                                 "min": {
                                   "description": "Minimal valid value (inclusive) if has_min is true.",
                                   "type": "number",
-                                  "format": "float",
+                                  "format": "double",
                                   "x-order": 3
                                 }
                               },
@@ -2371,7 +2371,7 @@
                             "float": {
                               "description": "Float value.",
                               "type": "number",
-                              "format": "float",
+                              "format": "double",
                               "x-order": 3
                             },
                             "name": {
@@ -2670,7 +2670,7 @@
                       "float": {
                         "description": "Float value.",
                         "type": "number",
-                        "format": "float",
+                        "format": "double",
                         "x-order": 3
                       },
                       "name": {
@@ -3048,7 +3048,7 @@
                                 "default": {
                                   "description": "Default value if has_default is true.",
                                   "type": "number",
-                                  "format": "float",
+                                  "format": "double",
                                   "x-order": 1
                                 },
                                 "has_default": {
@@ -3069,13 +3069,13 @@
                                 "max": {
                                   "description": "Maximal valid value (inclusive) if has_max is true.",
                                   "type": "number",
-                                  "format": "float",
+                                  "format": "double",
                                   "x-order": 5
                                 },
                                 "min": {
                                   "description": "Minimal valid value (inclusive) if has_min is true.",
                                   "type": "number",
-                                  "format": "float",
+                                  "format": "double",
                                   "x-order": 3
                                 }
                               },

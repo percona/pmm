@@ -26,15 +26,15 @@ message FloatParamDefinition {
   // True if default value is set.
   bool has_default = 1;
   // Default value if has_default is true.
-  float default = 2;
+  double default = 2;
   // True if minimal valid value is set.
   bool has_min = 3;
   // Minimal valid value (inclusive) if has_min is true.
-  float min = 4;
+  double min = 4;
   // True if maximal valid value is set.
   bool has_max = 5;
   // Maximal valid value (inclusive) if has_max is true.
-  float max = 6;
+  double max = 6;
 }
 
 // StringParamDefinition represents string parameter's default value.

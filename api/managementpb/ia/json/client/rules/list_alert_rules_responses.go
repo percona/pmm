@@ -1716,19 +1716,19 @@ type RulesItems0ParamsDefinitionsItems0Float struct {
 	HasDefault bool `json:"has_default,omitempty"`
 
 	// Default value if has_default is true.
-	Default float32 `json:"default,omitempty"`
+	Default float64 `json:"default,omitempty"`
 
 	// True if minimal valid value is set.
 	HasMin bool `json:"has_min,omitempty"`
 
 	// Minimal valid value (inclusive) if has_min is true.
-	Min float32 `json:"min,omitempty"`
+	Min float64 `json:"min,omitempty"`
 
 	// True if maximal valid value is set.
 	HasMax bool `json:"has_max,omitempty"`
 
 	// Maximal valid value (inclusive) if has_max is true.
-	Max float32 `json:"max,omitempty"`
+	Max float64 `json:"max,omitempty"`
 }
 
 // Validate validates this rules items0 params definitions items0 float
@@ -1805,7 +1805,7 @@ type RulesItems0ParamsValuesItems0 struct {
 	Bool bool `json:"bool,omitempty"`
 
 	// Float value.
-	Float float32 `json:"float,omitempty"`
+	Float float64 `json:"float,omitempty"`
 
 	// String value.
 	String string `json:"string,omitempty"`

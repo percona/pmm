@@ -563,7 +563,7 @@ type ParamsItems0 struct {
 	Bool bool `json:"bool,omitempty"`
 
 	// Float value.
-	Float float32 `json:"float,omitempty"`
+	Float float64 `json:"float,omitempty"`
 
 	// String value.
 	String string `json:"string,omitempty"`
