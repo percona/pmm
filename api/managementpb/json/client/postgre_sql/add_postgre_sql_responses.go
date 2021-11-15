@@ -143,6 +143,9 @@ type AddPostgreSQLBody struct {
 	// Port is required when the address present.
 	Port int64 `json:"port,omitempty"`
 
+	// Database name.
+	Database string `json:"database,omitempty"`
+
 	// Service Access socket.
 	// Address (and port) or socket is required.
 	Socket string `json:"socket,omitempty"`
@@ -934,6 +937,9 @@ type AddPostgreSQLOKBodyService struct {
 
 	// Unique across all Services user-defined name.
 	ServiceName string `json:"service_name,omitempty"`
+
+	// Database name.
+	DatabaseName string `json:"database_name,omitempty"`
 
 	// Node identifier where this instance runs.
 	NodeID string `json:"node_id,omitempty"`
