@@ -35,6 +35,8 @@ message AddPostgreSQLRequest {
   // Service Access port.
   // Port is required when the address present.
   uint32 port = 6;
+  // Database name.
+  string database = 27;
   // Service Access socket.
   // Address (and port) or socket is required.
   string socket = 18;
