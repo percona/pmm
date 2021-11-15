@@ -141,8 +141,10 @@ func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1
 
 // RegisterKubernetesCluster registers an existing Kubernetes cluster in PMM.
 func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *dbaasv1beta1.RegisterKubernetesClusterRequest) (*dbaasv1beta1.RegisterKubernetesClusterResponse, error) {
+	var clusterInfo *dbaascontrollerv1beta1.CheckKubernetesClusterConnectionResponse
 	err := k.db.InTransaction(func(t *reform.TX) error {
-		_, e := k.dbaasClient.CheckKubernetesClusterConnection(ctx, req.KubeAuth.Kubeconfig)
+		var e error
+		clusterInfo, e = k.dbaasClient.CheckKubernetesClusterConnection(ctx, req.KubeAuth.Kubeconfig)
 		if e != nil {
 			return e
 		}
@@ -167,7 +169,7 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 		return nil, err
 	}
 
-	if pxcOperatorVersion != nil {
+	if pxcOperatorVersion != nil && (clusterInfo.Operators == nil || clusterInfo.Operators.XtradbOperatorVersion == "") {
 		_, err = k.dbaasClient.InstallXtraDBOperator(ctx, &dbaascontrollerv1beta1.InstallXtraDBOperatorRequest{
 			KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
 				Kubeconfig: req.KubeAuth.Kubeconfig,
@@ -178,7 +180,7 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 			return nil, err
 		}
 	}
-	if psmdbOperatorVersion != nil {
+	if psmdbOperatorVersion != nil && (clusterInfo.Operators == nil || clusterInfo.Operators.PsmdbOperatorVersion == "") {
 		_, err = k.dbaasClient.InstallPSMDBOperator(ctx, &dbaascontrollerv1beta1.InstallPSMDBOperatorRequest{
 			KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
 				Kubeconfig: req.KubeAuth.Kubeconfig,
