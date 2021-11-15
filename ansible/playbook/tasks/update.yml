@@ -34,6 +34,11 @@
         is_docker: True
       when: is_docker is undefined
   tasks:
+    - name: Copy grafana datasources provisioning files
+      copy:
+        src: datasources.yml
+        dest: /usr/share/grafana/conf/provisioning/datasources/default.yml
+
     # Replace forking type with simple. New config will be applied after next reboot.
     - name: Configure systemd
       when: not is_docker
