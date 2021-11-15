@@ -243,7 +243,7 @@ func TestServerExitsWithUnknownErrorIntercepted(t *testing.T) {
 func TestAgentClosesStream(t *testing.T) {
 	connect := func(ch *Channel) error {
 		resp, err := ch.SendAndWaitResponse(new(agentpb.Ping))
-		require.NoError(t, err)
+		assert.Errorf(t, err, "channel is closed")
 		assert.Nil(t, resp)
 
 		assert.Nil(t, <-ch.Requests())
@@ -264,7 +264,7 @@ func TestAgentClosesStream(t *testing.T) {
 func TestAgentClosesConnection(t *testing.T) {
 	connect := func(ch *Channel) error {
 		resp, err := ch.SendAndWaitResponse(new(agentpb.Ping))
-		require.NoError(t, err)
+		assert.Errorf(t, err, "channel is closed")
 		assert.Nil(t, resp)
 
 		assert.Nil(t, <-ch.Requests())

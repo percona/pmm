@@ -17,9 +17,12 @@
 package agents
 
 import (
+	"github.com/hashicorp/go-version"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
 )
+
+var pmmAgentMinVersionForSoftwareVersions = version.Must(version.NewVersion("2.22"))
 
 // VersionerService provides methods for retrieving versions of different software.
 type VersionerService struct {
@@ -103,6 +106,11 @@ func convertSoftwares(softwares []Software) ([]*agentpb.GetVersionsRequest_Softw
 
 // GetVersions retrieves software versions.
 func (s *VersionerService) GetVersions(pmmAgentID string, softwares []Software) ([]Version, error) {
+	if err := PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+		"versions retrieving", pmmAgentMinVersionForSoftwareVersions); err != nil {
+		return nil, err
+	}
+
 	agent, err := s.r.get(pmmAgentID)
 	if err != nil {
 		return nil, errors.WithStack(err)

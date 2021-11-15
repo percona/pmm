@@ -164,7 +164,11 @@ func (c *Channel) SendAndWaitResponse(payload agentpb.ServerRequestPayload) (age
 		Id:      id,
 		Payload: payload.ServerMessageRequestPayload(),
 	})
-	resp := <-ch
+	resp, ok := <-ch
+	if !ok {
+		return nil, errors.New("channel is closed")
+	}
+
 	return resp.Payload, resp.Error
 }
 
