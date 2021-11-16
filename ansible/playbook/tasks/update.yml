@@ -34,6 +34,11 @@
         is_docker: True
       when: is_docker is undefined
   tasks:
+    - name: Copy grafana plugin provisioning files
+      copy:
+        src: plugins.yml
+        dest: /usr/share/grafana/conf/provisioning/plugins/default.yml
+
     - name: Copy grafana datasources provisioning files
       copy:
         src: datasources.yml
@@ -246,11 +251,6 @@
         directory_mode: yes
         mode: '0775'
       when: grafanaPluginFolderEmpty.matched == 0
-
-    # set folder names of panels to format that's supported by grafana-cli
-    - name: Rename Grafana community panels
-      command: /usr/share/percona-dashboards/fix-panels.py
-      changed_when: False
 
     - name: Delete old folder for grafana plugins
       file:
