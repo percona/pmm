@@ -373,6 +373,7 @@ func TestRDSService(t *testing.T) {
 				Cluster:        "c-01",
 				ReplicationSet: "rs-01",
 				ServiceName:    "rds-postgresql",
+				DatabaseName:   "postgres",
 				CustomLabels: map[string]string{
 					"foo": "bar",
 				},

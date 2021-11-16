@@ -141,6 +141,7 @@ func ToAPIService(service *models.Service) (inventorypb.Service, error) {
 		return &inventorypb.PostgreSQLService{
 			ServiceId:      service.ServiceID,
 			ServiceName:    service.ServiceName,
+			DatabaseName:   service.DatabaseName,
 			NodeId:         service.NodeID,
 			Address:        pointer.GetString(service.Address),
 			Port:           uint32(pointer.GetUint16(service.Port)),

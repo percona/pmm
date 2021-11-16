@@ -44,6 +44,7 @@ type Service struct {
 	ServiceID      string      `reform:"service_id,pk"`
 	ServiceType    ServiceType `reform:"service_type"`
 	ServiceName    string      `reform:"service_name"`
+	DatabaseName   string      `reform:"database_name"`
 	NodeID         string      `reform:"node_id"`
 	Environment    string      `reform:"environment"`
 	Cluster        string      `reform:"cluster"`

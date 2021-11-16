@@ -650,6 +650,10 @@ var databaseSchema = [][]string{
 				WHERE job_id = j.id
 			);`,
 	},
+	51: {
+		`ALTER TABLE services
+			ADD COLUMN database_name VARCHAR NOT NULL DEFAULT ''`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

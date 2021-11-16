@@ -195,6 +195,7 @@ type AddDBMSServiceParams struct {
 	ReplicationSet string
 	CustomLabels   map[string]string
 	ExternalGroup  string
+	Database       string
 	Address        *string
 	Port           *uint16
 	Socket         *string
@@ -235,10 +236,19 @@ func AddNewService(q *reform.Querier, serviceType ServiceType, params *AddDBMSSe
 		return nil, err
 	}
 
+	databaseName := ""
+	if serviceType == PostgreSQLServiceType {
+		if params.Database == "" {
+			databaseName = "postgres"
+		} else {
+			databaseName = params.Database
+		}
+	}
 	row := &Service{
 		ServiceID:      id,
 		ServiceType:    serviceType,
 		ServiceName:    params.ServiceName,
+		DatabaseName:   databaseName,
 		NodeID:         params.NodeID,
 		Environment:    params.Environment,
 		Cluster:        params.Cluster,

@@ -31,6 +31,7 @@ func (v *serviceTableType) Columns() []string {
 		"service_id",
 		"service_type",
 		"service_name",
+		"database_name",
 		"node_id",
 		"environment",
 		"cluster",
@@ -69,6 +70,7 @@ var ServiceTable = &serviceTableType{
 			{Name: "ServiceID", Type: "string", Column: "service_id"},
 			{Name: "ServiceType", Type: "ServiceType", Column: "service_type"},
 			{Name: "ServiceName", Type: "string", Column: "service_name"},
+			{Name: "DatabaseName", Type: "string", Column: "database_name"},
 			{Name: "NodeID", Type: "string", Column: "node_id"},
 			{Name: "Environment", Type: "string", Column: "environment"},
 			{Name: "Cluster", Type: "string", Column: "cluster"},
@@ -88,21 +90,22 @@ var ServiceTable = &serviceTableType{
 
 // String returns a string representation of this struct or record.
 func (s Service) String() string {
-	res := make([]string, 14)
+	res := make([]string, 15)
 	res[0] = "ServiceID: " + reform.Inspect(s.ServiceID, true)
 	res[1] = "ServiceType: " + reform.Inspect(s.ServiceType, true)
 	res[2] = "ServiceName: " + reform.Inspect(s.ServiceName, true)
-	res[3] = "NodeID: " + reform.Inspect(s.NodeID, true)
-	res[4] = "Environment: " + reform.Inspect(s.Environment, true)
-	res[5] = "Cluster: " + reform.Inspect(s.Cluster, true)
-	res[6] = "ReplicationSet: " + reform.Inspect(s.ReplicationSet, true)
-	res[7] = "CustomLabels: " + reform.Inspect(s.CustomLabels, true)
-	res[8] = "ExternalGroup: " + reform.Inspect(s.ExternalGroup, true)
-	res[9] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
-	res[10] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
-	res[11] = "Address: " + reform.Inspect(s.Address, true)
-	res[12] = "Port: " + reform.Inspect(s.Port, true)
-	res[13] = "Socket: " + reform.Inspect(s.Socket, true)
+	res[3] = "DatabaseName: " + reform.Inspect(s.DatabaseName, true)
+	res[4] = "NodeID: " + reform.Inspect(s.NodeID, true)
+	res[5] = "Environment: " + reform.Inspect(s.Environment, true)
+	res[6] = "Cluster: " + reform.Inspect(s.Cluster, true)
+	res[7] = "ReplicationSet: " + reform.Inspect(s.ReplicationSet, true)
+	res[8] = "CustomLabels: " + reform.Inspect(s.CustomLabels, true)
+	res[9] = "ExternalGroup: " + reform.Inspect(s.ExternalGroup, true)
+	res[10] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
+	res[11] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
+	res[12] = "Address: " + reform.Inspect(s.Address, true)
+	res[13] = "Port: " + reform.Inspect(s.Port, true)
+	res[14] = "Socket: " + reform.Inspect(s.Socket, true)
 	return strings.Join(res, ", ")
 }
 
@@ -113,6 +116,7 @@ func (s *Service) Values() []interface{} {
 		s.ServiceID,
 		s.ServiceType,
 		s.ServiceName,
+		s.DatabaseName,
 		s.NodeID,
 		s.Environment,
 		s.Cluster,
@@ -134,6 +138,7 @@ func (s *Service) Pointers() []interface{} {
 		&s.ServiceID,
 		&s.ServiceType,
 		&s.ServiceName,
+		&s.DatabaseName,
 		&s.NodeID,
 		&s.Environment,
 		&s.Cluster,
