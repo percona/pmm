@@ -79,7 +79,6 @@ func TestSettings(t *testing.T) {
 					})
 					require.NoError(t, err)
 					assert.True(t, res.Payload.Settings.UpdatesDisabled)
-					assert.Empty(t, err)
 
 					resg, err := serverClient.Default.Server.GetSettings(nil)
 					require.NoError(t, err)
@@ -93,7 +92,6 @@ func TestSettings(t *testing.T) {
 					})
 					require.NoError(t, err)
 					assert.False(t, res.Payload.Settings.UpdatesDisabled)
-					assert.Empty(t, err)
 
 					resg, err = serverClient.Default.Server.GetSettings(nil)
 					require.NoError(t, err)
@@ -239,7 +237,6 @@ func TestSettings(t *testing.T) {
 				require.NoError(t, err)
 				assert.True(t, res.Payload.Settings.SttEnabled)
 				assert.True(t, res.Payload.Settings.TelemetryEnabled)
-				assert.Empty(t, err)
 
 				resg, err := serverClient.Default.Server.GetSettings(nil)
 				require.NoError(t, err)
@@ -257,9 +254,9 @@ func TestSettings(t *testing.T) {
 					},
 					Context: pmmapitests.Context,
 				})
-				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument,
-					`Invalid argument: cannot enable STT while disabling telemetry.`)
-				assert.Empty(t, res)
+				require.NoError(t, err)
+				assert.True(t, res.Payload.Settings.SttEnabled)
+				assert.False(t, res.Payload.Settings.TelemetryEnabled)
 			})
 
 			t.Run("DisableSTTAndEnableTelemetry", func(t *testing.T) {
@@ -275,7 +272,6 @@ func TestSettings(t *testing.T) {
 				require.NoError(t, err)
 				assert.False(t, res.Payload.Settings.SttEnabled)
 				assert.True(t, res.Payload.Settings.TelemetryEnabled)
-				assert.Empty(t, err)
 
 				resg, err := serverClient.Default.Server.GetSettings(nil)
 				require.NoError(t, err)
@@ -296,7 +292,6 @@ func TestSettings(t *testing.T) {
 				require.NoError(t, err)
 				assert.False(t, res.Payload.Settings.SttEnabled)
 				assert.False(t, res.Payload.Settings.TelemetryEnabled)
-				assert.Empty(t, err)
 
 				resg, err := serverClient.Default.Server.GetSettings(nil)
 				require.NoError(t, err)
@@ -324,9 +319,7 @@ func TestSettings(t *testing.T) {
 					Context: pmmapitests.Context,
 				})
 				require.NoError(t, err)
-
 				assert.True(t, res.Payload.Settings.SttEnabled)
-				assert.Empty(t, err)
 
 				resg, err := serverClient.Default.Server.GetSettings(nil)
 				require.NoError(t, err)
@@ -400,7 +393,6 @@ func TestSettings(t *testing.T) {
 				})
 				require.NoError(t, err)
 				assert.False(t, res.Payload.Settings.SttEnabled)
-				assert.Empty(t, err)
 
 				resg, err := serverClient.Default.Server.GetSettings(nil)
 				require.NoError(t, err)
@@ -420,7 +412,6 @@ func TestSettings(t *testing.T) {
 
 				require.NoError(t, err)
 				assert.True(t, res.Payload.Settings.SttEnabled)
-				assert.Empty(t, err)
 
 				resg, err := serverClient.Default.Server.GetSettings(nil)
 				require.NoError(t, err)
@@ -436,7 +427,6 @@ func TestSettings(t *testing.T) {
 					})
 					require.NoError(t, err)
 					assert.True(t, res.Payload.Settings.SttEnabled)
-					assert.Empty(t, err)
 
 					resg, err := serverClient.Default.Server.GetSettings(nil)
 					require.NoError(t, err)
@@ -451,9 +441,9 @@ func TestSettings(t *testing.T) {
 						},
 						Context: pmmapitests.Context,
 					})
-					pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument,
-						`Invalid argument: cannot disable telemetry while STT is enabled.`)
-					assert.Empty(t, res)
+					require.NoError(t, err)
+					assert.True(t, res.Payload.Settings.SttEnabled)
+					assert.False(t, res.Payload.Settings.TelemetryEnabled)
 				})
 			})
 
@@ -469,7 +459,6 @@ func TestSettings(t *testing.T) {
 
 				require.NoError(t, err)
 				assert.False(t, res.Payload.Settings.TelemetryEnabled)
-				assert.Empty(t, err)
 
 				resg, err := serverClient.Default.Server.GetSettings(nil)
 				require.NoError(t, err)
@@ -477,20 +466,22 @@ func TestSettings(t *testing.T) {
 				assert.False(t, resg.Payload.Settings.SttEnabled)
 
 				t.Run("EnableSTTWhileTelemetryDisabled", func(t *testing.T) {
+					defer restoreSettingsDefaults(t)
+
 					res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 						Body: server.ChangeSettingsBody{
 							EnableStt: true,
 						},
 						Context: pmmapitests.Context,
 					})
-					pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument,
-						`Invalid argument: cannot enable STT while telemetry is disabled.`)
-					assert.Empty(t, res)
+					require.NoError(t, err)
+					assert.True(t, res.Payload.Settings.SttEnabled)
+					assert.False(t, res.Payload.Settings.TelemetryEnabled)
 
 					resg, err := serverClient.Default.Server.GetSettings(nil)
 					require.NoError(t, err)
+					assert.True(t, resg.Payload.Settings.SttEnabled)
 					assert.False(t, resg.Payload.Settings.TelemetryEnabled)
-					assert.False(t, resg.Payload.Settings.SttEnabled)
 				})
 
 				t.Run("EnableTelemetryWhileItIsDisabled", func(t *testing.T) {

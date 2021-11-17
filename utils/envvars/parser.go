@@ -95,9 +95,6 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 			envSettings.DisableTelemetry, err = strconv.ParseBool(v)
 			if err != nil {
 				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
-			} else if envSettings.DisableTelemetry {
-				// special case
-				envSettings.DisableSTT = true
 			}
 		case "METRICS_RESOLUTION", "METRICS_RESOLUTION_HR":
 			if envSettings.MetricsResolutions.HR, err = parseStringDuration(v); err != nil {

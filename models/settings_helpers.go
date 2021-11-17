@@ -462,15 +462,6 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 }
 
 func validateSettingsConflicts(params *ChangeSettingsParams, settings *Settings) error {
-	if params.EnableSTT && !params.EnableTelemetry && settings.Telemetry.Disabled {
-		return errors.New("cannot enable STT while telemetry is disabled")
-	}
-	if params.EnableSTT && params.DisableTelemetry {
-		return errors.New("cannot enable STT while disabling telemetry")
-	}
-	if params.DisableTelemetry && !params.DisableSTT && settings.SaaS.STTEnabled {
-		return errors.New("cannot disable telemetry while STT is enabled")
-	}
 	if params.LogOut && (params.Email != "" || params.SessionID != "") {
 		return errors.New("cannot logout while updating Percona Platform user data")
 	}

@@ -44,7 +44,7 @@ func TestEnvVarValidator(t *testing.T) {
 		expectedEnvVars := &models.ChangeSettingsParams{
 			DataRetention:    72 * time.Hour,
 			DisableTelemetry: true,
-			DisableSTT:       true, // special case
+			DisableSTT:       false,
 			DisableUpdates:   true,
 			MetricsResolutions: models.MetricsResolutions{
 				HR: 5 * time.Minute,

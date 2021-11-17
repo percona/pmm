@@ -526,9 +526,6 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverp
 	if req.EnableTelemetry && s.envSettings.DisableTelemetry {
 		return status.Error(codes.FailedPrecondition, "Telemetry is disabled via DISABLE_TELEMETRY environment variable.")
 	}
-	if req.EnableStt && s.envSettings.DisableTelemetry {
-		return status.Error(codes.FailedPrecondition, "STT cannot be enabled because telemetry is disabled via DISABLE_TELEMETRY environment variable.")
-	}
 
 	// ignore req.EnableAlerting even if they are present since that will not change anything
 	if req.DisableAlerting && s.envSettings.EnableAlerting {

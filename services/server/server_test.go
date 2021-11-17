@@ -213,8 +213,7 @@ func TestServer(t *testing.T) {
 			DisableTelemetry: true,
 		}))
 
-		expected = status.New(codes.FailedPrecondition, "STT cannot be enabled because telemetry is disabled via DISABLE_TELEMETRY environment variable.")
-		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverpb.ChangeSettingsRequest{
+		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverpb.ChangeSettingsRequest{
 			EnableStt: true,
 		}))
 		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverpb.ChangeSettingsRequest{
