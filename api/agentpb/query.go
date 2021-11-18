@@ -255,7 +255,7 @@ func makeInterface(value *QueryActionValue) (interface{}, error) {
 		}
 		return m, nil
 	case *QueryActionValue_Binary:
-		return &BinaryActionValue{
+		return BinaryActionValue{
 			Subtype: int(v.Binary.Subtype),
 			Bytes:   v.Binary.Bytes,
 		}, nil
