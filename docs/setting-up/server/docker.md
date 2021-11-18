@@ -142,6 +142,7 @@ How to run PMM Server with Docker based on our [Docker image].
     --name pmm-server \
     percona/pmm-server:2
     ```
+
 4. Perform a [restore](#restore)
 
 ## Restore
