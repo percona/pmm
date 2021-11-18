@@ -78,6 +78,8 @@ message PostgreSQLService {
   string service_id = 1;
   // Unique across all Services user-defined name.
   string service_name = 2;
+  // Database name.
+  string database_name = 11;
   // Node identifier where this instance runs.
   string node_id = 3;
   // Access address (DNS name or IP).
