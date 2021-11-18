@@ -36,6 +36,11 @@ We recommend creating a PMM database account that can connect to the `postgres` 
     ```sql
     CREATE USER pmm WITH rds_superuser ENCRYPTED PASSWORD '******';
     ```
+    Optionally, you can also set up a connection limit (only if the user is not a SUPERUSER):
+
+    ```sql
+    ALTER USER pmm CONNECTION LIMIT 10;
+    ```
 
 2. PMM must be able to log in locally as this user to the PostgreSQL instance. To enable this, edit the `pg_hba.conf` file. If not already enabled by an existing rule, add:
 
