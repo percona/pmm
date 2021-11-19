@@ -286,7 +286,7 @@ type GetSettingsOKBodySettings struct {
 	// True if DBaaS is enabled.
 	DbaasEnabled bool `json:"dbaas_enabled,omitempty"`
 
-	// True if Integrated Alerting is enabled.
+	// True if Alerting is enabled.
 	AlertingEnabled bool `json:"alerting_enabled,omitempty"`
 
 	// PMM Server public address.
@@ -427,7 +427,7 @@ func (o *GetSettingsOKBodySettings) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetSettingsOKBodySettingsEmailAlertingSettings EmailAlertingSettings represents email (SMTP) configuration for Integrated Alerting.
+/*GetSettingsOKBodySettingsEmailAlertingSettings EmailAlertingSettings represents email (SMTP) configuration for Alerting.
 swagger:model GetSettingsOKBodySettingsEmailAlertingSettings
 */
 type GetSettingsOKBodySettingsEmailAlertingSettings struct {
@@ -515,7 +515,7 @@ func (o *GetSettingsOKBodySettingsMetricsResolutions) UnmarshalBinary(b []byte) 
 	return nil
 }
 
-/*GetSettingsOKBodySettingsSlackAlertingSettings SlackAlertingSettings represents Slack configuration for Integrated Alerting.
+/*GetSettingsOKBodySettingsSlackAlertingSettings SlackAlertingSettings represents Slack configuration for Alerting.
 swagger:model GetSettingsOKBodySettingsSlackAlertingSettings
 */
 type GetSettingsOKBodySettingsSlackAlertingSettings struct {

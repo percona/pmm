@@ -58,7 +58,7 @@ message ToggleAlertRequest {
 
 message ToggleAlertResponse {}
 
-// Alerts service provides public methods for managing Integrated Alerting Alerts.
+// Alerts service provides public methods for managing Alerting Alerts.
 service Alerts {
   // ListAlerts returns a list of all Alerts.
   rpc ListAlerts(ListAlertsRequest) returns (ListAlertsResponse) {

@@ -208,6 +208,17 @@ func (this *ChangeSettingsResponse) Validate() error {
 	}
 	return nil
 }
+func (this *TestEmailAlertingSettingsRequest) Validate() error {
+	if this.Settings != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Settings); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Settings", err)
+		}
+	}
+	return nil
+}
+func (this *TestEmailAlertingSettingsResponse) Validate() error {
+	return nil
+}
 func (this *AWSInstanceCheckRequest) Validate() error {
 	if this.InstanceId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("InstanceId", fmt.Errorf(`value '%v' must not be an empty string`, this.InstanceId))

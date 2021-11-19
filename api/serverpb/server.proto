@@ -109,7 +109,7 @@ message MetricsResolutions {
   google.protobuf.Duration lr = 3;
 }
 
-// EmailAlertingSettings represents email (SMTP) configuration for Integrated Alerting.
+// EmailAlertingSettings represents email (SMTP) configuration for Alerting.
 message EmailAlertingSettings {
   // SMTP From header field.
   string from = 1 [
@@ -135,7 +135,7 @@ message EmailAlertingSettings {
   string secret = 7;
 }
 
-// SlackAlertingSettings represents Slack configuration for Integrated Alerting.
+// SlackAlertingSettings represents Slack configuration for Alerting.
 message SlackAlertingSettings {
   // Slack API (webhook) URL.
   string url = 1 [
@@ -178,11 +178,11 @@ message Settings {
   string platform_email = 10;
   // True if DBaaS is enabled.
   bool dbaas_enabled = 11;
-  // True if Integrated Alerting is enabled.
+  // True if Alerting is enabled.
   bool alerting_enabled = 12;
-  // Integrated Alerting email (SMTP) settings.
+  // Alerting email (SMTP) settings.
   EmailAlertingSettings email_alerting_settings = 13;
-  // Integrated Alerting Slack settings.
+  // Alerting Slack settings.
   SlackAlertingSettings slack_alerting_settings = 14;
   // PMM Server public address.
   string pmm_public_address = 15;
@@ -225,17 +225,17 @@ message ChangeSettingsRequest {
   bool enable_stt = 11;
   // Disable Security Threat Tool.
   bool disable_stt = 12;
-  // Enable Integrated Alerting.
+  // Enable Alerting.
   bool enable_alerting = 13;
-  // Disable Integrated Alerting.
+  // Disable Alerting.
   bool disable_alerting = 14;
-  // Change Integrated Alerting email (SMTP) settings, if set.
+  // Change Alerting email (SMTP) settings, if set.
   EmailAlertingSettings email_alerting_settings = 15;
-  // If true, removes Integrated Alerting email (SMTP) settings.
+  // If true, removes Alerting email (SMTP) settings.
   bool remove_email_alerting_settings = 16;
-  // Change Integrated Alerting Slack settings, if set.
+  // Change Alerting Slack settings, if set.
   SlackAlertingSettings slack_alerting_settings = 17;
-  // If true, removes Integrated Alerting Slack settings.
+  // If true, removes Alerting Slack settings.
   bool remove_slack_alerting_settings = 18;
   // PMM Server public address.
   string pmm_public_address = 19;
@@ -259,6 +259,15 @@ message ChangeSettingsRequest {
 message ChangeSettingsResponse {
   Settings settings = 1;
 }
+
+message TestEmailAlertingSettingsRequest {
+  // Alerting email (SMTP) settings.
+  EmailAlertingSettings settings = 1;
+  // Target email address to send the email to.
+  string email_to = 2;
+}
+
+message TestEmailAlertingSettingsResponse {}
 
 message AWSInstanceCheckRequest {
   // AWS EC2 instance ID (i-1234567890abcdef0).
@@ -352,6 +361,13 @@ service Server {
   rpc ChangeSettings(ChangeSettingsRequest) returns (ChangeSettingsResponse) {
     option (google.api.http) = {
       post: "/v1/Settings/Change"
+      body: "*"
+    };
+  }
+  // TestEmailAlertingSettings tests email alerting SMTP settings by sending testing email.
+  rpc TestEmailAlertingSettings(TestEmailAlertingSettingsRequest) returns (TestEmailAlertingSettingsResponse) {
+    option (google.api.http) = {
+      post: "/v1/Settings/TestEmailAlertingSettings"
       body: "*"
     };
   }

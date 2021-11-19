@@ -176,23 +176,23 @@ message DeleteAlertRuleRequest {
 
 message DeleteAlertRuleResponse {}
 
-// Rules service provides public methods for managing Integrated Alerting rules.
+// Rules service provides public methods for managing Alerting rules.
 service Rules {
-  // ListAlertRules returns a list of all Integrated Alerting rules.
+  // ListAlertRules returns a list of all Alerting rules.
   rpc ListAlertRules(ListAlertRulesRequest) returns (ListAlertRulesResponse) {
     option (google.api.http) = {
       post: "/v1/management/ia/Rules/List"
       body: "*"
     };
   }
-  // CreateAlertRule creates Integrated Alerting rule.
+  // CreateAlertRule creates Alerting rule.
   rpc CreateAlertRule(CreateAlertRuleRequest) returns (CreateAlertRuleResponse) {
     option (google.api.http) = {
       post: "/v1/management/ia/Rules/Create"
       body: "*"
     };
   }
-  // UpdateAlertRule updates Integrated Alerting rule.
+  // UpdateAlertRule updates Alerting rule.
   rpc UpdateAlertRule(UpdateAlertRuleRequest) returns (UpdateAlertRuleResponse) {
     option (google.api.http) = {
       post: "/v1/management/ia/Rules/Update"
@@ -206,7 +206,7 @@ service Rules {
       body: "*"
     };
   }
-  // DeleteAlertRule deletes Integrated Alerting rule.
+  // DeleteAlertRule deletes Alerting rule.
   rpc DeleteAlertRule(DeleteAlertRuleRequest) returns (DeleteAlertRuleResponse) {
     option (google.api.http) = {
       post: "/v1/management/ia/Rules/Delete"

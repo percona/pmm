@@ -2431,17 +2431,17 @@
                   "x-order": 13
                 },
                 "enable_alerting": {
-                  "description": "Enable Integrated Alerting.",
+                  "description": "Enable Alerting.",
                   "type": "boolean",
                   "x-order": 14
                 },
                 "disable_alerting": {
-                  "description": "Disable Integrated Alerting.",
+                  "description": "Disable Alerting.",
                   "type": "boolean",
                   "x-order": 15
                 },
                 "email_alerting_settings": {
-                  "description": "EmailAlertingSettings represents email (SMTP) configuration for Integrated Alerting.",
+                  "description": "EmailAlertingSettings represents email (SMTP) configuration for Alerting.",
                   "type": "object",
                   "properties": {
                     "from": {
@@ -2483,12 +2483,12 @@
                   "x-order": 16
                 },
                 "remove_email_alerting_settings": {
-                  "description": "If true, removes Integrated Alerting email (SMTP) settings.",
+                  "description": "If true, removes Alerting email (SMTP) settings.",
                   "type": "boolean",
                   "x-order": 17
                 },
                 "slack_alerting_settings": {
-                  "description": "SlackAlertingSettings represents Slack configuration for Integrated Alerting.",
+                  "description": "SlackAlertingSettings represents Slack configuration for Alerting.",
                   "type": "object",
                   "properties": {
                     "url": {
@@ -2500,7 +2500,7 @@
                   "x-order": 18
                 },
                 "remove_slack_alerting_settings": {
-                  "description": "If true, removes Integrated Alerting Slack settings.",
+                  "description": "If true, removes Alerting Slack settings.",
                   "type": "boolean",
                   "x-order": 19
                 },
@@ -2652,12 +2652,12 @@
                       "x-order": 10
                     },
                     "alerting_enabled": {
-                      "description": "True if Integrated Alerting is enabled.",
+                      "description": "True if Alerting is enabled.",
                       "type": "boolean",
                       "x-order": 11
                     },
                     "email_alerting_settings": {
-                      "description": "EmailAlertingSettings represents email (SMTP) configuration for Integrated Alerting.",
+                      "description": "EmailAlertingSettings represents email (SMTP) configuration for Alerting.",
                       "type": "object",
                       "properties": {
                         "from": {
@@ -2699,7 +2699,7 @@
                       "x-order": 12
                     },
                     "slack_alerting_settings": {
-                      "description": "SlackAlertingSettings represents Slack configuration for Integrated Alerting.",
+                      "description": "SlackAlertingSettings represents Slack configuration for Alerting.",
                       "type": "object",
                       "properties": {
                         "url": {
@@ -2895,12 +2895,12 @@
                       "x-order": 10
                     },
                     "alerting_enabled": {
-                      "description": "True if Integrated Alerting is enabled.",
+                      "description": "True if Alerting is enabled.",
                       "type": "boolean",
                       "x-order": 11
                     },
                     "email_alerting_settings": {
-                      "description": "EmailAlertingSettings represents email (SMTP) configuration for Integrated Alerting.",
+                      "description": "EmailAlertingSettings represents email (SMTP) configuration for Alerting.",
                       "type": "object",
                       "properties": {
                         "from": {
@@ -2942,7 +2942,7 @@
                       "x-order": 12
                     },
                     "slack_alerting_settings": {
-                      "description": "SlackAlertingSettings represents Slack configuration for Integrated Alerting.",
+                      "description": "SlackAlertingSettings represents Slack configuration for Alerting.",
                       "type": "object",
                       "properties": {
                         "url": {
@@ -2994,6 +2994,121 @@
                   "x-order": 0
                 }
               }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/Settings/TestEmailAlertingSettings": {
+      "post": {
+        "tags": [
+          "Server"
+        ],
+        "summary": "TestEmailAlertingSettings tests email alerting SMTP settings by sending testing email.",
+        "operationId": "TestEmailAlertingSettings",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "settings": {
+                  "description": "EmailAlertingSettings represents email (SMTP) configuration for Alerting.",
+                  "type": "object",
+                  "properties": {
+                    "from": {
+                      "description": "SMTP From header field.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "smarthost": {
+                      "description": "SMTP host and port.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "hello": {
+                      "description": "Hostname to identify to the SMTP server.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "username": {
+                      "description": "Auth using CRAM-MD5, LOGIN and PLAIN.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "password": {
+                      "description": "Auth using LOGIN and PLAIN.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "identity": {
+                      "description": "Auth using PLAIN.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "secret": {
+                      "description": "Auth using CRAM-MD5.",
+                      "type": "string",
+                      "x-order": 6
+                    }
+                  },
+                  "x-order": 0
+                },
+                "email_to": {
+                  "description": "Target email address to send the email to.",
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
             }
           },
           "default": {
@@ -28725,7 +28840,7 @@
         "tags": [
           "Rules"
         ],
-        "summary": "CreateAlertRule creates Integrated Alerting rule.",
+        "summary": "CreateAlertRule creates Alerting rule.",
         "operationId": "CreateAlertRule",
         "parameters": [
           {
@@ -28927,7 +29042,7 @@
         "tags": [
           "Rules"
         ],
-        "summary": "DeleteAlertRule deletes Integrated Alerting rule.",
+        "summary": "DeleteAlertRule deletes Alerting rule.",
         "operationId": "DeleteAlertRule",
         "parameters": [
           {
@@ -29000,7 +29115,7 @@
         "tags": [
           "Rules"
         ],
-        "summary": "ListAlertRules returns a list of all Integrated Alerting rules.",
+        "summary": "ListAlertRules returns a list of all Alerting rules.",
         "operationId": "ListAlertRules",
         "parameters": [
           {
@@ -29720,7 +29835,7 @@
         "tags": [
           "Rules"
         ],
-        "summary": "UpdateAlertRule updates Integrated Alerting rule.",
+        "summary": "UpdateAlertRule updates Alerting rule.",
         "operationId": "UpdateAlertRule",
         "parameters": [
           {
