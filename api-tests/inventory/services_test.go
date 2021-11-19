@@ -733,6 +733,8 @@ func TestMongoDBService(t *testing.T) {
 }
 
 func TestPostgreSQLService(t *testing.T) {
+	const defaultPostgresDBName = "postgres"
+
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
@@ -757,11 +759,12 @@ func TestPostgreSQLService(t *testing.T) {
 		assert.Equal(t, &services.AddPostgreSQLServiceOK{
 			Payload: &services.AddPostgreSQLServiceOKBody{
 				Postgresql: &services.AddPostgreSQLServiceOKBodyPostgresql{
-					ServiceID:   serviceID,
-					NodeID:      genericNodeID,
-					Address:     "localhost",
-					Port:        5432,
-					ServiceName: serviceName,
+					ServiceID:    serviceID,
+					NodeID:       genericNodeID,
+					Address:      "localhost",
+					DatabaseName: defaultPostgresDBName,
+					Port:         5432,
+					ServiceName:  serviceName,
 				},
 			},
 		}, res)
@@ -777,11 +780,12 @@ func TestPostgreSQLService(t *testing.T) {
 		assert.Equal(t, &services.GetServiceOK{
 			Payload: &services.GetServiceOKBody{
 				Postgresql: &services.GetServiceOKBodyPostgresql{
-					ServiceID:   serviceID,
-					NodeID:      genericNodeID,
-					Address:     "localhost",
-					Port:        5432,
-					ServiceName: serviceName,
+					ServiceID:    serviceID,
+					NodeID:       genericNodeID,
+					Address:      "localhost",
+					DatabaseName: defaultPostgresDBName,
+					Port:         5432,
+					ServiceName:  serviceName,
 				},
 			},
 		}, serviceRes)

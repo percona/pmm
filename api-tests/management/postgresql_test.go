@@ -35,6 +35,8 @@ import (
 )
 
 func TestAddPostgreSQL(t *testing.T) {
+	const defaultPostgresDBName = "postgres"
+
 	t.Run("Basic", func(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-for-basic-name")
 		nodeID, pmmAgentID := RegisterGenericNode(t, node.RegisterNodeBody{
@@ -78,11 +80,12 @@ func TestAddPostgreSQL(t *testing.T) {
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Postgresql: &services.GetServiceOKBodyPostgresql{
-				ServiceID:   serviceID,
-				NodeID:      nodeID,
-				ServiceName: serviceName,
-				Address:     "10.10.10.10",
-				Port:        5432,
+				ServiceID:    serviceID,
+				NodeID:       nodeID,
+				ServiceName:  serviceName,
+				DatabaseName: defaultPostgresDBName,
+				Address:      "10.10.10.10",
+				Port:         5432,
 			},
 		}, *serviceOK.Payload)
 
@@ -156,11 +159,12 @@ func TestAddPostgreSQL(t *testing.T) {
 		assert.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Postgresql: &services.GetServiceOKBodyPostgresql{
-				ServiceID:   serviceID,
-				NodeID:      nodeID,
-				ServiceName: serviceName,
-				Address:     "10.10.10.10",
-				Port:        5432,
+				ServiceID:    serviceID,
+				NodeID:       nodeID,
+				ServiceName:  serviceName,
+				DatabaseName: defaultPostgresDBName,
+				Address:      "10.10.10.10",
+				Port:         5432,
 			},
 		}, *serviceOK.Payload)
 
@@ -258,6 +262,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				ServiceID:    serviceID,
 				NodeID:       nodeID,
 				ServiceName:  serviceName,
+				DatabaseName: defaultPostgresDBName,
 				Address:      "10.10.10.10",
 				Port:         5432,
 				Environment:  "some-environment",
@@ -403,11 +408,12 @@ func TestAddPostgreSQL(t *testing.T) {
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Postgresql: &services.GetServiceOKBodyPostgresql{
-				ServiceID:   serviceID,
-				NodeID:      newNodeID,
-				ServiceName: serviceName,
-				Address:     "10.10.10.10",
-				Port:        27017,
+				ServiceID:    serviceID,
+				NodeID:       newNodeID,
+				ServiceName:  serviceName,
+				DatabaseName: defaultPostgresDBName,
+				Address:      "10.10.10.10",
+				Port:         27017,
 			},
 		}, *serviceOK.Payload)
 
@@ -628,11 +634,12 @@ func TestAddPostgreSQL(t *testing.T) {
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Postgresql: &services.GetServiceOKBodyPostgresql{
-				ServiceID:   serviceID,
-				NodeID:      nodeID,
-				ServiceName: serviceName,
-				Address:     "10.10.10.10",
-				Port:        5432,
+				ServiceID:    serviceID,
+				NodeID:       nodeID,
+				ServiceName:  serviceName,
+				DatabaseName: defaultPostgresDBName,
+				Address:      "10.10.10.10",
+				Port:         5432,
 			},
 		}, *serviceOK.Payload)
 
@@ -702,11 +709,12 @@ func TestAddPostgreSQL(t *testing.T) {
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Postgresql: &services.GetServiceOKBodyPostgresql{
-				ServiceID:   serviceID,
-				NodeID:      nodeID,
-				ServiceName: serviceName,
-				Address:     "10.10.10.10",
-				Port:        5432,
+				ServiceID:    serviceID,
+				NodeID:       nodeID,
+				ServiceName:  serviceName,
+				DatabaseName: defaultPostgresDBName,
+				Address:      "10.10.10.10",
+				Port:         5432,
 			},
 		}, *serviceOK.Payload)
 
@@ -775,11 +783,12 @@ func TestAddPostgreSQL(t *testing.T) {
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Postgresql: &services.GetServiceOKBodyPostgresql{
-				ServiceID:   serviceID,
-				NodeID:      nodeID,
-				ServiceName: serviceName,
-				Address:     "10.10.10.10",
-				Port:        5432,
+				ServiceID:    serviceID,
+				NodeID:       nodeID,
+				ServiceName:  serviceName,
+				DatabaseName: defaultPostgresDBName,
+				Address:      "10.10.10.10",
+				Port:         5432,
 			},
 		}, *serviceOK.Payload)
 

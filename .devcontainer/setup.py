@@ -30,6 +30,7 @@ def install_packages():
         "yum reinstall -y yum rpm",
 
         "yum install -y gcc git make pkgconfig glibc-static \
+            vim \
             ansible-lint \
             mc tmux psmisc lsof which iproute \
             bash-completion bash-completion-extras \
@@ -91,6 +92,11 @@ def setup():
             "UPDATE pg_database SET encoding = pg_char_to_encoding('UTF8'), datcollate = 'en_US.utf8', datctype = 'en_US.utf8' WHERE datname = 'template1';\n",
         ])
     run_commands([
+        # allow connecting from any host, needed to connect from host to PG running in docker
+        "sed -i -e \"s/#listen_addresses = \'localhost\'/listen_addresses = \'*\'/\" /srv/postgres/postgresql.conf",
+        "echo 'host    all         all     0.0.0.0/0     trust' >> /srv/postgres/pg_hba.conf",
+        "supervisorctl restart postgresql",
+
         "psql --username=postgres --file=/tmp/setup.sql",
         "psql --username=postgres -l",
         "supervisorctl start pmm-managed",
