@@ -2,7 +2,7 @@
 templates:
   - name: pmm_node_low_free_memory
     version: 1
-    summary: Node out of memory
+    summary: Memory available less than a threshold
     expr: |-
       node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes
       * 100
@@ -17,6 +17,6 @@ templates:
     for: 5m
     severity: warning
     annotations:
-      summary: Node out of memory ({{ $labels.node_name }})
+      summary: Lack of available memory on the Node ({{ $labels.node_name }})
       description: |-
         {{ $labels.node_name }} memory is filling up (less than [[ .threshold ]]% left).
