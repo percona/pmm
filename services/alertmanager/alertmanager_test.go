@@ -547,13 +547,14 @@ templates: []
 
 		_, err = models.UpdateSettings(db.Querier, &models.ChangeSettingsParams{
 			EmailAlertingSettings: &models.EmailAlertingSettings{
-				From:      "from@test.com",
-				Smarthost: "1.2.3.4:80",
-				Hello:     "host",
-				Username:  "user",
-				Password:  "password",
-				Identity:  "id",
-				Secret:    "secret",
+				From:       "from@test.com",
+				Smarthost:  "1.2.3.4:80",
+				Hello:      "host",
+				Username:   "user",
+				Password:   "password",
+				Identity:   "id",
+				Secret:     "secret",
+				RequireTLS: true,
 			},
 			SlackAlertingSettings: &models.SlackAlertingSettings{
 				URL: "https://hooks.slack.com/services/abc/456/xyz",
@@ -625,7 +626,7 @@ global:
     smtp_auth_password: password
     smtp_auth_secret: secret
     smtp_auth_identity: id
-    smtp_require_tls: false
+    smtp_require_tls: true
     slack_api_url: https://hooks.slack.com/services/abc/456/xyz
 route:
     receiver: empty

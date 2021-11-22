@@ -517,6 +517,7 @@ func (svc *Service) populateConfig(cfg *alertmanager.Config) error {
 		cfg.Global.SMTPAuthUsername = settings.IntegratedAlerting.EmailAlertingSettings.Username
 		cfg.Global.SMTPAuthPassword = settings.IntegratedAlerting.EmailAlertingSettings.Password
 		cfg.Global.SMTPAuthSecret = settings.IntegratedAlerting.EmailAlertingSettings.Secret
+		cfg.Global.SMTPRequireTLS = settings.IntegratedAlerting.EmailAlertingSettings.RequireTLS
 	}
 
 	if settings.IntegratedAlerting.SlackAlertingSettings != nil {
