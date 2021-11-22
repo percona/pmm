@@ -82,10 +82,7 @@ func TestQuerySQLResultsSerialization(t *testing.T) {
 				"time":   now,
 				"slice":  []interface{}{int64(1), int64(2), int64(3)},
 				"map":    map[string]interface{}{"k": int64(42)},
-				"binary": BinaryActionValue{
-					Subtype: 5,
-					Bytes:   []byte{0, 1, 2, 3},
-				},
+				"binary": []byte(`{"subtype":5,"bytes":"AAECAw=="}`),
 			},
 
 			// zero values
@@ -99,7 +96,7 @@ func TestQuerySQLResultsSerialization(t *testing.T) {
 				"time":   time.Time{},
 				"slice":  []interface{}{},
 				"map":    map[string]interface{}{},
-				"binary": BinaryActionValue{},
+				"binary": []byte(`{"subtype":0,"bytes":null}`),
 			},
 
 			// other cases
@@ -113,7 +110,7 @@ func TestQuerySQLResultsSerialization(t *testing.T) {
 				"time":   time.Time{},
 				"slice":  []interface{}{int64(0), int64(0), int64(0)},
 				"map":    map[string]interface{}{"": int64(0)},
-				"binary": BinaryActionValue{},
+				"binary": []byte(`{"subtype":0,"bytes":null}`),
 			},
 		}
 
