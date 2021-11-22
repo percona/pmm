@@ -712,6 +712,12 @@ message AddMongoDBExporterRequest {
   string authentication_database = 15;
   // Custom password for exporter endpoint /metrics.
   string agent_password = 16;
+  // Disable collstatst collectors.
+  bool disable_collstats = 17;
+  // Collstats limit. Enable collstats related collectors like topmetrics only if the
+  // number of databases is less than this value.
+  // 0: no limit
+  uint32 disable_collstats_limit = 18;
 }
 
 message AddMongoDBExporterResponse {
