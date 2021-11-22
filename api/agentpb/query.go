@@ -1,6 +1,7 @@
 package agentpb
 
 import (
+	"encoding/json"
 	"reflect"
 	"time"
 
@@ -206,8 +207,8 @@ func MarshalActionQueryDocsResult(docs []map[string]interface{}) ([]byte, error)
 
 // BinaryActionValue represents primitive.Binary value.
 type BinaryActionValue struct {
-	Subtype int
-	Bytes   []byte
+	Subtype int    `json:"subtype"`
+	Bytes   []byte `json:"bytes"`
 }
 
 func makeInterface(value *QueryActionValue) (interface{}, error) {
@@ -255,10 +256,14 @@ func makeInterface(value *QueryActionValue) (interface{}, error) {
 		}
 		return m, nil
 	case *QueryActionValue_Binary:
-		return BinaryActionValue{
+		marshaled, err := json.Marshal(BinaryActionValue{
 			Subtype: int(v.Binary.Subtype),
 			Bytes:   v.Binary.Bytes,
-		}, nil
+		})
+		if err != nil {
+			return nil, err
+		}
+		return marshaled, nil
 	default:
 		return nil, errors.Errorf("unhandled %[1]v (%[1]T)", value)
 	}
