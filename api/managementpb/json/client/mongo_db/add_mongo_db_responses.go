@@ -208,6 +208,14 @@ type AddMongoDBBody struct {
 	// Custom password for exporter endpoint /metrics.
 	AgentPassword string `json:"agent_password,omitempty"`
 
+	// Disable collstats
+	DisableCollstats bool `json:"disable_collstats,omitempty"`
+
+	// Collstats limit. Enable collstats related collectors like topmetrics only if the
+	// number of databases is less than this value.
+	// 0: no limit
+	DisableCollstatsLimit int64 `json:"disable_collstats_limit,omitempty"`
+
 	// add node
 	AddNode *AddMongoDBParamsBodyAddNode `json:"add_node,omitempty"`
 }
