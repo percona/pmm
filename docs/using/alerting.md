@@ -96,9 +96,9 @@ Before you can get alerts, you must [activate Integrated Alerting](#activate-int
             - Authorization type: Basic
                 - Username (optional):
                 - Password (optional):
-            - Auhorization type: Bearer Token
+            - Authorization type: Bearer Token
                 - Bearer Token (optional):
-            - Auhorization type: None
+            - Authorization type: None
             - Use TLS
                 - CA Certificate (optional):
                 - Certificate (optional):
