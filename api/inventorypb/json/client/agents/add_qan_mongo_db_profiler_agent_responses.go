@@ -164,6 +164,14 @@ type AddQANMongoDBProfilerAgentBody struct {
 
 	// Authentication database.
 	AuthenticationDatabase string `json:"authentication_database,omitempty"`
+
+	// Disable collstatst collectors.
+	DisableCollstats bool `json:"disable_collstats,omitempty"`
+
+	// Collstats limit. Enable collstats related collectors like topmetrics only if the
+	// number of databases is less than this value.
+	// 0: no limit
+	DisableCollstatsLimit int64 `json:"disable_collstats_limit,omitempty"`
 }
 
 // Validate validates this add QAN mongo DB profiler agent body

@@ -3100,6 +3100,17 @@
                   "description": "Authentication database.",
                   "type": "string",
                   "x-order": 12
+                },
+                "disable_collstats": {
+                  "description": "Disable collstatst collectors.",
+                  "type": "boolean",
+                  "x-order": 13
+                },
+                "disable_collstats_limit": {
+                  "type": "integer",
+                  "format": "int64",
+                  "title": "Collstats limit. Enable collstats related collectors like topmetrics only if the\nnumber of databases is less than this value.\n0: no limit",
+                  "x-order": 14
                 }
               }
             }

@@ -1013,6 +1013,12 @@ message AddQANMongoDBProfilerAgentRequest {
   string authentication_mechanism = 12;
   // Authentication database.
   string authentication_database = 13;
+  // Disable collstatst collectors.
+  bool disable_collstats = 14;
+  // Collstats limit. Enable collstats related collectors like topmetrics only if the
+  // number of databases is less than this value.
+  // 0: no limit
+  uint32 disable_collstats_limit = 15;
 }
 
 message AddQANMongoDBProfilerAgentResponse {
