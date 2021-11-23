@@ -277,6 +277,9 @@ type TestEmailAlertingSettingsParamsBodySettings struct {
 
 	// Auth using CRAM-MD5.
 	Secret string `json:"secret,omitempty"`
+
+	// Require TLS.
+	RequireTLS bool `json:"require_tls,omitempty"`
 }
 
 // Validate validates this test email alerting settings params body settings

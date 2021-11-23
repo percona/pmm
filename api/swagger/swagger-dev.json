@@ -2478,6 +2478,11 @@
                       "description": "Auth using CRAM-MD5.",
                       "type": "string",
                       "x-order": 6
+                    },
+                    "require_tls": {
+                      "description": "Require TLS.",
+                      "type": "boolean",
+                      "x-order": 7
                     }
                   },
                   "x-order": 16
@@ -2694,6 +2699,11 @@
                           "description": "Auth using CRAM-MD5.",
                           "type": "string",
                           "x-order": 6
+                        },
+                        "require_tls": {
+                          "description": "Require TLS.",
+                          "type": "boolean",
+                          "x-order": 7
                         }
                       },
                       "x-order": 12
@@ -2937,6 +2947,11 @@
                           "description": "Auth using CRAM-MD5.",
                           "type": "string",
                           "x-order": 6
+                        },
+                        "require_tls": {
+                          "description": "Require TLS.",
+                          "type": "boolean",
+                          "x-order": 7
                         }
                       },
                       "x-order": 12
@@ -3091,6 +3106,11 @@
                       "description": "Auth using CRAM-MD5.",
                       "type": "string",
                       "x-order": 6
+                    },
+                    "require_tls": {
+                      "description": "Require TLS.",
+                      "type": "boolean",
+                      "x-order": 7
                     }
                   },
                   "x-order": 0
