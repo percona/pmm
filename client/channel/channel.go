@@ -146,7 +146,7 @@ func (c *Channel) Requests() <-chan *ServerRequest {
 	return c.requests
 }
 
-// SendResponse sends message to pmm-managed. It is no-op once channel is closed (see Wait).
+// Send sends message to pmm-managed. It is no-op once channel is closed (see Wait).
 func (c *Channel) Send(resp *AgentResponse) {
 	msg := &agentpb.AgentMessage{
 		Id: resp.ID,
