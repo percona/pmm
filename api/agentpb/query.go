@@ -205,7 +205,7 @@ func MarshalActionQueryDocsResult(docs []map[string]interface{}) ([]byte, error)
 	return proto.Marshal(&res)
 }
 
-// BinaryActionValue represents primitive.Binary value.
+// BinaryActionValue represents primitive.Binary value https://bsonspec.org/spec.html.
 type BinaryActionValue struct {
 	Subtype int    `json:"subtype"`
 	Bytes   []byte `json:"bytes"`
@@ -256,7 +256,7 @@ func makeInterface(value *QueryActionValue) (interface{}, error) {
 		}
 		return m, nil
 	case *QueryActionValue_Binary:
-	    return json.Marshal(BinaryActionValue{
+		return json.Marshal(BinaryActionValue{
 			Subtype: int(v.Binary.Subtype),
 			Bytes:   v.Binary.Bytes,
 		})
