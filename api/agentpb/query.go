@@ -256,14 +256,11 @@ func makeInterface(value *QueryActionValue) (interface{}, error) {
 		}
 		return m, nil
 	case *QueryActionValue_Binary:
-		marshaled, err := json.Marshal(BinaryActionValue{
+	    return json.Marshal(BinaryActionValue{
 			Subtype: int(v.Binary.Subtype),
 			Bytes:   v.Binary.Bytes,
 		})
-		if err != nil {
-			return nil, err
-		}
-		return marshaled, nil
+
 	default:
 		return nil, errors.Errorf("unhandled %[1]v (%[1]T)", value)
 	}
