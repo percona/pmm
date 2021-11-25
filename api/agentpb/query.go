@@ -1,6 +1,7 @@
 package agentpb
 
 import (
+	"encoding/json"
 	"reflect"
 	"time"
 
@@ -94,6 +95,11 @@ func makeValue(value interface{}) (*QueryActionValue, error) {
 			return nil, errors.Wrap(err, "failed to handle MongoDB's primitive.DateTime")
 		}
 		return &QueryActionValue{Kind: &QueryActionValue_Timestamp{Timestamp: ts}}, nil
+	case primitive.Binary:
+		return &QueryActionValue{Kind: &QueryActionValue_Binary{Binary: &QueryActionBinary{
+			Subtype: int32(v.Subtype),
+			Bytes:   v.Data,
+		}}}, nil
 	}
 
 	// use reflection for slices (except []byte) and maps
@@ -199,6 +205,12 @@ func MarshalActionQueryDocsResult(docs []map[string]interface{}) ([]byte, error)
 	return proto.Marshal(&res)
 }
 
+// BinaryActionValue represents primitive.Binary value https://bsonspec.org/spec.html.
+type BinaryActionValue struct {
+	Subtype int    `json:"subtype"`
+	Bytes   []byte `json:"bytes"`
+}
+
 func makeInterface(value *QueryActionValue) (interface{}, error) {
 	var err error
 	switch v := value.Kind.(type) {
@@ -243,6 +255,11 @@ func makeInterface(value *QueryActionValue) (interface{}, error) {
 			}
 		}
 		return m, nil
+	case *QueryActionValue_Binary:
+		return json.Marshal(BinaryActionValue{
+			Subtype: int(v.Binary.Subtype),
+			Bytes:   v.Binary.Bytes,
+		})
 
 	default:
 		return nil, errors.Errorf("unhandled %[1]v (%[1]T)", value)
