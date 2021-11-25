@@ -661,6 +661,9 @@ type ChangeSettingsOKBodySettingsEmailAlertingSettings struct {
 
 	// Auth using CRAM-MD5.
 	Secret string `json:"secret,omitempty"`
+
+	// Require TLS.
+	RequireTLS bool `json:"require_tls,omitempty"`
 }
 
 // Validate validates this change settings OK body settings email alerting settings
@@ -819,6 +822,9 @@ type ChangeSettingsParamsBodyEmailAlertingSettings struct {
 
 	// Auth using CRAM-MD5.
 	Secret string `json:"secret,omitempty"`
+
+	// Require TLS.
+	RequireTLS bool `json:"require_tls,omitempty"`
 }
 
 // Validate validates this change settings params body email alerting settings
