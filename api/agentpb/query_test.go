@@ -22,6 +22,7 @@ func TestQuerySQLResultsSerialization(t *testing.T) {
 			"time",
 			"slice",
 			"map",
+			"binary",
 		}
 		rows := [][]interface{}{
 			// non-zero values
@@ -35,6 +36,10 @@ func TestQuerySQLResultsSerialization(t *testing.T) {
 				now,
 				[]interface{}{int64(1), int64(2), int64(3)},
 				map[string]interface{}{"k": int64(42)},
+				primitive.Binary{
+					Subtype: 5,
+					Data:    []byte{0, 1, 2, 3},
+				},
 			},
 
 			// zero values
@@ -48,6 +53,7 @@ func TestQuerySQLResultsSerialization(t *testing.T) {
 				time.Time{},
 				[]interface{}{},
 				map[string]interface{}{},
+				primitive.Binary{},
 			},
 
 			// other cases
@@ -61,6 +67,7 @@ func TestQuerySQLResultsSerialization(t *testing.T) {
 				time.Time{},
 				[]interface{}{int64(0), int64(0), int64(0)},
 				map[string]interface{}{"": int64(0)},
+				primitive.Binary{},
 			},
 		}
 		expected := []map[string]interface{}{
@@ -75,6 +82,7 @@ func TestQuerySQLResultsSerialization(t *testing.T) {
 				"time":   now,
 				"slice":  []interface{}{int64(1), int64(2), int64(3)},
 				"map":    map[string]interface{}{"k": int64(42)},
+				"binary": []byte(`{"subtype":5,"bytes":"AAECAw=="}`),
 			},
 
 			// zero values
@@ -88,6 +96,7 @@ func TestQuerySQLResultsSerialization(t *testing.T) {
 				"time":   time.Time{},
 				"slice":  []interface{}{},
 				"map":    map[string]interface{}{},
+				"binary": []byte(`{"subtype":0,"bytes":null}`),
 			},
 
 			// other cases
@@ -101,6 +110,7 @@ func TestQuerySQLResultsSerialization(t *testing.T) {
 				"time":   time.Time{},
 				"slice":  []interface{}{int64(0), int64(0), int64(0)},
 				"map":    map[string]interface{}{"": int64(0)},
+				"binary": []byte(`{"subtype":0,"bytes":null}`),
 			},
 		}
 
