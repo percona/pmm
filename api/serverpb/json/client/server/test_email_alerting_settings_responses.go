@@ -123,15 +123,15 @@ type TestEmailAlertingSettingsBody struct {
 	// Target email address to send the email to.
 	EmailTo string `json:"email_to,omitempty"`
 
-	// settings
-	Settings *TestEmailAlertingSettingsParamsBodySettings `json:"settings,omitempty"`
+	// email alerting settings
+	EmailAlertingSettings *TestEmailAlertingSettingsParamsBodyEmailAlertingSettings `json:"email_alerting_settings,omitempty"`
 }
 
 // Validate validates this test email alerting settings body
 func (o *TestEmailAlertingSettingsBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateSettings(formats); err != nil {
+	if err := o.validateEmailAlertingSettings(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -141,16 +141,16 @@ func (o *TestEmailAlertingSettingsBody) Validate(formats strfmt.Registry) error 
 	return nil
 }
 
-func (o *TestEmailAlertingSettingsBody) validateSettings(formats strfmt.Registry) error {
+func (o *TestEmailAlertingSettingsBody) validateEmailAlertingSettings(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.Settings) { // not required
+	if swag.IsZero(o.EmailAlertingSettings) { // not required
 		return nil
 	}
 
-	if o.Settings != nil {
-		if err := o.Settings.Validate(formats); err != nil {
+	if o.EmailAlertingSettings != nil {
+		if err := o.EmailAlertingSettings.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "settings")
+				return ve.ValidateName("body" + "." + "email_alerting_settings")
 			}
 			return err
 		}
@@ -252,10 +252,10 @@ func (o *TestEmailAlertingSettingsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*TestEmailAlertingSettingsParamsBodySettings EmailAlertingSettings represents email (SMTP) configuration for Alerting.
-swagger:model TestEmailAlertingSettingsParamsBodySettings
+/*TestEmailAlertingSettingsParamsBodyEmailAlertingSettings EmailAlertingSettings represents email (SMTP) configuration for Alerting.
+swagger:model TestEmailAlertingSettingsParamsBodyEmailAlertingSettings
 */
-type TestEmailAlertingSettingsParamsBodySettings struct {
+type TestEmailAlertingSettingsParamsBodyEmailAlertingSettings struct {
 
 	// SMTP From header field.
 	From string `json:"from,omitempty"`
@@ -282,13 +282,13 @@ type TestEmailAlertingSettingsParamsBodySettings struct {
 	RequireTLS bool `json:"require_tls,omitempty"`
 }
 
-// Validate validates this test email alerting settings params body settings
-func (o *TestEmailAlertingSettingsParamsBodySettings) Validate(formats strfmt.Registry) error {
+// Validate validates this test email alerting settings params body email alerting settings
+func (o *TestEmailAlertingSettingsParamsBodyEmailAlertingSettings) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *TestEmailAlertingSettingsParamsBodySettings) MarshalBinary() ([]byte, error) {
+func (o *TestEmailAlertingSettingsParamsBodyEmailAlertingSettings) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -296,8 +296,8 @@ func (o *TestEmailAlertingSettingsParamsBodySettings) MarshalBinary() ([]byte, e
 }
 
 // UnmarshalBinary interface implementation
-func (o *TestEmailAlertingSettingsParamsBodySettings) UnmarshalBinary(b []byte) error {
-	var res TestEmailAlertingSettingsParamsBodySettings
+func (o *TestEmailAlertingSettingsParamsBodyEmailAlertingSettings) UnmarshalBinary(b []byte) error {
+	var res TestEmailAlertingSettingsParamsBodyEmailAlertingSettings
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

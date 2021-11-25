@@ -1096,7 +1096,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "settings": {
+                "email_alerting_settings": {
                   "description": "EmailAlertingSettings represents email (SMTP) configuration for Alerting.",
                   "type": "object",
                   "properties": {

@@ -1096,12 +1096,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "email_to": {
-                  "description": "Target email address to send the email to.",
-                  "type": "string",
-                  "x-order": 1
-                },
-                "settings": {
+                "email_alerting_settings": {
                   "description": "EmailAlertingSettings represents email (SMTP) configuration for Alerting.",
                   "type": "object",
                   "properties": {
@@ -1147,6 +1142,11 @@
                     }
                   },
                   "x-order": 0
+                },
+                "email_to": {
+                  "description": "Target email address to send the email to.",
+                  "type": "string",
+                  "x-order": 1
                 }
               }
             }

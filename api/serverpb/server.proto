@@ -264,7 +264,7 @@ message ChangeSettingsResponse {
 
 message TestEmailAlertingSettingsRequest {
   // Alerting email (SMTP) settings.
-  EmailAlertingSettings settings = 1;
+  EmailAlertingSettings email_alerting_settings = 1;
   // Target email address to send the email to.
   string email_to = 2;
 }

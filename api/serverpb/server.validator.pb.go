@@ -209,9 +209,9 @@ func (this *ChangeSettingsResponse) Validate() error {
 	return nil
 }
 func (this *TestEmailAlertingSettingsRequest) Validate() error {
-	if this.Settings != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Settings); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Settings", err)
+	if this.EmailAlertingSettings != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.EmailAlertingSettings); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("EmailAlertingSettings", err)
 		}
 	}
 	return nil
