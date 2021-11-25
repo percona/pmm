@@ -2382,6 +2382,12 @@
                   "type": "string",
                   "x-order": 9
                 },
+                "collections_limit": {
+                  "type": "integer",
+                  "format": "int32",
+                  "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                  "x-order": 27
+                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels for Service.",
                   "type": "object",
@@ -2390,6 +2396,12 @@
                   },
                   "x-order": 14
                 },
+                "databases_limit": {
+                  "type": "integer",
+                  "format": "int32",
+                  "title": "Databases limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                  "x-order": 28
+                },
                 "disable_collectors": {
                   "description": "List of collector names to disable in this exporter.",
                   "type": "array",
@@ -2397,17 +2409,6 @@
                     "type": "string"
                   },
                   "x-order": 22
-                },
-                "disable_collstats": {
-                  "type": "boolean",
-                  "title": "Disable collstats",
-                  "x-order": 26
-                },
-                "disable_collstats_limit": {
-                  "type": "integer",
-                  "format": "int64",
-                  "title": "Collstats limit. Enable collstats related collectors like topmetrics only if the\nnumber of databases is less than this value.\n0: no limit",
-                  "x-order": 27
                 },
                 "environment": {
                   "description": "Environment name.",
@@ -2475,6 +2476,11 @@
                   "description": "Service Access socket.\nAddress (and port) or socket is required.",
                   "type": "string",
                   "x-order": 6
+                },
+                "stats_collections": {
+                  "type": "string",
+                  "title": "Comma separated list of colletions to get stats from. Can use *",
+                  "x-order": 26
                 },
                 "tls": {
                   "description": "Use TLS for database connections.",

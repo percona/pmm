@@ -174,13 +174,16 @@ type AddMongoDBExporterBody struct {
 	// Custom password for exporter endpoint /metrics.
 	AgentPassword string `json:"agent_password,omitempty"`
 
-	// Disable collstatst collectors.
-	DisableCollstats bool `json:"disable_collstats,omitempty"`
+	// Comma separated list of colletions to get stats from. Can use *
+	StatsCollections string `json:"stats_collections,omitempty"`
 
-	// Collstats limit. Enable collstats related collectors like topmetrics only if the
-	// number of databases is less than this value.
-	// 0: no limit
-	DisableCollstatsLimit int64 `json:"disable_collstats_limit,omitempty"`
+	// Collections limit. Only get Databases and collection stats if the total number of collections in the server
+	// is less than this value. 0: no limit
+	CollectionsLimit int32 `json:"collections_limit,omitempty"`
+
+	// Databases limit. Only get Databases and collection stats if the total number of collections in the server
+	// is less than this value. 0: no limit
+	DatabasesLimit int32 `json:"databases_limit,omitempty"`
 }
 
 // Validate validates this add mongo DB exporter body

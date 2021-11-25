@@ -712,12 +712,14 @@ message AddMongoDBExporterRequest {
   string authentication_database = 15;
   // Custom password for exporter endpoint /metrics.
   string agent_password = 16;
-  // Disable collstatst collectors.
-  bool disable_collstats = 17;
-  // Collstats limit. Enable collstats related collectors like topmetrics only if the
-  // number of databases is less than this value.
-  // 0: no limit
-  uint32 disable_collstats_limit = 18;
+  // Comma separated list of colletions to get stats from. Can use *
+  string stats_collections = 19;
+  // Collections limit. Only get Databases and collection stats if the total number of collections in the server
+  // is less than this value. 0: no limit
+  int32 collections_limit = 20;
+  // Databases limit. Only get Databases and collection stats if the total number of collections in the server
+  // is less than this value. 0: no limit
+  int32 databases_limit = 21;
 }
 
 message AddMongoDBExporterResponse {
@@ -1013,12 +1015,6 @@ message AddQANMongoDBProfilerAgentRequest {
   string authentication_mechanism = 12;
   // Authentication database.
   string authentication_database = 13;
-  // Disable collstatst collectors.
-  bool disable_collstats = 14;
-  // Collstats limit. Enable collstats related collectors like topmetrics only if the
-  // number of databases is less than this value.
-  // 0: no limit
-  uint32 disable_collstats_limit = 15;
 }
 
 message AddQANMongoDBProfilerAgentResponse {

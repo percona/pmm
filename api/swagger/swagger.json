@@ -1882,16 +1882,22 @@
                   "type": "string",
                   "x-order": 15
                 },
-                "disable_collstats": {
-                  "description": "Disable collstatst collectors.",
-                  "type": "boolean",
+                "stats_collections": {
+                  "type": "string",
+                  "title": "Comma separated list of colletions to get stats from. Can use *",
                   "x-order": 16
                 },
-                "disable_collstats_limit": {
+                "collections_limit": {
                   "type": "integer",
-                  "format": "int64",
-                  "title": "Collstats limit. Enable collstats related collectors like topmetrics only if the\nnumber of databases is less than this value.\n0: no limit",
+                  "format": "int32",
+                  "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
                   "x-order": 17
+                },
+                "databases_limit": {
+                  "type": "integer",
+                  "format": "int32",
+                  "title": "Databases limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                  "x-order": 18
                 }
               }
             }
@@ -3100,17 +3106,6 @@
                   "description": "Authentication database.",
                   "type": "string",
                   "x-order": 12
-                },
-                "disable_collstats": {
-                  "description": "Disable collstatst collectors.",
-                  "type": "boolean",
-                  "x-order": 13
-                },
-                "disable_collstats_limit": {
-                  "type": "integer",
-                  "format": "int64",
-                  "title": "Collstats limit. Enable collstats related collectors like topmetrics only if the\nnumber of databases is less than this value.\n0: no limit",
-                  "x-order": 14
                 }
               }
             }
@@ -15219,16 +15214,22 @@
                   "type": "string",
                   "x-order": 25
                 },
-                "disable_collstats": {
-                  "type": "boolean",
-                  "title": "Disable collstats",
+                "stats_collections": {
+                  "type": "string",
+                  "title": "Comma separated list of colletions to get stats from. Can use *",
                   "x-order": 26
                 },
-                "disable_collstats_limit": {
+                "collections_limit": {
                   "type": "integer",
-                  "format": "int64",
-                  "title": "Collstats limit. Enable collstats related collectors like topmetrics only if the\nnumber of databases is less than this value.\n0: no limit",
+                  "format": "int32",
+                  "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
                   "x-order": 27
+                },
+                "databases_limit": {
+                  "type": "integer",
+                  "format": "int32",
+                  "title": "Databases limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                  "x-order": 28
                 }
               }
             }

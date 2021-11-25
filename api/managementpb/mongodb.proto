@@ -87,12 +87,14 @@ message AddMongoDBRequest {
   string authentication_database = 26;
   // Custom password for exporter endpoint /metrics.
   string agent_password = 27;
-  // Disable collstats
-  bool disable_collstats = 28;
-  // Collstats limit. Enable collstats related collectors like topmetrics only if the
-  // number of databases is less than this value.
-  // 0: no limit
-  uint32 disable_collstats_limit = 29;
+  // Comma separated list of colletions to get stats from. Can use *
+  string stats_collections = 28;
+  // Collections limit. Only get Databases and collection stats if the total number of collections in the server
+  // is less than this value. 0: no limit
+  int32 collections_limit = 29;
+  // Databases limit. Only get Databases and collection stats if the total number of collections in the server
+  // is less than this value. 0: no limit
+  int32 databases_limit = 30;
 }
 
 message AddMongoDBResponse {
