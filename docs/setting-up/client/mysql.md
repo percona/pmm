@@ -23,7 +23,6 @@ Check that:
 - [PMM Server is installed](../server/index.md) and running with a known IP address accessible from the client node.
 - [PMM Client is installed](index.md) and the [node is registered with PMM Server](index.md#register).
 - You have superuser (root) access on the client host.
-- You have superuser access to any database servers that you want to monitor.
 
 ## Create a database account for PMM
 
@@ -31,7 +30,7 @@ It is good practice to use a non-superuser account to connect PMM Client to the 
 
 ```sql
 CREATE USER 'pmm'@'localhost' IDENTIFIED BY 'pass' WITH MAX_USER_CONNECTIONS 10;
-GRANT SELECT, PROCESS, SUPER, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@'localhost';
+GRANT SELECT, PROCESS, REPLICATION CLIENT, RELOAD, BACKUP_ADMIN ON *.* TO 'pmm'@'localhost';
 ```
 
 ## Choose and configure a source
