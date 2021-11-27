@@ -180,10 +180,6 @@ type AddMongoDBExporterBody struct {
 	// Collections limit. Only get Databases and collection stats if the total number of collections in the server
 	// is less than this value. 0: no limit
 	CollectionsLimit int32 `json:"collections_limit,omitempty"`
-
-	// Databases limit. Only get Databases and collection stats if the total number of collections in the server
-	// is less than this value. 0: no limit
-	DatabasesLimit int32 `json:"databases_limit,omitempty"`
 }
 
 // Validate validates this add mongo DB exporter body

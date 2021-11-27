@@ -2396,12 +2396,6 @@
                   },
                   "x-order": 14
                 },
-                "databases_limit": {
-                  "type": "integer",
-                  "format": "int32",
-                  "title": "Databases limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
-                  "x-order": 28
-                },
                 "disable_collectors": {
                   "description": "List of collector names to disable in this exporter.",
                   "type": "array",

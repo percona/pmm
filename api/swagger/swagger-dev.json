@@ -3864,12 +3864,6 @@
                   "format": "int32",
                   "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
                   "x-order": 17
-                },
-                "databases_limit": {
-                  "type": "integer",
-                  "format": "int32",
-                  "title": "Databases limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
-                  "x-order": 18
                 }
               }
             }
@@ -21050,12 +21044,6 @@
                   "format": "int32",
                   "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
                   "x-order": 27
-                },
-                "databases_limit": {
-                  "type": "integer",
-                  "format": "int32",
-                  "title": "Databases limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
-                  "x-order": 28
                 }
               }
             }

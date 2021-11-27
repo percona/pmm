@@ -717,9 +717,6 @@ message AddMongoDBExporterRequest {
   // Collections limit. Only get Databases and collection stats if the total number of collections in the server
   // is less than this value. 0: no limit
   int32 collections_limit = 20;
-  // Databases limit. Only get Databases and collection stats if the total number of collections in the server
-  // is less than this value. 0: no limit
-  int32 databases_limit = 21;
 }
 
 message AddMongoDBExporterResponse {
