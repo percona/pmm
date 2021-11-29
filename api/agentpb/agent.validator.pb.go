@@ -95,6 +95,13 @@ func (this *QueryActionValue) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetKind().(*QueryActionValue_Binary); ok {
+		if oneOfNester.Binary != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Binary); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Binary", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *QueryActionSlice) Validate() error {
@@ -109,6 +116,9 @@ func (this *QueryActionSlice) Validate() error {
 }
 func (this *QueryActionMap) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
+func (this *QueryActionBinary) Validate() error {
 	return nil
 }
 func (this *QueryActionResult) Validate() error {

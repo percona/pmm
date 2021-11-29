@@ -113,6 +113,7 @@ message QueryActionValue {
     google.protobuf.Timestamp timestamp = 8;
     QueryActionSlice slice = 10;
     QueryActionMap map = 11;
+    QueryActionBinary binary = 12;
   }
 }
 
@@ -124,6 +125,12 @@ message QueryActionSlice {
 // QueryActionMap represents a map of values used in query Actions.
 message QueryActionMap {
   map<string, QueryActionValue> map = 1;
+}
+
+// QueryActionBinary represents primitive.Binary used in query Actions.
+message QueryActionBinary {
+  int32 subtype = 1;
+  bytes bytes = 2;
 }
 
 // QueryActionResult represents query Action result.
