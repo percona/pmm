@@ -53,6 +53,7 @@ type configCommand struct {
 	MetricsMode       string
 	DisableCollectors string
 	CustomLabels      string
+	BasePath          string
 
 	Force bool
 }
@@ -114,6 +115,10 @@ func (cmd *configCommand) args() (res []string, switchedToTLS bool) {
 		res = append(res, fmt.Sprintf("--custom-labels=%s", cmd.CustomLabels))
 	}
 
+	if cmd.BasePath != "" {
+		res = append(res, fmt.Sprintf("--paths-base=%s", cmd.BasePath))
+	}
+
 	res = append(res, cmd.NodeAddress, cmd.NodeType, cmd.NodeName)
 	return //nolint:nakedret
 }
@@ -168,4 +173,5 @@ func init() {
 		" pull - server scrape metrics from agent  or auto - chosen by server.").Default("auto").EnumVar(&Config.MetricsMode, "auto", "push", "pull")
 	ConfigC.Flag("disable-collectors", "Comma-separated list of collector names to exclude from exporter").StringVar(&Config.DisableCollectors)
 	ConfigC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&Config.CustomLabels)
+	ConfigC.Flag("paths-base", "Base path where all binaries, tools and collectors of PMM client are located").StringVar(&Config.BasePath)
 }
