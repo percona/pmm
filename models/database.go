@@ -658,6 +658,10 @@ var databaseSchema = [][]string{
 		`UPDATE services SET database_name = 'postgresql' 
 			WHERE service_type = 'postgresql' and database_name = ''`,
 	},
+	53: {
+		`UPDATE services SET database_name = 'postgres' 
+			WHERE service_type = 'postgresql' and database_name = 'postgresql'`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
