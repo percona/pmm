@@ -24,7 +24,7 @@ jobs:
             may-fail: false
           - version: tip
             may-fail: true
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     env:
       GOPATH: ${{ github.workspace }}
       WORKING_DIR: ${{ github.workspace }}/src/github.com/percona/pmm
@@ -87,7 +87,7 @@ jobs:
       - name: Clean Testcache
         run: go clean -testcache
 
-      - name: Slack Notification
-        uses: rtCamp/action-slack-notify@v2
-        env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+#      - name: Slack Notification
+#        uses: rtCamp/action-slack-notify@v2
+#        env:
+#          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
