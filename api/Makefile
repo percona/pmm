@@ -101,7 +101,7 @@ clean: clean_swagger  ## Remove generated files.
 	find . -name '*.pb.go' -print -delete
 	find . -name '*.pb.gw.go' -print -delete
 
-	for API in agentlocalpb serverpb inventorypb managementpb managementpb/dbaas managementpb/ia managementpb/backup qanpb ; do \
+	for API in agentlocalpb serverpb inventorypb managementpb managementpb/dbaas managementpb/ia managementpb/backup qanpb platformpb ; do \
 		rm -fr $$API/json/client $$API/json/models $$API/json/$$(basename $$API).json ; \
 	done
 	rm -f swagger/swagger.json swagger/swagger-dev.json
