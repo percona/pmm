@@ -5,12 +5,11 @@ on:
     branches:
       - main
       - release/*
+      # skip non-trunk PMM-XXXX/SAAS-XXXX branch builds, but still build pull requests
+      - '!PMM-[0-9]+'
+      - '!SAAS-[0-9]+'
     tags:
       - v[0-9]+.[0-9]+.[0-9]+*
-    branches-ignore:
-      # skip non-trunk PMM-XXXX/SAAS-XXXX branch builds, but still build pull requests
-      - /^PMM\-\d{3,5}/
-      - /^SAAS\-\d{2,5}/
   pull_request:
 
 jobs:
