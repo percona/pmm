@@ -37,12 +37,6 @@ type ClientService interface {
 
 	Logs(params *LogsParams, writer io.Writer) (*LogsOK, error)
 
-	PlatformConnect(params *PlatformConnectParams) (*PlatformConnectOK, error)
-
-	PlatformSignOut(params *PlatformSignOutParams) (*PlatformSignOutOK, error)
-
-	PlatformSignUp(params *PlatformSignUpParams) (*PlatformSignUpOK, error)
-
 	Readiness(params *ReadinessParams) (*ReadinessOK, error)
 
 	StartUpdate(params *StartUpdateParams) (*StartUpdateOK, error)
@@ -216,105 +210,6 @@ func (a *Client) Logs(params *LogsParams, writer io.Writer) (*LogsOK, error) {
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*LogsDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-  PlatformConnect platforms connect connects a PMM server to the organization created on percona portal that allows the user to sign in to the PMM server with their percona account
-*/
-func (a *Client) PlatformConnect(params *PlatformConnectParams) (*PlatformConnectOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewPlatformConnectParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "PlatformConnect",
-		Method:             "POST",
-		PathPattern:        "/v1/Platform/Connect",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &PlatformConnectReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*PlatformConnectOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*PlatformConnectDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-  PlatformSignOut platforms sign out logouts this PMM instance from percona platform account
-*/
-func (a *Client) PlatformSignOut(params *PlatformSignOutParams) (*PlatformSignOutOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewPlatformSignOutParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "PlatformSignOut",
-		Method:             "POST",
-		PathPattern:        "/v1/Platform/SignOut",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &PlatformSignOutReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*PlatformSignOutOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*PlatformSignOutDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-  PlatformSignUp platforms sign up creates a new percona platform user
-*/
-func (a *Client) PlatformSignUp(params *PlatformSignUpParams) (*PlatformSignUpOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewPlatformSignUpParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "PlatformSignUp",
-		Method:             "POST",
-		PathPattern:        "/v1/Platform/SignUp",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &PlatformSignUpReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*PlatformSignUpOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*PlatformSignUpDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

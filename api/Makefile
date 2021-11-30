@@ -38,7 +38,7 @@ gen: clean            ## Generate files.
 
 	./prototool all
 
-	for API in agentlocalpb serverpb inventorypb managementpb managementpb/dbaas managementpb/ia managementpb/backup managementpb/azure qanpb ; do \
+	for API in agentlocalpb serverpb inventorypb managementpb managementpb/dbaas managementpb/ia managementpb/backup managementpb/azure qanpb platformpb ; do \
 		set -x ; \
 		$(BIN_PATH)/swagger mixin $$API/json/header.json $$API/*.swagger.json --output=$$API/json/$$(basename $$API).json --keep-spec-order; \
 		$(BIN_PATH)/swagger flatten --with-flatten=expand --with-flatten=remove-unused $$API/json/$$(basename $$API).json --output=$$API/json/$$(basename $$API).json ; \
@@ -77,7 +77,8 @@ gen: clean            ## Generate files.
 		managementpb/ia/json/ia.json \
 		managementpb/backup/json/backup.json \
 		managementpb/azure/json/azure.json \
-		qanpb/json/qanpb.json
+		qanpb/json/qanpb.json \
+		platformpb/json/platformpb.json
 	$(BIN_PATH)/swagger validate swagger/swagger-dev.json
 
 	$(BIN_PATH)/swagger-order --output=swagger/swagger-dev.json swagger/swagger-dev.json

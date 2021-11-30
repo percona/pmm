@@ -127,243 +127,6 @@
         }
       }
     },
-    "/v1/Platform/Connect": {
-      "post": {
-        "tags": [
-          "Server"
-        ],
-        "summary": "PlatformConnect connects a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.",
-        "operationId": "PlatformConnect",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "server_name": {
-                  "description": "User defined human readable PMM Server Name.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "email": {
-                  "description": "Existing Percona Platform user's email.",
-                  "type": "string",
-                  "x-order": 1
-                },
-                "password": {
-                  "description": "Existing Percona Platform user's password.",
-                  "type": "string",
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 1
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 2
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "type_url": {
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
-                      }
-                    }
-                  },
-                  "x-order": 3
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/Platform/SignOut": {
-      "post": {
-        "tags": [
-          "Server"
-        ],
-        "summary": "PlatformSignOut logouts this PMM instance from Percona Platform account.",
-        "operationId": "PlatformSignOut",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 1
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 2
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "type_url": {
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
-                      }
-                    }
-                  },
-                  "x-order": 3
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/Platform/SignUp": {
-      "post": {
-        "tags": [
-          "Server"
-        ],
-        "summary": "PlatformSignUp creates a new Percona Platform user.",
-        "operationId": "PlatformSignUp",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "email": {
-                  "description": "New Percona Platform user's email.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "password": {
-                  "description": "Existing Percona Platform user's password.",
-                  "type": "string",
-                  "x-order": 1
-                },
-                "first_name": {
-                  "description": "New Percona Platform user's first name.",
-                  "type": "string",
-                  "x-order": 2
-                },
-                "last_name": {
-                  "description": "New Percona Platform user's last name.",
-                  "type": "string",
-                  "x-order": 3
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 1
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 2
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "type_url": {
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
-                      }
-                    }
-                  },
-                  "x-order": 3
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v1/Settings/Change": {
       "post": {
         "tags": [
@@ -790,9 +553,9 @@
                       "type": "boolean",
                       "x-order": 17
                     },
-                    "connected_to_portal": {
+                    "connected_to_platform": {
                       "type": "boolean",
-                      "title": "True if the PMM instance is connected to Portal",
+                      "title": "True if the PMM instance is connected to Platform",
                       "x-order": 18
                     }
                   },
@@ -1043,9 +806,9 @@
                       "type": "boolean",
                       "x-order": 17
                     },
-                    "connected_to_portal": {
+                    "connected_to_platform": {
                       "type": "boolean",
-                      "title": "True if the PMM instance is connected to Portal",
+                      "title": "True if the PMM instance is connected to Platform",
                       "x-order": 18
                     }
                   },
