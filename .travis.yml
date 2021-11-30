@@ -41,7 +41,7 @@ env:
     - PMM_SERVER_IMAGE=percona/pmm-server:2.0.0 # oldest production version
     - PMM_SERVER_IMAGE=percona/pmm-server:2.16.0 # version with enabled expirimental repo
     - PMM_SERVER_IMAGE=percona/pmm-server:2 # latest production version
-    - PMM_SERVER_IMAGE=public.ecr.aws/e7j3v3n0/pmm-server:dev-latest # latest development version
+    - PMM_SERVER_IMAGE=perconalab/pmm-server:dev-latest # latest development version
 
 before_install:
   - docker-compose up -d

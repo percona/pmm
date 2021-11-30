@@ -8,7 +8,6 @@
       - percona-grafana
       - percona-victoriametrics
       - percona-qan-api2
-      - percona-dashboards
       - percona-alertmanager
       - pmm-server
       - pmm-managed
@@ -34,15 +33,73 @@
         is_docker: True
       when: is_docker is undefined
   tasks:
-    - name: Copy grafana plugin provisioning files
-      copy:
-        src: plugins.yml
-        dest: /usr/share/grafana/conf/provisioning/plugins/default.yml
+    # we need install this package here because it contain VERSION file
+    - name: Update percona-dashboards package
+      yum:
+        name: percona-dashboards
+        state: latest
 
-    - name: Copy grafana datasources provisioning files
+    - name: Create provisioning directory
+      file:
+        path: "/usr/share/grafana/conf/provisioning/{{ item }}"
+        owner: grafana
+        group: grafana
+        state: directory
+      loop:
+        - datasources
+        - plugins
+        - dashboards
+
+    - name: Copy grafana provisioning files
       copy:
-        src: datasources.yml
-        dest: /usr/share/grafana/conf/provisioning/datasources/default.yml
+        src: "{{ item }}.yml"
+        dest: "/usr/share/grafana/conf/provisioning/{{ item }}/default.yml"
+        owner: grafana
+        group: grafana
+      loop:
+        - datasources
+        - plugins
+        - dashboards
+
+    - name: Remove percona-dashboard without architecture
+      yum:
+        name: percona-dashboards.*noarch
+        state: absent
+
+    - name: Set home dashboard for Grafana
+      ini_file:
+        dest: /etc/grafana/grafana.ini
+        section: dashboards
+        option: default_home_dashboard_path
+        value: /usr/share/percona-dashboards/panels/pmm-app/dist/dashboards/Insight/Home_Dashboard.json
+
+    - name: Set home route for Grafana
+      ini_file:
+        dest: /etc/grafana/grafana.ini
+        section: users
+        option: home_page
+        value: d/pmm-home/home-dashboard
+
+    # Start the services
+    - name: Supervisord start        | Start supervisord service for AMI/OVF
+      when: ansible_virtualization_type != "docker"
+      service:
+        name: supervisord
+        state: started
+        enabled: yes
+
+    - name: Check that supervisor socket exists
+      stat:
+        path: /var/run/supervisor/supervisor.sock
+      register: is_supervisor_running
+
+    - name: Supervisord start         | Start supervisord for docker
+      when: ansible_virtualization_type == "docker" and not is_supervisor_running.stat.exists
+      shell: supervisord -c /etc/supervisord.conf &
+
+    - name: Run initialization playbook
+      include_role:
+        name: initialization
 
     # Replace forking type with simple. New config will be applied after next reboot.
     - name: Configure systemd
@@ -93,6 +150,8 @@
       tags:
         - skip_ansible_lint # '503 Tasks that run when changed should likely be handlers'.
                             # The handler looks bad in this case
+
+
 
     # Split download and update to produce a bit more of progress output.
     - name: Download pmm2 packages
@@ -236,30 +295,24 @@
           - pmm-agent
         - ["stop", "remove", "add"]
 
-    - name: Check if grafana plugins folder is new
-      find:
-        paths: '/srv/grafana/plugins'
-        file_type: directory
-      register: grafanaPluginFolderEmpty
-
-    # copy grafana plugins to /srv partition
-    - name: Copy plugins to /srv
-      copy:
-        src: /var/lib/grafana/plugins/
-        dest: /srv/grafana/plugins/
-        remote_src: yes
-        directory_mode: yes
-        mode: '0775'
-      when: grafanaPluginFolderEmpty.matched == 0
-
     - name: Delete old folder for grafana plugins
       file:
         state: absent
-        path: /var/lib/grafana/plugins/
+        path: "{{ item }}"
+      loop:
+        - /var/lib/grafana/plugins/
 
-    - name: Start Grafana dashboards update
-      command: supervisorctl start dashboard-upgrade
-      changed_when: True
+    - name: Enable pmm-update-perform-init after build
+      ini_file:
+        path: /etc/supervisord.d/pmm.ini
+        section: program:pmm-update-perform-init
+        option: autostart
+        value: "true"
+
+    - name: Reread pmm-update-perform-init supervisor config
+      command: supervisorctl reread
+      register: reread_init__result
+      changed_when: "'No config updates to processes' not in reread_init__result.stdout"
 
     - name: Update/restart other services
       command: supervisorctl update
@@ -278,7 +331,6 @@
 
     - name: Check supervisord log
       debug: var=maintail_result.stdout_lines
-
 
     - name: Cleanup yum cache
       command: yum clean all
