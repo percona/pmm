@@ -22,6 +22,13 @@ jobs:
         go-version:
           - 1.16.x
     runs-on: ubuntu-latest
+    env:
+      GOPATH: ${{ github.workspace }}
+      WORKING_DIR: ${{ github.workspace }}/src/github.com/percona/pmm
+
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIR }}
 
     steps:
       - name: Set up Go release
@@ -33,6 +40,7 @@ jobs:
         uses: percona-platform/checkout@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          path: ${{ env.WORKING_DIR }}
 
 
       - name: API make Init
@@ -58,7 +66,7 @@ jobs:
       - name: Clean Testcache
         run: go clean -testcache
 
-      - name: Slack Notification
-        uses: rtCamp/action-slack-notify@v2
-        env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+#      - name: Slack Notification
+#        uses: rtCamp/action-slack-notify@v2
+#        env:
+#          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
