@@ -72,6 +72,11 @@
     - cap_sys_nice
     - cap_net_admin
 
+- name: Remove clickhouse-odbc-bridge binary
+  file:
+    path: "/usr/bin/clickhouse-odbc-bridge"
+    state: absent
+
 - name: Start clickhouse
   command: supervisorctl add clickhouse
   changed_when: True
