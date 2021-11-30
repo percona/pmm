@@ -19,8 +19,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        go-version:
-          - 1.16.x
+        go:
+          - version: 1.16.x
+            may-fail: false
+          - version: tip
+            may-fail: true
     runs-on: ubuntu-latest
     env:
       GOPATH: ${{ github.workspace }}
@@ -32,9 +35,27 @@ jobs:
 
     steps:
       - name: Set up Go release
+        if: matrix.go.version != 'tip'
         uses: percona-platform/setup-go@v2
         with:
-          go-version: ${{ matrix.go-version }}
+          go-version: ${{ matrix.go.version }}
+
+      - name: Set up Go tip
+        if: matrix.go.version == 'tip'
+        run: |
+          git clone --depth=1 https://go.googlesource.com/go $HOME/gotip
+          cd $HOME/gotip/src
+          ./make.bash
+          echo "GOROOT=$HOME/gotip" >> $GITHUB_ENV
+          echo "$HOME/gotip/bin" >> $GITHUB_PATH
+
+      - name: Enable Go modules cache
+        uses: percona-platform/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ matrix.os }}-go-${{ matrix.go-version }}-modules-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ matrix.os }}-go-${{ matrix.go-version }}-modules-
 
       - name: Checkout code
         uses: percona-platform/checkout@v2
@@ -66,7 +87,7 @@ jobs:
       - name: Clean Testcache
         run: go clean -testcache
 
-#      - name: Slack Notification
-#        uses: rtCamp/action-slack-notify@v2
-#        env:
-#          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
