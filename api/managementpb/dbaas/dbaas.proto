@@ -35,6 +35,16 @@ message Resources {
   uint64 disk_size = 3;
 }
 
+// DBClusterType represents database cluster type.
+enum DBClusterType {
+  // DB_CLUSTER_TYPE_INVALID represents unknown cluster type.
+  DB_CLUSTER_TYPE_INVALID = 0;
+  // DB_CLUSTER_TYPE_PXC represents pxc cluster type.
+  DB_CLUSTER_TYPE_PXC = 1;
+  // DB_CLUSTER_TYPE_PSMDB represents psmdb cluster type.
+  DB_CLUSTER_TYPE_PSMDB = 2;
+}
+
 // OperatorsStatus defines status of operators installed in Kubernetes cluster.
 enum OperatorsStatus {
   // OPERATORS_STATUS_INVALID represents unknown state.

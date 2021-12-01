@@ -74,7 +74,7 @@ func (a *Client) ChangePSMDBComponents(params *ChangePSMDBComponentsParams) (*Ch
 }
 
 /*
-  ChangePXCComponents changes p x c components manages p x c related components
+  ChangePXCComponents changes PXC components manages PXC related components
 */
 func (a *Client) ChangePXCComponents(params *ChangePXCComponentsParams) (*ChangePXCComponentsOK, error) {
 	// TODO: Validate the params before sending
@@ -173,7 +173,7 @@ func (a *Client) GetPSMDBComponents(params *GetPSMDBComponentsParams) (*GetPSMDB
 }
 
 /*
-  GetPXCComponents gets p x c components returns list of available components for p x c clusters
+  GetPXCComponents gets PXC components returns list of available components for PXC clusters
 */
 func (a *Client) GetPXCComponents(params *GetPXCComponentsParams) (*GetPXCComponentsOK, error) {
 	// TODO: Validate the params before sending
