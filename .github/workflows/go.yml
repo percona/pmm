@@ -89,8 +89,3 @@ jobs:
 
       - name: Clean Testcache
         run: go clean -testcache
-
-#      - name: Slack Notification
-#        uses: rtCamp/action-slack-notify@v2
-#        env:
-#          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
