@@ -82,7 +82,7 @@
 
     # Start the services
     - name: Supervisord start        | Start supervisord service for AMI/OVF
-      when: ansible_virtualization_type != "docker"
+      when: not is_docker 
       service:
         name: supervisord
         state: started
@@ -94,7 +94,7 @@
       register: is_supervisor_running
 
     - name: Supervisord start         | Start supervisord for docker
-      when: ansible_virtualization_type == "docker" and not is_supervisor_running.stat.exists
+      when: is_docker and not is_supervisor_running.stat.exists
       shell: supervisord -c /etc/supervisord.conf &
 
     - name: Run initialization playbook
