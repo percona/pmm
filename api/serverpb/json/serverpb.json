@@ -453,6 +453,11 @@
                       "type": "string",
                       "x-order": 4
                     },
+                    "require_tls": {
+                      "description": "Require TLS.",
+                      "type": "boolean",
+                      "x-order": 7
+                    },
                     "secret": {
                       "description": "Auth using CRAM-MD5.",
                       "type": "string",
@@ -671,6 +676,11 @@
                           "description": "Auth using LOGIN and PLAIN.",
                           "type": "string",
                           "x-order": 4
+                        },
+                        "require_tls": {
+                          "description": "Require TLS.",
+                          "type": "boolean",
+                          "x-order": 7
                         },
                         "secret": {
                           "description": "Auth using CRAM-MD5.",
@@ -914,6 +924,11 @@
                           "description": "Auth using LOGIN and PLAIN.",
                           "type": "string",
                           "x-order": 4
+                        },
+                        "require_tls": {
+                          "description": "Require TLS.",
+                          "type": "boolean",
+                          "x-order": 7
                         },
                         "secret": {
                           "description": "Auth using CRAM-MD5.",
