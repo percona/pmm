@@ -189,7 +189,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			if err != nil {
 				return err
 			}
-			agentProcesses[row.AgentID] = nodeExporterConfig(node, row)
+			agentProcesses[row.AgentID] = nodeExporterConfig(node, row, pmmAgentVersion)
 
 		case models.RDSExporterType:
 			node, err := models.FindNodeByID(u.db.Querier, pointer.GetString(row.NodeID))
@@ -223,7 +223,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 
 			switch row.AgentType {
 			case models.MySQLdExporterType:
-				agentProcesses[row.AgentID] = mysqldExporterConfig(service, row, redactMode)
+				agentProcesses[row.AgentID] = mysqldExporterConfig(service, row, redactMode, pmmAgentVersion)
 			case models.MongoDBExporterType:
 				agentProcesses[row.AgentID] = mongodbExporterConfig(service, row, redactMode, pmmAgentVersion)
 			case models.PostgresExporterType:

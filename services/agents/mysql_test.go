@@ -22,6 +22,7 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
+	"github.com/percona/pmm/version"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -40,7 +41,9 @@ func TestMySQLdExporterConfig(t *testing.T) {
 		Password:      pointer.ToString("s3cur3 p@$$w0r4."),
 		AgentPassword: pointer.ToString("agent-password"),
 	}
-	actual := mysqldExporterConfig(mysql, exporter, redactSecrets)
+	pmmAgentVersion := version.MustParse("2.21.0")
+
+	actual := mysqldExporterConfig(mysql, exporter, redactSecrets, pmmAgentVersion)
 	expected := &agentpb.SetStateRequest_AgentProcess{
 		Type:               inventorypb.AgentType_MYSQLD_EXPORTER,
 		TemplateLeftDelim:  "{{",
@@ -49,11 +52,11 @@ func TestMySQLdExporterConfig(t *testing.T) {
 			"--collect.auto_increment.columns",
 			"--collect.binlog_size",
 			"--collect.custom_query.hr",
-			"--collect.custom_query.hr.directory=" + pathsBase(pointer.GetString(exporter.Version), "{{", "}}") + "/collectors/custom-queries/mysql/high-resolution",
+			"--collect.custom_query.hr.directory=/usr/local/percona/pmm2/collectors/custom-queries/mysql/high-resolution",
 			"--collect.custom_query.lr",
-			"--collect.custom_query.lr.directory=" + pathsBase(pointer.GetString(exporter.Version), "{{", "}}") + "/collectors/custom-queries/mysql/low-resolution",
+			"--collect.custom_query.lr.directory=/usr/local/percona/pmm2/collectors/custom-queries/mysql/low-resolution",
 			"--collect.custom_query.mr",
-			"--collect.custom_query.mr.directory=" + pathsBase(pointer.GetString(exporter.Version), "{{", "}}") + "/collectors/custom-queries/mysql/medium-resolution",
+			"--collect.custom_query.mr.directory=/usr/local/percona/pmm2/collectors/custom-queries/mysql/medium-resolution",
 			"--collect.engine_innodb_status",
 			"--collect.engine_tokudb_status",
 			"--collect.global_status",
@@ -98,13 +101,13 @@ func TestMySQLdExporterConfig(t *testing.T) {
 
 	t.Run("EmptyPassword", func(t *testing.T) {
 		exporter.Password = nil
-		actual := mysqldExporterConfig(mysql, exporter, exposeSecrets)
+		actual := mysqldExporterConfig(mysql, exporter, exposeSecrets, pmmAgentVersion)
 		assert.Equal(t, "DATA_SOURCE_NAME=username@tcp(1.2.3.4:3306)/?timeout=1s", actual.Env[0])
 	})
 
 	t.Run("EmptyUsername", func(t *testing.T) {
 		exporter.Username = nil
-		actual := mysqldExporterConfig(mysql, exporter, exposeSecrets)
+		actual := mysqldExporterConfig(mysql, exporter, exposeSecrets, pmmAgentVersion)
 		assert.Equal(t, "DATA_SOURCE_NAME=tcp(1.2.3.4:3306)/?timeout=1s", actual.Env[0])
 	})
 
@@ -115,7 +118,7 @@ func TestMySQLdExporterConfig(t *testing.T) {
 			TLSCert: "content-of-tls-certificate-key",
 			TLSKey:  "content-of-tls-key",
 		}
-		actual := mysqldExporterConfig(mysql, exporter, exposeSecrets)
+		actual := mysqldExporterConfig(mysql, exporter, exposeSecrets, pmmAgentVersion)
 		expected := "DATA_SOURCE_NAME=tcp(1.2.3.4:3306)/?timeout=1s&tls=custom"
 		assert.Equal(t, expected, actual.Env[0])
 		expectedFiles := map[string]string{
@@ -145,7 +148,9 @@ func TestMySQLdExporterConfigTablestatsGroupDisabled(t *testing.T) {
 			TLSKey:  "content-of-tls-key",
 		},
 	}
-	actual := mysqldExporterConfig(mysql, exporter, redactSecrets)
+	pmmAgentVersion := version.MustParse("2.24.0")
+
+	actual := mysqldExporterConfig(mysql, exporter, redactSecrets, pmmAgentVersion)
 	expected := &agentpb.SetStateRequest_AgentProcess{
 		Type:               inventorypb.AgentType_MYSQLD_EXPORTER,
 		TemplateLeftDelim:  "{{",
@@ -153,11 +158,11 @@ func TestMySQLdExporterConfigTablestatsGroupDisabled(t *testing.T) {
 		Args: []string{
 			"--collect.binlog_size",
 			"--collect.custom_query.hr",
-			"--collect.custom_query.hr.directory=" + pathsBase(pointer.GetString(exporter.Version), "{{", "}}") + "/collectors/custom-queries/mysql/high-resolution",
+			"--collect.custom_query.hr.directory={{ .paths_base }}/collectors/custom-queries/mysql/high-resolution",
 			"--collect.custom_query.lr",
-			"--collect.custom_query.lr.directory=" + pathsBase(pointer.GetString(exporter.Version), "{{", "}}") + "/collectors/custom-queries/mysql/low-resolution",
+			"--collect.custom_query.lr.directory={{ .paths_base }}/collectors/custom-queries/mysql/low-resolution",
 			"--collect.custom_query.mr",
-			"--collect.custom_query.mr.directory=" + pathsBase(pointer.GetString(exporter.Version), "{{", "}}") + "/collectors/custom-queries/mysql/medium-resolution",
+			"--collect.custom_query.mr.directory={{ .paths_base }}/collectors/custom-queries/mysql/medium-resolution",
 			"--collect.engine_innodb_status",
 			"--collect.engine_tokudb_status",
 			"--collect.global_status",
@@ -203,13 +208,13 @@ func TestMySQLdExporterConfigTablestatsGroupDisabled(t *testing.T) {
 
 	t.Run("EmptyPassword", func(t *testing.T) {
 		exporter.Password = nil
-		actual := mysqldExporterConfig(mysql, exporter, exposeSecrets)
+		actual := mysqldExporterConfig(mysql, exporter, exposeSecrets, pmmAgentVersion)
 		assert.Equal(t, "DATA_SOURCE_NAME=username@tcp(1.2.3.4:3306)/?timeout=1s&tls=custom", actual.Env[0])
 	})
 
 	t.Run("EmptyUsername", func(t *testing.T) {
 		exporter.Username = nil
-		actual := mysqldExporterConfig(mysql, exporter, exposeSecrets)
+		actual := mysqldExporterConfig(mysql, exporter, exposeSecrets, pmmAgentVersion)
 		assert.Equal(t, "DATA_SOURCE_NAME=tcp(1.2.3.4:3306)/?timeout=1s&tls=custom", actual.Env[0])
 	})
 }
@@ -226,7 +231,9 @@ func TestMySQLdExporterConfigDisabledCollectors(t *testing.T) {
 		Password:           pointer.ToString("s3cur3 p@$$w0r4."),
 		DisabledCollectors: []string{"heartbeat", "info_schema.clientstats", "perf_schema.eventsstatements", "custom_query.hr"},
 	}
-	actual := mysqldExporterConfig(mysql, exporter, redactSecrets)
+	pmmAgentVersion := version.MustParse("2.24.0")
+
+	actual := mysqldExporterConfig(mysql, exporter, redactSecrets, pmmAgentVersion)
 	expected := &agentpb.SetStateRequest_AgentProcess{
 		Type:               inventorypb.AgentType_MYSQLD_EXPORTER,
 		TemplateLeftDelim:  "{{",
@@ -234,11 +241,11 @@ func TestMySQLdExporterConfigDisabledCollectors(t *testing.T) {
 		Args: []string{
 			"--collect.auto_increment.columns",
 			"--collect.binlog_size",
-			"--collect.custom_query.hr.directory=" + pathsBase(pointer.GetString(exporter.Version), "{{", "}}") + "/collectors/custom-queries/mysql/high-resolution",
+			"--collect.custom_query.hr.directory={{ .paths_base }}/collectors/custom-queries/mysql/high-resolution",
 			"--collect.custom_query.lr",
-			"--collect.custom_query.lr.directory=" + pathsBase(pointer.GetString(exporter.Version), "{{", "}}") + "/collectors/custom-queries/mysql/low-resolution",
+			"--collect.custom_query.lr.directory={{ .paths_base }}/collectors/custom-queries/mysql/low-resolution",
 			"--collect.custom_query.mr",
-			"--collect.custom_query.mr.directory=" + pathsBase(pointer.GetString(exporter.Version), "{{", "}}") + "/collectors/custom-queries/mysql/medium-resolution",
+			"--collect.custom_query.mr.directory={{ .paths_base }}/collectors/custom-queries/mysql/medium-resolution",
 			"--collect.engine_innodb_status",
 			"--collect.engine_tokudb_status",
 			"--collect.global_status",

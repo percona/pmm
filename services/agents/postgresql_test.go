@@ -57,11 +57,11 @@ func (s *PostgresExporterConfigTestSuite) SetupTest() {
 		TemplateRightDelim: "}}",
 		Args: []string{
 			"--collect.custom_query.hr",
-			"--collect.custom_query.hr.directory=" + pathsBase(pointer.GetString(s.exporter.Version), "{{", "}}") + "/collectors/custom-queries/postgresql/high-resolution",
+			"--collect.custom_query.hr.directory=" + pathsBase(s.pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/high-resolution",
 			"--collect.custom_query.lr",
-			"--collect.custom_query.lr.directory=" + pathsBase(pointer.GetString(s.exporter.Version), "{{", "}}") + "/collectors/custom-queries/postgresql/low-resolution",
+			"--collect.custom_query.lr.directory=" + pathsBase(s.pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/low-resolution",
 			"--collect.custom_query.mr",
-			"--collect.custom_query.mr.directory=" + pathsBase(pointer.GetString(s.exporter.Version), "{{", "}}") + "/collectors/custom-queries/postgresql/medium-resolution",
+			"--collect.custom_query.mr.directory=" + pathsBase(s.pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/medium-resolution",
 			"--web.listen-address=:{{ .listen_port }}",
 		},
 		Env: []string{
@@ -139,6 +139,7 @@ func (s *PostgresExporterConfigTestSuite) TestSocket() {
 }
 
 func (s *PostgresExporterConfigTestSuite) TestDisabledCollectors() {
+	s.pmmAgentVersion = &version.Parsed{}
 	s.postgresql.Address = nil
 	s.postgresql.Port = nil
 	s.postgresql.Socket = pointer.ToString("/var/run/postgres")
@@ -152,9 +153,9 @@ func (s *PostgresExporterConfigTestSuite) TestDisabledCollectors() {
 		TemplateRightDelim: "}}",
 		Args: []string{
 			"--collect.custom_query.lr",
-			"--collect.custom_query.lr.directory=" + pathsBase(pointer.GetString(s.exporter.Version), "{{", "}}") + "/collectors/custom-queries/postgresql/low-resolution",
+			"--collect.custom_query.lr.directory=" + pathsBase(s.pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/low-resolution",
 			"--collect.custom_query.mr",
-			"--collect.custom_query.mr.directory=" + pathsBase(pointer.GetString(s.exporter.Version), "{{", "}}") + "/collectors/custom-queries/postgresql/medium-resolution",
+			"--collect.custom_query.mr.directory=" + pathsBase(s.pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/medium-resolution",
 			"--web.listen-address=:{{ .listen_port }}",
 		},
 	}
@@ -186,11 +187,11 @@ func (s *PostgresExporterConfigTestSuite) TestAutoDiscovery() {
 		Args: []string{
 			"--auto-discover-databases",
 			"--collect.custom_query.hr",
-			"--collect.custom_query.hr.directory=" + pathsBase(pointer.GetString(s.exporter.Version), "{{", "}}") + "/collectors/custom-queries/postgresql/high-resolution",
+			"--collect.custom_query.hr.directory=" + pathsBase(s.pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/high-resolution",
 			"--collect.custom_query.lr",
-			"--collect.custom_query.lr.directory=" + pathsBase(pointer.GetString(s.exporter.Version), "{{", "}}") + "/collectors/custom-queries/postgresql/low-resolution",
+			"--collect.custom_query.lr.directory=" + pathsBase(s.pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/low-resolution",
 			"--collect.custom_query.mr",
-			"--collect.custom_query.mr.directory=" + pathsBase(pointer.GetString(s.exporter.Version), "{{", "}}") + "/collectors/custom-queries/postgresql/medium-resolution",
+			"--collect.custom_query.mr.directory=" + pathsBase(s.pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/medium-resolution",
 			"--exclude-databases=template0,template1,postgres,cloudsqladmin,pmm-managed-dev,azure_maintenance",
 			"--web.listen-address=:{{ .listen_port }}",
 		},
@@ -237,11 +238,11 @@ func (s *PostgresExporterConfigTestSuite) TestAzureTimeout() {
 		Args: []string{
 			"--auto-discover-databases",
 			"--collect.custom_query.hr",
-			"--collect.custom_query.hr.directory=" + pathsBase(pointer.GetString(s.exporter.Version), "{{", "}}") + "/collectors/custom-queries/postgresql/high-resolution",
+			"--collect.custom_query.hr.directory=" + pathsBase(s.pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/high-resolution",
 			"--collect.custom_query.lr",
-			"--collect.custom_query.lr.directory=" + pathsBase(pointer.GetString(s.exporter.Version), "{{", "}}") + "/collectors/custom-queries/postgresql/low-resolution",
+			"--collect.custom_query.lr.directory=" + pathsBase(s.pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/low-resolution",
 			"--collect.custom_query.mr",
-			"--collect.custom_query.mr.directory=" + pathsBase(pointer.GetString(s.exporter.Version), "{{", "}}") + "/collectors/custom-queries/postgresql/medium-resolution",
+			"--collect.custom_query.mr.directory=" + pathsBase(s.pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/medium-resolution",
 			"--exclude-databases=template0,template1,postgres,cloudsqladmin,pmm-managed-dev,azure_maintenance",
 			"--web.listen-address=:{{ .listen_port }}",
 		},

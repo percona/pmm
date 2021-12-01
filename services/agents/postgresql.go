@@ -52,9 +52,9 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent, red
 		// HR
 		"--collect.custom_query.hr",
 
-		"--collect.custom_query.lr.directory=" + pathsBase(pointer.GetString(exporter.Version), tdp.Left, tdp.Right) + "/collectors/custom-queries/postgresql/low-resolution",
-		"--collect.custom_query.mr.directory=" + pathsBase(pointer.GetString(exporter.Version), tdp.Left, tdp.Right) + "/collectors/custom-queries/postgresql/medium-resolution",
-		"--collect.custom_query.hr.directory=" + pathsBase(pointer.GetString(exporter.Version), tdp.Left, tdp.Right) + "/collectors/custom-queries/postgresql/high-resolution",
+		"--collect.custom_query.lr.directory=" + pathsBase(pmmAgentVersion, tdp.Left, tdp.Right) + "/collectors/custom-queries/postgresql/low-resolution",
+		"--collect.custom_query.mr.directory=" + pathsBase(pmmAgentVersion, tdp.Left, tdp.Right) + "/collectors/custom-queries/postgresql/medium-resolution",
+		"--collect.custom_query.hr.directory=" + pathsBase(pmmAgentVersion, tdp.Left, tdp.Right) + "/collectors/custom-queries/postgresql/high-resolution",
 		"--web.listen-address=:" + tdp.Left + " .listen_port " + tdp.Right,
 	}
 

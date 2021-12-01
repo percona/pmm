@@ -23,20 +23,21 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
+	"github.com/percona/pmm/version"
 
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/utils/collectors"
 )
 
-func nodeExporterConfig(node *models.Node, exporter *models.Agent) *agentpb.SetStateRequest_AgentProcess {
+func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion *version.Parsed) *agentpb.SetStateRequest_AgentProcess {
 	tdp := models.TemplateDelimsPair(
 		pointer.GetString(exporter.MetricsPath),
 	)
 
 	args := []string{
-		"--collector.textfile.directory.lr=" + pathsBase(pointer.GetString(exporter.Version), tdp.Left, tdp.Right) + "/collectors/textfile-collector/low-resolution",
-		"--collector.textfile.directory.mr=" + pathsBase(pointer.GetString(exporter.Version), tdp.Left, tdp.Right) + "/collectors/textfile-collector/medium-resolution",
-		"--collector.textfile.directory.hr=" + pathsBase(pointer.GetString(exporter.Version), tdp.Left, tdp.Right) + "/collectors/textfile-collector/high-resolution",
+		"--collector.textfile.directory.lr=" + pathsBase(agentVersion, tdp.Left, tdp.Right) + "/collectors/textfile-collector/low-resolution",
+		"--collector.textfile.directory.mr=" + pathsBase(agentVersion, tdp.Left, tdp.Right) + "/collectors/textfile-collector/medium-resolution",
+		"--collector.textfile.directory.hr=" + pathsBase(agentVersion, tdp.Left, tdp.Right) + "/collectors/textfile-collector/high-resolution",
 
 		"--web.disable-exporter-metrics", // we enable them as a part of HR metrics
 
