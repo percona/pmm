@@ -71,7 +71,6 @@ type sub struct {
 
 // values from supervisord configuration
 const (
-	dashboardUpgradeProgram = "dashboard-upgrade"
 	pmmUpdatePerformProgram = "pmm-update-perform"
 	pmmUpdatePerformLog     = "/srv/logs/pmm-update-perform.log"
 )
@@ -307,9 +306,9 @@ func parseStatus(status string) *bool {
 	return nil
 }
 
-// UpdateRunning returns true if dashboard-upgrade or pmm-update-perform is not done yet.
+// UpdateRunning returns true if pmm-update-perform is not done yet.
 func (s *Service) UpdateRunning() bool {
-	return s.programRunning(dashboardUpgradeProgram) || s.programRunning(pmmUpdatePerformProgram)
+	return s.programRunning(pmmUpdatePerformProgram)
 }
 
 // UpdateRunning returns true if given supervisord program is running or being restarted,
