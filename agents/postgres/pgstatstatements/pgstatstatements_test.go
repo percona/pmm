@@ -154,6 +154,11 @@ func TestPGStatStatementsQAN(t *testing.T) {
 			selectAllCities:     "-32455482996301954",
 			selectAllCitiesLong: "-4813789842463369261",
 		}
+	case "14":
+		digests = map[string]string{
+			selectAllCities:     "5991662752016701281",
+			selectAllCitiesLong: "-3564720362103294944",
+		}
 	default:
 		t.Log("Unhandled version, assuming dummy digests.")
 		digests = map[string]string{
@@ -393,7 +398,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		}
 		actual := buckets[0]
 		assert.NotZero(t, actual.Postgresql.MBlkReadTimeSum)
-		var expected = &agentpb.MetricsBucket{
+		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Queryid:             actual.Common.Queryid,
 				Fingerprint:         fingerprint,

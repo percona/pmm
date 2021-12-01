@@ -32,9 +32,7 @@ const (
 	MgoTimeoutTail = 1 * time.Second
 )
 
-var (
-	cursorTimeout = 3 * time.Second
-)
+var cursorTimeout = 3 * time.Second
 
 // New creates new Collector.
 func New(client *mongo.Client, dbName string, logger *logrus.Entry) *Collector {

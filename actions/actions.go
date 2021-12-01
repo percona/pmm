@@ -28,7 +28,7 @@ import (
 	"github.com/percona/pmm-agent/tlshelpers"
 )
 
-//go-sumtype:decl Action
+// go-sumtype:decl Action
 
 // Action describes an abstract thing that can be run by a client and return some output.
 type Action interface {

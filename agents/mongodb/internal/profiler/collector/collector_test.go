@@ -132,7 +132,7 @@ func TestCollector(t *testing.T) {
 	cleanUpDBs(client) // Just in case there are old dbs with matching names
 	defer cleanUpDBs(client)
 
-	//It's done create DB before the test.
+	// It's done create DB before the test.
 	doc := bson.M{}
 	client.Database("test_collector").Collection("test").InsertOne(context.TODO(), doc)
 	<-time.After(time.Second)

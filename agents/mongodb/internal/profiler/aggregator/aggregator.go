@@ -40,7 +40,6 @@ const reportChanBuffer = 1000
 
 // New returns configured *Aggregator
 func New(timeStart time.Time, agentID string, logger *logrus.Entry) *Aggregator {
-
 	aggregator := &Aggregator{
 		agentID: agentID,
 		logger:  logger,
@@ -307,5 +306,4 @@ func (a *Aggregator) createResult(ctx context.Context) *report.Result {
 	return &report.Result{
 		Buckets: buckets,
 	}
-
 }

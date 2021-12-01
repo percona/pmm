@@ -44,10 +44,10 @@ type pgStatStatements struct {
 	Query     string  `reform:"query"`   // we select only non-NULL rows
 	Calls     int64   `reform:"calls"`
 	TotalTime float64 `reform:"total_time"`
-	//MinTime           *float64 `reform:"min_time"`
-	//MaxTime           *float64 `reform:"max_time"`
-	//MeanTime          *float64 `reform:"mean_time"`
-	//StddevTime        *float64 `reform:"stddev_time"`
+	// MinTime           *float64 `reform:"min_time"`
+	// MaxTime           *float64 `reform:"max_time"`
+	// MeanTime          *float64 `reform:"mean_time"`
+	// StddevTime        *float64 `reform:"stddev_time"`
 	Rows              int64   `reform:"rows"`
 	SharedBlksHit     int64   `reform:"shared_blks_hit"`
 	SharedBlksRead    int64   `reform:"shared_blks_read"`

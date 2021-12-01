@@ -22,7 +22,6 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	ver "github.com/hashicorp/go-version"
 	pgquery "github.com/lfittl/pg_query_go"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -84,13 +83,16 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 	databases := queryDatabases(q)
 	usernames := queryUsernames(q)
 
-	row, view, e := getRowAndView(q)
-	if e != nil {
-		err = errors.Wrap(e, "failed to get row and view for pg_stat_monitor version")
+	pgMonitorVersion, err := getPGMonitorVersion(q)
+	if err != nil {
+		err = errors.Wrap(err, "failed to get row and view for pg_stat_monitor version")
 		return
 	}
+	ssc.l.Infof("pg version = %d", pgMonitorVersion)
+
+	row, view := NewPgStatMonitorStructs(pgMonitorVersion)
 	conditions := "WHERE queryid IS NOT NULL AND query IS NOT NULL"
-	if _, ok := row.(*pgStatMonitor09); ok {
+	if pgMonitorVersion >= pgStatMonitorVersion09 {
 		// only pg_stat_monitor 0.9.0 and above supports state_code. It tells what is the query's current state.
 		// To have correct data in QAN, we have to get only queries that are either 'FINISHED' or 'FINISHED WITH ERROR'.
 		conditions += " AND (state_code = 3 OR state_code = 4)"
@@ -112,31 +114,20 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 		totalN++
 
 		var c pgStatMonitorExtended
-		switch r := row.(type) {
-		case *pgStatMonitorDefault:
-			c.pgStatMonitor = r.ToPgStatMonitor()
-			c.Database = databases[r.DBID]
-			c.Username = usernames[r.UserID]
-		case *pgStatMonitor08:
-			m, e := r.ToPgStatMonitor()
+		switch pgMonitorVersion { // nolint:exhaustive
+		case pgStatMonitorVersion06:
+			c.pgStatMonitor = *row
+			c.Database = databases[row.DBID]
+			c.Username = usernames[row.UserID]
+		default:
+			row.BucketStartTime, e = time.Parse("2006-01-02 15:04:05", row.BucketStartTimeString)
 			if e != nil {
 				err = e
 				break
 			}
-
-			c.pgStatMonitor = m
-			c.Database = r.DatName
-			c.Username = r.User
-		case *pgStatMonitor09:
-			m, e := r.ToPgStatMonitor()
-			if e != nil {
-				err = e
-				break
-			}
-
-			c.pgStatMonitor = m
-			c.Database = r.DatName
-			c.Username = r.User
+			c.pgStatMonitor = *row
+			c.Database = row.DatName
+			c.Username = row.UserName
 		}
 
 		for _, m := range cache {
@@ -264,41 +255,4 @@ func queryUsernames(q *reform.Querier) map[int64]string {
 		res[u.UserID] = pointer.GetString(u.UserName)
 	}
 	return res
-}
-
-// getRowAndView return row and view coresponding to right pg_stat_monitor version.
-func getRowAndView(q *reform.Querier) (reform.Struct, reform.View, error) {
-	pgMonitorVersion, err := getPGMonitorVersion(q)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	v, err := ver.NewVersion(pgMonitorVersion)
-	if err != nil {
-		return nil, nil, err
-	}
-	v09, err := ver.NewVersion("0.9")
-	if err != nil {
-		return nil, nil, err
-	}
-	v08, err := ver.NewVersion("0.8")
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var view reform.View
-	var row reform.Struct
-	switch {
-	case v.GreaterThanOrEqual(v09):
-		view = pgStatMonitor09View
-		row = &pgStatMonitor09{}
-	case v.GreaterThanOrEqual(v08):
-		view = pgStatMonitor08View
-		row = &pgStatMonitor08{}
-	default:
-		view = pgStatMonitorDefaultView
-		row = &pgStatMonitorDefault{}
-	}
-
-	return row, view, nil
 }

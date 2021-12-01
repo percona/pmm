@@ -24,6 +24,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/AlekSi/pointer"
+	ver "github.com/hashicorp/go-version"
 	"github.com/lib/pq"
 	_ "github.com/lib/pq" // register SQL driver.
 	"github.com/percona/pmm/api/agentpb"
@@ -35,6 +37,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm-agent/agents"
+	"github.com/percona/pmm-agent/utils/version"
 )
 
 const defaultWaitTime = 60 * time.Second
@@ -66,19 +69,35 @@ type Params struct {
 	AgentID              string
 }
 
+type pgStatMonitorVersion int
+
+const (
+	pgStatMonitorVersion06 pgStatMonitorVersion = iota
+	pgStatMonitorVersion08
+	pgStatMonitorVersion09
+	pgStatMonitorVersion10PG12
+	pgStatMonitorVersion10PG13
+	pgStatMonitorVersion10PG14
+)
+
 const (
 	queryTag = "pmm-agent:pgstatmonitor"
 	// There is a feature in the FE that shows "n/a" for empty responses for dimensions.
 	commandTextNotAvailable = ""
+	commandTypeSelect       = "SELECT"
+	commandTypeUpdate       = "UPDATE"
+	commandTypeInsert       = "INSERT"
+	commandTypeDelete       = "DELETE"
+	commandTypeUtiity       = "UTILITY"
 )
 
 var commandTypeToText = []string{
 	commandTextNotAvailable,
-	"SELECT",
-	"UPDATE",
-	"INSERT",
-	"DELETE",
-	"UTILITY",
+	commandTypeSelect,
+	commandTypeUpdate,
+	commandTypeInsert,
+	commandTypeDelete,
+	commandTypeUtiity,
 	commandTextNotAvailable,
 }
 
@@ -131,14 +150,48 @@ func newPgStatMonitorQAN(q *reform.Querier, dbCloser io.Closer, agentID string, 
 	}, nil
 }
 
-func getPGMonitorVersion(q *reform.Querier) (string, error) {
+func getPGVersion(q *reform.Querier) (pgVersion float64, err error) {
 	var v string
-	err := q.QueryRow(fmt.Sprintf("SELECT /* %s */ pg_stat_monitor_version()", queryTag)).Scan(&v)
+	err = q.QueryRow(fmt.Sprintf("SELECT /* %s */ version()", queryTag)).Scan(&v)
 	if err != nil {
-		return "", err
+		return
+	}
+	v = version.ParsePostgreSQLVersion(v)
+	return strconv.ParseFloat(v, 64)
+}
+
+func getPGMonitorVersion(q *reform.Querier) (pgStatMonitorVersion, error) {
+	var result string
+	err := q.QueryRow(fmt.Sprintf("SELECT /* %s */ pg_stat_monitor_version()", queryTag)).Scan(&result)
+	if err != nil {
+		return pgStatMonitorVersion06, errors.Wrap(err, "failed to get pg_stat_monitor version from DB")
+	}
+	pgsmVersion, err := ver.NewVersion(result)
+	if err != nil {
+		return pgStatMonitorVersion06, errors.Wrap(err, "failed to parse pg_stat_monitor version")
 	}
 
-	return v, nil
+	pgVersion, err := getPGVersion(q)
+	if err != nil {
+		return pgStatMonitorVersion06, err
+	}
+
+	switch {
+	case pgsmVersion.Core().GreaterThanOrEqual(v10):
+		if pgVersion >= 14 {
+			return pgStatMonitorVersion10PG14, nil
+		}
+		if pgVersion >= 13 {
+			return pgStatMonitorVersion10PG13, nil
+		}
+		return pgStatMonitorVersion10PG12, nil
+	case pgsmVersion.GreaterThanOrEqual(v09):
+		return pgStatMonitorVersion09, nil
+	case pgsmVersion.GreaterThanOrEqual(v08):
+		return pgStatMonitorVersion08, nil
+	default:
+		return pgStatMonitorVersion06, nil
+	}
 }
 
 // Run extracts stats data and sends it to the channel until ctx is canceled.
@@ -284,11 +337,11 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 				m.l.Warnf("failed to translate command type '%d' into text", currentPSM.pgStatMonitor.CmdType)
 			}
 
-			mb.Postgresql.TopQueryid = currentPSM.TopQueryID
-			mb.Postgresql.TopQuery = currentPSM.TopQuery
-			mb.Postgresql.ApplicationName = currentPSM.ApplicationName
-			mb.Postgresql.Planid = currentPSM.PlanID
-			mb.Postgresql.QueryPlan = currentPSM.QueryPlan
+			mb.Postgresql.TopQueryid = pointer.GetString(currentPSM.TopQueryID)
+			mb.Postgresql.TopQuery = pointer.GetString(currentPSM.TopQuery)
+			mb.Postgresql.ApplicationName = pointer.GetString(currentPSM.ApplicationName)
+			mb.Postgresql.Planid = pointer.GetString(currentPSM.PlanID)
+			mb.Postgresql.QueryPlan = pointer.GetString(currentPSM.QueryPlan)
 
 			histogram, err := parseHistogramFromRespCalls(currentPSM.RespCalls, prevPSM.RespCalls)
 			if err != nil {

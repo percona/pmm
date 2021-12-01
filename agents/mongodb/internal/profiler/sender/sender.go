@@ -99,7 +99,6 @@ func start(ctx context.Context, wg *sync.WaitGroup, reportChan <-chan *report.Re
 	defer wg.Done()
 
 	for {
-
 		select {
 		case report, ok := <-reportChan:
 			// if channel got closed we should exit as there is nothing we can listen to

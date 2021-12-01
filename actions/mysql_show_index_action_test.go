@@ -18,6 +18,7 @@ package actions
 import (
 	"context"
 	"encoding/json"
+	"strconv"
 	"testing"
 	"time"
 
@@ -58,7 +59,17 @@ func TestMySQLShowIndex(t *testing.T) {
 		actual[1][6] = "CARDINALITY"
 		actual[2][6] = "CARDINALITY"
 
+		mariaDBVersion, _ := strconv.ParseFloat(mySQLVersion, 64)
+
 		switch {
+		case mySQLVendor == tests.MariaDBMySQL && mariaDBVersion >= 10.5:
+			assert.Equal(t, []interface{}{
+				"Table", "Non_unique", "Key_name", "Seq_in_index", "Column_name", "Collation", "Cardinality",
+				"Sub_part", "Packed", "Null", "Index_type", "Comment", "Index_comment", "Ignored",
+			}, actual[0])
+			assert.Equal(t, []interface{}{"city", "0", "PRIMARY", "1", "ID", "A", "CARDINALITY", nil, nil, "", "BTREE", "", "", "NO"}, actual[1])
+			assert.Equal(t, []interface{}{"city", "1", "CountryCode", "1", "CountryCode", "A", "CARDINALITY", nil, nil, "", "BTREE", "", "", "NO"}, actual[2])
+
 		case mySQLVersion == "5.6" || mySQLVendor == tests.MariaDBMySQL:
 			assert.Equal(t, []interface{}{
 				"Table", "Non_unique", "Key_name", "Seq_in_index", "Column_name", "Collation", "Cardinality",

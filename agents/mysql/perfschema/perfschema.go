@@ -132,7 +132,6 @@ func New(params *Params, l *logrus.Entry) (*PerfSchema, error) {
 		LogEntry:             l,
 	}
 	return newPerfSchema(newParams), nil
-
 }
 
 func newPerfSchema(params *newPerfSchemaParams) *PerfSchema {

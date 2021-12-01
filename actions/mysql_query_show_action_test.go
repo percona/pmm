@@ -47,7 +47,7 @@ func TestMySQLQueryShow(t *testing.T) {
 		b, err := a.Run(ctx)
 		require.NoError(t, err)
 		assert.LessOrEqual(t, 15000, len(b))
-		assert.LessOrEqual(t, len(b), 26000)
+		assert.LessOrEqual(t, len(b), 26800)
 
 		data, err := agentpb.UnmarshalActionQueryResult(b)
 		require.NoError(t, err)

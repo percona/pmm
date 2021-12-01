@@ -25,11 +25,13 @@ digraph packages {
 	"/client" -> "/client/channel";
 	"/client" -> "/config";
 	"/client" -> "/jobs";
+	"/client" -> "/versioner";Remove PG
 	"/commands" -> "/agentlocal";
 	"/commands" -> "/agents/supervisor";
 	"/commands" -> "/client";
 	"/commands" -> "/config";
 	"/commands" -> "/connectionchecker";
+	"/commands" -> "/versioner";
 	"/connectionchecker" -> "/config";
 	"/connectionchecker" -> "/tlshelpers";
 }

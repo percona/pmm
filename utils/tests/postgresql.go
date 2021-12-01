@@ -40,7 +40,7 @@ func GetTestPostgreSQLDSN(tb testing.TB) string {
 
 	u := &url.URL{
 		Scheme:   "postgres",
-		Host:     net.JoinHostPort("localhost", strconv.Itoa(int(5432))),
+		Host:     net.JoinHostPort("localhost", strconv.Itoa(5432)),
 		Path:     "pmm-agent",
 		User:     url.UserPassword("pmm-agent", "pmm-agent-password"),
 		RawQuery: q.Encode(),

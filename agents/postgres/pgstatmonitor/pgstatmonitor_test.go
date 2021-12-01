@@ -25,6 +25,7 @@ import (
 	"testing"
 	"time"
 
+	ver "github.com/hashicorp/go-version"
 	_ "github.com/lib/pq"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
@@ -51,7 +52,7 @@ func setup(t *testing.T, db *reform.DB, disableQueryExamples bool) *PGStatMonito
 }
 
 func supportedVersion(version string) bool {
-	supported := float64(13)
+	supported := float64(11)
 	current, err := strconv.ParseFloat(version, 32)
 	if err != nil {
 		return false
@@ -88,6 +89,12 @@ func filter(mb []*agentpb.MetricsBucket) []*agentpb.MetricsBucket {
 	return res
 }
 
+func TestVersion(t *testing.T) {
+	pgsmVersion, err := ver.NewVersion("1.0.0-beta-2")
+	require.NoError(t, err)
+	require.True(t, pgsmVersion.GreaterThanOrEqual(v10))
+}
+
 func TestPGStatMonitorSchema(t *testing.T) {
 	t.Skip("Skip it until the sandbox supports pg_stat_monitor by default. The current PostgreSQL image is the official, not the one from PerconaLab")
 	sqlDB := tests.OpenTestPostgreSQL(t)
@@ -107,24 +114,10 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		assert.NoError(t, err)
 	}()
 
-	var v string
-	err = db.QueryRow(fmt.Sprintf("SELECT /* %s */ pg_stat_monitor_version()", queryTag)).Scan(&v)
-	if err != nil {
-		return
-	}
-	split := strings.Split(v, ".")
-	pgMonitorVersion, err := strconv.ParseFloat(fmt.Sprintf("%s.%s%s", split[0], split[1], split[2]), 64)
+	version, err := getPGMonitorVersion(db.Querier)
 	assert.NoError(t, err)
 
-	var view reform.View
-	switch {
-	case pgMonitorVersion >= 0.9:
-		view = pgStatMonitor09View
-	case pgMonitorVersion >= 0.8:
-		view = pgStatMonitor08View
-	default:
-		view = pgStatMonitorDefaultView
-	}
+	_, view := NewPgStatMonitorStructs(version)
 	structs, err := db.SelectAllFrom(view, "")
 	require.NoError(t, err)
 	tests.LogTable(t, structs)
@@ -168,12 +161,38 @@ func TestPGStatMonitorSchema(t *testing.T) {
 			selectAllCountries:     "6DB095DC2F1199D9",
 			selectAllCountriesLong: "7FE44699CA927E67",
 		}
+
+	case "14":
+		digests = map[string]string{
+			selectAllCountries:     "1172613B04E8CEC0",
+			selectAllCountriesLong: "EB821DA6C4030A4F",
+		}
 	default:
 		t.Log("Unhandled version, assuming dummy digests.")
 		digests = map[string]string{
 			selectAllCountries:     "TODO-selectAllCountries",
 			selectAllCountriesLong: "TODO-selectAllCountriesLong",
 		}
+	}
+
+	var selectCMDType, insertCMDType string
+	var mPlansCallsCnt, mPlansTimeCnt float32
+	pgsmVersion, err := getPGMonitorVersion(db.Querier)
+	assert.NoError(t, err)
+	switch pgsmVersion {
+	case pgStatMonitorVersion06:
+	case pgStatMonitorVersion08:
+	case pgStatMonitorVersion09:
+		selectCMDType = commandTypeSelect
+		insertCMDType = commandTypeInsert
+	case pgStatMonitorVersion10PG12:
+		selectCMDType = commandTypeSelect
+		insertCMDType = commandTypeInsert
+	case pgStatMonitorVersion10PG13, pgStatMonitorVersion10PG14:
+		selectCMDType = commandTypeSelect
+		insertCMDType = commandTypeInsert
+		mPlansCallsCnt = 1
+		mPlansTimeCnt = 1
 	}
 
 	t.Run("AllCountries", func(t *testing.T) {
@@ -227,6 +246,14 @@ func TestPGStatMonitorSchema(t *testing.T) {
 				MCpuUserTimeSum:    actual.Postgresql.MCpuUserTimeSum,
 				MCpuSysTimeCnt:     actual.Postgresql.MCpuSysTimeCnt,
 				MCpuSysTimeSum:     actual.Postgresql.MCpuSysTimeSum,
+				CmdType:            selectCMDType,
+				HistogramItems:     actual.Postgresql.HistogramItems,
+				MPlansCallsSum:     actual.Postgresql.MPlansCallsSum,
+				MPlansCallsCnt:     mPlansCallsCnt,
+				MPlanTimeCnt:       mPlansTimeCnt,
+				MPlanTimeSum:       actual.Postgresql.MPlanTimeSum,
+				MPlanTimeMin:       actual.Postgresql.MPlanTimeMin,
+				MPlanTimeMax:       actual.Postgresql.MPlanTimeMax,
 			},
 		}
 		expected.Common.Queryid = digests[expected.Common.Fingerprint]
@@ -272,6 +299,14 @@ func TestPGStatMonitorSchema(t *testing.T) {
 				MCpuUserTimeSum:   actual.Postgresql.MCpuUserTimeSum,
 				MCpuSysTimeCnt:    actual.Postgresql.MCpuSysTimeCnt,
 				MCpuSysTimeSum:    actual.Postgresql.MCpuSysTimeSum,
+				CmdType:           selectCMDType,
+				HistogramItems:    actual.Postgresql.HistogramItems,
+				MPlansCallsSum:    actual.Postgresql.MPlansCallsSum,
+				MPlansCallsCnt:    mPlansCallsCnt,
+				MPlanTimeCnt:      mPlansTimeCnt,
+				MPlanTimeSum:      actual.Postgresql.MPlanTimeSum,
+				MPlanTimeMin:      actual.Postgresql.MPlanTimeMin,
+				MPlanTimeMax:      actual.Postgresql.MPlanTimeMax,
 			},
 		}
 		expected.Common.Queryid = digests[expected.Common.Fingerprint]
@@ -332,6 +367,14 @@ func TestPGStatMonitorSchema(t *testing.T) {
 				MCpuUserTimeSum:    actual.Postgresql.MCpuUserTimeSum,
 				MCpuSysTimeCnt:     actual.Postgresql.MCpuSysTimeCnt,
 				MCpuSysTimeSum:     actual.Postgresql.MCpuSysTimeSum,
+				CmdType:            selectCMDType,
+				HistogramItems:     actual.Postgresql.HistogramItems,
+				MPlansCallsSum:     actual.Postgresql.MPlansCallsSum,
+				MPlansCallsCnt:     mPlansCallsCnt,
+				MPlanTimeCnt:       mPlansTimeCnt,
+				MPlanTimeSum:       actual.Postgresql.MPlanTimeSum,
+				MPlanTimeMin:       actual.Postgresql.MPlanTimeMin,
+				MPlanTimeMax:       actual.Postgresql.MPlanTimeMax,
 			},
 		}
 		expected.Common.Queryid = digests[expected.Common.Fingerprint]
@@ -380,6 +423,14 @@ func TestPGStatMonitorSchema(t *testing.T) {
 				MCpuUserTimeSum:   actual.Postgresql.MCpuUserTimeSum,
 				MCpuSysTimeCnt:    actual.Postgresql.MCpuSysTimeCnt,
 				MCpuSysTimeSum:    actual.Postgresql.MCpuSysTimeSum,
+				CmdType:           selectCMDType,
+				HistogramItems:    actual.Postgresql.HistogramItems,
+				MPlansCallsSum:    actual.Postgresql.MPlansCallsSum,
+				MPlansCallsCnt:    mPlansCallsCnt,
+				MPlanTimeCnt:      mPlansTimeCnt,
+				MPlanTimeSum:      actual.Postgresql.MPlanTimeSum,
+				MPlanTimeMin:      actual.Postgresql.MPlanTimeMin,
+				MPlanTimeMax:      actual.Postgresql.MPlanTimeMax,
 			},
 		}
 		expected.Common.Queryid = digests[expected.Common.Fingerprint]
@@ -469,6 +520,18 @@ func TestPGStatMonitorSchema(t *testing.T) {
 				MCpuUserTimeSum:       actual.Postgresql.MCpuUserTimeSum,
 				MCpuSysTimeCnt:        actual.Postgresql.MCpuSysTimeCnt,
 				MCpuSysTimeSum:        actual.Postgresql.MCpuSysTimeSum,
+				CmdType:               insertCMDType,
+				HistogramItems:        actual.Postgresql.HistogramItems,
+				MPlansCallsSum:        actual.Postgresql.MPlansCallsSum,
+				MPlansCallsCnt:        actual.Postgresql.MPlansCallsCnt,
+				MPlanTimeCnt:          actual.Postgresql.MPlanTimeCnt,
+				MPlanTimeSum:          actual.Postgresql.MPlanTimeSum,
+				MPlanTimeMin:          actual.Postgresql.MPlanTimeMin,
+				MPlanTimeMax:          actual.Postgresql.MPlanTimeMax,
+				MWalBytesCnt:          actual.Postgresql.MWalBytesCnt,
+				MWalBytesSum:          actual.Postgresql.MWalBytesSum,
+				MWalRecordsSum:        actual.Postgresql.MWalRecordsSum,
+				MWalRecordsCnt:        actual.Postgresql.MWalRecordsCnt,
 			},
 		}
 		tests.AssertBucketsEqual(t, expected, actual)
