@@ -24,7 +24,7 @@ jobs:
             may-fail: false
           - version: tip
             may-fail: true
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     env:
       GOPATH: ${{ github.workspace }}
       WORKING_DIR: ${{ github.workspace }}/src/github.com/percona/pmm
@@ -34,11 +34,28 @@ jobs:
         working-directory: ${{ env.WORKING_DIR }}
 
     steps:
+      - name: Checkout code
+        uses: percona-platform/checkout@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: ${{ env.WORKING_DIR }}
+
+
       - name: Set up Go release
         if: matrix.go.version != 'tip'
         uses: percona-platform/setup-go@v2
         with:
           go-version: ${{ matrix.go.version }}
+
+#      - name: Set up Go release
+#        if: matrix.go.version == 'tip'
+#        uses: percona-platform/setup-go@v2
+#        with:
+#          go-version: 1.6.x
+#
+#      - name: Display the path
+#        run: go version
+#      #        shell: bash
 
       - name: Set up Go tip
         if: matrix.go.version == 'tip'
@@ -57,11 +74,7 @@ jobs:
           restore-keys: |
             ${{ matrix.os }}-go-${{ matrix.go-version }}-modules-
 
-      - name: Checkout code
-        uses: percona-platform/checkout@v2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          path: ${{ env.WORKING_DIR }}
+
 
 
       - name: API make Init
