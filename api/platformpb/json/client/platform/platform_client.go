@@ -27,8 +27,6 @@ type Client struct {
 type ClientService interface {
 	Connect(params *ConnectParams) (*ConnectOK, error)
 
-	SignUp(params *SignUpParams) (*SignUpOK, error)
-
 	SetTransport(transport runtime.ClientTransport)
 }
 
@@ -44,7 +42,7 @@ func (a *Client) Connect(params *ConnectParams) (*ConnectOK, error) {
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "Connect",
 		Method:             "POST",
-		PathPattern:        "/v0/Platform/Connect",
+		PathPattern:        "/v1/Platform/Connect",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -62,39 +60,6 @@ func (a *Client) Connect(params *ConnectParams) (*ConnectOK, error) {
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*ConnectDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-  SignUp signs up creates a new percona platform user
-*/
-func (a *Client) SignUp(params *SignUpParams) (*SignUpOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewSignUpParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "SignUp",
-		Method:             "POST",
-		PathPattern:        "/v0/Platform/SignUp",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &SignUpReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*SignUpOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*SignUpDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

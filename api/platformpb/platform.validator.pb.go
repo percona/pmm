@@ -17,15 +17,6 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
-func (this *SignUpRequest) Validate() error {
-	if this.Email == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Email", fmt.Errorf(`value '%v' must not be an empty string`, this.Email))
-	}
-	return nil
-}
-func (this *SignUpResponse) Validate() error {
-	return nil
-}
 func (this *ConnectRequest) Validate() error {
 	if this.ServerName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ServerName", fmt.Errorf(`value '%v' must not be an empty string`, this.ServerName))

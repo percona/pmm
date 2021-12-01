@@ -7,23 +7,6 @@ option go_package = "api/platformpb;platformpb";
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 
-message SignUpRequest {
-  // New Percona Platform user's email.
-  string email = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // Existing Percona Platform user's password.
-  string password = 2 [deprecated = true];
-  // New Percona Platform user's first name.
-  string first_name = 3;
-  // New Percona Platform user's last name.
-  string last_name = 4;
-}
-
-message SignUpResponse {}
-
 message ConnectRequest {
   // User defined human readable PMM Server Name.
   string server_name = 1 [
@@ -49,17 +32,10 @@ message ConnectResponse {}
 
 // Platform contains rpcs related to Percona Platform.
 service Platform {
-  // SignUp creates a new Percona Platform user.
-  rpc SignUp(SignUpRequest) returns (SignUpResponse) {
-    option (google.api.http) = {
-      post: "/v0/Platform/SignUp"
-      body: "*"
-    };
-  }
   // Connect connects a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.
   rpc Connect(ConnectRequest) returns (ConnectResponse) {
     option (google.api.http) = {
-      post: "/v0/Platform/Connect"
+      post: "/v1/Platform/Connect"
       body: "*"
     };
   }
