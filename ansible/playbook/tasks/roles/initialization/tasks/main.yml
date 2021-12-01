@@ -51,25 +51,42 @@
     dest: /srv/grafana/plugins/
   delegate_to: "{{ inventory_hostname }}"
 
-- name: Remove old DBaaS dashboard (Before provisioning times)
-  command: sqlite3 /srv/grafana/grafana.db "DELETE FROM dashboard WHERE title = 'DBaaS' AND slug = 'dbaas';"
-  changed_when: True
+- name: Check that the SQLite grafana database exists
+  stat:
+    path: /srv/grafana/grafana.db
+  register: sqlite_grafana
 
-- name: Remove old PMM Inventory (Before provisioning times)
-  command: sqlite3 /srv/grafana/grafana.db "DELETE FROM dashboard WHERE title = 'PMM Inventory' AND slug = 'pmm-inventory';"
-  changed_when: True
+- name: Remove old dashboards from SQLite
+  block:
+  - name: Restart grafana before delete data
+    supervisorctl:
+      name: grafana
+      state: stopped
+  - name: Remove old DBaaS dashboard (Before provisioning times)
+    command: sqlite3 /srv/grafana/grafana.db "DELETE FROM dashboard WHERE title = 'DBaaS' AND slug = 'dbaas';"
+    changed_when: True
 
-- name: Remove old PMM Add Instance dashboard (Before provisioning times)
-  command: sqlite3 /srv/grafana/grafana.db "DELETE FROM dashboard WHERE title = 'PMM Add Instance' AND slug = 'pmm-add-instance';"
-  changed_when: True
+  - name: Remove old PMM Inventory (Before provisioning times)
+    command: sqlite3 /srv/grafana/grafana.db "DELETE FROM dashboard WHERE title = 'PMM Inventory' AND slug = 'pmm-inventory';"
+    changed_when: True
 
-- name: Remove old PMM Database Checks dashboard (Before provisioning times)
-  command: sqlite3 /srv/grafana/grafana.db "DELETE FROM dashboard WHERE title = 'PMM Database Checks' AND slug = 'pmm-database-checks';"
-  changed_when: True
+  - name: Remove old PMM Add Instance dashboard (Before provisioning times)
+    command: sqlite3 /srv/grafana/grafana.db "DELETE FROM dashboard WHERE title = 'PMM Add Instance' AND slug = 'pmm-add-instance';"
+    changed_when: True
 
-- name: Remove old PMM Settings dashboard (Before provisioning times)
-  command: sqlite3 /srv/grafana/grafana.db "DELETE FROM dashboard WHERE title = 'PMM Settings' AND slug = 'pmm-settings';"
-  changed_when: True
+  - name: Remove old PMM Database Checks dashboard (Before provisioning times)
+    command: sqlite3 /srv/grafana/grafana.db "DELETE FROM dashboard WHERE title = 'PMM Database Checks' AND slug = 'pmm-database-checks';"
+    changed_when: True
+
+  - name: Remove old PMM Settings dashboard (Before provisioning times)
+    command: sqlite3 /srv/grafana/grafana.db "DELETE FROM dashboard WHERE title = 'PMM Settings' AND slug = 'pmm-settings';"
+    changed_when: True
+
+  - name: Start Grafana after data was deleted
+    supervisorctl:
+      name: grafana
+      state: started
+  when: sqlite_grafana.stat.exists
 
 - name: Restart grafana with new plugins
   supervisorctl:

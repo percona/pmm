@@ -82,7 +82,7 @@
 
     # Start the services
     - name: Supervisord start        | Start supervisord service for AMI/OVF
-      when: not is_docker 
+      when: not is_docker
       service:
         name: supervisord
         state: started
