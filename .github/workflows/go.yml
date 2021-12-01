@@ -24,7 +24,11 @@ jobs:
             may-fail: false
           - version: tip
             may-fail: true
+
+    continue-on-error: ${{ matrix.go.may-fail }}
+
     runs-on: ubuntu-latest
+
     env:
       GOPATH: ${{ github.workspace }}
       WORKING_DIR: ${{ github.workspace }}/src/github.com/percona/pmm
@@ -40,22 +44,11 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           path: ${{ env.WORKING_DIR }}
 
-
       - name: Set up Go release
         if: matrix.go.version != 'tip'
         uses: percona-platform/setup-go@v2
         with:
           go-version: ${{ matrix.go.version }}
-
-#      - name: Set up Go release
-#        if: matrix.go.version == 'tip'
-#        uses: percona-platform/setup-go@v2
-#        with:
-#          go-version: 1.6.x
-#
-#      - name: Display the path
-#        run: go version
-#      #        shell: bash
 
       - name: Set up Go tip
         if: matrix.go.version == 'tip'
@@ -73,9 +66,6 @@ jobs:
           key: ${{ matrix.os }}-go-${{ matrix.go-version }}-modules-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ matrix.os }}-go-${{ matrix.go-version }}-modules-
-
-
-
 
       - name: API make Init
         run: make -C api init
