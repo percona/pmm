@@ -49,6 +49,7 @@ gen: clean            ## Generate files.
 			--additional-initialism=ok \
 			--additional-initialism=pmm \
 			--additional-initialism=psmdb \
+			--additional-initialism=pxc \
 			--additional-initialism=pt \
 			--additional-initialism=qan \
 			--additional-initialism=rds \
