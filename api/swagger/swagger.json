@@ -1659,6 +1659,20 @@
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 15
+                },
+                "stats_collections": {
+                  "type": "array",
+                  "title": "List of colletions to get stats from. Can use *",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 16
+                },
+                "collections_limit": {
+                  "type": "integer",
+                  "format": "int32",
+                  "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                  "x-order": 17
                 }
               }
             }
@@ -14974,6 +14988,20 @@
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 25
+                },
+                "stats_collections": {
+                  "description": "List of collections to get stats from. Can use * .",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 26
+                },
+                "collections_limit": {
+                  "type": "integer",
+                  "format": "int32",
+                  "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                  "x-order": 27
                 }
               }
             }
