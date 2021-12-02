@@ -175,7 +175,7 @@ type AddMongoDBExporterBody struct {
 	AgentPassword string `json:"agent_password,omitempty"`
 
 	// Comma separated list of colletions to get stats from. Can use *
-	StatsCollections string `json:"stats_collections,omitempty"`
+	StatsCollections []string `json:"stats_collections"`
 
 	// Collections limit. Only get Databases and collection stats if the total number of collections in the server
 	// is less than this value. 0: no limit

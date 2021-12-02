@@ -1883,8 +1883,11 @@
                   "x-order": 15
                 },
                 "stats_collections": {
-                  "type": "string",
+                  "type": "array",
                   "title": "Comma separated list of colletions to get stats from. Can use *",
+                  "items": {
+                    "type": "string"
+                  },
                   "x-order": 16
                 },
                 "collections_limit": {
@@ -15209,8 +15212,11 @@
                   "x-order": 25
                 },
                 "stats_collections": {
-                  "type": "string",
+                  "type": "array",
                   "title": "Comma separated list of colletions to get stats from. Can use *",
+                  "items": {
+                    "type": "string"
+                  },
                   "x-order": 26
                 },
                 "collections_limit": {

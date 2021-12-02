@@ -472,8 +472,11 @@
                   "x-order": 10
                 },
                 "stats_collections": {
-                  "type": "string",
+                  "type": "array",
                   "title": "Comma separated list of colletions to get stats from. Can use *",
+                  "items": {
+                    "type": "string"
+                  },
                   "x-order": 16
                 },
                 "tls": {
