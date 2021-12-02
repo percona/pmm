@@ -27,9 +27,9 @@ func (this *Operator) Validate() error {
 	return nil
 }
 func (this *Operators) Validate() error {
-	if this.Xtradb != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Xtradb); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Xtradb", err)
+	if this.Pxc != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Pxc); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Pxc", err)
 		}
 	}
 	if this.Psmdb != nil {
