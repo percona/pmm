@@ -47,6 +47,7 @@ linters:
     - nlreturn          # too annoying
     - scopelint         # too many false positives
     - wsl               # too annoying
+    - varnamelen        # useless
 
 issues:
   exclude-use-default: false

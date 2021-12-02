@@ -34,7 +34,6 @@ import (
 )
 
 func TestAgents(t *testing.T) {
-
 	t.Run("Basic", func(t *testing.T) {
 		// FIXME split this test into several smaller
 
@@ -133,9 +132,11 @@ func TestAgents(t *testing.T) {
 		require.NoError(t, err)
 
 		actualAgent, err = as.AddMongoDBExporter(ctx, &inventorypb.AddMongoDBExporterRequest{
-			PmmAgentId: pmmAgent.AgentId,
-			ServiceId:  ms.ServiceId,
-			Username:   "username",
+			PmmAgentId:       pmmAgent.AgentId,
+			ServiceId:        ms.ServiceId,
+			Username:         "username",
+			StatsCollections: nil,
+			CollectionsLimit: 0, // no limit
 		})
 		require.NoError(t, err)
 		expectedMongoDBExporter := &inventorypb.MongoDBExporter{

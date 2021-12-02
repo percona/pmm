@@ -77,18 +77,37 @@ type MongoDBOptionsParams interface {
 	GetAuthenticationDatabase() string
 }
 
+// MongoDBExtendedOptionsParams contains extended parameters for MongoDB exporter.
+type MongoDBExtendedOptionsParams interface {
+	GetStatsCollections() string
+	GetCollectionsLimit() int32
+}
+
 // MongoDBOptionsFromRequest creates MongoDBOptionsParams object from request.
 func MongoDBOptionsFromRequest(params MongoDBOptionsParams) *MongoDBOptions {
+	var mdbOptions *MongoDBOptions
+
 	if params.GetTlsCertificateKey() != "" || params.GetTlsCertificateKeyFilePassword() != "" || params.GetTlsCa() != "" {
-		return &MongoDBOptions{
-			TLSCertificateKey:             params.GetTlsCertificateKey(),
-			TLSCertificateKeyFilePassword: params.GetTlsCertificateKeyFilePassword(),
-			TLSCa:                         params.GetTlsCa(),
-			AuthenticationMechanism:       params.GetAuthenticationMechanism(),
-			AuthenticationDatabase:        params.GetAuthenticationDatabase(),
+		mdbOptions = &MongoDBOptions{}
+		mdbOptions.TLSCertificateKey = params.GetTlsCertificateKey()
+		mdbOptions.TLSCertificateKeyFilePassword = params.GetTlsCertificateKeyFilePassword()
+		mdbOptions.TLSCa = params.GetTlsCa()
+		mdbOptions.AuthenticationMechanism = params.GetAuthenticationMechanism()
+		mdbOptions.AuthenticationDatabase = params.GetAuthenticationDatabase()
+	}
+
+	// MongoDB exporter has these parameters but they are not needed for QAN agent.
+	if extendedOptions, ok := params.(MongoDBExtendedOptionsParams); ok {
+		if extendedOptions.GetStatsCollections() != "" || extendedOptions.GetCollectionsLimit() > 0 {
+			if mdbOptions == nil {
+				mdbOptions = &MongoDBOptions{}
+			}
+			mdbOptions.StatsCollections = extendedOptions.GetStatsCollections()
+			mdbOptions.CollectionsLimit = extendedOptions.GetCollectionsLimit()
 		}
 	}
-	return nil
+
+	return mdbOptions
 }
 
 // AzureOptionsParams contains methods to create AzureOptions object.

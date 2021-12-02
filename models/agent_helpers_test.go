@@ -131,6 +131,26 @@ func TestAgentHelpers(t *testing.T) {
 					SSLKey:  "ssl_key",
 				},
 			},
+			&models.Agent{
+				AgentID:       "A8",
+				AgentType:     models.MongoDBExporterType,
+				PMMAgentID:    pointer.ToString("A8"),
+				RunsOnNodeID:  nil,
+				NodeID:        pointer.ToString("N1"),
+				PushMetrics:   false,
+				ListenPort:    pointer.ToUint16(8200),
+				TLS:           true,
+				TLSSkipVerify: true,
+				MongoDBOptions: &models.MongoDBOptions{
+					TLSCertificateKey:             "tls_certificate_key",
+					TLSCertificateKeyFilePassword: "tls_certificate_key_file_password",
+					TLSCa:                         "tls_ca",
+					AuthenticationMechanism:       "authentication_mechanism",
+					AuthenticationDatabase:        "authentication_database",
+					StatsCollections:              "",
+					CollectionsLimit:              0, // no limit
+				},
+			},
 		} {
 			require.NoError(t, q.Insert(str))
 		}
@@ -173,6 +193,27 @@ func TestAgentHelpers(t *testing.T) {
 					SSLCa:   "ssl_ca",
 					SSLCert: "ssl_cert",
 					SSLKey:  "ssl_key",
+				},
+			},
+			{
+				AgentID:       "A8",
+				AgentType:     "mongodb_exporter",
+				NodeID:        pointer.ToStringOrNil("N1"),
+				PMMAgentID:    pointer.ToStringOrNil("A8"),
+				CreatedAt:     now,
+				UpdatedAt:     now,
+				Status:        models.AgentStatusUnknown,
+				ListenPort:    pointer.ToUint16OrNil(8200),
+				TLS:           true,
+				TLSSkipVerify: true,
+				MongoDBOptions: &models.MongoDBOptions{
+					TLSCertificateKey:             "tls_certificate_key",
+					TLSCertificateKeyFilePassword: "tls_certificate_key_file_password",
+					TLSCa:                         "tls_ca",
+					AuthenticationMechanism:       "authentication_mechanism",
+					AuthenticationDatabase:        "authentication_database",
+					StatsCollections:              "",
+					CollectionsLimit:              0, // no limit
 				},
 			},
 		}
@@ -410,9 +451,10 @@ func TestAgentHelpers(t *testing.T) {
 
 		// find all agents without push_metrics
 		agents, err = models.FindAgentsForScrapeConfig(q, nil, false)
-		assert.Equal(t, 2, len(agents))
-		assert.Equal(t, "A6", agents[0].AgentID)
-		assert.Equal(t, "A7", agents[1].AgentID)
+		assert.Equal(t, 3, len(agents))
+		assert.Equal(t, "A8", agents[0].AgentID)
+		assert.Equal(t, "A6", agents[1].AgentID)
+		assert.Equal(t, "A7", agents[2].AgentID)
 		require.NoError(t, err)
 	})
 

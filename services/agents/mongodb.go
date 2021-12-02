@@ -19,6 +19,7 @@ package agents
 import (
 	"fmt"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -30,8 +31,11 @@ import (
 	"github.com/percona/pmm-managed/utils/collectors"
 )
 
-// New MongoDB Exporter will be released with PMM agent v2.10.0.
-var newMongoExporterPMMVersion = version.MustParse("2.9.99")
+var (
+	// New MongoDB Exporter will be released with PMM agent v2.10.0.
+	newMongoExporterPMMVersion = version.MustParse("2.9.99")
+	v2_24_99                   = version.MustParse("2.24.99")
+)
 
 // mongodbExporterConfig returns desired configuration of mongodb_exporter process.
 func mongodbExporterConfig(service *models.Service, exporter *models.Agent, redactMode redactMode,
@@ -40,19 +44,25 @@ func mongodbExporterConfig(service *models.Service, exporter *models.Agent, reda
 
 	var args []string
 	// Starting with PMM 2.10.0, we are shipping the new mongodb_exporter
-	if pmmAgentVersion.Less(newMongoExporterPMMVersion) {
+	// Starting with PMM 2.25.0, we changes the discovering-mode making it to discover all databases.
+	// Until now, discovering mode was not workign properly and was enabled only if mongodb.collstats-colls=
+	// was specified in the command line.
+	switch {
+	case !pmmAgentVersion.Less(v2_24_99): // >= 2.25
+		args = v225Args(exporter, exporter.DisabledCollectors, tdp)
+	case !pmmAgentVersion.Less(newMongoExporterPMMVersion): // >= 2.10
+		args = []string{
+			"--mongodb.global-conn-pool",
+			"--compatible-mode",
+			"--web.listen-address=:" + tdp.Left + " .listen_port " + tdp.Right,
+		}
+	default:
 		args = []string{
 			"--collect.collection",
 			"--collect.database",
 			"--collect.topmetrics",
 			"--no-collect.connpoolstats",
 			"--no-collect.indexusage",
-			"--web.listen-address=:" + tdp.Left + " .listen_port " + tdp.Right,
-		}
-	} else {
-		args = []string{
-			"--mongodb.global-conn-pool",
-			"--compatible-mode",
 			"--web.listen-address=:" + tdp.Left + " .listen_port " + tdp.Right,
 		}
 	}
@@ -87,6 +97,65 @@ func mongodbExporterConfig(service *models.Service, exporter *models.Agent, reda
 		res.RedactWords = redactWords(exporter)
 	}
 	return res
+}
+
+func v225Args(exporter *models.Agent, disabledCollectors []string, tdp *models.DelimiterPair) []string {
+	type collectorArgs struct {
+		enabled      bool
+		enableParam  string
+		disableParam string
+	}
+
+	collectors := map[string]collectorArgs{
+		"diagnosticdata": {
+			enabled:      true,
+			disableParam: "--no-collector.diagnosticdata",
+		},
+		"replicasetstatus": {
+			enabled:      true,
+			disableParam: "--no-collector.replicasetstatus",
+		},
+		"dbstats": {
+			enabled:     true,
+			enableParam: "--collector.dbstats",
+		},
+		"topmetrics": {
+			enabled:     true,
+			enableParam: "--collector.topmetrics",
+		},
+	}
+
+	for _, collector := range disabledCollectors {
+		col := collectors[strings.ToLower(collector)]
+		col.enabled = false
+		collectors[strings.ToLower(collector)] = col
+	}
+
+	args := []string{
+		"--mongodb.global-conn-pool",
+		"--compatible-mode",
+		"--web.listen-address=:" + tdp.Left + " .listen_port " + tdp.Right,
+		"--discovering-mode",
+	}
+
+	if exporter.MongoDBOptions != nil && exporter.MongoDBOptions.StatsCollections != "" {
+		args = append(args, "--mongodb.collstats-colls="+exporter.MongoDBOptions.StatsCollections)
+	}
+
+	if exporter.MongoDBOptions != nil && exporter.MongoDBOptions.CollectionsLimit != 0 {
+		args = append(args, fmt.Sprintf("--collector.collstats-limit=%d", exporter.MongoDBOptions.CollectionsLimit))
+	}
+
+	for _, collector := range collectors {
+		if collector.enabled && collector.enableParam != "" {
+			args = append(args, collector.enableParam)
+		}
+		if !collector.enabled && collector.disableParam != "" {
+			args = append(args, collector.disableParam)
+		}
+	}
+
+	return args
 }
 
 // qanMongoDBProfilerAgentConfig returns desired configuration of qan-mongodb-profiler-agent built-in agent.
