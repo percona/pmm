@@ -87,7 +87,7 @@ func TestComponentService(t *testing.T) {
 			ctx, cs, dbaasClient := setup(t)
 
 			dbaasClient.On("CheckKubernetesClusterConnection", mock.Anything, "{}").Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
-				Operators: &controllerv1beta1.Operators{XtradbOperatorVersion: onePointSeven},
+				Operators: &controllerv1beta1.Operators{PxcOperatorVersion: onePointSeven},
 				Status:    controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
 			}, nil)
 
@@ -111,7 +111,7 @@ func TestComponentService(t *testing.T) {
 			ctx, cs, dbaasClient := setup(t)
 
 			dbaasClient.On("CheckKubernetesClusterConnection", mock.Anything, "{}").Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
-				Operators: &controllerv1beta1.Operators{XtradbOperatorVersion: onePointSeven},
+				Operators: &controllerv1beta1.Operators{PxcOperatorVersion: onePointSeven},
 				Status:    controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
 			}, nil)
 
@@ -601,7 +601,7 @@ func TestInstallOperator(t *testing.T) {
 	}
 	db, c, dbaasClient := setup(t, clusterName, response, port, defaultPXCVersion, defaultPSMDBVersion)
 
-	dbaasClient.On("InstallXtraDBOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallXtraDBOperatorResponse{}, nil)
+	dbaasClient.On("InstallPXCOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallPXCOperatorResponse{}, nil)
 	dbaasClient.On("InstallPSMDBOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallPSMDBOperatorResponse{}, nil)
 
 	ctx, cancel := context.WithTimeout(context.TODO(), time.Second*5)
@@ -707,8 +707,8 @@ func TestCheckForOperatorUpdate(t *testing.T) {
 		_, cs, dbaasClient := setup(t, clusterName, response, "9873", defaultPXCVersion, defaultPSMDBVersion)
 		dbaasClient.On("CheckKubernetesClusterConnection", ctx, "{}").Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
 			Operators: &controllerv1beta1.Operators{
-				PsmdbOperatorVersion:  onePointSeven,
-				XtradbOperatorVersion: onePointSeven,
+				PsmdbOperatorVersion: onePointSeven,
+				PxcOperatorVersion:   onePointSeven,
 			},
 		}, nil)
 
@@ -727,8 +727,8 @@ func TestCheckForOperatorUpdate(t *testing.T) {
 		_, cs, dbaasClient := setup(t, clusterName, response, "7895", defaultPXCVersion, defaultPSMDBVersion)
 		dbaasClient.On("CheckKubernetesClusterConnection", ctx, "{}").Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
 			Operators: &controllerv1beta1.Operators{
-				PsmdbOperatorVersion:  onePointEight,
-				XtradbOperatorVersion: onePointEight,
+				PsmdbOperatorVersion: onePointEight,
+				PxcOperatorVersion:   onePointEight,
 			},
 		}, nil)
 
@@ -747,8 +747,8 @@ func TestCheckForOperatorUpdate(t *testing.T) {
 		_, cs, dbaasClient := setup(t, clusterName, response, "5863", defaultPXCVersion, defaultPSMDBVersion)
 		dbaasClient.On("CheckKubernetesClusterConnection", ctx, "{}").Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
 			Operators: &controllerv1beta1.Operators{
-				PsmdbOperatorVersion:  onePointNine,
-				XtradbOperatorVersion: onePointNine,
+				PsmdbOperatorVersion: onePointNine,
+				PxcOperatorVersion:   onePointNine,
 			},
 		}, nil)
 

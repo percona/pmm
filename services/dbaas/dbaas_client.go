@@ -35,10 +35,10 @@ import (
 type Client struct {
 	l                         *logrus.Entry
 	kubernetesClient          controllerv1beta1.KubernetesClusterAPIClient
-	xtradbClusterClient       controllerv1beta1.XtraDBClusterAPIClient
+	pxcClusterClient          controllerv1beta1.PXCClusterAPIClient
 	psmdbClusterClient        controllerv1beta1.PSMDBClusterAPIClient
 	logsClient                controllerv1beta1.LogsAPIClient
-	xtradbOperatorClient      controllerv1beta1.XtraDBOperatorAPIClient
+	xtradbOperatorClient      controllerv1beta1.PXCOperatorAPIClient
 	psmdbOperatorClient       controllerv1beta1.PSMDBOperatorAPIClient
 	connM                     *sync.RWMutex
 	conn                      *grpc.ClientConn
@@ -80,11 +80,11 @@ func (c *Client) Connect(ctx context.Context) error {
 	c.conn = conn
 
 	c.kubernetesClient = controllerv1beta1.NewKubernetesClusterAPIClient(conn)
-	c.xtradbClusterClient = controllerv1beta1.NewXtraDBClusterAPIClient(conn)
+	c.pxcClusterClient = controllerv1beta1.NewPXCClusterAPIClient(conn)
 	c.psmdbClusterClient = controllerv1beta1.NewPSMDBClusterAPIClient(conn)
 	c.logsClient = controllerv1beta1.NewLogsAPIClient(conn)
 	c.psmdbOperatorClient = controllerv1beta1.NewPSMDBOperatorAPIClient(conn)
-	c.xtradbOperatorClient = controllerv1beta1.NewXtraDBOperatorAPIClient(conn)
+	c.xtradbOperatorClient = controllerv1beta1.NewPXCOperatorAPIClient(conn)
 
 	c.l.Info("Connected to dbaas-controller API.")
 	return nil
@@ -121,45 +121,45 @@ func (c *Client) CheckKubernetesClusterConnection(ctx context.Context, kubeConfi
 	return c.kubernetesClient.CheckKubernetesClusterConnection(ctx, in)
 }
 
-func (c *Client) ListXtraDBClusters(ctx context.Context, in *controllerv1beta1.ListXtraDBClustersRequest, opts ...grpc.CallOption) (*controllerv1beta1.ListXtraDBClustersResponse, error) {
+func (c *Client) ListPXCClusters(ctx context.Context, in *controllerv1beta1.ListPXCClustersRequest, opts ...grpc.CallOption) (*controllerv1beta1.ListPXCClustersResponse, error) {
 	c.connM.RLock()
 	defer c.connM.RUnlock()
-	return c.xtradbClusterClient.ListXtraDBClusters(ctx, in, opts...)
+	return c.pxcClusterClient.ListPXCClusters(ctx, in, opts...)
 }
 
-// CreateXtraDBCluster creates a new XtraDB cluster.
-func (c *Client) CreateXtraDBCluster(ctx context.Context, in *controllerv1beta1.CreateXtraDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.CreateXtraDBClusterResponse, error) {
+// CreatePXCCluster creates a new PXC cluster.
+func (c *Client) CreatePXCCluster(ctx context.Context, in *controllerv1beta1.CreatePXCClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.CreatePXCClusterResponse, error) {
 	c.connM.RLock()
 	defer c.connM.RUnlock()
-	return c.xtradbClusterClient.CreateXtraDBCluster(ctx, in, opts...)
+	return c.pxcClusterClient.CreatePXCCluster(ctx, in, opts...)
 }
 
-// UpdateXtraDBCluster updates existing XtraDB cluster.
-func (c *Client) UpdateXtraDBCluster(ctx context.Context, in *controllerv1beta1.UpdateXtraDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.UpdateXtraDBClusterResponse, error) {
+// UpdatePXCCluster updates existing PXC cluster.
+func (c *Client) UpdatePXCCluster(ctx context.Context, in *controllerv1beta1.UpdatePXCClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.UpdatePXCClusterResponse, error) {
 	c.connM.RLock()
 	defer c.connM.RUnlock()
-	return c.xtradbClusterClient.UpdateXtraDBCluster(ctx, in, opts...)
+	return c.pxcClusterClient.UpdatePXCCluster(ctx, in, opts...)
 }
 
-// DeleteXtraDBCluster deletes XtraDB cluster.
-func (c *Client) DeleteXtraDBCluster(ctx context.Context, in *controllerv1beta1.DeleteXtraDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.DeleteXtraDBClusterResponse, error) {
+// DeletePXCCluster deletes PXC cluster.
+func (c *Client) DeletePXCCluster(ctx context.Context, in *controllerv1beta1.DeletePXCClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.DeletePXCClusterResponse, error) {
 	c.connM.RLock()
 	defer c.connM.RUnlock()
-	return c.xtradbClusterClient.DeleteXtraDBCluster(ctx, in, opts...)
+	return c.pxcClusterClient.DeletePXCCluster(ctx, in, opts...)
 }
 
-// RestartXtraDBCluster restarts XtraDB cluster.
-func (c *Client) RestartXtraDBCluster(ctx context.Context, in *controllerv1beta1.RestartXtraDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.RestartXtraDBClusterResponse, error) {
+// RestartPXCCluster restarts PXC cluster.
+func (c *Client) RestartPXCCluster(ctx context.Context, in *controllerv1beta1.RestartPXCClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.RestartPXCClusterResponse, error) {
 	c.connM.RLock()
 	defer c.connM.RUnlock()
-	return c.xtradbClusterClient.RestartXtraDBCluster(ctx, in, opts...)
+	return c.pxcClusterClient.RestartPXCCluster(ctx, in, opts...)
 }
 
-// GetXtraDBClusterCredentials gets XtraDB cluster credentials.
-func (c *Client) GetXtraDBClusterCredentials(ctx context.Context, in *controllerv1beta1.GetXtraDBClusterCredentialsRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetXtraDBClusterCredentialsResponse, error) {
+// GetPXCClusterCredentials gets PXC cluster credentials.
+func (c *Client) GetPXCClusterCredentials(ctx context.Context, in *controllerv1beta1.GetPXCClusterCredentialsRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetPXCClusterCredentialsResponse, error) {
 	c.connM.RLock()
 	defer c.connM.RUnlock()
-	return c.xtradbClusterClient.GetXtraDBClusterCredentials(ctx, in, opts...)
+	return c.pxcClusterClient.GetPXCClusterCredentials(ctx, in, opts...)
 }
 
 // ListPSMDBClusters returns a list of PSMDB clusters.
@@ -218,11 +218,11 @@ func (c *Client) GetResources(ctx context.Context, in *controllerv1beta1.GetReso
 	return c.kubernetesClient.GetResources(ctx, in, opts...)
 }
 
-// InstallXtraDBOperator installs kubernetes pxc operator.
-func (c *Client) InstallXtraDBOperator(ctx context.Context, in *controllerv1beta1.InstallXtraDBOperatorRequest, opts ...grpc.CallOption) (*controllerv1beta1.InstallXtraDBOperatorResponse, error) {
+// InstallPXCOperator installs kubernetes pxc operator.
+func (c *Client) InstallPXCOperator(ctx context.Context, in *controllerv1beta1.InstallPXCOperatorRequest, opts ...grpc.CallOption) (*controllerv1beta1.InstallPXCOperatorResponse, error) {
 	c.connM.RLock()
 	defer c.connM.RUnlock()
-	return c.xtradbOperatorClient.InstallXtraDBOperator(ctx, in, opts...)
+	return c.xtradbOperatorClient.InstallPXCOperator(ctx, in, opts...)
 }
 
 // InstallPSMDBOperator installs kubernetes PSMDB operator.

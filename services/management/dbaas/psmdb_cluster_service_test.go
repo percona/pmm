@@ -19,7 +19,6 @@ package dbaas
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	"github.com/google/uuid"
@@ -37,7 +36,7 @@ import (
 	"github.com/percona/pmm-managed/utils/tests"
 )
 
-const kubeconfTest = `
+const psmdbKubeconfTest = `
 	{
 		"apiVersion": "v1",
 		"kind": "Config",
@@ -70,7 +69,7 @@ const kubeconfTest = `
 		"current-context": "svcs-acct-context"
 	}
 `
-const kubernetesClusterNameTest = "test-k8s-cluster-name"
+const psmdbKubernetesClusterNameTest = "test-k8s-cluster-name"
 
 func TestPSMDBClusterService(t *testing.T) {
 	setup := func(t *testing.T) (ctx context.Context, db *reform.DB, dbaasClient *mockDbaasClient, grafanaClient *mockGrafanaClient, teardown func(t *testing.T)) {
@@ -97,65 +96,29 @@ func TestPSMDBClusterService(t *testing.T) {
 	defer teardown(t)
 
 	ks := NewKubernetesServer(db, dbaasClient, grafanaClient, NewVersionServiceClient(versionServiceURL))
-	dbaasClient.On("CheckKubernetesClusterConnection", ctx, kubeconfTest).Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
+	dbaasClient.On("CheckKubernetesClusterConnection", ctx, psmdbKubeconfTest).Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
 		Operators: &controllerv1beta1.Operators{
-			XtradbOperatorVersion: onePointEight,
-			PsmdbOperatorVersion:  "",
+			PxcOperatorVersion:   onePointEight,
+			PsmdbOperatorVersion: "",
 		},
 		Status: controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
 	}, nil)
 	dbaasClient.On("InstallPSMDBOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallPSMDBOperatorResponse{}, nil)
 
 	registerKubernetesClusterResponse, err := ks.RegisterKubernetesCluster(ctx, &dbaasv1beta1.RegisterKubernetesClusterRequest{
-		KubernetesClusterName: kubernetesClusterNameTest,
-		KubeAuth:              &dbaasv1beta1.KubeAuth{Kubeconfig: kubeconfTest},
+		KubernetesClusterName: psmdbKubernetesClusterNameTest,
+		KubeAuth:              &dbaasv1beta1.KubeAuth{Kubeconfig: psmdbKubeconfTest},
 	})
 	require.NoError(t, err)
 	assert.NotNil(t, registerKubernetesClusterResponse)
 	versionService := NewVersionServiceClient(versionServiceURL)
-
-	t.Run("BasicListPSMDBClusters", func(t *testing.T) {
-		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient, versionService)
-		mockResp := controllerv1beta1.ListPSMDBClustersResponse{
-			Clusters: []*controllerv1beta1.ListPSMDBClustersResponse_Cluster{
-				{
-					Name: "first-psmdb-test",
-					Params: &controllerv1beta1.PSMDBClusterParams{
-						ClusterSize: 5,
-						Replicaset: &controllerv1beta1.PSMDBClusterParams_ReplicaSet{
-							ComputeResources: &controllerv1beta1.ComputeResources{
-								CpuM:        3,
-								MemoryBytes: 256,
-							},
-						},
-					},
-					Operation: &controllerv1beta1.RunningOperation{
-						TotalSteps:    int32(10),
-						FinishedSteps: int32(10),
-					},
-				},
-			},
-		}
-
-		dbaasClient.On("ListPSMDBClusters", ctx, mock.Anything).Return(&mockResp, nil)
-
-		resp, err := s.ListPSMDBClusters(ctx, &dbaasv1beta1.ListPSMDBClustersRequest{KubernetesClusterName: kubernetesClusterNameTest})
-		assert.NoError(t, err)
-		require.NotNil(t, resp.Clusters[0])
-		assert.Equal(t, resp.Clusters[0].Name, "first-psmdb-test")
-		assert.Equal(t, int32(5), resp.Clusters[0].Params.ClusterSize)
-		assert.Equal(t, int32(3), resp.Clusters[0].Params.Replicaset.ComputeResources.CpuM)
-		assert.Equal(t, int64(256), resp.Clusters[0].Params.Replicaset.ComputeResources.MemoryBytes)
-		assert.Equal(t, int32(10), resp.Clusters[0].Operation.TotalSteps)
-		assert.Equal(t, int32(10), resp.Clusters[0].Operation.FinishedSteps)
-	})
 
 	//nolint:dupl
 	t.Run("BasicCreatePSMDBClusters", func(t *testing.T) {
 		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient, versionService)
 		mockReq := controllerv1beta1.CreatePSMDBClusterRequest{
 			KubeAuth: &controllerv1beta1.KubeAuth{
-				Kubeconfig: kubeconfTest,
+				Kubeconfig: psmdbKubeconfTest,
 			},
 			Name: "third-psmdb-test",
 			Params: &controllerv1beta1.PSMDBClusterParams{
@@ -174,7 +137,7 @@ func TestPSMDBClusterService(t *testing.T) {
 		dbaasClient.On("CreatePSMDBCluster", ctx, &mockReq).Return(&controllerv1beta1.CreatePSMDBClusterResponse{}, nil)
 
 		in := dbaasv1beta1.CreatePSMDBClusterRequest{
-			KubernetesClusterName: kubernetesClusterNameTest,
+			KubernetesClusterName: psmdbKubernetesClusterNameTest,
 			Name:                  "third-psmdb-test",
 			Params: &dbaasv1beta1.PSMDBClusterParams{
 				ClusterSize: 5,
@@ -197,7 +160,7 @@ func TestPSMDBClusterService(t *testing.T) {
 		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient, versionService)
 		mockReq := controllerv1beta1.UpdatePSMDBClusterRequest{
 			KubeAuth: &controllerv1beta1.KubeAuth{
-				Kubeconfig: kubeconfTest,
+				Kubeconfig: psmdbKubeconfTest,
 			},
 			Name: "third-psmdb-test",
 			Params: &controllerv1beta1.UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams{
@@ -214,7 +177,7 @@ func TestPSMDBClusterService(t *testing.T) {
 		dbaasClient.On("UpdatePSMDBCluster", ctx, &mockReq).Return(&controllerv1beta1.UpdatePSMDBClusterResponse{}, nil)
 
 		in := dbaasv1beta1.UpdatePSMDBClusterRequest{
-			KubernetesClusterName: kubernetesClusterNameTest,
+			KubernetesClusterName: psmdbKubernetesClusterNameTest,
 			Name:                  "third-psmdb-test",
 			Params: &dbaasv1beta1.UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams{
 				ClusterSize: 8,
@@ -236,7 +199,7 @@ func TestPSMDBClusterService(t *testing.T) {
 
 		mockReq := controllerv1beta1.GetPSMDBClusterCredentialsRequest{
 			KubeAuth: &controllerv1beta1.KubeAuth{
-				Kubeconfig: kubeconfTest,
+				Kubeconfig: psmdbKubeconfTest,
 			},
 			Name: "third-psmdb-test",
 		}
@@ -252,7 +215,7 @@ func TestPSMDBClusterService(t *testing.T) {
 		}, nil)
 
 		in := dbaasv1beta1.GetPSMDBClusterCredentialsRequest{
-			KubernetesClusterName: kubernetesClusterNameTest,
+			KubernetesClusterName: psmdbKubernetesClusterNameTest,
 			Name:                  "third-psmdb-test",
 		}
 
@@ -268,7 +231,7 @@ func TestPSMDBClusterService(t *testing.T) {
 
 		mockReq := controllerv1beta1.GetPSMDBClusterCredentialsRequest{
 			KubeAuth: &controllerv1beta1.KubeAuth{
-				Kubeconfig: kubeconfTest,
+				Kubeconfig: psmdbKubeconfTest,
 			},
 			Name: name,
 		}
@@ -281,7 +244,7 @@ func TestPSMDBClusterService(t *testing.T) {
 		dbaasClient.On("GetPSMDBClusterCredentials", ctx, &mockReq).Return(&resp, nil)
 
 		in := dbaasv1beta1.GetPSMDBClusterCredentialsRequest{
-			KubernetesClusterName: kubernetesClusterNameTest,
+			KubernetesClusterName: psmdbKubernetesClusterNameTest,
 			Name:                  name,
 		}
 
@@ -289,48 +252,6 @@ func TestPSMDBClusterService(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.Equal(t, resp.Credentials.Host, cluster.ConnectionCredentials.Host)
-	})
-
-	t.Run("BasicRestartPSMDBCluster", func(t *testing.T) {
-		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient, versionService)
-		mockReq := controllerv1beta1.RestartPSMDBClusterRequest{
-			KubeAuth: &controllerv1beta1.KubeAuth{
-				Kubeconfig: kubeconfTest,
-			},
-			Name: "third-psmdb-test",
-		}
-
-		dbaasClient.On("RestartPSMDBCluster", ctx, &mockReq).Return(&controllerv1beta1.RestartPSMDBClusterResponse{}, nil)
-
-		in := dbaasv1beta1.RestartPSMDBClusterRequest{
-			KubernetesClusterName: kubernetesClusterNameTest,
-			Name:                  "third-psmdb-test",
-		}
-
-		_, err := s.RestartPSMDBCluster(ctx, &in)
-		assert.NoError(t, err)
-	})
-
-	t.Run("BasicDeletePSMDBCluster", func(t *testing.T) {
-		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient, versionService)
-		dbClusterName := "delete-psmdb-test"
-		mockReq := controllerv1beta1.DeletePSMDBClusterRequest{
-			KubeAuth: &controllerv1beta1.KubeAuth{
-				Kubeconfig: kubeconfTest,
-			},
-			Name: dbClusterName,
-		}
-
-		dbaasClient.On("DeletePSMDBCluster", ctx, &mockReq).Return(&controllerv1beta1.DeletePSMDBClusterResponse{}, nil)
-		grafanaClient.On("DeleteAPIKeysWithPrefix", ctx, fmt.Sprintf("psmdb-%s-%s", kubernetesClusterNameTest, dbClusterName)).Return(nil)
-
-		in := dbaasv1beta1.DeletePSMDBClusterRequest{
-			KubernetesClusterName: kubernetesClusterNameTest,
-			Name:                  dbClusterName,
-		}
-
-		_, err := s.DeletePSMDBCluster(ctx, &in)
-		assert.NoError(t, err)
 	})
 
 	t.Run("BasicGetPSMDBClusterResources", func(t *testing.T) {

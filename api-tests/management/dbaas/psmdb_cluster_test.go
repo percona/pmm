@@ -20,7 +20,8 @@ import (
 	"testing"
 
 	dbaasClient "github.com/percona/pmm/api/managementpb/dbaas/json/client"
-	psmdbcluster "github.com/percona/pmm/api/managementpb/dbaas/json/client/psmdb_cluster"
+	dbclusters "github.com/percona/pmm/api/managementpb/dbaas/json/client/db_clusters"
+	psmdbclusters "github.com/percona/pmm/api/managementpb/dbaas/json/client/psmdb_clusters"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -40,15 +41,15 @@ func TestPSMDBClusterServer(t *testing.T) {
 	registerKubernetesCluster(t, psmdbKubernetesClusterName, pmmapitests.Kubeconfig)
 
 	t.Run("BasicPSMDBCluster", func(t *testing.T) {
-		paramsFirstPSMDB := psmdbcluster.CreatePSMDBClusterParams{
+		paramsFirstPSMDB := psmdbclusters.CreatePSMDBClusterParams{
 			Context: pmmapitests.Context,
-			Body: psmdbcluster.CreatePSMDBClusterBody{
+			Body: psmdbclusters.CreatePSMDBClusterBody{
 				KubernetesClusterName: psmdbKubernetesClusterName,
 				Name:                  "first-psmdb-test",
-				Params: &psmdbcluster.CreatePSMDBClusterParamsBodyParams{
+				Params: &psmdbclusters.CreatePSMDBClusterParamsBodyParams{
 					ClusterSize: 3,
-					Replicaset: &psmdbcluster.CreatePSMDBClusterParamsBodyParamsReplicaset{
-						ComputeResources: &psmdbcluster.CreatePSMDBClusterParamsBodyParamsReplicasetComputeResources{
+					Replicaset: &psmdbclusters.CreatePSMDBClusterParamsBodyParamsReplicaset{
+						ComputeResources: &psmdbclusters.CreatePSMDBClusterParamsBodyParamsReplicasetComputeResources{
 							CPUm:        500,
 							MemoryBytes: "1000000000",
 						},
@@ -58,18 +59,18 @@ func TestPSMDBClusterServer(t *testing.T) {
 			},
 		}
 
-		_, err := dbaasClient.Default.PSMDBCluster.CreatePSMDBCluster(&paramsFirstPSMDB)
+		_, err := dbaasClient.Default.PSMDBClusters.CreatePSMDBCluster(&paramsFirstPSMDB)
 		assert.NoError(t, err)
 		// Create one more PSMDB Cluster.
-		paramsSecondPSMDB := psmdbcluster.CreatePSMDBClusterParams{
+		paramsSecondPSMDB := psmdbclusters.CreatePSMDBClusterParams{
 			Context: pmmapitests.Context,
-			Body: psmdbcluster.CreatePSMDBClusterBody{
+			Body: psmdbclusters.CreatePSMDBClusterBody{
 				KubernetesClusterName: psmdbKubernetesClusterName,
 				Name:                  "second-psmdb-test",
-				Params: &psmdbcluster.CreatePSMDBClusterParamsBodyParams{
+				Params: &psmdbclusters.CreatePSMDBClusterParamsBodyParams{
 					ClusterSize: 1,
-					Replicaset: &psmdbcluster.CreatePSMDBClusterParamsBodyParamsReplicaset{
-						ComputeResources: &psmdbcluster.CreatePSMDBClusterParamsBodyParamsReplicasetComputeResources{
+					Replicaset: &psmdbclusters.CreatePSMDBClusterParamsBodyParamsReplicaset{
+						ComputeResources: &psmdbclusters.CreatePSMDBClusterParamsBodyParamsReplicasetComputeResources{
 							CPUm:        500,
 							MemoryBytes: "1000000000",
 						},
@@ -78,21 +79,21 @@ func TestPSMDBClusterServer(t *testing.T) {
 				},
 			},
 		}
-		_, err = dbaasClient.Default.PSMDBCluster.CreatePSMDBCluster(&paramsSecondPSMDB)
+		_, err = dbaasClient.Default.PSMDBClusters.CreatePSMDBCluster(&paramsSecondPSMDB)
 		assert.NoError(t, err)
 
-		listPSMDBClustersParamsParam := psmdbcluster.ListPSMDBClustersParams{
+		listPSMDBClustersParamsParam := dbclusters.ListDBClustersParams{
 			Context: pmmapitests.Context,
-			Body: psmdbcluster.ListPSMDBClustersBody{
+			Body: dbclusters.ListDBClustersBody{
 				KubernetesClusterName: psmdbKubernetesClusterName,
 			},
 		}
-		xtraDBClusters, err := dbaasClient.Default.PSMDBCluster.ListPSMDBClusters(&listPSMDBClustersParamsParam)
+		dbClusters, err := dbaasClient.Default.DBClusters.ListDBClusters(&listPSMDBClustersParamsParam)
 		assert.NoError(t, err)
 
 		for _, name := range []string{"first-psmdb-test", "second-psmdb-test"} {
 			foundPSMDB := false
-			for _, psmdb := range xtraDBClusters.Payload.Clusters {
+			for _, psmdb := range dbClusters.Payload.PSMDBClusters {
 				if name == psmdb.Name {
 					foundPSMDB = true
 
@@ -102,15 +103,15 @@ func TestPSMDBClusterServer(t *testing.T) {
 			assert.True(t, foundPSMDB, "Cannot find PSMDB with name %s in cluster list", name)
 		}
 
-		paramsUpdatePSMDB := psmdbcluster.UpdatePSMDBClusterParams{
+		paramsUpdatePSMDB := psmdbclusters.UpdatePSMDBClusterParams{
 			Context: pmmapitests.Context,
-			Body: psmdbcluster.UpdatePSMDBClusterBody{
+			Body: psmdbclusters.UpdatePSMDBClusterBody{
 				KubernetesClusterName: psmdbKubernetesClusterName,
 				Name:                  "second-psmdb-test",
-				Params: &psmdbcluster.UpdatePSMDBClusterParamsBodyParams{
+				Params: &psmdbclusters.UpdatePSMDBClusterParamsBodyParams{
 					ClusterSize: 2,
-					Replicaset: &psmdbcluster.UpdatePSMDBClusterParamsBodyParamsReplicaset{
-						ComputeResources: &psmdbcluster.UpdatePSMDBClusterParamsBodyParamsReplicasetComputeResources{
+					Replicaset: &psmdbclusters.UpdatePSMDBClusterParamsBodyParamsReplicaset{
+						ComputeResources: &psmdbclusters.UpdatePSMDBClusterParamsBodyParamsReplicasetComputeResources{
 							CPUm:        2,
 							MemoryBytes: "128",
 						},
@@ -119,26 +120,26 @@ func TestPSMDBClusterServer(t *testing.T) {
 			},
 		}
 
-		_, err = dbaasClient.Default.PSMDBCluster.UpdatePSMDBCluster(&paramsUpdatePSMDB)
+		_, err = dbaasClient.Default.PSMDBClusters.UpdatePSMDBCluster(&paramsUpdatePSMDB)
 		pmmapitests.AssertAPIErrorf(t, err, 500, codes.Internal, `state is initializing: PSMDB cluster is not ready`)
 
-		for _, psmdb := range xtraDBClusters.Payload.Clusters {
+		for _, psmdb := range dbClusters.Payload.PSMDBClusters {
 			if psmdb.Name == "" {
 				continue
 			}
-			deletePSMDBClusterParamsParam := psmdbcluster.DeletePSMDBClusterParams{
+			deletePSMDBClusterParamsParam := dbclusters.DeleteDBClusterParams{
 				Context: pmmapitests.Context,
-				Body: psmdbcluster.DeletePSMDBClusterBody{
+				Body: dbclusters.DeleteDBClusterBody{
 					KubernetesClusterName: psmdbKubernetesClusterName,
 					Name:                  psmdb.Name,
 				},
 			}
-			_, err := dbaasClient.Default.PSMDBCluster.DeletePSMDBCluster(&deletePSMDBClusterParamsParam)
+			_, err := dbaasClient.Default.DBClusters.DeleteDBCluster(&deletePSMDBClusterParamsParam)
 			assert.NoError(t, err)
 		}
 
-		cluster, err := dbaasClient.Default.PSMDBCluster.GetPSMDBClusterCredentials(&psmdbcluster.GetPSMDBClusterCredentialsParams{
-			Body: psmdbcluster.GetPSMDBClusterCredentialsBody{
+		cluster, err := dbaasClient.Default.PSMDBClusters.GetPSMDBClusterCredentials(&psmdbclusters.GetPSMDBClusterCredentialsParams{
+			Body: psmdbclusters.GetPSMDBClusterCredentialsBody{
 				KubernetesClusterName: psmdbKubernetesClusterName,
 				Name:                  "second-psmdb-test",
 			},
@@ -152,8 +153,8 @@ func TestPSMDBClusterServer(t *testing.T) {
 		assert.NotEmpty(t, cluster.Payload.ConnectionCredentials.Password)
 
 		t.Skip("Skip restart till better implementation. https://jira.percona.com/browse/PMM-6980")
-		_, err = dbaasClient.Default.PSMDBCluster.RestartPSMDBCluster(&psmdbcluster.RestartPSMDBClusterParams{
-			Body: psmdbcluster.RestartPSMDBClusterBody{
+		_, err = dbaasClient.Default.DBClusters.RestartDBCluster(&dbclusters.RestartDBClusterParams{
+			Body: dbclusters.RestartDBClusterBody{
 				KubernetesClusterName: psmdbKubernetesClusterName,
 				Name:                  "first-psmdb-test",
 			},
@@ -163,15 +164,15 @@ func TestPSMDBClusterServer(t *testing.T) {
 	})
 
 	t.Run("CreatePSMDBClusterEmptyName", func(t *testing.T) {
-		paramsPSMDBEmptyName := psmdbcluster.CreatePSMDBClusterParams{
+		paramsPSMDBEmptyName := psmdbclusters.CreatePSMDBClusterParams{
 			Context: pmmapitests.Context,
-			Body: psmdbcluster.CreatePSMDBClusterBody{
+			Body: psmdbclusters.CreatePSMDBClusterBody{
 				KubernetesClusterName: psmdbKubernetesClusterName,
 				Name:                  "",
-				Params: &psmdbcluster.CreatePSMDBClusterParamsBodyParams{
+				Params: &psmdbclusters.CreatePSMDBClusterParamsBodyParams{
 					ClusterSize: 3,
-					Replicaset: &psmdbcluster.CreatePSMDBClusterParamsBodyParamsReplicaset{
-						ComputeResources: &psmdbcluster.CreatePSMDBClusterParamsBodyParamsReplicasetComputeResources{
+					Replicaset: &psmdbclusters.CreatePSMDBClusterParamsBodyParamsReplicaset{
+						ComputeResources: &psmdbclusters.CreatePSMDBClusterParamsBodyParamsReplicasetComputeResources{
 							CPUm:        1,
 							MemoryBytes: "64",
 						},
@@ -179,20 +180,20 @@ func TestPSMDBClusterServer(t *testing.T) {
 				},
 			},
 		}
-		_, err := dbaasClient.Default.PSMDBCluster.CreatePSMDBCluster(&paramsPSMDBEmptyName)
+		_, err := dbaasClient.Default.PSMDBClusters.CreatePSMDBCluster(&paramsPSMDBEmptyName)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `invalid field Name: value '' must be a string conforming to regex "^[a-z]([-a-z0-9]*[a-z0-9])?$"`)
 	})
 
 	t.Run("CreatePSMDBClusterInvalidName", func(t *testing.T) {
-		paramsPSMDBInvalidName := psmdbcluster.CreatePSMDBClusterParams{
+		paramsPSMDBInvalidName := psmdbclusters.CreatePSMDBClusterParams{
 			Context: pmmapitests.Context,
-			Body: psmdbcluster.CreatePSMDBClusterBody{
+			Body: psmdbclusters.CreatePSMDBClusterBody{
 				KubernetesClusterName: psmdbKubernetesClusterName,
 				Name:                  "123_asd",
-				Params: &psmdbcluster.CreatePSMDBClusterParamsBodyParams{
+				Params: &psmdbclusters.CreatePSMDBClusterParamsBodyParams{
 					ClusterSize: 3,
-					Replicaset: &psmdbcluster.CreatePSMDBClusterParamsBodyParamsReplicaset{
-						ComputeResources: &psmdbcluster.CreatePSMDBClusterParamsBodyParamsReplicasetComputeResources{
+					Replicaset: &psmdbclusters.CreatePSMDBClusterParamsBodyParamsReplicaset{
+						ComputeResources: &psmdbclusters.CreatePSMDBClusterParamsBodyParamsReplicasetComputeResources{
 							CPUm:        1,
 							MemoryBytes: "64",
 						},
@@ -200,72 +201,72 @@ func TestPSMDBClusterServer(t *testing.T) {
 				},
 			},
 		}
-		_, err := dbaasClient.Default.PSMDBCluster.CreatePSMDBCluster(&paramsPSMDBInvalidName)
+		_, err := dbaasClient.Default.PSMDBClusters.CreatePSMDBCluster(&paramsPSMDBInvalidName)
 		assert.Error(t, err)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `invalid field Name: value '123_asd' must be a string conforming to regex "^[a-z]([-a-z0-9]*[a-z0-9])?$"`)
 	})
 
 	t.Run("ListUnknownCluster", func(t *testing.T) {
-		listPSMDBClustersParamsParam := psmdbcluster.ListPSMDBClustersParams{
+		listPSMDBClustersParamsParam := dbclusters.ListDBClustersParams{
 			Context: pmmapitests.Context,
-			Body: psmdbcluster.ListPSMDBClustersBody{
+			Body: dbclusters.ListDBClustersBody{
 				KubernetesClusterName: "Unknown-kubernetes-cluster-name",
 			},
 		}
-		_, err := dbaasClient.Default.PSMDBCluster.ListPSMDBClusters(&listPSMDBClustersParamsParam)
+		_, err := dbaasClient.Default.DBClusters.ListDBClusters(&listPSMDBClustersParamsParam)
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, `Kubernetes Cluster with name "Unknown-kubernetes-cluster-name" not found.`)
 	})
 
 	t.Run("RestartUnknownPSMDBCluster", func(t *testing.T) {
-		restartPSMDBClusterParamsParam := psmdbcluster.RestartPSMDBClusterParams{
+		restartPSMDBClusterParamsParam := dbclusters.RestartDBClusterParams{
 			Context: pmmapitests.Context,
-			Body: psmdbcluster.RestartPSMDBClusterBody{
+			Body: dbclusters.RestartDBClusterBody{
 				KubernetesClusterName: psmdbKubernetesClusterName,
 				Name:                  "Unknown-psmdb-name",
 			},
 		}
-		_, err := dbaasClient.Default.PSMDBCluster.RestartPSMDBCluster(&restartPSMDBClusterParamsParam)
+		_, err := dbaasClient.Default.DBClusters.RestartDBCluster(&restartPSMDBClusterParamsParam)
 		require.Error(t, err)
 		assert.Equal(t, 500, err.(pmmapitests.ErrorResponse).Code())
 	})
 
 	t.Run("DeleteUnknownPSMDBCluster", func(t *testing.T) {
-		deletePSMDBClusterParamsParam := psmdbcluster.DeletePSMDBClusterParams{
+		deletePSMDBClusterParamsParam := dbclusters.DeleteDBClusterParams{
 			Context: pmmapitests.Context,
-			Body: psmdbcluster.DeletePSMDBClusterBody{
+			Body: dbclusters.DeleteDBClusterBody{
 				KubernetesClusterName: psmdbKubernetesClusterName,
 				Name:                  "Unknown-psmdb-name",
 			},
 		}
-		_, err := dbaasClient.Default.PSMDBCluster.DeletePSMDBCluster(&deletePSMDBClusterParamsParam)
+		_, err := dbaasClient.Default.DBClusters.DeleteDBCluster(&deletePSMDBClusterParamsParam)
 		require.Error(t, err)
 		assert.Equal(t, 500, err.(pmmapitests.ErrorResponse).Code())
 	})
 
 	t.Run("SuspendResumeCluster", func(t *testing.T) {
-		paramsUpdatePSMDB := psmdbcluster.UpdatePSMDBClusterParams{
+		paramsUpdatePSMDB := psmdbclusters.UpdatePSMDBClusterParams{
 			Context: pmmapitests.Context,
-			Body: psmdbcluster.UpdatePSMDBClusterBody{
+			Body: psmdbclusters.UpdatePSMDBClusterBody{
 				KubernetesClusterName: psmdbKubernetesClusterName,
 				Name:                  "second-psmdb-test",
-				Params: &psmdbcluster.UpdatePSMDBClusterParamsBodyParams{
+				Params: &psmdbclusters.UpdatePSMDBClusterParamsBodyParams{
 					Suspend: true,
 					Resume:  true,
 				},
 			},
 		}
-		_, err := dbaasClient.Default.PSMDBCluster.UpdatePSMDBCluster(&paramsUpdatePSMDB)
+		_, err := dbaasClient.Default.PSMDBClusters.UpdatePSMDBCluster(&paramsUpdatePSMDB)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `resume and suspend cannot be set together`)
 	})
 
 	t.Run("GetPSMDBClusterResources", func(t *testing.T) {
-		paramsPSMDBClusterResources := psmdbcluster.GetPSMDBClusterResourcesParams{
+		paramsPSMDBClusterResources := psmdbclusters.GetPSMDBClusterResourcesParams{
 			Context: pmmapitests.Context,
-			Body: psmdbcluster.GetPSMDBClusterResourcesBody{
-				Params: &psmdbcluster.GetPSMDBClusterResourcesParamsBodyParams{
+			Body: psmdbclusters.GetPSMDBClusterResourcesBody{
+				Params: &psmdbclusters.GetPSMDBClusterResourcesParamsBodyParams{
 					ClusterSize: 4,
-					Replicaset: &psmdbcluster.GetPSMDBClusterResourcesParamsBodyParamsReplicaset{
-						ComputeResources: &psmdbcluster.GetPSMDBClusterResourcesParamsBodyParamsReplicasetComputeResources{
+					Replicaset: &psmdbclusters.GetPSMDBClusterResourcesParamsBodyParamsReplicaset{
+						ComputeResources: &psmdbclusters.GetPSMDBClusterResourcesParamsBodyParamsReplicasetComputeResources{
 							CPUm:        2000,
 							MemoryBytes: "2000000000",
 						},
@@ -273,7 +274,7 @@ func TestPSMDBClusterServer(t *testing.T) {
 				},
 			},
 		}
-		resources, err := dbaasClient.Default.PSMDBCluster.GetPSMDBClusterResources(&paramsPSMDBClusterResources)
+		resources, err := dbaasClient.Default.PSMDBClusters.GetPSMDBClusterResources(&paramsPSMDBClusterResources)
 		assert.NoError(t, err)
 		assert.Equal(t, resources.Payload.Expected.MemoryBytes, 16000000000)
 		assert.Equal(t, resources.Payload.Expected.CPUm, 16000)

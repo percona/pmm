@@ -65,8 +65,8 @@ func TestKubernetesServer(t *testing.T) {
 
 		dc.On("CheckKubernetesClusterConnection", ctx, kubeconfig).Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
 			Operators: &controllerv1beta1.Operators{
-				XtradbOperatorVersion: "",
-				PsmdbOperatorVersion:  onePointEight,
+				PxcOperatorVersion:   "",
+				PsmdbOperatorVersion: onePointEight,
 			},
 			Status: controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
 		}, nil)
@@ -74,7 +74,7 @@ func TestKubernetesServer(t *testing.T) {
 		require.NoError(t, err)
 		require.Empty(t, clusters.KubernetesClusters)
 
-		dc.On("InstallXtraDBOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallXtraDBOperatorResponse{}, nil)
+		dc.On("InstallPXCOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallPXCOperatorResponse{}, nil)
 
 		kubernetesClusterName := "test-cluster"
 		registerKubernetesClusterResponse, err := ks.RegisterKubernetesCluster(ctx, &dbaasv1beta1.RegisterKubernetesClusterRequest{
@@ -99,32 +99,32 @@ func TestKubernetesServer(t *testing.T) {
 			{
 				KubernetesClusterName: kubernetesClusterName,
 				Operators: &dbaasv1beta1.Operators{
-					Xtradb: &dbaasv1beta1.Operator{Status: dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_NOT_INSTALLED},
-					Psmdb:  &dbaasv1beta1.Operator{Version: onePointEight, Status: dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_OK},
+					Pxc:   &dbaasv1beta1.Operator{Status: dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_NOT_INSTALLED},
+					Psmdb: &dbaasv1beta1.Operator{Version: onePointEight, Status: dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_OK},
 				},
 				Status: dbaasv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
 			},
 		}
 		assert.Equal(t, expected, clusters.KubernetesClusters)
 
-		listXtraDBClustersMock := dc.On("ListXtraDBClusters", ctx, mock.Anything)
+		listPXCClustersMock := dc.On("ListPXCClusters", ctx, mock.Anything)
 		listPSMDBClustersMock := dc.On("ListPSMDBClusters", ctx, mock.Anything)
-		listXtraDBClustersMock.Return(&controllerv1beta1.ListXtraDBClustersResponse{
-			Clusters: []*controllerv1beta1.ListXtraDBClustersResponse_Cluster{
+		listPXCClustersMock.Return(&controllerv1beta1.ListPXCClustersResponse{
+			Clusters: []*controllerv1beta1.ListPXCClustersResponse_Cluster{
 				{Name: "first-xtradb-cluster"},
 			},
 		}, nil)
 		_, err = ks.UnregisterKubernetesCluster(ctx, &dbaasv1beta1.UnregisterKubernetesClusterRequest{
 			KubernetesClusterName: kubernetesClusterName,
 		})
-		tests.AssertGRPCError(t, status.Newf(codes.FailedPrecondition, "Kubernetes cluster %s has XtraDB clusters", kubernetesClusterName), err)
+		tests.AssertGRPCError(t, status.Newf(codes.FailedPrecondition, "Kubernetes cluster %s has PXC clusters", kubernetesClusterName), err)
 
 		listPSMDBClustersMock.Return(&controllerv1beta1.ListPSMDBClustersResponse{
 			Clusters: []*controllerv1beta1.ListPSMDBClustersResponse_Cluster{
 				{Name: "first-xtradb-cluster"},
 			},
 		}, nil)
-		listXtraDBClustersMock.Return(&controllerv1beta1.ListXtraDBClustersResponse{}, nil)
+		listPXCClustersMock.Return(&controllerv1beta1.ListPXCClustersResponse{}, nil)
 		_, err = ks.UnregisterKubernetesCluster(ctx, &dbaasv1beta1.UnregisterKubernetesClusterRequest{
 			KubernetesClusterName: kubernetesClusterName,
 		})

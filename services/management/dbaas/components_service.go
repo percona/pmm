@@ -115,7 +115,7 @@ func (c componentsService) GetPXCComponents(ctx context.Context, req *dbaasv1bet
 			return nil, e
 		}
 
-		params.productVersion = checkResponse.Operators.XtradbOperatorVersion
+		params.productVersion = checkResponse.Operators.PxcOperatorVersion
 	}
 
 	versions, err := c.versions(ctx, params, kubernetesCluster)
@@ -210,7 +210,7 @@ func (c componentsService) installedOperatorsVersion(ctx context.Context, wg *sy
 	}
 	responseCh <- installedComponentsVersion{
 		kuberentesClusterName: kuberentesCluster.KubernetesClusterName,
-		pxcOperatorVersion:    resp.Operators.XtradbOperatorVersion,
+		pxcOperatorVersion:    resp.Operators.PxcOperatorVersion,
 		psmdbOperatorVersion:  resp.Operators.PsmdbOperatorVersion,
 	}
 }
@@ -414,7 +414,7 @@ func (c componentsService) InstallOperator(ctx context.Context, req *dbaasv1beta
 	switch req.OperatorType {
 	case pxcOperator:
 		installFunc = func() error {
-			_, err := c.dbaasClient.InstallXtraDBOperator(ctx, &controllerv1beta1.InstallXtraDBOperatorRequest{
+			_, err := c.dbaasClient.InstallPXCOperator(ctx, &controllerv1beta1.InstallPXCOperatorRequest{
 				KubeAuth: &controllerv1beta1.KubeAuth{
 					Kubeconfig: kubernetesCluster.KubeConfig,
 				},

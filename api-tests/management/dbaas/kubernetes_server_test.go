@@ -23,8 +23,9 @@ import (
 	"time"
 
 	dbaasClient "github.com/percona/pmm/api/managementpb/dbaas/json/client"
+	dbclusters "github.com/percona/pmm/api/managementpb/dbaas/json/client/db_clusters"
 	"github.com/percona/pmm/api/managementpb/dbaas/json/client/kubernetes"
-	psmdbcluster "github.com/percona/pmm/api/managementpb/dbaas/json/client/psmdb_cluster"
+	psmdbclusters "github.com/percona/pmm/api/managementpb/dbaas/json/client/psmdb_clusters"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -168,15 +169,15 @@ func TestKubernetesServer(t *testing.T) {
 		require.NotContains(t, clusters.Payload.KubernetesClusters, &kubernetes.KubernetesClustersItems0{KubernetesClusterName: kubernetesClusterName})
 		registerKubernetesCluster(t, kubernetesClusterName, kubeConfig)
 
-		paramsFirstPSMDB := psmdbcluster.CreatePSMDBClusterParams{
+		paramsFirstPSMDB := psmdbclusters.CreatePSMDBClusterParams{
 			Context: pmmapitests.Context,
-			Body: psmdbcluster.CreatePSMDBClusterBody{
+			Body: psmdbclusters.CreatePSMDBClusterBody{
 				KubernetesClusterName: kubernetesClusterName,
 				Name:                  dbClusterName,
-				Params: &psmdbcluster.CreatePSMDBClusterParamsBodyParams{
+				Params: &psmdbclusters.CreatePSMDBClusterParamsBodyParams{
 					ClusterSize: 3,
-					Replicaset: &psmdbcluster.CreatePSMDBClusterParamsBodyParamsReplicaset{
-						ComputeResources: &psmdbcluster.CreatePSMDBClusterParamsBodyParamsReplicasetComputeResources{
+					Replicaset: &psmdbclusters.CreatePSMDBClusterParamsBodyParamsReplicaset{
+						ComputeResources: &psmdbclusters.CreatePSMDBClusterParamsBodyParamsReplicasetComputeResources{
 							CPUm:        500,
 							MemoryBytes: "1000000000",
 						},
@@ -185,7 +186,7 @@ func TestKubernetesServer(t *testing.T) {
 				},
 			},
 		}
-		_, err = dbaasClient.Default.PSMDBCluster.CreatePSMDBCluster(&paramsFirstPSMDB)
+		_, err = dbaasClient.Default.PSMDBClusters.CreatePSMDBCluster(&paramsFirstPSMDB)
 		assert.NoError(t, err)
 
 		clusters, err = dbaasClient.Default.Kubernetes.ListKubernetesClusters(nil)
@@ -228,27 +229,27 @@ func TestKubernetesServer(t *testing.T) {
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, fmt.Sprintf(`Kubernetes Cluster with name "%s" not found.`, kubernetesClusterName))
 
 		registerKubernetesCluster(t, kubernetesClusterName, kubeConfig)
-		deletePSMDBClusterParamsParam := psmdbcluster.DeletePSMDBClusterParams{
+		deletePSMDBClusterParamsParam := dbclusters.DeleteDBClusterParams{
 			Context: pmmapitests.Context,
-			Body: psmdbcluster.DeletePSMDBClusterBody{
+			Body: dbclusters.DeleteDBClusterBody{
 				KubernetesClusterName: kubernetesClusterName,
 				Name:                  dbClusterName,
 			},
 		}
-		_, err = dbaasClient.Default.PSMDBCluster.DeletePSMDBCluster(&deletePSMDBClusterParamsParam)
+		_, err = dbaasClient.Default.DBClusters.DeleteDBCluster(&deletePSMDBClusterParamsParam)
 		assert.NoError(t, err)
 
-		listPSMDBClustersParamsParam := psmdbcluster.ListPSMDBClustersParams{
+		listPSMDBClustersParamsParam := dbclusters.ListDBClustersParams{
 			Context: pmmapitests.Context,
-			Body: psmdbcluster.ListPSMDBClustersBody{
+			Body: dbclusters.ListDBClustersBody{
 				KubernetesClusterName: kubernetesClusterName,
 			},
 		}
 
 		for {
-			psmDBClusters, err := dbaasClient.Default.PSMDBCluster.ListPSMDBClusters(&listPSMDBClustersParamsParam)
+			psmDBClusters, err := dbaasClient.Default.DBClusters.ListDBClusters(&listPSMDBClustersParamsParam)
 			assert.NoError(t, err)
-			if len(psmDBClusters.Payload.Clusters) == 0 {
+			if len(psmDBClusters.Payload.PSMDBClusters) == 0 {
 				break
 			}
 			time.Sleep(1 * time.Second)

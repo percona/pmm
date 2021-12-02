@@ -106,8 +106,8 @@ func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1
 			clusters[i] = &dbaasv1beta1.ListKubernetesClustersResponse_Cluster{
 				KubernetesClusterName: cluster.KubernetesClusterName,
 				Operators: &dbaasv1beta1.Operators{
-					Xtradb: new(dbaasv1beta1.Operator),
-					Psmdb:  new(dbaasv1beta1.Operator),
+					Pxc:   new(dbaasv1beta1.Operator),
+					Psmdb: new(dbaasv1beta1.Operator),
 				},
 			}
 			resp, e := k.dbaasClient.CheckKubernetesClusterConnection(ctx, cluster.KubeConfig)
@@ -122,7 +122,7 @@ func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1
 				return
 			}
 
-			clusters[i].Operators.Xtradb.Status, err = k.convertToOperatorStatus(ctx, pxcOperator, resp.Operators.XtradbOperatorVersion)
+			clusters[i].Operators.Pxc.Status, err = k.convertToOperatorStatus(ctx, pxcOperator, resp.Operators.PxcOperatorVersion)
 			if err != nil {
 				k.l.Errorf("failed to convert dbaas-controller operator status to PMM status: %v", err)
 			}
@@ -131,7 +131,7 @@ func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1
 				k.l.Errorf("failed to convert dbaas-controller operator status to PMM status: %v", err)
 			}
 
-			clusters[i].Operators.Xtradb.Version = resp.Operators.XtradbOperatorVersion
+			clusters[i].Operators.Pxc.Version = resp.Operators.PxcOperatorVersion
 			clusters[i].Operators.Psmdb.Version = resp.Operators.PsmdbOperatorVersion
 		}()
 	}
@@ -169,8 +169,8 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 		return nil, err
 	}
 
-	if pxcOperatorVersion != nil && (clusterInfo.Operators == nil || clusterInfo.Operators.XtradbOperatorVersion == "") {
-		_, err = k.dbaasClient.InstallXtraDBOperator(ctx, &dbaascontrollerv1beta1.InstallXtraDBOperatorRequest{
+	if pxcOperatorVersion != nil && (clusterInfo.Operators == nil || clusterInfo.Operators.PxcOperatorVersion == "") {
+		_, err = k.dbaasClient.InstallPXCOperator(ctx, &dbaascontrollerv1beta1.InstallPXCOperatorRequest{
 			KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
 				Kubeconfig: req.KubeAuth.Kubeconfig,
 			},
@@ -241,8 +241,8 @@ func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *
 			return models.RemoveKubernetesCluster(t.Querier, req.KubernetesClusterName)
 		}
 
-		xtraDBClusters, err := k.dbaasClient.ListXtraDBClusters(ctx,
-			&dbaascontrollerv1beta1.ListXtraDBClustersRequest{
+		pxcClusters, err := k.dbaasClient.ListPXCClusters(ctx,
+			&dbaascontrollerv1beta1.ListPXCClustersRequest{
 				KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
 					Kubeconfig: kubernetesCluster.KubeConfig,
 				},
@@ -252,8 +252,8 @@ func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *
 			k.l.Warn(err)
 		case err != nil:
 			return err
-		case len(xtraDBClusters.Clusters) > 0:
-			return status.Errorf(codes.FailedPrecondition, "Kubernetes cluster %s has XtraDB clusters", req.KubernetesClusterName)
+		case len(pxcClusters.Clusters) > 0:
+			return status.Errorf(codes.FailedPrecondition, "Kubernetes cluster %s has PXC clusters", req.KubernetesClusterName)
 		}
 
 		psmdbClusters, err := k.dbaasClient.ListPSMDBClusters(ctx, &dbaascontrollerv1beta1.ListPSMDBClustersRequest{
