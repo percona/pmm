@@ -83,9 +83,48 @@ jobs:
           make -C api descriptors
           git diff --text
 
-
       - name: Run tests
         run: go test ./...
 
       - name: Clean Testcache
         run: go clean -testcache
+
+  workflow_success:
+    needs: [build]
+    name: Slack Notification success
+    runs-on: ubuntu-latest
+    env:
+      SLACK_WEBHOOK: ${{ secrets.SLACK_TOKEN }}
+      SLACK_CHANNEL: "pmm-ci"
+      SLACK_USERNAME: "PR pipelines bot"
+      SLACK_ICON_EMOJI: ":chestnut:"
+      SLACK_COLOR: "#00FF00"
+      SLACK_TITLE: "Finished ${{ github.event.repository.name }} workflow"
+      SLACK_MESSAGE: "${{ github.event.inputs.repo || github.repository }}:${{ github.event.inputs.branch || github.head_ref }}"
+      SLACK_FOOTER: "Please check the Actions URL ^"
+
+    steps:
+      - uses: percona-platform/checkout@v2
+      - uses: percona-platform/setup-node@v2
+      - name: Slack Notification
+        uses: percona-platform/action-slack-notify@v2
+
+  workflow_failure:
+    if: ${{ failure() }}
+    needs: [build]
+    name: Slack Notification failure
+    runs-on: ubuntu-latest
+    env:
+      SLACK_WEBHOOK: ${{ secrets.SLACK_TOKEN }}
+      SLACK_CHANNEL: "pmm-ci"
+      SLACK_USERNAME: "PR pipelines bot"
+      SLACK_ICON_EMOJI: ":chestnut:"
+      SLACK_COLOR: "#FF0000"
+      SLACK_TITLE: "Finished ${{ github.event.repository.name }} workflow"
+      SLACK_MESSAGE: "Workflow failed: ${{ github.event.inputs.repo || github.repository }}:${{ github.event.inputs.branch || github.head_ref }}"
+      SLACK_FOOTER: "Please check the Actions URL ^"
+
+    steps:
+      - uses: percona-platform/checkout@v2
+      - name: Slack Notification
+        uses: percona-platform/action-slack-notify@v2
