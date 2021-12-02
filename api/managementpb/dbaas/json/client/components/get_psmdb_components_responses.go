@@ -367,7 +367,7 @@ type VersionsItems0Matrix struct {
 	Mongod map[string]VersionsItems0MatrixMongodAnon `json:"mongod,omitempty"`
 
 	// pxc
-	Pxc map[string]VersionsItems0MatrixPxcAnon `json:"pxc,omitempty"`
+	PXC map[string]VersionsItems0MatrixPXCAnon `json:"pxc,omitempty"`
 
 	// pmm
 	PMM map[string]VersionsItems0MatrixPMMAnon `json:"pmm,omitempty"`
@@ -396,7 +396,7 @@ func (o *VersionsItems0Matrix) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := o.validatePxc(formats); err != nil {
+	if err := o.validatePXC(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -452,18 +452,18 @@ func (o *VersionsItems0Matrix) validateMongod(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *VersionsItems0Matrix) validatePxc(formats strfmt.Registry) error {
+func (o *VersionsItems0Matrix) validatePXC(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.Pxc) { // not required
+	if swag.IsZero(o.PXC) { // not required
 		return nil
 	}
 
-	for k := range o.Pxc {
+	for k := range o.PXC {
 
-		if swag.IsZero(o.Pxc[k]) { // not required
+		if swag.IsZero(o.PXC[k]) { // not required
 			continue
 		}
-		if val, ok := o.Pxc[k]; ok {
+		if val, ok := o.PXC[k]; ok {
 			if err := val.Validate(formats); err != nil {
 				return err
 			}
@@ -906,6 +906,53 @@ func (o *VersionsItems0MatrixPMMAnon) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*VersionsItems0MatrixPXCAnon Component contains information about component.
+swagger:model VersionsItems0MatrixPXCAnon
+*/
+type VersionsItems0MatrixPXCAnon struct {
+
+	// image path
+	ImagePath string `json:"image_path,omitempty"`
+
+	// image hash
+	ImageHash string `json:"image_hash,omitempty"`
+
+	// status
+	Status string `json:"status,omitempty"`
+
+	// critical
+	Critical bool `json:"critical,omitempty"`
+
+	// default
+	Default bool `json:"default,omitempty"`
+
+	// disabled
+	Disabled bool `json:"disabled,omitempty"`
+}
+
+// Validate validates this versions items0 matrix PXC anon
+func (o *VersionsItems0MatrixPXCAnon) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *VersionsItems0MatrixPXCAnon) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *VersionsItems0MatrixPXCAnon) UnmarshalBinary(b []byte) error {
+	var res VersionsItems0MatrixPXCAnon
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*VersionsItems0MatrixProxysqlAnon Component contains information about component.
 swagger:model VersionsItems0MatrixProxysqlAnon
 */
@@ -946,53 +993,6 @@ func (o *VersionsItems0MatrixProxysqlAnon) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *VersionsItems0MatrixProxysqlAnon) UnmarshalBinary(b []byte) error {
 	var res VersionsItems0MatrixProxysqlAnon
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*VersionsItems0MatrixPxcAnon Component contains information about component.
-swagger:model VersionsItems0MatrixPxcAnon
-*/
-type VersionsItems0MatrixPxcAnon struct {
-
-	// image path
-	ImagePath string `json:"image_path,omitempty"`
-
-	// image hash
-	ImageHash string `json:"image_hash,omitempty"`
-
-	// status
-	Status string `json:"status,omitempty"`
-
-	// critical
-	Critical bool `json:"critical,omitempty"`
-
-	// default
-	Default bool `json:"default,omitempty"`
-
-	// disabled
-	Disabled bool `json:"disabled,omitempty"`
-}
-
-// Validate validates this versions items0 matrix pxc anon
-func (o *VersionsItems0MatrixPxcAnon) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *VersionsItems0MatrixPxcAnon) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *VersionsItems0MatrixPxcAnon) UnmarshalBinary(b []byte) error {
-	var res VersionsItems0MatrixPxcAnon
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

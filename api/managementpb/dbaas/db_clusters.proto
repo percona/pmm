@@ -1,0 +1,155 @@
+syntax = "proto3";
+
+package dbaas.v1beta1;
+
+option go_package = "api/managementpb/dbaas;dbaasv1beta1";
+
+import "github.com/mwitkow/go-proto-validators/validator.proto";
+import "google/api/annotations.proto";
+import "managementpb/dbaas/dbaas.proto";
+import "managementpb/dbaas/psmdb_clusters.proto";
+import "managementpb/dbaas/pxc_clusters.proto";
+
+// DBClusterState represents DB cluster CR state.
+enum DBClusterState {
+  // DB_CLUSTER_STATE_INVALID represents unknown state.
+  DB_CLUSTER_STATE_INVALID = 0;
+  // DB_CLUSTER_STATE_CHANGING represents a cluster being changed.
+  DB_CLUSTER_STATE_CHANGING = 1;
+  // DB_CLUSTER_STATE_READY represents a cluster without pending changes.
+  DB_CLUSTER_STATE_READY = 2;
+  // DB_CLUSTER_STATE_FAILED represents a failed cluster.
+  DB_CLUSTER_STATE_FAILED = 3;
+  // DB_CLUSTER_STATE_DELETING represents a cluster being deleting.
+  DB_CLUSTER_STATE_DELETING = 4;
+  // DB_CLUSTER_STATE_PAUSED represents a cluster is paused.
+  DB_CLUSTER_STATE_PAUSED = 5;
+  // DB_CLUSTER_STATE_UPGRADING is a special case of DB_CLUSTER_STATE_CHANGING.
+  // It indicates database cluster upgrade is ongoing.
+  DB_CLUSTER_STATE_UPGRADING = 6;
+}
+
+// PSMDBCluster represents PSMDB cluster information.
+message PSMDBCluster {
+  // Cluster name.
+  string name = 1;
+  // Cluster state.
+  DBClusterState state = 2;
+  // Currently running operation, if any.
+  RunningOperation operation = 3;
+  // Cluster parameters.
+  PSMDBClusterParams params = 4;
+  // DB cluster accessible outside of K8s cluster.
+  bool exposed = 5;
+  // Installed PSMDB image.
+  string installed_image = 6;
+  // Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.
+  // If it's empty, no upgrade is available.
+  string available_image = 7;
+}
+
+// PXCCluster represents PXC cluster information.
+message PXCCluster {
+  // Cluster name.
+  string name = 1;
+  // Cluster state.
+  DBClusterState state = 2;
+  // Currently running operation, if any.
+  RunningOperation operation = 3;
+  // Cluster parameters.
+  PXCClusterParams params = 4;
+  // DB cluster accessible outside of K8s cluster.
+  bool exposed = 5;
+  // Installed XtraDB image.
+  string installed_image = 6;
+  // Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.
+  // If it's empty, no upgrade is available.
+  string available_image = 7;
+}
+
+message ListDBClustersRequest {
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
+
+message ListDBClustersResponse {
+  // PXC clusters information.
+  repeated PXCCluster pxc_clusters = 1;
+  // PSMDB clusters information.
+  repeated PSMDBCluster psmdb_clusters = 2;
+}
+
+message RestartDBClusterRequest {
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // PXC cluster name.
+  string name = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // DB cluster type.
+  DBClusterType cluster_type = 3 [
+    (validator.field) = {
+      msg_exists: true
+    }
+  ];
+}
+
+message RestartDBClusterResponse {}
+
+message DeleteDBClusterRequest {
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // DB cluster name.
+  string name = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // DB cluster type.
+  DBClusterType cluster_type = 3 [
+    (validator.field) = {
+      msg_exists: true
+    }
+  ];
+}
+
+message DeleteDBClusterResponse {}
+
+// DBClusters service provides public methods for managing db clusters.
+service DBClusters {
+  // ListDBClusters returns a list of DB clusters.
+  rpc ListDBClusters(ListDBClustersRequest) returns (ListDBClustersResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/DBClusters/List"
+      body: "*"
+    };
+  }
+  // RestartDBCluster restarts DB cluster.
+  rpc RestartDBCluster(RestartDBClusterRequest) returns (RestartDBClusterResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/DBClusters/Restart"
+      body: "*"
+    };
+  }
+  // DeleteDBCluster deletes DB cluster.
+  rpc DeleteDBCluster(DeleteDBClusterRequest) returns (DeleteDBClusterResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/DBClusters/Delete"
+      body: "*"
+    };
+  }
+}
