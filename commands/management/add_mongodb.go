@@ -75,6 +75,9 @@ type addMongoDBCommand struct {
 	TLSCaFile                     string
 	AuthenticationMechanism       string
 	AuthenticationDatabase        string
+
+	StatsCollections string
+	CollectionsLimit int32
 }
 
 func (cmd *addMongoDBCommand) GetServiceName() string {
@@ -153,8 +156,11 @@ func (cmd *addMongoDBCommand) Run() (commands.Result, error) {
 			AuthenticationMechanism:       cmd.AuthenticationMechanism,
 			AuthenticationDatabase:        cmd.AuthenticationDatabase,
 
-			MetricsMode:       pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
+			MetricsMode: pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
+
 			DisableCollectors: commands.ParseDisableCollectors(cmd.DisableCollectors),
+			StatsCollections:  commands.ParseDisableCollectors(cmd.StatsCollections),
+			CollectionsLimit:  cmd.CollectionsLimit,
 		},
 		Context: commands.Ctx,
 	}
@@ -216,4 +222,7 @@ func init() {
 	AddMongoDBC.Flag("disable-collectors", "Comma-separated list of collector names to exclude from exporter").StringVar(&AddMongoDB.DisableCollectors)
 	addGlobalFlags(AddMongoDBC)
 	AddMongoDBC.Flag("socket", "Path to socket").StringVar(&AddMongoDB.Socket)
+
+	AddMongoDBC.Flag("stats-collections", "Collections for collstats & indexstats").StringVar(&AddMongoDB.StatsCollections)
+	AddMongoDBC.Flag("max-collections-limit", "Disable collstats & indexstats if there are more than <n> collections").Int32Var(&AddMongoDB.CollectionsLimit)
 }
