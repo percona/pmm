@@ -713,10 +713,10 @@ message AddMongoDBExporterRequest {
   // Custom password for exporter endpoint /metrics.
   string agent_password = 16;
   // Comma separated list of colletions to get stats from. Can use *
-  repeated string stats_collections = 19;
+  repeated string stats_collections = 17;
   // Collections limit. Only get Databases and collection stats if the total number of collections in the server
   // is less than this value. 0: no limit
-  int32 collections_limit = 20;
+  int32 collections_limit = 18;
 }
 
 message AddMongoDBExporterResponse {
