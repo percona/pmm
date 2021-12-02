@@ -174,7 +174,7 @@ type AddMongoDBExporterBody struct {
 	// Custom password for exporter endpoint /metrics.
 	AgentPassword string `json:"agent_password,omitempty"`
 
-	// Comma separated list of colletions to get stats from. Can use *
+	// List of colletions to get stats from. Can use *
 	StatsCollections []string `json:"stats_collections"`
 
 	// Collections limit. Only get Databases and collection stats if the total number of collections in the server

@@ -1884,7 +1884,7 @@
                 },
                 "stats_collections": {
                   "type": "array",
-                  "title": "Comma separated list of colletions to get stats from. Can use *",
+                  "title": "List of colletions to get stats from. Can use *",
                   "items": {
                     "type": "string"
                   },
@@ -15212,7 +15212,7 @@
                   "x-order": 25
                 },
                 "stats_collections": {
-                  "description": "Comma separated list of collections to get stats from. Can use * .",
+                  "description": "List of collections to get stats from. Can use * .",
                   "type": "array",
                   "items": {
                     "type": "string"

@@ -473,7 +473,7 @@
                 },
                 "stats_collections": {
                   "type": "array",
-                  "title": "Comma separated list of colletions to get stats from. Can use *",
+                  "title": "List of colletions to get stats from. Can use *",
                   "items": {
                     "type": "string"
                   },

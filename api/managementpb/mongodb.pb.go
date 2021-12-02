@@ -99,7 +99,7 @@ type AddMongoDBRequest struct {
 	AuthenticationDatabase string `protobuf:"bytes,26,opt,name=authentication_database,json=authenticationDatabase,proto3" json:"authentication_database,omitempty"`
 	// Custom password for exporter endpoint /metrics.
 	AgentPassword string `protobuf:"bytes,27,opt,name=agent_password,json=agentPassword,proto3" json:"agent_password,omitempty"`
-	// Comma separated list of collections to get stats from. Can use * .
+	// List of collections to get stats from. Can use * .
 	StatsCollections []string `protobuf:"bytes,28,rep,name=stats_collections,json=statsCollections,proto3" json:"stats_collections,omitempty"`
 	// Collections limit. Only get Databases and collection stats if the total number of collections in the server
 	// is less than this value. 0: no limit

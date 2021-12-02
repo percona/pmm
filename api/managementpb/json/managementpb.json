@@ -2472,7 +2472,7 @@
                   "x-order": 6
                 },
                 "stats_collections": {
-                  "description": "Comma separated list of collections to get stats from. Can use * .",
+                  "description": "List of collections to get stats from. Can use * .",
                   "type": "array",
                   "items": {
                     "type": "string"
