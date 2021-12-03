@@ -33,18 +33,6 @@
   meta: end_play
   when: pmm_current_version is version(pmm_image_version, '>=')
 
-- name: Check that old plugin dir exists
-  stat:
-    path: /var/lib/grafana/plugins/
-  register: old_plugin_dir_exist
-
-- name: Synchronization plugins (old version before 2.22.0)
-  synchronize:
-    src: /var/lib/grafana/plugins/
-    dest: /srv/grafana/plugins/
-  delegate_to: "{{ inventory_hostname }}"
-  when: old_plugin_dir_exist.stat.exists
-
 - name: Get plugin list
   register: plugin_list
   find:

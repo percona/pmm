@@ -34,6 +34,11 @@
       when: is_docker is undefined
   tasks:
     # we need install this package here because it contain VERSION file
+    - name: Remove percona-dashboard without architecture
+      yum:
+        name: percona-dashboards.*noarch
+        state: absent
+
     - name: Update percona-dashboards package
       yum:
         name: percona-dashboards
@@ -60,25 +65,6 @@
         - datasources
         - plugins
         - dashboards
-
-    - name: Remove percona-dashboard without architecture
-      yum:
-        name: percona-dashboards.*noarch
-        state: absent
-
-    - name: Set home dashboard for Grafana
-      ini_file:
-        dest: /etc/grafana/grafana.ini
-        section: dashboards
-        option: default_home_dashboard_path
-        value: /usr/share/percona-dashboards/panels/pmm-app/dist/dashboards/Insight/Home_Dashboard.json
-
-    - name: Set home route for Grafana
-      ini_file:
-        dest: /etc/grafana/grafana.ini
-        section: users
-        option: home_page
-        value: d/pmm-home/home-dashboard
 
     # Start the services
     - name: Supervisord start        | Start supervisord service for AMI/OVF
@@ -222,6 +208,20 @@
         dest: /var/lib/cloud/scripts/per-boot/resize-xfs
         regexp: "set -o errexit"
         replace: ""
+
+    - name: Set home dashboard for Grafana
+      ini_file:
+        dest: /etc/grafana/grafana.ini
+        section: dashboards
+        option: default_home_dashboard_path
+        value: /usr/share/percona-dashboards/panels/pmm-app/dist/dashboards/Insight/Home_Dashboard.json
+
+    - name: Set home route for Grafana
+      ini_file:
+        dest: /etc/grafana/grafana.ini
+        section: users
+        option: home_page
+        value: d/pmm-home/home-dashboard
 
     - name: Enable external snapshots in Grafana
       ini_file:
