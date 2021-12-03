@@ -135,7 +135,6 @@ func (*ConnectResponse) Descriptor() ([]byte, []int) {
 	return file_platformpb_platform_proto_rawDescGZIP(), []int{1}
 }
 
-<<<<<<< HEAD
 type DisconnectRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -212,8 +211,6 @@ func (*DisconnectResponse) Descriptor() ([]byte, []int) {
 	return file_platformpb_platform_proto_rawDescGZIP(), []int{3}
 }
 
-=======
->>>>>>> main
 var File_platformpb_platform_proto protoreflect.FileDescriptor
 
 var file_platformpb_platform_proto_rawDesc = []byte{
@@ -233,7 +230,6 @@ var file_platformpb_platform_proto_rawDesc = []byte{
 	0x6d, 0x61, 0x69, 0x6c, 0x12, 0x22, 0x0a, 0x08, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64,
 	0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x42, 0x06, 0xe2, 0xdf, 0x1f, 0x02, 0x58, 0x01, 0x52, 0x08,
 	0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x22, 0x11, 0x0a, 0x0f, 0x43, 0x6f, 0x6e, 0x6e,
-<<<<<<< HEAD
 	0x65, 0x63, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x13, 0x0a, 0x11, 0x44,
 	0x69, 0x73, 0x63, 0x6f, 0x6e, 0x6e, 0x65, 0x63, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
 	0x22, 0x14, 0x0a, 0x12, 0x44, 0x69, 0x73, 0x63, 0x6f, 0x6e, 0x6e, 0x65, 0x63, 0x74, 0x52, 0x65,
@@ -254,18 +250,6 @@ var file_platformpb_platform_proto_rawDesc = []byte{
 	0x2a, 0x42, 0x1b, 0x5a, 0x19, 0x61, 0x70, 0x69, 0x2f, 0x70, 0x6c, 0x61, 0x74, 0x66, 0x6f, 0x72,
 	0x6d, 0x70, 0x62, 0x3b, 0x70, 0x6c, 0x61, 0x74, 0x66, 0x6f, 0x72, 0x6d, 0x70, 0x62, 0x62, 0x06,
 	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
-=======
-	0x65, 0x63, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x32, 0x6b, 0x0a, 0x08, 0x50,
-	0x6c, 0x61, 0x74, 0x66, 0x6f, 0x72, 0x6d, 0x12, 0x5f, 0x0a, 0x07, 0x43, 0x6f, 0x6e, 0x6e, 0x65,
-	0x63, 0x74, 0x12, 0x18, 0x2e, 0x70, 0x6c, 0x61, 0x74, 0x66, 0x6f, 0x72, 0x6d, 0x2e, 0x43, 0x6f,
-	0x6e, 0x6e, 0x65, 0x63, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x19, 0x2e, 0x70,
-	0x6c, 0x61, 0x74, 0x66, 0x6f, 0x72, 0x6d, 0x2e, 0x43, 0x6f, 0x6e, 0x6e, 0x65, 0x63, 0x74, 0x52,
-	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x1f, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x19, 0x22,
-	0x14, 0x2f, 0x76, 0x31, 0x2f, 0x50, 0x6c, 0x61, 0x74, 0x66, 0x6f, 0x72, 0x6d, 0x2f, 0x43, 0x6f,
-	0x6e, 0x6e, 0x65, 0x63, 0x74, 0x3a, 0x01, 0x2a, 0x42, 0x1b, 0x5a, 0x19, 0x61, 0x70, 0x69, 0x2f,
-	0x70, 0x6c, 0x61, 0x74, 0x66, 0x6f, 0x72, 0x6d, 0x70, 0x62, 0x3b, 0x70, 0x6c, 0x61, 0x74, 0x66,
-	0x6f, 0x72, 0x6d, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
->>>>>>> main
 }
 
 var (
@@ -280,7 +264,6 @@ func file_platformpb_platform_proto_rawDescGZIP() []byte {
 	return file_platformpb_platform_proto_rawDescData
 }
 
-<<<<<<< HEAD
 var file_platformpb_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_platformpb_platform_proto_goTypes = []interface{}{
 	(*ConnectRequest)(nil),     // 0: platform.ConnectRequest
@@ -295,18 +278,6 @@ var file_platformpb_platform_proto_depIdxs = []int32{
 	3, // 3: platform.Platform.Disconnect:output_type -> platform.DisconnectResponse
 	2, // [2:4] is the sub-list for method output_type
 	0, // [0:2] is the sub-list for method input_type
-=======
-var file_platformpb_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-var file_platformpb_platform_proto_goTypes = []interface{}{
-	(*ConnectRequest)(nil),  // 0: platform.ConnectRequest
-	(*ConnectResponse)(nil), // 1: platform.ConnectResponse
-}
-var file_platformpb_platform_proto_depIdxs = []int32{
-	0, // 0: platform.Platform.Connect:input_type -> platform.ConnectRequest
-	1, // 1: platform.Platform.Connect:output_type -> platform.ConnectResponse
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
->>>>>>> main
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -342,7 +313,6 @@ func file_platformpb_platform_proto_init() {
 				return nil
 			}
 		}
-<<<<<<< HEAD
 		file_platformpb_platform_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*DisconnectRequest); i {
 			case 0:
@@ -367,8 +337,6 @@ func file_platformpb_platform_proto_init() {
 				return nil
 			}
 		}
-=======
->>>>>>> main
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -376,11 +344,7 @@ func file_platformpb_platform_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_platformpb_platform_proto_rawDesc,
 			NumEnums:      0,
-<<<<<<< HEAD
 			NumMessages:   4,
-=======
-			NumMessages:   2,
->>>>>>> main
 			NumExtensions: 0,
 			NumServices:   1,
 		},
@@ -408,11 +372,8 @@ const _ = grpc.SupportPackageIsVersion6
 type PlatformClient interface {
 	// Connect connects a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.
 	Connect(ctx context.Context, in *ConnectRequest, opts ...grpc.CallOption) (*ConnectResponse, error)
-<<<<<<< HEAD
 	// Disconnect disconnects a PMM server from the organization created on Percona Portal.
 	Disconnect(ctx context.Context, in *DisconnectRequest, opts ...grpc.CallOption) (*DisconnectResponse, error)
-=======
->>>>>>> main
 }
 
 type platformClient struct {
@@ -432,7 +393,6 @@ func (c *platformClient) Connect(ctx context.Context, in *ConnectRequest, opts .
 	return out, nil
 }
 
-<<<<<<< HEAD
 func (c *platformClient) Disconnect(ctx context.Context, in *DisconnectRequest, opts ...grpc.CallOption) (*DisconnectResponse, error) {
 	out := new(DisconnectResponse)
 	err := c.cc.Invoke(ctx, "/platform.Platform/Disconnect", in, out, opts...)
@@ -442,17 +402,12 @@ func (c *platformClient) Disconnect(ctx context.Context, in *DisconnectRequest, 
 	return out, nil
 }
 
-=======
->>>>>>> main
 // PlatformServer is the server API for Platform service.
 type PlatformServer interface {
 	// Connect connects a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.
 	Connect(context.Context, *ConnectRequest) (*ConnectResponse, error)
-<<<<<<< HEAD
 	// Disconnect disconnects a PMM server from the organization created on Percona Portal.
 	Disconnect(context.Context, *DisconnectRequest) (*DisconnectResponse, error)
-=======
->>>>>>> main
 }
 
 // UnimplementedPlatformServer can be embedded to have forward compatible implementations.
@@ -462,12 +417,9 @@ type UnimplementedPlatformServer struct {
 func (*UnimplementedPlatformServer) Connect(context.Context, *ConnectRequest) (*ConnectResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Connect not implemented")
 }
-<<<<<<< HEAD
 func (*UnimplementedPlatformServer) Disconnect(context.Context, *DisconnectRequest) (*DisconnectResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Disconnect not implemented")
 }
-=======
->>>>>>> main
 
 func RegisterPlatformServer(s *grpc.Server, srv PlatformServer) {
 	s.RegisterService(&_Platform_serviceDesc, srv)
@@ -491,7 +443,6 @@ func _Platform_Connect_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
-<<<<<<< HEAD
 func _Platform_Disconnect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DisconnectRequest)
 	if err := dec(in); err != nil {
@@ -510,8 +461,6 @@ func _Platform_Disconnect_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
-=======
->>>>>>> main
 var _Platform_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "platform.Platform",
 	HandlerType: (*PlatformServer)(nil),
@@ -520,13 +469,10 @@ var _Platform_serviceDesc = grpc.ServiceDesc{
 			MethodName: "Connect",
 			Handler:    _Platform_Connect_Handler,
 		},
-<<<<<<< HEAD
 		{
 			MethodName: "Disconnect",
 			Handler:    _Platform_Disconnect_Handler,
 		},
-=======
->>>>>>> main
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "platformpb/platform.proto",

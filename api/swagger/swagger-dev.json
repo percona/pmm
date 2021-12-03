@@ -2116,7 +2116,6 @@
               "properties": {
                 "server_name": {
                   "description": "User defined human readable PMM Server Name.",
-<<<<<<< HEAD
                   "type": "string",
                   "x-order": 0
                 },
@@ -2197,22 +2196,6 @@
             "required": true,
             "schema": {
               "type": "object"
-=======
-                  "type": "string",
-                  "x-order": 0
-                },
-                "email": {
-                  "description": "Existing Percona Platform user's email.",
-                  "type": "string",
-                  "x-order": 1
-                },
-                "password": {
-                  "description": "Existing Percona Platform user's password.",
-                  "type": "string",
-                  "x-order": 2
-                }
-              }
->>>>>>> main
             }
           }
         ],

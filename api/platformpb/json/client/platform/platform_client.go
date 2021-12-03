@@ -27,11 +27,8 @@ type Client struct {
 type ClientService interface {
 	Connect(params *ConnectParams) (*ConnectOK, error)
 
-<<<<<<< HEAD
 	Disconnect(params *DisconnectParams) (*DisconnectOK, error)
 
-=======
->>>>>>> main
 	SetTransport(transport runtime.ClientTransport)
 }
 
@@ -68,7 +65,6 @@ func (a *Client) Connect(params *ConnectParams) (*ConnectOK, error) {
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
-<<<<<<< HEAD
 /*
   Disconnect disconnects disconnects a PMM server from the organization created on percona portal
 */
@@ -102,8 +98,6 @@ func (a *Client) Disconnect(params *DisconnectParams) (*DisconnectOK, error) {
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
-=======
->>>>>>> main
 // SetTransport changes the transport on the client
 func (a *Client) SetTransport(transport runtime.ClientTransport) {
 	a.transport = transport
