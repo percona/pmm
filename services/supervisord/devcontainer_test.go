@@ -145,7 +145,7 @@ func TestDevContainer(t *testing.T) {
 			DataRetention: 3600 * time.Hour,
 		}
 
-		b, err := s.marshalConfig(templates.Lookup("victoriametrics"), settings)
+		b, err := s.marshalConfig(templates.Lookup("victoriametrics"), settings, nil)
 		require.NoError(t, err)
 		changed, err := s.saveConfigAndReload("victoriametrics", b)
 		require.NoError(t, err)
@@ -154,7 +154,7 @@ func TestDevContainer(t *testing.T) {
 		require.NoError(t, err)
 		assert.False(t, changed)
 
-		err = s.UpdateConfiguration(settings)
+		err = s.UpdateConfiguration(settings, nil)
 		require.NoError(t, err)
 	})
 

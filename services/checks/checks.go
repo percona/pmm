@@ -21,7 +21,9 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"os/exec"
 	"strconv"
@@ -42,7 +44,7 @@ import (
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/services"
 	"github.com/percona/pmm-managed/utils/envvars"
-	"github.com/percona/pmm-managed/utils/saasdial"
+	"github.com/percona/pmm-managed/utils/saasreq"
 	"github.com/percona/pmm-managed/utils/signatures"
 )
 
@@ -1052,26 +1054,20 @@ func (s *Service) loadLocalChecks(file string) ([]check.Check, error) {
 func (s *Service) downloadChecks(ctx context.Context) ([]check.Check, error) {
 	s.l.Infof("Downloading checks from %s ...", s.host)
 
-	settings, err := models.GetSettings(s.db)
-	if err != nil {
-		return nil, err
+	var accessToken string
+	if ssoDetails, err := models.GetPerconaSSODetails(ctx, s.db.Querier); err == nil {
+		accessToken = ssoDetails.AccessToken.AccessToken
 	}
 
-	cc, err := saasdial.Dial(ctx, settings.SaaS.SessionID, s.host)
+	endpoint := fmt.Sprintf("https://%s/v1/check/GetAllChecks", s.host)
+	bodyBytes, err := saasreq.MakeRequest(ctx, http.MethodPost, endpoint, accessToken, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to dial")
 	}
-	defer cc.Close() //nolint:errcheck
 
-	resp, err := api.NewRetrievalAPIClient(cc).GetAllChecks(ctx, &api.GetAllChecksRequest{})
-	if err != nil {
-		// if credentials are invalid then force a logout so that the next check download
-		// attempt can be successful.
-		logoutErr := saasdial.LogoutIfInvalidAuth(s.db, s.l, err)
-		if logoutErr != nil {
-			s.l.Warnf("Failed to force logout: %v", logoutErr)
-		}
-		return nil, errors.Wrap(err, "failed to request checks service")
+	var resp *api.GetAllChecksResponse
+	if err := json.Unmarshal(bodyBytes, &resp); err != nil {
+		return nil, err
 	}
 
 	if err = signatures.Verify(s.l, resp.File, resp.Signatures, s.publicKeys); err != nil {

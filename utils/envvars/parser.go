@@ -19,7 +19,6 @@ package envvars
 
 import (
 	"fmt"
-	"net"
 	"os"
 	"strconv"
 	"strings"
@@ -32,7 +31,7 @@ import (
 )
 
 const (
-	defaultSaaSHost = "check.percona.com:443"
+	defaultSaaSHost = "check.percona.com"
 	envSaaSHost     = "PERCONA_TEST_SAAS_HOST"
 	envPublicKey    = "PERCONA_TEST_CHECKS_PUBLIC_KEY"
 	// TODO REMOVE PERCONA_TEST_DBAAS IN FUTURE RELEASES.
@@ -219,22 +218,9 @@ func parseSAASHost(v string) (string, error) {
 		logrus.Infof("Using default SaaS host %q.", defaultSaaSHost)
 		return defaultSaaSHost, nil
 	}
-	if strings.HasPrefix(v, ":") {
-		return "", fmt.Errorf("environment variable %q has invalid format %q. Expected host[:port]", envSaaSHost, v)
+	if strings.Contains(v, ":") {
+		return "", errors.New("saas host can't have port set: it's signed for domain without the port")
 	}
-
-	host, port, err := net.SplitHostPort(v)
-	if err != nil && strings.Count(v, ":") >= 1 {
-		return "", err
-	}
-	if host == "" {
-		host = v
-	}
-	if port == "" {
-		port = "443"
-	}
-
-	v = net.JoinHostPort(host, port)
 	return v, nil
 }
 

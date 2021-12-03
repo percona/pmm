@@ -18,6 +18,7 @@ package checks
 
 import (
 	"context"
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -38,14 +39,29 @@ import (
 )
 
 const (
-	devChecksHost      = "check-dev.percona.com:443"
+	devChecksHost      = "check-dev.percona.com"
 	devChecksPublicKey = "RWTg+ZmCCjt7O8eWeAmTLAqW+1ozUbpRSKSwNTmO+exlS5KEIPYWuYdX"
 	testChecksFile     = "../../testdata/checks/checks.yml"
+	issuerURL          = "https://id-dev.percona.com/oauth2/aus15pi5rjdtfrcH51d7/v1"
 )
 
 func TestDownloadChecks(t *testing.T) {
+	clientID, clientSecret := os.Getenv("OAUTH_PMM_CLIENT_ID"), os.Getenv("OAUTH_PMM_CLIENT_SECRET")
+	if clientID == "" || clientSecret == "" {
+		t.Skip("Environment variables OAUTH_PMM_CLIENT_ID / OAUTH_PMM_CLIENT_SECRET are not defined, skipping test")
+	}
+
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+
+	insertSSODetails := &models.PerconaSSODetailsInsert{
+		IssuerURL:    issuerURL,
+		ClientID:     clientID,
+		ClientSecret: clientSecret,
+		Scope:        "percona",
+	}
+	err := models.InsertPerconaSSODetails(db.Querier, insertSSODetails)
+	require.NoError(t, err)
 
 	s, err := New(nil, nil, db)
 	require.NoError(t, err)

@@ -214,7 +214,7 @@ func TestServerExitsWithGRPCError(t *testing.T) {
 	assert.NoError(t, err)
 
 	_, err = stream.Recv()
-	assert.Equal(t, errUnimplemented, err)
+	assert.ErrorIs(t, err, errUnimplemented)
 }
 
 func TestServerExitsWithUnknownErrorIntercepted(t *testing.T) {

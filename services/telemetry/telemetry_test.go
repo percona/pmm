@@ -19,6 +19,7 @@ package telemetry
 import (
 	"context"
 	"encoding/hex"
+	"os"
 	"testing"
 	"time"
 
@@ -34,7 +35,10 @@ import (
 	"github.com/percona/pmm-managed/utils/testdb"
 )
 
-const devTelemetryHost = "check-dev.percona.com:443"
+const (
+	devTelemetryHost = "check-dev.percona.com:443"
+	issuerURL        = "https://id-dev.percona.com/oauth2/aus15pi5rjdtfrcH51d7/v1"
+)
 
 func TestRetryAndIntervalConstantsSync(t *testing.T) {
 	assert.True(t, defaultInterval > defaultRetryCount*defaultRetryBackoff)
@@ -101,8 +105,22 @@ func TestMakeV2Payload(t *testing.T) {
 }
 
 func TestSendV2Request(t *testing.T) {
+	clientID, clientSecret := os.Getenv("OAUTH_PMM_CLIENT_ID"), os.Getenv("OAUTH_PMM_CLIENT_SECRET")
+	if clientID == "" || clientSecret == "" {
+		t.Skip("Environment variables OAUTH_PMM_CLIENT_ID / OAUTH_PMM_CLIENT_SECRET are not defined, skipping test")
+	}
+
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+
+	insertSSODetails := &models.PerconaSSODetailsInsert{
+		IssuerURL:    issuerURL,
+		ClientID:     clientID,
+		ClientSecret: clientSecret,
+		Scope:        "percona",
+	}
+	err := models.InsertPerconaSSODetails(db.Querier, insertSSODetails)
+	require.NoError(t, err)
 
 	t.Run("Normal", func(t *testing.T) {
 		s, err := NewService(db, "2.4.0")

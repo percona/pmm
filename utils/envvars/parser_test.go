@@ -164,12 +164,10 @@ func TestEnvVarValidator(t *testing.T) {
 			err     string
 			respVal string
 		}{
-			{value: "host", err: "", respVal: "host:443"},
-			// TODO {value: "2001:cafe:8221:9a0f:4dc7:4bb:8581:d186", err: "", respVal: "[2001:cafe:8221:9a0f:4dc7:4bb:8581:d186]:443"},
-			{value: ":111", err: `environment variable "PERCONA_TEST_SAAS_HOST" has invalid format ":111". Expected host[:port]`, respVal: ""},
-			{value: "host:555", err: "", respVal: "host:555"},
-			{value: "[2001:cafe:8221:9a0f:4dc7:4bb:8581:d186]:333", err: "", respVal: "[2001:cafe:8221:9a0f:4dc7:4bb:8581:d186]:333"},
-			{value: "ho:st:444", err: "address ho:st:444: too many colons in address", respVal: ""},
+			{value: "host", err: "", respVal: "host"},
+			{value: ":111", err: `saas host can't have port set: it's signed for domain without the port`, respVal: ""},
+			{value: "host:555", err: "saas host can't have port set: it's signed for domain without the port", respVal: ""},
+			{value: "ho:st:444", err: "saas host can't have port set: it's signed for domain without the port", respVal: ""},
 		}
 		for _, c := range userCase {
 			value, err := parseSAASHost(c.value)

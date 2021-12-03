@@ -17,6 +17,7 @@
 package models
 
 import (
+	"database/sql/driver"
 	"time"
 
 	"gopkg.in/reform.v1"
@@ -24,26 +25,57 @@ import (
 
 //go:generate reform
 
-// PerconaSSODetails stores everything we need to issue access_token from Percona SSO API.
+// PerconaSSODetails stores everything what we need to issue access_token from Percona SSO API.
 // It is intended to have only one row in this table as PMM can be connected to Portal only once.
 //reform:percona_sso_details
 type PerconaSSODetails struct {
-	ClientID     string `reform:"client_id"`
-	ClientSecret string `reform:"client_secret"`
-	IssuerURL    string `reform:"issuer_url"`
-	Scope        string `reform:"scope"`
+	ClientID     string                 `reform:"client_id,pk"`
+	ClientSecret string                 `reform:"client_secret"`
+	IssuerURL    string                 `reform:"issuer_url"`
+	Scope        string                 `reform:"scope"`
+	AccessToken  *PerconaSSOAccessToken `reform:"access_token"`
 
 	CreatedAt time.Time `reform:"created_at"`
 }
 
+// PerconaSSODetailsInsert stores everything what we can set. Other properties missing compared to
+// PerconaSSODetails will be added automatically.
+type PerconaSSODetailsInsert struct {
+	ClientID     string
+	ClientSecret string
+	IssuerURL    string
+	Scope        string
+}
+
+// PerconaSSOAccessToken represents structure for special access token options.
+type PerconaSSOAccessToken struct {
+	TokenType   string    `json:"token_type"`
+	ExpiresIn   int32     `json:"expires_in"`
+	ExpiresAt   time.Time `json:"expires_at"`
+	AccessToken string    `json:"access_token"`
+	Scope       string    `json:"scope"`
+}
+
+// Value implements database/sql/driver.Valuer interface. Should be defined on the value.
+func (t PerconaSSOAccessToken) Value() (driver.Value, error) { return jsonValue(t) }
+
+// Scan implements database/sql.Scanner interface. Should be defined on the pointer.
+func (t *PerconaSSOAccessToken) Scan(src interface{}) error { return jsonScan(t, src) }
+
 // BeforeInsert implements reform.BeforeInserter interface.
 func (s *PerconaSSODetails) BeforeInsert() error {
-	now := Now()
-	s.CreatedAt = now.UTC()
+	s.CreatedAt = Now().UTC()
+	return nil
+}
+
+// BeforeUpdate implements reform.BeforeUpdater interface.
+func (s *PerconaSSODetails) BeforeUpdate() error {
+	s.CreatedAt = Now().UTC()
 	return nil
 }
 
 // check interfaces.
 var (
 	_ reform.BeforeInserter = (*PerconaSSODetails)(nil)
+	_ reform.BeforeUpdater  = (*PerconaSSODetails)(nil)
 )

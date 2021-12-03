@@ -34,7 +34,6 @@ import (
 //go:generate mockery -name=vmAlertExternalRules -case=snake -inpkg -testonly
 //go:generate mockery -name=supervisordService -case=snake -inpkg -testonly
 //go:generate mockery -name=telemetryService -case=snake -inpkg -testonly
-//go:generate mockery -name=platformService -case=snake -inpkg -testonly
 //go:generate mockery -name=agentsStateUpdater -case=snake -inpkg -testonly
 //go:generate mockery -name=rulesService -case=snake -inpkg -testonly
 
@@ -101,21 +100,13 @@ type supervisordService interface {
 	UpdateRunning() bool
 	UpdateLog(offset uint32) ([]string, uint32, error)
 
-	UpdateConfiguration(settings *models.Settings) error
+	UpdateConfiguration(settings *models.Settings, ssoDetails *models.PerconaSSODetails) error
 }
 
 // telemetryService is a subset of methods of telemetry.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type telemetryService interface {
 	DistributionMethod() serverpb.DistributionMethod
-}
-
-// platformService is a subset of methods of platform.Service used by this package.
-// We use it instead of real type for testing and to avoid dependency cycle.
-type platformService interface {
-	SignUp(ctx context.Context, email, firstName, lastName string) error
-	SignIn(ctx context.Context, email, password string) error
-	SignOut(ctx context.Context) error
 }
 
 // agentsStateUpdater is subset of methods of agents.StateUpdater used by this package.

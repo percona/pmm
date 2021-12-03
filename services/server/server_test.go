@@ -42,7 +42,7 @@ func TestServer(t *testing.T) {
 	newServer := func(t *testing.T) *Server {
 		r := new(mockSupervisordService)
 		r.Test(t)
-		r.On("UpdateConfiguration", mock.Anything).Return(nil)
+		r.On("UpdateConfiguration", mock.Anything, mock.Anything).Return(nil)
 
 		mvmdb := new(mockPrometheusService)
 		mvmdb.Test(t)
@@ -66,9 +66,6 @@ func TestServer(t *testing.T) {
 		ts := new(mockTelemetryService)
 		ts.Test(t)
 
-		ps := new(mockPlatformService)
-		ps.Test(t)
-
 		s, err := NewServer(&Params{
 			DB:                   reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)),
 			VMDB:                 mvmdb,
@@ -78,7 +75,6 @@ func TestServer(t *testing.T) {
 			Supervisord:          r,
 			VMAlertExternalRules: par,
 			TelemetryService:     ts,
-			PlatformService:      ps,
 		})
 		require.NoError(t, err)
 		return s

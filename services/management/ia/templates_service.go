@@ -19,7 +19,10 @@ package ia
 import (
 	"bytes"
 	"context"
+	"encoding/json"
+	"fmt"
 	"io/ioutil"
+	"net/http"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -42,7 +45,7 @@ import (
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/utils/dir"
 	"github.com/percona/pmm-managed/utils/envvars"
-	"github.com/percona/pmm-managed/utils/saasdial"
+	"github.com/percona/pmm-managed/utils/saasreq"
 	"github.com/percona/pmm-managed/utils/signatures"
 )
 
@@ -370,26 +373,20 @@ func (s *TemplatesService) loadTemplatesFromDB() ([]templateInfo, error) {
 func (s *TemplatesService) downloadTemplates(ctx context.Context) ([]alert.Template, error) {
 	s.l.Infof("Downloading templates from %s ...", s.host)
 
-	settings, err := models.GetSettings(s.db)
-	if err != nil {
-		return nil, err
+	var accessToken string
+	if ssoDetails, err := models.GetPerconaSSODetails(ctx, s.db.Querier); err == nil {
+		accessToken = ssoDetails.AccessToken.AccessToken
 	}
 
-	cc, err := saasdial.Dial(ctx, settings.SaaS.SessionID, s.host)
+	endpoint := fmt.Sprintf("https://%s/v1/check/GetAllAlertRuleTemplates", s.host)
+	bodyBytes, err := saasreq.MakeRequest(ctx, http.MethodPost, endpoint, accessToken, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to dial")
 	}
-	defer cc.Close() //nolint:errcheck
 
-	resp, err := api.NewRetrievalAPIClient(cc).GetAllAlertRuleTemplates(ctx, &api.GetAllAlertRuleTemplatesRequest{})
-	if err != nil {
-		// if credentials are invalid then force a logout so that the next check download
-		// attempt can be successful.
-		logoutErr := saasdial.LogoutIfInvalidAuth(s.db, s.l, err)
-		if logoutErr != nil {
-			s.l.Warnf("Failed to force logout: %v", logoutErr)
-		}
-		return nil, errors.Wrap(err, "failed to request checks service")
+	var resp *api.GetAllAlertRuleTemplatesResponse
+	if err := json.Unmarshal(bodyBytes, &resp); err != nil {
+		return nil, err
 	}
 
 	if err = signatures.Verify(s.l, resp.File, resp.Signatures, s.publicKeys); err != nil {

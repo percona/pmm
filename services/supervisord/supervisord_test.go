@@ -54,7 +54,7 @@ func TestConfig(t *testing.T) {
 		t.Run(tmpl.Name(), func(t *testing.T) {
 			expected, err := ioutil.ReadFile(filepath.Join(configDir, tmpl.Name()+".ini")) //nolint:gosec
 			require.NoError(t, err)
-			actual, err := s.marshalConfig(tmpl, settings)
+			actual, err := s.marshalConfig(tmpl, settings, nil)
 			require.NoError(t, err)
 			assert.Equal(t, string(expected), string(actual))
 		})
@@ -101,7 +101,7 @@ func TestDBaaSController(t *testing.T) {
 
 		expected, err := ioutil.ReadFile(filepath.Join(configDir, test.File+".ini")) //nolint:gosec
 		require.NoError(t, err)
-		actual, err := s.marshalConfig(tp, &st)
+		actual, err := s.marshalConfig(tp, &st, nil)
 		require.NoError(t, err)
 		assert.Equal(t, string(expected), string(actual))
 	}

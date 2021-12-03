@@ -18,6 +18,7 @@ package ia
 
 import (
 	"context"
+	"os"
 	"testing"
 
 	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
@@ -34,12 +35,27 @@ const (
 	testBadTemplates = "../../../testdata/ia/bad"
 	testTemplates    = "../../../testdata/ia/user2"
 	testTemplates2   = "../../../testdata/ia/user"
+	issuerURL        = "https://id-dev.percona.com/oauth2/aus15pi5rjdtfrcH51d7/v1"
 )
 
 func TestCollect(t *testing.T) {
+	clientID, clientSecret := os.Getenv("OAUTH_PMM_CLIENT_ID"), os.Getenv("OAUTH_PMM_CLIENT_SECRET")
+	if clientID == "" || clientSecret == "" {
+		t.Skip("Environment variables OAUTH_PMM_CLIENT_ID / OAUTH_PMM_CLIENT_SECRET are not defined, skipping test")
+	}
+
 	ctx := context.Background()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	insertSSODetails := &models.PerconaSSODetailsInsert{
+		IssuerURL:    issuerURL,
+		ClientID:     clientID,
+		ClientSecret: clientSecret,
+		Scope:        "percona",
+	}
+	err := models.InsertPerconaSSODetails(db.Querier, insertSSODetails)
+	require.NoError(t, err)
 
 	t.Run("builtin are valid", func(t *testing.T) {
 		t.Parallel()

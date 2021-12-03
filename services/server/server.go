@@ -50,8 +50,6 @@ import (
 	"github.com/percona/pmm-managed/utils/envvars"
 )
 
-const platformAPITimeout = 10 * time.Second
-
 // Server represents service for checking PMM Server status and changing settings.
 type Server struct {
 	db                   *reform.DB
@@ -63,7 +61,6 @@ type Server struct {
 	checksService        checksService
 	supervisord          supervisordService
 	telemetryService     telemetryService
-	platformService      platformService
 	awsInstanceChecker   *AWSInstanceChecker
 	grafanaClient        grafanaClient
 	rulesService         rulesService
@@ -100,7 +97,6 @@ type Params struct {
 	VMAlertExternalRules vmAlertExternalRules
 	Supervisord          supervisordService
 	TelemetryService     telemetryService
-	PlatformService      platformService
 	AwsInstanceChecker   *AWSInstanceChecker
 	GrafanaClient        grafanaClient
 	RulesService         rulesService
@@ -125,7 +121,6 @@ func NewServer(params *Params) (*Server, error) {
 		vmalertExternalRules: params.VMAlertExternalRules,
 		supervisord:          params.Supervisord,
 		telemetryService:     params.TelemetryService,
-		platformService:      params.PlatformService,
 		awsInstanceChecker:   params.AwsInstanceChecker,
 		grafanaClient:        params.GrafanaClient,
 		rulesService:         params.RulesService,
@@ -152,7 +147,7 @@ func (s *Server) UpdateSettingsFromEnv(env []string) []error {
 	}
 
 	err := s.db.InTransaction(func(tx *reform.TX) error {
-		_, err := models.UpdateSettings(tx.Querier, envSettings)
+		_, err := models.UpdateSettings(tx, envSettings)
 		return err
 	})
 	if err != nil {
@@ -425,7 +420,8 @@ func (s *Server) readUpdateAuthToken() (string, error) {
 }
 
 // convertSettings merges database settings and settings from environment variables into API response.
-func (s *Server) convertSettings(settings *models.Settings) *serverpb.Settings {
+// Checking if PMM is connected to Platform is separated from settings for security and concurrency reasons.
+func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform bool) *serverpb.Settings {
 	res := &serverpb.Settings{
 		UpdatesDisabled:  settings.Updates.Disabled,
 		TelemetryEnabled: !settings.Telemetry.Disabled,
@@ -444,13 +440,14 @@ func (s *Server) convertSettings(settings *models.Settings) *serverpb.Settings {
 		AwsPartitions:        settings.AWSPartitions,
 		AlertManagerUrl:      settings.AlertManagerURL,
 		SttEnabled:           settings.SaaS.STTEnabled,
-		PlatformEmail:        settings.SaaS.Email,
 		DbaasEnabled:         settings.DBaaS.Enabled,
 		AzurediscoverEnabled: settings.Azurediscover.Enabled,
 		PmmPublicAddress:     settings.PMMPublicAddress,
 
 		AlertingEnabled:         settings.IntegratedAlerting.Enabled,
 		BackupManagementEnabled: settings.BackupManagement.Enabled,
+
+		ConnectedToPlatform: connectedToPlatform,
 	}
 
 	if settings.IntegratedAlerting.EmailAlertingSettings != nil {
@@ -491,8 +488,10 @@ func (s *Server) GetSettings(ctx context.Context, req *serverpb.GetSettingsReque
 		return nil, err
 	}
 
+	_, err = models.GetPerconaSSODetails(ctx, s.db.Querier)
+
 	return &serverpb.GetSettingsResponse{
-		Settings: s.convertSettings(settings),
+		Settings: s.convertSettings(settings, err == nil),
 	}, nil
 }
 
@@ -671,7 +670,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 		return nil, errTX
 	}
 
-	if err := s.UpdateConfigurations(); err != nil {
+	if err := s.UpdateConfigurations(ctx); err != nil {
 		return nil, err
 	}
 
@@ -732,19 +731,27 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 		}
 	}
 
+	_, err := models.GetPerconaSSODetails(ctx, s.db.Querier)
+
 	return &serverpb.ChangeSettingsResponse{
-		Settings: s.convertSettings(newSettings),
+		Settings: s.convertSettings(newSettings, err == nil),
 	}, nil
 }
 
 // UpdateConfigurations updates supervisor config and requests configuration update for VictoriaMetrics components.
-func (s *Server) UpdateConfigurations() error {
+func (s *Server) UpdateConfigurations(ctx context.Context) error {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed to get settings")
 	}
-	if err := s.supervisord.UpdateConfiguration(settings); err != nil {
-		return err
+	ssoDetails, err := models.GetPerconaSSODetails(ctx, s.db.Querier)
+	if err != nil {
+		if !errors.Is(err, reform.ErrNoRows) {
+			return errors.Wrap(err, "failed to get SSO details")
+		}
+	}
+	if err := s.supervisord.UpdateConfiguration(settings, ssoDetails); err != nil {
+		return errors.Wrap(err, "failed to update supervisord configuration")
 	}
 	s.vmdb.RequestConfigurationUpdate()
 	s.vmalert.RequestConfigurationUpdate()
@@ -821,39 +828,6 @@ func (s *Server) AWSInstanceCheck(ctx context.Context, req *serverpb.AWSInstance
 		return nil, err
 	}
 	return &serverpb.AWSInstanceCheckResponse{}, nil
-}
-
-// PlatformSignUp creates new Percona Platform user with given email and password.
-func (s *Server) PlatformSignUp(ctx context.Context, req *serverpb.PlatformSignUpRequest) (*serverpb.PlatformSignUpResponse, error) {
-	nCtx, cancel := context.WithTimeout(ctx, platformAPITimeout)
-	defer cancel()
-	if err := s.platformService.SignUp(nCtx, req.Email, req.FirstName, req.LastName); err != nil {
-		return nil, err
-	}
-
-	return &serverpb.PlatformSignUpResponse{}, nil
-}
-
-// PlatformSignIn links that PMM instance to Percona Platform user and created new session.
-func (s *Server) PlatformSignIn(ctx context.Context, req *serverpb.PlatformSignInRequest) (*serverpb.PlatformSignInResponse, error) {
-	nCtx, cancel := context.WithTimeout(ctx, platformAPITimeout)
-	defer cancel()
-	if err := s.platformService.SignIn(nCtx, req.Email, req.Password); err != nil {
-		return nil, err
-	}
-
-	return &serverpb.PlatformSignInResponse{}, nil
-}
-
-// PlatformSignOut logouts that PMM instance from Percona Platform account.
-func (s *Server) PlatformSignOut(ctx context.Context, _ *serverpb.PlatformSignOutRequest) (*serverpb.PlatformSignOutResponse, error) {
-	nCtx, cancel := context.WithTimeout(ctx, platformAPITimeout)
-	defer cancel()
-	if err := s.platformService.SignOut(nCtx); err != nil {
-		return nil, err
-	}
-
-	return &serverpb.PlatformSignOutResponse{}, nil
 }
 
 // isAgentsStateUpdateNeeded - checks metrics resolution changes,
