@@ -45,6 +45,19 @@
   delegate_to: "{{ inventory_hostname }}"
   when: old_plugin_dir_exist.stat.exists
 
+- name: Get plugin list
+  register: plugin_list
+  find:
+    paths: /usr/share/percona-dashboards/panels/
+    depth: 2
+    file_type: directory
+
+- name: Delete existing dist folder
+  file:
+    path: "/srv/grafana/plugins/{{ item['path'].split('/')[-1] }}"
+    state: absent
+  loop: "{{ plugin_list['files'] }}"
+
 - name: Synchronization plugin
   synchronize:
     src: /usr/share/percona-dashboards/panels/
