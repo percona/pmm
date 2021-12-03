@@ -2,12 +2,11 @@ name: build
 
 on:
   push:
+    paths-ignore:
+      - 'api-tests/**'
     branches:
       - main
-      - release/*
-      # skip non-trunk PMM-XXXX/SAAS-XXXX branch builds, but still build pull requests
-      - '!PMM-[0-9]+'
-      - '!SAAS-[0-9]+'
+      - release-*
     tags:
       - v[0-9]+.[0-9]+.[0-9]+*
   pull_request:
@@ -29,8 +28,8 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    env:
-      GOPATH: ${{ github.workspace }}
+#    env:
+#      GOPATH: ${{ github.workspace }}
 #      WORKING_DIR: ${{ github.workspace }}/src/github.com/percona/pmm
 #
 #    defaults:
