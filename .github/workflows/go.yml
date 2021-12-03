@@ -28,13 +28,13 @@ jobs:
 
     runs-on: ubuntu-latest
 
-#    env:
-#      GOPATH: ${{ github.workspace }}
-#      WORKING_DIR: ${{ github.workspace }}/src/github.com/percona/pmm
-#
-#    defaults:
-#      run:
-#        working-directory: ${{ env.WORKING_DIR }}
+    env:
+      GOPATH: ${{ github.workspace }}
+      WORKING_DIR: ${{ github.workspace }}/src/github.com/percona/pmm
+
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIR }}
 
     steps:
       - name: Checkout code
