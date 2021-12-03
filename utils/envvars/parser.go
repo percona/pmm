@@ -19,6 +19,7 @@ package envvars
 
 import (
 	"fmt"
+	"net"
 	"os"
 	"strconv"
 	"strings"
@@ -218,10 +219,18 @@ func parseSAASHost(v string) (string, error) {
 		logrus.Infof("Using default SaaS host %q.", defaultSaaSHost)
 		return defaultSaaSHost, nil
 	}
-	if strings.Contains(v, ":") {
-		return "", errors.New("saas host can't have port set: it's signed for domain without the port")
+	if strings.HasPrefix(v, ":") {
+		return "", fmt.Errorf("environment variable %q has invalid format %q. Expected host[:port]", envSaaSHost, v)
 	}
-	return v, nil
+
+	host, _, err := net.SplitHostPort(v)
+	if err != nil && strings.Count(v, ":") >= 1 {
+		return "", err
+	}
+	if host == "" {
+		host = v
+	}
+	return host, nil
 }
 
 func formatEnvVariableError(err error, env, value string) error {
