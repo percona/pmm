@@ -32,9 +32,12 @@ func (this *ConnectRequest) Validate() error {
 func (this *ConnectResponse) Validate() error {
 	return nil
 }
+<<<<<<< HEAD
 func (this *DisconnectRequest) Validate() error {
 	return nil
 }
 func (this *DisconnectResponse) Validate() error {
 	return nil
 }
+=======
+>>>>>>> main

@@ -67,6 +67,7 @@ func local_request_Platform_Connect_0(ctx context.Context, marshaler runtime.Mar
 
 }
 
+<<<<<<< HEAD
 func request_Platform_Disconnect_0(ctx context.Context, marshaler runtime.Marshaler, client PlatformClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq DisconnectRequest
 	var metadata runtime.ServerMetadata
@@ -101,6 +102,8 @@ func local_request_Platform_Disconnect_0(ctx context.Context, marshaler runtime.
 
 }
 
+=======
+>>>>>>> main
 // RegisterPlatformHandlerServer registers the http handlers for service Platform to "mux".
 // UnaryRPC     :call PlatformServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
@@ -130,6 +133,7 @@ func RegisterPlatformHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 
 	})
 
+<<<<<<< HEAD
 	mux.Handle("POST", pattern_Platform_Disconnect_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -153,6 +157,8 @@ func RegisterPlatformHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 
 	})
 
+=======
+>>>>>>> main
 	return nil
 }
 
@@ -214,6 +220,7 @@ func RegisterPlatformHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 
 	})
 
+<<<<<<< HEAD
 	mux.Handle("POST", pattern_Platform_Disconnect_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -234,17 +241,25 @@ func RegisterPlatformHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 
 	})
 
+=======
+>>>>>>> main
 	return nil
 }
 
 var (
 	pattern_Platform_Connect_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "Platform", "Connect"}, "", runtime.AssumeColonVerbOpt(true)))
+<<<<<<< HEAD
 
 	pattern_Platform_Disconnect_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "Platform", "Disconnect"}, "", runtime.AssumeColonVerbOpt(true)))
+=======
+>>>>>>> main
 )
 
 var (
 	forward_Platform_Connect_0 = runtime.ForwardResponseMessage
+<<<<<<< HEAD
 
 	forward_Platform_Disconnect_0 = runtime.ForwardResponseMessage
+=======
+>>>>>>> main
 )
