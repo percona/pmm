@@ -26,6 +26,7 @@ Please Perform the steps mentioned below to turn off profiler completely or redu
 
 The profiler can be enabled or have the level changed at either the command line startup or via the config file.
 
+
 1. To turn off profiler level globally, edit the mongod.conf file and disable/comment below parameter.\
    “operationProfiling”\
    OR, adjust the “mode”\
