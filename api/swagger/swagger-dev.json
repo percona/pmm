@@ -2099,13 +2099,13 @@
         }
       }
     },
-    "/v1/Platform/SignIn": {
+    "/v1/Platform/Connect": {
       "post": {
         "tags": [
-          "Server"
+          "Platform"
         ],
-        "summary": "PlatformSignIn links that PMM instance to Percona Platform user.",
-        "operationId": "PlatformSignIn",
+        "summary": "Connect connects a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.",
+        "operationId": "Connect",
         "parameters": [
           {
             "name": "body",
@@ -2114,169 +2114,20 @@
             "schema": {
               "type": "object",
               "properties": {
+                "server_name": {
+                  "description": "User defined human readable PMM Server Name.",
+                  "type": "string",
+                  "x-order": 0
+                },
                 "email": {
                   "description": "Existing Percona Platform user's email.",
                   "type": "string",
-                  "x-order": 0
+                  "x-order": 1
                 },
                 "password": {
                   "description": "Existing Percona Platform user's password.",
                   "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 1
-                },
-                "message": {
-                  "type": "string",
                   "x-order": 2
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "type_url": {
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
-                      }
-                    }
-                  },
-                  "x-order": 3
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/Platform/SignOut": {
-      "post": {
-        "tags": [
-          "Server"
-        ],
-        "summary": "PlatformSignOut logouts this PMM instance from Percona Platform account.",
-        "operationId": "PlatformSignOut",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 1
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 2
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "type_url": {
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
-                      }
-                    }
-                  },
-                  "x-order": 3
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/Platform/SignUp": {
-      "post": {
-        "tags": [
-          "Server"
-        ],
-        "summary": "PlatformSignUp creates a new Percona Platform user.",
-        "operationId": "PlatformSignUp",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "email": {
-                  "description": "New Percona Platform user's email.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "password": {
-                  "description": "Existing Percona Platform user's password.",
-                  "type": "string",
-                  "x-order": 1
-                },
-                "first_name": {
-                  "description": "New Percona Platform user's first name.",
-                  "type": "string",
-                  "x-order": 2
-                },
-                "last_name": {
-                  "description": "New Percona Platform user's last name.",
-                  "type": "string",
-                  "x-order": 3
                 }
               }
             }
@@ -2756,6 +2607,11 @@
                       "description": "True if Azure Discover is enabled.",
                       "type": "boolean",
                       "x-order": 17
+                    },
+                    "connected_to_platform": {
+                      "type": "boolean",
+                      "title": "True if the PMM instance is connected to Platform",
+                      "x-order": 18
                     }
                   },
                   "x-order": 0
@@ -3004,6 +2860,11 @@
                       "description": "True if Azure Discover is enabled.",
                       "type": "boolean",
                       "x-order": 17
+                    },
+                    "connected_to_platform": {
+                      "type": "boolean",
+                      "title": "True if the PMM instance is connected to Platform",
+                      "x-order": 18
                     }
                   },
                   "x-order": 0
@@ -3853,6 +3714,20 @@
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 15
+                },
+                "stats_collections": {
+                  "type": "array",
+                  "title": "List of colletions to get stats from. Can use *",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 16
+                },
+                "collections_limit": {
+                  "type": "integer",
+                  "format": "int32",
+                  "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                  "x-order": 17
                 }
               }
             }
@@ -20813,6 +20688,20 @@
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 25
+                },
+                "stats_collections": {
+                  "description": "List of collections to get stats from. Can use * .",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 26
+                },
+                "collections_limit": {
+                  "type": "integer",
+                  "format": "int32",
+                  "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                  "x-order": 27
                 }
               }
             }

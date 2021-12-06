@@ -424,6 +424,12 @@
                   "type": "string",
                   "x-order": 13
                 },
+                "collections_limit": {
+                  "type": "integer",
+                  "format": "int32",
+                  "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                  "x-order": 17
+                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
                   "type": "object",
@@ -464,6 +470,14 @@
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 10
+                },
+                "stats_collections": {
+                  "type": "array",
+                  "title": "List of colletions to get stats from. Can use *",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 16
                 },
                 "tls": {
                   "description": "Use TLS for database connections.",
