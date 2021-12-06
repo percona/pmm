@@ -114,24 +114,26 @@ message ListAlertRulesResponse {
 }
 
 message CreateAlertRuleRequest {
-  // Template name.
+  // Template name. Can't be specified simultaneously with source_rule_id.
   string template_name = 1;
+  // ID of the rule that will be used as source. Can't be specified simultaneously with template_name.
+  string source_rule_id = 2;
   // Rule name.
-  string name = 2;
+  string name = 3;
   // New rule status.
-  bool disabled = 3;
+  bool disabled = 4;
   // Rule parameters. All template parameters should be set.
-  repeated ParamValue params = 4;
+  repeated ParamValue params = 5;
   // Rule duration. Should be set.
-  google.protobuf.Duration for = 5;
+  google.protobuf.Duration for = 6;
   // Rule severity. Should be set.
-  management.Severity severity = 6;
+  management.Severity severity = 7;
   // All custom labels to add or remove (with empty values) to default labels from template.
-  map<string, string> custom_labels = 7;
+  map<string, string> custom_labels = 8;
   // Filters. Should be set.
-  repeated Filter filters = 8;
+  repeated Filter filters = 9;
   // Channels. Should be set.
-  repeated string channel_ids = 9;
+  repeated string channel_ids = 10;
 }
 
 message CreateAlertRuleResponse {
