@@ -33,6 +33,41 @@
   meta: end_play
   when: pmm_current_version is version(pmm_image_version, '>=')
 
+- name: Check that old plugin dir exists
+  stat:
+    path: /var/lib/grafana/plugins/
+  register: old_plugin_dir_exist
+
+
+- name: Remove old dashboards from SQLite
+  block:
+  - name: Find custom plugin in old plugin dir
+    find:
+      paths: /var/lib/grafana/plugins
+      recurse: no
+      file_type: directory
+      excludes:
+        - '*-???????'
+        - pmm-app
+    register: custom_plugins
+
+  - name: Synchronization plugins (old version before 2.22.0)
+    synchronize:
+      src: "{{ item['path'] }}"
+      dest: "/srv/grafana/plugins/"
+    loop: "{{ custom_plugins['files'] }}"
+
+  - name: Find custom plugin in old plugin dir
+    find:
+      paths: /var/lib/grafana/plugins
+      recurse: no
+      file_type: directory
+      excludes:
+        - '*-???????'
+        - pmm-app
+
+  when: old_plugin_dir_exist.stat.exists
+
 - name: Get plugin list
   register: plugin_list
   find:
@@ -82,11 +117,6 @@
   - name: Remove old PMM Settings dashboard (Before provisioning times)
     command: sqlite3 /srv/grafana/grafana.db -cmd ".timeout 60000" "DELETE FROM dashboard WHERE title = 'PMM Settings' AND slug = 'pmm-settings';"
     changed_when: True
-
-  - name: Start Grafana after data was deleted
-    supervisorctl:
-      name: grafana
-      state: started
   when: sqlite_grafana.stat.exists
 
 - name: Restart grafana with new plugins

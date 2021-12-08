@@ -5,7 +5,6 @@
   gather_facts: yes
   vars:
     pmm_packages:
-      - percona-grafana
       - percona-victoriametrics
       - percona-qan-api2
       - percona-alertmanager
@@ -41,8 +40,14 @@
 
     - name: Update percona-dashboards package
       yum:
-        name: percona-dashboards
+        name:
+          - percona-dashboards
+          - percona-grafana
         state: latest
+
+    - name: Upgrade grafana database (New schema)
+      command: grafana-cli --homepath=/usr/share/grafana admin data-migration encrypt-datasource-passwords
+      changed_when: True
 
     - name: Create provisioning directory
       file:
