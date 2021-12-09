@@ -42,4 +42,3 @@ The profiler can be enabled or have the level changed at either the command line
 
 
 Note: We can include different options here to manipulate collection of operations.
-
