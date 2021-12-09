@@ -75,7 +75,7 @@ PMM Server includes the following tools:
 
 ![!image](../_images/diagram.pmm.client-architecture.png)
 
-The PMM Client package consist of the following:
+The PMM Client package consists of the following:
 
 - `pmm-admin` is a command-line tool for managing PMM Client, for example, adding and removing database instances that you want to monitor. ([Read more](../details/commands/pmm-admin.md)).
 
