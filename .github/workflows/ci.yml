@@ -3,7 +3,7 @@ name: build
 on:
   push:
     paths-ignore:
-      - 'api-tests/**'
+      - "api-tests/**"
     branches:
       - main
       - release-*
@@ -96,7 +96,7 @@ jobs:
     name: Slack Notification success
     runs-on: ubuntu-latest
     env:
-      SLACK_WEBHOOK: ${{ secrets.SLACK_TOKEN }}
+      SLACK_WEBHOOK: ${{ secrets.SLACK_TOKEN_PMM_CI }}
       SLACK_CHANNEL: "pmm-ci"
       SLACK_USERNAME: "PR pipelines bot"
       SLACK_ICON_EMOJI: ":chestnut:"
@@ -116,7 +116,7 @@ jobs:
     name: Slack Notification failure
     runs-on: ubuntu-latest
     env:
-      SLACK_WEBHOOK: ${{ secrets.SLACK_TOKEN }}
+      SLACK_WEBHOOK: ${{ secrets.SLACK_TOKEN_PMM_CI }}
       SLACK_CHANNEL: "pmm-ci"
       SLACK_USERNAME: "PR pipelines bot"
       SLACK_ICON_EMOJI: ":chestnut:"
