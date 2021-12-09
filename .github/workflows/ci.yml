@@ -103,7 +103,6 @@ jobs:
       SLACK_COLOR: "#00FF00"
       SLACK_TITLE: "Finished ${{ github.event.repository.name }} workflow"
       SLACK_MESSAGE: "${{ github.event.inputs.repo || github.repository }}:${{ github.event.inputs.branch || github.head_ref }}"
-      SLACK_FOOTER: "Please check the Actions URL ^"
 
     steps:
       - uses: percona-platform/checkout@v2
@@ -124,7 +123,6 @@ jobs:
       SLACK_COLOR: "#FF0000"
       SLACK_TITLE: "Finished ${{ github.event.repository.name }} workflow"
       SLACK_MESSAGE: "Workflow failed: ${{ github.event.inputs.repo || github.repository }}:${{ github.event.inputs.branch || github.head_ref }}"
-      SLACK_FOOTER: "Please check the Actions URL ^"
 
     steps:
       - uses: percona-platform/checkout@v2
