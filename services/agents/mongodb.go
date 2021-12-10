@@ -115,12 +115,14 @@ func v225Args(exporter *models.Agent, disabledCollectors []string, tdp *models.D
 			enabled:      true,
 			disableParam: "--no-collector.replicasetstatus",
 		},
+		// disabled until we have better information on the resources usage impact
 		"dbstats": {
-			enabled:     true,
+			enabled:     false,
 			enableParam: "--collector.dbstats",
 		},
+		// disabled until we have better information on the resources usage impact
 		"topmetrics": {
-			enabled:     true,
+			enabled:     false,
 			enableParam: "--collector.topmetrics",
 		},
 	}

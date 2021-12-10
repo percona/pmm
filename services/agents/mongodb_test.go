@@ -49,8 +49,10 @@ func TestMongodbExporterConfig225(t *testing.T) {
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
-			"--collector.dbstats",
-			"--collector.topmetrics",
+			// temporarily disabled by PMM-9304 until we have more information about the resources
+			// consumption for these 2 collectors.
+			// "--collector.dbstats",
+			// "--collector.topmetrics",
 			"--compatible-mode",
 			"--discovering-mode",
 			"--mongodb.global-conn-pool",
@@ -74,8 +76,10 @@ func TestMongodbExporterConfig225(t *testing.T) {
 		}
 		expected.Args = []string{
 			"--collector.collstats-limit=79014",
-			"--collector.dbstats",
-			"--collector.topmetrics",
+			// temporarily disabled by PMM-9304 until we have more information about the resources
+			// consumption for these 2 collectors.
+			// "--collector.dbstats",
+			// "--collector.topmetrics",
 			"--compatible-mode",
 			"--discovering-mode",
 			"--mongodb.collstats-colls=col1,col2,col3",
