@@ -181,6 +181,25 @@ func TestEnvVarValidator(t *testing.T) {
 		}
 	})
 
+	t.Run("Parse Platform API Timeout", func(t *testing.T) {
+		t.Parallel()
+
+		userCase := []struct {
+			value   string
+			respVal time.Duration
+			msg     string
+		}{
+			{value: "", respVal: time.Second * 30, msg: "Environment variable \"PERCONA_PLATFORM_API_TIMEOUT\" is not set, using \"30s\" as a default timeout for platform API."},
+			{value: "10s", respVal: time.Second * 10, msg: "Using \"10s\" as a timeout for platform API."},
+			{value: "xxx", respVal: time.Second * 30, msg: "Using \"30s\" as a default: failed to parse platform API timeout \"xxx\": invalid duration error."},
+		}
+		for _, c := range userCase {
+			value, msg := parsePlatformAPITimeout(c.value)
+			assert.Equal(t, c.respVal, value)
+			assert.Equal(t, c.msg, msg)
+		}
+	})
+
 	t.Run("Grafana env vars", func(t *testing.T) {
 		t.Parallel()
 

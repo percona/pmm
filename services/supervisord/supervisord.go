@@ -406,9 +406,20 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"VMAlertFlags":       s.vmParams.VMAlertFlags,
 		"VMDBCacheDisable":   !settings.VictoriaMetrics.CacheEnabled,
 		"PerconaTestDbaas":   settings.DBaaS.Enabled,
-		"PerconaSSODetails":  ssoDetails,
-		"PMMServerAddress":   settings.PMMPublicAddress,
 	}
+
+	if ssoDetails != nil {
+		u, err := url.Parse(ssoDetails.IssuerURL)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to parse host of IssuerURL")
+		}
+		templateParams["PerconaSSODetails"] = ssoDetails
+		templateParams["PMMServerAddress"] = settings.PMMPublicAddress
+		templateParams["IssuerDomain"] = u.Host
+	} else {
+		templateParams["PerconaSSODetails"] = nil
+	}
+
 	if err := addAlertManagerParams(settings.AlertManagerURL, templateParams); err != nil {
 		return nil, errors.Wrap(err, "cannot add AlertManagerParams to supervisor template")
 	}
@@ -704,8 +715,9 @@ command =
         cfg:default.auth.generic_oauth.auth_url="{{ .PerconaSSODetails.IssuerURL }}/authorize"
         cfg:default.auth.generic_oauth.token_url="{{ .PerconaSSODetails.IssuerURL }}/token"
         cfg:default.auth.generic_oauth.api_url="{{ .PerconaSSODetails.IssuerURL }}/userinfo"
-        {{- end}}
 
+environment=GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerAddress }}/graph/login"
+        {{- end}}
 user = grafana
 directory = /usr/share/grafana
 autorestart = true

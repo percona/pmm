@@ -45,10 +45,11 @@ type supervisordService interface {
 
 // Service is responsible for interactions with Percona Platform.
 type Service struct {
-	db          *reform.DB
-	host        string
-	l           *logrus.Entry
-	supervisord supervisordService
+	db                 *reform.DB
+	host               string
+	l                  *logrus.Entry
+	supervisord        supervisordService
+	platformAPITimeout time.Duration
 }
 
 // New returns platform Service.
@@ -60,17 +61,18 @@ func New(db *reform.DB, supervisord supervisordService) (*Service, error) {
 		return nil, err
 	}
 
+	timeout := envvars.GetPlatformAPITimeout(l)
+
 	s := Service{
-		host:        host,
-		db:          db,
-		l:           l,
-		supervisord: supervisord,
+		host:               host,
+		db:                 db,
+		l:                  l,
+		supervisord:        supervisord,
+		platformAPITimeout: timeout,
 	}
 
 	return &s, nil
 }
-
-const platformAPITimeout = 10 * time.Second
 
 // Connect connects a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.
 func (s *Service) Connect(ctx context.Context, req *platformpb.ConnectRequest) (*platformpb.ConnectResponse, error) {
@@ -88,10 +90,7 @@ func (s *Service) Connect(ctx context.Context, req *platformpb.ConnectRequest) (
 	}
 	pmmServerURL := fmt.Sprintf("https://%s/graph", settings.PMMPublicAddress)
 
-	nCtx, cancel := context.WithTimeout(ctx, platformAPITimeout)
-	defer cancel()
-
-	ssoParams, err := s.connect(nCtx, &connectPMMParams{
+	ssoParams, err := s.connect(ctx, &connectPMMParams{
 		serverName:                req.ServerName,
 		email:                     req.Email,
 		password:                  req.Password,
@@ -178,7 +177,7 @@ func (s *Service) connect(ctx context.Context, params *connectPMMParams) (*ssoDe
 		return nil, status.Error(codes.Internal, "Internal server error")
 	}
 
-	client := http.Client{Timeout: platformAPITimeout}
+	client := http.Client{Timeout: s.platformAPITimeout}
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewReader(marshaled))
 	if err != nil {
 		s.l.Errorf("Failed to build Connect to Platform request: %s", err)
