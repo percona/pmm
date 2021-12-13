@@ -206,6 +206,14 @@
         db: postgres
         name: pg_stat_statements
 
+    # https://jira.percona.com/browse/PMM-9298
+    - name: Copy rezise-xfs file for lvm
+      file:
+        src: resize-xfs-lvm
+        dest: /var/lib/cloud/scripts/per-boot/resize-xfs
+        mode: 0755
+      when: not is_docker
+
     # https://jira.percona.com/browse/PMM-5271
     - name: Check volume size
       when: not is_docker
