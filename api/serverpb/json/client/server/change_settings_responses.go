@@ -507,6 +507,9 @@ type ChangeSettingsOKBodySettings struct {
 	// True if Azure Discover is enabled.
 	AzurediscoverEnabled bool `json:"azurediscover_enabled,omitempty"`
 
+	// True if the PMM instance is connected to Platform
+	ConnectedToPlatform bool `json:"connected_to_platform,omitempty"`
+
 	// email alerting settings
 	EmailAlertingSettings *ChangeSettingsOKBodySettingsEmailAlertingSettings `json:"email_alerting_settings,omitempty"`
 

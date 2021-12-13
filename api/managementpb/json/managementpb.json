@@ -2382,6 +2382,12 @@
                   "type": "string",
                   "x-order": 9
                 },
+                "collections_limit": {
+                  "type": "integer",
+                  "format": "int32",
+                  "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                  "x-order": 27
+                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels for Service.",
                   "type": "object",
@@ -2464,6 +2470,14 @@
                   "description": "Service Access socket.\nAddress (and port) or socket is required.",
                   "type": "string",
                   "x-order": 6
+                },
+                "stats_collections": {
+                  "description": "List of collections to get stats from. Can use * .",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 26
                 },
                 "tls": {
                   "description": "Use TLS for database connections.",

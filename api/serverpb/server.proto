@@ -194,6 +194,8 @@ message Settings {
   bool backup_management_enabled = 18;
   // True if Azure Discover is enabled.
   bool azurediscover_enabled = 17;
+  // True if the PMM instance is connected to Platform
+  bool connected_to_platform = 19;
 }
 
 message GetSettingsRequest {}
@@ -282,40 +284,6 @@ message AWSInstanceCheckRequest {
 
 message AWSInstanceCheckResponse {}
 
-message PlatformSignUpRequest {
-  // New Percona Platform user's email.
-  string email = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // Existing Percona Platform user's password.
-  string password = 2 [deprecated = true];
-  // New Percona Platform user's first name.
-  string first_name = 3;
-  // New Percona Platform user's last name.
-  string last_name = 4;
-}
-
-message PlatformSignUpResponse {}
-
-message PlatformSignInRequest {
-  // Existing Percona Platform user's email.
-  string email = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // Existing Percona Platform user's password.
-  string password = 2;
-}
-
-message PlatformSignInResponse {}
-
-message PlatformSignOutRequest {}
-
-message PlatformSignOutResponse {}
-
 // Server service provides generic PMM Server public APIs.
 service Server {
   // Version returns PMM Server versions.
@@ -377,27 +345,6 @@ service Server {
   rpc AWSInstanceCheck(AWSInstanceCheckRequest) returns (AWSInstanceCheckResponse) {
     option (google.api.http) = {
       post: "/v1/AWSInstanceCheck"
-      body: "*"
-    };
-  }
-  // PlatformSignUp creates a new Percona Platform user.
-  rpc PlatformSignUp(PlatformSignUpRequest) returns (PlatformSignUpResponse) {
-    option (google.api.http) = {
-      post: "/v1/Platform/SignUp"
-      body: "*"
-    };
-  }
-  // PlatformSignIn links that PMM instance to Percona Platform user.
-  rpc PlatformSignIn(PlatformSignInRequest) returns (PlatformSignInResponse) {
-    option (google.api.http) = {
-      post: "/v1/Platform/SignIn"
-      body: "*"
-    };
-  }
-  // PlatformSignOut logouts this PMM instance from Percona Platform account.
-  rpc PlatformSignOut(PlatformSignOutRequest) returns (PlatformSignOutResponse) {
-    option (google.api.http) = {
-      post: "/v1/Platform/SignOut"
       body: "*"
     };
   }
