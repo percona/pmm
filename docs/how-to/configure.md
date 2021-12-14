@@ -104,8 +104,8 @@ Grafana’s [anonymous usage statistics](https://grafana.com/docs/grafana/latest
 As well as via the *PMM Settings* page, you can also disable telemetry with the `-e DISABLE_TELEMETRY=1` option in your docker run statement for the PMM Server.
 
 !!! note alert alert-primary ""
-    - If the Security Threat Tool is enabled in PMM Settings, Telemetry is automatically enabled.
-    - Telemetry is sent straight away; the 24 hour grace period is not honored.
+    
+    Telemetry is sent straight away; the 24 hour grace period is not honored.
 
 ### Check for updates
 
@@ -196,38 +196,55 @@ Fill both fields and click the *Apply Alertmanager settings* button to proceed.
 
 ## Percona Platform
 
-This panel is where you create, and log into and out of your Percona Platform account.
-
-### Login
-
-![!image](../_images/PMM_Settings_Percona_Platform_Login.jpg)
-
-If you have a *Percona Platform* account, enter your credentials and click *Login*.
-
-Click *Sign out* to log out of your Percona Platform account.
-
-### Sign up
-
-![!image](../_images/PMM_Settings_Percona_Platform_Sign_Up.jpg)
-
-To create a *Percona Platform* account:
-
-1. Click *Sign up*.
-2. Enter a valid email address in the *Email* field.
-3. Choose and enter a strong password in the *Password* field.
-4. Select the check box acknowledging our terms of service and privacy policy.
-5. Click *Sign up*.
-
-A brief message will confirm the creation of your new account and you may now log in with these credentials.
+This panel is where you connect your PMM server to your Percona Platform Account.
 
 !!! note alert alert-primary ""
-    Your Percona Platform account is separate from your PMM User account.
+    Your Percona Platform Account is separate from your PMM User account.
+
+### Connect PMM to Percona Platform
+Connect your PMM servers to Percona Platform to leverage Platform services that boost the monitoring capabilities of your PMM installations.
+
+To connect to Percona Platform, you need a Percona Account. With a Percona Account you also get access to various Percona services, including Percona Platform, Percona Customer Portal, and Community Forum.
+
+If you don't have a Percona Account, you can create one on the [Percona Account Sign Up](https://id.percona.com/signin/register/) page.
+
+
+#### Pre-requisites
+To ensure that PMM can establish a connection to Percona Platform: 
+
+### Check that you are a member of an existing Platform organization
+1. Log in to [Percona Platform](https://portal.percona.com) using your Percona Account.
+2. On the *Getting Started page*, check that the *Create organization* step shows an option to view your organization.
+
+If you see an option to create a new organization instead, your Percona Account is not linked to any organization yet. If this is the case, contact your account administrator, or create a new organization for your Percona Account.
+
+### Set the public address of your PMM server 
+1. In PMM, go to *Settings > Advanced Settings*.
+2. Enter your address/hostname or click *Get from browser* to enable your browser to automatically detect and populate this field.
+3. Save the changes.
+
+## Connect PMM to Percona Platform
+To connect your PMM server to Percona Platform:
+
+1. In PMM go to *Settings > Percona Platform* tab:
+    ![!image](../_images/PMM_Settings_Percona_Platform_Login.png)
+2. Fill in the *Connect PMM to Percona Portal* form with the name of your PMM instance and the credentials of your Percona Account:
+3. Click *Connect*.
+
+## Sign into PMM with your Percona Account
+Once you've successfully connected your PMM instance to Percona Platform, you can also sign into PMM usig your Percona Account:
+
+1. Log out of your existing PMM session.
+
+2. On the PMM login screen, click *Sign in with Percona Account*. 
+ If you have an active Percona Account session on the same browser, PMM will log you in automatically. Otherwise, enter your Percona Account credentials to start a new session.
+
 
 ### Password Reset
 
 #### Password Forgotten
 
-In case you forgot your password, click on the *Forgot password* link in the login page.
+In case you forgot your password, click on the *Forgot password* link on the login page.
 
 You will be redirected to a password reset page. Enter the email you are registered with in the field and click on *Reset via Email*.
 

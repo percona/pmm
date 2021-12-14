@@ -140,6 +140,9 @@ PMM communicates with the PMM Server via a PMM agent process.
         - `push`: agent will push metrics.
         - `pull`: server scrapes metrics from agent.
 
+    `--paths-base=dir`
+    : Base path where all binaries, tools and collectors of PMM client are located
+
 #### `pmm-admin register`
 
 `pmm-admin register [FLAGS] [node-address] [node-type] [node-name]`
@@ -449,6 +452,9 @@ When you remove a service, collected data remains on PMM Server for the specifie
 
     `--password=<password>`
     : PostgreSQL password.
+
+    `--database=<database>`
+    : PostgreSQL database (default: postgres).
 
     `--agent-password=password`
     :  Override the default password for accessing the `/metrics` endpoint. (Username is `pmm` and default password is the agent ID.)

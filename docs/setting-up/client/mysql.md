@@ -345,6 +345,10 @@ With the PMM user interface, you select *Use performance schema*, or deselect it
 
 ![!](../../_images/PMM_Add_Instance_MySQL.jpg)
 
+If your MySQL instance is configured to use TLS, click on the *Use TLS for database connections* check box and fill in your TLS certificates and key.
+
+![!](../../_images/PMM_Add_Instance_MySQL_TLS.jpg)
+
 ### On the command line
 
 Add the database server as a service using one of these example commands. If successful, PMM Client will print `MySQL Service added` with the service's ID and name. Use the `--environment` and `-custom-labels` options to set tags for the service to help identify them.

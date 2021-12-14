@@ -204,7 +204,7 @@ where:
 4. If your MongoDB instance is configured to use TLS, click on the **Use TLS for database connection** check box and fill in TLS certificates and keys.
     1. If you use TLS, the authentication mechanism is automatically set to `MONGODB-X509`.
 
-![!](../../_images/PMM_Add_Instance_MongoDB_TLS.png)
+![!](../../_images/PMM_Add_Instance_MongoDB_TLS.jpg)
 
 ### On the command line
 

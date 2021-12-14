@@ -115,3 +115,13 @@ Exit a panel's full window mode by pressing *Escape* or clicking the left arrow 
 
 [Grafana]: https://grafana.com/docs/grafana/latest/
 [PromQL]: https://prometheus.io/docs/prometheus/latest/querying/basics/
+
+## Timezones
+
+By default Grafana uses the timezone from your web browser. Howewer you can change this setting.
+
+### Set user timezone
+
+1. On the left menu, hover your cursor over your avatar and then click *Preferences*.
+2. Click to select an option in the *Timezone list*.
+3. Click *Save*

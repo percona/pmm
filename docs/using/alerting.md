@@ -52,6 +52,7 @@ Before you can get alerts, you must [activate Integrated Alerting](#activate-int
             - *CRAM-MD5*
         - *Username*: Username for SMTP Auth using CRAM-MD5, LOGIN and PLAIN.
         - *Password*: Password for SMTP Auth using CRAM-MD5, LOGIN and PLAIN.
+        - *Require TLS*: The SMTP TLS requirement. Some SMTP servers may require enabling this option e.g. Gmail.
 
     1. For *Slack*, enter a value for *URL*, the Slack webhook URL to use.
 
