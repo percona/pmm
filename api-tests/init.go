@@ -41,6 +41,7 @@ import (
 	dbaasClient "github.com/percona/pmm/api/managementpb/dbaas/json/client"
 	channelsClient "github.com/percona/pmm/api/managementpb/ia/json/client"
 	managementClient "github.com/percona/pmm/api/managementpb/json/client"
+	platformClient "github.com/percona/pmm/api/platformpb/json/client"
 	serverClient "github.com/percona/pmm/api/serverpb/json/client"
 	"github.com/percona/pmm/utils/tlsconfig"
 	"github.com/sirupsen/logrus"
@@ -226,6 +227,7 @@ func init() {
 	amclient.Default = amclient.New(alertmanagerTransport, nil)
 	channelsClient.Default = channelsClient.New(transport, nil)
 	backupsClient.Default = backupsClient.New(transport, nil)
+	platformClient.Default = platformClient.New(transport, nil)
 
 	// do not run tests if server is not available
 	_, err = serverClient.Default.Server.Readiness(nil)
