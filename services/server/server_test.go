@@ -272,3 +272,161 @@ func TestServer(t *testing.T) {
 		require.NotNil(t, s)
 	})
 }
+
+func TestServer_TestEmailAlertingSettings(t *testing.T) {
+	t.Parallel()
+
+	server := &Server{}
+
+	e := new(mockEmailer)
+	server.emailer = e
+
+	ctx := context.TODO()
+
+	normalRequest := &serverpb.TestEmailAlertingSettingsRequest{
+		EmailAlertingSettings: &serverpb.EmailAlertingSettings{
+			From:       "me@example.com",
+			Smarthost:  "example.com:465",
+			Hello:      "example.com",
+			Username:   "example-user",
+			Password:   "some-password",
+			Identity:   "example",
+			Secret:     "example-secret",
+			RequireTls: true,
+		},
+		EmailTo: "to@example.com",
+	}
+	eas := normalRequest.EmailAlertingSettings
+
+	for _, tc := range []struct {
+		testName string
+		req      *serverpb.TestEmailAlertingSettingsRequest
+		respErr  string
+		mock     func()
+	}{
+		{
+			testName: "normal",
+			req:      normalRequest,
+			respErr:  "",
+			mock: func() {
+				s := &models.EmailAlertingSettings{
+					From:       eas.From,
+					Smarthost:  eas.Smarthost,
+					Hello:      eas.Hello,
+					Username:   eas.Username,
+					Password:   eas.Password,
+					Identity:   eas.Identity,
+					Secret:     eas.Secret,
+					RequireTLS: eas.RequireTls,
+				}
+				e.On("Send", mock.Anything, s, normalRequest.EmailTo).Return(nil).Once()
+			},
+		},
+		{
+			testName: "failed to send: invalid argument",
+			req:      normalRequest,
+			respErr:  "rpc error: code = InvalidArgument desc = Cannot send email: invalid argument.",
+			mock: func() {
+				s := &models.EmailAlertingSettings{
+					From:       eas.From,
+					Smarthost:  eas.Smarthost,
+					Hello:      eas.Hello,
+					Username:   eas.Username,
+					Password:   eas.Password,
+					Identity:   eas.Identity,
+					Secret:     eas.Secret,
+					RequireTLS: eas.RequireTls,
+				}
+				e.On("Send", mock.Anything, s, normalRequest.EmailTo).
+					Return(models.NewInvalidArgumentError("invalid argument")).Once()
+			},
+		},
+		{
+			testName: "invalid argument: from",
+			respErr: "rpc error: code = InvalidArgument desc = " +
+				"Invalid argument: invalid \"from\" email \"invalid-from\".",
+			req: &serverpb.TestEmailAlertingSettingsRequest{
+				EmailAlertingSettings: &serverpb.EmailAlertingSettings{
+					From:       "invalid-from",
+					Smarthost:  eas.Smarthost,
+					Hello:      eas.Hello,
+					Username:   eas.Username,
+					Password:   eas.Password,
+					Identity:   eas.Identity,
+					Secret:     eas.Secret,
+					RequireTls: eas.RequireTls,
+				},
+				EmailTo: normalRequest.EmailTo,
+			},
+		},
+		{
+			testName: "invalid argument: smarthost",
+			respErr: "rpc error: code = InvalidArgument desc = " +
+				"Invalid argument: invalid server address, expected format host:port.",
+			req: &serverpb.TestEmailAlertingSettingsRequest{
+				EmailAlertingSettings: &serverpb.EmailAlertingSettings{
+					From:       eas.From,
+					Smarthost:  "invalid-smart-host",
+					Hello:      eas.Hello,
+					Username:   eas.Username,
+					Password:   eas.Password,
+					Identity:   eas.Identity,
+					Secret:     eas.Secret,
+					RequireTls: eas.RequireTls,
+				},
+				EmailTo: normalRequest.EmailTo,
+			},
+		},
+		{
+			testName: "invalid argument: hello",
+			respErr: "rpc error: code = InvalidArgument desc = " +
+				"Invalid argument: invalid hello field, expected valid host.",
+			req: &serverpb.TestEmailAlertingSettingsRequest{
+				EmailAlertingSettings: &serverpb.EmailAlertingSettings{
+					From:       eas.From,
+					Smarthost:  eas.Smarthost,
+					Hello:      "@invalid hello",
+					Username:   eas.Username,
+					Password:   eas.Password,
+					Identity:   eas.Identity,
+					Secret:     eas.Secret,
+					RequireTls: eas.RequireTls,
+				},
+				EmailTo: normalRequest.EmailTo,
+			},
+		},
+		{
+			testName: "invalid argument: emailTo",
+			respErr:  "rpc error: code = InvalidArgument desc = invalid \"emailTo\" email \"invalid email\"",
+			req: &serverpb.TestEmailAlertingSettingsRequest{
+				EmailAlertingSettings: &serverpb.EmailAlertingSettings{
+					From:       eas.From,
+					Smarthost:  eas.Smarthost,
+					Hello:      eas.Hello,
+					Username:   eas.Username,
+					Password:   eas.Password,
+					Identity:   eas.Identity,
+					Secret:     eas.Secret,
+					RequireTls: eas.RequireTls,
+				},
+				EmailTo: "invalid email",
+			},
+		},
+	} {
+		t.Run(tc.testName, func(t *testing.T) {
+			if tc.mock != nil {
+				tc.mock()
+			}
+			resp, err := server.TestEmailAlertingSettings(ctx, tc.req)
+			if tc.respErr != "" {
+				assert.Nil(t, resp)
+				assert.EqualError(t, err, tc.respErr)
+			} else {
+				assert.NoError(t, err)
+				assert.NotNil(t, resp)
+			}
+		})
+	}
+
+	mock.AssertExpectationsForObjects(t, e)
+}

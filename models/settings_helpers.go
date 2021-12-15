@@ -311,21 +311,7 @@ func validateEmailAlertingSettings(params *ChangeSettingsParams) error {
 		return nil
 	}
 
-	if !govalidator.IsEmail(params.EmailAlertingSettings.From) {
-		return errors.Errorf("invalid \"from\" email %q", params.EmailAlertingSettings.From)
-	}
-
-	if !govalidator.IsDialString(params.EmailAlertingSettings.Smarthost) {
-		return errors.New("invalid server address, expected format host:port")
-	}
-
-	if params.EmailAlertingSettings.Hello != "" {
-		if !govalidator.IsHost(params.EmailAlertingSettings.Hello) {
-			return errors.New("invalid hello field, expected valid host")
-		}
-	}
-
-	return nil
+	return params.EmailAlertingSettings.Validate()
 }
 
 // ValidateSettings validates settings changes.

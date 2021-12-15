@@ -655,10 +655,10 @@ func main() {
 
 	connectionCheck := agents.NewConnectionChecker(agentsRegistry)
 
-	alertmanager := alertmanager.New(db)
+	alertManager := alertmanager.New(db)
 	// Alertmanager is special due to being added to PMM with invalid /etc/alertmanager.yml.
 	// Generate configuration file before reloading with supervisord, checking status, etc.
-	alertmanager.GenerateBaseConfigs()
+	alertManager.GenerateBaseConfigs()
 
 	pmmUpdateCheck := supervisord.NewPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker"))
 
@@ -680,7 +680,7 @@ func main() {
 
 	actionsService := agents.NewActionsService(agentsRegistry)
 
-	checksService, err := checks.New(actionsService, alertmanager, db)
+	checksService, err := checks.New(actionsService, alertManager, db)
 	if err != nil {
 		l.Fatalf("Could not create checks service: %s", err)
 	}
@@ -694,8 +694,8 @@ func main() {
 	}
 	// We should collect templates before rules service created, because it will regenerate rule files on startup.
 	templatesService.Collect(ctx)
-	rulesService := ia.NewRulesService(db, templatesService, vmalert, alertmanager)
-	alertsService := ia.NewAlertsService(db, alertmanager, templatesService)
+	rulesService := ia.NewRulesService(db, templatesService, vmalert, alertManager)
+	alertsService := ia.NewAlertsService(db, alertManager, templatesService)
 
 	versionService := managementdbaas.NewVersionServiceClient(*versionServiceAPIURLF)
 
@@ -704,13 +704,14 @@ func main() {
 	backupService := backup.NewService(db, jobsService, agentsRegistry, versioner)
 	schedulerService := scheduler.New(db, backupService)
 	versionCache := versioncache.New(db, versioner)
+	emailer := alertmanager.NewEmailer(logrus.WithField("component", "alertmanager-emailer").Logger)
 
 	serverParams := &server.Params{
 		DB:                   db,
 		VMDB:                 vmdb,
 		VMAlert:              vmalert,
 		AgentsStateUpdater:   agentsStateUpdater,
-		Alertmanager:         alertmanager,
+		Alertmanager:         alertManager,
 		ChecksService:        checksService,
 		Supervisord:          supervisord,
 		TelemetryService:     telemetry,
@@ -719,6 +720,7 @@ func main() {
 		VMAlertExternalRules: externalRules,
 		RulesService:         rulesService,
 		DbaasClient:          dbaasClient,
+		Emailer:              emailer,
 	}
 
 	server, err := server.NewServer(serverParams)
@@ -757,7 +759,7 @@ func main() {
 		supervisord:  supervisord,
 		vmdb:         vmdb,
 		vmalert:      vmalert,
-		alertmanager: alertmanager,
+		alertmanager: alertManager,
 		server:       server,
 		l:            logrus.WithField("component", "setup"),
 	}
@@ -838,7 +840,7 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		alertmanager.Run(ctx)
+		alertManager.Run(ctx)
 	}()
 
 	wg.Add(1)
@@ -886,7 +888,7 @@ func main() {
 			grafanaClient:        grafanaClient,
 			checksService:        checksService,
 			dbaasClient:          dbaasClient,
-			alertmanager:         alertmanager,
+			alertmanager:         alertManager,
 			vmalert:              vmalert,
 			settings:             settings,
 			alertsService:        alertsService,
