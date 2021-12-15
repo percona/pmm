@@ -1542,15 +1542,15 @@ const _ = grpc.SupportPackageIsVersion6
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type RulesClient interface {
-	// ListAlertRules returns a list of all Integrated Alerting rules.
+	// ListAlertRules returns a list of all Alerting rules.
 	ListAlertRules(ctx context.Context, in *ListAlertRulesRequest, opts ...grpc.CallOption) (*ListAlertRulesResponse, error)
-	// CreateAlertRule creates Integrated Alerting rule.
+	// CreateAlertRule creates Alerting rule.
 	CreateAlertRule(ctx context.Context, in *CreateAlertRuleRequest, opts ...grpc.CallOption) (*CreateAlertRuleResponse, error)
-	// UpdateAlertRule updates Integrated Alerting rule.
+	// UpdateAlertRule updates Alerting rule.
 	UpdateAlertRule(ctx context.Context, in *UpdateAlertRuleRequest, opts ...grpc.CallOption) (*UpdateAlertRuleResponse, error)
 	// ToggleAlertRule allows to switch between disabled and enabled states of an Alert Rule.
 	ToggleAlertRule(ctx context.Context, in *ToggleAlertRuleRequest, opts ...grpc.CallOption) (*ToggleAlertRuleResponse, error)
-	// DeleteAlertRule deletes Integrated Alerting rule.
+	// DeleteAlertRule deletes Alerting rule.
 	DeleteAlertRule(ctx context.Context, in *DeleteAlertRuleRequest, opts ...grpc.CallOption) (*DeleteAlertRuleResponse, error)
 }
 
@@ -1609,15 +1609,15 @@ func (c *rulesClient) DeleteAlertRule(ctx context.Context, in *DeleteAlertRuleRe
 
 // RulesServer is the server API for Rules service.
 type RulesServer interface {
-	// ListAlertRules returns a list of all Integrated Alerting rules.
+	// ListAlertRules returns a list of all Alerting rules.
 	ListAlertRules(context.Context, *ListAlertRulesRequest) (*ListAlertRulesResponse, error)
-	// CreateAlertRule creates Integrated Alerting rule.
+	// CreateAlertRule creates Alerting rule.
 	CreateAlertRule(context.Context, *CreateAlertRuleRequest) (*CreateAlertRuleResponse, error)
-	// UpdateAlertRule updates Integrated Alerting rule.
+	// UpdateAlertRule updates Alerting rule.
 	UpdateAlertRule(context.Context, *UpdateAlertRuleRequest) (*UpdateAlertRuleResponse, error)
 	// ToggleAlertRule allows to switch between disabled and enabled states of an Alert Rule.
 	ToggleAlertRule(context.Context, *ToggleAlertRuleRequest) (*ToggleAlertRuleResponse, error)
-	// DeleteAlertRule deletes Integrated Alerting rule.
+	// DeleteAlertRule deletes Alerting rule.
 	DeleteAlertRule(context.Context, *DeleteAlertRuleRequest) (*DeleteAlertRuleResponse, error)
 }
 
