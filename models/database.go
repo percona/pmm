@@ -666,6 +666,23 @@ var databaseSchema = [][]string{
 		`ALTER TABLE percona_sso_details
 			ADD COLUMN access_token VARCHAR`,
 	},
+	55: {
+		`DELETE FROM ia_rules`,
+		`ALTER TABLE ia_rules
+			RENAME COLUMN params TO params_values`,
+		`ALTER TABLE ia_rules
+			ADD COLUMN name VARCHAR NOT NULL,
+			ADD COLUMN expr_template VARCHAR NOT NULL,
+			ADD COLUMN params_definitions JSONB,
+			ADD COLUMN default_for BIGINT,
+			ADD COLUMN default_severity VARCHAR NOT NULL,
+			ADD COLUMN labels TEXT,
+			ADD COLUMN annotations TEXT`,
+	},
+	56: {
+		`ALTER TABLE ia_templates
+			DROP COLUMN tiers`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

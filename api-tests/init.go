@@ -128,8 +128,7 @@ func Transport(baseURL *url.URL, insecureTLS bool) *httptransport.Runtime {
 func init() {
 	seed := time.Now().UnixNano()
 	rand.Seed(seed)
-	gofakeit.SetGlobalFaker(gofakeit.NewCustom(NewConcurrentRand(seed)))
-	gofakeit.Seed(seed)
+	gofakeit.SetGlobalFaker(gofakeit.New(seed))
 
 	debugF := flag.Bool("pmm.debug", false, "Enable debug output [PMM_DEBUG].")
 	traceF := flag.Bool("pmm.trace", false, "Enable trace output [PMM_TRACE].")

@@ -31,7 +31,6 @@ func (v *templateTableType) Columns() []string {
 		"name",
 		"version",
 		"summary",
-		"tiers",
 		"expr",
 		"params",
 		"for",
@@ -69,9 +68,8 @@ var TemplateTable = &templateTableType{
 			{Name: "Name", Type: "string", Column: "name"},
 			{Name: "Version", Type: "uint32", Column: "version"},
 			{Name: "Summary", Type: "string", Column: "summary"},
-			{Name: "Tiers", Type: "Tiers", Column: "tiers"},
 			{Name: "Expr", Type: "string", Column: "expr"},
-			{Name: "Params", Type: "TemplateParams", Column: "params"},
+			{Name: "Params", Type: "AlertExprParamsDefinitions", Column: "params"},
 			{Name: "For", Type: "time.Duration", Column: "for"},
 			{Name: "Severity", Type: "Severity", Column: "severity"},
 			{Name: "Labels", Type: "[]uint8", Column: "labels"},
@@ -88,21 +86,20 @@ var TemplateTable = &templateTableType{
 
 // String returns a string representation of this struct or record.
 func (s Template) String() string {
-	res := make([]string, 14)
+	res := make([]string, 13)
 	res[0] = "Name: " + reform.Inspect(s.Name, true)
 	res[1] = "Version: " + reform.Inspect(s.Version, true)
 	res[2] = "Summary: " + reform.Inspect(s.Summary, true)
-	res[3] = "Tiers: " + reform.Inspect(s.Tiers, true)
-	res[4] = "Expr: " + reform.Inspect(s.Expr, true)
-	res[5] = "Params: " + reform.Inspect(s.Params, true)
-	res[6] = "For: " + reform.Inspect(s.For, true)
-	res[7] = "Severity: " + reform.Inspect(s.Severity, true)
-	res[8] = "Labels: " + reform.Inspect(s.Labels, true)
-	res[9] = "Annotations: " + reform.Inspect(s.Annotations, true)
-	res[10] = "Source: " + reform.Inspect(s.Source, true)
-	res[11] = "Yaml: " + reform.Inspect(s.Yaml, true)
-	res[12] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
-	res[13] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
+	res[3] = "Expr: " + reform.Inspect(s.Expr, true)
+	res[4] = "Params: " + reform.Inspect(s.Params, true)
+	res[5] = "For: " + reform.Inspect(s.For, true)
+	res[6] = "Severity: " + reform.Inspect(s.Severity, true)
+	res[7] = "Labels: " + reform.Inspect(s.Labels, true)
+	res[8] = "Annotations: " + reform.Inspect(s.Annotations, true)
+	res[9] = "Source: " + reform.Inspect(s.Source, true)
+	res[10] = "Yaml: " + reform.Inspect(s.Yaml, true)
+	res[11] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
+	res[12] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
 	return strings.Join(res, ", ")
 }
 
@@ -113,7 +110,6 @@ func (s *Template) Values() []interface{} {
 		s.Name,
 		s.Version,
 		s.Summary,
-		s.Tiers,
 		s.Expr,
 		s.Params,
 		s.For,
@@ -134,7 +130,6 @@ func (s *Template) Pointers() []interface{} {
 		&s.Name,
 		&s.Version,
 		&s.Summary,
-		&s.Tiers,
 		&s.Expr,
 		&s.Params,
 		&s.For,

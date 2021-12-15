@@ -57,5 +57,6 @@ issues:
     - path: _test\.go
       linters:
         - funlen         # tests may be long
-        - unused         # very annoying false positive: https://github.com/golangci/golangci-lint/issues/791
+        - gocognit       # triggered by subtests
         - testpackage    # senseless
+        - unused         # very annoying false positive: https://github.com/golangci/golangci-lint/issues/791

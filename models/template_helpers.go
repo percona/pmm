@@ -95,7 +95,7 @@ func CreateTemplate(q *reform.Querier, params *CreateTemplateParams) (*Template,
 		return nil, err
 	}
 
-	p, err := convertTemplateParams(params.Template.Params)
+	p, err := ConvertParamsDefinitions(params.Template.Params)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "Invalid rule template parameters: %v.", err)
 	}
@@ -104,7 +104,6 @@ func CreateTemplate(q *reform.Querier, params *CreateTemplateParams) (*Template,
 		Name:     template.Name,
 		Version:  template.Version,
 		Summary:  template.Summary,
-		Tiers:    template.Tiers,
 		Expr:     template.Expr,
 		Params:   p,
 		For:      time.Duration(template.For),
@@ -151,7 +150,7 @@ func ChangeTemplate(q *reform.Querier, params *ChangeTemplateParams) (*Template,
 		return nil, status.Errorf(codes.InvalidArgument, "Invalid rule template: %v.", err)
 	}
 
-	p, err := convertTemplateParams(params.Template.Params)
+	p, err := ConvertParamsDefinitions(params.Template.Params)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "Invalid rule template parameters: %v.", err)
 	}
@@ -159,7 +158,6 @@ func ChangeTemplate(q *reform.Querier, params *ChangeTemplateParams) (*Template,
 	row.Name = template.Name
 	row.Version = template.Version
 	row.Summary = template.Summary
-	row.Tiers = template.Tiers
 	row.Expr = template.Expr
 	row.Params = p
 	row.For = time.Duration(template.For)
@@ -183,18 +181,9 @@ func ChangeTemplate(q *reform.Querier, params *ChangeTemplateParams) (*Template,
 
 // RemoveTemplate removes rule template with specified name.
 func RemoveTemplate(q *reform.Querier, name string) error {
-	template, err := FindTemplateByName(q, name)
+	_, err := FindTemplateByName(q, name)
 	if err != nil {
 		return err
-	}
-
-	inUse, err := templateInUse(q, name)
-	if err != nil {
-		return err
-	}
-
-	if inUse {
-		return status.Errorf(codes.FailedPrecondition, `You can't delete the "%s" rule template when it's being used by a rule.`, template.Summary)
 	}
 
 	if err = q.Delete(&Template{Name: name}); err != nil {
@@ -203,22 +192,11 @@ func RemoveTemplate(q *reform.Querier, name string) error {
 	return nil
 }
 
-func templateInUse(q *reform.Querier, name string) (bool, error) {
-	_, err := q.FindOneFrom(RuleTable, "template_name", name)
-	switch err {
-	case nil:
-		return true, nil
-	case reform.ErrNoRows:
-		return false, nil
-	default:
-		return false, errors.WithStack(err)
-	}
-}
-
-func convertTemplateParams(params []alert.Parameter) (TemplateParams, error) {
-	res := make(TemplateParams, 0, len(params))
+// ConvertParamsDefinitions converts parameters definitions to the model.
+func ConvertParamsDefinitions(params []alert.Parameter) (AlertExprParamsDefinitions, error) {
+	res := make(AlertExprParamsDefinitions, 0, len(params))
 	for _, param := range params {
-		p := TemplateParam{
+		p := AlertExprParamDefinition{
 			Name:    param.Name,
 			Summary: param.Summary,
 			Unit:    string(param.Unit),

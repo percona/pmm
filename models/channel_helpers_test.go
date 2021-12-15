@@ -19,7 +19,7 @@ package models_test
 import (
 	"testing"
 
-	"github.com/brianvoe/gofakeit/v6"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -163,9 +163,9 @@ func TestNotificationChannels(t *testing.T) {
 
 		q := tx.Querier
 
-		channelID := createChannel(t, q).ID
+		channel := createChannel(t, q)
 
-		err = models.RemoveChannel(q, channelID)
+		err = models.RemoveChannel(q, channel.ID)
 		require.NoError(t, err)
 
 		cs, err := models.FindChannels(q)
@@ -182,14 +182,12 @@ func TestNotificationChannels(t *testing.T) {
 
 		q := tx.Querier
 
-		templateName := gofakeit.UUID()
-
-		_, err = models.CreateTemplate(q, createTemplateParams(templateName))
+		template, err := models.CreateTemplate(q, createTemplateParams(uuid.New().String()))
 		require.NoError(t, err)
 
 		channel := createChannel(t, q)
 
-		_ = createRule(t, q, channel.ID, templateName)
+		_ = createRule(t, q, channel.ID, template)
 
 		err = models.RemoveChannel(q, channel.ID)
 		tests.AssertGRPCError(t, status.Newf(codes.FailedPrecondition, `You can't delete the "%s" channel when it's being used by a rule.`, channel.Summary), err)

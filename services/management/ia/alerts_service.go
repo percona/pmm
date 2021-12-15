@@ -125,13 +125,7 @@ func (s *AlertsService) ListAlerts(ctx context.Context, req *iav1beta1.ListAlert
 				return nil, e
 			}
 
-			template, ok := s.templatesService.getTemplates()[r.TemplateName]
-			if !ok {
-				s.l.Warnf("Failed to find template with name: %s", r.TemplateName)
-				continue
-			}
-
-			rule, err = convertRule(s.l, r, template, channels)
+			rule, err = convertRule(s.l, r, channels)
 			if err != nil {
 				return nil, errors.Wrapf(err, "failed to convert alert rule")
 			}

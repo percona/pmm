@@ -18,6 +18,7 @@ package models
 
 import (
 	"database/sql/driver"
+	"fmt"
 	"time"
 
 	"gopkg.in/reform.v1"
@@ -28,18 +29,25 @@ import (
 // Rule represents alert rule configuration.
 //reform:ia_rules
 type Rule struct {
-	TemplateName string        `reform:"template_name"`
-	ID           string        `reform:"id,pk"`
-	Summary      string        `reform:"summary"`
-	Disabled     bool          `reform:"disabled"`
-	Params       RuleParams    `reform:"params"`
-	For          time.Duration `reform:"for"`
-	Severity     Severity      `reform:"severity"`
-	CustomLabels []byte        `reform:"custom_labels"`
-	Filters      Filters       `reform:"filters"`
-	ChannelIDs   ChannelIDs    `reform:"channel_ids"`
-	CreatedAt    time.Time     `reform:"created_at"`
-	UpdatedAt    time.Time     `reform:"updated_at"`
+	ID                string                     `reform:"id,pk"`
+	Name              string                     `reform:"name"`
+	Summary           string                     `reform:"summary"`
+	TemplateName      string                     `reform:"template_name"`
+	Disabled          bool                       `reform:"disabled"`
+	ExprTemplate      string                     `reform:"expr_template"`
+	ParamsDefinitions AlertExprParamsDefinitions `reform:"params_definitions"`
+	ParamsValues      AlertExprParamsValues      `reform:"params_values"`
+	DefaultFor        time.Duration              `reform:"default_for"`
+	For               time.Duration              `reform:"for"`
+	DefaultSeverity   Severity                   `reform:"default_severity"`
+	Severity          Severity                   `reform:"severity"`
+	CustomLabels      []byte                     `reform:"custom_labels"`
+	Labels            []byte                     `reform:"labels"`
+	Annotations       []byte                     `reform:"annotations"`
+	Filters           Filters                    `reform:"filters"`
+	ChannelIDs        ChannelIDs                 `reform:"channel_ids"`
+	CreatedAt         time.Time                  `reform:"created_at"`
+	UpdatedAt         time.Time                  `reform:"updated_at"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
@@ -47,7 +55,6 @@ func (r *Rule) BeforeInsert() error {
 	now := Now()
 	r.CreatedAt = now
 	r.UpdatedAt = now
-
 	return nil
 }
 
@@ -74,6 +81,26 @@ func (r *Rule) GetCustomLabels() (map[string]string, error) {
 // SetCustomLabels encodes template labels.
 func (r *Rule) SetCustomLabels(m map[string]string) error {
 	return setLabels(m, &r.CustomLabels)
+}
+
+// GetLabels decodes template labels.
+func (r *Rule) GetLabels() (map[string]string, error) {
+	return getLabels(r.Labels)
+}
+
+// SetLabels encodes template labels.
+func (r *Rule) SetLabels(m map[string]string) error {
+	return setLabels(m, &r.Labels)
+}
+
+// GetAnnotations decodes template annotations.
+func (r *Rule) GetAnnotations() (map[string]string, error) {
+	return getLabels(r.Annotations)
+}
+
+// SetAnnotations encodes template annotations.
+func (r *Rule) SetAnnotations(m map[string]string) error {
+	return setLabels(m, &r.Annotations)
 }
 
 // FilterType represents rule filter type.
@@ -107,29 +134,50 @@ func (f Filter) Value() (driver.Value, error) { return jsonValue(f) }
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (f *Filter) Scan(src interface{}) error { return jsonScan(f, src) }
 
-// RuleParams represents rule parameters slice.
-type RuleParams []RuleParam
+// AlertExprParamsValues represents rule parameters values slice.
+type AlertExprParamsValues []AlertExprParamValue
 
 // Value implements database/sql/driver Valuer interface.
-func (t RuleParams) Value() (driver.Value, error) { return jsonValue(t) }
+func (p AlertExprParamsValues) Value() (driver.Value, error) { return jsonValue(p) }
 
 // Scan implements database/sql Scanner interface.
-func (t *RuleParams) Scan(src interface{}) error { return jsonScan(t, src) }
+func (p *AlertExprParamsValues) Scan(src interface{}) error { return jsonScan(p, src) }
 
-// RuleParam represents rule parameter.
-type RuleParam struct {
+// AsStringMap convert param values to string map, where parameter name is a map key and parameter value is a map value.
+func (p AlertExprParamsValues) AsStringMap() map[string]string {
+	m := make(map[string]string, len(p))
+	for _, rp := range p {
+		var value string
+		switch rp.Type {
+		case Float:
+			value = fmt.Sprint(rp.FloatValue)
+		case Bool:
+			value = fmt.Sprint(rp.BoolValue)
+		case String:
+			value = rp.StringValue
+		}
+		// do not add `default:` to make exhaustive linter do its job
+
+		m[rp.Name] = value
+	}
+
+	return m
+}
+
+// AlertExprParamValue represents rule parameter value.
+type AlertExprParamValue struct {
 	Name        string    `json:"name"`
 	Type        ParamType `json:"type"`
 	BoolValue   bool      `json:"bool"`
-	FloatValue  float32   `json:"float"`
+	FloatValue  float64   `json:"float"`
 	StringValue string    `json:"string"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (p RuleParam) Value() (driver.Value, error) { return jsonValue(p) }
+func (p AlertExprParamValue) Value() (driver.Value, error) { return jsonValue(p) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (p *RuleParam) Scan(src interface{}) error { return jsonScan(p, src) }
+func (p *AlertExprParamValue) Scan(src interface{}) error { return jsonScan(p, src) }
 
 // ChannelIDs is a slice of notification channel ids.
 type ChannelIDs []string

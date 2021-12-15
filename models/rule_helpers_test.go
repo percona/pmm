@@ -20,7 +20,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/brianvoe/gofakeit/v6"
+	"github.com/google/uuid"
 	"github.com/percona-platform/saas/pkg/common"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -50,24 +50,40 @@ func TestRules(t *testing.T) {
 
 			q := tx.Querier
 
-			templateName := createTemplate(t, q)
-			channelID := createChannel(t, q).ID
+			template := createTemplate(t, q)
+			channel := createChannel(t, q)
 
-			params := createCreateRuleParams(templateName, channelID, nonEmptyFilters)
+			params := createCreateRuleParams(t, template, channel.ID, nonEmptyFilters)
 			rule, err := models.CreateRule(q, params)
 			require.NoError(t, err)
 
 			assert.NotEmpty(t, rule.ID)
-			assert.Equal(t, templateName, rule.TemplateName)
-			assert.Equal(t, params.Summary, rule.Summary)
+			assert.Equal(t, template.Name, rule.TemplateName)
+			assert.Equal(t, template.Summary, rule.Summary)
+			assert.Equal(t, template.Severity, rule.DefaultSeverity)
+			assert.Equal(t, template.For, rule.DefaultFor)
+			assert.Equal(t, params.Name, rule.Name)
 			assert.Equal(t, params.Disabled, rule.Disabled)
-			assert.Equal(t, params.RuleParams, rule.Params)
+			assert.Equal(t, params.ParamsValues, rule.ParamsValues)
 			assert.Equal(t, params.For, rule.For)
 			assert.Equal(t, models.Severity(common.Warning), rule.Severity)
 
-			labels, err := rule.GetCustomLabels()
+			customLabels, err := rule.GetCustomLabels()
 			require.NoError(t, err)
-			assert.Equal(t, params.CustomLabels, labels)
+			assert.Equal(t, params.CustomLabels, customLabels)
+
+			labels, err := rule.GetLabels()
+			require.NoError(t, err)
+			templateLabels, err := template.GetLabels()
+			require.NoError(t, err)
+			assert.Equal(t, templateLabels, labels)
+
+			annotations, err := rule.GetAnnotations()
+			require.NoError(t, err)
+			templateAnnotations, err := template.GetAnnotations()
+			require.NoError(t, err)
+			assert.Equal(t, templateAnnotations, annotations)
+
 			assert.Equal(t, params.Filters, rule.Filters)
 			assert.ElementsMatch(t, params.ChannelIDs, rule.ChannelIDs)
 		})
@@ -81,23 +97,39 @@ func TestRules(t *testing.T) {
 
 			q := tx.Querier
 
-			templateName := createTemplate(t, q)
+			template := createTemplate(t, q)
 
-			params := createCreateRuleParams(templateName, "", nil)
+			params := createCreateRuleParams(t, template, "", nil)
 			rule, err := models.CreateRule(q, params)
 			require.NoError(t, err)
 
 			assert.NotEmpty(t, rule.ID)
-			assert.Equal(t, templateName, rule.TemplateName)
-			assert.Equal(t, params.Summary, rule.Summary)
+			assert.Equal(t, template.Name, rule.TemplateName)
+			assert.Equal(t, template.Summary, rule.Summary)
+			assert.Equal(t, template.Severity, rule.DefaultSeverity)
+			assert.Equal(t, template.For, rule.DefaultFor)
+			assert.Equal(t, params.Name, rule.Name)
 			assert.Equal(t, params.Disabled, rule.Disabled)
-			assert.Equal(t, params.RuleParams, rule.Params)
+			assert.Equal(t, params.ParamsValues, rule.ParamsValues)
 			assert.Equal(t, params.For, rule.For)
 			assert.Equal(t, models.Severity(common.Warning), rule.Severity)
 
-			labels, err := rule.GetCustomLabels()
+			customLabels, err := rule.GetCustomLabels()
 			require.NoError(t, err)
-			assert.Equal(t, params.CustomLabels, labels)
+			assert.Equal(t, params.CustomLabels, customLabels)
+
+			labels, err := rule.GetLabels()
+			require.NoError(t, err)
+			templateLabels, err := template.GetLabels()
+			require.NoError(t, err)
+			assert.Equal(t, templateLabels, labels)
+
+			annotations, err := rule.GetAnnotations()
+			require.NoError(t, err)
+			templateAnnotations, err := template.GetAnnotations()
+			require.NoError(t, err)
+			assert.Equal(t, templateAnnotations, annotations)
+
 			assert.Nil(t, rule.Filters)
 			assert.Empty(t, rule.ChannelIDs)
 		})
@@ -111,10 +143,10 @@ func TestRules(t *testing.T) {
 
 			q := tx.Querier
 
-			templateName := createTemplate(t, q)
-			channelID := gofakeit.UUID()
+			template := createTemplate(t, q)
+			channelID := uuid.New().String()
 
-			params := createCreateRuleParams(templateName, channelID, nonEmptyFilters)
+			params := createCreateRuleParams(t, template, channelID, nonEmptyFilters)
 			_, err = models.CreateRule(q, params)
 			tests.AssertGRPCError(t, status.Newf(codes.NotFound, "Failed to find all required channels: %v.", []string{channelID}), err)
 		})
@@ -130,32 +162,35 @@ func TestRules(t *testing.T) {
 
 			q := tx.Querier
 
-			templateName := createTemplate(t, q)
-			channelID := createChannel(t, q).ID
-			rule, err := models.CreateRule(q, createCreateRuleParams(templateName, channelID, nonEmptyFilters))
+			template := createTemplate(t, q)
+			channel := createChannel(t, q)
+			rule, err := models.CreateRule(q, createCreateRuleParams(t, template, channel.ID, nonEmptyFilters))
 			require.NoError(t, err)
 
-			newChannelID := createChannel(t, q).ID
+			newChannel := createChannel(t, q)
 
 			params := &models.ChangeRuleParams{
-				Summary:      "summary",
+				Name:         "summary",
 				Disabled:     false,
-				RuleParams:   nil,
+				ParamsValues: nil,
 				For:          3 * time.Second,
 				Severity:     models.Severity(common.Info),
 				CustomLabels: map[string]string{"test": "example"},
 				Filters:      []models.Filter{{Type: models.Equal, Key: "number", Val: "42"}},
-				ChannelIDs:   []string{newChannelID},
+				ChannelIDs:   []string{newChannel.ID},
 			}
 
 			updated, err := models.ChangeRule(q, rule.ID, params)
 			require.NoError(t, err)
 
 			assert.NotEmpty(t, rule.ID, updated.ID)
-			assert.Equal(t, templateName, updated.TemplateName)
-			assert.Equal(t, params.Summary, updated.Summary)
+			assert.Equal(t, template.Name, updated.TemplateName)
+			assert.Equal(t, template.Summary, updated.Summary)
+			assert.Equal(t, template.Severity, updated.DefaultSeverity)
+			assert.Equal(t, template.For, updated.DefaultFor)
+			assert.Equal(t, params.Name, updated.Name)
 			assert.Equal(t, params.Disabled, updated.Disabled)
-			assert.Equal(t, params.RuleParams, updated.Params)
+			assert.Equal(t, params.ParamsValues, updated.ParamsValues)
 			assert.Equal(t, params.For, updated.For)
 			assert.Equal(t, models.Severity(common.Info), updated.Severity)
 
@@ -175,16 +210,16 @@ func TestRules(t *testing.T) {
 
 			q := tx.Querier
 
-			templateName := createTemplate(t, q)
-			channelID := createChannel(t, q).ID
-			rule, err := models.CreateRule(q, createCreateRuleParams(templateName, channelID, nonEmptyFilters))
+			template := createTemplate(t, q)
+			channel := createChannel(t, q)
+			rule, err := models.CreateRule(q, createCreateRuleParams(t, template, channel.ID, nonEmptyFilters))
 			require.NoError(t, err)
 
-			newChannelID := gofakeit.UUID()
+			newChannelID := uuid.New().String()
 
 			params := &models.ChangeRuleParams{
 				Disabled:     false,
-				RuleParams:   nil,
+				ParamsValues: nil,
 				For:          3 * time.Second,
 				Severity:     models.Severity(common.Info),
 				CustomLabels: map[string]string{"test": "example"},
@@ -206,10 +241,10 @@ func TestRules(t *testing.T) {
 
 		q := tx.Querier
 
-		templateName := createTemplate(t, q)
-		channelID := createChannel(t, q).ID
+		template := createTemplate(t, q)
+		channel := createChannel(t, q)
 
-		params := createCreateRuleParams(templateName, channelID, nonEmptyFilters)
+		params := createCreateRuleParams(t, template, channel.ID, nonEmptyFilters)
 		rule, err := models.CreateRule(q, params)
 		require.NoError(t, err)
 
@@ -230,10 +265,10 @@ func TestRules(t *testing.T) {
 
 		q := tx.Querier
 
-		templateName := createTemplate(t, q)
-		channelID := createChannel(t, q).ID
+		template := createTemplate(t, q)
+		channel := createChannel(t, q)
 
-		params := createCreateRuleParams(templateName, channelID, nonEmptyFilters)
+		params := createCreateRuleParams(t, template, channel.ID, nonEmptyFilters)
 		rule, err := models.CreateRule(q, params)
 		require.NoError(t, err)
 
@@ -246,7 +281,7 @@ func TestRules(t *testing.T) {
 		assert.Equal(t, rule.Summary, actual.Summary)
 		assert.Equal(t, rule.TemplateName, actual.TemplateName)
 		assert.Equal(t, rule.Disabled, actual.Disabled)
-		assert.Equal(t, rule.Params, actual.Params)
+		assert.Equal(t, rule.ParamsValues, actual.ParamsValues)
 		assert.Equal(t, rule.For, actual.For)
 		assert.Equal(t, rule.Severity, actual.Severity)
 		assert.Equal(t, rule.CustomLabels, actual.CustomLabels)
@@ -255,20 +290,34 @@ func TestRules(t *testing.T) {
 	})
 }
 
-func createCreateRuleParams(templateName, channelID string, filters []models.Filter) *models.CreateRuleParams {
+func createCreateRuleParams(t *testing.T, template *models.Template, channelID string, filters []models.Filter) *models.CreateRuleParams {
+	t.Helper()
+
+	labels, err := template.GetLabels()
+	require.NoError(t, err)
+
+	annotations, err := template.GetAnnotations()
+	require.NoError(t, err)
+
 	rule := &models.CreateRuleParams{
-		TemplateName: templateName,
+		TemplateName: template.Name,
+		Name:         "rule name",
+		Summary:      template.Summary,
 		Disabled:     true,
-		RuleParams: []models.RuleParam{
+		ParamsValues: []models.AlertExprParamValue{
 			{
 				Name:       "test",
 				Type:       models.Float,
 				FloatValue: 3.14,
 			},
 		},
-		For:          5 * time.Second,
-		Severity:     models.Severity(common.Warning),
-		CustomLabels: map[string]string{"foo": "bar"},
+		DefaultFor:      template.For,
+		For:             5 * time.Second,
+		DefaultSeverity: template.Severity,
+		Severity:        models.Severity(common.Warning),
+		CustomLabels:    map[string]string{"foo": "bar"},
+		Labels:          labels,
+		Annotations:     annotations,
 	}
 	if channelID != "" {
 		rule.ChannelIDs = []string{channelID}
@@ -281,14 +330,17 @@ func createCreateRuleParams(templateName, channelID string, filters []models.Fil
 	return rule
 }
 
-func createTemplate(t *testing.T, q *reform.Querier) string {
-	templateName := gofakeit.UUID()
-	_, err := models.CreateTemplate(q, createTemplateParams(templateName))
+func createTemplate(t *testing.T, q *reform.Querier) *models.Template {
+	t.Helper()
+
+	template, err := models.CreateTemplate(q, createTemplateParams(uuid.New().String()))
 	require.NoError(t, err)
-	return templateName
+	return template
 }
 
 func createChannel(t *testing.T, q *reform.Querier) *models.Channel {
+	t.Helper()
+
 	params := models.CreateChannelParams{
 		Summary: "some summary",
 		EmailConfig: &models.EmailConfig{

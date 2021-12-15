@@ -23,7 +23,7 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/brianvoe/gofakeit"
+	"github.com/brianvoe/gofakeit/v6"
 	"github.com/go-openapi/strfmt"
 	"github.com/percona-platform/saas/pkg/alert"
 	"github.com/percona-platform/saas/pkg/common"
@@ -245,8 +245,9 @@ func TestListAlerts(t *testing.T) {
 	require.NoError(t, err)
 
 	rule, err := models.CreateRule(q, &models.CreateRuleParams{
-		TemplateName: tmpl.Name,
-		Severity:     models.Severity(common.Warning),
+		TemplateName:    tmpl.Name,
+		DefaultSeverity: tmpl.Severity,
+		Severity:        models.Severity(common.Warning),
 	})
 	require.NoError(t, err)
 

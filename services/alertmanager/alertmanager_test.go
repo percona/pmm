@@ -463,13 +463,14 @@ templates: []
 		rule1, err := models.CreateRule(db.Querier, &models.CreateRuleParams{
 			TemplateName: "test_template",
 			Disabled:     true,
-			RuleParams: []models.RuleParam{{
+			ParamsValues: []models.AlertExprParamValue{{
 				Name:       "test",
 				Type:       models.Float,
 				FloatValue: 3.14,
 			}},
-			For:      5 * time.Second,
-			Severity: models.Severity(common.Warning),
+			For:             5 * time.Second,
+			DefaultSeverity: models.Severity(common.Warning),
+			Severity:        models.Severity(common.Warning),
 			CustomLabels: map[string]string{
 				"foo": "bar",
 			},
@@ -486,13 +487,14 @@ templates: []
 		rule2, err := models.CreateRule(db.Querier, &models.CreateRuleParams{
 			TemplateName: "test_template",
 			Disabled:     true,
-			RuleParams: []models.RuleParam{{
+			ParamsValues: []models.AlertExprParamValue{{
 				Name:       "test",
 				Type:       models.Float,
 				FloatValue: 3.14,
 			}},
-			For:      5 * time.Second,
-			Severity: models.Severity(common.Warning),
+			For:             5 * time.Second,
+			DefaultSeverity: models.Severity(common.Warning),
+			Severity:        models.Severity(common.Warning),
 			CustomLabels: map[string]string{
 				"foo": "baz",
 			},
@@ -509,13 +511,14 @@ templates: []
 		_, err = models.CreateRule(db.Querier, &models.CreateRuleParams{
 			TemplateName: "test_template",
 			Disabled:     true,
-			RuleParams: []models.RuleParam{{
+			ParamsValues: []models.AlertExprParamValue{{
 				Name:       "test",
 				Type:       models.Float,
 				FloatValue: 3.14,
 			}},
-			For:      5 * time.Second,
-			Severity: models.Severity(common.Warning),
+			For:             5 * time.Second,
+			DefaultSeverity: models.Severity(common.Warning),
+			Severity:        models.Severity(common.Warning),
 			CustomLabels: map[string]string{
 				"foo": "baz",
 			},
@@ -526,7 +529,7 @@ templates: []
 		rule4, err := models.CreateRule(db.Querier, &models.CreateRuleParams{
 			TemplateName: "test_template",
 			Disabled:     true,
-			RuleParams: []models.RuleParam{{
+			ParamsValues: []models.AlertExprParamValue{{
 				Name:       "test",
 				Type:       models.Float,
 				FloatValue: 3.14,
@@ -536,8 +539,9 @@ templates: []
 				Key:  "service_name",
 				Val:  "mysql3",
 			}},
-			For:      5 * time.Second,
-			Severity: models.Severity(common.Warning),
+			For:             5 * time.Second,
+			DefaultSeverity: models.Severity(common.Warning),
+			Severity:        models.Severity(common.Warning),
 			CustomLabels: map[string]string{
 				"foo": "baz",
 			},

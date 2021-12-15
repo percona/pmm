@@ -17,15 +17,17 @@
 package ia
 
 import (
-	"fmt"
+	"bytes"
 	"os"
-	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/percona-platform/saas/pkg/alert"
 	"github.com/percona/pmm/api/managementpb"
 	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -49,122 +51,54 @@ func convertParamUnit(u alert.Unit) iav1beta1.ParamUnit {
 	return iav1beta1.ParamUnit_PARAM_UNIT_INVALID
 }
 
-func convertTemplate(l *logrus.Entry, template templateInfo) (*iav1beta1.Template, error) {
-	t := &iav1beta1.Template{
-		Name:        template.Name,
-		Summary:     template.Summary,
-		Expr:        template.Expr,
-		Params:      make([]*iav1beta1.TemplateParam, 0, len(template.Params)),
-		For:         durationpb.New(time.Duration(template.For)),
-		Severity:    managementpb.Severity(template.Severity),
-		Labels:      template.Labels,
-		Annotations: template.Annotations,
-		Source:      template.Source,
-		Yaml:        template.Yaml,
-	}
-
-	if template.CreatedAt != nil {
-		t.CreatedAt = timestamppb.New(*template.CreatedAt)
-		if err := t.CreatedAt.CheckValid(); err != nil {
-			return nil, err
-		}
-
-	}
-
-	for _, p := range template.Params {
-		tp := &iav1beta1.TemplateParam{
-			Name:    p.Name,
-			Summary: p.Summary,
-			Unit:    convertParamUnit(p.Unit),
-			Type:    convertParamType(p.Type),
-		}
-
-		switch p.Type {
-		case alert.Float:
-			var fp iav1beta1.TemplateFloatParam
-			if p.Value != nil {
-				value, err := p.GetValueForFloat()
-				if err != nil {
-					return nil, errors.Wrap(err, "failed to get value for float parameter")
-				}
-				fp.HasDefault = true
-				fp.Default = float32(value) // TODO eliminate conversion
-
-			}
-
-			if len(p.Range) != 0 {
-				min, max, err := p.GetRangeForFloat()
-				if err != nil {
-					return nil, errors.Wrap(err, "failed to get range for float parameter")
-				}
-
-				fp.HasMin = true
-				fp.Min = float32(min) // TODO eliminate conversion.,
-				fp.HasMax = true
-				fp.Max = float32(max) // TODO eliminate conversion.,
-			}
-
-			tp.Value = &iav1beta1.TemplateParam_Float{Float: &fp}
-
-			t.Params = append(t.Params, tp)
-
-		default:
-			l.Warnf("Skipping unexpected parameter type %q for %q.", p.Type, template.Name)
-		}
-	}
-
-	return t, nil
-}
-
-func convertRule(l *logrus.Entry, rule *models.Rule, template templateInfo, channels []*models.Channel) (*iav1beta1.Rule, error) {
+func convertRule(l *logrus.Entry, rule *models.Rule, channels []*models.Channel) (*iav1beta1.Rule, error) {
 	r := &iav1beta1.Rule{
-		RuleId:   rule.ID,
-		Disabled: rule.Disabled,
-		Summary:  rule.Summary,
-		Severity: managementpb.Severity(rule.Severity),
-		For:      durationpb.New(rule.For),
+		RuleId:          rule.ID,
+		TemplateName:    rule.TemplateName,
+		Disabled:        rule.Disabled,
+		Summary:         rule.Summary,
+		Name:            rule.Name,
+		ExprTemplate:    rule.ExprTemplate,
+		DefaultSeverity: managementpb.Severity(rule.DefaultSeverity),
+		Severity:        managementpb.Severity(rule.Severity),
+		DefaultFor:      durationpb.New(rule.DefaultFor),
+		For:             durationpb.New(rule.For),
+		CreatedAt:       timestamppb.New(rule.CreatedAt),
 	}
 
 	var err error
-	r.CreatedAt = timestamppb.New(rule.CreatedAt)
-	if err := r.CreatedAt.CheckValid(); err != nil {
+	if err = r.CreatedAt.CheckValid(); err != nil {
 		return nil, errors.Wrap(err, "failed to convert timestamp")
 	}
 
-	params := make(map[string]string, len(rule.Params))
-	for _, p := range rule.Params {
-		var value string
-		switch p.Type {
-		case models.Float:
-			value = fmt.Sprint(p.FloatValue)
-		case models.Bool:
-			value = fmt.Sprint(p.BoolValue)
-		case models.String:
-			value = p.StringValue
-		default:
-			l.Warnf("Invalid parameter type %s", p.Type)
-			continue
-		}
-		params[p.Name] = value
-	}
-	r.Expr, err = templateRuleExpr(template.Expr, params)
+	r.Expr, err = fillExprWithParams(rule.ExprTemplate, rule.ParamsValues.AsStringMap())
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to template rule expression")
+		return nil, errors.Wrap(err, "failed to fill expression template with parameters values")
 	}
 
-	r.Template, err = convertTemplate(l, template)
+	r.ParamsDefinitions, err = convertModelToParamsDefinitions(rule.ParamsDefinitions)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to convert template")
+		return nil, errors.Wrap(err, "failed to convert parameters definitions")
 	}
 
-	r.Params, err = convertModelToRuleParams(rule.Params)
+	r.ParamsValues, err = convertModelToParamValues(rule.ParamsValues)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to convert rule parameters")
+		return nil, errors.Wrap(err, "failed to convert parameters values")
 	}
 
 	r.CustomLabels, err = rule.GetCustomLabels()
 	if err != nil {
+		return nil, errors.Wrap(err, "failed to load rule custom labels")
+	}
+
+	r.Labels, err = rule.GetLabels()
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to load rule labels")
+	}
+
+	r.Annotations, err = rule.GetAnnotations()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to load rule annotations")
 	}
 
 	r.Filters = make([]*iav1beta1.Filter, len(rule.Filters))
@@ -196,4 +130,54 @@ func convertRule(l *logrus.Entry, rule *models.Rule, template templateInfo, chan
 	}
 
 	return r, nil
+}
+
+func fillExprWithParams(expr string, values map[string]string) (string, error) {
+	var buf bytes.Buffer
+	t, err := newParamTemplate().Parse(expr)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to parse expression")
+	}
+	if err = t.Execute(&buf, values); err != nil {
+		return "", errors.Wrap(err, "failed to fill expression placeholders")
+	}
+	return buf.String(), nil
+}
+
+func validateParameters(definitions models.AlertExprParamsDefinitions, values models.AlertExprParamsValues) error {
+	if len(definitions) != len(values) {
+		return status.Errorf(codes.InvalidArgument, "Expression requires %d parameters, but got %d.",
+			len(definitions), len(values))
+	}
+
+	valuesM := make(map[string]models.AlertExprParamValue)
+	for _, v := range values {
+		valuesM[v.Name] = v
+	}
+
+	for _, d := range definitions {
+		value, ok := valuesM[d.Name]
+		if !ok {
+			return status.Errorf(codes.InvalidArgument, "Parameter %s is missing.", d.Name)
+		}
+
+		if string(d.Type) != string(value.Type) {
+			return status.Errorf(codes.InvalidArgument, "Parameter %s has type %s instead of %s.", d.Name, value.Type, d.Type)
+		}
+
+		switch d.Type {
+		case models.Float:
+			v := d.FloatParam
+			fv := value.FloatValue
+			if v.Min != nil && pointer.GetFloat64(v.Min) > fv {
+				return status.Errorf(codes.InvalidArgument, "Parameter %s value is less than required minimum.", d.Name)
+			}
+
+			if v.Max != nil && pointer.GetFloat64(v.Max) < fv {
+				return status.Errorf(codes.InvalidArgument, "Parameter %s value is greater than required maximum.", d.Name)
+			}
+		}
+	}
+
+	return nil
 }
