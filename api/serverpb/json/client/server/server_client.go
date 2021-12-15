@@ -41,6 +41,8 @@ type ClientService interface {
 
 	StartUpdate(params *StartUpdateParams) (*StartUpdateOK, error)
 
+	TestEmailAlertingSettings(params *TestEmailAlertingSettingsParams) (*TestEmailAlertingSettingsOK, error)
+
 	UpdateStatus(params *UpdateStatusParams) (*UpdateStatusOK, error)
 
 	Version(params *VersionParams) (*VersionOK, error)
@@ -276,6 +278,39 @@ func (a *Client) StartUpdate(params *StartUpdateParams) (*StartUpdateOK, error) 
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*StartUpdateDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  TestEmailAlertingSettings tests email alerting settings tests email alerting SMTP settings by sending testing email
+*/
+func (a *Client) TestEmailAlertingSettings(params *TestEmailAlertingSettingsParams) (*TestEmailAlertingSettingsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewTestEmailAlertingSettingsParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "TestEmailAlertingSettings",
+		Method:             "POST",
+		PathPattern:        "/v1/Settings/TestEmailAlertingSettings",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &TestEmailAlertingSettingsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*TestEmailAlertingSettingsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*TestEmailAlertingSettingsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

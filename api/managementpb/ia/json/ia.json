@@ -1625,7 +1625,7 @@
         "tags": [
           "Rules"
         ],
-        "summary": "CreateAlertRule creates Integrated Alerting rule.",
+        "summary": "CreateAlertRule creates Alerting rule.",
         "operationId": "CreateAlertRule",
         "parameters": [
           {
@@ -1827,7 +1827,7 @@
         "tags": [
           "Rules"
         ],
-        "summary": "DeleteAlertRule deletes Integrated Alerting rule.",
+        "summary": "DeleteAlertRule deletes Alerting rule.",
         "operationId": "DeleteAlertRule",
         "parameters": [
           {
@@ -1900,7 +1900,7 @@
         "tags": [
           "Rules"
         ],
-        "summary": "ListAlertRules returns a list of all Integrated Alerting rules.",
+        "summary": "ListAlertRules returns a list of all Alerting rules.",
         "operationId": "ListAlertRules",
         "parameters": [
           {
@@ -2589,7 +2589,7 @@
         "tags": [
           "Rules"
         ],
-        "summary": "UpdateAlertRule updates Integrated Alerting rule.",
+        "summary": "UpdateAlertRule updates Alerting rule.",
         "operationId": "UpdateAlertRule",
         "parameters": [
           {
