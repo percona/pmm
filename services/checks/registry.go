@@ -129,10 +129,10 @@ func (r *registry) getCheckResults() []services.STTCheckResult {
 func (r *registry) createAlert(name string, target *services.Target, result *check.Result, alertTTL time.Duration) *ammodels.PostableAlert {
 	labels := make(map[string]string, len(target.Labels)+len(result.Labels)+4)
 	annotations := make(map[string]string, 2)
-	for k, v := range target.Labels {
+	for k, v := range result.Labels {
 		labels[k] = v
 	}
-	for k, v := range result.Labels {
+	for k, v := range target.Labels {
 		labels[k] = v
 	}
 
