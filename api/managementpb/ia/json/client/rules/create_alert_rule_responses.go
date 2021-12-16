@@ -127,11 +127,11 @@ type CreateAlertRuleBody struct {
 	// Template name.
 	TemplateName string `json:"template_name,omitempty"`
 
+	// Rule name.
+	Name string `json:"name,omitempty"`
+
 	// New rule status.
 	Disabled bool `json:"disabled,omitempty"`
-
-	// Rule human-readable summary.
-	Summary string `json:"summary,omitempty"`
 
 	// Rule parameters. All template parameters should be set.
 	Params []*ParamsItems0 `json:"params"`
@@ -547,7 +547,7 @@ func (o *FiltersItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ParamsItems0 RuleParam represents a single rule parameter for List, Change and Update APIs.
+/*ParamsItems0 ParamValue represents a single rule parameter value for List, Change and Update APIs.
 swagger:model ParamsItems0
 */
 type ParamsItems0 struct {
@@ -563,7 +563,7 @@ type ParamsItems0 struct {
 	Bool bool `json:"bool,omitempty"`
 
 	// Float value.
-	Float float32 `json:"float,omitempty"`
+	Float float64 `json:"float,omitempty"`
 
 	// String value.
 	String string `json:"string,omitempty"`

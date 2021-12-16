@@ -88,6 +88,14 @@
                         "description": "Rule represents Alert Rule.",
                         "type": "object",
                         "properties": {
+                          "annotations": {
+                            "description": "Annotations.",
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "string"
+                            },
+                            "x-order": 15
+                          },
                           "channels": {
                             "description": "Channels.",
                             "type": "array",
@@ -271,13 +279,13 @@
                                 }
                               }
                             },
-                            "x-order": 9
+                            "x-order": 17
                           },
                           "created_at": {
                             "description": "Rule creation time.",
                             "type": "string",
                             "format": "date-time",
-                            "x-order": 10
+                            "x-order": 18
                           },
                           "custom_labels": {
                             "description": "Custom labels.",
@@ -285,17 +293,44 @@
                             "additionalProperties": {
                               "type": "string"
                             },
-                            "x-order": 7
+                            "x-order": 13
+                          },
+                          "default_for": {
+                            "description": "Default for duration.",
+                            "type": "string",
+                            "x-order": 9
+                          },
+                          "default_severity": {
+                            "description": "Severity represents severity level of the check result or alert.",
+                            "type": "string",
+                            "default": "SEVERITY_INVALID",
+                            "enum": [
+                              "SEVERITY_INVALID",
+                              "SEVERITY_EMERGENCY",
+                              "SEVERITY_ALERT",
+                              "SEVERITY_CRITICAL",
+                              "SEVERITY_ERROR",
+                              "SEVERITY_WARNING",
+                              "SEVERITY_NOTICE",
+                              "SEVERITY_INFO",
+                              "SEVERITY_DEBUG"
+                            ],
+                            "x-order": 11
                           },
                           "disabled": {
                             "description": "True if that rule is disabled.",
                             "type": "boolean",
-                            "x-order": 2
+                            "x-order": 4
                           },
                           "expr": {
-                            "description": "Template expression with rule parameters.",
+                            "description": "Expression filled with parameters.",
                             "type": "string",
-                            "x-order": 11
+                            "x-order": 6
+                          },
+                          "expr_template": {
+                            "description": "Expression template.",
+                            "type": "string",
+                            "x-order": 5
                           },
                           "filters": {
                             "description": "Filters.",
@@ -325,18 +360,150 @@
                                 }
                               }
                             },
-                            "x-order": 8
+                            "x-order": 16
                           },
                           "for": {
-                            "description": "Rule duration.",
+                            "description": "For duration.",
                             "type": "string",
-                            "x-order": 5
+                            "x-order": 10
                           },
-                          "params": {
-                            "description": "Rule parameters.",
+                          "labels": {
+                            "description": "Labels.",
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "string"
+                            },
+                            "x-order": 14
+                          },
+                          "name": {
+                            "description": "Rule name.",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "params_definitions": {
+                            "description": "Expression parameters definitions.",
                             "type": "array",
                             "items": {
-                              "description": "RuleParam represents a single rule parameter for List, Change and Update APIs.",
+                              "description": "ParamDefinition represents a single query parameter.",
+                              "type": "object",
+                              "properties": {
+                                "bool": {
+                                  "description": "BoolParamDefinition represents boolean parameter's default value.",
+                                  "type": "object",
+                                  "properties": {
+                                    "default": {
+                                      "description": "BooleanFlag represent a command to set some boolean property to true,\nto false, or avoid changing that property.\n\n - DO_NOT_CHANGE: Do not change boolean property. Default value.\n - TRUE: True.\n - FALSE: False.",
+                                      "type": "string",
+                                      "default": "DO_NOT_CHANGE",
+                                      "enum": [
+                                        "DO_NOT_CHANGE",
+                                        "TRUE",
+                                        "FALSE"
+                                      ],
+                                      "x-order": 0
+                                    }
+                                  },
+                                  "x-order": 4
+                                },
+                                "float": {
+                                  "description": "FloatParamDefinition represents float parameter's default value and valid range.",
+                                  "type": "object",
+                                  "properties": {
+                                    "default": {
+                                      "description": "Default value if has_default is true.",
+                                      "type": "number",
+                                      "format": "double",
+                                      "x-order": 1
+                                    },
+                                    "has_default": {
+                                      "description": "True if default value is set.",
+                                      "type": "boolean",
+                                      "x-order": 0
+                                    },
+                                    "has_max": {
+                                      "description": "True if maximal valid value is set.",
+                                      "type": "boolean",
+                                      "x-order": 4
+                                    },
+                                    "has_min": {
+                                      "description": "True if minimal valid value is set.",
+                                      "type": "boolean",
+                                      "x-order": 2
+                                    },
+                                    "max": {
+                                      "description": "Maximal valid value (inclusive) if has_max is true.",
+                                      "type": "number",
+                                      "format": "double",
+                                      "x-order": 5
+                                    },
+                                    "min": {
+                                      "description": "Minimal valid value (inclusive) if has_min is true.",
+                                      "type": "number",
+                                      "format": "double",
+                                      "x-order": 3
+                                    }
+                                  },
+                                  "x-order": 5
+                                },
+                                "name": {
+                                  "description": "Machine-readable name (ID) that is used in expression.",
+                                  "type": "string",
+                                  "x-order": 0
+                                },
+                                "string": {
+                                  "description": "StringParamDefinition represents string parameter's default value.",
+                                  "type": "object",
+                                  "properties": {
+                                    "default": {
+                                      "description": "Default value if has_default is true.",
+                                      "type": "string",
+                                      "x-order": 1
+                                    },
+                                    "has_default": {
+                                      "description": "True if default value is set.",
+                                      "type": "boolean",
+                                      "x-order": 0
+                                    }
+                                  },
+                                  "x-order": 6
+                                },
+                                "summary": {
+                                  "description": "Short human-readable parameter summary.",
+                                  "type": "string",
+                                  "x-order": 1
+                                },
+                                "type": {
+                                  "description": "ParamType represents template parameter type.",
+                                  "type": "string",
+                                  "default": "PARAM_TYPE_INVALID",
+                                  "enum": [
+                                    "PARAM_TYPE_INVALID",
+                                    "BOOL",
+                                    "FLOAT",
+                                    "STRING"
+                                  ],
+                                  "x-order": 3
+                                },
+                                "unit": {
+                                  "description": "ParamUnit represents template parameter unit.\n\n - PARAM_UNIT_INVALID: Invalid, unknown or absent.\n - PERCENTAGE: %\n - SECONDS: s",
+                                  "type": "string",
+                                  "default": "PARAM_UNIT_INVALID",
+                                  "enum": [
+                                    "PARAM_UNIT_INVALID",
+                                    "PERCENTAGE",
+                                    "SECONDS"
+                                  ],
+                                  "x-order": 2
+                                }
+                              }
+                            },
+                            "x-order": 7
+                          },
+                          "params_values": {
+                            "description": "Expression parameters values.",
+                            "type": "array",
+                            "items": {
+                              "description": "ParamValue represents a single rule parameter value for List, Change and Update APIs.",
                               "type": "object",
                               "properties": {
                                 "bool": {
@@ -347,7 +514,7 @@
                                 "float": {
                                   "description": "Float value.",
                                   "type": "number",
-                                  "format": "float",
+                                  "format": "double",
                                   "x-order": 3
                                 },
                                 "name": {
@@ -374,12 +541,12 @@
                                 }
                               }
                             },
-                            "x-order": 4
+                            "x-order": 8
                           },
                           "rule_id": {
                             "description": "Rule ID.",
                             "type": "string",
-                            "x-order": 1
+                            "x-order": 0
                           },
                           "severity": {
                             "description": "Severity represents severity level of the check result or alert.",
@@ -396,215 +563,17 @@
                               "SEVERITY_INFO",
                               "SEVERITY_DEBUG"
                             ],
-                            "x-order": 6
+                            "x-order": 12
                           },
                           "summary": {
                             "description": "Rule human-readable summary.",
                             "type": "string",
-                            "x-order": 3
+                            "x-order": 2
                           },
-                          "template": {
-                            "description": "Template represents Alert Template that is used to create Alert Rule.",
-                            "type": "object",
-                            "properties": {
-                              "annotations": {
-                                "description": "Annotations.",
-                                "type": "object",
-                                "additionalProperties": {
-                                  "type": "string"
-                                },
-                                "x-order": 7
-                              },
-                              "created_at": {
-                                "description": "Template creation time. Empty for built-in and SaaS templates.",
-                                "type": "string",
-                                "format": "date-time",
-                                "x-order": 9
-                              },
-                              "expr": {
-                                "description": "PromQL query expression with templating parameters.",
-                                "type": "string",
-                                "x-order": 2
-                              },
-                              "for": {
-                                "description": "Default duration value.",
-                                "type": "string",
-                                "x-order": 4
-                              },
-                              "labels": {
-                                "description": "Labels.",
-                                "type": "object",
-                                "additionalProperties": {
-                                  "type": "string"
-                                },
-                                "x-order": 6
-                              },
-                              "name": {
-                                "description": "Machine-readable name (ID).",
-                                "type": "string",
-                                "x-order": 0
-                              },
-                              "params": {
-                                "description": "Query templating parameters.",
-                                "type": "array",
-                                "items": {
-                                  "description": "TemplateParam represents a single template parameter.",
-                                  "type": "object",
-                                  "properties": {
-                                    "bool": {
-                                      "description": "TemplateBoolParam represents boolean parameter's default value.",
-                                      "type": "object",
-                                      "properties": {
-                                        "default": {
-                                          "description": "BooleanFlag represent a command to set some boolean property to true,\nto false, or avoid changing that property.\n\n - DO_NOT_CHANGE: Do not change boolean property. Default value.\n - TRUE: True.\n - FALSE: False.",
-                                          "type": "string",
-                                          "default": "DO_NOT_CHANGE",
-                                          "enum": [
-                                            "DO_NOT_CHANGE",
-                                            "TRUE",
-                                            "FALSE"
-                                          ],
-                                          "x-order": 0
-                                        }
-                                      },
-                                      "x-order": 4
-                                    },
-                                    "float": {
-                                      "description": "TemplateFloatParam represents float parameter's default value and valid range.",
-                                      "type": "object",
-                                      "properties": {
-                                        "default": {
-                                          "description": "Default value if has_default is true.",
-                                          "type": "number",
-                                          "format": "float",
-                                          "x-order": 1
-                                        },
-                                        "has_default": {
-                                          "description": "True if default value is set.",
-                                          "type": "boolean",
-                                          "x-order": 0
-                                        },
-                                        "has_max": {
-                                          "description": "True if maximal valid value is set.",
-                                          "type": "boolean",
-                                          "x-order": 4
-                                        },
-                                        "has_min": {
-                                          "description": "True if minimal valid value is set.",
-                                          "type": "boolean",
-                                          "x-order": 2
-                                        },
-                                        "max": {
-                                          "description": "Maximal valid value (inclusive) if has_max is true.",
-                                          "type": "number",
-                                          "format": "float",
-                                          "x-order": 5
-                                        },
-                                        "min": {
-                                          "description": "Minimal valid value (inclusive) if has_min is true.",
-                                          "type": "number",
-                                          "format": "float",
-                                          "x-order": 3
-                                        }
-                                      },
-                                      "x-order": 5
-                                    },
-                                    "name": {
-                                      "description": "Machine-readable name (ID) that is used in expression.",
-                                      "type": "string",
-                                      "x-order": 0
-                                    },
-                                    "string": {
-                                      "description": "TemplateStringParam represents string parameter's default value.",
-                                      "type": "object",
-                                      "properties": {
-                                        "default": {
-                                          "description": "Default value if has_default is true.",
-                                          "type": "string",
-                                          "x-order": 1
-                                        },
-                                        "has_default": {
-                                          "description": "True if default value is set.",
-                                          "type": "boolean",
-                                          "x-order": 0
-                                        }
-                                      },
-                                      "x-order": 6
-                                    },
-                                    "summary": {
-                                      "description": "Short human-readable parameter summary.",
-                                      "type": "string",
-                                      "x-order": 1
-                                    },
-                                    "type": {
-                                      "description": "ParamType represents template parameter type.",
-                                      "type": "string",
-                                      "default": "PARAM_TYPE_INVALID",
-                                      "enum": [
-                                        "PARAM_TYPE_INVALID",
-                                        "BOOL",
-                                        "FLOAT",
-                                        "STRING"
-                                      ],
-                                      "x-order": 3
-                                    },
-                                    "unit": {
-                                      "description": "ParamUnit represents template parameter unit.\n\n - PARAM_UNIT_INVALID: Invalid, unknown or absent.\n - PERCENTAGE: %\n - SECONDS: s",
-                                      "type": "string",
-                                      "default": "PARAM_UNIT_INVALID",
-                                      "enum": [
-                                        "PARAM_UNIT_INVALID",
-                                        "PERCENTAGE",
-                                        "SECONDS"
-                                      ],
-                                      "x-order": 2
-                                    }
-                                  }
-                                },
-                                "x-order": 3
-                              },
-                              "severity": {
-                                "description": "Severity represents severity level of the check result or alert.",
-                                "type": "string",
-                                "default": "SEVERITY_INVALID",
-                                "enum": [
-                                  "SEVERITY_INVALID",
-                                  "SEVERITY_EMERGENCY",
-                                  "SEVERITY_ALERT",
-                                  "SEVERITY_CRITICAL",
-                                  "SEVERITY_ERROR",
-                                  "SEVERITY_WARNING",
-                                  "SEVERITY_NOTICE",
-                                  "SEVERITY_INFO",
-                                  "SEVERITY_DEBUG"
-                                ],
-                                "x-order": 5
-                              },
-                              "source": {
-                                "description": "TemplateSource defines template source.\n\n - BUILT_IN: Template that is shipped with PMM Server releases.\n - SAAS: Template that is downloaded from check.percona.com.\n - USER_FILE: Templated loaded from user-suplied file.\n - USER_API: Templated created via API.",
-                                "type": "string",
-                                "default": "TEMPLATE_SOURCE_INVALID",
-                                "enum": [
-                                  "TEMPLATE_SOURCE_INVALID",
-                                  "BUILT_IN",
-                                  "SAAS",
-                                  "USER_FILE",
-                                  "USER_API"
-                                ],
-                                "x-order": 8
-                              },
-                              "summary": {
-                                "description": "Short human-readable summary.",
-                                "type": "string",
-                                "x-order": 1
-                              },
-                              "yaml": {
-                                "description": "YAML (or JSON) template file content. Empty for built-in and SaaS templates.",
-                                "type": "string",
-                                "x-order": 10
-                              }
-                            },
-                            "x-order": 0
+                          "template_name": {
+                            "description": "Template used for this rule.",
+                            "type": "string",
+                            "x-order": 3
                           }
                         },
                         "x-order": 5
@@ -1656,7 +1625,7 @@
         "tags": [
           "Rules"
         ],
-        "summary": "CreateAlertRule creates Integrated Alerting rule.",
+        "summary": "CreateAlertRule creates Alerting rule.",
         "operationId": "CreateAlertRule",
         "parameters": [
           {
@@ -1685,7 +1654,7 @@
                 "disabled": {
                   "description": "New rule status.",
                   "type": "boolean",
-                  "x-order": 1
+                  "x-order": 2
                 },
                 "filters": {
                   "description": "Filters. Should be set.",
@@ -1722,11 +1691,16 @@
                   "type": "string",
                   "x-order": 4
                 },
+                "name": {
+                  "description": "Rule name.",
+                  "type": "string",
+                  "x-order": 1
+                },
                 "params": {
                   "description": "Rule parameters. All template parameters should be set.",
                   "type": "array",
                   "items": {
-                    "description": "RuleParam represents a single rule parameter for List, Change and Update APIs.",
+                    "description": "ParamValue represents a single rule parameter value for List, Change and Update APIs.",
                     "type": "object",
                     "properties": {
                       "bool": {
@@ -1737,7 +1711,7 @@
                       "float": {
                         "description": "Float value.",
                         "type": "number",
-                        "format": "float",
+                        "format": "double",
                         "x-order": 3
                       },
                       "name": {
@@ -1782,11 +1756,6 @@
                     "SEVERITY_DEBUG"
                   ],
                   "x-order": 5
-                },
-                "summary": {
-                  "description": "Rule human-readable summary.",
-                  "type": "string",
-                  "x-order": 2
                 },
                 "template_name": {
                   "description": "Template name.",
@@ -1858,7 +1827,7 @@
         "tags": [
           "Rules"
         ],
-        "summary": "DeleteAlertRule deletes Integrated Alerting rule.",
+        "summary": "DeleteAlertRule deletes Alerting rule.",
         "operationId": "DeleteAlertRule",
         "parameters": [
           {
@@ -1931,7 +1900,7 @@
         "tags": [
           "Rules"
         ],
-        "summary": "ListAlertRules returns a list of all Integrated Alerting rules.",
+        "summary": "ListAlertRules returns a list of all Alerting rules.",
         "operationId": "ListAlertRules",
         "parameters": [
           {
@@ -1976,6 +1945,14 @@
                     "description": "Rule represents Alert Rule.",
                     "type": "object",
                     "properties": {
+                      "annotations": {
+                        "description": "Annotations.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 15
+                      },
                       "channels": {
                         "description": "Channels.",
                         "type": "array",
@@ -2159,13 +2136,13 @@
                             }
                           }
                         },
-                        "x-order": 9
+                        "x-order": 17
                       },
                       "created_at": {
                         "description": "Rule creation time.",
                         "type": "string",
                         "format": "date-time",
-                        "x-order": 10
+                        "x-order": 18
                       },
                       "custom_labels": {
                         "description": "Custom labels.",
@@ -2173,17 +2150,44 @@
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 7
+                        "x-order": 13
+                      },
+                      "default_for": {
+                        "description": "Default for duration.",
+                        "type": "string",
+                        "x-order": 9
+                      },
+                      "default_severity": {
+                        "description": "Severity represents severity level of the check result or alert.",
+                        "type": "string",
+                        "default": "SEVERITY_INVALID",
+                        "enum": [
+                          "SEVERITY_INVALID",
+                          "SEVERITY_EMERGENCY",
+                          "SEVERITY_ALERT",
+                          "SEVERITY_CRITICAL",
+                          "SEVERITY_ERROR",
+                          "SEVERITY_WARNING",
+                          "SEVERITY_NOTICE",
+                          "SEVERITY_INFO",
+                          "SEVERITY_DEBUG"
+                        ],
+                        "x-order": 11
                       },
                       "disabled": {
                         "description": "True if that rule is disabled.",
                         "type": "boolean",
-                        "x-order": 2
+                        "x-order": 4
                       },
                       "expr": {
-                        "description": "Template expression with rule parameters.",
+                        "description": "Expression filled with parameters.",
                         "type": "string",
-                        "x-order": 11
+                        "x-order": 6
+                      },
+                      "expr_template": {
+                        "description": "Expression template.",
+                        "type": "string",
+                        "x-order": 5
                       },
                       "filters": {
                         "description": "Filters.",
@@ -2213,18 +2217,150 @@
                             }
                           }
                         },
-                        "x-order": 8
+                        "x-order": 16
                       },
                       "for": {
-                        "description": "Rule duration.",
+                        "description": "For duration.",
                         "type": "string",
-                        "x-order": 5
+                        "x-order": 10
                       },
-                      "params": {
-                        "description": "Rule parameters.",
+                      "labels": {
+                        "description": "Labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 14
+                      },
+                      "name": {
+                        "description": "Rule name.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "params_definitions": {
+                        "description": "Expression parameters definitions.",
                         "type": "array",
                         "items": {
-                          "description": "RuleParam represents a single rule parameter for List, Change and Update APIs.",
+                          "description": "ParamDefinition represents a single query parameter.",
+                          "type": "object",
+                          "properties": {
+                            "bool": {
+                              "description": "BoolParamDefinition represents boolean parameter's default value.",
+                              "type": "object",
+                              "properties": {
+                                "default": {
+                                  "description": "BooleanFlag represent a command to set some boolean property to true,\nto false, or avoid changing that property.\n\n - DO_NOT_CHANGE: Do not change boolean property. Default value.\n - TRUE: True.\n - FALSE: False.",
+                                  "type": "string",
+                                  "default": "DO_NOT_CHANGE",
+                                  "enum": [
+                                    "DO_NOT_CHANGE",
+                                    "TRUE",
+                                    "FALSE"
+                                  ],
+                                  "x-order": 0
+                                }
+                              },
+                              "x-order": 4
+                            },
+                            "float": {
+                              "description": "FloatParamDefinition represents float parameter's default value and valid range.",
+                              "type": "object",
+                              "properties": {
+                                "default": {
+                                  "description": "Default value if has_default is true.",
+                                  "type": "number",
+                                  "format": "double",
+                                  "x-order": 1
+                                },
+                                "has_default": {
+                                  "description": "True if default value is set.",
+                                  "type": "boolean",
+                                  "x-order": 0
+                                },
+                                "has_max": {
+                                  "description": "True if maximal valid value is set.",
+                                  "type": "boolean",
+                                  "x-order": 4
+                                },
+                                "has_min": {
+                                  "description": "True if minimal valid value is set.",
+                                  "type": "boolean",
+                                  "x-order": 2
+                                },
+                                "max": {
+                                  "description": "Maximal valid value (inclusive) if has_max is true.",
+                                  "type": "number",
+                                  "format": "double",
+                                  "x-order": 5
+                                },
+                                "min": {
+                                  "description": "Minimal valid value (inclusive) if has_min is true.",
+                                  "type": "number",
+                                  "format": "double",
+                                  "x-order": 3
+                                }
+                              },
+                              "x-order": 5
+                            },
+                            "name": {
+                              "description": "Machine-readable name (ID) that is used in expression.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "string": {
+                              "description": "StringParamDefinition represents string parameter's default value.",
+                              "type": "object",
+                              "properties": {
+                                "default": {
+                                  "description": "Default value if has_default is true.",
+                                  "type": "string",
+                                  "x-order": 1
+                                },
+                                "has_default": {
+                                  "description": "True if default value is set.",
+                                  "type": "boolean",
+                                  "x-order": 0
+                                }
+                              },
+                              "x-order": 6
+                            },
+                            "summary": {
+                              "description": "Short human-readable parameter summary.",
+                              "type": "string",
+                              "x-order": 1
+                            },
+                            "type": {
+                              "description": "ParamType represents template parameter type.",
+                              "type": "string",
+                              "default": "PARAM_TYPE_INVALID",
+                              "enum": [
+                                "PARAM_TYPE_INVALID",
+                                "BOOL",
+                                "FLOAT",
+                                "STRING"
+                              ],
+                              "x-order": 3
+                            },
+                            "unit": {
+                              "description": "ParamUnit represents template parameter unit.\n\n - PARAM_UNIT_INVALID: Invalid, unknown or absent.\n - PERCENTAGE: %\n - SECONDS: s",
+                              "type": "string",
+                              "default": "PARAM_UNIT_INVALID",
+                              "enum": [
+                                "PARAM_UNIT_INVALID",
+                                "PERCENTAGE",
+                                "SECONDS"
+                              ],
+                              "x-order": 2
+                            }
+                          }
+                        },
+                        "x-order": 7
+                      },
+                      "params_values": {
+                        "description": "Expression parameters values.",
+                        "type": "array",
+                        "items": {
+                          "description": "ParamValue represents a single rule parameter value for List, Change and Update APIs.",
                           "type": "object",
                           "properties": {
                             "bool": {
@@ -2235,7 +2371,7 @@
                             "float": {
                               "description": "Float value.",
                               "type": "number",
-                              "format": "float",
+                              "format": "double",
                               "x-order": 3
                             },
                             "name": {
@@ -2262,12 +2398,12 @@
                             }
                           }
                         },
-                        "x-order": 4
+                        "x-order": 8
                       },
                       "rule_id": {
                         "description": "Rule ID.",
                         "type": "string",
-                        "x-order": 1
+                        "x-order": 0
                       },
                       "severity": {
                         "description": "Severity represents severity level of the check result or alert.",
@@ -2284,215 +2420,17 @@
                           "SEVERITY_INFO",
                           "SEVERITY_DEBUG"
                         ],
-                        "x-order": 6
+                        "x-order": 12
                       },
                       "summary": {
                         "description": "Rule human-readable summary.",
                         "type": "string",
-                        "x-order": 3
+                        "x-order": 2
                       },
-                      "template": {
-                        "description": "Template represents Alert Template that is used to create Alert Rule.",
-                        "type": "object",
-                        "properties": {
-                          "annotations": {
-                            "description": "Annotations.",
-                            "type": "object",
-                            "additionalProperties": {
-                              "type": "string"
-                            },
-                            "x-order": 7
-                          },
-                          "created_at": {
-                            "description": "Template creation time. Empty for built-in and SaaS templates.",
-                            "type": "string",
-                            "format": "date-time",
-                            "x-order": 9
-                          },
-                          "expr": {
-                            "description": "PromQL query expression with templating parameters.",
-                            "type": "string",
-                            "x-order": 2
-                          },
-                          "for": {
-                            "description": "Default duration value.",
-                            "type": "string",
-                            "x-order": 4
-                          },
-                          "labels": {
-                            "description": "Labels.",
-                            "type": "object",
-                            "additionalProperties": {
-                              "type": "string"
-                            },
-                            "x-order": 6
-                          },
-                          "name": {
-                            "description": "Machine-readable name (ID).",
-                            "type": "string",
-                            "x-order": 0
-                          },
-                          "params": {
-                            "description": "Query templating parameters.",
-                            "type": "array",
-                            "items": {
-                              "description": "TemplateParam represents a single template parameter.",
-                              "type": "object",
-                              "properties": {
-                                "bool": {
-                                  "description": "TemplateBoolParam represents boolean parameter's default value.",
-                                  "type": "object",
-                                  "properties": {
-                                    "default": {
-                                      "description": "BooleanFlag represent a command to set some boolean property to true,\nto false, or avoid changing that property.\n\n - DO_NOT_CHANGE: Do not change boolean property. Default value.\n - TRUE: True.\n - FALSE: False.",
-                                      "type": "string",
-                                      "default": "DO_NOT_CHANGE",
-                                      "enum": [
-                                        "DO_NOT_CHANGE",
-                                        "TRUE",
-                                        "FALSE"
-                                      ],
-                                      "x-order": 0
-                                    }
-                                  },
-                                  "x-order": 4
-                                },
-                                "float": {
-                                  "description": "TemplateFloatParam represents float parameter's default value and valid range.",
-                                  "type": "object",
-                                  "properties": {
-                                    "default": {
-                                      "description": "Default value if has_default is true.",
-                                      "type": "number",
-                                      "format": "float",
-                                      "x-order": 1
-                                    },
-                                    "has_default": {
-                                      "description": "True if default value is set.",
-                                      "type": "boolean",
-                                      "x-order": 0
-                                    },
-                                    "has_max": {
-                                      "description": "True if maximal valid value is set.",
-                                      "type": "boolean",
-                                      "x-order": 4
-                                    },
-                                    "has_min": {
-                                      "description": "True if minimal valid value is set.",
-                                      "type": "boolean",
-                                      "x-order": 2
-                                    },
-                                    "max": {
-                                      "description": "Maximal valid value (inclusive) if has_max is true.",
-                                      "type": "number",
-                                      "format": "float",
-                                      "x-order": 5
-                                    },
-                                    "min": {
-                                      "description": "Minimal valid value (inclusive) if has_min is true.",
-                                      "type": "number",
-                                      "format": "float",
-                                      "x-order": 3
-                                    }
-                                  },
-                                  "x-order": 5
-                                },
-                                "name": {
-                                  "description": "Machine-readable name (ID) that is used in expression.",
-                                  "type": "string",
-                                  "x-order": 0
-                                },
-                                "string": {
-                                  "description": "TemplateStringParam represents string parameter's default value.",
-                                  "type": "object",
-                                  "properties": {
-                                    "default": {
-                                      "description": "Default value if has_default is true.",
-                                      "type": "string",
-                                      "x-order": 1
-                                    },
-                                    "has_default": {
-                                      "description": "True if default value is set.",
-                                      "type": "boolean",
-                                      "x-order": 0
-                                    }
-                                  },
-                                  "x-order": 6
-                                },
-                                "summary": {
-                                  "description": "Short human-readable parameter summary.",
-                                  "type": "string",
-                                  "x-order": 1
-                                },
-                                "type": {
-                                  "description": "ParamType represents template parameter type.",
-                                  "type": "string",
-                                  "default": "PARAM_TYPE_INVALID",
-                                  "enum": [
-                                    "PARAM_TYPE_INVALID",
-                                    "BOOL",
-                                    "FLOAT",
-                                    "STRING"
-                                  ],
-                                  "x-order": 3
-                                },
-                                "unit": {
-                                  "description": "ParamUnit represents template parameter unit.\n\n - PARAM_UNIT_INVALID: Invalid, unknown or absent.\n - PERCENTAGE: %\n - SECONDS: s",
-                                  "type": "string",
-                                  "default": "PARAM_UNIT_INVALID",
-                                  "enum": [
-                                    "PARAM_UNIT_INVALID",
-                                    "PERCENTAGE",
-                                    "SECONDS"
-                                  ],
-                                  "x-order": 2
-                                }
-                              }
-                            },
-                            "x-order": 3
-                          },
-                          "severity": {
-                            "description": "Severity represents severity level of the check result or alert.",
-                            "type": "string",
-                            "default": "SEVERITY_INVALID",
-                            "enum": [
-                              "SEVERITY_INVALID",
-                              "SEVERITY_EMERGENCY",
-                              "SEVERITY_ALERT",
-                              "SEVERITY_CRITICAL",
-                              "SEVERITY_ERROR",
-                              "SEVERITY_WARNING",
-                              "SEVERITY_NOTICE",
-                              "SEVERITY_INFO",
-                              "SEVERITY_DEBUG"
-                            ],
-                            "x-order": 5
-                          },
-                          "source": {
-                            "description": "TemplateSource defines template source.\n\n - BUILT_IN: Template that is shipped with PMM Server releases.\n - SAAS: Template that is downloaded from check.percona.com.\n - USER_FILE: Templated loaded from user-suplied file.\n - USER_API: Templated created via API.",
-                            "type": "string",
-                            "default": "TEMPLATE_SOURCE_INVALID",
-                            "enum": [
-                              "TEMPLATE_SOURCE_INVALID",
-                              "BUILT_IN",
-                              "SAAS",
-                              "USER_FILE",
-                              "USER_API"
-                            ],
-                            "x-order": 8
-                          },
-                          "summary": {
-                            "description": "Short human-readable summary.",
-                            "type": "string",
-                            "x-order": 1
-                          },
-                          "yaml": {
-                            "description": "YAML (or JSON) template file content. Empty for built-in and SaaS templates.",
-                            "type": "string",
-                            "x-order": 10
-                          }
-                        },
-                        "x-order": 0
+                      "template_name": {
+                        "description": "Template used for this rule.",
+                        "type": "string",
+                        "x-order": 3
                       }
                     }
                   },
@@ -2651,7 +2589,7 @@
         "tags": [
           "Rules"
         ],
-        "summary": "UpdateAlertRule updates Integrated Alerting rule.",
+        "summary": "UpdateAlertRule updates Alerting rule.",
         "operationId": "UpdateAlertRule",
         "parameters": [
           {
@@ -2667,7 +2605,7 @@
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 7
+                  "x-order": 8
                 },
                 "custom_labels": {
                   "description": "All custom labels to add or remove (with empty values) to default labels from template.",
@@ -2675,12 +2613,12 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 5
+                  "x-order": 6
                 },
                 "disabled": {
                   "description": "New rule status. Should be set.",
                   "type": "boolean",
-                  "x-order": 1
+                  "x-order": 2
                 },
                 "filters": {
                   "description": "Filters. Should be set.",
@@ -2710,18 +2648,23 @@
                       }
                     }
                   },
-                  "x-order": 6
+                  "x-order": 7
                 },
                 "for": {
                   "description": "Rule duration. Should be set.",
                   "type": "string",
-                  "x-order": 3
+                  "x-order": 4
+                },
+                "name": {
+                  "description": "Rule name. Should be set.",
+                  "type": "string",
+                  "x-order": 1
                 },
                 "params": {
                   "description": "Rule parameters. All template parameters should be set.",
                   "type": "array",
                   "items": {
-                    "description": "RuleParam represents a single rule parameter for List, Change and Update APIs.",
+                    "description": "ParamValue represents a single rule parameter value for List, Change and Update APIs.",
                     "type": "object",
                     "properties": {
                       "bool": {
@@ -2732,7 +2675,7 @@
                       "float": {
                         "description": "Float value.",
                         "type": "number",
-                        "format": "float",
+                        "format": "double",
                         "x-order": 3
                       },
                       "name": {
@@ -2759,7 +2702,7 @@
                       }
                     }
                   },
-                  "x-order": 2
+                  "x-order": 3
                 },
                 "rule_id": {
                   "description": "Rule ID.",
@@ -2781,12 +2724,7 @@
                     "SEVERITY_INFO",
                     "SEVERITY_DEBUG"
                   ],
-                  "x-order": 4
-                },
-                "summary": {
-                  "description": "Rule human-readable summary. Should be set.",
-                  "type": "string",
-                  "x-order": 8
+                  "x-order": 5
                 }
               }
             }
@@ -3079,14 +3017,14 @@
                         "x-order": 0
                       },
                       "params": {
-                        "description": "Query templating parameters.",
+                        "description": "Query parameters definitions.",
                         "type": "array",
                         "items": {
-                          "description": "TemplateParam represents a single template parameter.",
+                          "description": "ParamDefinition represents a single query parameter.",
                           "type": "object",
                           "properties": {
                             "bool": {
-                              "description": "TemplateBoolParam represents boolean parameter's default value.",
+                              "description": "BoolParamDefinition represents boolean parameter's default value.",
                               "type": "object",
                               "properties": {
                                 "default": {
@@ -3104,13 +3042,13 @@
                               "x-order": 4
                             },
                             "float": {
-                              "description": "TemplateFloatParam represents float parameter's default value and valid range.",
+                              "description": "FloatParamDefinition represents float parameter's default value and valid range.",
                               "type": "object",
                               "properties": {
                                 "default": {
                                   "description": "Default value if has_default is true.",
                                   "type": "number",
-                                  "format": "float",
+                                  "format": "double",
                                   "x-order": 1
                                 },
                                 "has_default": {
@@ -3131,13 +3069,13 @@
                                 "max": {
                                   "description": "Maximal valid value (inclusive) if has_max is true.",
                                   "type": "number",
-                                  "format": "float",
+                                  "format": "double",
                                   "x-order": 5
                                 },
                                 "min": {
                                   "description": "Minimal valid value (inclusive) if has_min is true.",
                                   "type": "number",
-                                  "format": "float",
+                                  "format": "double",
                                   "x-order": 3
                                 }
                               },
@@ -3149,7 +3087,7 @@
                               "x-order": 0
                             },
                             "string": {
-                              "description": "TemplateStringParam represents string parameter's default value.",
+                              "description": "StringParamDefinition represents string parameter's default value.",
                               "type": "object",
                               "properties": {
                                 "default": {

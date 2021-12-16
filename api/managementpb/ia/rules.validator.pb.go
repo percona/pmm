@@ -23,23 +23,30 @@ var _ = math.Inf
 func (this *Filter) Validate() error {
 	return nil
 }
-func (this *RuleParam) Validate() error {
+func (this *ParamValue) Validate() error {
 	if this.Name == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
 	}
 	return nil
 }
 func (this *Rule) Validate() error {
-	if this.Template != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Template); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Template", err)
-		}
-	}
-	for _, item := range this.Params {
+	for _, item := range this.ParamsDefinitions {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("Params", err)
+				return github_com_mwitkow_go_proto_validators.FieldError("ParamsDefinitions", err)
 			}
+		}
+	}
+	for _, item := range this.ParamsValues {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("ParamsValues", err)
+			}
+		}
+	}
+	if this.DefaultFor != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.DefaultFor); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("DefaultFor", err)
 		}
 	}
 	if this.For != nil {
@@ -47,6 +54,8 @@ func (this *Rule) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("For", err)
 		}
 	}
+	// Validation of proto3 map<> fields is unsupported.
+	// Validation of proto3 map<> fields is unsupported.
 	// Validation of proto3 map<> fields is unsupported.
 	for _, item := range this.Filters {
 		if item != nil {
