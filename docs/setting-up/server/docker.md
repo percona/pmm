@@ -57,7 +57,7 @@ How to run PMM Server with Docker based on our [Docker image].
     percona/pmm-server:2
     ```
 
-4. In a web browser, visit `https://localhost:443` (or `http://localhost:80` if enabled) to see the PMM user interface. (If you are accessing the docker host remotely, replace `localhost` with the IP or server name of the host.)
+4. In a web browser, visit `https://localhost:443` to see the PMM user interface. (If you are accessing the docker host remotely, replace `localhost` with the IP or server name of the host.)
 
 ## Backup
 
@@ -282,7 +282,7 @@ These variables will be ignored by `pmm-managed` when starting the server. If an
 
 - Eliminate browser certificate warnings by configuring a [trusted certificate].
 
-- Optionally enable an (insecure) HTTP connection by adding `--publish 80:80` to the `docker run` command. However note that PMM Client *requires* TLS to communicate with the server so will only work on the secure port.
+- You can optionally enable an (insecure) HTTP connection by adding `--publish 80:80` to the `docker run` command. However, running PMM insecure is not recommended. You should also note that PMM Client *requires* TLS to communicate with the server, only working on a secure port.
 
 ### Isolated hosts
 
