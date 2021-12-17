@@ -123,6 +123,12 @@ type RegisterKubernetesClusterBody struct {
 	// Kubernetes cluster name.
 	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
 
+	// AWS access key id, only needed when registering EKS cluster and kubeconfig does not contain it.
+	AWSAccessKeyID string `json:"aws_access_key_id,omitempty"`
+
+	// AWS secret access key, only needed when registering EKS cluster and kubeconfig does not contain it.
+	AWSSecretAccessKey string `json:"aws_secret_access_key,omitempty"`
+
 	// kube auth
 	KubeAuth *RegisterKubernetesClusterParamsBodyKubeAuth `json:"kube_auth,omitempty"`
 }
