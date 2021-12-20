@@ -2,7 +2,7 @@
 
 ## Required settings
 
-It is possible to use PMM for monitoring [Amazon RDS](https://aws.amazon.com/rds/) (just like any remote MySQL instance). In this case, the PMM Client is not installed on the host where the database server is deployed. By using the PMM web interface, you connect to the Amazon RDS DB instance. You only need to provide the IAM user access key (or assign an IAM role) and PMM discovers the Amazon RDS DB instances available for monitoring.
+It is possible to use PMM for monitoring [Amazon RDS](https://aws.amazon.com/rds/). In this case, the PMM Client is not installed on the host where the database server is deployed. By using the PMM web interface, you connect to the Amazon RDS DB instance. You only need to provide the IAM user access key (or assign an IAM role) and PMM discovers the Amazon RDS DB instances available for monitoring.
 
 First of all, ensure that there is the minimal latency between PMM Server and the Amazon RDS instance.
 
@@ -132,7 +132,7 @@ Query Analytics requires Configuring Performance Schema as the query source, bec
 !!! caution alert alert-warning "Important"
     Enabling Performance Schema on T2 instances is not recommended because it can easily run the T2 instance out of memory.
 
-When adding a monitoring instance for Amazon RDS, specify a unique name to distinguish it from the local MySQL instance.  If you do not specify a name, it will use the client’s host name.
+When adding a monitoring instance for Amazon RDS, specify a unique name to distinguish it from the local instance.  If you do not specify a name, it will use the client’s host name.
 
 Create the `pmm` user with the following privileges on the Amazon RDS instance that you want to monitor:
 
@@ -143,14 +143,8 @@ ALTER USER 'pmm'@'%' WITH MAX_USER_CONNECTIONS 10;
 GRANT SELECT, UPDATE, DELETE, DROP ON performance_schema.* TO 'pmm'@'%';
 ```
 
-If you have Amazon RDS with a MySQL version prior to 5.5, `REPLICATION CLIENT` privilege is not available there and has to be excluded from the above statement.
 
-!!! note alert alert-primary ""
-    General system metrics are monitored by using the `rds_exporter` exporter which replaces `node_exporter`. `rds_exporter` gives access to Amazon CloudWatch metrics.
-
-    `node_exporter`, used in versions of PMM prior to 1.8.0, was not able to monitor general system metrics remotely.
-
-## Adding an Amazon RDS MySQL, Aurora MySQL or Remote Instance
+## Adding an Amazon RDS, Aurora or Remote Instance
 
 The preferred method of adding an Amazon RDS database instance to PMM is via the  <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *PMM Inventory* → {{icon.addinstance}} *Add Instance* menu option.
 
@@ -160,7 +154,7 @@ The following steps are needed to add an Amazon RDS database instance to PMM:
 
 1. In the PMM web interface, go to <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *PMM Inventory* → {{icon.addinstance}} *Add Instance*.
 
-2. Select *AWS RDS MySQL or Aurora MySQL -- Add a remote instance*.
+2. Select *Amazon RDS -- Add a remote instance*.
 
     ![!image](../../_images/PMM_Add_Instance_AWS_RDS.png)
 
@@ -203,7 +197,7 @@ For PostgreSQL, use the same method described above.
 
 1. In the PMM web interface, go to <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *PMM Inventory* → {{icon.addinstance}} *Add Instance*..
 
-2. Select *AWS RDS MySQL or Aurora MySQL -- Add a remote instance*.
+2. Select *Amazon RDS -- Add a remote instance*.
 
     !!! note alert alert-primary ""
         At the moment of writing this guide, the Add button doesn't mention PostgreSQL but the discovery function already supports it.
