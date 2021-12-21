@@ -123,15 +123,23 @@ How to run PMM Server with Docker based on our [Docker image].
 
     (If you are accessing the docker host remotely, replace `localhost` with the IP or server name of the host.)
 
-1. Perform a [backup](#backup).
 
-2. Pull the latest image.
+1. Stop the container.
+
+    ```sh
+    docker stop pmm-server
+    ```
+
+2. Perform a [backup](#backup).
+
+
+3. Pull the latest image.
 
     ```sh
     docker pull percona/pmm-server:2
     ```
 
-3. Run it.
+4. Run it.
 
     ```sh
     docker run \
@@ -143,7 +151,7 @@ How to run PMM Server with Docker based on our [Docker image].
     percona/pmm-server:2
     ```
 
-4. Perform a [restore](#restore)
+5. Perform a [restore](#restore).
 
 ## Restore
 
