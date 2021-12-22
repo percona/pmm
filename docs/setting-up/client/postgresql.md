@@ -166,6 +166,13 @@ You can now [add the service](#add-service).
     shared_preload_libraries = 'pg_stat_monitor'
     ```
 
+    !!! caution alert alert-warning
+        If you use both `pg_stat_statements` and `pg_stat_monitor`, set ``pg_stat_monitor`` **after** `pg_stat_statements`:
+
+        ```ini
+        shared_preload_libraries = 'pg_stat_statements, pg_stat_monitor'
+        ```
+
 2. Set configuration values.
 
     In your `postgresql.conf` file:
