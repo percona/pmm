@@ -2404,6 +2404,11 @@
                   },
                   "x-order": 22
                 },
+                "enable_all_collectors": {
+                  "type": "boolean",
+                  "title": "Enable all collectors",
+                  "x-order": 28
+                },
                 "environment": {
                   "description": "Environment name.",
                   "type": "string",

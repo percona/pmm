@@ -215,6 +215,9 @@ type AddMongoDBBody struct {
 	// is less than this value. 0: no limit
 	CollectionsLimit int32 `json:"collections_limit,omitempty"`
 
+	// Enable all collectors
+	EnableAllCollectors bool `json:"enable_all_collectors,omitempty"`
+
 	// add node
 	AddNode *AddMongoDBParamsBodyAddNode `json:"add_node,omitempty"`
 }
