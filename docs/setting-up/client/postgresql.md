@@ -130,13 +130,18 @@ Here are the benefits and drawbacks of each.
     track_io_timing = on             # Capture read/write stats
     ```
 
-2. Restart the database server.
+2. Restart the database server. After the restart, the extension starts capturing statistics from every database.
 
-3. Install the extension.
+3. Install the extension. 
 
     ```sh
     psql postgres postgres -c "CREATE EXTENSION pg_stat_statements SCHEMA public"
     ```
+    
+    This command creates the view where you can access the collected statistics.
+
+!!! note alert alert-primary ""
+    We recommend that you create the extension for the `postgres` database. In this case, you receive access to the statistics collected from every database.    
 
 You can now [add the service](#add-service).
 
@@ -188,13 +193,19 @@ You can now [add the service](#add-service).
     !!! note alert alert-primary ""
         See [`pg_stat_monitor` GitHub repository](https://github.com/percona/pg_stat_monitor/blob/master/docs/USER_GUIDE.md#configuration) for details about available parameters.
 
-3. Start or restart your PostgreSQL instance.
+3. Start or restart your PostgreSQL instance. The extension starts capturing statistics from every database.
 
 4. In a `psql` session:
 
     ```sql
     CREATE EXTENSION pg_stat_monitor;
     ```
+    
+    This command creates the view where you can access the collected statistics.
+
+    !!! note alert alert-primary ""
+        We recommend that you create the extension for the `postgres` database. In this case, you receive the access to the statistics, collected from every database.
+
 
 5. Check the version.
 
