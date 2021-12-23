@@ -1884,6 +1884,20 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "stats_collections": {
+                      "type": "array",
+                      "title": "List of colletions to get stats from. Can use *",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 12
+                    },
+                    "collections_limit": {
+                      "type": "integer",
+                      "format": "int32",
+                      "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                      "x-order": 13
                     }
                   },
                   "x-order": 0
@@ -4669,6 +4683,20 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "stats_collections": {
+                      "type": "array",
+                      "title": "List of colletions to get stats from. Can use *",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 12
+                    },
+                    "collections_limit": {
+                      "type": "integer",
+                      "format": "int32",
+                      "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                      "x-order": 13
                     }
                   },
                   "x-order": 0
@@ -6998,6 +7026,20 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "stats_collections": {
+                      "type": "array",
+                      "title": "List of colletions to get stats from. Can use *",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 12
+                    },
+                    "collections_limit": {
+                      "type": "integer",
+                      "format": "int32",
+                      "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                      "x-order": 13
                     }
                   },
                   "x-order": 4
@@ -8193,6 +8235,20 @@
                         "type": "integer",
                         "format": "int64",
                         "x-order": 11
+                      },
+                      "stats_collections": {
+                        "type": "array",
+                        "title": "List of colletions to get stats from. Can use *",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 12
+                      },
+                      "collections_limit": {
+                        "type": "integer",
+                        "format": "int32",
+                        "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                        "x-order": 13
                       }
                     }
                   },
@@ -15279,6 +15335,20 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "stats_collections": {
+                      "type": "array",
+                      "title": "List of colletions to get stats from. Can use *",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 12
+                    },
+                    "collections_limit": {
+                      "type": "integer",
+                      "format": "int32",
+                      "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                      "x-order": 13
                     }
                   },
                   "x-order": 1

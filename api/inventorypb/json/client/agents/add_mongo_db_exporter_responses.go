@@ -387,6 +387,13 @@ type AddMongoDBExporterOKBodyMongodbExporter struct {
 
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// List of colletions to get stats from. Can use *
+	StatsCollections []string `json:"stats_collections"`
+
+	// Collections limit. Only get Databases and collection stats if the total number of collections in the server
+	// is less than this value. 0: no limit
+	CollectionsLimit int32 `json:"collections_limit,omitempty"`
 }
 
 // Validate validates this add mongo DB exporter OK body mongodb exporter
