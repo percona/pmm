@@ -29,6 +29,8 @@ type ClientService interface {
 
 	Disconnect(params *DisconnectParams) (*DisconnectOK, error)
 
+	SearchOrganizationTickets(params *SearchOrganizationTicketsParams) (*SearchOrganizationTicketsOK, error)
+
 	SetTransport(transport runtime.ClientTransport)
 }
 
@@ -95,6 +97,39 @@ func (a *Client) Disconnect(params *DisconnectParams) (*DisconnectOK, error) {
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*DisconnectDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  SearchOrganizationTickets searches organization tickets searches support tickets belonging to the percona portal organization that the PMM server is connected to
+*/
+func (a *Client) SearchOrganizationTickets(params *SearchOrganizationTicketsParams) (*SearchOrganizationTicketsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewSearchOrganizationTicketsParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "SearchOrganizationTickets",
+		Method:             "POST",
+		PathPattern:        "/v1/Platform/SearchOrganizationTickets",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &SearchOrganizationTicketsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*SearchOrganizationTicketsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*SearchOrganizationTicketsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

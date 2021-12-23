@@ -6,6 +6,7 @@ option go_package = "api/platformpb;platformpb";
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
 
 message ConnectRequest {
   // User defined human readable PMM Server Name.
@@ -34,6 +35,35 @@ message DisconnectRequest {}
 
 message DisconnectResponse {}
 
+message SearchOrganizationTicketsRequest {}
+
+message SearchOrganizationTicketsResponse {
+  // Support tickets belonging to the Percona Portal Organization.
+  repeated OrganizationTicket tickets = 1;
+}
+
+// OrganizationTicket contains information about the support ticket.
+message OrganizationTicket {
+  // Ticket number.
+  string number = 1;
+  // Ticket short description.
+  string short_description = 2;
+  // Ticket priority.
+  string priority = 3;
+  // Ticket state.
+  string state = 4;
+  // Ticket creation time.
+  google.protobuf.Timestamp create_time = 5;
+  // Department.
+  string department = 6;
+  // Ticket requester.
+  string requester = 7;
+  // Task type.
+  string task_type = 8;
+  // Ticket url.
+  string url = 9;
+}
+
 // Platform contains rpcs related to Percona Platform.
 service Platform {
   // Connect connects a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.
@@ -47,6 +77,13 @@ service Platform {
   rpc Disconnect(DisconnectRequest) returns (DisconnectResponse) {
     option (google.api.http) = {
       post: "/v1/Platform/Disconnect"
+      body: "*"
+    };
+  }
+  // SearchOrganizationTickets searches support tickets belonging to the Percona Portal Organization that the PMM server is connected to.
+  rpc SearchOrganizationTickets(SearchOrganizationTicketsRequest) returns (SearchOrganizationTicketsResponse) {
+    option (google.api.http) = {
+      post: "/v1/Platform/SearchOrganizationTickets"
       body: "*"
     };
   }

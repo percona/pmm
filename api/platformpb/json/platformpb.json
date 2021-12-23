@@ -163,6 +163,131 @@
           }
         }
       }
+    },
+    "/v1/Platform/SearchOrganizationTickets": {
+      "post": {
+        "tags": [
+          "Platform"
+        ],
+        "summary": "SearchOrganizationTickets searches support tickets belonging to the Percona Portal Organization that the PMM server is connected to.",
+        "operationId": "SearchOrganizationTickets",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "tickets": {
+                  "description": "Support tickets belonging to the Percona Portal Organization.",
+                  "type": "array",
+                  "items": {
+                    "description": "OrganizationTicket contains information about the support ticket.",
+                    "type": "object",
+                    "properties": {
+                      "create_time": {
+                        "description": "Ticket creation time.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 4
+                      },
+                      "department": {
+                        "description": "Department.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "number": {
+                        "description": "Ticket number.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "priority": {
+                        "description": "Ticket priority.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "requester": {
+                        "description": "Ticket requester.",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "short_description": {
+                        "description": "Ticket short description.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "state": {
+                        "description": "Ticket state.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "task_type": {
+                        "description": "Task type.",
+                        "type": "string",
+                        "x-order": 7
+                      },
+                      "url": {
+                        "description": "Ticket url.",
+                        "type": "string",
+                        "x-order": 8
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }
