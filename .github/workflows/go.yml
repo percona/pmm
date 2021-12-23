@@ -125,9 +125,9 @@ jobs:
           # - MYSQL_IMAGE=mariadb:10.0
           # - MYSQL_IMAGE=mariadb:10.1
 
-          - { mysql: 'mariadb:10.2', mongo: 'mongo:3.4',                          postgres: 'postgres:9.4', pmm_server: 'public.ecr.aws/e7j3v3n0/pmm-server:dev-latest' }
-          - { mysql: 'mariadb:10.3', mongo: 'percona/percona-server-mongodb:3.4', postgres: 'postgres:9.5', pmm_server: 'public.ecr.aws/e7j3v3n0/pmm-server:dev-latest' }
-          - { mysql: 'mariadb:10.4',                                              postgres: 'postgres:9.6', pmm_server: 'public.ecr.aws/e7j3v3n0/pmm-server:dev-latest' }
+          - { mysql: 'mariadb:10.2', mongo: 'mongo:3.4',                          postgres: 'postgres:9.4', pmm_server: 'perconalab/pmm-server:dev-latest' }
+          - { mysql: 'mariadb:10.3', mongo: 'percona/percona-server-mongodb:3.4', postgres: 'postgres:9.5', pmm_server: 'perconalab/pmm-server:dev-latest' }
+          - { mysql: 'mariadb:10.4',                                              postgres: 'postgres:9.6', pmm_server: 'perconalab/pmm-server:dev-latest' }
 
     continue-on-error: ${{ matrix.go.may-fail }}
 
