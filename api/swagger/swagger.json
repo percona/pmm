@@ -1898,6 +1898,11 @@
                       "format": "int32",
                       "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
                       "x-order": 13
+                    },
+                    "enable_all_collectors": {
+                      "description": "Enable All collectors.",
+                      "type": "boolean",
+                      "x-order": 14
                     }
                   },
                   "x-order": 0
@@ -4697,6 +4702,11 @@
                       "format": "int32",
                       "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
                       "x-order": 13
+                    },
+                    "enable_all_collectors": {
+                      "description": "Enable All collectors.",
+                      "type": "boolean",
+                      "x-order": 14
                     }
                   },
                   "x-order": 0
@@ -7040,6 +7050,11 @@
                       "format": "int32",
                       "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
                       "x-order": 13
+                    },
+                    "enable_all_collectors": {
+                      "description": "Enable All collectors.",
+                      "type": "boolean",
+                      "x-order": 14
                     }
                   },
                   "x-order": 4
@@ -8249,6 +8264,11 @@
                         "format": "int32",
                         "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
                         "x-order": 13
+                      },
+                      "enable_all_collectors": {
+                        "description": "Enable All collectors.",
+                        "type": "boolean",
+                        "x-order": 14
                       }
                     }
                   },
@@ -15349,6 +15369,11 @@
                       "format": "int32",
                       "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
                       "x-order": 13
+                    },
+                    "enable_all_collectors": {
+                      "description": "Enable All collectors.",
+                      "type": "boolean",
+                      "x-order": 14
                     }
                   },
                   "x-order": 1

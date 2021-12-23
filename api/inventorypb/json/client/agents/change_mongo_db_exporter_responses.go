@@ -370,6 +370,9 @@ type ChangeMongoDBExporterOKBodyMongodbExporter struct {
 	// Collections limit. Only get Databases and collection stats if the total number of collections in the server
 	// is less than this value. 0: no limit
 	CollectionsLimit int32 `json:"collections_limit,omitempty"`
+
+	// Enable All collectors.
+	EnableAllCollectors bool `json:"enable_all_collectors,omitempty"`
 }
 
 // Validate validates this change mongo DB exporter OK body mongodb exporter

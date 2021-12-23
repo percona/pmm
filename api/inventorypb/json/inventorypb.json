@@ -555,6 +555,11 @@
                       },
                       "x-order": 9
                     },
+                    "enable_all_collectors": {
+                      "description": "Enable All collectors.",
+                      "type": "boolean",
+                      "x-order": 14
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
@@ -3354,6 +3359,11 @@
                       },
                       "x-order": 9
                     },
+                    "enable_all_collectors": {
+                      "description": "Enable All collectors.",
+                      "type": "boolean",
+                      "x-order": 14
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
@@ -5593,6 +5603,11 @@
                       },
                       "x-order": 9
                     },
+                    "enable_all_collectors": {
+                      "description": "Enable All collectors.",
+                      "type": "boolean",
+                      "x-order": 14
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
@@ -6795,6 +6810,11 @@
                           "type": "string"
                         },
                         "x-order": 9
+                      },
+                      "enable_all_collectors": {
+                        "description": "Enable All collectors.",
+                        "type": "boolean",
+                        "x-order": 14
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
