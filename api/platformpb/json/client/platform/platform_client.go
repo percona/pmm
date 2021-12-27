@@ -33,7 +33,7 @@ type ClientService interface {
 }
 
 /*
-  Connect connects connects a PMM server to the organization created on percona portal that allows the user to sign in to the PMM server with their percona account
+  Connect connects a PMM server to the organization created on percona portal that allows the user to sign in to the PMM server with their percona account
 */
 func (a *Client) Connect(params *ConnectParams) (*ConnectOK, error) {
 	// TODO: Validate the params before sending
@@ -66,7 +66,7 @@ func (a *Client) Connect(params *ConnectParams) (*ConnectOK, error) {
 }
 
 /*
-  Disconnect disconnects disconnects a PMM server from the organization created on percona portal
+  Disconnect disconnects a PMM server from the organization created on percona portal
 */
 func (a *Client) Disconnect(params *DisconnectParams) (*DisconnectOK, error) {
 	// TODO: Validate the params before sending

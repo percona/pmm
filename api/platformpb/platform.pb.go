@@ -370,9 +370,9 @@ const _ = grpc.SupportPackageIsVersion6
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type PlatformClient interface {
-	// Connect connects a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.
+	// Connect a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.
 	Connect(ctx context.Context, in *ConnectRequest, opts ...grpc.CallOption) (*ConnectResponse, error)
-	// Disconnect disconnects a PMM server from the organization created on Percona Portal.
+	// Disconnect a PMM server from the organization created on Percona Portal.
 	Disconnect(ctx context.Context, in *DisconnectRequest, opts ...grpc.CallOption) (*DisconnectResponse, error)
 }
 
@@ -404,9 +404,9 @@ func (c *platformClient) Disconnect(ctx context.Context, in *DisconnectRequest, 
 
 // PlatformServer is the server API for Platform service.
 type PlatformServer interface {
-	// Connect connects a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.
+	// Connect a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.
 	Connect(context.Context, *ConnectRequest) (*ConnectResponse, error)
-	// Disconnect disconnects a PMM server from the organization created on Percona Portal.
+	// Disconnect a PMM server from the organization created on Percona Portal.
 	Disconnect(context.Context, *DisconnectRequest) (*DisconnectResponse, error)
 }
 
