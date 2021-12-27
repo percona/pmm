@@ -11,7 +11,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: readmeio/github-readme-sync@v2
         with:
-          readme-oas-key: 1w7sYrGIiKAhnL7ooSflRd8aEAvo5Ndq:61c9b2bc269d43e375e1f37f
+          readme-oas-key: ${{ secrets.README_TOKEN }}
 
           # OPTIONAL CONFIG, use if necessary
           oas-file-path: './api/swagger/swagger.json'
@@ -21,4 +21,4 @@ jobs:
         with:
           node-version: '14'
       - run: npm install -g rdme
-      - run: rdme docs markdowns --version=v1.0.0 --key=1w7sYrGIiKAhnL7ooSflRd8aEAvo5Ndq:61c9b2bc269d43e375e1f37f
+      - run: rdme docs markdowns --version=v1.0.0 --key=${{ secrets.README_TOKEN }}
