@@ -16,3 +16,9 @@ jobs:
           # OPTIONAL CONFIG, use if necessary
           oas-file-path: './api/swagger/swagger.json'
           api-version: 'v1.0.0'
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - run: npm install -g rdme
+      - run: rdme docs markdowns --version=v1.0.0 --key=1w7sYrGIiKAhnL7ooSflRd8aEAvo5Ndq:61c9b2bc269d43e375e1f37f
