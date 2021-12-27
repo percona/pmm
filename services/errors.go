@@ -25,3 +25,6 @@ var ErrSTTDisabled = errors.New("STT is disabled")
 
 // ErrAlertingDisabled means Integrated Alerting is disabled and IA APIs can't be executed.
 var ErrAlertingDisabled = errors.New("Alerting is disabled")
+
+// ErrFailedToGetToken means it failed to get user's token. Most likely due to the fact user is not logged in using Percona Account.
+var ErrFailedToGetToken = errors.New("failed to get token")

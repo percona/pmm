@@ -508,6 +508,40 @@ func (c *Client) IsReady(ctx context.Context) error {
 	return nil
 }
 
+const grpcGatewayCookie = "grpcgateway-cookie"
+
+type currentUser struct {
+	AccessToken string `json:"access_token"`
+}
+
+var errCookieIsNotSet = errors.Errorf("cookie %q is not set", grpcGatewayCookie)
+
+// GetCurrentUserAccessToken return users access token from Grafana.
+func (c *Client) GetCurrentUserAccessToken(ctx context.Context) (string, error) {
+	// We need to set cookie to the request to make it execute in grafana user context.
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return "", errors.Wrap(errCookieIsNotSet, "metada not set in the context")
+	}
+	cookies := md.Get(grpcGatewayCookie)
+	if len(cookies) == 0 {
+		return "", errCookieIsNotSet
+	}
+	headers := http.Header{}
+	headers.Set("Cookie", strings.Join(cookies, "; "))
+
+	var user currentUser
+	if err := c.do(ctx, http.MethodGet, "/percona-api/user/oauth-token", "", headers, nil, &user); err != nil {
+		var e *clientError
+		if errors.As(err, &e) && e.ErrorMessage == "Failed to get token" && e.Code == http.StatusInternalServerError {
+			return "", errors.New("failed to get token")
+		}
+		return "", errors.Wrap(err, "unknown error occured during getting of user's token")
+	}
+
+	return user.AccessToken, nil
+}
+
 // check interfaces
 var (
 	_ prom.Collector = (*Client)(nil)

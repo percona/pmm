@@ -132,7 +132,7 @@ func init() {
 
 	debugF := flag.Bool("pmm.debug", false, "Enable debug output [PMM_DEBUG].")
 	traceF := flag.Bool("pmm.trace", false, "Enable trace output [PMM_TRACE].")
-	serverURLF := flag.String("pmm.server-url", "https://admin:admin@127.0.0.1:443/", "PMM Server URL [PMM_SERVER_URL].")
+	serverURLF := flag.String("pmm.server-url", "https://admin:admin@localhost/", "PMM Server URL [PMM_SERVER_URL].")
 	serverInsecureTLSF := flag.Bool("pmm.server-insecure-tls", false, "Skip PMM Server TLS certificate validation [PMM_SERVER_INSECURE_TLS].")
 	runUpdateTestF := flag.Bool("pmm.run-update-test", false, "Run PMM Server update test [PMM_RUN_UPDATE_TEST].")
 	kubeconfigF := flag.String("pmm.kubeconfig", "", "Pass kubeconfig file to run DBaaS tests.")

@@ -222,7 +222,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	dbaasv1beta1.RegisterLogsAPIServer(gRPCServer, managementdbaas.NewLogsService(deps.db, deps.dbaasClient))
 	dbaasv1beta1.RegisterComponentsServer(gRPCServer, managementdbaas.NewComponentsService(deps.db, deps.dbaasClient, deps.versionServiceClient))
 
-	platformService, err := platform.New(deps.db, deps.supervisord)
+	platformService, err := platform.New(deps.db, deps.supervisord, deps.grafanaClient)
 	if err == nil {
 		platformpb.RegisterPlatformServer(gRPCServer, platformService)
 	} else {

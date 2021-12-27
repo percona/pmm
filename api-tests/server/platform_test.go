@@ -19,11 +19,8 @@ package server
 import (
 	"net/http"
 	"os"
-	"os/user"
-	"strings"
 	"testing"
 
-	"github.com/brianvoe/gofakeit"
 	platformClient "github.com/percona/pmm/api/platformpb/json/client"
 	"github.com/percona/pmm/api/platformpb/json/client/platform"
 	serverClient "github.com/percona/pmm/api/serverpb/json/client"
@@ -38,7 +35,7 @@ import (
 func TestPlatform(t *testing.T) {
 	client := platformClient.Default.Platform
 	serverClient := serverClient.Default.Server
-	t.Run("connect", func(t *testing.T) {
+	t.Run("connect and disconnect", func(t *testing.T) {
 		const serverName string = "my PMM"
 		email, password := os.Getenv("PERCONA_TEST_PORTAL_EMAIL"), os.Getenv("PERCONA_TEST_PORTAL_PASSWORD")
 		if email == "" || password == "" {
@@ -126,9 +123,7 @@ func TestPlatform(t *testing.T) {
 			pmmapitests.AssertAPIErrorf(t, err, http.StatusBadRequest, codes.InvalidArgument, "invalid field ServerName: value '' must not be an empty string")
 		})
 
-		t.Run("successful call", func(t *testing.T) {
-			t.Skip("Skip this test until we've got disconnect")
-
+		t.Run("successful connect and disconnect", func(t *testing.T) {
 			_, err := client.Connect(&platform.ConnectParams{
 				Body: platform.ConnectBody{
 					ServerName: serverName,
@@ -144,21 +139,17 @@ func TestPlatform(t *testing.T) {
 			require.NoError(t, err)
 			require.NotNil(t, settings)
 			assert.True(t, settings.GetPayload().Settings.ConnectedToPlatform)
+
+			_, err = client.Disconnect(&platform.DisconnectParams{
+				Context: pmmapitests.Context,
+			})
+			require.NoError(t, err)
+
+			// Confirm we are disconnected from Portal.
+			settings, err = serverClient.GetSettings(nil)
+			require.NoError(t, err)
+			require.NotNil(t, settings)
+			assert.False(t, settings.GetPayload().Settings.ConnectedToPlatform)
 		})
 	})
-}
-
-// genCredentials creates test user email, password, firstName and lastName.
-func genCredentials(t *testing.T) (string, string, string, string) {
-	hostname, err := os.Hostname()
-	require.NoError(t, err)
-
-	u, err := user.Current()
-	require.NoError(t, err)
-
-	email := strings.Join([]string{u.Username, hostname, gofakeit.Email(), "test"}, ".")
-	password := gofakeit.Password(true, true, true, false, false, 14)
-	firstName := gofakeit.FirstName()
-	lastName := gofakeit.LastName()
-	return email, password, firstName, lastName
 }
