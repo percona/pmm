@@ -30,12 +30,23 @@ message ConnectRequest {
 
 message ConnectResponse {}
 
+message DisconnectRequest {}
+
+message DisconnectResponse {}
+
 // Platform contains rpcs related to Percona Platform.
 service Platform {
-  // Connect connects a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.
+  // Connect a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.
   rpc Connect(ConnectRequest) returns (ConnectResponse) {
     option (google.api.http) = {
       post: "/v1/Platform/Connect"
+      body: "*"
+    };
+  }
+  // Disconnect a PMM server from the organization created on Percona Portal.
+  rpc Disconnect(DisconnectRequest) returns (DisconnectResponse) {
+    option (google.api.http) = {
+      post: "/v1/Platform/Disconnect"
       body: "*"
     };
   }
