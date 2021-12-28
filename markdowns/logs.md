@@ -1,6 +1,5 @@
 ---
 slug: "logs"
-category: 61c9b38216317800697c46f3
 ---
 This is body text for the page.
 Source of truth is github
@@ -16,3 +15,5 @@ Source of truth is github
 [/block]
 
 Without title and subtitle
+
+without category
