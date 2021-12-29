@@ -27,11 +27,13 @@ type Client struct {
 type ClientService interface {
 	Connect(params *ConnectParams) (*ConnectOK, error)
 
+	Disconnect(params *DisconnectParams) (*DisconnectOK, error)
+
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  Connect connects connects a PMM server to the organization created on percona portal that allows the user to sign in to the PMM server with their percona account
+  Connect connects a PMM server to the organization created on percona portal that allows the user to sign in to the PMM server with their percona account
 */
 func (a *Client) Connect(params *ConnectParams) (*ConnectOK, error) {
 	// TODO: Validate the params before sending
@@ -60,6 +62,39 @@ func (a *Client) Connect(params *ConnectParams) (*ConnectOK, error) {
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*ConnectDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  Disconnect disconnects a PMM server from the organization created on percona portal
+*/
+func (a *Client) Disconnect(params *DisconnectParams) (*DisconnectOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewDisconnectParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "Disconnect",
+		Method:             "POST",
+		PathPattern:        "/v1/Platform/Disconnect",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &DisconnectReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*DisconnectOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*DisconnectDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
