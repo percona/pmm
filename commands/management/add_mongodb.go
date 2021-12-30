@@ -76,8 +76,9 @@ type addMongoDBCommand struct {
 	AuthenticationMechanism       string
 	AuthenticationDatabase        string
 
-	StatsCollections string
-	CollectionsLimit int32
+	EnableAllCollectors bool
+	StatsCollections    string
+	CollectionsLimit    int32
 }
 
 func (cmd *addMongoDBCommand) GetServiceName() string {
@@ -158,9 +159,10 @@ func (cmd *addMongoDBCommand) Run() (commands.Result, error) {
 
 			MetricsMode: pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
 
-			DisableCollectors: commands.ParseDisableCollectors(cmd.DisableCollectors),
-			StatsCollections:  commands.ParseDisableCollectors(cmd.StatsCollections),
-			CollectionsLimit:  cmd.CollectionsLimit,
+			EnableAllCollectors: cmd.EnableAllCollectors,
+			DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
+			StatsCollections:    commands.ParseDisableCollectors(cmd.StatsCollections),
+			CollectionsLimit:    cmd.CollectionsLimit,
 		},
 		Context: commands.Ctx,
 	}
@@ -219,10 +221,13 @@ func init() {
 		" pull - server scrape metrics from agent  or auto - chosen by server.").
 		Default("auto").
 		EnumVar(&AddMongoDB.MetricsMode, metricsModes...)
+	AddMongoDBC.Flag("enable-all-collectors", "Enable all collectors").BoolVar(&AddMongoDB.EnableAllCollectors)
 	AddMongoDBC.Flag("disable-collectors", "Comma-separated list of collector names to exclude from exporter").StringVar(&AddMongoDB.DisableCollectors)
 	addGlobalFlags(AddMongoDBC)
 	AddMongoDBC.Flag("socket", "Path to socket").StringVar(&AddMongoDB.Socket)
 
 	AddMongoDBC.Flag("stats-collections", "Collections for collstats & indexstats").StringVar(&AddMongoDB.StatsCollections)
-	AddMongoDBC.Flag("max-collections-limit", "Disable collstats & indexstats if there are more than <n> collections").Int32Var(&AddMongoDB.CollectionsLimit)
+	AddMongoDBC.Flag("max-collections-limit",
+		"Disable collstats & indexstats if there are more than <n> collections. 0: No limit, -1: Let PMM automatically set this value.").
+		Default("-1").Int32Var(&AddMongoDB.CollectionsLimit)
 }
