@@ -31,10 +31,16 @@ import (
 	"github.com/percona/pmm-managed/utils/collectors"
 )
 
+type collectorArgs struct {
+	enabled     bool
+	enableParam string
+}
+
 var (
 	// New MongoDB Exporter will be released with PMM agent v2.10.0.
 	newMongoExporterPMMVersion = version.MustParse("2.9.99")
 	v2_24_99                   = version.MustParse("2.24.99")
+	v2_25_99                   = version.MustParse("2.25.99")
 )
 
 // mongodbExporterConfig returns desired configuration of mongodb_exporter process.
@@ -48,8 +54,10 @@ func mongodbExporterConfig(service *models.Service, exporter *models.Agent, reda
 	// Until now, discovering mode was not workign properly and was enabled only if mongodb.collstats-colls=
 	// was specified in the command line.
 	switch {
+	case !pmmAgentVersion.Less(v2_25_99): // >= 2.26
+		args = v226Args(exporter, tdp)
 	case !pmmAgentVersion.Less(v2_24_99): // >= 2.25
-		args = v225Args(exporter, exporter.DisabledCollectors, tdp)
+		args = v225Args(exporter, tdp)
 	case !pmmAgentVersion.Less(newMongoExporterPMMVersion): // >= 2.10
 		args = []string{
 			"--mongodb.global-conn-pool",
@@ -99,7 +107,53 @@ func mongodbExporterConfig(service *models.Service, exporter *models.Agent, reda
 	return res
 }
 
-func v225Args(exporter *models.Agent, disabledCollectors []string, tdp *models.DelimiterPair) []string {
+func v226Args(exporter *models.Agent, tdp *models.DelimiterPair) []string {
+	collectAll := false
+	if exporter.MongoDBOptions != nil {
+		collectAll = exporter.MongoDBOptions.EnableAllCollectors
+	}
+
+	collstatsLimit := int32(200)
+	if exporter.MongoDBOptions != nil && exporter.MongoDBOptions.CollectionsLimit != -1 {
+		collstatsLimit = exporter.MongoDBOptions.CollectionsLimit
+	}
+
+	collectors := defaultCollectors(collectAll, collstatsLimit)
+
+	for _, collector := range exporter.DisabledCollectors {
+		col, ok := collectors[strings.ToLower(collector)]
+		if !ok {
+			continue
+		}
+		col.enabled = false
+		collectors[strings.ToLower(collector)] = col
+	}
+
+	args := []string{
+		"--mongodb.global-conn-pool",
+		"--compatible-mode",
+		"--web.listen-address=:" + tdp.Left + " .listen_port " + tdp.Right,
+		"--discovering-mode",
+	}
+
+	if exporter.MongoDBOptions != nil && len(exporter.MongoDBOptions.StatsCollections) > 0 {
+		args = append(args, "--mongodb.collstats-colls="+strings.Join(exporter.MongoDBOptions.StatsCollections, ","))
+	}
+
+	if exporter.MongoDBOptions != nil {
+		args = append(args, fmt.Sprintf("--collector.collstats-limit=%d", collstatsLimit))
+	}
+
+	for _, collector := range collectors {
+		if collector.enabled && collector.enableParam != "" {
+			args = append(args, collector.enableParam)
+		}
+	}
+
+	return args
+}
+
+func v225Args(exporter *models.Agent, tdp *models.DelimiterPair) []string {
 	type collectorArgs struct {
 		enabled      bool
 		enableParam  string
@@ -127,7 +181,7 @@ func v225Args(exporter *models.Agent, disabledCollectors []string, tdp *models.D
 		},
 	}
 
-	for _, collector := range disabledCollectors {
+	for _, collector := range exporter.DisabledCollectors {
 		col := collectors[strings.ToLower(collector)]
 		col.enabled = false
 		collectors[strings.ToLower(collector)] = col
@@ -140,8 +194,8 @@ func v225Args(exporter *models.Agent, disabledCollectors []string, tdp *models.D
 		"--discovering-mode",
 	}
 
-	if exporter.MongoDBOptions != nil && exporter.MongoDBOptions.StatsCollections != "" {
-		args = append(args, "--mongodb.collstats-colls="+exporter.MongoDBOptions.StatsCollections)
+	if exporter.MongoDBOptions != nil && len(exporter.MongoDBOptions.StatsCollections) > 0 {
+		args = append(args, "--mongodb.collstats-colls="+strings.Join(exporter.MongoDBOptions.StatsCollections, ","))
 	}
 
 	if exporter.MongoDBOptions != nil && exporter.MongoDBOptions.CollectionsLimit != 0 {
@@ -158,6 +212,39 @@ func v225Args(exporter *models.Agent, disabledCollectors []string, tdp *models.D
 	}
 
 	return args
+}
+
+func defaultCollectors(collectAll bool, collstatsLimit int32) map[string]collectorArgs {
+	return map[string]collectorArgs{
+		"diagnosticdata": {
+			enabled:     true,
+			enableParam: "--collector.diagnosticdata",
+		},
+		"replicasetstatus": {
+			enabled:     true,
+			enableParam: "--collector.replicasetstatus",
+		},
+		// disabled until we have better information on the resources usage impact
+		"collstats": {
+			enabled:     collectAll && collstatsLimit != 0,
+			enableParam: "--collector.collstats",
+		},
+		// disabled until we have better information on the resources usage impact
+		"dbstats": {
+			enabled:     collectAll,
+			enableParam: "--collector.dbstats",
+		},
+		// disabled until we have better information on the resources usage impact
+		"indexstats": {
+			enabled:     collectAll && collstatsLimit != 0,
+			enableParam: "--collector.indexstats",
+		},
+		// disabled until we have better information on the resources usage impact
+		"topmetrics": {
+			enabled:     collectAll,
+			enableParam: "--collector.topmetrics",
+		},
+	}
 }
 
 // qanMongoDBProfilerAgentConfig returns desired configuration of qan-mongodb-profiler-agent built-in agent.

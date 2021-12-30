@@ -83,13 +83,14 @@ func (c *MySQLOptions) Scan(src interface{}) error { return jsonScan(c, src) }
 
 // MongoDBOptions represents structure for special MongoDB options.
 type MongoDBOptions struct {
-	TLSCertificateKey             string `json:"tls_certificate_key"`
-	TLSCertificateKeyFilePassword string `json:"tls_certificate_key_file_password"`
-	TLSCa                         string `json:"tls_ca"`
-	AuthenticationMechanism       string `json:"authentication_mechanism"`
-	AuthenticationDatabase        string `json:"authentication_database"`
-	StatsCollections              string `json:"stats_collections"`
-	CollectionsLimit              int32  `json:"collections_limit"`
+	TLSCertificateKey             string   `json:"tls_certificate_key"`
+	TLSCertificateKeyFilePassword string   `json:"tls_certificate_key_file_password"`
+	TLSCa                         string   `json:"tls_ca"`
+	AuthenticationMechanism       string   `json:"authentication_mechanism"`
+	AuthenticationDatabase        string   `json:"authentication_database"`
+	StatsCollections              []string `json:"stats_collections"`
+	CollectionsLimit              int32    `json:"collections_limit"`
+	EnableAllCollectors           bool     `json:"enable_all_collectors"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.

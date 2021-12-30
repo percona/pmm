@@ -49,10 +49,6 @@ func TestMongodbExporterConfig225(t *testing.T) {
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
-			// temporarily disabled by PMM-9304 until we have more information about the resources
-			// consumption for these 2 collectors.
-			// "--collector.dbstats",
-			// "--collector.topmetrics",
 			"--compatible-mode",
 			"--discovering-mode",
 			"--mongodb.global-conn-pool",
@@ -71,18 +67,146 @@ func TestMongodbExporterConfig225(t *testing.T) {
 
 	t.Run("Having collstats limit", func(t *testing.T) {
 		exporter.MongoDBOptions = &models.MongoDBOptions{
-			StatsCollections: "col1,col2,col3",
+			StatsCollections: []string{"col1", "col2", "col3"},
 			CollectionsLimit: 79014,
 		}
 		expected.Args = []string{
 			"--collector.collstats-limit=79014",
-			// temporarily disabled by PMM-9304 until we have more information about the resources
-			// consumption for these 2 collectors.
-			// "--collector.dbstats",
-			// "--collector.topmetrics",
 			"--compatible-mode",
 			"--discovering-mode",
 			"--mongodb.collstats-colls=col1,col2,col3",
+			"--mongodb.global-conn-pool",
+			"--web.listen-address=:{{ .listen_port }}",
+		}
+		actual := mongodbExporterConfig(mongodb, exporter, exposeSecrets, pmmAgentVersion)
+		require.Equal(t, expected.Args, actual.Args)
+	})
+}
+
+func TestMongodbExporterConfig226(t *testing.T) {
+	pmmAgentVersion := version.MustParse("2.26.0")
+
+	mongodb := &models.Service{
+		Address: pointer.ToString("1.2.3.4"),
+		Port:    pointer.ToUint16(27017),
+	}
+	exporter := &models.Agent{
+		AgentID:       "agent-id",
+		AgentType:     models.MongoDBExporterType,
+		Username:      pointer.ToString("username"),
+		Password:      pointer.ToString("s3cur3 p@$$w0r4."),
+		AgentPassword: pointer.ToString("agent-password"),
+	}
+	actual := mongodbExporterConfig(mongodb, exporter, redactSecrets, pmmAgentVersion)
+	expected := &agentpb.SetStateRequest_AgentProcess{
+		Type:               inventorypb.AgentType_MONGODB_EXPORTER,
+		TemplateLeftDelim:  "{{",
+		TemplateRightDelim: "}}",
+		Args: []string{
+			"--collector.diagnosticdata",
+			"--collector.replicasetstatus",
+			"--compatible-mode",
+			"--discovering-mode",
+			"--mongodb.global-conn-pool",
+			"--web.listen-address=:{{ .listen_port }}",
+		},
+		Env: []string{
+			"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:27017/?connectTimeoutMS=1000&serverSelectionTimeoutMS=1000",
+			"HTTP_AUTH=pmm:agent-password",
+		},
+		RedactWords: []string{"s3cur3 p@$$w0r4.", "agent-password"},
+	}
+	requireNoDuplicateFlags(t, actual.Args)
+	require.Equal(t, expected.Args, actual.Args)
+	require.Equal(t, expected.Env, actual.Env)
+	require.Equal(t, expected, actual)
+
+	t.Run("Having collstats limit", func(t *testing.T) {
+		exporter.MongoDBOptions = &models.MongoDBOptions{
+			StatsCollections: []string{"col1", "col2", "col3"},
+			CollectionsLimit: 79014,
+		}
+		expected.Args = []string{
+			"--collector.collstats-limit=79014",
+			"--collector.diagnosticdata",
+			"--collector.replicasetstatus",
+			"--compatible-mode",
+			"--discovering-mode",
+			"--mongodb.collstats-colls=col1,col2,col3",
+			"--mongodb.global-conn-pool",
+			"--web.listen-address=:{{ .listen_port }}",
+		}
+		actual := mongodbExporterConfig(mongodb, exporter, exposeSecrets, pmmAgentVersion)
+		require.Equal(t, expected.Args, actual.Args)
+	})
+
+	t.Run("Enabling all collectors", func(t *testing.T) {
+		exporter.MongoDBOptions = &models.MongoDBOptions{
+			StatsCollections:    []string{"col1", "col2", "col3"},
+			CollectionsLimit:    79014,
+			EnableAllCollectors: true,
+		}
+
+		expected.Args = []string{
+			"--collector.collstats",
+			"--collector.collstats-limit=79014",
+			"--collector.dbstats",
+			"--collector.diagnosticdata",
+			"--collector.indexstats",
+			"--collector.replicasetstatus",
+			"--collector.topmetrics",
+			"--compatible-mode",
+			"--discovering-mode",
+			"--mongodb.collstats-colls=col1,col2,col3",
+			"--mongodb.global-conn-pool",
+			"--web.listen-address=:{{ .listen_port }}",
+		}
+		actual := mongodbExporterConfig(mongodb, exporter, exposeSecrets, pmmAgentVersion)
+		require.Equal(t, expected.Args, actual.Args)
+	})
+
+	t.Run("Enabling all collectors but collstats-limit=0", func(t *testing.T) {
+		exporter.MongoDBOptions = &models.MongoDBOptions{
+			EnableAllCollectors: true,
+			StatsCollections:    []string{"db1.col1.one", "db2.col2", "db3"},
+		}
+
+		expected.Args = []string{
+			"--collector.collstats-limit=0",
+			"--collector.dbstats",
+			"--collector.diagnosticdata",
+			"--collector.replicasetstatus",
+			"--collector.topmetrics",
+			"--compatible-mode",
+			"--discovering-mode",
+			// this should be here even if limit=0 because it could be used to filter dbstats
+			// since dbstats is not depending the number of collections present in the db.
+			"--mongodb.collstats-colls=db1.col1.one,db2.col2,db3",
+			"--mongodb.global-conn-pool",
+			"--web.listen-address=:{{ .listen_port }}",
+		}
+		actual := mongodbExporterConfig(mongodb, exporter, exposeSecrets, pmmAgentVersion)
+		require.Equal(t, expected.Args, actual.Args)
+	})
+
+	t.Run("collstats-limit=-1 -> automatically set the limit", func(t *testing.T) {
+		exporter.MongoDBOptions = &models.MongoDBOptions{
+			EnableAllCollectors: true,
+			StatsCollections:    []string{"db1.col1.one", "db2.col2", "db3"},
+			CollectionsLimit:    -1,
+		}
+
+		expected.Args = []string{
+			"--collector.collstats",
+			"--collector.collstats-limit=200", // 200 is the default for auto-set
+			"--collector.dbstats",
+			"--collector.diagnosticdata",
+			"--collector.indexstats",
+			"--collector.replicasetstatus",
+			"--collector.topmetrics",
+			"--compatible-mode",
+			"--discovering-mode",
+			"--mongodb.collstats-colls=db1.col1.one,db2.col2,db3",
 			"--mongodb.global-conn-pool",
 			"--web.listen-address=:{{ .listen_port }}",
 		}
