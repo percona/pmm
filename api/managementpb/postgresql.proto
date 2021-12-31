@@ -46,8 +46,6 @@ message AddPostgreSQLRequest {
       string_not_empty: true
     }
   ];
-  // Listen port used by pmm-agent.
-  uint32 pmm_agent_listen_port = 28;
   // Environment name.
   string environment = 8;
   // Cluster name.

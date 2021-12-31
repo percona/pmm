@@ -16570,51 +16570,45 @@
                   "type": "string",
                   "x-order": 8
                 },
-                "pmm_agent_listen_port": {
-                  "description": "Listen port used by pmm-agent.",
-                  "type": "integer",
-                  "format": "int64",
-                  "x-order": 9
-                },
                 "environment": {
                   "description": "Environment name.",
                   "type": "string",
-                  "x-order": 10
+                  "x-order": 9
                 },
                 "cluster": {
                   "description": "Cluster name.",
                   "type": "string",
-                  "x-order": 11
+                  "x-order": 10
                 },
                 "replication_set": {
                   "description": "Replication set name.",
                   "type": "string",
-                  "x-order": 12
+                  "x-order": 11
                 },
                 "username": {
                   "description": "PostgreSQL username for scraping metrics.",
                   "type": "string",
-                  "x-order": 13
+                  "x-order": 12
                 },
                 "password": {
                   "description": "PostgreSQL password for scraping metrics.",
                   "type": "string",
-                  "x-order": 14
+                  "x-order": 13
                 },
                 "qan_postgresql_pgstatements_agent": {
                   "description": "If true, adds qan-postgresql-pgstatements-agent for provided service.",
                   "type": "boolean",
-                  "x-order": 15
+                  "x-order": 14
                 },
                 "qan_postgresql_pgstatmonitor_agent": {
                   "description": "If true, adds qan-postgresql-pgstatmonitor-agent for provided service.",
                   "type": "boolean",
-                  "x-order": 16
+                  "x-order": 15
                 },
                 "disable_query_examples": {
                   "description": "Disable query examples.",
                   "type": "boolean",
-                  "x-order": 17
+                  "x-order": 16
                 },
                 "custom_labels": {
                   "description": "Custom user-assigned labels for Service.",
@@ -16622,22 +16616,22 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 18
+                  "x-order": 17
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "x-order": 19
+                  "x-order": 18
                 },
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
-                  "x-order": 20
+                  "x-order": 19
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                   "type": "boolean",
-                  "x-order": 21
+                  "x-order": 20
                 },
                 "metrics_mode": {
                   "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
@@ -16648,7 +16642,7 @@
                     "PULL",
                     "PUSH"
                   ],
-                  "x-order": 22
+                  "x-order": 21
                 },
                 "disable_collectors": {
                   "description": "List of collector names to disable in this exporter.",
@@ -16656,27 +16650,27 @@
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 23
+                  "x-order": 22
                 },
                 "tls_ca": {
                   "description": "TLS CA certificate.",
                   "type": "string",
-                  "x-order": 24
+                  "x-order": 23
                 },
                 "tls_cert": {
                   "description": "TLS Certifcate.",
                   "type": "string",
-                  "x-order": 25
+                  "x-order": 24
                 },
                 "tls_key": {
                   "description": "TLS Certificate Key.",
                   "type": "string",
-                  "x-order": 26
+                  "x-order": 25
                 },
                 "agent_password": {
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
-                  "x-order": 27
+                  "x-order": 26
                 }
               }
             }
