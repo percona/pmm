@@ -153,6 +153,9 @@ type AddPostgreSQLBody struct {
 	// The "pmm-agent" identifier which should run agents. Required.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
+	// Listen port used by pmm-agent.
+	PMMAgentListenPort int64 `json:"pmm_agent_listen_port,omitempty"`
+
 	// Environment name.
 	Environment string `json:"environment,omitempty"`
 
