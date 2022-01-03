@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+//go:build gofuzz
 // +build gofuzz
 
 // See https://github.com/dvyukov/go-fuzz
