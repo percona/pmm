@@ -7,6 +7,7 @@ services:
     environment:
       # for tests
       - PMM_SERVER_IMAGE=${PMM_SERVER_IMAGE:-percona/pmm-server:2}
+      - GO_VERSION=${GO_VERSION:-1.17.x}
       - PATH=/root/go/bin:$PATH
       - TRAVIS_REPO_SLUG=${TRAVIS_REPO_SLUG}
       - TRAVIS_PULL_REQUEST_SHA=${TRAVIS_PULL_REQUEST_SHA}
