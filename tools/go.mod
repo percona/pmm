@@ -1,6 +1,6 @@
 module github.com/percona/pmm/tools
 
-go 1.16
+go 1.17
 
 replace github.com/go-openapi/spec => github.com/Percona-Lab/spec v0.19.8-percona
 
@@ -12,10 +12,58 @@ require (
 	github.com/go-swagger/go-swagger v0.24.0
 	github.com/golang/protobuf v1.4.3
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
-	github.com/iancoleman/orderedmap v0.2.0 // indirect
 	github.com/mwitkow/go-proto-validators v0.3.2
+	google.golang.org/protobuf v1.25.0
+)
+
+require (
+	github.com/PuerkitoBio/purell v1.1.1 // indirect
+	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
+	github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc // indirect
+	github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf // indirect
+	github.com/asaskevich/govalidator v0.0.0-20200428143746-21a406dcc535 // indirect
+	github.com/fsnotify/fsnotify v1.4.9 // indirect
+	github.com/ghodss/yaml v1.0.0 // indirect
+	github.com/go-openapi/analysis v0.19.10 // indirect
+	github.com/go-openapi/errors v0.19.6 // indirect
+	github.com/go-openapi/inflect v0.19.0 // indirect
+	github.com/go-openapi/jsonpointer v0.19.3 // indirect
+	github.com/go-openapi/jsonreference v0.19.3 // indirect
+	github.com/go-openapi/loads v0.19.5 // indirect
+	github.com/go-openapi/strfmt v0.19.5 // indirect
+	github.com/go-openapi/swag v0.19.9 // indirect
+	github.com/go-openapi/validate v0.19.10 // indirect
+	github.com/go-stack/stack v1.8.0 // indirect
+	github.com/gogo/protobuf v1.3.0 // indirect
+	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b // indirect
+	github.com/gorilla/handlers v1.4.2 // indirect
+	github.com/hashicorp/hcl v1.0.0 // indirect
+	github.com/iancoleman/orderedmap v0.2.0 // indirect
+	github.com/jessevdk/go-flags v1.4.0 // indirect
+	github.com/kr/pretty v0.2.0 // indirect
+	github.com/kr/text v0.2.0 // indirect
+	github.com/magiconair/properties v1.8.1 // indirect
+	github.com/mailru/easyjson v0.7.1 // indirect
+	github.com/mitchellh/mapstructure v1.3.2 // indirect
+	github.com/opentracing/opentracing-go v1.2.0 // indirect
+	github.com/pelletier/go-toml v1.8.0 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
+	github.com/spf13/afero v1.2.2 // indirect
+	github.com/spf13/cast v1.3.1 // indirect
+	github.com/spf13/jwalterweatherman v1.1.0 // indirect
+	github.com/spf13/pflag v1.0.5 // indirect
+	github.com/spf13/viper v1.7.0 // indirect
+	github.com/subosito/gotenv v1.2.0 // indirect
+	github.com/toqueteos/webbrowser v1.2.0 // indirect
+	go.mongodb.org/mongo-driver v1.3.4 // indirect
+	golang.org/x/mod v0.3.0 // indirect
 	golang.org/x/net v0.0.0-20210331212208-0fccb6fa2b5c // indirect
 	golang.org/x/sys v0.0.0-20210331175145-43e1dd70ce54 // indirect
 	golang.org/x/text v0.3.6 // indirect
-	google.golang.org/protobuf v1.25.0
+	golang.org/x/tools v0.0.0-20200612220849-54c614fe050c // indirect
+	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
+	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013 // indirect
+	gopkg.in/alecthomas/kingpin.v2 v2.2.6 // indirect
+	gopkg.in/ini.v1 v1.57.0 // indirect
+	gopkg.in/yaml.v2 v2.3.0 // indirect
 )
