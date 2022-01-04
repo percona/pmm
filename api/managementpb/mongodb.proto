@@ -92,6 +92,8 @@ message AddMongoDBRequest {
   // Collections limit. Only get Databases and collection stats if the total number of collections in the server
   // is less than this value. 0: no limit
   int32 collections_limit = 29;
+  // Enable all collectors
+  bool enable_all_collectors = 30;
 }
 
 message AddMongoDBResponse {

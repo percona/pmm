@@ -2104,7 +2104,7 @@
         "tags": [
           "Platform"
         ],
-        "summary": "Connect connects a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.",
+        "summary": "Connect a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.",
         "operationId": "Connect",
         "parameters": [
           {
@@ -2130,6 +2130,72 @@
                   "x-order": 2
                 }
               }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/Platform/Disconnect": {
+      "post": {
+        "tags": [
+          "Platform"
+        ],
+        "summary": "Disconnect a PMM server from the organization created on Percona Portal.",
+        "operationId": "Disconnect",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
             }
           }
         ],
@@ -3939,6 +4005,25 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "stats_collections": {
+                      "type": "array",
+                      "title": "List of colletions to get stats from. Can use *",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 12
+                    },
+                    "collections_limit": {
+                      "type": "integer",
+                      "format": "int32",
+                      "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                      "x-order": 13
+                    },
+                    "enable_all_collectors": {
+                      "description": "Enable All collectors.",
+                      "type": "boolean",
+                      "x-order": 14
                     }
                   },
                   "x-order": 0
@@ -6724,6 +6809,25 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "stats_collections": {
+                      "type": "array",
+                      "title": "List of colletions to get stats from. Can use *",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 12
+                    },
+                    "collections_limit": {
+                      "type": "integer",
+                      "format": "int32",
+                      "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                      "x-order": 13
+                    },
+                    "enable_all_collectors": {
+                      "description": "Enable All collectors.",
+                      "type": "boolean",
+                      "x-order": 14
                     }
                   },
                   "x-order": 0
@@ -9053,6 +9157,25 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "stats_collections": {
+                      "type": "array",
+                      "title": "List of colletions to get stats from. Can use *",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 12
+                    },
+                    "collections_limit": {
+                      "type": "integer",
+                      "format": "int32",
+                      "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                      "x-order": 13
+                    },
+                    "enable_all_collectors": {
+                      "description": "Enable All collectors.",
+                      "type": "boolean",
+                      "x-order": 14
                     }
                   },
                   "x-order": 4
@@ -10248,6 +10371,25 @@
                         "type": "integer",
                         "format": "int64",
                         "x-order": 11
+                      },
+                      "stats_collections": {
+                        "type": "array",
+                        "title": "List of colletions to get stats from. Can use *",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 12
+                      },
+                      "collections_limit": {
+                        "type": "integer",
+                        "format": "int32",
+                        "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                        "x-order": 13
+                      },
+                      "enable_all_collectors": {
+                        "description": "Enable All collectors.",
+                        "type": "boolean",
+                        "x-order": 14
                       }
                     }
                   },
@@ -20822,6 +20964,11 @@
                   "format": "int32",
                   "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
                   "x-order": 27
+                },
+                "enable_all_collectors": {
+                  "type": "boolean",
+                  "title": "Enable all collectors",
+                  "x-order": 28
                 }
               }
             }
@@ -20974,6 +21121,25 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "stats_collections": {
+                      "type": "array",
+                      "title": "List of colletions to get stats from. Can use *",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 12
+                    },
+                    "collections_limit": {
+                      "type": "integer",
+                      "format": "int32",
+                      "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                      "x-order": 13
+                    },
+                    "enable_all_collectors": {
+                      "description": "Enable All collectors.",
+                      "type": "boolean",
+                      "x-order": 14
                     }
                   },
                   "x-order": 1

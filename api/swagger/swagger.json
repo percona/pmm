@@ -1884,6 +1884,25 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "stats_collections": {
+                      "type": "array",
+                      "title": "List of colletions to get stats from. Can use *",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 12
+                    },
+                    "collections_limit": {
+                      "type": "integer",
+                      "format": "int32",
+                      "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                      "x-order": 13
+                    },
+                    "enable_all_collectors": {
+                      "description": "Enable All collectors.",
+                      "type": "boolean",
+                      "x-order": 14
                     }
                   },
                   "x-order": 0
@@ -4669,6 +4688,25 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "stats_collections": {
+                      "type": "array",
+                      "title": "List of colletions to get stats from. Can use *",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 12
+                    },
+                    "collections_limit": {
+                      "type": "integer",
+                      "format": "int32",
+                      "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                      "x-order": 13
+                    },
+                    "enable_all_collectors": {
+                      "description": "Enable All collectors.",
+                      "type": "boolean",
+                      "x-order": 14
                     }
                   },
                   "x-order": 0
@@ -6998,6 +7036,25 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "stats_collections": {
+                      "type": "array",
+                      "title": "List of colletions to get stats from. Can use *",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 12
+                    },
+                    "collections_limit": {
+                      "type": "integer",
+                      "format": "int32",
+                      "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                      "x-order": 13
+                    },
+                    "enable_all_collectors": {
+                      "description": "Enable All collectors.",
+                      "type": "boolean",
+                      "x-order": 14
                     }
                   },
                   "x-order": 4
@@ -8193,6 +8250,25 @@
                         "type": "integer",
                         "format": "int64",
                         "x-order": 11
+                      },
+                      "stats_collections": {
+                        "type": "array",
+                        "title": "List of colletions to get stats from. Can use *",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 12
+                      },
+                      "collections_limit": {
+                        "type": "integer",
+                        "format": "int32",
+                        "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                        "x-order": 13
+                      },
+                      "enable_all_collectors": {
+                        "description": "Enable All collectors.",
+                        "type": "boolean",
+                        "x-order": 14
                       }
                     }
                   },
@@ -15122,6 +15198,11 @@
                   "format": "int32",
                   "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
                   "x-order": 27
+                },
+                "enable_all_collectors": {
+                  "type": "boolean",
+                  "title": "Enable all collectors",
+                  "x-order": 28
                 }
               }
             }
@@ -15274,6 +15355,25 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "stats_collections": {
+                      "type": "array",
+                      "title": "List of colletions to get stats from. Can use *",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 12
+                    },
+                    "collections_limit": {
+                      "type": "integer",
+                      "format": "int32",
+                      "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                      "x-order": 13
+                    },
+                    "enable_all_collectors": {
+                      "description": "Enable All collectors.",
+                      "type": "boolean",
+                      "x-order": 14
                     }
                   },
                   "x-order": 1
