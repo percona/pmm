@@ -40,6 +40,7 @@ import (
 // ENABLE_ALERTING env var.
 func TestRulesAPI(t *testing.T) {
 	rulesClient := client.Default.Rules
+	templatesClient := client.Default.Templates
 	channelsClient := client.Default.Channels
 
 	dummyFilter := &rules.FiltersItems0{
@@ -49,19 +50,21 @@ func TestRulesAPI(t *testing.T) {
 	}
 
 	templateName := createTemplate(t)
-	defer deleteTemplate(t, client.Default.Templates, templateName)
-
 	channelID, _ := createChannel(t)
-	defer deleteChannel(t, channelsClient, channelID)
-
 	newChannelID, _ := createChannel(t)
-	defer deleteChannel(t, channelsClient, newChannelID)
+	t.Cleanup(func() {
+		deleteTemplate(t, client.Default.Templates, templateName)
+		deleteChannel(t, channelsClient, channelID)
+		deleteChannel(t, channelsClient, newChannelID)
+	})
 
 	t.Run("add", func(t *testing.T) {
-		t.Run("normal", func(t *testing.T) {
+		t.Parallel()
+
+		t.Run("normal from template", func(t *testing.T) {
 			t.Parallel()
 
-			params := createAlertRuleParams(templateName, channelID, dummyFilter)
+			params := createAlertRuleParams(templateName, "", channelID, dummyFilter)
 			rule, err := rulesClient.CreateAlertRule(params)
 			require.NoError(t, err)
 			defer deleteRule(t, rulesClient, rule.Payload.RuleID)
@@ -72,7 +75,7 @@ func TestRulesAPI(t *testing.T) {
 		t.Run("without channels and filters", func(t *testing.T) {
 			t.Parallel()
 
-			params := createAlertRuleParams(templateName, "", nil)
+			params := createAlertRuleParams(templateName, "", "", nil)
 			rule, err := rulesClient.CreateAlertRule(params)
 			require.NoError(t, err)
 			defer deleteRule(t, rulesClient, rule.Payload.RuleID)
@@ -83,7 +86,7 @@ func TestRulesAPI(t *testing.T) {
 		t.Run("builtin_template", func(t *testing.T) {
 			t.Parallel()
 
-			params := createAlertRuleParams("pmm_mongodb_restarted", channelID, dummyFilter)
+			params := createAlertRuleParams("pmm_mongodb_restarted", "", channelID, dummyFilter)
 			params.Body.Params = []*rules.ParamsItems0{{
 				Name:  "threshold",
 				Type:  pointer.ToString("FLOAT"),
@@ -99,7 +102,7 @@ func TestRulesAPI(t *testing.T) {
 		t.Run("use default value for parameter", func(t *testing.T) {
 			t.Parallel()
 
-			params := createAlertRuleParams(templateName, channelID, dummyFilter)
+			params := createAlertRuleParams(templateName, "", channelID, dummyFilter)
 			rule, err := rulesClient.CreateAlertRule(params)
 			require.NoError(t, err)
 			defer deleteRule(t, rulesClient, rule.Payload.RuleID)
@@ -107,11 +110,72 @@ func TestRulesAPI(t *testing.T) {
 			assert.NotEmpty(t, rule.Payload.RuleID)
 		})
 
+		t.Run("normal from other rule", func(t *testing.T) {
+			t.Parallel()
+
+			sourceRuleParams := createAlertRuleParams(templateName, "", channelID, dummyFilter)
+			sourceRule, err := rulesClient.CreateAlertRule(sourceRuleParams)
+			require.NoError(t, err)
+			defer deleteRule(t, rulesClient, sourceRule.Payload.RuleID)
+
+			copyRuleParams := createAlertRuleParams("", sourceRule.Payload.RuleID, channelID, dummyFilter)
+			copyRule, err := rulesClient.CreateAlertRule(copyRuleParams)
+			require.NoError(t, err)
+			defer deleteRule(t, rulesClient, copyRule.Payload.RuleID)
+
+			assert.NotEmpty(t, copyRule.Payload.RuleID)
+		})
+
+		t.Run("normal from other rule with deleted template", func(t *testing.T) {
+			t.Parallel()
+
+			sourceTemplateName := createTemplate(t)
+			sourceRuleParams := createAlertRuleParams(sourceTemplateName, "", channelID, dummyFilter)
+			sourceRule, err := rulesClient.CreateAlertRule(sourceRuleParams)
+			require.NoError(t, err)
+			defer deleteRule(t, rulesClient, sourceRule.Payload.RuleID)
+
+			deleteTemplate(t, templatesClient, sourceTemplateName)
+
+			copyRuleParams := createAlertRuleParams("", sourceRule.Payload.RuleID, channelID, dummyFilter)
+			copyRule, err := rulesClient.CreateAlertRule(copyRuleParams)
+			require.NoError(t, err)
+			defer deleteRule(t, rulesClient, copyRule.Payload.RuleID)
+
+			assert.NotEmpty(t, copyRule.Payload.RuleID)
+		})
+
+		t.Run("both template name and source rule id specified", func(t *testing.T) {
+			t.Parallel()
+
+			sourceRuleParams := createAlertRuleParams(templateName, "", channelID, dummyFilter)
+			sourceRule, err := rulesClient.CreateAlertRule(sourceRuleParams)
+			require.NoError(t, err)
+			defer deleteRule(t, rulesClient, sourceRule.Payload.RuleID)
+
+			copyRuleParams := createAlertRuleParams(templateName, sourceRule.Payload.RuleID, channelID, dummyFilter)
+			_, err = rulesClient.CreateAlertRule(copyRuleParams)
+			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Both template name and source rule id are specified.")
+		})
+
+		t.Run("both template name and source rule id are empty", func(t *testing.T) {
+			t.Parallel()
+
+			sourceRuleParams := createAlertRuleParams(templateName, "", channelID, dummyFilter)
+			sourceRule, err := rulesClient.CreateAlertRule(sourceRuleParams)
+			require.NoError(t, err)
+			defer deleteRule(t, rulesClient, sourceRule.Payload.RuleID)
+
+			copyRuleParams := createAlertRuleParams("", "", channelID, dummyFilter)
+			_, err = rulesClient.CreateAlertRule(copyRuleParams)
+			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Template name or source rule id should be specified.")
+		})
+
 		t.Run("unknown template", func(t *testing.T) {
 			t.Parallel()
 
 			templateName := uuid.New().String()
-			params := createAlertRuleParams(templateName, channelID, dummyFilter)
+			params := createAlertRuleParams(templateName, "", channelID, dummyFilter)
 			_, err := rulesClient.CreateAlertRule(params)
 			pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Unknown template %s.", templateName)
 		})
@@ -120,7 +184,7 @@ func TestRulesAPI(t *testing.T) {
 			t.Parallel()
 
 			channelID := uuid.New().String()
-			params := createAlertRuleParams(templateName, channelID, dummyFilter)
+			params := createAlertRuleParams(templateName, "", channelID, dummyFilter)
 			_, err := rulesClient.CreateAlertRule(params)
 			pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Failed to find all required channels: [%s].", channelID)
 		})
@@ -128,7 +192,7 @@ func TestRulesAPI(t *testing.T) {
 		t.Run("wrong parameter", func(t *testing.T) {
 			t.Parallel()
 
-			params := createAlertRuleParams(templateName, channelID, dummyFilter)
+			params := createAlertRuleParams(templateName, "", channelID, dummyFilter)
 			params.Body.Params = append(
 				params.Body.Params,
 				&rules.ParamsItems0{
@@ -143,7 +207,7 @@ func TestRulesAPI(t *testing.T) {
 		t.Run("wrong parameter type", func(t *testing.T) {
 			t.Parallel()
 
-			params := createAlertRuleParams(templateName, channelID, dummyFilter)
+			params := createAlertRuleParams(templateName, "", channelID, dummyFilter)
 			params.Body.Params = []*rules.ParamsItems0{
 				{
 					Name: "param1",
@@ -161,10 +225,12 @@ func TestRulesAPI(t *testing.T) {
 	})
 
 	t.Run("update", func(t *testing.T) {
+		t.Parallel()
+
 		t.Run("normal", func(t *testing.T) {
 			t.Parallel()
 
-			cParams := createAlertRuleParams(templateName, channelID, dummyFilter)
+			cParams := createAlertRuleParams(templateName, "", channelID, dummyFilter)
 			rule, err := rulesClient.CreateAlertRule(cParams)
 			require.NoError(t, err)
 			defer deleteRule(t, rulesClient, rule.Payload.RuleID)
@@ -239,7 +305,7 @@ func TestRulesAPI(t *testing.T) {
 		t.Run("unknown channel", func(t *testing.T) {
 			t.Parallel()
 
-			cParams := createAlertRuleParams(templateName, channelID, dummyFilter)
+			cParams := createAlertRuleParams(templateName, "", channelID, dummyFilter)
 			rule, err := rulesClient.CreateAlertRule(cParams)
 			require.NoError(t, err)
 			defer deleteRule(t, rulesClient, rule.Payload.RuleID)
@@ -279,7 +345,7 @@ func TestRulesAPI(t *testing.T) {
 		t.Run("wrong parameter", func(t *testing.T) {
 			t.Parallel()
 
-			cParams := createAlertRuleParams(templateName, channelID, dummyFilter)
+			cParams := createAlertRuleParams(templateName, "", channelID, dummyFilter)
 			rule, err := rulesClient.CreateAlertRule(cParams)
 			require.NoError(t, err)
 			defer deleteRule(t, rulesClient, rule.Payload.RuleID)
@@ -316,7 +382,7 @@ func TestRulesAPI(t *testing.T) {
 		t.Run("missing parameters", func(t *testing.T) {
 			t.Parallel()
 
-			cParams := createAlertRuleParams(templateName, channelID, dummyFilter)
+			cParams := createAlertRuleParams(templateName, "", channelID, dummyFilter)
 			rule, err := rulesClient.CreateAlertRule(cParams)
 			require.NoError(t, err)
 			defer deleteRule(t, rulesClient, rule.Payload.RuleID)
@@ -345,7 +411,7 @@ func TestRulesAPI(t *testing.T) {
 		t.Run("wrong parameter type", func(t *testing.T) {
 			t.Parallel()
 
-			cParams := createAlertRuleParams(templateName, channelID, dummyFilter)
+			cParams := createAlertRuleParams(templateName, "", channelID, dummyFilter)
 			rule, err := rulesClient.CreateAlertRule(cParams)
 			require.NoError(t, err)
 			defer deleteRule(t, rulesClient, rule.Payload.RuleID)
@@ -383,7 +449,9 @@ func TestRulesAPI(t *testing.T) {
 	})
 
 	t.Run("toggle", func(t *testing.T) {
-		cParams := createAlertRuleParams(templateName, channelID, dummyFilter)
+		t.Parallel()
+
+		cParams := createAlertRuleParams(templateName, "", channelID, dummyFilter)
 		rule, err := rulesClient.CreateAlertRule(cParams)
 		require.NoError(t, err)
 		defer deleteRule(t, rulesClient, rule.Payload.RuleID)
@@ -425,10 +493,12 @@ func TestRulesAPI(t *testing.T) {
 	})
 
 	t.Run("delete", func(t *testing.T) {
+		t.Parallel()
+
 		t.Run("normal", func(t *testing.T) {
 			t.Parallel()
 
-			params := createAlertRuleParams(templateName, channelID, dummyFilter)
+			params := createAlertRuleParams(templateName, "", channelID, dummyFilter)
 			rule, err := rulesClient.CreateAlertRule(params)
 			require.NoError(t, err)
 
@@ -459,7 +529,7 @@ func TestRulesAPI(t *testing.T) {
 
 	t.Run("list without pagination", func(t *testing.T) {
 		t.Run("without pagination", func(t *testing.T) {
-			params := createAlertRuleParams(templateName, channelID, dummyFilter)
+			params := createAlertRuleParams(templateName, "", channelID, dummyFilter)
 			rule, err := rulesClient.CreateAlertRule(params)
 			require.NoError(t, err)
 			defer deleteRule(t, rulesClient, rule.Payload.RuleID)
@@ -512,7 +582,7 @@ func TestRulesAPI(t *testing.T) {
 			ruleIDs := make(map[string]struct{})
 
 			for i := 0; i < rulesCount; i++ {
-				params := createAlertRuleParams(templateName, channelID, dummyFilter)
+				params := createAlertRuleParams(templateName, "", channelID, dummyFilter)
 				rule, err := rulesClient.CreateAlertRule(params)
 				require.NoError(t, err)
 
@@ -589,10 +659,11 @@ func deleteRule(t *testing.T, client rules.ClientService, id string) {
 	require.NoError(t, err)
 }
 
-func createAlertRuleParams(templateName, channelID string, filter *rules.FiltersItems0) *rules.CreateAlertRuleParams {
+func createAlertRuleParams(templateName, sourceRuleID, channelID string, filter *rules.FiltersItems0) *rules.CreateAlertRuleParams {
 	rule := &rules.CreateAlertRuleParams{
 		Body: rules.CreateAlertRuleBody{
 			TemplateName: templateName,
+			SourceRuleID: sourceRuleID,
 			Disabled:     true,
 			Name:         "example rule",
 			Params: []*rules.ParamsItems0{

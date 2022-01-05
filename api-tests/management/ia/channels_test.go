@@ -38,6 +38,8 @@ func TestChannelsAPI(t *testing.T) {
 	client := channelsClient.Default.Channels
 
 	t.Run("add", func(t *testing.T) {
+		t.Parallel()
+
 		t.Run("normal", func(t *testing.T) {
 			t.Parallel()
 
@@ -93,6 +95,8 @@ func TestChannelsAPI(t *testing.T) {
 	})
 
 	t.Run("change", func(t *testing.T) {
+		t.Parallel()
+
 		t.Run("normal", func(t *testing.T) {
 			t.Parallel()
 
@@ -217,7 +221,7 @@ func TestChannelsAPI(t *testing.T) {
 			channelID, body := createChannel(t)
 			defer deleteChannel(t, channelsClient.Default.Channels, channelID)
 
-			params := createAlertRuleParams(templateName, channelID, nil)
+			params := createAlertRuleParams(templateName, "", channelID, nil)
 			rule, err := channelsClient.Default.Rules.CreateAlertRule(params)
 			require.NoError(t, err)
 			defer deleteRule(t, channelsClient.Default.Rules, rule.Payload.RuleID)

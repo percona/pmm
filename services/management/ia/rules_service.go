@@ -336,53 +336,83 @@ func (s *RulesService) convertAlertRules(rules []*models.Rule, channels []*model
 
 // CreateAlertRule creates Integrated Alerting rule.
 func (s *RulesService) CreateAlertRule(ctx context.Context, req *iav1beta1.CreateAlertRuleRequest) (*iav1beta1.CreateAlertRuleResponse, error) {
-	template, ok := s.templates.getTemplates()[req.TemplateName]
-	if !ok {
-		return nil, status.Errorf(codes.NotFound, "Unknown template %s.", req.TemplateName)
+	if req.TemplateName != "" && req.SourceRuleId != "" {
+		return nil, status.Errorf(codes.InvalidArgument, "Both template name and source rule id are specified.")
+	}
+	if req.TemplateName == "" && req.SourceRuleId == "" {
+		return nil, status.Errorf(codes.InvalidArgument, "Template name or source rule id should be specified.")
 	}
 
-	definitions, err := models.ConvertParamsDefinitions(template.Params)
+	params := &models.CreateRuleParams{
+		Name:         req.Name,
+		Disabled:     req.Disabled,
+		For:          req.For.AsDuration(),
+		Severity:     models.Severity(req.Severity),
+		CustomLabels: req.CustomLabels,
+		ChannelIDs:   req.ChannelIds,
+	}
+
+	var err error
+	params.ParamsValues, err = convertParamsValuesToModel(req.Params)
 	if err != nil {
 		return nil, err
 	}
 
-	filters, err := convertFiltersToModel(req.Filters)
+	params.Filters, err = convertFiltersToModel(req.Filters)
 	if err != nil {
 		return nil, err
 	}
 
-	values, err := convertParamsValuesToModel(req.Params)
-	if err != nil {
-		return nil, err
+	if req.TemplateName != "" {
+		template, ok := s.templates.getTemplates()[req.TemplateName]
+		if !ok {
+			return nil, status.Errorf(codes.NotFound, "Unknown template %s.", req.TemplateName)
+		}
+
+		params.TemplateName = template.Name
+		params.Summary = template.Summary
+		params.ExprTemplate = template.Expr
+		params.DefaultFor = time.Duration(template.For)
+		params.DefaultSeverity = models.Severity(template.Severity)
+		params.Labels = template.Labels
+		params.Annotations = template.Annotations
+
+		params.ParamsDefinitions, err = models.ConvertParamsDefinitions(template.Params)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		sourceRule, err := models.FindRuleByID(s.db.Querier, req.SourceRuleId)
+		if err != nil {
+			return nil, err
+		}
+
+		params.TemplateName = sourceRule.TemplateName
+		params.Summary = sourceRule.Summary
+		params.ExprTemplate = sourceRule.ExprTemplate
+		params.DefaultFor = sourceRule.DefaultFor
+		params.DefaultSeverity = sourceRule.DefaultSeverity
+		params.ParamsDefinitions = sourceRule.ParamsDefinitions
+
+		params.Labels, err = sourceRule.GetLabels()
+		if err != nil {
+			return nil, err
+		}
+
+		params.Annotations, err = sourceRule.GetAnnotations()
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	if err := validateParameters(definitions, values); err != nil {
+	if err := validateParameters(params.ParamsDefinitions, params.ParamsValues); err != nil {
 		return nil, err
 	}
 
 	// Check that we can compile expression with given parameters
-	_, err = fillExprWithParams(template.Expr, values.AsStringMap())
+	_, err = fillExprWithParams(params.ExprTemplate, params.ParamsValues.AsStringMap())
 	if err != nil {
 		return nil, err
-	}
-
-	params := &models.CreateRuleParams{
-		Name:              req.Name,
-		TemplateName:      req.TemplateName,
-		Summary:           template.Summary,
-		Disabled:          req.Disabled,
-		ExprTemplate:      template.Expr,
-		ParamsDefinitions: definitions,
-		ParamsValues:      values,
-		DefaultFor:        time.Duration(template.For),
-		For:               req.For.AsDuration(),
-		DefaultSeverity:   models.Severity(template.Severity),
-		Severity:          models.Severity(req.Severity),
-		CustomLabels:      req.CustomLabels,
-		Labels:            template.Labels,
-		Annotations:       template.Annotations,
-		Filters:           filters,
-		ChannelIDs:        req.ChannelIds,
 	}
 
 	var rule *models.Rule
