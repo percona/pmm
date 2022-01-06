@@ -39,8 +39,8 @@ message Filter {
   string value = 3;
 }
 
-// RuleParam represents a single rule parameter for List, Change and Update APIs.
-message RuleParam {
+// ParamValue represents a single rule parameter value for List, Change and Update APIs.
+message ParamValue {
   // Machine-readable name (ID) that is used in expression.
   string name = 1 [
     (validator.field) = {
@@ -54,7 +54,7 @@ message RuleParam {
     // Bool value.
     bool bool = 3;
     // Float value.
-    float float = 4;
+    double float = 4;
     // String value.
     string string = 5;
   }
@@ -62,30 +62,44 @@ message RuleParam {
 
 // Rule represents Alert Rule.
 message Rule {
-  // Template used to create that rule.
-  Template template = 1;
   // Rule ID.
-  string rule_id = 2;
-  // True if that rule is disabled.
-  bool disabled = 3;
+  string rule_id = 1;
+  // Rule name.
+  string name = 2;
   // Rule human-readable summary.
-  string summary = 4;
-  // Rule parameters.
-  repeated RuleParam params = 5;
-  // Rule duration.
-  google.protobuf.Duration for = 6;
-  // Rule severity.
-  management.Severity severity = 7;
+  string summary = 3;
+  // Template used for this rule.
+  string template_name = 4;
+  // True if that rule is disabled.
+  bool disabled = 5;
+  // Expression template.
+  string expr_template = 6;
+  // Expression filled with parameters.
+  string expr = 7;
+  // Expression parameters definitions.
+  repeated ParamDefinition params_definitions = 8;
+  // Expression parameters values.
+  repeated ParamValue params_values = 9;
+  // Default for duration.
+  google.protobuf.Duration default_for = 10;
+  // For duration.
+  google.protobuf.Duration for = 11;
+  // Default severity.
+  management.Severity default_severity = 12;
+  // Severity.
+  management.Severity severity = 13;
   // Custom labels.
-  map<string, string> custom_labels = 8;
+  map<string, string> custom_labels = 14;
+  // Labels.
+  map<string, string> labels = 15;
+  // Annotations.
+  map<string, string> annotations = 16;
   // Filters.
-  repeated Filter filters = 9;
+  repeated Filter filters = 17;
   // Channels.
-  repeated Channel channels = 10;
+  repeated Channel channels = 18;
   // Rule creation time.
-  google.protobuf.Timestamp created_at = 11;
-  // Template expression with rule parameters.
-  string expr = 12;
+  google.protobuf.Timestamp created_at = 19;
 }
 
 message ListAlertRulesRequest {
@@ -100,24 +114,26 @@ message ListAlertRulesResponse {
 }
 
 message CreateAlertRuleRequest {
-  // Template name.
+  // Template name. Can't be specified simultaneously with source_rule_id.
   string template_name = 1;
+  // ID of the rule that will be used as source. Can't be specified simultaneously with template_name.
+  string source_rule_id = 2;
+  // Rule name.
+  string name = 3;
   // New rule status.
-  bool disabled = 2;
-  // Rule human-readable summary.
-  string summary = 3;
+  bool disabled = 4;
   // Rule parameters. All template parameters should be set.
-  repeated RuleParam params = 4;
+  repeated ParamValue params = 5;
   // Rule duration. Should be set.
-  google.protobuf.Duration for = 5;
+  google.protobuf.Duration for = 6;
   // Rule severity. Should be set.
-  management.Severity severity = 6;
+  management.Severity severity = 7;
   // All custom labels to add or remove (with empty values) to default labels from template.
-  map<string, string> custom_labels = 7;
+  map<string, string> custom_labels = 8;
   // Filters. Should be set.
-  repeated Filter filters = 8;
+  repeated Filter filters = 9;
   // Channels. Should be set.
-  repeated string channel_ids = 9;
+  repeated string channel_ids = 10;
 }
 
 message CreateAlertRuleResponse {
@@ -132,22 +148,22 @@ message UpdateAlertRuleRequest {
       string_not_empty: true
     }
   ];
+  // Rule name. Should be set.
+  string name = 2;
   // New rule status. Should be set.
-  bool disabled = 2;
+  bool disabled = 3;
   // Rule parameters. All template parameters should be set.
-  repeated RuleParam params = 3;
+  repeated ParamValue params = 4;
   // Rule duration. Should be set.
-  google.protobuf.Duration for = 4;
+  google.protobuf.Duration for = 5;
   // Rule severity. Should be set.
   management.Severity severity = 6;
   // All custom labels to add or remove (with empty values) to default labels from template.
-  map<string, string> custom_labels = 8;
+  map<string, string> custom_labels = 7;
   // Filters. Should be set.
-  repeated Filter filters = 10;
+  repeated Filter filters = 8;
   // Channels. Should be set.
-  repeated string channel_ids = 11;
-  // Rule human-readable summary. Should be set.
-  string summary = 12;
+  repeated string channel_ids = 9;
 }
 
 message UpdateAlertRuleResponse {}
@@ -176,23 +192,23 @@ message DeleteAlertRuleRequest {
 
 message DeleteAlertRuleResponse {}
 
-// Rules service provides public methods for managing Integrated Alerting rules.
+// Rules service provides public methods for managing Alerting rules.
 service Rules {
-  // ListAlertRules returns a list of all Integrated Alerting rules.
+  // ListAlertRules returns a list of all Alerting rules.
   rpc ListAlertRules(ListAlertRulesRequest) returns (ListAlertRulesResponse) {
     option (google.api.http) = {
       post: "/v1/management/ia/Rules/List"
       body: "*"
     };
   }
-  // CreateAlertRule creates Integrated Alerting rule.
+  // CreateAlertRule creates Alerting rule.
   rpc CreateAlertRule(CreateAlertRuleRequest) returns (CreateAlertRuleResponse) {
     option (google.api.http) = {
       post: "/v1/management/ia/Rules/Create"
       body: "*"
     };
   }
-  // UpdateAlertRule updates Integrated Alerting rule.
+  // UpdateAlertRule updates Alerting rule.
   rpc UpdateAlertRule(UpdateAlertRuleRequest) returns (UpdateAlertRuleResponse) {
     option (google.api.http) = {
       post: "/v1/management/ia/Rules/Update"
@@ -206,7 +222,7 @@ service Rules {
       body: "*"
     };
   }
-  // DeleteAlertRule deletes Integrated Alerting rule.
+  // DeleteAlertRule deletes Alerting rule.
   rpc DeleteAlertRule(DeleteAlertRuleRequest) returns (DeleteAlertRuleResponse) {
     option (google.api.http) = {
       post: "/v1/management/ia/Rules/Delete"

@@ -127,238 +127,6 @@
         }
       }
     },
-    "/v1/Platform/SignIn": {
-      "post": {
-        "tags": [
-          "Server"
-        ],
-        "summary": "PlatformSignIn links that PMM instance to Percona Platform user.",
-        "operationId": "PlatformSignIn",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "email": {
-                  "description": "Existing Percona Platform user's email.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "password": {
-                  "description": "Existing Percona Platform user's password.",
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "type_url": {
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
-                      }
-                    }
-                  },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/Platform/SignOut": {
-      "post": {
-        "tags": [
-          "Server"
-        ],
-        "summary": "PlatformSignOut logouts this PMM instance from Percona Platform account.",
-        "operationId": "PlatformSignOut",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "type_url": {
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
-                      }
-                    }
-                  },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/Platform/SignUp": {
-      "post": {
-        "tags": [
-          "Server"
-        ],
-        "summary": "PlatformSignUp creates a new Percona Platform user.",
-        "operationId": "PlatformSignUp",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "email": {
-                  "description": "New Percona Platform user's email.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "first_name": {
-                  "description": "New Percona Platform user's first name.",
-                  "type": "string",
-                  "x-order": 2
-                },
-                "last_name": {
-                  "description": "New Percona Platform user's last name.",
-                  "type": "string",
-                  "x-order": 3
-                },
-                "password": {
-                  "description": "Existing Percona Platform user's password.",
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "type_url": {
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
-                      }
-                    }
-                  },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v1/Settings/Change": {
       "post": {
         "tags": [
@@ -397,7 +165,7 @@
                   "x-order": 5
                 },
                 "disable_alerting": {
-                  "description": "Disable Integrated Alerting.",
+                  "description": "Disable Alerting.",
                   "type": "boolean",
                   "x-order": 15
                 },
@@ -430,7 +198,7 @@
                   "x-order": 1
                 },
                 "email_alerting_settings": {
-                  "description": "EmailAlertingSettings represents email (SMTP) configuration for Integrated Alerting.",
+                  "description": "EmailAlertingSettings represents email (SMTP) configuration for Alerting.",
                   "type": "object",
                   "properties": {
                     "from": {
@@ -477,7 +245,7 @@
                   "x-order": 16
                 },
                 "enable_alerting": {
-                  "description": "Enable Integrated Alerting.",
+                  "description": "Enable Alerting.",
                   "type": "boolean",
                   "x-order": 14
                 },
@@ -547,7 +315,7 @@
                   "x-order": 9
                 },
                 "remove_email_alerting_settings": {
-                  "description": "If true, removes Integrated Alerting email (SMTP) settings.",
+                  "description": "If true, removes Alerting email (SMTP) settings.",
                   "type": "boolean",
                   "x-order": 17
                 },
@@ -556,12 +324,12 @@
                   "x-order": 21
                 },
                 "remove_slack_alerting_settings": {
-                  "description": "If true, removes Integrated Alerting Slack settings.",
+                  "description": "If true, removes Alerting Slack settings.",
                   "type": "boolean",
                   "x-order": 19
                 },
                 "slack_alerting_settings": {
-                  "description": "SlackAlertingSettings represents Slack configuration for Integrated Alerting.",
+                  "description": "SlackAlertingSettings represents Slack configuration for Alerting.",
                   "type": "object",
                   "properties": {
                     "url": {
@@ -644,6 +412,11 @@
                       "type": "boolean",
                       "x-order": 16
                     },
+                    "connected_to_platform": {
+                      "type": "boolean",
+                      "title": "True if the PMM instance is connected to Platform",
+                      "x-order": 18
+                    },
                     "data_retention": {
                       "type": "string",
                       "x-order": 3
@@ -654,7 +427,7 @@
                       "x-order": 10
                     },
                     "email_alerting_settings": {
-                      "description": "EmailAlertingSettings represents email (SMTP) configuration for Integrated Alerting.",
+                      "description": "EmailAlertingSettings represents email (SMTP) configuration for Alerting.",
                       "type": "object",
                       "properties": {
                         "from": {
@@ -733,7 +506,7 @@
                       "x-order": 14
                     },
                     "slack_alerting_settings": {
-                      "description": "SlackAlertingSettings represents Slack configuration for Integrated Alerting.",
+                      "description": "SlackAlertingSettings represents Slack configuration for Alerting.",
                       "type": "object",
                       "properties": {
                         "url": {
@@ -892,6 +665,11 @@
                       "type": "boolean",
                       "x-order": 16
                     },
+                    "connected_to_platform": {
+                      "type": "boolean",
+                      "title": "True if the PMM instance is connected to Platform",
+                      "x-order": 18
+                    },
                     "data_retention": {
                       "type": "string",
                       "x-order": 3
@@ -902,7 +680,7 @@
                       "x-order": 10
                     },
                     "email_alerting_settings": {
-                      "description": "EmailAlertingSettings represents email (SMTP) configuration for Integrated Alerting.",
+                      "description": "EmailAlertingSettings represents email (SMTP) configuration for Alerting.",
                       "type": "object",
                       "properties": {
                         "from": {
@@ -981,7 +759,7 @@
                       "x-order": 14
                     },
                     "slack_alerting_settings": {
-                      "description": "SlackAlertingSettings represents Slack configuration for Integrated Alerting.",
+                      "description": "SlackAlertingSettings represents Slack configuration for Alerting.",
                       "type": "object",
                       "properties": {
                         "url": {
@@ -1037,6 +815,126 @@
                   "x-order": 0
                 }
               }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/Settings/TestEmailAlertingSettings": {
+      "post": {
+        "tags": [
+          "Server"
+        ],
+        "summary": "TestEmailAlertingSettings tests email alerting SMTP settings by sending testing email.",
+        "operationId": "TestEmailAlertingSettings",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email_alerting_settings": {
+                  "description": "EmailAlertingSettings represents email (SMTP) configuration for Alerting.",
+                  "type": "object",
+                  "properties": {
+                    "from": {
+                      "description": "SMTP From header field.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "hello": {
+                      "description": "Hostname to identify to the SMTP server.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "identity": {
+                      "description": "Auth using PLAIN.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "password": {
+                      "description": "Auth using LOGIN and PLAIN.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "require_tls": {
+                      "description": "Require TLS.",
+                      "type": "boolean",
+                      "x-order": 7
+                    },
+                    "secret": {
+                      "description": "Auth using CRAM-MD5.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "smarthost": {
+                      "description": "SMTP host and port.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "username": {
+                      "description": "Auth using CRAM-MD5, LOGIN and PLAIN.",
+                      "type": "string",
+                      "x-order": 3
+                    }
+                  },
+                  "x-order": 0
+                },
+                "email_to": {
+                  "description": "Target email address to send the email to.",
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
             }
           },
           "default": {

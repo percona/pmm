@@ -2382,6 +2382,12 @@
                   "type": "string",
                   "x-order": 9
                 },
+                "collections_limit": {
+                  "type": "integer",
+                  "format": "int32",
+                  "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                  "x-order": 27
+                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels for Service.",
                   "type": "object",
@@ -2397,6 +2403,11 @@
                     "type": "string"
                   },
                   "x-order": 22
+                },
+                "enable_all_collectors": {
+                  "type": "boolean",
+                  "title": "Enable all collectors",
+                  "x-order": 28
                 },
                 "environment": {
                   "description": "Environment name.",
@@ -2465,6 +2476,14 @@
                   "type": "string",
                   "x-order": 6
                 },
+                "stats_collections": {
+                  "description": "List of collections to get stats from. Can use * .",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 26
+                },
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
@@ -2514,6 +2533,12 @@
                       "type": "string",
                       "x-order": 0
                     },
+                    "collections_limit": {
+                      "type": "integer",
+                      "format": "int32",
+                      "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                      "x-order": 13
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
@@ -2535,6 +2560,11 @@
                       },
                       "x-order": 9
                     },
+                    "enable_all_collectors": {
+                      "description": "Enable All collectors.",
+                      "type": "boolean",
+                      "x-order": 14
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
@@ -2555,6 +2585,14 @@
                       "description": "Service identifier.",
                       "type": "string",
                       "x-order": 3
+                    },
+                    "stats_collections": {
+                      "type": "array",
+                      "title": "List of colletions to get stats from. Can use *",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 12
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",

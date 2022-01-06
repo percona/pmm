@@ -208,6 +208,17 @@ func (this *ChangeSettingsResponse) Validate() error {
 	}
 	return nil
 }
+func (this *TestEmailAlertingSettingsRequest) Validate() error {
+	if this.EmailAlertingSettings != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.EmailAlertingSettings); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("EmailAlertingSettings", err)
+		}
+	}
+	return nil
+}
+func (this *TestEmailAlertingSettingsResponse) Validate() error {
+	return nil
+}
 func (this *AWSInstanceCheckRequest) Validate() error {
 	if this.InstanceId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("InstanceId", fmt.Errorf(`value '%v' must not be an empty string`, this.InstanceId))
@@ -215,29 +226,5 @@ func (this *AWSInstanceCheckRequest) Validate() error {
 	return nil
 }
 func (this *AWSInstanceCheckResponse) Validate() error {
-	return nil
-}
-func (this *PlatformSignUpRequest) Validate() error {
-	if this.Email == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Email", fmt.Errorf(`value '%v' must not be an empty string`, this.Email))
-	}
-	return nil
-}
-func (this *PlatformSignUpResponse) Validate() error {
-	return nil
-}
-func (this *PlatformSignInRequest) Validate() error {
-	if this.Email == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Email", fmt.Errorf(`value '%v' must not be an empty string`, this.Email))
-	}
-	return nil
-}
-func (this *PlatformSignInResponse) Validate() error {
-	return nil
-}
-func (this *PlatformSignOutRequest) Validate() error {
-	return nil
-}
-func (this *PlatformSignOutResponse) Validate() error {
 	return nil
 }

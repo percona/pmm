@@ -298,6 +298,9 @@ type GetSettingsOKBodySettings struct {
 	// True if Azure Discover is enabled.
 	AzurediscoverEnabled bool `json:"azurediscover_enabled,omitempty"`
 
+	// True if the PMM instance is connected to Platform
+	ConnectedToPlatform bool `json:"connected_to_platform,omitempty"`
+
 	// email alerting settings
 	EmailAlertingSettings *GetSettingsOKBodySettingsEmailAlertingSettings `json:"email_alerting_settings,omitempty"`
 
@@ -427,7 +430,7 @@ func (o *GetSettingsOKBodySettings) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetSettingsOKBodySettingsEmailAlertingSettings EmailAlertingSettings represents email (SMTP) configuration for Integrated Alerting.
+/*GetSettingsOKBodySettingsEmailAlertingSettings EmailAlertingSettings represents email (SMTP) configuration for Alerting.
 swagger:model GetSettingsOKBodySettingsEmailAlertingSettings
 */
 type GetSettingsOKBodySettingsEmailAlertingSettings struct {
@@ -518,7 +521,7 @@ func (o *GetSettingsOKBodySettingsMetricsResolutions) UnmarshalBinary(b []byte) 
 	return nil
 }
 
-/*GetSettingsOKBodySettingsSlackAlertingSettings SlackAlertingSettings represents Slack configuration for Integrated Alerting.
+/*GetSettingsOKBodySettingsSlackAlertingSettings SlackAlertingSettings represents Slack configuration for Alerting.
 swagger:model GetSettingsOKBodySettingsSlackAlertingSettings
 */
 type GetSettingsOKBodySettingsSlackAlertingSettings struct {

@@ -109,7 +109,7 @@ message MetricsResolutions {
   google.protobuf.Duration lr = 3;
 }
 
-// EmailAlertingSettings represents email (SMTP) configuration for Integrated Alerting.
+// EmailAlertingSettings represents email (SMTP) configuration for Alerting.
 message EmailAlertingSettings {
   // SMTP From header field.
   string from = 1 [
@@ -137,7 +137,7 @@ message EmailAlertingSettings {
   bool require_tls = 8;
 }
 
-// SlackAlertingSettings represents Slack configuration for Integrated Alerting.
+// SlackAlertingSettings represents Slack configuration for Alerting.
 message SlackAlertingSettings {
   // Slack API (webhook) URL.
   string url = 1 [
@@ -184,7 +184,7 @@ message Settings {
   bool alerting_enabled = 12 [deprecated = true];
   // Integrated Alerting email (SMTP) settings.
   EmailAlertingSettings email_alerting_settings = 13;
-  // Integrated Alerting Slack settings.
+  // Alerting Slack settings.
   SlackAlertingSettings slack_alerting_settings = 14;
   // PMM Server public address.
   string pmm_public_address = 15;
@@ -194,6 +194,8 @@ message Settings {
   bool backup_management_enabled = 18;
   // True if Azure Discover is enabled.
   bool azurediscover_enabled = 17;
+  // True if the PMM instance is connected to Platform
+  bool connected_to_platform = 19;
 }
 
 message GetSettingsRequest {}
@@ -227,17 +229,17 @@ message ChangeSettingsRequest {
   bool enable_stt = 11;
   // Disable Security Threat Tool.
   bool disable_stt = 12;
-  // Enable Integrated Alerting.
+  // Enable Alerting.
   bool enable_alerting = 13 [deprecated = true];
-  // Disable Integrated Alerting.
+  // Disable Alerting.
   bool disable_alerting = 14 [deprecated = true];
-  // Change Integrated Alerting email (SMTP) settings, if set.
+  // Change Alerting email (SMTP) settings, if set.
   EmailAlertingSettings email_alerting_settings = 15;
-  // If true, removes Integrated Alerting email (SMTP) settings.
+  // If true, removes Alerting email (SMTP) settings.
   bool remove_email_alerting_settings = 16;
-  // Change Integrated Alerting Slack settings, if set.
+  // Change Alerting Slack settings, if set.
   SlackAlertingSettings slack_alerting_settings = 17;
-  // If true, removes Integrated Alerting Slack settings.
+  // If true, removes Alerting Slack settings.
   bool remove_slack_alerting_settings = 18;
   // PMM Server public address.
   string pmm_public_address = 19;
@@ -262,6 +264,15 @@ message ChangeSettingsResponse {
   Settings settings = 1;
 }
 
+message TestEmailAlertingSettingsRequest {
+  // Alerting email (SMTP) settings.
+  EmailAlertingSettings email_alerting_settings = 1;
+  // Target email address to send the email to.
+  string email_to = 2;
+}
+
+message TestEmailAlertingSettingsResponse {}
+
 message AWSInstanceCheckRequest {
   // AWS EC2 instance ID (i-1234567890abcdef0).
   string instance_id = 1 [
@@ -272,40 +283,6 @@ message AWSInstanceCheckRequest {
 }
 
 message AWSInstanceCheckResponse {}
-
-message PlatformSignUpRequest {
-  // New Percona Platform user's email.
-  string email = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // Existing Percona Platform user's password.
-  string password = 2 [deprecated = true];
-  // New Percona Platform user's first name.
-  string first_name = 3;
-  // New Percona Platform user's last name.
-  string last_name = 4;
-}
-
-message PlatformSignUpResponse {}
-
-message PlatformSignInRequest {
-  // Existing Percona Platform user's email.
-  string email = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // Existing Percona Platform user's password.
-  string password = 2;
-}
-
-message PlatformSignInResponse {}
-
-message PlatformSignOutRequest {}
-
-message PlatformSignOutResponse {}
 
 // Server service provides generic PMM Server public APIs.
 service Server {
@@ -357,31 +334,17 @@ service Server {
       body: "*"
     };
   }
+  // TestEmailAlertingSettings tests email alerting SMTP settings by sending testing email.
+  rpc TestEmailAlertingSettings(TestEmailAlertingSettingsRequest) returns (TestEmailAlertingSettingsResponse) {
+    option (google.api.http) = {
+      post: "/v1/Settings/TestEmailAlertingSettings"
+      body: "*"
+    };
+  }
   // AWSInstanceCheck checks AWS EC2 instance ID.
   rpc AWSInstanceCheck(AWSInstanceCheckRequest) returns (AWSInstanceCheckResponse) {
     option (google.api.http) = {
       post: "/v1/AWSInstanceCheck"
-      body: "*"
-    };
-  }
-  // PlatformSignUp creates a new Percona Platform user.
-  rpc PlatformSignUp(PlatformSignUpRequest) returns (PlatformSignUpResponse) {
-    option (google.api.http) = {
-      post: "/v1/Platform/SignUp"
-      body: "*"
-    };
-  }
-  // PlatformSignIn links that PMM instance to Percona Platform user.
-  rpc PlatformSignIn(PlatformSignInRequest) returns (PlatformSignInResponse) {
-    option (google.api.http) = {
-      post: "/v1/Platform/SignIn"
-      body: "*"
-    };
-  }
-  // PlatformSignOut logouts this PMM instance from Percona Platform account.
-  rpc PlatformSignOut(PlatformSignOutRequest) returns (PlatformSignOutResponse) {
-    option (google.api.http) = {
-      post: "/v1/Platform/SignOut"
       body: "*"
     };
   }

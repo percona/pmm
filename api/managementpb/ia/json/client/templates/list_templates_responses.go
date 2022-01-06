@@ -431,7 +431,7 @@ type TemplatesItems0 struct {
 	// PromQL query expression with templating parameters.
 	Expr string `json:"expr,omitempty"`
 
-	// Query templating parameters.
+	// Query parameters definitions.
 	Params []*TemplatesItems0ParamsItems0 `json:"params"`
 
 	// Default duration value.
@@ -662,7 +662,7 @@ func (o *TemplatesItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*TemplatesItems0ParamsItems0 TemplateParam represents a single template parameter.
+/*TemplatesItems0ParamsItems0 ParamDefinition represents a single query parameter.
 swagger:model TemplatesItems0ParamsItems0
 */
 type TemplatesItems0ParamsItems0 struct {
@@ -892,7 +892,7 @@ func (o *TemplatesItems0ParamsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*TemplatesItems0ParamsItems0Bool TemplateBoolParam represents boolean parameter's default value.
+/*TemplatesItems0ParamsItems0Bool BoolParamDefinition represents boolean parameter's default value.
 swagger:model TemplatesItems0ParamsItems0Bool
 */
 type TemplatesItems0ParamsItems0Bool struct {
@@ -985,7 +985,7 @@ func (o *TemplatesItems0ParamsItems0Bool) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*TemplatesItems0ParamsItems0Float TemplateFloatParam represents float parameter's default value and valid range.
+/*TemplatesItems0ParamsItems0Float FloatParamDefinition represents float parameter's default value and valid range.
 swagger:model TemplatesItems0ParamsItems0Float
 */
 type TemplatesItems0ParamsItems0Float struct {
@@ -994,19 +994,19 @@ type TemplatesItems0ParamsItems0Float struct {
 	HasDefault bool `json:"has_default,omitempty"`
 
 	// Default value if has_default is true.
-	Default float32 `json:"default,omitempty"`
+	Default float64 `json:"default,omitempty"`
 
 	// True if minimal valid value is set.
 	HasMin bool `json:"has_min,omitempty"`
 
 	// Minimal valid value (inclusive) if has_min is true.
-	Min float32 `json:"min,omitempty"`
+	Min float64 `json:"min,omitempty"`
 
 	// True if maximal valid value is set.
 	HasMax bool `json:"has_max,omitempty"`
 
 	// Maximal valid value (inclusive) if has_max is true.
-	Max float32 `json:"max,omitempty"`
+	Max float64 `json:"max,omitempty"`
 }
 
 // Validate validates this templates items0 params items0 float
@@ -1032,7 +1032,7 @@ func (o *TemplatesItems0ParamsItems0Float) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*TemplatesItems0ParamsItems0String TemplateStringParam represents string parameter's default value.
+/*TemplatesItems0ParamsItems0String StringParamDefinition represents string parameter's default value.
 swagger:model TemplatesItems0ParamsItems0String
 */
 type TemplatesItems0ParamsItems0String struct {

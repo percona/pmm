@@ -161,16 +161,16 @@ type ChangeSettingsBody struct {
 	// Disable Security Threat Tool.
 	DisableStt bool `json:"disable_stt,omitempty"`
 
-	// Enable Integrated Alerting.
+	// Enable Alerting.
 	EnableAlerting bool `json:"enable_alerting,omitempty"`
 
-	// Disable Integrated Alerting.
+	// Disable Alerting.
 	DisableAlerting bool `json:"disable_alerting,omitempty"`
 
-	// If true, removes Integrated Alerting email (SMTP) settings.
+	// If true, removes Alerting email (SMTP) settings.
 	RemoveEmailAlertingSettings bool `json:"remove_email_alerting_settings,omitempty"`
 
-	// If true, removes Integrated Alerting Slack settings.
+	// If true, removes Alerting Slack settings.
 	RemoveSlackAlertingSettings bool `json:"remove_slack_alerting_settings,omitempty"`
 
 	// PMM Server public address.
@@ -507,6 +507,9 @@ type ChangeSettingsOKBodySettings struct {
 	// True if Azure Discover is enabled.
 	AzurediscoverEnabled bool `json:"azurediscover_enabled,omitempty"`
 
+	// True if the PMM instance is connected to Platform
+	ConnectedToPlatform bool `json:"connected_to_platform,omitempty"`
+
 	// email alerting settings
 	EmailAlertingSettings *ChangeSettingsOKBodySettingsEmailAlertingSettings `json:"email_alerting_settings,omitempty"`
 
@@ -636,7 +639,7 @@ func (o *ChangeSettingsOKBodySettings) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeSettingsOKBodySettingsEmailAlertingSettings EmailAlertingSettings represents email (SMTP) configuration for Integrated Alerting.
+/*ChangeSettingsOKBodySettingsEmailAlertingSettings EmailAlertingSettings represents email (SMTP) configuration for Alerting.
 swagger:model ChangeSettingsOKBodySettingsEmailAlertingSettings
 */
 type ChangeSettingsOKBodySettingsEmailAlertingSettings struct {
@@ -727,7 +730,7 @@ func (o *ChangeSettingsOKBodySettingsMetricsResolutions) UnmarshalBinary(b []byt
 	return nil
 }
 
-/*ChangeSettingsOKBodySettingsSlackAlertingSettings SlackAlertingSettings represents Slack configuration for Integrated Alerting.
+/*ChangeSettingsOKBodySettingsSlackAlertingSettings SlackAlertingSettings represents Slack configuration for Alerting.
 swagger:model ChangeSettingsOKBodySettingsSlackAlertingSettings
 */
 type ChangeSettingsOKBodySettingsSlackAlertingSettings struct {
@@ -797,7 +800,7 @@ func (o *ChangeSettingsOKBodySettingsSttCheckIntervals) UnmarshalBinary(b []byte
 	return nil
 }
 
-/*ChangeSettingsParamsBodyEmailAlertingSettings EmailAlertingSettings represents email (SMTP) configuration for Integrated Alerting.
+/*ChangeSettingsParamsBodyEmailAlertingSettings EmailAlertingSettings represents email (SMTP) configuration for Alerting.
 swagger:model ChangeSettingsParamsBodyEmailAlertingSettings
 */
 type ChangeSettingsParamsBodyEmailAlertingSettings struct {
@@ -888,7 +891,7 @@ func (o *ChangeSettingsParamsBodyMetricsResolutions) UnmarshalBinary(b []byte) e
 	return nil
 }
 
-/*ChangeSettingsParamsBodySlackAlertingSettings SlackAlertingSettings represents Slack configuration for Integrated Alerting.
+/*ChangeSettingsParamsBodySlackAlertingSettings SlackAlertingSettings represents Slack configuration for Alerting.
 swagger:model ChangeSettingsParamsBodySlackAlertingSettings
 */
 type ChangeSettingsParamsBodySlackAlertingSettings struct {

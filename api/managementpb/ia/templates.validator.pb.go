@@ -20,37 +20,37 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
-func (this *TemplateBoolParam) Validate() error {
+func (this *BoolParamDefinition) Validate() error {
 	return nil
 }
-func (this *TemplateFloatParam) Validate() error {
+func (this *FloatParamDefinition) Validate() error {
 	return nil
 }
-func (this *TemplateStringParam) Validate() error {
+func (this *StringParamDefinition) Validate() error {
 	return nil
 }
-func (this *TemplateParam) Validate() error {
+func (this *ParamDefinition) Validate() error {
 	if this.Name == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
 	}
 	if this.Summary == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Summary", fmt.Errorf(`value '%v' must not be an empty string`, this.Summary))
 	}
-	if oneOfNester, ok := this.GetValue().(*TemplateParam_Bool); ok {
+	if oneOfNester, ok := this.GetValue().(*ParamDefinition_Bool); ok {
 		if oneOfNester.Bool != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Bool); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("Bool", err)
 			}
 		}
 	}
-	if oneOfNester, ok := this.GetValue().(*TemplateParam_Float); ok {
+	if oneOfNester, ok := this.GetValue().(*ParamDefinition_Float); ok {
 		if oneOfNester.Float != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Float); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("Float", err)
 			}
 		}
 	}
-	if oneOfNester, ok := this.GetValue().(*TemplateParam_String_); ok {
+	if oneOfNester, ok := this.GetValue().(*ParamDefinition_String_); ok {
 		if oneOfNester.String_ != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.String_); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("String_", err)

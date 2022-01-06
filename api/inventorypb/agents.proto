@@ -158,6 +158,13 @@ message MongoDBExporter {
   AgentStatus status = 9;
   // Listen port for scraping metrics.
   uint32 listen_port = 10;
+  // List of colletions to get stats from. Can use *
+  repeated string stats_collections = 13;
+  // Collections limit. Only get Databases and collection stats if the total number of collections in the server
+  // is less than this value. 0: no limit
+  int32 collections_limit = 14;
+  // Enable All collectors.
+  bool enable_all_collectors = 15;
 }
 
 // PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
@@ -712,6 +719,11 @@ message AddMongoDBExporterRequest {
   string authentication_database = 15;
   // Custom password for exporter endpoint /metrics.
   string agent_password = 16;
+  // List of colletions to get stats from. Can use *
+  repeated string stats_collections = 17;
+  // Collections limit. Only get Databases and collection stats if the total number of collections in the server
+  // is less than this value. 0: no limit
+  int32 collections_limit = 18;
 }
 
 message AddMongoDBExporterResponse {

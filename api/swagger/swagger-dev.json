@@ -2099,13 +2099,13 @@
         }
       }
     },
-    "/v1/Platform/SignIn": {
+    "/v1/Platform/Connect": {
       "post": {
         "tags": [
-          "Server"
+          "Platform"
         ],
-        "summary": "PlatformSignIn links that PMM instance to Percona Platform user.",
-        "operationId": "PlatformSignIn",
+        "summary": "Connect a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.",
+        "operationId": "Connect",
         "parameters": [
           {
             "name": "body",
@@ -2114,15 +2114,20 @@
             "schema": {
               "type": "object",
               "properties": {
+                "server_name": {
+                  "description": "User defined human readable PMM Server Name.",
+                  "type": "string",
+                  "x-order": 0
+                },
                 "email": {
                   "description": "Existing Percona Platform user's email.",
                   "type": "string",
-                  "x-order": 0
+                  "x-order": 1
                 },
                 "password": {
                   "description": "Existing Percona Platform user's password.",
                   "type": "string",
-                  "x-order": 1
+                  "x-order": 2
                 }
               }
             }
@@ -2177,13 +2182,13 @@
         }
       }
     },
-    "/v1/Platform/SignOut": {
+    "/v1/Platform/Disconnect": {
       "post": {
         "tags": [
-          "Server"
+          "Platform"
         ],
-        "summary": "PlatformSignOut logouts this PMM instance from Percona Platform account.",
-        "operationId": "PlatformSignOut",
+        "summary": "Disconnect a PMM server from the organization created on Percona Portal.",
+        "operationId": "Disconnect",
         "parameters": [
           {
             "name": "body",
@@ -2191,94 +2196,6 @@
             "required": true,
             "schema": {
               "type": "object"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 1
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 2
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "type_url": {
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
-                      }
-                    }
-                  },
-                  "x-order": 3
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/Platform/SignUp": {
-      "post": {
-        "tags": [
-          "Server"
-        ],
-        "summary": "PlatformSignUp creates a new Percona Platform user.",
-        "operationId": "PlatformSignUp",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "email": {
-                  "description": "New Percona Platform user's email.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "password": {
-                  "description": "Existing Percona Platform user's password.",
-                  "type": "string",
-                  "x-order": 1
-                },
-                "first_name": {
-                  "description": "New Percona Platform user's first name.",
-                  "type": "string",
-                  "x-order": 2
-                },
-                "last_name": {
-                  "description": "New Percona Platform user's last name.",
-                  "type": "string",
-                  "x-order": 3
-                }
-              }
             }
           }
         ],
@@ -2431,17 +2348,17 @@
                   "x-order": 13
                 },
                 "enable_alerting": {
-                  "description": "Enable Integrated Alerting.",
+                  "description": "Enable Alerting.",
                   "type": "boolean",
                   "x-order": 14
                 },
                 "disable_alerting": {
-                  "description": "Disable Integrated Alerting.",
+                  "description": "Disable Alerting.",
                   "type": "boolean",
                   "x-order": 15
                 },
                 "email_alerting_settings": {
-                  "description": "EmailAlertingSettings represents email (SMTP) configuration for Integrated Alerting.",
+                  "description": "EmailAlertingSettings represents email (SMTP) configuration for Alerting.",
                   "type": "object",
                   "properties": {
                     "from": {
@@ -2488,12 +2405,12 @@
                   "x-order": 16
                 },
                 "remove_email_alerting_settings": {
-                  "description": "If true, removes Integrated Alerting email (SMTP) settings.",
+                  "description": "If true, removes Alerting email (SMTP) settings.",
                   "type": "boolean",
                   "x-order": 17
                 },
                 "slack_alerting_settings": {
-                  "description": "SlackAlertingSettings represents Slack configuration for Integrated Alerting.",
+                  "description": "SlackAlertingSettings represents Slack configuration for Alerting.",
                   "type": "object",
                   "properties": {
                     "url": {
@@ -2505,7 +2422,7 @@
                   "x-order": 18
                 },
                 "remove_slack_alerting_settings": {
-                  "description": "If true, removes Integrated Alerting Slack settings.",
+                  "description": "If true, removes Alerting Slack settings.",
                   "type": "boolean",
                   "x-order": 19
                 },
@@ -2662,7 +2579,7 @@
                       "x-order": 11
                     },
                     "email_alerting_settings": {
-                      "description": "EmailAlertingSettings represents email (SMTP) configuration for Integrated Alerting.",
+                      "description": "EmailAlertingSettings represents email (SMTP) configuration for Alerting.",
                       "type": "object",
                       "properties": {
                         "from": {
@@ -2709,7 +2626,7 @@
                       "x-order": 12
                     },
                     "slack_alerting_settings": {
-                      "description": "SlackAlertingSettings represents Slack configuration for Integrated Alerting.",
+                      "description": "SlackAlertingSettings represents Slack configuration for Alerting.",
                       "type": "object",
                       "properties": {
                         "url": {
@@ -2756,6 +2673,11 @@
                       "description": "True if Azure Discover is enabled.",
                       "type": "boolean",
                       "x-order": 17
+                    },
+                    "connected_to_platform": {
+                      "type": "boolean",
+                      "title": "True if the PMM instance is connected to Platform",
+                      "x-order": 18
                     }
                   },
                   "x-order": 0
@@ -2910,7 +2832,7 @@
                       "x-order": 11
                     },
                     "email_alerting_settings": {
-                      "description": "EmailAlertingSettings represents email (SMTP) configuration for Integrated Alerting.",
+                      "description": "EmailAlertingSettings represents email (SMTP) configuration for Alerting.",
                       "type": "object",
                       "properties": {
                         "from": {
@@ -2957,7 +2879,7 @@
                       "x-order": 12
                     },
                     "slack_alerting_settings": {
-                      "description": "SlackAlertingSettings represents Slack configuration for Integrated Alerting.",
+                      "description": "SlackAlertingSettings represents Slack configuration for Alerting.",
                       "type": "object",
                       "properties": {
                         "url": {
@@ -3004,11 +2926,136 @@
                       "description": "True if Azure Discover is enabled.",
                       "type": "boolean",
                       "x-order": 17
+                    },
+                    "connected_to_platform": {
+                      "type": "boolean",
+                      "title": "True if the PMM instance is connected to Platform",
+                      "x-order": 18
                     }
                   },
                   "x-order": 0
                 }
               }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/Settings/TestEmailAlertingSettings": {
+      "post": {
+        "tags": [
+          "Server"
+        ],
+        "summary": "TestEmailAlertingSettings tests email alerting SMTP settings by sending testing email.",
+        "operationId": "TestEmailAlertingSettings",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email_alerting_settings": {
+                  "description": "EmailAlertingSettings represents email (SMTP) configuration for Alerting.",
+                  "type": "object",
+                  "properties": {
+                    "from": {
+                      "description": "SMTP From header field.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "smarthost": {
+                      "description": "SMTP host and port.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "hello": {
+                      "description": "Hostname to identify to the SMTP server.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "username": {
+                      "description": "Auth using CRAM-MD5, LOGIN and PLAIN.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "password": {
+                      "description": "Auth using LOGIN and PLAIN.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "identity": {
+                      "description": "Auth using PLAIN.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "secret": {
+                      "description": "Auth using CRAM-MD5.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "require_tls": {
+                      "description": "Require TLS.",
+                      "type": "boolean",
+                      "x-order": 7
+                    }
+                  },
+                  "x-order": 0
+                },
+                "email_to": {
+                  "description": "Target email address to send the email to.",
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
             }
           },
           "default": {
@@ -3853,6 +3900,20 @@
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 15
+                },
+                "stats_collections": {
+                  "type": "array",
+                  "title": "List of colletions to get stats from. Can use *",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 16
+                },
+                "collections_limit": {
+                  "type": "integer",
+                  "format": "int32",
+                  "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                  "x-order": 17
                 }
               }
             }
@@ -3944,6 +4005,25 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "stats_collections": {
+                      "type": "array",
+                      "title": "List of colletions to get stats from. Can use *",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 12
+                    },
+                    "collections_limit": {
+                      "type": "integer",
+                      "format": "int32",
+                      "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                      "x-order": 13
+                    },
+                    "enable_all_collectors": {
+                      "description": "Enable All collectors.",
+                      "type": "boolean",
+                      "x-order": 14
                     }
                   },
                   "x-order": 0
@@ -6729,6 +6809,25 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "stats_collections": {
+                      "type": "array",
+                      "title": "List of colletions to get stats from. Can use *",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 12
+                    },
+                    "collections_limit": {
+                      "type": "integer",
+                      "format": "int32",
+                      "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                      "x-order": 13
+                    },
+                    "enable_all_collectors": {
+                      "description": "Enable All collectors.",
+                      "type": "boolean",
+                      "x-order": 14
                     }
                   },
                   "x-order": 0
@@ -9058,6 +9157,25 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "stats_collections": {
+                      "type": "array",
+                      "title": "List of colletions to get stats from. Can use *",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 12
+                    },
+                    "collections_limit": {
+                      "type": "integer",
+                      "format": "int32",
+                      "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                      "x-order": 13
+                    },
+                    "enable_all_collectors": {
+                      "description": "Enable All collectors.",
+                      "type": "boolean",
+                      "x-order": 14
                     }
                   },
                   "x-order": 4
@@ -10253,6 +10371,25 @@
                         "type": "integer",
                         "format": "int64",
                         "x-order": 11
+                      },
+                      "stats_collections": {
+                        "type": "array",
+                        "title": "List of colletions to get stats from. Can use *",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 12
+                      },
+                      "collections_limit": {
+                        "type": "integer",
+                        "format": "int32",
+                        "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                        "x-order": 13
+                      },
+                      "enable_all_collectors": {
+                        "description": "Enable All collectors.",
+                        "type": "boolean",
+                        "x-order": 14
                       }
                     }
                   },
@@ -17489,6 +17626,567 @@
         }
       }
     },
+    "/v1/management/DBaaS/DBClusters/Delete": {
+      "post": {
+        "tags": [
+          "DBClusters"
+        ],
+        "summary": "DeleteDBCluster deletes DB cluster.",
+        "operationId": "DeleteDBCluster",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "kubernetes_cluster_name": {
+                  "description": "Kubernetes cluster name.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "name": {
+                  "description": "DB cluster name.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "cluster_type": {
+                  "description": "DBClusterType represents database cluster type.\n\n - DB_CLUSTER_TYPE_INVALID: DB_CLUSTER_TYPE_INVALID represents unknown cluster type.\n - DB_CLUSTER_TYPE_PXC: DB_CLUSTER_TYPE_PXC represents pxc cluster type.\n - DB_CLUSTER_TYPE_PSMDB: DB_CLUSTER_TYPE_PSMDB represents psmdb cluster type.",
+                  "type": "string",
+                  "default": "DB_CLUSTER_TYPE_INVALID",
+                  "enum": [
+                    "DB_CLUSTER_TYPE_INVALID",
+                    "DB_CLUSTER_TYPE_PXC",
+                    "DB_CLUSTER_TYPE_PSMDB"
+                  ],
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/DBaaS/DBClusters/List": {
+      "post": {
+        "tags": [
+          "DBClusters"
+        ],
+        "summary": "ListDBClusters returns a list of DB clusters.",
+        "operationId": "ListDBClusters",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "kubernetes_cluster_name": {
+                  "description": "Kubernetes cluster name.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "pxc_clusters": {
+                  "description": "PXC clusters information.",
+                  "type": "array",
+                  "items": {
+                    "description": "PXCCluster represents PXC cluster information.",
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "description": "Cluster name.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "state": {
+                        "description": "DBClusterState represents DB cluster CR state.\n\n - DB_CLUSTER_STATE_INVALID: DB_CLUSTER_STATE_INVALID represents unknown state.\n - DB_CLUSTER_STATE_CHANGING: DB_CLUSTER_STATE_CHANGING represents a cluster being changed.\n - DB_CLUSTER_STATE_READY: DB_CLUSTER_STATE_READY represents a cluster without pending changes.\n - DB_CLUSTER_STATE_FAILED: DB_CLUSTER_STATE_FAILED represents a failed cluster.\n - DB_CLUSTER_STATE_DELETING: DB_CLUSTER_STATE_DELETING represents a cluster being deleting.\n - DB_CLUSTER_STATE_PAUSED: DB_CLUSTER_STATE_PAUSED represents a cluster is paused.\n - DB_CLUSTER_STATE_UPGRADING: DB_CLUSTER_STATE_UPGRADING is a special case of DB_CLUSTER_STATE_CHANGING.\nIt indicates database cluster upgrade is ongoing.",
+                        "type": "string",
+                        "default": "DB_CLUSTER_STATE_INVALID",
+                        "enum": [
+                          "DB_CLUSTER_STATE_INVALID",
+                          "DB_CLUSTER_STATE_CHANGING",
+                          "DB_CLUSTER_STATE_READY",
+                          "DB_CLUSTER_STATE_FAILED",
+                          "DB_CLUSTER_STATE_DELETING",
+                          "DB_CLUSTER_STATE_PAUSED",
+                          "DB_CLUSTER_STATE_UPGRADING"
+                        ],
+                        "x-order": 1
+                      },
+                      "operation": {
+                        "description": "RunningOperation respresents a long-running operation.",
+                        "type": "object",
+                        "properties": {
+                          "finished_steps": {
+                            "description": "Finished steps of the operaion; can decrease or increase compared to the previous value.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 0
+                          },
+                          "message": {
+                            "description": "Text describing the current operation progress step.",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "total_steps": {
+                            "description": "Total steps needed to finish the operation; can decrease or increase compared to the previous value.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 2
+                          }
+                        },
+                        "x-order": 2
+                      },
+                      "params": {
+                        "description": "PXCClusterParams represents PXC cluster parameters that can be updated.",
+                        "type": "object",
+                        "properties": {
+                          "cluster_size": {
+                            "description": "Cluster size.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 0
+                          },
+                          "pxc": {
+                            "description": "PXC container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
+                            "type": "object",
+                            "properties": {
+                              "image": {
+                                "description": "Docker image used for PXC.",
+                                "type": "string",
+                                "x-order": 0
+                              },
+                              "compute_resources": {
+                                "description": "ComputeResources represents container computer resources requests or limits.",
+                                "type": "object",
+                                "properties": {
+                                  "cpu_m": {
+                                    "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
+                                    "type": "integer",
+                                    "format": "int32",
+                                    "x-order": 0
+                                  },
+                                  "memory_bytes": {
+                                    "description": "Memory in bytes.",
+                                    "type": "string",
+                                    "format": "int64",
+                                    "x-order": 1
+                                  }
+                                },
+                                "x-order": 1
+                              },
+                              "disk_size": {
+                                "description": "Disk size in bytes.",
+                                "type": "string",
+                                "format": "int64",
+                                "x-order": 2
+                              }
+                            },
+                            "x-order": 1
+                          },
+                          "proxysql": {
+                            "description": "ProxySQL container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
+                            "type": "object",
+                            "properties": {
+                              "image": {
+                                "description": "Docker image used for ProxySQL.",
+                                "type": "string",
+                                "x-order": 0
+                              },
+                              "compute_resources": {
+                                "description": "ComputeResources represents container computer resources requests or limits.",
+                                "type": "object",
+                                "properties": {
+                                  "cpu_m": {
+                                    "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
+                                    "type": "integer",
+                                    "format": "int32",
+                                    "x-order": 0
+                                  },
+                                  "memory_bytes": {
+                                    "description": "Memory in bytes.",
+                                    "type": "string",
+                                    "format": "int64",
+                                    "x-order": 1
+                                  }
+                                },
+                                "x-order": 1
+                              },
+                              "disk_size": {
+                                "description": "Disk size in bytes.",
+                                "type": "string",
+                                "format": "int64",
+                                "x-order": 2
+                              }
+                            },
+                            "x-order": 2
+                          },
+                          "haproxy": {
+                            "description": "HAProxy container parameters.\nNOTE: HAProxy does not need disk size as ProxySQL does because the container does not require it.",
+                            "type": "object",
+                            "properties": {
+                              "image": {
+                                "description": "Docker image used for HAProxy.",
+                                "type": "string",
+                                "x-order": 0
+                              },
+                              "compute_resources": {
+                                "description": "ComputeResources represents container computer resources requests or limits.",
+                                "type": "object",
+                                "properties": {
+                                  "cpu_m": {
+                                    "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
+                                    "type": "integer",
+                                    "format": "int32",
+                                    "x-order": 0
+                                  },
+                                  "memory_bytes": {
+                                    "description": "Memory in bytes.",
+                                    "type": "string",
+                                    "format": "int64",
+                                    "x-order": 1
+                                  }
+                                },
+                                "x-order": 1
+                              }
+                            },
+                            "x-order": 3
+                          }
+                        },
+                        "x-order": 3
+                      },
+                      "exposed": {
+                        "description": "DB cluster accessible outside of K8s cluster.",
+                        "type": "boolean",
+                        "x-order": 4
+                      },
+                      "installed_image": {
+                        "description": "Installed XtraDB image.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "available_image": {
+                        "description": "Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.\nIf it's empty, no upgrade is available.",
+                        "type": "string",
+                        "x-order": 6
+                      }
+                    }
+                  },
+                  "x-order": 0
+                },
+                "psmdb_clusters": {
+                  "description": "PSMDB clusters information.",
+                  "type": "array",
+                  "items": {
+                    "description": "PSMDBCluster represents PSMDB cluster information.",
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "description": "Cluster name.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "state": {
+                        "description": "DBClusterState represents DB cluster CR state.\n\n - DB_CLUSTER_STATE_INVALID: DB_CLUSTER_STATE_INVALID represents unknown state.\n - DB_CLUSTER_STATE_CHANGING: DB_CLUSTER_STATE_CHANGING represents a cluster being changed.\n - DB_CLUSTER_STATE_READY: DB_CLUSTER_STATE_READY represents a cluster without pending changes.\n - DB_CLUSTER_STATE_FAILED: DB_CLUSTER_STATE_FAILED represents a failed cluster.\n - DB_CLUSTER_STATE_DELETING: DB_CLUSTER_STATE_DELETING represents a cluster being deleting.\n - DB_CLUSTER_STATE_PAUSED: DB_CLUSTER_STATE_PAUSED represents a cluster is paused.\n - DB_CLUSTER_STATE_UPGRADING: DB_CLUSTER_STATE_UPGRADING is a special case of DB_CLUSTER_STATE_CHANGING.\nIt indicates database cluster upgrade is ongoing.",
+                        "type": "string",
+                        "default": "DB_CLUSTER_STATE_INVALID",
+                        "enum": [
+                          "DB_CLUSTER_STATE_INVALID",
+                          "DB_CLUSTER_STATE_CHANGING",
+                          "DB_CLUSTER_STATE_READY",
+                          "DB_CLUSTER_STATE_FAILED",
+                          "DB_CLUSTER_STATE_DELETING",
+                          "DB_CLUSTER_STATE_PAUSED",
+                          "DB_CLUSTER_STATE_UPGRADING"
+                        ],
+                        "x-order": 1
+                      },
+                      "operation": {
+                        "description": "RunningOperation respresents a long-running operation.",
+                        "type": "object",
+                        "properties": {
+                          "finished_steps": {
+                            "description": "Finished steps of the operaion; can decrease or increase compared to the previous value.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 0
+                          },
+                          "message": {
+                            "description": "Text describing the current operation progress step.",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "total_steps": {
+                            "description": "Total steps needed to finish the operation; can decrease or increase compared to the previous value.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 2
+                          }
+                        },
+                        "x-order": 2
+                      },
+                      "params": {
+                        "description": "PSMDBClusterParams represents PSMDB cluster parameters that can be updated.",
+                        "type": "object",
+                        "properties": {
+                          "cluster_size": {
+                            "description": "Cluster size.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 0
+                          },
+                          "replicaset": {
+                            "description": "ReplicaSet container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
+                            "type": "object",
+                            "properties": {
+                              "compute_resources": {
+                                "description": "ComputeResources represents container computer resources requests or limits.",
+                                "type": "object",
+                                "properties": {
+                                  "cpu_m": {
+                                    "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
+                                    "type": "integer",
+                                    "format": "int32",
+                                    "x-order": 0
+                                  },
+                                  "memory_bytes": {
+                                    "description": "Memory in bytes.",
+                                    "type": "string",
+                                    "format": "int64",
+                                    "x-order": 1
+                                  }
+                                },
+                                "x-order": 0
+                              },
+                              "disk_size": {
+                                "description": "Disk size in bytes.",
+                                "type": "string",
+                                "format": "int64",
+                                "x-order": 1
+                              }
+                            },
+                            "x-order": 1
+                          },
+                          "image": {
+                            "description": "Docker image used for PSMDB.",
+                            "type": "string",
+                            "x-order": 2
+                          }
+                        },
+                        "x-order": 3
+                      },
+                      "exposed": {
+                        "description": "DB cluster accessible outside of K8s cluster.",
+                        "type": "boolean",
+                        "x-order": 4
+                      },
+                      "installed_image": {
+                        "description": "Installed PSMDB image.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "available_image": {
+                        "description": "Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.\nIf it's empty, no upgrade is available.",
+                        "type": "string",
+                        "x-order": 6
+                      }
+                    }
+                  },
+                  "x-order": 1
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/DBaaS/DBClusters/Restart": {
+      "post": {
+        "tags": [
+          "DBClusters"
+        ],
+        "summary": "RestartDBCluster restarts DB cluster.",
+        "operationId": "RestartDBCluster",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "kubernetes_cluster_name": {
+                  "description": "Kubernetes cluster name.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "name": {
+                  "description": "PXC cluster name.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "cluster_type": {
+                  "description": "DBClusterType represents database cluster type.\n\n - DB_CLUSTER_TYPE_INVALID: DB_CLUSTER_TYPE_INVALID represents unknown cluster type.\n - DB_CLUSTER_TYPE_PXC: DB_CLUSTER_TYPE_PXC represents pxc cluster type.\n - DB_CLUSTER_TYPE_PSMDB: DB_CLUSTER_TYPE_PSMDB represents psmdb cluster type.",
+                  "type": "string",
+                  "default": "DB_CLUSTER_TYPE_INVALID",
+                  "enum": [
+                    "DB_CLUSTER_TYPE_INVALID",
+                    "DB_CLUSTER_TYPE_PXC",
+                    "DB_CLUSTER_TYPE_PSMDB"
+                  ],
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/DBaaS/GetLogs": {
       "post": {
         "tags": [
@@ -17724,7 +18422,7 @@
                         "description": "Operators contains list of operators installed in Kubernetes cluster.",
                         "type": "object",
                         "properties": {
-                          "xtradb": {
+                          "pxc": {
                             "description": "Operator contains all information about operator installed in Kubernetes cluster.",
                             "type": "object",
                             "properties": {
@@ -18124,7 +18822,7 @@
     "/v1/management/DBaaS/PSMDBCluster/Create": {
       "post": {
         "tags": [
-          "PSMDBCluster"
+          "PSMDBClusters"
         ],
         "summary": "CreatePSMDBCluster creates a new PSMDB cluster.",
         "operationId": "CreatePSMDBCluster",
@@ -18254,88 +18952,10 @@
         }
       }
     },
-    "/v1/management/DBaaS/PSMDBCluster/Delete": {
-      "post": {
-        "tags": [
-          "PSMDBCluster"
-        ],
-        "summary": "DeletePSMDBCluster deletes PSMDB cluster.",
-        "operationId": "DeletePSMDBCluster",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "kubernetes_cluster_name": {
-                  "description": "Kubernetes cluster name.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "name": {
-                  "description": "PSMDB cluster name.",
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 1
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 2
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "type_url": {
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
-                      }
-                    }
-                  },
-                  "x-order": 3
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v1/management/DBaaS/PSMDBCluster/Resources/Get": {
       "post": {
         "tags": [
-          "PSMDBCluster"
+          "PSMDBClusters"
         ],
         "summary": "GetPSMDBClusterResources returns expected resources to be consumed by the cluster.",
         "operationId": "GetPSMDBClusterResources",
@@ -18477,88 +19097,10 @@
         }
       }
     },
-    "/v1/management/DBaaS/PSMDBCluster/Restart": {
-      "post": {
-        "tags": [
-          "PSMDBCluster"
-        ],
-        "summary": "RestartPSMDBCluster restarts PSMDB cluster.",
-        "operationId": "RestartPSMDBCluster",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "kubernetes_cluster_name": {
-                  "description": "Kubernetes cluster name.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "name": {
-                  "description": "PSMDB cluster name.",
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 1
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 2
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "type_url": {
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
-                      }
-                    }
-                  },
-                  "x-order": 3
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v1/management/DBaaS/PSMDBCluster/Update": {
       "post": {
         "tags": [
-          "PSMDBCluster"
+          "PSMDBClusters"
         ],
         "summary": "UpdatePSMDBCluster updates existing PSMDB cluster.",
         "operationId": "UpdatePSMDBCluster",
@@ -18690,7 +19232,7 @@
     "/v1/management/DBaaS/PSMDBClusters/GetCredentials": {
       "post": {
         "tags": [
-          "PSMDBCluster"
+          "PSMDBClusters"
         ],
         "summary": "GetPSMDBClusterCredentials returns a PSMDB cluster credentials by cluster name.",
         "operationId": "GetPSMDBClusterCredentials",
@@ -18800,208 +19342,13 @@
         }
       }
     },
-    "/v1/management/DBaaS/PSMDBClusters/List": {
+    "/v1/management/DBaaS/PXCCluster/Create": {
       "post": {
         "tags": [
-          "PSMDBCluster"
+          "PXCClusters"
         ],
-        "summary": "ListPSMDBClusters returns a list of PSMDB clusters.",
-        "operationId": "ListPSMDBClusters",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "kubernetes_cluster_name": {
-                  "description": "Kubernetes cluster name.",
-                  "type": "string",
-                  "x-order": 0
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "clusters": {
-                  "description": "PSMDB clusters information.",
-                  "type": "array",
-                  "items": {
-                    "description": "Cluster represents PSMDB cluster information.\nTODO Do not use inner messages in all public APIs (for consistency).",
-                    "type": "object",
-                    "properties": {
-                      "name": {
-                        "description": "Cluster name.",
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "state": {
-                        "description": "PSMDBClusterState represents PSMDB cluster CR state.\n\n - PSMDB_CLUSTER_STATE_INVALID: PSMDB_CLUSTER_STATE_INVALID represents unknown state.\n - PSMDB_CLUSTER_STATE_CHANGING: PSMDB_CLUSTER_STATE_CHANGING represents a cluster being changed.\n - PSMDB_CLUSTER_STATE_READY: PSMDB_CLUSTER_STATE_READY represents a cluster without pending changes.\n - PSMDB_CLUSTER_STATE_FAILED: PSMDB_CLUSTER_STATE_FAILED represents a failed cluster.\n - PSMDB_CLUSTER_STATE_DELETING: PSMDB_CLUSTER_STATE_DELETING represents a cluster being deleting.\n - PSMDB_CLUSTER_STATE_PAUSED: PSMDB_CLUSTER_STATE_PAUSED represents a cluster is paused.\n - PSMDB_CLUSTER_STATE_UPGRADING: PSMDB_CLUSTER_STATE_UPGRADING is a special case of PSMDB_CLUSTER_STATE_CHANGING.\nIt indicates database cluster upgrade is ongoing.",
-                        "type": "string",
-                        "default": "PSMDB_CLUSTER_STATE_INVALID",
-                        "enum": [
-                          "PSMDB_CLUSTER_STATE_INVALID",
-                          "PSMDB_CLUSTER_STATE_CHANGING",
-                          "PSMDB_CLUSTER_STATE_READY",
-                          "PSMDB_CLUSTER_STATE_FAILED",
-                          "PSMDB_CLUSTER_STATE_DELETING",
-                          "PSMDB_CLUSTER_STATE_PAUSED",
-                          "PSMDB_CLUSTER_STATE_UPGRADING"
-                        ],
-                        "x-order": 1
-                      },
-                      "operation": {
-                        "description": "RunningOperation respresents a long-running operation.",
-                        "type": "object",
-                        "properties": {
-                          "finished_steps": {
-                            "description": "Finished steps of the operaion; can decrease or increase compared to the previous value.",
-                            "type": "integer",
-                            "format": "int32",
-                            "x-order": 0
-                          },
-                          "message": {
-                            "description": "Text describing the current operation progress step.",
-                            "type": "string",
-                            "x-order": 1
-                          },
-                          "total_steps": {
-                            "description": "Total steps needed to finish the operation; can decrease or increase compared to the previous value.",
-                            "type": "integer",
-                            "format": "int32",
-                            "x-order": 2
-                          }
-                        },
-                        "x-order": 2
-                      },
-                      "params": {
-                        "description": "PSMDBClusterParams represents PSMDB cluster parameters that can be updated.",
-                        "type": "object",
-                        "properties": {
-                          "cluster_size": {
-                            "description": "Cluster size.",
-                            "type": "integer",
-                            "format": "int32",
-                            "x-order": 0
-                          },
-                          "replicaset": {
-                            "description": "ReplicaSet container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
-                            "type": "object",
-                            "properties": {
-                              "compute_resources": {
-                                "description": "ComputeResources represents container computer resources requests or limits.",
-                                "type": "object",
-                                "properties": {
-                                  "cpu_m": {
-                                    "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
-                                    "type": "integer",
-                                    "format": "int32",
-                                    "x-order": 0
-                                  },
-                                  "memory_bytes": {
-                                    "description": "Memory in bytes.",
-                                    "type": "string",
-                                    "format": "int64",
-                                    "x-order": 1
-                                  }
-                                },
-                                "x-order": 0
-                              },
-                              "disk_size": {
-                                "description": "Disk size in bytes.",
-                                "type": "string",
-                                "format": "int64",
-                                "x-order": 1
-                              }
-                            },
-                            "x-order": 1
-                          },
-                          "image": {
-                            "description": "Docker image used for PSMDB.",
-                            "type": "string",
-                            "x-order": 2
-                          }
-                        },
-                        "x-order": 3
-                      },
-                      "exposed": {
-                        "description": "DB cluster accessible outside of K8s cluster.",
-                        "type": "boolean",
-                        "x-order": 4
-                      },
-                      "installed_image": {
-                        "description": "Installed PSMDB image.",
-                        "type": "string",
-                        "x-order": 5
-                      },
-                      "available_image": {
-                        "description": "Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.\nIf it's empty, no upgrade is available.",
-                        "type": "string",
-                        "x-order": 6
-                      }
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 1
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 2
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "type_url": {
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
-                      }
-                    }
-                  },
-                  "x-order": 3
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/management/DBaaS/XtraDBCluster/Create": {
-      "post": {
-        "tags": [
-          "XtraDBCluster"
-        ],
-        "summary": "CreateXtraDBCluster creates a new XtraDB cluster.",
-        "operationId": "CreateXtraDBCluster",
+        "summary": "CreatePXCCluster creates a new PXC cluster.",
+        "operationId": "CreatePXCCluster",
         "parameters": [
           {
             "name": "body",
@@ -19017,11 +19364,11 @@
                 },
                 "name": {
                   "type": "string",
-                  "title": "XtraDB cluster name.\na DNS-1035 label must consist of lower case alphanumeric characters or '-',\nstart with an alphabetic character, and end with an alphanumeric character\n(e.g. 'my-name',  or 'abc-123', regex used for validation is '[a-z]([-a-z0-9]*[a-z0-9])?')",
+                  "title": "PXC cluster name.\na DNS-1035 label must consist of lower case alphanumeric characters or '-',\nstart with an alphabetic character, and end with an alphanumeric character\n(e.g. 'my-name',  or 'abc-123', regex used for validation is '[a-z]([-a-z0-9]*[a-z0-9])?')",
                   "x-order": 1
                 },
                 "params": {
-                  "description": "XtraDBClusterParams represents XtraDB cluster parameters that can be updated.",
+                  "description": "PXCClusterParams represents PXC cluster parameters that can be updated.",
                   "type": "object",
                   "properties": {
                     "cluster_size": {
@@ -19196,91 +19543,13 @@
         }
       }
     },
-    "/v1/management/DBaaS/XtraDBCluster/Delete": {
+    "/v1/management/DBaaS/PXCCluster/Resources/Get": {
       "post": {
         "tags": [
-          "XtraDBCluster"
+          "PXCClusters"
         ],
-        "summary": "DeleteXtraDBCluster deletes XtraDB cluster.",
-        "operationId": "DeleteXtraDBCluster",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "kubernetes_cluster_name": {
-                  "description": "Kubernetes cluster name.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "name": {
-                  "description": "XtraDB cluster name.",
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 1
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 2
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "type_url": {
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
-                      }
-                    }
-                  },
-                  "x-order": 3
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/management/DBaaS/XtraDBCluster/Resources/Get": {
-      "post": {
-        "tags": [
-          "XtraDBCluster"
-        ],
-        "summary": "GetXtraDBClusterResources returns expected resources to be consumed by the cluster.",
-        "operationId": "GetXtraDBClusterResources",
+        "summary": "GetPXCClusterResources returns expected resources to be consumed by the cluster.",
+        "operationId": "GetPXCClusterResources",
         "parameters": [
           {
             "name": "body",
@@ -19290,7 +19559,7 @@
               "type": "object",
               "properties": {
                 "params": {
-                  "description": "XtraDBClusterParams represents XtraDB cluster parameters that can be updated.",
+                  "description": "PXCClusterParams represents PXC cluster parameters that can be updated.",
                   "type": "object",
                   "properties": {
                     "cluster_size": {
@@ -19487,13 +19756,13 @@
         }
       }
     },
-    "/v1/management/DBaaS/XtraDBCluster/Restart": {
+    "/v1/management/DBaaS/PXCCluster/Update": {
       "post": {
         "tags": [
-          "XtraDBCluster"
+          "PXCClusters"
         ],
-        "summary": "RestartXtraDBCluster restarts XtraDB cluster.",
-        "operationId": "RestartXtraDBCluster",
+        "summary": "UpdatePXCCluster updates existing PXC cluster.",
+        "operationId": "UpdatePXCCluster",
         "parameters": [
           {
             "name": "body",
@@ -19508,90 +19777,12 @@
                   "x-order": 0
                 },
                 "name": {
-                  "description": "XtraDB cluster name.",
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 1
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 2
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "type_url": {
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
-                      }
-                    }
-                  },
-                  "x-order": 3
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/management/DBaaS/XtraDBCluster/Update": {
-      "post": {
-        "tags": [
-          "XtraDBCluster"
-        ],
-        "summary": "UpdateXtraDBCluster updates existing XtraDB cluster.",
-        "operationId": "UpdateXtraDBCluster",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "kubernetes_cluster_name": {
-                  "description": "Kubernetes cluster name.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "name": {
-                  "description": "XtraDB cluster name.",
+                  "description": "PXC cluster name.",
                   "type": "string",
                   "x-order": 1
                 },
                 "params": {
-                  "description": "UpdateXtraDBClusterParams represents XtraDB cluster parameters that can be updated.",
+                  "description": "UpdatePXCClusterParams represents PXC cluster parameters that can be updated.",
                   "type": "object",
                   "properties": {
                     "cluster_size": {
@@ -19749,13 +19940,13 @@
         }
       }
     },
-    "/v1/management/DBaaS/XtraDBClusters/GetCredentials": {
+    "/v1/management/DBaaS/PXCClusters/GetCredentials": {
       "post": {
         "tags": [
-          "XtraDBCluster"
+          "PXCClusters"
         ],
-        "summary": "GetXtraDBClusterCredentials returns a XtraDB cluster credentials by cluster name.",
-        "operationId": "GetXtraDBClusterCredentials",
+        "summary": "GetPXCClusterCredentials returns a PXC cluster credentials by cluster name.",
+        "operationId": "GetPXCClusterCredentials",
         "parameters": [
           {
             "name": "body",
@@ -19770,7 +19961,7 @@
                   "x-order": 0
                 },
                 "name": {
-                  "description": "XtraDB cluster name.",
+                  "description": "PXC cluster name.",
                   "type": "string",
                   "x-order": 1
                 }
@@ -19785,7 +19976,7 @@
               "type": "object",
               "properties": {
                 "connection_credentials": {
-                  "description": "XtraDBClusterConnectionCredentials is cluster connection credentials.",
+                  "description": "PXCClusterConnectionCredentials is cluster connection credentials.",
                   "type": "object",
                   "properties": {
                     "username": {
@@ -19808,269 +19999,6 @@
                       "type": "integer",
                       "format": "int32",
                       "x-order": 3
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 1
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 2
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "type_url": {
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
-                      }
-                    }
-                  },
-                  "x-order": 3
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/management/DBaaS/XtraDBClusters/List": {
-      "post": {
-        "tags": [
-          "XtraDBCluster"
-        ],
-        "summary": "ListXtraDBClusters returns a list of XtraDB clusters.",
-        "operationId": "ListXtraDBClusters",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "kubernetes_cluster_name": {
-                  "description": "Kubernetes cluster name.",
-                  "type": "string",
-                  "x-order": 0
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "clusters": {
-                  "description": "XtraDB clusters information.",
-                  "type": "array",
-                  "items": {
-                    "description": "Cluster represents XtraDB cluster information.\nTODO Do not use inner messages in all public APIs (for consistency).",
-                    "type": "object",
-                    "properties": {
-                      "name": {
-                        "description": "Cluster name.",
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "state": {
-                        "description": "XtraDBClusterState represents XtraDB cluster CR state.\n\n - XTRA_DB_CLUSTER_STATE_INVALID: XTRA_DB_CLUSTER_STATE_INVALID represents unknown state.\n - XTRA_DB_CLUSTER_STATE_CHANGING: XTRA_DB_CLUSTER_STATE_CHANGING represents a cluster being changed.\n - XTRA_DB_CLUSTER_STATE_READY: XTRA_DB_CLUSTER_STATE_READY represents a cluster without pending changes.\n - XTRA_DB_CLUSTER_STATE_FAILED: XTRA_DB_CLUSTER_STATE_FAILED represents a failed cluster.\n - XTRA_DB_CLUSTER_STATE_DELETING: XTRA_DB_CLUSTER_STATE_DELETING represents a cluster being deleting.\n - XTRA_DB_CLUSTER_STATE_PAUSED: XTRA_DB_CLUSTER_STATE_PAUSED represents a cluster is paused.\n - XTRA_DB_CLUSTER_STATE_UPGRADING: XTRA_DB_CLUSTER_STATE_UPGRADING is a special case of XTRA_DB_CLUSTER_STATE_CHANGING.\nIt indicates database cluster upgrade is ongoing.",
-                        "type": "string",
-                        "default": "XTRA_DB_CLUSTER_STATE_INVALID",
-                        "enum": [
-                          "XTRA_DB_CLUSTER_STATE_INVALID",
-                          "XTRA_DB_CLUSTER_STATE_CHANGING",
-                          "XTRA_DB_CLUSTER_STATE_READY",
-                          "XTRA_DB_CLUSTER_STATE_FAILED",
-                          "XTRA_DB_CLUSTER_STATE_DELETING",
-                          "XTRA_DB_CLUSTER_STATE_PAUSED",
-                          "XTRA_DB_CLUSTER_STATE_UPGRADING"
-                        ],
-                        "x-order": 1
-                      },
-                      "operation": {
-                        "description": "RunningOperation respresents a long-running operation.",
-                        "type": "object",
-                        "properties": {
-                          "finished_steps": {
-                            "description": "Finished steps of the operaion; can decrease or increase compared to the previous value.",
-                            "type": "integer",
-                            "format": "int32",
-                            "x-order": 0
-                          },
-                          "message": {
-                            "description": "Text describing the current operation progress step.",
-                            "type": "string",
-                            "x-order": 1
-                          },
-                          "total_steps": {
-                            "description": "Total steps needed to finish the operation; can decrease or increase compared to the previous value.",
-                            "type": "integer",
-                            "format": "int32",
-                            "x-order": 2
-                          }
-                        },
-                        "x-order": 2
-                      },
-                      "params": {
-                        "description": "XtraDBClusterParams represents XtraDB cluster parameters that can be updated.",
-                        "type": "object",
-                        "properties": {
-                          "cluster_size": {
-                            "description": "Cluster size.",
-                            "type": "integer",
-                            "format": "int32",
-                            "x-order": 0
-                          },
-                          "pxc": {
-                            "description": "PXC container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
-                            "type": "object",
-                            "properties": {
-                              "image": {
-                                "description": "Docker image used for PXC.",
-                                "type": "string",
-                                "x-order": 0
-                              },
-                              "compute_resources": {
-                                "description": "ComputeResources represents container computer resources requests or limits.",
-                                "type": "object",
-                                "properties": {
-                                  "cpu_m": {
-                                    "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
-                                    "type": "integer",
-                                    "format": "int32",
-                                    "x-order": 0
-                                  },
-                                  "memory_bytes": {
-                                    "description": "Memory in bytes.",
-                                    "type": "string",
-                                    "format": "int64",
-                                    "x-order": 1
-                                  }
-                                },
-                                "x-order": 1
-                              },
-                              "disk_size": {
-                                "description": "Disk size in bytes.",
-                                "type": "string",
-                                "format": "int64",
-                                "x-order": 2
-                              }
-                            },
-                            "x-order": 1
-                          },
-                          "proxysql": {
-                            "description": "ProxySQL container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
-                            "type": "object",
-                            "properties": {
-                              "image": {
-                                "description": "Docker image used for ProxySQL.",
-                                "type": "string",
-                                "x-order": 0
-                              },
-                              "compute_resources": {
-                                "description": "ComputeResources represents container computer resources requests or limits.",
-                                "type": "object",
-                                "properties": {
-                                  "cpu_m": {
-                                    "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
-                                    "type": "integer",
-                                    "format": "int32",
-                                    "x-order": 0
-                                  },
-                                  "memory_bytes": {
-                                    "description": "Memory in bytes.",
-                                    "type": "string",
-                                    "format": "int64",
-                                    "x-order": 1
-                                  }
-                                },
-                                "x-order": 1
-                              },
-                              "disk_size": {
-                                "description": "Disk size in bytes.",
-                                "type": "string",
-                                "format": "int64",
-                                "x-order": 2
-                              }
-                            },
-                            "x-order": 2
-                          },
-                          "haproxy": {
-                            "description": "HAProxy container parameters.\nNOTE: HAProxy does not need disk size as ProxySQL does because the container does not require it.",
-                            "type": "object",
-                            "properties": {
-                              "image": {
-                                "description": "Docker image used for HAProxy.",
-                                "type": "string",
-                                "x-order": 0
-                              },
-                              "compute_resources": {
-                                "description": "ComputeResources represents container computer resources requests or limits.",
-                                "type": "object",
-                                "properties": {
-                                  "cpu_m": {
-                                    "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
-                                    "type": "integer",
-                                    "format": "int32",
-                                    "x-order": 0
-                                  },
-                                  "memory_bytes": {
-                                    "description": "Memory in bytes.",
-                                    "type": "string",
-                                    "format": "int64",
-                                    "x-order": 1
-                                  }
-                                },
-                                "x-order": 1
-                              }
-                            },
-                            "x-order": 3
-                          }
-                        },
-                        "x-order": 3
-                      },
-                      "exposed": {
-                        "description": "DB cluster accessible outside of K8s cluster.",
-                        "type": "boolean",
-                        "x-order": 4
-                      },
-                      "installed_image": {
-                        "description": "Installed XtraDB image.",
-                        "type": "string",
-                        "x-order": 5
-                      },
-                      "available_image": {
-                        "description": "Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.\nIf it's empty, no upgrade is available.",
-                        "type": "string",
-                        "x-order": 6
-                      }
                     }
                   },
                   "x-order": 0
@@ -21022,6 +20950,25 @@
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 25
+                },
+                "stats_collections": {
+                  "description": "List of collections to get stats from. Can use * .",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 26
+                },
+                "collections_limit": {
+                  "type": "integer",
+                  "format": "int32",
+                  "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                  "x-order": 27
+                },
+                "enable_all_collectors": {
+                  "type": "boolean",
+                  "title": "Enable all collectors",
+                  "x-order": 28
                 }
               }
             }
@@ -21174,6 +21121,25 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "stats_collections": {
+                      "type": "array",
+                      "title": "List of colletions to get stats from. Can use *",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 12
+                    },
+                    "collections_limit": {
+                      "type": "integer",
+                      "format": "int32",
+                      "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                      "x-order": 13
+                    },
+                    "enable_all_collectors": {
+                      "description": "Enable All collectors.",
+                      "type": "boolean",
+                      "x-order": 14
                     }
                   },
                   "x-order": 1
@@ -27201,229 +27167,165 @@
                         "description": "Rule represents Alert Rule.",
                         "type": "object",
                         "properties": {
-                          "template": {
-                            "description": "Template represents Alert Template that is used to create Alert Rule.",
-                            "type": "object",
-                            "properties": {
-                              "name": {
-                                "description": "Machine-readable name (ID).",
-                                "type": "string",
-                                "x-order": 0
-                              },
-                              "summary": {
-                                "description": "Short human-readable summary.",
-                                "type": "string",
-                                "x-order": 1
-                              },
-                              "expr": {
-                                "description": "PromQL query expression with templating parameters.",
-                                "type": "string",
-                                "x-order": 2
-                              },
-                              "params": {
-                                "description": "Query templating parameters.",
-                                "type": "array",
-                                "items": {
-                                  "description": "TemplateParam represents a single template parameter.",
-                                  "type": "object",
-                                  "properties": {
-                                    "name": {
-                                      "description": "Machine-readable name (ID) that is used in expression.",
-                                      "type": "string",
-                                      "x-order": 0
-                                    },
-                                    "summary": {
-                                      "description": "Short human-readable parameter summary.",
-                                      "type": "string",
-                                      "x-order": 1
-                                    },
-                                    "unit": {
-                                      "description": "ParamUnit represents template parameter unit.\n\n - PARAM_UNIT_INVALID: Invalid, unknown or absent.\n - PERCENTAGE: %\n - SECONDS: s",
-                                      "type": "string",
-                                      "default": "PARAM_UNIT_INVALID",
-                                      "enum": [
-                                        "PARAM_UNIT_INVALID",
-                                        "PERCENTAGE",
-                                        "SECONDS"
-                                      ],
-                                      "x-order": 2
-                                    },
-                                    "type": {
-                                      "description": "ParamType represents template parameter type.",
-                                      "type": "string",
-                                      "default": "PARAM_TYPE_INVALID",
-                                      "enum": [
-                                        "PARAM_TYPE_INVALID",
-                                        "BOOL",
-                                        "FLOAT",
-                                        "STRING"
-                                      ],
-                                      "x-order": 3
-                                    },
-                                    "bool": {
-                                      "description": "TemplateBoolParam represents boolean parameter's default value.",
-                                      "type": "object",
-                                      "properties": {
-                                        "default": {
-                                          "description": "BooleanFlag represent a command to set some boolean property to true,\nto false, or avoid changing that property.\n\n - DO_NOT_CHANGE: Do not change boolean property. Default value.\n - TRUE: True.\n - FALSE: False.",
-                                          "type": "string",
-                                          "default": "DO_NOT_CHANGE",
-                                          "enum": [
-                                            "DO_NOT_CHANGE",
-                                            "TRUE",
-                                            "FALSE"
-                                          ],
-                                          "x-order": 0
-                                        }
-                                      },
-                                      "x-order": 4
-                                    },
-                                    "float": {
-                                      "description": "TemplateFloatParam represents float parameter's default value and valid range.",
-                                      "type": "object",
-                                      "properties": {
-                                        "has_default": {
-                                          "description": "True if default value is set.",
-                                          "type": "boolean",
-                                          "x-order": 0
-                                        },
-                                        "default": {
-                                          "description": "Default value if has_default is true.",
-                                          "type": "number",
-                                          "format": "float",
-                                          "x-order": 1
-                                        },
-                                        "has_min": {
-                                          "description": "True if minimal valid value is set.",
-                                          "type": "boolean",
-                                          "x-order": 2
-                                        },
-                                        "min": {
-                                          "description": "Minimal valid value (inclusive) if has_min is true.",
-                                          "type": "number",
-                                          "format": "float",
-                                          "x-order": 3
-                                        },
-                                        "has_max": {
-                                          "description": "True if maximal valid value is set.",
-                                          "type": "boolean",
-                                          "x-order": 4
-                                        },
-                                        "max": {
-                                          "description": "Maximal valid value (inclusive) if has_max is true.",
-                                          "type": "number",
-                                          "format": "float",
-                                          "x-order": 5
-                                        }
-                                      },
-                                      "x-order": 5
-                                    },
-                                    "string": {
-                                      "description": "TemplateStringParam represents string parameter's default value.",
-                                      "type": "object",
-                                      "properties": {
-                                        "has_default": {
-                                          "description": "True if default value is set.",
-                                          "type": "boolean",
-                                          "x-order": 0
-                                        },
-                                        "default": {
-                                          "description": "Default value if has_default is true.",
-                                          "type": "string",
-                                          "x-order": 1
-                                        }
-                                      },
-                                      "x-order": 6
-                                    }
-                                  }
-                                },
-                                "x-order": 3
-                              },
-                              "for": {
-                                "description": "Default duration value.",
-                                "type": "string",
-                                "x-order": 4
-                              },
-                              "severity": {
-                                "description": "Severity represents severity level of the check result or alert.",
-                                "type": "string",
-                                "default": "SEVERITY_INVALID",
-                                "enum": [
-                                  "SEVERITY_INVALID",
-                                  "SEVERITY_EMERGENCY",
-                                  "SEVERITY_ALERT",
-                                  "SEVERITY_CRITICAL",
-                                  "SEVERITY_ERROR",
-                                  "SEVERITY_WARNING",
-                                  "SEVERITY_NOTICE",
-                                  "SEVERITY_INFO",
-                                  "SEVERITY_DEBUG"
-                                ],
-                                "x-order": 5
-                              },
-                              "labels": {
-                                "description": "Labels.",
-                                "type": "object",
-                                "additionalProperties": {
-                                  "type": "string"
-                                },
-                                "x-order": 6
-                              },
-                              "annotations": {
-                                "description": "Annotations.",
-                                "type": "object",
-                                "additionalProperties": {
-                                  "type": "string"
-                                },
-                                "x-order": 7
-                              },
-                              "source": {
-                                "description": "TemplateSource defines template source.\n\n - BUILT_IN: Template that is shipped with PMM Server releases.\n - SAAS: Template that is downloaded from check.percona.com.\n - USER_FILE: Templated loaded from user-suplied file.\n - USER_API: Templated created via API.",
-                                "type": "string",
-                                "default": "TEMPLATE_SOURCE_INVALID",
-                                "enum": [
-                                  "TEMPLATE_SOURCE_INVALID",
-                                  "BUILT_IN",
-                                  "SAAS",
-                                  "USER_FILE",
-                                  "USER_API"
-                                ],
-                                "x-order": 8
-                              },
-                              "created_at": {
-                                "description": "Template creation time. Empty for built-in and SaaS templates.",
-                                "type": "string",
-                                "format": "date-time",
-                                "x-order": 9
-                              },
-                              "yaml": {
-                                "description": "YAML (or JSON) template file content. Empty for built-in and SaaS templates.",
-                                "type": "string",
-                                "x-order": 10
-                              }
-                            },
-                            "x-order": 0
-                          },
                           "rule_id": {
                             "description": "Rule ID.",
                             "type": "string",
-                            "x-order": 1
+                            "x-order": 0
                           },
-                          "disabled": {
-                            "description": "True if that rule is disabled.",
-                            "type": "boolean",
-                            "x-order": 2
+                          "name": {
+                            "description": "Rule name.",
+                            "type": "string",
+                            "x-order": 1
                           },
                           "summary": {
                             "description": "Rule human-readable summary.",
                             "type": "string",
+                            "x-order": 2
+                          },
+                          "template_name": {
+                            "description": "Template used for this rule.",
+                            "type": "string",
                             "x-order": 3
                           },
-                          "params": {
-                            "description": "Rule parameters.",
+                          "disabled": {
+                            "description": "True if that rule is disabled.",
+                            "type": "boolean",
+                            "x-order": 4
+                          },
+                          "expr_template": {
+                            "description": "Expression template.",
+                            "type": "string",
+                            "x-order": 5
+                          },
+                          "expr": {
+                            "description": "Expression filled with parameters.",
+                            "type": "string",
+                            "x-order": 6
+                          },
+                          "params_definitions": {
+                            "description": "Expression parameters definitions.",
                             "type": "array",
                             "items": {
-                              "description": "RuleParam represents a single rule parameter for List, Change and Update APIs.",
+                              "description": "ParamDefinition represents a single query parameter.",
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "description": "Machine-readable name (ID) that is used in expression.",
+                                  "type": "string",
+                                  "x-order": 0
+                                },
+                                "summary": {
+                                  "description": "Short human-readable parameter summary.",
+                                  "type": "string",
+                                  "x-order": 1
+                                },
+                                "unit": {
+                                  "description": "ParamUnit represents template parameter unit.\n\n - PARAM_UNIT_INVALID: Invalid, unknown or absent.\n - PERCENTAGE: %\n - SECONDS: s",
+                                  "type": "string",
+                                  "default": "PARAM_UNIT_INVALID",
+                                  "enum": [
+                                    "PARAM_UNIT_INVALID",
+                                    "PERCENTAGE",
+                                    "SECONDS"
+                                  ],
+                                  "x-order": 2
+                                },
+                                "type": {
+                                  "description": "ParamType represents template parameter type.",
+                                  "type": "string",
+                                  "default": "PARAM_TYPE_INVALID",
+                                  "enum": [
+                                    "PARAM_TYPE_INVALID",
+                                    "BOOL",
+                                    "FLOAT",
+                                    "STRING"
+                                  ],
+                                  "x-order": 3
+                                },
+                                "bool": {
+                                  "description": "BoolParamDefinition represents boolean parameter's default value.",
+                                  "type": "object",
+                                  "properties": {
+                                    "default": {
+                                      "description": "BooleanFlag represent a command to set some boolean property to true,\nto false, or avoid changing that property.\n\n - DO_NOT_CHANGE: Do not change boolean property. Default value.\n - TRUE: True.\n - FALSE: False.",
+                                      "type": "string",
+                                      "default": "DO_NOT_CHANGE",
+                                      "enum": [
+                                        "DO_NOT_CHANGE",
+                                        "TRUE",
+                                        "FALSE"
+                                      ],
+                                      "x-order": 0
+                                    }
+                                  },
+                                  "x-order": 4
+                                },
+                                "float": {
+                                  "description": "FloatParamDefinition represents float parameter's default value and valid range.",
+                                  "type": "object",
+                                  "properties": {
+                                    "has_default": {
+                                      "description": "True if default value is set.",
+                                      "type": "boolean",
+                                      "x-order": 0
+                                    },
+                                    "default": {
+                                      "description": "Default value if has_default is true.",
+                                      "type": "number",
+                                      "format": "double",
+                                      "x-order": 1
+                                    },
+                                    "has_min": {
+                                      "description": "True if minimal valid value is set.",
+                                      "type": "boolean",
+                                      "x-order": 2
+                                    },
+                                    "min": {
+                                      "description": "Minimal valid value (inclusive) if has_min is true.",
+                                      "type": "number",
+                                      "format": "double",
+                                      "x-order": 3
+                                    },
+                                    "has_max": {
+                                      "description": "True if maximal valid value is set.",
+                                      "type": "boolean",
+                                      "x-order": 4
+                                    },
+                                    "max": {
+                                      "description": "Maximal valid value (inclusive) if has_max is true.",
+                                      "type": "number",
+                                      "format": "double",
+                                      "x-order": 5
+                                    }
+                                  },
+                                  "x-order": 5
+                                },
+                                "string": {
+                                  "description": "StringParamDefinition represents string parameter's default value.",
+                                  "type": "object",
+                                  "properties": {
+                                    "has_default": {
+                                      "description": "True if default value is set.",
+                                      "type": "boolean",
+                                      "x-order": 0
+                                    },
+                                    "default": {
+                                      "description": "Default value if has_default is true.",
+                                      "type": "string",
+                                      "x-order": 1
+                                    }
+                                  },
+                                  "x-order": 6
+                                }
+                              }
+                            },
+                            "x-order": 7
+                          },
+                          "params_values": {
+                            "description": "Expression parameters values.",
+                            "type": "array",
+                            "items": {
+                              "description": "ParamValue represents a single rule parameter value for List, Change and Update APIs.",
                               "type": "object",
                               "properties": {
                                 "name": {
@@ -27451,7 +27353,7 @@
                                 "float": {
                                   "description": "Float value.",
                                   "type": "number",
-                                  "format": "float",
+                                  "format": "double",
                                   "x-order": 3
                                 },
                                 "string": {
@@ -27461,12 +27363,34 @@
                                 }
                               }
                             },
-                            "x-order": 4
+                            "x-order": 8
+                          },
+                          "default_for": {
+                            "description": "Default for duration.",
+                            "type": "string",
+                            "x-order": 9
                           },
                           "for": {
-                            "description": "Rule duration.",
+                            "description": "For duration.",
                             "type": "string",
-                            "x-order": 5
+                            "x-order": 10
+                          },
+                          "default_severity": {
+                            "description": "Severity represents severity level of the check result or alert.",
+                            "type": "string",
+                            "default": "SEVERITY_INVALID",
+                            "enum": [
+                              "SEVERITY_INVALID",
+                              "SEVERITY_EMERGENCY",
+                              "SEVERITY_ALERT",
+                              "SEVERITY_CRITICAL",
+                              "SEVERITY_ERROR",
+                              "SEVERITY_WARNING",
+                              "SEVERITY_NOTICE",
+                              "SEVERITY_INFO",
+                              "SEVERITY_DEBUG"
+                            ],
+                            "x-order": 11
                           },
                           "severity": {
                             "description": "Severity represents severity level of the check result or alert.",
@@ -27483,7 +27407,7 @@
                               "SEVERITY_INFO",
                               "SEVERITY_DEBUG"
                             ],
-                            "x-order": 6
+                            "x-order": 12
                           },
                           "custom_labels": {
                             "description": "Custom labels.",
@@ -27491,7 +27415,23 @@
                             "additionalProperties": {
                               "type": "string"
                             },
-                            "x-order": 7
+                            "x-order": 13
+                          },
+                          "labels": {
+                            "description": "Labels.",
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "string"
+                            },
+                            "x-order": 14
+                          },
+                          "annotations": {
+                            "description": "Annotations.",
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "string"
+                            },
+                            "x-order": 15
                           },
                           "filters": {
                             "description": "Filters.",
@@ -27521,7 +27461,7 @@
                                 }
                               }
                             },
-                            "x-order": 8
+                            "x-order": 16
                           },
                           "channels": {
                             "description": "Channels.",
@@ -27706,18 +27646,13 @@
                                 }
                               }
                             },
-                            "x-order": 9
+                            "x-order": 17
                           },
                           "created_at": {
                             "description": "Rule creation time.",
                             "type": "string",
                             "format": "date-time",
-                            "x-order": 10
-                          },
-                          "expr": {
-                            "description": "Template expression with rule parameters.",
-                            "type": "string",
-                            "x-order": 11
+                            "x-order": 18
                           }
                         },
                         "x-order": 5
@@ -28740,7 +28675,7 @@
         "tags": [
           "Rules"
         ],
-        "summary": "CreateAlertRule creates Integrated Alerting rule.",
+        "summary": "CreateAlertRule creates Alerting rule.",
         "operationId": "CreateAlertRule",
         "parameters": [
           {
@@ -28751,25 +28686,30 @@
               "type": "object",
               "properties": {
                 "template_name": {
-                  "description": "Template name.",
+                  "description": "Template name. Can't be specified simultaneously with source_rule_id.",
                   "type": "string",
                   "x-order": 0
+                },
+                "source_rule_id": {
+                  "description": "ID of the rule that will be used as source. Can't be specified simultaneously with template_name.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "name": {
+                  "description": "Rule name.",
+                  "type": "string",
+                  "x-order": 2
                 },
                 "disabled": {
                   "description": "New rule status.",
                   "type": "boolean",
-                  "x-order": 1
-                },
-                "summary": {
-                  "description": "Rule human-readable summary.",
-                  "type": "string",
-                  "x-order": 2
+                  "x-order": 3
                 },
                 "params": {
                   "description": "Rule parameters. All template parameters should be set.",
                   "type": "array",
                   "items": {
-                    "description": "RuleParam represents a single rule parameter for List, Change and Update APIs.",
+                    "description": "ParamValue represents a single rule parameter value for List, Change and Update APIs.",
                     "type": "object",
                     "properties": {
                       "name": {
@@ -28797,7 +28737,7 @@
                       "float": {
                         "description": "Float value.",
                         "type": "number",
-                        "format": "float",
+                        "format": "double",
                         "x-order": 3
                       },
                       "string": {
@@ -28807,12 +28747,12 @@
                       }
                     }
                   },
-                  "x-order": 3
+                  "x-order": 4
                 },
                 "for": {
                   "description": "Rule duration. Should be set.",
                   "type": "string",
-                  "x-order": 4
+                  "x-order": 5
                 },
                 "severity": {
                   "description": "Severity represents severity level of the check result or alert.",
@@ -28829,7 +28769,7 @@
                     "SEVERITY_INFO",
                     "SEVERITY_DEBUG"
                   ],
-                  "x-order": 5
+                  "x-order": 6
                 },
                 "custom_labels": {
                   "description": "All custom labels to add or remove (with empty values) to default labels from template.",
@@ -28837,7 +28777,7 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 6
+                  "x-order": 7
                 },
                 "filters": {
                   "description": "Filters. Should be set.",
@@ -28867,7 +28807,7 @@
                       }
                     }
                   },
-                  "x-order": 7
+                  "x-order": 8
                 },
                 "channel_ids": {
                   "description": "Channels. Should be set.",
@@ -28875,7 +28815,7 @@
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 8
+                  "x-order": 9
                 }
               }
             }
@@ -28942,7 +28882,7 @@
         "tags": [
           "Rules"
         ],
-        "summary": "DeleteAlertRule deletes Integrated Alerting rule.",
+        "summary": "DeleteAlertRule deletes Alerting rule.",
         "operationId": "DeleteAlertRule",
         "parameters": [
           {
@@ -29015,7 +28955,7 @@
         "tags": [
           "Rules"
         ],
-        "summary": "ListAlertRules returns a list of all Integrated Alerting rules.",
+        "summary": "ListAlertRules returns a list of all Alerting rules.",
         "operationId": "ListAlertRules",
         "parameters": [
           {
@@ -29060,229 +29000,165 @@
                     "description": "Rule represents Alert Rule.",
                     "type": "object",
                     "properties": {
-                      "template": {
-                        "description": "Template represents Alert Template that is used to create Alert Rule.",
-                        "type": "object",
-                        "properties": {
-                          "name": {
-                            "description": "Machine-readable name (ID).",
-                            "type": "string",
-                            "x-order": 0
-                          },
-                          "summary": {
-                            "description": "Short human-readable summary.",
-                            "type": "string",
-                            "x-order": 1
-                          },
-                          "expr": {
-                            "description": "PromQL query expression with templating parameters.",
-                            "type": "string",
-                            "x-order": 2
-                          },
-                          "params": {
-                            "description": "Query templating parameters.",
-                            "type": "array",
-                            "items": {
-                              "description": "TemplateParam represents a single template parameter.",
-                              "type": "object",
-                              "properties": {
-                                "name": {
-                                  "description": "Machine-readable name (ID) that is used in expression.",
-                                  "type": "string",
-                                  "x-order": 0
-                                },
-                                "summary": {
-                                  "description": "Short human-readable parameter summary.",
-                                  "type": "string",
-                                  "x-order": 1
-                                },
-                                "unit": {
-                                  "description": "ParamUnit represents template parameter unit.\n\n - PARAM_UNIT_INVALID: Invalid, unknown or absent.\n - PERCENTAGE: %\n - SECONDS: s",
-                                  "type": "string",
-                                  "default": "PARAM_UNIT_INVALID",
-                                  "enum": [
-                                    "PARAM_UNIT_INVALID",
-                                    "PERCENTAGE",
-                                    "SECONDS"
-                                  ],
-                                  "x-order": 2
-                                },
-                                "type": {
-                                  "description": "ParamType represents template parameter type.",
-                                  "type": "string",
-                                  "default": "PARAM_TYPE_INVALID",
-                                  "enum": [
-                                    "PARAM_TYPE_INVALID",
-                                    "BOOL",
-                                    "FLOAT",
-                                    "STRING"
-                                  ],
-                                  "x-order": 3
-                                },
-                                "bool": {
-                                  "description": "TemplateBoolParam represents boolean parameter's default value.",
-                                  "type": "object",
-                                  "properties": {
-                                    "default": {
-                                      "description": "BooleanFlag represent a command to set some boolean property to true,\nto false, or avoid changing that property.\n\n - DO_NOT_CHANGE: Do not change boolean property. Default value.\n - TRUE: True.\n - FALSE: False.",
-                                      "type": "string",
-                                      "default": "DO_NOT_CHANGE",
-                                      "enum": [
-                                        "DO_NOT_CHANGE",
-                                        "TRUE",
-                                        "FALSE"
-                                      ],
-                                      "x-order": 0
-                                    }
-                                  },
-                                  "x-order": 4
-                                },
-                                "float": {
-                                  "description": "TemplateFloatParam represents float parameter's default value and valid range.",
-                                  "type": "object",
-                                  "properties": {
-                                    "has_default": {
-                                      "description": "True if default value is set.",
-                                      "type": "boolean",
-                                      "x-order": 0
-                                    },
-                                    "default": {
-                                      "description": "Default value if has_default is true.",
-                                      "type": "number",
-                                      "format": "float",
-                                      "x-order": 1
-                                    },
-                                    "has_min": {
-                                      "description": "True if minimal valid value is set.",
-                                      "type": "boolean",
-                                      "x-order": 2
-                                    },
-                                    "min": {
-                                      "description": "Minimal valid value (inclusive) if has_min is true.",
-                                      "type": "number",
-                                      "format": "float",
-                                      "x-order": 3
-                                    },
-                                    "has_max": {
-                                      "description": "True if maximal valid value is set.",
-                                      "type": "boolean",
-                                      "x-order": 4
-                                    },
-                                    "max": {
-                                      "description": "Maximal valid value (inclusive) if has_max is true.",
-                                      "type": "number",
-                                      "format": "float",
-                                      "x-order": 5
-                                    }
-                                  },
-                                  "x-order": 5
-                                },
-                                "string": {
-                                  "description": "TemplateStringParam represents string parameter's default value.",
-                                  "type": "object",
-                                  "properties": {
-                                    "has_default": {
-                                      "description": "True if default value is set.",
-                                      "type": "boolean",
-                                      "x-order": 0
-                                    },
-                                    "default": {
-                                      "description": "Default value if has_default is true.",
-                                      "type": "string",
-                                      "x-order": 1
-                                    }
-                                  },
-                                  "x-order": 6
-                                }
-                              }
-                            },
-                            "x-order": 3
-                          },
-                          "for": {
-                            "description": "Default duration value.",
-                            "type": "string",
-                            "x-order": 4
-                          },
-                          "severity": {
-                            "description": "Severity represents severity level of the check result or alert.",
-                            "type": "string",
-                            "default": "SEVERITY_INVALID",
-                            "enum": [
-                              "SEVERITY_INVALID",
-                              "SEVERITY_EMERGENCY",
-                              "SEVERITY_ALERT",
-                              "SEVERITY_CRITICAL",
-                              "SEVERITY_ERROR",
-                              "SEVERITY_WARNING",
-                              "SEVERITY_NOTICE",
-                              "SEVERITY_INFO",
-                              "SEVERITY_DEBUG"
-                            ],
-                            "x-order": 5
-                          },
-                          "labels": {
-                            "description": "Labels.",
-                            "type": "object",
-                            "additionalProperties": {
-                              "type": "string"
-                            },
-                            "x-order": 6
-                          },
-                          "annotations": {
-                            "description": "Annotations.",
-                            "type": "object",
-                            "additionalProperties": {
-                              "type": "string"
-                            },
-                            "x-order": 7
-                          },
-                          "source": {
-                            "description": "TemplateSource defines template source.\n\n - BUILT_IN: Template that is shipped with PMM Server releases.\n - SAAS: Template that is downloaded from check.percona.com.\n - USER_FILE: Templated loaded from user-suplied file.\n - USER_API: Templated created via API.",
-                            "type": "string",
-                            "default": "TEMPLATE_SOURCE_INVALID",
-                            "enum": [
-                              "TEMPLATE_SOURCE_INVALID",
-                              "BUILT_IN",
-                              "SAAS",
-                              "USER_FILE",
-                              "USER_API"
-                            ],
-                            "x-order": 8
-                          },
-                          "created_at": {
-                            "description": "Template creation time. Empty for built-in and SaaS templates.",
-                            "type": "string",
-                            "format": "date-time",
-                            "x-order": 9
-                          },
-                          "yaml": {
-                            "description": "YAML (or JSON) template file content. Empty for built-in and SaaS templates.",
-                            "type": "string",
-                            "x-order": 10
-                          }
-                        },
-                        "x-order": 0
-                      },
                       "rule_id": {
                         "description": "Rule ID.",
                         "type": "string",
-                        "x-order": 1
+                        "x-order": 0
                       },
-                      "disabled": {
-                        "description": "True if that rule is disabled.",
-                        "type": "boolean",
-                        "x-order": 2
+                      "name": {
+                        "description": "Rule name.",
+                        "type": "string",
+                        "x-order": 1
                       },
                       "summary": {
                         "description": "Rule human-readable summary.",
                         "type": "string",
+                        "x-order": 2
+                      },
+                      "template_name": {
+                        "description": "Template used for this rule.",
+                        "type": "string",
                         "x-order": 3
                       },
-                      "params": {
-                        "description": "Rule parameters.",
+                      "disabled": {
+                        "description": "True if that rule is disabled.",
+                        "type": "boolean",
+                        "x-order": 4
+                      },
+                      "expr_template": {
+                        "description": "Expression template.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "expr": {
+                        "description": "Expression filled with parameters.",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "params_definitions": {
+                        "description": "Expression parameters definitions.",
                         "type": "array",
                         "items": {
-                          "description": "RuleParam represents a single rule parameter for List, Change and Update APIs.",
+                          "description": "ParamDefinition represents a single query parameter.",
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "description": "Machine-readable name (ID) that is used in expression.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "summary": {
+                              "description": "Short human-readable parameter summary.",
+                              "type": "string",
+                              "x-order": 1
+                            },
+                            "unit": {
+                              "description": "ParamUnit represents template parameter unit.\n\n - PARAM_UNIT_INVALID: Invalid, unknown or absent.\n - PERCENTAGE: %\n - SECONDS: s",
+                              "type": "string",
+                              "default": "PARAM_UNIT_INVALID",
+                              "enum": [
+                                "PARAM_UNIT_INVALID",
+                                "PERCENTAGE",
+                                "SECONDS"
+                              ],
+                              "x-order": 2
+                            },
+                            "type": {
+                              "description": "ParamType represents template parameter type.",
+                              "type": "string",
+                              "default": "PARAM_TYPE_INVALID",
+                              "enum": [
+                                "PARAM_TYPE_INVALID",
+                                "BOOL",
+                                "FLOAT",
+                                "STRING"
+                              ],
+                              "x-order": 3
+                            },
+                            "bool": {
+                              "description": "BoolParamDefinition represents boolean parameter's default value.",
+                              "type": "object",
+                              "properties": {
+                                "default": {
+                                  "description": "BooleanFlag represent a command to set some boolean property to true,\nto false, or avoid changing that property.\n\n - DO_NOT_CHANGE: Do not change boolean property. Default value.\n - TRUE: True.\n - FALSE: False.",
+                                  "type": "string",
+                                  "default": "DO_NOT_CHANGE",
+                                  "enum": [
+                                    "DO_NOT_CHANGE",
+                                    "TRUE",
+                                    "FALSE"
+                                  ],
+                                  "x-order": 0
+                                }
+                              },
+                              "x-order": 4
+                            },
+                            "float": {
+                              "description": "FloatParamDefinition represents float parameter's default value and valid range.",
+                              "type": "object",
+                              "properties": {
+                                "has_default": {
+                                  "description": "True if default value is set.",
+                                  "type": "boolean",
+                                  "x-order": 0
+                                },
+                                "default": {
+                                  "description": "Default value if has_default is true.",
+                                  "type": "number",
+                                  "format": "double",
+                                  "x-order": 1
+                                },
+                                "has_min": {
+                                  "description": "True if minimal valid value is set.",
+                                  "type": "boolean",
+                                  "x-order": 2
+                                },
+                                "min": {
+                                  "description": "Minimal valid value (inclusive) if has_min is true.",
+                                  "type": "number",
+                                  "format": "double",
+                                  "x-order": 3
+                                },
+                                "has_max": {
+                                  "description": "True if maximal valid value is set.",
+                                  "type": "boolean",
+                                  "x-order": 4
+                                },
+                                "max": {
+                                  "description": "Maximal valid value (inclusive) if has_max is true.",
+                                  "type": "number",
+                                  "format": "double",
+                                  "x-order": 5
+                                }
+                              },
+                              "x-order": 5
+                            },
+                            "string": {
+                              "description": "StringParamDefinition represents string parameter's default value.",
+                              "type": "object",
+                              "properties": {
+                                "has_default": {
+                                  "description": "True if default value is set.",
+                                  "type": "boolean",
+                                  "x-order": 0
+                                },
+                                "default": {
+                                  "description": "Default value if has_default is true.",
+                                  "type": "string",
+                                  "x-order": 1
+                                }
+                              },
+                              "x-order": 6
+                            }
+                          }
+                        },
+                        "x-order": 7
+                      },
+                      "params_values": {
+                        "description": "Expression parameters values.",
+                        "type": "array",
+                        "items": {
+                          "description": "ParamValue represents a single rule parameter value for List, Change and Update APIs.",
                           "type": "object",
                           "properties": {
                             "name": {
@@ -29310,7 +29186,7 @@
                             "float": {
                               "description": "Float value.",
                               "type": "number",
-                              "format": "float",
+                              "format": "double",
                               "x-order": 3
                             },
                             "string": {
@@ -29320,12 +29196,34 @@
                             }
                           }
                         },
-                        "x-order": 4
+                        "x-order": 8
+                      },
+                      "default_for": {
+                        "description": "Default for duration.",
+                        "type": "string",
+                        "x-order": 9
                       },
                       "for": {
-                        "description": "Rule duration.",
+                        "description": "For duration.",
                         "type": "string",
-                        "x-order": 5
+                        "x-order": 10
+                      },
+                      "default_severity": {
+                        "description": "Severity represents severity level of the check result or alert.",
+                        "type": "string",
+                        "default": "SEVERITY_INVALID",
+                        "enum": [
+                          "SEVERITY_INVALID",
+                          "SEVERITY_EMERGENCY",
+                          "SEVERITY_ALERT",
+                          "SEVERITY_CRITICAL",
+                          "SEVERITY_ERROR",
+                          "SEVERITY_WARNING",
+                          "SEVERITY_NOTICE",
+                          "SEVERITY_INFO",
+                          "SEVERITY_DEBUG"
+                        ],
+                        "x-order": 11
                       },
                       "severity": {
                         "description": "Severity represents severity level of the check result or alert.",
@@ -29342,7 +29240,7 @@
                           "SEVERITY_INFO",
                           "SEVERITY_DEBUG"
                         ],
-                        "x-order": 6
+                        "x-order": 12
                       },
                       "custom_labels": {
                         "description": "Custom labels.",
@@ -29350,7 +29248,23 @@
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 7
+                        "x-order": 13
+                      },
+                      "labels": {
+                        "description": "Labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 14
+                      },
+                      "annotations": {
+                        "description": "Annotations.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 15
                       },
                       "filters": {
                         "description": "Filters.",
@@ -29380,7 +29294,7 @@
                             }
                           }
                         },
-                        "x-order": 8
+                        "x-order": 16
                       },
                       "channels": {
                         "description": "Channels.",
@@ -29565,18 +29479,13 @@
                             }
                           }
                         },
-                        "x-order": 9
+                        "x-order": 17
                       },
                       "created_at": {
                         "description": "Rule creation time.",
                         "type": "string",
                         "format": "date-time",
-                        "x-order": 10
-                      },
-                      "expr": {
-                        "description": "Template expression with rule parameters.",
-                        "type": "string",
-                        "x-order": 11
+                        "x-order": 18
                       }
                     }
                   },
@@ -29735,7 +29644,7 @@
         "tags": [
           "Rules"
         ],
-        "summary": "UpdateAlertRule updates Integrated Alerting rule.",
+        "summary": "UpdateAlertRule updates Alerting rule.",
         "operationId": "UpdateAlertRule",
         "parameters": [
           {
@@ -29750,16 +29659,21 @@
                   "type": "string",
                   "x-order": 0
                 },
+                "name": {
+                  "description": "Rule name. Should be set.",
+                  "type": "string",
+                  "x-order": 1
+                },
                 "disabled": {
                   "description": "New rule status. Should be set.",
                   "type": "boolean",
-                  "x-order": 1
+                  "x-order": 2
                 },
                 "params": {
                   "description": "Rule parameters. All template parameters should be set.",
                   "type": "array",
                   "items": {
-                    "description": "RuleParam represents a single rule parameter for List, Change and Update APIs.",
+                    "description": "ParamValue represents a single rule parameter value for List, Change and Update APIs.",
                     "type": "object",
                     "properties": {
                       "name": {
@@ -29787,7 +29701,7 @@
                       "float": {
                         "description": "Float value.",
                         "type": "number",
-                        "format": "float",
+                        "format": "double",
                         "x-order": 3
                       },
                       "string": {
@@ -29797,12 +29711,12 @@
                       }
                     }
                   },
-                  "x-order": 2
+                  "x-order": 3
                 },
                 "for": {
                   "description": "Rule duration. Should be set.",
                   "type": "string",
-                  "x-order": 3
+                  "x-order": 4
                 },
                 "severity": {
                   "description": "Severity represents severity level of the check result or alert.",
@@ -29819,7 +29733,7 @@
                     "SEVERITY_INFO",
                     "SEVERITY_DEBUG"
                   ],
-                  "x-order": 4
+                  "x-order": 5
                 },
                 "custom_labels": {
                   "description": "All custom labels to add or remove (with empty values) to default labels from template.",
@@ -29827,7 +29741,7 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 5
+                  "x-order": 6
                 },
                 "filters": {
                   "description": "Filters. Should be set.",
@@ -29857,7 +29771,7 @@
                       }
                     }
                   },
-                  "x-order": 6
+                  "x-order": 7
                 },
                 "channel_ids": {
                   "description": "Channels. Should be set.",
@@ -29865,11 +29779,6 @@
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 7
-                },
-                "summary": {
-                  "description": "Rule human-readable summary. Should be set.",
-                  "type": "string",
                   "x-order": 8
                 }
               }
@@ -30141,10 +30050,10 @@
                         "x-order": 2
                       },
                       "params": {
-                        "description": "Query templating parameters.",
+                        "description": "Query parameters definitions.",
                         "type": "array",
                         "items": {
-                          "description": "TemplateParam represents a single template parameter.",
+                          "description": "ParamDefinition represents a single query parameter.",
                           "type": "object",
                           "properties": {
                             "name": {
@@ -30181,7 +30090,7 @@
                               "x-order": 3
                             },
                             "bool": {
-                              "description": "TemplateBoolParam represents boolean parameter's default value.",
+                              "description": "BoolParamDefinition represents boolean parameter's default value.",
                               "type": "object",
                               "properties": {
                                 "default": {
@@ -30199,7 +30108,7 @@
                               "x-order": 4
                             },
                             "float": {
-                              "description": "TemplateFloatParam represents float parameter's default value and valid range.",
+                              "description": "FloatParamDefinition represents float parameter's default value and valid range.",
                               "type": "object",
                               "properties": {
                                 "has_default": {
@@ -30210,7 +30119,7 @@
                                 "default": {
                                   "description": "Default value if has_default is true.",
                                   "type": "number",
-                                  "format": "float",
+                                  "format": "double",
                                   "x-order": 1
                                 },
                                 "has_min": {
@@ -30221,7 +30130,7 @@
                                 "min": {
                                   "description": "Minimal valid value (inclusive) if has_min is true.",
                                   "type": "number",
-                                  "format": "float",
+                                  "format": "double",
                                   "x-order": 3
                                 },
                                 "has_max": {
@@ -30232,14 +30141,14 @@
                                 "max": {
                                   "description": "Maximal valid value (inclusive) if has_max is true.",
                                   "type": "number",
-                                  "format": "float",
+                                  "format": "double",
                                   "x-order": 5
                                 }
                               },
                               "x-order": 5
                             },
                             "string": {
-                              "description": "TemplateStringParam represents string parameter's default value.",
+                              "description": "StringParamDefinition represents string parameter's default value.",
                               "type": "object",
                               "properties": {
                                 "has_default": {
