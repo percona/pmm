@@ -4005,6 +4005,25 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "stats_collections": {
+                      "type": "array",
+                      "title": "List of colletions to get stats from. Can use *",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 12
+                    },
+                    "collections_limit": {
+                      "type": "integer",
+                      "format": "int32",
+                      "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                      "x-order": 13
+                    },
+                    "enable_all_collectors": {
+                      "description": "Enable All collectors.",
+                      "type": "boolean",
+                      "x-order": 14
                     }
                   },
                   "x-order": 0
@@ -6790,6 +6809,25 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "stats_collections": {
+                      "type": "array",
+                      "title": "List of colletions to get stats from. Can use *",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 12
+                    },
+                    "collections_limit": {
+                      "type": "integer",
+                      "format": "int32",
+                      "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                      "x-order": 13
+                    },
+                    "enable_all_collectors": {
+                      "description": "Enable All collectors.",
+                      "type": "boolean",
+                      "x-order": 14
                     }
                   },
                   "x-order": 0
@@ -9119,6 +9157,25 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "stats_collections": {
+                      "type": "array",
+                      "title": "List of colletions to get stats from. Can use *",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 12
+                    },
+                    "collections_limit": {
+                      "type": "integer",
+                      "format": "int32",
+                      "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                      "x-order": 13
+                    },
+                    "enable_all_collectors": {
+                      "description": "Enable All collectors.",
+                      "type": "boolean",
+                      "x-order": 14
                     }
                   },
                   "x-order": 4
@@ -10314,6 +10371,25 @@
                         "type": "integer",
                         "format": "int64",
                         "x-order": 11
+                      },
+                      "stats_collections": {
+                        "type": "array",
+                        "title": "List of colletions to get stats from. Can use *",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 12
+                      },
+                      "collections_limit": {
+                        "type": "integer",
+                        "format": "int32",
+                        "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                        "x-order": 13
+                      },
+                      "enable_all_collectors": {
+                        "description": "Enable All collectors.",
+                        "type": "boolean",
+                        "x-order": 14
                       }
                     }
                   },
@@ -20898,6 +20974,11 @@
                   "format": "int32",
                   "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
                   "x-order": 27
+                },
+                "enable_all_collectors": {
+                  "type": "boolean",
+                  "title": "Enable all collectors",
+                  "x-order": 28
                 }
               }
             }
@@ -21050,6 +21131,25 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "stats_collections": {
+                      "type": "array",
+                      "title": "List of colletions to get stats from. Can use *",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 12
+                    },
+                    "collections_limit": {
+                      "type": "integer",
+                      "format": "int32",
+                      "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                      "x-order": 13
+                    },
+                    "enable_all_collectors": {
+                      "description": "Enable All collectors.",
+                      "type": "boolean",
+                      "x-order": 14
                     }
                   },
                   "x-order": 1
@@ -28596,19 +28696,24 @@
               "type": "object",
               "properties": {
                 "template_name": {
-                  "description": "Template name.",
+                  "description": "Template name. Can't be specified simultaneously with source_rule_id.",
                   "type": "string",
                   "x-order": 0
+                },
+                "source_rule_id": {
+                  "description": "ID of the rule that will be used as source. Can't be specified simultaneously with template_name.",
+                  "type": "string",
+                  "x-order": 1
                 },
                 "name": {
                   "description": "Rule name.",
                   "type": "string",
-                  "x-order": 1
+                  "x-order": 2
                 },
                 "disabled": {
                   "description": "New rule status.",
                   "type": "boolean",
-                  "x-order": 2
+                  "x-order": 3
                 },
                 "params": {
                   "description": "Rule parameters. All template parameters should be set.",
@@ -28652,12 +28757,12 @@
                       }
                     }
                   },
-                  "x-order": 3
+                  "x-order": 4
                 },
                 "for": {
                   "description": "Rule duration. Should be set.",
                   "type": "string",
-                  "x-order": 4
+                  "x-order": 5
                 },
                 "severity": {
                   "description": "Severity represents severity level of the check result or alert.",
@@ -28674,7 +28779,7 @@
                     "SEVERITY_INFO",
                     "SEVERITY_DEBUG"
                   ],
-                  "x-order": 5
+                  "x-order": 6
                 },
                 "custom_labels": {
                   "description": "All custom labels to add or remove (with empty values) to default labels from template.",
@@ -28682,7 +28787,7 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 6
+                  "x-order": 7
                 },
                 "filters": {
                   "description": "Filters. Should be set.",
@@ -28712,7 +28817,7 @@
                       }
                     }
                   },
-                  "x-order": 7
+                  "x-order": 8
                 },
                 "channel_ids": {
                   "description": "Channels. Should be set.",
@@ -28720,7 +28825,7 @@
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 8
+                  "x-order": 9
                 }
               }
             }
