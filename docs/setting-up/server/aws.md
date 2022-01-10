@@ -105,7 +105,7 @@ You will be prompted to change the default password every time you log in.
 
 The PMM Server is now ready and the home page opens.
 
-![!image](../../_images/PMM_Home_Dashboard.jpg)
+![!image](../../_images/PMM_Home_Dashboard.png)
 
 You are creating a username and password that will be used for two purposes:
 
