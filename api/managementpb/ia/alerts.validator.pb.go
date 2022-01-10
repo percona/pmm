@@ -7,7 +7,7 @@ import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
 	_ "github.com/golang/protobuf/ptypes/timestamp"
-	_ "github.com/mwitkow/go-proto-validators"
+	_ "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "github.com/percona/pmm/api/managementpb"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
@@ -61,12 +61,9 @@ func (this *ListAlertsResponse) Validate() error {
 	}
 	return nil
 }
-func (this *ToggleAlertRequest) Validate() error {
-	if this.AlertId == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("AlertId", fmt.Errorf(`value '%v' must not be an empty string`, this.AlertId))
-	}
+func (this *ToggleAlertsRequest) Validate() error {
 	return nil
 }
-func (this *ToggleAlertResponse) Validate() error {
+func (this *ToggleAlertsResponse) Validate() error {
 	return nil
 }
