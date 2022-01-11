@@ -134,6 +134,7 @@ func TestMongodbExporterConfig226(t *testing.T) {
 			"--discovering-mode",
 			"--mongodb.collstats-colls=col1,col2,col3",
 			"--mongodb.global-conn-pool",
+			"--mongodb.indexstats-colls=col1,col2,col3",
 			"--web.listen-address=:{{ .listen_port }}",
 		}
 		actual := mongodbExporterConfig(mongodb, exporter, exposeSecrets, pmmAgentVersion)
@@ -159,6 +160,7 @@ func TestMongodbExporterConfig226(t *testing.T) {
 			"--discovering-mode",
 			"--mongodb.collstats-colls=col1,col2,col3",
 			"--mongodb.global-conn-pool",
+			"--mongodb.indexstats-colls=col1,col2,col3",
 			"--web.listen-address=:{{ .listen_port }}",
 		}
 		actual := mongodbExporterConfig(mongodb, exporter, exposeSecrets, pmmAgentVersion)
@@ -183,6 +185,7 @@ func TestMongodbExporterConfig226(t *testing.T) {
 			// since dbstats is not depending the number of collections present in the db.
 			"--mongodb.collstats-colls=db1.col1.one,db2.col2,db3",
 			"--mongodb.global-conn-pool",
+			"--mongodb.indexstats-colls=db1.col1.one,db2.col2,db3",
 			"--web.listen-address=:{{ .listen_port }}",
 		}
 		actual := mongodbExporterConfig(mongodb, exporter, exposeSecrets, pmmAgentVersion)
@@ -208,6 +211,7 @@ func TestMongodbExporterConfig226(t *testing.T) {
 			"--discovering-mode",
 			"--mongodb.collstats-colls=db1.col1.one,db2.col2,db3",
 			"--mongodb.global-conn-pool",
+			"--mongodb.indexstats-colls=db1.col1.one,db2.col2,db3",
 			"--web.listen-address=:{{ .listen_port }}",
 		}
 		actual := mongodbExporterConfig(mongodb, exporter, exposeSecrets, pmmAgentVersion)
