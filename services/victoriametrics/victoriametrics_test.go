@@ -472,68 +472,12 @@ scrape_configs:
       honor_timestamps: false
       params:
         collect[]:
-            - custom_query.hr
+            - custom_query
             - exporter
             - standard.go
             - standard.process
       scrape_interval: 5s
       scrape_timeout: 4s
-      metrics_path: /metrics
-      static_configs:
-        - targets:
-            - 1.2.3.4:12345
-          labels:
-            _agent_label: postgres-baz
-            _node_label: foo
-            _service_label: bar
-            agent_id: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
-            agent_type: postgres_exporter
-            instance: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
-            node_id: /node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d
-            node_name: test-generic-node
-            node_type: generic
-            service_id: /service_id/9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1
-            service_name: test-postgresql
-            service_type: postgresql
-      basic_auth:
-        username: pmm
-        password: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
-      stream_parse: true
-    - job_name: postgres_exporter_agent_id_29e14468-d479-4b4d-bfb7-4ac2fb865bac_mr-10s
-      honor_timestamps: false
-      params:
-        collect[]:
-            - custom_query.mr
-      scrape_interval: 10s
-      scrape_timeout: 9s
-      metrics_path: /metrics
-      static_configs:
-        - targets:
-            - 1.2.3.4:12345
-          labels:
-            _agent_label: postgres-baz
-            _node_label: foo
-            _service_label: bar
-            agent_id: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
-            agent_type: postgres_exporter
-            instance: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
-            node_id: /node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d
-            node_name: test-generic-node
-            node_type: generic
-            service_id: /service_id/9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1
-            service_name: test-postgresql
-            service_type: postgresql
-      basic_auth:
-        username: pmm
-        password: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
-      stream_parse: true
-    - job_name: postgres_exporter_agent_id_29e14468-d479-4b4d-bfb7-4ac2fb865bac_lr-1m0s
-      honor_timestamps: false
-      params:
-        collect[]:
-            - custom_query.lr
-      scrape_interval: 1m
-      scrape_timeout: 54s
       metrics_path: /metrics
       static_configs:
         - targets:
