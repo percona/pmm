@@ -1,6 +1,6 @@
 {
     "go.useLanguageServer": true,
-    "go.inferGopath": true,
+    "go.inferGopath": false,
     "[go]": {
         "editor.snippetSuggestions": "none",
         "editor.formatOnSave": true,

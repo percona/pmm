@@ -29,8 +29,12 @@ import (
 
 var gaReleaseDate = time.Date(2019, 9, 18, 0, 0, 0, 0, time.UTC) //nolint
 
+const (
+	pmmManagedPackageName = "pmm-managed"
+)
+
 func TestInstalled(t *testing.T) {
-	res, err := Installed(context.Background(), "pmm-update")
+	res, err := Installed(context.Background(), pmmManagedPackageName)
 	require.NoError(t, err)
 
 	assert.True(t, strings.HasPrefix(res.Installed.Version, "2."), "%s", res.Installed.Version)
@@ -41,7 +45,8 @@ func TestInstalled(t *testing.T) {
 }
 
 func TestCheck(t *testing.T) {
-	res, err := Check(context.Background(), "pmm-update")
+	res, err := Check(context.Background(), pmmManagedPackageName)
+
 	require.NoError(t, err)
 
 	assert.True(t, strings.HasPrefix(res.Installed.Version, "2."), "%s", res.Installed.Version)
