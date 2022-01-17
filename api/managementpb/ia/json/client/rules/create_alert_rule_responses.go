@@ -124,8 +124,11 @@ swagger:model CreateAlertRuleBody
 */
 type CreateAlertRuleBody struct {
 
-	// Template name.
+	// Template name. Can't be specified simultaneously with source_rule_id.
 	TemplateName string `json:"template_name,omitempty"`
+
+	// ID of the rule that will be used as source. Can't be specified simultaneously with template_name.
+	SourceRuleID string `json:"source_rule_id,omitempty"`
 
 	// Rule name.
 	Name string `json:"name,omitempty"`
