@@ -129,6 +129,7 @@ nav:
   - How to:
       - how-to/index.md
       - how-to/configure.md
+      - how-to/manage-users.md
       - how-to/upgrade.md
       - how-to/secure.md
       - how-to/optimize.md

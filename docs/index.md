@@ -121,6 +121,7 @@ mindmapDiagram {
 +++_ [[$base/using/dbaas.html DBaaS]]
 ++ <&task> [[$base/how-to/ How to]]
 +++_ [[$base/how-to/configure.html Configure]]
++++_ [[$base/how-to/manage-users.html Configure]]
 +++_ [[$base/how-to/upgrade.html Upgrade]]
 +++_ [[$base/how-to/secure.html Secure]]
 +++_ [[$base/how-to/optimize.html Optimize]]

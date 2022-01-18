@@ -1,6 +1,7 @@
 # How to
 
 - [Configure](configure.md) via the PMM Settings page.
+- [Manage users](manage-users.md) via the PMM Users page.
 - [Upgrade](upgrade.md) PMM Server via the user interface.
 - [Secure](secure.md) your PMM installation.
 - [Optimize](optimize.md) the performance of your PMM installation.
