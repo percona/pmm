@@ -37,37 +37,37 @@ import (
 )
 
 const pxcKubeconfigTest = `
-	{
-		"apiVersion": "v1",
-		"kind": "Config",
-		"users": [
-			{
-				"name": "percona-xtradb-cluster-operator",
-				"user": {
-					"token": "some-token"
-				}
+{
+	"apiVersion": "v1",
+	"kind": "Config",
+	"users": [
+		{
+			"name": "percona-xtradb-cluster-operator",
+			"user": {
+				"token": "some-token"
 			}
-		],
-		"clusters": [
-			{
-				"cluster": {
-					"certificate-authority-data": "some-certificate-authority-data",
-					"server": "https://192.168.0.42:8443"
-				},
-				"name": "self-hosted-cluster"
-			}
-		],
-		"contexts": [
-			{
-				"context": {
-					"cluster": "self-hosted-cluster",
-					"user": "percona-xtradb-cluster-operator"
-				},
-				"name": "svcs-acct-context"
-			}
-		],
-		"current-context": "svcs-acct-context"
-	}
+		}
+	],
+	"clusters": [
+		{
+			"cluster": {
+				"certificate-authority-data": "some-certificate-authority-data",
+				"server": "https://192.168.0.42:8443"
+			},
+			"name": "self-hosted-cluster"
+		}
+	],
+	"contexts": [
+		{
+			"context": {
+				"cluster": "self-hosted-cluster",
+				"user": "percona-xtradb-cluster-operator"
+			},
+			"name": "svcs-acct-context"
+		}
+	],
+	"current-context": "svcs-acct-context"
+}
 `
 const pxcKubernetesClusterNameTest = "test-k8s-cluster-name"
 

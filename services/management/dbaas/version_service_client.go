@@ -158,7 +158,7 @@ func (c *VersionServiceClient) Matrix(ctx context.Context, params componentsPara
 	return &vsResponse, nil
 }
 
-// IsDatabaseVersionSupportedByOperator returns false and err when request to version service fails. Otherwise returns boolen telling
+// IsDatabaseVersionSupportedByOperator returns false and err when request to version service fails. Otherwise returns boolean telling
 // if given database version is supported by given operator version, error is nil in that case.
 func (c *VersionServiceClient) IsDatabaseVersionSupportedByOperator(ctx context.Context, operatorType, operatorVersion, databaseVersion string) (bool, error) {
 	m, err := c.Matrix(ctx, componentsParams{

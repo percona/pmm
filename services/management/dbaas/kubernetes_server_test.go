@@ -142,3 +142,229 @@ func TestKubernetesServer(t *testing.T) {
 		assert.Empty(t, clusters.KubernetesClusters)
 	})
 }
+
+func TestGetFlagValue(t *testing.T) {
+	t.Parallel()
+	testCases := []struct {
+		args          []string
+		flagName      string
+		expectedValue string
+	}{
+		{
+			args:          []string{"token", "--foo", "bar"},
+			flagName:      "--foo",
+			expectedValue: "bar",
+		},
+		{
+			args:          []string{"token", "--foo", "bar"},
+			flagName:      "--bar",
+			expectedValue: "",
+		},
+		{
+			args:          []string{"token", "--foo"},
+			flagName:      "--foo",
+			expectedValue: "",
+		},
+	}
+	for _, tt := range testCases {
+		value := getFlagValue(tt.args, tt.flagName)
+		assert.Equal(t, tt.expectedValue, value)
+	}
+}
+
+const awsIAMAuthenticatorKubeconfig = `kind: Config
+apiVersion: v1
+current-context: arn:aws:eks:zone-2:123465545:cluster/cluster
+clusters:
+    - cluster:
+        certificate-authority-data: base64data
+        name: arn:aws:eks:zone-2:123465545:cluster/cluster
+        server: https://DDDDD.bla.zone-2.eks.amazonaws.com
+contexts:
+    - context:
+        cluster: arn:aws:eks:zone-2:123465545:cluster/cluster
+        name: arn:aws:eks:zone-2:123465545:cluster/cluster
+        user: arn:aws:eks:zone-2:123465545:cluster/cluster
+preferences: {}
+users:
+    - name: arn:aws:eks:zone-2:123465545:cluster/cluster
+      user:
+        exec:
+            apiVersion: client.authentication.k8s.io/v1alpha1
+            args:
+                - token
+                - -i
+                - test-cluster1
+                - --region
+                - zone-2
+            command: aws-iam-authenticator
+            env:
+                - name: AWS_STS_REGIONAL_ENDPOINTS
+                  value: regional
+            provideClusterInfo: false
+`
+const awsIAMAuthenticatorKubeconfigTransformed = `kind: Config
+apiVersion: v1
+current-context: arn:aws:eks:zone-2:123465545:cluster/cluster
+clusters:
+    - cluster:
+        certificate-authority-data: base64data
+        name: arn:aws:eks:zone-2:123465545:cluster/cluster
+        server: https://DDDDD.bla.zone-2.eks.amazonaws.com
+contexts:
+    - context:
+        cluster: arn:aws:eks:zone-2:123465545:cluster/cluster
+        name: arn:aws:eks:zone-2:123465545:cluster/cluster
+        user: arn:aws:eks:zone-2:123465545:cluster/cluster
+preferences: {}
+users:
+    - name: arn:aws:eks:zone-2:123465545:cluster/cluster
+      user:
+        exec:
+            apiVersion: client.authentication.k8s.io/v1alpha1
+            args:
+                - token
+                - -i
+                - test-cluster1
+                - --region
+                - zone-2
+            command: aws-iam-authenticator
+            env:
+                - name: AWS_STS_REGIONAL_ENDPOINTS
+                  value: regional
+                - name: AWS_ACCESS_KEY_ID
+                  value: keyID
+                - name: AWS_SECRET_ACCESS_KEY
+                  value: key
+            provideClusterInfo: false
+`
+
+const awsKubeconfig = `apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: base64data
+    name: arn:aws:eks:zone-2:123465545:cluster/cluster
+    server: https://DDDDD.bla.zone-2.eks.amazonaws.com
+contexts:
+- context:
+    cluster: arn:aws:eks:zone-2:123465545:cluster/cluster
+    name: arn:aws:eks:zone-2:123465545:cluster/cluster
+    user: arn:aws:eks:zone-2:123465545:cluster/cluster
+current-context: "arn:aws:eks:zone-2:123465545:cluster/cluster"
+kind: Config
+preferences: {}
+users:
+- name: arn:aws:eks:zone-2:123465545:cluster/cluster
+  user:
+    exec:
+      apiVersion: client.authentication.k8s.io/v1alpha1
+      args:
+      - eks
+      - get-token
+      - --cluster-name
+      - test-cluster1
+      - --region
+      - zone-2
+      command: aws
+      env:
+      - name: AWS_STS_REGIONAL_ENDPOINTS
+        value: regional
+      provideClusterInfo: false
+`
+
+const awsKubeconfigWithKeys = `apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: base64data
+    name: arn:aws:eks:zone-2:123465545:cluster/cluster
+    server: https://DDDDD.bla.zone-2.eks.amazonaws.com
+contexts:
+- context:
+    cluster: arn:aws:eks:zone-2:123465545:cluster/cluster
+    name: arn:aws:eks:zone-2:123465545:cluster/cluster
+    user: arn:aws:eks:zone-2:123465545:cluster/cluster
+current-context: "arn:aws:eks:zone-2:123465545:cluster/cluster"
+kind: Config
+preferences: {}
+users:
+- name: arn:aws:eks:zone-2:123465545:cluster/cluster
+  user:
+    exec:
+      apiVersion: client.authentication.k8s.io/v1alpha1
+      args:
+      - eks
+      - get-token
+      - --cluster-name
+      - test-cluster1
+      - --region
+      - zone-2
+      command: aws
+      env:
+      - name: AWS_STS_REGIONAL_ENDPOINTS
+        value: regional
+      - name: AWS_ACCESS_KEY_ID
+        value: keyID
+      - name: AWS_SECRET_ACCESS_KEY
+        value: key
+      provideClusterInfo: false
+`
+
+func TestUseIAMAuthenticator(t *testing.T) {
+	t.Parallel()
+	testCases := []struct {
+		name              string
+		kubeconfig        string
+		expectedError     error
+		expectedTransform string
+		keyID             string
+		key               string
+	}{
+		{
+			name:              "transform aws to aws-iam-authenticator with keys",
+			kubeconfig:        awsKubeconfig,
+			expectedTransform: awsIAMAuthenticatorKubeconfigTransformed,
+			expectedError:     nil,
+			keyID:             "keyID",
+			key:               "key",
+		},
+		{
+			name:              "transform aws with keys to aws-iam-authenticator",
+			kubeconfig:        awsKubeconfigWithKeys,
+			expectedTransform: awsIAMAuthenticatorKubeconfigTransformed,
+			expectedError:     nil,
+		},
+		{
+			name:              "transform aws to aws-iam-authenticator without keys",
+			kubeconfig:        awsKubeconfig,
+			expectedTransform: awsIAMAuthenticatorKubeconfig,
+			expectedError:     nil,
+		},
+		{
+			name:              "add environment variables to aws-iam-authenticator",
+			kubeconfig:        awsIAMAuthenticatorKubeconfig,
+			expectedTransform: awsIAMAuthenticatorKubeconfigTransformed,
+			expectedError:     nil,
+			keyID:             "keyID",
+			key:               "key",
+		},
+		{
+			name:              "return error if kubeconfig is empty",
+			kubeconfig:        "     ",
+			expectedTransform: "",
+			expectedError:     errKubeconfigIsEmpty,
+		},
+		{
+			name:              "don't transform aws-iam-authenticator with keys",
+			kubeconfig:        awsIAMAuthenticatorKubeconfigTransformed,
+			expectedTransform: awsIAMAuthenticatorKubeconfigTransformed,
+			expectedError:     nil,
+		},
+	}
+	for i, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			value, err := replaceAWSAuthIfPresent(tt.kubeconfig, tt.keyID, tt.key)
+			assert.ErrorIsf(t, err, tt.expectedError, "Errors don't match in the test case number %d.", i)
+			assert.Equalf(t, tt.expectedTransform, value, "Given and expected kubeconfigs don't match in the test case number %d.", i)
+		})
+	}
+}

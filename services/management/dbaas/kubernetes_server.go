@@ -21,23 +21,34 @@ import (
 	"fmt"
 	"math/rand"
 	"regexp"
+	"strings"
 	"sync"
 
 	goversion "github.com/hashicorp/go-version"
 	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	pmmversion "github.com/percona/pmm/version"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
+	"gopkg.in/yaml.v3"
 
 	"github.com/percona/pmm-managed/models"
 )
 
 var (
-	operatorIsForbiddenRegexp  = regexp.MustCompile(`.*\.percona\.com is forbidden`)
-	resourceDoesntExistsRegexp = regexp.MustCompile(`the server doesn't have a resource type "(PerconaXtraDBCluster|PerconaServerMongoDB)"`)
+	operatorIsForbiddenRegexp          = regexp.MustCompile(`.*\.percona\.com is forbidden`)
+	resourceDoesntExistsRegexp         = regexp.MustCompile(`the server doesn't have a resource type "(PerconaXtraDBCluster|PerconaServerMongoDB)"`)
+	errKubeconfigIsEmpty               = errors.New("kubeconfig is empty")
+	errMissingRequiredKubeconfigEnvVar = errors.New("required environment variable is not defined in kubeconfig")
+
+	flagClusterName              = "--cluster-name"
+	flagRegion                   = "--region"
+	flagRole                     = "--role-arn"
+	kubeconfigFlagsConversionMap = map[string]string{flagClusterName: "-i", flagRegion: "--region", flagRole: "-r"}
+	kubeconfigFlagsList          = []string{flagClusterName, flagRegion, flagRole}
 )
 
 type kubernetesServer struct {
@@ -139,10 +150,113 @@ func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1
 	return &dbaasv1beta1.ListKubernetesClustersResponse{KubernetesClusters: clusters}, nil
 }
 
+type envVar struct {
+	Name  string `yaml:"name"`
+	Value string `yaml:"value"`
+}
+
+type kubectlUserExec struct {
+	APIVersion         string   `yaml:"apiVersion,omitempty"`
+	Args               []string `yaml:"args,omitempty"`
+	Command            string   `yaml:"command,omitempty"`
+	Env                []envVar `yaml:"env,omitempty"`
+	ProvideClusterInfo bool     `yaml:"provideClusterInfo"`
+}
+
+type kubectlUser struct {
+	Exec kubectlUserExec `yaml:"exec,omitempty"`
+}
+
+type kubectlUserWithName struct {
+	Name string       `yaml:"name,omitempty"`
+	User *kubectlUser `yaml:"user,omitempty"`
+}
+
+type kubectlConfig struct {
+	Kind           string                 `yaml:"kind,omitempty"`
+	ApiVersion     string                 `yaml:"apiVersion,omitempty"`
+	CurrentContext string                 `yaml:"current-context,omitempty"`
+	Clusters       []interface{}          `yaml:"clusters,omitempty"`
+	Contexts       []interface{}          `yaml:"contexts,omitempty"`
+	Preferences    map[string]interface{} `yaml:"preferences"`
+	Users          []*kubectlUserWithName `yaml:"users,omitempty"`
+}
+
+func getFlagValue(args []string, flagName string) string {
+	for i, arg := range args {
+		if arg == flagName && i+1 < len(args) {
+			return args[i+1]
+		}
+	}
+	return ""
+}
+
+func getKubeconfigUserExecEnvValue(envs []envVar, variableName string) string {
+	for _, env := range envs {
+		if name := env.Name; name == variableName {
+			return env.Value
+		}
+	}
+	return ""
+}
+
+// replaceAWSAuthIfPresent replaces use of aws binary with aws-iam-authenticator if use of aws binary is found.
+// If such use is not found, it returns passed kubeconfig without any change.
+func replaceAWSAuthIfPresent(kubeconfig string, keyID, key string) (string, error) {
+	if strings.TrimSpace(kubeconfig) == "" {
+		return "", errKubeconfigIsEmpty
+	}
+	var config kubectlConfig
+	err := yaml.Unmarshal([]byte(kubeconfig), &config)
+	if err != nil {
+		return "", err
+	}
+	var changed bool
+	for _, user := range config.Users {
+		if user.User.Exec.Command == "aws" {
+			user.User.Exec.Command = "aws-iam-authenticator"
+			// check and set flags
+			converted := []string{"token"}
+			for _, oldFlag := range kubeconfigFlagsList {
+				if flag := getFlagValue(user.User.Exec.Args, oldFlag); flag != "" {
+					converted = append(converted, kubeconfigFlagsConversionMap[oldFlag], flag)
+				}
+			}
+			user.User.Exec.Args = converted
+			changed = true
+		}
+
+		// check and set authentication environment variables
+		for _, envVar := range []envVar{{"AWS_ACCESS_KEY_ID", keyID}, {"AWS_SECRET_ACCESS_KEY", key}} {
+			if value := getKubeconfigUserExecEnvValue(user.User.Exec.Env, envVar.Name); value == "" && envVar.Value != "" {
+				user.User.Exec.Env = append(user.User.Exec.Env, envVar)
+				changed = true
+			}
+		}
+	}
+	if !changed {
+		return kubeconfig, nil
+	}
+	c, err := yaml.Marshal(config)
+	return string(c), err
+}
+
 // RegisterKubernetesCluster registers an existing Kubernetes cluster in PMM.
 func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *dbaasv1beta1.RegisterKubernetesClusterRequest) (*dbaasv1beta1.RegisterKubernetesClusterResponse, error) {
+	var err error
+	req.KubeAuth.Kubeconfig, err = replaceAWSAuthIfPresent(req.KubeAuth.Kubeconfig, req.AwsAccessKeyId, req.AwsSecretAccessKey)
+	if err != nil {
+		if errors.Is(err, errKubeconfigIsEmpty) {
+			return nil, status.Error(codes.InvalidArgument, "Kubeconfig can't be empty")
+		} else if errors.Is(err, errMissingRequiredKubeconfigEnvVar) {
+			return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("Failed to transform kubeconfig to work with aws-iam-authenticator: %s", err))
+		}
+		k.l.Errorf("Replacing `aws` with `aim-authenticator` failed: %s", err)
+		return nil, status.Error(codes.Internal, "Internal server error")
+	}
+
 	var clusterInfo *dbaascontrollerv1beta1.CheckKubernetesClusterConnectionResponse
-	err := k.db.InTransaction(func(t *reform.TX) error {
+	err = k.db.InTransaction(func(t *reform.TX) error {
 		var e error
 		clusterInfo, e = k.dbaasClient.CheckKubernetesClusterConnection(ctx, req.KubeAuth.Kubeconfig)
 		if e != nil {
@@ -279,7 +393,7 @@ func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *
 }
 
 // GetKubernetesCluster return KubeAuth with Kubernetes config.
-func (k kubernetesServer) GetKubernetesCluster(ctx context.Context, req *dbaasv1beta1.GetKubernetesClusterRequest) (*dbaasv1beta1.GetKubernetesClusterResponse, error) {
+func (k kubernetesServer) GetKubernetesCluster(_ context.Context, req *dbaasv1beta1.GetKubernetesClusterRequest) (*dbaasv1beta1.GetKubernetesClusterResponse, error) {
 	kubernetesCluster, err := models.FindKubernetesClusterByName(k.db.Querier, req.KubernetesClusterName)
 	if err != nil {
 		return nil, err
