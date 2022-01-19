@@ -145,6 +145,9 @@ type AgentsInfoItems0 struct {
 	// The current listen port of this Agent (exporter or vmagent).
 	// Zero for other Agent types, or if unknown or not yet supported.
 	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// path
+	Path string `json:"path,omitempty"`
 }
 
 // Validate validates this agents info items0
