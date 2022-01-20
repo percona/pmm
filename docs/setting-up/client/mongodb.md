@@ -35,7 +35,7 @@ db.getSiblingDB("admin").createRole({
     privileges: [{
         resource: {
             db: "",
-            collection: ""
+            collection: "system.profile"
             },
         actions: [
             "listIndexes",
