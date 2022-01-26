@@ -239,7 +239,7 @@ show_message() {
 
   msg "You can access your new server using the one of following web addresses:"
   for ip in $ips; do
-    msg "\t${BLUE}https://$ip:$port/${NOFORMAT}"
+    msg "\t${GREEN}https://$ip:$port/${NOFORMAT}"
   done
   msg "\nThe default username is '${PURPLE}admin${NOFORMAT}' and the password is '${PURPLE}admin${NOFORMAT}' :)"
   msg "Note: Some browsers may not trust the default SSL certificate when you first open one of the urls above."
