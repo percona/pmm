@@ -6,6 +6,8 @@ replace gopkg.in/alecthomas/kingpin.v2 => github.com/Percona-Lab/kingpin v2.2.6-
 
 replace github.com/lfittl/pg_query_go v1.0.2 => github.com/Percona-Lab/pg_query_go v1.0.1-0.20190723081422-3fc3af54a6f7
 
+//replace "github.com/percona/pmm" => "../pmm"
+
 require (
 	github.com/AlekSi/pointer v1.1.0
 	github.com/davecgh/go-spew v1.1.1
@@ -19,7 +21,7 @@ require (
 	github.com/percona/exporter_shared v0.7.3
 	github.com/percona/go-mysql v0.0.0-20200630114833-b77f37c0bfa2
 	github.com/percona/percona-toolkit v3.2.1+incompatible
-	github.com/percona/pmm v0.0.0-20211125114515-7906d1bd7747
+	github.com/percona/pmm v0.0.0-20220126100200-47362f079afb
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.5.1
 	github.com/prometheus/common v0.10.0
