@@ -336,9 +336,10 @@ type StateChangedRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	AgentId    string                  `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
-	Status     inventorypb.AgentStatus `protobuf:"varint,2,opt,name=status,proto3,enum=inventory.AgentStatus" json:"status,omitempty"`
-	ListenPort uint32                  `protobuf:"varint,3,opt,name=listen_port,json=listenPort,proto3" json:"listen_port,omitempty"`
+	AgentId         string                  `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
+	Status          inventorypb.AgentStatus `protobuf:"varint,2,opt,name=status,proto3,enum=inventory.AgentStatus" json:"status,omitempty"`
+	ListenPort      uint32                  `protobuf:"varint,3,opt,name=listen_port,json=listenPort,proto3" json:"listen_port,omitempty"`
+	ProcessExecPath string                  `protobuf:"bytes,4,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
 }
 
 func (x *StateChangedRequest) Reset() {

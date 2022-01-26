@@ -137,7 +137,8 @@ type AgentInfo struct {
 	Status    inventorypb.AgentStatus `protobuf:"varint,3,opt,name=status,proto3,enum=inventory.AgentStatus" json:"status,omitempty"`
 	// The current listen port of this Agent (exporter or vmagent).
 	// Zero for other Agent types, or if unknown or not yet supported.
-	ListenPort uint32 `protobuf:"varint,4,opt,name=listen_port,json=listenPort,proto3" json:"listen_port,omitempty"`
+	ListenPort      uint32 `protobuf:"varint,4,opt,name=listen_port,json=listenPort,proto3" json:"listen_port,omitempty"`
+	ProcessExecPath string `protobuf:"bytes,5,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
 }
 
 func (x *AgentInfo) Reset() {
