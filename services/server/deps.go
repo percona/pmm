@@ -20,7 +20,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/percona-platform/saas/pkg/check"
 	"github.com/percona/pmm/api/serverpb"
 	"github.com/percona/pmm/version"
 
@@ -69,7 +68,7 @@ type alertmanagerService interface {
 // checksService is a subset of methods of checks.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type checksService interface {
-	StartChecks(ctx context.Context, group check.Interval, checkNames []string) error
+	StartChecks(checkNames []string) error
 	CleanupAlerts()
 	UpdateIntervals(rare, standard, frequent time.Duration)
 }

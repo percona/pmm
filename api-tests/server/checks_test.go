@@ -18,6 +18,7 @@ package server
 
 import (
 	"testing"
+	"time"
 
 	"github.com/AlekSi/pointer"
 	managementClient "github.com/percona/pmm/api/managementpb/json/client"
@@ -32,21 +33,10 @@ import (
 )
 
 func TestStartChecks(t *testing.T) {
-	client := serverClient.Default.Server
-
 	t.Run("with enabled STT", func(t *testing.T) {
 		defer restoreSettingsDefaults(t)
-		// Enabled STT
-		res, err := client.ChangeSettings(&server.ChangeSettingsParams{
-			Body: server.ChangeSettingsBody{
-				EnableStt:       true,
-				EnableTelemetry: true,
-			},
-			Context: pmmapitests.Context,
-		})
-		require.NoError(t, err)
-		assert.True(t, res.Payload.Settings.SttEnabled)
-		assert.True(t, res.Payload.Settings.TelemetryEnabled)
+
+		toggleSTT(t, true)
 
 		resp, err := managementClient.Default.SecurityChecks.StartSecurityChecks(nil)
 		require.NoError(t, err)
@@ -55,17 +45,7 @@ func TestStartChecks(t *testing.T) {
 
 	t.Run("with disabled STT", func(t *testing.T) {
 		defer restoreSettingsDefaults(t)
-		// Disabled STT
-		res, err := client.ChangeSettings(&server.ChangeSettingsParams{
-			Body: server.ChangeSettingsBody{
-				DisableStt:      true,
-				EnableTelemetry: true,
-			},
-			Context: pmmapitests.Context,
-		})
-		require.NoError(t, err)
-		assert.False(t, res.Payload.Settings.SttEnabled)
-		assert.True(t, res.Payload.Settings.TelemetryEnabled)
+		toggleSTT(t, false)
 
 		resp, err := managementClient.Default.SecurityChecks.StartSecurityChecks(nil)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `STT is disabled.`)
@@ -78,19 +58,9 @@ func TestGetSecurityCheckResults(t *testing.T) {
 		t.Skip("Skipping STT tests until we have environment: https://jira.percona.com/browse/PMM-5106")
 	}
 
-	client := serverClient.Default.Server
-
 	t.Run("with disabled STT", func(t *testing.T) {
 		defer restoreSettingsDefaults(t)
-		// Disabled STT
-		res, err := client.ChangeSettings(&server.ChangeSettingsParams{
-			Body: server.ChangeSettingsBody{
-				DisableStt: true,
-			},
-			Context: pmmapitests.Context,
-		})
-		require.NoError(t, err)
-		assert.False(t, res.Payload.Settings.SttEnabled)
+		toggleSTT(t, false)
 
 		results, err := managementClient.Default.SecurityChecks.GetSecurityCheckResults(nil)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `STT is disabled.`)
@@ -99,15 +69,7 @@ func TestGetSecurityCheckResults(t *testing.T) {
 
 	t.Run("with enabled STT", func(t *testing.T) {
 		defer restoreSettingsDefaults(t)
-		// Enabled STT
-		res, err := client.ChangeSettings(&server.ChangeSettingsParams{
-			Body: server.ChangeSettingsBody{
-				EnableStt: true,
-			},
-			Context: pmmapitests.Context,
-		})
-		require.NoError(t, err)
-		assert.True(t, res.Payload.Settings.SttEnabled)
+		toggleSTT(t, true)
 
 		resp, err := managementClient.Default.SecurityChecks.StartSecurityChecks(nil)
 		require.NoError(t, err)
@@ -120,18 +82,8 @@ func TestGetSecurityCheckResults(t *testing.T) {
 }
 
 func TestListSecurityChecks(t *testing.T) {
-	client := serverClient.Default.Server
-
 	defer restoreSettingsDefaults(t)
-	// Enable STT
-	res, err := client.ChangeSettings(&server.ChangeSettingsParams{
-		Body: server.ChangeSettingsBody{
-			EnableStt: true,
-		},
-		Context: pmmapitests.Context,
-	})
-	require.NoError(t, err)
-	assert.True(t, res.Payload.Settings.SttEnabled)
+	toggleSTT(t, true)
 
 	resp, err := managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
 	require.NoError(t, err)
@@ -145,19 +97,9 @@ func TestListSecurityChecks(t *testing.T) {
 }
 
 func TestChangeSecurityChecks(t *testing.T) {
-	client := serverClient.Default.Server
 
 	t.Run("enable disable", func(t *testing.T) {
-		defer restoreSettingsDefaults(t)
-		// Enable STT
-		res, err := client.ChangeSettings(&server.ChangeSettingsParams{
-			Body: server.ChangeSettingsBody{
-				EnableStt: true,
-			},
-			Context: pmmapitests.Context,
-		})
-		require.NoError(t, err)
-		assert.True(t, res.Payload.Settings.SttEnabled)
+		toggleSTT(t, true)
 
 		resp, err := managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
 		require.NoError(t, err)
@@ -200,15 +142,7 @@ func TestChangeSecurityChecks(t *testing.T) {
 
 	t.Run("change interval error", func(t *testing.T) {
 		defer restoreSettingsDefaults(t)
-		// Enable STT
-		res, err := client.ChangeSettings(&server.ChangeSettingsParams{
-			Body: server.ChangeSettingsBody{
-				EnableStt: true,
-			},
-			Context: pmmapitests.Context,
-		})
-		require.NoError(t, err)
-		assert.True(t, res.Payload.Settings.SttEnabled)
+		toggleSTT(t, true)
 
 		resp, err := managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
 		require.NoError(t, err)
@@ -236,15 +170,7 @@ func TestChangeSecurityChecks(t *testing.T) {
 	t.Run("change interval normal", func(t *testing.T) {
 		defer restoreSettingsDefaults(t)
 		defer restoreCheckIntervalDefaults(t)
-		// Enable STT
-		res, err := client.ChangeSettings(&server.ChangeSettingsParams{
-			Body: server.ChangeSettingsBody{
-				EnableStt: true,
-			},
-			Context: pmmapitests.Context,
-		})
-		require.NoError(t, err)
-		assert.True(t, res.Payload.Settings.SttEnabled)
+		toggleSTT(t, true)
 
 		resp, err := managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
 		require.NoError(t, err)
@@ -278,15 +204,7 @@ func TestChangeSecurityChecks(t *testing.T) {
 		}
 
 		t.Run("intervals should be preserved on restart", func(t *testing.T) {
-			// Enable STT
-			res, err := client.ChangeSettings(&server.ChangeSettingsParams{
-				Body: server.ChangeSettingsBody{
-					EnableStt: true,
-				},
-				Context: pmmapitests.Context,
-			})
-			require.NoError(t, err)
-			assert.True(t, res.Payload.Settings.SttEnabled)
+			toggleSTT(t, true)
 
 			_, err = managementClient.Default.SecurityChecks.StartSecurityChecks(nil)
 			require.NoError(t, err)
@@ -297,4 +215,23 @@ func TestChangeSecurityChecks(t *testing.T) {
 			assert.Equal(t, "RARE", *resp.Payload.Checks[0].Interval)
 		})
 	})
+}
+
+func toggleSTT(t *testing.T, enable bool) {
+	t.Helper()
+
+	res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+		Body: server.ChangeSettingsBody{
+			EnableStt:  enable,
+			DisableStt: !enable,
+		},
+		Context: pmmapitests.Context,
+	})
+	require.NoError(t, err)
+	require.Equal(t, enable, res.Payload.Settings.SttEnabled)
+
+	if enable {
+		// It takes some time to load check files
+		time.Sleep(time.Second)
+	}
 }

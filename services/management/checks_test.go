@@ -36,7 +36,7 @@ import (
 func TestStartSecurityChecks(t *testing.T) {
 	t.Run("internal error", func(t *testing.T) {
 		var checksService mockChecksService
-		checksService.On("StartChecks", mock.Anything, check.Interval(""), []string(nil)).Return(errors.New("random error"))
+		checksService.On("StartChecks", []string(nil)).Return(errors.New("random error"))
 
 		s := NewChecksAPIService(&checksService)
 
@@ -47,7 +47,7 @@ func TestStartSecurityChecks(t *testing.T) {
 
 	t.Run("STT disabled error", func(t *testing.T) {
 		var checksService mockChecksService
-		checksService.On("StartChecks", mock.Anything, check.Interval(""), []string(nil)).Return(services.ErrSTTDisabled)
+		checksService.On("StartChecks", []string(nil)).Return(services.ErrSTTDisabled)
 
 		s := NewChecksAPIService(&checksService)
 

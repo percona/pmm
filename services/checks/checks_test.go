@@ -274,7 +274,7 @@ func TestChangeInterval(t *testing.T) {
 			err = models.SaveSettings(db, settings)
 			require.NoError(t, err)
 
-			err = s.StartChecks(context.Background(), "", nil)
+			err = s.runChecksGroup(context.Background(), "")
 			require.NoError(t, err)
 
 			checks := s.GetAllChecks()
@@ -347,7 +347,7 @@ func TestStartChecks(t *testing.T) {
 	t.Run("stt disabled", func(t *testing.T) {
 		s, err := New(nil, nil, db)
 		require.NoError(t, err)
-		err = s.StartChecks(context.Background(), "", nil)
+		err = s.runChecksGroup(context.Background(), "")
 		assert.EqualError(t, err, services.ErrSTTDisabled.Error())
 	})
 
@@ -361,7 +361,7 @@ func TestStartChecks(t *testing.T) {
 		err = models.SaveSettings(db, settings)
 		require.NoError(t, err)
 
-		err = s.StartChecks(context.Background(), check.Interval("unknown"), nil)
+		err = s.runChecksGroup(context.Background(), check.Interval("unknown"))
 		assert.EqualError(t, err, "unknown check interval: unknown")
 	})
 
@@ -378,7 +378,7 @@ func TestStartChecks(t *testing.T) {
 		err = models.SaveSettings(db, settings)
 		require.NoError(t, err)
 
-		err = s.StartChecks(context.Background(), "", nil)
+		err = s.runChecksGroup(context.Background(), "")
 		require.NoError(t, err)
 	})
 }

@@ -3,10 +3,7 @@
 package management
 
 import (
-	context "context"
-
 	check "github.com/percona-platform/saas/pkg/check"
-
 	mock "github.com/stretchr/testify/mock"
 
 	services "github.com/percona/pmm-managed/services"
@@ -121,13 +118,13 @@ func (_m *mockChecksService) GetSecurityCheckResults() ([]services.STTCheckResul
 	return r0, r1
 }
 
-// StartChecks provides a mock function with given fields: ctx, group, checkNames
-func (_m *mockChecksService) StartChecks(ctx context.Context, group check.Interval, checkNames []string) error {
-	ret := _m.Called(ctx, group, checkNames)
+// StartChecks provides a mock function with given fields: checkNames
+func (_m *mockChecksService) StartChecks(checkNames []string) error {
+	ret := _m.Called(checkNames)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, check.Interval, []string) error); ok {
-		r0 = rf(ctx, group, checkNames)
+	if rf, ok := ret.Get(0).(func([]string) error); ok {
+		r0 = rf(checkNames)
 	} else {
 		r0 = ret.Error(0)
 	}

@@ -56,9 +56,11 @@ const (
 	envResendInterval    = "PERCONA_TEST_CHECKS_RESEND_INTERVAL"
 	envDisableStartDelay = "PERCONA_TEST_CHECKS_DISABLE_START_DELAY"
 
-	checksTimeout       = 5 * time.Minute  // timeout for checks downloading/execution
-	resultTimeout       = 20 * time.Second // should greater than agents.defaultQueryActionTimeout
-	resultCheckInterval = time.Second
+	checkExecutionTimeout  = 5 * time.Minute  // limits execution time for every single check
+	platformRequestTimeout = 2 * time.Minute  // time limit to get checks list from the platform
+	resultAwaitTimeout     = 20 * time.Second // should be greater than agents.defaultQueryActionTimeout
+	scriptExecutionTimeout = 5 * time.Second  // time limit for running pmm-managed-starlark
+	resultCheckInterval    = time.Second
 
 	// sync with API tests
 	resolveTimeoutFactor  = 3
@@ -69,8 +71,6 @@ const (
 
 	alertsPrefix        = "/stt/"
 	maxSupportedVersion = 1
-
-	scriptTimeout = 5 * time.Second // time limit for running pmm-managed-starlark
 )
 
 // pmm-agent versions with known changes in Query Actions.
@@ -213,7 +213,7 @@ func (s *Service) Run(ctx context.Context) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		s.restartChecks(ctx)
+		s.runChecksLoop(ctx)
 	}()
 
 	wg.Wait()
@@ -236,11 +236,10 @@ func (s *Service) resendAlerts(ctx context.Context) {
 	}
 }
 
-// restartChecks restarts checks until ctx is canceled.
-func (s *Service) restartChecks(ctx context.Context) {
+// runChecksLoop starts checks execution loop.
+func (s *Service) runChecksLoop(ctx context.Context) {
 	// First checks run, start all checks from all groups.
-	err := s.StartChecks(ctx, "", nil) // start all checks
-
+	err := s.runChecksGroup(ctx, "") // start all checks
 	for {
 		switch err {
 		case nil:
@@ -256,13 +255,13 @@ func (s *Service) restartChecks(ctx context.Context) {
 			return
 		case <-s.rareTicker.C:
 			// Start all checks from rare group.
-			err = s.StartChecks(ctx, check.Rare, nil)
+			err = s.runChecksGroup(ctx, check.Rare)
 		case <-s.standardTicker.C:
 			// Start all checks from standard group.
-			err = s.StartChecks(ctx, check.Standard, nil)
+			err = s.runChecksGroup(ctx, check.Standard)
 		case <-s.frequentTicker.C:
 			// Start all checks from frequent group.
-			err = s.StartChecks(ctx, check.Frequent, nil)
+			err = s.runChecksGroup(ctx, check.Frequent)
 		}
 	}
 }
@@ -281,9 +280,9 @@ func (s *Service) GetSecurityCheckResults() ([]services.STTCheckResult, error) {
 	return s.alertsRegistry.getCheckResults(), nil
 }
 
-// StartChecks triggers STT checks downloading and execution. If intervalGroup specified only checks from that group
-// will be executed. If checkNames specified then only matched checks will be executed.
-func (s *Service) StartChecks(ctx context.Context, intervalGroup check.Interval, checkNames []string) error {
+// runChecksGroup downloads and executes STT checks in synchronous way.
+// If intervalGroup is empty.
+func (s *Service) runChecksGroup(ctx context.Context, intervalGroup check.Interval) error {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
 		return errors.WithStack(err)
@@ -293,16 +292,38 @@ func (s *Service) StartChecks(ctx context.Context, intervalGroup check.Interval,
 		return services.ErrSTTDisabled
 	}
 
-	if err = intervalGroup.Validate(); err != nil {
+	return s.run(ctx, intervalGroup, nil)
+}
+
+// StartChecks downloads and executes STT checks in asynchronous way.
+// If checkNames specified then only matched checks will be executed.
+func (s *Service) StartChecks(checkNames []string) error {
+	settings, err := models.GetSettings(s.db)
+	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	nCtx, cancel := context.WithTimeout(ctx, checksTimeout)
-	defer cancel()
+	if !settings.SaaS.STTEnabled {
+		return services.ErrSTTDisabled
+	}
 
-	s.collectChecks(nCtx)
+	go func() {
+		if err := s.run(context.Background(), "", checkNames); err != nil {
+			s.l.Errorf("Failed to execute STT checks: %+v.", err)
+		}
+	}()
 
-	if err = s.executeChecks(nCtx, intervalGroup, checkNames); err != nil {
+	return nil
+}
+
+func (s *Service) run(ctx context.Context, intervalGroup check.Interval, checkNames []string) error {
+	if err := intervalGroup.Validate(); err != nil {
+		return errors.WithStack(err)
+	}
+
+	s.collectChecks(ctx)
+
+	if err := s.executeChecks(ctx, intervalGroup, checkNames); err != nil {
 		return errors.WithStack(err)
 	}
 
@@ -438,7 +459,7 @@ func (s *Service) ChangeInterval(params map[string]check.Interval) error {
 		c.Interval = interval
 
 		// since we re-run checks at regular intervals using a call
-		// to s.StartChecks which in turn calls s.collectChecks
+		// to s.runChecksGroup which in turn calls s.collectChecks
 		// to load/download checks, we must persist any changes
 		// to check intervals in the DB so that they can be re-applied
 		// once the checks have been re-loaded on restarts.
@@ -660,37 +681,15 @@ func (s *Service) executeMySQLChecks(ctx context.Context, checks []check.Check) 
 		}
 
 		for _, target := range targets {
-			r, err := models.CreateActionResult(s.db.Querier, target.AgentID)
+			results, err := s.executeCheck(ctx, target, c)
 			if err != nil {
-				s.l.Warnf("Failed to prepare action result for agent %s: %s.", target.AgentID, err)
+				s.l.Warnf("Failed to execute check %s of type %s on target %s: %+v", c.Name, c.Type, target.AgentID, err)
 				continue
 			}
-
-			switch c.Type {
-			case check.MySQLShow:
-				if err := s.agentsRegistry.StartMySQLQueryShowAction(ctx, r.ID, target.AgentID, target.DSN, c.Query, target.Files, target.TDP, target.TLSSkipVerify); err != nil {
-					s.l.Warnf("Failed to start MySQL show query action for agent %s, reason: %s.", target.AgentID, err)
-					continue
-				}
-			case check.MySQLSelect:
-				if err := s.agentsRegistry.StartMySQLQuerySelectAction(ctx, r.ID, target.AgentID, target.DSN, c.Query, target.Files, target.TDP, target.TLSSkipVerify); err != nil {
-					s.l.Warnf("Failed to start MySQL select query action for agent %s, reason: %s.", target.AgentID, err)
-					continue
-				}
-			default:
-				s.l.Warnf("Unknown MySQL check type: %s.", c.Type)
-				continue
-			}
-
-			checkResults, err := s.processResults(ctx, c, target, r.ID)
-			if err != nil {
-				s.l.Warnf("Failed to process action result: %s.", err)
-				continue
-			}
+			res = append(res, results...)
 
 			s.mScriptsExecuted.WithLabelValues(string(models.MySQLServiceType)).Inc()
-			s.mAlertsGenerated.WithLabelValues(string(models.MySQLServiceType), string(c.Type)).Add(float64(len(checkResults)))
-			res = append(res, checkResults...)
+			s.mAlertsGenerated.WithLabelValues(string(models.MySQLServiceType), string(c.Type)).Add(float64(len(results)))
 		}
 	}
 
@@ -711,37 +710,15 @@ func (s *Service) executePostgreSQLChecks(ctx context.Context, checks []check.Ch
 		}
 
 		for _, target := range targets {
-			r, err := models.CreateActionResult(s.db.Querier, target.AgentID)
+			results, err := s.executeCheck(ctx, target, c)
 			if err != nil {
-				s.l.Warnf("Failed to prepare action result for agent %s: %s.", target.AgentID, err)
+				s.l.Warnf("Failed to execute check %s of type %s on target %s: %+v", c.Name, c.Type, target.AgentID, err)
 				continue
 			}
-
-			switch c.Type {
-			case check.PostgreSQLShow:
-				if err := s.agentsRegistry.StartPostgreSQLQueryShowAction(ctx, r.ID, target.AgentID, target.DSN); err != nil {
-					s.l.Warnf("Failed to start PostgreSQL show query action for agent %s, reason: %s.", target.AgentID, err)
-					continue
-				}
-			case check.PostgreSQLSelect:
-				if err := s.agentsRegistry.StartPostgreSQLQuerySelectAction(ctx, r.ID, target.AgentID, target.DSN, c.Query); err != nil {
-					s.l.Warnf("Failed to start PostgreSQL select query action for agent %s, reason: %s.", target.AgentID, err)
-					continue
-				}
-			default:
-				s.l.Warnf("Unknown PostgresSQL check type: %s.", c.Type)
-				continue
-			}
-
-			checkResults, err := s.processResults(ctx, c, target, r.ID)
-			if err != nil {
-				s.l.Warnf("Failed to process action result: %s", err)
-				continue
-			}
+			res = append(res, results...)
 
 			s.mScriptsExecuted.WithLabelValues(string(models.PostgreSQLServiceType)).Inc()
-			s.mAlertsGenerated.WithLabelValues(string(models.PostgreSQLServiceType), string(c.Type)).Add(float64(len(checkResults)))
-			res = append(res, checkResults...)
+			s.mAlertsGenerated.WithLabelValues(string(models.PostgreSQLServiceType), string(c.Type)).Add(float64(len(results)))
 		}
 	}
 
@@ -762,47 +739,58 @@ func (s *Service) executeMongoDBChecks(ctx context.Context, checks []check.Check
 		}
 
 		for _, target := range targets {
-			r, err := models.CreateActionResult(s.db.Querier, target.AgentID)
+			results, err := s.executeCheck(ctx, target, c)
 			if err != nil {
-				s.l.Warnf("Failed to prepare action result for agent %s: %s.", target.AgentID, err)
+				s.l.Warnf("Failed to execute check %s of type %s on target %s: %+v", c.Name, c.Type, target.AgentID, err)
 				continue
 			}
-
-			switch c.Type {
-			case check.MongoDBGetParameter:
-				if err := s.agentsRegistry.StartMongoDBQueryGetParameterAction(ctx, r.ID, target.AgentID, target.DSN, target.Files, target.TDP); err != nil {
-					s.l.Warnf("Failed to start MongoDB get parameter query action for agent %s, reason: %s.", target.AgentID, err)
-					continue
-				}
-			case check.MongoDBBuildInfo:
-				if err := s.agentsRegistry.StartMongoDBQueryBuildInfoAction(ctx, r.ID, target.AgentID, target.DSN, target.Files, target.TDP); err != nil {
-					s.l.Warnf("Failed to start MongoDB build info query action for agent %s, reason: %s.", target.AgentID, err)
-					continue
-				}
-			case check.MongoDBGetCmdLineOpts:
-				if err := s.agentsRegistry.StartMongoDBQueryGetCmdLineOptsAction(ctx, r.ID, target.AgentID, target.DSN, target.Files, target.TDP); err != nil {
-					s.l.Warnf("Failed to start MongoDB getCmdLineOpts query action for agent %s, reason: %s.", target.AgentID, err)
-					continue
-				}
-
-			default:
-				s.l.Warnf("Unknown MongoDB check type: %s.", c.Type)
-				continue
-			}
-
-			checkResults, err := s.processResults(ctx, c, target, r.ID)
-			if err != nil {
-				s.l.Warnf("Failed to process action result: %s", err)
-				continue
-			}
+			res = append(res, results...)
 
 			s.mScriptsExecuted.WithLabelValues(string(models.MongoDBServiceType)).Inc()
-			s.mAlertsGenerated.WithLabelValues(string(models.MongoDBServiceType), string(c.Type)).Add(float64(len(checkResults)))
-			res = append(res, checkResults...)
+			s.mAlertsGenerated.WithLabelValues(string(models.MongoDBServiceType), string(c.Type)).Add(float64(len(results)))
 		}
 	}
 
 	return res
+}
+
+func (s *Service) executeCheck(ctx context.Context, target services.Target, c check.Check) ([]services.STTCheckResult, error) {
+	nCtx, cancel := context.WithTimeout(ctx, checkExecutionTimeout)
+	defer cancel()
+
+	r, err := models.CreateActionResult(s.db.Querier, target.AgentID)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to prepare result")
+	}
+
+	switch c.Type {
+	case check.MySQLShow:
+		err = s.agentsRegistry.StartMySQLQueryShowAction(nCtx, r.ID, target.AgentID, target.DSN, c.Query, target.Files, target.TDP, target.TLSSkipVerify)
+	case check.MySQLSelect:
+		err = s.agentsRegistry.StartMySQLQuerySelectAction(nCtx, r.ID, target.AgentID, target.DSN, c.Query, target.Files, target.TDP, target.TLSSkipVerify)
+	case check.PostgreSQLShow:
+		err = s.agentsRegistry.StartPostgreSQLQueryShowAction(ctx, r.ID, target.AgentID, target.DSN)
+	case check.PostgreSQLSelect:
+		err = s.agentsRegistry.StartPostgreSQLQuerySelectAction(ctx, r.ID, target.AgentID, target.DSN, c.Query)
+	case check.MongoDBGetParameter:
+		err = s.agentsRegistry.StartMongoDBQueryGetParameterAction(ctx, r.ID, target.AgentID, target.DSN, target.Files, target.TDP)
+	case check.MongoDBBuildInfo:
+		err = s.agentsRegistry.StartMongoDBQueryBuildInfoAction(ctx, r.ID, target.AgentID, target.DSN, target.Files, target.TDP)
+	case check.MongoDBGetCmdLineOpts:
+		err = s.agentsRegistry.StartMongoDBQueryGetCmdLineOptsAction(ctx, r.ID, target.AgentID, target.DSN, target.Files, target.TDP)
+	default:
+		return nil, errors.Errorf("unknown check type")
+	}
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to start query")
+	}
+
+	res, err := s.processResults(nCtx, c, target, r.ID)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to process action result")
+	}
+
+	return res, nil
 }
 
 // StarlarkScriptData represents the data we need to pass to the binary to run starlark scripts.
@@ -814,7 +802,7 @@ type StarlarkScriptData struct {
 }
 
 func (s *Service) processResults(ctx context.Context, sttCheck check.Check, target services.Target, resID string) ([]services.STTCheckResult, error) {
-	nCtx, cancel := context.WithTimeout(ctx, resultTimeout)
+	nCtx, cancel := context.WithTimeout(ctx, resultAwaitTimeout)
 	r, err := s.waitForResult(nCtx, resID)
 	cancel()
 	if err != nil {
@@ -834,7 +822,7 @@ func (s *Service) processResults(ctx context.Context, sttCheck check.Check, targ
 		QueryResult: r,
 	}
 
-	cmdCtx, cancel := context.WithTimeout(ctx, scriptTimeout)
+	cmdCtx, cancel := context.WithTimeout(ctx, scriptExecutionTimeout)
 	defer cancel()
 
 	cmd := exec.CommandContext(cmdCtx, "pmm-managed-starlark")
@@ -1054,13 +1042,16 @@ func (s *Service) loadLocalChecks(file string) ([]check.Check, error) {
 func (s *Service) downloadChecks(ctx context.Context) ([]check.Check, error) {
 	s.l.Infof("Downloading checks from %s ...", s.host)
 
+	nCtx, cancel := context.WithTimeout(ctx, platformRequestTimeout)
+	defer cancel()
+
 	var accessToken string
-	if ssoDetails, err := models.GetPerconaSSODetails(ctx, s.db.Querier); err == nil {
+	if ssoDetails, err := models.GetPerconaSSODetails(nCtx, s.db.Querier); err == nil {
 		accessToken = ssoDetails.AccessToken.AccessToken
 	}
 
 	endpoint := fmt.Sprintf("https://%s/v1/check/GetAllChecks", s.host)
-	bodyBytes, err := saasreq.MakeRequest(ctx, http.MethodPost, endpoint, accessToken, nil)
+	bodyBytes, err := saasreq.MakeRequest(nCtx, http.MethodPost, endpoint, accessToken, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to dial")
 	}
