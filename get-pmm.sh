@@ -198,7 +198,7 @@ install_docker() {
     root_is_needed='yes'
     if ! run_root 'docker ps > /dev/null'; then
       if is_darwin; then
-        open --background -a Docker
+        run_root 'open --background -a Docker'
         echo "Giving docker desktop time to start"
         sleep 30
       else
