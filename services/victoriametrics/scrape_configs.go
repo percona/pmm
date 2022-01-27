@@ -372,7 +372,11 @@ func scrapeConfigsForMySQLdExporter(s *models.MetricsResolutions, params *scrape
 }
 
 func scrapeConfigsForMongoDBExporter(s *models.MetricsResolutions, params *scrapeConfigParams) ([]*config.ScrapeConfig, error) {
-	hr, err := scrapeConfigForStandardExporter("hr", s.HR, params, nil)
+	hr, err := scrapeConfigForStandardExporter("hr", s.HR, params, []string{
+		"diagnosticdata",
+		"replicasetstatus",
+		"topmetrics",
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -380,6 +384,18 @@ func scrapeConfigsForMongoDBExporter(s *models.MetricsResolutions, params *scrap
 	var r []*config.ScrapeConfig
 	if hr != nil {
 		r = append(r, hr)
+	}
+	lr, err := scrapeConfigForStandardExporter("lr", s.LR, params, []string{
+		"dbstats",
+		"indexstats",
+		"collstats",
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if lr != nil {
+		r = append(r, lr)
 	}
 	return r, nil
 }
