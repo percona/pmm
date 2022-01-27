@@ -129,19 +129,19 @@ func (s *TemplatesService) getTemplates() map[string]templateInfo {
 	s.rw.RLock()
 	defer s.rw.RUnlock()
 
-	res := make(map[string]templateInfo)
+	res := make(map[string]templateInfo, len(s.templates))
 	for n, r := range s.templates {
 		res[n] = r
 	}
 	return res
 }
 
-// Collect collects IA rule templates from various sources like:
+// CollectTemplates collects IA rule templates from various sources like:
 // builtin templates: read from the generated code in bindata.go.
 // SaaS templates: templates downloaded from checks service.
 // user file templates: read from yaml files created by the user in `/srv/ia/templates`
 // user API templates: in the DB created using the API.
-func (s *TemplatesService) Collect(ctx context.Context) {
+func (s *TemplatesService) CollectTemplates(ctx context.Context) {
 	builtInTemplates, err := s.loadTemplatesFromAssets(ctx)
 	if err != nil {
 		s.l.Errorf("Failed to load built-in rule templates: %s.", err)
@@ -373,6 +373,16 @@ func (s *TemplatesService) loadTemplatesFromDB() ([]templateInfo, error) {
 
 // downloadTemplates downloads IA templates from SaaS.
 func (s *TemplatesService) downloadTemplates(ctx context.Context) ([]alert.Template, error) {
+	settings, err := models.GetSettings(s.db)
+	if err != nil {
+		return nil, err
+	}
+
+	if settings.Telemetry.Disabled {
+		s.l.Debug("Alert templates downloading skipped due to disabled telemetry.")
+		return nil, nil
+	}
+
 	s.l.Infof("Downloading templates from %s ...", s.host)
 
 	var accessToken string
@@ -478,7 +488,7 @@ func (s *TemplatesService) ListTemplates(ctx context.Context, req *iav1beta1.Lis
 	}
 
 	if req.Reload {
-		s.Collect(ctx)
+		s.CollectTemplates(ctx)
 	}
 
 	templates := s.getTemplates()
@@ -562,7 +572,7 @@ func (s *TemplatesService) CreateTemplate(ctx context.Context, req *iav1beta1.Cr
 		return nil, e
 	}
 
-	s.Collect(ctx)
+	s.CollectTemplates(ctx)
 
 	return &iav1beta1.CreateTemplateResponse{}, nil
 }
@@ -605,7 +615,7 @@ func (s *TemplatesService) UpdateTemplate(ctx context.Context, req *iav1beta1.Up
 		return nil, e
 	}
 
-	s.Collect(ctx)
+	s.CollectTemplates(ctx)
 
 	return &iav1beta1.UpdateTemplateResponse{}, nil
 }
@@ -619,7 +629,7 @@ func (s *TemplatesService) DeleteTemplate(ctx context.Context, req *iav1beta1.De
 		return nil, e
 	}
 
-	s.Collect(ctx)
+	s.CollectTemplates(ctx)
 
 	return &iav1beta1.DeleteTemplateResponse{}, nil
 }

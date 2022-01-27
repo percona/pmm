@@ -75,7 +75,7 @@ func TestCreateAlertRule(t *testing.T) {
 	templates, err := NewTemplatesService(db)
 	require.NoError(t, err)
 	templates.userTemplatesPath = testTemplates2
-	templates.Collect(ctx)
+	templates.CollectTemplates(ctx)
 
 	t.Run("normal", func(t *testing.T) {
 		testDir, err := ioutil.TempDir("", "")

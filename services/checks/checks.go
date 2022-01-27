@@ -321,7 +321,7 @@ func (s *Service) run(ctx context.Context, intervalGroup check.Interval, checkNa
 		return errors.WithStack(err)
 	}
 
-	s.collectChecks(ctx)
+	s.CollectChecks(ctx)
 
 	if err := s.executeChecks(ctx, intervalGroup, checkNames); err != nil {
 		return errors.WithStack(err)
@@ -459,7 +459,7 @@ func (s *Service) ChangeInterval(params map[string]check.Interval) error {
 		c.Interval = interval
 
 		// since we re-run checks at regular intervals using a call
-		// to s.runChecksGroup which in turn calls s.collectChecks
+		// to s.runChecksGroup which in turn calls s.CollectChecks
 		// to load/download checks, we must persist any changes
 		// to check intervals in the DB so that they can be re-applied
 		// once the checks have been re-loaded on restarts.
@@ -979,8 +979,8 @@ func filterChecksByInterval(checks []check.Check, interval check.Interval) []che
 	return res
 }
 
-// collectChecks loads checks from file or SaaS, and stores versions this pmm-managed can handle.
-func (s *Service) collectChecks(ctx context.Context) {
+// CollectChecks loads checks from file or SaaS, and stores versions this pmm-managed can handle.
+func (s *Service) CollectChecks(ctx context.Context) {
 	var checks []check.Check
 	var err error
 	if s.localChecksFile != "" {
@@ -1040,6 +1040,16 @@ func (s *Service) loadLocalChecks(file string) ([]check.Check, error) {
 
 // downloadChecks downloads checks form percona service endpoint.
 func (s *Service) downloadChecks(ctx context.Context) ([]check.Check, error) {
+	settings, err := models.GetSettings(s.db)
+	if err != nil {
+		return nil, err
+	}
+
+	if settings.Telemetry.Disabled {
+		s.l.Debug("Checks downloading skipped due to disabled telemetry.")
+		return nil, nil
+	}
+
 	s.l.Infof("Downloading checks from %s ...", s.host)
 
 	nCtx, cancel := context.WithTimeout(ctx, platformRequestTimeout)

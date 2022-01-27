@@ -3,6 +3,7 @@
 package server
 
 import (
+	context "context"
 	time "time"
 
 	mock "github.com/stretchr/testify/mock"
@@ -16,6 +17,11 @@ type mockChecksService struct {
 // CleanupAlerts provides a mock function with given fields:
 func (_m *mockChecksService) CleanupAlerts() {
 	_m.Called()
+}
+
+// CollectChecks provides a mock function with given fields: ctx
+func (_m *mockChecksService) CollectChecks(ctx context.Context) {
+	_m.Called(ctx)
 }
 
 // StartChecks provides a mock function with given fields: checkNames

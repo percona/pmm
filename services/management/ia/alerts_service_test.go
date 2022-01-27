@@ -225,10 +225,6 @@ func TestListAlerts(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-	t.Cleanup(func() {
-		require.NoError(t, sqlDB.Close())
-	})
-
 	q := db.Querier
 	now := strfmt.DateTime(time.Now())
 
@@ -274,7 +270,7 @@ func TestListAlerts(t *testing.T) {
 
 	tmplSvc, err := NewTemplatesService(db)
 	require.NoError(t, err)
-	tmplSvc.Collect(ctx)
+	tmplSvc.CollectTemplates(ctx)
 	svc := NewAlertsService(db, mockAlert, tmplSvc)
 
 	findAlerts := func(alerts []*iav1beta1.Alert, alertIDs ...string) bool {

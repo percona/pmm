@@ -20,6 +20,7 @@ import (
 	"context"
 	"os"
 	"testing"
+	"time"
 
 	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
 	"github.com/stretchr/testify/assert"
@@ -32,10 +33,12 @@ import (
 )
 
 const (
-	testBadTemplates = "../../../testdata/ia/bad"
-	testTemplates    = "../../../testdata/ia/user2"
-	testTemplates2   = "../../../testdata/ia/user"
-	issuerURL        = "https://id-dev.percona.com/oauth2/aus15pi5rjdtfrcH51d7/v1"
+	devPortalHost      = "check-dev.percona.com"
+	devPortalPublicKey = "RWTg+ZmCCjt7O8eWeAmTLAqW+1ozUbpRSKSwNTmO+exlS5KEIPYWuYdX"
+	testBadTemplates   = "../../../testdata/ia/bad"
+	testTemplates      = "../../../testdata/ia/user2"
+	testTemplates2     = "../../../testdata/ia/user"
+	issuerURL          = "https://id-dev.percona.com/oauth2/aus15pi5rjdtfrcH51d7/v1"
 )
 
 func TestCollect(t *testing.T) {
@@ -83,7 +86,7 @@ func TestCollect(t *testing.T) {
 		svc, err := NewTemplatesService(db)
 		require.NoError(t, err)
 		svc.userTemplatesPath = testTemplates2
-		svc.Collect(ctx)
+		svc.CollectTemplates(ctx)
 
 		templates := svc.getTemplates()
 		require.NotEmpty(t, templates)
@@ -94,12 +97,62 @@ func TestCollect(t *testing.T) {
 
 		// check whether map was cleared and updated on a subsequent call
 		svc.userTemplatesPath = testTemplates
-		svc.Collect(ctx)
+		svc.CollectTemplates(ctx)
 
 		templates = svc.getTemplates()
 		require.NotEmpty(t, templates)
 		assert.NotContains(t, templates, "test_template")
 		assert.Contains(t, templates, "test_template_2")
+	})
+}
+
+func TestDownloadTemplates(t *testing.T) {
+	clientID, clientSecret := os.Getenv("OAUTH_PMM_CLIENT_ID"), os.Getenv("OAUTH_PMM_CLIENT_SECRET")
+	if clientID == "" || clientSecret == "" {
+		t.Skip("Environment variables OAUTH_PMM_CLIENT_ID / OAUTH_PMM_CLIENT_SECRET are not defined, skipping test")
+	}
+
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	insertSSODetails := &models.PerconaSSODetailsInsert{
+		IssuerURL:    issuerURL,
+		ClientID:     clientID,
+		ClientSecret: clientSecret,
+		Scope:        "percona",
+	}
+	err := models.InsertPerconaSSODetails(db.Querier, insertSSODetails)
+	require.NoError(t, err)
+
+	svc, err := NewTemplatesService(db)
+	require.NoError(t, err)
+	svc.host = devPortalHost
+	svc.publicKeys = []string{devPortalPublicKey}
+
+	t.Run("normal", func(t *testing.T) {
+		assert.Empty(t, svc.getTemplates())
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+
+		templates, err := svc.downloadTemplates(ctx)
+		require.NoError(t, err)
+		assert.NotEmpty(t, templates)
+		assert.NotEmpty(t, svc.getTemplates())
+	})
+
+	t.Run("with disabled telemetry", func(t *testing.T) {
+		_, err := models.UpdateSettings(db.Querier, &models.ChangeSettingsParams{
+			DisableTelemetry: true,
+		})
+		require.NoError(t, err)
+
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+
+		templates, err := svc.downloadTemplates(ctx)
+		require.NoError(t, err)
+		assert.Empty(t, templates)
+		assert.Empty(t, svc.getTemplates())
 	})
 }
 

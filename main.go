@@ -693,7 +693,7 @@ func main() {
 		l.Fatalf("Could not create templates service: %s", err)
 	}
 	// We should collect templates before rules service created, because it will regenerate rule files on startup.
-	templatesService.Collect(ctx)
+	templatesService.CollectTemplates(ctx)
 	rulesService := ia.NewRulesService(db, templatesService, vmalert, alertManager)
 	alertsService := ia.NewAlertsService(db, alertManager, templatesService)
 
@@ -713,6 +713,7 @@ func main() {
 		AgentsStateUpdater:   agentsStateUpdater,
 		Alertmanager:         alertManager,
 		ChecksService:        checksService,
+		TemplatesService:     templatesService,
 		Supervisord:          supervisord,
 		TelemetryService:     telemetry,
 		AwsInstanceChecker:   awsInstanceChecker,

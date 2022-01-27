@@ -60,6 +60,7 @@ type Server struct {
 	vmalertExternalRules vmAlertExternalRules
 	alertmanager         alertmanagerService
 	checksService        checksService
+	templatesService     templatesService
 	supervisord          supervisordService
 	telemetryService     telemetryService
 	awsInstanceChecker   *AWSInstanceChecker
@@ -96,6 +97,7 @@ type Params struct {
 	VMAlert              prometheusService
 	Alertmanager         alertmanagerService
 	ChecksService        checksService
+	TemplatesService     templatesService
 	VMAlertExternalRules vmAlertExternalRules
 	Supervisord          supervisordService
 	TelemetryService     telemetryService
@@ -121,6 +123,7 @@ func NewServer(params *Params) (*Server, error) {
 		vmalert:              params.VMAlert,
 		alertmanager:         params.Alertmanager,
 		checksService:        params.ChecksService,
+		templatesService:     params.TemplatesService,
 		vmalertExternalRules: params.VMAlertExternalRules,
 		supervisord:          params.Supervisord,
 		telemetryService:     params.TelemetryService,
@@ -699,7 +702,9 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 	}
 
 	// When STT moved from disabled state to enabled force checks download and execution.
+	var sttStarted bool
 	if !oldSettings.SaaS.STTEnabled && newSettings.SaaS.STTEnabled {
+		sttStarted = true
 		if err := s.checksService.StartChecks(nil); err != nil {
 			s.l.Error(err)
 		}
@@ -708,6 +713,15 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 	// When STT moved from enabled state to disabled drop all existing STT alerts.
 	if oldSettings.SaaS.STTEnabled && !newSettings.SaaS.STTEnabled {
 		s.checksService.CleanupAlerts()
+	}
+
+	// When telemetry state is switched force alert templates and STT checks files collection.
+	// If telemetry switched off that will drop previously downloaded files.
+	if oldSettings.Telemetry.Disabled != newSettings.Telemetry.Disabled {
+		s.templatesService.CollectTemplates(ctx)
+		if !sttStarted {
+			s.checksService.CollectChecks(ctx)
+		}
 	}
 
 	// When DBaaS is enabled, connect to the dbaas-controller API.

@@ -59,6 +59,14 @@ func TestServer(t *testing.T) {
 		malertmanager.Test(t)
 		malertmanager.On("RequestConfigurationUpdate").Return(nil)
 
+		mtemplatesService := new(mockTemplatesService)
+		mtemplatesService.Test(t)
+		mtemplatesService.On("CollectTemplates", context.TODO()).Return(nil)
+
+		mchecksService := new(mockChecksService)
+		mchecksService.Test(t)
+		mchecksService.On("CollectChecks", context.TODO()).Return(nil)
+
 		par := new(mockVmAlertExternalRules)
 		par.Test(t)
 		par.On("ReadRules").Return("", nil)
@@ -71,6 +79,8 @@ func TestServer(t *testing.T) {
 			VMDB:                 mvmdb,
 			VMAlert:              mvmalert,
 			Alertmanager:         malertmanager,
+			ChecksService:        mchecksService,
+			TemplatesService:     mtemplatesService,
 			AgentsStateUpdater:   mState,
 			Supervisord:          r,
 			VMAlertExternalRules: par,

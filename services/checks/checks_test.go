@@ -68,13 +68,32 @@ func TestDownloadChecks(t *testing.T) {
 	s.host = devChecksHost
 	s.publicKeys = []string{devChecksPublicKey}
 
-	assert.Empty(t, s.GetAllChecks())
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+	t.Run("normal", func(t *testing.T) {
+		assert.Empty(t, s.GetAllChecks())
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
 
-	checks, err := s.downloadChecks(ctx)
-	require.NoError(t, err)
-	assert.NotEmpty(t, checks)
+		checks, err := s.downloadChecks(ctx)
+		require.NoError(t, err)
+		assert.NotEmpty(t, checks)
+		assert.NotEmpty(t, s.GetAllChecks())
+	})
+
+	t.Run("disabled telemetry", func(t *testing.T) {
+		_, err := models.UpdateSettings(db.Querier, &models.ChangeSettingsParams{
+			DisableTelemetry: true,
+		})
+		require.NoError(t, err)
+
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+
+		checks, err := s.downloadChecks(ctx)
+		require.NoError(t, err)
+		assert.Empty(t, checks)
+		assert.Empty(t, s.GetAllChecks())
+	})
+
 }
 
 func TestLoadLocalChecks(t *testing.T) {
@@ -111,7 +130,7 @@ func TestCollectChecks(t *testing.T) {
 		require.NoError(t, err)
 		s.localChecksFile = testChecksFile
 
-		s.collectChecks(context.Background())
+		s.CollectChecks(context.Background())
 
 		mySQLChecks := s.getMySQLChecks()
 		postgreSQLChecks := s.getPostgreSQLChecks()
@@ -135,7 +154,7 @@ func TestCollectChecks(t *testing.T) {
 		require.NoError(t, err)
 		s.localChecksFile = testChecksFile
 
-		s.collectChecks(context.Background())
+		s.CollectChecks(context.Background())
 
 		assert.NotEmpty(t, s.mySQLChecks)
 		assert.NotEmpty(t, s.postgreSQLChecks)
@@ -151,7 +170,7 @@ func TestDisableChecks(t *testing.T) {
 		require.NoError(t, err)
 		s.localChecksFile = testChecksFile
 
-		s.collectChecks(context.Background())
+		s.CollectChecks(context.Background())
 
 		checks := s.GetAllChecks()
 		assert.Len(t, checks, 3)
@@ -175,7 +194,7 @@ func TestDisableChecks(t *testing.T) {
 		require.NoError(t, err)
 		s.localChecksFile = testChecksFile
 
-		s.collectChecks(context.Background())
+		s.CollectChecks(context.Background())
 
 		checks := s.GetAllChecks()
 		assert.Len(t, checks, 3)
@@ -202,7 +221,7 @@ func TestDisableChecks(t *testing.T) {
 		require.NoError(t, err)
 		s.localChecksFile = testChecksFile
 
-		s.collectChecks(context.Background())
+		s.CollectChecks(context.Background())
 
 		err = s.DisableChecks([]string{"unknown_check"})
 		require.Error(t, err)
@@ -221,7 +240,7 @@ func TestEnableChecks(t *testing.T) {
 		require.NoError(t, err)
 		s.localChecksFile = testChecksFile
 
-		s.collectChecks(context.Background())
+		s.CollectChecks(context.Background())
 
 		checks := s.GetAllChecks()
 		assert.Len(t, checks, 3)
@@ -248,7 +267,7 @@ func TestChangeInterval(t *testing.T) {
 		require.NoError(t, err)
 		s.localChecksFile = testChecksFile
 
-		s.collectChecks(context.Background())
+		s.CollectChecks(context.Background())
 
 		checks := s.GetAllChecks()
 		assert.Len(t, checks, 3)
