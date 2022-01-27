@@ -166,9 +166,8 @@ run_root() {
 #######################################
 is_darwin() {
    case "$(uname -s)" in
-   *darwin* ) true ;;
-   *Darwin* ) true ;;
-   * ) false;;
+     *darwin* | *Darwin* ) true ;;
+     * ) false;;
    esac
 }
 
