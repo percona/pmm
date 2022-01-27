@@ -74,6 +74,10 @@ message RegisterKubernetesClusterRequest {
       msg_exists: true
     }
   ];
+  // AWS access key id, only needed when registering EKS cluster and kubeconfig does not contain it.
+  string aws_access_key_id = 3;
+  // AWS secret access key, only needed when registering EKS cluster and kubeconfig does not contain it.
+  string aws_secret_access_key = 4;
 }
 
 message RegisterKubernetesClusterResponse {}
