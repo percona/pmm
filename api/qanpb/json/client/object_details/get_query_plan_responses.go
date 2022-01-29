@@ -154,9 +154,6 @@ swagger:model GetQueryPlanDefaultBody
 */
 type GetQueryPlanDefaultBody struct {
 
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -233,7 +230,7 @@ type GetQueryPlanOKBody struct {
 	Planid string `json:"planid,omitempty"`
 
 	// query plan
-	QueryPlan string `json:"query_plan,omitempty"`
+	QueryPlan string `json:"queryPlan,omitempty"`
 }
 
 // Validate validates this get query plan OK body

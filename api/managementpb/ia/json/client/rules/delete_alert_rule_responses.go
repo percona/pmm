@@ -121,7 +121,7 @@ swagger:model DeleteAlertRuleBody
 type DeleteAlertRuleBody struct {
 
 	// Rule ID.
-	RuleID string `json:"rule_id,omitempty"`
+	RuleID string `json:"ruleId,omitempty"`
 }
 
 // Validate validates this delete alert rule body
@@ -151,9 +151,6 @@ func (o *DeleteAlertRuleBody) UnmarshalBinary(b []byte) error {
 swagger:model DeleteAlertRuleDefaultBody
 */
 type DeleteAlertRuleDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`

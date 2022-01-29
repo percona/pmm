@@ -181,9 +181,6 @@ swagger:model GetPSMDBClusterResourcesDefaultBody
 */
 type GetPSMDBClusterResourcesDefaultBody struct {
 
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -316,14 +313,14 @@ swagger:model GetPSMDBClusterResourcesOKBodyExpected
 type GetPSMDBClusterResourcesOKBodyExpected struct {
 
 	// Memory in bytes.
-	MemoryBytes string `json:"memory_bytes,omitempty"`
+	MemoryBytes string `json:"memoryBytes,omitempty"`
 
 	// CPU in millicpus. For example 0.1 of CPU is equivalent to 100 millicpus.
 	// See https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#meaning-of-cpu.
-	CPUm string `json:"cpu_m,omitempty"`
+	CPUM string `json:"cpuM,omitempty"`
 
 	// Disk size in bytes.
-	DiskSize string `json:"disk_size,omitempty"`
+	DiskSize string `json:"diskSize,omitempty"`
 }
 
 // Validate validates this get PSMDB cluster resources OK body expected
@@ -355,7 +352,7 @@ swagger:model GetPSMDBClusterResourcesParamsBodyParams
 type GetPSMDBClusterResourcesParamsBodyParams struct {
 
 	// Cluster size.
-	ClusterSize int32 `json:"cluster_size,omitempty"`
+	ClusterSize int32 `json:"clusterSize,omitempty"`
 
 	// Docker image used for PSMDB.
 	Image string `json:"image,omitempty"`
@@ -421,10 +418,10 @@ swagger:model GetPSMDBClusterResourcesParamsBodyParamsReplicaset
 type GetPSMDBClusterResourcesParamsBodyParamsReplicaset struct {
 
 	// Disk size in bytes.
-	DiskSize string `json:"disk_size,omitempty"`
+	DiskSize string `json:"diskSize,omitempty"`
 
 	// compute resources
-	ComputeResources *GetPSMDBClusterResourcesParamsBodyParamsReplicasetComputeResources `json:"compute_resources,omitempty"`
+	ComputeResources *GetPSMDBClusterResourcesParamsBodyParamsReplicasetComputeResources `json:"computeResources,omitempty"`
 }
 
 // Validate validates this get PSMDB cluster resources params body params replicaset
@@ -450,7 +447,7 @@ func (o *GetPSMDBClusterResourcesParamsBodyParamsReplicaset) validateComputeReso
 	if o.ComputeResources != nil {
 		if err := o.ComputeResources.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "params" + "." + "replicaset" + "." + "compute_resources")
+				return ve.ValidateName("body" + "." + "params" + "." + "replicaset" + "." + "computeResources")
 			}
 			return err
 		}
@@ -483,10 +480,10 @@ swagger:model GetPSMDBClusterResourcesParamsBodyParamsReplicasetComputeResources
 type GetPSMDBClusterResourcesParamsBodyParamsReplicasetComputeResources struct {
 
 	// CPUs in milliCPUs; 1000m = 1 vCPU.
-	CPUm int32 `json:"cpu_m,omitempty"`
+	CPUM int32 `json:"cpuM,omitempty"`
 
 	// Memory in bytes.
-	MemoryBytes string `json:"memory_bytes,omitempty"`
+	MemoryBytes string `json:"memoryBytes,omitempty"`
 }
 
 // Validate validates this get PSMDB cluster resources params body params replicaset compute resources

@@ -123,10 +123,10 @@ swagger:model AddExternalExporterBody
 type AddExternalExporterBody struct {
 
 	// The node identifier where this instance is run.
-	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+	RunsOnNodeID string `json:"runsOnNodeId,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"service_id,omitempty"`
+	ServiceID string `json:"serviceId,omitempty"`
 
 	// HTTP basic auth username for collecting metrics.
 	Username string `json:"username,omitempty"`
@@ -138,16 +138,16 @@ type AddExternalExporterBody struct {
 	Scheme string `json:"scheme,omitempty"`
 
 	// Path under which metrics are exposed, used to generate URI(default: /metrics).
-	MetricsPath string `json:"metrics_path,omitempty"`
+	MetricsPath string `json:"metricsPath,omitempty"`
 
 	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listen_port,omitempty"`
+	ListenPort int64 `json:"listenPort,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// Enables push metrics mode for exporter.
-	PushMetrics bool `json:"push_metrics,omitempty"`
+	PushMetrics bool `json:"pushMetrics,omitempty"`
 }
 
 // Validate validates this add external exporter body
@@ -177,9 +177,6 @@ func (o *AddExternalExporterBody) UnmarshalBinary(b []byte) error {
 swagger:model AddExternalExporterDefaultBody
 */
 type AddExternalExporterDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -254,7 +251,7 @@ swagger:model AddExternalExporterOKBody
 type AddExternalExporterOKBody struct {
 
 	// external exporter
-	ExternalExporter *AddExternalExporterOKBodyExternalExporter `json:"external_exporter,omitempty"`
+	ExternalExporter *AddExternalExporterOKBodyExternalExporter `json:"externalExporter,omitempty"`
 }
 
 // Validate validates this add external exporter OK body
@@ -280,7 +277,7 @@ func (o *AddExternalExporterOKBody) validateExternalExporter(formats strfmt.Regi
 	if o.ExternalExporter != nil {
 		if err := o.ExternalExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addExternalExporterOk" + "." + "external_exporter")
+				return ve.ValidateName("addExternalExporterOk" + "." + "externalExporter")
 			}
 			return err
 		}
@@ -313,16 +310,16 @@ swagger:model AddExternalExporterOKBodyExternalExporter
 type AddExternalExporterOKBodyExternalExporter struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agent_id,omitempty"`
+	AgentID string `json:"agentId,omitempty"`
 
 	// Node identifier where this instance runs.
-	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+	RunsOnNodeID string `json:"runsOnNodeId,omitempty"`
 
 	// If disabled, metrics from this exporter will not be collected.
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"service_id,omitempty"`
+	ServiceID string `json:"serviceId,omitempty"`
 
 	// HTTP basic auth username for collecting metrics.
 	Username string `json:"username,omitempty"`
@@ -331,16 +328,16 @@ type AddExternalExporterOKBodyExternalExporter struct {
 	Scheme string `json:"scheme,omitempty"`
 
 	// Path under which metrics are exposed, used to generate URI.
-	MetricsPath string `json:"metrics_path,omitempty"`
+	MetricsPath string `json:"metricsPath,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listen_port,omitempty"`
+	ListenPort int64 `json:"listenPort,omitempty"`
 
 	// True if exporter uses push metrics mode.
-	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+	PushMetricsEnabled bool `json:"pushMetricsEnabled,omitempty"`
 }
 
 // Validate validates this add external exporter OK body external exporter

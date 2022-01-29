@@ -122,9 +122,6 @@ swagger:model CheckForOperatorUpdateDefaultBody
 */
 type CheckForOperatorUpdateDefaultBody struct {
 
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -198,7 +195,7 @@ swagger:model CheckForOperatorUpdateOKBody
 type CheckForOperatorUpdateOKBody struct {
 
 	// The cluster name is used as a key for this map, value contains components and their inforamtion about update.
-	ClusterToComponents map[string]ClusterToComponentsAnon `json:"cluster_to_components,omitempty"`
+	ClusterToComponents map[string]ClusterToComponentsAnon `json:"clusterToComponents,omitempty"`
 }
 
 // Validate validates this check for operator update OK body
@@ -262,7 +259,7 @@ type ClusterToComponentsAnon struct {
 
 	// component_to_update_information stores, under the name of the component, information about the update.
 	// "pxc-operator", "psmdb-operator" are names used by backend for our operators.
-	ComponentToUpdateInformation map[string]ClusterToComponentsAnonComponentToUpdateInformationAnon `json:"component_to_update_information,omitempty"`
+	ComponentToUpdateInformation map[string]ClusterToComponentsAnonComponentToUpdateInformationAnon `json:"componentToUpdateInformation,omitempty"`
 }
 
 // Validate validates this cluster to components anon
@@ -325,7 +322,7 @@ swagger:model ClusterToComponentsAnonComponentToUpdateInformationAnon
 type ClusterToComponentsAnonComponentToUpdateInformationAnon struct {
 
 	// available version
-	AvailableVersion string `json:"available_version,omitempty"`
+	AvailableVersion string `json:"availableVersion,omitempty"`
 }
 
 // Validate validates this cluster to components anon component to update information anon

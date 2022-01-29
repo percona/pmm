@@ -126,7 +126,7 @@ swagger:model KubernetesClustersItems0
 type KubernetesClustersItems0 struct {
 
 	// Kubernetes cluster name.
-	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
+	KubernetesClusterName string `json:"kubernetesClusterName,omitempty"`
 
 	// KubernetesClusterStatus defines status of Kubernetes cluster.
 	//
@@ -527,9 +527,6 @@ swagger:model ListKubernetesClustersDefaultBody
 */
 type ListKubernetesClustersDefaultBody struct {
 
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -603,7 +600,7 @@ swagger:model ListKubernetesClustersOKBody
 type ListKubernetesClustersOKBody struct {
 
 	// Kubernetes clusters.
-	KubernetesClusters []*KubernetesClustersItems0 `json:"kubernetes_clusters"`
+	KubernetesClusters []*KubernetesClustersItems0 `json:"kubernetesClusters"`
 }
 
 // Validate validates this list kubernetes clusters OK body
@@ -634,7 +631,7 @@ func (o *ListKubernetesClustersOKBody) validateKubernetesClusters(formats strfmt
 		if o.KubernetesClusters[i] != nil {
 			if err := o.KubernetesClusters[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listKubernetesClustersOk" + "." + "kubernetes_clusters" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listKubernetesClustersOk" + "." + "kubernetesClusters" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

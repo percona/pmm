@@ -123,10 +123,10 @@ swagger:model StartPTSummaryActionBody
 type StartPTSummaryActionBody struct {
 
 	// pmm-agent ID where to run this Action.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+	PMMAgentID string `json:"pmmAgentId,omitempty"`
 
 	// Node ID for this Action.
-	NodeID string `json:"node_id,omitempty"`
+	NodeID string `json:"nodeId,omitempty"`
 }
 
 // Validate validates this start PT summary action body
@@ -156,9 +156,6 @@ func (o *StartPTSummaryActionBody) UnmarshalBinary(b []byte) error {
 swagger:model StartPTSummaryActionDefaultBody
 */
 type StartPTSummaryActionDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -233,10 +230,10 @@ swagger:model StartPTSummaryActionOKBody
 type StartPTSummaryActionOKBody struct {
 
 	// Unique Action ID.
-	ActionID string `json:"action_id,omitempty"`
+	ActionID string `json:"actionId,omitempty"`
 
 	// pmm-agent ID where to this Action was started.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+	PMMAgentID string `json:"pmmAgentId,omitempty"`
 }
 
 // Validate validates this start PT summary action OK body

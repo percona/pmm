@@ -122,9 +122,6 @@ swagger:model StartUpdateDefaultBody
 */
 type StartUpdateDefaultBody struct {
 
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -198,10 +195,10 @@ swagger:model StartUpdateOKBody
 type StartUpdateOKBody struct {
 
 	// Authentication token for getting update statuses.
-	AuthToken string `json:"auth_token,omitempty"`
+	AuthToken string `json:"authToken,omitempty"`
 
 	// Progress log offset.
-	LogOffset int64 `json:"log_offset,omitempty"`
+	LogOffset int64 `json:"logOffset,omitempty"`
 }
 
 // Validate validates this start update OK body

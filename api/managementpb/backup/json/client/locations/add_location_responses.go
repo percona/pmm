@@ -129,13 +129,13 @@ type AddLocationBody struct {
 	Description string `json:"description,omitempty"`
 
 	// pmm client config
-	PMMClientConfig *AddLocationParamsBodyPMMClientConfig `json:"pmm_client_config,omitempty"`
+	PMMClientConfig *AddLocationParamsBodyPMMClientConfig `json:"pmmClientConfig,omitempty"`
 
 	// pmm server config
-	PMMServerConfig *AddLocationParamsBodyPMMServerConfig `json:"pmm_server_config,omitempty"`
+	PMMServerConfig *AddLocationParamsBodyPMMServerConfig `json:"pmmServerConfig,omitempty"`
 
 	// s3 config
-	S3Config *AddLocationParamsBodyS3Config `json:"s3_config,omitempty"`
+	S3Config *AddLocationParamsBodyS3Config `json:"s3Config,omitempty"`
 }
 
 // Validate validates this add location body
@@ -169,7 +169,7 @@ func (o *AddLocationBody) validatePMMClientConfig(formats strfmt.Registry) error
 	if o.PMMClientConfig != nil {
 		if err := o.PMMClientConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "pmm_client_config")
+				return ve.ValidateName("body" + "." + "pmmClientConfig")
 			}
 			return err
 		}
@@ -187,7 +187,7 @@ func (o *AddLocationBody) validatePMMServerConfig(formats strfmt.Registry) error
 	if o.PMMServerConfig != nil {
 		if err := o.PMMServerConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "pmm_server_config")
+				return ve.ValidateName("body" + "." + "pmmServerConfig")
 			}
 			return err
 		}
@@ -205,7 +205,7 @@ func (o *AddLocationBody) validateS3Config(formats strfmt.Registry) error {
 	if o.S3Config != nil {
 		if err := o.S3Config.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "s3_config")
+				return ve.ValidateName("body" + "." + "s3Config")
 			}
 			return err
 		}
@@ -236,9 +236,6 @@ func (o *AddLocationBody) UnmarshalBinary(b []byte) error {
 swagger:model AddLocationDefaultBody
 */
 type AddLocationDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -313,7 +310,7 @@ swagger:model AddLocationOKBody
 type AddLocationOKBody struct {
 
 	// Machine-readable ID.
-	LocationID string `json:"location_id,omitempty"`
+	LocationID string `json:"locationId,omitempty"`
 }
 
 // Validate validates this add location OK body
@@ -412,13 +409,13 @@ type AddLocationParamsBodyS3Config struct {
 	Endpoint string `json:"endpoint,omitempty"`
 
 	// access key
-	AccessKey string `json:"access_key,omitempty"`
+	AccessKey string `json:"accessKey,omitempty"`
 
 	// secret key
-	SecretKey string `json:"secret_key,omitempty"`
+	SecretKey string `json:"secretKey,omitempty"`
 
 	// bucket name
-	BucketName string `json:"bucket_name,omitempty"`
+	BucketName string `json:"bucketName,omitempty"`
 }
 
 // Validate validates this add location params body s3 config
@@ -444,121 +441,13 @@ func (o *AddLocationParamsBodyS3Config) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*DetailsItems0 `Any` contains an arbitrary serialized protocol buffer message along with a
-// URL that describes the type of the serialized message.
-//
-// Protobuf library provides support to pack/unpack Any values in the form
-// of utility functions or additional generated methods of the Any type.
-//
-// Example 1: Pack and unpack a message in C++.
-//
-//     Foo foo = ...;
-//     Any any;
-//     any.PackFrom(foo);
-//     ...
-//     if (any.UnpackTo(&foo)) {
-//       ...
-//     }
-//
-// Example 2: Pack and unpack a message in Java.
-//
-//     Foo foo = ...;
-//     Any any = Any.pack(foo);
-//     ...
-//     if (any.is(Foo.class)) {
-//       foo = any.unpack(Foo.class);
-//     }
-//
-//  Example 3: Pack and unpack a message in Python.
-//
-//     foo = Foo(...)
-//     any = Any()
-//     any.Pack(foo)
-//     ...
-//     if any.Is(Foo.DESCRIPTOR):
-//       any.Unpack(foo)
-//       ...
-//
-//  Example 4: Pack and unpack a message in Go
-//
-//      foo := &pb.Foo{...}
-//      any, err := ptypes.MarshalAny(foo)
-//      ...
-//      foo := &pb.Foo{}
-//      if err := ptypes.UnmarshalAny(any, foo); err != nil {
-//        ...
-//      }
-//
-// The pack methods provided by protobuf library will by default use
-// 'type.googleapis.com/full.type.name' as the type URL and the unpack
-// methods only use the fully qualified type name after the last '/'
-// in the type URL, for example "foo.bar.com/x/y.z" will yield type
-// name "y.z".
-//
-//
-// JSON
-// ====
-// The JSON representation of an `Any` value uses the regular
-// representation of the deserialized, embedded message, with an
-// additional field `@type` which contains the type URL. Example:
-//
-//     package google.profile;
-//     message Person {
-//       string first_name = 1;
-//       string last_name = 2;
-//     }
-//
-//     {
-//       "@type": "type.googleapis.com/google.profile.Person",
-//       "firstName": <string>,
-//       "lastName": <string>
-//     }
-//
-// If the embedded message type is well-known and has a custom JSON
-// representation, that representation will be embedded adding a field
-// `value` which holds the custom JSON in addition to the `@type`
-// field. Example (for message [google.protobuf.Duration][]):
-//
-//     {
-//       "@type": "type.googleapis.com/google.protobuf.Duration",
-//       "value": "1.212s"
-//     }
+/*DetailsItems0 details items0
 swagger:model DetailsItems0
 */
 type DetailsItems0 struct {
 
-	// A URL/resource name that uniquely identifies the type of the serialized
-	// protocol buffer message. This string must contain at least
-	// one "/" character. The last segment of the URL's path must represent
-	// the fully qualified name of the type (as in
-	// `path/google.protobuf.Duration`). The name should be in a canonical form
-	// (e.g., leading "." is not accepted).
-	//
-	// In practice, teams usually precompile into the binary all types that they
-	// expect it to use in the context of Any. However, for URLs which use the
-	// scheme `http`, `https`, or no scheme, one can optionally set up a type
-	// server that maps type URLs to message definitions as follows:
-	//
-	// * If no scheme is provided, `https` is assumed.
-	// * An HTTP GET on the URL must yield a [google.protobuf.Type][]
-	//   value in binary format, or produce an error.
-	// * Applications are allowed to cache lookup results based on the
-	//   URL, or have them precompiled into a binary to avoid any
-	//   lookup. Therefore, binary compatibility needs to be preserved
-	//   on changes to types. (Use versioned type names to manage
-	//   breaking changes.)
-	//
-	// Note: this functionality is not currently available in the official
-	// protobuf release, and it is not used for type URLs beginning with
-	// type.googleapis.com.
-	//
-	// Schemes other than `http`, `https` (or the empty scheme) might be
-	// used with implementation specific semantics.
-	TypeURL string `json:"type_url,omitempty"`
-
-	// Must be a valid serialized protocol buffer of the above specified type.
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this details items0

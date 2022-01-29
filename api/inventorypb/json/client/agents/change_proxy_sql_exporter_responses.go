@@ -124,8 +124,8 @@ swagger:model ChangeProxySQLExporterBody
 */
 type ChangeProxySQLExporterBody struct {
 
-	// agent id
-	AgentID string `json:"agent_id,omitempty"`
+	// agent Id
+	AgentID string `json:"agentId,omitempty"`
 
 	// common
 	Common *ChangeProxySQLExporterParamsBodyCommon `json:"common,omitempty"`
@@ -185,9 +185,6 @@ func (o *ChangeProxySQLExporterBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeProxySQLExporterDefaultBody
 */
 type ChangeProxySQLExporterDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -262,7 +259,7 @@ swagger:model ChangeProxySQLExporterOKBody
 type ChangeProxySQLExporterOKBody struct {
 
 	// proxysql exporter
-	ProxysqlExporter *ChangeProxySQLExporterOKBodyProxysqlExporter `json:"proxysql_exporter,omitempty"`
+	ProxysqlExporter *ChangeProxySQLExporterOKBodyProxysqlExporter `json:"proxysqlExporter,omitempty"`
 }
 
 // Validate validates this change proxy SQL exporter OK body
@@ -288,7 +285,7 @@ func (o *ChangeProxySQLExporterOKBody) validateProxysqlExporter(formats strfmt.R
 	if o.ProxysqlExporter != nil {
 		if err := o.ProxysqlExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("changeProxySqlExporterOk" + "." + "proxysql_exporter")
+				return ve.ValidateName("changeProxySqlExporterOk" + "." + "proxysqlExporter")
 			}
 			return err
 		}
@@ -321,16 +318,16 @@ swagger:model ChangeProxySQLExporterOKBodyProxysqlExporter
 type ChangeProxySQLExporterOKBodyProxysqlExporter struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agent_id,omitempty"`
+	AgentID string `json:"agentId,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+	PMMAgentID string `json:"pmmAgentId,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"service_id,omitempty"`
+	ServiceID string `json:"serviceId,omitempty"`
 
 	// ProxySQL username for scraping metrics.
 	Username string `json:"username,omitempty"`
@@ -339,16 +336,16 @@ type ChangeProxySQLExporterOKBodyProxysqlExporter struct {
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// True if exporter uses push metrics mode.
-	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+	PushMetricsEnabled bool `json:"pushMetricsEnabled,omitempty"`
 
 	// List of disabled collector names.
-	DisabledCollectors []string `json:"disabled_collectors"`
+	DisabledCollectors []string `json:"disabledCollectors"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -362,7 +359,7 @@ type ChangeProxySQLExporterOKBodyProxysqlExporter struct {
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listen_port,omitempty"`
+	ListenPort int64 `json:"listenPort,omitempty"`
 }
 
 // Validate validates this change proxy SQL exporter OK body proxysql exporter
@@ -430,7 +427,7 @@ func (o *ChangeProxySQLExporterOKBodyProxysqlExporter) validateStatus(formats st
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("changeProxySqlExporterOk"+"."+"proxysql_exporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("changeProxySqlExporterOk"+"."+"proxysqlExporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -467,17 +464,17 @@ type ChangeProxySQLExporterParamsBodyCommon struct {
 	Disable bool `json:"disable,omitempty"`
 
 	// Replace all custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// Remove all custom user-assigned labels.
-	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
+	RemoveCustomLabels bool `json:"removeCustomLabels,omitempty"`
 
 	// Enables push metrics with vmagent, can't be used with disable_push_metrics.
 	// Can't be used with agent version lower then 2.12 and unsupported agents.
-	EnablePushMetrics bool `json:"enable_push_metrics,omitempty"`
+	EnablePushMetrics bool `json:"enablePushMetrics,omitempty"`
 
 	// Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.
-	DisablePushMetrics bool `json:"disable_push_metrics,omitempty"`
+	DisablePushMetrics bool `json:"disablePushMetrics,omitempty"`
 }
 
 // Validate validates this change proxy SQL exporter params body common

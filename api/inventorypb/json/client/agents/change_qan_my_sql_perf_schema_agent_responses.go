@@ -124,8 +124,8 @@ swagger:model ChangeQANMySQLPerfSchemaAgentBody
 */
 type ChangeQANMySQLPerfSchemaAgentBody struct {
 
-	// agent id
-	AgentID string `json:"agent_id,omitempty"`
+	// agent Id
+	AgentID string `json:"agentId,omitempty"`
 
 	// common
 	Common *ChangeQANMySQLPerfSchemaAgentParamsBodyCommon `json:"common,omitempty"`
@@ -185,9 +185,6 @@ func (o *ChangeQANMySQLPerfSchemaAgentBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeQANMySQLPerfSchemaAgentDefaultBody
 */
 type ChangeQANMySQLPerfSchemaAgentDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -262,7 +259,7 @@ swagger:model ChangeQANMySQLPerfSchemaAgentOKBody
 type ChangeQANMySQLPerfSchemaAgentOKBody struct {
 
 	// qan mysql perfschema agent
-	QANMysqlPerfschemaAgent *ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent `json:"qan_mysql_perfschema_agent,omitempty"`
+	QANMysqlPerfschemaAgent *ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent `json:"qanMysqlPerfschemaAgent,omitempty"`
 }
 
 // Validate validates this change QAN my SQL perf schema agent OK body
@@ -288,7 +285,7 @@ func (o *ChangeQANMySQLPerfSchemaAgentOKBody) validateQANMysqlPerfschemaAgent(fo
 	if o.QANMysqlPerfschemaAgent != nil {
 		if err := o.QANMysqlPerfschemaAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("changeQanMySqlPerfSchemaAgentOk" + "." + "qan_mysql_perfschema_agent")
+				return ve.ValidateName("changeQanMySqlPerfSchemaAgentOk" + "." + "qanMysqlPerfschemaAgent")
 			}
 			return err
 		}
@@ -321,16 +318,16 @@ swagger:model ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent
 type ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agent_id,omitempty"`
+	AgentID string `json:"agentId,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+	PMMAgentID string `json:"pmmAgentId,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"service_id,omitempty"`
+	ServiceID string `json:"serviceId,omitempty"`
 
 	// MySQL username for getting performance data.
 	Username string `json:"username,omitempty"`
@@ -339,22 +336,22 @@ type ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent struct {
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
 
 	// Certificate Authority certificate chain.
-	TLSCa string `json:"tls_ca,omitempty"`
+	TLSCa string `json:"tlsCa,omitempty"`
 
 	// Client certificate.
-	TLSCert string `json:"tls_cert,omitempty"`
+	TLSCert string `json:"tlsCert,omitempty"`
 
 	// Password for decrypting tls_cert.
-	TLSKey string `json:"tls_key,omitempty"`
+	TLSKey string `json:"tlsKey,omitempty"`
 
 	// True if query examples are disabled.
-	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
+	QueryExamplesDisabled bool `json:"queryExamplesDisabled,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -433,7 +430,7 @@ func (o *ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent) validateSta
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("changeQanMySqlPerfSchemaAgentOk"+"."+"qan_mysql_perfschema_agent"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("changeQanMySqlPerfSchemaAgentOk"+"."+"qanMysqlPerfschemaAgent"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -470,17 +467,17 @@ type ChangeQANMySQLPerfSchemaAgentParamsBodyCommon struct {
 	Disable bool `json:"disable,omitempty"`
 
 	// Replace all custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// Remove all custom user-assigned labels.
-	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
+	RemoveCustomLabels bool `json:"removeCustomLabels,omitempty"`
 
 	// Enables push metrics with vmagent, can't be used with disable_push_metrics.
 	// Can't be used with agent version lower then 2.12 and unsupported agents.
-	EnablePushMetrics bool `json:"enable_push_metrics,omitempty"`
+	EnablePushMetrics bool `json:"enablePushMetrics,omitempty"`
 
 	// Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.
-	DisablePushMetrics bool `json:"disable_push_metrics,omitempty"`
+	DisablePushMetrics bool `json:"disablePushMetrics,omitempty"`
 }
 
 // Validate validates this change QAN my SQL perf schema agent params body common

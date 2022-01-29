@@ -123,7 +123,7 @@ swagger:model GetNodeBody
 type GetNodeBody struct {
 
 	// Unique randomly generated instance identifier.
-	NodeID string `json:"node_id,omitempty"`
+	NodeID string `json:"nodeId,omitempty"`
 }
 
 // Validate validates this get node body
@@ -153,9 +153,6 @@ func (o *GetNodeBody) UnmarshalBinary(b []byte) error {
 swagger:model GetNodeDefaultBody
 */
 type GetNodeDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -239,10 +236,10 @@ type GetNodeOKBody struct {
 	Remote *GetNodeOKBodyRemote `json:"remote,omitempty"`
 
 	// remote azure database
-	RemoteAzureDatabase *GetNodeOKBodyRemoteAzureDatabase `json:"remote_azure_database,omitempty"`
+	RemoteAzureDatabase *GetNodeOKBodyRemoteAzureDatabase `json:"remoteAzureDatabase,omitempty"`
 
-	// remote rds
-	RemoteRDS *GetNodeOKBodyRemoteRDS `json:"remote_rds,omitempty"`
+	// remote Rds
+	RemoteRDS *GetNodeOKBodyRemoteRDS `json:"remoteRds,omitempty"`
 }
 
 // Validate validates this get node OK body
@@ -338,7 +335,7 @@ func (o *GetNodeOKBody) validateRemoteAzureDatabase(formats strfmt.Registry) err
 	if o.RemoteAzureDatabase != nil {
 		if err := o.RemoteAzureDatabase.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getNodeOk" + "." + "remote_azure_database")
+				return ve.ValidateName("getNodeOk" + "." + "remoteAzureDatabase")
 			}
 			return err
 		}
@@ -356,7 +353,7 @@ func (o *GetNodeOKBody) validateRemoteRDS(formats strfmt.Registry) error {
 	if o.RemoteRDS != nil {
 		if err := o.RemoteRDS.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getNodeOk" + "." + "remote_rds")
+				return ve.ValidateName("getNodeOk" + "." + "remoteRds")
 			}
 			return err
 		}
@@ -389,25 +386,25 @@ swagger:model GetNodeOKBodyContainer
 type GetNodeOKBodyContainer struct {
 
 	// Unique randomly generated instance identifier.
-	NodeID string `json:"node_id,omitempty"`
+	NodeID string `json:"nodeId,omitempty"`
 
 	// Unique across all Nodes user-defined name.
-	NodeName string `json:"node_name,omitempty"`
+	NodeName string `json:"nodeName,omitempty"`
 
 	// Node address (DNS name or IP).
 	Address string `json:"address,omitempty"`
 
 	// Linux machine-id of the Generic Node where this Container Node runs.
-	MachineID string `json:"machine_id,omitempty"`
+	MachineID string `json:"machineId,omitempty"`
 
 	// Container identifier. If specified, must be a unique Docker container identifier.
-	ContainerID string `json:"container_id,omitempty"`
+	ContainerID string `json:"containerId,omitempty"`
 
 	// Container name.
-	ContainerName string `json:"container_name,omitempty"`
+	ContainerName string `json:"containerName,omitempty"`
 
 	// Node model.
-	NodeModel string `json:"node_model,omitempty"`
+	NodeModel string `json:"nodeModel,omitempty"`
 
 	// Node region.
 	Region string `json:"region,omitempty"`
@@ -416,7 +413,7 @@ type GetNodeOKBodyContainer struct {
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 }
 
 // Validate validates this get node OK body container
@@ -448,22 +445,22 @@ swagger:model GetNodeOKBodyGeneric
 type GetNodeOKBodyGeneric struct {
 
 	// Unique randomly generated instance identifier.
-	NodeID string `json:"node_id,omitempty"`
+	NodeID string `json:"nodeId,omitempty"`
 
 	// Unique across all Nodes user-defined name.
-	NodeName string `json:"node_name,omitempty"`
+	NodeName string `json:"nodeName,omitempty"`
 
 	// Node address (DNS name or IP).
 	Address string `json:"address,omitempty"`
 
 	// Linux machine-id.
-	MachineID string `json:"machine_id,omitempty"`
+	MachineID string `json:"machineId,omitempty"`
 
 	// Linux distribution name and version.
 	Distro string `json:"distro,omitempty"`
 
 	// Node model.
-	NodeModel string `json:"node_model,omitempty"`
+	NodeModel string `json:"nodeModel,omitempty"`
 
 	// Node region.
 	Region string `json:"region,omitempty"`
@@ -472,7 +469,7 @@ type GetNodeOKBodyGeneric struct {
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 }
 
 // Validate validates this get node OK body generic
@@ -504,16 +501,16 @@ swagger:model GetNodeOKBodyRemote
 type GetNodeOKBodyRemote struct {
 
 	// Unique randomly generated instance identifier.
-	NodeID string `json:"node_id,omitempty"`
+	NodeID string `json:"nodeId,omitempty"`
 
 	// Unique across all Nodes user-defined name.
-	NodeName string `json:"node_name,omitempty"`
+	NodeName string `json:"nodeName,omitempty"`
 
 	// Node address (DNS name or IP).
 	Address string `json:"address,omitempty"`
 
 	// Node model.
-	NodeModel string `json:"node_model,omitempty"`
+	NodeModel string `json:"nodeModel,omitempty"`
 
 	// Node region.
 	Region string `json:"region,omitempty"`
@@ -522,7 +519,7 @@ type GetNodeOKBodyRemote struct {
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 }
 
 // Validate validates this get node OK body remote
@@ -554,16 +551,16 @@ swagger:model GetNodeOKBodyRemoteAzureDatabase
 type GetNodeOKBodyRemoteAzureDatabase struct {
 
 	// Unique randomly generated instance identifier.
-	NodeID string `json:"node_id,omitempty"`
+	NodeID string `json:"nodeId,omitempty"`
 
 	// Unique across all Nodes user-defined name.
-	NodeName string `json:"node_name,omitempty"`
+	NodeName string `json:"nodeName,omitempty"`
 
 	// DB instance identifier.
 	Address string `json:"address,omitempty"`
 
 	// Node model.
-	NodeModel string `json:"node_model,omitempty"`
+	NodeModel string `json:"nodeModel,omitempty"`
 
 	// Node region.
 	Region string `json:"region,omitempty"`
@@ -572,7 +569,7 @@ type GetNodeOKBodyRemoteAzureDatabase struct {
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 }
 
 // Validate validates this get node OK body remote azure database
@@ -604,16 +601,16 @@ swagger:model GetNodeOKBodyRemoteRDS
 type GetNodeOKBodyRemoteRDS struct {
 
 	// Unique randomly generated instance identifier.
-	NodeID string `json:"node_id,omitempty"`
+	NodeID string `json:"nodeId,omitempty"`
 
 	// Unique across all Nodes user-defined name.
-	NodeName string `json:"node_name,omitempty"`
+	NodeName string `json:"nodeName,omitempty"`
 
 	// DB instance identifier.
 	Address string `json:"address,omitempty"`
 
 	// Node model.
-	NodeModel string `json:"node_model,omitempty"`
+	NodeModel string `json:"nodeModel,omitempty"`
 
 	// Node region.
 	Region string `json:"region,omitempty"`
@@ -622,7 +619,7 @@ type GetNodeOKBodyRemoteRDS struct {
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 }
 
 // Validate validates this get node OK body remote RDS

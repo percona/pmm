@@ -125,10 +125,10 @@ swagger:model CreateAlertRuleBody
 type CreateAlertRuleBody struct {
 
 	// Template name. Can't be specified simultaneously with source_rule_id.
-	TemplateName string `json:"template_name,omitempty"`
+	TemplateName string `json:"templateName,omitempty"`
 
 	// ID of the rule that will be used as source. Can't be specified simultaneously with template_name.
-	SourceRuleID string `json:"source_rule_id,omitempty"`
+	SourceRuleID string `json:"sourceRuleId,omitempty"`
 
 	// Rule name.
 	Name string `json:"name,omitempty"`
@@ -147,13 +147,13 @@ type CreateAlertRuleBody struct {
 	Severity *string `json:"severity,omitempty"`
 
 	// All custom labels to add or remove (with empty values) to default labels from template.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// Filters. Should be set.
 	Filters []*FiltersItems0 `json:"filters"`
 
 	// Channels. Should be set.
-	ChannelIds []string `json:"channel_ids"`
+	ChannelIds []string `json:"channelIds"`
 }
 
 // Validate validates this create alert rule body
@@ -315,9 +315,6 @@ swagger:model CreateAlertRuleDefaultBody
 */
 type CreateAlertRuleDefaultBody struct {
 
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -391,7 +388,7 @@ swagger:model CreateAlertRuleOKBody
 type CreateAlertRuleOKBody struct {
 
 	// Rule ID.
-	RuleID string `json:"rule_id,omitempty"`
+	RuleID string `json:"ruleId,omitempty"`
 }
 
 // Validate validates this create alert rule OK body
@@ -500,6 +497,7 @@ swagger:model DetailsItems0
 */
 type DetailsItems0 struct {
 
+<<<<<<< HEAD
 	// A URL/resource name that uniquely identifies the type of the serialized
 	// protocol buffer message. This string must contain at least
 	// one "/" character. The last segment of the URL's path must represent
@@ -532,6 +530,10 @@ type DetailsItems0 struct {
 	// Must be a valid serialized protocol buffer of the above specified type.
 	// Format: byte
 	Value strfmt.Base64 `json:"value,omitempty"`
+=======
+	// at type
+	AtType string `json:"@type,omitempty"`
+>>>>>>> c80b6d66 (PMM-9377 regenerate files)
 }
 
 // Validate validates this details items0

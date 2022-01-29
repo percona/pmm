@@ -123,7 +123,7 @@ swagger:model GetPSMDBClusterCredentialsBody
 type GetPSMDBClusterCredentialsBody struct {
 
 	// Kubernetes cluster name.
-	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
+	KubernetesClusterName string `json:"kubernetesClusterName,omitempty"`
 
 	// PSMDB cluster name.
 	Name string `json:"name,omitempty"`
@@ -156,9 +156,6 @@ func (o *GetPSMDBClusterCredentialsBody) UnmarshalBinary(b []byte) error {
 swagger:model GetPSMDBClusterCredentialsDefaultBody
 */
 type GetPSMDBClusterCredentialsDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -233,7 +230,7 @@ swagger:model GetPSMDBClusterCredentialsOKBody
 type GetPSMDBClusterCredentialsOKBody struct {
 
 	// connection credentials
-	ConnectionCredentials *GetPSMDBClusterCredentialsOKBodyConnectionCredentials `json:"connection_credentials,omitempty"`
+	ConnectionCredentials *GetPSMDBClusterCredentialsOKBodyConnectionCredentials `json:"connectionCredentials,omitempty"`
 }
 
 // Validate validates this get PSMDB cluster credentials OK body
@@ -259,7 +256,7 @@ func (o *GetPSMDBClusterCredentialsOKBody) validateConnectionCredentials(formats
 	if o.ConnectionCredentials != nil {
 		if err := o.ConnectionCredentials.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getPsmdbClusterCredentialsOk" + "." + "connection_credentials")
+				return ve.ValidateName("getPsmdbClusterCredentialsOk" + "." + "connectionCredentials")
 			}
 			return err
 		}

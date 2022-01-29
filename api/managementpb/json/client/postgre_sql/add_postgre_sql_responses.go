@@ -126,14 +126,14 @@ type AddPostgreSQLBody struct {
 
 	// Node identifier on which a service is been running.
 	// Exactly one of these parameters should be present: node_id, node_name, add_node.
-	NodeID string `json:"node_id,omitempty"`
+	NodeID string `json:"nodeId,omitempty"`
 
 	// Node name on which a service is been running.
 	// Exactly one of these parameters should be present: node_id, node_name, add_node.
-	NodeName string `json:"node_name,omitempty"`
+	NodeName string `json:"nodeName,omitempty"`
 
 	// Unique across all Services user-defined name. Required.
-	ServiceName string `json:"service_name,omitempty"`
+	ServiceName string `json:"serviceName,omitempty"`
 
 	// Node and Service access address (DNS name or IP).
 	// Address (and port) or socket is required.
@@ -151,7 +151,7 @@ type AddPostgreSQLBody struct {
 	Socket string `json:"socket,omitempty"`
 
 	// The "pmm-agent" identifier which should run agents. Required.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+	PMMAgentID string `json:"pmmAgentId,omitempty"`
 
 	// Environment name.
 	Environment string `json:"environment,omitempty"`
@@ -160,7 +160,7 @@ type AddPostgreSQLBody struct {
 	Cluster string `json:"cluster,omitempty"`
 
 	// Replication set name.
-	ReplicationSet string `json:"replication_set,omitempty"`
+	ReplicationSet string `json:"replicationSet,omitempty"`
 
 	// PostgreSQL username for scraping metrics.
 	Username string `json:"username,omitempty"`
@@ -169,48 +169,48 @@ type AddPostgreSQLBody struct {
 	Password string `json:"password,omitempty"`
 
 	// If true, adds qan-postgresql-pgstatements-agent for provided service.
-	QANPostgresqlPgstatementsAgent bool `json:"qan_postgresql_pgstatements_agent,omitempty"`
+	QANPostgresqlPgstatementsAgent bool `json:"qanPostgresqlPgstatementsAgent,omitempty"`
 
 	// If true, adds qan-postgresql-pgstatmonitor-agent for provided service.
-	QANPostgresqlPgstatmonitorAgent bool `json:"qan_postgresql_pgstatmonitor_agent,omitempty"`
+	QANPostgresqlPgstatmonitorAgent bool `json:"qanPostgresqlPgstatmonitorAgent,omitempty"`
 
 	// Disable query examples.
-	DisableQueryExamples bool `json:"disable_query_examples,omitempty"`
+	DisableQueryExamples bool `json:"disableQueryExamples,omitempty"`
 
 	// Custom user-assigned labels for Service.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// Skip connection check.
-	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
+	SkipConnectionCheck bool `json:"skipConnectionCheck,omitempty"`
 
 	// Use TLS for database connections.
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
-	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
 
 	// MetricsMode defines desired metrics mode for agent,
 	// it can be pull, push or auto mode chosen by server.
 	// Enum: [AUTO PULL PUSH]
-	MetricsMode *string `json:"metrics_mode,omitempty"`
+	MetricsMode *string `json:"metricsMode,omitempty"`
 
 	// List of collector names to disable in this exporter.
-	DisableCollectors []string `json:"disable_collectors"`
+	DisableCollectors []string `json:"disableCollectors"`
 
 	// TLS CA certificate.
-	TLSCa string `json:"tls_ca,omitempty"`
+	TLSCa string `json:"tlsCa,omitempty"`
 
 	// TLS Certifcate.
-	TLSCert string `json:"tls_cert,omitempty"`
+	TLSCert string `json:"tlsCert,omitempty"`
 
 	// TLS Certificate Key.
-	TLSKey string `json:"tls_key,omitempty"`
+	TLSKey string `json:"tlsKey,omitempty"`
 
 	// Custom password for exporter endpoint /metrics.
-	AgentPassword string `json:"agent_password,omitempty"`
+	AgentPassword string `json:"agentPassword,omitempty"`
 
 	// add node
-	AddNode *AddPostgreSQLParamsBodyAddNode `json:"add_node,omitempty"`
+	AddNode *AddPostgreSQLParamsBodyAddNode `json:"addNode,omitempty"`
 }
 
 // Validate validates this add postgre SQL body
@@ -270,7 +270,7 @@ func (o *AddPostgreSQLBody) validateMetricsMode(formats strfmt.Registry) error {
 	}
 
 	// value enum
-	if err := o.validateMetricsModeEnum("body"+"."+"metrics_mode", "body", *o.MetricsMode); err != nil {
+	if err := o.validateMetricsModeEnum("body"+"."+"metricsMode", "body", *o.MetricsMode); err != nil {
 		return err
 	}
 
@@ -286,7 +286,7 @@ func (o *AddPostgreSQLBody) validateAddNode(formats strfmt.Registry) error {
 	if o.AddNode != nil {
 		if err := o.AddNode.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "add_node")
+				return ve.ValidateName("body" + "." + "addNode")
 			}
 			return err
 		}
@@ -317,9 +317,6 @@ func (o *AddPostgreSQLBody) UnmarshalBinary(b []byte) error {
 swagger:model AddPostgreSQLDefaultBody
 */
 type AddPostgreSQLDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -394,13 +391,13 @@ swagger:model AddPostgreSQLOKBody
 type AddPostgreSQLOKBody struct {
 
 	// postgres exporter
-	PostgresExporter *AddPostgreSQLOKBodyPostgresExporter `json:"postgres_exporter,omitempty"`
+	PostgresExporter *AddPostgreSQLOKBodyPostgresExporter `json:"postgresExporter,omitempty"`
 
 	// qan postgresql pgstatements agent
-	QANPostgresqlPgstatementsAgent *AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent `json:"qan_postgresql_pgstatements_agent,omitempty"`
+	QANPostgresqlPgstatementsAgent *AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent `json:"qanPostgresqlPgstatementsAgent,omitempty"`
 
 	// qan postgresql pgstatmonitor agent
-	QANPostgresqlPgstatmonitorAgent *AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent `json:"qan_postgresql_pgstatmonitor_agent,omitempty"`
+	QANPostgresqlPgstatmonitorAgent *AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent `json:"qanPostgresqlPgstatmonitorAgent,omitempty"`
 
 	// service
 	Service *AddPostgreSQLOKBodyService `json:"service,omitempty"`
@@ -441,7 +438,7 @@ func (o *AddPostgreSQLOKBody) validatePostgresExporter(formats strfmt.Registry) 
 	if o.PostgresExporter != nil {
 		if err := o.PostgresExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addPostgreSqlOk" + "." + "postgres_exporter")
+				return ve.ValidateName("addPostgreSqlOk" + "." + "postgresExporter")
 			}
 			return err
 		}
@@ -459,7 +456,7 @@ func (o *AddPostgreSQLOKBody) validateQANPostgresqlPgstatementsAgent(formats str
 	if o.QANPostgresqlPgstatementsAgent != nil {
 		if err := o.QANPostgresqlPgstatementsAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addPostgreSqlOk" + "." + "qan_postgresql_pgstatements_agent")
+				return ve.ValidateName("addPostgreSqlOk" + "." + "qanPostgresqlPgstatementsAgent")
 			}
 			return err
 		}
@@ -477,7 +474,7 @@ func (o *AddPostgreSQLOKBody) validateQANPostgresqlPgstatmonitorAgent(formats st
 	if o.QANPostgresqlPgstatmonitorAgent != nil {
 		if err := o.QANPostgresqlPgstatmonitorAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addPostgreSqlOk" + "." + "qan_postgresql_pgstatmonitor_agent")
+				return ve.ValidateName("addPostgreSqlOk" + "." + "qanPostgresqlPgstatmonitorAgent")
 			}
 			return err
 		}
@@ -528,16 +525,16 @@ swagger:model AddPostgreSQLOKBodyPostgresExporter
 type AddPostgreSQLOKBodyPostgresExporter struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agent_id,omitempty"`
+	AgentID string `json:"agentId,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+	PMMAgentID string `json:"pmmAgentId,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"service_id,omitempty"`
+	ServiceID string `json:"serviceId,omitempty"`
 
 	// PostgreSQL username for scraping metrics.
 	Username string `json:"username,omitempty"`
@@ -546,16 +543,16 @@ type AddPostgreSQLOKBodyPostgresExporter struct {
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
-	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// True if exporter uses push metrics mode.
-	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+	PushMetricsEnabled bool `json:"pushMetricsEnabled,omitempty"`
 
 	// List of disabled collector names.
-	DisabledCollectors []string `json:"disabled_collectors"`
+	DisabledCollectors []string `json:"disabledCollectors"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -569,7 +566,7 @@ type AddPostgreSQLOKBodyPostgresExporter struct {
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listen_port,omitempty"`
+	ListenPort int64 `json:"listenPort,omitempty"`
 }
 
 // Validate validates this add postgre SQL OK body postgres exporter
@@ -637,7 +634,7 @@ func (o *AddPostgreSQLOKBodyPostgresExporter) validateStatus(formats strfmt.Regi
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addPostgreSqlOk"+"."+"postgres_exporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addPostgreSqlOk"+"."+"postgresExporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -668,16 +665,16 @@ swagger:model AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent
 type AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agent_id,omitempty"`
+	AgentID string `json:"agentId,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+	PMMAgentID string `json:"pmmAgentId,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"service_id,omitempty"`
+	ServiceID string `json:"serviceId,omitempty"`
 
 	// PostgreSQL username for getting pg stat statements data.
 	Username string `json:"username,omitempty"`
@@ -686,10 +683,10 @@ type AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent struct {
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -768,7 +765,7 @@ func (o *AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent) validateStatus(forma
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addPostgreSqlOk"+"."+"qan_postgresql_pgstatements_agent"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addPostgreSqlOk"+"."+"qanPostgresqlPgstatementsAgent"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -799,16 +796,16 @@ swagger:model AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent
 type AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agent_id,omitempty"`
+	AgentID string `json:"agentId,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+	PMMAgentID string `json:"pmmAgentId,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"service_id,omitempty"`
+	ServiceID string `json:"serviceId,omitempty"`
 
 	// PostgreSQL username for getting pg stat monitor data.
 	Username string `json:"username,omitempty"`
@@ -817,13 +814,13 @@ type AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent struct {
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
 
 	// True if query examples are disabled.
-	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
+	QueryExamplesDisabled bool `json:"queryExamplesDisabled,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -902,7 +899,7 @@ func (o *AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent) validateStatus(form
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addPostgreSqlOk"+"."+"qan_postgresql_pgstatmonitor_agent"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addPostgreSqlOk"+"."+"qanPostgresqlPgstatmonitorAgent"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -933,16 +930,16 @@ swagger:model AddPostgreSQLOKBodyService
 type AddPostgreSQLOKBodyService struct {
 
 	// Unique randomly generated instance identifier.
-	ServiceID string `json:"service_id,omitempty"`
+	ServiceID string `json:"serviceId,omitempty"`
 
 	// Unique across all Services user-defined name.
-	ServiceName string `json:"service_name,omitempty"`
+	ServiceName string `json:"serviceName,omitempty"`
 
 	// Database name.
-	DatabaseName string `json:"database_name,omitempty"`
+	DatabaseName string `json:"databaseName,omitempty"`
 
 	// Node identifier where this instance runs.
-	NodeID string `json:"node_id,omitempty"`
+	NodeID string `json:"nodeId,omitempty"`
 
 	// Access address (DNS name or IP).
 	// Address (and port) or socket is required.
@@ -963,10 +960,10 @@ type AddPostgreSQLOKBodyService struct {
 	Cluster string `json:"cluster,omitempty"`
 
 	// Replication set name.
-	ReplicationSet string `json:"replication_set,omitempty"`
+	ReplicationSet string `json:"replicationSet,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 }
 
 // Validate validates this add postgre SQL OK body service
@@ -999,25 +996,25 @@ type AddPostgreSQLParamsBodyAddNode struct {
 
 	// NodeType describes supported Node types.
 	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE REMOTE_AZURE_DATABASE_NODE]
-	NodeType *string `json:"node_type,omitempty"`
+	NodeType *string `json:"nodeType,omitempty"`
 
 	// Unique across all Nodes user-defined name.
-	NodeName string `json:"node_name,omitempty"`
+	NodeName string `json:"nodeName,omitempty"`
 
 	// Linux machine-id.
-	MachineID string `json:"machine_id,omitempty"`
+	MachineID string `json:"machineId,omitempty"`
 
 	// Linux distribution name and version.
 	Distro string `json:"distro,omitempty"`
 
 	// Container identifier. If specified, must be a unique Docker container identifier.
-	ContainerID string `json:"container_id,omitempty"`
+	ContainerID string `json:"containerId,omitempty"`
 
 	// Container name.
-	ContainerName string `json:"container_name,omitempty"`
+	ContainerName string `json:"containerName,omitempty"`
 
 	// Node model.
-	NodeModel string `json:"node_model,omitempty"`
+	NodeModel string `json:"nodeModel,omitempty"`
 
 	// Node region.
 	Region string `json:"region,omitempty"`
@@ -1026,7 +1023,7 @@ type AddPostgreSQLParamsBodyAddNode struct {
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels for Node.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 }
 
 // Validate validates this add postgre SQL params body add node
@@ -1091,7 +1088,7 @@ func (o *AddPostgreSQLParamsBodyAddNode) validateNodeType(formats strfmt.Registr
 	}
 
 	// value enum
-	if err := o.validateNodeTypeEnum("body"+"."+"add_node"+"."+"node_type", "body", *o.NodeType); err != nil {
+	if err := o.validateNodeTypeEnum("body"+"."+"addNode"+"."+"nodeType", "body", *o.NodeType); err != nil {
 		return err
 	}
 
@@ -1116,121 +1113,13 @@ func (o *AddPostgreSQLParamsBodyAddNode) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*DetailsItems0 `Any` contains an arbitrary serialized protocol buffer message along with a
-// URL that describes the type of the serialized message.
-//
-// Protobuf library provides support to pack/unpack Any values in the form
-// of utility functions or additional generated methods of the Any type.
-//
-// Example 1: Pack and unpack a message in C++.
-//
-//     Foo foo = ...;
-//     Any any;
-//     any.PackFrom(foo);
-//     ...
-//     if (any.UnpackTo(&foo)) {
-//       ...
-//     }
-//
-// Example 2: Pack and unpack a message in Java.
-//
-//     Foo foo = ...;
-//     Any any = Any.pack(foo);
-//     ...
-//     if (any.is(Foo.class)) {
-//       foo = any.unpack(Foo.class);
-//     }
-//
-//  Example 3: Pack and unpack a message in Python.
-//
-//     foo = Foo(...)
-//     any = Any()
-//     any.Pack(foo)
-//     ...
-//     if any.Is(Foo.DESCRIPTOR):
-//       any.Unpack(foo)
-//       ...
-//
-//  Example 4: Pack and unpack a message in Go
-//
-//      foo := &pb.Foo{...}
-//      any, err := ptypes.MarshalAny(foo)
-//      ...
-//      foo := &pb.Foo{}
-//      if err := ptypes.UnmarshalAny(any, foo); err != nil {
-//        ...
-//      }
-//
-// The pack methods provided by protobuf library will by default use
-// 'type.googleapis.com/full.type.name' as the type URL and the unpack
-// methods only use the fully qualified type name after the last '/'
-// in the type URL, for example "foo.bar.com/x/y.z" will yield type
-// name "y.z".
-//
-//
-// JSON
-// ====
-// The JSON representation of an `Any` value uses the regular
-// representation of the deserialized, embedded message, with an
-// additional field `@type` which contains the type URL. Example:
-//
-//     package google.profile;
-//     message Person {
-//       string first_name = 1;
-//       string last_name = 2;
-//     }
-//
-//     {
-//       "@type": "type.googleapis.com/google.profile.Person",
-//       "firstName": <string>,
-//       "lastName": <string>
-//     }
-//
-// If the embedded message type is well-known and has a custom JSON
-// representation, that representation will be embedded adding a field
-// `value` which holds the custom JSON in addition to the `@type`
-// field. Example (for message [google.protobuf.Duration][]):
-//
-//     {
-//       "@type": "type.googleapis.com/google.protobuf.Duration",
-//       "value": "1.212s"
-//     }
+/*DetailsItems0 details items0
 swagger:model DetailsItems0
 */
 type DetailsItems0 struct {
 
-	// A URL/resource name that uniquely identifies the type of the serialized
-	// protocol buffer message. This string must contain at least
-	// one "/" character. The last segment of the URL's path must represent
-	// the fully qualified name of the type (as in
-	// `path/google.protobuf.Duration`). The name should be in a canonical form
-	// (e.g., leading "." is not accepted).
-	//
-	// In practice, teams usually precompile into the binary all types that they
-	// expect it to use in the context of Any. However, for URLs which use the
-	// scheme `http`, `https`, or no scheme, one can optionally set up a type
-	// server that maps type URLs to message definitions as follows:
-	//
-	// * If no scheme is provided, `https` is assumed.
-	// * An HTTP GET on the URL must yield a [google.protobuf.Type][]
-	//   value in binary format, or produce an error.
-	// * Applications are allowed to cache lookup results based on the
-	//   URL, or have them precompiled into a binary to avoid any
-	//   lookup. Therefore, binary compatibility needs to be preserved
-	//   on changes to types. (Use versioned type names to manage
-	//   breaking changes.)
-	//
-	// Note: this functionality is not currently available in the official
-	// protobuf release, and it is not used for type URLs beginning with
-	// type.googleapis.com.
-	//
-	// Schemes other than `http`, `https` (or the empty scheme) might be
-	// used with implementation specific semantics.
-	TypeURL string `json:"type_url,omitempty"`
-
-	// Must be a valid serialized protocol buffer of the above specified type.
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this details items0

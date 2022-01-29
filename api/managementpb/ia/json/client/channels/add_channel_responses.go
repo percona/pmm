@@ -129,16 +129,16 @@ type AddChannelBody struct {
 	Disabled bool `json:"disabled,omitempty"`
 
 	// email config
-	EmailConfig *AddChannelParamsBodyEmailConfig `json:"email_config,omitempty"`
+	EmailConfig *AddChannelParamsBodyEmailConfig `json:"emailConfig,omitempty"`
 
 	// pagerduty config
-	PagerdutyConfig *AddChannelParamsBodyPagerdutyConfig `json:"pagerduty_config,omitempty"`
+	PagerdutyConfig *AddChannelParamsBodyPagerdutyConfig `json:"pagerdutyConfig,omitempty"`
 
 	// slack config
-	SlackConfig *AddChannelParamsBodySlackConfig `json:"slack_config,omitempty"`
+	SlackConfig *AddChannelParamsBodySlackConfig `json:"slackConfig,omitempty"`
 
 	// webhook config
-	WebhookConfig *AddChannelParamsBodyWebhookConfig `json:"webhook_config,omitempty"`
+	WebhookConfig *AddChannelParamsBodyWebhookConfig `json:"webhookConfig,omitempty"`
 }
 
 // Validate validates this add channel body
@@ -176,7 +176,7 @@ func (o *AddChannelBody) validateEmailConfig(formats strfmt.Registry) error {
 	if o.EmailConfig != nil {
 		if err := o.EmailConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "email_config")
+				return ve.ValidateName("body" + "." + "emailConfig")
 			}
 			return err
 		}
@@ -194,7 +194,7 @@ func (o *AddChannelBody) validatePagerdutyConfig(formats strfmt.Registry) error 
 	if o.PagerdutyConfig != nil {
 		if err := o.PagerdutyConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "pagerduty_config")
+				return ve.ValidateName("body" + "." + "pagerdutyConfig")
 			}
 			return err
 		}
@@ -212,7 +212,7 @@ func (o *AddChannelBody) validateSlackConfig(formats strfmt.Registry) error {
 	if o.SlackConfig != nil {
 		if err := o.SlackConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "slack_config")
+				return ve.ValidateName("body" + "." + "slackConfig")
 			}
 			return err
 		}
@@ -230,7 +230,7 @@ func (o *AddChannelBody) validateWebhookConfig(formats strfmt.Registry) error {
 	if o.WebhookConfig != nil {
 		if err := o.WebhookConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "webhook_config")
+				return ve.ValidateName("body" + "." + "webhookConfig")
 			}
 			return err
 		}
@@ -261,9 +261,6 @@ func (o *AddChannelBody) UnmarshalBinary(b []byte) error {
 swagger:model AddChannelDefaultBody
 */
 type AddChannelDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -338,7 +335,7 @@ swagger:model AddChannelOKBody
 type AddChannelOKBody struct {
 
 	// Machine-readable ID.
-	ChannelID string `json:"channel_id,omitempty"`
+	ChannelID string `json:"channelId,omitempty"`
 }
 
 // Validate validates this add channel OK body
@@ -370,7 +367,7 @@ swagger:model AddChannelParamsBodyEmailConfig
 type AddChannelParamsBodyEmailConfig struct {
 
 	// send resolved
-	SendResolved bool `json:"send_resolved,omitempty"`
+	SendResolved bool `json:"sendResolved,omitempty"`
 
 	// to
 	To []string `json:"to"`
@@ -405,13 +402,13 @@ swagger:model AddChannelParamsBodyPagerdutyConfig
 type AddChannelParamsBodyPagerdutyConfig struct {
 
 	// send resolved
-	SendResolved bool `json:"send_resolved,omitempty"`
+	SendResolved bool `json:"sendResolved,omitempty"`
 
 	// The PagerDuty key for "Events API v2" integration type. Exactly one key should be set.
-	RoutingKey string `json:"routing_key,omitempty"`
+	RoutingKey string `json:"routingKey,omitempty"`
 
 	// The PagerDuty key for "Prometheus" integration type. Exactly one key should be set.
-	ServiceKey string `json:"service_key,omitempty"`
+	ServiceKey string `json:"serviceKey,omitempty"`
 }
 
 // Validate validates this add channel params body pagerduty config
@@ -443,7 +440,7 @@ swagger:model AddChannelParamsBodySlackConfig
 type AddChannelParamsBodySlackConfig struct {
 
 	// send resolved
-	SendResolved bool `json:"send_resolved,omitempty"`
+	SendResolved bool `json:"sendResolved,omitempty"`
 
 	// channel
 	Channel string `json:"channel,omitempty"`
@@ -478,16 +475,16 @@ swagger:model AddChannelParamsBodyWebhookConfig
 type AddChannelParamsBodyWebhookConfig struct {
 
 	// send resolved
-	SendResolved bool `json:"send_resolved,omitempty"`
+	SendResolved bool `json:"sendResolved,omitempty"`
 
 	// url
 	URL string `json:"url,omitempty"`
 
 	// max alerts
-	MaxAlerts int32 `json:"max_alerts,omitempty"`
+	MaxAlerts int32 `json:"maxAlerts,omitempty"`
 
 	// http config
-	HTTPConfig *AddChannelParamsBodyWebhookConfigHTTPConfig `json:"http_config,omitempty"`
+	HTTPConfig *AddChannelParamsBodyWebhookConfigHTTPConfig `json:"httpConfig,omitempty"`
 }
 
 // Validate validates this add channel params body webhook config
@@ -513,7 +510,7 @@ func (o *AddChannelParamsBodyWebhookConfig) validateHTTPConfig(formats strfmt.Re
 	if o.HTTPConfig != nil {
 		if err := o.HTTPConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "webhook_config" + "." + "http_config")
+				return ve.ValidateName("body" + "." + "webhookConfig" + "." + "httpConfig")
 			}
 			return err
 		}
@@ -546,19 +543,19 @@ swagger:model AddChannelParamsBodyWebhookConfigHTTPConfig
 type AddChannelParamsBodyWebhookConfigHTTPConfig struct {
 
 	// bearer token
-	BearerToken string `json:"bearer_token,omitempty"`
+	BearerToken string `json:"bearerToken,omitempty"`
 
 	// bearer token file
-	BearerTokenFile string `json:"bearer_token_file,omitempty"`
+	BearerTokenFile string `json:"bearerTokenFile,omitempty"`
 
-	// proxy url
-	ProxyURL string `json:"proxy_url,omitempty"`
+	// proxy Url
+	ProxyURL string `json:"proxyUrl,omitempty"`
 
 	// basic auth
-	BasicAuth *AddChannelParamsBodyWebhookConfigHTTPConfigBasicAuth `json:"basic_auth,omitempty"`
+	BasicAuth *AddChannelParamsBodyWebhookConfigHTTPConfigBasicAuth `json:"basicAuth,omitempty"`
 
 	// tls config
-	TLSConfig *AddChannelParamsBodyWebhookConfigHTTPConfigTLSConfig `json:"tls_config,omitempty"`
+	TLSConfig *AddChannelParamsBodyWebhookConfigHTTPConfigTLSConfig `json:"tlsConfig,omitempty"`
 }
 
 // Validate validates this add channel params body webhook config HTTP config
@@ -588,7 +585,7 @@ func (o *AddChannelParamsBodyWebhookConfigHTTPConfig) validateBasicAuth(formats 
 	if o.BasicAuth != nil {
 		if err := o.BasicAuth.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "webhook_config" + "." + "http_config" + "." + "basic_auth")
+				return ve.ValidateName("body" + "." + "webhookConfig" + "." + "httpConfig" + "." + "basicAuth")
 			}
 			return err
 		}
@@ -606,7 +603,7 @@ func (o *AddChannelParamsBodyWebhookConfigHTTPConfig) validateTLSConfig(formats 
 	if o.TLSConfig != nil {
 		if err := o.TLSConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "webhook_config" + "." + "http_config" + "." + "tls_config")
+				return ve.ValidateName("body" + "." + "webhookConfig" + "." + "httpConfig" + "." + "tlsConfig")
 			}
 			return err
 		}
@@ -645,7 +642,7 @@ type AddChannelParamsBodyWebhookConfigHTTPConfigBasicAuth struct {
 	Password string `json:"password,omitempty"`
 
 	// password file
-	PasswordFile string `json:"password_file,omitempty"`
+	PasswordFile string `json:"passwordFile,omitempty"`
 }
 
 // Validate validates this add channel params body webhook config HTTP config basic auth
@@ -679,33 +676,33 @@ type AddChannelParamsBodyWebhookConfigHTTPConfigTLSConfig struct {
 
 	// A path to the CA certificate file to validate the server certificate with.
 	// ca_file and ca_file_content should not be set at the same time.
-	CaFile string `json:"ca_file,omitempty"`
+	CaFile string `json:"caFile,omitempty"`
 
 	// A path to the certificate file for client cert authentication to the server.
 	// cert_file and cert_file_content should not be set at the same time.
-	CertFile string `json:"cert_file,omitempty"`
+	CertFile string `json:"certFile,omitempty"`
 
 	// A path to the key file for client cert authentication to the server.
 	// key_file and key_file_content should not be set at the same time.
-	KeyFile string `json:"key_file,omitempty"`
+	KeyFile string `json:"keyFile,omitempty"`
 
 	// Name of the server.
-	ServerName string `json:"server_name,omitempty"`
+	ServerName string `json:"serverName,omitempty"`
 
 	// Disable validation of the server certificate.
-	InsecureSkipVerify bool `json:"insecure_skip_verify,omitempty"`
+	InsecureSkipVerify bool `json:"insecureSkipVerify,omitempty"`
 
 	// CA certificate to validate the server certificate with.
 	// ca_file and ca_file_content should not be set at the same time.
-	CaFileContent string `json:"ca_file_content,omitempty"`
+	CaFileContent string `json:"caFileContent,omitempty"`
 
 	// A certificate for client cert authentication to the server.
 	// cert_file and cert_file_content should not be set at the same time.
-	CertFileContent string `json:"cert_file_content,omitempty"`
+	CertFileContent string `json:"certFileContent,omitempty"`
 
 	// A key for client cert authentication to the server.
 	// key_file and key_file_content should not be set at the same time.
-	KeyFileContent string `json:"key_file_content,omitempty"`
+	KeyFileContent string `json:"keyFileContent,omitempty"`
 }
 
 // Validate validates this add channel params body webhook config HTTP config TLS config
@@ -814,38 +811,8 @@ swagger:model DetailsItems0
 */
 type DetailsItems0 struct {
 
-	// A URL/resource name that uniquely identifies the type of the serialized
-	// protocol buffer message. This string must contain at least
-	// one "/" character. The last segment of the URL's path must represent
-	// the fully qualified name of the type (as in
-	// `path/google.protobuf.Duration`). The name should be in a canonical form
-	// (e.g., leading "." is not accepted).
-	//
-	// In practice, teams usually precompile into the binary all types that they
-	// expect it to use in the context of Any. However, for URLs which use the
-	// scheme `http`, `https`, or no scheme, one can optionally set up a type
-	// server that maps type URLs to message definitions as follows:
-	//
-	// * If no scheme is provided, `https` is assumed.
-	// * An HTTP GET on the URL must yield a [google.protobuf.Type][]
-	//   value in binary format, or produce an error.
-	// * Applications are allowed to cache lookup results based on the
-	//   URL, or have them precompiled into a binary to avoid any
-	//   lookup. Therefore, binary compatibility needs to be preserved
-	//   on changes to types. (Use versioned type names to manage
-	//   breaking changes.)
-	//
-	// Note: this functionality is not currently available in the official
-	// protobuf release, and it is not used for type URLs beginning with
-	// type.googleapis.com.
-	//
-	// Schemes other than `http`, `https` (or the empty scheme) might be
-	// used with implementation specific semantics.
-	TypeURL string `json:"type_url,omitempty"`
-
-	// Must be a valid serialized protocol buffer of the above specified type.
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this details items0

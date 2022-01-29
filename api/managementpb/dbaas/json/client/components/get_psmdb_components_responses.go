@@ -123,10 +123,10 @@ swagger:model GetPSMDBComponentsBody
 type GetPSMDBComponentsBody struct {
 
 	// Kubernetes cluster name.
-	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
+	KubernetesClusterName string `json:"kubernetesClusterName,omitempty"`
 
 	// Version of DB.
-	DBVersion string `json:"db_version,omitempty"`
+	DBVersion string `json:"dbVersion,omitempty"`
 }
 
 // Validate validates this get PSMDB components body
@@ -156,9 +156,6 @@ func (o *GetPSMDBComponentsBody) UnmarshalBinary(b []byte) error {
 swagger:model GetPSMDBComponentsDefaultBody
 */
 type GetPSMDBComponentsDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -385,7 +382,7 @@ type VersionsItems0Matrix struct {
 	Operator map[string]VersionsItems0MatrixOperatorAnon `json:"operator,omitempty"`
 
 	// log collector
-	LogCollector map[string]VersionsItems0MatrixLogCollectorAnon `json:"log_collector,omitempty"`
+	LogCollector map[string]VersionsItems0MatrixLogCollectorAnon `json:"logCollector,omitempty"`
 }
 
 // Validate validates this versions items0 matrix
@@ -630,10 +627,10 @@ swagger:model VersionsItems0MatrixBackupAnon
 type VersionsItems0MatrixBackupAnon struct {
 
 	// image path
-	ImagePath string `json:"image_path,omitempty"`
+	ImagePath string `json:"imagePath,omitempty"`
 
 	// image hash
-	ImageHash string `json:"image_hash,omitempty"`
+	ImageHash string `json:"imageHash,omitempty"`
 
 	// status
 	Status string `json:"status,omitempty"`
@@ -677,10 +674,10 @@ swagger:model VersionsItems0MatrixHaproxyAnon
 type VersionsItems0MatrixHaproxyAnon struct {
 
 	// image path
-	ImagePath string `json:"image_path,omitempty"`
+	ImagePath string `json:"imagePath,omitempty"`
 
 	// image hash
-	ImageHash string `json:"image_hash,omitempty"`
+	ImageHash string `json:"imageHash,omitempty"`
 
 	// status
 	Status string `json:"status,omitempty"`
@@ -724,10 +721,10 @@ swagger:model VersionsItems0MatrixLogCollectorAnon
 type VersionsItems0MatrixLogCollectorAnon struct {
 
 	// image path
-	ImagePath string `json:"image_path,omitempty"`
+	ImagePath string `json:"imagePath,omitempty"`
 
 	// image hash
-	ImageHash string `json:"image_hash,omitempty"`
+	ImageHash string `json:"imageHash,omitempty"`
 
 	// status
 	Status string `json:"status,omitempty"`
@@ -771,10 +768,10 @@ swagger:model VersionsItems0MatrixMongodAnon
 type VersionsItems0MatrixMongodAnon struct {
 
 	// image path
-	ImagePath string `json:"image_path,omitempty"`
+	ImagePath string `json:"imagePath,omitempty"`
 
 	// image hash
-	ImageHash string `json:"image_hash,omitempty"`
+	ImageHash string `json:"imageHash,omitempty"`
 
 	// status
 	Status string `json:"status,omitempty"`
@@ -818,10 +815,10 @@ swagger:model VersionsItems0MatrixOperatorAnon
 type VersionsItems0MatrixOperatorAnon struct {
 
 	// image path
-	ImagePath string `json:"image_path,omitempty"`
+	ImagePath string `json:"imagePath,omitempty"`
 
 	// image hash
-	ImageHash string `json:"image_hash,omitempty"`
+	ImageHash string `json:"imageHash,omitempty"`
 
 	// status
 	Status string `json:"status,omitempty"`
@@ -865,10 +862,10 @@ swagger:model VersionsItems0MatrixPMMAnon
 type VersionsItems0MatrixPMMAnon struct {
 
 	// image path
-	ImagePath string `json:"image_path,omitempty"`
+	ImagePath string `json:"imagePath,omitempty"`
 
 	// image hash
-	ImageHash string `json:"image_hash,omitempty"`
+	ImageHash string `json:"imageHash,omitempty"`
 
 	// status
 	Status string `json:"status,omitempty"`
@@ -912,10 +909,10 @@ swagger:model VersionsItems0MatrixPXCAnon
 type VersionsItems0MatrixPXCAnon struct {
 
 	// image path
-	ImagePath string `json:"image_path,omitempty"`
+	ImagePath string `json:"imagePath,omitempty"`
 
 	// image hash
-	ImageHash string `json:"image_hash,omitempty"`
+	ImageHash string `json:"imageHash,omitempty"`
 
 	// status
 	Status string `json:"status,omitempty"`
@@ -959,10 +956,10 @@ swagger:model VersionsItems0MatrixProxysqlAnon
 type VersionsItems0MatrixProxysqlAnon struct {
 
 	// image path
-	ImagePath string `json:"image_path,omitempty"`
+	ImagePath string `json:"imagePath,omitempty"`
 
 	// image hash
-	ImageHash string `json:"image_hash,omitempty"`
+	ImageHash string `json:"imageHash,omitempty"`
 
 	// status
 	Status string `json:"status,omitempty"`

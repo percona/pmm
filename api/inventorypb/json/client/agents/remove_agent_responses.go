@@ -120,8 +120,8 @@ swagger:model RemoveAgentBody
 */
 type RemoveAgentBody struct {
 
-	// agent id
-	AgentID string `json:"agent_id,omitempty"`
+	// agent Id
+	AgentID string `json:"agentId,omitempty"`
 
 	// Remove agent with all dependencies.
 	Force bool `json:"force,omitempty"`
@@ -154,9 +154,6 @@ func (o *RemoveAgentBody) UnmarshalBinary(b []byte) error {
 swagger:model RemoveAgentDefaultBody
 */
 type RemoveAgentDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`

@@ -119,121 +119,13 @@ func (o *RegisterNodeDefault) readResponse(response runtime.ClientResponse, cons
 	return nil
 }
 
-/*DetailsItems0 `Any` contains an arbitrary serialized protocol buffer message along with a
-// URL that describes the type of the serialized message.
-//
-// Protobuf library provides support to pack/unpack Any values in the form
-// of utility functions or additional generated methods of the Any type.
-//
-// Example 1: Pack and unpack a message in C++.
-//
-//     Foo foo = ...;
-//     Any any;
-//     any.PackFrom(foo);
-//     ...
-//     if (any.UnpackTo(&foo)) {
-//       ...
-//     }
-//
-// Example 2: Pack and unpack a message in Java.
-//
-//     Foo foo = ...;
-//     Any any = Any.pack(foo);
-//     ...
-//     if (any.is(Foo.class)) {
-//       foo = any.unpack(Foo.class);
-//     }
-//
-//  Example 3: Pack and unpack a message in Python.
-//
-//     foo = Foo(...)
-//     any = Any()
-//     any.Pack(foo)
-//     ...
-//     if any.Is(Foo.DESCRIPTOR):
-//       any.Unpack(foo)
-//       ...
-//
-//  Example 4: Pack and unpack a message in Go
-//
-//      foo := &pb.Foo{...}
-//      any, err := ptypes.MarshalAny(foo)
-//      ...
-//      foo := &pb.Foo{}
-//      if err := ptypes.UnmarshalAny(any, foo); err != nil {
-//        ...
-//      }
-//
-// The pack methods provided by protobuf library will by default use
-// 'type.googleapis.com/full.type.name' as the type URL and the unpack
-// methods only use the fully qualified type name after the last '/'
-// in the type URL, for example "foo.bar.com/x/y.z" will yield type
-// name "y.z".
-//
-//
-// JSON
-// ====
-// The JSON representation of an `Any` value uses the regular
-// representation of the deserialized, embedded message, with an
-// additional field `@type` which contains the type URL. Example:
-//
-//     package google.profile;
-//     message Person {
-//       string first_name = 1;
-//       string last_name = 2;
-//     }
-//
-//     {
-//       "@type": "type.googleapis.com/google.profile.Person",
-//       "firstName": <string>,
-//       "lastName": <string>
-//     }
-//
-// If the embedded message type is well-known and has a custom JSON
-// representation, that representation will be embedded adding a field
-// `value` which holds the custom JSON in addition to the `@type`
-// field. Example (for message [google.protobuf.Duration][]):
-//
-//     {
-//       "@type": "type.googleapis.com/google.protobuf.Duration",
-//       "value": "1.212s"
-//     }
+/*DetailsItems0 details items0
 swagger:model DetailsItems0
 */
 type DetailsItems0 struct {
 
-	// A URL/resource name that uniquely identifies the type of the serialized
-	// protocol buffer message. This string must contain at least
-	// one "/" character. The last segment of the URL's path must represent
-	// the fully qualified name of the type (as in
-	// `path/google.protobuf.Duration`). The name should be in a canonical form
-	// (e.g., leading "." is not accepted).
-	//
-	// In practice, teams usually precompile into the binary all types that they
-	// expect it to use in the context of Any. However, for URLs which use the
-	// scheme `http`, `https`, or no scheme, one can optionally set up a type
-	// server that maps type URLs to message definitions as follows:
-	//
-	// * If no scheme is provided, `https` is assumed.
-	// * An HTTP GET on the URL must yield a [google.protobuf.Type][]
-	//   value in binary format, or produce an error.
-	// * Applications are allowed to cache lookup results based on the
-	//   URL, or have them precompiled into a binary to avoid any
-	//   lookup. Therefore, binary compatibility needs to be preserved
-	//   on changes to types. (Use versioned type names to manage
-	//   breaking changes.)
-	//
-	// Note: this functionality is not currently available in the official
-	// protobuf release, and it is not used for type URLs beginning with
-	// type.googleapis.com.
-	//
-	// Schemes other than `http`, `https` (or the empty scheme) might be
-	// used with implementation specific semantics.
-	TypeURL string `json:"type_url,omitempty"`
-
-	// Must be a valid serialized protocol buffer of the above specified type.
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this details items0
@@ -266,28 +158,28 @@ type RegisterNodeBody struct {
 
 	// NodeType describes supported Node types.
 	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE REMOTE_AZURE_DATABASE_NODE]
-	NodeType *string `json:"node_type,omitempty"`
+	NodeType *string `json:"nodeType,omitempty"`
 
 	// Unique across all Nodes user-defined name.
-	NodeName string `json:"node_name,omitempty"`
+	NodeName string `json:"nodeName,omitempty"`
 
 	// Node address (DNS name or IP).
 	Address string `json:"address,omitempty"`
 
 	// Linux machine-id.
-	MachineID string `json:"machine_id,omitempty"`
+	MachineID string `json:"machineId,omitempty"`
 
 	// Linux distribution name and version.
 	Distro string `json:"distro,omitempty"`
 
 	// Container identifier. If specified, must be a unique Docker container identifier.
-	ContainerID string `json:"container_id,omitempty"`
+	ContainerID string `json:"containerId,omitempty"`
 
 	// Container name.
-	ContainerName string `json:"container_name,omitempty"`
+	ContainerName string `json:"containerName,omitempty"`
 
 	// Node model.
-	NodeModel string `json:"node_model,omitempty"`
+	NodeModel string `json:"nodeModel,omitempty"`
 
 	// Node region.
 	Region string `json:"region,omitempty"`
@@ -296,7 +188,7 @@ type RegisterNodeBody struct {
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels for Node.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// If true, and Node with that name already exist, it will be removed with all dependent Services and Agents.
 	Reregister bool `json:"reregister,omitempty"`
@@ -304,10 +196,10 @@ type RegisterNodeBody struct {
 	// MetricsMode defines desired metrics mode for agent,
 	// it can be pull, push or auto mode chosen by server.
 	// Enum: [AUTO PULL PUSH]
-	MetricsMode *string `json:"metrics_mode,omitempty"`
+	MetricsMode *string `json:"metricsMode,omitempty"`
 
 	// List of collector names to disable in this exporter.
-	DisableCollectors []string `json:"disable_collectors"`
+	DisableCollectors []string `json:"disableCollectors"`
 }
 
 // Validate validates this register node body
@@ -376,7 +268,7 @@ func (o *RegisterNodeBody) validateNodeType(formats strfmt.Registry) error {
 	}
 
 	// value enum
-	if err := o.validateNodeTypeEnum("body"+"."+"node_type", "body", *o.NodeType); err != nil {
+	if err := o.validateNodeTypeEnum("body"+"."+"nodeType", "body", *o.NodeType); err != nil {
 		return err
 	}
 
@@ -422,7 +314,7 @@ func (o *RegisterNodeBody) validateMetricsMode(formats strfmt.Registry) error {
 	}
 
 	// value enum
-	if err := o.validateMetricsModeEnum("body"+"."+"metrics_mode", "body", *o.MetricsMode); err != nil {
+	if err := o.validateMetricsModeEnum("body"+"."+"metricsMode", "body", *o.MetricsMode); err != nil {
 		return err
 	}
 
@@ -451,9 +343,6 @@ func (o *RegisterNodeBody) UnmarshalBinary(b []byte) error {
 swagger:model RegisterNodeDefaultBody
 */
 type RegisterNodeDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -528,13 +417,13 @@ swagger:model RegisterNodeOKBody
 type RegisterNodeOKBody struct {
 
 	// container node
-	ContainerNode *RegisterNodeOKBodyContainerNode `json:"container_node,omitempty"`
+	ContainerNode *RegisterNodeOKBodyContainerNode `json:"containerNode,omitempty"`
 
 	// generic node
-	GenericNode *RegisterNodeOKBodyGenericNode `json:"generic_node,omitempty"`
+	GenericNode *RegisterNodeOKBodyGenericNode `json:"genericNode,omitempty"`
 
 	// pmm agent
-	PMMAgent *RegisterNodeOKBodyPMMAgent `json:"pmm_agent,omitempty"`
+	PMMAgent *RegisterNodeOKBodyPMMAgent `json:"pmmAgent,omitempty"`
 }
 
 // Validate validates this register node OK body
@@ -568,7 +457,7 @@ func (o *RegisterNodeOKBody) validateContainerNode(formats strfmt.Registry) erro
 	if o.ContainerNode != nil {
 		if err := o.ContainerNode.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("registerNodeOk" + "." + "container_node")
+				return ve.ValidateName("registerNodeOk" + "." + "containerNode")
 			}
 			return err
 		}
@@ -586,7 +475,7 @@ func (o *RegisterNodeOKBody) validateGenericNode(formats strfmt.Registry) error 
 	if o.GenericNode != nil {
 		if err := o.GenericNode.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("registerNodeOk" + "." + "generic_node")
+				return ve.ValidateName("registerNodeOk" + "." + "genericNode")
 			}
 			return err
 		}
@@ -604,7 +493,7 @@ func (o *RegisterNodeOKBody) validatePMMAgent(formats strfmt.Registry) error {
 	if o.PMMAgent != nil {
 		if err := o.PMMAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("registerNodeOk" + "." + "pmm_agent")
+				return ve.ValidateName("registerNodeOk" + "." + "pmmAgent")
 			}
 			return err
 		}
@@ -637,25 +526,25 @@ swagger:model RegisterNodeOKBodyContainerNode
 type RegisterNodeOKBodyContainerNode struct {
 
 	// Unique randomly generated instance identifier.
-	NodeID string `json:"node_id,omitempty"`
+	NodeID string `json:"nodeId,omitempty"`
 
 	// Unique across all Nodes user-defined name.
-	NodeName string `json:"node_name,omitempty"`
+	NodeName string `json:"nodeName,omitempty"`
 
 	// Node address (DNS name or IP).
 	Address string `json:"address,omitempty"`
 
 	// Linux machine-id of the Generic Node where this Container Node runs.
-	MachineID string `json:"machine_id,omitempty"`
+	MachineID string `json:"machineId,omitempty"`
 
 	// Container identifier. If specified, must be a unique Docker container identifier.
-	ContainerID string `json:"container_id,omitempty"`
+	ContainerID string `json:"containerId,omitempty"`
 
 	// Container name.
-	ContainerName string `json:"container_name,omitempty"`
+	ContainerName string `json:"containerName,omitempty"`
 
 	// Node model.
-	NodeModel string `json:"node_model,omitempty"`
+	NodeModel string `json:"nodeModel,omitempty"`
 
 	// Node region.
 	Region string `json:"region,omitempty"`
@@ -664,7 +553,7 @@ type RegisterNodeOKBodyContainerNode struct {
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 }
 
 // Validate validates this register node OK body container node
@@ -696,22 +585,22 @@ swagger:model RegisterNodeOKBodyGenericNode
 type RegisterNodeOKBodyGenericNode struct {
 
 	// Unique randomly generated instance identifier.
-	NodeID string `json:"node_id,omitempty"`
+	NodeID string `json:"nodeId,omitempty"`
 
 	// Unique across all Nodes user-defined name.
-	NodeName string `json:"node_name,omitempty"`
+	NodeName string `json:"nodeName,omitempty"`
 
 	// Node address (DNS name or IP).
 	Address string `json:"address,omitempty"`
 
 	// Linux machine-id.
-	MachineID string `json:"machine_id,omitempty"`
+	MachineID string `json:"machineId,omitempty"`
 
 	// Linux distribution name and version.
 	Distro string `json:"distro,omitempty"`
 
 	// Node model.
-	NodeModel string `json:"node_model,omitempty"`
+	NodeModel string `json:"nodeModel,omitempty"`
 
 	// Node region.
 	Region string `json:"region,omitempty"`
@@ -720,7 +609,7 @@ type RegisterNodeOKBodyGenericNode struct {
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 }
 
 // Validate validates this register node OK body generic node
@@ -752,13 +641,13 @@ swagger:model RegisterNodeOKBodyPMMAgent
 type RegisterNodeOKBodyPMMAgent struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agent_id,omitempty"`
+	AgentID string `json:"agentId,omitempty"`
 
 	// Node identifier where this instance runs.
-	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+	RunsOnNodeID string `json:"runsOnNodeId,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// True if Agent is running and connected to pmm-managed.
 	Connected bool `json:"connected,omitempty"`

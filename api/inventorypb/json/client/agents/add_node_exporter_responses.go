@@ -125,16 +125,16 @@ swagger:model AddNodeExporterBody
 type AddNodeExporterBody struct {
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+	PMMAgentID string `json:"pmmAgentId,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// Enables push metrics mode for exporter.
-	PushMetrics bool `json:"push_metrics,omitempty"`
+	PushMetrics bool `json:"pushMetrics,omitempty"`
 
 	// List of collector names to disable in this exporter.
-	DisableCollectors []string `json:"disable_collectors"`
+	DisableCollectors []string `json:"disableCollectors"`
 }
 
 // Validate validates this add node exporter body
@@ -164,9 +164,6 @@ func (o *AddNodeExporterBody) UnmarshalBinary(b []byte) error {
 swagger:model AddNodeExporterDefaultBody
 */
 type AddNodeExporterDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -241,7 +238,7 @@ swagger:model AddNodeExporterOKBody
 type AddNodeExporterOKBody struct {
 
 	// node exporter
-	NodeExporter *AddNodeExporterOKBodyNodeExporter `json:"node_exporter,omitempty"`
+	NodeExporter *AddNodeExporterOKBodyNodeExporter `json:"nodeExporter,omitempty"`
 }
 
 // Validate validates this add node exporter OK body
@@ -267,7 +264,7 @@ func (o *AddNodeExporterOKBody) validateNodeExporter(formats strfmt.Registry) er
 	if o.NodeExporter != nil {
 		if err := o.NodeExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addNodeExporterOk" + "." + "node_exporter")
+				return ve.ValidateName("addNodeExporterOk" + "." + "nodeExporter")
 			}
 			return err
 		}
@@ -300,22 +297,22 @@ swagger:model AddNodeExporterOKBodyNodeExporter
 type AddNodeExporterOKBodyNodeExporter struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agent_id,omitempty"`
+	AgentID string `json:"agentId,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+	PMMAgentID string `json:"pmmAgentId,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// True if exporter uses push metrics mode.
-	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+	PushMetricsEnabled bool `json:"pushMetricsEnabled,omitempty"`
 
 	// List of disabled collector names.
-	DisabledCollectors []string `json:"disabled_collectors"`
+	DisabledCollectors []string `json:"disabledCollectors"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -329,7 +326,7 @@ type AddNodeExporterOKBodyNodeExporter struct {
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listen_port,omitempty"`
+	ListenPort int64 `json:"listenPort,omitempty"`
 }
 
 // Validate validates this add node exporter OK body node exporter
@@ -397,7 +394,7 @@ func (o *AddNodeExporterOKBodyNodeExporter) validateStatus(formats strfmt.Regist
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addNodeExporterOk"+"."+"node_exporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addNodeExporterOk"+"."+"nodeExporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 

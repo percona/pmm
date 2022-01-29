@@ -122,8 +122,8 @@ swagger:model ChangeExternalExporterBody
 */
 type ChangeExternalExporterBody struct {
 
-	// agent id
-	AgentID string `json:"agent_id,omitempty"`
+	// agent Id
+	AgentID string `json:"agentId,omitempty"`
 
 	// common
 	Common *ChangeExternalExporterParamsBodyCommon `json:"common,omitempty"`
@@ -183,9 +183,6 @@ func (o *ChangeExternalExporterBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeExternalExporterDefaultBody
 */
 type ChangeExternalExporterDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -260,7 +257,7 @@ swagger:model ChangeExternalExporterOKBody
 type ChangeExternalExporterOKBody struct {
 
 	// external exporter
-	ExternalExporter *ChangeExternalExporterOKBodyExternalExporter `json:"external_exporter,omitempty"`
+	ExternalExporter *ChangeExternalExporterOKBodyExternalExporter `json:"externalExporter,omitempty"`
 }
 
 // Validate validates this change external exporter OK body
@@ -286,7 +283,7 @@ func (o *ChangeExternalExporterOKBody) validateExternalExporter(formats strfmt.R
 	if o.ExternalExporter != nil {
 		if err := o.ExternalExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("changeExternalExporterOk" + "." + "external_exporter")
+				return ve.ValidateName("changeExternalExporterOk" + "." + "externalExporter")
 			}
 			return err
 		}
@@ -319,16 +316,16 @@ swagger:model ChangeExternalExporterOKBodyExternalExporter
 type ChangeExternalExporterOKBodyExternalExporter struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agent_id,omitempty"`
+	AgentID string `json:"agentId,omitempty"`
 
 	// Node identifier where this instance runs.
-	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+	RunsOnNodeID string `json:"runsOnNodeId,omitempty"`
 
 	// If disabled, metrics from this exporter will not be collected.
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"service_id,omitempty"`
+	ServiceID string `json:"serviceId,omitempty"`
 
 	// HTTP basic auth username for collecting metrics.
 	Username string `json:"username,omitempty"`
@@ -337,16 +334,16 @@ type ChangeExternalExporterOKBodyExternalExporter struct {
 	Scheme string `json:"scheme,omitempty"`
 
 	// Path under which metrics are exposed, used to generate URI.
-	MetricsPath string `json:"metrics_path,omitempty"`
+	MetricsPath string `json:"metricsPath,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listen_port,omitempty"`
+	ListenPort int64 `json:"listenPort,omitempty"`
 
 	// True if exporter uses push metrics mode.
-	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+	PushMetricsEnabled bool `json:"pushMetricsEnabled,omitempty"`
 }
 
 // Validate validates this change external exporter OK body external exporter
@@ -384,17 +381,17 @@ type ChangeExternalExporterParamsBodyCommon struct {
 	Disable bool `json:"disable,omitempty"`
 
 	// Replace all custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// Remove all custom user-assigned labels.
-	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
+	RemoveCustomLabels bool `json:"removeCustomLabels,omitempty"`
 
 	// Enables push metrics with vmagent, can't be used with disable_push_metrics.
 	// Can't be used with agent version lower then 2.12 and unsupported agents.
-	EnablePushMetrics bool `json:"enable_push_metrics,omitempty"`
+	EnablePushMetrics bool `json:"enablePushMetrics,omitempty"`
 
 	// Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.
-	DisablePushMetrics bool `json:"disable_push_metrics,omitempty"`
+	DisablePushMetrics bool `json:"disablePushMetrics,omitempty"`
 }
 
 // Validate validates this change external exporter params body common

@@ -123,7 +123,7 @@ swagger:model DeleteDBClusterBody
 type DeleteDBClusterBody struct {
 
 	// Kubernetes cluster name.
-	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
+	KubernetesClusterName string `json:"kubernetesClusterName,omitempty"`
 
 	// DB cluster name.
 	Name string `json:"name,omitempty"`
@@ -134,7 +134,7 @@ type DeleteDBClusterBody struct {
 	//  - DB_CLUSTER_TYPE_PXC: DB_CLUSTER_TYPE_PXC represents pxc cluster type.
 	//  - DB_CLUSTER_TYPE_PSMDB: DB_CLUSTER_TYPE_PSMDB represents psmdb cluster type.
 	// Enum: [DB_CLUSTER_TYPE_INVALID DB_CLUSTER_TYPE_PXC DB_CLUSTER_TYPE_PSMDB]
-	ClusterType *string `json:"cluster_type,omitempty"`
+	ClusterType *string `json:"clusterType,omitempty"`
 }
 
 // Validate validates this delete DB cluster body
@@ -190,7 +190,7 @@ func (o *DeleteDBClusterBody) validateClusterType(formats strfmt.Registry) error
 	}
 
 	// value enum
-	if err := o.validateClusterTypeEnum("body"+"."+"cluster_type", "body", *o.ClusterType); err != nil {
+	if err := o.validateClusterTypeEnum("body"+"."+"clusterType", "body", *o.ClusterType); err != nil {
 		return err
 	}
 
@@ -219,9 +219,6 @@ func (o *DeleteDBClusterBody) UnmarshalBinary(b []byte) error {
 swagger:model DeleteDBClusterDefaultBody
 */
 type DeleteDBClusterDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -295,12 +292,8 @@ swagger:model DetailsItems0
 */
 type DetailsItems0 struct {
 
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this details items0

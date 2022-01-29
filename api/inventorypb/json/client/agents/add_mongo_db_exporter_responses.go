@@ -125,10 +125,10 @@ swagger:model AddMongoDBExporterBody
 type AddMongoDBExporterBody struct {
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+	PMMAgentID string `json:"pmmAgentId,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"service_id,omitempty"`
+	ServiceID string `json:"serviceId,omitempty"`
 
 	// MongoDB username for scraping metrics.
 	Username string `json:"username,omitempty"`
@@ -140,46 +140,46 @@ type AddMongoDBExporterBody struct {
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
 
 	// Client certificate and key.
-	TLSCertificateKey string `json:"tls_certificate_key,omitempty"`
+	TLSCertificateKey string `json:"tlsCertificateKey,omitempty"`
 
 	// Password for decrypting tls_certificate_key.
-	TLSCertificateKeyFilePassword string `json:"tls_certificate_key_file_password,omitempty"`
+	TLSCertificateKeyFilePassword string `json:"tlsCertificateKeyFilePassword,omitempty"`
 
 	// Certificate Authority certificate chain.
-	TLSCa string `json:"tls_ca,omitempty"`
+	TLSCa string `json:"tlsCa,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// Skip connection check.
-	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
+	SkipConnectionCheck bool `json:"skipConnectionCheck,omitempty"`
 
 	// Enables push metrics mode for exporter.
-	PushMetrics bool `json:"push_metrics,omitempty"`
+	PushMetrics bool `json:"pushMetrics,omitempty"`
 
 	// List of collector names to disable in this exporter.
-	DisableCollectors []string `json:"disable_collectors"`
+	DisableCollectors []string `json:"disableCollectors"`
 
 	// Authentication mechanism.
 	// See https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism
 	// for details.
-	AuthenticationMechanism string `json:"authentication_mechanism,omitempty"`
+	AuthenticationMechanism string `json:"authenticationMechanism,omitempty"`
 
 	// Authentication database.
-	AuthenticationDatabase string `json:"authentication_database,omitempty"`
+	AuthenticationDatabase string `json:"authenticationDatabase,omitempty"`
 
 	// Custom password for exporter endpoint /metrics.
-	AgentPassword string `json:"agent_password,omitempty"`
+	AgentPassword string `json:"agentPassword,omitempty"`
 
 	// List of colletions to get stats from. Can use *
-	StatsCollections []string `json:"stats_collections"`
+	StatsCollections []string `json:"statsCollections"`
 
 	// Collections limit. Only get Databases and collection stats if the total number of collections in the server
 	// is less than this value. 0: no limit
-	CollectionsLimit int32 `json:"collections_limit,omitempty"`
+	CollectionsLimit int32 `json:"collectionsLimit,omitempty"`
 }
 
 // Validate validates this add mongo DB exporter body
@@ -209,9 +209,6 @@ func (o *AddMongoDBExporterBody) UnmarshalBinary(b []byte) error {
 swagger:model AddMongoDBExporterDefaultBody
 */
 type AddMongoDBExporterDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -286,7 +283,7 @@ swagger:model AddMongoDBExporterOKBody
 type AddMongoDBExporterOKBody struct {
 
 	// mongodb exporter
-	MongodbExporter *AddMongoDBExporterOKBodyMongodbExporter `json:"mongodb_exporter,omitempty"`
+	MongodbExporter *AddMongoDBExporterOKBodyMongodbExporter `json:"mongodbExporter,omitempty"`
 }
 
 // Validate validates this add mongo DB exporter OK body
@@ -312,7 +309,7 @@ func (o *AddMongoDBExporterOKBody) validateMongodbExporter(formats strfmt.Regist
 	if o.MongodbExporter != nil {
 		if err := o.MongodbExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addMongoDbExporterOk" + "." + "mongodb_exporter")
+				return ve.ValidateName("addMongoDbExporterOk" + "." + "mongodbExporter")
 			}
 			return err
 		}
@@ -345,16 +342,16 @@ swagger:model AddMongoDBExporterOKBodyMongodbExporter
 type AddMongoDBExporterOKBodyMongodbExporter struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agent_id,omitempty"`
+	AgentID string `json:"agentId,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+	PMMAgentID string `json:"pmmAgentId,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"service_id,omitempty"`
+	ServiceID string `json:"serviceId,omitempty"`
 
 	// MongoDB username for scraping metrics.
 	Username string `json:"username,omitempty"`
@@ -363,16 +360,16 @@ type AddMongoDBExporterOKBodyMongodbExporter struct {
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// True if exporter uses push metrics mode.
-	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+	PushMetricsEnabled bool `json:"pushMetricsEnabled,omitempty"`
 
 	// List of disabled collector names.
-	DisabledCollectors []string `json:"disabled_collectors"`
+	DisabledCollectors []string `json:"disabledCollectors"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -386,17 +383,17 @@ type AddMongoDBExporterOKBodyMongodbExporter struct {
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listen_port,omitempty"`
+	ListenPort int64 `json:"listenPort,omitempty"`
 
 	// List of colletions to get stats from. Can use *
-	StatsCollections []string `json:"stats_collections"`
+	StatsCollections []string `json:"statsCollections"`
 
 	// Collections limit. Only get Databases and collection stats if the total number of collections in the server
 	// is less than this value. 0: no limit
-	CollectionsLimit int32 `json:"collections_limit,omitempty"`
+	CollectionsLimit int32 `json:"collectionsLimit,omitempty"`
 
 	// Enable All collectors.
-	EnableAllCollectors bool `json:"enable_all_collectors,omitempty"`
+	EnableAllCollectors bool `json:"enableAllCollectors,omitempty"`
 }
 
 // Validate validates this add mongo DB exporter OK body mongodb exporter
@@ -464,7 +461,7 @@ func (o *AddMongoDBExporterOKBodyMongodbExporter) validateStatus(formats strfmt.
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addMongoDbExporterOk"+"."+"mongodb_exporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addMongoDbExporterOk"+"."+"mongodbExporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 

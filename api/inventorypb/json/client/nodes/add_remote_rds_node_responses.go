@@ -123,13 +123,13 @@ swagger:model AddRemoteRDSNodeBody
 type AddRemoteRDSNodeBody struct {
 
 	// Unique across all Nodes user-defined name.
-	NodeName string `json:"node_name,omitempty"`
+	NodeName string `json:"nodeName,omitempty"`
 
 	// DB instance identifier.
 	Address string `json:"address,omitempty"`
 
 	// Node model.
-	NodeModel string `json:"node_model,omitempty"`
+	NodeModel string `json:"nodeModel,omitempty"`
 
 	// Node region.
 	Region string `json:"region,omitempty"`
@@ -138,7 +138,7 @@ type AddRemoteRDSNodeBody struct {
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 }
 
 // Validate validates this add remote RDS node body
@@ -168,9 +168,6 @@ func (o *AddRemoteRDSNodeBody) UnmarshalBinary(b []byte) error {
 swagger:model AddRemoteRDSNodeDefaultBody
 */
 type AddRemoteRDSNodeDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -244,8 +241,8 @@ swagger:model AddRemoteRDSNodeOKBody
 */
 type AddRemoteRDSNodeOKBody struct {
 
-	// remote rds
-	RemoteRDS *AddRemoteRDSNodeOKBodyRemoteRDS `json:"remote_rds,omitempty"`
+	// remote Rds
+	RemoteRDS *AddRemoteRDSNodeOKBodyRemoteRDS `json:"remoteRds,omitempty"`
 }
 
 // Validate validates this add remote RDS node OK body
@@ -271,7 +268,7 @@ func (o *AddRemoteRDSNodeOKBody) validateRemoteRDS(formats strfmt.Registry) erro
 	if o.RemoteRDS != nil {
 		if err := o.RemoteRDS.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addRemoteRdsNodeOk" + "." + "remote_rds")
+				return ve.ValidateName("addRemoteRdsNodeOk" + "." + "remoteRds")
 			}
 			return err
 		}
@@ -304,16 +301,16 @@ swagger:model AddRemoteRDSNodeOKBodyRemoteRDS
 type AddRemoteRDSNodeOKBodyRemoteRDS struct {
 
 	// Unique randomly generated instance identifier.
-	NodeID string `json:"node_id,omitempty"`
+	NodeID string `json:"nodeId,omitempty"`
 
 	// Unique across all Nodes user-defined name.
-	NodeName string `json:"node_name,omitempty"`
+	NodeName string `json:"nodeName,omitempty"`
 
 	// DB instance identifier.
 	Address string `json:"address,omitempty"`
 
 	// Node model.
-	NodeModel string `json:"node_model,omitempty"`
+	NodeModel string `json:"nodeModel,omitempty"`
 
 	// Node region.
 	Region string `json:"region,omitempty"`
@@ -322,7 +319,7 @@ type AddRemoteRDSNodeOKBodyRemoteRDS struct {
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 }
 
 // Validate validates this add remote RDS node OK body remote RDS

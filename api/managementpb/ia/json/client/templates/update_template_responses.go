@@ -155,9 +155,6 @@ swagger:model UpdateTemplateDefaultBody
 */
 type UpdateTemplateDefaultBody struct {
 
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 

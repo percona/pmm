@@ -125,13 +125,13 @@ swagger:model AzureDatabaseInstanceItems0
 type AzureDatabaseInstanceItems0 struct {
 
 	// Azure database instance ID.
-	InstanceID string `json:"instance_id,omitempty"`
+	InstanceID string `json:"instanceId,omitempty"`
 
 	// Azure database location.
 	Region string `json:"region,omitempty"`
 
 	// Azure database server name.
-	ServiceName string `json:"service_name,omitempty"`
+	ServiceName string `json:"serviceName,omitempty"`
 
 	// Database username.
 	Username string `json:"username,omitempty"`
@@ -140,7 +140,7 @@ type AzureDatabaseInstanceItems0 struct {
 	Address string `json:"address,omitempty"`
 
 	// Azure Resource group.
-	AzureResourceGroup string `json:"azure_resource_group,omitempty"`
+	AzureResourceGroup string `json:"azureResourceGroup,omitempty"`
 
 	// Environment tag.
 	Environment string `json:"environment,omitempty"`
@@ -157,7 +157,7 @@ type AzureDatabaseInstanceItems0 struct {
 
 	// Represents a purchasable Stock Keeping Unit (SKU) under a product.
 	// https://docs.microsoft.com/en-us/partner-center/develop/product-resources#sku.
-	NodeModel string `json:"node_model,omitempty"`
+	NodeModel string `json:"nodeModel,omitempty"`
 }
 
 // Validate validates this azure database instance items0
@@ -244,16 +244,16 @@ swagger:model DiscoverAzureDatabaseBody
 type DiscoverAzureDatabaseBody struct {
 
 	// Azure client ID.
-	AzureClientID string `json:"azure_client_id,omitempty"`
+	AzureClientID string `json:"azureClientId,omitempty"`
 
 	// Azure client secret.
-	AzureClientSecret string `json:"azure_client_secret,omitempty"`
+	AzureClientSecret string `json:"azureClientSecret,omitempty"`
 
 	// Azure tanant ID.
-	AzureTenantID string `json:"azure_tenant_id,omitempty"`
+	AzureTenantID string `json:"azureTenantId,omitempty"`
 
 	// Azure subscription ID.
-	AzureSubscriptionID string `json:"azure_subscription_id,omitempty"`
+	AzureSubscriptionID string `json:"azureSubscriptionId,omitempty"`
 }
 
 // Validate validates this discover azure database body
@@ -283,9 +283,6 @@ func (o *DiscoverAzureDatabaseBody) UnmarshalBinary(b []byte) error {
 swagger:model DiscoverAzureDatabaseDefaultBody
 */
 type DiscoverAzureDatabaseDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -360,7 +357,7 @@ swagger:model DiscoverAzureDatabaseOKBody
 type DiscoverAzureDatabaseOKBody struct {
 
 	// azure database instance
-	AzureDatabaseInstance []*AzureDatabaseInstanceItems0 `json:"azure_database_instance"`
+	AzureDatabaseInstance []*AzureDatabaseInstanceItems0 `json:"azureDatabaseInstance"`
 }
 
 // Validate validates this discover azure database OK body
@@ -391,7 +388,7 @@ func (o *DiscoverAzureDatabaseOKBody) validateAzureDatabaseInstance(formats strf
 		if o.AzureDatabaseInstance[i] != nil {
 			if err := o.AzureDatabaseInstance[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("discoverAzureDatabaseOk" + "." + "azure_database_instance" + "." + strconv.Itoa(i))
+					return ve.ValidateName("discoverAzureDatabaseOk" + "." + "azureDatabaseInstance" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

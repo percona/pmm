@@ -124,9 +124,6 @@ swagger:model GetSecurityCheckResultsDefaultBody
 */
 type GetSecurityCheckResultsDefaultBody struct {
 
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -279,10 +276,10 @@ type ResultsItems0 struct {
 	Labels map[string]string `json:"labels,omitempty"`
 
 	// URL containing information on how to resolve an issue detected by an STT check.
-	ReadMoreURL string `json:"read_more_url,omitempty"`
+	ReadMoreURL string `json:"readMoreUrl,omitempty"`
 
 	// Name of the monitored service on which the check ran.
-	ServiceName string `json:"service_name,omitempty"`
+	ServiceName string `json:"serviceName,omitempty"`
 }
 
 // Validate validates this results items0

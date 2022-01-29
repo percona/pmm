@@ -30,7 +30,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "page_params": {
+                "pageParams": {
                   "description": "PageParams represents page request parameters for pagination.",
                   "type": "object",
                   "properties": {
@@ -40,7 +40,7 @@
                       "format": "int32",
                       "x-order": 1
                     },
-                    "page_size": {
+                    "pageSize": {
                       "description": "Maximum number of results per page.",
                       "type": "integer",
                       "format": "int32",
@@ -65,12 +65,12 @@
                     "description": "Alert represents Alert.",
                     "type": "object",
                     "properties": {
-                      "alert_id": {
+                      "alertId": {
                         "description": "ID.",
                         "type": "string",
                         "x-order": 0
                       },
-                      "created_at": {
+                      "createdAt": {
                         "description": "Alert creation time.",
                         "type": "string",
                         "format": "date-time",
@@ -103,7 +103,7 @@
                               "description": "Channel represents a single Notification Channel.",
                               "type": "object",
                               "properties": {
-                                "channel_id": {
+                                "channelId": {
                                   "description": "Machine-readable ID.",
                                   "type": "string",
                                   "x-order": 0
@@ -113,11 +113,11 @@
                                   "type": "boolean",
                                   "x-order": 6
                                 },
-                                "email_config": {
+                                "emailConfig": {
                                   "description": "EmailConfig represents email configuration.",
                                   "type": "object",
                                   "properties": {
-                                    "send_resolved": {
+                                    "sendResolved": {
                                       "type": "boolean",
                                       "x-order": 0
                                     },
@@ -131,20 +131,20 @@
                                   },
                                   "x-order": 2
                                 },
-                                "pagerduty_config": {
+                                "pagerdutyConfig": {
                                   "description": "PagerDutyConfig represents PagerDuty configuration.",
                                   "type": "object",
                                   "properties": {
-                                    "routing_key": {
+                                    "routingKey": {
                                       "description": "The PagerDuty key for \"Events API v2\" integration type. Exactly one key should be set.",
                                       "type": "string",
                                       "x-order": 1
                                     },
-                                    "send_resolved": {
+                                    "sendResolved": {
                                       "type": "boolean",
                                       "x-order": 0
                                     },
-                                    "service_key": {
+                                    "serviceKey": {
                                       "description": "The PagerDuty key for \"Prometheus\" integration type. Exactly one key should be set.",
                                       "type": "string",
                                       "x-order": 2
@@ -152,7 +152,7 @@
                                   },
                                   "x-order": 3
                                 },
-                                "slack_config": {
+                                "slackConfig": {
                                   "description": "SlackConfig represents Slack configuration.",
                                   "type": "object",
                                   "properties": {
@@ -160,7 +160,7 @@
                                       "type": "string",
                                       "x-order": 1
                                     },
-                                    "send_resolved": {
+                                    "sendResolved": {
                                       "type": "boolean",
                                       "x-order": 0
                                     }
@@ -172,15 +172,15 @@
                                   "type": "string",
                                   "x-order": 1
                                 },
-                                "webhook_config": {
+                                "webhookConfig": {
                                   "description": "WebhookConfig represents webhook configuration.",
                                   "type": "object",
                                   "properties": {
-                                    "http_config": {
+                                    "httpConfig": {
                                       "description": "HTTPConfig represents HTTP client configuration.",
                                       "type": "object",
                                       "properties": {
-                                        "basic_auth": {
+                                        "basicAuth": {
                                           "description": "BasicAuth represents basic HTTP auth configuration.",
                                           "type": "object",
                                           "properties": {
@@ -188,7 +188,7 @@
                                               "type": "string",
                                               "x-order": 1
                                             },
-                                            "password_file": {
+                                            "passwordFile": {
                                               "type": "string",
                                               "x-order": 2
                                             },
@@ -199,58 +199,58 @@
                                           },
                                           "x-order": 0
                                         },
-                                        "bearer_token": {
+                                        "bearerToken": {
                                           "type": "string",
                                           "x-order": 1
                                         },
-                                        "bearer_token_file": {
+                                        "bearerTokenFile": {
                                           "type": "string",
                                           "x-order": 2
                                         },
-                                        "proxy_url": {
+                                        "proxyUrl": {
                                           "type": "string",
                                           "x-order": 4
                                         },
-                                        "tls_config": {
+                                        "tlsConfig": {
                                           "type": "object",
                                           "title": "TLSConfig represents TLS configuration for alertmanager\nhttps://prometheus.io/docs/alerting/latest/configuration/#tls_config",
                                           "properties": {
-                                            "ca_file": {
+                                            "caFile": {
                                               "description": "A path to the CA certificate file to validate the server certificate with.\nca_file and ca_file_content should not be set at the same time.",
                                               "type": "string",
                                               "x-order": 0
                                             },
-                                            "ca_file_content": {
+                                            "caFileContent": {
                                               "description": "CA certificate to validate the server certificate with.\nca_file and ca_file_content should not be set at the same time.",
                                               "type": "string",
                                               "x-order": 5
                                             },
-                                            "cert_file": {
+                                            "certFile": {
                                               "description": "A path to the certificate file for client cert authentication to the server.\ncert_file and cert_file_content should not be set at the same time.",
                                               "type": "string",
                                               "x-order": 1
                                             },
-                                            "cert_file_content": {
+                                            "certFileContent": {
                                               "description": "A certificate for client cert authentication to the server.\ncert_file and cert_file_content should not be set at the same time.",
                                               "type": "string",
                                               "x-order": 6
                                             },
-                                            "insecure_skip_verify": {
+                                            "insecureSkipVerify": {
                                               "description": "Disable validation of the server certificate.",
                                               "type": "boolean",
                                               "x-order": 4
                                             },
-                                            "key_file": {
+                                            "keyFile": {
                                               "description": "A path to the key file for client cert authentication to the server.\nkey_file and key_file_content should not be set at the same time.",
                                               "type": "string",
                                               "x-order": 2
                                             },
-                                            "key_file_content": {
+                                            "keyFileContent": {
                                               "description": "A key for client cert authentication to the server.\nkey_file and key_file_content should not be set at the same time.",
                                               "type": "string",
                                               "x-order": 7
                                             },
-                                            "server_name": {
+                                            "serverName": {
                                               "description": "Name of the server.",
                                               "type": "string",
                                               "x-order": 3
@@ -261,12 +261,12 @@
                                       },
                                       "x-order": 2
                                     },
-                                    "max_alerts": {
+                                    "maxAlerts": {
                                       "type": "integer",
                                       "format": "int32",
                                       "x-order": 3
                                     },
-                                    "send_resolved": {
+                                    "sendResolved": {
                                       "type": "boolean",
                                       "x-order": 0
                                     },
@@ -281,13 +281,13 @@
                             },
                             "x-order": 17
                           },
-                          "created_at": {
+                          "createdAt": {
                             "description": "Rule creation time.",
                             "type": "string",
                             "format": "date-time",
                             "x-order": 18
                           },
-                          "custom_labels": {
+                          "customLabels": {
                             "description": "Custom labels.",
                             "type": "object",
                             "additionalProperties": {
@@ -295,12 +295,12 @@
                             },
                             "x-order": 13
                           },
-                          "default_for": {
+                          "defaultFor": {
                             "description": "Default for duration.",
                             "type": "string",
                             "x-order": 9
                           },
-                          "default_severity": {
+                          "defaultSeverity": {
                             "description": "Severity represents severity level of the check result or alert.",
                             "type": "string",
                             "default": "SEVERITY_INVALID",
@@ -327,7 +327,7 @@
                             "type": "string",
                             "x-order": 6
                           },
-                          "expr_template": {
+                          "exprTemplate": {
                             "description": "Expression template.",
                             "type": "string",
                             "x-order": 5
@@ -380,7 +380,7 @@
                             "type": "string",
                             "x-order": 1
                           },
-                          "params_definitions": {
+                          "paramsDefinitions": {
                             "description": "Expression parameters definitions.",
                             "type": "array",
                             "items": {
@@ -415,17 +415,17 @@
                                       "format": "double",
                                       "x-order": 1
                                     },
-                                    "has_default": {
+                                    "hasDefault": {
                                       "description": "True if default value is set.",
                                       "type": "boolean",
                                       "x-order": 0
                                     },
-                                    "has_max": {
+                                    "hasMax": {
                                       "description": "True if maximal valid value is set.",
                                       "type": "boolean",
                                       "x-order": 4
                                     },
-                                    "has_min": {
+                                    "hasMin": {
                                       "description": "True if minimal valid value is set.",
                                       "type": "boolean",
                                       "x-order": 2
@@ -459,7 +459,7 @@
                                       "type": "string",
                                       "x-order": 1
                                     },
-                                    "has_default": {
+                                    "hasDefault": {
                                       "description": "True if default value is set.",
                                       "type": "boolean",
                                       "x-order": 0
@@ -499,7 +499,7 @@
                             },
                             "x-order": 7
                           },
-                          "params_values": {
+                          "paramsValues": {
                             "description": "Expression parameters values.",
                             "type": "array",
                             "items": {
@@ -543,7 +543,7 @@
                             },
                             "x-order": 8
                           },
-                          "rule_id": {
+                          "ruleId": {
                             "description": "Rule ID.",
                             "type": "string",
                             "x-order": 0
@@ -570,7 +570,7 @@
                             "type": "string",
                             "x-order": 2
                           },
-                          "template_name": {
+                          "templateName": {
                             "description": "Template used for this rule.",
                             "type": "string",
                             "x-order": 3
@@ -613,7 +613,7 @@
                         "type": "string",
                         "x-order": 1
                       },
-                      "updated_at": {
+                      "updatedAt": {
                         "description": "Alert last update time.",
                         "type": "string",
                         "format": "date-time",
@@ -627,13 +627,13 @@
                   "description": "PageTotals represents total values for pagination.",
                   "type": "object",
                   "properties": {
-                    "total_items": {
+                    "totalItems": {
                       "description": "Total number of results.",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 0
                     },
-                    "total_pages": {
+                    "totalPages": {
                       "description": "Total number of pages.",
                       "type": "integer",
                       "format": "int32",
@@ -653,7 +653,7 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
@@ -661,28 +661,18 @@
                     "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := ptypes.MarshalAny(foo)\n     ...\n     foo := \u0026pb.Foo{}\n     if err := ptypes.UnmarshalAny(any, foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
                     "type": "object",
                     "properties": {
-                      "type_url": {
-                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics.",
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "description": "Must be a valid serialized protocol buffer of the above specified type.",
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -706,12 +696,8 @@
             "schema": {
               "type": "object",
               "properties": {
-                "alert_ids": {
-                  "description": "List of alerts that silence state should be switched. If provided array is empty than all\nexisting alerts are switched.",
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  },
+                "alertId": {
+                  "type": "string",
                   "x-order": 0
                 },
                 "silenced": {
@@ -744,7 +730,7 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
@@ -752,28 +738,18 @@
                     "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := ptypes.MarshalAny(foo)\n     ...\n     foo := \u0026pb.Foo{}\n     if err := ptypes.UnmarshalAny(any, foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
                     "type": "object",
                     "properties": {
-                      "type_url": {
-                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics.",
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "description": "Must be a valid serialized protocol buffer of the above specified type.",
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -801,11 +777,11 @@
                   "type": "boolean",
                   "x-order": 5
                 },
-                "email_config": {
+                "emailConfig": {
                   "description": "EmailConfig represents email configuration.",
                   "type": "object",
                   "properties": {
-                    "send_resolved": {
+                    "sendResolved": {
                       "type": "boolean",
                       "x-order": 0
                     },
@@ -819,20 +795,20 @@
                   },
                   "x-order": 1
                 },
-                "pagerduty_config": {
+                "pagerdutyConfig": {
                   "description": "PagerDutyConfig represents PagerDuty configuration.",
                   "type": "object",
                   "properties": {
-                    "routing_key": {
+                    "routingKey": {
                       "description": "The PagerDuty key for \"Events API v2\" integration type. Exactly one key should be set.",
                       "type": "string",
                       "x-order": 1
                     },
-                    "send_resolved": {
+                    "sendResolved": {
                       "type": "boolean",
                       "x-order": 0
                     },
-                    "service_key": {
+                    "serviceKey": {
                       "description": "The PagerDuty key for \"Prometheus\" integration type. Exactly one key should be set.",
                       "type": "string",
                       "x-order": 2
@@ -840,7 +816,7 @@
                   },
                   "x-order": 2
                 },
-                "slack_config": {
+                "slackConfig": {
                   "description": "SlackConfig represents Slack configuration.",
                   "type": "object",
                   "properties": {
@@ -848,7 +824,7 @@
                       "type": "string",
                       "x-order": 1
                     },
-                    "send_resolved": {
+                    "sendResolved": {
                       "type": "boolean",
                       "x-order": 0
                     }
@@ -860,15 +836,15 @@
                   "type": "string",
                   "x-order": 0
                 },
-                "webhook_config": {
+                "webhookConfig": {
                   "description": "WebhookConfig represents webhook configuration.",
                   "type": "object",
                   "properties": {
-                    "http_config": {
+                    "httpConfig": {
                       "description": "HTTPConfig represents HTTP client configuration.",
                       "type": "object",
                       "properties": {
-                        "basic_auth": {
+                        "basicAuth": {
                           "description": "BasicAuth represents basic HTTP auth configuration.",
                           "type": "object",
                           "properties": {
@@ -876,7 +852,7 @@
                               "type": "string",
                               "x-order": 1
                             },
-                            "password_file": {
+                            "passwordFile": {
                               "type": "string",
                               "x-order": 2
                             },
@@ -887,58 +863,58 @@
                           },
                           "x-order": 0
                         },
-                        "bearer_token": {
+                        "bearerToken": {
                           "type": "string",
                           "x-order": 1
                         },
-                        "bearer_token_file": {
+                        "bearerTokenFile": {
                           "type": "string",
                           "x-order": 2
                         },
-                        "proxy_url": {
+                        "proxyUrl": {
                           "type": "string",
                           "x-order": 4
                         },
-                        "tls_config": {
+                        "tlsConfig": {
                           "type": "object",
                           "title": "TLSConfig represents TLS configuration for alertmanager\nhttps://prometheus.io/docs/alerting/latest/configuration/#tls_config",
                           "properties": {
-                            "ca_file": {
+                            "caFile": {
                               "description": "A path to the CA certificate file to validate the server certificate with.\nca_file and ca_file_content should not be set at the same time.",
                               "type": "string",
                               "x-order": 0
                             },
-                            "ca_file_content": {
+                            "caFileContent": {
                               "description": "CA certificate to validate the server certificate with.\nca_file and ca_file_content should not be set at the same time.",
                               "type": "string",
                               "x-order": 5
                             },
-                            "cert_file": {
+                            "certFile": {
                               "description": "A path to the certificate file for client cert authentication to the server.\ncert_file and cert_file_content should not be set at the same time.",
                               "type": "string",
                               "x-order": 1
                             },
-                            "cert_file_content": {
+                            "certFileContent": {
                               "description": "A certificate for client cert authentication to the server.\ncert_file and cert_file_content should not be set at the same time.",
                               "type": "string",
                               "x-order": 6
                             },
-                            "insecure_skip_verify": {
+                            "insecureSkipVerify": {
                               "description": "Disable validation of the server certificate.",
                               "type": "boolean",
                               "x-order": 4
                             },
-                            "key_file": {
+                            "keyFile": {
                               "description": "A path to the key file for client cert authentication to the server.\nkey_file and key_file_content should not be set at the same time.",
                               "type": "string",
                               "x-order": 2
                             },
-                            "key_file_content": {
+                            "keyFileContent": {
                               "description": "A key for client cert authentication to the server.\nkey_file and key_file_content should not be set at the same time.",
                               "type": "string",
                               "x-order": 7
                             },
-                            "server_name": {
+                            "serverName": {
                               "description": "Name of the server.",
                               "type": "string",
                               "x-order": 3
@@ -949,12 +925,12 @@
                       },
                       "x-order": 2
                     },
-                    "max_alerts": {
+                    "maxAlerts": {
                       "type": "integer",
                       "format": "int32",
                       "x-order": 3
                     },
-                    "send_resolved": {
+                    "sendResolved": {
                       "type": "boolean",
                       "x-order": 0
                     },
@@ -975,7 +951,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "channel_id": {
+                "channelId": {
                   "description": "Machine-readable ID.",
                   "type": "string",
                   "x-order": 0
@@ -991,7 +967,7 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
@@ -999,28 +975,18 @@
                     "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := ptypes.MarshalAny(foo)\n     ...\n     foo := \u0026pb.Foo{}\n     if err := ptypes.UnmarshalAny(any, foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
                     "type": "object",
                     "properties": {
-                      "type_url": {
-                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics.",
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "description": "Must be a valid serialized protocol buffer of the above specified type.",
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -1043,7 +1009,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "channel_id": {
+                "channelId": {
                   "description": "Machine-readable ID.",
                   "type": "string",
                   "x-order": 0
@@ -1053,11 +1019,11 @@
                   "type": "boolean",
                   "x-order": 6
                 },
-                "email_config": {
+                "emailConfig": {
                   "description": "EmailConfig represents email configuration.",
                   "type": "object",
                   "properties": {
-                    "send_resolved": {
+                    "sendResolved": {
                       "type": "boolean",
                       "x-order": 0
                     },
@@ -1071,20 +1037,20 @@
                   },
                   "x-order": 2
                 },
-                "pagerduty_config": {
+                "pagerdutyConfig": {
                   "description": "PagerDutyConfig represents PagerDuty configuration.",
                   "type": "object",
                   "properties": {
-                    "routing_key": {
+                    "routingKey": {
                       "description": "The PagerDuty key for \"Events API v2\" integration type. Exactly one key should be set.",
                       "type": "string",
                       "x-order": 1
                     },
-                    "send_resolved": {
+                    "sendResolved": {
                       "type": "boolean",
                       "x-order": 0
                     },
-                    "service_key": {
+                    "serviceKey": {
                       "description": "The PagerDuty key for \"Prometheus\" integration type. Exactly one key should be set.",
                       "type": "string",
                       "x-order": 2
@@ -1092,7 +1058,7 @@
                   },
                   "x-order": 3
                 },
-                "slack_config": {
+                "slackConfig": {
                   "description": "SlackConfig represents Slack configuration.",
                   "type": "object",
                   "properties": {
@@ -1100,7 +1066,7 @@
                       "type": "string",
                       "x-order": 1
                     },
-                    "send_resolved": {
+                    "sendResolved": {
                       "type": "boolean",
                       "x-order": 0
                     }
@@ -1112,15 +1078,15 @@
                   "type": "string",
                   "x-order": 1
                 },
-                "webhook_config": {
+                "webhookConfig": {
                   "description": "WebhookConfig represents webhook configuration.",
                   "type": "object",
                   "properties": {
-                    "http_config": {
+                    "httpConfig": {
                       "description": "HTTPConfig represents HTTP client configuration.",
                       "type": "object",
                       "properties": {
-                        "basic_auth": {
+                        "basicAuth": {
                           "description": "BasicAuth represents basic HTTP auth configuration.",
                           "type": "object",
                           "properties": {
@@ -1128,7 +1094,7 @@
                               "type": "string",
                               "x-order": 1
                             },
-                            "password_file": {
+                            "passwordFile": {
                               "type": "string",
                               "x-order": 2
                             },
@@ -1139,58 +1105,58 @@
                           },
                           "x-order": 0
                         },
-                        "bearer_token": {
+                        "bearerToken": {
                           "type": "string",
                           "x-order": 1
                         },
-                        "bearer_token_file": {
+                        "bearerTokenFile": {
                           "type": "string",
                           "x-order": 2
                         },
-                        "proxy_url": {
+                        "proxyUrl": {
                           "type": "string",
                           "x-order": 4
                         },
-                        "tls_config": {
+                        "tlsConfig": {
                           "type": "object",
                           "title": "TLSConfig represents TLS configuration for alertmanager\nhttps://prometheus.io/docs/alerting/latest/configuration/#tls_config",
                           "properties": {
-                            "ca_file": {
+                            "caFile": {
                               "description": "A path to the CA certificate file to validate the server certificate with.\nca_file and ca_file_content should not be set at the same time.",
                               "type": "string",
                               "x-order": 0
                             },
-                            "ca_file_content": {
+                            "caFileContent": {
                               "description": "CA certificate to validate the server certificate with.\nca_file and ca_file_content should not be set at the same time.",
                               "type": "string",
                               "x-order": 5
                             },
-                            "cert_file": {
+                            "certFile": {
                               "description": "A path to the certificate file for client cert authentication to the server.\ncert_file and cert_file_content should not be set at the same time.",
                               "type": "string",
                               "x-order": 1
                             },
-                            "cert_file_content": {
+                            "certFileContent": {
                               "description": "A certificate for client cert authentication to the server.\ncert_file and cert_file_content should not be set at the same time.",
                               "type": "string",
                               "x-order": 6
                             },
-                            "insecure_skip_verify": {
+                            "insecureSkipVerify": {
                               "description": "Disable validation of the server certificate.",
                               "type": "boolean",
                               "x-order": 4
                             },
-                            "key_file": {
+                            "keyFile": {
                               "description": "A path to the key file for client cert authentication to the server.\nkey_file and key_file_content should not be set at the same time.",
                               "type": "string",
                               "x-order": 2
                             },
-                            "key_file_content": {
+                            "keyFileContent": {
                               "description": "A key for client cert authentication to the server.\nkey_file and key_file_content should not be set at the same time.",
                               "type": "string",
                               "x-order": 7
                             },
-                            "server_name": {
+                            "serverName": {
                               "description": "Name of the server.",
                               "type": "string",
                               "x-order": 3
@@ -1201,12 +1167,12 @@
                       },
                       "x-order": 2
                     },
-                    "max_alerts": {
+                    "maxAlerts": {
                       "type": "integer",
                       "format": "int32",
                       "x-order": 3
                     },
-                    "send_resolved": {
+                    "sendResolved": {
                       "type": "boolean",
                       "x-order": 0
                     },
@@ -1236,7 +1202,7 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
@@ -1244,28 +1210,18 @@
                     "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := ptypes.MarshalAny(foo)\n     ...\n     foo := \u0026pb.Foo{}\n     if err := ptypes.UnmarshalAny(any, foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
                     "type": "object",
                     "properties": {
-                      "type_url": {
-                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics.",
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "description": "Must be a valid serialized protocol buffer of the above specified type.",
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -1288,7 +1244,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "page_params": {
+                "pageParams": {
                   "description": "PageParams represents page request parameters for pagination.",
                   "type": "object",
                   "properties": {
@@ -1298,7 +1254,7 @@
                       "format": "int32",
                       "x-order": 1
                     },
-                    "page_size": {
+                    "pageSize": {
                       "description": "Maximum number of results per page.",
                       "type": "integer",
                       "format": "int32",
@@ -1323,7 +1279,7 @@
                     "description": "Channel represents a single Notification Channel.",
                     "type": "object",
                     "properties": {
-                      "channel_id": {
+                      "channelId": {
                         "description": "Machine-readable ID.",
                         "type": "string",
                         "x-order": 0
@@ -1333,11 +1289,11 @@
                         "type": "boolean",
                         "x-order": 6
                       },
-                      "email_config": {
+                      "emailConfig": {
                         "description": "EmailConfig represents email configuration.",
                         "type": "object",
                         "properties": {
-                          "send_resolved": {
+                          "sendResolved": {
                             "type": "boolean",
                             "x-order": 0
                           },
@@ -1351,20 +1307,20 @@
                         },
                         "x-order": 2
                       },
-                      "pagerduty_config": {
+                      "pagerdutyConfig": {
                         "description": "PagerDutyConfig represents PagerDuty configuration.",
                         "type": "object",
                         "properties": {
-                          "routing_key": {
+                          "routingKey": {
                             "description": "The PagerDuty key for \"Events API v2\" integration type. Exactly one key should be set.",
                             "type": "string",
                             "x-order": 1
                           },
-                          "send_resolved": {
+                          "sendResolved": {
                             "type": "boolean",
                             "x-order": 0
                           },
-                          "service_key": {
+                          "serviceKey": {
                             "description": "The PagerDuty key for \"Prometheus\" integration type. Exactly one key should be set.",
                             "type": "string",
                             "x-order": 2
@@ -1372,7 +1328,7 @@
                         },
                         "x-order": 3
                       },
-                      "slack_config": {
+                      "slackConfig": {
                         "description": "SlackConfig represents Slack configuration.",
                         "type": "object",
                         "properties": {
@@ -1380,7 +1336,7 @@
                             "type": "string",
                             "x-order": 1
                           },
-                          "send_resolved": {
+                          "sendResolved": {
                             "type": "boolean",
                             "x-order": 0
                           }
@@ -1392,15 +1348,15 @@
                         "type": "string",
                         "x-order": 1
                       },
-                      "webhook_config": {
+                      "webhookConfig": {
                         "description": "WebhookConfig represents webhook configuration.",
                         "type": "object",
                         "properties": {
-                          "http_config": {
+                          "httpConfig": {
                             "description": "HTTPConfig represents HTTP client configuration.",
                             "type": "object",
                             "properties": {
-                              "basic_auth": {
+                              "basicAuth": {
                                 "description": "BasicAuth represents basic HTTP auth configuration.",
                                 "type": "object",
                                 "properties": {
@@ -1408,7 +1364,7 @@
                                     "type": "string",
                                     "x-order": 1
                                   },
-                                  "password_file": {
+                                  "passwordFile": {
                                     "type": "string",
                                     "x-order": 2
                                   },
@@ -1419,58 +1375,58 @@
                                 },
                                 "x-order": 0
                               },
-                              "bearer_token": {
+                              "bearerToken": {
                                 "type": "string",
                                 "x-order": 1
                               },
-                              "bearer_token_file": {
+                              "bearerTokenFile": {
                                 "type": "string",
                                 "x-order": 2
                               },
-                              "proxy_url": {
+                              "proxyUrl": {
                                 "type": "string",
                                 "x-order": 4
                               },
-                              "tls_config": {
+                              "tlsConfig": {
                                 "type": "object",
                                 "title": "TLSConfig represents TLS configuration for alertmanager\nhttps://prometheus.io/docs/alerting/latest/configuration/#tls_config",
                                 "properties": {
-                                  "ca_file": {
+                                  "caFile": {
                                     "description": "A path to the CA certificate file to validate the server certificate with.\nca_file and ca_file_content should not be set at the same time.",
                                     "type": "string",
                                     "x-order": 0
                                   },
-                                  "ca_file_content": {
+                                  "caFileContent": {
                                     "description": "CA certificate to validate the server certificate with.\nca_file and ca_file_content should not be set at the same time.",
                                     "type": "string",
                                     "x-order": 5
                                   },
-                                  "cert_file": {
+                                  "certFile": {
                                     "description": "A path to the certificate file for client cert authentication to the server.\ncert_file and cert_file_content should not be set at the same time.",
                                     "type": "string",
                                     "x-order": 1
                                   },
-                                  "cert_file_content": {
+                                  "certFileContent": {
                                     "description": "A certificate for client cert authentication to the server.\ncert_file and cert_file_content should not be set at the same time.",
                                     "type": "string",
                                     "x-order": 6
                                   },
-                                  "insecure_skip_verify": {
+                                  "insecureSkipVerify": {
                                     "description": "Disable validation of the server certificate.",
                                     "type": "boolean",
                                     "x-order": 4
                                   },
-                                  "key_file": {
+                                  "keyFile": {
                                     "description": "A path to the key file for client cert authentication to the server.\nkey_file and key_file_content should not be set at the same time.",
                                     "type": "string",
                                     "x-order": 2
                                   },
-                                  "key_file_content": {
+                                  "keyFileContent": {
                                     "description": "A key for client cert authentication to the server.\nkey_file and key_file_content should not be set at the same time.",
                                     "type": "string",
                                     "x-order": 7
                                   },
-                                  "server_name": {
+                                  "serverName": {
                                     "description": "Name of the server.",
                                     "type": "string",
                                     "x-order": 3
@@ -1481,12 +1437,12 @@
                             },
                             "x-order": 2
                           },
-                          "max_alerts": {
+                          "maxAlerts": {
                             "type": "integer",
                             "format": "int32",
                             "x-order": 3
                           },
-                          "send_resolved": {
+                          "sendResolved": {
                             "type": "boolean",
                             "x-order": 0
                           },
@@ -1505,13 +1461,13 @@
                   "description": "PageTotals represents total values for pagination.",
                   "type": "object",
                   "properties": {
-                    "total_items": {
+                    "totalItems": {
                       "description": "Total number of results.",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 0
                     },
-                    "total_pages": {
+                    "totalPages": {
                       "description": "Total number of pages.",
                       "type": "integer",
                       "format": "int32",
@@ -1531,7 +1487,7 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
@@ -1539,28 +1495,18 @@
                     "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := ptypes.MarshalAny(foo)\n     ...\n     foo := \u0026pb.Foo{}\n     if err := ptypes.UnmarshalAny(any, foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
                     "type": "object",
                     "properties": {
-                      "type_url": {
-                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics.",
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "description": "Must be a valid serialized protocol buffer of the above specified type.",
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -1583,7 +1529,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "channel_id": {
+                "channelId": {
                   "type": "string",
                   "x-order": 0
                 }
@@ -1606,7 +1552,7 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
@@ -1614,28 +1560,18 @@
                     "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := ptypes.MarshalAny(foo)\n     ...\n     foo := \u0026pb.Foo{}\n     if err := ptypes.UnmarshalAny(any, foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
                     "type": "object",
                     "properties": {
-                      "type_url": {
-                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics.",
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "description": "Must be a valid serialized protocol buffer of the above specified type.",
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -1658,7 +1594,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "channel_ids": {
+                "channelIds": {
                   "description": "Channels. Should be set.",
                   "type": "array",
                   "items": {
@@ -1666,7 +1602,7 @@
                   },
                   "x-order": 9
                 },
-                "custom_labels": {
+                "customLabels": {
                   "description": "All custom labels to add or remove (with empty values) to default labels from template.",
                   "type": "object",
                   "additionalProperties": {
@@ -1780,12 +1716,12 @@
                   ],
                   "x-order": 6
                 },
-                "source_rule_id": {
+                "sourceRuleId": {
                   "description": "ID of the rule that will be used as source. Can't be specified simultaneously with template_name.",
                   "type": "string",
                   "x-order": 1
                 },
-                "template_name": {
+                "templateName": {
                   "description": "Template name. Can't be specified simultaneously with source_rule_id.",
                   "type": "string",
                   "x-order": 0
@@ -1800,7 +1736,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "rule_id": {
+                "ruleId": {
                   "description": "Rule ID.",
                   "type": "string",
                   "x-order": 0
@@ -1816,7 +1752,7 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
@@ -1824,28 +1760,18 @@
                     "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := ptypes.MarshalAny(foo)\n     ...\n     foo := \u0026pb.Foo{}\n     if err := ptypes.UnmarshalAny(any, foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
                     "type": "object",
                     "properties": {
-                      "type_url": {
-                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics.",
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "description": "Must be a valid serialized protocol buffer of the above specified type.",
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -1868,7 +1794,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "rule_id": {
+                "ruleId": {
                   "description": "Rule ID.",
                   "type": "string",
                   "x-order": 0
@@ -1892,7 +1818,7 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
@@ -1900,28 +1826,18 @@
                     "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := ptypes.MarshalAny(foo)\n     ...\n     foo := \u0026pb.Foo{}\n     if err := ptypes.UnmarshalAny(any, foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
                     "type": "object",
                     "properties": {
-                      "type_url": {
-                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics.",
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "description": "Must be a valid serialized protocol buffer of the above specified type.",
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -1944,7 +1860,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "page_params": {
+                "pageParams": {
                   "description": "PageParams represents page request parameters for pagination.",
                   "type": "object",
                   "properties": {
@@ -1954,7 +1870,7 @@
                       "format": "int32",
                       "x-order": 1
                     },
-                    "page_size": {
+                    "pageSize": {
                       "description": "Maximum number of results per page.",
                       "type": "integer",
                       "format": "int32",
@@ -1994,7 +1910,7 @@
                           "description": "Channel represents a single Notification Channel.",
                           "type": "object",
                           "properties": {
-                            "channel_id": {
+                            "channelId": {
                               "description": "Machine-readable ID.",
                               "type": "string",
                               "x-order": 0
@@ -2004,11 +1920,11 @@
                               "type": "boolean",
                               "x-order": 6
                             },
-                            "email_config": {
+                            "emailConfig": {
                               "description": "EmailConfig represents email configuration.",
                               "type": "object",
                               "properties": {
-                                "send_resolved": {
+                                "sendResolved": {
                                   "type": "boolean",
                                   "x-order": 0
                                 },
@@ -2022,20 +1938,20 @@
                               },
                               "x-order": 2
                             },
-                            "pagerduty_config": {
+                            "pagerdutyConfig": {
                               "description": "PagerDutyConfig represents PagerDuty configuration.",
                               "type": "object",
                               "properties": {
-                                "routing_key": {
+                                "routingKey": {
                                   "description": "The PagerDuty key for \"Events API v2\" integration type. Exactly one key should be set.",
                                   "type": "string",
                                   "x-order": 1
                                 },
-                                "send_resolved": {
+                                "sendResolved": {
                                   "type": "boolean",
                                   "x-order": 0
                                 },
-                                "service_key": {
+                                "serviceKey": {
                                   "description": "The PagerDuty key for \"Prometheus\" integration type. Exactly one key should be set.",
                                   "type": "string",
                                   "x-order": 2
@@ -2043,7 +1959,7 @@
                               },
                               "x-order": 3
                             },
-                            "slack_config": {
+                            "slackConfig": {
                               "description": "SlackConfig represents Slack configuration.",
                               "type": "object",
                               "properties": {
@@ -2051,7 +1967,7 @@
                                   "type": "string",
                                   "x-order": 1
                                 },
-                                "send_resolved": {
+                                "sendResolved": {
                                   "type": "boolean",
                                   "x-order": 0
                                 }
@@ -2063,15 +1979,15 @@
                               "type": "string",
                               "x-order": 1
                             },
-                            "webhook_config": {
+                            "webhookConfig": {
                               "description": "WebhookConfig represents webhook configuration.",
                               "type": "object",
                               "properties": {
-                                "http_config": {
+                                "httpConfig": {
                                   "description": "HTTPConfig represents HTTP client configuration.",
                                   "type": "object",
                                   "properties": {
-                                    "basic_auth": {
+                                    "basicAuth": {
                                       "description": "BasicAuth represents basic HTTP auth configuration.",
                                       "type": "object",
                                       "properties": {
@@ -2079,7 +1995,7 @@
                                           "type": "string",
                                           "x-order": 1
                                         },
-                                        "password_file": {
+                                        "passwordFile": {
                                           "type": "string",
                                           "x-order": 2
                                         },
@@ -2090,58 +2006,58 @@
                                       },
                                       "x-order": 0
                                     },
-                                    "bearer_token": {
+                                    "bearerToken": {
                                       "type": "string",
                                       "x-order": 1
                                     },
-                                    "bearer_token_file": {
+                                    "bearerTokenFile": {
                                       "type": "string",
                                       "x-order": 2
                                     },
-                                    "proxy_url": {
+                                    "proxyUrl": {
                                       "type": "string",
                                       "x-order": 4
                                     },
-                                    "tls_config": {
+                                    "tlsConfig": {
                                       "type": "object",
                                       "title": "TLSConfig represents TLS configuration for alertmanager\nhttps://prometheus.io/docs/alerting/latest/configuration/#tls_config",
                                       "properties": {
-                                        "ca_file": {
+                                        "caFile": {
                                           "description": "A path to the CA certificate file to validate the server certificate with.\nca_file and ca_file_content should not be set at the same time.",
                                           "type": "string",
                                           "x-order": 0
                                         },
-                                        "ca_file_content": {
+                                        "caFileContent": {
                                           "description": "CA certificate to validate the server certificate with.\nca_file and ca_file_content should not be set at the same time.",
                                           "type": "string",
                                           "x-order": 5
                                         },
-                                        "cert_file": {
+                                        "certFile": {
                                           "description": "A path to the certificate file for client cert authentication to the server.\ncert_file and cert_file_content should not be set at the same time.",
                                           "type": "string",
                                           "x-order": 1
                                         },
-                                        "cert_file_content": {
+                                        "certFileContent": {
                                           "description": "A certificate for client cert authentication to the server.\ncert_file and cert_file_content should not be set at the same time.",
                                           "type": "string",
                                           "x-order": 6
                                         },
-                                        "insecure_skip_verify": {
+                                        "insecureSkipVerify": {
                                           "description": "Disable validation of the server certificate.",
                                           "type": "boolean",
                                           "x-order": 4
                                         },
-                                        "key_file": {
+                                        "keyFile": {
                                           "description": "A path to the key file for client cert authentication to the server.\nkey_file and key_file_content should not be set at the same time.",
                                           "type": "string",
                                           "x-order": 2
                                         },
-                                        "key_file_content": {
+                                        "keyFileContent": {
                                           "description": "A key for client cert authentication to the server.\nkey_file and key_file_content should not be set at the same time.",
                                           "type": "string",
                                           "x-order": 7
                                         },
-                                        "server_name": {
+                                        "serverName": {
                                           "description": "Name of the server.",
                                           "type": "string",
                                           "x-order": 3
@@ -2152,12 +2068,12 @@
                                   },
                                   "x-order": 2
                                 },
-                                "max_alerts": {
+                                "maxAlerts": {
                                   "type": "integer",
                                   "format": "int32",
                                   "x-order": 3
                                 },
-                                "send_resolved": {
+                                "sendResolved": {
                                   "type": "boolean",
                                   "x-order": 0
                                 },
@@ -2172,13 +2088,13 @@
                         },
                         "x-order": 17
                       },
-                      "created_at": {
+                      "createdAt": {
                         "description": "Rule creation time.",
                         "type": "string",
                         "format": "date-time",
                         "x-order": 18
                       },
-                      "custom_labels": {
+                      "customLabels": {
                         "description": "Custom labels.",
                         "type": "object",
                         "additionalProperties": {
@@ -2186,12 +2102,12 @@
                         },
                         "x-order": 13
                       },
-                      "default_for": {
+                      "defaultFor": {
                         "description": "Default for duration.",
                         "type": "string",
                         "x-order": 9
                       },
-                      "default_severity": {
+                      "defaultSeverity": {
                         "description": "Severity represents severity level of the check result or alert.",
                         "type": "string",
                         "default": "SEVERITY_INVALID",
@@ -2218,7 +2134,7 @@
                         "type": "string",
                         "x-order": 6
                       },
-                      "expr_template": {
+                      "exprTemplate": {
                         "description": "Expression template.",
                         "type": "string",
                         "x-order": 5
@@ -2271,7 +2187,7 @@
                         "type": "string",
                         "x-order": 1
                       },
-                      "params_definitions": {
+                      "paramsDefinitions": {
                         "description": "Expression parameters definitions.",
                         "type": "array",
                         "items": {
@@ -2306,17 +2222,17 @@
                                   "format": "double",
                                   "x-order": 1
                                 },
-                                "has_default": {
+                                "hasDefault": {
                                   "description": "True if default value is set.",
                                   "type": "boolean",
                                   "x-order": 0
                                 },
-                                "has_max": {
+                                "hasMax": {
                                   "description": "True if maximal valid value is set.",
                                   "type": "boolean",
                                   "x-order": 4
                                 },
-                                "has_min": {
+                                "hasMin": {
                                   "description": "True if minimal valid value is set.",
                                   "type": "boolean",
                                   "x-order": 2
@@ -2350,7 +2266,7 @@
                                   "type": "string",
                                   "x-order": 1
                                 },
-                                "has_default": {
+                                "hasDefault": {
                                   "description": "True if default value is set.",
                                   "type": "boolean",
                                   "x-order": 0
@@ -2390,7 +2306,7 @@
                         },
                         "x-order": 7
                       },
-                      "params_values": {
+                      "paramsValues": {
                         "description": "Expression parameters values.",
                         "type": "array",
                         "items": {
@@ -2434,7 +2350,7 @@
                         },
                         "x-order": 8
                       },
-                      "rule_id": {
+                      "ruleId": {
                         "description": "Rule ID.",
                         "type": "string",
                         "x-order": 0
@@ -2461,7 +2377,7 @@
                         "type": "string",
                         "x-order": 2
                       },
-                      "template_name": {
+                      "templateName": {
                         "description": "Template used for this rule.",
                         "type": "string",
                         "x-order": 3
@@ -2474,13 +2390,13 @@
                   "description": "PageTotals represents total values for pagination.",
                   "type": "object",
                   "properties": {
-                    "total_items": {
+                    "totalItems": {
                       "description": "Total number of results.",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 0
                     },
-                    "total_pages": {
+                    "totalPages": {
                       "description": "Total number of pages.",
                       "type": "integer",
                       "format": "int32",
@@ -2500,7 +2416,7 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
@@ -2508,28 +2424,18 @@
                     "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := ptypes.MarshalAny(foo)\n     ...\n     foo := \u0026pb.Foo{}\n     if err := ptypes.UnmarshalAny(any, foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
                     "type": "object",
                     "properties": {
-                      "type_url": {
-                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics.",
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "description": "Must be a valid serialized protocol buffer of the above specified type.",
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -2563,7 +2469,7 @@
                   ],
                   "x-order": 1
                 },
-                "rule_id": {
+                "ruleId": {
                   "description": "Rule ID.",
                   "type": "string",
                   "x-order": 0
@@ -2587,7 +2493,7 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
@@ -2595,28 +2501,18 @@
                     "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := ptypes.MarshalAny(foo)\n     ...\n     foo := \u0026pb.Foo{}\n     if err := ptypes.UnmarshalAny(any, foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
                     "type": "object",
                     "properties": {
-                      "type_url": {
-                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics.",
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "description": "Must be a valid serialized protocol buffer of the above specified type.",
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -2639,7 +2535,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "channel_ids": {
+                "channelIds": {
                   "description": "Channels. Should be set.",
                   "type": "array",
                   "items": {
@@ -2647,7 +2543,7 @@
                   },
                   "x-order": 8
                 },
-                "custom_labels": {
+                "customLabels": {
                   "description": "All custom labels to add or remove (with empty values) to default labels from template.",
                   "type": "object",
                   "additionalProperties": {
@@ -2744,7 +2640,7 @@
                   },
                   "x-order": 3
                 },
-                "rule_id": {
+                "ruleId": {
                   "description": "Rule ID.",
                   "type": "string",
                   "x-order": 0
@@ -2785,7 +2681,7 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
@@ -2793,28 +2689,18 @@
                     "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := ptypes.MarshalAny(foo)\n     ...\n     foo := \u0026pb.Foo{}\n     if err := ptypes.UnmarshalAny(any, foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
                     "type": "object",
                     "properties": {
-                      "type_url": {
-                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics.",
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "description": "Must be a valid serialized protocol buffer of the above specified type.",
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -2861,7 +2747,7 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
@@ -2869,28 +2755,18 @@
                     "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := ptypes.MarshalAny(foo)\n     ...\n     foo := \u0026pb.Foo{}\n     if err := ptypes.UnmarshalAny(any, foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
                     "type": "object",
                     "properties": {
-                      "type_url": {
-                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics.",
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "description": "Must be a valid serialized protocol buffer of the above specified type.",
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -2936,7 +2812,7 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
@@ -2944,28 +2820,18 @@
                     "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := ptypes.MarshalAny(foo)\n     ...\n     foo := \u0026pb.Foo{}\n     if err := ptypes.UnmarshalAny(any, foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
                     "type": "object",
                     "properties": {
-                      "type_url": {
-                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics.",
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "description": "Must be a valid serialized protocol buffer of the above specified type.",
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -2988,7 +2854,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "page_params": {
+                "pageParams": {
                   "description": "PageParams represents page request parameters for pagination.",
                   "type": "object",
                   "properties": {
@@ -2998,7 +2864,7 @@
                       "format": "int32",
                       "x-order": 1
                     },
-                    "page_size": {
+                    "pageSize": {
                       "description": "Maximum number of results per page.",
                       "type": "integer",
                       "format": "int32",
@@ -3036,7 +2902,7 @@
                         },
                         "x-order": 7
                       },
-                      "created_at": {
+                      "createdAt": {
                         "description": "Template creation time. Empty for built-in and SaaS templates.",
                         "type": "string",
                         "format": "date-time",
@@ -3100,17 +2966,17 @@
                                   "format": "double",
                                   "x-order": 1
                                 },
-                                "has_default": {
+                                "hasDefault": {
                                   "description": "True if default value is set.",
                                   "type": "boolean",
                                   "x-order": 0
                                 },
-                                "has_max": {
+                                "hasMax": {
                                   "description": "True if maximal valid value is set.",
                                   "type": "boolean",
                                   "x-order": 4
                                 },
-                                "has_min": {
+                                "hasMin": {
                                   "description": "True if minimal valid value is set.",
                                   "type": "boolean",
                                   "x-order": 2
@@ -3144,7 +3010,7 @@
                                   "type": "string",
                                   "x-order": 1
                                 },
-                                "has_default": {
+                                "hasDefault": {
                                   "description": "True if default value is set.",
                                   "type": "boolean",
                                   "x-order": 0
@@ -3232,13 +3098,13 @@
                   "description": "PageTotals represents total values for pagination.",
                   "type": "object",
                   "properties": {
-                    "total_items": {
+                    "totalItems": {
                       "description": "Total number of results.",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 0
                     },
-                    "total_pages": {
+                    "totalPages": {
                       "description": "Total number of pages.",
                       "type": "integer",
                       "format": "int32",
@@ -3258,7 +3124,7 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
@@ -3266,28 +3132,18 @@
                     "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := ptypes.MarshalAny(foo)\n     ...\n     foo := \u0026pb.Foo{}\n     if err := ptypes.UnmarshalAny(any, foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
                     "type": "object",
                     "properties": {
-                      "type_url": {
-                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics.",
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "description": "Must be a valid serialized protocol buffer of the above specified type.",
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -3339,7 +3195,7 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
@@ -3347,28 +3203,18 @@
                     "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := ptypes.MarshalAny(foo)\n     ...\n     foo := \u0026pb.Foo{}\n     if err := ptypes.UnmarshalAny(any, foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
                     "type": "object",
                     "properties": {
-                      "type_url": {
-                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics.",
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "description": "Must be a valid serialized protocol buffer of the above specified type.",
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -3376,5 +3222,19 @@
         }
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "name": "Alerts"
+    },
+    {
+      "name": "Channels"
+    },
+    {
+      "name": "Rules"
+    },
+    {
+      "name": "Templates"
+    }
+  ]
 }

@@ -125,37 +125,37 @@ swagger:model AddAzureDatabaseExporterBody
 type AddAzureDatabaseExporterBody struct {
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+	PMMAgentID string `json:"pmmAgentId,omitempty"`
 
 	// Node identifier.
-	NodeID string `json:"node_id,omitempty"`
+	NodeID string `json:"nodeId,omitempty"`
 
 	// Azure client ID
-	AzureClientID string `json:"azure_client_id,omitempty"`
+	AzureClientID string `json:"azureClientId,omitempty"`
 
 	// Azure client secret
-	AzureClientSecret string `json:"azure_client_secret,omitempty"`
+	AzureClientSecret string `json:"azureClientSecret,omitempty"`
 
 	// Azure tanant ID
-	AzureTenantID string `json:"azure_tenant_id,omitempty"`
+	AzureTenantID string `json:"azureTenantId,omitempty"`
 
 	// Azure subscription ID
-	AzureSubscriptionID string `json:"azure_subscription_id,omitempty"`
+	AzureSubscriptionID string `json:"azureSubscriptionId,omitempty"`
 
 	// Azure resource group.
-	AzureResourceGroup string `json:"azure_resource_group,omitempty"`
+	AzureResourceGroup string `json:"azureResourceGroup,omitempty"`
 
 	// Azure resource type (mysql, maria, postgres)
-	AzureDatabaseResourceType string `json:"azure_database_resource_type,omitempty"`
+	AzureDatabaseResourceType string `json:"azureDatabaseResourceType,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// Skip connection check.
-	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
+	SkipConnectionCheck bool `json:"skipConnectionCheck,omitempty"`
 
 	// Enables push metrics mode for exporter.
-	PushMetrics bool `json:"push_metrics,omitempty"`
+	PushMetrics bool `json:"pushMetrics,omitempty"`
 }
 
 // Validate validates this add azure database exporter body
@@ -185,9 +185,6 @@ func (o *AddAzureDatabaseExporterBody) UnmarshalBinary(b []byte) error {
 swagger:model AddAzureDatabaseExporterDefaultBody
 */
 type AddAzureDatabaseExporterDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -262,7 +259,7 @@ swagger:model AddAzureDatabaseExporterOKBody
 type AddAzureDatabaseExporterOKBody struct {
 
 	// azure database exporter
-	AzureDatabaseExporter *AddAzureDatabaseExporterOKBodyAzureDatabaseExporter `json:"azure_database_exporter,omitempty"`
+	AzureDatabaseExporter *AddAzureDatabaseExporterOKBodyAzureDatabaseExporter `json:"azureDatabaseExporter,omitempty"`
 }
 
 // Validate validates this add azure database exporter OK body
@@ -288,7 +285,7 @@ func (o *AddAzureDatabaseExporterOKBody) validateAzureDatabaseExporter(formats s
 	if o.AzureDatabaseExporter != nil {
 		if err := o.AzureDatabaseExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addAzureDatabaseExporterOk" + "." + "azure_database_exporter")
+				return ve.ValidateName("addAzureDatabaseExporterOk" + "." + "azureDatabaseExporter")
 			}
 			return err
 		}
@@ -321,25 +318,25 @@ swagger:model AddAzureDatabaseExporterOKBodyAzureDatabaseExporter
 type AddAzureDatabaseExporterOKBodyAzureDatabaseExporter struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agent_id,omitempty"`
+	AgentID string `json:"agentId,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+	PMMAgentID string `json:"pmmAgentId,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Node identifier.
-	NodeID string `json:"node_id,omitempty"`
+	NodeID string `json:"nodeId,omitempty"`
 
 	// Azure database subscription ID.
-	AzureDatabaseSubscriptionID string `json:"azure_database_subscription_id,omitempty"`
+	AzureDatabaseSubscriptionID string `json:"azureDatabaseSubscriptionId,omitempty"`
 
 	// Azure database resource type (mysql, maria, postgres)
-	AzureDatabaseResourceType string `json:"azure_database_resource_type,omitempty"`
+	AzureDatabaseResourceType string `json:"azureDatabaseResourceType,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -353,10 +350,10 @@ type AddAzureDatabaseExporterOKBodyAzureDatabaseExporter struct {
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics (the same for several configurations).
-	ListenPort int64 `json:"listen_port,omitempty"`
+	ListenPort int64 `json:"listenPort,omitempty"`
 
 	// True if the exporter operates in push metrics mode.
-	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+	PushMetricsEnabled bool `json:"pushMetricsEnabled,omitempty"`
 }
 
 // Validate validates this add azure database exporter OK body azure database exporter
@@ -424,7 +421,7 @@ func (o *AddAzureDatabaseExporterOKBodyAzureDatabaseExporter) validateStatus(for
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addAzureDatabaseExporterOk"+"."+"azure_database_exporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addAzureDatabaseExporterOk"+"."+"azureDatabaseExporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -454,12 +451,8 @@ swagger:model DetailsItems0
 */
 type DetailsItems0 struct {
 
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this details items0

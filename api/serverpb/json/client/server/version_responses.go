@@ -124,9 +124,6 @@ swagger:model VersionDefaultBody
 */
 type VersionDefaultBody struct {
 
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -204,7 +201,7 @@ type VersionOKBody struct {
 
 	// DistributionMethod defines PMM Server distribution method: Docker image, OVF/OVA, or AMI.
 	// Enum: [DISTRIBUTION_METHOD_INVALID DOCKER OVF AMI AZURE DO]
-	DistributionMethod *string `json:"distribution_method,omitempty"`
+	DistributionMethod *string `json:"distributionMethod,omitempty"`
 
 	// managed
 	Managed *VersionOKBodyManaged `json:"managed,omitempty"`
@@ -283,7 +280,7 @@ func (o *VersionOKBody) validateDistributionMethod(formats strfmt.Registry) erro
 	}
 
 	// value enum
-	if err := o.validateDistributionMethodEnum("versionOk"+"."+"distribution_method", "body", *o.DistributionMethod); err != nil {
+	if err := o.validateDistributionMethodEnum("versionOk"+"."+"distributionMethod", "body", *o.DistributionMethod); err != nil {
 		return err
 	}
 
@@ -353,7 +350,7 @@ type VersionOKBodyManaged struct {
 	Version string `json:"version,omitempty"`
 
 	// Full version for debugging.
-	FullVersion string `json:"full_version,omitempty"`
+	FullVersion string `json:"fullVersion,omitempty"`
 
 	// Build or release date.
 	// Format: date-time
@@ -414,7 +411,7 @@ type VersionOKBodyServer struct {
 	Version string `json:"version,omitempty"`
 
 	// Full version for debugging.
-	FullVersion string `json:"full_version,omitempty"`
+	FullVersion string `json:"fullVersion,omitempty"`
 
 	// Build or release date.
 	// Format: date-time
