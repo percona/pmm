@@ -124,12 +124,8 @@ swagger:model DetailsItems0
 */
 type DetailsItems0 struct {
 
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this details items0
@@ -161,10 +157,10 @@ swagger:model ItemsItems0
 type ItemsItems0 struct {
 
 	// Machine-readable restore id.
-	RestoreID string `json:"restore_id,omitempty"`
+	RestoreID string `json:"restoreId,omitempty"`
 
 	// ID of the artifact used for restore.
-	ArtifactID string `json:"artifact_id,omitempty"`
+	ArtifactID string `json:"artifactId,omitempty"`
 
 	// Artifact name used for restore.
 	Name string `json:"name,omitempty"`
@@ -173,20 +169,20 @@ type ItemsItems0 struct {
 	Vendor string `json:"vendor,omitempty"`
 
 	// Machine-readable location ID.
-	LocationID string `json:"location_id,omitempty"`
+	LocationID string `json:"locationId,omitempty"`
 
 	// Location name.
-	LocationName string `json:"location_name,omitempty"`
+	LocationName string `json:"locationName,omitempty"`
 
 	// Machine-readable service ID.
-	ServiceID string `json:"service_id,omitempty"`
+	ServiceID string `json:"serviceId,omitempty"`
 
 	// Service name.
-	ServiceName string `json:"service_name,omitempty"`
+	ServiceName string `json:"serviceName,omitempty"`
 
 	// DataModel is a model used for performing a backup.
 	// Enum: [DATA_MODEL_INVALID PHYSICAL LOGICAL]
-	DataModel *string `json:"data_model,omitempty"`
+	DataModel *string `json:"dataModel,omitempty"`
 
 	// RestoreStatus shows the current status of execution of restore.
 	// Enum: [RESTORE_STATUS_INVALID RESTORE_STATUS_IN_PROGRESS RESTORE_STATUS_SUCCESS RESTORE_STATUS_ERROR]
@@ -194,11 +190,11 @@ type ItemsItems0 struct {
 
 	// Restore start time.
 	// Format: date-time
-	StartedAt strfmt.DateTime `json:"started_at,omitempty"`
+	StartedAt strfmt.DateTime `json:"startedAt,omitempty"`
 
 	// Restore finish time.
 	// Format: date-time
-	FinishedAt strfmt.DateTime `json:"finished_at,omitempty"`
+	FinishedAt strfmt.DateTime `json:"finishedAt,omitempty"`
 }
 
 // Validate validates this items items0
@@ -266,7 +262,7 @@ func (o *ItemsItems0) validateDataModel(formats strfmt.Registry) error {
 	}
 
 	// value enum
-	if err := o.validateDataModelEnum("data_model", "body", *o.DataModel); err != nil {
+	if err := o.validateDataModelEnum("dataModel", "body", *o.DataModel); err != nil {
 		return err
 	}
 
@@ -328,7 +324,7 @@ func (o *ItemsItems0) validateStartedAt(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("started_at", "body", "date-time", o.StartedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("startedAt", "body", "date-time", o.StartedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -341,7 +337,7 @@ func (o *ItemsItems0) validateFinishedAt(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("finished_at", "body", "date-time", o.FinishedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("finishedAt", "body", "date-time", o.FinishedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -370,9 +366,6 @@ func (o *ItemsItems0) UnmarshalBinary(b []byte) error {
 swagger:model ListRestoreHistoryDefaultBody
 */
 type ListRestoreHistoryDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`

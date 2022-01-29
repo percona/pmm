@@ -121,13 +121,13 @@ swagger:model TestLocationConfigBody
 type TestLocationConfigBody struct {
 
 	// pmm client config
-	PMMClientConfig *TestLocationConfigParamsBodyPMMClientConfig `json:"pmm_client_config,omitempty"`
+	PMMClientConfig *TestLocationConfigParamsBodyPMMClientConfig `json:"pmmClientConfig,omitempty"`
 
 	// pmm server config
-	PMMServerConfig *TestLocationConfigParamsBodyPMMServerConfig `json:"pmm_server_config,omitempty"`
+	PMMServerConfig *TestLocationConfigParamsBodyPMMServerConfig `json:"pmmServerConfig,omitempty"`
 
 	// s3 config
-	S3Config *TestLocationConfigParamsBodyS3Config `json:"s3_config,omitempty"`
+	S3Config *TestLocationConfigParamsBodyS3Config `json:"s3Config,omitempty"`
 }
 
 // Validate validates this test location config body
@@ -161,7 +161,7 @@ func (o *TestLocationConfigBody) validatePMMClientConfig(formats strfmt.Registry
 	if o.PMMClientConfig != nil {
 		if err := o.PMMClientConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "pmm_client_config")
+				return ve.ValidateName("body" + "." + "pmmClientConfig")
 			}
 			return err
 		}
@@ -179,7 +179,7 @@ func (o *TestLocationConfigBody) validatePMMServerConfig(formats strfmt.Registry
 	if o.PMMServerConfig != nil {
 		if err := o.PMMServerConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "pmm_server_config")
+				return ve.ValidateName("body" + "." + "pmmServerConfig")
 			}
 			return err
 		}
@@ -197,7 +197,7 @@ func (o *TestLocationConfigBody) validateS3Config(formats strfmt.Registry) error
 	if o.S3Config != nil {
 		if err := o.S3Config.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "s3_config")
+				return ve.ValidateName("body" + "." + "s3Config")
 			}
 			return err
 		}
@@ -228,9 +228,6 @@ func (o *TestLocationConfigBody) UnmarshalBinary(b []byte) error {
 swagger:model TestLocationConfigDefaultBody
 */
 type TestLocationConfigDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -372,13 +369,13 @@ type TestLocationConfigParamsBodyS3Config struct {
 	Endpoint string `json:"endpoint,omitempty"`
 
 	// access key
-	AccessKey string `json:"access_key,omitempty"`
+	AccessKey string `json:"accessKey,omitempty"`
 
 	// secret key
-	SecretKey string `json:"secret_key,omitempty"`
+	SecretKey string `json:"secretKey,omitempty"`
 
 	// bucket name
-	BucketName string `json:"bucket_name,omitempty"`
+	BucketName string `json:"bucketName,omitempty"`
 }
 
 // Validate validates this test location config params body s3 config

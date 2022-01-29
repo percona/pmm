@@ -123,13 +123,13 @@ swagger:model StartMySQLShowIndexActionBody
 type StartMySQLShowIndexActionBody struct {
 
 	// pmm-agent ID where to run this Action.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+	PMMAgentID string `json:"pmmAgentId,omitempty"`
 
 	// Service ID for this Action. Required.
-	ServiceID string `json:"service_id,omitempty"`
+	ServiceID string `json:"serviceId,omitempty"`
 
 	// Table name. Required. May additionally contain a database name.
-	TableName string `json:"table_name,omitempty"`
+	TableName string `json:"tableName,omitempty"`
 
 	// Database name. Required if not given in the table_name field.
 	Database string `json:"database,omitempty"`
@@ -162,9 +162,6 @@ func (o *StartMySQLShowIndexActionBody) UnmarshalBinary(b []byte) error {
 swagger:model StartMySQLShowIndexActionDefaultBody
 */
 type StartMySQLShowIndexActionDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -239,10 +236,10 @@ swagger:model StartMySQLShowIndexActionOKBody
 type StartMySQLShowIndexActionOKBody struct {
 
 	// Unique Action ID.
-	ActionID string `json:"action_id,omitempty"`
+	ActionID string `json:"actionId,omitempty"`
 
 	// pmm-agent ID where to this Action was started.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+	PMMAgentID string `json:"pmmAgentId,omitempty"`
 }
 
 // Validate validates this start my SQL show index action OK body

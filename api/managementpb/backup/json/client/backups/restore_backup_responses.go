@@ -123,10 +123,10 @@ swagger:model RestoreBackupBody
 type RestoreBackupBody struct {
 
 	// Service identifier where backup should be restored.
-	ServiceID string `json:"service_id,omitempty"`
+	ServiceID string `json:"serviceId,omitempty"`
 
 	// Artifact id to restore.
-	ArtifactID string `json:"artifact_id,omitempty"`
+	ArtifactID string `json:"artifactId,omitempty"`
 }
 
 // Validate validates this restore backup body
@@ -156,9 +156,6 @@ func (o *RestoreBackupBody) UnmarshalBinary(b []byte) error {
 swagger:model RestoreBackupDefaultBody
 */
 type RestoreBackupDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -233,7 +230,7 @@ swagger:model RestoreBackupOKBody
 type RestoreBackupOKBody struct {
 
 	// Unique restore identifier.
-	RestoreID string `json:"restore_id,omitempty"`
+	RestoreID string `json:"restoreId,omitempty"`
 }
 
 // Validate validates this restore backup OK body

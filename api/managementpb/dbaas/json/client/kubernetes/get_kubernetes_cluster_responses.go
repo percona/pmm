@@ -122,12 +122,8 @@ swagger:model DetailsItems0
 */
 type DetailsItems0 struct {
 
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this details items0
@@ -159,7 +155,7 @@ swagger:model GetKubernetesClusterBody
 type GetKubernetesClusterBody struct {
 
 	// Kubernetes cluster name.
-	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
+	KubernetesClusterName string `json:"kubernetesClusterName,omitempty"`
 }
 
 // Validate validates this get kubernetes cluster body
@@ -189,9 +185,6 @@ func (o *GetKubernetesClusterBody) UnmarshalBinary(b []byte) error {
 swagger:model GetKubernetesClusterDefaultBody
 */
 type GetKubernetesClusterDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -266,7 +259,7 @@ swagger:model GetKubernetesClusterOKBody
 type GetKubernetesClusterOKBody struct {
 
 	// kube auth
-	KubeAuth *GetKubernetesClusterOKBodyKubeAuth `json:"kube_auth,omitempty"`
+	KubeAuth *GetKubernetesClusterOKBodyKubeAuth `json:"kubeAuth,omitempty"`
 }
 
 // Validate validates this get kubernetes cluster OK body
@@ -292,7 +285,7 @@ func (o *GetKubernetesClusterOKBody) validateKubeAuth(formats strfmt.Registry) e
 	if o.KubeAuth != nil {
 		if err := o.KubeAuth.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getKubernetesClusterOk" + "." + "kube_auth")
+				return ve.ValidateName("getKubernetesClusterOk" + "." + "kubeAuth")
 			}
 			return err
 		}

@@ -125,10 +125,10 @@ swagger:model AddQANPostgreSQLPgStatementsAgentBody
 type AddQANPostgreSQLPgStatementsAgentBody struct {
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+	PMMAgentID string `json:"pmmAgentId,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"service_id,omitempty"`
+	ServiceID string `json:"serviceId,omitempty"`
 
 	// PostgreSQL username for getting pg stat statements data.
 	Username string `json:"username,omitempty"`
@@ -140,22 +140,22 @@ type AddQANPostgreSQLPgStatementsAgentBody struct {
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// Skip connection check.
-	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
+	SkipConnectionCheck bool `json:"skipConnectionCheck,omitempty"`
 
 	// TLS CA certificate.
-	TLSCa string `json:"tls_ca,omitempty"`
+	TLSCa string `json:"tlsCa,omitempty"`
 
 	// TLS Certifcate.
-	TLSCert string `json:"tls_cert,omitempty"`
+	TLSCert string `json:"tlsCert,omitempty"`
 
 	// TLS Certificate Key.
-	TLSKey string `json:"tls_key,omitempty"`
+	TLSKey string `json:"tlsKey,omitempty"`
 }
 
 // Validate validates this add QAN postgre SQL pg statements agent body
@@ -185,9 +185,6 @@ func (o *AddQANPostgreSQLPgStatementsAgentBody) UnmarshalBinary(b []byte) error 
 swagger:model AddQANPostgreSQLPgStatementsAgentDefaultBody
 */
 type AddQANPostgreSQLPgStatementsAgentDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -262,7 +259,7 @@ swagger:model AddQANPostgreSQLPgStatementsAgentOKBody
 type AddQANPostgreSQLPgStatementsAgentOKBody struct {
 
 	// qan postgresql pgstatements agent
-	QANPostgresqlPgstatementsAgent *AddQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgent `json:"qan_postgresql_pgstatements_agent,omitempty"`
+	QANPostgresqlPgstatementsAgent *AddQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgent `json:"qanPostgresqlPgstatementsAgent,omitempty"`
 }
 
 // Validate validates this add QAN postgre SQL pg statements agent OK body
@@ -288,7 +285,7 @@ func (o *AddQANPostgreSQLPgStatementsAgentOKBody) validateQANPostgresqlPgstateme
 	if o.QANPostgresqlPgstatementsAgent != nil {
 		if err := o.QANPostgresqlPgstatementsAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addQanPostgreSqlPgStatementsAgentOk" + "." + "qan_postgresql_pgstatements_agent")
+				return ve.ValidateName("addQanPostgreSqlPgStatementsAgentOk" + "." + "qanPostgresqlPgstatementsAgent")
 			}
 			return err
 		}
@@ -321,16 +318,16 @@ swagger:model AddQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAg
 type AddQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgent struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agent_id,omitempty"`
+	AgentID string `json:"agentId,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+	PMMAgentID string `json:"pmmAgentId,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"service_id,omitempty"`
+	ServiceID string `json:"serviceId,omitempty"`
 
 	// PostgreSQL username for getting pg stat statements data.
 	Username string `json:"username,omitempty"`
@@ -339,10 +336,10 @@ type AddQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgent struc
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -421,7 +418,7 @@ func (o *AddQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgent) 
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addQanPostgreSqlPgStatementsAgentOk"+"."+"qan_postgresql_pgstatements_agent"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addQanPostgreSqlPgStatementsAgentOk"+"."+"qanPostgresqlPgstatementsAgent"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 

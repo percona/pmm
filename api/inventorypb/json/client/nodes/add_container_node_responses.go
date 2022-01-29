@@ -123,22 +123,22 @@ swagger:model AddContainerNodeBody
 type AddContainerNodeBody struct {
 
 	// Unique across all Nodes user-defined name.
-	NodeName string `json:"node_name,omitempty"`
+	NodeName string `json:"nodeName,omitempty"`
 
 	// Node address (DNS name or IP).
 	Address string `json:"address,omitempty"`
 
 	// Linux machine-id of the Generic Node where this Container Node runs.
-	MachineID string `json:"machine_id,omitempty"`
+	MachineID string `json:"machineId,omitempty"`
 
 	// Container identifier. If specified, must be a unique Docker container identifier.
-	ContainerID string `json:"container_id,omitempty"`
+	ContainerID string `json:"containerId,omitempty"`
 
 	// Container name.
-	ContainerName string `json:"container_name,omitempty"`
+	ContainerName string `json:"containerName,omitempty"`
 
 	// Node model.
-	NodeModel string `json:"node_model,omitempty"`
+	NodeModel string `json:"nodeModel,omitempty"`
 
 	// Node region.
 	Region string `json:"region,omitempty"`
@@ -147,7 +147,7 @@ type AddContainerNodeBody struct {
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 }
 
 // Validate validates this add container node body
@@ -177,9 +177,6 @@ func (o *AddContainerNodeBody) UnmarshalBinary(b []byte) error {
 swagger:model AddContainerNodeDefaultBody
 */
 type AddContainerNodeDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -313,25 +310,25 @@ swagger:model AddContainerNodeOKBodyContainer
 type AddContainerNodeOKBodyContainer struct {
 
 	// Unique randomly generated instance identifier.
-	NodeID string `json:"node_id,omitempty"`
+	NodeID string `json:"nodeId,omitempty"`
 
 	// Unique across all Nodes user-defined name.
-	NodeName string `json:"node_name,omitempty"`
+	NodeName string `json:"nodeName,omitempty"`
 
 	// Node address (DNS name or IP).
 	Address string `json:"address,omitempty"`
 
 	// Linux machine-id of the Generic Node where this Container Node runs.
-	MachineID string `json:"machine_id,omitempty"`
+	MachineID string `json:"machineId,omitempty"`
 
 	// Container identifier. If specified, must be a unique Docker container identifier.
-	ContainerID string `json:"container_id,omitempty"`
+	ContainerID string `json:"containerId,omitempty"`
 
 	// Container name.
-	ContainerName string `json:"container_name,omitempty"`
+	ContainerName string `json:"containerName,omitempty"`
 
 	// Node model.
-	NodeModel string `json:"node_model,omitempty"`
+	NodeModel string `json:"nodeModel,omitempty"`
 
 	// Node region.
 	Region string `json:"region,omitempty"`
@@ -340,7 +337,7 @@ type AddContainerNodeOKBodyContainer struct {
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 }
 
 // Validate validates this add container node OK body container
@@ -371,12 +368,8 @@ swagger:model DetailsItems0
 */
 type DetailsItems0 struct {
 
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this details items0

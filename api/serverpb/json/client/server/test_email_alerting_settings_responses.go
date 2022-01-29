@@ -121,10 +121,10 @@ swagger:model TestEmailAlertingSettingsBody
 type TestEmailAlertingSettingsBody struct {
 
 	// Target email address to send the email to.
-	EmailTo string `json:"email_to,omitempty"`
+	EmailTo string `json:"emailTo,omitempty"`
 
 	// email alerting settings
-	EmailAlertingSettings *TestEmailAlertingSettingsParamsBodyEmailAlertingSettings `json:"email_alerting_settings,omitempty"`
+	EmailAlertingSettings *TestEmailAlertingSettingsParamsBodyEmailAlertingSettings `json:"emailAlertingSettings,omitempty"`
 }
 
 // Validate validates this test email alerting settings body
@@ -150,7 +150,7 @@ func (o *TestEmailAlertingSettingsBody) validateEmailAlertingSettings(formats st
 	if o.EmailAlertingSettings != nil {
 		if err := o.EmailAlertingSettings.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "email_alerting_settings")
+				return ve.ValidateName("body" + "." + "emailAlertingSettings")
 			}
 			return err
 		}
@@ -181,9 +181,6 @@ func (o *TestEmailAlertingSettingsBody) UnmarshalBinary(b []byte) error {
 swagger:model TestEmailAlertingSettingsDefaultBody
 */
 type TestEmailAlertingSettingsDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -279,7 +276,7 @@ type TestEmailAlertingSettingsParamsBodyEmailAlertingSettings struct {
 	Secret string `json:"secret,omitempty"`
 
 	// Require TLS.
-	RequireTLS bool `json:"require_tls,omitempty"`
+	RequireTLS bool `json:"requireTls,omitempty"`
 }
 
 // Validate validates this test email alerting settings params body email alerting settings

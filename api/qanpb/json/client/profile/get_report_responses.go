@@ -123,12 +123,8 @@ swagger:model DetailsItems0
 */
 type DetailsItems0 struct {
 
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this details items0
@@ -161,14 +157,14 @@ type GetReportBody struct {
 
 	// period start from
 	// Format: date-time
-	PeriodStartFrom strfmt.DateTime `json:"period_start_from,omitempty"`
+	PeriodStartFrom strfmt.DateTime `json:"periodStartFrom,omitempty"`
 
 	// period start to
 	// Format: date-time
-	PeriodStartTo strfmt.DateTime `json:"period_start_to,omitempty"`
+	PeriodStartTo strfmt.DateTime `json:"periodStartTo,omitempty"`
 
 	// group by
-	GroupBy string `json:"group_by,omitempty"`
+	GroupBy string `json:"groupBy,omitempty"`
 
 	// labels
 	Labels []*LabelsItems0 `json:"labels"`
@@ -177,7 +173,7 @@ type GetReportBody struct {
 	Columns []string `json:"columns"`
 
 	// order by
-	OrderBy string `json:"order_by,omitempty"`
+	OrderBy string `json:"orderBy,omitempty"`
 
 	// offset
 	Offset int64 `json:"offset,omitempty"`
@@ -186,7 +182,7 @@ type GetReportBody struct {
 	Limit int64 `json:"limit,omitempty"`
 
 	// main metric
-	MainMetric string `json:"main_metric,omitempty"`
+	MainMetric string `json:"mainMetric,omitempty"`
 
 	// search
 	Search string `json:"search,omitempty"`
@@ -220,7 +216,7 @@ func (o *GetReportBody) validatePeriodStartFrom(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("body"+"."+"period_start_from", "body", "date-time", o.PeriodStartFrom.String(), formats); err != nil {
+	if err := validate.FormatOf("body"+"."+"periodStartFrom", "body", "date-time", o.PeriodStartFrom.String(), formats); err != nil {
 		return err
 	}
 
@@ -233,7 +229,7 @@ func (o *GetReportBody) validatePeriodStartTo(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("body"+"."+"period_start_to", "body", "date-time", o.PeriodStartTo.String(), formats); err != nil {
+	if err := validate.FormatOf("body"+"."+"periodStartTo", "body", "date-time", o.PeriodStartTo.String(), formats); err != nil {
 		return err
 	}
 
@@ -287,9 +283,6 @@ func (o *GetReportBody) UnmarshalBinary(b []byte) error {
 swagger:model GetReportDefaultBody
 */
 type GetReportDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -364,7 +357,7 @@ swagger:model GetReportOKBody
 type GetReportOKBody struct {
 
 	// total rows
-	TotalRows int64 `json:"total_rows,omitempty"`
+	TotalRows int64 `json:"totalRows,omitempty"`
 
 	// offset
 	Offset int64 `json:"offset,omitempty"`
@@ -492,7 +485,7 @@ type RowsItems0 struct {
 	Fingerprint string `json:"fingerprint,omitempty"`
 
 	// num queries
-	NumQueries int64 `json:"num_queries,omitempty"`
+	NumQueries int64 `json:"numQueries,omitempty"`
 
 	// qps
 	QPS float32 `json:"qps,omitempty"`
@@ -670,7 +663,7 @@ type RowsItems0MetricsAnonStats struct {
 	Avg float32 `json:"avg,omitempty"`
 
 	// sum per sec
-	SumPerSec float32 `json:"sum_per_sec,omitempty"`
+	SumPerSec float32 `json:"sumPerSec,omitempty"`
 }
 
 // Validate validates this rows items0 metrics anon stats
@@ -706,7 +699,7 @@ type RowsItems0SparklineItems0 struct {
 	Point int64 `json:"point,omitempty"`
 
 	// Duration beetween two points.
-	TimeFrame int64 `json:"time_frame,omitempty"`
+	TimeFrame int64 `json:"timeFrame,omitempty"`
 
 	// Time of point in format RFC3339.
 	Timestamp string `json:"timestamp,omitempty"`
@@ -715,187 +708,187 @@ type RowsItems0SparklineItems0 struct {
 	Load float32 `json:"load,omitempty"`
 
 	// number of queries in bucket.
-	NumQueriesPerSec float32 `json:"num_queries_per_sec,omitempty"`
+	NumQueriesPerSec float32 `json:"numQueriesPerSec,omitempty"`
 
 	// number of queries with errors.
-	NumQueriesWithErrorsPerSec float32 `json:"num_queries_with_errors_per_sec,omitempty"`
+	NumQueriesWithErrorsPerSec float32 `json:"numQueriesWithErrorsPerSec,omitempty"`
 
 	// number of queries with warnings.
-	NumQueriesWithWarningsPerSec float32 `json:"num_queries_with_warnings_per_sec,omitempty"`
+	NumQueriesWithWarningsPerSec float32 `json:"numQueriesWithWarningsPerSec,omitempty"`
 
 	// The statement execution time in seconds.
-	MQueryTimeSumPerSec float32 `json:"m_query_time_sum_per_sec,omitempty"`
+	MQueryTimeSumPerSec float32 `json:"mQueryTimeSumPerSec,omitempty"`
 
 	// The time to acquire locks in seconds.
-	MLockTimeSumPerSec float32 `json:"m_lock_time_sum_per_sec,omitempty"`
+	MLockTimeSumPerSec float32 `json:"mLockTimeSumPerSec,omitempty"`
 
 	// The number of rows sent to the client.
-	MRowsSentSumPerSec float32 `json:"m_rows_sent_sum_per_sec,omitempty"`
+	MRowsSentSumPerSec float32 `json:"mRowsSentSumPerSec,omitempty"`
 
 	// Number of rows scanned - SELECT.
-	MRowsExaminedSumPerSec float32 `json:"m_rows_examined_sum_per_sec,omitempty"`
+	MRowsExaminedSumPerSec float32 `json:"mRowsExaminedSumPerSec,omitempty"`
 
 	// Number of rows changed - UPDATE, DELETE, INSERT.
-	MRowsAffectedSumPerSec float32 `json:"m_rows_affected_sum_per_sec,omitempty"`
+	MRowsAffectedSumPerSec float32 `json:"mRowsAffectedSumPerSec,omitempty"`
 
 	// The number of rows read from tables.
-	MRowsReadSumPerSec float32 `json:"m_rows_read_sum_per_sec,omitempty"`
+	MRowsReadSumPerSec float32 `json:"mRowsReadSumPerSec,omitempty"`
 
 	// The number of merge passes that the sort algorithm has had to do.
-	MMergePassesSumPerSec float32 `json:"m_merge_passes_sum_per_sec,omitempty"`
+	MMergePassesSumPerSec float32 `json:"mMergePassesSumPerSec,omitempty"`
 
 	// Counts the number of page read operations scheduled.
-	MInnodbIorOpsSumPerSec float32 `json:"m_innodb_io_r_ops_sum_per_sec,omitempty"`
+	MInnodbIoROpsSumPerSec float32 `json:"mInnodbIoROpsSumPerSec,omitempty"`
 
 	// Similar to innodb_IO_r_ops, but the unit is bytes.
-	MInnodbIorBytesSumPerSec float32 `json:"m_innodb_io_r_bytes_sum_per_sec,omitempty"`
+	MInnodbIoRBytesSumPerSec float32 `json:"mInnodbIoRBytesSumPerSec,omitempty"`
 
 	// Shows how long (in seconds) it took InnoDB to actually read the data from storage.
-	MInnodbIorWaitSumPerSec float32 `json:"m_innodb_io_r_wait_sum_per_sec,omitempty"`
+	MInnodbIoRWaitSumPerSec float32 `json:"mInnodbIoRWaitSumPerSec,omitempty"`
 
 	// Shows how long (in seconds) the query waited for row locks.
-	MInnodbRecLockWaitSumPerSec float32 `json:"m_innodb_rec_lock_wait_sum_per_sec,omitempty"`
+	MInnodbRecLockWaitSumPerSec float32 `json:"mInnodbRecLockWaitSumPerSec,omitempty"`
 
 	// Shows how long (in seconds) the query spent either waiting to enter the InnoDB queue or inside that queue waiting for execution.
-	MInnodbQueueWaitSumPerSec float32 `json:"m_innodb_queue_wait_sum_per_sec,omitempty"`
+	MInnodbQueueWaitSumPerSec float32 `json:"mInnodbQueueWaitSumPerSec,omitempty"`
 
 	// Counts approximately the number of unique pages the query accessed.
-	MInnodbPagesDistinctSumPerSec float32 `json:"m_innodb_pages_distinct_sum_per_sec,omitempty"`
+	MInnodbPagesDistinctSumPerSec float32 `json:"mInnodbPagesDistinctSumPerSec,omitempty"`
 
 	// Shows how long the query is.
-	MQueryLengthSumPerSec float32 `json:"m_query_length_sum_per_sec,omitempty"`
+	MQueryLengthSumPerSec float32 `json:"mQueryLengthSumPerSec,omitempty"`
 
 	// The number of bytes sent to all clients.
-	MBytesSentSumPerSec float32 `json:"m_bytes_sent_sum_per_sec,omitempty"`
+	MBytesSentSumPerSec float32 `json:"mBytesSentSumPerSec,omitempty"`
 
 	// Number of temporary tables created on memory for the query.
-	MTmpTablesSumPerSec float32 `json:"m_tmp_tables_sum_per_sec,omitempty"`
+	MTmpTablesSumPerSec float32 `json:"mTmpTablesSumPerSec,omitempty"`
 
 	// Number of temporary tables created on disk for the query.
-	MTmpDiskTablesSumPerSec float32 `json:"m_tmp_disk_tables_sum_per_sec,omitempty"`
+	MTmpDiskTablesSumPerSec float32 `json:"mTmpDiskTablesSumPerSec,omitempty"`
 
 	// Total Size in bytes for all temporary tables used in the query.
-	MTmpTableSizesSumPerSec float32 `json:"m_tmp_table_sizes_sum_per_sec,omitempty"`
+	MTmpTableSizesSumPerSec float32 `json:"mTmpTableSizesSumPerSec,omitempty"`
 
 	// Boolean metrics:
 	// - *_sum_per_sec - how many times this matric was true.
 	//
 	// Query Cache hits.
-	MQcHitSumPerSec float32 `json:"m_qc_hit_sum_per_sec,omitempty"`
+	MQcHitSumPerSec float32 `json:"mQcHitSumPerSec,omitempty"`
 
 	// The query performed a full table scan.
-	MFullScanSumPerSec float32 `json:"m_full_scan_sum_per_sec,omitempty"`
+	MFullScanSumPerSec float32 `json:"mFullScanSumPerSec,omitempty"`
 
 	// The query performed a full join (a join without indexes).
-	MFullJoinSumPerSec float32 `json:"m_full_join_sum_per_sec,omitempty"`
+	MFullJoinSumPerSec float32 `json:"mFullJoinSumPerSec,omitempty"`
 
 	// The query created an implicit internal temporary table.
-	MTmpTableSumPerSec float32 `json:"m_tmp_table_sum_per_sec,omitempty"`
+	MTmpTableSumPerSec float32 `json:"mTmpTableSumPerSec,omitempty"`
 
 	// The querys temporary table was stored on disk.
-	MTmpTableOnDiskSumPerSec float32 `json:"m_tmp_table_on_disk_sum_per_sec,omitempty"`
+	MTmpTableOnDiskSumPerSec float32 `json:"mTmpTableOnDiskSumPerSec,omitempty"`
 
 	// The query used a filesort.
-	MFilesortSumPerSec float32 `json:"m_filesort_sum_per_sec,omitempty"`
+	MFilesortSumPerSec float32 `json:"mFilesortSumPerSec,omitempty"`
 
 	// The filesort was performed on disk.
-	MFilesortOnDiskSumPerSec float32 `json:"m_filesort_on_disk_sum_per_sec,omitempty"`
+	MFilesortOnDiskSumPerSec float32 `json:"mFilesortOnDiskSumPerSec,omitempty"`
 
 	// The number of joins that used a range search on a reference table.
-	MSelectFullRangeJoinSumPerSec float32 `json:"m_select_full_range_join_sum_per_sec,omitempty"`
+	MSelectFullRangeJoinSumPerSec float32 `json:"mSelectFullRangeJoinSumPerSec,omitempty"`
 
 	// The number of joins that used ranges on the first table.
-	MSelectRangeSumPerSec float32 `json:"m_select_range_sum_per_sec,omitempty"`
+	MSelectRangeSumPerSec float32 `json:"mSelectRangeSumPerSec,omitempty"`
 
 	// The number of joins without keys that check for key usage after each row.
-	MSelectRangeCheckSumPerSec float32 `json:"m_select_range_check_sum_per_sec,omitempty"`
+	MSelectRangeCheckSumPerSec float32 `json:"mSelectRangeCheckSumPerSec,omitempty"`
 
 	// The number of sorts that were done using ranges.
-	MSortRangeSumPerSec float32 `json:"m_sort_range_sum_per_sec,omitempty"`
+	MSortRangeSumPerSec float32 `json:"mSortRangeSumPerSec,omitempty"`
 
 	// The number of sorted rows.
-	MSortRowsSumPerSec float32 `json:"m_sort_rows_sum_per_sec,omitempty"`
+	MSortRowsSumPerSec float32 `json:"mSortRowsSumPerSec,omitempty"`
 
 	// The number of sorts that were done by scanning the table.
-	MSortScanSumPerSec float32 `json:"m_sort_scan_sum_per_sec,omitempty"`
+	MSortScanSumPerSec float32 `json:"mSortScanSumPerSec,omitempty"`
 
 	// The number of queries without index.
-	MNoIndexUsedSumPerSec float32 `json:"m_no_index_used_sum_per_sec,omitempty"`
+	MNoIndexUsedSumPerSec float32 `json:"mNoIndexUsedSumPerSec,omitempty"`
 
 	// The number of queries without good index.
-	MNoGoodIndexUsedSumPerSec float32 `json:"m_no_good_index_used_sum_per_sec,omitempty"`
+	MNoGoodIndexUsedSumPerSec float32 `json:"mNoGoodIndexUsedSumPerSec,omitempty"`
 
 	// MongoDB metrics.
 	//
 	// The number of returned documents.
-	MDocsReturnedSumPerSec float32 `json:"m_docs_returned_sum_per_sec,omitempty"`
+	MDocsReturnedSumPerSec float32 `json:"mDocsReturnedSumPerSec,omitempty"`
 
 	// The response length of the query result in bytes.
-	MResponseLengthSumPerSec float32 `json:"m_response_length_sum_per_sec,omitempty"`
+	MResponseLengthSumPerSec float32 `json:"mResponseLengthSumPerSec,omitempty"`
 
 	// The number of scanned documents.
-	MDocsScannedSumPerSec float32 `json:"m_docs_scanned_sum_per_sec,omitempty"`
+	MDocsScannedSumPerSec float32 `json:"mDocsScannedSumPerSec,omitempty"`
 
 	// PostgreSQL metrics.
 	//
 	// Total number of shared block cache hits by the statement.
-	MSharedBlksHitSumPerSec float32 `json:"m_shared_blks_hit_sum_per_sec,omitempty"`
+	MSharedBlksHitSumPerSec float32 `json:"mSharedBlksHitSumPerSec,omitempty"`
 
 	// Total number of shared blocks read by the statement.
-	MSharedBlksReadSumPerSec float32 `json:"m_shared_blks_read_sum_per_sec,omitempty"`
+	MSharedBlksReadSumPerSec float32 `json:"mSharedBlksReadSumPerSec,omitempty"`
 
 	// Total number of shared blocks dirtied by the statement.
-	MSharedBlksDirtiedSumPerSec float32 `json:"m_shared_blks_dirtied_sum_per_sec,omitempty"`
+	MSharedBlksDirtiedSumPerSec float32 `json:"mSharedBlksDirtiedSumPerSec,omitempty"`
 
 	// Total number of shared blocks written by the statement.
-	MSharedBlksWrittenSumPerSec float32 `json:"m_shared_blks_written_sum_per_sec,omitempty"`
+	MSharedBlksWrittenSumPerSec float32 `json:"mSharedBlksWrittenSumPerSec,omitempty"`
 
 	// Total number of local block cache hits by the statement.
-	MLocalBlksHitSumPerSec float32 `json:"m_local_blks_hit_sum_per_sec,omitempty"`
+	MLocalBlksHitSumPerSec float32 `json:"mLocalBlksHitSumPerSec,omitempty"`
 
 	// Total number of local blocks read by the statement.
-	MLocalBlksReadSumPerSec float32 `json:"m_local_blks_read_sum_per_sec,omitempty"`
+	MLocalBlksReadSumPerSec float32 `json:"mLocalBlksReadSumPerSec,omitempty"`
 
 	// Total number of local blocks dirtied by the statement.
-	MLocalBlksDirtiedSumPerSec float32 `json:"m_local_blks_dirtied_sum_per_sec,omitempty"`
+	MLocalBlksDirtiedSumPerSec float32 `json:"mLocalBlksDirtiedSumPerSec,omitempty"`
 
 	// Total number of local blocks written by the statement.
-	MLocalBlksWrittenSumPerSec float32 `json:"m_local_blks_written_sum_per_sec,omitempty"`
+	MLocalBlksWrittenSumPerSec float32 `json:"mLocalBlksWrittenSumPerSec,omitempty"`
 
 	// Total number of temp blocks read by the statement.
-	MTempBlksReadSumPerSec float32 `json:"m_temp_blks_read_sum_per_sec,omitempty"`
+	MTempBlksReadSumPerSec float32 `json:"mTempBlksReadSumPerSec,omitempty"`
 
 	// Total number of temp blocks written by the statement.
-	MTempBlksWrittenSumPerSec float32 `json:"m_temp_blks_written_sum_per_sec,omitempty"`
+	MTempBlksWrittenSumPerSec float32 `json:"mTempBlksWrittenSumPerSec,omitempty"`
 
 	// Total time the statement spent reading blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
-	MBlkReadTimeSumPerSec float32 `json:"m_blk_read_time_sum_per_sec,omitempty"`
+	MBlkReadTimeSumPerSec float32 `json:"mBlkReadTimeSumPerSec,omitempty"`
 
 	// Total time the statement spent writing blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
-	MBlkWriteTimeSumPerSec float32 `json:"m_blk_write_time_sum_per_sec,omitempty"`
+	MBlkWriteTimeSumPerSec float32 `json:"mBlkWriteTimeSumPerSec,omitempty"`
 
 	// Total time user spent in query.
-	MCPUUserTimeSumPerSec float32 `json:"m_cpu_user_time_sum_per_sec,omitempty"`
+	MCPUUserTimeSumPerSec float32 `json:"mCpuUserTimeSumPerSec,omitempty"`
 
 	// Total time system spent in query.
-	MCPUSysTimeSumPerSec float32 `json:"m_cpu_sys_time_sum_per_sec,omitempty"`
+	MCPUSysTimeSumPerSec float32 `json:"mCpuSysTimeSumPerSec,omitempty"`
 
 	// pg_stat_monitor 0.9 metrics
 	//
 	// Total number of planned calls.
-	MPlansCallsSumPerSec float32 `json:"m_plans_calls_sum_per_sec,omitempty"`
+	MPlansCallsSumPerSec float32 `json:"mPlansCallsSumPerSec,omitempty"`
 
 	// Total number of WAL (Write-ahead logging) records.
-	MWalRecordsSumPerSec float32 `json:"m_wal_records_sum_per_sec,omitempty"`
+	MWalRecordsSumPerSec float32 `json:"mWalRecordsSumPerSec,omitempty"`
 
 	// Total number of FPI (full page images) in WAL (Write-ahead logging) records.
-	MWalFpiSumPerSec float32 `json:"m_wal_fpi_sum_per_sec,omitempty"`
+	MWalFpiSumPerSec float32 `json:"mWalFpiSumPerSec,omitempty"`
 
 	// Total bytes of WAL (Write-ahead logging) records.
-	MWalBytesSumPerSec float32 `json:"m_wal_bytes_sum_per_sec,omitempty"`
+	MWalBytesSumPerSec float32 `json:"mWalBytesSumPerSec,omitempty"`
 
 	// Plan time in per seconds.
-	MPlanTimeSumPerSec float32 `json:"m_plan_time_sum_per_sec,omitempty"`
+	MPlanTimeSumPerSec float32 `json:"mPlanTimeSumPerSec,omitempty"`
 }
 
 // Validate validates this rows items0 sparkline items0

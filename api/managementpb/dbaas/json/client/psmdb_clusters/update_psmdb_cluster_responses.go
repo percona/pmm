@@ -121,7 +121,7 @@ swagger:model UpdatePSMDBClusterBody
 type UpdatePSMDBClusterBody struct {
 
 	// Kubernetes cluster name.
-	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
+	KubernetesClusterName string `json:"kubernetesClusterName,omitempty"`
 
 	// PSMDB cluster name.
 	Name string `json:"name,omitempty"`
@@ -184,9 +184,6 @@ func (o *UpdatePSMDBClusterBody) UnmarshalBinary(b []byte) error {
 swagger:model UpdatePSMDBClusterDefaultBody
 */
 type UpdatePSMDBClusterDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -261,7 +258,7 @@ swagger:model UpdatePSMDBClusterParamsBodyParams
 type UpdatePSMDBClusterParamsBodyParams struct {
 
 	// Cluster size.
-	ClusterSize int32 `json:"cluster_size,omitempty"`
+	ClusterSize int32 `json:"clusterSize,omitempty"`
 
 	// Suspend cluster `pause: true`.
 	Suspend bool `json:"suspend,omitempty"`
@@ -333,7 +330,7 @@ swagger:model UpdatePSMDBClusterParamsBodyParamsReplicaset
 type UpdatePSMDBClusterParamsBodyParamsReplicaset struct {
 
 	// compute resources
-	ComputeResources *UpdatePSMDBClusterParamsBodyParamsReplicasetComputeResources `json:"compute_resources,omitempty"`
+	ComputeResources *UpdatePSMDBClusterParamsBodyParamsReplicasetComputeResources `json:"computeResources,omitempty"`
 }
 
 // Validate validates this update PSMDB cluster params body params replicaset
@@ -359,7 +356,7 @@ func (o *UpdatePSMDBClusterParamsBodyParamsReplicaset) validateComputeResources(
 	if o.ComputeResources != nil {
 		if err := o.ComputeResources.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "params" + "." + "replicaset" + "." + "compute_resources")
+				return ve.ValidateName("body" + "." + "params" + "." + "replicaset" + "." + "computeResources")
 			}
 			return err
 		}
@@ -392,10 +389,10 @@ swagger:model UpdatePSMDBClusterParamsBodyParamsReplicasetComputeResources
 type UpdatePSMDBClusterParamsBodyParamsReplicasetComputeResources struct {
 
 	// CPUs in milliCPUs; 1000m = 1 vCPU.
-	CPUm int32 `json:"cpu_m,omitempty"`
+	CPUM int32 `json:"cpuM,omitempty"`
 
 	// Memory in bytes.
-	MemoryBytes string `json:"memory_bytes,omitempty"`
+	MemoryBytes string `json:"memoryBytes,omitempty"`
 }
 
 // Validate validates this update PSMDB cluster params body params replicaset compute resources

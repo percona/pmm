@@ -121,16 +121,16 @@ swagger:model RegisterKubernetesClusterBody
 type RegisterKubernetesClusterBody struct {
 
 	// Kubernetes cluster name.
-	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
+	KubernetesClusterName string `json:"kubernetesClusterName,omitempty"`
 
 	// AWS access key id, only needed when registering EKS cluster and kubeconfig does not contain it.
-	AWSAccessKeyID string `json:"aws_access_key_id,omitempty"`
+	AWSAccessKeyID string `json:"awsAccessKeyId,omitempty"`
 
 	// AWS secret access key, only needed when registering EKS cluster and kubeconfig does not contain it.
-	AWSSecretAccessKey string `json:"aws_secret_access_key,omitempty"`
+	AWSSecretAccessKey string `json:"awsSecretAccessKey,omitempty"`
 
 	// kube auth
-	KubeAuth *RegisterKubernetesClusterParamsBodyKubeAuth `json:"kube_auth,omitempty"`
+	KubeAuth *RegisterKubernetesClusterParamsBodyKubeAuth `json:"kubeAuth,omitempty"`
 }
 
 // Validate validates this register kubernetes cluster body
@@ -156,7 +156,7 @@ func (o *RegisterKubernetesClusterBody) validateKubeAuth(formats strfmt.Registry
 	if o.KubeAuth != nil {
 		if err := o.KubeAuth.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "kube_auth")
+				return ve.ValidateName("body" + "." + "kubeAuth")
 			}
 			return err
 		}
@@ -187,9 +187,6 @@ func (o *RegisterKubernetesClusterBody) UnmarshalBinary(b []byte) error {
 swagger:model RegisterKubernetesClusterDefaultBody
 */
 type RegisterKubernetesClusterDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`

@@ -181,9 +181,6 @@ swagger:model GetPXCClusterResourcesDefaultBody
 */
 type GetPXCClusterResourcesDefaultBody struct {
 
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -316,14 +313,14 @@ swagger:model GetPXCClusterResourcesOKBodyExpected
 type GetPXCClusterResourcesOKBodyExpected struct {
 
 	// Memory in bytes.
-	MemoryBytes string `json:"memory_bytes,omitempty"`
+	MemoryBytes string `json:"memoryBytes,omitempty"`
 
 	// CPU in millicpus. For example 0.1 of CPU is equivalent to 100 millicpus.
 	// See https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#meaning-of-cpu.
-	CPUm string `json:"cpu_m,omitempty"`
+	CPUM string `json:"cpuM,omitempty"`
 
 	// Disk size in bytes.
-	DiskSize string `json:"disk_size,omitempty"`
+	DiskSize string `json:"diskSize,omitempty"`
 }
 
 // Validate validates this get PXC cluster resources OK body expected
@@ -355,7 +352,7 @@ swagger:model GetPXCClusterResourcesParamsBodyParams
 type GetPXCClusterResourcesParamsBodyParams struct {
 
 	// Cluster size.
-	ClusterSize int32 `json:"cluster_size,omitempty"`
+	ClusterSize int32 `json:"clusterSize,omitempty"`
 
 	// haproxy
 	Haproxy *GetPXCClusterResourcesParamsBodyParamsHaproxy `json:"haproxy,omitempty"`
@@ -471,7 +468,7 @@ type GetPXCClusterResourcesParamsBodyParamsHaproxy struct {
 	Image string `json:"image,omitempty"`
 
 	// compute resources
-	ComputeResources *GetPXCClusterResourcesParamsBodyParamsHaproxyComputeResources `json:"compute_resources,omitempty"`
+	ComputeResources *GetPXCClusterResourcesParamsBodyParamsHaproxyComputeResources `json:"computeResources,omitempty"`
 }
 
 // Validate validates this get PXC cluster resources params body params haproxy
@@ -497,7 +494,7 @@ func (o *GetPXCClusterResourcesParamsBodyParamsHaproxy) validateComputeResources
 	if o.ComputeResources != nil {
 		if err := o.ComputeResources.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "params" + "." + "haproxy" + "." + "compute_resources")
+				return ve.ValidateName("body" + "." + "params" + "." + "haproxy" + "." + "computeResources")
 			}
 			return err
 		}
@@ -530,10 +527,10 @@ swagger:model GetPXCClusterResourcesParamsBodyParamsHaproxyComputeResources
 type GetPXCClusterResourcesParamsBodyParamsHaproxyComputeResources struct {
 
 	// CPUs in milliCPUs; 1000m = 1 vCPU.
-	CPUm int32 `json:"cpu_m,omitempty"`
+	CPUM int32 `json:"cpuM,omitempty"`
 
 	// Memory in bytes.
-	MemoryBytes string `json:"memory_bytes,omitempty"`
+	MemoryBytes string `json:"memoryBytes,omitempty"`
 }
 
 // Validate validates this get PXC cluster resources params body params haproxy compute resources
@@ -569,10 +566,10 @@ type GetPXCClusterResourcesParamsBodyParamsPXC struct {
 	Image string `json:"image,omitempty"`
 
 	// Disk size in bytes.
-	DiskSize string `json:"disk_size,omitempty"`
+	DiskSize string `json:"diskSize,omitempty"`
 
 	// compute resources
-	ComputeResources *GetPXCClusterResourcesParamsBodyParamsPXCComputeResources `json:"compute_resources,omitempty"`
+	ComputeResources *GetPXCClusterResourcesParamsBodyParamsPXCComputeResources `json:"computeResources,omitempty"`
 }
 
 // Validate validates this get PXC cluster resources params body params PXC
@@ -598,7 +595,7 @@ func (o *GetPXCClusterResourcesParamsBodyParamsPXC) validateComputeResources(for
 	if o.ComputeResources != nil {
 		if err := o.ComputeResources.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "params" + "." + "pxc" + "." + "compute_resources")
+				return ve.ValidateName("body" + "." + "params" + "." + "pxc" + "." + "computeResources")
 			}
 			return err
 		}
@@ -631,10 +628,10 @@ swagger:model GetPXCClusterResourcesParamsBodyParamsPXCComputeResources
 type GetPXCClusterResourcesParamsBodyParamsPXCComputeResources struct {
 
 	// CPUs in milliCPUs; 1000m = 1 vCPU.
-	CPUm int32 `json:"cpu_m,omitempty"`
+	CPUM int32 `json:"cpuM,omitempty"`
 
 	// Memory in bytes.
-	MemoryBytes string `json:"memory_bytes,omitempty"`
+	MemoryBytes string `json:"memoryBytes,omitempty"`
 }
 
 // Validate validates this get PXC cluster resources params body params PXC compute resources
@@ -670,10 +667,10 @@ type GetPXCClusterResourcesParamsBodyParamsProxysql struct {
 	Image string `json:"image,omitempty"`
 
 	// Disk size in bytes.
-	DiskSize string `json:"disk_size,omitempty"`
+	DiskSize string `json:"diskSize,omitempty"`
 
 	// compute resources
-	ComputeResources *GetPXCClusterResourcesParamsBodyParamsProxysqlComputeResources `json:"compute_resources,omitempty"`
+	ComputeResources *GetPXCClusterResourcesParamsBodyParamsProxysqlComputeResources `json:"computeResources,omitempty"`
 }
 
 // Validate validates this get PXC cluster resources params body params proxysql
@@ -699,7 +696,7 @@ func (o *GetPXCClusterResourcesParamsBodyParamsProxysql) validateComputeResource
 	if o.ComputeResources != nil {
 		if err := o.ComputeResources.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "params" + "." + "proxysql" + "." + "compute_resources")
+				return ve.ValidateName("body" + "." + "params" + "." + "proxysql" + "." + "computeResources")
 			}
 			return err
 		}
@@ -732,10 +729,10 @@ swagger:model GetPXCClusterResourcesParamsBodyParamsProxysqlComputeResources
 type GetPXCClusterResourcesParamsBodyParamsProxysqlComputeResources struct {
 
 	// CPUs in milliCPUs; 1000m = 1 vCPU.
-	CPUm int32 `json:"cpu_m,omitempty"`
+	CPUM int32 `json:"cpuM,omitempty"`
 
 	// Memory in bytes.
-	MemoryBytes string `json:"memory_bytes,omitempty"`
+	MemoryBytes string `json:"memoryBytes,omitempty"`
 }
 
 // Validate validates this get PXC cluster resources params body params proxysql compute resources

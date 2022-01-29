@@ -121,7 +121,7 @@ swagger:model RemoveLocationBody
 type RemoveLocationBody struct {
 
 	// Machine-readable ID.
-	LocationID string `json:"location_id,omitempty"`
+	LocationID string `json:"locationId,omitempty"`
 
 	// Force mode
 	Force bool `json:"force,omitempty"`
@@ -154,9 +154,6 @@ func (o *RemoveLocationBody) UnmarshalBinary(b []byte) error {
 swagger:model RemoveLocationDefaultBody
 */
 type RemoveLocationDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`

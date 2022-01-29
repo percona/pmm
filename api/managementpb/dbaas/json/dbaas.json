@@ -30,7 +30,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "kubernetes_cluster_name": {
+                "kubernetesClusterName": {
                   "description": "Kubernetes cluster name.",
                   "type": "string",
                   "x-order": 0
@@ -39,7 +39,7 @@
                   "description": "ChangeComponent contains fields to manage components.",
                   "type": "object",
                   "properties": {
-                    "default_version": {
+                    "defaultVersion": {
                       "type": "string",
                       "x-order": 0
                     },
@@ -87,33 +87,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -140,7 +132,7 @@
                   "description": "ChangeComponent contains fields to manage components.",
                   "type": "object",
                   "properties": {
-                    "default_version": {
+                    "defaultVersion": {
                       "type": "string",
                       "x-order": 0
                     },
@@ -169,7 +161,7 @@
                   },
                   "x-order": 3
                 },
-                "kubernetes_cluster_name": {
+                "kubernetesClusterName": {
                   "description": "Kubernetes cluster name.",
                   "type": "string",
                   "x-order": 0
@@ -178,7 +170,7 @@
                   "description": "ChangeComponent contains fields to manage components.",
                   "type": "object",
                   "properties": {
-                    "default_version": {
+                    "defaultVersion": {
                       "type": "string",
                       "x-order": 0
                     },
@@ -211,7 +203,7 @@
                   "description": "ChangeComponent contains fields to manage components.",
                   "type": "object",
                   "properties": {
-                    "default_version": {
+                    "defaultVersion": {
                       "type": "string",
                       "x-order": 0
                     },
@@ -259,33 +251,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -316,21 +300,21 @@
             "schema": {
               "type": "object",
               "properties": {
-                "cluster_to_components": {
+                "clusterToComponents": {
                   "description": "The cluster name is used as a key for this map, value contains components and their inforamtion about update.",
                   "type": "object",
                   "additionalProperties": {
                     "description": "ComponentsUpdateInformation contains info about components and their available latest versions.",
                     "type": "object",
                     "properties": {
-                      "component_to_update_information": {
+                      "componentToUpdateInformation": {
                         "description": "component_to_update_information stores, under the name of the component, information about the update.\n\"pxc-operator\", \"psmdb-operator\" are names used by backend for our operators.",
                         "type": "object",
                         "additionalProperties": {
                           "description": "ComponentUpdateInformation contains version we can update to for certain component.",
                           "type": "object",
                           "properties": {
-                            "available_version": {
+                            "availableVersion": {
                               "type": "string",
                               "x-order": 0
                             }
@@ -353,33 +337,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -402,12 +378,12 @@
             "schema": {
               "type": "object",
               "properties": {
-                "db_version": {
+                "dbVersion": {
                   "description": "Version of DB.",
                   "type": "string",
                   "x-order": 1
                 },
-                "kubernetes_cluster_name": {
+                "kubernetesClusterName": {
                   "description": "Kubernetes cluster name.",
                   "type": "string",
                   "x-order": 0
@@ -450,11 +426,11 @@
                                   "type": "boolean",
                                   "x-order": 5
                                 },
-                                "image_hash": {
+                                "imageHash": {
                                   "type": "string",
                                   "x-order": 1
                                 },
-                                "image_path": {
+                                "imagePath": {
                                   "type": "string",
                                   "x-order": 0
                                 },
@@ -484,11 +460,11 @@
                                   "type": "boolean",
                                   "x-order": 5
                                 },
-                                "image_hash": {
+                                "imageHash": {
                                   "type": "string",
                                   "x-order": 1
                                 },
-                                "image_path": {
+                                "imagePath": {
                                   "type": "string",
                                   "x-order": 0
                                 },
@@ -500,7 +476,7 @@
                             },
                             "x-order": 4
                           },
-                          "log_collector": {
+                          "logCollector": {
                             "type": "object",
                             "additionalProperties": {
                               "description": "Component contains information about component.",
@@ -518,11 +494,11 @@
                                   "type": "boolean",
                                   "x-order": 5
                                 },
-                                "image_hash": {
+                                "imageHash": {
                                   "type": "string",
                                   "x-order": 1
                                 },
-                                "image_path": {
+                                "imagePath": {
                                   "type": "string",
                                   "x-order": 0
                                 },
@@ -552,11 +528,11 @@
                                   "type": "boolean",
                                   "x-order": 5
                                 },
-                                "image_hash": {
+                                "imageHash": {
                                   "type": "string",
                                   "x-order": 1
                                 },
-                                "image_path": {
+                                "imagePath": {
                                   "type": "string",
                                   "x-order": 0
                                 },
@@ -586,11 +562,11 @@
                                   "type": "boolean",
                                   "x-order": 5
                                 },
-                                "image_hash": {
+                                "imageHash": {
                                   "type": "string",
                                   "x-order": 1
                                 },
-                                "image_path": {
+                                "imagePath": {
                                   "type": "string",
                                   "x-order": 0
                                 },
@@ -620,11 +596,11 @@
                                   "type": "boolean",
                                   "x-order": 5
                                 },
-                                "image_hash": {
+                                "imageHash": {
                                   "type": "string",
                                   "x-order": 1
                                 },
-                                "image_path": {
+                                "imagePath": {
                                   "type": "string",
                                   "x-order": 0
                                 },
@@ -654,11 +630,11 @@
                                   "type": "boolean",
                                   "x-order": 5
                                 },
-                                "image_hash": {
+                                "imageHash": {
                                   "type": "string",
                                   "x-order": 1
                                 },
-                                "image_path": {
+                                "imagePath": {
                                   "type": "string",
                                   "x-order": 0
                                 },
@@ -688,11 +664,11 @@
                                   "type": "boolean",
                                   "x-order": 5
                                 },
-                                "image_hash": {
+                                "imageHash": {
                                   "type": "string",
                                   "x-order": 1
                                 },
-                                "image_path": {
+                                "imagePath": {
                                   "type": "string",
                                   "x-order": 0
                                 },
@@ -730,33 +706,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -779,12 +747,12 @@
             "schema": {
               "type": "object",
               "properties": {
-                "db_version": {
+                "dbVersion": {
                   "description": "Version of DB.",
                   "type": "string",
                   "x-order": 1
                 },
-                "kubernetes_cluster_name": {
+                "kubernetesClusterName": {
                   "description": "Kubernetes cluster name.",
                   "type": "string",
                   "x-order": 0
@@ -827,11 +795,11 @@
                                   "type": "boolean",
                                   "x-order": 5
                                 },
-                                "image_hash": {
+                                "imageHash": {
                                   "type": "string",
                                   "x-order": 1
                                 },
-                                "image_path": {
+                                "imagePath": {
                                   "type": "string",
                                   "x-order": 0
                                 },
@@ -861,11 +829,11 @@
                                   "type": "boolean",
                                   "x-order": 5
                                 },
-                                "image_hash": {
+                                "imageHash": {
                                   "type": "string",
                                   "x-order": 1
                                 },
-                                "image_path": {
+                                "imagePath": {
                                   "type": "string",
                                   "x-order": 0
                                 },
@@ -877,7 +845,7 @@
                             },
                             "x-order": 4
                           },
-                          "log_collector": {
+                          "logCollector": {
                             "type": "object",
                             "additionalProperties": {
                               "description": "Component contains information about component.",
@@ -895,11 +863,11 @@
                                   "type": "boolean",
                                   "x-order": 5
                                 },
-                                "image_hash": {
+                                "imageHash": {
                                   "type": "string",
                                   "x-order": 1
                                 },
-                                "image_path": {
+                                "imagePath": {
                                   "type": "string",
                                   "x-order": 0
                                 },
@@ -929,11 +897,11 @@
                                   "type": "boolean",
                                   "x-order": 5
                                 },
-                                "image_hash": {
+                                "imageHash": {
                                   "type": "string",
                                   "x-order": 1
                                 },
-                                "image_path": {
+                                "imagePath": {
                                   "type": "string",
                                   "x-order": 0
                                 },
@@ -963,11 +931,11 @@
                                   "type": "boolean",
                                   "x-order": 5
                                 },
-                                "image_hash": {
+                                "imageHash": {
                                   "type": "string",
                                   "x-order": 1
                                 },
-                                "image_path": {
+                                "imagePath": {
                                   "type": "string",
                                   "x-order": 0
                                 },
@@ -997,11 +965,11 @@
                                   "type": "boolean",
                                   "x-order": 5
                                 },
-                                "image_hash": {
+                                "imageHash": {
                                   "type": "string",
                                   "x-order": 1
                                 },
-                                "image_path": {
+                                "imagePath": {
                                   "type": "string",
                                   "x-order": 0
                                 },
@@ -1031,11 +999,11 @@
                                   "type": "boolean",
                                   "x-order": 5
                                 },
-                                "image_hash": {
+                                "imageHash": {
                                   "type": "string",
                                   "x-order": 1
                                 },
-                                "image_path": {
+                                "imagePath": {
                                   "type": "string",
                                   "x-order": 0
                                 },
@@ -1065,11 +1033,11 @@
                                   "type": "boolean",
                                   "x-order": 5
                                 },
-                                "image_hash": {
+                                "imageHash": {
                                   "type": "string",
                                   "x-order": 1
                                 },
-                                "image_path": {
+                                "imagePath": {
                                   "type": "string",
                                   "x-order": 0
                                 },
@@ -1107,33 +1075,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -1156,12 +1116,12 @@
             "schema": {
               "type": "object",
               "properties": {
-                "kubernetes_cluster_name": {
+                "kubernetesClusterName": {
                   "description": "Kubernetes cluster name.",
                   "type": "string",
                   "x-order": 0
                 },
-                "operator_type": {
+                "operatorType": {
                   "description": "operator_type tells what operator we are interested in updating.",
                   "type": "string",
                   "x-order": 1
@@ -1204,33 +1164,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -1253,7 +1205,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "cluster_type": {
+                "clusterType": {
                   "description": "DBClusterType represents database cluster type.\n\n - DB_CLUSTER_TYPE_INVALID: DB_CLUSTER_TYPE_INVALID represents unknown cluster type.\n - DB_CLUSTER_TYPE_PXC: DB_CLUSTER_TYPE_PXC represents pxc cluster type.\n - DB_CLUSTER_TYPE_PSMDB: DB_CLUSTER_TYPE_PSMDB represents psmdb cluster type.",
                   "type": "string",
                   "default": "DB_CLUSTER_TYPE_INVALID",
@@ -1264,7 +1216,7 @@
                   ],
                   "x-order": 2
                 },
-                "kubernetes_cluster_name": {
+                "kubernetesClusterName": {
                   "description": "Kubernetes cluster name.",
                   "type": "string",
                   "x-order": 0
@@ -1293,33 +1245,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -1342,7 +1286,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "kubernetes_cluster_name": {
+                "kubernetesClusterName": {
                   "description": "Kubernetes cluster name.",
                   "type": "string",
                   "x-order": 0
@@ -1357,14 +1301,14 @@
             "schema": {
               "type": "object",
               "properties": {
-                "psmdb_clusters": {
+                "psmdbClusters": {
                   "description": "PSMDB clusters information.",
                   "type": "array",
                   "items": {
                     "description": "PSMDBCluster represents PSMDB cluster information.",
                     "type": "object",
                     "properties": {
-                      "available_image": {
+                      "availableImage": {
                         "description": "Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.\nIf it's empty, no upgrade is available.",
                         "type": "string",
                         "x-order": 6
@@ -1374,7 +1318,7 @@
                         "type": "boolean",
                         "x-order": 4
                       },
-                      "installed_image": {
+                      "installedImage": {
                         "description": "Installed PSMDB image.",
                         "type": "string",
                         "x-order": 5
@@ -1388,7 +1332,7 @@
                         "description": "RunningOperation respresents a long-running operation.",
                         "type": "object",
                         "properties": {
-                          "finished_steps": {
+                          "finishedSteps": {
                             "description": "Finished steps of the operaion; can decrease or increase compared to the previous value.",
                             "type": "integer",
                             "format": "int32",
@@ -1399,7 +1343,7 @@
                             "type": "string",
                             "x-order": 1
                           },
-                          "total_steps": {
+                          "totalSteps": {
                             "description": "Total steps needed to finish the operation; can decrease or increase compared to the previous value.",
                             "type": "integer",
                             "format": "int32",
@@ -1412,7 +1356,7 @@
                         "description": "PSMDBClusterParams represents PSMDB cluster parameters that can be updated.",
                         "type": "object",
                         "properties": {
-                          "cluster_size": {
+                          "clusterSize": {
                             "description": "Cluster size.",
                             "type": "integer",
                             "format": "int32",
@@ -1427,17 +1371,17 @@
                             "description": "ReplicaSet container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
                             "type": "object",
                             "properties": {
-                              "compute_resources": {
+                              "computeResources": {
                                 "description": "ComputeResources represents container computer resources requests or limits.",
                                 "type": "object",
                                 "properties": {
-                                  "cpu_m": {
+                                  "cpuM": {
                                     "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
                                     "type": "integer",
                                     "format": "int32",
                                     "x-order": 0
                                   },
-                                  "memory_bytes": {
+                                  "memoryBytes": {
                                     "description": "Memory in bytes.",
                                     "type": "string",
                                     "format": "int64",
@@ -1446,7 +1390,7 @@
                                 },
                                 "x-order": 0
                               },
-                              "disk_size": {
+                              "diskSize": {
                                 "description": "Disk size in bytes.",
                                 "type": "string",
                                 "format": "int64",
@@ -1477,14 +1421,14 @@
                   },
                   "x-order": 1
                 },
-                "pxc_clusters": {
+                "pxcClusters": {
                   "description": "PXC clusters information.",
                   "type": "array",
                   "items": {
                     "description": "PXCCluster represents PXC cluster information.",
                     "type": "object",
                     "properties": {
-                      "available_image": {
+                      "availableImage": {
                         "description": "Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.\nIf it's empty, no upgrade is available.",
                         "type": "string",
                         "x-order": 6
@@ -1494,7 +1438,7 @@
                         "type": "boolean",
                         "x-order": 4
                       },
-                      "installed_image": {
+                      "installedImage": {
                         "description": "Installed XtraDB image.",
                         "type": "string",
                         "x-order": 5
@@ -1508,7 +1452,7 @@
                         "description": "RunningOperation respresents a long-running operation.",
                         "type": "object",
                         "properties": {
-                          "finished_steps": {
+                          "finishedSteps": {
                             "description": "Finished steps of the operaion; can decrease or increase compared to the previous value.",
                             "type": "integer",
                             "format": "int32",
@@ -1519,7 +1463,7 @@
                             "type": "string",
                             "x-order": 1
                           },
-                          "total_steps": {
+                          "totalSteps": {
                             "description": "Total steps needed to finish the operation; can decrease or increase compared to the previous value.",
                             "type": "integer",
                             "format": "int32",
@@ -1532,7 +1476,7 @@
                         "description": "PXCClusterParams represents PXC cluster parameters that can be updated.",
                         "type": "object",
                         "properties": {
-                          "cluster_size": {
+                          "clusterSize": {
                             "description": "Cluster size.",
                             "type": "integer",
                             "format": "int32",
@@ -1542,17 +1486,17 @@
                             "description": "HAProxy container parameters.\nNOTE: HAProxy does not need disk size as ProxySQL does because the container does not require it.",
                             "type": "object",
                             "properties": {
-                              "compute_resources": {
+                              "computeResources": {
                                 "description": "ComputeResources represents container computer resources requests or limits.",
                                 "type": "object",
                                 "properties": {
-                                  "cpu_m": {
+                                  "cpuM": {
                                     "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
                                     "type": "integer",
                                     "format": "int32",
                                     "x-order": 0
                                   },
-                                  "memory_bytes": {
+                                  "memoryBytes": {
                                     "description": "Memory in bytes.",
                                     "type": "string",
                                     "format": "int64",
@@ -1573,17 +1517,17 @@
                             "description": "ProxySQL container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
                             "type": "object",
                             "properties": {
-                              "compute_resources": {
+                              "computeResources": {
                                 "description": "ComputeResources represents container computer resources requests or limits.",
                                 "type": "object",
                                 "properties": {
-                                  "cpu_m": {
+                                  "cpuM": {
                                     "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
                                     "type": "integer",
                                     "format": "int32",
                                     "x-order": 0
                                   },
-                                  "memory_bytes": {
+                                  "memoryBytes": {
                                     "description": "Memory in bytes.",
                                     "type": "string",
                                     "format": "int64",
@@ -1592,7 +1536,7 @@
                                 },
                                 "x-order": 1
                               },
-                              "disk_size": {
+                              "diskSize": {
                                 "description": "Disk size in bytes.",
                                 "type": "string",
                                 "format": "int64",
@@ -1610,17 +1554,17 @@
                             "description": "PXC container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
                             "type": "object",
                             "properties": {
-                              "compute_resources": {
+                              "computeResources": {
                                 "description": "ComputeResources represents container computer resources requests or limits.",
                                 "type": "object",
                                 "properties": {
-                                  "cpu_m": {
+                                  "cpuM": {
                                     "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
                                     "type": "integer",
                                     "format": "int32",
                                     "x-order": 0
                                   },
-                                  "memory_bytes": {
+                                  "memoryBytes": {
                                     "description": "Memory in bytes.",
                                     "type": "string",
                                     "format": "int64",
@@ -1629,7 +1573,7 @@
                                 },
                                 "x-order": 1
                               },
-                              "disk_size": {
+                              "diskSize": {
                                 "description": "Disk size in bytes.",
                                 "type": "string",
                                 "format": "int64",
@@ -1676,33 +1620,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -1725,7 +1661,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "cluster_type": {
+                "clusterType": {
                   "description": "DBClusterType represents database cluster type.\n\n - DB_CLUSTER_TYPE_INVALID: DB_CLUSTER_TYPE_INVALID represents unknown cluster type.\n - DB_CLUSTER_TYPE_PXC: DB_CLUSTER_TYPE_PXC represents pxc cluster type.\n - DB_CLUSTER_TYPE_PSMDB: DB_CLUSTER_TYPE_PSMDB represents psmdb cluster type.",
                   "type": "string",
                   "default": "DB_CLUSTER_TYPE_INVALID",
@@ -1736,7 +1672,7 @@
                   ],
                   "x-order": 2
                 },
-                "kubernetes_cluster_name": {
+                "kubernetesClusterName": {
                   "description": "Kubernetes cluster name.",
                   "type": "string",
                   "x-order": 0
@@ -1765,33 +1701,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -1814,12 +1742,12 @@
             "schema": {
               "type": "object",
               "properties": {
-                "cluster_name": {
+                "clusterName": {
                   "description": "DB cluster name.",
                   "type": "string",
                   "x-order": 1
                 },
-                "kubernetes_cluster_name": {
+                "kubernetesClusterName": {
                   "description": "Kubernetes cluster name.",
                   "type": "string",
                   "x-order": 0
@@ -1874,33 +1802,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -1923,7 +1843,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "kubernetes_cluster_name": {
+                "kubernetesClusterName": {
                   "description": "Kubernetes cluster name.",
                   "type": "string",
                   "x-order": 0
@@ -1938,7 +1858,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "kube_auth": {
+                "kubeAuth": {
                   "description": "KubeAuth represents Kubernetes / kubectl authentication and authorization information.",
                   "type": "object",
                   "properties": {
@@ -1961,33 +1881,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -2018,14 +1930,14 @@
             "schema": {
               "type": "object",
               "properties": {
-                "kubernetes_clusters": {
+                "kubernetesClusters": {
                   "description": "Kubernetes clusters.",
                   "type": "array",
                   "items": {
                     "description": "Cluster contains public info about Kubernetes cluster.\nTODO Do not use inner messages in all public APIs (for consistency).",
                     "type": "object",
                     "properties": {
-                      "kubernetes_cluster_name": {
+                      "kubernetesClusterName": {
                         "description": "Kubernetes cluster name.",
                         "type": "string",
                         "x-order": 0
@@ -2109,33 +2021,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -2158,17 +2062,17 @@
             "schema": {
               "type": "object",
               "properties": {
-                "aws_access_key_id": {
+                "awsAccessKeyId": {
                   "description": "AWS access key id, only needed when registering EKS cluster and kubeconfig does not contain it.",
                   "type": "string",
                   "x-order": 2
                 },
-                "aws_secret_access_key": {
+                "awsSecretAccessKey": {
                   "description": "AWS secret access key, only needed when registering EKS cluster and kubeconfig does not contain it.",
                   "type": "string",
                   "x-order": 3
                 },
-                "kube_auth": {
+                "kubeAuth": {
                   "description": "KubeAuth represents Kubernetes / kubectl authentication and authorization information.",
                   "type": "object",
                   "properties": {
@@ -2180,7 +2084,7 @@
                   },
                   "x-order": 1
                 },
-                "kubernetes_cluster_name": {
+                "kubernetesClusterName": {
                   "description": "Kubernetes cluster name.",
                   "type": "string",
                   "x-order": 0
@@ -2204,33 +2108,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -2253,7 +2149,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "kubernetes_cluster_name": {
+                "kubernetesClusterName": {
                   "description": "Kubernetes cluster name.",
                   "type": "string",
                   "x-order": 0
@@ -2272,19 +2168,19 @@
                   "description": "Resources contains Kubernetes cluster resources.",
                   "type": "object",
                   "properties": {
-                    "cpu_m": {
+                    "cpuM": {
                       "description": "CPU in millicpus. For example 0.1 of CPU is equivalent to 100 millicpus.\nSee https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#meaning-of-cpu.",
                       "type": "string",
                       "format": "uint64",
                       "x-order": 1
                     },
-                    "disk_size": {
+                    "diskSize": {
                       "description": "Disk size in bytes.",
                       "type": "string",
                       "format": "uint64",
                       "x-order": 2
                     },
-                    "memory_bytes": {
+                    "memoryBytes": {
                       "description": "Memory in bytes.",
                       "type": "string",
                       "format": "uint64",
@@ -2297,19 +2193,19 @@
                   "description": "Resources contains Kubernetes cluster resources.",
                   "type": "object",
                   "properties": {
-                    "cpu_m": {
+                    "cpuM": {
                       "description": "CPU in millicpus. For example 0.1 of CPU is equivalent to 100 millicpus.\nSee https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#meaning-of-cpu.",
                       "type": "string",
                       "format": "uint64",
                       "x-order": 1
                     },
-                    "disk_size": {
+                    "diskSize": {
                       "description": "Disk size in bytes.",
                       "type": "string",
                       "format": "uint64",
                       "x-order": 2
                     },
-                    "memory_bytes": {
+                    "memoryBytes": {
                       "description": "Memory in bytes.",
                       "type": "string",
                       "format": "uint64",
@@ -2329,33 +2225,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -2383,7 +2271,7 @@
                   "type": "boolean",
                   "x-order": 1
                 },
-                "kubernetes_cluster_name": {
+                "kubernetesClusterName": {
                   "description": "Kubernetes cluster name.",
                   "type": "string",
                   "x-order": 0
@@ -2407,33 +2295,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -2461,7 +2341,7 @@
                   "type": "boolean",
                   "x-order": 3
                 },
-                "kubernetes_cluster_name": {
+                "kubernetesClusterName": {
                   "description": "Kubernetes cluster name.",
                   "type": "string",
                   "x-order": 0
@@ -2475,7 +2355,7 @@
                   "description": "PSMDBClusterParams represents PSMDB cluster parameters that can be updated.",
                   "type": "object",
                   "properties": {
-                    "cluster_size": {
+                    "clusterSize": {
                       "description": "Cluster size.",
                       "type": "integer",
                       "format": "int32",
@@ -2490,17 +2370,17 @@
                       "description": "ReplicaSet container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
                       "type": "object",
                       "properties": {
-                        "compute_resources": {
+                        "computeResources": {
                           "description": "ComputeResources represents container computer resources requests or limits.",
                           "type": "object",
                           "properties": {
-                            "cpu_m": {
+                            "cpuM": {
                               "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
                               "type": "integer",
                               "format": "int32",
                               "x-order": 0
                             },
-                            "memory_bytes": {
+                            "memoryBytes": {
                               "description": "Memory in bytes.",
                               "type": "string",
                               "format": "int64",
@@ -2509,7 +2389,7 @@
                           },
                           "x-order": 0
                         },
-                        "disk_size": {
+                        "diskSize": {
                           "description": "Disk size in bytes.",
                           "type": "string",
                           "format": "int64",
@@ -2540,33 +2420,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -2593,7 +2465,7 @@
                   "description": "PSMDBClusterParams represents PSMDB cluster parameters that can be updated.",
                   "type": "object",
                   "properties": {
-                    "cluster_size": {
+                    "clusterSize": {
                       "description": "Cluster size.",
                       "type": "integer",
                       "format": "int32",
@@ -2608,17 +2480,17 @@
                       "description": "ReplicaSet container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
                       "type": "object",
                       "properties": {
-                        "compute_resources": {
+                        "computeResources": {
                           "description": "ComputeResources represents container computer resources requests or limits.",
                           "type": "object",
                           "properties": {
-                            "cpu_m": {
+                            "cpuM": {
                               "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
                               "type": "integer",
                               "format": "int32",
                               "x-order": 0
                             },
-                            "memory_bytes": {
+                            "memoryBytes": {
                               "description": "Memory in bytes.",
                               "type": "string",
                               "format": "int64",
@@ -2627,7 +2499,7 @@
                           },
                           "x-order": 0
                         },
-                        "disk_size": {
+                        "diskSize": {
                           "description": "Disk size in bytes.",
                           "type": "string",
                           "format": "int64",
@@ -2653,19 +2525,19 @@
                   "description": "Resources contains Kubernetes cluster resources.",
                   "type": "object",
                   "properties": {
-                    "cpu_m": {
+                    "cpuM": {
                       "description": "CPU in millicpus. For example 0.1 of CPU is equivalent to 100 millicpus.\nSee https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#meaning-of-cpu.",
                       "type": "string",
                       "format": "uint64",
                       "x-order": 1
                     },
-                    "disk_size": {
+                    "diskSize": {
                       "description": "Disk size in bytes.",
                       "type": "string",
                       "format": "uint64",
                       "x-order": 2
                     },
-                    "memory_bytes": {
+                    "memoryBytes": {
                       "description": "Memory in bytes.",
                       "type": "string",
                       "format": "uint64",
@@ -2685,33 +2557,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -2734,7 +2598,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "kubernetes_cluster_name": {
+                "kubernetesClusterName": {
                   "description": "Kubernetes cluster name.",
                   "type": "string",
                   "x-order": 0
@@ -2748,7 +2612,7 @@
                   "description": "UpdatePSMDBClusterParams represents PSMDB cluster parameters that can be updated.",
                   "type": "object",
                   "properties": {
-                    "cluster_size": {
+                    "clusterSize": {
                       "description": "Cluster size.",
                       "type": "integer",
                       "format": "int32",
@@ -2763,17 +2627,17 @@
                       "description": "ReplicaSet container parameters.",
                       "type": "object",
                       "properties": {
-                        "compute_resources": {
+                        "computeResources": {
                           "description": "ComputeResources represents container computer resources requests or limits.",
                           "type": "object",
                           "properties": {
-                            "cpu_m": {
+                            "cpuM": {
                               "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
                               "type": "integer",
                               "format": "int32",
                               "x-order": 0
                             },
-                            "memory_bytes": {
+                            "memoryBytes": {
                               "description": "Memory in bytes.",
                               "type": "string",
                               "format": "int64",
@@ -2817,33 +2681,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -2866,7 +2722,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "kubernetes_cluster_name": {
+                "kubernetesClusterName": {
                   "description": "Kubernetes cluster name.",
                   "type": "string",
                   "x-order": 0
@@ -2886,7 +2742,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "connection_credentials": {
+                "connectionCredentials": {
                   "description": "PSMDBCredentials is a credentials to connect to PSMDB.\nTODO Do not use inner messages in all public APIs (for consistency).",
                   "type": "object",
                   "properties": {
@@ -2930,33 +2786,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -2984,7 +2832,7 @@
                   "type": "boolean",
                   "x-order": 3
                 },
-                "kubernetes_cluster_name": {
+                "kubernetesClusterName": {
                   "description": "Kubernetes cluster name.",
                   "type": "string",
                   "x-order": 0
@@ -2998,7 +2846,7 @@
                   "description": "PXCClusterParams represents PXC cluster parameters that can be updated.",
                   "type": "object",
                   "properties": {
-                    "cluster_size": {
+                    "clusterSize": {
                       "description": "Cluster size.",
                       "type": "integer",
                       "format": "int32",
@@ -3008,17 +2856,17 @@
                       "description": "HAProxy container parameters.\nNOTE: HAProxy does not need disk size as ProxySQL does because the container does not require it.",
                       "type": "object",
                       "properties": {
-                        "compute_resources": {
+                        "computeResources": {
                           "description": "ComputeResources represents container computer resources requests or limits.",
                           "type": "object",
                           "properties": {
-                            "cpu_m": {
+                            "cpuM": {
                               "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
                               "type": "integer",
                               "format": "int32",
                               "x-order": 0
                             },
-                            "memory_bytes": {
+                            "memoryBytes": {
                               "description": "Memory in bytes.",
                               "type": "string",
                               "format": "int64",
@@ -3039,17 +2887,17 @@
                       "description": "ProxySQL container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
                       "type": "object",
                       "properties": {
-                        "compute_resources": {
+                        "computeResources": {
                           "description": "ComputeResources represents container computer resources requests or limits.",
                           "type": "object",
                           "properties": {
-                            "cpu_m": {
+                            "cpuM": {
                               "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
                               "type": "integer",
                               "format": "int32",
                               "x-order": 0
                             },
-                            "memory_bytes": {
+                            "memoryBytes": {
                               "description": "Memory in bytes.",
                               "type": "string",
                               "format": "int64",
@@ -3058,7 +2906,7 @@
                           },
                           "x-order": 1
                         },
-                        "disk_size": {
+                        "diskSize": {
                           "description": "Disk size in bytes.",
                           "type": "string",
                           "format": "int64",
@@ -3076,17 +2924,17 @@
                       "description": "PXC container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
                       "type": "object",
                       "properties": {
-                        "compute_resources": {
+                        "computeResources": {
                           "description": "ComputeResources represents container computer resources requests or limits.",
                           "type": "object",
                           "properties": {
-                            "cpu_m": {
+                            "cpuM": {
                               "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
                               "type": "integer",
                               "format": "int32",
                               "x-order": 0
                             },
-                            "memory_bytes": {
+                            "memoryBytes": {
                               "description": "Memory in bytes.",
                               "type": "string",
                               "format": "int64",
@@ -3095,7 +2943,7 @@
                           },
                           "x-order": 1
                         },
-                        "disk_size": {
+                        "diskSize": {
                           "description": "Disk size in bytes.",
                           "type": "string",
                           "format": "int64",
@@ -3131,33 +2979,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -3184,7 +3024,7 @@
                   "description": "PXCClusterParams represents PXC cluster parameters that can be updated.",
                   "type": "object",
                   "properties": {
-                    "cluster_size": {
+                    "clusterSize": {
                       "description": "Cluster size.",
                       "type": "integer",
                       "format": "int32",
@@ -3194,17 +3034,17 @@
                       "description": "HAProxy container parameters.\nNOTE: HAProxy does not need disk size as ProxySQL does because the container does not require it.",
                       "type": "object",
                       "properties": {
-                        "compute_resources": {
+                        "computeResources": {
                           "description": "ComputeResources represents container computer resources requests or limits.",
                           "type": "object",
                           "properties": {
-                            "cpu_m": {
+                            "cpuM": {
                               "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
                               "type": "integer",
                               "format": "int32",
                               "x-order": 0
                             },
-                            "memory_bytes": {
+                            "memoryBytes": {
                               "description": "Memory in bytes.",
                               "type": "string",
                               "format": "int64",
@@ -3225,17 +3065,17 @@
                       "description": "ProxySQL container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
                       "type": "object",
                       "properties": {
-                        "compute_resources": {
+                        "computeResources": {
                           "description": "ComputeResources represents container computer resources requests or limits.",
                           "type": "object",
                           "properties": {
-                            "cpu_m": {
+                            "cpuM": {
                               "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
                               "type": "integer",
                               "format": "int32",
                               "x-order": 0
                             },
-                            "memory_bytes": {
+                            "memoryBytes": {
                               "description": "Memory in bytes.",
                               "type": "string",
                               "format": "int64",
@@ -3244,7 +3084,7 @@
                           },
                           "x-order": 1
                         },
-                        "disk_size": {
+                        "diskSize": {
                           "description": "Disk size in bytes.",
                           "type": "string",
                           "format": "int64",
@@ -3262,17 +3102,17 @@
                       "description": "PXC container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
                       "type": "object",
                       "properties": {
-                        "compute_resources": {
+                        "computeResources": {
                           "description": "ComputeResources represents container computer resources requests or limits.",
                           "type": "object",
                           "properties": {
-                            "cpu_m": {
+                            "cpuM": {
                               "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
                               "type": "integer",
                               "format": "int32",
                               "x-order": 0
                             },
-                            "memory_bytes": {
+                            "memoryBytes": {
                               "description": "Memory in bytes.",
                               "type": "string",
                               "format": "int64",
@@ -3281,7 +3121,7 @@
                           },
                           "x-order": 1
                         },
-                        "disk_size": {
+                        "diskSize": {
                           "description": "Disk size in bytes.",
                           "type": "string",
                           "format": "int64",
@@ -3312,19 +3152,19 @@
                   "description": "Resources contains Kubernetes cluster resources.",
                   "type": "object",
                   "properties": {
-                    "cpu_m": {
+                    "cpuM": {
                       "description": "CPU in millicpus. For example 0.1 of CPU is equivalent to 100 millicpus.\nSee https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#meaning-of-cpu.",
                       "type": "string",
                       "format": "uint64",
                       "x-order": 1
                     },
-                    "disk_size": {
+                    "diskSize": {
                       "description": "Disk size in bytes.",
                       "type": "string",
                       "format": "uint64",
                       "x-order": 2
                     },
-                    "memory_bytes": {
+                    "memoryBytes": {
                       "description": "Memory in bytes.",
                       "type": "string",
                       "format": "uint64",
@@ -3344,33 +3184,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -3393,7 +3225,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "kubernetes_cluster_name": {
+                "kubernetesClusterName": {
                   "description": "Kubernetes cluster name.",
                   "type": "string",
                   "x-order": 0
@@ -3407,7 +3239,7 @@
                   "description": "UpdatePXCClusterParams represents PXC cluster parameters that can be updated.",
                   "type": "object",
                   "properties": {
-                    "cluster_size": {
+                    "clusterSize": {
                       "description": "Cluster size.",
                       "type": "integer",
                       "format": "int32",
@@ -3417,17 +3249,17 @@
                       "description": "HAProxy container parameters.",
                       "type": "object",
                       "properties": {
-                        "compute_resources": {
+                        "computeResources": {
                           "description": "ComputeResources represents container computer resources requests or limits.",
                           "type": "object",
                           "properties": {
-                            "cpu_m": {
+                            "cpuM": {
                               "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
                               "type": "integer",
                               "format": "int32",
                               "x-order": 0
                             },
-                            "memory_bytes": {
+                            "memoryBytes": {
                               "description": "Memory in bytes.",
                               "type": "string",
                               "format": "int64",
@@ -3443,17 +3275,17 @@
                       "description": "ProxySQL container parameters.",
                       "type": "object",
                       "properties": {
-                        "compute_resources": {
+                        "computeResources": {
                           "description": "ComputeResources represents container computer resources requests or limits.",
                           "type": "object",
                           "properties": {
-                            "cpu_m": {
+                            "cpuM": {
                               "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
                               "type": "integer",
                               "format": "int32",
                               "x-order": 0
                             },
-                            "memory_bytes": {
+                            "memoryBytes": {
                               "description": "Memory in bytes.",
                               "type": "string",
                               "format": "int64",
@@ -3469,17 +3301,17 @@
                       "description": "PXC container parameters.",
                       "type": "object",
                       "properties": {
-                        "compute_resources": {
+                        "computeResources": {
                           "description": "ComputeResources represents container computer resources requests or limits.",
                           "type": "object",
                           "properties": {
-                            "cpu_m": {
+                            "cpuM": {
                               "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
                               "type": "integer",
                               "format": "int32",
                               "x-order": 0
                             },
-                            "memory_bytes": {
+                            "memoryBytes": {
                               "description": "Memory in bytes.",
                               "type": "string",
                               "format": "int64",
@@ -3528,33 +3360,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -3577,7 +3401,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "kubernetes_cluster_name": {
+                "kubernetesClusterName": {
                   "description": "Kubernetes cluster name.",
                   "type": "string",
                   "x-order": 0
@@ -3597,7 +3421,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "connection_credentials": {
+                "connectionCredentials": {
                   "description": "PXCClusterConnectionCredentials is cluster connection credentials.",
                   "type": "object",
                   "properties": {
@@ -3636,33 +3460,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -3670,5 +3486,25 @@
         }
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "name": "Components"
+    },
+    {
+      "name": "DBClusters"
+    },
+    {
+      "name": "Kubernetes"
+    },
+    {
+      "name": "LogsAPI"
+    },
+    {
+      "name": "PSMDBClusters"
+    },
+    {
+      "name": "PXCClusters"
+    }
+  ]
 }

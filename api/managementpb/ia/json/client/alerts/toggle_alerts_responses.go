@@ -124,7 +124,7 @@ type ToggleAlertsBody struct {
 
 	// List of alerts that silence state should be switched. If provided array is empty than all
 	// existing alerts are switched.
-	AlertIds []string `json:"alert_ids"`
+	AlertIds []string `json:"alertIds"`
 
 	// BooleanFlag represent a command to set some boolean property to true,
 	// to false, or avoid changing that property.
@@ -218,9 +218,6 @@ func (o *ToggleAlertsBody) UnmarshalBinary(b []byte) error {
 swagger:model ToggleAlertsDefaultBody
 */
 type ToggleAlertsDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`

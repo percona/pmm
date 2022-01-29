@@ -123,7 +123,7 @@ swagger:model GetResourcesBody
 type GetResourcesBody struct {
 
 	// Kubernetes cluster name.
-	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
+	KubernetesClusterName string `json:"kubernetesClusterName,omitempty"`
 }
 
 // Validate validates this get resources body
@@ -153,9 +153,6 @@ func (o *GetResourcesBody) UnmarshalBinary(b []byte) error {
 swagger:model GetResourcesDefaultBody
 */
 type GetResourcesDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -314,14 +311,14 @@ swagger:model GetResourcesOKBodyAll
 type GetResourcesOKBodyAll struct {
 
 	// Memory in bytes.
-	MemoryBytes string `json:"memory_bytes,omitempty"`
+	MemoryBytes string `json:"memoryBytes,omitempty"`
 
 	// CPU in millicpus. For example 0.1 of CPU is equivalent to 100 millicpus.
 	// See https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#meaning-of-cpu.
-	CPUm string `json:"cpu_m,omitempty"`
+	CPUM string `json:"cpuM,omitempty"`
 
 	// Disk size in bytes.
-	DiskSize string `json:"disk_size,omitempty"`
+	DiskSize string `json:"diskSize,omitempty"`
 }
 
 // Validate validates this get resources OK body all
@@ -353,14 +350,14 @@ swagger:model GetResourcesOKBodyAvailable
 type GetResourcesOKBodyAvailable struct {
 
 	// Memory in bytes.
-	MemoryBytes string `json:"memory_bytes,omitempty"`
+	MemoryBytes string `json:"memoryBytes,omitempty"`
 
 	// CPU in millicpus. For example 0.1 of CPU is equivalent to 100 millicpus.
 	// See https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#meaning-of-cpu.
-	CPUm string `json:"cpu_m,omitempty"`
+	CPUM string `json:"cpuM,omitempty"`
 
 	// Disk size in bytes.
-	DiskSize string `json:"disk_size,omitempty"`
+	DiskSize string `json:"diskSize,omitempty"`
 }
 
 // Validate validates this get resources OK body available

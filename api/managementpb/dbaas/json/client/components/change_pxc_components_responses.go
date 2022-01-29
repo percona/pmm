@@ -121,7 +121,7 @@ swagger:model ChangePXCComponentsBody
 type ChangePXCComponentsBody struct {
 
 	// Kubernetes cluster name.
-	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
+	KubernetesClusterName string `json:"kubernetesClusterName,omitempty"`
 
 	// haproxy
 	Haproxy *ChangePXCComponentsParamsBodyHaproxy `json:"haproxy,omitempty"`
@@ -232,9 +232,6 @@ swagger:model ChangePXCComponentsDefaultBody
 */
 type ChangePXCComponentsDefaultBody struct {
 
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -308,7 +305,7 @@ swagger:model ChangePXCComponentsParamsBodyHaproxy
 type ChangePXCComponentsParamsBodyHaproxy struct {
 
 	// default version
-	DefaultVersion string `json:"default_version,omitempty"`
+	DefaultVersion string `json:"defaultVersion,omitempty"`
 
 	// versions
 	Versions []*ChangePXCComponentsParamsBodyHaproxyVersionsItems0 `json:"versions"`
@@ -415,7 +412,7 @@ swagger:model ChangePXCComponentsParamsBodyPXC
 type ChangePXCComponentsParamsBodyPXC struct {
 
 	// default version
-	DefaultVersion string `json:"default_version,omitempty"`
+	DefaultVersion string `json:"defaultVersion,omitempty"`
 
 	// versions
 	Versions []*ChangePXCComponentsParamsBodyPXCVersionsItems0 `json:"versions"`
@@ -522,7 +519,7 @@ swagger:model ChangePXCComponentsParamsBodyProxysql
 type ChangePXCComponentsParamsBodyProxysql struct {
 
 	// default version
-	DefaultVersion string `json:"default_version,omitempty"`
+	DefaultVersion string `json:"defaultVersion,omitempty"`
 
 	// versions
 	Versions []*ChangePXCComponentsParamsBodyProxysqlVersionsItems0 `json:"versions"`

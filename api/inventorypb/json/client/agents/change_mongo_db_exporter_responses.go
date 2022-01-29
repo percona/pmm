@@ -124,8 +124,8 @@ swagger:model ChangeMongoDBExporterBody
 */
 type ChangeMongoDBExporterBody struct {
 
-	// agent id
-	AgentID string `json:"agent_id,omitempty"`
+	// agent Id
+	AgentID string `json:"agentId,omitempty"`
 
 	// common
 	Common *ChangeMongoDBExporterParamsBodyCommon `json:"common,omitempty"`
@@ -185,9 +185,6 @@ func (o *ChangeMongoDBExporterBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeMongoDBExporterDefaultBody
 */
 type ChangeMongoDBExporterDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -262,7 +259,7 @@ swagger:model ChangeMongoDBExporterOKBody
 type ChangeMongoDBExporterOKBody struct {
 
 	// mongodb exporter
-	MongodbExporter *ChangeMongoDBExporterOKBodyMongodbExporter `json:"mongodb_exporter,omitempty"`
+	MongodbExporter *ChangeMongoDBExporterOKBodyMongodbExporter `json:"mongodbExporter,omitempty"`
 }
 
 // Validate validates this change mongo DB exporter OK body
@@ -288,7 +285,7 @@ func (o *ChangeMongoDBExporterOKBody) validateMongodbExporter(formats strfmt.Reg
 	if o.MongodbExporter != nil {
 		if err := o.MongodbExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("changeMongoDbExporterOk" + "." + "mongodb_exporter")
+				return ve.ValidateName("changeMongoDbExporterOk" + "." + "mongodbExporter")
 			}
 			return err
 		}
@@ -321,16 +318,16 @@ swagger:model ChangeMongoDBExporterOKBodyMongodbExporter
 type ChangeMongoDBExporterOKBodyMongodbExporter struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agent_id,omitempty"`
+	AgentID string `json:"agentId,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+	PMMAgentID string `json:"pmmAgentId,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"service_id,omitempty"`
+	ServiceID string `json:"serviceId,omitempty"`
 
 	// MongoDB username for scraping metrics.
 	Username string `json:"username,omitempty"`
@@ -339,16 +336,16 @@ type ChangeMongoDBExporterOKBodyMongodbExporter struct {
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// True if exporter uses push metrics mode.
-	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+	PushMetricsEnabled bool `json:"pushMetricsEnabled,omitempty"`
 
 	// List of disabled collector names.
-	DisabledCollectors []string `json:"disabled_collectors"`
+	DisabledCollectors []string `json:"disabledCollectors"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -362,17 +359,17 @@ type ChangeMongoDBExporterOKBodyMongodbExporter struct {
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listen_port,omitempty"`
+	ListenPort int64 `json:"listenPort,omitempty"`
 
 	// List of colletions to get stats from. Can use *
-	StatsCollections []string `json:"stats_collections"`
+	StatsCollections []string `json:"statsCollections"`
 
 	// Collections limit. Only get Databases and collection stats if the total number of collections in the server
 	// is less than this value. 0: no limit
-	CollectionsLimit int32 `json:"collections_limit,omitempty"`
+	CollectionsLimit int32 `json:"collectionsLimit,omitempty"`
 
 	// Enable All collectors.
-	EnableAllCollectors bool `json:"enable_all_collectors,omitempty"`
+	EnableAllCollectors bool `json:"enableAllCollectors,omitempty"`
 }
 
 // Validate validates this change mongo DB exporter OK body mongodb exporter
@@ -440,7 +437,7 @@ func (o *ChangeMongoDBExporterOKBodyMongodbExporter) validateStatus(formats strf
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("changeMongoDbExporterOk"+"."+"mongodb_exporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("changeMongoDbExporterOk"+"."+"mongodbExporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -477,17 +474,17 @@ type ChangeMongoDBExporterParamsBodyCommon struct {
 	Disable bool `json:"disable,omitempty"`
 
 	// Replace all custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// Remove all custom user-assigned labels.
-	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
+	RemoveCustomLabels bool `json:"removeCustomLabels,omitempty"`
 
 	// Enables push metrics with vmagent, can't be used with disable_push_metrics.
 	// Can't be used with agent version lower then 2.12 and unsupported agents.
-	EnablePushMetrics bool `json:"enable_push_metrics,omitempty"`
+	EnablePushMetrics bool `json:"enablePushMetrics,omitempty"`
 
 	// Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.
-	DisablePushMetrics bool `json:"disable_push_metrics,omitempty"`
+	DisablePushMetrics bool `json:"disablePushMetrics,omitempty"`
 }
 
 // Validate validates this change mongo DB exporter params body common

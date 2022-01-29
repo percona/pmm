@@ -121,7 +121,7 @@ swagger:model RemoveNodeBody
 type RemoveNodeBody struct {
 
 	// Unique randomly generated instance identifier.
-	NodeID string `json:"node_id,omitempty"`
+	NodeID string `json:"nodeId,omitempty"`
 
 	// Remove node with all dependencies.
 	Force bool `json:"force,omitempty"`
@@ -154,9 +154,6 @@ func (o *RemoveNodeBody) UnmarshalBinary(b []byte) error {
 swagger:model RemoveNodeDefaultBody
 */
 type RemoveNodeDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`

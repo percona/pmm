@@ -123,13 +123,13 @@ swagger:model AddRemoteAzureDatabaseNodeBody
 type AddRemoteAzureDatabaseNodeBody struct {
 
 	// Unique across all Nodes user-defined name.
-	NodeName string `json:"node_name,omitempty"`
+	NodeName string `json:"nodeName,omitempty"`
 
 	// DB instance identifier.
 	Address string `json:"address,omitempty"`
 
 	// Node model.
-	NodeModel string `json:"node_model,omitempty"`
+	NodeModel string `json:"nodeModel,omitempty"`
 
 	// Node region.
 	Region string `json:"region,omitempty"`
@@ -138,7 +138,7 @@ type AddRemoteAzureDatabaseNodeBody struct {
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 }
 
 // Validate validates this add remote azure database node body
@@ -168,9 +168,6 @@ func (o *AddRemoteAzureDatabaseNodeBody) UnmarshalBinary(b []byte) error {
 swagger:model AddRemoteAzureDatabaseNodeDefaultBody
 */
 type AddRemoteAzureDatabaseNodeDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -245,7 +242,7 @@ swagger:model AddRemoteAzureDatabaseNodeOKBody
 type AddRemoteAzureDatabaseNodeOKBody struct {
 
 	// remote azure database
-	RemoteAzureDatabase *AddRemoteAzureDatabaseNodeOKBodyRemoteAzureDatabase `json:"remote_azure_database,omitempty"`
+	RemoteAzureDatabase *AddRemoteAzureDatabaseNodeOKBodyRemoteAzureDatabase `json:"remoteAzureDatabase,omitempty"`
 }
 
 // Validate validates this add remote azure database node OK body
@@ -271,7 +268,7 @@ func (o *AddRemoteAzureDatabaseNodeOKBody) validateRemoteAzureDatabase(formats s
 	if o.RemoteAzureDatabase != nil {
 		if err := o.RemoteAzureDatabase.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addRemoteAzureDatabaseNodeOk" + "." + "remote_azure_database")
+				return ve.ValidateName("addRemoteAzureDatabaseNodeOk" + "." + "remoteAzureDatabase")
 			}
 			return err
 		}
@@ -304,16 +301,16 @@ swagger:model AddRemoteAzureDatabaseNodeOKBodyRemoteAzureDatabase
 type AddRemoteAzureDatabaseNodeOKBodyRemoteAzureDatabase struct {
 
 	// Unique randomly generated instance identifier.
-	NodeID string `json:"node_id,omitempty"`
+	NodeID string `json:"nodeId,omitempty"`
 
 	// Unique across all Nodes user-defined name.
-	NodeName string `json:"node_name,omitempty"`
+	NodeName string `json:"nodeName,omitempty"`
 
 	// DB instance identifier.
 	Address string `json:"address,omitempty"`
 
 	// Node model.
-	NodeModel string `json:"node_model,omitempty"`
+	NodeModel string `json:"nodeModel,omitempty"`
 
 	// Node region.
 	Region string `json:"region,omitempty"`
@@ -322,7 +319,7 @@ type AddRemoteAzureDatabaseNodeOKBodyRemoteAzureDatabase struct {
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 }
 
 // Validate validates this add remote azure database node OK body remote azure database

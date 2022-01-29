@@ -125,7 +125,7 @@ swagger:model ArtifactsItems0
 type ArtifactsItems0 struct {
 
 	// Machine-readable artifact ID.
-	ArtifactID string `json:"artifact_id,omitempty"`
+	ArtifactID string `json:"artifactId,omitempty"`
 
 	// Artifact name
 	Name string `json:"name,omitempty"`
@@ -134,20 +134,20 @@ type ArtifactsItems0 struct {
 	Vendor string `json:"vendor,omitempty"`
 
 	// Machine-readable location ID.
-	LocationID string `json:"location_id,omitempty"`
+	LocationID string `json:"locationId,omitempty"`
 
 	// Location name.
-	LocationName string `json:"location_name,omitempty"`
+	LocationName string `json:"locationName,omitempty"`
 
 	// Machine-readable service ID.
-	ServiceID string `json:"service_id,omitempty"`
+	ServiceID string `json:"serviceId,omitempty"`
 
 	// Service name.
-	ServiceName string `json:"service_name,omitempty"`
+	ServiceName string `json:"serviceName,omitempty"`
 
 	// DataModel is a model used for performing a backup.
 	// Enum: [DATA_MODEL_INVALID PHYSICAL LOGICAL]
-	DataModel *string `json:"data_model,omitempty"`
+	DataModel *string `json:"dataModel,omitempty"`
 
 	// BackupStatus shows the current status of execution of backup.
 	// Enum: [BACKUP_STATUS_INVALID BACKUP_STATUS_PENDING BACKUP_STATUS_IN_PROGRESS BACKUP_STATUS_PAUSED BACKUP_STATUS_SUCCESS BACKUP_STATUS_ERROR BACKUP_STATUS_DELETING BACKUP_STATUS_FAILED_TO_DELETE]
@@ -155,7 +155,7 @@ type ArtifactsItems0 struct {
 
 	// Artifact creation time.
 	// Format: date-time
-	CreatedAt strfmt.DateTime `json:"created_at,omitempty"`
+	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 	// BackupMode specifies backup mode.
 	// Enum: [BACKUP_MODE_INVALID SNAPSHOT INCREMENTAL PITR]
@@ -227,7 +227,7 @@ func (o *ArtifactsItems0) validateDataModel(formats strfmt.Registry) error {
 	}
 
 	// value enum
-	if err := o.validateDataModelEnum("data_model", "body", *o.DataModel); err != nil {
+	if err := o.validateDataModelEnum("dataModel", "body", *o.DataModel); err != nil {
 		return err
 	}
 
@@ -301,7 +301,7 @@ func (o *ArtifactsItems0) validateCreatedAt(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("created_at", "body", "date-time", o.CreatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("createdAt", "body", "date-time", o.CreatedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -379,9 +379,6 @@ func (o *ArtifactsItems0) UnmarshalBinary(b []byte) error {
 swagger:model ListArtifactsDefaultBody
 */
 type ListArtifactsDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`

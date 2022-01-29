@@ -12,7 +12,7 @@ init:                 ## Install tools.
 	go build -modfile=tools/go.mod -o bin/protoc-gen-go-grpc google.golang.org/grpc/cmd/protoc-gen-go-grpc
 	go build -modfile=tools/go.mod -o bin/protoc-gen-govalidators github.com/mwitkow/go-proto-validators/protoc-gen-govalidators
 	go build -modfile=tools/go.mod -o bin/protoc-gen-grpc-gateway github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway
-	go build -modfile=tools/go.mod -o bin/protoc-gen-openapiv2 github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2
+	go build -modfile=tools/go.mod -o bin/protoc-gen-openapi github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2
 	go build -modfile=tools/go.mod -o bin/swagger github.com/go-swagger/go-swagger/cmd/swagger
 	go build -modfile=tools/go.mod -o bin/swagger-order github.com/Percona-Lab/swagger-order
 	go build -modfile=tools/go.mod -o bin/go-sumtype github.com/BurntSushi/go-sumtype

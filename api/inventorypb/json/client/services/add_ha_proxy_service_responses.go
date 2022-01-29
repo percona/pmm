@@ -123,10 +123,10 @@ swagger:model AddHAProxyServiceBody
 type AddHAProxyServiceBody struct {
 
 	// Unique across all Services user-defined name. Required.
-	ServiceName string `json:"service_name,omitempty"`
+	ServiceName string `json:"serviceName,omitempty"`
 
 	// Node identifier where this instance runs. Required.
-	NodeID string `json:"node_id,omitempty"`
+	NodeID string `json:"nodeId,omitempty"`
 
 	// Environment name.
 	Environment string `json:"environment,omitempty"`
@@ -135,10 +135,10 @@ type AddHAProxyServiceBody struct {
 	Cluster string `json:"cluster,omitempty"`
 
 	// Replication set name.
-	ReplicationSet string `json:"replication_set,omitempty"`
+	ReplicationSet string `json:"replicationSet,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 }
 
 // Validate validates this add HA proxy service body
@@ -168,9 +168,6 @@ func (o *AddHAProxyServiceBody) UnmarshalBinary(b []byte) error {
 swagger:model AddHAProxyServiceDefaultBody
 */
 type AddHAProxyServiceDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -304,13 +301,13 @@ swagger:model AddHAProxyServiceOKBodyHaproxy
 type AddHAProxyServiceOKBodyHaproxy struct {
 
 	// Unique randomly generated instance identifier.
-	ServiceID string `json:"service_id,omitempty"`
+	ServiceID string `json:"serviceId,omitempty"`
 
 	// Unique across all Services user-defined name.
-	ServiceName string `json:"service_name,omitempty"`
+	ServiceName string `json:"serviceName,omitempty"`
 
 	// Node identifier where this service instance runs.
-	NodeID string `json:"node_id,omitempty"`
+	NodeID string `json:"nodeId,omitempty"`
 
 	// Environment name.
 	Environment string `json:"environment,omitempty"`
@@ -319,10 +316,10 @@ type AddHAProxyServiceOKBodyHaproxy struct {
 	Cluster string `json:"cluster,omitempty"`
 
 	// Replication set name.
-	ReplicationSet string `json:"replication_set,omitempty"`
+	ReplicationSet string `json:"replicationSet,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 }
 
 // Validate validates this add HA proxy service OK body haproxy

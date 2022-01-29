@@ -123,10 +123,10 @@ swagger:model GetPXCComponentsBody
 type GetPXCComponentsBody struct {
 
 	// Kubernetes cluster name.
-	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
+	KubernetesClusterName string `json:"kubernetesClusterName,omitempty"`
 
 	// Version of DB.
-	DBVersion string `json:"db_version,omitempty"`
+	DBVersion string `json:"dbVersion,omitempty"`
 }
 
 // Validate validates this get PXC components body
@@ -156,9 +156,6 @@ func (o *GetPXCComponentsBody) UnmarshalBinary(b []byte) error {
 swagger:model GetPXCComponentsDefaultBody
 */
 type GetPXCComponentsDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`

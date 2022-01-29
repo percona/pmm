@@ -121,18 +121,18 @@ swagger:model ChangeScheduledBackupBody
 */
 type ChangeScheduledBackupBody struct {
 
-	// scheduled backup id
-	ScheduledBackupID string `json:"scheduled_backup_id,omitempty"`
+	// scheduled backup Id
+	ScheduledBackupID string `json:"scheduledBackupId,omitempty"`
 
 	// enabled
 	Enabled bool `json:"enabled,omitempty"`
 
 	// How often backup should be run in cron format.
-	CronExpression string `json:"cron_expression,omitempty"`
+	CronExpression string `json:"cronExpression,omitempty"`
 
 	// First backup wouldn't happen before this time.
 	// Format: date-time
-	StartTime strfmt.DateTime `json:"start_time,omitempty"`
+	StartTime strfmt.DateTime `json:"startTime,omitempty"`
 
 	// Name of backup.
 	Name string `json:"name,omitempty"`
@@ -141,7 +141,7 @@ type ChangeScheduledBackupBody struct {
 	Description string `json:"description,omitempty"`
 
 	// Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.
-	RetryInterval string `json:"retry_interval,omitempty"`
+	RetryInterval string `json:"retryInterval,omitempty"`
 
 	// How many times to retry a failed backup before giving up.
 	Retries int64 `json:"retries,omitempty"`
@@ -170,7 +170,7 @@ func (o *ChangeScheduledBackupBody) validateStartTime(formats strfmt.Registry) e
 		return nil
 	}
 
-	if err := validate.FormatOf("body"+"."+"start_time", "body", "date-time", o.StartTime.String(), formats); err != nil {
+	if err := validate.FormatOf("body"+"."+"startTime", "body", "date-time", o.StartTime.String(), formats); err != nil {
 		return err
 	}
 
@@ -199,9 +199,6 @@ func (o *ChangeScheduledBackupBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeScheduledBackupDefaultBody
 */
 type ChangeScheduledBackupDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -275,12 +272,8 @@ swagger:model DetailsItems0
 */
 type DetailsItems0 struct {
 
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this details items0

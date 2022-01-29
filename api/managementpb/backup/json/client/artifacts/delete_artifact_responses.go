@@ -121,10 +121,10 @@ swagger:model DeleteArtifactBody
 type DeleteArtifactBody struct {
 
 	// Machine-readable artifact ID.
-	ArtifactID string `json:"artifact_id,omitempty"`
+	ArtifactID string `json:"artifactId,omitempty"`
 
 	// Removes all the backup files associated with artifact if flag is set.
-	RemoveFiles bool `json:"remove_files,omitempty"`
+	RemoveFiles bool `json:"removeFiles,omitempty"`
 }
 
 // Validate validates this delete artifact body
@@ -154,9 +154,6 @@ func (o *DeleteArtifactBody) UnmarshalBinary(b []byte) error {
 swagger:model DeleteArtifactDefaultBody
 */
 type DeleteArtifactDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -230,12 +227,8 @@ swagger:model DetailsItems0
 */
 type DetailsItems0 struct {
 
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this details items0

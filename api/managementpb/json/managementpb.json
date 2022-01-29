@@ -31,7 +31,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "action_id": {
+                "actionId": {
                   "description": "Unique Action ID. Required.",
                   "type": "string",
                   "x-order": 0
@@ -55,33 +55,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -105,7 +97,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "action_id": {
+                "actionId": {
                   "description": "Unique Action ID.",
                   "type": "string",
                   "x-order": 0
@@ -120,7 +112,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "action_id": {
+                "actionId": {
                   "description": "Unique Action ID.",
                   "type": "string",
                   "x-order": 0
@@ -140,7 +132,7 @@
                   "type": "string",
                   "x-order": 2
                 },
-                "pmm_agent_id": {
+                "pmmAgentId": {
                   "description": "pmm-agent ID where this Action is running / was run.",
                   "type": "string",
                   "x-order": 1
@@ -156,33 +148,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -206,7 +190,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "pmm_agent_id": {
+                "pmmAgentId": {
                   "description": "pmm-agent ID where to run this Action.",
                   "type": "string",
                   "x-order": 0
@@ -216,7 +200,7 @@
                   "type": "string",
                   "x-order": 2
                 },
-                "service_id": {
+                "serviceId": {
                   "description": "Service ID for this Action. Required.",
                   "type": "string",
                   "x-order": 1
@@ -231,12 +215,12 @@
             "schema": {
               "type": "object",
               "properties": {
-                "action_id": {
+                "actionId": {
                   "description": "Unique Action ID.",
                   "type": "string",
                   "x-order": 0
                 },
-                "pmm_agent_id": {
+                "pmmAgentId": {
                   "description": "pmm-agent ID where to this Action was started.",
                   "type": "string",
                   "x-order": 1
@@ -252,33 +236,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -307,7 +283,7 @@
                   "type": "string",
                   "x-order": 3
                 },
-                "pmm_agent_id": {
+                "pmmAgentId": {
                   "description": "pmm-agent ID where to run this Action.",
                   "type": "string",
                   "x-order": 0
@@ -317,7 +293,7 @@
                   "type": "string",
                   "x-order": 2
                 },
-                "service_id": {
+                "serviceId": {
                   "description": "Service ID for this Action. Required.",
                   "type": "string",
                   "x-order": 1
@@ -332,12 +308,12 @@
             "schema": {
               "type": "object",
               "properties": {
-                "action_id": {
+                "actionId": {
                   "description": "Unique Action ID.",
                   "type": "string",
                   "x-order": 0
                 },
-                "pmm_agent_id": {
+                "pmmAgentId": {
                   "description": "pmm-agent ID where to this Action was started.",
                   "type": "string",
                   "x-order": 1
@@ -353,33 +329,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -408,7 +376,7 @@
                   "type": "string",
                   "x-order": 3
                 },
-                "pmm_agent_id": {
+                "pmmAgentId": {
                   "description": "pmm-agent ID where to run this Action.",
                   "type": "string",
                   "x-order": 0
@@ -418,7 +386,7 @@
                   "type": "string",
                   "x-order": 2
                 },
-                "service_id": {
+                "serviceId": {
                   "description": "Service ID for this Action. Required.",
                   "type": "string",
                   "x-order": 1
@@ -433,12 +401,12 @@
             "schema": {
               "type": "object",
               "properties": {
-                "action_id": {
+                "actionId": {
                   "description": "Unique Action ID.",
                   "type": "string",
                   "x-order": 0
                 },
-                "pmm_agent_id": {
+                "pmmAgentId": {
                   "description": "pmm-agent ID where to this Action was started.",
                   "type": "string",
                   "x-order": 1
@@ -454,33 +422,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -509,7 +469,7 @@
                   "type": "string",
                   "x-order": 3
                 },
-                "pmm_agent_id": {
+                "pmmAgentId": {
                   "description": "pmm-agent ID where to run this Action.",
                   "type": "string",
                   "x-order": 0
@@ -519,7 +479,7 @@
                   "type": "string",
                   "x-order": 2
                 },
-                "service_id": {
+                "serviceId": {
                   "description": "Service ID for this Action. Required.",
                   "type": "string",
                   "x-order": 1
@@ -534,12 +494,12 @@
             "schema": {
               "type": "object",
               "properties": {
-                "action_id": {
+                "actionId": {
                   "description": "Unique Action ID.",
                   "type": "string",
                   "x-order": 0
                 },
-                "pmm_agent_id": {
+                "pmmAgentId": {
                   "description": "pmm-agent ID where to this Action was started.",
                   "type": "string",
                   "x-order": 1
@@ -555,33 +515,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -610,17 +562,17 @@
                   "type": "string",
                   "x-order": 3
                 },
-                "pmm_agent_id": {
+                "pmmAgentId": {
                   "description": "pmm-agent ID where to run this Action.",
                   "type": "string",
                   "x-order": 0
                 },
-                "service_id": {
+                "serviceId": {
                   "description": "Service ID for this Action. Required.",
                   "type": "string",
                   "x-order": 1
                 },
-                "table_name": {
+                "tableName": {
                   "description": "Table name. Required. May additionally contain a database name.",
                   "type": "string",
                   "x-order": 2
@@ -635,12 +587,12 @@
             "schema": {
               "type": "object",
               "properties": {
-                "action_id": {
+                "actionId": {
                   "description": "Unique Action ID.",
                   "type": "string",
                   "x-order": 0
                 },
-                "pmm_agent_id": {
+                "pmmAgentId": {
                   "description": "pmm-agent ID where to this Action was started.",
                   "type": "string",
                   "x-order": 1
@@ -656,33 +608,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -711,17 +655,17 @@
                   "type": "string",
                   "x-order": 3
                 },
-                "pmm_agent_id": {
+                "pmmAgentId": {
                   "description": "pmm-agent ID where to run this Action.",
                   "type": "string",
                   "x-order": 0
                 },
-                "service_id": {
+                "serviceId": {
                   "description": "Service ID for this Action. Required.",
                   "type": "string",
                   "x-order": 1
                 },
-                "table_name": {
+                "tableName": {
                   "description": "Table name. Required. May additionally contain a database name.",
                   "type": "string",
                   "x-order": 2
@@ -736,12 +680,12 @@
             "schema": {
               "type": "object",
               "properties": {
-                "action_id": {
+                "actionId": {
                   "description": "Unique Action ID.",
                   "type": "string",
                   "x-order": 0
                 },
-                "pmm_agent_id": {
+                "pmmAgentId": {
                   "description": "pmm-agent ID where to this Action was started.",
                   "type": "string",
                   "x-order": 1
@@ -757,33 +701,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -812,17 +748,17 @@
                   "type": "string",
                   "x-order": 3
                 },
-                "pmm_agent_id": {
+                "pmmAgentId": {
                   "description": "pmm-agent ID where to run this Action.",
                   "type": "string",
                   "x-order": 0
                 },
-                "service_id": {
+                "serviceId": {
                   "description": "Service ID for this Action. Required.",
                   "type": "string",
                   "x-order": 1
                 },
-                "table_name": {
+                "tableName": {
                   "description": "Table name. Required. May additionally contain a database name.",
                   "type": "string",
                   "x-order": 2
@@ -837,12 +773,12 @@
             "schema": {
               "type": "object",
               "properties": {
-                "action_id": {
+                "actionId": {
                   "description": "Unique Action ID.",
                   "type": "string",
                   "x-order": 0
                 },
-                "pmm_agent_id": {
+                "pmmAgentId": {
                   "description": "pmm-agent ID where to this Action was started.",
                   "type": "string",
                   "x-order": 1
@@ -858,33 +794,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -909,12 +837,12 @@
               "type": "object",
               "title": "Message to prepare pt-mongodb-summary data",
               "properties": {
-                "pmm_agent_id": {
+                "pmmAgentId": {
                   "description": "pmm-agent ID where to run this Action.",
                   "type": "string",
                   "x-order": 0
                 },
-                "service_id": {
+                "serviceId": {
                   "description": "Service ID for this Action.",
                   "type": "string",
                   "x-order": 1
@@ -930,12 +858,12 @@
               "type": "object",
               "title": "Message to retrieve the prepared pt-mongodb-summary data",
               "properties": {
-                "action_id": {
+                "actionId": {
                   "description": "Unique Action ID.",
                   "type": "string",
                   "x-order": 0
                 },
-                "pmm_agent_id": {
+                "pmmAgentId": {
                   "description": "pmm-agent ID where to this Action was started.",
                   "type": "string",
                   "x-order": 1
@@ -951,33 +879,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -1002,12 +922,12 @@
               "type": "object",
               "title": "Message to prepare pt-mysql-summary data",
               "properties": {
-                "pmm_agent_id": {
+                "pmmAgentId": {
                   "description": "pmm-agent ID where to run this Action.",
                   "type": "string",
                   "x-order": 0
                 },
-                "service_id": {
+                "serviceId": {
                   "description": "Service ID for this Action.",
                   "type": "string",
                   "x-order": 1
@@ -1023,12 +943,12 @@
               "type": "object",
               "title": "Message to retrieve the prepared pt-mysql-summary data",
               "properties": {
-                "action_id": {
+                "actionId": {
                   "description": "Unique Action ID.",
                   "type": "string",
                   "x-order": 0
                 },
-                "pmm_agent_id": {
+                "pmmAgentId": {
                   "description": "pmm-agent ID where to this Action was started.",
                   "type": "string",
                   "x-order": 1
@@ -1044,33 +964,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -1095,12 +1007,12 @@
               "type": "object",
               "title": "Message to prepare pt-pg-summary data",
               "properties": {
-                "pmm_agent_id": {
+                "pmmAgentId": {
                   "description": "pmm-agent ID where to run this Action.",
                   "type": "string",
                   "x-order": 0
                 },
-                "service_id": {
+                "serviceId": {
                   "description": "Service ID for this Action.",
                   "type": "string",
                   "x-order": 1
@@ -1116,12 +1028,12 @@
               "type": "object",
               "title": "Message to retrieve the prepared pt-pg-summary data",
               "properties": {
-                "action_id": {
+                "actionId": {
                   "description": "Unique Action ID.",
                   "type": "string",
                   "x-order": 0
                 },
-                "pmm_agent_id": {
+                "pmmAgentId": {
                   "description": "pmm-agent ID where to this Action was started.",
                   "type": "string",
                   "x-order": 1
@@ -1137,33 +1049,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -1187,12 +1091,12 @@
             "schema": {
               "type": "object",
               "properties": {
-                "node_id": {
+                "nodeId": {
                   "description": "Node ID for this Action.",
                   "type": "string",
                   "x-order": 1
                 },
-                "pmm_agent_id": {
+                "pmmAgentId": {
                   "description": "pmm-agent ID where to run this Action.",
                   "type": "string",
                   "x-order": 0
@@ -1207,12 +1111,12 @@
             "schema": {
               "type": "object",
               "properties": {
-                "action_id": {
+                "actionId": {
                   "description": "Unique Action ID.",
                   "type": "string",
                   "x-order": 0
                 },
-                "pmm_agent_id": {
+                "pmmAgentId": {
                   "description": "pmm-agent ID where to this Action was started.",
                   "type": "string",
                   "x-order": 1
@@ -1228,33 +1132,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -1283,17 +1179,17 @@
                   "type": "string",
                   "x-order": 3
                 },
-                "pmm_agent_id": {
+                "pmmAgentId": {
                   "description": "pmm-agent ID where to run this Action.",
                   "type": "string",
                   "x-order": 0
                 },
-                "service_id": {
+                "serviceId": {
                   "description": "Service ID for this Action. Required.",
                   "type": "string",
                   "x-order": 1
                 },
-                "table_name": {
+                "tableName": {
                   "description": "Table name. Required. May additionally contain a database name.",
                   "type": "string",
                   "x-order": 2
@@ -1308,12 +1204,12 @@
             "schema": {
               "type": "object",
               "properties": {
-                "action_id": {
+                "actionId": {
                   "description": "Unique Action ID.",
                   "type": "string",
                   "x-order": 0
                 },
-                "pmm_agent_id": {
+                "pmmAgentId": {
                   "description": "pmm-agent ID where to this Action was started.",
                   "type": "string",
                   "x-order": 1
@@ -1329,33 +1225,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -1384,17 +1272,17 @@
                   "type": "string",
                   "x-order": 3
                 },
-                "pmm_agent_id": {
+                "pmmAgentId": {
                   "description": "pmm-agent ID where to run this Action.",
                   "type": "string",
                   "x-order": 0
                 },
-                "service_id": {
+                "serviceId": {
                   "description": "Service ID for this Action. Required.",
                   "type": "string",
                   "x-order": 1
                 },
-                "table_name": {
+                "tableName": {
                   "description": "Table name. Required. May additionally contain a database name.",
                   "type": "string",
                   "x-order": 2
@@ -1409,12 +1297,12 @@
             "schema": {
               "type": "object",
               "properties": {
-                "action_id": {
+                "actionId": {
                   "description": "Unique Action ID.",
                   "type": "string",
                   "x-order": 0
                 },
-                "pmm_agent_id": {
+                "pmmAgentId": {
                   "description": "pmm-agent ID where to this Action was started.",
                   "type": "string",
                   "x-order": 1
@@ -1430,33 +1318,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -1481,12 +1361,12 @@
               "description": "AddAnnotationRequest is a params to add new annotation.",
               "type": "object",
               "properties": {
-                "node_name": {
+                "nodeName": {
                   "description": "Used for annotate node.",
                   "type": "string",
                   "x-order": 2
                 },
-                "service_names": {
+                "serviceNames": {
                   "description": "Used for annotate services.",
                   "type": "array",
                   "items": {
@@ -1526,33 +1406,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -1576,7 +1448,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "add_node": {
+                "addNode": {
                   "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
                   "type": "object",
                   "properties": {
@@ -1585,17 +1457,17 @@
                       "type": "string",
                       "x-order": 8
                     },
-                    "container_id": {
+                    "containerId": {
                       "description": "Container identifier. If specified, must be a unique Docker container identifier.",
                       "type": "string",
                       "x-order": 4
                     },
-                    "container_name": {
+                    "containerName": {
                       "description": "Container name.",
                       "type": "string",
                       "x-order": 5
                     },
-                    "custom_labels": {
+                    "customLabels": {
                       "description": "Custom user-assigned labels for Node.",
                       "type": "object",
                       "additionalProperties": {
@@ -1608,22 +1480,22 @@
                       "type": "string",
                       "x-order": 3
                     },
-                    "machine_id": {
+                    "machineId": {
                       "description": "Linux machine-id.",
                       "type": "string",
                       "x-order": 2
                     },
-                    "node_model": {
+                    "nodeModel": {
                       "description": "Node model.",
                       "type": "string",
                       "x-order": 6
                     },
-                    "node_name": {
+                    "nodeName": {
                       "description": "Unique across all Nodes user-defined name.",
                       "type": "string",
                       "x-order": 1
                     },
-                    "node_type": {
+                    "nodeType": {
                       "description": "NodeType describes supported Node types.",
                       "type": "string",
                       "default": "NODE_TYPE_INVALID",
@@ -1655,7 +1527,7 @@
                   "type": "string",
                   "x-order": 12
                 },
-                "custom_labels": {
+                "customLabels": {
                   "description": "Custom user-assigned labels for Service.",
                   "type": "object",
                   "additionalProperties": {
@@ -1673,13 +1545,13 @@
                   "type": "string",
                   "x-order": 15
                 },
-                "listen_port": {
+                "listenPort": {
                   "description": "Listen port for scraping metrics.",
                   "type": "integer",
                   "format": "int64",
                   "x-order": 9
                 },
-                "metrics_mode": {
+                "metricsMode": {
                   "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
                   "type": "string",
                   "default": "AUTO",
@@ -1690,17 +1562,17 @@
                   ],
                   "x-order": 16
                 },
-                "metrics_path": {
+                "metricsPath": {
                   "description": "Path under which metrics are exposed, used to generate URI.",
                   "type": "string",
                   "x-order": 8
                 },
-                "node_id": {
+                "nodeId": {
                   "description": "Node identifier on which an external service is been running.\nnode_id always should be passed with runs_on_node_id.",
                   "type": "string",
                   "x-order": 10
                 },
-                "node_name": {
+                "nodeName": {
                   "description": "Node name on which a service and node is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
                   "type": "string",
                   "x-order": 1
@@ -1710,12 +1582,12 @@
                   "type": "string",
                   "x-order": 6
                 },
-                "replication_set": {
+                "replicationSet": {
                   "description": "Replication set name.",
                   "type": "string",
                   "x-order": 13
                 },
-                "runs_on_node_id": {
+                "runsOnNodeId": {
                   "description": "Node identifier on which an external exporter is been running.\nruns_on_node_id always should be passed with node_id.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
                   "type": "string",
                   "x-order": 0
@@ -1725,12 +1597,12 @@
                   "type": "string",
                   "x-order": 7
                 },
-                "service_name": {
+                "serviceName": {
                   "description": "Unique across all Services user-defined name. Required.",
                   "type": "string",
                   "x-order": 4
                 },
-                "skip_connection_check": {
+                "skipConnectionCheck": {
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 17
@@ -1750,16 +1622,16 @@
             "schema": {
               "type": "object",
               "properties": {
-                "external_exporter": {
+                "externalExporter": {
                   "description": "ExternalExporter runs on any Node type, including Remote Node.",
                   "type": "object",
                   "properties": {
-                    "agent_id": {
+                    "agentId": {
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
                     },
-                    "custom_labels": {
+                    "customLabels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
@@ -1772,23 +1644,23 @@
                       "type": "boolean",
                       "x-order": 2
                     },
-                    "listen_port": {
+                    "listenPort": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
                       "x-order": 8
                     },
-                    "metrics_path": {
+                    "metricsPath": {
                       "description": "Path under which metrics are exposed, used to generate URI.",
                       "type": "string",
                       "x-order": 6
                     },
-                    "push_metrics_enabled": {
+                    "pushMetricsEnabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 9
                     },
-                    "runs_on_node_id": {
+                    "runsOnNodeId": {
                       "description": "Node identifier where this instance runs.",
                       "type": "string",
                       "x-order": 1
@@ -1798,7 +1670,7 @@
                       "type": "string",
                       "x-order": 5
                     },
-                    "service_id": {
+                    "serviceId": {
                       "description": "Service identifier.",
                       "type": "string",
                       "x-order": 3
@@ -1820,7 +1692,7 @@
                       "type": "string",
                       "x-order": 4
                     },
-                    "custom_labels": {
+                    "customLabels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
@@ -1838,22 +1710,22 @@
                       "type": "string",
                       "x-order": 7
                     },
-                    "node_id": {
+                    "nodeId": {
                       "description": "Node identifier where this service instance runs.",
                       "type": "string",
                       "x-order": 2
                     },
-                    "replication_set": {
+                    "replicationSet": {
                       "description": "Replication set name.",
                       "type": "string",
                       "x-order": 5
                     },
-                    "service_id": {
+                    "serviceId": {
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
                     },
-                    "service_name": {
+                    "serviceName": {
                       "description": "Unique across all Services user-defined name.",
                       "type": "string",
                       "x-order": 1
@@ -1872,33 +1744,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -1922,7 +1786,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "add_node": {
+                "addNode": {
                   "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
                   "type": "object",
                   "properties": {
@@ -1931,17 +1795,17 @@
                       "type": "string",
                       "x-order": 8
                     },
-                    "container_id": {
+                    "containerId": {
                       "description": "Container identifier. If specified, must be a unique Docker container identifier.",
                       "type": "string",
                       "x-order": 4
                     },
-                    "container_name": {
+                    "containerName": {
                       "description": "Container name.",
                       "type": "string",
                       "x-order": 5
                     },
-                    "custom_labels": {
+                    "customLabels": {
                       "description": "Custom user-assigned labels for Node.",
                       "type": "object",
                       "additionalProperties": {
@@ -1954,22 +1818,22 @@
                       "type": "string",
                       "x-order": 3
                     },
-                    "machine_id": {
+                    "machineId": {
                       "description": "Linux machine-id.",
                       "type": "string",
                       "x-order": 2
                     },
-                    "node_model": {
+                    "nodeModel": {
                       "description": "Node model.",
                       "type": "string",
                       "x-order": 6
                     },
-                    "node_name": {
+                    "nodeName": {
                       "description": "Unique across all Nodes user-defined name.",
                       "type": "string",
                       "x-order": 1
                     },
-                    "node_type": {
+                    "nodeType": {
                       "description": "NodeType describes supported Node types.",
                       "type": "string",
                       "default": "NODE_TYPE_INVALID",
@@ -2001,7 +1865,7 @@
                   "type": "string",
                   "x-order": 11
                 },
-                "custom_labels": {
+                "customLabels": {
                   "description": "Custom user-assigned labels for Service.",
                   "type": "object",
                   "additionalProperties": {
@@ -2014,13 +1878,13 @@
                   "type": "string",
                   "x-order": 10
                 },
-                "listen_port": {
+                "listenPort": {
                   "description": "Listen port for scraping metrics.",
                   "type": "integer",
                   "format": "int64",
                   "x-order": 9
                 },
-                "metrics_mode": {
+                "metricsMode": {
                   "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
                   "type": "string",
                   "default": "AUTO",
@@ -2031,17 +1895,17 @@
                   ],
                   "x-order": 14
                 },
-                "metrics_path": {
+                "metricsPath": {
                   "description": "Path under which metrics are exposed, used to generate URI.",
                   "type": "string",
                   "x-order": 8
                 },
-                "node_id": {
+                "nodeId": {
                   "description": "Node identifier on which an external exporter is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
                   "type": "string",
                   "x-order": 0
                 },
-                "node_name": {
+                "nodeName": {
                   "description": "Node name on which a service and node is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
                   "type": "string",
                   "x-order": 1
@@ -2051,7 +1915,7 @@
                   "type": "string",
                   "x-order": 6
                 },
-                "replication_set": {
+                "replicationSet": {
                   "description": "Replication set name.",
                   "type": "string",
                   "x-order": 12
@@ -2061,12 +1925,12 @@
                   "type": "string",
                   "x-order": 7
                 },
-                "service_name": {
+                "serviceName": {
                   "description": "Unique across all Services user-defined name. Required.",
                   "type": "string",
                   "x-order": 4
                 },
-                "skip_connection_check": {
+                "skipConnectionCheck": {
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 15
@@ -2086,16 +1950,16 @@
             "schema": {
               "type": "object",
               "properties": {
-                "external_exporter": {
+                "externalExporter": {
                   "description": "ExternalExporter runs on any Node type, including Remote Node.",
                   "type": "object",
                   "properties": {
-                    "agent_id": {
+                    "agentId": {
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
                     },
-                    "custom_labels": {
+                    "customLabels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
@@ -2108,23 +1972,23 @@
                       "type": "boolean",
                       "x-order": 2
                     },
-                    "listen_port": {
+                    "listenPort": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
                       "x-order": 8
                     },
-                    "metrics_path": {
+                    "metricsPath": {
                       "description": "Path under which metrics are exposed, used to generate URI.",
                       "type": "string",
                       "x-order": 6
                     },
-                    "push_metrics_enabled": {
+                    "pushMetricsEnabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 9
                     },
-                    "runs_on_node_id": {
+                    "runsOnNodeId": {
                       "description": "Node identifier where this instance runs.",
                       "type": "string",
                       "x-order": 1
@@ -2134,7 +1998,7 @@
                       "type": "string",
                       "x-order": 5
                     },
-                    "service_id": {
+                    "serviceId": {
                       "description": "Service identifier.",
                       "type": "string",
                       "x-order": 3
@@ -2156,7 +2020,7 @@
                       "type": "string",
                       "x-order": 4
                     },
-                    "custom_labels": {
+                    "customLabels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
@@ -2169,22 +2033,22 @@
                       "type": "string",
                       "x-order": 3
                     },
-                    "node_id": {
+                    "nodeId": {
                       "description": "Node identifier where this service instance runs.",
                       "type": "string",
                       "x-order": 2
                     },
-                    "replication_set": {
+                    "replicationSet": {
                       "description": "Replication set name.",
                       "type": "string",
                       "x-order": 5
                     },
-                    "service_id": {
+                    "serviceId": {
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
                     },
-                    "service_name": {
+                    "serviceName": {
                       "description": "Unique across all Services user-defined name.",
                       "type": "string",
                       "x-order": 1
@@ -2203,33 +2067,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -2253,7 +2109,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "add_node": {
+                "addNode": {
                   "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
                   "type": "object",
                   "properties": {
@@ -2262,17 +2118,17 @@
                       "type": "string",
                       "x-order": 8
                     },
-                    "container_id": {
+                    "containerId": {
                       "description": "Container identifier. If specified, must be a unique Docker container identifier.",
                       "type": "string",
                       "x-order": 4
                     },
-                    "container_name": {
+                    "containerName": {
                       "description": "Container name.",
                       "type": "string",
                       "x-order": 5
                     },
-                    "custom_labels": {
+                    "customLabels": {
                       "description": "Custom user-assigned labels for Node.",
                       "type": "object",
                       "additionalProperties": {
@@ -2285,22 +2141,22 @@
                       "type": "string",
                       "x-order": 3
                     },
-                    "machine_id": {
+                    "machineId": {
                       "description": "Linux machine-id.",
                       "type": "string",
                       "x-order": 2
                     },
-                    "node_model": {
+                    "nodeModel": {
                       "description": "Node model.",
                       "type": "string",
                       "x-order": 6
                     },
-                    "node_name": {
+                    "nodeName": {
                       "description": "Unique across all Nodes user-defined name.",
                       "type": "string",
                       "x-order": 1
                     },
-                    "node_type": {
+                    "nodeType": {
                       "description": "NodeType describes supported Node types.",
                       "type": "string",
                       "default": "NODE_TYPE_INVALID",
@@ -2327,17 +2183,17 @@
                   "type": "string",
                   "x-order": 4
                 },
-                "agent_password": {
+                "agentPassword": {
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 25
                 },
-                "authentication_database": {
+                "authenticationDatabase": {
                   "description": "Authentication database.",
                   "type": "string",
                   "x-order": 24
                 },
-                "authentication_mechanism": {
+                "authenticationMechanism": {
                   "description": "Authentication mechanism.\nSee https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism\nfor details.",
                   "type": "string",
                   "x-order": 23
@@ -2347,13 +2203,13 @@
                   "type": "string",
                   "x-order": 9
                 },
-                "collections_limit": {
+                "collectionsLimit": {
                   "type": "integer",
                   "format": "int32",
                   "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
                   "x-order": 27
                 },
-                "custom_labels": {
+                "customLabels": {
                   "description": "Custom user-assigned labels for Service.",
                   "type": "object",
                   "additionalProperties": {
@@ -2361,7 +2217,7 @@
                   },
                   "x-order": 14
                 },
-                "disable_collectors": {
+                "disableCollectors": {
                   "description": "List of collector names to disable in this exporter.",
                   "type": "array",
                   "items": {
@@ -2369,7 +2225,7 @@
                   },
                   "x-order": 22
                 },
-                "enable_all_collectors": {
+                "enableAllCollectors": {
                   "type": "boolean",
                   "title": "Enable all collectors",
                   "x-order": 28
@@ -2379,7 +2235,7 @@
                   "type": "string",
                   "x-order": 8
                 },
-                "metrics_mode": {
+                "metricsMode": {
                   "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
                   "type": "string",
                   "default": "AUTO",
@@ -2390,12 +2246,12 @@
                   ],
                   "x-order": 21
                 },
-                "node_id": {
+                "nodeId": {
                   "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
                   "type": "string",
                   "x-order": 0
                 },
-                "node_name": {
+                "nodeName": {
                   "description": "Node name on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
                   "type": "string",
                   "x-order": 1
@@ -2405,7 +2261,7 @@
                   "type": "string",
                   "x-order": 12
                 },
-                "pmm_agent_id": {
+                "pmmAgentId": {
                   "description": "The \"pmm-agent\" identifier which should run agents. Required.",
                   "type": "string",
                   "x-order": 7
@@ -2416,22 +2272,22 @@
                   "format": "int64",
                   "x-order": 5
                 },
-                "qan_mongodb_profiler": {
+                "qanMongodbProfiler": {
                   "description": "If true, adds qan-mongodb-profiler-agent for provided service.",
                   "type": "boolean",
                   "x-order": 13
                 },
-                "replication_set": {
+                "replicationSet": {
                   "description": "Replication set name.",
                   "type": "string",
                   "x-order": 10
                 },
-                "service_name": {
+                "serviceName": {
                   "description": "Unique across all Services user-defined name. Required.",
                   "type": "string",
                   "x-order": 3
                 },
-                "skip_connection_check": {
+                "skipConnectionCheck": {
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 15
@@ -2441,7 +2297,7 @@
                   "type": "string",
                   "x-order": 6
                 },
-                "stats_collections": {
+                "statsCollections": {
                   "description": "List of collections to get stats from. Can use * .",
                   "type": "array",
                   "items": {
@@ -2454,22 +2310,22 @@
                   "type": "boolean",
                   "x-order": 16
                 },
-                "tls_ca": {
+                "tlsCa": {
                   "description": "Certificate Authority certificate chain.",
                   "type": "string",
                   "x-order": 20
                 },
-                "tls_certificate_key": {
+                "tlsCertificateKey": {
                   "description": "Client certificate and key.",
                   "type": "string",
                   "x-order": 18
                 },
-                "tls_certificate_key_file_password": {
+                "tlsCertificateKeyFilePassword": {
                   "description": "Password for decrypting tls_certificate_key.",
                   "type": "string",
                   "x-order": 19
                 },
-                "tls_skip_verify": {
+                "tlsSkipVerify": {
                   "description": "Skip TLS certificate and hostname validation.",
                   "type": "boolean",
                   "x-order": 17
@@ -2489,22 +2345,22 @@
             "schema": {
               "type": "object",
               "properties": {
-                "mongodb_exporter": {
+                "mongodbExporter": {
                   "description": "MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.",
                   "type": "object",
                   "properties": {
-                    "agent_id": {
+                    "agentId": {
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
                     },
-                    "collections_limit": {
+                    "collectionsLimit": {
                       "type": "integer",
                       "format": "int32",
                       "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
                       "x-order": 13
                     },
-                    "custom_labels": {
+                    "customLabels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
@@ -2517,7 +2373,7 @@
                       "type": "boolean",
                       "x-order": 2
                     },
-                    "disabled_collectors": {
+                    "disabledCollectors": {
                       "description": "List of disabled collector names.",
                       "type": "array",
                       "items": {
@@ -2525,33 +2381,33 @@
                       },
                       "x-order": 9
                     },
-                    "enable_all_collectors": {
+                    "enableAllCollectors": {
                       "description": "Enable All collectors.",
                       "type": "boolean",
                       "x-order": 14
                     },
-                    "listen_port": {
+                    "listenPort": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
                     },
-                    "pmm_agent_id": {
+                    "pmmAgentId": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
                     },
-                    "push_metrics_enabled": {
+                    "pushMetricsEnabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 8
                     },
-                    "service_id": {
+                    "serviceId": {
                       "description": "Service identifier.",
                       "type": "string",
                       "x-order": 3
                     },
-                    "stats_collections": {
+                    "statsCollections": {
                       "type": "array",
                       "title": "List of colletions to get stats from. Can use *",
                       "items": {
@@ -2579,7 +2435,7 @@
                       "type": "boolean",
                       "x-order": 5
                     },
-                    "tls_skip_verify": {
+                    "tlsSkipVerify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
                       "x-order": 6
@@ -2592,16 +2448,16 @@
                   },
                   "x-order": 1
                 },
-                "qan_mongodb_profiler": {
+                "qanMongodbProfiler": {
                   "description": "QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.",
                   "type": "object",
                   "properties": {
-                    "agent_id": {
+                    "agentId": {
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
                     },
-                    "custom_labels": {
+                    "customLabels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
@@ -2614,12 +2470,12 @@
                       "type": "boolean",
                       "x-order": 2
                     },
-                    "pmm_agent_id": {
+                    "pmmAgentId": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
                     },
-                    "service_id": {
+                    "serviceId": {
                       "description": "Service identifier.",
                       "type": "string",
                       "x-order": 3
@@ -2644,7 +2500,7 @@
                       "type": "boolean",
                       "x-order": 5
                     },
-                    "tls_skip_verify": {
+                    "tlsSkipVerify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
                       "x-order": 6
@@ -2671,7 +2527,7 @@
                       "type": "string",
                       "x-order": 7
                     },
-                    "custom_labels": {
+                    "customLabels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
@@ -2684,7 +2540,7 @@
                       "type": "string",
                       "x-order": 6
                     },
-                    "node_id": {
+                    "nodeId": {
                       "description": "Node identifier where this instance runs.",
                       "type": "string",
                       "x-order": 2
@@ -2695,17 +2551,17 @@
                       "format": "int64",
                       "x-order": 4
                     },
-                    "replication_set": {
+                    "replicationSet": {
                       "description": "Replication set name.",
                       "type": "string",
                       "x-order": 8
                     },
-                    "service_id": {
+                    "serviceId": {
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
                     },
-                    "service_name": {
+                    "serviceName": {
                       "description": "Unique across all Services user-defined name.",
                       "type": "string",
                       "x-order": 1
@@ -2729,33 +2585,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -2779,7 +2627,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "add_node": {
+                "addNode": {
                   "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
                   "type": "object",
                   "properties": {
@@ -2788,17 +2636,17 @@
                       "type": "string",
                       "x-order": 8
                     },
-                    "container_id": {
+                    "containerId": {
                       "description": "Container identifier. If specified, must be a unique Docker container identifier.",
                       "type": "string",
                       "x-order": 4
                     },
-                    "container_name": {
+                    "containerName": {
                       "description": "Container name.",
                       "type": "string",
                       "x-order": 5
                     },
-                    "custom_labels": {
+                    "customLabels": {
                       "description": "Custom user-assigned labels for Node.",
                       "type": "object",
                       "additionalProperties": {
@@ -2811,22 +2659,22 @@
                       "type": "string",
                       "x-order": 3
                     },
-                    "machine_id": {
+                    "machineId": {
                       "description": "Linux machine-id.",
                       "type": "string",
                       "x-order": 2
                     },
-                    "node_model": {
+                    "nodeModel": {
                       "description": "Node model.",
                       "type": "string",
                       "x-order": 6
                     },
-                    "node_name": {
+                    "nodeName": {
                       "description": "Unique across all Nodes user-defined name.",
                       "type": "string",
                       "x-order": 1
                     },
-                    "node_type": {
+                    "nodeType": {
                       "description": "NodeType describes supported Node types.",
                       "type": "string",
                       "default": "NODE_TYPE_INVALID",
@@ -2853,7 +2701,7 @@
                   "type": "string",
                   "x-order": 4
                 },
-                "agent_password": {
+                "agentPassword": {
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 27
@@ -2863,7 +2711,7 @@
                   "type": "string",
                   "x-order": 9
                 },
-                "custom_labels": {
+                "customLabels": {
                   "description": "Custom user-assigned labels for Service.",
                   "type": "object",
                   "additionalProperties": {
@@ -2871,7 +2719,7 @@
                   },
                   "x-order": 15
                 },
-                "disable_collectors": {
+                "disableCollectors": {
                   "description": "List of collector names to disable in this exporter.",
                   "type": "array",
                   "items": {
@@ -2879,7 +2727,7 @@
                   },
                   "x-order": 26
                 },
-                "disable_query_examples": {
+                "disableQueryExamples": {
                   "description": "Disable query examples.",
                   "type": "boolean",
                   "x-order": 17
@@ -2889,13 +2737,13 @@
                   "type": "string",
                   "x-order": 8
                 },
-                "max_slowlog_file_size": {
+                "maxSlowlogFileSize": {
                   "description": "If qan-mysql-slowlog-agent is added, slowlog file is rotated at this size if \u003e 0.\nIf zero, server's default value is used.\nUse negative value to disable rotation.",
                   "type": "string",
                   "format": "int64",
                   "x-order": 18
                 },
-                "metrics_mode": {
+                "metricsMode": {
                   "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
                   "type": "string",
                   "default": "AUTO",
@@ -2906,12 +2754,12 @@
                   ],
                   "x-order": 25
                 },
-                "node_id": {
+                "nodeId": {
                   "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
                   "type": "string",
                   "x-order": 0
                 },
-                "node_name": {
+                "nodeName": {
                   "description": "Node name on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
                   "type": "string",
                   "x-order": 1
@@ -2921,7 +2769,7 @@
                   "type": "string",
                   "x-order": 12
                 },
-                "pmm_agent_id": {
+                "pmmAgentId": {
                   "description": "The \"pmm-agent\" identifier which should run agents. Required.",
                   "type": "string",
                   "x-order": 7
@@ -2932,27 +2780,27 @@
                   "format": "int64",
                   "x-order": 5
                 },
-                "qan_mysql_perfschema": {
+                "qanMysqlPerfschema": {
                   "description": "If true, adds qan-mysql-perfschema-agent for provided service.",
                   "type": "boolean",
                   "x-order": 13
                 },
-                "qan_mysql_slowlog": {
+                "qanMysqlSlowlog": {
                   "description": "If true, adds qan-mysql-slowlog-agent for provided service.",
                   "type": "boolean",
                   "x-order": 14
                 },
-                "replication_set": {
+                "replicationSet": {
                   "description": "Replication set name.",
                   "type": "string",
                   "x-order": 10
                 },
-                "service_name": {
+                "serviceName": {
                   "description": "Unique across all Services user-defined name. Required.",
                   "type": "string",
                   "x-order": 3
                 },
-                "skip_connection_check": {
+                "skipConnectionCheck": {
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 16
@@ -2962,7 +2810,7 @@
                   "type": "string",
                   "x-order": 6
                 },
-                "tablestats_group_table_limit": {
+                "tablestatsGroupTableLimit": {
                   "description": "Tablestats group collectors will be disabled if there are more than that number of tables.\nIf zero, server's default value is used.\nUse negative value to disable them.",
                   "type": "integer",
                   "format": "int32",
@@ -2973,22 +2821,22 @@
                   "type": "boolean",
                   "x-order": 19
                 },
-                "tls_ca": {
+                "tlsCa": {
                   "description": "Certificate Authority certificate chain.",
                   "type": "string",
                   "x-order": 21
                 },
-                "tls_cert": {
+                "tlsCert": {
                   "description": "Client certificate.",
                   "type": "string",
                   "x-order": 22
                 },
-                "tls_key": {
+                "tlsKey": {
                   "description": "Password for decrypting tls_cert.",
                   "type": "string",
                   "x-order": 23
                 },
-                "tls_skip_verify": {
+                "tlsSkipVerify": {
                   "description": "Skip TLS certificate and hostname validation.",
                   "type": "boolean",
                   "x-order": 20
@@ -3008,16 +2856,16 @@
             "schema": {
               "type": "object",
               "properties": {
-                "mysqld_exporter": {
+                "mysqldExporter": {
                   "description": "MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
                   "type": "object",
                   "properties": {
-                    "agent_id": {
+                    "agentId": {
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
                     },
-                    "custom_labels": {
+                    "customLabels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
@@ -3030,7 +2878,7 @@
                       "type": "boolean",
                       "x-order": 2
                     },
-                    "disabled_collectors": {
+                    "disabledCollectors": {
                       "description": "List of disabled collector names.",
                       "type": "array",
                       "items": {
@@ -3038,23 +2886,23 @@
                       },
                       "x-order": 13
                     },
-                    "listen_port": {
+                    "listenPort": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
                       "x-order": 15
                     },
-                    "pmm_agent_id": {
+                    "pmmAgentId": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
                     },
-                    "push_metrics_enabled": {
+                    "pushMetricsEnabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 12
                     },
-                    "service_id": {
+                    "serviceId": {
                       "description": "Service identifier.",
                       "type": "string",
                       "x-order": 3
@@ -3074,12 +2922,12 @@
                       ],
                       "x-order": 14
                     },
-                    "tablestats_group_disabled": {
+                    "tablestatsGroupDisabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
                       "x-order": 16
                     },
-                    "tablestats_group_table_limit": {
+                    "tablestatsGroupTableLimit": {
                       "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
                       "type": "integer",
                       "format": "int32",
@@ -3090,22 +2938,22 @@
                       "type": "boolean",
                       "x-order": 5
                     },
-                    "tls_ca": {
+                    "tlsCa": {
                       "description": "Certificate Authority certificate chain.",
                       "type": "string",
                       "x-order": 7
                     },
-                    "tls_cert": {
+                    "tlsCert": {
                       "description": "Client certificate.",
                       "type": "string",
                       "x-order": 8
                     },
-                    "tls_key": {
+                    "tlsKey": {
                       "description": "Password for decrypting tls_cert.",
                       "type": "string",
                       "x-order": 9
                     },
-                    "tls_skip_verify": {
+                    "tlsSkipVerify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
                       "x-order": 6
@@ -3118,16 +2966,16 @@
                   },
                   "x-order": 1
                 },
-                "qan_mysql_perfschema": {
+                "qanMysqlPerfschema": {
                   "description": "QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.",
                   "type": "object",
                   "properties": {
-                    "agent_id": {
+                    "agentId": {
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
                     },
-                    "custom_labels": {
+                    "customLabels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
@@ -3140,17 +2988,17 @@
                       "type": "boolean",
                       "x-order": 2
                     },
-                    "pmm_agent_id": {
+                    "pmmAgentId": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
                     },
-                    "query_examples_disabled": {
+                    "queryExamplesDisabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
                       "x-order": 10
                     },
-                    "service_id": {
+                    "serviceId": {
                       "description": "Service identifier.",
                       "type": "string",
                       "x-order": 3
@@ -3175,22 +3023,22 @@
                       "type": "boolean",
                       "x-order": 5
                     },
-                    "tls_ca": {
+                    "tlsCa": {
                       "description": "Certificate Authority certificate chain.",
                       "type": "string",
                       "x-order": 7
                     },
-                    "tls_cert": {
+                    "tlsCert": {
                       "description": "Client certificate.",
                       "type": "string",
                       "x-order": 8
                     },
-                    "tls_key": {
+                    "tlsKey": {
                       "description": "Password for decrypting tls_cert.",
                       "type": "string",
                       "x-order": 9
                     },
-                    "tls_skip_verify": {
+                    "tlsSkipVerify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
                       "x-order": 6
@@ -3203,16 +3051,16 @@
                   },
                   "x-order": 2
                 },
-                "qan_mysql_slowlog": {
+                "qanMysqlSlowlog": {
                   "description": "QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.",
                   "type": "object",
                   "properties": {
-                    "agent_id": {
+                    "agentId": {
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
                     },
-                    "custom_labels": {
+                    "customLabels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
@@ -3225,23 +3073,23 @@
                       "type": "boolean",
                       "x-order": 2
                     },
-                    "max_slowlog_file_size": {
+                    "maxSlowlogFileSize": {
                       "description": "Slowlog file is rotated at this size if \u003e 0.",
                       "type": "string",
                       "format": "int64",
                       "x-order": 11
                     },
-                    "pmm_agent_id": {
+                    "pmmAgentId": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
                     },
-                    "query_examples_disabled": {
+                    "queryExamplesDisabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
                       "x-order": 10
                     },
-                    "service_id": {
+                    "serviceId": {
                       "description": "Service identifier.",
                       "type": "string",
                       "x-order": 3
@@ -3266,22 +3114,22 @@
                       "type": "boolean",
                       "x-order": 5
                     },
-                    "tls_ca": {
+                    "tlsCa": {
                       "description": "Certificate Authority certificate chain.",
                       "type": "string",
                       "x-order": 7
                     },
-                    "tls_cert": {
+                    "tlsCert": {
                       "description": "Client certificate.",
                       "type": "string",
                       "x-order": 8
                     },
-                    "tls_key": {
+                    "tlsKey": {
                       "description": "Password for decrypting tls_cert.",
                       "type": "string",
                       "x-order": 9
                     },
-                    "tls_skip_verify": {
+                    "tlsSkipVerify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
                       "x-order": 6
@@ -3308,7 +3156,7 @@
                       "type": "string",
                       "x-order": 7
                     },
-                    "custom_labels": {
+                    "customLabels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
@@ -3321,7 +3169,7 @@
                       "type": "string",
                       "x-order": 6
                     },
-                    "node_id": {
+                    "nodeId": {
                       "description": "Node identifier where this instance runs.",
                       "type": "string",
                       "x-order": 2
@@ -3332,17 +3180,17 @@
                       "format": "int64",
                       "x-order": 4
                     },
-                    "replication_set": {
+                    "replicationSet": {
                       "description": "Replication set name.",
                       "type": "string",
                       "x-order": 8
                     },
-                    "service_id": {
+                    "serviceId": {
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
                     },
-                    "service_name": {
+                    "serviceName": {
                       "description": "Unique across all Services user-defined name.",
                       "type": "string",
                       "x-order": 1
@@ -3355,7 +3203,7 @@
                   },
                   "x-order": 0
                 },
-                "table_count": {
+                "tableCount": {
                   "description": "Actual table count at the moment of adding.",
                   "type": "integer",
                   "format": "int32",
@@ -3372,33 +3220,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -3432,17 +3272,17 @@
                   "type": "string",
                   "x-order": 9
                 },
-                "container_id": {
+                "containerId": {
                   "description": "Container identifier. If specified, must be a unique Docker container identifier.",
                   "type": "string",
                   "x-order": 5
                 },
-                "container_name": {
+                "containerName": {
                   "description": "Container name.",
                   "type": "string",
                   "x-order": 6
                 },
-                "custom_labels": {
+                "customLabels": {
                   "description": "Custom user-assigned labels for Node.",
                   "type": "object",
                   "additionalProperties": {
@@ -3450,7 +3290,7 @@
                   },
                   "x-order": 10
                 },
-                "disable_collectors": {
+                "disableCollectors": {
                   "description": "List of collector names to disable in this exporter.",
                   "type": "array",
                   "items": {
@@ -3463,12 +3303,12 @@
                   "type": "string",
                   "x-order": 4
                 },
-                "machine_id": {
+                "machineId": {
                   "description": "Linux machine-id.",
                   "type": "string",
                   "x-order": 3
                 },
-                "metrics_mode": {
+                "metricsMode": {
                   "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
                   "type": "string",
                   "default": "AUTO",
@@ -3479,17 +3319,17 @@
                   ],
                   "x-order": 12
                 },
-                "node_model": {
+                "nodeModel": {
                   "description": "Node model.",
                   "type": "string",
                   "x-order": 7
                 },
-                "node_name": {
+                "nodeName": {
                   "description": "Unique across all Nodes user-defined name.",
                   "type": "string",
                   "x-order": 1
                 },
-                "node_type": {
+                "nodeType": {
                   "description": "NodeType describes supported Node types.",
                   "type": "string",
                   "default": "NODE_TYPE_INVALID",
@@ -3523,7 +3363,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "container_node": {
+                "containerNode": {
                   "description": "ContainerNode represents a Docker container.",
                   "type": "object",
                   "properties": {
@@ -3537,17 +3377,17 @@
                       "type": "string",
                       "x-order": 8
                     },
-                    "container_id": {
+                    "containerId": {
                       "description": "Container identifier. If specified, must be a unique Docker container identifier.",
                       "type": "string",
                       "x-order": 4
                     },
-                    "container_name": {
+                    "containerName": {
                       "description": "Container name.",
                       "type": "string",
                       "x-order": 5
                     },
-                    "custom_labels": {
+                    "customLabels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
@@ -3555,22 +3395,22 @@
                       },
                       "x-order": 9
                     },
-                    "machine_id": {
+                    "machineId": {
                       "description": "Linux machine-id of the Generic Node where this Container Node runs.",
                       "type": "string",
                       "x-order": 3
                     },
-                    "node_id": {
+                    "nodeId": {
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
                     },
-                    "node_model": {
+                    "nodeModel": {
                       "description": "Node model.",
                       "type": "string",
                       "x-order": 6
                     },
-                    "node_name": {
+                    "nodeName": {
                       "description": "Unique across all Nodes user-defined name.",
                       "type": "string",
                       "x-order": 1
@@ -3583,7 +3423,7 @@
                   },
                   "x-order": 1
                 },
-                "generic_node": {
+                "genericNode": {
                   "description": "GenericNode represents a bare metal server or virtual machine.",
                   "type": "object",
                   "properties": {
@@ -3597,7 +3437,7 @@
                       "type": "string",
                       "x-order": 7
                     },
-                    "custom_labels": {
+                    "customLabels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
@@ -3610,22 +3450,22 @@
                       "type": "string",
                       "x-order": 4
                     },
-                    "machine_id": {
+                    "machineId": {
                       "description": "Linux machine-id.",
                       "type": "string",
                       "x-order": 3
                     },
-                    "node_id": {
+                    "nodeId": {
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
                     },
-                    "node_model": {
+                    "nodeModel": {
                       "description": "Node model.",
                       "type": "string",
                       "x-order": 5
                     },
-                    "node_name": {
+                    "nodeName": {
                       "description": "Unique across all Nodes user-defined name.",
                       "type": "string",
                       "x-order": 1
@@ -3638,11 +3478,11 @@
                   },
                   "x-order": 0
                 },
-                "pmm_agent": {
+                "pmmAgent": {
                   "description": "PMMAgent runs on Generic or Container Node.",
                   "type": "object",
                   "properties": {
-                    "agent_id": {
+                    "agentId": {
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
@@ -3652,7 +3492,7 @@
                       "type": "boolean",
                       "x-order": 3
                     },
-                    "custom_labels": {
+                    "customLabels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
@@ -3660,7 +3500,7 @@
                       },
                       "x-order": 2
                     },
-                    "runs_on_node_id": {
+                    "runsOnNodeId": {
                       "description": "Node identifier where this instance runs.",
                       "type": "string",
                       "x-order": 1
@@ -3679,33 +3519,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -3729,7 +3561,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "add_node": {
+                "addNode": {
                   "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
                   "type": "object",
                   "properties": {
@@ -3738,17 +3570,17 @@
                       "type": "string",
                       "x-order": 8
                     },
-                    "container_id": {
+                    "containerId": {
                       "description": "Container identifier. If specified, must be a unique Docker container identifier.",
                       "type": "string",
                       "x-order": 4
                     },
-                    "container_name": {
+                    "containerName": {
                       "description": "Container name.",
                       "type": "string",
                       "x-order": 5
                     },
-                    "custom_labels": {
+                    "customLabels": {
                       "description": "Custom user-assigned labels for Node.",
                       "type": "object",
                       "additionalProperties": {
@@ -3761,22 +3593,22 @@
                       "type": "string",
                       "x-order": 3
                     },
-                    "machine_id": {
+                    "machineId": {
                       "description": "Linux machine-id.",
                       "type": "string",
                       "x-order": 2
                     },
-                    "node_model": {
+                    "nodeModel": {
                       "description": "Node model.",
                       "type": "string",
                       "x-order": 6
                     },
-                    "node_name": {
+                    "nodeName": {
                       "description": "Unique across all Nodes user-defined name.",
                       "type": "string",
                       "x-order": 1
                     },
-                    "node_type": {
+                    "nodeType": {
                       "description": "NodeType describes supported Node types.",
                       "type": "string",
                       "default": "NODE_TYPE_INVALID",
@@ -3803,7 +3635,7 @@
                   "type": "string",
                   "x-order": 4
                 },
-                "agent_password": {
+                "agentPassword": {
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 26
@@ -3813,7 +3645,7 @@
                   "type": "string",
                   "x-order": 10
                 },
-                "custom_labels": {
+                "customLabels": {
                   "description": "Custom user-assigned labels for Service.",
                   "type": "object",
                   "additionalProperties": {
@@ -3826,7 +3658,7 @@
                   "type": "string",
                   "x-order": 6
                 },
-                "disable_collectors": {
+                "disableCollectors": {
                   "description": "List of collector names to disable in this exporter.",
                   "type": "array",
                   "items": {
@@ -3834,7 +3666,7 @@
                   },
                   "x-order": 22
                 },
-                "disable_query_examples": {
+                "disableQueryExamples": {
                   "description": "Disable query examples.",
                   "type": "boolean",
                   "x-order": 16
@@ -3844,7 +3676,7 @@
                   "type": "string",
                   "x-order": 9
                 },
-                "metrics_mode": {
+                "metricsMode": {
                   "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
                   "type": "string",
                   "default": "AUTO",
@@ -3855,12 +3687,12 @@
                   ],
                   "x-order": 21
                 },
-                "node_id": {
+                "nodeId": {
                   "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
                   "type": "string",
                   "x-order": 0
                 },
-                "node_name": {
+                "nodeName": {
                   "description": "Node name on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
                   "type": "string",
                   "x-order": 1
@@ -3870,7 +3702,7 @@
                   "type": "string",
                   "x-order": 13
                 },
-                "pmm_agent_id": {
+                "pmmAgentId": {
                   "description": "The \"pmm-agent\" identifier which should run agents. Required.",
                   "type": "string",
                   "x-order": 8
@@ -3881,27 +3713,27 @@
                   "format": "int64",
                   "x-order": 5
                 },
-                "qan_postgresql_pgstatements_agent": {
+                "qanPostgresqlPgstatementsAgent": {
                   "description": "If true, adds qan-postgresql-pgstatements-agent for provided service.",
                   "type": "boolean",
                   "x-order": 14
                 },
-                "qan_postgresql_pgstatmonitor_agent": {
+                "qanPostgresqlPgstatmonitorAgent": {
                   "description": "If true, adds qan-postgresql-pgstatmonitor-agent for provided service.",
                   "type": "boolean",
                   "x-order": 15
                 },
-                "replication_set": {
+                "replicationSet": {
                   "description": "Replication set name.",
                   "type": "string",
                   "x-order": 11
                 },
-                "service_name": {
+                "serviceName": {
                   "description": "Unique across all Services user-defined name. Required.",
                   "type": "string",
                   "x-order": 3
                 },
-                "skip_connection_check": {
+                "skipConnectionCheck": {
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 18
@@ -3916,22 +3748,22 @@
                   "type": "boolean",
                   "x-order": 19
                 },
-                "tls_ca": {
+                "tlsCa": {
                   "description": "TLS CA certificate.",
                   "type": "string",
                   "x-order": 23
                 },
-                "tls_cert": {
+                "tlsCert": {
                   "description": "TLS Certifcate.",
                   "type": "string",
                   "x-order": 24
                 },
-                "tls_key": {
+                "tlsKey": {
                   "description": "TLS Certificate Key.",
                   "type": "string",
                   "x-order": 25
                 },
-                "tls_skip_verify": {
+                "tlsSkipVerify": {
                   "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                   "type": "boolean",
                   "x-order": 20
@@ -3951,16 +3783,16 @@
             "schema": {
               "type": "object",
               "properties": {
-                "postgres_exporter": {
+                "postgresExporter": {
                   "description": "PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.",
                   "type": "object",
                   "properties": {
-                    "agent_id": {
+                    "agentId": {
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
                     },
-                    "custom_labels": {
+                    "customLabels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
@@ -3973,7 +3805,7 @@
                       "type": "boolean",
                       "x-order": 2
                     },
-                    "disabled_collectors": {
+                    "disabledCollectors": {
                       "description": "List of disabled collector names.",
                       "type": "array",
                       "items": {
@@ -3981,23 +3813,23 @@
                       },
                       "x-order": 9
                     },
-                    "listen_port": {
+                    "listenPort": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
                     },
-                    "pmm_agent_id": {
+                    "pmmAgentId": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
                     },
-                    "push_metrics_enabled": {
+                    "pushMetricsEnabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 8
                     },
-                    "service_id": {
+                    "serviceId": {
                       "description": "Service identifier.",
                       "type": "string",
                       "x-order": 3
@@ -4022,7 +3854,7 @@
                       "type": "boolean",
                       "x-order": 5
                     },
-                    "tls_skip_verify": {
+                    "tlsSkipVerify": {
                       "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                       "type": "boolean",
                       "x-order": 6
@@ -4035,16 +3867,16 @@
                   },
                   "x-order": 1
                 },
-                "qan_postgresql_pgstatements_agent": {
+                "qanPostgresqlPgstatementsAgent": {
                   "description": "QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
                   "type": "object",
                   "properties": {
-                    "agent_id": {
+                    "agentId": {
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
                     },
-                    "custom_labels": {
+                    "customLabels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
@@ -4057,12 +3889,12 @@
                       "type": "boolean",
                       "x-order": 2
                     },
-                    "pmm_agent_id": {
+                    "pmmAgentId": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
                     },
-                    "service_id": {
+                    "serviceId": {
                       "description": "Service identifier.",
                       "type": "string",
                       "x-order": 3
@@ -4087,7 +3919,7 @@
                       "type": "boolean",
                       "x-order": 5
                     },
-                    "tls_skip_verify": {
+                    "tlsSkipVerify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
                       "x-order": 6
@@ -4100,16 +3932,16 @@
                   },
                   "x-order": 2
                 },
-                "qan_postgresql_pgstatmonitor_agent": {
+                "qanPostgresqlPgstatmonitorAgent": {
                   "description": "QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
                   "type": "object",
                   "properties": {
-                    "agent_id": {
+                    "agentId": {
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
                     },
-                    "custom_labels": {
+                    "customLabels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
@@ -4122,17 +3954,17 @@
                       "type": "boolean",
                       "x-order": 2
                     },
-                    "pmm_agent_id": {
+                    "pmmAgentId": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
                     },
-                    "query_examples_disabled": {
+                    "queryExamplesDisabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
                       "x-order": 7
                     },
-                    "service_id": {
+                    "serviceId": {
                       "description": "Service identifier.",
                       "type": "string",
                       "x-order": 3
@@ -4157,7 +3989,7 @@
                       "type": "boolean",
                       "x-order": 5
                     },
-                    "tls_skip_verify": {
+                    "tlsSkipVerify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
                       "x-order": 6
@@ -4184,7 +4016,7 @@
                       "type": "string",
                       "x-order": 8
                     },
-                    "custom_labels": {
+                    "customLabels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
@@ -4192,7 +4024,7 @@
                       },
                       "x-order": 10
                     },
-                    "database_name": {
+                    "databaseName": {
                       "description": "Database name.",
                       "type": "string",
                       "x-order": 2
@@ -4202,7 +4034,7 @@
                       "type": "string",
                       "x-order": 7
                     },
-                    "node_id": {
+                    "nodeId": {
                       "description": "Node identifier where this instance runs.",
                       "type": "string",
                       "x-order": 3
@@ -4213,17 +4045,17 @@
                       "format": "int64",
                       "x-order": 5
                     },
-                    "replication_set": {
+                    "replicationSet": {
                       "description": "Replication set name.",
                       "type": "string",
                       "x-order": 9
                     },
-                    "service_id": {
+                    "serviceId": {
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
                     },
-                    "service_name": {
+                    "serviceName": {
                       "description": "Unique across all Services user-defined name.",
                       "type": "string",
                       "x-order": 1
@@ -4247,33 +4079,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -4297,7 +4121,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "add_node": {
+                "addNode": {
                   "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
                   "type": "object",
                   "properties": {
@@ -4306,17 +4130,17 @@
                       "type": "string",
                       "x-order": 8
                     },
-                    "container_id": {
+                    "containerId": {
                       "description": "Container identifier. If specified, must be a unique Docker container identifier.",
                       "type": "string",
                       "x-order": 4
                     },
-                    "container_name": {
+                    "containerName": {
                       "description": "Container name.",
                       "type": "string",
                       "x-order": 5
                     },
-                    "custom_labels": {
+                    "customLabels": {
                       "description": "Custom user-assigned labels for Node.",
                       "type": "object",
                       "additionalProperties": {
@@ -4329,22 +4153,22 @@
                       "type": "string",
                       "x-order": 3
                     },
-                    "machine_id": {
+                    "machineId": {
                       "description": "Linux machine-id.",
                       "type": "string",
                       "x-order": 2
                     },
-                    "node_model": {
+                    "nodeModel": {
                       "description": "Node model.",
                       "type": "string",
                       "x-order": 6
                     },
-                    "node_name": {
+                    "nodeName": {
                       "description": "Unique across all Nodes user-defined name.",
                       "type": "string",
                       "x-order": 1
                     },
-                    "node_type": {
+                    "nodeType": {
                       "description": "NodeType describes supported Node types.",
                       "type": "string",
                       "default": "NODE_TYPE_INVALID",
@@ -4371,7 +4195,7 @@
                   "type": "string",
                   "x-order": 4
                 },
-                "agent_password": {
+                "agentPassword": {
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 19
@@ -4381,7 +4205,7 @@
                   "type": "string",
                   "x-order": 9
                 },
-                "custom_labels": {
+                "customLabels": {
                   "description": "Custom user-assigned labels for Service.",
                   "type": "object",
                   "additionalProperties": {
@@ -4389,7 +4213,7 @@
                   },
                   "x-order": 13
                 },
-                "disable_collectors": {
+                "disableCollectors": {
                   "description": "List of collector names to disable in this exporter.",
                   "type": "array",
                   "items": {
@@ -4402,7 +4226,7 @@
                   "type": "string",
                   "x-order": 8
                 },
-                "metrics_mode": {
+                "metricsMode": {
                   "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
                   "type": "string",
                   "default": "AUTO",
@@ -4413,12 +4237,12 @@
                   ],
                   "x-order": 17
                 },
-                "node_id": {
+                "nodeId": {
                   "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
                   "type": "string",
                   "x-order": 0
                 },
-                "node_name": {
+                "nodeName": {
                   "description": "Node name on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
                   "type": "string",
                   "x-order": 1
@@ -4428,7 +4252,7 @@
                   "type": "string",
                   "x-order": 12
                 },
-                "pmm_agent_id": {
+                "pmmAgentId": {
                   "description": "The \"pmm-agent\" identifier which should run agents. Required.",
                   "type": "string",
                   "x-order": 7
@@ -4439,17 +4263,17 @@
                   "format": "int64",
                   "x-order": 5
                 },
-                "replication_set": {
+                "replicationSet": {
                   "description": "Replication set name.",
                   "type": "string",
                   "x-order": 10
                 },
-                "service_name": {
+                "serviceName": {
                   "description": "Unique across all Services user-defined name. Required.",
                   "type": "string",
                   "x-order": 3
                 },
-                "skip_connection_check": {
+                "skipConnectionCheck": {
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 14
@@ -4464,7 +4288,7 @@
                   "type": "boolean",
                   "x-order": 15
                 },
-                "tls_skip_verify": {
+                "tlsSkipVerify": {
                   "description": "Skip TLS certificate and hostname validation.",
                   "type": "boolean",
                   "x-order": 16
@@ -4484,16 +4308,16 @@
             "schema": {
               "type": "object",
               "properties": {
-                "proxysql_exporter": {
+                "proxysqlExporter": {
                   "description": "ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.",
                   "type": "object",
                   "properties": {
-                    "agent_id": {
+                    "agentId": {
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
                     },
-                    "custom_labels": {
+                    "customLabels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
@@ -4506,7 +4330,7 @@
                       "type": "boolean",
                       "x-order": 2
                     },
-                    "disabled_collectors": {
+                    "disabledCollectors": {
                       "description": "List of disabled collector names.",
                       "type": "array",
                       "items": {
@@ -4514,23 +4338,23 @@
                       },
                       "x-order": 9
                     },
-                    "listen_port": {
+                    "listenPort": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
                     },
-                    "pmm_agent_id": {
+                    "pmmAgentId": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
                     },
-                    "push_metrics_enabled": {
+                    "pushMetricsEnabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 8
                     },
-                    "service_id": {
+                    "serviceId": {
                       "description": "Service identifier.",
                       "type": "string",
                       "x-order": 3
@@ -4555,7 +4379,7 @@
                       "type": "boolean",
                       "x-order": 5
                     },
-                    "tls_skip_verify": {
+                    "tlsSkipVerify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
                       "x-order": 6
@@ -4582,7 +4406,7 @@
                       "type": "string",
                       "x-order": 7
                     },
-                    "custom_labels": {
+                    "customLabels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
@@ -4595,7 +4419,7 @@
                       "type": "string",
                       "x-order": 6
                     },
-                    "node_id": {
+                    "nodeId": {
                       "description": "Node identifier where this instance runs.",
                       "type": "string",
                       "x-order": 2
@@ -4606,17 +4430,17 @@
                       "format": "int64",
                       "x-order": 4
                     },
-                    "replication_set": {
+                    "replicationSet": {
                       "description": "Replication set name.",
                       "type": "string",
                       "x-order": 8
                     },
-                    "service_id": {
+                    "serviceId": {
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
                     },
-                    "service_name": {
+                    "serviceName": {
                       "description": "Unique across all Services user-defined name.",
                       "type": "string",
                       "x-order": 1
@@ -4640,33 +4464,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -4695,17 +4511,17 @@
                   "type": "string",
                   "x-order": 4
                 },
-                "agent_password": {
+                "agentPassword": {
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 28
                 },
-                "aws_access_key": {
+                "awsAccessKey": {
                   "description": "AWS Access key.",
                   "type": "string",
                   "x-order": 14
                 },
-                "aws_secret_key": {
+                "awsSecretKey": {
                   "description": "AWS Secret key.",
                   "type": "string",
                   "x-order": 15
@@ -4720,7 +4536,7 @@
                   "type": "string",
                   "x-order": 10
                 },
-                "custom_labels": {
+                "customLabels": {
                   "description": "Custom user-assigned labels for Node and Service.",
                   "type": "object",
                   "additionalProperties": {
@@ -4728,17 +4544,17 @@
                   },
                   "x-order": 18
                 },
-                "disable_basic_metrics": {
+                "disableBasicMetrics": {
                   "description": "Disable basic metrics.",
                   "type": "boolean",
                   "x-order": 24
                 },
-                "disable_enhanced_metrics": {
+                "disableEnhancedMetrics": {
                   "description": "Disable enhanced metrics.",
                   "type": "boolean",
                   "x-order": 25
                 },
-                "disable_query_examples": {
+                "disableQueryExamples": {
                   "description": "Disable query examples.",
                   "type": "boolean",
                   "x-order": 22
@@ -4759,12 +4575,12 @@
                   "type": "string",
                   "x-order": 9
                 },
-                "instance_id": {
+                "instanceId": {
                   "description": "AWS instance ID.",
                   "type": "string",
                   "x-order": 2
                 },
-                "metrics_mode": {
+                "metricsMode": {
                   "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
                   "type": "string",
                   "default": "AUTO",
@@ -4775,12 +4591,12 @@
                   ],
                   "x-order": 26
                 },
-                "node_model": {
+                "nodeModel": {
                   "description": "AWS instance class.",
                   "type": "string",
                   "x-order": 3
                 },
-                "node_name": {
+                "nodeName": {
                   "description": "Unique across all Nodes user-defined name. Defaults to AWS instance ID.",
                   "type": "string",
                   "x-order": 7
@@ -4796,17 +4612,17 @@
                   "format": "int64",
                   "x-order": 5
                 },
-                "qan_mysql_perfschema": {
+                "qanMysqlPerfschema": {
                   "description": "If true, adds qan-mysql-perfschema-agent.",
                   "type": "boolean",
                   "x-order": 17
                 },
-                "qan_postgresql_pgstatements": {
+                "qanPostgresqlPgstatements": {
                   "type": "boolean",
                   "title": "If true, add qan-pgstatements",
                   "x-order": 27
                 },
-                "rds_exporter": {
+                "rdsExporter": {
                   "description": "If true, adds rds_exporter.",
                   "type": "boolean",
                   "x-order": 16
@@ -4816,22 +4632,22 @@
                   "type": "string",
                   "x-order": 0
                 },
-                "replication_set": {
+                "replicationSet": {
                   "description": "Replication set name.",
                   "type": "string",
                   "x-order": 11
                 },
-                "service_name": {
+                "serviceName": {
                   "description": "Unique across all Services user-defined name. Defaults to AWS instance ID.",
                   "type": "string",
                   "x-order": 8
                 },
-                "skip_connection_check": {
+                "skipConnectionCheck": {
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 19
                 },
-                "tablestats_group_table_limit": {
+                "tablestatsGroupTableLimit": {
                   "description": "Tablestats group collectors will be disabled if there are more than that number of tables.\nIf zero, server's default value is used.\nUse negative value to disable them.",
                   "type": "integer",
                   "format": "int32",
@@ -4842,7 +4658,7 @@
                   "type": "boolean",
                   "x-order": 20
                 },
-                "tls_skip_verify": {
+                "tlsSkipVerify": {
                   "description": "Skip TLS certificate and hostname validation.",
                   "type": "boolean",
                   "x-order": 21
@@ -4876,7 +4692,7 @@
                       "type": "string",
                       "x-order": 7
                     },
-                    "custom_labels": {
+                    "customLabels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
@@ -4889,7 +4705,7 @@
                       "type": "string",
                       "x-order": 6
                     },
-                    "node_id": {
+                    "nodeId": {
                       "description": "Node identifier where this instance runs.",
                       "type": "string",
                       "x-order": 2
@@ -4900,17 +4716,17 @@
                       "format": "int64",
                       "x-order": 4
                     },
-                    "replication_set": {
+                    "replicationSet": {
                       "description": "Replication set name.",
                       "type": "string",
                       "x-order": 8
                     },
-                    "service_id": {
+                    "serviceId": {
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
                     },
-                    "service_name": {
+                    "serviceName": {
                       "description": "Unique across all Services user-defined name.",
                       "type": "string",
                       "x-order": 1
@@ -4923,16 +4739,16 @@
                   },
                   "x-order": 2
                 },
-                "mysqld_exporter": {
+                "mysqldExporter": {
                   "description": "MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
                   "type": "object",
                   "properties": {
-                    "agent_id": {
+                    "agentId": {
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
                     },
-                    "custom_labels": {
+                    "customLabels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
@@ -4945,7 +4761,7 @@
                       "type": "boolean",
                       "x-order": 2
                     },
-                    "disabled_collectors": {
+                    "disabledCollectors": {
                       "description": "List of disabled collector names.",
                       "type": "array",
                       "items": {
@@ -4953,23 +4769,23 @@
                       },
                       "x-order": 13
                     },
-                    "listen_port": {
+                    "listenPort": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
                       "x-order": 15
                     },
-                    "pmm_agent_id": {
+                    "pmmAgentId": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
                     },
-                    "push_metrics_enabled": {
+                    "pushMetricsEnabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 12
                     },
-                    "service_id": {
+                    "serviceId": {
                       "description": "Service identifier.",
                       "type": "string",
                       "x-order": 3
@@ -4989,12 +4805,12 @@
                       ],
                       "x-order": 14
                     },
-                    "tablestats_group_disabled": {
+                    "tablestatsGroupDisabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
                       "x-order": 16
                     },
-                    "tablestats_group_table_limit": {
+                    "tablestatsGroupTableLimit": {
                       "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
                       "type": "integer",
                       "format": "int32",
@@ -5005,22 +4821,22 @@
                       "type": "boolean",
                       "x-order": 5
                     },
-                    "tls_ca": {
+                    "tlsCa": {
                       "description": "Certificate Authority certificate chain.",
                       "type": "string",
                       "x-order": 7
                     },
-                    "tls_cert": {
+                    "tlsCert": {
                       "description": "Client certificate.",
                       "type": "string",
                       "x-order": 8
                     },
-                    "tls_key": {
+                    "tlsKey": {
                       "description": "Password for decrypting tls_cert.",
                       "type": "string",
                       "x-order": 9
                     },
-                    "tls_skip_verify": {
+                    "tlsSkipVerify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
                       "x-order": 6
@@ -5047,7 +4863,7 @@
                       "type": "string",
                       "x-order": 5
                     },
-                    "custom_labels": {
+                    "customLabels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
@@ -5055,17 +4871,17 @@
                       },
                       "x-order": 6
                     },
-                    "node_id": {
+                    "nodeId": {
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
                     },
-                    "node_model": {
+                    "nodeModel": {
                       "description": "Node model.",
                       "type": "string",
                       "x-order": 3
                     },
-                    "node_name": {
+                    "nodeName": {
                       "description": "Unique across all Nodes user-defined name.",
                       "type": "string",
                       "x-order": 1
@@ -5092,7 +4908,7 @@
                       "type": "string",
                       "x-order": 8
                     },
-                    "custom_labels": {
+                    "customLabels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
@@ -5100,7 +4916,7 @@
                       },
                       "x-order": 10
                     },
-                    "database_name": {
+                    "databaseName": {
                       "description": "Database name.",
                       "type": "string",
                       "x-order": 2
@@ -5110,7 +4926,7 @@
                       "type": "string",
                       "x-order": 7
                     },
-                    "node_id": {
+                    "nodeId": {
                       "description": "Node identifier where this instance runs.",
                       "type": "string",
                       "x-order": 3
@@ -5121,17 +4937,17 @@
                       "format": "int64",
                       "x-order": 5
                     },
-                    "replication_set": {
+                    "replicationSet": {
                       "description": "Replication set name.",
                       "type": "string",
                       "x-order": 9
                     },
-                    "service_id": {
+                    "serviceId": {
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
                     },
-                    "service_name": {
+                    "serviceName": {
                       "description": "Unique across all Services user-defined name.",
                       "type": "string",
                       "x-order": 1
@@ -5144,16 +4960,16 @@
                   },
                   "x-order": 6
                 },
-                "postgresql_exporter": {
+                "postgresqlExporter": {
                   "description": "PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.",
                   "type": "object",
                   "properties": {
-                    "agent_id": {
+                    "agentId": {
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
                     },
-                    "custom_labels": {
+                    "customLabels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
@@ -5166,7 +4982,7 @@
                       "type": "boolean",
                       "x-order": 2
                     },
-                    "disabled_collectors": {
+                    "disabledCollectors": {
                       "description": "List of disabled collector names.",
                       "type": "array",
                       "items": {
@@ -5174,23 +4990,23 @@
                       },
                       "x-order": 9
                     },
-                    "listen_port": {
+                    "listenPort": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
                     },
-                    "pmm_agent_id": {
+                    "pmmAgentId": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
                     },
-                    "push_metrics_enabled": {
+                    "pushMetricsEnabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 8
                     },
-                    "service_id": {
+                    "serviceId": {
                       "description": "Service identifier.",
                       "type": "string",
                       "x-order": 3
@@ -5215,7 +5031,7 @@
                       "type": "boolean",
                       "x-order": 5
                     },
-                    "tls_skip_verify": {
+                    "tlsSkipVerify": {
                       "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                       "type": "boolean",
                       "x-order": 6
@@ -5228,16 +5044,16 @@
                   },
                   "x-order": 7
                 },
-                "qan_mysql_perfschema": {
+                "qanMysqlPerfschema": {
                   "description": "QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.",
                   "type": "object",
                   "properties": {
-                    "agent_id": {
+                    "agentId": {
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
                     },
-                    "custom_labels": {
+                    "customLabels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
@@ -5250,17 +5066,17 @@
                       "type": "boolean",
                       "x-order": 2
                     },
-                    "pmm_agent_id": {
+                    "pmmAgentId": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
                     },
-                    "query_examples_disabled": {
+                    "queryExamplesDisabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
                       "x-order": 10
                     },
-                    "service_id": {
+                    "serviceId": {
                       "description": "Service identifier.",
                       "type": "string",
                       "x-order": 3
@@ -5285,22 +5101,22 @@
                       "type": "boolean",
                       "x-order": 5
                     },
-                    "tls_ca": {
+                    "tlsCa": {
                       "description": "Certificate Authority certificate chain.",
                       "type": "string",
                       "x-order": 7
                     },
-                    "tls_cert": {
+                    "tlsCert": {
                       "description": "Client certificate.",
                       "type": "string",
                       "x-order": 8
                     },
-                    "tls_key": {
+                    "tlsKey": {
                       "description": "Password for decrypting tls_cert.",
                       "type": "string",
                       "x-order": 9
                     },
-                    "tls_skip_verify": {
+                    "tlsSkipVerify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
                       "x-order": 6
@@ -5313,16 +5129,16 @@
                   },
                   "x-order": 4
                 },
-                "qan_postgresql_pgstatements": {
+                "qanPostgresqlPgstatements": {
                   "description": "QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
                   "type": "object",
                   "properties": {
-                    "agent_id": {
+                    "agentId": {
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
                     },
-                    "custom_labels": {
+                    "customLabels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
@@ -5335,12 +5151,12 @@
                       "type": "boolean",
                       "x-order": 2
                     },
-                    "pmm_agent_id": {
+                    "pmmAgentId": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
                     },
-                    "service_id": {
+                    "serviceId": {
                       "description": "Service identifier.",
                       "type": "string",
                       "x-order": 3
@@ -5365,7 +5181,7 @@
                       "type": "boolean",
                       "x-order": 5
                     },
-                    "tls_skip_verify": {
+                    "tlsSkipVerify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
                       "x-order": 6
@@ -5378,26 +5194,26 @@
                   },
                   "x-order": 8
                 },
-                "rds_exporter": {
+                "rdsExporter": {
                   "description": "RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.",
                   "type": "object",
                   "properties": {
-                    "agent_id": {
+                    "agentId": {
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
                     },
-                    "aws_access_key": {
+                    "awsAccessKey": {
                       "description": "AWS Access Key.",
                       "type": "string",
                       "x-order": 4
                     },
-                    "basic_metrics_disabled": {
+                    "basicMetricsDisabled": {
                       "description": "Basic metrics are disabled.",
                       "type": "boolean",
                       "x-order": 8
                     },
-                    "custom_labels": {
+                    "customLabels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
@@ -5410,28 +5226,28 @@
                       "type": "boolean",
                       "x-order": 2
                     },
-                    "enhanced_metrics_disabled": {
+                    "enhancedMetricsDisabled": {
                       "description": "Enhanced metrics are disabled.",
                       "type": "boolean",
                       "x-order": 9
                     },
-                    "listen_port": {
+                    "listenPort": {
                       "description": "Listen port for scraping metrics (the same for several configurations).",
                       "type": "integer",
                       "format": "int64",
                       "x-order": 7
                     },
-                    "node_id": {
+                    "nodeId": {
                       "description": "Node identifier.",
                       "type": "string",
                       "x-order": 3
                     },
-                    "pmm_agent_id": {
+                    "pmmAgentId": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
                     },
-                    "push_metrics_enabled": {
+                    "pushMetricsEnabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 10
@@ -5454,7 +5270,7 @@
                   },
                   "x-order": 1
                 },
-                "table_count": {
+                "tableCount": {
                   "description": "Actual table count at the moment of adding.",
                   "type": "integer",
                   "format": "int32",
@@ -5471,33 +5287,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -5521,12 +5329,12 @@
             "schema": {
               "type": "object",
               "properties": {
-                "aws_access_key": {
+                "awsAccessKey": {
                   "description": "AWS Access key. Optional.",
                   "type": "string",
                   "x-order": 0
                 },
-                "aws_secret_key": {
+                "awsSecretKey": {
                   "description": "AWS Secret key. Optional.",
                   "type": "string",
                   "x-order": 1
@@ -5541,7 +5349,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "rds_instances": {
+                "rdsInstances": {
                   "type": "array",
                   "items": {
                     "description": "DiscoverRDSInstance models an unique RDS instance for the list of instances returned by Discovery.",
@@ -5568,17 +5376,17 @@
                         ],
                         "x-order": 6
                       },
-                      "engine_version": {
+                      "engineVersion": {
                         "description": "Engine version.",
                         "type": "string",
                         "x-order": 7
                       },
-                      "instance_id": {
+                      "instanceId": {
                         "description": "AWS instance ID.",
                         "type": "string",
                         "x-order": 2
                       },
-                      "node_model": {
+                      "nodeModel": {
                         "description": "AWS instance class.",
                         "type": "string",
                         "x-order": 3
@@ -5609,33 +5417,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -5713,33 +5513,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -5788,12 +5580,12 @@
                         },
                         "x-order": 3
                       },
-                      "read_more_url": {
+                      "readMoreUrl": {
                         "description": "URL containing information on how to resolve an issue detected by an STT check.",
                         "type": "string",
                         "x-order": 4
                       },
-                      "service_name": {
+                      "serviceName": {
                         "description": "Name of the monitored service on which the check ran.",
                         "type": "string",
                         "x-order": 5
@@ -5834,33 +5626,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -5945,33 +5729,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -6022,33 +5798,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -6072,17 +5840,17 @@
             "schema": {
               "type": "object",
               "properties": {
-                "service_id": {
+                "serviceId": {
                   "description": "Service ID or Service Name is required.\nUnique randomly generated instance identifier.",
                   "type": "string",
                   "x-order": 1
                 },
-                "service_name": {
+                "serviceName": {
                   "description": "Unique across all Services user-defined name.",
                   "type": "string",
                   "x-order": 2
                 },
-                "service_type": {
+                "serviceType": {
                   "description": "ServiceType describes supported Service types.",
                   "type": "string",
                   "default": "SERVICE_TYPE_INVALID",
@@ -6116,33 +5884,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -6150,5 +5910,43 @@
         }
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "name": "Actions"
+    },
+    {
+      "name": "Annotation"
+    },
+    {
+      "name": "SecurityChecks"
+    },
+    {
+      "name": "External"
+    },
+    {
+      "name": "HAProxy"
+    },
+    {
+      "name": "MongoDB"
+    },
+    {
+      "name": "MySQL"
+    },
+    {
+      "name": "Node"
+    },
+    {
+      "name": "PostgreSQL"
+    },
+    {
+      "name": "ProxySQL"
+    },
+    {
+      "name": "RDS"
+    },
+    {
+      "name": "Service"
+    }
+  ]
 }

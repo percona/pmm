@@ -123,12 +123,8 @@ swagger:model DetailsItems0
 */
 type DetailsItems0 struct {
 
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this details items0
@@ -161,11 +157,11 @@ type GetHistogramBody struct {
 
 	// period start from
 	// Format: date-time
-	PeriodStartFrom strfmt.DateTime `json:"period_start_from,omitempty"`
+	PeriodStartFrom strfmt.DateTime `json:"periodStartFrom,omitempty"`
 
 	// period start to
 	// Format: date-time
-	PeriodStartTo strfmt.DateTime `json:"period_start_to,omitempty"`
+	PeriodStartTo strfmt.DateTime `json:"periodStartTo,omitempty"`
 
 	// labels
 	Labels []*LabelsItems0 `json:"labels"`
@@ -202,7 +198,7 @@ func (o *GetHistogramBody) validatePeriodStartFrom(formats strfmt.Registry) erro
 		return nil
 	}
 
-	if err := validate.FormatOf("body"+"."+"period_start_from", "body", "date-time", o.PeriodStartFrom.String(), formats); err != nil {
+	if err := validate.FormatOf("body"+"."+"periodStartFrom", "body", "date-time", o.PeriodStartFrom.String(), formats); err != nil {
 		return err
 	}
 
@@ -215,7 +211,7 @@ func (o *GetHistogramBody) validatePeriodStartTo(formats strfmt.Registry) error 
 		return nil
 	}
 
-	if err := validate.FormatOf("body"+"."+"period_start_to", "body", "date-time", o.PeriodStartTo.String(), formats); err != nil {
+	if err := validate.FormatOf("body"+"."+"periodStartTo", "body", "date-time", o.PeriodStartTo.String(), formats); err != nil {
 		return err
 	}
 
@@ -269,9 +265,6 @@ func (o *GetHistogramBody) UnmarshalBinary(b []byte) error {
 swagger:model GetHistogramDefaultBody
 */
 type GetHistogramDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -346,7 +339,7 @@ swagger:model GetHistogramOKBody
 type GetHistogramOKBody struct {
 
 	// histogram items
-	HistogramItems []*HistogramItemsItems0 `json:"histogram_items"`
+	HistogramItems []*HistogramItemsItems0 `json:"histogramItems"`
 }
 
 // Validate validates this get histogram OK body
@@ -377,7 +370,7 @@ func (o *GetHistogramOKBody) validateHistogramItems(formats strfmt.Registry) err
 		if o.HistogramItems[i] != nil {
 			if err := o.HistogramItems[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("getHistogramOk" + "." + "histogram_items" + "." + strconv.Itoa(i))
+					return ve.ValidateName("getHistogramOk" + "." + "histogramItems" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

@@ -125,7 +125,7 @@ swagger:model ListDBClustersBody
 type ListDBClustersBody struct {
 
 	// Kubernetes cluster name.
-	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
+	KubernetesClusterName string `json:"kubernetesClusterName,omitempty"`
 }
 
 // Validate validates this list DB clusters body
@@ -155,9 +155,6 @@ func (o *ListDBClustersBody) UnmarshalBinary(b []byte) error {
 swagger:model ListDBClustersDefaultBody
 */
 type ListDBClustersDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -232,10 +229,10 @@ swagger:model ListDBClustersOKBody
 type ListDBClustersOKBody struct {
 
 	// PXC clusters information.
-	PXCClusters []*PXCClustersItems0 `json:"pxc_clusters"`
+	PXCClusters []*PXCClustersItems0 `json:"pxcClusters"`
 
 	// PSMDB clusters information.
-	PSMDBClusters []*PSMDBClustersItems0 `json:"psmdb_clusters"`
+	PSMDBClusters []*PSMDBClustersItems0 `json:"psmdbClusters"`
 }
 
 // Validate validates this list DB clusters OK body
@@ -270,7 +267,7 @@ func (o *ListDBClustersOKBody) validatePXCClusters(formats strfmt.Registry) erro
 		if o.PXCClusters[i] != nil {
 			if err := o.PXCClusters[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listDbClustersOk" + "." + "pxc_clusters" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listDbClustersOk" + "." + "pxcClusters" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -295,7 +292,7 @@ func (o *ListDBClustersOKBody) validatePSMDBClusters(formats strfmt.Registry) er
 		if o.PSMDBClusters[i] != nil {
 			if err := o.PSMDBClusters[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listDbClustersOk" + "." + "psmdb_clusters" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listDbClustersOk" + "." + "psmdbClusters" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -349,11 +346,11 @@ type PSMDBClustersItems0 struct {
 	Exposed bool `json:"exposed,omitempty"`
 
 	// Installed PSMDB image.
-	InstalledImage string `json:"installed_image,omitempty"`
+	InstalledImage string `json:"installedImage,omitempty"`
 
 	// Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.
 	// If it's empty, no upgrade is available.
-	AvailableImage string `json:"available_image,omitempty"`
+	AvailableImage string `json:"availableImage,omitempty"`
 
 	// operation
 	Operation *PSMDBClustersItems0Operation `json:"operation,omitempty"`
@@ -502,13 +499,13 @@ swagger:model PSMDBClustersItems0Operation
 type PSMDBClustersItems0Operation struct {
 
 	// Finished steps of the operaion; can decrease or increase compared to the previous value.
-	FinishedSteps int32 `json:"finished_steps,omitempty"`
+	FinishedSteps int32 `json:"finishedSteps,omitempty"`
 
 	// Text describing the current operation progress step.
 	Message string `json:"message,omitempty"`
 
 	// Total steps needed to finish the operation; can decrease or increase compared to the previous value.
-	TotalSteps int32 `json:"total_steps,omitempty"`
+	TotalSteps int32 `json:"totalSteps,omitempty"`
 }
 
 // Validate validates this PSMDB clusters items0 operation
@@ -540,7 +537,7 @@ swagger:model PSMDBClustersItems0Params
 type PSMDBClustersItems0Params struct {
 
 	// Cluster size.
-	ClusterSize int32 `json:"cluster_size,omitempty"`
+	ClusterSize int32 `json:"clusterSize,omitempty"`
 
 	// Docker image used for PSMDB.
 	Image string `json:"image,omitempty"`
@@ -606,10 +603,10 @@ swagger:model PSMDBClustersItems0ParamsReplicaset
 type PSMDBClustersItems0ParamsReplicaset struct {
 
 	// Disk size in bytes.
-	DiskSize string `json:"disk_size,omitempty"`
+	DiskSize string `json:"diskSize,omitempty"`
 
 	// compute resources
-	ComputeResources *PSMDBClustersItems0ParamsReplicasetComputeResources `json:"compute_resources,omitempty"`
+	ComputeResources *PSMDBClustersItems0ParamsReplicasetComputeResources `json:"computeResources,omitempty"`
 }
 
 // Validate validates this PSMDB clusters items0 params replicaset
@@ -635,7 +632,7 @@ func (o *PSMDBClustersItems0ParamsReplicaset) validateComputeResources(formats s
 	if o.ComputeResources != nil {
 		if err := o.ComputeResources.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("params" + "." + "replicaset" + "." + "compute_resources")
+				return ve.ValidateName("params" + "." + "replicaset" + "." + "computeResources")
 			}
 			return err
 		}
@@ -668,10 +665,10 @@ swagger:model PSMDBClustersItems0ParamsReplicasetComputeResources
 type PSMDBClustersItems0ParamsReplicasetComputeResources struct {
 
 	// CPUs in milliCPUs; 1000m = 1 vCPU.
-	CPUm int32 `json:"cpu_m,omitempty"`
+	CPUM int32 `json:"cpuM,omitempty"`
 
 	// Memory in bytes.
-	MemoryBytes string `json:"memory_bytes,omitempty"`
+	MemoryBytes string `json:"memoryBytes,omitempty"`
 }
 
 // Validate validates this PSMDB clusters items0 params replicaset compute resources
@@ -722,11 +719,11 @@ type PXCClustersItems0 struct {
 	Exposed bool `json:"exposed,omitempty"`
 
 	// Installed XtraDB image.
-	InstalledImage string `json:"installed_image,omitempty"`
+	InstalledImage string `json:"installedImage,omitempty"`
 
 	// Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.
 	// If it's empty, no upgrade is available.
-	AvailableImage string `json:"available_image,omitempty"`
+	AvailableImage string `json:"availableImage,omitempty"`
 
 	// operation
 	Operation *PXCClustersItems0Operation `json:"operation,omitempty"`
@@ -875,13 +872,13 @@ swagger:model PXCClustersItems0Operation
 type PXCClustersItems0Operation struct {
 
 	// Finished steps of the operaion; can decrease or increase compared to the previous value.
-	FinishedSteps int32 `json:"finished_steps,omitempty"`
+	FinishedSteps int32 `json:"finishedSteps,omitempty"`
 
 	// Text describing the current operation progress step.
 	Message string `json:"message,omitempty"`
 
 	// Total steps needed to finish the operation; can decrease or increase compared to the previous value.
-	TotalSteps int32 `json:"total_steps,omitempty"`
+	TotalSteps int32 `json:"totalSteps,omitempty"`
 }
 
 // Validate validates this PXC clusters items0 operation
@@ -913,7 +910,7 @@ swagger:model PXCClustersItems0Params
 type PXCClustersItems0Params struct {
 
 	// Cluster size.
-	ClusterSize int32 `json:"cluster_size,omitempty"`
+	ClusterSize int32 `json:"clusterSize,omitempty"`
 
 	// haproxy
 	Haproxy *PXCClustersItems0ParamsHaproxy `json:"haproxy,omitempty"`
@@ -1029,7 +1026,7 @@ type PXCClustersItems0ParamsHaproxy struct {
 	Image string `json:"image,omitempty"`
 
 	// compute resources
-	ComputeResources *PXCClustersItems0ParamsHaproxyComputeResources `json:"compute_resources,omitempty"`
+	ComputeResources *PXCClustersItems0ParamsHaproxyComputeResources `json:"computeResources,omitempty"`
 }
 
 // Validate validates this PXC clusters items0 params haproxy
@@ -1055,7 +1052,7 @@ func (o *PXCClustersItems0ParamsHaproxy) validateComputeResources(formats strfmt
 	if o.ComputeResources != nil {
 		if err := o.ComputeResources.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("params" + "." + "haproxy" + "." + "compute_resources")
+				return ve.ValidateName("params" + "." + "haproxy" + "." + "computeResources")
 			}
 			return err
 		}
@@ -1088,10 +1085,10 @@ swagger:model PXCClustersItems0ParamsHaproxyComputeResources
 type PXCClustersItems0ParamsHaproxyComputeResources struct {
 
 	// CPUs in milliCPUs; 1000m = 1 vCPU.
-	CPUm int32 `json:"cpu_m,omitempty"`
+	CPUM int32 `json:"cpuM,omitempty"`
 
 	// Memory in bytes.
-	MemoryBytes string `json:"memory_bytes,omitempty"`
+	MemoryBytes string `json:"memoryBytes,omitempty"`
 }
 
 // Validate validates this PXC clusters items0 params haproxy compute resources
@@ -1127,10 +1124,10 @@ type PXCClustersItems0ParamsPXC struct {
 	Image string `json:"image,omitempty"`
 
 	// Disk size in bytes.
-	DiskSize string `json:"disk_size,omitempty"`
+	DiskSize string `json:"diskSize,omitempty"`
 
 	// compute resources
-	ComputeResources *PXCClustersItems0ParamsPXCComputeResources `json:"compute_resources,omitempty"`
+	ComputeResources *PXCClustersItems0ParamsPXCComputeResources `json:"computeResources,omitempty"`
 }
 
 // Validate validates this PXC clusters items0 params PXC
@@ -1156,7 +1153,7 @@ func (o *PXCClustersItems0ParamsPXC) validateComputeResources(formats strfmt.Reg
 	if o.ComputeResources != nil {
 		if err := o.ComputeResources.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("params" + "." + "pxc" + "." + "compute_resources")
+				return ve.ValidateName("params" + "." + "pxc" + "." + "computeResources")
 			}
 			return err
 		}
@@ -1189,10 +1186,10 @@ swagger:model PXCClustersItems0ParamsPXCComputeResources
 type PXCClustersItems0ParamsPXCComputeResources struct {
 
 	// CPUs in milliCPUs; 1000m = 1 vCPU.
-	CPUm int32 `json:"cpu_m,omitempty"`
+	CPUM int32 `json:"cpuM,omitempty"`
 
 	// Memory in bytes.
-	MemoryBytes string `json:"memory_bytes,omitempty"`
+	MemoryBytes string `json:"memoryBytes,omitempty"`
 }
 
 // Validate validates this PXC clusters items0 params PXC compute resources
@@ -1228,10 +1225,10 @@ type PXCClustersItems0ParamsProxysql struct {
 	Image string `json:"image,omitempty"`
 
 	// Disk size in bytes.
-	DiskSize string `json:"disk_size,omitempty"`
+	DiskSize string `json:"diskSize,omitempty"`
 
 	// compute resources
-	ComputeResources *PXCClustersItems0ParamsProxysqlComputeResources `json:"compute_resources,omitempty"`
+	ComputeResources *PXCClustersItems0ParamsProxysqlComputeResources `json:"computeResources,omitempty"`
 }
 
 // Validate validates this PXC clusters items0 params proxysql
@@ -1257,7 +1254,7 @@ func (o *PXCClustersItems0ParamsProxysql) validateComputeResources(formats strfm
 	if o.ComputeResources != nil {
 		if err := o.ComputeResources.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("params" + "." + "proxysql" + "." + "compute_resources")
+				return ve.ValidateName("params" + "." + "proxysql" + "." + "computeResources")
 			}
 			return err
 		}
@@ -1290,10 +1287,10 @@ swagger:model PXCClustersItems0ParamsProxysqlComputeResources
 type PXCClustersItems0ParamsProxysqlComputeResources struct {
 
 	// CPUs in milliCPUs; 1000m = 1 vCPU.
-	CPUm int32 `json:"cpu_m,omitempty"`
+	CPUM int32 `json:"cpuM,omitempty"`
 
 	// Memory in bytes.
-	MemoryBytes string `json:"memory_bytes,omitempty"`
+	MemoryBytes string `json:"memoryBytes,omitempty"`
 }
 
 // Validate validates this PXC clusters items0 params proxysql compute resources

@@ -121,7 +121,7 @@ swagger:model UnregisterKubernetesClusterBody
 type UnregisterKubernetesClusterBody struct {
 
 	// Kubernetes cluster name.
-	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
+	KubernetesClusterName string `json:"kubernetesClusterName,omitempty"`
 
 	// If true then Kubernetes cluster will be deleted
 	// even if it contains database clusters.
@@ -155,9 +155,6 @@ func (o *UnregisterKubernetesClusterBody) UnmarshalBinary(b []byte) error {
 swagger:model UnregisterKubernetesClusterDefaultBody
 */
 type UnregisterKubernetesClusterDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`

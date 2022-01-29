@@ -126,14 +126,14 @@ func (o *Status2Params) WriteToRequest(r runtime.ClientRequest, reg strfmt.Regis
 
 	if o.GetNetworkInfo != nil {
 
-		// query param get_network_info
+		// query param getNetworkInfo
 		var qrGetNetworkInfo bool
 		if o.GetNetworkInfo != nil {
 			qrGetNetworkInfo = *o.GetNetworkInfo
 		}
 		qGetNetworkInfo := swag.FormatBool(qrGetNetworkInfo)
 		if qGetNetworkInfo != "" {
-			if err := r.SetQueryParam("get_network_info", qGetNetworkInfo); err != nil {
+			if err := r.SetQueryParam("getNetworkInfo", qGetNetworkInfo); err != nil {
 				return err
 			}
 		}

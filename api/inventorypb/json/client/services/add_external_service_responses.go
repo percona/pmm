@@ -123,10 +123,10 @@ swagger:model AddExternalServiceBody
 type AddExternalServiceBody struct {
 
 	// Unique across all Services user-defined name. Required.
-	ServiceName string `json:"service_name,omitempty"`
+	ServiceName string `json:"serviceName,omitempty"`
 
 	// Node identifier where this instance runs. Required.
-	NodeID string `json:"node_id,omitempty"`
+	NodeID string `json:"nodeId,omitempty"`
 
 	// Environment name.
 	Environment string `json:"environment,omitempty"`
@@ -135,10 +135,10 @@ type AddExternalServiceBody struct {
 	Cluster string `json:"cluster,omitempty"`
 
 	// Replication set name.
-	ReplicationSet string `json:"replication_set,omitempty"`
+	ReplicationSet string `json:"replicationSet,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// Group name of external service.
 	Group string `json:"group,omitempty"`
@@ -171,9 +171,6 @@ func (o *AddExternalServiceBody) UnmarshalBinary(b []byte) error {
 swagger:model AddExternalServiceDefaultBody
 */
 type AddExternalServiceDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -307,13 +304,13 @@ swagger:model AddExternalServiceOKBodyExternal
 type AddExternalServiceOKBodyExternal struct {
 
 	// Unique randomly generated instance identifier.
-	ServiceID string `json:"service_id,omitempty"`
+	ServiceID string `json:"serviceId,omitempty"`
 
 	// Unique across all Services user-defined name.
-	ServiceName string `json:"service_name,omitempty"`
+	ServiceName string `json:"serviceName,omitempty"`
 
 	// Node identifier where this service instance runs.
-	NodeID string `json:"node_id,omitempty"`
+	NodeID string `json:"nodeId,omitempty"`
 
 	// Environment name.
 	Environment string `json:"environment,omitempty"`
@@ -322,10 +319,10 @@ type AddExternalServiceOKBodyExternal struct {
 	Cluster string `json:"cluster,omitempty"`
 
 	// Replication set name.
-	ReplicationSet string `json:"replication_set,omitempty"`
+	ReplicationSet string `json:"replicationSet,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// Group name of external service.
 	Group string `json:"group,omitempty"`
@@ -359,12 +356,8 @@ swagger:model DetailsItems0
 */
 type DetailsItems0 struct {
 
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this details items0

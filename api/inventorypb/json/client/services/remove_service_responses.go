@@ -121,7 +121,7 @@ swagger:model RemoveServiceBody
 type RemoveServiceBody struct {
 
 	// Unique randomly generated instance identifier. Required.
-	ServiceID string `json:"service_id,omitempty"`
+	ServiceID string `json:"serviceId,omitempty"`
 
 	// Remove service with all dependencies.
 	Force bool `json:"force,omitempty"`
@@ -154,9 +154,6 @@ func (o *RemoveServiceBody) UnmarshalBinary(b []byte) error {
 swagger:model RemoveServiceDefaultBody
 */
 type RemoveServiceDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`

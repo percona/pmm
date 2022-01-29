@@ -125,10 +125,10 @@ swagger:model InstallOperatorBody
 type InstallOperatorBody struct {
 
 	// Kubernetes cluster name.
-	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
+	KubernetesClusterName string `json:"kubernetesClusterName,omitempty"`
 
 	// operator_type tells what operator we are interested in updating.
-	OperatorType string `json:"operator_type,omitempty"`
+	OperatorType string `json:"operatorType,omitempty"`
 
 	// version tells what version of the operator we should update to.
 	Version string `json:"version,omitempty"`
@@ -161,9 +161,6 @@ func (o *InstallOperatorBody) UnmarshalBinary(b []byte) error {
 swagger:model InstallOperatorDefaultBody
 */
 type InstallOperatorDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`

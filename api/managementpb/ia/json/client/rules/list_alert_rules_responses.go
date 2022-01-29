@@ -125,7 +125,7 @@ swagger:model ListAlertRulesBody
 type ListAlertRulesBody struct {
 
 	// page params
-	PageParams *ListAlertRulesParamsBodyPageParams `json:"page_params,omitempty"`
+	PageParams *ListAlertRulesParamsBodyPageParams `json:"pageParams,omitempty"`
 }
 
 // Validate validates this list alert rules body
@@ -151,7 +151,7 @@ func (o *ListAlertRulesBody) validatePageParams(formats strfmt.Registry) error {
 	if o.PageParams != nil {
 		if err := o.PageParams.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "page_params")
+				return ve.ValidateName("body" + "." + "pageParams")
 			}
 			return err
 		}
@@ -182,9 +182,6 @@ func (o *ListAlertRulesBody) UnmarshalBinary(b []byte) error {
 swagger:model ListAlertRulesDefaultBody
 */
 type ListAlertRulesDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -350,10 +347,10 @@ swagger:model ListAlertRulesOKBodyTotals
 type ListAlertRulesOKBodyTotals struct {
 
 	// Total number of results.
-	TotalItems int32 `json:"total_items,omitempty"`
+	TotalItems int32 `json:"totalItems,omitempty"`
 
 	// Total number of pages.
-	TotalPages int32 `json:"total_pages,omitempty"`
+	TotalPages int32 `json:"totalPages,omitempty"`
 }
 
 // Validate validates this list alert rules OK body totals
@@ -385,7 +382,7 @@ swagger:model ListAlertRulesParamsBodyPageParams
 type ListAlertRulesParamsBodyPageParams struct {
 
 	// Maximum number of results per page.
-	PageSize int32 `json:"page_size,omitempty"`
+	PageSize int32 `json:"pageSize,omitempty"`
 
 	// Index of the requested page, starts from 0.
 	Index int32 `json:"index,omitempty"`
@@ -420,7 +417,7 @@ swagger:model RulesItems0
 type RulesItems0 struct {
 
 	// Rule ID.
-	RuleID string `json:"rule_id,omitempty"`
+	RuleID string `json:"ruleId,omitempty"`
 
 	// Rule name.
 	Name string `json:"name,omitempty"`
@@ -429,39 +426,39 @@ type RulesItems0 struct {
 	Summary string `json:"summary,omitempty"`
 
 	// Template used for this rule.
-	TemplateName string `json:"template_name,omitempty"`
+	TemplateName string `json:"templateName,omitempty"`
 
 	// True if that rule is disabled.
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Expression template.
-	ExprTemplate string `json:"expr_template,omitempty"`
+	ExprTemplate string `json:"exprTemplate,omitempty"`
 
 	// Expression filled with parameters.
 	Expr string `json:"expr,omitempty"`
 
 	// Expression parameters definitions.
-	ParamsDefinitions []*RulesItems0ParamsDefinitionsItems0 `json:"params_definitions"`
+	ParamsDefinitions []*RulesItems0ParamsDefinitionsItems0 `json:"paramsDefinitions"`
 
 	// Expression parameters values.
-	ParamsValues []*RulesItems0ParamsValuesItems0 `json:"params_values"`
+	ParamsValues []*RulesItems0ParamsValuesItems0 `json:"paramsValues"`
 
 	// Default for duration.
-	DefaultFor string `json:"default_for,omitempty"`
+	DefaultFor string `json:"defaultFor,omitempty"`
 
 	// For duration.
 	For string `json:"for,omitempty"`
 
 	// Severity represents severity level of the check result or alert.
 	// Enum: [SEVERITY_INVALID SEVERITY_EMERGENCY SEVERITY_ALERT SEVERITY_CRITICAL SEVERITY_ERROR SEVERITY_WARNING SEVERITY_NOTICE SEVERITY_INFO SEVERITY_DEBUG]
-	DefaultSeverity *string `json:"default_severity,omitempty"`
+	DefaultSeverity *string `json:"defaultSeverity,omitempty"`
 
 	// Severity represents severity level of the check result or alert.
 	// Enum: [SEVERITY_INVALID SEVERITY_EMERGENCY SEVERITY_ALERT SEVERITY_CRITICAL SEVERITY_ERROR SEVERITY_WARNING SEVERITY_NOTICE SEVERITY_INFO SEVERITY_DEBUG]
 	Severity *string `json:"severity,omitempty"`
 
 	// Custom labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// Labels.
 	Labels map[string]string `json:"labels,omitempty"`
@@ -477,7 +474,7 @@ type RulesItems0 struct {
 
 	// Rule creation time.
 	// Format: date-time
-	CreatedAt strfmt.DateTime `json:"created_at,omitempty"`
+	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 }
 
 // Validate validates this rules items0
@@ -532,7 +529,7 @@ func (o *RulesItems0) validateParamsDefinitions(formats strfmt.Registry) error {
 		if o.ParamsDefinitions[i] != nil {
 			if err := o.ParamsDefinitions[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("params_definitions" + "." + strconv.Itoa(i))
+					return ve.ValidateName("paramsDefinitions" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -557,7 +554,7 @@ func (o *RulesItems0) validateParamsValues(formats strfmt.Registry) error {
 		if o.ParamsValues[i] != nil {
 			if err := o.ParamsValues[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("params_values" + "." + strconv.Itoa(i))
+					return ve.ValidateName("paramsValues" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -625,7 +622,7 @@ func (o *RulesItems0) validateDefaultSeverity(formats strfmt.Registry) error {
 	}
 
 	// value enum
-	if err := o.validateDefaultSeverityEnum("default_severity", "body", *o.DefaultSeverity); err != nil {
+	if err := o.validateDefaultSeverityEnum("defaultSeverity", "body", *o.DefaultSeverity); err != nil {
 		return err
 	}
 
@@ -752,7 +749,7 @@ func (o *RulesItems0) validateCreatedAt(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("created_at", "body", "date-time", o.CreatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("createdAt", "body", "date-time", o.CreatedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -783,7 +780,7 @@ swagger:model RulesItems0ChannelsItems0
 type RulesItems0ChannelsItems0 struct {
 
 	// Machine-readable ID.
-	ChannelID string `json:"channel_id,omitempty"`
+	ChannelID string `json:"channelId,omitempty"`
 
 	// Short human-readable summary.
 	Summary string `json:"summary,omitempty"`
@@ -792,16 +789,16 @@ type RulesItems0ChannelsItems0 struct {
 	Disabled bool `json:"disabled,omitempty"`
 
 	// email config
-	EmailConfig *RulesItems0ChannelsItems0EmailConfig `json:"email_config,omitempty"`
+	EmailConfig *RulesItems0ChannelsItems0EmailConfig `json:"emailConfig,omitempty"`
 
 	// pagerduty config
-	PagerdutyConfig *RulesItems0ChannelsItems0PagerdutyConfig `json:"pagerduty_config,omitempty"`
+	PagerdutyConfig *RulesItems0ChannelsItems0PagerdutyConfig `json:"pagerdutyConfig,omitempty"`
 
 	// slack config
-	SlackConfig *RulesItems0ChannelsItems0SlackConfig `json:"slack_config,omitempty"`
+	SlackConfig *RulesItems0ChannelsItems0SlackConfig `json:"slackConfig,omitempty"`
 
 	// webhook config
-	WebhookConfig *RulesItems0ChannelsItems0WebhookConfig `json:"webhook_config,omitempty"`
+	WebhookConfig *RulesItems0ChannelsItems0WebhookConfig `json:"webhookConfig,omitempty"`
 }
 
 // Validate validates this rules items0 channels items0
@@ -839,7 +836,7 @@ func (o *RulesItems0ChannelsItems0) validateEmailConfig(formats strfmt.Registry)
 	if o.EmailConfig != nil {
 		if err := o.EmailConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("email_config")
+				return ve.ValidateName("emailConfig")
 			}
 			return err
 		}
@@ -857,7 +854,7 @@ func (o *RulesItems0ChannelsItems0) validatePagerdutyConfig(formats strfmt.Regis
 	if o.PagerdutyConfig != nil {
 		if err := o.PagerdutyConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("pagerduty_config")
+				return ve.ValidateName("pagerdutyConfig")
 			}
 			return err
 		}
@@ -875,7 +872,7 @@ func (o *RulesItems0ChannelsItems0) validateSlackConfig(formats strfmt.Registry)
 	if o.SlackConfig != nil {
 		if err := o.SlackConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("slack_config")
+				return ve.ValidateName("slackConfig")
 			}
 			return err
 		}
@@ -893,7 +890,7 @@ func (o *RulesItems0ChannelsItems0) validateWebhookConfig(formats strfmt.Registr
 	if o.WebhookConfig != nil {
 		if err := o.WebhookConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("webhook_config")
+				return ve.ValidateName("webhookConfig")
 			}
 			return err
 		}
@@ -926,7 +923,7 @@ swagger:model RulesItems0ChannelsItems0EmailConfig
 type RulesItems0ChannelsItems0EmailConfig struct {
 
 	// send resolved
-	SendResolved bool `json:"send_resolved,omitempty"`
+	SendResolved bool `json:"sendResolved,omitempty"`
 
 	// to
 	To []string `json:"to"`
@@ -961,13 +958,13 @@ swagger:model RulesItems0ChannelsItems0PagerdutyConfig
 type RulesItems0ChannelsItems0PagerdutyConfig struct {
 
 	// send resolved
-	SendResolved bool `json:"send_resolved,omitempty"`
+	SendResolved bool `json:"sendResolved,omitempty"`
 
 	// The PagerDuty key for "Events API v2" integration type. Exactly one key should be set.
-	RoutingKey string `json:"routing_key,omitempty"`
+	RoutingKey string `json:"routingKey,omitempty"`
 
 	// The PagerDuty key for "Prometheus" integration type. Exactly one key should be set.
-	ServiceKey string `json:"service_key,omitempty"`
+	ServiceKey string `json:"serviceKey,omitempty"`
 }
 
 // Validate validates this rules items0 channels items0 pagerduty config
@@ -999,7 +996,7 @@ swagger:model RulesItems0ChannelsItems0SlackConfig
 type RulesItems0ChannelsItems0SlackConfig struct {
 
 	// send resolved
-	SendResolved bool `json:"send_resolved,omitempty"`
+	SendResolved bool `json:"sendResolved,omitempty"`
 
 	// channel
 	Channel string `json:"channel,omitempty"`
@@ -1034,16 +1031,16 @@ swagger:model RulesItems0ChannelsItems0WebhookConfig
 type RulesItems0ChannelsItems0WebhookConfig struct {
 
 	// send resolved
-	SendResolved bool `json:"send_resolved,omitempty"`
+	SendResolved bool `json:"sendResolved,omitempty"`
 
 	// url
 	URL string `json:"url,omitempty"`
 
 	// max alerts
-	MaxAlerts int32 `json:"max_alerts,omitempty"`
+	MaxAlerts int32 `json:"maxAlerts,omitempty"`
 
 	// http config
-	HTTPConfig *RulesItems0ChannelsItems0WebhookConfigHTTPConfig `json:"http_config,omitempty"`
+	HTTPConfig *RulesItems0ChannelsItems0WebhookConfigHTTPConfig `json:"httpConfig,omitempty"`
 }
 
 // Validate validates this rules items0 channels items0 webhook config
@@ -1069,7 +1066,7 @@ func (o *RulesItems0ChannelsItems0WebhookConfig) validateHTTPConfig(formats strf
 	if o.HTTPConfig != nil {
 		if err := o.HTTPConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("webhook_config" + "." + "http_config")
+				return ve.ValidateName("webhookConfig" + "." + "httpConfig")
 			}
 			return err
 		}
@@ -1102,19 +1099,19 @@ swagger:model RulesItems0ChannelsItems0WebhookConfigHTTPConfig
 type RulesItems0ChannelsItems0WebhookConfigHTTPConfig struct {
 
 	// bearer token
-	BearerToken string `json:"bearer_token,omitempty"`
+	BearerToken string `json:"bearerToken,omitempty"`
 
 	// bearer token file
-	BearerTokenFile string `json:"bearer_token_file,omitempty"`
+	BearerTokenFile string `json:"bearerTokenFile,omitempty"`
 
-	// proxy url
-	ProxyURL string `json:"proxy_url,omitempty"`
+	// proxy Url
+	ProxyURL string `json:"proxyUrl,omitempty"`
 
 	// basic auth
-	BasicAuth *RulesItems0ChannelsItems0WebhookConfigHTTPConfigBasicAuth `json:"basic_auth,omitempty"`
+	BasicAuth *RulesItems0ChannelsItems0WebhookConfigHTTPConfigBasicAuth `json:"basicAuth,omitempty"`
 
 	// tls config
-	TLSConfig *RulesItems0ChannelsItems0WebhookConfigHTTPConfigTLSConfig `json:"tls_config,omitempty"`
+	TLSConfig *RulesItems0ChannelsItems0WebhookConfigHTTPConfigTLSConfig `json:"tlsConfig,omitempty"`
 }
 
 // Validate validates this rules items0 channels items0 webhook config HTTP config
@@ -1144,7 +1141,7 @@ func (o *RulesItems0ChannelsItems0WebhookConfigHTTPConfig) validateBasicAuth(for
 	if o.BasicAuth != nil {
 		if err := o.BasicAuth.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("webhook_config" + "." + "http_config" + "." + "basic_auth")
+				return ve.ValidateName("webhookConfig" + "." + "httpConfig" + "." + "basicAuth")
 			}
 			return err
 		}
@@ -1162,7 +1159,7 @@ func (o *RulesItems0ChannelsItems0WebhookConfigHTTPConfig) validateTLSConfig(for
 	if o.TLSConfig != nil {
 		if err := o.TLSConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("webhook_config" + "." + "http_config" + "." + "tls_config")
+				return ve.ValidateName("webhookConfig" + "." + "httpConfig" + "." + "tlsConfig")
 			}
 			return err
 		}
@@ -1201,7 +1198,7 @@ type RulesItems0ChannelsItems0WebhookConfigHTTPConfigBasicAuth struct {
 	Password string `json:"password,omitempty"`
 
 	// password file
-	PasswordFile string `json:"password_file,omitempty"`
+	PasswordFile string `json:"passwordFile,omitempty"`
 }
 
 // Validate validates this rules items0 channels items0 webhook config HTTP config basic auth
@@ -1235,33 +1232,33 @@ type RulesItems0ChannelsItems0WebhookConfigHTTPConfigTLSConfig struct {
 
 	// A path to the CA certificate file to validate the server certificate with.
 	// ca_file and ca_file_content should not be set at the same time.
-	CaFile string `json:"ca_file,omitempty"`
+	CaFile string `json:"caFile,omitempty"`
 
 	// A path to the certificate file for client cert authentication to the server.
 	// cert_file and cert_file_content should not be set at the same time.
-	CertFile string `json:"cert_file,omitempty"`
+	CertFile string `json:"certFile,omitempty"`
 
 	// A path to the key file for client cert authentication to the server.
 	// key_file and key_file_content should not be set at the same time.
-	KeyFile string `json:"key_file,omitempty"`
+	KeyFile string `json:"keyFile,omitempty"`
 
 	// Name of the server.
-	ServerName string `json:"server_name,omitempty"`
+	ServerName string `json:"serverName,omitempty"`
 
 	// Disable validation of the server certificate.
-	InsecureSkipVerify bool `json:"insecure_skip_verify,omitempty"`
+	InsecureSkipVerify bool `json:"insecureSkipVerify,omitempty"`
 
 	// CA certificate to validate the server certificate with.
 	// ca_file and ca_file_content should not be set at the same time.
-	CaFileContent string `json:"ca_file_content,omitempty"`
+	CaFileContent string `json:"caFileContent,omitempty"`
 
 	// A certificate for client cert authentication to the server.
 	// cert_file and cert_file_content should not be set at the same time.
-	CertFileContent string `json:"cert_file_content,omitempty"`
+	CertFileContent string `json:"certFileContent,omitempty"`
 
 	// A key for client cert authentication to the server.
 	// key_file and key_file_content should not be set at the same time.
-	KeyFileContent string `json:"key_file_content,omitempty"`
+	KeyFileContent string `json:"keyFileContent,omitempty"`
 }
 
 // Validate validates this rules items0 channels items0 webhook config HTTP config TLS config
@@ -1713,19 +1710,19 @@ swagger:model RulesItems0ParamsDefinitionsItems0Float
 type RulesItems0ParamsDefinitionsItems0Float struct {
 
 	// True if default value is set.
-	HasDefault bool `json:"has_default,omitempty"`
+	HasDefault bool `json:"hasDefault,omitempty"`
 
 	// Default value if has_default is true.
 	Default float64 `json:"default,omitempty"`
 
 	// True if minimal valid value is set.
-	HasMin bool `json:"has_min,omitempty"`
+	HasMin bool `json:"hasMin,omitempty"`
 
 	// Minimal valid value (inclusive) if has_min is true.
 	Min float64 `json:"min,omitempty"`
 
 	// True if maximal valid value is set.
-	HasMax bool `json:"has_max,omitempty"`
+	HasMax bool `json:"hasMax,omitempty"`
 
 	// Maximal valid value (inclusive) if has_max is true.
 	Max float64 `json:"max,omitempty"`
@@ -1760,7 +1757,7 @@ swagger:model RulesItems0ParamsDefinitionsItems0String
 type RulesItems0ParamsDefinitionsItems0String struct {
 
 	// True if default value is set.
-	HasDefault bool `json:"has_default,omitempty"`
+	HasDefault bool `json:"hasDefault,omitempty"`
 
 	// Default value if has_default is true.
 	Default string `json:"default,omitempty"`

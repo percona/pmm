@@ -122,12 +122,8 @@ swagger:model DetailsItems0
 */
 type DetailsItems0 struct {
 
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this details items0
@@ -160,14 +156,14 @@ type RemoveServiceBody struct {
 
 	// ServiceType describes supported Service types.
 	// Enum: [SERVICE_TYPE_INVALID MYSQL_SERVICE MONGODB_SERVICE POSTGRESQL_SERVICE PROXYSQL_SERVICE HAPROXY_SERVICE EXTERNAL_SERVICE]
-	ServiceType *string `json:"service_type,omitempty"`
+	ServiceType *string `json:"serviceType,omitempty"`
 
 	// Service ID or Service Name is required.
 	// Unique randomly generated instance identifier.
-	ServiceID string `json:"service_id,omitempty"`
+	ServiceID string `json:"serviceId,omitempty"`
 
 	// Unique across all Services user-defined name.
-	ServiceName string `json:"service_name,omitempty"`
+	ServiceName string `json:"serviceName,omitempty"`
 }
 
 // Validate validates this remove service body
@@ -235,7 +231,7 @@ func (o *RemoveServiceBody) validateServiceType(formats strfmt.Registry) error {
 	}
 
 	// value enum
-	if err := o.validateServiceTypeEnum("body"+"."+"service_type", "body", *o.ServiceType); err != nil {
+	if err := o.validateServiceTypeEnum("body"+"."+"serviceType", "body", *o.ServiceType); err != nil {
 		return err
 	}
 
@@ -264,9 +260,6 @@ func (o *RemoveServiceBody) UnmarshalBinary(b []byte) error {
 swagger:model RemoveServiceDefaultBody
 */
 type RemoveServiceDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`

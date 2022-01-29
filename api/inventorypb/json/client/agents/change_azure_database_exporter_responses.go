@@ -124,8 +124,8 @@ swagger:model ChangeAzureDatabaseExporterBody
 */
 type ChangeAzureDatabaseExporterBody struct {
 
-	// agent id
-	AgentID string `json:"agent_id,omitempty"`
+	// agent Id
+	AgentID string `json:"agentId,omitempty"`
 
 	// common
 	Common *ChangeAzureDatabaseExporterParamsBodyCommon `json:"common,omitempty"`
@@ -185,9 +185,6 @@ func (o *ChangeAzureDatabaseExporterBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeAzureDatabaseExporterDefaultBody
 */
 type ChangeAzureDatabaseExporterDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -262,7 +259,7 @@ swagger:model ChangeAzureDatabaseExporterOKBody
 type ChangeAzureDatabaseExporterOKBody struct {
 
 	// azure database exporter
-	AzureDatabaseExporter *ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter `json:"azure_database_exporter,omitempty"`
+	AzureDatabaseExporter *ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter `json:"azureDatabaseExporter,omitempty"`
 }
 
 // Validate validates this change azure database exporter OK body
@@ -288,7 +285,7 @@ func (o *ChangeAzureDatabaseExporterOKBody) validateAzureDatabaseExporter(format
 	if o.AzureDatabaseExporter != nil {
 		if err := o.AzureDatabaseExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("changeAzureDatabaseExporterOk" + "." + "azure_database_exporter")
+				return ve.ValidateName("changeAzureDatabaseExporterOk" + "." + "azureDatabaseExporter")
 			}
 			return err
 		}
@@ -321,25 +318,25 @@ swagger:model ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter
 type ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agent_id,omitempty"`
+	AgentID string `json:"agentId,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+	PMMAgentID string `json:"pmmAgentId,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Node identifier.
-	NodeID string `json:"node_id,omitempty"`
+	NodeID string `json:"nodeId,omitempty"`
 
 	// Azure database subscription ID.
-	AzureDatabaseSubscriptionID string `json:"azure_database_subscription_id,omitempty"`
+	AzureDatabaseSubscriptionID string `json:"azureDatabaseSubscriptionId,omitempty"`
 
 	// Azure database resource type (mysql, maria, postgres)
-	AzureDatabaseResourceType string `json:"azure_database_resource_type,omitempty"`
+	AzureDatabaseResourceType string `json:"azureDatabaseResourceType,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -353,10 +350,10 @@ type ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter struct {
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics (the same for several configurations).
-	ListenPort int64 `json:"listen_port,omitempty"`
+	ListenPort int64 `json:"listenPort,omitempty"`
 
 	// True if the exporter operates in push metrics mode.
-	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+	PushMetricsEnabled bool `json:"pushMetricsEnabled,omitempty"`
 }
 
 // Validate validates this change azure database exporter OK body azure database exporter
@@ -424,7 +421,7 @@ func (o *ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter) validateStatus(
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("changeAzureDatabaseExporterOk"+"."+"azure_database_exporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("changeAzureDatabaseExporterOk"+"."+"azureDatabaseExporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -461,17 +458,17 @@ type ChangeAzureDatabaseExporterParamsBodyCommon struct {
 	Disable bool `json:"disable,omitempty"`
 
 	// Replace all custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// Remove all custom user-assigned labels.
-	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
+	RemoveCustomLabels bool `json:"removeCustomLabels,omitempty"`
 
 	// Enables push metrics with vmagent, can't be used with disable_push_metrics.
 	// Can't be used with agent version lower then 2.12 and unsupported agents.
-	EnablePushMetrics bool `json:"enable_push_metrics,omitempty"`
+	EnablePushMetrics bool `json:"enablePushMetrics,omitempty"`
 
 	// Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.
-	DisablePushMetrics bool `json:"disable_push_metrics,omitempty"`
+	DisablePushMetrics bool `json:"disablePushMetrics,omitempty"`
 }
 
 // Validate validates this change azure database exporter params body common

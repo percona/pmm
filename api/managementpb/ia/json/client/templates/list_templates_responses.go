@@ -128,7 +128,7 @@ type ListTemplatesBody struct {
 	Reload bool `json:"reload,omitempty"`
 
 	// page params
-	PageParams *ListTemplatesParamsBodyPageParams `json:"page_params,omitempty"`
+	PageParams *ListTemplatesParamsBodyPageParams `json:"pageParams,omitempty"`
 }
 
 // Validate validates this list templates body
@@ -154,7 +154,7 @@ func (o *ListTemplatesBody) validatePageParams(formats strfmt.Registry) error {
 	if o.PageParams != nil {
 		if err := o.PageParams.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "page_params")
+				return ve.ValidateName("body" + "." + "pageParams")
 			}
 			return err
 		}
@@ -185,9 +185,6 @@ func (o *ListTemplatesBody) UnmarshalBinary(b []byte) error {
 swagger:model ListTemplatesDefaultBody
 */
 type ListTemplatesDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -353,10 +350,10 @@ swagger:model ListTemplatesOKBodyTotals
 type ListTemplatesOKBodyTotals struct {
 
 	// Total number of results.
-	TotalItems int32 `json:"total_items,omitempty"`
+	TotalItems int32 `json:"totalItems,omitempty"`
 
 	// Total number of pages.
-	TotalPages int32 `json:"total_pages,omitempty"`
+	TotalPages int32 `json:"totalPages,omitempty"`
 }
 
 // Validate validates this list templates OK body totals
@@ -388,7 +385,7 @@ swagger:model ListTemplatesParamsBodyPageParams
 type ListTemplatesParamsBodyPageParams struct {
 
 	// Maximum number of results per page.
-	PageSize int32 `json:"page_size,omitempty"`
+	PageSize int32 `json:"pageSize,omitempty"`
 
 	// Index of the requested page, starts from 0.
 	Index int32 `json:"index,omitempty"`
@@ -458,7 +455,7 @@ type TemplatesItems0 struct {
 
 	// Template creation time. Empty for built-in and SaaS templates.
 	// Format: date-time
-	CreatedAt strfmt.DateTime `json:"created_at,omitempty"`
+	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 	// YAML (or JSON) template file content. Empty for built-in and SaaS templates.
 	Yaml string `json:"yaml,omitempty"`
@@ -637,7 +634,7 @@ func (o *TemplatesItems0) validateCreatedAt(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("created_at", "body", "date-time", o.CreatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("createdAt", "body", "date-time", o.CreatedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -991,19 +988,19 @@ swagger:model TemplatesItems0ParamsItems0Float
 type TemplatesItems0ParamsItems0Float struct {
 
 	// True if default value is set.
-	HasDefault bool `json:"has_default,omitempty"`
+	HasDefault bool `json:"hasDefault,omitempty"`
 
 	// Default value if has_default is true.
 	Default float64 `json:"default,omitempty"`
 
 	// True if minimal valid value is set.
-	HasMin bool `json:"has_min,omitempty"`
+	HasMin bool `json:"hasMin,omitempty"`
 
 	// Minimal valid value (inclusive) if has_min is true.
 	Min float64 `json:"min,omitempty"`
 
 	// True if maximal valid value is set.
-	HasMax bool `json:"has_max,omitempty"`
+	HasMax bool `json:"hasMax,omitempty"`
 
 	// Maximal valid value (inclusive) if has_max is true.
 	Max float64 `json:"max,omitempty"`
@@ -1038,7 +1035,7 @@ swagger:model TemplatesItems0ParamsItems0String
 type TemplatesItems0ParamsItems0String struct {
 
 	// True if default value is set.
-	HasDefault bool `json:"has_default,omitempty"`
+	HasDefault bool `json:"hasDefault,omitempty"`
 
 	// Default value if has_default is true.
 	Default string `json:"default,omitempty"`

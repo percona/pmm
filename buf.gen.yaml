@@ -35,8 +35,8 @@ plugins:
       - lang=go
       - gogoimport=false
 
-  - name: swagger
+  - name: openapi
     out: api
-    path: bin/protoc-gen-swagger
+    path: bin/protoc-gen-openapi
     opt:
       - simple_operation_ids=true

@@ -122,9 +122,6 @@ swagger:model Status2DefaultBody
 */
 type Status2DefaultBody struct {
 
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -197,23 +194,23 @@ swagger:model Status2OKBody
 */
 type Status2OKBody struct {
 
-	// agent id
-	AgentID string `json:"agent_id,omitempty"`
+	// agent Id
+	AgentID string `json:"agentId,omitempty"`
 
-	// runs on node id
-	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+	// runs on node Id
+	RunsOnNodeID string `json:"runsOnNodeId,omitempty"`
 
 	// agents info
-	AgentsInfo []*AgentsInfoItems0 `json:"agents_info"`
+	AgentsInfo []*AgentsInfoItems0 `json:"agentsInfo"`
 
 	// Config file path if pmm-agent was started with one.
-	ConfigFilepath string `json:"config_filepath,omitempty"`
+	ConfigFilepath string `json:"configFilepath,omitempty"`
 
 	// PMM Agent version.
-	AgentVersion string `json:"agent_version,omitempty"`
+	AgentVersion string `json:"agentVersion,omitempty"`
 
 	// server info
-	ServerInfo *Status2OKBodyServerInfo `json:"server_info,omitempty"`
+	ServerInfo *Status2OKBodyServerInfo `json:"serverInfo,omitempty"`
 }
 
 // Validate validates this status2 OK body
@@ -248,7 +245,7 @@ func (o *Status2OKBody) validateAgentsInfo(formats strfmt.Registry) error {
 		if o.AgentsInfo[i] != nil {
 			if err := o.AgentsInfo[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("status2Ok" + "." + "agents_info" + "." + strconv.Itoa(i))
+					return ve.ValidateName("status2Ok" + "." + "agentsInfo" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -268,7 +265,7 @@ func (o *Status2OKBody) validateServerInfo(formats strfmt.Registry) error {
 	if o.ServerInfo != nil {
 		if err := o.ServerInfo.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("status2Ok" + "." + "server_info")
+				return ve.ValidateName("status2Ok" + "." + "serverInfo")
 			}
 			return err
 		}
@@ -304,7 +301,7 @@ type Status2OKBodyServerInfo struct {
 	URL string `json:"url,omitempty"`
 
 	// PMM Server's TLS certificate validation should be skipped if true.
-	InsecureTLS bool `json:"insecure_tls,omitempty"`
+	InsecureTLS bool `json:"insecureTls,omitempty"`
 
 	// True if pmm-agent is currently connected to the server.
 	Connected bool `json:"connected,omitempty"`
@@ -316,7 +313,7 @@ type Status2OKBodyServerInfo struct {
 	Latency string `json:"latency,omitempty"`
 
 	// Clock drift from PMM Server (if agent is connected).
-	ClockDrift string `json:"clock_drift,omitempty"`
+	ClockDrift string `json:"clockDrift,omitempty"`
 }
 
 // Validate validates this status2 OK body server info

@@ -131,10 +131,10 @@ type AddRDSBody struct {
 	Az string `json:"az,omitempty"`
 
 	// AWS instance ID.
-	InstanceID string `json:"instance_id,omitempty"`
+	InstanceID string `json:"instanceId,omitempty"`
 
 	// AWS instance class.
-	NodeModel string `json:"node_model,omitempty"`
+	NodeModel string `json:"nodeModel,omitempty"`
 
 	// Address used to connect to it.
 	Address string `json:"address,omitempty"`
@@ -147,10 +147,10 @@ type AddRDSBody struct {
 	Engine *string `json:"engine,omitempty"`
 
 	// Unique across all Nodes user-defined name. Defaults to AWS instance ID.
-	NodeName string `json:"node_name,omitempty"`
+	NodeName string `json:"nodeName,omitempty"`
 
 	// Unique across all Services user-defined name. Defaults to AWS instance ID.
-	ServiceName string `json:"service_name,omitempty"`
+	ServiceName string `json:"serviceName,omitempty"`
 
 	// Environment name.
 	Environment string `json:"environment,omitempty"`
@@ -159,7 +159,7 @@ type AddRDSBody struct {
 	Cluster string `json:"cluster,omitempty"`
 
 	// Replication set name.
-	ReplicationSet string `json:"replication_set,omitempty"`
+	ReplicationSet string `json:"replicationSet,omitempty"`
 
 	// Username for scraping metrics.
 	Username string `json:"username,omitempty"`
@@ -168,53 +168,53 @@ type AddRDSBody struct {
 	Password string `json:"password,omitempty"`
 
 	// AWS Access key.
-	AWSAccessKey string `json:"aws_access_key,omitempty"`
+	AWSAccessKey string `json:"awsAccessKey,omitempty"`
 
 	// AWS Secret key.
-	AWSSecretKey string `json:"aws_secret_key,omitempty"`
+	AWSSecretKey string `json:"awsSecretKey,omitempty"`
 
 	// If true, adds rds_exporter.
-	RDSExporter bool `json:"rds_exporter,omitempty"`
+	RDSExporter bool `json:"rdsExporter,omitempty"`
 
 	// If true, adds qan-mysql-perfschema-agent.
-	QANMysqlPerfschema bool `json:"qan_mysql_perfschema,omitempty"`
+	QANMysqlPerfschema bool `json:"qanMysqlPerfschema,omitempty"`
 
 	// Custom user-assigned labels for Node and Service.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// Skip connection check.
-	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
+	SkipConnectionCheck bool `json:"skipConnectionCheck,omitempty"`
 
 	// Use TLS for database connections.
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
 
 	// Disable query examples.
-	DisableQueryExamples bool `json:"disable_query_examples,omitempty"`
+	DisableQueryExamples bool `json:"disableQueryExamples,omitempty"`
 
 	// Tablestats group collectors will be disabled if there are more than that number of tables.
 	// If zero, server's default value is used.
 	// Use negative value to disable them.
-	TablestatsGroupTableLimit int32 `json:"tablestats_group_table_limit,omitempty"`
+	TablestatsGroupTableLimit int32 `json:"tablestatsGroupTableLimit,omitempty"`
 
 	// Disable basic metrics.
-	DisableBasicMetrics bool `json:"disable_basic_metrics,omitempty"`
+	DisableBasicMetrics bool `json:"disableBasicMetrics,omitempty"`
 
 	// Disable enhanced metrics.
-	DisableEnhancedMetrics bool `json:"disable_enhanced_metrics,omitempty"`
+	DisableEnhancedMetrics bool `json:"disableEnhancedMetrics,omitempty"`
 
 	// MetricsMode defines desired metrics mode for agent,
 	// it can be pull, push or auto mode chosen by server.
 	// Enum: [AUTO PULL PUSH]
-	MetricsMode *string `json:"metrics_mode,omitempty"`
+	MetricsMode *string `json:"metricsMode,omitempty"`
 
 	// If true, add qan-pgstatements
-	QANPostgresqlPgstatements bool `json:"qan_postgresql_pgstatements,omitempty"`
+	QANPostgresqlPgstatements bool `json:"qanPostgresqlPgstatements,omitempty"`
 
 	// Custom password for exporter endpoint /metrics.
-	AgentPassword string `json:"agent_password,omitempty"`
+	AgentPassword string `json:"agentPassword,omitempty"`
 }
 
 // Validate validates this add RDS body
@@ -320,7 +320,7 @@ func (o *AddRDSBody) validateMetricsMode(formats strfmt.Registry) error {
 	}
 
 	// value enum
-	if err := o.validateMetricsModeEnum("body"+"."+"metrics_mode", "body", *o.MetricsMode); err != nil {
+	if err := o.validateMetricsModeEnum("body"+"."+"metricsMode", "body", *o.MetricsMode); err != nil {
 		return err
 	}
 
@@ -349,9 +349,6 @@ func (o *AddRDSBody) UnmarshalBinary(b []byte) error {
 swagger:model AddRDSDefaultBody
 */
 type AddRDSDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -426,13 +423,13 @@ swagger:model AddRDSOKBody
 type AddRDSOKBody struct {
 
 	// Actual table count at the moment of adding.
-	TableCount int32 `json:"table_count,omitempty"`
+	TableCount int32 `json:"tableCount,omitempty"`
 
 	// mysql
 	Mysql *AddRDSOKBodyMysql `json:"mysql,omitempty"`
 
 	// mysqld exporter
-	MysqldExporter *AddRDSOKBodyMysqldExporter `json:"mysqld_exporter,omitempty"`
+	MysqldExporter *AddRDSOKBodyMysqldExporter `json:"mysqldExporter,omitempty"`
 
 	// node
 	Node *AddRDSOKBodyNode `json:"node,omitempty"`
@@ -441,16 +438,16 @@ type AddRDSOKBody struct {
 	Postgresql *AddRDSOKBodyPostgresql `json:"postgresql,omitempty"`
 
 	// postgresql exporter
-	PostgresqlExporter *AddRDSOKBodyPostgresqlExporter `json:"postgresql_exporter,omitempty"`
+	PostgresqlExporter *AddRDSOKBodyPostgresqlExporter `json:"postgresqlExporter,omitempty"`
 
 	// qan mysql perfschema
-	QANMysqlPerfschema *AddRDSOKBodyQANMysqlPerfschema `json:"qan_mysql_perfschema,omitempty"`
+	QANMysqlPerfschema *AddRDSOKBodyQANMysqlPerfschema `json:"qanMysqlPerfschema,omitempty"`
 
 	// qan postgresql pgstatements
-	QANPostgresqlPgstatements *AddRDSOKBodyQANPostgresqlPgstatements `json:"qan_postgresql_pgstatements,omitempty"`
+	QANPostgresqlPgstatements *AddRDSOKBodyQANPostgresqlPgstatements `json:"qanPostgresqlPgstatements,omitempty"`
 
 	// rds exporter
-	RDSExporter *AddRDSOKBodyRDSExporter `json:"rds_exporter,omitempty"`
+	RDSExporter *AddRDSOKBodyRDSExporter `json:"rdsExporter,omitempty"`
 }
 
 // Validate validates this add RDS OK body
@@ -522,7 +519,7 @@ func (o *AddRDSOKBody) validateMysqldExporter(formats strfmt.Registry) error {
 	if o.MysqldExporter != nil {
 		if err := o.MysqldExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addRdsOk" + "." + "mysqld_exporter")
+				return ve.ValidateName("addRdsOk" + "." + "mysqldExporter")
 			}
 			return err
 		}
@@ -576,7 +573,7 @@ func (o *AddRDSOKBody) validatePostgresqlExporter(formats strfmt.Registry) error
 	if o.PostgresqlExporter != nil {
 		if err := o.PostgresqlExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addRdsOk" + "." + "postgresql_exporter")
+				return ve.ValidateName("addRdsOk" + "." + "postgresqlExporter")
 			}
 			return err
 		}
@@ -594,7 +591,7 @@ func (o *AddRDSOKBody) validateQANMysqlPerfschema(formats strfmt.Registry) error
 	if o.QANMysqlPerfschema != nil {
 		if err := o.QANMysqlPerfschema.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addRdsOk" + "." + "qan_mysql_perfschema")
+				return ve.ValidateName("addRdsOk" + "." + "qanMysqlPerfschema")
 			}
 			return err
 		}
@@ -612,7 +609,7 @@ func (o *AddRDSOKBody) validateQANPostgresqlPgstatements(formats strfmt.Registry
 	if o.QANPostgresqlPgstatements != nil {
 		if err := o.QANPostgresqlPgstatements.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addRdsOk" + "." + "qan_postgresql_pgstatements")
+				return ve.ValidateName("addRdsOk" + "." + "qanPostgresqlPgstatements")
 			}
 			return err
 		}
@@ -630,7 +627,7 @@ func (o *AddRDSOKBody) validateRDSExporter(formats strfmt.Registry) error {
 	if o.RDSExporter != nil {
 		if err := o.RDSExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addRdsOk" + "." + "rds_exporter")
+				return ve.ValidateName("addRdsOk" + "." + "rdsExporter")
 			}
 			return err
 		}
@@ -663,13 +660,13 @@ swagger:model AddRDSOKBodyMysql
 type AddRDSOKBodyMysql struct {
 
 	// Unique randomly generated instance identifier.
-	ServiceID string `json:"service_id,omitempty"`
+	ServiceID string `json:"serviceId,omitempty"`
 
 	// Unique across all Services user-defined name.
-	ServiceName string `json:"service_name,omitempty"`
+	ServiceName string `json:"serviceName,omitempty"`
 
 	// Node identifier where this instance runs.
-	NodeID string `json:"node_id,omitempty"`
+	NodeID string `json:"nodeId,omitempty"`
 
 	// Access address (DNS name or IP).
 	// Address (and port) or socket is required.
@@ -690,10 +687,10 @@ type AddRDSOKBodyMysql struct {
 	Cluster string `json:"cluster,omitempty"`
 
 	// Replication set name.
-	ReplicationSet string `json:"replication_set,omitempty"`
+	ReplicationSet string `json:"replicationSet,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 }
 
 // Validate validates this add RDS OK body mysql
@@ -725,16 +722,16 @@ swagger:model AddRDSOKBodyMysqldExporter
 type AddRDSOKBodyMysqldExporter struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agent_id,omitempty"`
+	AgentID string `json:"agentId,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+	PMMAgentID string `json:"pmmAgentId,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"service_id,omitempty"`
+	ServiceID string `json:"serviceId,omitempty"`
 
 	// MySQL username for scraping metrics.
 	Username string `json:"username,omitempty"`
@@ -743,30 +740,30 @@ type AddRDSOKBodyMysqldExporter struct {
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
 
 	// Certificate Authority certificate chain.
-	TLSCa string `json:"tls_ca,omitempty"`
+	TLSCa string `json:"tlsCa,omitempty"`
 
 	// Client certificate.
-	TLSCert string `json:"tls_cert,omitempty"`
+	TLSCert string `json:"tlsCert,omitempty"`
 
 	// Password for decrypting tls_cert.
-	TLSKey string `json:"tls_key,omitempty"`
+	TLSKey string `json:"tlsKey,omitempty"`
 
 	// Tablestats group collectors are disabled if there are more than that number of tables.
 	// 0 means tablestats group collectors are always enabled (no limit).
 	// Negative value means tablestats group collectors are always disabled.
-	TablestatsGroupTableLimit int32 `json:"tablestats_group_table_limit,omitempty"`
+	TablestatsGroupTableLimit int32 `json:"tablestatsGroupTableLimit,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// True if exporter uses push metrics mode.
-	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+	PushMetricsEnabled bool `json:"pushMetricsEnabled,omitempty"`
 
 	// List of disabled collector names.
-	DisabledCollectors []string `json:"disabled_collectors"`
+	DisabledCollectors []string `json:"disabledCollectors"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -780,10 +777,10 @@ type AddRDSOKBodyMysqldExporter struct {
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listen_port,omitempty"`
+	ListenPort int64 `json:"listenPort,omitempty"`
 
 	// True if tablestats group collectors are currently disabled.
-	TablestatsGroupDisabled bool `json:"tablestats_group_disabled,omitempty"`
+	TablestatsGroupDisabled bool `json:"tablestatsGroupDisabled,omitempty"`
 }
 
 // Validate validates this add RDS OK body mysqld exporter
@@ -851,7 +848,7 @@ func (o *AddRDSOKBodyMysqldExporter) validateStatus(formats strfmt.Registry) err
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addRdsOk"+"."+"mysqld_exporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addRdsOk"+"."+"mysqldExporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -882,16 +879,16 @@ swagger:model AddRDSOKBodyNode
 type AddRDSOKBodyNode struct {
 
 	// Unique randomly generated instance identifier.
-	NodeID string `json:"node_id,omitempty"`
+	NodeID string `json:"nodeId,omitempty"`
 
 	// Unique across all Nodes user-defined name.
-	NodeName string `json:"node_name,omitempty"`
+	NodeName string `json:"nodeName,omitempty"`
 
 	// DB instance identifier.
 	Address string `json:"address,omitempty"`
 
 	// Node model.
-	NodeModel string `json:"node_model,omitempty"`
+	NodeModel string `json:"nodeModel,omitempty"`
 
 	// Node region.
 	Region string `json:"region,omitempty"`
@@ -900,7 +897,7 @@ type AddRDSOKBodyNode struct {
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 }
 
 // Validate validates this add RDS OK body node
@@ -932,16 +929,16 @@ swagger:model AddRDSOKBodyPostgresql
 type AddRDSOKBodyPostgresql struct {
 
 	// Unique randomly generated instance identifier.
-	ServiceID string `json:"service_id,omitempty"`
+	ServiceID string `json:"serviceId,omitempty"`
 
 	// Unique across all Services user-defined name.
-	ServiceName string `json:"service_name,omitempty"`
+	ServiceName string `json:"serviceName,omitempty"`
 
 	// Database name.
-	DatabaseName string `json:"database_name,omitempty"`
+	DatabaseName string `json:"databaseName,omitempty"`
 
 	// Node identifier where this instance runs.
-	NodeID string `json:"node_id,omitempty"`
+	NodeID string `json:"nodeId,omitempty"`
 
 	// Access address (DNS name or IP).
 	// Address (and port) or socket is required.
@@ -962,10 +959,10 @@ type AddRDSOKBodyPostgresql struct {
 	Cluster string `json:"cluster,omitempty"`
 
 	// Replication set name.
-	ReplicationSet string `json:"replication_set,omitempty"`
+	ReplicationSet string `json:"replicationSet,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 }
 
 // Validate validates this add RDS OK body postgresql
@@ -997,16 +994,16 @@ swagger:model AddRDSOKBodyPostgresqlExporter
 type AddRDSOKBodyPostgresqlExporter struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agent_id,omitempty"`
+	AgentID string `json:"agentId,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+	PMMAgentID string `json:"pmmAgentId,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"service_id,omitempty"`
+	ServiceID string `json:"serviceId,omitempty"`
 
 	// PostgreSQL username for scraping metrics.
 	Username string `json:"username,omitempty"`
@@ -1015,16 +1012,16 @@ type AddRDSOKBodyPostgresqlExporter struct {
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
-	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// True if exporter uses push metrics mode.
-	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+	PushMetricsEnabled bool `json:"pushMetricsEnabled,omitempty"`
 
 	// List of disabled collector names.
-	DisabledCollectors []string `json:"disabled_collectors"`
+	DisabledCollectors []string `json:"disabledCollectors"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -1038,7 +1035,7 @@ type AddRDSOKBodyPostgresqlExporter struct {
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listen_port,omitempty"`
+	ListenPort int64 `json:"listenPort,omitempty"`
 }
 
 // Validate validates this add RDS OK body postgresql exporter
@@ -1106,7 +1103,7 @@ func (o *AddRDSOKBodyPostgresqlExporter) validateStatus(formats strfmt.Registry)
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addRdsOk"+"."+"postgresql_exporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addRdsOk"+"."+"postgresqlExporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -1137,16 +1134,16 @@ swagger:model AddRDSOKBodyQANMysqlPerfschema
 type AddRDSOKBodyQANMysqlPerfschema struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agent_id,omitempty"`
+	AgentID string `json:"agentId,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+	PMMAgentID string `json:"pmmAgentId,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"service_id,omitempty"`
+	ServiceID string `json:"serviceId,omitempty"`
 
 	// MySQL username for getting performance data.
 	Username string `json:"username,omitempty"`
@@ -1155,22 +1152,22 @@ type AddRDSOKBodyQANMysqlPerfschema struct {
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
 
 	// Certificate Authority certificate chain.
-	TLSCa string `json:"tls_ca,omitempty"`
+	TLSCa string `json:"tlsCa,omitempty"`
 
 	// Client certificate.
-	TLSCert string `json:"tls_cert,omitempty"`
+	TLSCert string `json:"tlsCert,omitempty"`
 
 	// Password for decrypting tls_cert.
-	TLSKey string `json:"tls_key,omitempty"`
+	TLSKey string `json:"tlsKey,omitempty"`
 
 	// True if query examples are disabled.
-	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
+	QueryExamplesDisabled bool `json:"queryExamplesDisabled,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -1249,7 +1246,7 @@ func (o *AddRDSOKBodyQANMysqlPerfschema) validateStatus(formats strfmt.Registry)
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addRdsOk"+"."+"qan_mysql_perfschema"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addRdsOk"+"."+"qanMysqlPerfschema"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -1280,16 +1277,16 @@ swagger:model AddRDSOKBodyQANPostgresqlPgstatements
 type AddRDSOKBodyQANPostgresqlPgstatements struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agent_id,omitempty"`
+	AgentID string `json:"agentId,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+	PMMAgentID string `json:"pmmAgentId,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"service_id,omitempty"`
+	ServiceID string `json:"serviceId,omitempty"`
 
 	// PostgreSQL username for getting pg stat statements data.
 	Username string `json:"username,omitempty"`
@@ -1298,10 +1295,10 @@ type AddRDSOKBodyQANPostgresqlPgstatements struct {
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -1380,7 +1377,7 @@ func (o *AddRDSOKBodyQANPostgresqlPgstatements) validateStatus(formats strfmt.Re
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addRdsOk"+"."+"qan_postgresql_pgstatements"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addRdsOk"+"."+"qanPostgresqlPgstatements"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -1411,22 +1408,22 @@ swagger:model AddRDSOKBodyRDSExporter
 type AddRDSOKBodyRDSExporter struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agent_id,omitempty"`
+	AgentID string `json:"agentId,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+	PMMAgentID string `json:"pmmAgentId,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Node identifier.
-	NodeID string `json:"node_id,omitempty"`
+	NodeID string `json:"nodeId,omitempty"`
 
 	// AWS Access Key.
-	AWSAccessKey string `json:"aws_access_key,omitempty"`
+	AWSAccessKey string `json:"awsAccessKey,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -1440,16 +1437,16 @@ type AddRDSOKBodyRDSExporter struct {
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics (the same for several configurations).
-	ListenPort int64 `json:"listen_port,omitempty"`
+	ListenPort int64 `json:"listenPort,omitempty"`
 
 	// Basic metrics are disabled.
-	BasicMetricsDisabled bool `json:"basic_metrics_disabled,omitempty"`
+	BasicMetricsDisabled bool `json:"basicMetricsDisabled,omitempty"`
 
 	// Enhanced metrics are disabled.
-	EnhancedMetricsDisabled bool `json:"enhanced_metrics_disabled,omitempty"`
+	EnhancedMetricsDisabled bool `json:"enhancedMetricsDisabled,omitempty"`
 
 	// True if exporter uses push metrics mode.
-	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+	PushMetricsEnabled bool `json:"pushMetricsEnabled,omitempty"`
 }
 
 // Validate validates this add RDS OK body RDS exporter
@@ -1517,7 +1514,7 @@ func (o *AddRDSOKBodyRDSExporter) validateStatus(formats strfmt.Registry) error 
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addRdsOk"+"."+"rds_exporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addRdsOk"+"."+"rdsExporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -1547,12 +1544,8 @@ swagger:model DetailsItems0
 */
 type DetailsItems0 struct {
 
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this details items0

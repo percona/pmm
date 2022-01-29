@@ -123,10 +123,10 @@ swagger:model AddMongoDBServiceBody
 type AddMongoDBServiceBody struct {
 
 	// Unique across all Services user-defined name. Required.
-	ServiceName string `json:"service_name,omitempty"`
+	ServiceName string `json:"serviceName,omitempty"`
 
 	// Node identifier where this instance runs. Required.
-	NodeID string `json:"node_id,omitempty"`
+	NodeID string `json:"nodeId,omitempty"`
 
 	// Access address (DNS name or IP).
 	// Address (and port) or socket is required.
@@ -147,10 +147,10 @@ type AddMongoDBServiceBody struct {
 	Cluster string `json:"cluster,omitempty"`
 
 	// Replication set name.
-	ReplicationSet string `json:"replication_set,omitempty"`
+	ReplicationSet string `json:"replicationSet,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 }
 
 // Validate validates this add mongo DB service body
@@ -180,9 +180,6 @@ func (o *AddMongoDBServiceBody) UnmarshalBinary(b []byte) error {
 swagger:model AddMongoDBServiceDefaultBody
 */
 type AddMongoDBServiceDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -316,13 +313,13 @@ swagger:model AddMongoDBServiceOKBodyMongodb
 type AddMongoDBServiceOKBodyMongodb struct {
 
 	// Unique randomly generated instance identifier.
-	ServiceID string `json:"service_id,omitempty"`
+	ServiceID string `json:"serviceId,omitempty"`
 
 	// Unique across all Services user-defined name.
-	ServiceName string `json:"service_name,omitempty"`
+	ServiceName string `json:"serviceName,omitempty"`
 
 	// Node identifier where this instance runs.
-	NodeID string `json:"node_id,omitempty"`
+	NodeID string `json:"nodeId,omitempty"`
 
 	// Access address (DNS name or IP).
 	// Address (and port) or socket is required.
@@ -343,10 +340,10 @@ type AddMongoDBServiceOKBodyMongodb struct {
 	Cluster string `json:"cluster,omitempty"`
 
 	// Replication set name.
-	ReplicationSet string `json:"replication_set,omitempty"`
+	ReplicationSet string `json:"replicationSet,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 }
 
 // Validate validates this add mongo DB service OK body mongodb

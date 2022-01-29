@@ -120,8 +120,8 @@ swagger:model RemoveChannelBody
 */
 type RemoveChannelBody struct {
 
-	// channel id
-	ChannelID string `json:"channel_id,omitempty"`
+	// channel Id
+	ChannelID string `json:"channelId,omitempty"`
 }
 
 // Validate validates this remove channel body
@@ -151,9 +151,6 @@ func (o *RemoveChannelBody) UnmarshalBinary(b []byte) error {
 swagger:model RemoveChannelDefaultBody
 */
 type RemoveChannelDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`

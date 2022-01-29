@@ -123,10 +123,10 @@ swagger:model UpdateStatusBody
 type UpdateStatusBody struct {
 
 	// Authentication token.
-	AuthToken string `json:"auth_token,omitempty"`
+	AuthToken string `json:"authToken,omitempty"`
 
 	// Progress log offset.
-	LogOffset int64 `json:"log_offset,omitempty"`
+	LogOffset int64 `json:"logOffset,omitempty"`
 }
 
 // Validate validates this update status body
@@ -156,9 +156,6 @@ func (o *UpdateStatusBody) UnmarshalBinary(b []byte) error {
 swagger:model UpdateStatusDefaultBody
 */
 type UpdateStatusDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -233,10 +230,10 @@ swagger:model UpdateStatusOKBody
 type UpdateStatusOKBody struct {
 
 	// Progress log lines.
-	LogLines []string `json:"log_lines"`
+	LogLines []string `json:"logLines"`
 
 	// Progress log offset for the next request.
-	LogOffset int64 `json:"log_offset,omitempty"`
+	LogOffset int64 `json:"logOffset,omitempty"`
 
 	// True when update is done.
 	Done bool `json:"done,omitempty"`

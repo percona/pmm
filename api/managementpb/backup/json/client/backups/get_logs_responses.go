@@ -122,8 +122,8 @@ swagger:model GetLogsBody
 */
 type GetLogsBody struct {
 
-	// artifact id
-	ArtifactID string `json:"artifact_id,omitempty"`
+	// artifact Id
+	ArtifactID string `json:"artifactId,omitempty"`
 
 	// offset
 	Offset int64 `json:"offset,omitempty"`
@@ -159,9 +159,6 @@ func (o *GetLogsBody) UnmarshalBinary(b []byte) error {
 swagger:model GetLogsDefaultBody
 */
 type GetLogsDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -304,8 +301,8 @@ swagger:model LogsItems0
 */
 type LogsItems0 struct {
 
-	// chunk id
-	ChunkID int64 `json:"chunk_id,omitempty"`
+	// chunk Id
+	ChunkID int64 `json:"chunkId,omitempty"`
 
 	// data
 	Data string `json:"data,omitempty"`

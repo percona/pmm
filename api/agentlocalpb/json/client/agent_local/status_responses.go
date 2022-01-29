@@ -124,12 +124,12 @@ swagger:model AgentsInfoItems0
 */
 type AgentsInfoItems0 struct {
 
-	// agent id
-	AgentID string `json:"agent_id,omitempty"`
+	// agent Id
+	AgentID string `json:"agentId,omitempty"`
 
 	// AgentType describes supported Agent types.
 	// Enum: [AGENT_TYPE_INVALID PMM_AGENT VM_AGENT NODE_EXPORTER MYSQLD_EXPORTER MONGODB_EXPORTER POSTGRES_EXPORTER PROXYSQL_EXPORTER QAN_MYSQL_PERFSCHEMA_AGENT QAN_MYSQL_SLOWLOG_AGENT QAN_MONGODB_PROFILER_AGENT QAN_POSTGRESQL_PGSTATEMENTS_AGENT QAN_POSTGRESQL_PGSTATMONITOR_AGENT RDS_EXPORTER EXTERNAL_EXPORTER AZURE_DATABASE_EXPORTER]
-	AgentType *string `json:"agent_type,omitempty"`
+	AgentType *string `json:"agentType,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -144,7 +144,7 @@ type AgentsInfoItems0 struct {
 
 	// The current listen port of this Agent (exporter or vmagent).
 	// Zero for other Agent types, or if unknown or not yet supported.
-	ListenPort int64 `json:"listen_port,omitempty"`
+	ListenPort int64 `json:"listenPort,omitempty"`
 }
 
 // Validate validates this agents info items0
@@ -243,7 +243,7 @@ func (o *AgentsInfoItems0) validateAgentType(formats strfmt.Registry) error {
 	}
 
 	// value enum
-	if err := o.validateAgentTypeEnum("agent_type", "body", *o.AgentType); err != nil {
+	if err := o.validateAgentTypeEnum("agentType", "body", *o.AgentType); err != nil {
 		return err
 	}
 
@@ -332,7 +332,7 @@ swagger:model StatusBody
 type StatusBody struct {
 
 	// Returns network info (latency and clock_drift) if true.
-	GetNetworkInfo bool `json:"get_network_info,omitempty"`
+	GetNetworkInfo bool `json:"getNetworkInfo,omitempty"`
 }
 
 // Validate validates this status body
@@ -362,9 +362,6 @@ func (o *StatusBody) UnmarshalBinary(b []byte) error {
 swagger:model StatusDefaultBody
 */
 type StatusDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -438,23 +435,23 @@ swagger:model StatusOKBody
 */
 type StatusOKBody struct {
 
-	// agent id
-	AgentID string `json:"agent_id,omitempty"`
+	// agent Id
+	AgentID string `json:"agentId,omitempty"`
 
-	// runs on node id
-	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+	// runs on node Id
+	RunsOnNodeID string `json:"runsOnNodeId,omitempty"`
 
 	// agents info
-	AgentsInfo []*AgentsInfoItems0 `json:"agents_info"`
+	AgentsInfo []*AgentsInfoItems0 `json:"agentsInfo"`
 
 	// Config file path if pmm-agent was started with one.
-	ConfigFilepath string `json:"config_filepath,omitempty"`
+	ConfigFilepath string `json:"configFilepath,omitempty"`
 
 	// PMM Agent version.
-	AgentVersion string `json:"agent_version,omitempty"`
+	AgentVersion string `json:"agentVersion,omitempty"`
 
 	// server info
-	ServerInfo *StatusOKBodyServerInfo `json:"server_info,omitempty"`
+	ServerInfo *StatusOKBodyServerInfo `json:"serverInfo,omitempty"`
 }
 
 // Validate validates this status OK body
@@ -489,7 +486,7 @@ func (o *StatusOKBody) validateAgentsInfo(formats strfmt.Registry) error {
 		if o.AgentsInfo[i] != nil {
 			if err := o.AgentsInfo[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("statusOk" + "." + "agents_info" + "." + strconv.Itoa(i))
+					return ve.ValidateName("statusOk" + "." + "agentsInfo" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -509,7 +506,7 @@ func (o *StatusOKBody) validateServerInfo(formats strfmt.Registry) error {
 	if o.ServerInfo != nil {
 		if err := o.ServerInfo.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("statusOk" + "." + "server_info")
+				return ve.ValidateName("statusOk" + "." + "serverInfo")
 			}
 			return err
 		}
@@ -545,7 +542,7 @@ type StatusOKBodyServerInfo struct {
 	URL string `json:"url,omitempty"`
 
 	// PMM Server's TLS certificate validation should be skipped if true.
-	InsecureTLS bool `json:"insecure_tls,omitempty"`
+	InsecureTLS bool `json:"insecureTls,omitempty"`
 
 	// True if pmm-agent is currently connected to the server.
 	Connected bool `json:"connected,omitempty"`
@@ -557,7 +554,7 @@ type StatusOKBodyServerInfo struct {
 	Latency string `json:"latency,omitempty"`
 
 	// Clock drift from PMM Server (if agent is connected).
-	ClockDrift string `json:"clock_drift,omitempty"`
+	ClockDrift string `json:"clockDrift,omitempty"`
 }
 
 // Validate validates this status OK body server info

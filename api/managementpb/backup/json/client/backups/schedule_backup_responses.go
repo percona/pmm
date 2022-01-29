@@ -125,17 +125,17 @@ swagger:model ScheduleBackupBody
 type ScheduleBackupBody struct {
 
 	// Service identifier where backup should be performed.
-	ServiceID string `json:"service_id,omitempty"`
+	ServiceID string `json:"serviceId,omitempty"`
 
 	// Machine-readable location ID.
-	LocationID string `json:"location_id,omitempty"`
+	LocationID string `json:"locationId,omitempty"`
 
 	// How often backup should be run in cron format.
-	CronExpression string `json:"cron_expression,omitempty"`
+	CronExpression string `json:"cronExpression,omitempty"`
 
 	// First backup wouldn't happen before this time.
 	// Format: date-time
-	StartTime strfmt.DateTime `json:"start_time,omitempty"`
+	StartTime strfmt.DateTime `json:"startTime,omitempty"`
 
 	// Name of backup.
 	Name string `json:"name,omitempty"`
@@ -144,7 +144,7 @@ type ScheduleBackupBody struct {
 	Description string `json:"description,omitempty"`
 
 	// Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.
-	RetryInterval string `json:"retry_interval,omitempty"`
+	RetryInterval string `json:"retryInterval,omitempty"`
 
 	// How many times to retry a failed backup before giving up.
 	Retries int64 `json:"retries,omitempty"`
@@ -184,7 +184,7 @@ func (o *ScheduleBackupBody) validateStartTime(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("body"+"."+"start_time", "body", "date-time", o.StartTime.String(), formats); err != nil {
+	if err := validate.FormatOf("body"+"."+"startTime", "body", "date-time", o.StartTime.String(), formats); err != nil {
 		return err
 	}
 
@@ -263,9 +263,6 @@ swagger:model ScheduleBackupDefaultBody
 */
 type ScheduleBackupDefaultBody struct {
 
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -338,8 +335,8 @@ swagger:model ScheduleBackupOKBody
 */
 type ScheduleBackupOKBody struct {
 
-	// scheduled backup id
-	ScheduledBackupID string `json:"scheduled_backup_id,omitempty"`
+	// scheduled backup Id
+	ScheduledBackupID string `json:"scheduledBackupId,omitempty"`
 }
 
 // Validate validates this schedule backup OK body

@@ -12,9 +12,7 @@ require (
 	github.com/go-openapi/swag v0.19.9
 	github.com/go-openapi/validate v0.19.10
 	github.com/golang/protobuf v1.5.2
-	github.com/grpc-ecosystem/grpc-gateway v1.16.0
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.8.0
-	github.com/mitchellh/mapstructure v1.3.3 // indirect
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.7.3
 	github.com/mwitkow/go-proto-validators v0.3.2
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.12.1

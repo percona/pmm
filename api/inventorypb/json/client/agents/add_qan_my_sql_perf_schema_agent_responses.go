@@ -125,10 +125,10 @@ swagger:model AddQANMySQLPerfSchemaAgentBody
 type AddQANMySQLPerfSchemaAgentBody struct {
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+	PMMAgentID string `json:"pmmAgentId,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"service_id,omitempty"`
+	ServiceID string `json:"serviceId,omitempty"`
 
 	// MySQL username for getting performance data.
 	Username string `json:"username,omitempty"`
@@ -140,25 +140,25 @@ type AddQANMySQLPerfSchemaAgentBody struct {
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
 
 	// Certificate Authority certificate chain.
-	TLSCa string `json:"tls_ca,omitempty"`
+	TLSCa string `json:"tlsCa,omitempty"`
 
 	// Client certificate.
-	TLSCert string `json:"tls_cert,omitempty"`
+	TLSCert string `json:"tlsCert,omitempty"`
 
 	// Password for decrypting tls_cert.
-	TLSKey string `json:"tls_key,omitempty"`
+	TLSKey string `json:"tlsKey,omitempty"`
 
 	// Disable query examples.
-	DisableQueryExamples bool `json:"disable_query_examples,omitempty"`
+	DisableQueryExamples bool `json:"disableQueryExamples,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// Skip connection check.
-	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
+	SkipConnectionCheck bool `json:"skipConnectionCheck,omitempty"`
 }
 
 // Validate validates this add QAN my SQL perf schema agent body
@@ -188,9 +188,6 @@ func (o *AddQANMySQLPerfSchemaAgentBody) UnmarshalBinary(b []byte) error {
 swagger:model AddQANMySQLPerfSchemaAgentDefaultBody
 */
 type AddQANMySQLPerfSchemaAgentDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -265,7 +262,7 @@ swagger:model AddQANMySQLPerfSchemaAgentOKBody
 type AddQANMySQLPerfSchemaAgentOKBody struct {
 
 	// qan mysql perfschema agent
-	QANMysqlPerfschemaAgent *AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent `json:"qan_mysql_perfschema_agent,omitempty"`
+	QANMysqlPerfschemaAgent *AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent `json:"qanMysqlPerfschemaAgent,omitempty"`
 }
 
 // Validate validates this add QAN my SQL perf schema agent OK body
@@ -291,7 +288,7 @@ func (o *AddQANMySQLPerfSchemaAgentOKBody) validateQANMysqlPerfschemaAgent(forma
 	if o.QANMysqlPerfschemaAgent != nil {
 		if err := o.QANMysqlPerfschemaAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addQanMySqlPerfSchemaAgentOk" + "." + "qan_mysql_perfschema_agent")
+				return ve.ValidateName("addQanMySqlPerfSchemaAgentOk" + "." + "qanMysqlPerfschemaAgent")
 			}
 			return err
 		}
@@ -324,16 +321,16 @@ swagger:model AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent
 type AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agent_id,omitempty"`
+	AgentID string `json:"agentId,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+	PMMAgentID string `json:"pmmAgentId,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"service_id,omitempty"`
+	ServiceID string `json:"serviceId,omitempty"`
 
 	// MySQL username for getting performance data.
 	Username string `json:"username,omitempty"`
@@ -342,22 +339,22 @@ type AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent struct {
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
 
 	// Certificate Authority certificate chain.
-	TLSCa string `json:"tls_ca,omitempty"`
+	TLSCa string `json:"tlsCa,omitempty"`
 
 	// Client certificate.
-	TLSCert string `json:"tls_cert,omitempty"`
+	TLSCert string `json:"tlsCert,omitempty"`
 
 	// Password for decrypting tls_cert.
-	TLSKey string `json:"tls_key,omitempty"`
+	TLSKey string `json:"tlsKey,omitempty"`
 
 	// True if query examples are disabled.
-	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
+	QueryExamplesDisabled bool `json:"queryExamplesDisabled,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -436,7 +433,7 @@ func (o *AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent) validateStatus
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addQanMySqlPerfSchemaAgentOk"+"."+"qan_mysql_perfschema_agent"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addQanMySqlPerfSchemaAgentOk"+"."+"qanMysqlPerfschemaAgent"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 

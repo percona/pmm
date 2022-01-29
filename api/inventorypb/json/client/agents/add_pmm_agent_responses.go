@@ -123,10 +123,10 @@ swagger:model AddPMMAgentBody
 type AddPMMAgentBody struct {
 
 	// Node identifier where this instance runs.
-	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+	RunsOnNodeID string `json:"runsOnNodeId,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 }
 
 // Validate validates this add PMM agent body
@@ -156,9 +156,6 @@ func (o *AddPMMAgentBody) UnmarshalBinary(b []byte) error {
 swagger:model AddPMMAgentDefaultBody
 */
 type AddPMMAgentDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -233,7 +230,7 @@ swagger:model AddPMMAgentOKBody
 type AddPMMAgentOKBody struct {
 
 	// pmm agent
-	PMMAgent *AddPMMAgentOKBodyPMMAgent `json:"pmm_agent,omitempty"`
+	PMMAgent *AddPMMAgentOKBodyPMMAgent `json:"pmmAgent,omitempty"`
 }
 
 // Validate validates this add PMM agent OK body
@@ -259,7 +256,7 @@ func (o *AddPMMAgentOKBody) validatePMMAgent(formats strfmt.Registry) error {
 	if o.PMMAgent != nil {
 		if err := o.PMMAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addPmmAgentOk" + "." + "pmm_agent")
+				return ve.ValidateName("addPmmAgentOk" + "." + "pmmAgent")
 			}
 			return err
 		}
@@ -292,13 +289,13 @@ swagger:model AddPMMAgentOKBodyPMMAgent
 type AddPMMAgentOKBodyPMMAgent struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agent_id,omitempty"`
+	AgentID string `json:"agentId,omitempty"`
 
 	// Node identifier where this instance runs.
-	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+	RunsOnNodeID string `json:"runsOnNodeId,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// True if Agent is running and connected to pmm-managed.
 	Connected bool `json:"connected,omitempty"`

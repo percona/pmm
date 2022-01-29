@@ -123,7 +123,7 @@ swagger:model ListArtifactCompatibleServicesBody
 type ListArtifactCompatibleServicesBody struct {
 
 	// Artifact id used to determine restore compatibility.
-	ArtifactID string `json:"artifact_id,omitempty"`
+	ArtifactID string `json:"artifactId,omitempty"`
 }
 
 // Validate validates this list artifact compatible services body
@@ -153,9 +153,6 @@ func (o *ListArtifactCompatibleServicesBody) UnmarshalBinary(b []byte) error {
 swagger:model ListArtifactCompatibleServicesDefaultBody
 */
 type ListArtifactCompatibleServicesDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -328,13 +325,13 @@ swagger:model MongodbItems0
 type MongodbItems0 struct {
 
 	// Unique randomly generated instance identifier.
-	ServiceID string `json:"service_id,omitempty"`
+	ServiceID string `json:"serviceId,omitempty"`
 
 	// Unique across all Services user-defined name.
-	ServiceName string `json:"service_name,omitempty"`
+	ServiceName string `json:"serviceName,omitempty"`
 
 	// Node identifier where this instance runs.
-	NodeID string `json:"node_id,omitempty"`
+	NodeID string `json:"nodeId,omitempty"`
 
 	// Access address (DNS name or IP).
 	// Address (and port) or socket is required.
@@ -355,10 +352,10 @@ type MongodbItems0 struct {
 	Cluster string `json:"cluster,omitempty"`
 
 	// Replication set name.
-	ReplicationSet string `json:"replication_set,omitempty"`
+	ReplicationSet string `json:"replicationSet,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 }
 
 // Validate validates this mongodb items0
@@ -390,13 +387,13 @@ swagger:model MysqlItems0
 type MysqlItems0 struct {
 
 	// Unique randomly generated instance identifier.
-	ServiceID string `json:"service_id,omitempty"`
+	ServiceID string `json:"serviceId,omitempty"`
 
 	// Unique across all Services user-defined name.
-	ServiceName string `json:"service_name,omitempty"`
+	ServiceName string `json:"serviceName,omitempty"`
 
 	// Node identifier where this instance runs.
-	NodeID string `json:"node_id,omitempty"`
+	NodeID string `json:"nodeId,omitempty"`
 
 	// Access address (DNS name or IP).
 	// Address (and port) or socket is required.
@@ -417,10 +414,10 @@ type MysqlItems0 struct {
 	Cluster string `json:"cluster,omitempty"`
 
 	// Replication set name.
-	ReplicationSet string `json:"replication_set,omitempty"`
+	ReplicationSet string `json:"replicationSet,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 }
 
 // Validate validates this mysql items0

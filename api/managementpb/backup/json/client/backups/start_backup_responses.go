@@ -123,10 +123,10 @@ swagger:model StartBackupBody
 type StartBackupBody struct {
 
 	// Service identifier.
-	ServiceID string `json:"service_id,omitempty"`
+	ServiceID string `json:"serviceId,omitempty"`
 
 	// Machine-readable location ID.
-	LocationID string `json:"location_id,omitempty"`
+	LocationID string `json:"locationId,omitempty"`
 
 	// If empty then name is auto-generated.
 	Name string `json:"name,omitempty"`
@@ -135,7 +135,7 @@ type StartBackupBody struct {
 	Description string `json:"description,omitempty"`
 
 	// Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.
-	RetryInterval string `json:"retry_interval,omitempty"`
+	RetryInterval string `json:"retryInterval,omitempty"`
 
 	// How many times to retry a failed backup before giving up.
 	Retries int64 `json:"retries,omitempty"`
@@ -168,9 +168,6 @@ func (o *StartBackupBody) UnmarshalBinary(b []byte) error {
 swagger:model StartBackupDefaultBody
 */
 type StartBackupDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -245,7 +242,7 @@ swagger:model StartBackupOKBody
 type StartBackupOKBody struct {
 
 	// Unique identifier.
-	ArtifactID string `json:"artifact_id,omitempty"`
+	ArtifactID string `json:"artifactId,omitempty"`
 }
 
 // Validate validates this start backup OK body

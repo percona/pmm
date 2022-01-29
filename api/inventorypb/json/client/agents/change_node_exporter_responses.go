@@ -124,8 +124,8 @@ swagger:model ChangeNodeExporterBody
 */
 type ChangeNodeExporterBody struct {
 
-	// agent id
-	AgentID string `json:"agent_id,omitempty"`
+	// agent Id
+	AgentID string `json:"agentId,omitempty"`
 
 	// common
 	Common *ChangeNodeExporterParamsBodyCommon `json:"common,omitempty"`
@@ -185,9 +185,6 @@ func (o *ChangeNodeExporterBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeNodeExporterDefaultBody
 */
 type ChangeNodeExporterDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -262,7 +259,7 @@ swagger:model ChangeNodeExporterOKBody
 type ChangeNodeExporterOKBody struct {
 
 	// node exporter
-	NodeExporter *ChangeNodeExporterOKBodyNodeExporter `json:"node_exporter,omitempty"`
+	NodeExporter *ChangeNodeExporterOKBodyNodeExporter `json:"nodeExporter,omitempty"`
 }
 
 // Validate validates this change node exporter OK body
@@ -288,7 +285,7 @@ func (o *ChangeNodeExporterOKBody) validateNodeExporter(formats strfmt.Registry)
 	if o.NodeExporter != nil {
 		if err := o.NodeExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("changeNodeExporterOk" + "." + "node_exporter")
+				return ve.ValidateName("changeNodeExporterOk" + "." + "nodeExporter")
 			}
 			return err
 		}
@@ -321,22 +318,22 @@ swagger:model ChangeNodeExporterOKBodyNodeExporter
 type ChangeNodeExporterOKBodyNodeExporter struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agent_id,omitempty"`
+	AgentID string `json:"agentId,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+	PMMAgentID string `json:"pmmAgentId,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// True if exporter uses push metrics mode.
-	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+	PushMetricsEnabled bool `json:"pushMetricsEnabled,omitempty"`
 
 	// List of disabled collector names.
-	DisabledCollectors []string `json:"disabled_collectors"`
+	DisabledCollectors []string `json:"disabledCollectors"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -350,7 +347,7 @@ type ChangeNodeExporterOKBodyNodeExporter struct {
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listen_port,omitempty"`
+	ListenPort int64 `json:"listenPort,omitempty"`
 }
 
 // Validate validates this change node exporter OK body node exporter
@@ -418,7 +415,7 @@ func (o *ChangeNodeExporterOKBodyNodeExporter) validateStatus(formats strfmt.Reg
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("changeNodeExporterOk"+"."+"node_exporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("changeNodeExporterOk"+"."+"nodeExporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -455,17 +452,17 @@ type ChangeNodeExporterParamsBodyCommon struct {
 	Disable bool `json:"disable,omitempty"`
 
 	// Replace all custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	CustomLabels map[string]string `json:"customLabels,omitempty"`
 
 	// Remove all custom user-assigned labels.
-	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
+	RemoveCustomLabels bool `json:"removeCustomLabels,omitempty"`
 
 	// Enables push metrics with vmagent, can't be used with disable_push_metrics.
 	// Can't be used with agent version lower then 2.12 and unsupported agents.
-	EnablePushMetrics bool `json:"enable_push_metrics,omitempty"`
+	EnablePushMetrics bool `json:"enablePushMetrics,omitempty"`
 
 	// Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.
-	DisablePushMetrics bool `json:"disable_push_metrics,omitempty"`
+	DisablePushMetrics bool `json:"disablePushMetrics,omitempty"`
 }
 
 // Validate validates this change node exporter params body common

@@ -122,9 +122,6 @@ swagger:model ListLocationsDefaultBody
 */
 type ListLocationsDefaultBody struct {
 
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -264,7 +261,7 @@ swagger:model LocationsItems0
 type LocationsItems0 struct {
 
 	// Machine-readable ID.
-	LocationID string `json:"location_id,omitempty"`
+	LocationID string `json:"locationId,omitempty"`
 
 	// Location name
 	Name string `json:"name,omitempty"`
@@ -273,13 +270,13 @@ type LocationsItems0 struct {
 	Description string `json:"description,omitempty"`
 
 	// pmm client config
-	PMMClientConfig *LocationsItems0PMMClientConfig `json:"pmm_client_config,omitempty"`
+	PMMClientConfig *LocationsItems0PMMClientConfig `json:"pmmClientConfig,omitempty"`
 
 	// pmm server config
-	PMMServerConfig *LocationsItems0PMMServerConfig `json:"pmm_server_config,omitempty"`
+	PMMServerConfig *LocationsItems0PMMServerConfig `json:"pmmServerConfig,omitempty"`
 
 	// s3 config
-	S3Config *LocationsItems0S3Config `json:"s3_config,omitempty"`
+	S3Config *LocationsItems0S3Config `json:"s3Config,omitempty"`
 }
 
 // Validate validates this locations items0
@@ -313,7 +310,7 @@ func (o *LocationsItems0) validatePMMClientConfig(formats strfmt.Registry) error
 	if o.PMMClientConfig != nil {
 		if err := o.PMMClientConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("pmm_client_config")
+				return ve.ValidateName("pmmClientConfig")
 			}
 			return err
 		}
@@ -331,7 +328,7 @@ func (o *LocationsItems0) validatePMMServerConfig(formats strfmt.Registry) error
 	if o.PMMServerConfig != nil {
 		if err := o.PMMServerConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("pmm_server_config")
+				return ve.ValidateName("pmmServerConfig")
 			}
 			return err
 		}
@@ -349,7 +346,7 @@ func (o *LocationsItems0) validateS3Config(formats strfmt.Registry) error {
 	if o.S3Config != nil {
 		if err := o.S3Config.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("s3_config")
+				return ve.ValidateName("s3Config")
 			}
 			return err
 		}
@@ -449,13 +446,13 @@ type LocationsItems0S3Config struct {
 	Endpoint string `json:"endpoint,omitempty"`
 
 	// access key
-	AccessKey string `json:"access_key,omitempty"`
+	AccessKey string `json:"accessKey,omitempty"`
 
 	// secret key
-	SecretKey string `json:"secret_key,omitempty"`
+	SecretKey string `json:"secretKey,omitempty"`
 
 	// bucket name
-	BucketName string `json:"bucket_name,omitempty"`
+	BucketName string `json:"bucketName,omitempty"`
 }
 
 // Validate validates this locations items0 s3 config

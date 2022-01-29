@@ -123,10 +123,10 @@ swagger:model StartPTMySQLSummaryActionBody
 type StartPTMySQLSummaryActionBody struct {
 
 	// pmm-agent ID where to run this Action.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+	PMMAgentID string `json:"pmmAgentId,omitempty"`
 
 	// Service ID for this Action.
-	ServiceID string `json:"service_id,omitempty"`
+	ServiceID string `json:"serviceId,omitempty"`
 }
 
 // Validate validates this start PT my SQL summary action body
@@ -156,9 +156,6 @@ func (o *StartPTMySQLSummaryActionBody) UnmarshalBinary(b []byte) error {
 swagger:model StartPTMySQLSummaryActionDefaultBody
 */
 type StartPTMySQLSummaryActionDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -233,10 +230,10 @@ swagger:model StartPTMySQLSummaryActionOKBody
 type StartPTMySQLSummaryActionOKBody struct {
 
 	// Unique Action ID.
-	ActionID string `json:"action_id,omitempty"`
+	ActionID string `json:"actionId,omitempty"`
 
 	// pmm-agent ID where to this Action was started.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+	PMMAgentID string `json:"pmmAgentId,omitempty"`
 }
 
 // Validate validates this start PT my SQL summary action OK body

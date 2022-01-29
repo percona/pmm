@@ -120,8 +120,8 @@ swagger:model RemoveScheduledBackupBody
 */
 type RemoveScheduledBackupBody struct {
 
-	// scheduled backup id
-	ScheduledBackupID string `json:"scheduled_backup_id,omitempty"`
+	// scheduled backup Id
+	ScheduledBackupID string `json:"scheduledBackupId,omitempty"`
 }
 
 // Validate validates this remove scheduled backup body
@@ -151,9 +151,6 @@ func (o *RemoveScheduledBackupBody) UnmarshalBinary(b []byte) error {
 swagger:model RemoveScheduledBackupDefaultBody
 */
 type RemoveScheduledBackupDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`

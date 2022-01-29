@@ -125,10 +125,10 @@ swagger:model DiscoverRDSBody
 type DiscoverRDSBody struct {
 
 	// AWS Access key. Optional.
-	AWSAccessKey string `json:"aws_access_key,omitempty"`
+	AWSAccessKey string `json:"awsAccessKey,omitempty"`
 
 	// AWS Secret key. Optional.
-	AWSSecretKey string `json:"aws_secret_key,omitempty"`
+	AWSSecretKey string `json:"awsSecretKey,omitempty"`
 }
 
 // Validate validates this discover RDS body
@@ -158,9 +158,6 @@ func (o *DiscoverRDSBody) UnmarshalBinary(b []byte) error {
 swagger:model DiscoverRDSDefaultBody
 */
 type DiscoverRDSDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -235,7 +232,7 @@ swagger:model DiscoverRDSOKBody
 type DiscoverRDSOKBody struct {
 
 	// rds instances
-	RDSInstances []*RDSInstancesItems0 `json:"rds_instances"`
+	RDSInstances []*RDSInstancesItems0 `json:"rdsInstances"`
 }
 
 // Validate validates this discover RDS OK body
@@ -266,7 +263,7 @@ func (o *DiscoverRDSOKBody) validateRDSInstances(formats strfmt.Registry) error 
 		if o.RDSInstances[i] != nil {
 			if err := o.RDSInstances[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("discoverRdsOk" + "." + "rds_instances" + "." + strconv.Itoa(i))
+					return ve.ValidateName("discoverRdsOk" + "." + "rdsInstances" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -307,10 +304,10 @@ type RDSInstancesItems0 struct {
 	Az string `json:"az,omitempty"`
 
 	// AWS instance ID.
-	InstanceID string `json:"instance_id,omitempty"`
+	InstanceID string `json:"instanceId,omitempty"`
 
 	// AWS instance class.
-	NodeModel string `json:"node_model,omitempty"`
+	NodeModel string `json:"nodeModel,omitempty"`
 
 	// Address used to connect to it.
 	Address string `json:"address,omitempty"`
@@ -323,7 +320,7 @@ type RDSInstancesItems0 struct {
 	Engine *string `json:"engine,omitempty"`
 
 	// Engine version.
-	EngineVersion string `json:"engine_version,omitempty"`
+	EngineVersion string `json:"engineVersion,omitempty"`
 }
 
 // Validate validates this RDS instances items0
