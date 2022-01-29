@@ -16,20 +16,21 @@ init:                 ## Install tools.
 
 	go build -modfile=../tools/go.mod -o $(BIN_PATH)/protoc-gen-go github.com/golang/protobuf/protoc-gen-go
 	go build -modfile=../tools/go.mod -o $(BIN_PATH)/protoc-gen-govalidators github.com/mwitkow/go-proto-validators/protoc-gen-govalidators
-	go build -modfile=../tools/go.mod -o $(BIN_PATH)/protoc-gen-grpc-gateway github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
-	go build -modfile=../tools/go.mod -o $(BIN_PATH)/protoc-gen-swagger github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger
+	go build -modfile=../tools/go.mod -o $(BIN_PATH)/protoc-gen-grpc-gateway github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway
+	go build -modfile=../tools/go.mod -o $(BIN_PATH)/protoc-gen-swagger github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2
 	go build -modfile=../tools/go.mod -o $(BIN_PATH)/swagger github.com/go-swagger/go-swagger/cmd/swagger
 	go build -modfile=../tools/go.mod -o $(BIN_PATH)/swagger-order github.com/Percona-Lab/swagger-order
 	go build -modfile=../tools/go.mod -o $(BIN_PATH)/go-sumtype github.com/BurntSushi/go-sumtype
 
 	# Download third-party proto files
 	$(eval GO_PROTO_VALIDATOR=$(shell go list -f '{{ .Version }}' -m github.com/mwitkow/go-proto-validators))
-	$(eval GRPC_GW=$(shell go list -f '{{ .Version }}' -m github.com/grpc-ecosystem/grpc-gateway))
-	curl --create-dirs -L https://raw.githubusercontent.com/grpc-ecosystem/grpc-gateway/$(GRPC_GW)/protoc-gen-swagger/options/annotations.proto -o ../third_party/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options/annotations.proto
-	curl --create-dirs -L https://raw.githubusercontent.com/grpc-ecosystem/grpc-gateway/$(GRPC_GW)/protoc-gen-swagger/options/openapiv2.proto -o ../third_party/protoc-gen-swagger/options/openapiv2.proto
-	curl --create-dirs -L https://raw.githubusercontent.com/grpc-ecosystem/grpc-gateway/$(GRPC_GW)/third_party/googleapis/google/api/annotations.proto -o ../third_party/google/api/annotations.proto
-	curl --create-dirs -L https://raw.githubusercontent.com/grpc-ecosystem/grpc-gateway/$(GRPC_GW)/third_party/googleapis/google/api/http.proto -o ../third_party/google/api/http.proto
-	curl --create-dirs -L https://raw.githubusercontent.com/grpc-ecosystem/grpc-gateway/$(GRPC_GW)/third_party/googleapis/google/rpc/status.proto -o ../third_party/google/rpc/status.proto
+	$(eval GRPC_GW=$(shell go list -f '{{ .Version }}' -m github.com/grpc-ecosystem/grpc-gateway/v2))
+	$(eval GRPC_GW_V1=$(shell go list -f '{{ .Version }}' -m github.com/grpc-ecosystem/grpc-gateway))
+	curl --create-dirs -L https://raw.githubusercontent.com/grpc-ecosystem/grpc-gateway/$(GRPC_GW)/protoc-gen-openapiv2/options/annotations.proto -o ../third_party/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-openapiv2/options/annotations.proto
+	curl --create-dirs -L https://raw.githubusercontent.com/grpc-ecosystem/grpc-gateway/$(GRPC_GW)/protoc-gen-openapiv2/options/openapiv2.proto -o ../third_party/protoc-gen-openapiv2/options/openapiv2.proto
+	curl --create-dirs -L https://raw.githubusercontent.com/grpc-ecosystem/grpc-gateway/$(GRPC_GW_V1)/third_party/googleapis/google/api/annotations.proto -o ../third_party/google/api/annotations.proto
+	curl --create-dirs -L https://raw.githubusercontent.com/grpc-ecosystem/grpc-gateway/$(GRPC_GW_V1)/third_party/googleapis/google/api/http.proto -o ../third_party/google/api/http.proto
+	curl --create-dirs -L https://raw.githubusercontent.com/grpc-ecosystem/grpc-gateway/$(GRPC_GW_V1)/third_party/googleapis/google/rpc/status.proto -o ../third_party/google/rpc/status.proto
 	curl --create-dirs -L https://raw.githubusercontent.com/mwitkow/go-proto-validators/$(GO_PROTO_VALIDATOR)/validator.proto -o ../third_party/github.com/mwitkow/go-proto-validators/validator.proto
 
 gen: clean            ## Generate files.
