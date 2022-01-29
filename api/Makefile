@@ -25,12 +25,11 @@ init:                 ## Install tools.
 	# Download third-party proto files
 	$(eval GO_PROTO_VALIDATOR=$(shell go list -f '{{ .Version }}' -m github.com/mwitkow/go-proto-validators))
 	$(eval GRPC_GW=$(shell go list -f '{{ .Version }}' -m github.com/grpc-ecosystem/grpc-gateway/v2))
-	$(eval GRPC_GW_V1=$(shell go list -f '{{ .Version }}' -m github.com/grpc-ecosystem/grpc-gateway))
 	curl --create-dirs -L https://raw.githubusercontent.com/grpc-ecosystem/grpc-gateway/$(GRPC_GW)/protoc-gen-openapiv2/options/annotations.proto -o ../third_party/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-openapiv2/options/annotations.proto
 	curl --create-dirs -L https://raw.githubusercontent.com/grpc-ecosystem/grpc-gateway/$(GRPC_GW)/protoc-gen-openapiv2/options/openapiv2.proto -o ../third_party/protoc-gen-openapiv2/options/openapiv2.proto
-	curl --create-dirs -L https://raw.githubusercontent.com/grpc-ecosystem/grpc-gateway/$(GRPC_GW_V1)/third_party/googleapis/google/api/annotations.proto -o ../third_party/google/api/annotations.proto
-	curl --create-dirs -L https://raw.githubusercontent.com/grpc-ecosystem/grpc-gateway/$(GRPC_GW_V1)/third_party/googleapis/google/api/http.proto -o ../third_party/google/api/http.proto
-	curl --create-dirs -L https://raw.githubusercontent.com/grpc-ecosystem/grpc-gateway/$(GRPC_GW_V1)/third_party/googleapis/google/rpc/status.proto -o ../third_party/google/rpc/status.proto
+	curl --create-dirs -L https://raw.githubusercontent.com/googleapis/googleapis/master/google/api/annotations.proto -o ../third_party/google/api/annotations.proto
+	curl --create-dirs -L https://raw.githubusercontent.com/googleapis/googleapis/master/google/api/http.proto -o ../third_party/google/api/http.proto
+	curl --create-dirs -L https://raw.githubusercontent.com/googleapis/googleapis/master/google/rpc/status.proto -o ../third_party/google/rpc/status.proto
 	curl --create-dirs -L https://raw.githubusercontent.com/mwitkow/go-proto-validators/$(GO_PROTO_VALIDATOR)/validator.proto -o ../third_party/github.com/mwitkow/go-proto-validators/validator.proto
 
 gen: clean            ## Generate files.
