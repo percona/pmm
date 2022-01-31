@@ -74,7 +74,7 @@ type ChangeSettingsParams struct {
 	DisableSTTChecks []string
 	// List of STT checks to enable
 	EnableSTTChecks []string
-	// STT check intevals
+	// STT check intervals
 	STTCheckIntervals STTCheckIntervals
 
 	// Enable DBaaS features.

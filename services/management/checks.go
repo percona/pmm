@@ -96,7 +96,11 @@ func (s *ChecksAPIService) ListSecurityChecks(ctx context.Context, req *manageme
 		m[c] = struct{}{}
 	}
 
-	checks := s.checksService.GetAllChecks()
+	checks, err := s.checksService.GetChecks()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get available checks list")
+	}
+
 	res := make([]*managementpb.SecurityCheck, 0, len(checks))
 	for _, c := range checks {
 		_, disabled := m[c.Name]

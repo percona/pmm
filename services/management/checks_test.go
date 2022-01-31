@@ -120,12 +120,12 @@ func TestListSecurityChecks(t *testing.T) {
 	t.Run("normal", func(t *testing.T) {
 		var checksService mockChecksService
 		checksService.On("GetDisabledChecks", mock.Anything).Return([]string{"two"}, nil)
-		checksService.On("GetAllChecks", mock.Anything).
+		checksService.On("GetChecks", mock.Anything).
 			Return(map[string]check.Check{
 				"one":   {Name: "one"},
 				"two":   {Name: "two"},
 				"three": {Name: "three"},
-			})
+			}, nil)
 
 		s := NewChecksAPIService(&checksService)
 

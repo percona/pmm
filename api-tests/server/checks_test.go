@@ -34,9 +34,8 @@ import (
 
 func TestStartChecks(t *testing.T) {
 	t.Run("with enabled STT", func(t *testing.T) {
-		defer restoreSettingsDefaults(t)
-
 		toggleSTT(t, true)
+		t.Cleanup(func() { restoreSettingsDefaults(t) })
 
 		resp, err := managementClient.Default.SecurityChecks.StartSecurityChecks(nil)
 		require.NoError(t, err)
@@ -44,8 +43,8 @@ func TestStartChecks(t *testing.T) {
 	})
 
 	t.Run("with disabled STT", func(t *testing.T) {
-		defer restoreSettingsDefaults(t)
 		toggleSTT(t, false)
+		t.Cleanup(func() { restoreSettingsDefaults(t) })
 
 		resp, err := managementClient.Default.SecurityChecks.StartSecurityChecks(nil)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `STT is disabled.`)
@@ -59,8 +58,8 @@ func TestGetSecurityCheckResults(t *testing.T) {
 	}
 
 	t.Run("with disabled STT", func(t *testing.T) {
-		defer restoreSettingsDefaults(t)
-		toggleSTT(t, false)
+		toggleSTT(t, true)
+		t.Cleanup(func() { restoreSettingsDefaults(t) })
 
 		results, err := managementClient.Default.SecurityChecks.GetSecurityCheckResults(nil)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `STT is disabled.`)
@@ -68,8 +67,8 @@ func TestGetSecurityCheckResults(t *testing.T) {
 	})
 
 	t.Run("with enabled STT", func(t *testing.T) {
-		defer restoreSettingsDefaults(t)
 		toggleSTT(t, true)
+		t.Cleanup(func() { restoreSettingsDefaults(t) })
 
 		resp, err := managementClient.Default.SecurityChecks.StartSecurityChecks(nil)
 		require.NoError(t, err)
@@ -82,8 +81,8 @@ func TestGetSecurityCheckResults(t *testing.T) {
 }
 
 func TestListSecurityChecks(t *testing.T) {
-	defer restoreSettingsDefaults(t)
 	toggleSTT(t, true)
+	t.Cleanup(func() { restoreSettingsDefaults(t) })
 
 	resp, err := managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
 	require.NoError(t, err)
@@ -97,33 +96,109 @@ func TestListSecurityChecks(t *testing.T) {
 }
 
 func TestChangeSecurityChecks(t *testing.T) {
+	toggleSTT(t, true)
+	t.Cleanup(func() { restoreSettingsDefaults(t) })
 
 	t.Run("enable disable", func(t *testing.T) {
-		toggleSTT(t, true)
+		t.Run("enable disable", func(t *testing.T) {
+			resp, err := managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
+			require.NoError(t, err)
+			require.NotEmpty(t, resp.Payload.Checks)
 
-		resp, err := managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
-		require.NoError(t, err)
-		require.NotEmpty(t, resp.Payload.Checks)
+			var check *security_checks.ChecksItems0
 
-		var check *security_checks.ChecksItems0
+			// enable ⥁ disable loop, it checks current state of first returned check and changes its state,
+			// then in second iteration it returns state to its origin.
+			for i := 0; i < 2; i++ {
+				check = resp.Payload.Checks[0]
+				params := &security_checks.ChangeSecurityChecksParams{
+					Body: security_checks.ChangeSecurityChecksBody{
+						Params: []*security_checks.ParamsItems0{
+							{
+								Name:    check.Name,
+								Disable: !check.Disabled,
+								Enable:  check.Disabled,
+							},
+						},
+					},
+					Context: pmmapitests.Context,
+				}
 
-		// enable ⥁ disable loop, it checks current state of first returned check and changes its state,
-		// then in second iteration it returns state to its origin.
-		for i := 0; i < 2; i++ {
-			check = resp.Payload.Checks[0]
+				_, err = managementClient.Default.SecurityChecks.ChangeSecurityChecks(params)
+				require.NoError(t, err)
+
+				resp, err = managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
+				require.NoError(t, err)
+				require.NotEmpty(t, resp.Payload.Checks)
+
+				for _, c := range resp.Payload.Checks {
+					if c.Name == check.Name {
+						assert.Equal(t, !check.Disabled, c.Disabled)
+						break
+					}
+				}
+			}
+		})
+
+		t.Run("change interval error", func(t *testing.T) {
+			t.Cleanup(func() { restoreCheckIntervalDefaults(t) })
+
+			resp, err := managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
+			require.NoError(t, err)
+			require.NotEmpty(t, resp.Payload.Checks)
+
+			check := resp.Payload.Checks[0]
+			interval := *check.Interval
 			params := &security_checks.ChangeSecurityChecksParams{
 				Body: security_checks.ChangeSecurityChecksBody{
 					Params: []*security_checks.ParamsItems0{
 						{
-							Name:    check.Name,
-							Disable: !check.Disabled,
-							Enable:  check.Disabled,
+							Name:     check.Name,
+							Interval: pointer.ToString("unknown_interval"),
 						},
 					},
 				},
 				Context: pmmapitests.Context,
 			}
 
+			_, err = managementClient.Default.SecurityChecks.ChangeSecurityChecks(params)
+			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "unknown value \"\\\"unknown_interval\\\"\" for enum management.SecurityCheckInterval")
+
+			resp, err = managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
+			require.NoError(t, err)
+			require.NotEmpty(t, resp.Payload.Checks)
+
+			var found bool
+			for _, c := range resp.Payload.Checks {
+				if c.Name == check.Name {
+					found = true
+					assert.Equal(t, interval, *c.Interval)
+				}
+			}
+
+			assert.True(t, found, "required check wasn't found")
+		})
+
+		t.Run("change interval normal", func(t *testing.T) {
+			t.Cleanup(func() { restoreSettingsDefaults(t) })
+
+			resp, err := managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
+			require.NoError(t, err)
+			require.NotEmpty(t, resp.Payload.Checks)
+
+			// convert all checks to RARE interval
+			pp := make([]*security_checks.ParamsItems0, len(resp.Payload.Checks))
+			for i, check := range resp.Payload.Checks {
+				pp[i] = &security_checks.ParamsItems0{
+					Name:     check.Name,
+					Interval: pointer.ToString(security_checks.ParamsItems0IntervalRARE),
+				}
+			}
+
+			params := &security_checks.ChangeSecurityChecksParams{
+				Body:    security_checks.ChangeSecurityChecksBody{Params: pp},
+				Context: pmmapitests.Context,
+			}
 			_, err = managementClient.Default.SecurityChecks.ChangeSecurityChecks(params)
 			require.NoError(t, err)
 
@@ -131,88 +206,16 @@ func TestChangeSecurityChecks(t *testing.T) {
 			require.NoError(t, err)
 			require.NotEmpty(t, resp.Payload.Checks)
 
-			for _, c := range resp.Payload.Checks {
-				if c.Name == check.Name {
-					assert.Equal(t, !check.Disabled, c.Disabled)
-					break
-				}
-			}
-		}
-	})
-
-	t.Run("change interval error", func(t *testing.T) {
-		defer restoreSettingsDefaults(t)
-		toggleSTT(t, true)
-
-		resp, err := managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
-		require.NoError(t, err)
-		require.NotEmpty(t, resp.Payload.Checks)
-		assert.Equal(t, "STANDARD", *resp.Payload.Checks[0].Interval)
-
-		check := resp.Payload.Checks[0]
-		interval := "unknown_interval"
-		params := &security_checks.ChangeSecurityChecksParams{
-			Body: security_checks.ChangeSecurityChecksBody{
-				Params: []*security_checks.ParamsItems0{
-					{
-						Name:     check.Name,
-						Interval: &interval,
-					},
-				},
-			},
-			Context: pmmapitests.Context,
-		}
-
-		_, err = managementClient.Default.SecurityChecks.ChangeSecurityChecks(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "unknown value \"\\\"unknown_interval\\\"\" for enum management.SecurityCheckInterval")
-	})
-
-	t.Run("change interval normal", func(t *testing.T) {
-		defer restoreSettingsDefaults(t)
-		defer restoreCheckIntervalDefaults(t)
-		toggleSTT(t, true)
-
-		resp, err := managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
-		require.NoError(t, err)
-		require.NotEmpty(t, resp.Payload.Checks)
-		assert.Equal(t, "STANDARD", string(*resp.Payload.Checks[0].Interval))
-
-		// convert all checks to RARE interval
-		for _, check := range resp.Payload.Checks {
-			params := &security_checks.ChangeSecurityChecksParams{
-				Body: security_checks.ChangeSecurityChecksBody{
-					Params: []*security_checks.ParamsItems0{
-						{
-							Name:     check.Name,
-							Interval: pointer.ToString(security_checks.ParamsItems0IntervalRARE),
-						},
-					},
-				},
-				Context: pmmapitests.Context,
+			for _, check := range resp.Payload.Checks {
+				assert.Equal(t, "RARE", *check.Interval)
 			}
 
-			_, err = managementClient.Default.SecurityChecks.ChangeSecurityChecks(params)
-			require.NoError(t, err)
-		}
-
-		resp, err = managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
-		require.NoError(t, err)
-		require.NotEmpty(t, resp.Payload.Checks)
-
-		for _, check := range resp.Payload.Checks {
-			assert.Equal(t, "RARE", *check.Interval)
-		}
-
-		t.Run("intervals should be preserved on restart", func(t *testing.T) {
-			toggleSTT(t, true)
-
-			_, err = managementClient.Default.SecurityChecks.StartSecurityChecks(nil)
-			require.NoError(t, err)
-
-			resp, err := managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
-			require.NoError(t, err)
-			require.NotEmpty(t, resp.Payload.Checks)
-			assert.Equal(t, "RARE", *resp.Payload.Checks[0].Interval)
+			t.Run("intervals should be preserved on restart", func(t *testing.T) {
+				resp, err := managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
+				require.NoError(t, err)
+				require.NotEmpty(t, resp.Payload.Checks)
+				assert.Equal(t, "RARE", *resp.Payload.Checks[0].Interval)
+			})
 		})
 	})
 }
