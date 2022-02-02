@@ -141,7 +141,7 @@ func TestMongodbExporterConfig226(t *testing.T) {
 		require.Equal(t, expected.Args, actual.Args)
 	})
 
-	t.Run("Enabling all collectors", func(t *testing.T) {
+	t.Run("Enabling all collectors with non zero limit", func(t *testing.T) {
 		exporter.MongoDBOptions = &models.MongoDBOptions{
 			StatsCollections:    []string{"col1", "col2", "col3"},
 			CollectionsLimit:    79014,
@@ -167,16 +167,18 @@ func TestMongodbExporterConfig226(t *testing.T) {
 		require.Equal(t, expected.Args, actual.Args)
 	})
 
-	t.Run("Enabling all collectors but collstats-limit=0", func(t *testing.T) {
+	t.Run("Enabling all collectors", func(t *testing.T) {
 		exporter.MongoDBOptions = &models.MongoDBOptions{
 			EnableAllCollectors: true,
 			StatsCollections:    []string{"db1.col1.one", "db2.col2", "db3"},
 		}
 
 		expected.Args = []string{
+			"--collector.collstats",
 			"--collector.collstats-limit=0",
 			"--collector.dbstats",
 			"--collector.diagnosticdata",
+			"--collector.indexstats",
 			"--collector.replicasetstatus",
 			"--collector.topmetrics",
 			"--compatible-mode",
