@@ -40,7 +40,7 @@
                   "type": "string",
                   "x-order": 2
                 },
-                "serverName": {
+                "server_name": {
                   "description": "User defined human readable PMM Server Name.",
                   "type": "string",
                   "x-order": 0

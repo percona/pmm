@@ -261,7 +261,7 @@ swagger:model LocationsItems0
 type LocationsItems0 struct {
 
 	// Machine-readable ID.
-	LocationID string `json:"locationId,omitempty"`
+	LocationID string `json:"location_id,omitempty"`
 
 	// Location name
 	Name string `json:"name,omitempty"`
@@ -270,13 +270,13 @@ type LocationsItems0 struct {
 	Description string `json:"description,omitempty"`
 
 	// pmm client config
-	PMMClientConfig *LocationsItems0PMMClientConfig `json:"pmmClientConfig,omitempty"`
+	PMMClientConfig *LocationsItems0PMMClientConfig `json:"pmm_client_config,omitempty"`
 
 	// pmm server config
-	PMMServerConfig *LocationsItems0PMMServerConfig `json:"pmmServerConfig,omitempty"`
+	PMMServerConfig *LocationsItems0PMMServerConfig `json:"pmm_server_config,omitempty"`
 
 	// s3 config
-	S3Config *LocationsItems0S3Config `json:"s3Config,omitempty"`
+	S3Config *LocationsItems0S3Config `json:"s3_config,omitempty"`
 }
 
 // Validate validates this locations items0
@@ -310,7 +310,7 @@ func (o *LocationsItems0) validatePMMClientConfig(formats strfmt.Registry) error
 	if o.PMMClientConfig != nil {
 		if err := o.PMMClientConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("pmmClientConfig")
+				return ve.ValidateName("pmm_client_config")
 			}
 			return err
 		}
@@ -328,7 +328,7 @@ func (o *LocationsItems0) validatePMMServerConfig(formats strfmt.Registry) error
 	if o.PMMServerConfig != nil {
 		if err := o.PMMServerConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("pmmServerConfig")
+				return ve.ValidateName("pmm_server_config")
 			}
 			return err
 		}
@@ -346,7 +346,7 @@ func (o *LocationsItems0) validateS3Config(formats strfmt.Registry) error {
 	if o.S3Config != nil {
 		if err := o.S3Config.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("s3Config")
+				return ve.ValidateName("s3_config")
 			}
 			return err
 		}
@@ -446,13 +446,13 @@ type LocationsItems0S3Config struct {
 	Endpoint string `json:"endpoint,omitempty"`
 
 	// access key
-	AccessKey string `json:"accessKey,omitempty"`
+	AccessKey string `json:"access_key,omitempty"`
 
 	// secret key
-	SecretKey string `json:"secretKey,omitempty"`
+	SecretKey string `json:"secret_key,omitempty"`
 
 	// bucket name
-	BucketName string `json:"bucketName,omitempty"`
+	BucketName string `json:"bucket_name,omitempty"`
 }
 
 // Validate validates this locations items0 s3 config

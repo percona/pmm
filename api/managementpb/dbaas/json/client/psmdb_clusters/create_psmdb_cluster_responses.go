@@ -121,7 +121,7 @@ swagger:model CreatePSMDBClusterBody
 type CreatePSMDBClusterBody struct {
 
 	// Kubernetes cluster name.
-	KubernetesClusterName string `json:"kubernetesClusterName,omitempty"`
+	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
 
 	// PSMDB cluster name.
 	// a DNS-1035 label must consist of lower case alphanumeric characters or '-',
@@ -264,7 +264,7 @@ swagger:model CreatePSMDBClusterParamsBodyParams
 type CreatePSMDBClusterParamsBodyParams struct {
 
 	// Cluster size.
-	ClusterSize int32 `json:"clusterSize,omitempty"`
+	ClusterSize int32 `json:"cluster_size,omitempty"`
 
 	// Docker image used for PSMDB.
 	Image string `json:"image,omitempty"`
@@ -330,10 +330,10 @@ swagger:model CreatePSMDBClusterParamsBodyParamsReplicaset
 type CreatePSMDBClusterParamsBodyParamsReplicaset struct {
 
 	// Disk size in bytes.
-	DiskSize string `json:"diskSize,omitempty"`
+	DiskSize string `json:"disk_size,omitempty"`
 
 	// compute resources
-	ComputeResources *CreatePSMDBClusterParamsBodyParamsReplicasetComputeResources `json:"computeResources,omitempty"`
+	ComputeResources *CreatePSMDBClusterParamsBodyParamsReplicasetComputeResources `json:"compute_resources,omitempty"`
 }
 
 // Validate validates this create PSMDB cluster params body params replicaset
@@ -359,7 +359,7 @@ func (o *CreatePSMDBClusterParamsBodyParamsReplicaset) validateComputeResources(
 	if o.ComputeResources != nil {
 		if err := o.ComputeResources.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "params" + "." + "replicaset" + "." + "computeResources")
+				return ve.ValidateName("body" + "." + "params" + "." + "replicaset" + "." + "compute_resources")
 			}
 			return err
 		}
@@ -392,10 +392,10 @@ swagger:model CreatePSMDBClusterParamsBodyParamsReplicasetComputeResources
 type CreatePSMDBClusterParamsBodyParamsReplicasetComputeResources struct {
 
 	// CPUs in milliCPUs; 1000m = 1 vCPU.
-	CPUM int32 `json:"cpuM,omitempty"`
+	CPUm int32 `json:"cpu_m,omitempty"`
 
 	// Memory in bytes.
-	MemoryBytes string `json:"memoryBytes,omitempty"`
+	MemoryBytes string `json:"memory_bytes,omitempty"`
 }
 
 // Validate validates this create PSMDB cluster params body params replicaset compute resources

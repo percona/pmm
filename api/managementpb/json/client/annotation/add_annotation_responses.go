@@ -127,10 +127,10 @@ type AddAnnotationBody struct {
 	Tags []string `json:"tags"`
 
 	// Used for annotate node.
-	NodeName string `json:"nodeName,omitempty"`
+	NodeName string `json:"node_name,omitempty"`
 
 	// Used for annotate services.
-	ServiceNames []string `json:"serviceNames"`
+	ServiceNames []string `json:"service_names"`
 }
 
 // Validate validates this add annotation body

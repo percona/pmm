@@ -121,7 +121,7 @@ swagger:model ChangePSMDBComponentsBody
 type ChangePSMDBComponentsBody struct {
 
 	// Kubernetes cluster name.
-	KubernetesClusterName string `json:"kubernetesClusterName,omitempty"`
+	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
 
 	// mongod
 	Mongod *ChangePSMDBComponentsParamsBodyMongod `json:"mongod,omitempty"`
@@ -255,7 +255,7 @@ swagger:model ChangePSMDBComponentsParamsBodyMongod
 type ChangePSMDBComponentsParamsBodyMongod struct {
 
 	// default version
-	DefaultVersion string `json:"defaultVersion,omitempty"`
+	DefaultVersion string `json:"default_version,omitempty"`
 
 	// versions
 	Versions []*ChangePSMDBComponentsParamsBodyMongodVersionsItems0 `json:"versions"`

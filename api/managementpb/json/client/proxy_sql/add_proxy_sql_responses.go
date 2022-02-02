@@ -126,14 +126,14 @@ type AddProxySQLBody struct {
 
 	// Node identifier on which a service is been running.
 	// Exactly one of these parameters should be present: node_id, node_name, add_node.
-	NodeID string `json:"nodeId,omitempty"`
+	NodeID string `json:"node_id,omitempty"`
 
 	// Node name on which a service is been running.
 	// Exactly one of these parameters should be present: node_id, node_name, add_node.
-	NodeName string `json:"nodeName,omitempty"`
+	NodeName string `json:"node_name,omitempty"`
 
 	// Unique across all Services user-defined name. Required.
-	ServiceName string `json:"serviceName,omitempty"`
+	ServiceName string `json:"service_name,omitempty"`
 
 	// Node and Service access address (DNS name or IP).
 	// Address (and port) or socket is required.
@@ -148,7 +148,7 @@ type AddProxySQLBody struct {
 	Socket string `json:"socket,omitempty"`
 
 	// The "pmm-agent" identifier which should run agents. Required.
-	PMMAgentID string `json:"pmmAgentId,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Environment name.
 	Environment string `json:"environment,omitempty"`
@@ -157,7 +157,7 @@ type AddProxySQLBody struct {
 	Cluster string `json:"cluster,omitempty"`
 
 	// Replication set name.
-	ReplicationSet string `json:"replicationSet,omitempty"`
+	ReplicationSet string `json:"replication_set,omitempty"`
 
 	// ProxySQL username for scraping metrics.
 	Username string `json:"username,omitempty"`
@@ -166,30 +166,30 @@ type AddProxySQLBody struct {
 	Password string `json:"password,omitempty"`
 
 	// Custom user-assigned labels for Service.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Skip connection check.
-	SkipConnectionCheck bool `json:"skipConnectionCheck,omitempty"`
+	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 
 	// Use TLS for database connections.
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// MetricsMode defines desired metrics mode for agent,
 	// it can be pull, push or auto mode chosen by server.
 	// Enum: [AUTO PULL PUSH]
-	MetricsMode *string `json:"metricsMode,omitempty"`
+	MetricsMode *string `json:"metrics_mode,omitempty"`
 
 	// List of collector names to disable in this exporter.
-	DisableCollectors []string `json:"disableCollectors"`
+	DisableCollectors []string `json:"disable_collectors"`
 
 	// Custom password for exporter endpoint /metrics.
-	AgentPassword string `json:"agentPassword,omitempty"`
+	AgentPassword string `json:"agent_password,omitempty"`
 
 	// add node
-	AddNode *AddProxySQLParamsBodyAddNode `json:"addNode,omitempty"`
+	AddNode *AddProxySQLParamsBodyAddNode `json:"add_node,omitempty"`
 }
 
 // Validate validates this add proxy SQL body
@@ -249,7 +249,7 @@ func (o *AddProxySQLBody) validateMetricsMode(formats strfmt.Registry) error {
 	}
 
 	// value enum
-	if err := o.validateMetricsModeEnum("body"+"."+"metricsMode", "body", *o.MetricsMode); err != nil {
+	if err := o.validateMetricsModeEnum("body"+"."+"metrics_mode", "body", *o.MetricsMode); err != nil {
 		return err
 	}
 
@@ -265,7 +265,7 @@ func (o *AddProxySQLBody) validateAddNode(formats strfmt.Registry) error {
 	if o.AddNode != nil {
 		if err := o.AddNode.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "addNode")
+				return ve.ValidateName("body" + "." + "add_node")
 			}
 			return err
 		}
@@ -370,7 +370,7 @@ swagger:model AddProxySQLOKBody
 type AddProxySQLOKBody struct {
 
 	// proxysql exporter
-	ProxysqlExporter *AddProxySQLOKBodyProxysqlExporter `json:"proxysqlExporter,omitempty"`
+	ProxysqlExporter *AddProxySQLOKBodyProxysqlExporter `json:"proxysql_exporter,omitempty"`
 
 	// service
 	Service *AddProxySQLOKBodyService `json:"service,omitempty"`
@@ -403,7 +403,7 @@ func (o *AddProxySQLOKBody) validateProxysqlExporter(formats strfmt.Registry) er
 	if o.ProxysqlExporter != nil {
 		if err := o.ProxysqlExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addProxySqlOk" + "." + "proxysqlExporter")
+				return ve.ValidateName("addProxySqlOk" + "." + "proxysql_exporter")
 			}
 			return err
 		}
@@ -454,16 +454,16 @@ swagger:model AddProxySQLOKBodyProxysqlExporter
 type AddProxySQLOKBodyProxysqlExporter struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agentId,omitempty"`
+	AgentID string `json:"agent_id,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmmAgentId,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// ProxySQL username for scraping metrics.
 	Username string `json:"username,omitempty"`
@@ -472,16 +472,16 @@ type AddProxySQLOKBodyProxysqlExporter struct {
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// True if exporter uses push metrics mode.
-	PushMetricsEnabled bool `json:"pushMetricsEnabled,omitempty"`
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
 	// List of disabled collector names.
-	DisabledCollectors []string `json:"disabledCollectors"`
+	DisabledCollectors []string `json:"disabled_collectors"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -495,7 +495,7 @@ type AddProxySQLOKBodyProxysqlExporter struct {
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listenPort,omitempty"`
+	ListenPort int64 `json:"listen_port,omitempty"`
 }
 
 // Validate validates this add proxy SQL OK body proxysql exporter
@@ -563,7 +563,7 @@ func (o *AddProxySQLOKBodyProxysqlExporter) validateStatus(formats strfmt.Regist
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addProxySqlOk"+"."+"proxysqlExporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addProxySqlOk"+"."+"proxysql_exporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -594,13 +594,13 @@ swagger:model AddProxySQLOKBodyService
 type AddProxySQLOKBodyService struct {
 
 	// Unique randomly generated instance identifier.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// Unique across all Services user-defined name.
-	ServiceName string `json:"serviceName,omitempty"`
+	ServiceName string `json:"service_name,omitempty"`
 
 	// Node identifier where this instance runs.
-	NodeID string `json:"nodeId,omitempty"`
+	NodeID string `json:"node_id,omitempty"`
 
 	// Access address (DNS name or IP).
 	// Address (and port) or socket is required.
@@ -621,10 +621,10 @@ type AddProxySQLOKBodyService struct {
 	Cluster string `json:"cluster,omitempty"`
 
 	// Replication set name.
-	ReplicationSet string `json:"replicationSet,omitempty"`
+	ReplicationSet string `json:"replication_set,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this add proxy SQL OK body service
@@ -657,25 +657,25 @@ type AddProxySQLParamsBodyAddNode struct {
 
 	// NodeType describes supported Node types.
 	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE REMOTE_AZURE_DATABASE_NODE]
-	NodeType *string `json:"nodeType,omitempty"`
+	NodeType *string `json:"node_type,omitempty"`
 
 	// Unique across all Nodes user-defined name.
-	NodeName string `json:"nodeName,omitempty"`
+	NodeName string `json:"node_name,omitempty"`
 
 	// Linux machine-id.
-	MachineID string `json:"machineId,omitempty"`
+	MachineID string `json:"machine_id,omitempty"`
 
 	// Linux distribution name and version.
 	Distro string `json:"distro,omitempty"`
 
 	// Container identifier. If specified, must be a unique Docker container identifier.
-	ContainerID string `json:"containerId,omitempty"`
+	ContainerID string `json:"container_id,omitempty"`
 
 	// Container name.
-	ContainerName string `json:"containerName,omitempty"`
+	ContainerName string `json:"container_name,omitempty"`
 
 	// Node model.
-	NodeModel string `json:"nodeModel,omitempty"`
+	NodeModel string `json:"node_model,omitempty"`
 
 	// Node region.
 	Region string `json:"region,omitempty"`
@@ -684,7 +684,7 @@ type AddProxySQLParamsBodyAddNode struct {
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels for Node.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this add proxy SQL params body add node
@@ -749,7 +749,7 @@ func (o *AddProxySQLParamsBodyAddNode) validateNodeType(formats strfmt.Registry)
 	}
 
 	// value enum
-	if err := o.validateNodeTypeEnum("body"+"."+"addNode"+"."+"nodeType", "body", *o.NodeType); err != nil {
+	if err := o.validateNodeTypeEnum("body"+"."+"add_node"+"."+"node_type", "body", *o.NodeType); err != nil {
 		return err
 	}
 

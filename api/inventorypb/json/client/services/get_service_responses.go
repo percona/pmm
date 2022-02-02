@@ -123,7 +123,7 @@ swagger:model GetServiceBody
 type GetServiceBody struct {
 
 	// Unique randomly generated instance identifier.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 }
 
 // Validate validates this get service body
@@ -411,13 +411,13 @@ swagger:model GetServiceOKBodyExternal
 type GetServiceOKBodyExternal struct {
 
 	// Unique randomly generated instance identifier.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// Unique across all Services user-defined name.
-	ServiceName string `json:"serviceName,omitempty"`
+	ServiceName string `json:"service_name,omitempty"`
 
 	// Node identifier where this service instance runs.
-	NodeID string `json:"nodeId,omitempty"`
+	NodeID string `json:"node_id,omitempty"`
 
 	// Environment name.
 	Environment string `json:"environment,omitempty"`
@@ -426,10 +426,10 @@ type GetServiceOKBodyExternal struct {
 	Cluster string `json:"cluster,omitempty"`
 
 	// Replication set name.
-	ReplicationSet string `json:"replicationSet,omitempty"`
+	ReplicationSet string `json:"replication_set,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Group name of external service.
 	Group string `json:"group,omitempty"`
@@ -464,13 +464,13 @@ swagger:model GetServiceOKBodyHaproxy
 type GetServiceOKBodyHaproxy struct {
 
 	// Unique randomly generated instance identifier.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// Unique across all Services user-defined name.
-	ServiceName string `json:"serviceName,omitempty"`
+	ServiceName string `json:"service_name,omitempty"`
 
 	// Node identifier where this service instance runs.
-	NodeID string `json:"nodeId,omitempty"`
+	NodeID string `json:"node_id,omitempty"`
 
 	// Environment name.
 	Environment string `json:"environment,omitempty"`
@@ -479,10 +479,10 @@ type GetServiceOKBodyHaproxy struct {
 	Cluster string `json:"cluster,omitempty"`
 
 	// Replication set name.
-	ReplicationSet string `json:"replicationSet,omitempty"`
+	ReplicationSet string `json:"replication_set,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this get service OK body haproxy
@@ -514,13 +514,13 @@ swagger:model GetServiceOKBodyMongodb
 type GetServiceOKBodyMongodb struct {
 
 	// Unique randomly generated instance identifier.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// Unique across all Services user-defined name.
-	ServiceName string `json:"serviceName,omitempty"`
+	ServiceName string `json:"service_name,omitempty"`
 
 	// Node identifier where this instance runs.
-	NodeID string `json:"nodeId,omitempty"`
+	NodeID string `json:"node_id,omitempty"`
 
 	// Access address (DNS name or IP).
 	// Address (and port) or socket is required.
@@ -541,10 +541,10 @@ type GetServiceOKBodyMongodb struct {
 	Cluster string `json:"cluster,omitempty"`
 
 	// Replication set name.
-	ReplicationSet string `json:"replicationSet,omitempty"`
+	ReplicationSet string `json:"replication_set,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this get service OK body mongodb
@@ -576,13 +576,13 @@ swagger:model GetServiceOKBodyMysql
 type GetServiceOKBodyMysql struct {
 
 	// Unique randomly generated instance identifier.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// Unique across all Services user-defined name.
-	ServiceName string `json:"serviceName,omitempty"`
+	ServiceName string `json:"service_name,omitempty"`
 
 	// Node identifier where this instance runs.
-	NodeID string `json:"nodeId,omitempty"`
+	NodeID string `json:"node_id,omitempty"`
 
 	// Access address (DNS name or IP).
 	// Address (and port) or socket is required.
@@ -603,10 +603,10 @@ type GetServiceOKBodyMysql struct {
 	Cluster string `json:"cluster,omitempty"`
 
 	// Replication set name.
-	ReplicationSet string `json:"replicationSet,omitempty"`
+	ReplicationSet string `json:"replication_set,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this get service OK body mysql
@@ -638,16 +638,16 @@ swagger:model GetServiceOKBodyPostgresql
 type GetServiceOKBodyPostgresql struct {
 
 	// Unique randomly generated instance identifier.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// Unique across all Services user-defined name.
-	ServiceName string `json:"serviceName,omitempty"`
+	ServiceName string `json:"service_name,omitempty"`
 
 	// Database name.
-	DatabaseName string `json:"databaseName,omitempty"`
+	DatabaseName string `json:"database_name,omitempty"`
 
 	// Node identifier where this instance runs.
-	NodeID string `json:"nodeId,omitempty"`
+	NodeID string `json:"node_id,omitempty"`
 
 	// Access address (DNS name or IP).
 	// Address (and port) or socket is required.
@@ -668,10 +668,10 @@ type GetServiceOKBodyPostgresql struct {
 	Cluster string `json:"cluster,omitempty"`
 
 	// Replication set name.
-	ReplicationSet string `json:"replicationSet,omitempty"`
+	ReplicationSet string `json:"replication_set,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this get service OK body postgresql
@@ -703,13 +703,13 @@ swagger:model GetServiceOKBodyProxysql
 type GetServiceOKBodyProxysql struct {
 
 	// Unique randomly generated instance identifier.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// Unique across all Services user-defined name.
-	ServiceName string `json:"serviceName,omitempty"`
+	ServiceName string `json:"service_name,omitempty"`
 
 	// Node identifier where this instance runs.
-	NodeID string `json:"nodeId,omitempty"`
+	NodeID string `json:"node_id,omitempty"`
 
 	// Access address (DNS name or IP).
 	// Address (and port) or socket is required.
@@ -730,10 +730,10 @@ type GetServiceOKBodyProxysql struct {
 	Cluster string `json:"cluster,omitempty"`
 
 	// Replication set name.
-	ReplicationSet string `json:"replicationSet,omitempty"`
+	ReplicationSet string `json:"replication_set,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this get service OK body proxysql

@@ -129,11 +129,11 @@ type AddAzureDatabaseBody struct {
 	Az string `json:"az,omitempty"`
 
 	// Azure database instance ID.
-	InstanceID string `json:"instanceId,omitempty"`
+	InstanceID string `json:"instance_id,omitempty"`
 
 	// Represents a purchasable Stock Keeping Unit (SKU) under a product.
 	// https://docs.microsoft.com/en-us/partner-center/develop/product-resources#sku.
-	NodeModel string `json:"nodeModel,omitempty"`
+	NodeModel string `json:"node_model,omitempty"`
 
 	// Address used to connect to it.
 	Address string `json:"address,omitempty"`
@@ -142,10 +142,10 @@ type AddAzureDatabaseBody struct {
 	Port int64 `json:"port,omitempty"`
 
 	// Unique across all Nodes user-defined name. Defaults to Azure Database instance ID.
-	NodeName string `json:"nodeName,omitempty"`
+	NodeName string `json:"node_name,omitempty"`
 
 	// Unique across all Services user-defined name. Defaults to Azure Database instance ID.
-	ServiceName string `json:"serviceName,omitempty"`
+	ServiceName string `json:"service_name,omitempty"`
 
 	// Environment name.
 	Environment string `json:"environment,omitempty"`
@@ -157,45 +157,45 @@ type AddAzureDatabaseBody struct {
 	Password string `json:"password,omitempty"`
 
 	// Azure client ID.
-	AzureClientID string `json:"azureClientId,omitempty"`
+	AzureClientID string `json:"azure_client_id,omitempty"`
 
 	// Azure client secret.
-	AzureClientSecret string `json:"azureClientSecret,omitempty"`
+	AzureClientSecret string `json:"azure_client_secret,omitempty"`
 
 	// Azure tanant ID.
-	AzureTenantID string `json:"azureTenantId,omitempty"`
+	AzureTenantID string `json:"azure_tenant_id,omitempty"`
 
 	// Azure subscription ID.
-	AzureSubscriptionID string `json:"azureSubscriptionId,omitempty"`
+	AzureSubscriptionID string `json:"azure_subscription_id,omitempty"`
 
 	// Azure resource group.
-	AzureResourceGroup string `json:"azureResourceGroup,omitempty"`
+	AzureResourceGroup string `json:"azure_resource_group,omitempty"`
 
 	// If true, adds azure_database_exporter.
-	AzureDatabaseExporter bool `json:"azureDatabaseExporter,omitempty"`
+	AzureDatabaseExporter bool `json:"azure_database_exporter,omitempty"`
 
 	// If true, adds qan-mysql-perfschema-agent or qan-postgresql-pgstatements-agent.
 	QAN bool `json:"qan,omitempty"`
 
 	// Custom user-assigned labels for Node and Service.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Skip connection check.
-	SkipConnectionCheck bool `json:"skipConnectionCheck,omitempty"`
+	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 
 	// Use TLS for database connections.
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// Disable query examples.
-	DisableQueryExamples bool `json:"disableQueryExamples,omitempty"`
+	DisableQueryExamples bool `json:"disable_query_examples,omitempty"`
 
 	// Tablestats group collectors will be disabled if there are more than that number of tables.
 	// If zero, server's default value is used.
 	// Use negative value to disable them.
-	TablestatsGroupTableLimit int32 `json:"tablestatsGroupTableLimit,omitempty"`
+	TablestatsGroupTableLimit int32 `json:"tablestats_group_table_limit,omitempty"`
 
 	// DiscoverAzureDatabaseType describes supported Azure Database instance engines.
 	//

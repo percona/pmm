@@ -125,10 +125,10 @@ swagger:model CreateAlertRuleBody
 type CreateAlertRuleBody struct {
 
 	// Template name. Can't be specified simultaneously with source_rule_id.
-	TemplateName string `json:"templateName,omitempty"`
+	TemplateName string `json:"template_name,omitempty"`
 
 	// ID of the rule that will be used as source. Can't be specified simultaneously with template_name.
-	SourceRuleID string `json:"sourceRuleId,omitempty"`
+	SourceRuleID string `json:"source_rule_id,omitempty"`
 
 	// Rule name.
 	Name string `json:"name,omitempty"`
@@ -147,13 +147,13 @@ type CreateAlertRuleBody struct {
 	Severity *string `json:"severity,omitempty"`
 
 	// All custom labels to add or remove (with empty values) to default labels from template.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Filters. Should be set.
 	Filters []*FiltersItems0 `json:"filters"`
 
 	// Channels. Should be set.
-	ChannelIds []string `json:"channelIds"`
+	ChannelIds []string `json:"channel_ids"`
 }
 
 // Validate validates this create alert rule body
@@ -388,7 +388,7 @@ swagger:model CreateAlertRuleOKBody
 type CreateAlertRuleOKBody struct {
 
 	// Rule ID.
-	RuleID string `json:"ruleId,omitempty"`
+	RuleID string `json:"rule_id,omitempty"`
 }
 
 // Validate validates this create alert rule OK body

@@ -126,14 +126,14 @@ type AddMySQLBody struct {
 
 	// Node identifier on which a service is been running.
 	// Exactly one of these parameters should be present: node_id, node_name, add_node.
-	NodeID string `json:"nodeId,omitempty"`
+	NodeID string `json:"node_id,omitempty"`
 
 	// Node name on which a service is been running.
 	// Exactly one of these parameters should be present: node_id, node_name, add_node.
-	NodeName string `json:"nodeName,omitempty"`
+	NodeName string `json:"node_name,omitempty"`
 
 	// Unique across all Services user-defined name. Required.
-	ServiceName string `json:"serviceName,omitempty"`
+	ServiceName string `json:"service_name,omitempty"`
 
 	// Node and Service access address (DNS name or IP).
 	// Address (and port) or socket is required.
@@ -148,7 +148,7 @@ type AddMySQLBody struct {
 	Socket string `json:"socket,omitempty"`
 
 	// The "pmm-agent" identifier which should run agents. Required.
-	PMMAgentID string `json:"pmmAgentId,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Environment name.
 	Environment string `json:"environment,omitempty"`
@@ -157,7 +157,7 @@ type AddMySQLBody struct {
 	Cluster string `json:"cluster,omitempty"`
 
 	// Replication set name.
-	ReplicationSet string `json:"replicationSet,omitempty"`
+	ReplicationSet string `json:"replication_set,omitempty"`
 
 	// MySQL username for scraping metrics.
 	Username string `json:"username,omitempty"`
@@ -166,58 +166,58 @@ type AddMySQLBody struct {
 	Password string `json:"password,omitempty"`
 
 	// If true, adds qan-mysql-perfschema-agent for provided service.
-	QANMysqlPerfschema bool `json:"qanMysqlPerfschema,omitempty"`
+	QANMysqlPerfschema bool `json:"qan_mysql_perfschema,omitempty"`
 
 	// If true, adds qan-mysql-slowlog-agent for provided service.
-	QANMysqlSlowlog bool `json:"qanMysqlSlowlog,omitempty"`
+	QANMysqlSlowlog bool `json:"qan_mysql_slowlog,omitempty"`
 
 	// Custom user-assigned labels for Service.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Skip connection check.
-	SkipConnectionCheck bool `json:"skipConnectionCheck,omitempty"`
+	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 
 	// Disable query examples.
-	DisableQueryExamples bool `json:"disableQueryExamples,omitempty"`
+	DisableQueryExamples bool `json:"disable_query_examples,omitempty"`
 
 	// If qan-mysql-slowlog-agent is added, slowlog file is rotated at this size if > 0.
 	// If zero, server's default value is used.
 	// Use negative value to disable rotation.
-	MaxSlowlogFileSize string `json:"maxSlowlogFileSize,omitempty"`
+	MaxSlowlogFileSize string `json:"max_slowlog_file_size,omitempty"`
 
 	// Use TLS for database connections.
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// Certificate Authority certificate chain.
-	TLSCa string `json:"tlsCa,omitempty"`
+	TLSCa string `json:"tls_ca,omitempty"`
 
 	// Client certificate.
-	TLSCert string `json:"tlsCert,omitempty"`
+	TLSCert string `json:"tls_cert,omitempty"`
 
 	// Password for decrypting tls_cert.
-	TLSKey string `json:"tlsKey,omitempty"`
+	TLSKey string `json:"tls_key,omitempty"`
 
 	// Tablestats group collectors will be disabled if there are more than that number of tables.
 	// If zero, server's default value is used.
 	// Use negative value to disable them.
-	TablestatsGroupTableLimit int32 `json:"tablestatsGroupTableLimit,omitempty"`
+	TablestatsGroupTableLimit int32 `json:"tablestats_group_table_limit,omitempty"`
 
 	// MetricsMode defines desired metrics mode for agent,
 	// it can be pull, push or auto mode chosen by server.
 	// Enum: [AUTO PULL PUSH]
-	MetricsMode *string `json:"metricsMode,omitempty"`
+	MetricsMode *string `json:"metrics_mode,omitempty"`
 
 	// List of collector names to disable in this exporter.
-	DisableCollectors []string `json:"disableCollectors"`
+	DisableCollectors []string `json:"disable_collectors"`
 
 	// Custom password for exporter endpoint /metrics.
-	AgentPassword string `json:"agentPassword,omitempty"`
+	AgentPassword string `json:"agent_password,omitempty"`
 
 	// add node
-	AddNode *AddMySQLParamsBodyAddNode `json:"addNode,omitempty"`
+	AddNode *AddMySQLParamsBodyAddNode `json:"add_node,omitempty"`
 }
 
 // Validate validates this add my SQL body
@@ -277,7 +277,7 @@ func (o *AddMySQLBody) validateMetricsMode(formats strfmt.Registry) error {
 	}
 
 	// value enum
-	if err := o.validateMetricsModeEnum("body"+"."+"metricsMode", "body", *o.MetricsMode); err != nil {
+	if err := o.validateMetricsModeEnum("body"+"."+"metrics_mode", "body", *o.MetricsMode); err != nil {
 		return err
 	}
 
@@ -293,7 +293,7 @@ func (o *AddMySQLBody) validateAddNode(formats strfmt.Registry) error {
 	if o.AddNode != nil {
 		if err := o.AddNode.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "addNode")
+				return ve.ValidateName("body" + "." + "add_node")
 			}
 			return err
 		}
@@ -398,16 +398,16 @@ swagger:model AddMySQLOKBody
 type AddMySQLOKBody struct {
 
 	// Actual table count at the moment of adding.
-	TableCount int32 `json:"tableCount,omitempty"`
+	TableCount int32 `json:"table_count,omitempty"`
 
 	// mysqld exporter
-	MysqldExporter *AddMySQLOKBodyMysqldExporter `json:"mysqldExporter,omitempty"`
+	MysqldExporter *AddMySQLOKBodyMysqldExporter `json:"mysqld_exporter,omitempty"`
 
 	// qan mysql perfschema
-	QANMysqlPerfschema *AddMySQLOKBodyQANMysqlPerfschema `json:"qanMysqlPerfschema,omitempty"`
+	QANMysqlPerfschema *AddMySQLOKBodyQANMysqlPerfschema `json:"qan_mysql_perfschema,omitempty"`
 
 	// qan mysql slowlog
-	QANMysqlSlowlog *AddMySQLOKBodyQANMysqlSlowlog `json:"qanMysqlSlowlog,omitempty"`
+	QANMysqlSlowlog *AddMySQLOKBodyQANMysqlSlowlog `json:"qan_mysql_slowlog,omitempty"`
 
 	// service
 	Service *AddMySQLOKBodyService `json:"service,omitempty"`
@@ -448,7 +448,7 @@ func (o *AddMySQLOKBody) validateMysqldExporter(formats strfmt.Registry) error {
 	if o.MysqldExporter != nil {
 		if err := o.MysqldExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addMySqlOk" + "." + "mysqldExporter")
+				return ve.ValidateName("addMySqlOk" + "." + "mysqld_exporter")
 			}
 			return err
 		}
@@ -466,7 +466,7 @@ func (o *AddMySQLOKBody) validateQANMysqlPerfschema(formats strfmt.Registry) err
 	if o.QANMysqlPerfschema != nil {
 		if err := o.QANMysqlPerfschema.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addMySqlOk" + "." + "qanMysqlPerfschema")
+				return ve.ValidateName("addMySqlOk" + "." + "qan_mysql_perfschema")
 			}
 			return err
 		}
@@ -484,7 +484,7 @@ func (o *AddMySQLOKBody) validateQANMysqlSlowlog(formats strfmt.Registry) error 
 	if o.QANMysqlSlowlog != nil {
 		if err := o.QANMysqlSlowlog.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addMySqlOk" + "." + "qanMysqlSlowlog")
+				return ve.ValidateName("addMySqlOk" + "." + "qan_mysql_slowlog")
 			}
 			return err
 		}
@@ -535,16 +535,16 @@ swagger:model AddMySQLOKBodyMysqldExporter
 type AddMySQLOKBodyMysqldExporter struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agentId,omitempty"`
+	AgentID string `json:"agent_id,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmmAgentId,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// MySQL username for scraping metrics.
 	Username string `json:"username,omitempty"`
@@ -553,30 +553,30 @@ type AddMySQLOKBodyMysqldExporter struct {
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// Certificate Authority certificate chain.
-	TLSCa string `json:"tlsCa,omitempty"`
+	TLSCa string `json:"tls_ca,omitempty"`
 
 	// Client certificate.
-	TLSCert string `json:"tlsCert,omitempty"`
+	TLSCert string `json:"tls_cert,omitempty"`
 
 	// Password for decrypting tls_cert.
-	TLSKey string `json:"tlsKey,omitempty"`
+	TLSKey string `json:"tls_key,omitempty"`
 
 	// Tablestats group collectors are disabled if there are more than that number of tables.
 	// 0 means tablestats group collectors are always enabled (no limit).
 	// Negative value means tablestats group collectors are always disabled.
-	TablestatsGroupTableLimit int32 `json:"tablestatsGroupTableLimit,omitempty"`
+	TablestatsGroupTableLimit int32 `json:"tablestats_group_table_limit,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// True if exporter uses push metrics mode.
-	PushMetricsEnabled bool `json:"pushMetricsEnabled,omitempty"`
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
 	// List of disabled collector names.
-	DisabledCollectors []string `json:"disabledCollectors"`
+	DisabledCollectors []string `json:"disabled_collectors"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -590,10 +590,10 @@ type AddMySQLOKBodyMysqldExporter struct {
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listenPort,omitempty"`
+	ListenPort int64 `json:"listen_port,omitempty"`
 
 	// True if tablestats group collectors are currently disabled.
-	TablestatsGroupDisabled bool `json:"tablestatsGroupDisabled,omitempty"`
+	TablestatsGroupDisabled bool `json:"tablestats_group_disabled,omitempty"`
 }
 
 // Validate validates this add my SQL OK body mysqld exporter
@@ -661,7 +661,7 @@ func (o *AddMySQLOKBodyMysqldExporter) validateStatus(formats strfmt.Registry) e
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addMySqlOk"+"."+"mysqldExporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addMySqlOk"+"."+"mysqld_exporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -692,16 +692,16 @@ swagger:model AddMySQLOKBodyQANMysqlPerfschema
 type AddMySQLOKBodyQANMysqlPerfschema struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agentId,omitempty"`
+	AgentID string `json:"agent_id,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmmAgentId,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// MySQL username for getting performance data.
 	Username string `json:"username,omitempty"`
@@ -710,22 +710,22 @@ type AddMySQLOKBodyQANMysqlPerfschema struct {
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// Certificate Authority certificate chain.
-	TLSCa string `json:"tlsCa,omitempty"`
+	TLSCa string `json:"tls_ca,omitempty"`
 
 	// Client certificate.
-	TLSCert string `json:"tlsCert,omitempty"`
+	TLSCert string `json:"tls_cert,omitempty"`
 
 	// Password for decrypting tls_cert.
-	TLSKey string `json:"tlsKey,omitempty"`
+	TLSKey string `json:"tls_key,omitempty"`
 
 	// True if query examples are disabled.
-	QueryExamplesDisabled bool `json:"queryExamplesDisabled,omitempty"`
+	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -804,7 +804,7 @@ func (o *AddMySQLOKBodyQANMysqlPerfschema) validateStatus(formats strfmt.Registr
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addMySqlOk"+"."+"qanMysqlPerfschema"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addMySqlOk"+"."+"qan_mysql_perfschema"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -835,16 +835,16 @@ swagger:model AddMySQLOKBodyQANMysqlSlowlog
 type AddMySQLOKBodyQANMysqlSlowlog struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agentId,omitempty"`
+	AgentID string `json:"agent_id,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmmAgentId,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// MySQL username for getting performance data.
 	Username string `json:"username,omitempty"`
@@ -853,25 +853,25 @@ type AddMySQLOKBodyQANMysqlSlowlog struct {
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// Certificate Authority certificate chain.
-	TLSCa string `json:"tlsCa,omitempty"`
+	TLSCa string `json:"tls_ca,omitempty"`
 
 	// Client certificate.
-	TLSCert string `json:"tlsCert,omitempty"`
+	TLSCert string `json:"tls_cert,omitempty"`
 
 	// Password for decrypting tls_cert.
-	TLSKey string `json:"tlsKey,omitempty"`
+	TLSKey string `json:"tls_key,omitempty"`
 
 	// True if query examples are disabled.
-	QueryExamplesDisabled bool `json:"queryExamplesDisabled,omitempty"`
+	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
 
 	// Slowlog file is rotated at this size if > 0.
-	MaxSlowlogFileSize string `json:"maxSlowlogFileSize,omitempty"`
+	MaxSlowlogFileSize string `json:"max_slowlog_file_size,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -950,7 +950,7 @@ func (o *AddMySQLOKBodyQANMysqlSlowlog) validateStatus(formats strfmt.Registry) 
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addMySqlOk"+"."+"qanMysqlSlowlog"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addMySqlOk"+"."+"qan_mysql_slowlog"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -981,13 +981,13 @@ swagger:model AddMySQLOKBodyService
 type AddMySQLOKBodyService struct {
 
 	// Unique randomly generated instance identifier.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// Unique across all Services user-defined name.
-	ServiceName string `json:"serviceName,omitempty"`
+	ServiceName string `json:"service_name,omitempty"`
 
 	// Node identifier where this instance runs.
-	NodeID string `json:"nodeId,omitempty"`
+	NodeID string `json:"node_id,omitempty"`
 
 	// Access address (DNS name or IP).
 	// Address (and port) or socket is required.
@@ -1008,10 +1008,10 @@ type AddMySQLOKBodyService struct {
 	Cluster string `json:"cluster,omitempty"`
 
 	// Replication set name.
-	ReplicationSet string `json:"replicationSet,omitempty"`
+	ReplicationSet string `json:"replication_set,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this add my SQL OK body service
@@ -1044,25 +1044,25 @@ type AddMySQLParamsBodyAddNode struct {
 
 	// NodeType describes supported Node types.
 	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE REMOTE_AZURE_DATABASE_NODE]
-	NodeType *string `json:"nodeType,omitempty"`
+	NodeType *string `json:"node_type,omitempty"`
 
 	// Unique across all Nodes user-defined name.
-	NodeName string `json:"nodeName,omitempty"`
+	NodeName string `json:"node_name,omitempty"`
 
 	// Linux machine-id.
-	MachineID string `json:"machineId,omitempty"`
+	MachineID string `json:"machine_id,omitempty"`
 
 	// Linux distribution name and version.
 	Distro string `json:"distro,omitempty"`
 
 	// Container identifier. If specified, must be a unique Docker container identifier.
-	ContainerID string `json:"containerId,omitempty"`
+	ContainerID string `json:"container_id,omitempty"`
 
 	// Container name.
-	ContainerName string `json:"containerName,omitempty"`
+	ContainerName string `json:"container_name,omitempty"`
 
 	// Node model.
-	NodeModel string `json:"nodeModel,omitempty"`
+	NodeModel string `json:"node_model,omitempty"`
 
 	// Node region.
 	Region string `json:"region,omitempty"`
@@ -1071,7 +1071,7 @@ type AddMySQLParamsBodyAddNode struct {
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels for Node.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this add my SQL params body add node
@@ -1136,7 +1136,7 @@ func (o *AddMySQLParamsBodyAddNode) validateNodeType(formats strfmt.Registry) er
 	}
 
 	// value enum
-	if err := o.validateNodeTypeEnum("body"+"."+"addNode"+"."+"nodeType", "body", *o.NodeType); err != nil {
+	if err := o.validateNodeTypeEnum("body"+"."+"add_node"+"."+"node_type", "body", *o.NodeType); err != nil {
 		return err
 	}
 

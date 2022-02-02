@@ -126,14 +126,14 @@ type AddMongoDBBody struct {
 
 	// Node identifier on which a service is been running.
 	// Exactly one of these parameters should be present: node_id, node_name, add_node.
-	NodeID string `json:"nodeId,omitempty"`
+	NodeID string `json:"node_id,omitempty"`
 
 	// Node name on which a service is been running.
 	// Exactly one of these parameters should be present: node_id, node_name, add_node.
-	NodeName string `json:"nodeName,omitempty"`
+	NodeName string `json:"node_name,omitempty"`
 
 	// Unique across all Services user-defined name. Required.
-	ServiceName string `json:"serviceName,omitempty"`
+	ServiceName string `json:"service_name,omitempty"`
 
 	// Node and Service access address (DNS name or IP).
 	// Address (and port) or socket is required.
@@ -148,7 +148,7 @@ type AddMongoDBBody struct {
 	Socket string `json:"socket,omitempty"`
 
 	// The "pmm-agent" identifier which should run agents. Required.
-	PMMAgentID string `json:"pmmAgentId,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Environment name.
 	Environment string `json:"environment,omitempty"`
@@ -157,7 +157,7 @@ type AddMongoDBBody struct {
 	Cluster string `json:"cluster,omitempty"`
 
 	// Replication set name.
-	ReplicationSet string `json:"replicationSet,omitempty"`
+	ReplicationSet string `json:"replication_set,omitempty"`
 
 	// MongoDB username for exporter and QAN agent access.
 	Username string `json:"username,omitempty"`
@@ -166,60 +166,60 @@ type AddMongoDBBody struct {
 	Password string `json:"password,omitempty"`
 
 	// If true, adds qan-mongodb-profiler-agent for provided service.
-	QANMongodbProfiler bool `json:"qanMongodbProfiler,omitempty"`
+	QANMongodbProfiler bool `json:"qan_mongodb_profiler,omitempty"`
 
 	// Custom user-assigned labels for Service.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Skip connection check.
-	SkipConnectionCheck bool `json:"skipConnectionCheck,omitempty"`
+	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 
 	// Use TLS for database connections.
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// Client certificate and key.
-	TLSCertificateKey string `json:"tlsCertificateKey,omitempty"`
+	TLSCertificateKey string `json:"tls_certificate_key,omitempty"`
 
 	// Password for decrypting tls_certificate_key.
-	TLSCertificateKeyFilePassword string `json:"tlsCertificateKeyFilePassword,omitempty"`
+	TLSCertificateKeyFilePassword string `json:"tls_certificate_key_file_password,omitempty"`
 
 	// Certificate Authority certificate chain.
-	TLSCa string `json:"tlsCa,omitempty"`
+	TLSCa string `json:"tls_ca,omitempty"`
 
 	// MetricsMode defines desired metrics mode for agent,
 	// it can be pull, push or auto mode chosen by server.
 	// Enum: [AUTO PULL PUSH]
-	MetricsMode *string `json:"metricsMode,omitempty"`
+	MetricsMode *string `json:"metrics_mode,omitempty"`
 
 	// List of collector names to disable in this exporter.
-	DisableCollectors []string `json:"disableCollectors"`
+	DisableCollectors []string `json:"disable_collectors"`
 
 	// Authentication mechanism.
 	// See https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism
 	// for details.
-	AuthenticationMechanism string `json:"authenticationMechanism,omitempty"`
+	AuthenticationMechanism string `json:"authentication_mechanism,omitempty"`
 
 	// Authentication database.
-	AuthenticationDatabase string `json:"authenticationDatabase,omitempty"`
+	AuthenticationDatabase string `json:"authentication_database,omitempty"`
 
 	// Custom password for exporter endpoint /metrics.
-	AgentPassword string `json:"agentPassword,omitempty"`
+	AgentPassword string `json:"agent_password,omitempty"`
 
 	// List of collections to get stats from. Can use * .
-	StatsCollections []string `json:"statsCollections"`
+	StatsCollections []string `json:"stats_collections"`
 
 	// Collections limit. Only get Databases and collection stats if the total number of collections in the server
 	// is less than this value. 0: no limit
-	CollectionsLimit int32 `json:"collectionsLimit,omitempty"`
+	CollectionsLimit int32 `json:"collections_limit,omitempty"`
 
 	// Enable all collectors
-	EnableAllCollectors bool `json:"enableAllCollectors,omitempty"`
+	EnableAllCollectors bool `json:"enable_all_collectors,omitempty"`
 
 	// add node
-	AddNode *AddMongoDBParamsBodyAddNode `json:"addNode,omitempty"`
+	AddNode *AddMongoDBParamsBodyAddNode `json:"add_node,omitempty"`
 }
 
 // Validate validates this add mongo DB body
@@ -279,7 +279,7 @@ func (o *AddMongoDBBody) validateMetricsMode(formats strfmt.Registry) error {
 	}
 
 	// value enum
-	if err := o.validateMetricsModeEnum("body"+"."+"metricsMode", "body", *o.MetricsMode); err != nil {
+	if err := o.validateMetricsModeEnum("body"+"."+"metrics_mode", "body", *o.MetricsMode); err != nil {
 		return err
 	}
 
@@ -295,7 +295,7 @@ func (o *AddMongoDBBody) validateAddNode(formats strfmt.Registry) error {
 	if o.AddNode != nil {
 		if err := o.AddNode.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "addNode")
+				return ve.ValidateName("body" + "." + "add_node")
 			}
 			return err
 		}
@@ -400,10 +400,10 @@ swagger:model AddMongoDBOKBody
 type AddMongoDBOKBody struct {
 
 	// mongodb exporter
-	MongodbExporter *AddMongoDBOKBodyMongodbExporter `json:"mongodbExporter,omitempty"`
+	MongodbExporter *AddMongoDBOKBodyMongodbExporter `json:"mongodb_exporter,omitempty"`
 
 	// qan mongodb profiler
-	QANMongodbProfiler *AddMongoDBOKBodyQANMongodbProfiler `json:"qanMongodbProfiler,omitempty"`
+	QANMongodbProfiler *AddMongoDBOKBodyQANMongodbProfiler `json:"qan_mongodb_profiler,omitempty"`
 
 	// service
 	Service *AddMongoDBOKBodyService `json:"service,omitempty"`
@@ -440,7 +440,7 @@ func (o *AddMongoDBOKBody) validateMongodbExporter(formats strfmt.Registry) erro
 	if o.MongodbExporter != nil {
 		if err := o.MongodbExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addMongoDbOk" + "." + "mongodbExporter")
+				return ve.ValidateName("addMongoDbOk" + "." + "mongodb_exporter")
 			}
 			return err
 		}
@@ -458,7 +458,7 @@ func (o *AddMongoDBOKBody) validateQANMongodbProfiler(formats strfmt.Registry) e
 	if o.QANMongodbProfiler != nil {
 		if err := o.QANMongodbProfiler.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addMongoDbOk" + "." + "qanMongodbProfiler")
+				return ve.ValidateName("addMongoDbOk" + "." + "qan_mongodb_profiler")
 			}
 			return err
 		}
@@ -509,16 +509,16 @@ swagger:model AddMongoDBOKBodyMongodbExporter
 type AddMongoDBOKBodyMongodbExporter struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agentId,omitempty"`
+	AgentID string `json:"agent_id,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmmAgentId,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// MongoDB username for scraping metrics.
 	Username string `json:"username,omitempty"`
@@ -527,16 +527,16 @@ type AddMongoDBOKBodyMongodbExporter struct {
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// True if exporter uses push metrics mode.
-	PushMetricsEnabled bool `json:"pushMetricsEnabled,omitempty"`
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
 	// List of disabled collector names.
-	DisabledCollectors []string `json:"disabledCollectors"`
+	DisabledCollectors []string `json:"disabled_collectors"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -550,17 +550,17 @@ type AddMongoDBOKBodyMongodbExporter struct {
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listenPort,omitempty"`
+	ListenPort int64 `json:"listen_port,omitempty"`
 
 	// List of colletions to get stats from. Can use *
-	StatsCollections []string `json:"statsCollections"`
+	StatsCollections []string `json:"stats_collections"`
 
 	// Collections limit. Only get Databases and collection stats if the total number of collections in the server
 	// is less than this value. 0: no limit
-	CollectionsLimit int32 `json:"collectionsLimit,omitempty"`
+	CollectionsLimit int32 `json:"collections_limit,omitempty"`
 
 	// Enable All collectors.
-	EnableAllCollectors bool `json:"enableAllCollectors,omitempty"`
+	EnableAllCollectors bool `json:"enable_all_collectors,omitempty"`
 }
 
 // Validate validates this add mongo DB OK body mongodb exporter
@@ -628,7 +628,7 @@ func (o *AddMongoDBOKBodyMongodbExporter) validateStatus(formats strfmt.Registry
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addMongoDbOk"+"."+"mongodbExporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addMongoDbOk"+"."+"mongodb_exporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -659,16 +659,16 @@ swagger:model AddMongoDBOKBodyQANMongodbProfiler
 type AddMongoDBOKBodyQANMongodbProfiler struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agentId,omitempty"`
+	AgentID string `json:"agent_id,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmmAgentId,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// MongoDB username for getting profiler data.
 	Username string `json:"username,omitempty"`
@@ -677,10 +677,10 @@ type AddMongoDBOKBodyQANMongodbProfiler struct {
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -759,7 +759,7 @@ func (o *AddMongoDBOKBodyQANMongodbProfiler) validateStatus(formats strfmt.Regis
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addMongoDbOk"+"."+"qanMongodbProfiler"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addMongoDbOk"+"."+"qan_mongodb_profiler"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -790,13 +790,13 @@ swagger:model AddMongoDBOKBodyService
 type AddMongoDBOKBodyService struct {
 
 	// Unique randomly generated instance identifier.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// Unique across all Services user-defined name.
-	ServiceName string `json:"serviceName,omitempty"`
+	ServiceName string `json:"service_name,omitempty"`
 
 	// Node identifier where this instance runs.
-	NodeID string `json:"nodeId,omitempty"`
+	NodeID string `json:"node_id,omitempty"`
 
 	// Access address (DNS name or IP).
 	// Address (and port) or socket is required.
@@ -817,10 +817,10 @@ type AddMongoDBOKBodyService struct {
 	Cluster string `json:"cluster,omitempty"`
 
 	// Replication set name.
-	ReplicationSet string `json:"replicationSet,omitempty"`
+	ReplicationSet string `json:"replication_set,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this add mongo DB OK body service
@@ -853,25 +853,25 @@ type AddMongoDBParamsBodyAddNode struct {
 
 	// NodeType describes supported Node types.
 	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE REMOTE_AZURE_DATABASE_NODE]
-	NodeType *string `json:"nodeType,omitempty"`
+	NodeType *string `json:"node_type,omitempty"`
 
 	// Unique across all Nodes user-defined name.
-	NodeName string `json:"nodeName,omitempty"`
+	NodeName string `json:"node_name,omitempty"`
 
 	// Linux machine-id.
-	MachineID string `json:"machineId,omitempty"`
+	MachineID string `json:"machine_id,omitempty"`
 
 	// Linux distribution name and version.
 	Distro string `json:"distro,omitempty"`
 
 	// Container identifier. If specified, must be a unique Docker container identifier.
-	ContainerID string `json:"containerId,omitempty"`
+	ContainerID string `json:"container_id,omitempty"`
 
 	// Container name.
-	ContainerName string `json:"containerName,omitempty"`
+	ContainerName string `json:"container_name,omitempty"`
 
 	// Node model.
-	NodeModel string `json:"nodeModel,omitempty"`
+	NodeModel string `json:"node_model,omitempty"`
 
 	// Node region.
 	Region string `json:"region,omitempty"`
@@ -880,7 +880,7 @@ type AddMongoDBParamsBodyAddNode struct {
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels for Node.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this add mongo DB params body add node
@@ -945,7 +945,7 @@ func (o *AddMongoDBParamsBodyAddNode) validateNodeType(formats strfmt.Registry) 
 	}
 
 	// value enum
-	if err := o.validateNodeTypeEnum("body"+"."+"addNode"+"."+"nodeType", "body", *o.NodeType); err != nil {
+	if err := o.validateNodeTypeEnum("body"+"."+"add_node"+"."+"node_type", "body", *o.NodeType); err != nil {
 		return err
 	}
 

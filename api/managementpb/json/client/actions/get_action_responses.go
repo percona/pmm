@@ -123,7 +123,7 @@ swagger:model GetActionBody
 type GetActionBody struct {
 
 	// Unique Action ID.
-	ActionID string `json:"actionId,omitempty"`
+	ActionID string `json:"action_id,omitempty"`
 }
 
 // Validate validates this get action body
@@ -227,10 +227,10 @@ swagger:model GetActionOKBody
 type GetActionOKBody struct {
 
 	// Unique Action ID.
-	ActionID string `json:"actionId,omitempty"`
+	ActionID string `json:"action_id,omitempty"`
 
 	// pmm-agent ID where this Action is running / was run.
-	PMMAgentID string `json:"pmmAgentId,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Current Action output; may be partial if Action is still running.
 	Output string `json:"output,omitempty"`

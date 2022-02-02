@@ -121,10 +121,10 @@ swagger:model DeleteArtifactBody
 type DeleteArtifactBody struct {
 
 	// Machine-readable artifact ID.
-	ArtifactID string `json:"artifactId,omitempty"`
+	ArtifactID string `json:"artifact_id,omitempty"`
 
 	// Removes all the backup files associated with artifact if flag is set.
-	RemoveFiles bool `json:"removeFiles,omitempty"`
+	RemoveFiles bool `json:"remove_files,omitempty"`
 }
 
 // Validate validates this delete artifact body

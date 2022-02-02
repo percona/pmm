@@ -122,8 +122,8 @@ swagger:model GetLogsBody
 */
 type GetLogsBody struct {
 
-	// artifact Id
-	ArtifactID string `json:"artifactId,omitempty"`
+	// artifact id
+	ArtifactID string `json:"artifact_id,omitempty"`
 
 	// offset
 	Offset int64 `json:"offset,omitempty"`
@@ -301,8 +301,8 @@ swagger:model LogsItems0
 */
 type LogsItems0 struct {
 
-	// chunk Id
-	ChunkID int64 `json:"chunkId,omitempty"`
+	// chunk id
+	ChunkID int64 `json:"chunk_id,omitempty"`
 
 	// data
 	Data string `json:"data,omitempty"`

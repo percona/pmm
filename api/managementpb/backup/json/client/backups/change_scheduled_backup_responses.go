@@ -121,18 +121,18 @@ swagger:model ChangeScheduledBackupBody
 */
 type ChangeScheduledBackupBody struct {
 
-	// scheduled backup Id
-	ScheduledBackupID string `json:"scheduledBackupId,omitempty"`
+	// scheduled backup id
+	ScheduledBackupID string `json:"scheduled_backup_id,omitempty"`
 
 	// enabled
 	Enabled bool `json:"enabled,omitempty"`
 
 	// How often backup should be run in cron format.
-	CronExpression string `json:"cronExpression,omitempty"`
+	CronExpression string `json:"cron_expression,omitempty"`
 
 	// First backup wouldn't happen before this time.
 	// Format: date-time
-	StartTime strfmt.DateTime `json:"startTime,omitempty"`
+	StartTime strfmt.DateTime `json:"start_time,omitempty"`
 
 	// Name of backup.
 	Name string `json:"name,omitempty"`
@@ -141,7 +141,7 @@ type ChangeScheduledBackupBody struct {
 	Description string `json:"description,omitempty"`
 
 	// Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.
-	RetryInterval string `json:"retryInterval,omitempty"`
+	RetryInterval string `json:"retry_interval,omitempty"`
 
 	// How many times to retry a failed backup before giving up.
 	Retries int64 `json:"retries,omitempty"`
@@ -170,7 +170,7 @@ func (o *ChangeScheduledBackupBody) validateStartTime(formats strfmt.Registry) e
 		return nil
 	}
 
-	if err := validate.FormatOf("body"+"."+"startTime", "body", "date-time", o.StartTime.String(), formats); err != nil {
+	if err := validate.FormatOf("body"+"."+"start_time", "body", "date-time", o.StartTime.String(), formats); err != nil {
 		return err
 	}
 

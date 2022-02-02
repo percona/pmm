@@ -123,13 +123,13 @@ swagger:model StartMySQLShowCreateTableActionBody
 type StartMySQLShowCreateTableActionBody struct {
 
 	// pmm-agent ID where to run this Action.
-	PMMAgentID string `json:"pmmAgentId,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Service ID for this Action. Required.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// Table name. Required. May additionally contain a database name.
-	TableName string `json:"tableName,omitempty"`
+	TableName string `json:"table_name,omitempty"`
 
 	// Database name. Required if not given in the table_name field.
 	Database string `json:"database,omitempty"`
@@ -236,10 +236,10 @@ swagger:model StartMySQLShowCreateTableActionOKBody
 type StartMySQLShowCreateTableActionOKBody struct {
 
 	// Unique Action ID.
-	ActionID string `json:"actionId,omitempty"`
+	ActionID string `json:"action_id,omitempty"`
 
 	// pmm-agent ID where to this Action was started.
-	PMMAgentID string `json:"pmmAgentId,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 }
 
 // Validate validates this start my SQL show create table action OK body

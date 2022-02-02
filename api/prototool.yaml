@@ -121,7 +121,7 @@ generate:
       flags: logtostderr=true,paths=source_relative
       output: .
 
-    - name: swagger
+    - name: openapiv2
       type: go
-      flags: logtostderr=true,simple_operation_ids=true
+      flags: logtostderr=true,simple_operation_ids=true,json_names_for_fields=false
       output: .

@@ -125,10 +125,10 @@ swagger:model InstallOperatorBody
 type InstallOperatorBody struct {
 
 	// Kubernetes cluster name.
-	KubernetesClusterName string `json:"kubernetesClusterName,omitempty"`
+	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
 
 	// operator_type tells what operator we are interested in updating.
-	OperatorType string `json:"operatorType,omitempty"`
+	OperatorType string `json:"operator_type,omitempty"`
 
 	// version tells what version of the operator we should update to.
 	Version string `json:"version,omitempty"`

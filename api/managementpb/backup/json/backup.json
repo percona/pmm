@@ -30,12 +30,12 @@
             "schema": {
               "type": "object",
               "properties": {
-                "artifactId": {
+                "artifact_id": {
                   "description": "Machine-readable artifact ID.",
                   "type": "string",
                   "x-order": 0
                 },
-                "removeFiles": {
+                "remove_files": {
                   "description": "Removes all the backup files associated with artifact if flag is set.",
                   "type": "boolean",
                   "x-order": 1
@@ -114,18 +114,18 @@
                     "description": "Artifact represents single backup artifact.",
                     "type": "object",
                     "properties": {
-                      "artifactId": {
+                      "artifact_id": {
                         "description": "Machine-readable artifact ID.",
                         "type": "string",
                         "x-order": 0
                       },
-                      "createdAt": {
+                      "created_at": {
                         "description": "Artifact creation time.",
                         "type": "string",
                         "format": "date-time",
                         "x-order": 9
                       },
-                      "dataModel": {
+                      "data_model": {
                         "description": "DataModel is a model used for performing a backup.",
                         "type": "string",
                         "default": "DATA_MODEL_INVALID",
@@ -136,12 +136,12 @@
                         ],
                         "x-order": 7
                       },
-                      "locationId": {
+                      "location_id": {
                         "description": "Machine-readable location ID.",
                         "type": "string",
                         "x-order": 3
                       },
-                      "locationName": {
+                      "location_name": {
                         "description": "Location name.",
                         "type": "string",
                         "x-order": 4
@@ -163,12 +163,12 @@
                         "title": "Artifact name",
                         "x-order": 1
                       },
-                      "serviceId": {
+                      "service_id": {
                         "description": "Machine-readable service ID.",
                         "type": "string",
                         "x-order": 5
                       },
-                      "serviceName": {
+                      "service_name": {
                         "description": "Service name.",
                         "type": "string",
                         "x-order": 6
@@ -250,7 +250,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "cronExpression": {
+                "cron_expression": {
                   "description": "How often backup should be run in cron format.",
                   "type": "string",
                   "x-order": 2
@@ -281,16 +281,16 @@
                   "format": "int64",
                   "x-order": 7
                 },
-                "retryInterval": {
+                "retry_interval": {
                   "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
                   "type": "string",
                   "x-order": 6
                 },
-                "scheduledBackupId": {
+                "scheduled_backup_id": {
                   "type": "string",
                   "x-order": 0
                 },
-                "startTime": {
+                "start_time": {
                   "description": "First backup wouldn't happen before this time.",
                   "type": "string",
                   "format": "date-time",
@@ -356,7 +356,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "artifactId": {
+                "artifact_id": {
                   "type": "string",
                   "x-order": 0
                 },
@@ -390,7 +390,7 @@
                     "description": "LogChunk represent one chunk of logs.",
                     "type": "object",
                     "properties": {
-                      "chunkId": {
+                      "chunk_id": {
                         "type": "integer",
                         "format": "int64",
                         "x-order": 0
@@ -455,7 +455,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "artifactId": {
+                "artifact_id": {
                   "description": "Artifact id used to determine restore compatibility.",
                   "type": "string",
                   "x-order": 0
@@ -486,7 +486,7 @@
                         "type": "string",
                         "x-order": 7
                       },
-                      "customLabels": {
+                      "custom_labels": {
                         "description": "Custom user-assigned labels.",
                         "type": "object",
                         "additionalProperties": {
@@ -499,7 +499,7 @@
                         "type": "string",
                         "x-order": 6
                       },
-                      "nodeId": {
+                      "node_id": {
                         "description": "Node identifier where this instance runs.",
                         "type": "string",
                         "x-order": 2
@@ -510,17 +510,17 @@
                         "format": "int64",
                         "x-order": 4
                       },
-                      "replicationSet": {
+                      "replication_set": {
                         "description": "Replication set name.",
                         "type": "string",
                         "x-order": 8
                       },
-                      "serviceId": {
+                      "service_id": {
                         "description": "Unique randomly generated instance identifier.",
                         "type": "string",
                         "x-order": 0
                       },
-                      "serviceName": {
+                      "service_name": {
                         "description": "Unique across all Services user-defined name.",
                         "type": "string",
                         "x-order": 1
@@ -550,7 +550,7 @@
                         "type": "string",
                         "x-order": 7
                       },
-                      "customLabels": {
+                      "custom_labels": {
                         "description": "Custom user-assigned labels.",
                         "type": "object",
                         "additionalProperties": {
@@ -563,7 +563,7 @@
                         "type": "string",
                         "x-order": 6
                       },
-                      "nodeId": {
+                      "node_id": {
                         "description": "Node identifier where this instance runs.",
                         "type": "string",
                         "x-order": 2
@@ -574,17 +574,17 @@
                         "format": "int64",
                         "x-order": 4
                       },
-                      "replicationSet": {
+                      "replication_set": {
                         "description": "Replication set name.",
                         "type": "string",
                         "x-order": 8
                       },
-                      "serviceId": {
+                      "service_id": {
                         "description": "Unique randomly generated instance identifier.",
                         "type": "string",
                         "x-order": 0
                       },
-                      "serviceName": {
+                      "service_name": {
                         "description": "Unique across all Services user-defined name.",
                         "type": "string",
                         "x-order": 1
@@ -658,18 +658,18 @@
             "schema": {
               "type": "object",
               "properties": {
-                "scheduledBackups": {
+                "scheduled_backups": {
                   "type": "array",
                   "items": {
                     "description": "ScheduledBackup represents scheduled task for backup.",
                     "type": "object",
                     "properties": {
-                      "cronExpression": {
+                      "cron_expression": {
                         "description": "How often backup will be run in cron format.",
                         "type": "string",
                         "x-order": 5
                       },
-                      "dataModel": {
+                      "data_model": {
                         "description": "DataModel is a model used for performing a backup.",
                         "type": "string",
                         "default": "DATA_MODEL_INVALID",
@@ -690,18 +690,18 @@
                         "type": "boolean",
                         "x-order": 11
                       },
-                      "lastRun": {
+                      "last_run": {
                         "description": "Last run.",
                         "type": "string",
                         "format": "date-time",
                         "x-order": 14
                       },
-                      "locationId": {
+                      "location_id": {
                         "description": "Machine-readable location ID.",
                         "type": "string",
                         "x-order": 3
                       },
-                      "locationName": {
+                      "location_name": {
                         "description": "Location name.",
                         "type": "string",
                         "x-order": 4
@@ -723,7 +723,7 @@
                         "type": "string",
                         "x-order": 7
                       },
-                      "nextRun": {
+                      "next_run": {
                         "description": "Next run.",
                         "type": "string",
                         "format": "date-time",
@@ -741,27 +741,27 @@
                         "format": "int64",
                         "x-order": 10
                       },
-                      "retryInterval": {
+                      "retry_interval": {
                         "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
                         "type": "string",
                         "x-order": 9
                       },
-                      "scheduledBackupId": {
+                      "scheduled_backup_id": {
                         "description": "Machine-readable ID.",
                         "type": "string",
                         "x-order": 0
                       },
-                      "serviceId": {
+                      "service_id": {
                         "description": "Machine-readable service ID.",
                         "type": "string",
                         "x-order": 1
                       },
-                      "serviceName": {
+                      "service_name": {
                         "description": "Service name.",
                         "type": "string",
                         "x-order": 2
                       },
-                      "startTime": {
+                      "start_time": {
                         "description": "First backup wouldn't happen before this time.",
                         "type": "string",
                         "format": "date-time",
@@ -828,7 +828,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "scheduledBackupId": {
+                "scheduled_backup_id": {
                   "type": "string",
                   "x-order": 0
                 }
@@ -893,12 +893,12 @@
             "schema": {
               "type": "object",
               "properties": {
-                "artifactId": {
+                "artifact_id": {
                   "description": "Artifact id to restore.",
                   "type": "string",
                   "x-order": 1
                 },
-                "serviceId": {
+                "service_id": {
                   "description": "Service identifier where backup should be restored.",
                   "type": "string",
                   "x-order": 0
@@ -913,7 +913,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "restoreId": {
+                "restore_id": {
                   "description": "Unique restore identifier.",
                   "type": "string",
                   "x-order": 0
@@ -970,7 +970,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "cronExpression": {
+                "cron_expression": {
                   "description": "How often backup should be run in cron format.",
                   "type": "string",
                   "x-order": 2
@@ -985,7 +985,7 @@
                   "type": "boolean",
                   "x-order": 8
                 },
-                "locationId": {
+                "location_id": {
                   "description": "Machine-readable location ID.",
                   "type": "string",
                   "x-order": 1
@@ -1019,17 +1019,17 @@
                   "format": "int64",
                   "x-order": 7
                 },
-                "retryInterval": {
+                "retry_interval": {
                   "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
                   "type": "string",
                   "x-order": 6
                 },
-                "serviceId": {
+                "service_id": {
                   "description": "Service identifier where backup should be performed.",
                   "type": "string",
                   "x-order": 0
                 },
-                "startTime": {
+                "start_time": {
                   "description": "First backup wouldn't happen before this time.",
                   "type": "string",
                   "format": "date-time",
@@ -1045,7 +1045,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "scheduledBackupId": {
+                "scheduled_backup_id": {
                   "type": "string",
                   "x-order": 0
                 }
@@ -1107,7 +1107,7 @@
                   "type": "string",
                   "x-order": 3
                 },
-                "locationId": {
+                "location_id": {
                   "description": "Machine-readable location ID.",
                   "type": "string",
                   "x-order": 1
@@ -1123,12 +1123,12 @@
                   "format": "int64",
                   "x-order": 5
                 },
-                "retryInterval": {
+                "retry_interval": {
                   "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
                   "type": "string",
                   "x-order": 4
                 },
-                "serviceId": {
+                "service_id": {
                   "description": "Service identifier.",
                   "type": "string",
                   "x-order": 0
@@ -1143,7 +1143,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "artifactId": {
+                "artifact_id": {
                   "description": "Unique identifier.",
                   "type": "string",
                   "x-order": 0
@@ -1209,7 +1209,7 @@
                   "title": "Location name",
                   "x-order": 0
                 },
-                "pmmClientConfig": {
+                "pmm_client_config": {
                   "description": "PMMClientLocationConfig represents file system config inside pmm-client.",
                   "type": "object",
                   "properties": {
@@ -1220,7 +1220,7 @@
                   },
                   "x-order": 2
                 },
-                "pmmServerConfig": {
+                "pmm_server_config": {
                   "description": "PMMServerLocationConfig represents file system config inside pmm-server.",
                   "type": "object",
                   "properties": {
@@ -1231,15 +1231,15 @@
                   },
                   "x-order": 3
                 },
-                "s3Config": {
+                "s3_config": {
                   "description": "S3LocationConfig represents S3 bucket configuration.",
                   "type": "object",
                   "properties": {
-                    "accessKey": {
+                    "access_key": {
                       "type": "string",
                       "x-order": 1
                     },
-                    "bucketName": {
+                    "bucket_name": {
                       "type": "string",
                       "x-order": 3
                     },
@@ -1247,7 +1247,7 @@
                       "type": "string",
                       "x-order": 0
                     },
-                    "secretKey": {
+                    "secret_key": {
                       "type": "string",
                       "x-order": 2
                     }
@@ -1264,7 +1264,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "locationId": {
+                "location_id": {
                   "description": "Machine-readable ID.",
                   "type": "string",
                   "x-order": 0
@@ -1325,7 +1325,7 @@
                   "type": "string",
                   "x-order": 2
                 },
-                "locationId": {
+                "location_id": {
                   "description": "Machine-readable ID.",
                   "type": "string",
                   "x-order": 0
@@ -1335,7 +1335,7 @@
                   "title": "Location name",
                   "x-order": 1
                 },
-                "pmmClientConfig": {
+                "pmm_client_config": {
                   "description": "PMMClientLocationConfig represents file system config inside pmm-client.",
                   "type": "object",
                   "properties": {
@@ -1346,7 +1346,7 @@
                   },
                   "x-order": 3
                 },
-                "pmmServerConfig": {
+                "pmm_server_config": {
                   "description": "PMMServerLocationConfig represents file system config inside pmm-server.",
                   "type": "object",
                   "properties": {
@@ -1357,15 +1357,15 @@
                   },
                   "x-order": 4
                 },
-                "s3Config": {
+                "s3_config": {
                   "description": "S3LocationConfig represents S3 bucket configuration.",
                   "type": "object",
                   "properties": {
-                    "accessKey": {
+                    "access_key": {
                       "type": "string",
                       "x-order": 1
                     },
-                    "bucketName": {
+                    "bucket_name": {
                       "type": "string",
                       "x-order": 3
                     },
@@ -1373,7 +1373,7 @@
                       "type": "string",
                       "x-order": 0
                     },
-                    "secretKey": {
+                    "secret_key": {
                       "type": "string",
                       "x-order": 2
                     }
@@ -1459,7 +1459,7 @@
                         "title": "Short description",
                         "x-order": 2
                       },
-                      "locationId": {
+                      "location_id": {
                         "description": "Machine-readable ID.",
                         "type": "string",
                         "x-order": 0
@@ -1469,7 +1469,7 @@
                         "title": "Location name",
                         "x-order": 1
                       },
-                      "pmmClientConfig": {
+                      "pmm_client_config": {
                         "description": "PMMClientLocationConfig represents file system config inside pmm-client.",
                         "type": "object",
                         "properties": {
@@ -1480,7 +1480,7 @@
                         },
                         "x-order": 3
                       },
-                      "pmmServerConfig": {
+                      "pmm_server_config": {
                         "description": "PMMServerLocationConfig represents file system config inside pmm-server.",
                         "type": "object",
                         "properties": {
@@ -1491,15 +1491,15 @@
                         },
                         "x-order": 4
                       },
-                      "s3Config": {
+                      "s3_config": {
                         "description": "S3LocationConfig represents S3 bucket configuration.",
                         "type": "object",
                         "properties": {
-                          "accessKey": {
+                          "access_key": {
                             "type": "string",
                             "x-order": 1
                           },
-                          "bucketName": {
+                          "bucket_name": {
                             "type": "string",
                             "x-order": 3
                           },
@@ -1507,7 +1507,7 @@
                             "type": "string",
                             "x-order": 0
                           },
-                          "secretKey": {
+                          "secret_key": {
                             "type": "string",
                             "x-order": 2
                           }
@@ -1575,7 +1575,7 @@
                   "title": "Force mode",
                   "x-order": 1
                 },
-                "locationId": {
+                "location_id": {
                   "description": "Machine-readable ID.",
                   "type": "string",
                   "x-order": 0
@@ -1640,7 +1640,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "pmmClientConfig": {
+                "pmm_client_config": {
                   "description": "PMMClientLocationConfig represents file system config inside pmm-client.",
                   "type": "object",
                   "properties": {
@@ -1651,7 +1651,7 @@
                   },
                   "x-order": 0
                 },
-                "pmmServerConfig": {
+                "pmm_server_config": {
                   "description": "PMMServerLocationConfig represents file system config inside pmm-server.",
                   "type": "object",
                   "properties": {
@@ -1662,15 +1662,15 @@
                   },
                   "x-order": 1
                 },
-                "s3Config": {
+                "s3_config": {
                   "description": "S3LocationConfig represents S3 bucket configuration.",
                   "type": "object",
                   "properties": {
-                    "accessKey": {
+                    "access_key": {
                       "type": "string",
                       "x-order": 1
                     },
-                    "bucketName": {
+                    "bucket_name": {
                       "type": "string",
                       "x-order": 3
                     },
@@ -1678,7 +1678,7 @@
                       "type": "string",
                       "x-order": 0
                     },
-                    "secretKey": {
+                    "secret_key": {
                       "type": "string",
                       "x-order": 2
                     }
@@ -1759,12 +1759,12 @@
                     "description": "RestoreHistoryItem represents single backup restore item.",
                     "type": "object",
                     "properties": {
-                      "artifactId": {
+                      "artifact_id": {
                         "description": "ID of the artifact used for restore.",
                         "type": "string",
                         "x-order": 1
                       },
-                      "dataModel": {
+                      "data_model": {
                         "description": "DataModel is a model used for performing a backup.",
                         "type": "string",
                         "default": "DATA_MODEL_INVALID",
@@ -1775,18 +1775,18 @@
                         ],
                         "x-order": 8
                       },
-                      "finishedAt": {
+                      "finished_at": {
                         "description": "Restore finish time.",
                         "type": "string",
                         "format": "date-time",
                         "x-order": 11
                       },
-                      "locationId": {
+                      "location_id": {
                         "description": "Machine-readable location ID.",
                         "type": "string",
                         "x-order": 4
                       },
-                      "locationName": {
+                      "location_name": {
                         "description": "Location name.",
                         "type": "string",
                         "x-order": 5
@@ -1796,22 +1796,22 @@
                         "type": "string",
                         "x-order": 2
                       },
-                      "restoreId": {
+                      "restore_id": {
                         "description": "Machine-readable restore id.",
                         "type": "string",
                         "x-order": 0
                       },
-                      "serviceId": {
+                      "service_id": {
                         "description": "Machine-readable service ID.",
                         "type": "string",
                         "x-order": 6
                       },
-                      "serviceName": {
+                      "service_name": {
                         "description": "Service name.",
                         "type": "string",
                         "x-order": 7
                       },
-                      "startedAt": {
+                      "started_at": {
                         "description": "Restore start time.",
                         "type": "string",
                         "format": "date-time",

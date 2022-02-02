@@ -124,8 +124,8 @@ swagger:model ChangeQANMongoDBProfilerAgentBody
 */
 type ChangeQANMongoDBProfilerAgentBody struct {
 
-	// agent Id
-	AgentID string `json:"agentId,omitempty"`
+	// agent id
+	AgentID string `json:"agent_id,omitempty"`
 
 	// common
 	Common *ChangeQANMongoDBProfilerAgentParamsBodyCommon `json:"common,omitempty"`
@@ -259,7 +259,7 @@ swagger:model ChangeQANMongoDBProfilerAgentOKBody
 type ChangeQANMongoDBProfilerAgentOKBody struct {
 
 	// qan mongodb profiler agent
-	QANMongodbProfilerAgent *ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent `json:"qanMongodbProfilerAgent,omitempty"`
+	QANMongodbProfilerAgent *ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent `json:"qan_mongodb_profiler_agent,omitempty"`
 }
 
 // Validate validates this change QAN mongo DB profiler agent OK body
@@ -285,7 +285,7 @@ func (o *ChangeQANMongoDBProfilerAgentOKBody) validateQANMongodbProfilerAgent(fo
 	if o.QANMongodbProfilerAgent != nil {
 		if err := o.QANMongodbProfilerAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("changeQanMongoDbProfilerAgentOk" + "." + "qanMongodbProfilerAgent")
+				return ve.ValidateName("changeQanMongoDbProfilerAgentOk" + "." + "qan_mongodb_profiler_agent")
 			}
 			return err
 		}
@@ -318,16 +318,16 @@ swagger:model ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent
 type ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agentId,omitempty"`
+	AgentID string `json:"agent_id,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmmAgentId,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// MongoDB username for getting profiler data.
 	Username string `json:"username,omitempty"`
@@ -336,10 +336,10 @@ type ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent struct {
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -418,7 +418,7 @@ func (o *ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent) validateSta
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("changeQanMongoDbProfilerAgentOk"+"."+"qanMongodbProfilerAgent"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("changeQanMongoDbProfilerAgentOk"+"."+"qan_mongodb_profiler_agent"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -455,17 +455,17 @@ type ChangeQANMongoDBProfilerAgentParamsBodyCommon struct {
 	Disable bool `json:"disable,omitempty"`
 
 	// Replace all custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Remove all custom user-assigned labels.
-	RemoveCustomLabels bool `json:"removeCustomLabels,omitempty"`
+	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
 
 	// Enables push metrics with vmagent, can't be used with disable_push_metrics.
 	// Can't be used with agent version lower then 2.12 and unsupported agents.
-	EnablePushMetrics bool `json:"enablePushMetrics,omitempty"`
+	EnablePushMetrics bool `json:"enable_push_metrics,omitempty"`
 
 	// Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.
-	DisablePushMetrics bool `json:"disablePushMetrics,omitempty"`
+	DisablePushMetrics bool `json:"disable_push_metrics,omitempty"`
 }
 
 // Validate validates this change QAN mongo DB profiler agent params body common

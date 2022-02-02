@@ -121,7 +121,7 @@ swagger:model RemoveLocationBody
 type RemoveLocationBody struct {
 
 	// Machine-readable ID.
-	LocationID string `json:"locationId,omitempty"`
+	LocationID string `json:"location_id,omitempty"`
 
 	// Force mode
 	Force bool `json:"force,omitempty"`

@@ -123,7 +123,7 @@ swagger:model ChannelsItems0
 type ChannelsItems0 struct {
 
 	// Machine-readable ID.
-	ChannelID string `json:"channelId,omitempty"`
+	ChannelID string `json:"channel_id,omitempty"`
 
 	// Short human-readable summary.
 	Summary string `json:"summary,omitempty"`
@@ -132,16 +132,16 @@ type ChannelsItems0 struct {
 	Disabled bool `json:"disabled,omitempty"`
 
 	// email config
-	EmailConfig *ChannelsItems0EmailConfig `json:"emailConfig,omitempty"`
+	EmailConfig *ChannelsItems0EmailConfig `json:"email_config,omitempty"`
 
 	// pagerduty config
-	PagerdutyConfig *ChannelsItems0PagerdutyConfig `json:"pagerdutyConfig,omitempty"`
+	PagerdutyConfig *ChannelsItems0PagerdutyConfig `json:"pagerduty_config,omitempty"`
 
 	// slack config
-	SlackConfig *ChannelsItems0SlackConfig `json:"slackConfig,omitempty"`
+	SlackConfig *ChannelsItems0SlackConfig `json:"slack_config,omitempty"`
 
 	// webhook config
-	WebhookConfig *ChannelsItems0WebhookConfig `json:"webhookConfig,omitempty"`
+	WebhookConfig *ChannelsItems0WebhookConfig `json:"webhook_config,omitempty"`
 }
 
 // Validate validates this channels items0
@@ -179,7 +179,7 @@ func (o *ChannelsItems0) validateEmailConfig(formats strfmt.Registry) error {
 	if o.EmailConfig != nil {
 		if err := o.EmailConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("emailConfig")
+				return ve.ValidateName("email_config")
 			}
 			return err
 		}
@@ -197,7 +197,7 @@ func (o *ChannelsItems0) validatePagerdutyConfig(formats strfmt.Registry) error 
 	if o.PagerdutyConfig != nil {
 		if err := o.PagerdutyConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("pagerdutyConfig")
+				return ve.ValidateName("pagerduty_config")
 			}
 			return err
 		}
@@ -215,7 +215,7 @@ func (o *ChannelsItems0) validateSlackConfig(formats strfmt.Registry) error {
 	if o.SlackConfig != nil {
 		if err := o.SlackConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("slackConfig")
+				return ve.ValidateName("slack_config")
 			}
 			return err
 		}
@@ -233,7 +233,7 @@ func (o *ChannelsItems0) validateWebhookConfig(formats strfmt.Registry) error {
 	if o.WebhookConfig != nil {
 		if err := o.WebhookConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("webhookConfig")
+				return ve.ValidateName("webhook_config")
 			}
 			return err
 		}
@@ -266,7 +266,7 @@ swagger:model ChannelsItems0EmailConfig
 type ChannelsItems0EmailConfig struct {
 
 	// send resolved
-	SendResolved bool `json:"sendResolved,omitempty"`
+	SendResolved bool `json:"send_resolved,omitempty"`
 
 	// to
 	To []string `json:"to"`
@@ -301,13 +301,13 @@ swagger:model ChannelsItems0PagerdutyConfig
 type ChannelsItems0PagerdutyConfig struct {
 
 	// send resolved
-	SendResolved bool `json:"sendResolved,omitempty"`
+	SendResolved bool `json:"send_resolved,omitempty"`
 
 	// The PagerDuty key for "Events API v2" integration type. Exactly one key should be set.
-	RoutingKey string `json:"routingKey,omitempty"`
+	RoutingKey string `json:"routing_key,omitempty"`
 
 	// The PagerDuty key for "Prometheus" integration type. Exactly one key should be set.
-	ServiceKey string `json:"serviceKey,omitempty"`
+	ServiceKey string `json:"service_key,omitempty"`
 }
 
 // Validate validates this channels items0 pagerduty config
@@ -339,7 +339,7 @@ swagger:model ChannelsItems0SlackConfig
 type ChannelsItems0SlackConfig struct {
 
 	// send resolved
-	SendResolved bool `json:"sendResolved,omitempty"`
+	SendResolved bool `json:"send_resolved,omitempty"`
 
 	// channel
 	Channel string `json:"channel,omitempty"`
@@ -374,16 +374,16 @@ swagger:model ChannelsItems0WebhookConfig
 type ChannelsItems0WebhookConfig struct {
 
 	// send resolved
-	SendResolved bool `json:"sendResolved,omitempty"`
+	SendResolved bool `json:"send_resolved,omitempty"`
 
 	// url
 	URL string `json:"url,omitempty"`
 
 	// max alerts
-	MaxAlerts int32 `json:"maxAlerts,omitempty"`
+	MaxAlerts int32 `json:"max_alerts,omitempty"`
 
 	// http config
-	HTTPConfig *ChannelsItems0WebhookConfigHTTPConfig `json:"httpConfig,omitempty"`
+	HTTPConfig *ChannelsItems0WebhookConfigHTTPConfig `json:"http_config,omitempty"`
 }
 
 // Validate validates this channels items0 webhook config
@@ -409,7 +409,7 @@ func (o *ChannelsItems0WebhookConfig) validateHTTPConfig(formats strfmt.Registry
 	if o.HTTPConfig != nil {
 		if err := o.HTTPConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("webhookConfig" + "." + "httpConfig")
+				return ve.ValidateName("webhook_config" + "." + "http_config")
 			}
 			return err
 		}
@@ -442,19 +442,19 @@ swagger:model ChannelsItems0WebhookConfigHTTPConfig
 type ChannelsItems0WebhookConfigHTTPConfig struct {
 
 	// bearer token
-	BearerToken string `json:"bearerToken,omitempty"`
+	BearerToken string `json:"bearer_token,omitempty"`
 
 	// bearer token file
-	BearerTokenFile string `json:"bearerTokenFile,omitempty"`
+	BearerTokenFile string `json:"bearer_token_file,omitempty"`
 
-	// proxy Url
-	ProxyURL string `json:"proxyUrl,omitempty"`
+	// proxy url
+	ProxyURL string `json:"proxy_url,omitempty"`
 
 	// basic auth
-	BasicAuth *ChannelsItems0WebhookConfigHTTPConfigBasicAuth `json:"basicAuth,omitempty"`
+	BasicAuth *ChannelsItems0WebhookConfigHTTPConfigBasicAuth `json:"basic_auth,omitempty"`
 
 	// tls config
-	TLSConfig *ChannelsItems0WebhookConfigHTTPConfigTLSConfig `json:"tlsConfig,omitempty"`
+	TLSConfig *ChannelsItems0WebhookConfigHTTPConfigTLSConfig `json:"tls_config,omitempty"`
 }
 
 // Validate validates this channels items0 webhook config HTTP config
@@ -484,7 +484,7 @@ func (o *ChannelsItems0WebhookConfigHTTPConfig) validateBasicAuth(formats strfmt
 	if o.BasicAuth != nil {
 		if err := o.BasicAuth.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("webhookConfig" + "." + "httpConfig" + "." + "basicAuth")
+				return ve.ValidateName("webhook_config" + "." + "http_config" + "." + "basic_auth")
 			}
 			return err
 		}
@@ -502,7 +502,7 @@ func (o *ChannelsItems0WebhookConfigHTTPConfig) validateTLSConfig(formats strfmt
 	if o.TLSConfig != nil {
 		if err := o.TLSConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("webhookConfig" + "." + "httpConfig" + "." + "tlsConfig")
+				return ve.ValidateName("webhook_config" + "." + "http_config" + "." + "tls_config")
 			}
 			return err
 		}
@@ -541,7 +541,7 @@ type ChannelsItems0WebhookConfigHTTPConfigBasicAuth struct {
 	Password string `json:"password,omitempty"`
 
 	// password file
-	PasswordFile string `json:"passwordFile,omitempty"`
+	PasswordFile string `json:"password_file,omitempty"`
 }
 
 // Validate validates this channels items0 webhook config HTTP config basic auth
@@ -575,33 +575,33 @@ type ChannelsItems0WebhookConfigHTTPConfigTLSConfig struct {
 
 	// A path to the CA certificate file to validate the server certificate with.
 	// ca_file and ca_file_content should not be set at the same time.
-	CaFile string `json:"caFile,omitempty"`
+	CaFile string `json:"ca_file,omitempty"`
 
 	// A path to the certificate file for client cert authentication to the server.
 	// cert_file and cert_file_content should not be set at the same time.
-	CertFile string `json:"certFile,omitempty"`
+	CertFile string `json:"cert_file,omitempty"`
 
 	// A path to the key file for client cert authentication to the server.
 	// key_file and key_file_content should not be set at the same time.
-	KeyFile string `json:"keyFile,omitempty"`
+	KeyFile string `json:"key_file,omitempty"`
 
 	// Name of the server.
-	ServerName string `json:"serverName,omitempty"`
+	ServerName string `json:"server_name,omitempty"`
 
 	// Disable validation of the server certificate.
-	InsecureSkipVerify bool `json:"insecureSkipVerify,omitempty"`
+	InsecureSkipVerify bool `json:"insecure_skip_verify,omitempty"`
 
 	// CA certificate to validate the server certificate with.
 	// ca_file and ca_file_content should not be set at the same time.
-	CaFileContent string `json:"caFileContent,omitempty"`
+	CaFileContent string `json:"ca_file_content,omitempty"`
 
 	// A certificate for client cert authentication to the server.
 	// cert_file and cert_file_content should not be set at the same time.
-	CertFileContent string `json:"certFileContent,omitempty"`
+	CertFileContent string `json:"cert_file_content,omitempty"`
 
 	// A key for client cert authentication to the server.
 	// key_file and key_file_content should not be set at the same time.
-	KeyFileContent string `json:"keyFileContent,omitempty"`
+	KeyFileContent string `json:"key_file_content,omitempty"`
 }
 
 // Validate validates this channels items0 webhook config HTTP config TLS config
@@ -633,7 +633,7 @@ swagger:model ListChannelsBody
 type ListChannelsBody struct {
 
 	// page params
-	PageParams *ListChannelsParamsBodyPageParams `json:"pageParams,omitempty"`
+	PageParams *ListChannelsParamsBodyPageParams `json:"page_params,omitempty"`
 }
 
 // Validate validates this list channels body
@@ -659,7 +659,7 @@ func (o *ListChannelsBody) validatePageParams(formats strfmt.Registry) error {
 	if o.PageParams != nil {
 		if err := o.PageParams.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "pageParams")
+				return ve.ValidateName("body" + "." + "page_params")
 			}
 			return err
 		}
@@ -855,10 +855,10 @@ swagger:model ListChannelsOKBodyTotals
 type ListChannelsOKBodyTotals struct {
 
 	// Total number of results.
-	TotalItems int32 `json:"totalItems,omitempty"`
+	TotalItems int32 `json:"total_items,omitempty"`
 
 	// Total number of pages.
-	TotalPages int32 `json:"totalPages,omitempty"`
+	TotalPages int32 `json:"total_pages,omitempty"`
 }
 
 // Validate validates this list channels OK body totals
@@ -890,7 +890,7 @@ swagger:model ListChannelsParamsBodyPageParams
 type ListChannelsParamsBodyPageParams struct {
 
 	// Maximum number of results per page.
-	PageSize int32 `json:"pageSize,omitempty"`
+	PageSize int32 `json:"page_size,omitempty"`
 
 	// Index of the requested page, starts from 0.
 	Index int32 `json:"index,omitempty"`

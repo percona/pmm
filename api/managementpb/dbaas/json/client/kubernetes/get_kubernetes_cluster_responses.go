@@ -155,7 +155,7 @@ swagger:model GetKubernetesClusterBody
 type GetKubernetesClusterBody struct {
 
 	// Kubernetes cluster name.
-	KubernetesClusterName string `json:"kubernetesClusterName,omitempty"`
+	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
 }
 
 // Validate validates this get kubernetes cluster body
@@ -259,7 +259,7 @@ swagger:model GetKubernetesClusterOKBody
 type GetKubernetesClusterOKBody struct {
 
 	// kube auth
-	KubeAuth *GetKubernetesClusterOKBodyKubeAuth `json:"kubeAuth,omitempty"`
+	KubeAuth *GetKubernetesClusterOKBodyKubeAuth `json:"kube_auth,omitempty"`
 }
 
 // Validate validates this get kubernetes cluster OK body
@@ -285,7 +285,7 @@ func (o *GetKubernetesClusterOKBody) validateKubeAuth(formats strfmt.Registry) e
 	if o.KubeAuth != nil {
 		if err := o.KubeAuth.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getKubernetesClusterOk" + "." + "kubeAuth")
+				return ve.ValidateName("getKubernetesClusterOk" + "." + "kube_auth")
 			}
 			return err
 		}

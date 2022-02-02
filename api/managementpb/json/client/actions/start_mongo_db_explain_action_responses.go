@@ -123,10 +123,10 @@ swagger:model StartMongoDBExplainActionBody
 type StartMongoDBExplainActionBody struct {
 
 	// pmm-agent ID where to run this Action.
-	PMMAgentID string `json:"pmmAgentId,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Service ID for this Action. Required.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// Query. Required.
 	Query string `json:"query,omitempty"`
@@ -233,10 +233,10 @@ swagger:model StartMongoDBExplainActionOKBody
 type StartMongoDBExplainActionOKBody struct {
 
 	// Unique Action ID.
-	ActionID string `json:"actionId,omitempty"`
+	ActionID string `json:"action_id,omitempty"`
 
 	// pmm-agent ID where to this Action was started.
-	PMMAgentID string `json:"pmmAgentId,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 }
 
 // Validate validates this start mongo DB explain action OK body

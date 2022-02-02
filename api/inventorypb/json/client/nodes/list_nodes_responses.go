@@ -125,25 +125,25 @@ swagger:model ContainerItems0
 type ContainerItems0 struct {
 
 	// Unique randomly generated instance identifier.
-	NodeID string `json:"nodeId,omitempty"`
+	NodeID string `json:"node_id,omitempty"`
 
 	// Unique across all Nodes user-defined name.
-	NodeName string `json:"nodeName,omitempty"`
+	NodeName string `json:"node_name,omitempty"`
 
 	// Node address (DNS name or IP).
 	Address string `json:"address,omitempty"`
 
 	// Linux machine-id of the Generic Node where this Container Node runs.
-	MachineID string `json:"machineId,omitempty"`
+	MachineID string `json:"machine_id,omitempty"`
 
 	// Container identifier. If specified, must be a unique Docker container identifier.
-	ContainerID string `json:"containerId,omitempty"`
+	ContainerID string `json:"container_id,omitempty"`
 
 	// Container name.
-	ContainerName string `json:"containerName,omitempty"`
+	ContainerName string `json:"container_name,omitempty"`
 
 	// Node model.
-	NodeModel string `json:"nodeModel,omitempty"`
+	NodeModel string `json:"node_model,omitempty"`
 
 	// Node region.
 	Region string `json:"region,omitempty"`
@@ -152,7 +152,7 @@ type ContainerItems0 struct {
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this container items0
@@ -184,22 +184,22 @@ swagger:model GenericItems0
 type GenericItems0 struct {
 
 	// Unique randomly generated instance identifier.
-	NodeID string `json:"nodeId,omitempty"`
+	NodeID string `json:"node_id,omitempty"`
 
 	// Unique across all Nodes user-defined name.
-	NodeName string `json:"nodeName,omitempty"`
+	NodeName string `json:"node_name,omitempty"`
 
 	// Node address (DNS name or IP).
 	Address string `json:"address,omitempty"`
 
 	// Linux machine-id.
-	MachineID string `json:"machineId,omitempty"`
+	MachineID string `json:"machine_id,omitempty"`
 
 	// Linux distribution name and version.
 	Distro string `json:"distro,omitempty"`
 
 	// Node model.
-	NodeModel string `json:"nodeModel,omitempty"`
+	NodeModel string `json:"node_model,omitempty"`
 
 	// Node region.
 	Region string `json:"region,omitempty"`
@@ -208,7 +208,7 @@ type GenericItems0 struct {
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this generic items0
@@ -241,7 +241,7 @@ type ListNodesBody struct {
 
 	// NodeType describes supported Node types.
 	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE REMOTE_AZURE_DATABASE_NODE]
-	NodeType *string `json:"nodeType,omitempty"`
+	NodeType *string `json:"node_type,omitempty"`
 }
 
 // Validate validates this list nodes body
@@ -306,7 +306,7 @@ func (o *ListNodesBody) validateNodeType(formats strfmt.Registry) error {
 	}
 
 	// value enum
-	if err := o.validateNodeTypeEnum("body"+"."+"nodeType", "body", *o.NodeType); err != nil {
+	if err := o.validateNodeTypeEnum("body"+"."+"node_type", "body", *o.NodeType); err != nil {
 		return err
 	}
 
@@ -417,11 +417,11 @@ type ListNodesOKBody struct {
 	// remote
 	Remote []*RemoteItems0 `json:"remote"`
 
-	// remote Rds
-	RemoteRDS []*RemoteRDSItems0 `json:"remoteRds"`
+	// remote rds
+	RemoteRDS []*RemoteRDSItems0 `json:"remote_rds"`
 
 	// remote azure database
-	RemoteAzureDatabase []*RemoteAzureDatabaseItems0 `json:"remoteAzureDatabase"`
+	RemoteAzureDatabase []*RemoteAzureDatabaseItems0 `json:"remote_azure_database"`
 }
 
 // Validate validates this list nodes OK body
@@ -543,7 +543,7 @@ func (o *ListNodesOKBody) validateRemoteRDS(formats strfmt.Registry) error {
 		if o.RemoteRDS[i] != nil {
 			if err := o.RemoteRDS[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listNodesOk" + "." + "remoteRds" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listNodesOk" + "." + "remote_rds" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -568,7 +568,7 @@ func (o *ListNodesOKBody) validateRemoteAzureDatabase(formats strfmt.Registry) e
 		if o.RemoteAzureDatabase[i] != nil {
 			if err := o.RemoteAzureDatabase[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listNodesOk" + "." + "remoteAzureDatabase" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listNodesOk" + "." + "remote_azure_database" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -603,16 +603,16 @@ swagger:model RemoteAzureDatabaseItems0
 type RemoteAzureDatabaseItems0 struct {
 
 	// Unique randomly generated instance identifier.
-	NodeID string `json:"nodeId,omitempty"`
+	NodeID string `json:"node_id,omitempty"`
 
 	// Unique across all Nodes user-defined name.
-	NodeName string `json:"nodeName,omitempty"`
+	NodeName string `json:"node_name,omitempty"`
 
 	// DB instance identifier.
 	Address string `json:"address,omitempty"`
 
 	// Node model.
-	NodeModel string `json:"nodeModel,omitempty"`
+	NodeModel string `json:"node_model,omitempty"`
 
 	// Node region.
 	Region string `json:"region,omitempty"`
@@ -621,7 +621,7 @@ type RemoteAzureDatabaseItems0 struct {
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this remote azure database items0
@@ -653,16 +653,16 @@ swagger:model RemoteItems0
 type RemoteItems0 struct {
 
 	// Unique randomly generated instance identifier.
-	NodeID string `json:"nodeId,omitempty"`
+	NodeID string `json:"node_id,omitempty"`
 
 	// Unique across all Nodes user-defined name.
-	NodeName string `json:"nodeName,omitempty"`
+	NodeName string `json:"node_name,omitempty"`
 
 	// Node address (DNS name or IP).
 	Address string `json:"address,omitempty"`
 
 	// Node model.
-	NodeModel string `json:"nodeModel,omitempty"`
+	NodeModel string `json:"node_model,omitempty"`
 
 	// Node region.
 	Region string `json:"region,omitempty"`
@@ -671,7 +671,7 @@ type RemoteItems0 struct {
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this remote items0
@@ -703,16 +703,16 @@ swagger:model RemoteRDSItems0
 type RemoteRDSItems0 struct {
 
 	// Unique randomly generated instance identifier.
-	NodeID string `json:"nodeId,omitempty"`
+	NodeID string `json:"node_id,omitempty"`
 
 	// Unique across all Nodes user-defined name.
-	NodeName string `json:"nodeName,omitempty"`
+	NodeName string `json:"node_name,omitempty"`
 
 	// DB instance identifier.
 	Address string `json:"address,omitempty"`
 
 	// Node model.
-	NodeModel string `json:"nodeModel,omitempty"`
+	NodeModel string `json:"node_model,omitempty"`
 
 	// Node region.
 	Region string `json:"region,omitempty"`
@@ -721,7 +721,7 @@ type RemoteRDSItems0 struct {
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this remote RDS items0

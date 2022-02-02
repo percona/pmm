@@ -121,7 +121,7 @@ swagger:model RemoveNodeBody
 type RemoveNodeBody struct {
 
 	// Unique randomly generated instance identifier.
-	NodeID string `json:"nodeId,omitempty"`
+	NodeID string `json:"node_id,omitempty"`
 
 	// Remove node with all dependencies.
 	Force bool `json:"force,omitempty"`

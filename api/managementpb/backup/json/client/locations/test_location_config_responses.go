@@ -121,13 +121,13 @@ swagger:model TestLocationConfigBody
 type TestLocationConfigBody struct {
 
 	// pmm client config
-	PMMClientConfig *TestLocationConfigParamsBodyPMMClientConfig `json:"pmmClientConfig,omitempty"`
+	PMMClientConfig *TestLocationConfigParamsBodyPMMClientConfig `json:"pmm_client_config,omitempty"`
 
 	// pmm server config
-	PMMServerConfig *TestLocationConfigParamsBodyPMMServerConfig `json:"pmmServerConfig,omitempty"`
+	PMMServerConfig *TestLocationConfigParamsBodyPMMServerConfig `json:"pmm_server_config,omitempty"`
 
 	// s3 config
-	S3Config *TestLocationConfigParamsBodyS3Config `json:"s3Config,omitempty"`
+	S3Config *TestLocationConfigParamsBodyS3Config `json:"s3_config,omitempty"`
 }
 
 // Validate validates this test location config body
@@ -161,7 +161,7 @@ func (o *TestLocationConfigBody) validatePMMClientConfig(formats strfmt.Registry
 	if o.PMMClientConfig != nil {
 		if err := o.PMMClientConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "pmmClientConfig")
+				return ve.ValidateName("body" + "." + "pmm_client_config")
 			}
 			return err
 		}
@@ -179,7 +179,7 @@ func (o *TestLocationConfigBody) validatePMMServerConfig(formats strfmt.Registry
 	if o.PMMServerConfig != nil {
 		if err := o.PMMServerConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "pmmServerConfig")
+				return ve.ValidateName("body" + "." + "pmm_server_config")
 			}
 			return err
 		}
@@ -197,7 +197,7 @@ func (o *TestLocationConfigBody) validateS3Config(formats strfmt.Registry) error
 	if o.S3Config != nil {
 		if err := o.S3Config.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "s3Config")
+				return ve.ValidateName("body" + "." + "s3_config")
 			}
 			return err
 		}
@@ -369,13 +369,13 @@ type TestLocationConfigParamsBodyS3Config struct {
 	Endpoint string `json:"endpoint,omitempty"`
 
 	// access key
-	AccessKey string `json:"accessKey,omitempty"`
+	AccessKey string `json:"access_key,omitempty"`
 
 	// secret key
-	SecretKey string `json:"secretKey,omitempty"`
+	SecretKey string `json:"secret_key,omitempty"`
 
 	// bucket name
-	BucketName string `json:"bucketName,omitempty"`
+	BucketName string `json:"bucket_name,omitempty"`
 }
 
 // Validate validates this test location config params body s3 config

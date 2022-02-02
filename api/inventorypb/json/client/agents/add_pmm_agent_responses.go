@@ -123,10 +123,10 @@ swagger:model AddPMMAgentBody
 type AddPMMAgentBody struct {
 
 	// Node identifier where this instance runs.
-	RunsOnNodeID string `json:"runsOnNodeId,omitempty"`
+	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this add PMM agent body
@@ -230,7 +230,7 @@ swagger:model AddPMMAgentOKBody
 type AddPMMAgentOKBody struct {
 
 	// pmm agent
-	PMMAgent *AddPMMAgentOKBodyPMMAgent `json:"pmmAgent,omitempty"`
+	PMMAgent *AddPMMAgentOKBodyPMMAgent `json:"pmm_agent,omitempty"`
 }
 
 // Validate validates this add PMM agent OK body
@@ -256,7 +256,7 @@ func (o *AddPMMAgentOKBody) validatePMMAgent(formats strfmt.Registry) error {
 	if o.PMMAgent != nil {
 		if err := o.PMMAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addPmmAgentOk" + "." + "pmmAgent")
+				return ve.ValidateName("addPmmAgentOk" + "." + "pmm_agent")
 			}
 			return err
 		}
@@ -289,13 +289,13 @@ swagger:model AddPMMAgentOKBodyPMMAgent
 type AddPMMAgentOKBodyPMMAgent struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agentId,omitempty"`
+	AgentID string `json:"agent_id,omitempty"`
 
 	// Node identifier where this instance runs.
-	RunsOnNodeID string `json:"runsOnNodeId,omitempty"`
+	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// True if Agent is running and connected to pmm-managed.
 	Connected bool `json:"connected,omitempty"`

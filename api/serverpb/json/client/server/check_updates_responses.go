@@ -127,7 +127,7 @@ type CheckUpdatesBody struct {
 	Force bool `json:"force,omitempty"`
 
 	// If true, only installed version will be in response.
-	OnlyInstalledVersion bool `json:"onlyInstalledVersion,omitempty"`
+	OnlyInstalledVersion bool `json:"only_installed_version,omitempty"`
 }
 
 // Validate validates this check updates body
@@ -231,14 +231,14 @@ swagger:model CheckUpdatesOKBody
 type CheckUpdatesOKBody struct {
 
 	// True if there is a PMM Server update available.
-	UpdateAvailable bool `json:"updateAvailable,omitempty"`
+	UpdateAvailable bool `json:"update_available,omitempty"`
 
 	// Latest available PMM Server release announcement URL.
-	LatestNewsURL string `json:"latestNewsUrl,omitempty"`
+	LatestNewsURL string `json:"latest_news_url,omitempty"`
 
 	// Last check time.
 	// Format: date-time
-	LastCheck strfmt.DateTime `json:"lastCheck,omitempty"`
+	LastCheck strfmt.DateTime `json:"last_check,omitempty"`
 
 	// installed
 	Installed *CheckUpdatesOKBodyInstalled `json:"installed,omitempty"`
@@ -275,7 +275,7 @@ func (o *CheckUpdatesOKBody) validateLastCheck(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("checkUpdatesOk"+"."+"lastCheck", "body", "date-time", o.LastCheck.String(), formats); err != nil {
+	if err := validate.FormatOf("checkUpdatesOk"+"."+"last_check", "body", "date-time", o.LastCheck.String(), formats); err != nil {
 		return err
 	}
 
@@ -345,7 +345,7 @@ type CheckUpdatesOKBodyInstalled struct {
 	Version string `json:"version,omitempty"`
 
 	// Full version for debugging.
-	FullVersion string `json:"fullVersion,omitempty"`
+	FullVersion string `json:"full_version,omitempty"`
 
 	// Build or release date.
 	// Format: date-time
@@ -406,7 +406,7 @@ type CheckUpdatesOKBodyLatest struct {
 	Version string `json:"version,omitempty"`
 
 	// Full version for debugging.
-	FullVersion string `json:"fullVersion,omitempty"`
+	FullVersion string `json:"full_version,omitempty"`
 
 	// Build or release date.
 	// Format: date-time

@@ -126,14 +126,14 @@ type AddPostgreSQLBody struct {
 
 	// Node identifier on which a service is been running.
 	// Exactly one of these parameters should be present: node_id, node_name, add_node.
-	NodeID string `json:"nodeId,omitempty"`
+	NodeID string `json:"node_id,omitempty"`
 
 	// Node name on which a service is been running.
 	// Exactly one of these parameters should be present: node_id, node_name, add_node.
-	NodeName string `json:"nodeName,omitempty"`
+	NodeName string `json:"node_name,omitempty"`
 
 	// Unique across all Services user-defined name. Required.
-	ServiceName string `json:"serviceName,omitempty"`
+	ServiceName string `json:"service_name,omitempty"`
 
 	// Node and Service access address (DNS name or IP).
 	// Address (and port) or socket is required.
@@ -151,7 +151,7 @@ type AddPostgreSQLBody struct {
 	Socket string `json:"socket,omitempty"`
 
 	// The "pmm-agent" identifier which should run agents. Required.
-	PMMAgentID string `json:"pmmAgentId,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Environment name.
 	Environment string `json:"environment,omitempty"`
@@ -160,7 +160,7 @@ type AddPostgreSQLBody struct {
 	Cluster string `json:"cluster,omitempty"`
 
 	// Replication set name.
-	ReplicationSet string `json:"replicationSet,omitempty"`
+	ReplicationSet string `json:"replication_set,omitempty"`
 
 	// PostgreSQL username for scraping metrics.
 	Username string `json:"username,omitempty"`
@@ -169,48 +169,48 @@ type AddPostgreSQLBody struct {
 	Password string `json:"password,omitempty"`
 
 	// If true, adds qan-postgresql-pgstatements-agent for provided service.
-	QANPostgresqlPgstatementsAgent bool `json:"qanPostgresqlPgstatementsAgent,omitempty"`
+	QANPostgresqlPgstatementsAgent bool `json:"qan_postgresql_pgstatements_agent,omitempty"`
 
 	// If true, adds qan-postgresql-pgstatmonitor-agent for provided service.
-	QANPostgresqlPgstatmonitorAgent bool `json:"qanPostgresqlPgstatmonitorAgent,omitempty"`
+	QANPostgresqlPgstatmonitorAgent bool `json:"qan_postgresql_pgstatmonitor_agent,omitempty"`
 
 	// Disable query examples.
-	DisableQueryExamples bool `json:"disableQueryExamples,omitempty"`
+	DisableQueryExamples bool `json:"disable_query_examples,omitempty"`
 
 	// Custom user-assigned labels for Service.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Skip connection check.
-	SkipConnectionCheck bool `json:"skipConnectionCheck,omitempty"`
+	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 
 	// Use TLS for database connections.
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
-	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// MetricsMode defines desired metrics mode for agent,
 	// it can be pull, push or auto mode chosen by server.
 	// Enum: [AUTO PULL PUSH]
-	MetricsMode *string `json:"metricsMode,omitempty"`
+	MetricsMode *string `json:"metrics_mode,omitempty"`
 
 	// List of collector names to disable in this exporter.
-	DisableCollectors []string `json:"disableCollectors"`
+	DisableCollectors []string `json:"disable_collectors"`
 
 	// TLS CA certificate.
-	TLSCa string `json:"tlsCa,omitempty"`
+	TLSCa string `json:"tls_ca,omitempty"`
 
 	// TLS Certifcate.
-	TLSCert string `json:"tlsCert,omitempty"`
+	TLSCert string `json:"tls_cert,omitempty"`
 
 	// TLS Certificate Key.
-	TLSKey string `json:"tlsKey,omitempty"`
+	TLSKey string `json:"tls_key,omitempty"`
 
 	// Custom password for exporter endpoint /metrics.
-	AgentPassword string `json:"agentPassword,omitempty"`
+	AgentPassword string `json:"agent_password,omitempty"`
 
 	// add node
-	AddNode *AddPostgreSQLParamsBodyAddNode `json:"addNode,omitempty"`
+	AddNode *AddPostgreSQLParamsBodyAddNode `json:"add_node,omitempty"`
 }
 
 // Validate validates this add postgre SQL body
@@ -270,7 +270,7 @@ func (o *AddPostgreSQLBody) validateMetricsMode(formats strfmt.Registry) error {
 	}
 
 	// value enum
-	if err := o.validateMetricsModeEnum("body"+"."+"metricsMode", "body", *o.MetricsMode); err != nil {
+	if err := o.validateMetricsModeEnum("body"+"."+"metrics_mode", "body", *o.MetricsMode); err != nil {
 		return err
 	}
 
@@ -286,7 +286,7 @@ func (o *AddPostgreSQLBody) validateAddNode(formats strfmt.Registry) error {
 	if o.AddNode != nil {
 		if err := o.AddNode.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "addNode")
+				return ve.ValidateName("body" + "." + "add_node")
 			}
 			return err
 		}
@@ -391,13 +391,13 @@ swagger:model AddPostgreSQLOKBody
 type AddPostgreSQLOKBody struct {
 
 	// postgres exporter
-	PostgresExporter *AddPostgreSQLOKBodyPostgresExporter `json:"postgresExporter,omitempty"`
+	PostgresExporter *AddPostgreSQLOKBodyPostgresExporter `json:"postgres_exporter,omitempty"`
 
 	// qan postgresql pgstatements agent
-	QANPostgresqlPgstatementsAgent *AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent `json:"qanPostgresqlPgstatementsAgent,omitempty"`
+	QANPostgresqlPgstatementsAgent *AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent `json:"qan_postgresql_pgstatements_agent,omitempty"`
 
 	// qan postgresql pgstatmonitor agent
-	QANPostgresqlPgstatmonitorAgent *AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent `json:"qanPostgresqlPgstatmonitorAgent,omitempty"`
+	QANPostgresqlPgstatmonitorAgent *AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent `json:"qan_postgresql_pgstatmonitor_agent,omitempty"`
 
 	// service
 	Service *AddPostgreSQLOKBodyService `json:"service,omitempty"`
@@ -438,7 +438,7 @@ func (o *AddPostgreSQLOKBody) validatePostgresExporter(formats strfmt.Registry) 
 	if o.PostgresExporter != nil {
 		if err := o.PostgresExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addPostgreSqlOk" + "." + "postgresExporter")
+				return ve.ValidateName("addPostgreSqlOk" + "." + "postgres_exporter")
 			}
 			return err
 		}
@@ -456,7 +456,7 @@ func (o *AddPostgreSQLOKBody) validateQANPostgresqlPgstatementsAgent(formats str
 	if o.QANPostgresqlPgstatementsAgent != nil {
 		if err := o.QANPostgresqlPgstatementsAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addPostgreSqlOk" + "." + "qanPostgresqlPgstatementsAgent")
+				return ve.ValidateName("addPostgreSqlOk" + "." + "qan_postgresql_pgstatements_agent")
 			}
 			return err
 		}
@@ -474,7 +474,7 @@ func (o *AddPostgreSQLOKBody) validateQANPostgresqlPgstatmonitorAgent(formats st
 	if o.QANPostgresqlPgstatmonitorAgent != nil {
 		if err := o.QANPostgresqlPgstatmonitorAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addPostgreSqlOk" + "." + "qanPostgresqlPgstatmonitorAgent")
+				return ve.ValidateName("addPostgreSqlOk" + "." + "qan_postgresql_pgstatmonitor_agent")
 			}
 			return err
 		}
@@ -525,16 +525,16 @@ swagger:model AddPostgreSQLOKBodyPostgresExporter
 type AddPostgreSQLOKBodyPostgresExporter struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agentId,omitempty"`
+	AgentID string `json:"agent_id,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmmAgentId,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// PostgreSQL username for scraping metrics.
 	Username string `json:"username,omitempty"`
@@ -543,16 +543,16 @@ type AddPostgreSQLOKBodyPostgresExporter struct {
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
-	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// True if exporter uses push metrics mode.
-	PushMetricsEnabled bool `json:"pushMetricsEnabled,omitempty"`
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
 	// List of disabled collector names.
-	DisabledCollectors []string `json:"disabledCollectors"`
+	DisabledCollectors []string `json:"disabled_collectors"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -566,7 +566,7 @@ type AddPostgreSQLOKBodyPostgresExporter struct {
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listenPort,omitempty"`
+	ListenPort int64 `json:"listen_port,omitempty"`
 }
 
 // Validate validates this add postgre SQL OK body postgres exporter
@@ -634,7 +634,7 @@ func (o *AddPostgreSQLOKBodyPostgresExporter) validateStatus(formats strfmt.Regi
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addPostgreSqlOk"+"."+"postgresExporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addPostgreSqlOk"+"."+"postgres_exporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -665,16 +665,16 @@ swagger:model AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent
 type AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agentId,omitempty"`
+	AgentID string `json:"agent_id,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmmAgentId,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// PostgreSQL username for getting pg stat statements data.
 	Username string `json:"username,omitempty"`
@@ -683,10 +683,10 @@ type AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent struct {
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -765,7 +765,7 @@ func (o *AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent) validateStatus(forma
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addPostgreSqlOk"+"."+"qanPostgresqlPgstatementsAgent"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addPostgreSqlOk"+"."+"qan_postgresql_pgstatements_agent"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -796,16 +796,16 @@ swagger:model AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent
 type AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agentId,omitempty"`
+	AgentID string `json:"agent_id,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmmAgentId,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// PostgreSQL username for getting pg stat monitor data.
 	Username string `json:"username,omitempty"`
@@ -814,13 +814,13 @@ type AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent struct {
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// True if query examples are disabled.
-	QueryExamplesDisabled bool `json:"queryExamplesDisabled,omitempty"`
+	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -899,7 +899,7 @@ func (o *AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent) validateStatus(form
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addPostgreSqlOk"+"."+"qanPostgresqlPgstatmonitorAgent"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addPostgreSqlOk"+"."+"qan_postgresql_pgstatmonitor_agent"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -930,16 +930,16 @@ swagger:model AddPostgreSQLOKBodyService
 type AddPostgreSQLOKBodyService struct {
 
 	// Unique randomly generated instance identifier.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// Unique across all Services user-defined name.
-	ServiceName string `json:"serviceName,omitempty"`
+	ServiceName string `json:"service_name,omitempty"`
 
 	// Database name.
-	DatabaseName string `json:"databaseName,omitempty"`
+	DatabaseName string `json:"database_name,omitempty"`
 
 	// Node identifier where this instance runs.
-	NodeID string `json:"nodeId,omitempty"`
+	NodeID string `json:"node_id,omitempty"`
 
 	// Access address (DNS name or IP).
 	// Address (and port) or socket is required.
@@ -960,10 +960,10 @@ type AddPostgreSQLOKBodyService struct {
 	Cluster string `json:"cluster,omitempty"`
 
 	// Replication set name.
-	ReplicationSet string `json:"replicationSet,omitempty"`
+	ReplicationSet string `json:"replication_set,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this add postgre SQL OK body service
@@ -996,25 +996,25 @@ type AddPostgreSQLParamsBodyAddNode struct {
 
 	// NodeType describes supported Node types.
 	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE REMOTE_AZURE_DATABASE_NODE]
-	NodeType *string `json:"nodeType,omitempty"`
+	NodeType *string `json:"node_type,omitempty"`
 
 	// Unique across all Nodes user-defined name.
-	NodeName string `json:"nodeName,omitempty"`
+	NodeName string `json:"node_name,omitempty"`
 
 	// Linux machine-id.
-	MachineID string `json:"machineId,omitempty"`
+	MachineID string `json:"machine_id,omitempty"`
 
 	// Linux distribution name and version.
 	Distro string `json:"distro,omitempty"`
 
 	// Container identifier. If specified, must be a unique Docker container identifier.
-	ContainerID string `json:"containerId,omitempty"`
+	ContainerID string `json:"container_id,omitempty"`
 
 	// Container name.
-	ContainerName string `json:"containerName,omitempty"`
+	ContainerName string `json:"container_name,omitempty"`
 
 	// Node model.
-	NodeModel string `json:"nodeModel,omitempty"`
+	NodeModel string `json:"node_model,omitempty"`
 
 	// Node region.
 	Region string `json:"region,omitempty"`
@@ -1023,7 +1023,7 @@ type AddPostgreSQLParamsBodyAddNode struct {
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels for Node.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this add postgre SQL params body add node
@@ -1088,7 +1088,7 @@ func (o *AddPostgreSQLParamsBodyAddNode) validateNodeType(formats strfmt.Registr
 	}
 
 	// value enum
-	if err := o.validateNodeTypeEnum("body"+"."+"addNode"+"."+"nodeType", "body", *o.NodeType); err != nil {
+	if err := o.validateNodeTypeEnum("body"+"."+"add_node"+"."+"node_type", "body", *o.NodeType); err != nil {
 		return err
 	}
 

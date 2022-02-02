@@ -120,8 +120,8 @@ swagger:model RemoveAgentBody
 */
 type RemoveAgentBody struct {
 
-	// agent Id
-	AgentID string `json:"agentId,omitempty"`
+	// agent id
+	AgentID string `json:"agent_id,omitempty"`
 
 	// Remove agent with all dependencies.
 	Force bool `json:"force,omitempty"`

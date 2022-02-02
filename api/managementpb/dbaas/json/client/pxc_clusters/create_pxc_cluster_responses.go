@@ -121,7 +121,7 @@ swagger:model CreatePXCClusterBody
 type CreatePXCClusterBody struct {
 
 	// Kubernetes cluster name.
-	KubernetesClusterName string `json:"kubernetesClusterName,omitempty"`
+	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
 
 	// PXC cluster name.
 	// a DNS-1035 label must consist of lower case alphanumeric characters or '-',
@@ -264,7 +264,7 @@ swagger:model CreatePXCClusterParamsBodyParams
 type CreatePXCClusterParamsBodyParams struct {
 
 	// Cluster size.
-	ClusterSize int32 `json:"clusterSize,omitempty"`
+	ClusterSize int32 `json:"cluster_size,omitempty"`
 
 	// haproxy
 	Haproxy *CreatePXCClusterParamsBodyParamsHaproxy `json:"haproxy,omitempty"`
@@ -380,7 +380,7 @@ type CreatePXCClusterParamsBodyParamsHaproxy struct {
 	Image string `json:"image,omitempty"`
 
 	// compute resources
-	ComputeResources *CreatePXCClusterParamsBodyParamsHaproxyComputeResources `json:"computeResources,omitempty"`
+	ComputeResources *CreatePXCClusterParamsBodyParamsHaproxyComputeResources `json:"compute_resources,omitempty"`
 }
 
 // Validate validates this create PXC cluster params body params haproxy
@@ -406,7 +406,7 @@ func (o *CreatePXCClusterParamsBodyParamsHaproxy) validateComputeResources(forma
 	if o.ComputeResources != nil {
 		if err := o.ComputeResources.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "params" + "." + "haproxy" + "." + "computeResources")
+				return ve.ValidateName("body" + "." + "params" + "." + "haproxy" + "." + "compute_resources")
 			}
 			return err
 		}
@@ -439,10 +439,10 @@ swagger:model CreatePXCClusterParamsBodyParamsHaproxyComputeResources
 type CreatePXCClusterParamsBodyParamsHaproxyComputeResources struct {
 
 	// CPUs in milliCPUs; 1000m = 1 vCPU.
-	CPUM int32 `json:"cpuM,omitempty"`
+	CPUm int32 `json:"cpu_m,omitempty"`
 
 	// Memory in bytes.
-	MemoryBytes string `json:"memoryBytes,omitempty"`
+	MemoryBytes string `json:"memory_bytes,omitempty"`
 }
 
 // Validate validates this create PXC cluster params body params haproxy compute resources
@@ -478,10 +478,10 @@ type CreatePXCClusterParamsBodyParamsPXC struct {
 	Image string `json:"image,omitempty"`
 
 	// Disk size in bytes.
-	DiskSize string `json:"diskSize,omitempty"`
+	DiskSize string `json:"disk_size,omitempty"`
 
 	// compute resources
-	ComputeResources *CreatePXCClusterParamsBodyParamsPXCComputeResources `json:"computeResources,omitempty"`
+	ComputeResources *CreatePXCClusterParamsBodyParamsPXCComputeResources `json:"compute_resources,omitempty"`
 }
 
 // Validate validates this create PXC cluster params body params PXC
@@ -507,7 +507,7 @@ func (o *CreatePXCClusterParamsBodyParamsPXC) validateComputeResources(formats s
 	if o.ComputeResources != nil {
 		if err := o.ComputeResources.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "params" + "." + "pxc" + "." + "computeResources")
+				return ve.ValidateName("body" + "." + "params" + "." + "pxc" + "." + "compute_resources")
 			}
 			return err
 		}
@@ -540,10 +540,10 @@ swagger:model CreatePXCClusterParamsBodyParamsPXCComputeResources
 type CreatePXCClusterParamsBodyParamsPXCComputeResources struct {
 
 	// CPUs in milliCPUs; 1000m = 1 vCPU.
-	CPUM int32 `json:"cpuM,omitempty"`
+	CPUm int32 `json:"cpu_m,omitempty"`
 
 	// Memory in bytes.
-	MemoryBytes string `json:"memoryBytes,omitempty"`
+	MemoryBytes string `json:"memory_bytes,omitempty"`
 }
 
 // Validate validates this create PXC cluster params body params PXC compute resources
@@ -579,10 +579,10 @@ type CreatePXCClusterParamsBodyParamsProxysql struct {
 	Image string `json:"image,omitempty"`
 
 	// Disk size in bytes.
-	DiskSize string `json:"diskSize,omitempty"`
+	DiskSize string `json:"disk_size,omitempty"`
 
 	// compute resources
-	ComputeResources *CreatePXCClusterParamsBodyParamsProxysqlComputeResources `json:"computeResources,omitempty"`
+	ComputeResources *CreatePXCClusterParamsBodyParamsProxysqlComputeResources `json:"compute_resources,omitempty"`
 }
 
 // Validate validates this create PXC cluster params body params proxysql
@@ -608,7 +608,7 @@ func (o *CreatePXCClusterParamsBodyParamsProxysql) validateComputeResources(form
 	if o.ComputeResources != nil {
 		if err := o.ComputeResources.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "params" + "." + "proxysql" + "." + "computeResources")
+				return ve.ValidateName("body" + "." + "params" + "." + "proxysql" + "." + "compute_resources")
 			}
 			return err
 		}
@@ -641,10 +641,10 @@ swagger:model CreatePXCClusterParamsBodyParamsProxysqlComputeResources
 type CreatePXCClusterParamsBodyParamsProxysqlComputeResources struct {
 
 	// CPUs in milliCPUs; 1000m = 1 vCPU.
-	CPUM int32 `json:"cpuM,omitempty"`
+	CPUm int32 `json:"cpu_m,omitempty"`
 
 	// Memory in bytes.
-	MemoryBytes string `json:"memoryBytes,omitempty"`
+	MemoryBytes string `json:"memory_bytes,omitempty"`
 }
 
 // Validate validates this create PXC cluster params body params proxysql compute resources

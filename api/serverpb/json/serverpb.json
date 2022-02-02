@@ -71,7 +71,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "instanceId": {
+                "instance_id": {
                   "description": "AWS EC2 instance ID (i-1234567890abcdef0).",
                   "type": "string",
                   "x-order": 0
@@ -138,62 +138,62 @@
             "schema": {
               "type": "object",
               "properties": {
-                "alertManagerRules": {
+                "alert_manager_rules": {
                   "description": "Custom alerting or recording rules.",
                   "type": "string",
                   "x-order": 10
                 },
-                "alertManagerUrl": {
+                "alert_manager_url": {
                   "description": "External AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
                   "type": "string",
                   "x-order": 8
                 },
-                "awsPartitions": {
+                "aws_partitions": {
                   "type": "array",
                   "items": {
                     "type": "string"
                   },
                   "x-order": 7
                 },
-                "dataRetention": {
+                "data_retention": {
                   "description": "A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h.",
                   "type": "string",
                   "x-order": 5
                 },
-                "disableAlerting": {
+                "disable_alerting": {
                   "description": "Disable Alerting.",
                   "type": "boolean",
                   "x-order": 15
                 },
-                "disableAzurediscover": {
+                "disable_azurediscover": {
                   "description": "Disable Azure Discover.",
                   "type": "boolean",
                   "x-order": 24
                 },
-                "disableBackupManagement": {
+                "disable_backup_management": {
                   "description": "Disable Backup Management.",
                   "type": "boolean",
                   "x-order": 26
                 },
-                "disableDbaas": {
+                "disable_dbaas": {
                   "description": "Disable DBaaS.",
                   "type": "boolean",
                   "x-order": 28
                 },
-                "disableStt": {
+                "disable_stt": {
                   "description": "Disable Security Threat Tool.",
                   "type": "boolean",
                   "x-order": 13
                 },
-                "disableTelemetry": {
+                "disable_telemetry": {
                   "type": "boolean",
                   "x-order": 3
                 },
-                "disableUpdates": {
+                "disable_updates": {
                   "type": "boolean",
                   "x-order": 1
                 },
-                "emailAlertingSettings": {
+                "email_alerting_settings": {
                   "description": "EmailAlertingSettings represents email (SMTP) configuration for Alerting.",
                   "type": "object",
                   "properties": {
@@ -217,7 +217,7 @@
                       "type": "string",
                       "x-order": 4
                     },
-                    "requireTls": {
+                    "require_tls": {
                       "description": "Require TLS.",
                       "type": "boolean",
                       "x-order": 7
@@ -240,40 +240,40 @@
                   },
                   "x-order": 16
                 },
-                "enableAlerting": {
+                "enable_alerting": {
                   "description": "Enable Alerting.",
                   "type": "boolean",
                   "x-order": 14
                 },
-                "enableAzurediscover": {
+                "enable_azurediscover": {
                   "description": "Enable Azure Discover.",
                   "type": "boolean",
                   "x-order": 23
                 },
-                "enableBackupManagement": {
+                "enable_backup_management": {
                   "description": "Enable Backup Management.",
                   "type": "boolean",
                   "x-order": 25
                 },
-                "enableDbaas": {
+                "enable_dbaas": {
                   "description": "Enable DBaaS.",
                   "type": "boolean",
                   "x-order": 27
                 },
-                "enableStt": {
+                "enable_stt": {
                   "description": "Enable Security Threat Tool.",
                   "type": "boolean",
                   "x-order": 12
                 },
-                "enableTelemetry": {
+                "enable_telemetry": {
                   "type": "boolean",
                   "x-order": 2
                 },
-                "enableUpdates": {
+                "enable_updates": {
                   "type": "boolean",
                   "x-order": 0
                 },
-                "metricsResolutions": {
+                "metrics_resolutions": {
                   "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
                   "type": "object",
                   "properties": {
@@ -295,36 +295,36 @@
                   },
                   "x-order": 4
                 },
-                "pmmPublicAddress": {
+                "pmm_public_address": {
                   "description": "PMM Server public address.",
                   "type": "string",
                   "x-order": 20
                 },
-                "removeAlertManagerRules": {
+                "remove_alert_manager_rules": {
                   "description": "Remove custom alerting or recording rules.",
                   "type": "boolean",
                   "x-order": 11
                 },
-                "removeAlertManagerUrl": {
+                "remove_alert_manager_url": {
                   "description": "Remove external AlertManager URL.",
                   "type": "boolean",
                   "x-order": 9
                 },
-                "removeEmailAlertingSettings": {
+                "remove_email_alerting_settings": {
                   "description": "If true, removes Alerting email (SMTP) settings.",
                   "type": "boolean",
                   "x-order": 17
                 },
-                "removePmmPublicAddress": {
+                "remove_pmm_public_address": {
                   "type": "boolean",
                   "x-order": 21
                 },
-                "removeSlackAlertingSettings": {
+                "remove_slack_alerting_settings": {
                   "description": "If true, removes Alerting Slack settings.",
                   "type": "boolean",
                   "x-order": 19
                 },
-                "slackAlertingSettings": {
+                "slack_alerting_settings": {
                   "description": "SlackAlertingSettings represents Slack configuration for Alerting.",
                   "type": "object",
                   "properties": {
@@ -336,25 +336,25 @@
                   },
                   "x-order": 18
                 },
-                "sshKey": {
+                "ssh_key": {
                   "type": "string",
                   "x-order": 6
                 },
-                "sttCheckIntervals": {
+                "stt_check_intervals": {
                   "description": "STTCheckIntervals represents intervals between STT checks.",
                   "type": "object",
                   "properties": {
-                    "frequentInterval": {
+                    "frequent_interval": {
                       "description": "Interval for frequent check runs.",
                       "type": "string",
                       "x-order": 2
                     },
-                    "rareInterval": {
+                    "rare_interval": {
                       "description": "Interval for rare check runs.",
                       "type": "string",
                       "x-order": 1
                     },
-                    "standardInterval": {
+                    "standard_interval": {
                       "description": "Standard check interval.",
                       "type": "string",
                       "x-order": 0
@@ -376,53 +376,53 @@
                   "description": "Settings represents PMM Server settings.",
                   "type": "object",
                   "properties": {
-                    "alertManagerRules": {
+                    "alert_manager_rules": {
                       "description": "Custom alerting or recording rules.",
                       "type": "string",
                       "x-order": 7
                     },
-                    "alertManagerUrl": {
+                    "alert_manager_url": {
                       "description": "External AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
                       "type": "string",
                       "x-order": 6
                     },
-                    "alertingEnabled": {
+                    "alerting_enabled": {
                       "description": "True if Alerting is enabled.",
                       "type": "boolean",
                       "x-order": 11
                     },
-                    "awsPartitions": {
+                    "aws_partitions": {
                       "type": "array",
                       "items": {
                         "type": "string"
                       },
                       "x-order": 5
                     },
-                    "azurediscoverEnabled": {
+                    "azurediscover_enabled": {
                       "description": "True if Azure Discover is enabled.",
                       "type": "boolean",
                       "x-order": 17
                     },
-                    "backupManagementEnabled": {
+                    "backup_management_enabled": {
                       "description": "True if Backup Management is enabled.",
                       "type": "boolean",
                       "x-order": 16
                     },
-                    "connectedToPlatform": {
+                    "connected_to_platform": {
                       "type": "boolean",
                       "title": "True if the PMM instance is connected to Platform",
                       "x-order": 18
                     },
-                    "dataRetention": {
+                    "data_retention": {
                       "type": "string",
                       "x-order": 3
                     },
-                    "dbaasEnabled": {
+                    "dbaas_enabled": {
                       "description": "True if DBaaS is enabled.",
                       "type": "boolean",
                       "x-order": 10
                     },
-                    "emailAlertingSettings": {
+                    "email_alerting_settings": {
                       "description": "EmailAlertingSettings represents email (SMTP) configuration for Alerting.",
                       "type": "object",
                       "properties": {
@@ -446,7 +446,7 @@
                           "type": "string",
                           "x-order": 4
                         },
-                        "requireTls": {
+                        "require_tls": {
                           "description": "Require TLS.",
                           "type": "boolean",
                           "x-order": 7
@@ -469,7 +469,7 @@
                       },
                       "x-order": 12
                     },
-                    "metricsResolutions": {
+                    "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
                       "type": "object",
                       "properties": {
@@ -491,17 +491,17 @@
                       },
                       "x-order": 2
                     },
-                    "platformEmail": {
+                    "platform_email": {
                       "description": "Percona Platform user's email, if this PMM instance is linked to the Platform.",
                       "type": "string",
                       "x-order": 9
                     },
-                    "pmmPublicAddress": {
+                    "pmm_public_address": {
                       "description": "PMM Server public address.",
                       "type": "string",
                       "x-order": 14
                     },
-                    "slackAlertingSettings": {
+                    "slack_alerting_settings": {
                       "description": "SlackAlertingSettings represents Slack configuration for Alerting.",
                       "type": "object",
                       "properties": {
@@ -513,25 +513,25 @@
                       },
                       "x-order": 13
                     },
-                    "sshKey": {
+                    "ssh_key": {
                       "type": "string",
                       "x-order": 4
                     },
-                    "sttCheckIntervals": {
+                    "stt_check_intervals": {
                       "description": "STTCheckIntervals represents intervals between STT checks.",
                       "type": "object",
                       "properties": {
-                        "frequentInterval": {
+                        "frequent_interval": {
                           "description": "Interval for frequent check runs.",
                           "type": "string",
                           "x-order": 2
                         },
-                        "rareInterval": {
+                        "rare_interval": {
                           "description": "Interval for rare check runs.",
                           "type": "string",
                           "x-order": 1
                         },
-                        "standardInterval": {
+                        "standard_interval": {
                           "description": "Standard check interval.",
                           "type": "string",
                           "x-order": 0
@@ -539,17 +539,17 @@
                       },
                       "x-order": 15
                     },
-                    "sttEnabled": {
+                    "stt_enabled": {
                       "description": "True if Security Threat Tool is enabled.",
                       "type": "boolean",
                       "x-order": 8
                     },
-                    "telemetryEnabled": {
+                    "telemetry_enabled": {
                       "description": "True if telemetry is enabled.",
                       "type": "boolean",
                       "x-order": 1
                     },
-                    "updatesDisabled": {
+                    "updates_disabled": {
                       "description": "True if updates are disabled.",
                       "type": "boolean",
                       "x-order": 0
@@ -630,53 +630,53 @@
                   "description": "Settings represents PMM Server settings.",
                   "type": "object",
                   "properties": {
-                    "alertManagerRules": {
+                    "alert_manager_rules": {
                       "description": "Custom alerting or recording rules.",
                       "type": "string",
                       "x-order": 7
                     },
-                    "alertManagerUrl": {
+                    "alert_manager_url": {
                       "description": "External AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
                       "type": "string",
                       "x-order": 6
                     },
-                    "alertingEnabled": {
+                    "alerting_enabled": {
                       "description": "True if Alerting is enabled.",
                       "type": "boolean",
                       "x-order": 11
                     },
-                    "awsPartitions": {
+                    "aws_partitions": {
                       "type": "array",
                       "items": {
                         "type": "string"
                       },
                       "x-order": 5
                     },
-                    "azurediscoverEnabled": {
+                    "azurediscover_enabled": {
                       "description": "True if Azure Discover is enabled.",
                       "type": "boolean",
                       "x-order": 17
                     },
-                    "backupManagementEnabled": {
+                    "backup_management_enabled": {
                       "description": "True if Backup Management is enabled.",
                       "type": "boolean",
                       "x-order": 16
                     },
-                    "connectedToPlatform": {
+                    "connected_to_platform": {
                       "type": "boolean",
                       "title": "True if the PMM instance is connected to Platform",
                       "x-order": 18
                     },
-                    "dataRetention": {
+                    "data_retention": {
                       "type": "string",
                       "x-order": 3
                     },
-                    "dbaasEnabled": {
+                    "dbaas_enabled": {
                       "description": "True if DBaaS is enabled.",
                       "type": "boolean",
                       "x-order": 10
                     },
-                    "emailAlertingSettings": {
+                    "email_alerting_settings": {
                       "description": "EmailAlertingSettings represents email (SMTP) configuration for Alerting.",
                       "type": "object",
                       "properties": {
@@ -700,7 +700,7 @@
                           "type": "string",
                           "x-order": 4
                         },
-                        "requireTls": {
+                        "require_tls": {
                           "description": "Require TLS.",
                           "type": "boolean",
                           "x-order": 7
@@ -723,7 +723,7 @@
                       },
                       "x-order": 12
                     },
-                    "metricsResolutions": {
+                    "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
                       "type": "object",
                       "properties": {
@@ -745,17 +745,17 @@
                       },
                       "x-order": 2
                     },
-                    "platformEmail": {
+                    "platform_email": {
                       "description": "Percona Platform user's email, if this PMM instance is linked to the Platform.",
                       "type": "string",
                       "x-order": 9
                     },
-                    "pmmPublicAddress": {
+                    "pmm_public_address": {
                       "description": "PMM Server public address.",
                       "type": "string",
                       "x-order": 14
                     },
-                    "slackAlertingSettings": {
+                    "slack_alerting_settings": {
                       "description": "SlackAlertingSettings represents Slack configuration for Alerting.",
                       "type": "object",
                       "properties": {
@@ -767,25 +767,25 @@
                       },
                       "x-order": 13
                     },
-                    "sshKey": {
+                    "ssh_key": {
                       "type": "string",
                       "x-order": 4
                     },
-                    "sttCheckIntervals": {
+                    "stt_check_intervals": {
                       "description": "STTCheckIntervals represents intervals between STT checks.",
                       "type": "object",
                       "properties": {
-                        "frequentInterval": {
+                        "frequent_interval": {
                           "description": "Interval for frequent check runs.",
                           "type": "string",
                           "x-order": 2
                         },
-                        "rareInterval": {
+                        "rare_interval": {
                           "description": "Interval for rare check runs.",
                           "type": "string",
                           "x-order": 1
                         },
-                        "standardInterval": {
+                        "standard_interval": {
                           "description": "Standard check interval.",
                           "type": "string",
                           "x-order": 0
@@ -793,17 +793,17 @@
                       },
                       "x-order": 15
                     },
-                    "sttEnabled": {
+                    "stt_enabled": {
                       "description": "True if Security Threat Tool is enabled.",
                       "type": "boolean",
                       "x-order": 8
                     },
-                    "telemetryEnabled": {
+                    "telemetry_enabled": {
                       "description": "True if telemetry is enabled.",
                       "type": "boolean",
                       "x-order": 1
                     },
-                    "updatesDisabled": {
+                    "updates_disabled": {
                       "description": "True if updates are disabled.",
                       "type": "boolean",
                       "x-order": 0
@@ -872,7 +872,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "emailAlertingSettings": {
+                "email_alerting_settings": {
                   "description": "EmailAlertingSettings represents email (SMTP) configuration for Alerting.",
                   "type": "object",
                   "properties": {
@@ -896,7 +896,7 @@
                       "type": "string",
                       "x-order": 4
                     },
-                    "requireTls": {
+                    "require_tls": {
                       "description": "Require TLS.",
                       "type": "boolean",
                       "x-order": 7
@@ -919,7 +919,7 @@
                   },
                   "x-order": 0
                 },
-                "emailTo": {
+                "email_to": {
                   "description": "Target email address to send the email to.",
                   "type": "string",
                   "x-order": 1
@@ -998,7 +998,7 @@
                   "type": "boolean",
                   "x-order": 0
                 },
-                "onlyInstalledVersion": {
+                "only_installed_version": {
                   "description": "If true, only installed version will be in response.",
                   "type": "boolean",
                   "x-order": 1
@@ -1017,7 +1017,7 @@
                   "description": "VersionInfo describes component version, or PMM Server as a whole.",
                   "type": "object",
                   "properties": {
-                    "fullVersion": {
+                    "full_version": {
                       "description": "Full version for debugging.",
                       "type": "string",
                       "x-order": 1
@@ -1036,7 +1036,7 @@
                   },
                   "x-order": 0
                 },
-                "lastCheck": {
+                "last_check": {
                   "description": "Last check time.",
                   "type": "string",
                   "format": "date-time",
@@ -1046,7 +1046,7 @@
                   "description": "VersionInfo describes component version, or PMM Server as a whole.",
                   "type": "object",
                   "properties": {
-                    "fullVersion": {
+                    "full_version": {
                       "description": "Full version for debugging.",
                       "type": "string",
                       "x-order": 1
@@ -1065,12 +1065,12 @@
                   },
                   "x-order": 1
                 },
-                "latestNewsUrl": {
+                "latest_news_url": {
                   "description": "Latest available PMM Server release announcement URL.",
                   "type": "string",
                   "x-order": 3
                 },
-                "updateAvailable": {
+                "update_available": {
                   "description": "True if there is a PMM Server update available.",
                   "type": "boolean",
                   "x-order": 2
@@ -1144,12 +1144,12 @@
             "schema": {
               "type": "object",
               "properties": {
-                "authToken": {
+                "auth_token": {
                   "description": "Authentication token for getting update statuses.",
                   "type": "string",
                   "x-order": 0
                 },
-                "logOffset": {
+                "log_offset": {
                   "description": "Progress log offset.",
                   "type": "integer",
                   "format": "int64",
@@ -1216,12 +1216,12 @@
             "schema": {
               "type": "object",
               "properties": {
-                "authToken": {
+                "auth_token": {
                   "description": "Authentication token.",
                   "type": "string",
                   "x-order": 0
                 },
-                "logOffset": {
+                "log_offset": {
                   "description": "Progress log offset.",
                   "type": "integer",
                   "format": "int64",
@@ -1242,7 +1242,7 @@
                   "type": "boolean",
                   "x-order": 2
                 },
-                "logLines": {
+                "log_lines": {
                   "description": "Progress log lines.",
                   "type": "array",
                   "items": {
@@ -1250,7 +1250,7 @@
                   },
                   "x-order": 0
                 },
-                "logOffset": {
+                "log_offset": {
                   "description": "Progress log offset for the next request.",
                   "type": "integer",
                   "format": "int64",
@@ -1380,7 +1380,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "distributionMethod": {
+                "distribution_method": {
                   "description": "DistributionMethod defines PMM Server distribution method: Docker image, OVF/OVA, or AMI.",
                   "type": "string",
                   "default": "DISTRIBUTION_METHOD_INVALID",
@@ -1398,7 +1398,7 @@
                   "description": "VersionInfo describes component version, or PMM Server as a whole.",
                   "type": "object",
                   "properties": {
-                    "fullVersion": {
+                    "full_version": {
                       "description": "Full version for debugging.",
                       "type": "string",
                       "x-order": 1
@@ -1421,7 +1421,7 @@
                   "description": "VersionInfo describes component version, or PMM Server as a whole.",
                   "type": "object",
                   "properties": {
-                    "fullVersion": {
+                    "full_version": {
                       "description": "Full version for debugging.",
                       "type": "string",
                       "x-order": 1

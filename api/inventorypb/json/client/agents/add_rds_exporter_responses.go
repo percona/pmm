@@ -125,31 +125,31 @@ swagger:model AddRDSExporterBody
 type AddRDSExporterBody struct {
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmmAgentId,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Node identifier.
-	NodeID string `json:"nodeId,omitempty"`
+	NodeID string `json:"node_id,omitempty"`
 
 	// AWS Access Key.
-	AWSAccessKey string `json:"awsAccessKey,omitempty"`
+	AWSAccessKey string `json:"aws_access_key,omitempty"`
 
 	// AWS Secret Key.
-	AWSSecretKey string `json:"awsSecretKey,omitempty"`
+	AWSSecretKey string `json:"aws_secret_key,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Skip connection check.
-	SkipConnectionCheck bool `json:"skipConnectionCheck,omitempty"`
+	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 
 	// Disable basic metrics.
-	DisableBasicMetrics bool `json:"disableBasicMetrics,omitempty"`
+	DisableBasicMetrics bool `json:"disable_basic_metrics,omitempty"`
 
 	// Disable enhanced metrics.
-	DisableEnhancedMetrics bool `json:"disableEnhancedMetrics,omitempty"`
+	DisableEnhancedMetrics bool `json:"disable_enhanced_metrics,omitempty"`
 
 	// Enables push metrics mode for exporter.
-	PushMetrics bool `json:"pushMetrics,omitempty"`
+	PushMetrics bool `json:"push_metrics,omitempty"`
 }
 
 // Validate validates this add RDS exporter body
@@ -253,7 +253,7 @@ swagger:model AddRDSExporterOKBody
 type AddRDSExporterOKBody struct {
 
 	// rds exporter
-	RDSExporter *AddRDSExporterOKBodyRDSExporter `json:"rdsExporter,omitempty"`
+	RDSExporter *AddRDSExporterOKBodyRDSExporter `json:"rds_exporter,omitempty"`
 }
 
 // Validate validates this add RDS exporter OK body
@@ -279,7 +279,7 @@ func (o *AddRDSExporterOKBody) validateRDSExporter(formats strfmt.Registry) erro
 	if o.RDSExporter != nil {
 		if err := o.RDSExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addRdsExporterOk" + "." + "rdsExporter")
+				return ve.ValidateName("addRdsExporterOk" + "." + "rds_exporter")
 			}
 			return err
 		}
@@ -312,22 +312,22 @@ swagger:model AddRDSExporterOKBodyRDSExporter
 type AddRDSExporterOKBodyRDSExporter struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agentId,omitempty"`
+	AgentID string `json:"agent_id,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmmAgentId,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Node identifier.
-	NodeID string `json:"nodeId,omitempty"`
+	NodeID string `json:"node_id,omitempty"`
 
 	// AWS Access Key.
-	AWSAccessKey string `json:"awsAccessKey,omitempty"`
+	AWSAccessKey string `json:"aws_access_key,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -341,16 +341,16 @@ type AddRDSExporterOKBodyRDSExporter struct {
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics (the same for several configurations).
-	ListenPort int64 `json:"listenPort,omitempty"`
+	ListenPort int64 `json:"listen_port,omitempty"`
 
 	// Basic metrics are disabled.
-	BasicMetricsDisabled bool `json:"basicMetricsDisabled,omitempty"`
+	BasicMetricsDisabled bool `json:"basic_metrics_disabled,omitempty"`
 
 	// Enhanced metrics are disabled.
-	EnhancedMetricsDisabled bool `json:"enhancedMetricsDisabled,omitempty"`
+	EnhancedMetricsDisabled bool `json:"enhanced_metrics_disabled,omitempty"`
 
 	// True if exporter uses push metrics mode.
-	PushMetricsEnabled bool `json:"pushMetricsEnabled,omitempty"`
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 }
 
 // Validate validates this add RDS exporter OK body RDS exporter
@@ -418,7 +418,7 @@ func (o *AddRDSExporterOKBodyRDSExporter) validateStatus(formats strfmt.Registry
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addRdsExporterOk"+"."+"rdsExporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addRdsExporterOk"+"."+"rds_exporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 

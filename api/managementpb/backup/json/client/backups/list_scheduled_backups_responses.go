@@ -197,7 +197,7 @@ swagger:model ListScheduledBackupsOKBody
 type ListScheduledBackupsOKBody struct {
 
 	// scheduled backups
-	ScheduledBackups []*ScheduledBackupsItems0 `json:"scheduledBackups"`
+	ScheduledBackups []*ScheduledBackupsItems0 `json:"scheduled_backups"`
 }
 
 // Validate validates this list scheduled backups OK body
@@ -228,7 +228,7 @@ func (o *ListScheduledBackupsOKBody) validateScheduledBackups(formats strfmt.Reg
 		if o.ScheduledBackups[i] != nil {
 			if err := o.ScheduledBackups[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listScheduledBackupsOk" + "." + "scheduledBackups" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listScheduledBackupsOk" + "." + "scheduled_backups" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -263,26 +263,26 @@ swagger:model ScheduledBackupsItems0
 type ScheduledBackupsItems0 struct {
 
 	// Machine-readable ID.
-	ScheduledBackupID string `json:"scheduledBackupId,omitempty"`
+	ScheduledBackupID string `json:"scheduled_backup_id,omitempty"`
 
 	// Machine-readable service ID.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// Service name.
-	ServiceName string `json:"serviceName,omitempty"`
+	ServiceName string `json:"service_name,omitempty"`
 
 	// Machine-readable location ID.
-	LocationID string `json:"locationId,omitempty"`
+	LocationID string `json:"location_id,omitempty"`
 
 	// Location name.
-	LocationName string `json:"locationName,omitempty"`
+	LocationName string `json:"location_name,omitempty"`
 
 	// How often backup will be run in cron format.
-	CronExpression string `json:"cronExpression,omitempty"`
+	CronExpression string `json:"cron_expression,omitempty"`
 
 	// First backup wouldn't happen before this time.
 	// Format: date-time
-	StartTime strfmt.DateTime `json:"startTime,omitempty"`
+	StartTime strfmt.DateTime `json:"start_time,omitempty"`
 
 	// Artifact name.
 	Name string `json:"name,omitempty"`
@@ -291,7 +291,7 @@ type ScheduledBackupsItems0 struct {
 	Description string `json:"description,omitempty"`
 
 	// Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.
-	RetryInterval string `json:"retryInterval,omitempty"`
+	RetryInterval string `json:"retry_interval,omitempty"`
 
 	// How many times to retry a failed backup before giving up.
 	Retries int64 `json:"retries,omitempty"`
@@ -301,18 +301,18 @@ type ScheduledBackupsItems0 struct {
 
 	// DataModel is a model used for performing a backup.
 	// Enum: [DATA_MODEL_INVALID PHYSICAL LOGICAL]
-	DataModel *string `json:"dataModel,omitempty"`
+	DataModel *string `json:"data_model,omitempty"`
 
 	// Database vendor e.g. PostgreSQL, MongoDB, MySQL.
 	Vendor string `json:"vendor,omitempty"`
 
 	// Last run.
 	// Format: date-time
-	LastRun strfmt.DateTime `json:"lastRun,omitempty"`
+	LastRun strfmt.DateTime `json:"last_run,omitempty"`
 
 	// Next run.
 	// Format: date-time
-	NextRun strfmt.DateTime `json:"nextRun,omitempty"`
+	NextRun strfmt.DateTime `json:"next_run,omitempty"`
 
 	// How many artifacts keep. 0 - unlimited.
 	Retention int64 `json:"retention,omitempty"`
@@ -358,7 +358,7 @@ func (o *ScheduledBackupsItems0) validateStartTime(formats strfmt.Registry) erro
 		return nil
 	}
 
-	if err := validate.FormatOf("startTime", "body", "date-time", o.StartTime.String(), formats); err != nil {
+	if err := validate.FormatOf("start_time", "body", "date-time", o.StartTime.String(), formats); err != nil {
 		return err
 	}
 
@@ -404,7 +404,7 @@ func (o *ScheduledBackupsItems0) validateDataModel(formats strfmt.Registry) erro
 	}
 
 	// value enum
-	if err := o.validateDataModelEnum("dataModel", "body", *o.DataModel); err != nil {
+	if err := o.validateDataModelEnum("data_model", "body", *o.DataModel); err != nil {
 		return err
 	}
 
@@ -417,7 +417,7 @@ func (o *ScheduledBackupsItems0) validateLastRun(formats strfmt.Registry) error 
 		return nil
 	}
 
-	if err := validate.FormatOf("lastRun", "body", "date-time", o.LastRun.String(), formats); err != nil {
+	if err := validate.FormatOf("last_run", "body", "date-time", o.LastRun.String(), formats); err != nil {
 		return err
 	}
 
@@ -430,7 +430,7 @@ func (o *ScheduledBackupsItems0) validateNextRun(formats strfmt.Registry) error 
 		return nil
 	}
 
-	if err := validate.FormatOf("nextRun", "body", "date-time", o.NextRun.String(), formats); err != nil {
+	if err := validate.FormatOf("next_run", "body", "date-time", o.NextRun.String(), formats); err != nil {
 		return err
 	}
 

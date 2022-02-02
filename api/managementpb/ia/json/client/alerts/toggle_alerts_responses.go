@@ -122,9 +122,14 @@ swagger:model ToggleAlertsBody
 */
 type ToggleAlertsBody struct {
 
+<<<<<<< HEAD:api/managementpb/ia/json/client/alerts/toggle_alerts_responses.go
 	// List of alerts that silence state should be switched. If provided array is empty than all
 	// existing alerts are switched.
 	AlertIds []string `json:"alert_ids"`
+=======
+	// alert id
+	AlertID string `json:"alert_id,omitempty"`
+>>>>>>> d7959adc (PMM-9377 preserve snake case in field names):api/managementpb/ia/json/client/alerts/toggle_alert_responses.go
 
 	// BooleanFlag represent a command to set some boolean property to true,
 	// to false, or avoid changing that property.

@@ -125,10 +125,10 @@ swagger:model AddPostgresExporterBody
 type AddPostgresExporterBody struct {
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmmAgentId,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// PostgreSQL username for scraping metrics.
 	Username string `json:"username,omitempty"`
@@ -140,31 +140,31 @@ type AddPostgresExporterBody struct {
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
-	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Skip connection check.
-	SkipConnectionCheck bool `json:"skipConnectionCheck,omitempty"`
+	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 
 	// Enables push metrics mode for exporter.
-	PushMetrics bool `json:"pushMetrics,omitempty"`
+	PushMetrics bool `json:"push_metrics,omitempty"`
 
 	// List of collector names to disable in this exporter.
-	DisableCollectors []string `json:"disableCollectors"`
+	DisableCollectors []string `json:"disable_collectors"`
 
 	// TLS CA certificate.
-	TLSCa string `json:"tlsCa,omitempty"`
+	TLSCa string `json:"tls_ca,omitempty"`
 
 	// TLS Certifcate.
-	TLSCert string `json:"tlsCert,omitempty"`
+	TLSCert string `json:"tls_cert,omitempty"`
 
 	// TLS Certificate Key.
-	TLSKey string `json:"tlsKey,omitempty"`
+	TLSKey string `json:"tls_key,omitempty"`
 
 	// Custom password for exporter endpoint /metrics.
-	AgentPassword string `json:"agentPassword,omitempty"`
+	AgentPassword string `json:"agent_password,omitempty"`
 }
 
 // Validate validates this add postgres exporter body
@@ -268,7 +268,7 @@ swagger:model AddPostgresExporterOKBody
 type AddPostgresExporterOKBody struct {
 
 	// postgres exporter
-	PostgresExporter *AddPostgresExporterOKBodyPostgresExporter `json:"postgresExporter,omitempty"`
+	PostgresExporter *AddPostgresExporterOKBodyPostgresExporter `json:"postgres_exporter,omitempty"`
 }
 
 // Validate validates this add postgres exporter OK body
@@ -294,7 +294,7 @@ func (o *AddPostgresExporterOKBody) validatePostgresExporter(formats strfmt.Regi
 	if o.PostgresExporter != nil {
 		if err := o.PostgresExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addPostgresExporterOk" + "." + "postgresExporter")
+				return ve.ValidateName("addPostgresExporterOk" + "." + "postgres_exporter")
 			}
 			return err
 		}
@@ -327,16 +327,16 @@ swagger:model AddPostgresExporterOKBodyPostgresExporter
 type AddPostgresExporterOKBodyPostgresExporter struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agentId,omitempty"`
+	AgentID string `json:"agent_id,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmmAgentId,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// PostgreSQL username for scraping metrics.
 	Username string `json:"username,omitempty"`
@@ -345,16 +345,16 @@ type AddPostgresExporterOKBodyPostgresExporter struct {
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
-	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// True if exporter uses push metrics mode.
-	PushMetricsEnabled bool `json:"pushMetricsEnabled,omitempty"`
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
 	// List of disabled collector names.
-	DisabledCollectors []string `json:"disabledCollectors"`
+	DisabledCollectors []string `json:"disabled_collectors"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -368,7 +368,7 @@ type AddPostgresExporterOKBodyPostgresExporter struct {
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listenPort,omitempty"`
+	ListenPort int64 `json:"listen_port,omitempty"`
 }
 
 // Validate validates this add postgres exporter OK body postgres exporter
@@ -436,7 +436,7 @@ func (o *AddPostgresExporterOKBodyPostgresExporter) validateStatus(formats strfm
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addPostgresExporterOk"+"."+"postgresExporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addPostgresExporterOk"+"."+"postgres_exporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
