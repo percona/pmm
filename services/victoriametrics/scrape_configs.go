@@ -26,10 +26,10 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
+	"github.com/percona/pmm/version"
 	config "github.com/percona/promconfig"
 
 	"github.com/percona/pmm-managed/models"
-
 	"github.com/percona/pmm-managed/utils/collectors"
 )
 
@@ -160,11 +160,12 @@ func httpClientConfig(agent *models.Agent) config.HTTPClientConfig {
 }
 
 type scrapeConfigParams struct {
-	host        string // Node address where pmm-agent runs
-	node        *models.Node
-	service     *models.Service
-	agent       *models.Agent
-	streamParse bool
+	host            string // Node address where pmm-agent runs
+	node            *models.Node
+	service         *models.Service
+	agent           *models.Agent
+	pmmAgentVersion *version.Parsed
+	streamParse     bool
 }
 
 // scrapeConfigForStandardExporter returns scrape config for endpoint with given parameters.
@@ -372,6 +373,20 @@ func scrapeConfigsForMySQLdExporter(s *models.MetricsResolutions, params *scrape
 }
 
 func scrapeConfigsForMongoDBExporter(s *models.MetricsResolutions, params *scrapeConfigParams) ([]*config.ScrapeConfig, error) {
+	// Old pmm-agents doesn't have support of multiple resolution,
+	// so requesting mongodb_exporter metrics in two resolutions increases CPU and Memory usage.
+	if params.pmmAgentVersion == nil || params.pmmAgentVersion.Less(version.MustParse("2.25.99")) {
+		hr, err := scrapeConfigForStandardExporter("hr", s.HR, params, nil)
+		if err != nil {
+			return nil, err
+		}
+
+		var r []*config.ScrapeConfig
+		if hr != nil {
+			r = append(r, hr)
+		}
+		return r, nil
+	}
 	hr, err := scrapeConfigForStandardExporter("hr", s.HR, params, []string{
 		"diagnosticdata",
 		"replicasetstatus",
@@ -385,17 +400,19 @@ func scrapeConfigsForMongoDBExporter(s *models.MetricsResolutions, params *scrap
 	if hr != nil {
 		r = append(r, hr)
 	}
-	lr, err := scrapeConfigForStandardExporter("lr", s.LR, params, []string{
-		"dbstats",
-		"indexstats",
-		"collstats",
-	})
-	if err != nil {
-		return nil, err
-	}
+	if params.agent.MongoDBOptions != nil && params.agent.MongoDBOptions.EnableAllCollectors {
+		lr, err := scrapeConfigForStandardExporter("lr", s.LR, params, []string{
+			"dbstats",
+			"indexstats",
+			"collstats",
+		})
+		if err != nil {
+			return nil, err
+		}
 
-	if lr != nil {
-		r = append(r, lr)
+		if lr != nil {
+			r = append(r, lr)
+		}
 	}
 	return r, nil
 }

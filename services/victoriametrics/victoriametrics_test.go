@@ -102,6 +102,7 @@ func TestVictoriaMetrics(t *testing.T) {
 				AgentID:      "/agent_id/217907dc-d34d-4e2e-aa84-a1b765d49853",
 				AgentType:    models.PMMAgentType,
 				RunsOnNodeID: pointer.ToString("/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d"),
+				Version:      pointer.ToString("2.26.0"),
 			},
 
 			// listen port not known
@@ -144,12 +145,13 @@ func TestVictoriaMetrics(t *testing.T) {
 			},
 
 			&models.Agent{
-				AgentID:      "/agent_id/ecd8995a-d479-4b4d-bfb7-865bac4ac2fb",
-				AgentType:    models.MongoDBExporterType,
-				PMMAgentID:   pointer.ToString("/agent_id/217907dc-d34d-4e2e-aa84-a1b765d49853"),
-				ServiceID:    pointer.ToString("/service_id/acds89846-3cd2-47f8-a5f9-ac789513cde4"),
-				CustomLabels: []byte(`{"_agent_label": "mongodb-baz"}`),
-				ListenPort:   pointer.ToUint16(12346),
+				AgentID:        "/agent_id/ecd8995a-d479-4b4d-bfb7-865bac4ac2fb",
+				AgentType:      models.MongoDBExporterType,
+				PMMAgentID:     pointer.ToString("/agent_id/217907dc-d34d-4e2e-aa84-a1b765d49853"),
+				ServiceID:      pointer.ToString("/service_id/acds89846-3cd2-47f8-a5f9-ac789513cde4"),
+				CustomLabels:   []byte(`{"_agent_label": "mongodb-baz"}`),
+				ListenPort:     pointer.ToUint16(12346),
+				MongoDBOptions: &models.MongoDBOptions{EnableAllCollectors: true},
 			},
 
 			&models.Agent{
