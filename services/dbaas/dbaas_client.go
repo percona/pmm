@@ -26,6 +26,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/backoff"
+	"google.golang.org/grpc/credentials/insecure"
 
 	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	"github.com/percona/pmm/version"
@@ -68,7 +69,7 @@ func (c *Client) Connect(ctx context.Context) error {
 	backoffConfig.MaxDelay = 10 * time.Second
 	opts := []grpc.DialOption{
 		grpc.WithBlock(), // Dial blocks, we do not connect in background.
-		grpc.WithInsecure(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithConnectParams(grpc.ConnectParams{Backoff: backoffConfig, MinConnectTimeout: 10 * time.Second}),
 		grpc.WithUserAgent("pmm-managed/" + version.Version),
 	}
