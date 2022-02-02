@@ -125,10 +125,10 @@ swagger:model AddProxySQLExporterBody
 type AddProxySQLExporterBody struct {
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmmAgentId,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// ProxySQL username for scraping metrics.
 	Username string `json:"username,omitempty"`
@@ -140,22 +140,22 @@ type AddProxySQLExporterBody struct {
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Skip connection check.
-	SkipConnectionCheck bool `json:"skipConnectionCheck,omitempty"`
+	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 
 	// Enables push metrics mode for exporter.
-	PushMetrics bool `json:"pushMetrics,omitempty"`
+	PushMetrics bool `json:"push_metrics,omitempty"`
 
 	// List of collector names to disable in this exporter.
-	DisableCollectors []string `json:"disableCollectors"`
+	DisableCollectors []string `json:"disable_collectors"`
 
 	// Custom password for exporter endpoint /metrics.
-	AgentPassword string `json:"agentPassword,omitempty"`
+	AgentPassword string `json:"agent_password,omitempty"`
 }
 
 // Validate validates this add proxy SQL exporter body
@@ -259,7 +259,7 @@ swagger:model AddProxySQLExporterOKBody
 type AddProxySQLExporterOKBody struct {
 
 	// proxysql exporter
-	ProxysqlExporter *AddProxySQLExporterOKBodyProxysqlExporter `json:"proxysqlExporter,omitempty"`
+	ProxysqlExporter *AddProxySQLExporterOKBodyProxysqlExporter `json:"proxysql_exporter,omitempty"`
 }
 
 // Validate validates this add proxy SQL exporter OK body
@@ -285,7 +285,7 @@ func (o *AddProxySQLExporterOKBody) validateProxysqlExporter(formats strfmt.Regi
 	if o.ProxysqlExporter != nil {
 		if err := o.ProxysqlExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addProxySqlExporterOk" + "." + "proxysqlExporter")
+				return ve.ValidateName("addProxySqlExporterOk" + "." + "proxysql_exporter")
 			}
 			return err
 		}
@@ -318,16 +318,16 @@ swagger:model AddProxySQLExporterOKBodyProxysqlExporter
 type AddProxySQLExporterOKBodyProxysqlExporter struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agentId,omitempty"`
+	AgentID string `json:"agent_id,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmmAgentId,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// ProxySQL username for scraping metrics.
 	Username string `json:"username,omitempty"`
@@ -336,16 +336,16 @@ type AddProxySQLExporterOKBodyProxysqlExporter struct {
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// True if exporter uses push metrics mode.
-	PushMetricsEnabled bool `json:"pushMetricsEnabled,omitempty"`
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
 	// List of disabled collector names.
-	DisabledCollectors []string `json:"disabledCollectors"`
+	DisabledCollectors []string `json:"disabled_collectors"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -359,7 +359,7 @@ type AddProxySQLExporterOKBodyProxysqlExporter struct {
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listenPort,omitempty"`
+	ListenPort int64 `json:"listen_port,omitempty"`
 }
 
 // Validate validates this add proxy SQL exporter OK body proxysql exporter
@@ -427,7 +427,7 @@ func (o *AddProxySQLExporterOKBodyProxysqlExporter) validateStatus(formats strfm
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addProxySqlExporterOk"+"."+"proxysqlExporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addProxySqlExporterOk"+"."+"proxysql_exporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 

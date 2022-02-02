@@ -40,37 +40,37 @@
                   "type": "string",
                   "x-order": 1
                 },
-                "azureClientId": {
+                "azure_client_id": {
                   "description": "Azure client ID.",
                   "type": "string",
                   "x-order": 11
                 },
-                "azureClientSecret": {
+                "azure_client_secret": {
                   "description": "Azure client secret.",
                   "type": "string",
                   "x-order": 12
                 },
-                "azureDatabaseExporter": {
+                "azure_database_exporter": {
                   "description": "If true, adds azure_database_exporter.",
                   "type": "boolean",
                   "x-order": 16
                 },
-                "azureResourceGroup": {
+                "azure_resource_group": {
                   "description": "Azure resource group.",
                   "type": "string",
                   "x-order": 15
                 },
-                "azureSubscriptionId": {
+                "azure_subscription_id": {
                   "description": "Azure subscription ID.",
                   "type": "string",
                   "x-order": 14
                 },
-                "azureTenantId": {
+                "azure_tenant_id": {
                   "description": "Azure tanant ID.",
                   "type": "string",
                   "x-order": 13
                 },
-                "customLabels": {
+                "custom_labels": {
                   "description": "Custom user-assigned labels for Node and Service.",
                   "type": "object",
                   "additionalProperties": {
@@ -78,7 +78,7 @@
                   },
                   "x-order": 18
                 },
-                "disableQueryExamples": {
+                "disable_query_examples": {
                   "description": "Disable query examples.",
                   "type": "boolean",
                   "x-order": 22
@@ -88,17 +88,17 @@
                   "type": "string",
                   "x-order": 8
                 },
-                "instanceId": {
+                "instance_id": {
                   "description": "Azure database instance ID.",
                   "type": "string",
                   "x-order": 2
                 },
-                "nodeModel": {
+                "node_model": {
                   "description": "Represents a purchasable Stock Keeping Unit (SKU) under a product.\nhttps://docs.microsoft.com/en-us/partner-center/develop/product-resources#sku.",
                   "type": "string",
                   "x-order": 3
                 },
-                "nodeName": {
+                "node_name": {
                   "description": "Unique across all Nodes user-defined name. Defaults to Azure Database instance ID.",
                   "type": "string",
                   "x-order": 6
@@ -124,17 +124,17 @@
                   "type": "string",
                   "x-order": 0
                 },
-                "serviceName": {
+                "service_name": {
                   "description": "Unique across all Services user-defined name. Defaults to Azure Database instance ID.",
                   "type": "string",
                   "x-order": 7
                 },
-                "skipConnectionCheck": {
+                "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 19
                 },
-                "tablestatsGroupTableLimit": {
+                "tablestats_group_table_limit": {
                   "description": "Tablestats group collectors will be disabled if there are more than that number of tables.\nIf zero, server's default value is used.\nUse negative value to disable them.",
                   "type": "integer",
                   "format": "int32",
@@ -145,7 +145,7 @@
                   "type": "boolean",
                   "x-order": 20
                 },
-                "tlsSkipVerify": {
+                "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",
                   "type": "boolean",
                   "x-order": 21
@@ -227,22 +227,22 @@
               "description": "DiscoverAzureDatabaseRequest discover azure databases request.",
               "type": "object",
               "properties": {
-                "azureClientId": {
+                "azure_client_id": {
                   "description": "Azure client ID.",
                   "type": "string",
                   "x-order": 0
                 },
-                "azureClientSecret": {
+                "azure_client_secret": {
                   "description": "Azure client secret.",
                   "type": "string",
                   "x-order": 1
                 },
-                "azureSubscriptionId": {
+                "azure_subscription_id": {
                   "description": "Azure subscription ID.",
                   "type": "string",
                   "x-order": 3
                 },
-                "azureTenantId": {
+                "azure_tenant_id": {
                   "description": "Azure tanant ID.",
                   "type": "string",
                   "x-order": 2
@@ -258,7 +258,7 @@
               "description": "DiscoverAzureDatabaseResponse discover azure databases response.",
               "type": "object",
               "properties": {
-                "azureDatabaseInstance": {
+                "azure_database_instance": {
                   "type": "array",
                   "items": {
                     "description": "DiscoverAzureDatabaseInstance models an unique Azure Database instance for the list of instances returned by Discovery.",
@@ -274,7 +274,7 @@
                         "type": "string",
                         "x-order": 8
                       },
-                      "azureResourceGroup": {
+                      "azure_resource_group": {
                         "description": "Azure Resource group.",
                         "type": "string",
                         "x-order": 5
@@ -284,12 +284,12 @@
                         "type": "string",
                         "x-order": 6
                       },
-                      "instanceId": {
+                      "instance_id": {
                         "description": "Azure database instance ID.",
                         "type": "string",
                         "x-order": 0
                       },
-                      "nodeModel": {
+                      "node_model": {
                         "description": "Represents a purchasable Stock Keeping Unit (SKU) under a product.\nhttps://docs.microsoft.com/en-us/partner-center/develop/product-resources#sku.",
                         "type": "string",
                         "x-order": 9
@@ -299,7 +299,7 @@
                         "type": "string",
                         "x-order": 1
                       },
-                      "serviceName": {
+                      "service_name": {
                         "description": "Azure database server name.",
                         "type": "string",
                         "x-order": 2

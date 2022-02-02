@@ -265,7 +265,7 @@ type TicketsItems0 struct {
 	Number string `json:"number,omitempty"`
 
 	// Ticket short description.
-	ShortDescription string `json:"shortDescription,omitempty"`
+	ShortDescription string `json:"short_description,omitempty"`
 
 	// Ticket priority.
 	Priority string `json:"priority,omitempty"`
@@ -275,7 +275,7 @@ type TicketsItems0 struct {
 
 	// Ticket creation time.
 	// Format: date-time
-	CreateTime strfmt.DateTime `json:"createTime,omitempty"`
+	CreateTime strfmt.DateTime `json:"create_time,omitempty"`
 
 	// Department.
 	Department string `json:"department,omitempty"`
@@ -284,7 +284,7 @@ type TicketsItems0 struct {
 	Requester string `json:"requester,omitempty"`
 
 	// Task type.
-	TaskType string `json:"taskType,omitempty"`
+	TaskType string `json:"task_type,omitempty"`
 
 	// Ticket url.
 	URL string `json:"url,omitempty"`
@@ -310,7 +310,7 @@ func (o *TicketsItems0) validateCreateTime(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("createTime", "body", "date-time", o.CreateTime.String(), formats); err != nil {
+	if err := validate.FormatOf("create_time", "body", "date-time", o.CreateTime.String(), formats); err != nil {
 		return err
 	}
 

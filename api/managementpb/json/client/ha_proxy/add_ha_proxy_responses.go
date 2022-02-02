@@ -126,18 +126,18 @@ type AddHAProxyBody struct {
 
 	// Node identifier on which an external exporter is been running.
 	// Exactly one of these parameters should be present: node_id, node_name, add_node.
-	NodeID string `json:"nodeId,omitempty"`
+	NodeID string `json:"node_id,omitempty"`
 
 	// Node name on which a service and node is been running.
 	// Exactly one of these parameters should be present: node_id, node_name, add_node.
-	NodeName string `json:"nodeName,omitempty"`
+	NodeName string `json:"node_name,omitempty"`
 
 	// Node and Exporter access address (DNS name or IP).
 	// address always should be passed with add_node.
 	Address string `json:"address,omitempty"`
 
 	// Unique across all Services user-defined name. Required.
-	ServiceName string `json:"serviceName,omitempty"`
+	ServiceName string `json:"service_name,omitempty"`
 
 	// HTTP basic auth username for collecting metrics.
 	Username string `json:"username,omitempty"`
@@ -149,10 +149,10 @@ type AddHAProxyBody struct {
 	Scheme string `json:"scheme,omitempty"`
 
 	// Path under which metrics are exposed, used to generate URI.
-	MetricsPath string `json:"metricsPath,omitempty"`
+	MetricsPath string `json:"metrics_path,omitempty"`
 
 	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listenPort,omitempty"`
+	ListenPort int64 `json:"listen_port,omitempty"`
 
 	// Environment name.
 	Environment string `json:"environment,omitempty"`
@@ -161,21 +161,21 @@ type AddHAProxyBody struct {
 	Cluster string `json:"cluster,omitempty"`
 
 	// Replication set name.
-	ReplicationSet string `json:"replicationSet,omitempty"`
+	ReplicationSet string `json:"replication_set,omitempty"`
 
 	// Custom user-assigned labels for Service.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// MetricsMode defines desired metrics mode for agent,
 	// it can be pull, push or auto mode chosen by server.
 	// Enum: [AUTO PULL PUSH]
-	MetricsMode *string `json:"metricsMode,omitempty"`
+	MetricsMode *string `json:"metrics_mode,omitempty"`
 
 	// Skip connection check.
-	SkipConnectionCheck bool `json:"skipConnectionCheck,omitempty"`
+	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 
 	// add node
-	AddNode *AddHAProxyParamsBodyAddNode `json:"addNode,omitempty"`
+	AddNode *AddHAProxyParamsBodyAddNode `json:"add_node,omitempty"`
 }
 
 // Validate validates this add HA proxy body
@@ -235,7 +235,7 @@ func (o *AddHAProxyBody) validateMetricsMode(formats strfmt.Registry) error {
 	}
 
 	// value enum
-	if err := o.validateMetricsModeEnum("body"+"."+"metricsMode", "body", *o.MetricsMode); err != nil {
+	if err := o.validateMetricsModeEnum("body"+"."+"metrics_mode", "body", *o.MetricsMode); err != nil {
 		return err
 	}
 
@@ -251,7 +251,7 @@ func (o *AddHAProxyBody) validateAddNode(formats strfmt.Registry) error {
 	if o.AddNode != nil {
 		if err := o.AddNode.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "addNode")
+				return ve.ValidateName("body" + "." + "add_node")
 			}
 			return err
 		}
@@ -356,7 +356,7 @@ swagger:model AddHAProxyOKBody
 type AddHAProxyOKBody struct {
 
 	// external exporter
-	ExternalExporter *AddHAProxyOKBodyExternalExporter `json:"externalExporter,omitempty"`
+	ExternalExporter *AddHAProxyOKBodyExternalExporter `json:"external_exporter,omitempty"`
 
 	// service
 	Service *AddHAProxyOKBodyService `json:"service,omitempty"`
@@ -389,7 +389,7 @@ func (o *AddHAProxyOKBody) validateExternalExporter(formats strfmt.Registry) err
 	if o.ExternalExporter != nil {
 		if err := o.ExternalExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addHaProxyOk" + "." + "externalExporter")
+				return ve.ValidateName("addHaProxyOk" + "." + "external_exporter")
 			}
 			return err
 		}
@@ -440,16 +440,16 @@ swagger:model AddHAProxyOKBodyExternalExporter
 type AddHAProxyOKBodyExternalExporter struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agentId,omitempty"`
+	AgentID string `json:"agent_id,omitempty"`
 
 	// Node identifier where this instance runs.
-	RunsOnNodeID string `json:"runsOnNodeId,omitempty"`
+	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 
 	// If disabled, metrics from this exporter will not be collected.
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// HTTP basic auth username for collecting metrics.
 	Username string `json:"username,omitempty"`
@@ -458,16 +458,16 @@ type AddHAProxyOKBodyExternalExporter struct {
 	Scheme string `json:"scheme,omitempty"`
 
 	// Path under which metrics are exposed, used to generate URI.
-	MetricsPath string `json:"metricsPath,omitempty"`
+	MetricsPath string `json:"metrics_path,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listenPort,omitempty"`
+	ListenPort int64 `json:"listen_port,omitempty"`
 
 	// True if exporter uses push metrics mode.
-	PushMetricsEnabled bool `json:"pushMetricsEnabled,omitempty"`
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 }
 
 // Validate validates this add HA proxy OK body external exporter
@@ -499,13 +499,13 @@ swagger:model AddHAProxyOKBodyService
 type AddHAProxyOKBodyService struct {
 
 	// Unique randomly generated instance identifier.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// Unique across all Services user-defined name.
-	ServiceName string `json:"serviceName,omitempty"`
+	ServiceName string `json:"service_name,omitempty"`
 
 	// Node identifier where this service instance runs.
-	NodeID string `json:"nodeId,omitempty"`
+	NodeID string `json:"node_id,omitempty"`
 
 	// Environment name.
 	Environment string `json:"environment,omitempty"`
@@ -514,10 +514,10 @@ type AddHAProxyOKBodyService struct {
 	Cluster string `json:"cluster,omitempty"`
 
 	// Replication set name.
-	ReplicationSet string `json:"replicationSet,omitempty"`
+	ReplicationSet string `json:"replication_set,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this add HA proxy OK body service
@@ -550,25 +550,25 @@ type AddHAProxyParamsBodyAddNode struct {
 
 	// NodeType describes supported Node types.
 	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE REMOTE_AZURE_DATABASE_NODE]
-	NodeType *string `json:"nodeType,omitempty"`
+	NodeType *string `json:"node_type,omitempty"`
 
 	// Unique across all Nodes user-defined name.
-	NodeName string `json:"nodeName,omitempty"`
+	NodeName string `json:"node_name,omitempty"`
 
 	// Linux machine-id.
-	MachineID string `json:"machineId,omitempty"`
+	MachineID string `json:"machine_id,omitempty"`
 
 	// Linux distribution name and version.
 	Distro string `json:"distro,omitempty"`
 
 	// Container identifier. If specified, must be a unique Docker container identifier.
-	ContainerID string `json:"containerId,omitempty"`
+	ContainerID string `json:"container_id,omitempty"`
 
 	// Container name.
-	ContainerName string `json:"containerName,omitempty"`
+	ContainerName string `json:"container_name,omitempty"`
 
 	// Node model.
-	NodeModel string `json:"nodeModel,omitempty"`
+	NodeModel string `json:"node_model,omitempty"`
 
 	// Node region.
 	Region string `json:"region,omitempty"`
@@ -577,7 +577,7 @@ type AddHAProxyParamsBodyAddNode struct {
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels for Node.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this add HA proxy params body add node
@@ -642,7 +642,7 @@ func (o *AddHAProxyParamsBodyAddNode) validateNodeType(formats strfmt.Registry) 
 	}
 
 	// value enum
-	if err := o.validateNodeTypeEnum("body"+"."+"addNode"+"."+"nodeType", "body", *o.NodeType); err != nil {
+	if err := o.validateNodeTypeEnum("body"+"."+"add_node"+"."+"node_type", "body", *o.NodeType); err != nil {
 		return err
 	}
 

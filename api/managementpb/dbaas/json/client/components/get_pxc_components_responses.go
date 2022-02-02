@@ -123,10 +123,10 @@ swagger:model GetPXCComponentsBody
 type GetPXCComponentsBody struct {
 
 	// Kubernetes cluster name.
-	KubernetesClusterName string `json:"kubernetesClusterName,omitempty"`
+	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
 
 	// Version of DB.
-	DBVersion string `json:"dbVersion,omitempty"`
+	DBVersion string `json:"db_version,omitempty"`
 }
 
 // Validate validates this get PXC components body

@@ -120,8 +120,8 @@ swagger:model RemoveChannelBody
 */
 type RemoveChannelBody struct {
 
-	// channel Id
-	ChannelID string `json:"channelId,omitempty"`
+	// channel id
+	ChannelID string `json:"channel_id,omitempty"`
 }
 
 // Validate validates this remove channel body

@@ -123,7 +123,7 @@ swagger:model UpdateAlertRuleBody
 type UpdateAlertRuleBody struct {
 
 	// Rule ID.
-	RuleID string `json:"ruleId,omitempty"`
+	RuleID string `json:"rule_id,omitempty"`
 
 	// Rule name. Should be set.
 	Name string `json:"name,omitempty"`
@@ -142,13 +142,13 @@ type UpdateAlertRuleBody struct {
 	Severity *string `json:"severity,omitempty"`
 
 	// All custom labels to add or remove (with empty values) to default labels from template.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Filters. Should be set.
 	Filters []*FiltersItems0 `json:"filters"`
 
 	// Channels. Should be set.
-	ChannelIds []string `json:"channelIds"`
+	ChannelIds []string `json:"channel_ids"`
 }
 
 // Validate validates this update alert rule body

@@ -124,8 +124,8 @@ swagger:model ChangePostgresExporterBody
 */
 type ChangePostgresExporterBody struct {
 
-	// agent Id
-	AgentID string `json:"agentId,omitempty"`
+	// agent id
+	AgentID string `json:"agent_id,omitempty"`
 
 	// common
 	Common *ChangePostgresExporterParamsBodyCommon `json:"common,omitempty"`
@@ -259,7 +259,7 @@ swagger:model ChangePostgresExporterOKBody
 type ChangePostgresExporterOKBody struct {
 
 	// postgres exporter
-	PostgresExporter *ChangePostgresExporterOKBodyPostgresExporter `json:"postgresExporter,omitempty"`
+	PostgresExporter *ChangePostgresExporterOKBodyPostgresExporter `json:"postgres_exporter,omitempty"`
 }
 
 // Validate validates this change postgres exporter OK body
@@ -285,7 +285,7 @@ func (o *ChangePostgresExporterOKBody) validatePostgresExporter(formats strfmt.R
 	if o.PostgresExporter != nil {
 		if err := o.PostgresExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("changePostgresExporterOk" + "." + "postgresExporter")
+				return ve.ValidateName("changePostgresExporterOk" + "." + "postgres_exporter")
 			}
 			return err
 		}
@@ -318,16 +318,16 @@ swagger:model ChangePostgresExporterOKBodyPostgresExporter
 type ChangePostgresExporterOKBodyPostgresExporter struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agentId,omitempty"`
+	AgentID string `json:"agent_id,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmmAgentId,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// PostgreSQL username for scraping metrics.
 	Username string `json:"username,omitempty"`
@@ -336,16 +336,16 @@ type ChangePostgresExporterOKBodyPostgresExporter struct {
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
-	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// True if exporter uses push metrics mode.
-	PushMetricsEnabled bool `json:"pushMetricsEnabled,omitempty"`
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
 	// List of disabled collector names.
-	DisabledCollectors []string `json:"disabledCollectors"`
+	DisabledCollectors []string `json:"disabled_collectors"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -359,7 +359,7 @@ type ChangePostgresExporterOKBodyPostgresExporter struct {
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listenPort,omitempty"`
+	ListenPort int64 `json:"listen_port,omitempty"`
 }
 
 // Validate validates this change postgres exporter OK body postgres exporter
@@ -427,7 +427,7 @@ func (o *ChangePostgresExporterOKBodyPostgresExporter) validateStatus(formats st
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("changePostgresExporterOk"+"."+"postgresExporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("changePostgresExporterOk"+"."+"postgres_exporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -464,17 +464,17 @@ type ChangePostgresExporterParamsBodyCommon struct {
 	Disable bool `json:"disable,omitempty"`
 
 	// Replace all custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Remove all custom user-assigned labels.
-	RemoveCustomLabels bool `json:"removeCustomLabels,omitempty"`
+	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
 
 	// Enables push metrics with vmagent, can't be used with disable_push_metrics.
 	// Can't be used with agent version lower then 2.12 and unsupported agents.
-	EnablePushMetrics bool `json:"enablePushMetrics,omitempty"`
+	EnablePushMetrics bool `json:"enable_push_metrics,omitempty"`
 
 	// Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.
-	DisablePushMetrics bool `json:"disablePushMetrics,omitempty"`
+	DisablePushMetrics bool `json:"disable_push_metrics,omitempty"`
 }
 
 // Validate validates this change postgres exporter params body common

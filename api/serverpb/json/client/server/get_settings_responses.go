@@ -254,61 +254,61 @@ swagger:model GetSettingsOKBodySettings
 type GetSettingsOKBodySettings struct {
 
 	// True if updates are disabled.
-	UpdatesDisabled bool `json:"updatesDisabled,omitempty"`
+	UpdatesDisabled bool `json:"updates_disabled,omitempty"`
 
 	// True if telemetry is enabled.
-	TelemetryEnabled bool `json:"telemetryEnabled,omitempty"`
+	TelemetryEnabled bool `json:"telemetry_enabled,omitempty"`
 
 	// data retention
-	DataRetention string `json:"dataRetention,omitempty"`
+	DataRetention string `json:"data_retention,omitempty"`
 
 	// ssh key
-	SSHKey string `json:"sshKey,omitempty"`
+	SSHKey string `json:"ssh_key,omitempty"`
 
 	// aws partitions
-	AWSPartitions []string `json:"awsPartitions"`
+	AWSPartitions []string `json:"aws_partitions"`
 
 	// External AlertManager URL (e.g., https://username:password@1.2.3.4/path).
-	AlertManagerURL string `json:"alertManagerUrl,omitempty"`
+	AlertManagerURL string `json:"alert_manager_url,omitempty"`
 
 	// Custom alerting or recording rules.
-	AlertManagerRules string `json:"alertManagerRules,omitempty"`
+	AlertManagerRules string `json:"alert_manager_rules,omitempty"`
 
 	// True if Security Threat Tool is enabled.
-	SttEnabled bool `json:"sttEnabled,omitempty"`
+	SttEnabled bool `json:"stt_enabled,omitempty"`
 
 	// Percona Platform user's email, if this PMM instance is linked to the Platform.
-	PlatformEmail string `json:"platformEmail,omitempty"`
+	PlatformEmail string `json:"platform_email,omitempty"`
 
 	// True if DBaaS is enabled.
-	DbaasEnabled bool `json:"dbaasEnabled,omitempty"`
+	DbaasEnabled bool `json:"dbaas_enabled,omitempty"`
 
 	// True if Alerting is enabled.
-	AlertingEnabled bool `json:"alertingEnabled,omitempty"`
+	AlertingEnabled bool `json:"alerting_enabled,omitempty"`
 
 	// PMM Server public address.
-	PMMPublicAddress string `json:"pmmPublicAddress,omitempty"`
+	PMMPublicAddress string `json:"pmm_public_address,omitempty"`
 
 	// True if Backup Management is enabled.
-	BackupManagementEnabled bool `json:"backupManagementEnabled,omitempty"`
+	BackupManagementEnabled bool `json:"backup_management_enabled,omitempty"`
 
 	// True if Azure Discover is enabled.
-	AzurediscoverEnabled bool `json:"azurediscoverEnabled,omitempty"`
+	AzurediscoverEnabled bool `json:"azurediscover_enabled,omitempty"`
 
 	// True if the PMM instance is connected to Platform
-	ConnectedToPlatform bool `json:"connectedToPlatform,omitempty"`
+	ConnectedToPlatform bool `json:"connected_to_platform,omitempty"`
 
 	// email alerting settings
-	EmailAlertingSettings *GetSettingsOKBodySettingsEmailAlertingSettings `json:"emailAlertingSettings,omitempty"`
+	EmailAlertingSettings *GetSettingsOKBodySettingsEmailAlertingSettings `json:"email_alerting_settings,omitempty"`
 
 	// metrics resolutions
-	MetricsResolutions *GetSettingsOKBodySettingsMetricsResolutions `json:"metricsResolutions,omitempty"`
+	MetricsResolutions *GetSettingsOKBodySettingsMetricsResolutions `json:"metrics_resolutions,omitempty"`
 
 	// slack alerting settings
-	SlackAlertingSettings *GetSettingsOKBodySettingsSlackAlertingSettings `json:"slackAlertingSettings,omitempty"`
+	SlackAlertingSettings *GetSettingsOKBodySettingsSlackAlertingSettings `json:"slack_alerting_settings,omitempty"`
 
 	// stt check intervals
-	SttCheckIntervals *GetSettingsOKBodySettingsSttCheckIntervals `json:"sttCheckIntervals,omitempty"`
+	SttCheckIntervals *GetSettingsOKBodySettingsSttCheckIntervals `json:"stt_check_intervals,omitempty"`
 }
 
 // Validate validates this get settings OK body settings
@@ -346,7 +346,7 @@ func (o *GetSettingsOKBodySettings) validateEmailAlertingSettings(formats strfmt
 	if o.EmailAlertingSettings != nil {
 		if err := o.EmailAlertingSettings.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getSettingsOk" + "." + "settings" + "." + "emailAlertingSettings")
+				return ve.ValidateName("getSettingsOk" + "." + "settings" + "." + "email_alerting_settings")
 			}
 			return err
 		}
@@ -364,7 +364,7 @@ func (o *GetSettingsOKBodySettings) validateMetricsResolutions(formats strfmt.Re
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getSettingsOk" + "." + "settings" + "." + "metricsResolutions")
+				return ve.ValidateName("getSettingsOk" + "." + "settings" + "." + "metrics_resolutions")
 			}
 			return err
 		}
@@ -382,7 +382,7 @@ func (o *GetSettingsOKBodySettings) validateSlackAlertingSettings(formats strfmt
 	if o.SlackAlertingSettings != nil {
 		if err := o.SlackAlertingSettings.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getSettingsOk" + "." + "settings" + "." + "slackAlertingSettings")
+				return ve.ValidateName("getSettingsOk" + "." + "settings" + "." + "slack_alerting_settings")
 			}
 			return err
 		}
@@ -400,7 +400,7 @@ func (o *GetSettingsOKBodySettings) validateSttCheckIntervals(formats strfmt.Reg
 	if o.SttCheckIntervals != nil {
 		if err := o.SttCheckIntervals.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getSettingsOk" + "." + "settings" + "." + "sttCheckIntervals")
+				return ve.ValidateName("getSettingsOk" + "." + "settings" + "." + "stt_check_intervals")
 			}
 			return err
 		}
@@ -454,7 +454,7 @@ type GetSettingsOKBodySettingsEmailAlertingSettings struct {
 	Secret string `json:"secret,omitempty"`
 
 	// Require TLS.
-	RequireTLS bool `json:"requireTls,omitempty"`
+	RequireTLS bool `json:"require_tls,omitempty"`
 }
 
 // Validate validates this get settings OK body settings email alerting settings
@@ -556,13 +556,13 @@ swagger:model GetSettingsOKBodySettingsSttCheckIntervals
 type GetSettingsOKBodySettingsSttCheckIntervals struct {
 
 	// Standard check interval.
-	StandardInterval string `json:"standardInterval,omitempty"`
+	StandardInterval string `json:"standard_interval,omitempty"`
 
 	// Interval for rare check runs.
-	RareInterval string `json:"rareInterval,omitempty"`
+	RareInterval string `json:"rare_interval,omitempty"`
 
 	// Interval for frequent check runs.
-	FrequentInterval string `json:"frequentInterval,omitempty"`
+	FrequentInterval string `json:"frequent_interval,omitempty"`
 }
 
 // Validate validates this get settings OK body settings stt check intervals

@@ -125,10 +125,10 @@ swagger:model DiscoverRDSBody
 type DiscoverRDSBody struct {
 
 	// AWS Access key. Optional.
-	AWSAccessKey string `json:"awsAccessKey,omitempty"`
+	AWSAccessKey string `json:"aws_access_key,omitempty"`
 
 	// AWS Secret key. Optional.
-	AWSSecretKey string `json:"awsSecretKey,omitempty"`
+	AWSSecretKey string `json:"aws_secret_key,omitempty"`
 }
 
 // Validate validates this discover RDS body
@@ -232,7 +232,7 @@ swagger:model DiscoverRDSOKBody
 type DiscoverRDSOKBody struct {
 
 	// rds instances
-	RDSInstances []*RDSInstancesItems0 `json:"rdsInstances"`
+	RDSInstances []*RDSInstancesItems0 `json:"rds_instances"`
 }
 
 // Validate validates this discover RDS OK body
@@ -263,7 +263,7 @@ func (o *DiscoverRDSOKBody) validateRDSInstances(formats strfmt.Registry) error 
 		if o.RDSInstances[i] != nil {
 			if err := o.RDSInstances[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("discoverRdsOk" + "." + "rdsInstances" + "." + strconv.Itoa(i))
+					return ve.ValidateName("discoverRdsOk" + "." + "rds_instances" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -304,10 +304,10 @@ type RDSInstancesItems0 struct {
 	Az string `json:"az,omitempty"`
 
 	// AWS instance ID.
-	InstanceID string `json:"instanceId,omitempty"`
+	InstanceID string `json:"instance_id,omitempty"`
 
 	// AWS instance class.
-	NodeModel string `json:"nodeModel,omitempty"`
+	NodeModel string `json:"node_model,omitempty"`
 
 	// Address used to connect to it.
 	Address string `json:"address,omitempty"`
@@ -320,7 +320,7 @@ type RDSInstancesItems0 struct {
 	Engine *string `json:"engine,omitempty"`
 
 	// Engine version.
-	EngineVersion string `json:"engineVersion,omitempty"`
+	EngineVersion string `json:"engine_version,omitempty"`
 }
 
 // Validate validates this RDS instances items0

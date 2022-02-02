@@ -123,7 +123,7 @@ swagger:model GetPXCClusterCredentialsBody
 type GetPXCClusterCredentialsBody struct {
 
 	// Kubernetes cluster name.
-	KubernetesClusterName string `json:"kubernetesClusterName,omitempty"`
+	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
 
 	// PXC cluster name.
 	Name string `json:"name,omitempty"`
@@ -230,7 +230,7 @@ swagger:model GetPXCClusterCredentialsOKBody
 type GetPXCClusterCredentialsOKBody struct {
 
 	// connection credentials
-	ConnectionCredentials *GetPXCClusterCredentialsOKBodyConnectionCredentials `json:"connectionCredentials,omitempty"`
+	ConnectionCredentials *GetPXCClusterCredentialsOKBodyConnectionCredentials `json:"connection_credentials,omitempty"`
 }
 
 // Validate validates this get PXC cluster credentials OK body
@@ -256,7 +256,7 @@ func (o *GetPXCClusterCredentialsOKBody) validateConnectionCredentials(formats s
 	if o.ConnectionCredentials != nil {
 		if err := o.ConnectionCredentials.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getPxcClusterCredentialsOk" + "." + "connectionCredentials")
+				return ve.ValidateName("getPxcClusterCredentialsOk" + "." + "connection_credentials")
 			}
 			return err
 		}

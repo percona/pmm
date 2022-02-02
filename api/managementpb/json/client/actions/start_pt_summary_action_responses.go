@@ -123,10 +123,10 @@ swagger:model StartPTSummaryActionBody
 type StartPTSummaryActionBody struct {
 
 	// pmm-agent ID where to run this Action.
-	PMMAgentID string `json:"pmmAgentId,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Node ID for this Action.
-	NodeID string `json:"nodeId,omitempty"`
+	NodeID string `json:"node_id,omitempty"`
 }
 
 // Validate validates this start PT summary action body
@@ -230,10 +230,10 @@ swagger:model StartPTSummaryActionOKBody
 type StartPTSummaryActionOKBody struct {
 
 	// Unique Action ID.
-	ActionID string `json:"actionId,omitempty"`
+	ActionID string `json:"action_id,omitempty"`
 
 	// pmm-agent ID where to this Action was started.
-	PMMAgentID string `json:"pmmAgentId,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 }
 
 // Validate validates this start PT summary action OK body

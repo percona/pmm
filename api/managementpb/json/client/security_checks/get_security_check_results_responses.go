@@ -276,10 +276,10 @@ type ResultsItems0 struct {
 	Labels map[string]string `json:"labels,omitempty"`
 
 	// URL containing information on how to resolve an issue detected by an STT check.
-	ReadMoreURL string `json:"readMoreUrl,omitempty"`
+	ReadMoreURL string `json:"read_more_url,omitempty"`
 
 	// Name of the monitored service on which the check ran.
-	ServiceName string `json:"serviceName,omitempty"`
+	ServiceName string `json:"service_name,omitempty"`
 }
 
 // Validate validates this results items0

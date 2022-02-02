@@ -126,17 +126,17 @@ type GetLabelsBody struct {
 
 	// period start from
 	// Format: date-time
-	PeriodStartFrom strfmt.DateTime `json:"periodStartFrom,omitempty"`
+	PeriodStartFrom strfmt.DateTime `json:"period_start_from,omitempty"`
 
 	// period start to
 	// Format: date-time
-	PeriodStartTo strfmt.DateTime `json:"periodStartTo,omitempty"`
+	PeriodStartTo strfmt.DateTime `json:"period_start_to,omitempty"`
 
 	// dimension value: ex: queryid - 1D410B4BE5060972.
-	FilterBy string `json:"filterBy,omitempty"`
+	FilterBy string `json:"filter_by,omitempty"`
 
 	// one of dimension: queryid | host ...
-	GroupBy string `json:"groupBy,omitempty"`
+	GroupBy string `json:"group_by,omitempty"`
 }
 
 // Validate validates this get labels body
@@ -163,7 +163,7 @@ func (o *GetLabelsBody) validatePeriodStartFrom(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("body"+"."+"periodStartFrom", "body", "date-time", o.PeriodStartFrom.String(), formats); err != nil {
+	if err := validate.FormatOf("body"+"."+"period_start_from", "body", "date-time", o.PeriodStartFrom.String(), formats); err != nil {
 		return err
 	}
 
@@ -176,7 +176,7 @@ func (o *GetLabelsBody) validatePeriodStartTo(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("body"+"."+"periodStartTo", "body", "date-time", o.PeriodStartTo.String(), formats); err != nil {
+	if err := validate.FormatOf("body"+"."+"period_start_to", "body", "date-time", o.PeriodStartTo.String(), formats); err != nil {
 		return err
 	}
 

@@ -123,10 +123,10 @@ swagger:model RestoreBackupBody
 type RestoreBackupBody struct {
 
 	// Service identifier where backup should be restored.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// Artifact id to restore.
-	ArtifactID string `json:"artifactId,omitempty"`
+	ArtifactID string `json:"artifact_id,omitempty"`
 }
 
 // Validate validates this restore backup body
@@ -230,7 +230,7 @@ swagger:model RestoreBackupOKBody
 type RestoreBackupOKBody struct {
 
 	// Unique restore identifier.
-	RestoreID string `json:"restoreId,omitempty"`
+	RestoreID string `json:"restore_id,omitempty"`
 }
 
 // Validate validates this restore backup OK body

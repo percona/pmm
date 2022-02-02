@@ -121,7 +121,7 @@ swagger:model CancelActionBody
 type CancelActionBody struct {
 
 	// Unique Action ID. Required.
-	ActionID string `json:"actionId,omitempty"`
+	ActionID string `json:"action_id,omitempty"`
 }
 
 // Validate validates this cancel action body

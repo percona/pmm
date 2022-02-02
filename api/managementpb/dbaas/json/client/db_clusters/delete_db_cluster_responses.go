@@ -123,7 +123,7 @@ swagger:model DeleteDBClusterBody
 type DeleteDBClusterBody struct {
 
 	// Kubernetes cluster name.
-	KubernetesClusterName string `json:"kubernetesClusterName,omitempty"`
+	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
 
 	// DB cluster name.
 	Name string `json:"name,omitempty"`
@@ -134,7 +134,7 @@ type DeleteDBClusterBody struct {
 	//  - DB_CLUSTER_TYPE_PXC: DB_CLUSTER_TYPE_PXC represents pxc cluster type.
 	//  - DB_CLUSTER_TYPE_PSMDB: DB_CLUSTER_TYPE_PSMDB represents psmdb cluster type.
 	// Enum: [DB_CLUSTER_TYPE_INVALID DB_CLUSTER_TYPE_PXC DB_CLUSTER_TYPE_PSMDB]
-	ClusterType *string `json:"clusterType,omitempty"`
+	ClusterType *string `json:"cluster_type,omitempty"`
 }
 
 // Validate validates this delete DB cluster body
@@ -190,7 +190,7 @@ func (o *DeleteDBClusterBody) validateClusterType(formats strfmt.Registry) error
 	}
 
 	// value enum
-	if err := o.validateClusterTypeEnum("body"+"."+"clusterType", "body", *o.ClusterType); err != nil {
+	if err := o.validateClusterTypeEnum("body"+"."+"cluster_type", "body", *o.ClusterType); err != nil {
 		return err
 	}
 

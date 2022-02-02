@@ -129,13 +129,13 @@ type AddLocationBody struct {
 	Description string `json:"description,omitempty"`
 
 	// pmm client config
-	PMMClientConfig *AddLocationParamsBodyPMMClientConfig `json:"pmmClientConfig,omitempty"`
+	PMMClientConfig *AddLocationParamsBodyPMMClientConfig `json:"pmm_client_config,omitempty"`
 
 	// pmm server config
-	PMMServerConfig *AddLocationParamsBodyPMMServerConfig `json:"pmmServerConfig,omitempty"`
+	PMMServerConfig *AddLocationParamsBodyPMMServerConfig `json:"pmm_server_config,omitempty"`
 
 	// s3 config
-	S3Config *AddLocationParamsBodyS3Config `json:"s3Config,omitempty"`
+	S3Config *AddLocationParamsBodyS3Config `json:"s3_config,omitempty"`
 }
 
 // Validate validates this add location body
@@ -169,7 +169,7 @@ func (o *AddLocationBody) validatePMMClientConfig(formats strfmt.Registry) error
 	if o.PMMClientConfig != nil {
 		if err := o.PMMClientConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "pmmClientConfig")
+				return ve.ValidateName("body" + "." + "pmm_client_config")
 			}
 			return err
 		}
@@ -187,7 +187,7 @@ func (o *AddLocationBody) validatePMMServerConfig(formats strfmt.Registry) error
 	if o.PMMServerConfig != nil {
 		if err := o.PMMServerConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "pmmServerConfig")
+				return ve.ValidateName("body" + "." + "pmm_server_config")
 			}
 			return err
 		}
@@ -205,7 +205,7 @@ func (o *AddLocationBody) validateS3Config(formats strfmt.Registry) error {
 	if o.S3Config != nil {
 		if err := o.S3Config.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "s3Config")
+				return ve.ValidateName("body" + "." + "s3_config")
 			}
 			return err
 		}
@@ -310,7 +310,7 @@ swagger:model AddLocationOKBody
 type AddLocationOKBody struct {
 
 	// Machine-readable ID.
-	LocationID string `json:"locationId,omitempty"`
+	LocationID string `json:"location_id,omitempty"`
 }
 
 // Validate validates this add location OK body
@@ -409,13 +409,13 @@ type AddLocationParamsBodyS3Config struct {
 	Endpoint string `json:"endpoint,omitempty"`
 
 	// access key
-	AccessKey string `json:"accessKey,omitempty"`
+	AccessKey string `json:"access_key,omitempty"`
 
 	// secret key
-	SecretKey string `json:"secretKey,omitempty"`
+	SecretKey string `json:"secret_key,omitempty"`
 
 	// bucket name
-	BucketName string `json:"bucketName,omitempty"`
+	BucketName string `json:"bucket_name,omitempty"`
 }
 
 // Validate validates this add location params body s3 config

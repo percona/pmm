@@ -41,7 +41,7 @@
                   "type": "string",
                   "x-order": 2
                 },
-                "serverName": {
+                "server_name": {
                   "description": "User defined human readable PMM Server Name.",
                   "type": "string",
                   "x-order": 0
@@ -180,7 +180,7 @@
                     "description": "OrganizationEntitlement contains information about Organization entitlement.",
                     "type": "object",
                     "properties": {
-                      "endDate": {
+                      "end_date": {
                         "description": "Entitlement end date.\nNote: only date is used here but not time.",
                         "type": "string",
                         "format": "date-time",
@@ -200,12 +200,12 @@
                         "description": "Platform indicates platform specific entitlements.",
                         "type": "object",
                         "properties": {
-                          "configAdvisor": {
+                          "config_advisor": {
                             "description": "Flag indicates that config advisors are covered by this entitlement.",
                             "type": "string",
                             "x-order": 1
                           },
-                          "securityAdvisor": {
+                          "security_advisor": {
                             "description": "Flag indicates that security advisors are covered by this entitlement.",
                             "type": "string",
                             "x-order": 0
@@ -213,7 +213,7 @@
                         },
                         "x-order": 10
                       },
-                      "softwareFamilies": {
+                      "software_families": {
                         "description": "Percona product families covered by this entitlement.",
                         "type": "array",
                         "items": {
@@ -221,7 +221,7 @@
                         },
                         "x-order": 7
                       },
-                      "startDate": {
+                      "start_date": {
                         "description": "Entitlement start data.\nNote: only date is used here but not time.",
                         "type": "string",
                         "format": "date-time",
@@ -232,7 +232,7 @@
                         "type": "string",
                         "x-order": 2
                       },
-                      "supportLevel": {
+                      "support_level": {
                         "description": "Support level covered by this entitlement.",
                         "type": "string",
                         "x-order": 6
@@ -242,12 +242,12 @@
                         "type": "string",
                         "x-order": 3
                       },
-                      "totalUnits": {
+                      "total_units": {
                         "description": "Total units covered by this entitlement.",
                         "type": "string",
                         "x-order": 4
                       },
-                      "unlimitedUnits": {
+                      "unlimited_units": {
                         "description": "Flag indicates that unlimited units are covered.",
                         "type": "boolean",
                         "x-order": 5
@@ -324,7 +324,7 @@
                     "description": "OrganizationTicket contains information about the support ticket.",
                     "type": "object",
                     "properties": {
-                      "createTime": {
+                      "create_time": {
                         "description": "Ticket creation time.",
                         "type": "string",
                         "format": "date-time",
@@ -350,7 +350,7 @@
                         "type": "string",
                         "x-order": 6
                       },
-                      "shortDescription": {
+                      "short_description": {
                         "description": "Ticket short description.",
                         "type": "string",
                         "x-order": 1
@@ -360,7 +360,7 @@
                         "type": "string",
                         "x-order": 3
                       },
-                      "taskType": {
+                      "task_type": {
                         "description": "Task type.",
                         "type": "string",
                         "x-order": 7

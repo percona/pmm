@@ -123,13 +123,13 @@ swagger:model AddRemoteNodeBody
 type AddRemoteNodeBody struct {
 
 	// Unique across all Nodes user-defined name.
-	NodeName string `json:"nodeName,omitempty"`
+	NodeName string `json:"node_name,omitempty"`
 
 	// Node address (DNS name or IP).
 	Address string `json:"address,omitempty"`
 
 	// Node model.
-	NodeModel string `json:"nodeModel,omitempty"`
+	NodeModel string `json:"node_model,omitempty"`
 
 	// Node region.
 	Region string `json:"region,omitempty"`
@@ -138,7 +138,7 @@ type AddRemoteNodeBody struct {
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this add remote node body
@@ -301,16 +301,16 @@ swagger:model AddRemoteNodeOKBodyRemote
 type AddRemoteNodeOKBodyRemote struct {
 
 	// Unique randomly generated instance identifier.
-	NodeID string `json:"nodeId,omitempty"`
+	NodeID string `json:"node_id,omitempty"`
 
 	// Unique across all Nodes user-defined name.
-	NodeName string `json:"nodeName,omitempty"`
+	NodeName string `json:"node_name,omitempty"`
 
 	// Node address (DNS name or IP).
 	Address string `json:"address,omitempty"`
 
 	// Node model.
-	NodeModel string `json:"nodeModel,omitempty"`
+	NodeModel string `json:"node_model,omitempty"`
 
 	// Node region.
 	Region string `json:"region,omitempty"`
@@ -319,7 +319,7 @@ type AddRemoteNodeOKBodyRemote struct {
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this add remote node OK body remote

@@ -124,8 +124,8 @@ swagger:model ChangeQANPostgreSQLPgStatMonitorAgentBody
 */
 type ChangeQANPostgreSQLPgStatMonitorAgentBody struct {
 
-	// agent Id
-	AgentID string `json:"agentId,omitempty"`
+	// agent id
+	AgentID string `json:"agent_id,omitempty"`
 
 	// common
 	Common *ChangeQANPostgreSQLPgStatMonitorAgentParamsBodyCommon `json:"common,omitempty"`
@@ -259,7 +259,7 @@ swagger:model ChangeQANPostgreSQLPgStatMonitorAgentOKBody
 type ChangeQANPostgreSQLPgStatMonitorAgentOKBody struct {
 
 	// qan postgresql pgstatmonitor agent
-	QANPostgresqlPgstatmonitorAgent *ChangeQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent `json:"qanPostgresqlPgstatmonitorAgent,omitempty"`
+	QANPostgresqlPgstatmonitorAgent *ChangeQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent `json:"qan_postgresql_pgstatmonitor_agent,omitempty"`
 }
 
 // Validate validates this change QAN postgre SQL pg stat monitor agent OK body
@@ -285,7 +285,7 @@ func (o *ChangeQANPostgreSQLPgStatMonitorAgentOKBody) validateQANPostgresqlPgsta
 	if o.QANPostgresqlPgstatmonitorAgent != nil {
 		if err := o.QANPostgresqlPgstatmonitorAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("changeQanPostgreSqlPgStatMonitorAgentOk" + "." + "qanPostgresqlPgstatmonitorAgent")
+				return ve.ValidateName("changeQanPostgreSqlPgStatMonitorAgentOk" + "." + "qan_postgresql_pgstatmonitor_agent")
 			}
 			return err
 		}
@@ -318,16 +318,16 @@ swagger:model ChangeQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmoni
 type ChangeQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agentId,omitempty"`
+	AgentID string `json:"agent_id,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmmAgentId,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// PostgreSQL username for getting pg stat monitor data.
 	Username string `json:"username,omitempty"`
@@ -336,13 +336,13 @@ type ChangeQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent 
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// True if query examples are disabled.
-	QueryExamplesDisabled bool `json:"queryExamplesDisabled,omitempty"`
+	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -421,7 +421,7 @@ func (o *ChangeQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAg
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("changeQanPostgreSqlPgStatMonitorAgentOk"+"."+"qanPostgresqlPgstatmonitorAgent"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("changeQanPostgreSqlPgStatMonitorAgentOk"+"."+"qan_postgresql_pgstatmonitor_agent"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -458,17 +458,17 @@ type ChangeQANPostgreSQLPgStatMonitorAgentParamsBodyCommon struct {
 	Disable bool `json:"disable,omitempty"`
 
 	// Replace all custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Remove all custom user-assigned labels.
-	RemoveCustomLabels bool `json:"removeCustomLabels,omitempty"`
+	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
 
 	// Enables push metrics with vmagent, can't be used with disable_push_metrics.
 	// Can't be used with agent version lower then 2.12 and unsupported agents.
-	EnablePushMetrics bool `json:"enablePushMetrics,omitempty"`
+	EnablePushMetrics bool `json:"enable_push_metrics,omitempty"`
 
 	// Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.
-	DisablePushMetrics bool `json:"disablePushMetrics,omitempty"`
+	DisablePushMetrics bool `json:"disable_push_metrics,omitempty"`
 }
 
 // Validate validates this change QAN postgre SQL pg stat monitor agent params body common

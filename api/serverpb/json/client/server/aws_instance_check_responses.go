@@ -121,7 +121,7 @@ swagger:model AWSInstanceCheckBody
 type AWSInstanceCheckBody struct {
 
 	// AWS EC2 instance ID (i-1234567890abcdef0).
-	InstanceID string `json:"instanceId,omitempty"`
+	InstanceID string `json:"instance_id,omitempty"`
 }
 
 // Validate validates this AWS instance check body

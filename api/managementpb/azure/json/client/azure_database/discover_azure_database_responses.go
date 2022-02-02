@@ -125,13 +125,13 @@ swagger:model AzureDatabaseInstanceItems0
 type AzureDatabaseInstanceItems0 struct {
 
 	// Azure database instance ID.
-	InstanceID string `json:"instanceId,omitempty"`
+	InstanceID string `json:"instance_id,omitempty"`
 
 	// Azure database location.
 	Region string `json:"region,omitempty"`
 
 	// Azure database server name.
-	ServiceName string `json:"serviceName,omitempty"`
+	ServiceName string `json:"service_name,omitempty"`
 
 	// Database username.
 	Username string `json:"username,omitempty"`
@@ -140,7 +140,7 @@ type AzureDatabaseInstanceItems0 struct {
 	Address string `json:"address,omitempty"`
 
 	// Azure Resource group.
-	AzureResourceGroup string `json:"azureResourceGroup,omitempty"`
+	AzureResourceGroup string `json:"azure_resource_group,omitempty"`
 
 	// Environment tag.
 	Environment string `json:"environment,omitempty"`
@@ -157,7 +157,7 @@ type AzureDatabaseInstanceItems0 struct {
 
 	// Represents a purchasable Stock Keeping Unit (SKU) under a product.
 	// https://docs.microsoft.com/en-us/partner-center/develop/product-resources#sku.
-	NodeModel string `json:"nodeModel,omitempty"`
+	NodeModel string `json:"node_model,omitempty"`
 }
 
 // Validate validates this azure database instance items0
@@ -244,16 +244,16 @@ swagger:model DiscoverAzureDatabaseBody
 type DiscoverAzureDatabaseBody struct {
 
 	// Azure client ID.
-	AzureClientID string `json:"azureClientId,omitempty"`
+	AzureClientID string `json:"azure_client_id,omitempty"`
 
 	// Azure client secret.
-	AzureClientSecret string `json:"azureClientSecret,omitempty"`
+	AzureClientSecret string `json:"azure_client_secret,omitempty"`
 
 	// Azure tanant ID.
-	AzureTenantID string `json:"azureTenantId,omitempty"`
+	AzureTenantID string `json:"azure_tenant_id,omitempty"`
 
 	// Azure subscription ID.
-	AzureSubscriptionID string `json:"azureSubscriptionId,omitempty"`
+	AzureSubscriptionID string `json:"azure_subscription_id,omitempty"`
 }
 
 // Validate validates this discover azure database body
@@ -357,7 +357,7 @@ swagger:model DiscoverAzureDatabaseOKBody
 type DiscoverAzureDatabaseOKBody struct {
 
 	// azure database instance
-	AzureDatabaseInstance []*AzureDatabaseInstanceItems0 `json:"azureDatabaseInstance"`
+	AzureDatabaseInstance []*AzureDatabaseInstanceItems0 `json:"azure_database_instance"`
 }
 
 // Validate validates this discover azure database OK body
@@ -388,7 +388,7 @@ func (o *DiscoverAzureDatabaseOKBody) validateAzureDatabaseInstance(formats strf
 		if o.AzureDatabaseInstance[i] != nil {
 			if err := o.AzureDatabaseInstance[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("discoverAzureDatabaseOk" + "." + "azureDatabaseInstance" + "." + strconv.Itoa(i))
+					return ve.ValidateName("discoverAzureDatabaseOk" + "." + "azure_database_instance" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

@@ -121,7 +121,7 @@ swagger:model ConnectBody
 type ConnectBody struct {
 
 	// User defined human readable PMM Server Name.
-	ServerName string `json:"serverName,omitempty"`
+	ServerName string `json:"server_name,omitempty"`
 
 	// Existing Percona Platform user's email.
 	Email string `json:"email,omitempty"`

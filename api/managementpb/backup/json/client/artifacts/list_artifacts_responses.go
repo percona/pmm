@@ -125,7 +125,7 @@ swagger:model ArtifactsItems0
 type ArtifactsItems0 struct {
 
 	// Machine-readable artifact ID.
-	ArtifactID string `json:"artifactId,omitempty"`
+	ArtifactID string `json:"artifact_id,omitempty"`
 
 	// Artifact name
 	Name string `json:"name,omitempty"`
@@ -134,20 +134,20 @@ type ArtifactsItems0 struct {
 	Vendor string `json:"vendor,omitempty"`
 
 	// Machine-readable location ID.
-	LocationID string `json:"locationId,omitempty"`
+	LocationID string `json:"location_id,omitempty"`
 
 	// Location name.
-	LocationName string `json:"locationName,omitempty"`
+	LocationName string `json:"location_name,omitempty"`
 
 	// Machine-readable service ID.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// Service name.
-	ServiceName string `json:"serviceName,omitempty"`
+	ServiceName string `json:"service_name,omitempty"`
 
 	// DataModel is a model used for performing a backup.
 	// Enum: [DATA_MODEL_INVALID PHYSICAL LOGICAL]
-	DataModel *string `json:"dataModel,omitempty"`
+	DataModel *string `json:"data_model,omitempty"`
 
 	// BackupStatus shows the current status of execution of backup.
 	// Enum: [BACKUP_STATUS_INVALID BACKUP_STATUS_PENDING BACKUP_STATUS_IN_PROGRESS BACKUP_STATUS_PAUSED BACKUP_STATUS_SUCCESS BACKUP_STATUS_ERROR BACKUP_STATUS_DELETING BACKUP_STATUS_FAILED_TO_DELETE]
@@ -155,7 +155,7 @@ type ArtifactsItems0 struct {
 
 	// Artifact creation time.
 	// Format: date-time
-	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
+	CreatedAt strfmt.DateTime `json:"created_at,omitempty"`
 
 	// BackupMode specifies backup mode.
 	// Enum: [BACKUP_MODE_INVALID SNAPSHOT INCREMENTAL PITR]
@@ -227,7 +227,7 @@ func (o *ArtifactsItems0) validateDataModel(formats strfmt.Registry) error {
 	}
 
 	// value enum
-	if err := o.validateDataModelEnum("dataModel", "body", *o.DataModel); err != nil {
+	if err := o.validateDataModelEnum("data_model", "body", *o.DataModel); err != nil {
 		return err
 	}
 
@@ -301,7 +301,7 @@ func (o *ArtifactsItems0) validateCreatedAt(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("createdAt", "body", "date-time", o.CreatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("created_at", "body", "date-time", o.CreatedAt.String(), formats); err != nil {
 		return err
 	}
 

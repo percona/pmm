@@ -122,8 +122,8 @@ swagger:model ChangeExternalExporterBody
 */
 type ChangeExternalExporterBody struct {
 
-	// agent Id
-	AgentID string `json:"agentId,omitempty"`
+	// agent id
+	AgentID string `json:"agent_id,omitempty"`
 
 	// common
 	Common *ChangeExternalExporterParamsBodyCommon `json:"common,omitempty"`
@@ -257,7 +257,7 @@ swagger:model ChangeExternalExporterOKBody
 type ChangeExternalExporterOKBody struct {
 
 	// external exporter
-	ExternalExporter *ChangeExternalExporterOKBodyExternalExporter `json:"externalExporter,omitempty"`
+	ExternalExporter *ChangeExternalExporterOKBodyExternalExporter `json:"external_exporter,omitempty"`
 }
 
 // Validate validates this change external exporter OK body
@@ -283,7 +283,7 @@ func (o *ChangeExternalExporterOKBody) validateExternalExporter(formats strfmt.R
 	if o.ExternalExporter != nil {
 		if err := o.ExternalExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("changeExternalExporterOk" + "." + "externalExporter")
+				return ve.ValidateName("changeExternalExporterOk" + "." + "external_exporter")
 			}
 			return err
 		}
@@ -316,16 +316,16 @@ swagger:model ChangeExternalExporterOKBodyExternalExporter
 type ChangeExternalExporterOKBodyExternalExporter struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agentId,omitempty"`
+	AgentID string `json:"agent_id,omitempty"`
 
 	// Node identifier where this instance runs.
-	RunsOnNodeID string `json:"runsOnNodeId,omitempty"`
+	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 
 	// If disabled, metrics from this exporter will not be collected.
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// HTTP basic auth username for collecting metrics.
 	Username string `json:"username,omitempty"`
@@ -334,16 +334,16 @@ type ChangeExternalExporterOKBodyExternalExporter struct {
 	Scheme string `json:"scheme,omitempty"`
 
 	// Path under which metrics are exposed, used to generate URI.
-	MetricsPath string `json:"metricsPath,omitempty"`
+	MetricsPath string `json:"metrics_path,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listenPort,omitempty"`
+	ListenPort int64 `json:"listen_port,omitempty"`
 
 	// True if exporter uses push metrics mode.
-	PushMetricsEnabled bool `json:"pushMetricsEnabled,omitempty"`
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 }
 
 // Validate validates this change external exporter OK body external exporter
@@ -381,17 +381,17 @@ type ChangeExternalExporterParamsBodyCommon struct {
 	Disable bool `json:"disable,omitempty"`
 
 	// Replace all custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Remove all custom user-assigned labels.
-	RemoveCustomLabels bool `json:"removeCustomLabels,omitempty"`
+	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
 
 	// Enables push metrics with vmagent, can't be used with disable_push_metrics.
 	// Can't be used with agent version lower then 2.12 and unsupported agents.
-	EnablePushMetrics bool `json:"enablePushMetrics,omitempty"`
+	EnablePushMetrics bool `json:"enable_push_metrics,omitempty"`
 
 	// Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.
-	DisablePushMetrics bool `json:"disablePushMetrics,omitempty"`
+	DisablePushMetrics bool `json:"disable_push_metrics,omitempty"`
 }
 
 // Validate validates this change external exporter params body common

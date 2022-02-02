@@ -125,10 +125,10 @@ swagger:model AddQANMySQLSlowlogAgentBody
 type AddQANMySQLSlowlogAgentBody struct {
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmmAgentId,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// MySQL username for getting slowlog data.
 	Username string `json:"username,omitempty"`
@@ -140,29 +140,29 @@ type AddQANMySQLSlowlogAgentBody struct {
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// Certificate Authority certificate chain.
-	TLSCa string `json:"tlsCa,omitempty"`
+	TLSCa string `json:"tls_ca,omitempty"`
 
 	// Client certificate.
-	TLSCert string `json:"tlsCert,omitempty"`
+	TLSCert string `json:"tls_cert,omitempty"`
 
 	// Password for decrypting tls_cert.
-	TLSKey string `json:"tlsKey,omitempty"`
+	TLSKey string `json:"tls_key,omitempty"`
 
 	// Disable query examples.
-	DisableQueryExamples bool `json:"disableQueryExamples,omitempty"`
+	DisableQueryExamples bool `json:"disable_query_examples,omitempty"`
 
 	// Rotate slowlog file at this size if > 0.
 	// Use zero or negative value to disable rotation.
-	MaxSlowlogFileSize string `json:"maxSlowlogFileSize,omitempty"`
+	MaxSlowlogFileSize string `json:"max_slowlog_file_size,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Skip connection check.
-	SkipConnectionCheck bool `json:"skipConnectionCheck,omitempty"`
+	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 }
 
 // Validate validates this add QAN my SQL slowlog agent body
@@ -266,7 +266,7 @@ swagger:model AddQANMySQLSlowlogAgentOKBody
 type AddQANMySQLSlowlogAgentOKBody struct {
 
 	// qan mysql slowlog agent
-	QANMysqlSlowlogAgent *AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent `json:"qanMysqlSlowlogAgent,omitempty"`
+	QANMysqlSlowlogAgent *AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent `json:"qan_mysql_slowlog_agent,omitempty"`
 }
 
 // Validate validates this add QAN my SQL slowlog agent OK body
@@ -292,7 +292,7 @@ func (o *AddQANMySQLSlowlogAgentOKBody) validateQANMysqlSlowlogAgent(formats str
 	if o.QANMysqlSlowlogAgent != nil {
 		if err := o.QANMysqlSlowlogAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addQanMySqlSlowlogAgentOk" + "." + "qanMysqlSlowlogAgent")
+				return ve.ValidateName("addQanMySqlSlowlogAgentOk" + "." + "qan_mysql_slowlog_agent")
 			}
 			return err
 		}
@@ -325,16 +325,16 @@ swagger:model AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent
 type AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agentId,omitempty"`
+	AgentID string `json:"agent_id,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmmAgentId,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// MySQL username for getting performance data.
 	Username string `json:"username,omitempty"`
@@ -343,25 +343,25 @@ type AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent struct {
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// Certificate Authority certificate chain.
-	TLSCa string `json:"tlsCa,omitempty"`
+	TLSCa string `json:"tls_ca,omitempty"`
 
 	// Client certificate.
-	TLSCert string `json:"tlsCert,omitempty"`
+	TLSCert string `json:"tls_cert,omitempty"`
 
 	// Password for decrypting tls_cert.
-	TLSKey string `json:"tlsKey,omitempty"`
+	TLSKey string `json:"tls_key,omitempty"`
 
 	// True if query examples are disabled.
-	QueryExamplesDisabled bool `json:"queryExamplesDisabled,omitempty"`
+	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
 
 	// Slowlog file is rotated at this size if > 0.
-	MaxSlowlogFileSize string `json:"maxSlowlogFileSize,omitempty"`
+	MaxSlowlogFileSize string `json:"max_slowlog_file_size,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -440,7 +440,7 @@ func (o *AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent) validateStatus(forma
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addQanMySqlSlowlogAgentOk"+"."+"qanMysqlSlowlogAgent"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addQanMySqlSlowlogAgentOk"+"."+"qan_mysql_slowlog_agent"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 

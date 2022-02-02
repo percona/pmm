@@ -121,7 +121,7 @@ swagger:model ChangeChannelBody
 type ChangeChannelBody struct {
 
 	// Machine-readable ID.
-	ChannelID string `json:"channelId,omitempty"`
+	ChannelID string `json:"channel_id,omitempty"`
 
 	// Short human-readable summary. Empty value will not change it.
 	Summary string `json:"summary,omitempty"`
@@ -130,16 +130,16 @@ type ChangeChannelBody struct {
 	Disabled bool `json:"disabled,omitempty"`
 
 	// email config
-	EmailConfig *ChangeChannelParamsBodyEmailConfig `json:"emailConfig,omitempty"`
+	EmailConfig *ChangeChannelParamsBodyEmailConfig `json:"email_config,omitempty"`
 
 	// pagerduty config
-	PagerdutyConfig *ChangeChannelParamsBodyPagerdutyConfig `json:"pagerdutyConfig,omitempty"`
+	PagerdutyConfig *ChangeChannelParamsBodyPagerdutyConfig `json:"pagerduty_config,omitempty"`
 
 	// slack config
-	SlackConfig *ChangeChannelParamsBodySlackConfig `json:"slackConfig,omitempty"`
+	SlackConfig *ChangeChannelParamsBodySlackConfig `json:"slack_config,omitempty"`
 
 	// webhook config
-	WebhookConfig *ChangeChannelParamsBodyWebhookConfig `json:"webhookConfig,omitempty"`
+	WebhookConfig *ChangeChannelParamsBodyWebhookConfig `json:"webhook_config,omitempty"`
 }
 
 // Validate validates this change channel body
@@ -177,7 +177,7 @@ func (o *ChangeChannelBody) validateEmailConfig(formats strfmt.Registry) error {
 	if o.EmailConfig != nil {
 		if err := o.EmailConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "emailConfig")
+				return ve.ValidateName("body" + "." + "email_config")
 			}
 			return err
 		}
@@ -195,7 +195,7 @@ func (o *ChangeChannelBody) validatePagerdutyConfig(formats strfmt.Registry) err
 	if o.PagerdutyConfig != nil {
 		if err := o.PagerdutyConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "pagerdutyConfig")
+				return ve.ValidateName("body" + "." + "pagerduty_config")
 			}
 			return err
 		}
@@ -213,7 +213,7 @@ func (o *ChangeChannelBody) validateSlackConfig(formats strfmt.Registry) error {
 	if o.SlackConfig != nil {
 		if err := o.SlackConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "slackConfig")
+				return ve.ValidateName("body" + "." + "slack_config")
 			}
 			return err
 		}
@@ -231,7 +231,7 @@ func (o *ChangeChannelBody) validateWebhookConfig(formats strfmt.Registry) error
 	if o.WebhookConfig != nil {
 		if err := o.WebhookConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "webhookConfig")
+				return ve.ValidateName("body" + "." + "webhook_config")
 			}
 			return err
 		}
@@ -336,7 +336,7 @@ swagger:model ChangeChannelParamsBodyEmailConfig
 type ChangeChannelParamsBodyEmailConfig struct {
 
 	// send resolved
-	SendResolved bool `json:"sendResolved,omitempty"`
+	SendResolved bool `json:"send_resolved,omitempty"`
 
 	// to
 	To []string `json:"to"`
@@ -371,13 +371,13 @@ swagger:model ChangeChannelParamsBodyPagerdutyConfig
 type ChangeChannelParamsBodyPagerdutyConfig struct {
 
 	// send resolved
-	SendResolved bool `json:"sendResolved,omitempty"`
+	SendResolved bool `json:"send_resolved,omitempty"`
 
 	// The PagerDuty key for "Events API v2" integration type. Exactly one key should be set.
-	RoutingKey string `json:"routingKey,omitempty"`
+	RoutingKey string `json:"routing_key,omitempty"`
 
 	// The PagerDuty key for "Prometheus" integration type. Exactly one key should be set.
-	ServiceKey string `json:"serviceKey,omitempty"`
+	ServiceKey string `json:"service_key,omitempty"`
 }
 
 // Validate validates this change channel params body pagerduty config
@@ -409,7 +409,7 @@ swagger:model ChangeChannelParamsBodySlackConfig
 type ChangeChannelParamsBodySlackConfig struct {
 
 	// send resolved
-	SendResolved bool `json:"sendResolved,omitempty"`
+	SendResolved bool `json:"send_resolved,omitempty"`
 
 	// channel
 	Channel string `json:"channel,omitempty"`
@@ -444,16 +444,16 @@ swagger:model ChangeChannelParamsBodyWebhookConfig
 type ChangeChannelParamsBodyWebhookConfig struct {
 
 	// send resolved
-	SendResolved bool `json:"sendResolved,omitempty"`
+	SendResolved bool `json:"send_resolved,omitempty"`
 
 	// url
 	URL string `json:"url,omitempty"`
 
 	// max alerts
-	MaxAlerts int32 `json:"maxAlerts,omitempty"`
+	MaxAlerts int32 `json:"max_alerts,omitempty"`
 
 	// http config
-	HTTPConfig *ChangeChannelParamsBodyWebhookConfigHTTPConfig `json:"httpConfig,omitempty"`
+	HTTPConfig *ChangeChannelParamsBodyWebhookConfigHTTPConfig `json:"http_config,omitempty"`
 }
 
 // Validate validates this change channel params body webhook config
@@ -479,7 +479,7 @@ func (o *ChangeChannelParamsBodyWebhookConfig) validateHTTPConfig(formats strfmt
 	if o.HTTPConfig != nil {
 		if err := o.HTTPConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "webhookConfig" + "." + "httpConfig")
+				return ve.ValidateName("body" + "." + "webhook_config" + "." + "http_config")
 			}
 			return err
 		}
@@ -512,19 +512,19 @@ swagger:model ChangeChannelParamsBodyWebhookConfigHTTPConfig
 type ChangeChannelParamsBodyWebhookConfigHTTPConfig struct {
 
 	// bearer token
-	BearerToken string `json:"bearerToken,omitempty"`
+	BearerToken string `json:"bearer_token,omitempty"`
 
 	// bearer token file
-	BearerTokenFile string `json:"bearerTokenFile,omitempty"`
+	BearerTokenFile string `json:"bearer_token_file,omitempty"`
 
-	// proxy Url
-	ProxyURL string `json:"proxyUrl,omitempty"`
+	// proxy url
+	ProxyURL string `json:"proxy_url,omitempty"`
 
 	// basic auth
-	BasicAuth *ChangeChannelParamsBodyWebhookConfigHTTPConfigBasicAuth `json:"basicAuth,omitempty"`
+	BasicAuth *ChangeChannelParamsBodyWebhookConfigHTTPConfigBasicAuth `json:"basic_auth,omitempty"`
 
 	// tls config
-	TLSConfig *ChangeChannelParamsBodyWebhookConfigHTTPConfigTLSConfig `json:"tlsConfig,omitempty"`
+	TLSConfig *ChangeChannelParamsBodyWebhookConfigHTTPConfigTLSConfig `json:"tls_config,omitempty"`
 }
 
 // Validate validates this change channel params body webhook config HTTP config
@@ -554,7 +554,7 @@ func (o *ChangeChannelParamsBodyWebhookConfigHTTPConfig) validateBasicAuth(forma
 	if o.BasicAuth != nil {
 		if err := o.BasicAuth.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "webhookConfig" + "." + "httpConfig" + "." + "basicAuth")
+				return ve.ValidateName("body" + "." + "webhook_config" + "." + "http_config" + "." + "basic_auth")
 			}
 			return err
 		}
@@ -572,7 +572,7 @@ func (o *ChangeChannelParamsBodyWebhookConfigHTTPConfig) validateTLSConfig(forma
 	if o.TLSConfig != nil {
 		if err := o.TLSConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "webhookConfig" + "." + "httpConfig" + "." + "tlsConfig")
+				return ve.ValidateName("body" + "." + "webhook_config" + "." + "http_config" + "." + "tls_config")
 			}
 			return err
 		}
@@ -611,7 +611,7 @@ type ChangeChannelParamsBodyWebhookConfigHTTPConfigBasicAuth struct {
 	Password string `json:"password,omitempty"`
 
 	// password file
-	PasswordFile string `json:"passwordFile,omitempty"`
+	PasswordFile string `json:"password_file,omitempty"`
 }
 
 // Validate validates this change channel params body webhook config HTTP config basic auth
@@ -645,33 +645,33 @@ type ChangeChannelParamsBodyWebhookConfigHTTPConfigTLSConfig struct {
 
 	// A path to the CA certificate file to validate the server certificate with.
 	// ca_file and ca_file_content should not be set at the same time.
-	CaFile string `json:"caFile,omitempty"`
+	CaFile string `json:"ca_file,omitempty"`
 
 	// A path to the certificate file for client cert authentication to the server.
 	// cert_file and cert_file_content should not be set at the same time.
-	CertFile string `json:"certFile,omitempty"`
+	CertFile string `json:"cert_file,omitempty"`
 
 	// A path to the key file for client cert authentication to the server.
 	// key_file and key_file_content should not be set at the same time.
-	KeyFile string `json:"keyFile,omitempty"`
+	KeyFile string `json:"key_file,omitempty"`
 
 	// Name of the server.
-	ServerName string `json:"serverName,omitempty"`
+	ServerName string `json:"server_name,omitempty"`
 
 	// Disable validation of the server certificate.
-	InsecureSkipVerify bool `json:"insecureSkipVerify,omitempty"`
+	InsecureSkipVerify bool `json:"insecure_skip_verify,omitempty"`
 
 	// CA certificate to validate the server certificate with.
 	// ca_file and ca_file_content should not be set at the same time.
-	CaFileContent string `json:"caFileContent,omitempty"`
+	CaFileContent string `json:"ca_file_content,omitempty"`
 
 	// A certificate for client cert authentication to the server.
 	// cert_file and cert_file_content should not be set at the same time.
-	CertFileContent string `json:"certFileContent,omitempty"`
+	CertFileContent string `json:"cert_file_content,omitempty"`
 
 	// A key for client cert authentication to the server.
 	// key_file and key_file_content should not be set at the same time.
-	KeyFileContent string `json:"keyFileContent,omitempty"`
+	KeyFileContent string `json:"key_file_content,omitempty"`
 }
 
 // Validate validates this change channel params body webhook config HTTP config TLS config

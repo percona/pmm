@@ -124,8 +124,8 @@ swagger:model ChangeMySQLdExporterBody
 */
 type ChangeMySQLdExporterBody struct {
 
-	// agent Id
-	AgentID string `json:"agentId,omitempty"`
+	// agent id
+	AgentID string `json:"agent_id,omitempty"`
 
 	// common
 	Common *ChangeMySQLdExporterParamsBodyCommon `json:"common,omitempty"`
@@ -259,7 +259,7 @@ swagger:model ChangeMySQLdExporterOKBody
 type ChangeMySQLdExporterOKBody struct {
 
 	// mysqld exporter
-	MysqldExporter *ChangeMySQLdExporterOKBodyMysqldExporter `json:"mysqldExporter,omitempty"`
+	MysqldExporter *ChangeMySQLdExporterOKBodyMysqldExporter `json:"mysqld_exporter,omitempty"`
 }
 
 // Validate validates this change my s q ld exporter OK body
@@ -285,7 +285,7 @@ func (o *ChangeMySQLdExporterOKBody) validateMysqldExporter(formats strfmt.Regis
 	if o.MysqldExporter != nil {
 		if err := o.MysqldExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("changeMySQLdExporterOk" + "." + "mysqldExporter")
+				return ve.ValidateName("changeMySQLdExporterOk" + "." + "mysqld_exporter")
 			}
 			return err
 		}
@@ -318,16 +318,16 @@ swagger:model ChangeMySQLdExporterOKBodyMysqldExporter
 type ChangeMySQLdExporterOKBodyMysqldExporter struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agentId,omitempty"`
+	AgentID string `json:"agent_id,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmmAgentId,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// MySQL username for scraping metrics.
 	Username string `json:"username,omitempty"`
@@ -336,30 +336,30 @@ type ChangeMySQLdExporterOKBodyMysqldExporter struct {
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// Certificate Authority certificate chain.
-	TLSCa string `json:"tlsCa,omitempty"`
+	TLSCa string `json:"tls_ca,omitempty"`
 
 	// Client certificate.
-	TLSCert string `json:"tlsCert,omitempty"`
+	TLSCert string `json:"tls_cert,omitempty"`
 
 	// Password for decrypting tls_cert.
-	TLSKey string `json:"tlsKey,omitempty"`
+	TLSKey string `json:"tls_key,omitempty"`
 
 	// Tablestats group collectors are disabled if there are more than that number of tables.
 	// 0 means tablestats group collectors are always enabled (no limit).
 	// Negative value means tablestats group collectors are always disabled.
-	TablestatsGroupTableLimit int32 `json:"tablestatsGroupTableLimit,omitempty"`
+	TablestatsGroupTableLimit int32 `json:"tablestats_group_table_limit,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// True if exporter uses push metrics mode.
-	PushMetricsEnabled bool `json:"pushMetricsEnabled,omitempty"`
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
 	// List of disabled collector names.
-	DisabledCollectors []string `json:"disabledCollectors"`
+	DisabledCollectors []string `json:"disabled_collectors"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -373,10 +373,10 @@ type ChangeMySQLdExporterOKBodyMysqldExporter struct {
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listenPort,omitempty"`
+	ListenPort int64 `json:"listen_port,omitempty"`
 
 	// True if tablestats group collectors are currently disabled.
-	TablestatsGroupDisabled bool `json:"tablestatsGroupDisabled,omitempty"`
+	TablestatsGroupDisabled bool `json:"tablestats_group_disabled,omitempty"`
 }
 
 // Validate validates this change my s q ld exporter OK body mysqld exporter
@@ -444,7 +444,7 @@ func (o *ChangeMySQLdExporterOKBodyMysqldExporter) validateStatus(formats strfmt
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("changeMySQLdExporterOk"+"."+"mysqldExporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("changeMySQLdExporterOk"+"."+"mysqld_exporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -481,17 +481,17 @@ type ChangeMySQLdExporterParamsBodyCommon struct {
 	Disable bool `json:"disable,omitempty"`
 
 	// Replace all custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Remove all custom user-assigned labels.
-	RemoveCustomLabels bool `json:"removeCustomLabels,omitempty"`
+	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
 
 	// Enables push metrics with vmagent, can't be used with disable_push_metrics.
 	// Can't be used with agent version lower then 2.12 and unsupported agents.
-	EnablePushMetrics bool `json:"enablePushMetrics,omitempty"`
+	EnablePushMetrics bool `json:"enable_push_metrics,omitempty"`
 
 	// Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.
-	DisablePushMetrics bool `json:"disablePushMetrics,omitempty"`
+	DisablePushMetrics bool `json:"disable_push_metrics,omitempty"`
 }
 
 // Validate validates this change my s q ld exporter params body common

@@ -157,14 +157,14 @@ type GetBody struct {
 
 	// period start from
 	// Format: date-time
-	PeriodStartFrom strfmt.DateTime `json:"periodStartFrom,omitempty"`
+	PeriodStartFrom strfmt.DateTime `json:"period_start_from,omitempty"`
 
 	// period start to
 	// Format: date-time
-	PeriodStartTo strfmt.DateTime `json:"periodStartTo,omitempty"`
+	PeriodStartTo strfmt.DateTime `json:"period_start_to,omitempty"`
 
 	// main metric name
-	MainMetricName string `json:"mainMetricName,omitempty"`
+	MainMetricName string `json:"main_metric_name,omitempty"`
 
 	// labels
 	Labels []*LabelsItems0 `json:"labels"`
@@ -198,7 +198,7 @@ func (o *GetBody) validatePeriodStartFrom(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("body"+"."+"periodStartFrom", "body", "date-time", o.PeriodStartFrom.String(), formats); err != nil {
+	if err := validate.FormatOf("body"+"."+"period_start_from", "body", "date-time", o.PeriodStartFrom.String(), formats); err != nil {
 		return err
 	}
 
@@ -211,7 +211,7 @@ func (o *GetBody) validatePeriodStartTo(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("body"+"."+"periodStartTo", "body", "date-time", o.PeriodStartTo.String(), formats); err != nil {
+	if err := validate.FormatOf("body"+"."+"period_start_to", "body", "date-time", o.PeriodStartTo.String(), formats); err != nil {
 		return err
 	}
 
@@ -472,10 +472,10 @@ type LabelsAnonNameItems0 struct {
 	Value string `json:"value,omitempty"`
 
 	// main metric percent
-	MainMetricPercent float32 `json:"mainMetricPercent,omitempty"`
+	MainMetricPercent float32 `json:"main_metric_percent,omitempty"`
 
 	// main metric per sec
-	MainMetricPerSec float32 `json:"mainMetricPerSec,omitempty"`
+	MainMetricPerSec float32 `json:"main_metric_per_sec,omitempty"`
 }
 
 // Validate validates this labels anon name items0

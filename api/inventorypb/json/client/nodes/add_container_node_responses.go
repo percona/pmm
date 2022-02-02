@@ -123,22 +123,22 @@ swagger:model AddContainerNodeBody
 type AddContainerNodeBody struct {
 
 	// Unique across all Nodes user-defined name.
-	NodeName string `json:"nodeName,omitempty"`
+	NodeName string `json:"node_name,omitempty"`
 
 	// Node address (DNS name or IP).
 	Address string `json:"address,omitempty"`
 
 	// Linux machine-id of the Generic Node where this Container Node runs.
-	MachineID string `json:"machineId,omitempty"`
+	MachineID string `json:"machine_id,omitempty"`
 
 	// Container identifier. If specified, must be a unique Docker container identifier.
-	ContainerID string `json:"containerId,omitempty"`
+	ContainerID string `json:"container_id,omitempty"`
 
 	// Container name.
-	ContainerName string `json:"containerName,omitempty"`
+	ContainerName string `json:"container_name,omitempty"`
 
 	// Node model.
-	NodeModel string `json:"nodeModel,omitempty"`
+	NodeModel string `json:"node_model,omitempty"`
 
 	// Node region.
 	Region string `json:"region,omitempty"`
@@ -147,7 +147,7 @@ type AddContainerNodeBody struct {
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this add container node body
@@ -310,25 +310,25 @@ swagger:model AddContainerNodeOKBodyContainer
 type AddContainerNodeOKBodyContainer struct {
 
 	// Unique randomly generated instance identifier.
-	NodeID string `json:"nodeId,omitempty"`
+	NodeID string `json:"node_id,omitempty"`
 
 	// Unique across all Nodes user-defined name.
-	NodeName string `json:"nodeName,omitempty"`
+	NodeName string `json:"node_name,omitempty"`
 
 	// Node address (DNS name or IP).
 	Address string `json:"address,omitempty"`
 
 	// Linux machine-id of the Generic Node where this Container Node runs.
-	MachineID string `json:"machineId,omitempty"`
+	MachineID string `json:"machine_id,omitempty"`
 
 	// Container identifier. If specified, must be a unique Docker container identifier.
-	ContainerID string `json:"containerId,omitempty"`
+	ContainerID string `json:"container_id,omitempty"`
 
 	// Container name.
-	ContainerName string `json:"containerName,omitempty"`
+	ContainerName string `json:"container_name,omitempty"`
 
 	// Node model.
-	NodeModel string `json:"nodeModel,omitempty"`
+	NodeModel string `json:"node_model,omitempty"`
 
 	// Node region.
 	Region string `json:"region,omitempty"`
@@ -337,7 +337,7 @@ type AddContainerNodeOKBodyContainer struct {
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this add container node OK body container

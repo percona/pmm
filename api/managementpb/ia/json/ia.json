@@ -30,7 +30,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "pageParams": {
+                "page_params": {
                   "description": "PageParams represents page request parameters for pagination.",
                   "type": "object",
                   "properties": {
@@ -40,7 +40,7 @@
                       "format": "int32",
                       "x-order": 1
                     },
-                    "pageSize": {
+                    "page_size": {
                       "description": "Maximum number of results per page.",
                       "type": "integer",
                       "format": "int32",
@@ -65,12 +65,12 @@
                     "description": "Alert represents Alert.",
                     "type": "object",
                     "properties": {
-                      "alertId": {
+                      "alert_id": {
                         "description": "ID.",
                         "type": "string",
                         "x-order": 0
                       },
-                      "createdAt": {
+                      "created_at": {
                         "description": "Alert creation time.",
                         "type": "string",
                         "format": "date-time",
@@ -103,7 +103,7 @@
                               "description": "Channel represents a single Notification Channel.",
                               "type": "object",
                               "properties": {
-                                "channelId": {
+                                "channel_id": {
                                   "description": "Machine-readable ID.",
                                   "type": "string",
                                   "x-order": 0
@@ -113,11 +113,11 @@
                                   "type": "boolean",
                                   "x-order": 6
                                 },
-                                "emailConfig": {
+                                "email_config": {
                                   "description": "EmailConfig represents email configuration.",
                                   "type": "object",
                                   "properties": {
-                                    "sendResolved": {
+                                    "send_resolved": {
                                       "type": "boolean",
                                       "x-order": 0
                                     },
@@ -131,20 +131,20 @@
                                   },
                                   "x-order": 2
                                 },
-                                "pagerdutyConfig": {
+                                "pagerduty_config": {
                                   "description": "PagerDutyConfig represents PagerDuty configuration.",
                                   "type": "object",
                                   "properties": {
-                                    "routingKey": {
+                                    "routing_key": {
                                       "description": "The PagerDuty key for \"Events API v2\" integration type. Exactly one key should be set.",
                                       "type": "string",
                                       "x-order": 1
                                     },
-                                    "sendResolved": {
+                                    "send_resolved": {
                                       "type": "boolean",
                                       "x-order": 0
                                     },
-                                    "serviceKey": {
+                                    "service_key": {
                                       "description": "The PagerDuty key for \"Prometheus\" integration type. Exactly one key should be set.",
                                       "type": "string",
                                       "x-order": 2
@@ -152,7 +152,7 @@
                                   },
                                   "x-order": 3
                                 },
-                                "slackConfig": {
+                                "slack_config": {
                                   "description": "SlackConfig represents Slack configuration.",
                                   "type": "object",
                                   "properties": {
@@ -160,7 +160,7 @@
                                       "type": "string",
                                       "x-order": 1
                                     },
-                                    "sendResolved": {
+                                    "send_resolved": {
                                       "type": "boolean",
                                       "x-order": 0
                                     }
@@ -172,15 +172,15 @@
                                   "type": "string",
                                   "x-order": 1
                                 },
-                                "webhookConfig": {
+                                "webhook_config": {
                                   "description": "WebhookConfig represents webhook configuration.",
                                   "type": "object",
                                   "properties": {
-                                    "httpConfig": {
+                                    "http_config": {
                                       "description": "HTTPConfig represents HTTP client configuration.",
                                       "type": "object",
                                       "properties": {
-                                        "basicAuth": {
+                                        "basic_auth": {
                                           "description": "BasicAuth represents basic HTTP auth configuration.",
                                           "type": "object",
                                           "properties": {
@@ -188,7 +188,7 @@
                                               "type": "string",
                                               "x-order": 1
                                             },
-                                            "passwordFile": {
+                                            "password_file": {
                                               "type": "string",
                                               "x-order": 2
                                             },
@@ -199,58 +199,58 @@
                                           },
                                           "x-order": 0
                                         },
-                                        "bearerToken": {
+                                        "bearer_token": {
                                           "type": "string",
                                           "x-order": 1
                                         },
-                                        "bearerTokenFile": {
+                                        "bearer_token_file": {
                                           "type": "string",
                                           "x-order": 2
                                         },
-                                        "proxyUrl": {
+                                        "proxy_url": {
                                           "type": "string",
                                           "x-order": 4
                                         },
-                                        "tlsConfig": {
+                                        "tls_config": {
                                           "type": "object",
                                           "title": "TLSConfig represents TLS configuration for alertmanager\nhttps://prometheus.io/docs/alerting/latest/configuration/#tls_config",
                                           "properties": {
-                                            "caFile": {
+                                            "ca_file": {
                                               "description": "A path to the CA certificate file to validate the server certificate with.\nca_file and ca_file_content should not be set at the same time.",
                                               "type": "string",
                                               "x-order": 0
                                             },
-                                            "caFileContent": {
+                                            "ca_file_content": {
                                               "description": "CA certificate to validate the server certificate with.\nca_file and ca_file_content should not be set at the same time.",
                                               "type": "string",
                                               "x-order": 5
                                             },
-                                            "certFile": {
+                                            "cert_file": {
                                               "description": "A path to the certificate file for client cert authentication to the server.\ncert_file and cert_file_content should not be set at the same time.",
                                               "type": "string",
                                               "x-order": 1
                                             },
-                                            "certFileContent": {
+                                            "cert_file_content": {
                                               "description": "A certificate for client cert authentication to the server.\ncert_file and cert_file_content should not be set at the same time.",
                                               "type": "string",
                                               "x-order": 6
                                             },
-                                            "insecureSkipVerify": {
+                                            "insecure_skip_verify": {
                                               "description": "Disable validation of the server certificate.",
                                               "type": "boolean",
                                               "x-order": 4
                                             },
-                                            "keyFile": {
+                                            "key_file": {
                                               "description": "A path to the key file for client cert authentication to the server.\nkey_file and key_file_content should not be set at the same time.",
                                               "type": "string",
                                               "x-order": 2
                                             },
-                                            "keyFileContent": {
+                                            "key_file_content": {
                                               "description": "A key for client cert authentication to the server.\nkey_file and key_file_content should not be set at the same time.",
                                               "type": "string",
                                               "x-order": 7
                                             },
-                                            "serverName": {
+                                            "server_name": {
                                               "description": "Name of the server.",
                                               "type": "string",
                                               "x-order": 3
@@ -261,12 +261,12 @@
                                       },
                                       "x-order": 2
                                     },
-                                    "maxAlerts": {
+                                    "max_alerts": {
                                       "type": "integer",
                                       "format": "int32",
                                       "x-order": 3
                                     },
-                                    "sendResolved": {
+                                    "send_resolved": {
                                       "type": "boolean",
                                       "x-order": 0
                                     },
@@ -281,13 +281,13 @@
                             },
                             "x-order": 17
                           },
-                          "createdAt": {
+                          "created_at": {
                             "description": "Rule creation time.",
                             "type": "string",
                             "format": "date-time",
                             "x-order": 18
                           },
-                          "customLabels": {
+                          "custom_labels": {
                             "description": "Custom labels.",
                             "type": "object",
                             "additionalProperties": {
@@ -295,12 +295,12 @@
                             },
                             "x-order": 13
                           },
-                          "defaultFor": {
+                          "default_for": {
                             "description": "Default for duration.",
                             "type": "string",
                             "x-order": 9
                           },
-                          "defaultSeverity": {
+                          "default_severity": {
                             "description": "Severity represents severity level of the check result or alert.",
                             "type": "string",
                             "default": "SEVERITY_INVALID",
@@ -327,7 +327,7 @@
                             "type": "string",
                             "x-order": 6
                           },
-                          "exprTemplate": {
+                          "expr_template": {
                             "description": "Expression template.",
                             "type": "string",
                             "x-order": 5
@@ -380,7 +380,7 @@
                             "type": "string",
                             "x-order": 1
                           },
-                          "paramsDefinitions": {
+                          "params_definitions": {
                             "description": "Expression parameters definitions.",
                             "type": "array",
                             "items": {
@@ -415,17 +415,17 @@
                                       "format": "double",
                                       "x-order": 1
                                     },
-                                    "hasDefault": {
+                                    "has_default": {
                                       "description": "True if default value is set.",
                                       "type": "boolean",
                                       "x-order": 0
                                     },
-                                    "hasMax": {
+                                    "has_max": {
                                       "description": "True if maximal valid value is set.",
                                       "type": "boolean",
                                       "x-order": 4
                                     },
-                                    "hasMin": {
+                                    "has_min": {
                                       "description": "True if minimal valid value is set.",
                                       "type": "boolean",
                                       "x-order": 2
@@ -459,7 +459,7 @@
                                       "type": "string",
                                       "x-order": 1
                                     },
-                                    "hasDefault": {
+                                    "has_default": {
                                       "description": "True if default value is set.",
                                       "type": "boolean",
                                       "x-order": 0
@@ -499,7 +499,7 @@
                             },
                             "x-order": 7
                           },
-                          "paramsValues": {
+                          "params_values": {
                             "description": "Expression parameters values.",
                             "type": "array",
                             "items": {
@@ -543,7 +543,7 @@
                             },
                             "x-order": 8
                           },
-                          "ruleId": {
+                          "rule_id": {
                             "description": "Rule ID.",
                             "type": "string",
                             "x-order": 0
@@ -570,7 +570,7 @@
                             "type": "string",
                             "x-order": 2
                           },
-                          "templateName": {
+                          "template_name": {
                             "description": "Template used for this rule.",
                             "type": "string",
                             "x-order": 3
@@ -613,7 +613,7 @@
                         "type": "string",
                         "x-order": 1
                       },
-                      "updatedAt": {
+                      "updated_at": {
                         "description": "Alert last update time.",
                         "type": "string",
                         "format": "date-time",
@@ -627,13 +627,13 @@
                   "description": "PageTotals represents total values for pagination.",
                   "type": "object",
                   "properties": {
-                    "totalItems": {
+                    "total_items": {
                       "description": "Total number of results.",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 0
                     },
-                    "totalPages": {
+                    "total_pages": {
                       "description": "Total number of pages.",
                       "type": "integer",
                       "format": "int32",
@@ -695,7 +695,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "alertIds": {
+                "alert_ids": {
                   "description": "List of alerts that silence state should be switched. If provided array is empty than all\nexisting alerts are switched.",
                   "type": "array",
                   "items": {
@@ -779,11 +779,11 @@
                   "type": "boolean",
                   "x-order": 5
                 },
-                "emailConfig": {
+                "email_config": {
                   "description": "EmailConfig represents email configuration.",
                   "type": "object",
                   "properties": {
-                    "sendResolved": {
+                    "send_resolved": {
                       "type": "boolean",
                       "x-order": 0
                     },
@@ -797,20 +797,20 @@
                   },
                   "x-order": 1
                 },
-                "pagerdutyConfig": {
+                "pagerduty_config": {
                   "description": "PagerDutyConfig represents PagerDuty configuration.",
                   "type": "object",
                   "properties": {
-                    "routingKey": {
+                    "routing_key": {
                       "description": "The PagerDuty key for \"Events API v2\" integration type. Exactly one key should be set.",
                       "type": "string",
                       "x-order": 1
                     },
-                    "sendResolved": {
+                    "send_resolved": {
                       "type": "boolean",
                       "x-order": 0
                     },
-                    "serviceKey": {
+                    "service_key": {
                       "description": "The PagerDuty key for \"Prometheus\" integration type. Exactly one key should be set.",
                       "type": "string",
                       "x-order": 2
@@ -818,7 +818,7 @@
                   },
                   "x-order": 2
                 },
-                "slackConfig": {
+                "slack_config": {
                   "description": "SlackConfig represents Slack configuration.",
                   "type": "object",
                   "properties": {
@@ -826,7 +826,7 @@
                       "type": "string",
                       "x-order": 1
                     },
-                    "sendResolved": {
+                    "send_resolved": {
                       "type": "boolean",
                       "x-order": 0
                     }
@@ -838,15 +838,15 @@
                   "type": "string",
                   "x-order": 0
                 },
-                "webhookConfig": {
+                "webhook_config": {
                   "description": "WebhookConfig represents webhook configuration.",
                   "type": "object",
                   "properties": {
-                    "httpConfig": {
+                    "http_config": {
                       "description": "HTTPConfig represents HTTP client configuration.",
                       "type": "object",
                       "properties": {
-                        "basicAuth": {
+                        "basic_auth": {
                           "description": "BasicAuth represents basic HTTP auth configuration.",
                           "type": "object",
                           "properties": {
@@ -854,7 +854,7 @@
                               "type": "string",
                               "x-order": 1
                             },
-                            "passwordFile": {
+                            "password_file": {
                               "type": "string",
                               "x-order": 2
                             },
@@ -865,58 +865,58 @@
                           },
                           "x-order": 0
                         },
-                        "bearerToken": {
+                        "bearer_token": {
                           "type": "string",
                           "x-order": 1
                         },
-                        "bearerTokenFile": {
+                        "bearer_token_file": {
                           "type": "string",
                           "x-order": 2
                         },
-                        "proxyUrl": {
+                        "proxy_url": {
                           "type": "string",
                           "x-order": 4
                         },
-                        "tlsConfig": {
+                        "tls_config": {
                           "type": "object",
                           "title": "TLSConfig represents TLS configuration for alertmanager\nhttps://prometheus.io/docs/alerting/latest/configuration/#tls_config",
                           "properties": {
-                            "caFile": {
+                            "ca_file": {
                               "description": "A path to the CA certificate file to validate the server certificate with.\nca_file and ca_file_content should not be set at the same time.",
                               "type": "string",
                               "x-order": 0
                             },
-                            "caFileContent": {
+                            "ca_file_content": {
                               "description": "CA certificate to validate the server certificate with.\nca_file and ca_file_content should not be set at the same time.",
                               "type": "string",
                               "x-order": 5
                             },
-                            "certFile": {
+                            "cert_file": {
                               "description": "A path to the certificate file for client cert authentication to the server.\ncert_file and cert_file_content should not be set at the same time.",
                               "type": "string",
                               "x-order": 1
                             },
-                            "certFileContent": {
+                            "cert_file_content": {
                               "description": "A certificate for client cert authentication to the server.\ncert_file and cert_file_content should not be set at the same time.",
                               "type": "string",
                               "x-order": 6
                             },
-                            "insecureSkipVerify": {
+                            "insecure_skip_verify": {
                               "description": "Disable validation of the server certificate.",
                               "type": "boolean",
                               "x-order": 4
                             },
-                            "keyFile": {
+                            "key_file": {
                               "description": "A path to the key file for client cert authentication to the server.\nkey_file and key_file_content should not be set at the same time.",
                               "type": "string",
                               "x-order": 2
                             },
-                            "keyFileContent": {
+                            "key_file_content": {
                               "description": "A key for client cert authentication to the server.\nkey_file and key_file_content should not be set at the same time.",
                               "type": "string",
                               "x-order": 7
                             },
-                            "serverName": {
+                            "server_name": {
                               "description": "Name of the server.",
                               "type": "string",
                               "x-order": 3
@@ -927,12 +927,12 @@
                       },
                       "x-order": 2
                     },
-                    "maxAlerts": {
+                    "max_alerts": {
                       "type": "integer",
                       "format": "int32",
                       "x-order": 3
                     },
-                    "sendResolved": {
+                    "send_resolved": {
                       "type": "boolean",
                       "x-order": 0
                     },
@@ -953,7 +953,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "channelId": {
+                "channel_id": {
                   "description": "Machine-readable ID.",
                   "type": "string",
                   "x-order": 0
@@ -1010,7 +1010,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "channelId": {
+                "channel_id": {
                   "description": "Machine-readable ID.",
                   "type": "string",
                   "x-order": 0
@@ -1020,11 +1020,11 @@
                   "type": "boolean",
                   "x-order": 6
                 },
-                "emailConfig": {
+                "email_config": {
                   "description": "EmailConfig represents email configuration.",
                   "type": "object",
                   "properties": {
-                    "sendResolved": {
+                    "send_resolved": {
                       "type": "boolean",
                       "x-order": 0
                     },
@@ -1038,20 +1038,20 @@
                   },
                   "x-order": 2
                 },
-                "pagerdutyConfig": {
+                "pagerduty_config": {
                   "description": "PagerDutyConfig represents PagerDuty configuration.",
                   "type": "object",
                   "properties": {
-                    "routingKey": {
+                    "routing_key": {
                       "description": "The PagerDuty key for \"Events API v2\" integration type. Exactly one key should be set.",
                       "type": "string",
                       "x-order": 1
                     },
-                    "sendResolved": {
+                    "send_resolved": {
                       "type": "boolean",
                       "x-order": 0
                     },
-                    "serviceKey": {
+                    "service_key": {
                       "description": "The PagerDuty key for \"Prometheus\" integration type. Exactly one key should be set.",
                       "type": "string",
                       "x-order": 2
@@ -1059,7 +1059,7 @@
                   },
                   "x-order": 3
                 },
-                "slackConfig": {
+                "slack_config": {
                   "description": "SlackConfig represents Slack configuration.",
                   "type": "object",
                   "properties": {
@@ -1067,7 +1067,7 @@
                       "type": "string",
                       "x-order": 1
                     },
-                    "sendResolved": {
+                    "send_resolved": {
                       "type": "boolean",
                       "x-order": 0
                     }
@@ -1079,15 +1079,15 @@
                   "type": "string",
                   "x-order": 1
                 },
-                "webhookConfig": {
+                "webhook_config": {
                   "description": "WebhookConfig represents webhook configuration.",
                   "type": "object",
                   "properties": {
-                    "httpConfig": {
+                    "http_config": {
                       "description": "HTTPConfig represents HTTP client configuration.",
                       "type": "object",
                       "properties": {
-                        "basicAuth": {
+                        "basic_auth": {
                           "description": "BasicAuth represents basic HTTP auth configuration.",
                           "type": "object",
                           "properties": {
@@ -1095,7 +1095,7 @@
                               "type": "string",
                               "x-order": 1
                             },
-                            "passwordFile": {
+                            "password_file": {
                               "type": "string",
                               "x-order": 2
                             },
@@ -1106,58 +1106,58 @@
                           },
                           "x-order": 0
                         },
-                        "bearerToken": {
+                        "bearer_token": {
                           "type": "string",
                           "x-order": 1
                         },
-                        "bearerTokenFile": {
+                        "bearer_token_file": {
                           "type": "string",
                           "x-order": 2
                         },
-                        "proxyUrl": {
+                        "proxy_url": {
                           "type": "string",
                           "x-order": 4
                         },
-                        "tlsConfig": {
+                        "tls_config": {
                           "type": "object",
                           "title": "TLSConfig represents TLS configuration for alertmanager\nhttps://prometheus.io/docs/alerting/latest/configuration/#tls_config",
                           "properties": {
-                            "caFile": {
+                            "ca_file": {
                               "description": "A path to the CA certificate file to validate the server certificate with.\nca_file and ca_file_content should not be set at the same time.",
                               "type": "string",
                               "x-order": 0
                             },
-                            "caFileContent": {
+                            "ca_file_content": {
                               "description": "CA certificate to validate the server certificate with.\nca_file and ca_file_content should not be set at the same time.",
                               "type": "string",
                               "x-order": 5
                             },
-                            "certFile": {
+                            "cert_file": {
                               "description": "A path to the certificate file for client cert authentication to the server.\ncert_file and cert_file_content should not be set at the same time.",
                               "type": "string",
                               "x-order": 1
                             },
-                            "certFileContent": {
+                            "cert_file_content": {
                               "description": "A certificate for client cert authentication to the server.\ncert_file and cert_file_content should not be set at the same time.",
                               "type": "string",
                               "x-order": 6
                             },
-                            "insecureSkipVerify": {
+                            "insecure_skip_verify": {
                               "description": "Disable validation of the server certificate.",
                               "type": "boolean",
                               "x-order": 4
                             },
-                            "keyFile": {
+                            "key_file": {
                               "description": "A path to the key file for client cert authentication to the server.\nkey_file and key_file_content should not be set at the same time.",
                               "type": "string",
                               "x-order": 2
                             },
-                            "keyFileContent": {
+                            "key_file_content": {
                               "description": "A key for client cert authentication to the server.\nkey_file and key_file_content should not be set at the same time.",
                               "type": "string",
                               "x-order": 7
                             },
-                            "serverName": {
+                            "server_name": {
                               "description": "Name of the server.",
                               "type": "string",
                               "x-order": 3
@@ -1168,12 +1168,12 @@
                       },
                       "x-order": 2
                     },
-                    "maxAlerts": {
+                    "max_alerts": {
                       "type": "integer",
                       "format": "int32",
                       "x-order": 3
                     },
-                    "sendResolved": {
+                    "send_resolved": {
                       "type": "boolean",
                       "x-order": 0
                     },
@@ -1244,7 +1244,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "pageParams": {
+                "page_params": {
                   "description": "PageParams represents page request parameters for pagination.",
                   "type": "object",
                   "properties": {
@@ -1254,7 +1254,7 @@
                       "format": "int32",
                       "x-order": 1
                     },
-                    "pageSize": {
+                    "page_size": {
                       "description": "Maximum number of results per page.",
                       "type": "integer",
                       "format": "int32",
@@ -1279,7 +1279,7 @@
                     "description": "Channel represents a single Notification Channel.",
                     "type": "object",
                     "properties": {
-                      "channelId": {
+                      "channel_id": {
                         "description": "Machine-readable ID.",
                         "type": "string",
                         "x-order": 0
@@ -1289,11 +1289,11 @@
                         "type": "boolean",
                         "x-order": 6
                       },
-                      "emailConfig": {
+                      "email_config": {
                         "description": "EmailConfig represents email configuration.",
                         "type": "object",
                         "properties": {
-                          "sendResolved": {
+                          "send_resolved": {
                             "type": "boolean",
                             "x-order": 0
                           },
@@ -1307,20 +1307,20 @@
                         },
                         "x-order": 2
                       },
-                      "pagerdutyConfig": {
+                      "pagerduty_config": {
                         "description": "PagerDutyConfig represents PagerDuty configuration.",
                         "type": "object",
                         "properties": {
-                          "routingKey": {
+                          "routing_key": {
                             "description": "The PagerDuty key for \"Events API v2\" integration type. Exactly one key should be set.",
                             "type": "string",
                             "x-order": 1
                           },
-                          "sendResolved": {
+                          "send_resolved": {
                             "type": "boolean",
                             "x-order": 0
                           },
-                          "serviceKey": {
+                          "service_key": {
                             "description": "The PagerDuty key for \"Prometheus\" integration type. Exactly one key should be set.",
                             "type": "string",
                             "x-order": 2
@@ -1328,7 +1328,7 @@
                         },
                         "x-order": 3
                       },
-                      "slackConfig": {
+                      "slack_config": {
                         "description": "SlackConfig represents Slack configuration.",
                         "type": "object",
                         "properties": {
@@ -1336,7 +1336,7 @@
                             "type": "string",
                             "x-order": 1
                           },
-                          "sendResolved": {
+                          "send_resolved": {
                             "type": "boolean",
                             "x-order": 0
                           }
@@ -1348,15 +1348,15 @@
                         "type": "string",
                         "x-order": 1
                       },
-                      "webhookConfig": {
+                      "webhook_config": {
                         "description": "WebhookConfig represents webhook configuration.",
                         "type": "object",
                         "properties": {
-                          "httpConfig": {
+                          "http_config": {
                             "description": "HTTPConfig represents HTTP client configuration.",
                             "type": "object",
                             "properties": {
-                              "basicAuth": {
+                              "basic_auth": {
                                 "description": "BasicAuth represents basic HTTP auth configuration.",
                                 "type": "object",
                                 "properties": {
@@ -1364,7 +1364,7 @@
                                     "type": "string",
                                     "x-order": 1
                                   },
-                                  "passwordFile": {
+                                  "password_file": {
                                     "type": "string",
                                     "x-order": 2
                                   },
@@ -1375,58 +1375,58 @@
                                 },
                                 "x-order": 0
                               },
-                              "bearerToken": {
+                              "bearer_token": {
                                 "type": "string",
                                 "x-order": 1
                               },
-                              "bearerTokenFile": {
+                              "bearer_token_file": {
                                 "type": "string",
                                 "x-order": 2
                               },
-                              "proxyUrl": {
+                              "proxy_url": {
                                 "type": "string",
                                 "x-order": 4
                               },
-                              "tlsConfig": {
+                              "tls_config": {
                                 "type": "object",
                                 "title": "TLSConfig represents TLS configuration for alertmanager\nhttps://prometheus.io/docs/alerting/latest/configuration/#tls_config",
                                 "properties": {
-                                  "caFile": {
+                                  "ca_file": {
                                     "description": "A path to the CA certificate file to validate the server certificate with.\nca_file and ca_file_content should not be set at the same time.",
                                     "type": "string",
                                     "x-order": 0
                                   },
-                                  "caFileContent": {
+                                  "ca_file_content": {
                                     "description": "CA certificate to validate the server certificate with.\nca_file and ca_file_content should not be set at the same time.",
                                     "type": "string",
                                     "x-order": 5
                                   },
-                                  "certFile": {
+                                  "cert_file": {
                                     "description": "A path to the certificate file for client cert authentication to the server.\ncert_file and cert_file_content should not be set at the same time.",
                                     "type": "string",
                                     "x-order": 1
                                   },
-                                  "certFileContent": {
+                                  "cert_file_content": {
                                     "description": "A certificate for client cert authentication to the server.\ncert_file and cert_file_content should not be set at the same time.",
                                     "type": "string",
                                     "x-order": 6
                                   },
-                                  "insecureSkipVerify": {
+                                  "insecure_skip_verify": {
                                     "description": "Disable validation of the server certificate.",
                                     "type": "boolean",
                                     "x-order": 4
                                   },
-                                  "keyFile": {
+                                  "key_file": {
                                     "description": "A path to the key file for client cert authentication to the server.\nkey_file and key_file_content should not be set at the same time.",
                                     "type": "string",
                                     "x-order": 2
                                   },
-                                  "keyFileContent": {
+                                  "key_file_content": {
                                     "description": "A key for client cert authentication to the server.\nkey_file and key_file_content should not be set at the same time.",
                                     "type": "string",
                                     "x-order": 7
                                   },
-                                  "serverName": {
+                                  "server_name": {
                                     "description": "Name of the server.",
                                     "type": "string",
                                     "x-order": 3
@@ -1437,12 +1437,12 @@
                             },
                             "x-order": 2
                           },
-                          "maxAlerts": {
+                          "max_alerts": {
                             "type": "integer",
                             "format": "int32",
                             "x-order": 3
                           },
-                          "sendResolved": {
+                          "send_resolved": {
                             "type": "boolean",
                             "x-order": 0
                           },
@@ -1461,13 +1461,13 @@
                   "description": "PageTotals represents total values for pagination.",
                   "type": "object",
                   "properties": {
-                    "totalItems": {
+                    "total_items": {
                       "description": "Total number of results.",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 0
                     },
-                    "totalPages": {
+                    "total_pages": {
                       "description": "Total number of pages.",
                       "type": "integer",
                       "format": "int32",
@@ -1528,7 +1528,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "channelId": {
+                "channel_id": {
                   "type": "string",
                   "x-order": 0
                 }
@@ -1592,7 +1592,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "channelIds": {
+                "channel_ids": {
                   "description": "Channels. Should be set.",
                   "type": "array",
                   "items": {
@@ -1600,7 +1600,7 @@
                   },
                   "x-order": 9
                 },
-                "customLabels": {
+                "custom_labels": {
                   "description": "All custom labels to add or remove (with empty values) to default labels from template.",
                   "type": "object",
                   "additionalProperties": {
@@ -1714,12 +1714,12 @@
                   ],
                   "x-order": 6
                 },
-                "sourceRuleId": {
+                "source_rule_id": {
                   "description": "ID of the rule that will be used as source. Can't be specified simultaneously with template_name.",
                   "type": "string",
                   "x-order": 1
                 },
-                "templateName": {
+                "template_name": {
                   "description": "Template name. Can't be specified simultaneously with source_rule_id.",
                   "type": "string",
                   "x-order": 0
@@ -1734,7 +1734,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "ruleId": {
+                "rule_id": {
                   "description": "Rule ID.",
                   "type": "string",
                   "x-order": 0
@@ -1791,7 +1791,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "ruleId": {
+                "rule_id": {
                   "description": "Rule ID.",
                   "type": "string",
                   "x-order": 0
@@ -1856,7 +1856,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "pageParams": {
+                "page_params": {
                   "description": "PageParams represents page request parameters for pagination.",
                   "type": "object",
                   "properties": {
@@ -1866,7 +1866,7 @@
                       "format": "int32",
                       "x-order": 1
                     },
-                    "pageSize": {
+                    "page_size": {
                       "description": "Maximum number of results per page.",
                       "type": "integer",
                       "format": "int32",
@@ -1906,7 +1906,7 @@
                           "description": "Channel represents a single Notification Channel.",
                           "type": "object",
                           "properties": {
-                            "channelId": {
+                            "channel_id": {
                               "description": "Machine-readable ID.",
                               "type": "string",
                               "x-order": 0
@@ -1916,11 +1916,11 @@
                               "type": "boolean",
                               "x-order": 6
                             },
-                            "emailConfig": {
+                            "email_config": {
                               "description": "EmailConfig represents email configuration.",
                               "type": "object",
                               "properties": {
-                                "sendResolved": {
+                                "send_resolved": {
                                   "type": "boolean",
                                   "x-order": 0
                                 },
@@ -1934,20 +1934,20 @@
                               },
                               "x-order": 2
                             },
-                            "pagerdutyConfig": {
+                            "pagerduty_config": {
                               "description": "PagerDutyConfig represents PagerDuty configuration.",
                               "type": "object",
                               "properties": {
-                                "routingKey": {
+                                "routing_key": {
                                   "description": "The PagerDuty key for \"Events API v2\" integration type. Exactly one key should be set.",
                                   "type": "string",
                                   "x-order": 1
                                 },
-                                "sendResolved": {
+                                "send_resolved": {
                                   "type": "boolean",
                                   "x-order": 0
                                 },
-                                "serviceKey": {
+                                "service_key": {
                                   "description": "The PagerDuty key for \"Prometheus\" integration type. Exactly one key should be set.",
                                   "type": "string",
                                   "x-order": 2
@@ -1955,7 +1955,7 @@
                               },
                               "x-order": 3
                             },
-                            "slackConfig": {
+                            "slack_config": {
                               "description": "SlackConfig represents Slack configuration.",
                               "type": "object",
                               "properties": {
@@ -1963,7 +1963,7 @@
                                   "type": "string",
                                   "x-order": 1
                                 },
-                                "sendResolved": {
+                                "send_resolved": {
                                   "type": "boolean",
                                   "x-order": 0
                                 }
@@ -1975,15 +1975,15 @@
                               "type": "string",
                               "x-order": 1
                             },
-                            "webhookConfig": {
+                            "webhook_config": {
                               "description": "WebhookConfig represents webhook configuration.",
                               "type": "object",
                               "properties": {
-                                "httpConfig": {
+                                "http_config": {
                                   "description": "HTTPConfig represents HTTP client configuration.",
                                   "type": "object",
                                   "properties": {
-                                    "basicAuth": {
+                                    "basic_auth": {
                                       "description": "BasicAuth represents basic HTTP auth configuration.",
                                       "type": "object",
                                       "properties": {
@@ -1991,7 +1991,7 @@
                                           "type": "string",
                                           "x-order": 1
                                         },
-                                        "passwordFile": {
+                                        "password_file": {
                                           "type": "string",
                                           "x-order": 2
                                         },
@@ -2002,58 +2002,58 @@
                                       },
                                       "x-order": 0
                                     },
-                                    "bearerToken": {
+                                    "bearer_token": {
                                       "type": "string",
                                       "x-order": 1
                                     },
-                                    "bearerTokenFile": {
+                                    "bearer_token_file": {
                                       "type": "string",
                                       "x-order": 2
                                     },
-                                    "proxyUrl": {
+                                    "proxy_url": {
                                       "type": "string",
                                       "x-order": 4
                                     },
-                                    "tlsConfig": {
+                                    "tls_config": {
                                       "type": "object",
                                       "title": "TLSConfig represents TLS configuration for alertmanager\nhttps://prometheus.io/docs/alerting/latest/configuration/#tls_config",
                                       "properties": {
-                                        "caFile": {
+                                        "ca_file": {
                                           "description": "A path to the CA certificate file to validate the server certificate with.\nca_file and ca_file_content should not be set at the same time.",
                                           "type": "string",
                                           "x-order": 0
                                         },
-                                        "caFileContent": {
+                                        "ca_file_content": {
                                           "description": "CA certificate to validate the server certificate with.\nca_file and ca_file_content should not be set at the same time.",
                                           "type": "string",
                                           "x-order": 5
                                         },
-                                        "certFile": {
+                                        "cert_file": {
                                           "description": "A path to the certificate file for client cert authentication to the server.\ncert_file and cert_file_content should not be set at the same time.",
                                           "type": "string",
                                           "x-order": 1
                                         },
-                                        "certFileContent": {
+                                        "cert_file_content": {
                                           "description": "A certificate for client cert authentication to the server.\ncert_file and cert_file_content should not be set at the same time.",
                                           "type": "string",
                                           "x-order": 6
                                         },
-                                        "insecureSkipVerify": {
+                                        "insecure_skip_verify": {
                                           "description": "Disable validation of the server certificate.",
                                           "type": "boolean",
                                           "x-order": 4
                                         },
-                                        "keyFile": {
+                                        "key_file": {
                                           "description": "A path to the key file for client cert authentication to the server.\nkey_file and key_file_content should not be set at the same time.",
                                           "type": "string",
                                           "x-order": 2
                                         },
-                                        "keyFileContent": {
+                                        "key_file_content": {
                                           "description": "A key for client cert authentication to the server.\nkey_file and key_file_content should not be set at the same time.",
                                           "type": "string",
                                           "x-order": 7
                                         },
-                                        "serverName": {
+                                        "server_name": {
                                           "description": "Name of the server.",
                                           "type": "string",
                                           "x-order": 3
@@ -2064,12 +2064,12 @@
                                   },
                                   "x-order": 2
                                 },
-                                "maxAlerts": {
+                                "max_alerts": {
                                   "type": "integer",
                                   "format": "int32",
                                   "x-order": 3
                                 },
-                                "sendResolved": {
+                                "send_resolved": {
                                   "type": "boolean",
                                   "x-order": 0
                                 },
@@ -2084,13 +2084,13 @@
                         },
                         "x-order": 17
                       },
-                      "createdAt": {
+                      "created_at": {
                         "description": "Rule creation time.",
                         "type": "string",
                         "format": "date-time",
                         "x-order": 18
                       },
-                      "customLabels": {
+                      "custom_labels": {
                         "description": "Custom labels.",
                         "type": "object",
                         "additionalProperties": {
@@ -2098,12 +2098,12 @@
                         },
                         "x-order": 13
                       },
-                      "defaultFor": {
+                      "default_for": {
                         "description": "Default for duration.",
                         "type": "string",
                         "x-order": 9
                       },
-                      "defaultSeverity": {
+                      "default_severity": {
                         "description": "Severity represents severity level of the check result or alert.",
                         "type": "string",
                         "default": "SEVERITY_INVALID",
@@ -2130,7 +2130,7 @@
                         "type": "string",
                         "x-order": 6
                       },
-                      "exprTemplate": {
+                      "expr_template": {
                         "description": "Expression template.",
                         "type": "string",
                         "x-order": 5
@@ -2183,7 +2183,7 @@
                         "type": "string",
                         "x-order": 1
                       },
-                      "paramsDefinitions": {
+                      "params_definitions": {
                         "description": "Expression parameters definitions.",
                         "type": "array",
                         "items": {
@@ -2218,17 +2218,17 @@
                                   "format": "double",
                                   "x-order": 1
                                 },
-                                "hasDefault": {
+                                "has_default": {
                                   "description": "True if default value is set.",
                                   "type": "boolean",
                                   "x-order": 0
                                 },
-                                "hasMax": {
+                                "has_max": {
                                   "description": "True if maximal valid value is set.",
                                   "type": "boolean",
                                   "x-order": 4
                                 },
-                                "hasMin": {
+                                "has_min": {
                                   "description": "True if minimal valid value is set.",
                                   "type": "boolean",
                                   "x-order": 2
@@ -2262,7 +2262,7 @@
                                   "type": "string",
                                   "x-order": 1
                                 },
-                                "hasDefault": {
+                                "has_default": {
                                   "description": "True if default value is set.",
                                   "type": "boolean",
                                   "x-order": 0
@@ -2302,7 +2302,7 @@
                         },
                         "x-order": 7
                       },
-                      "paramsValues": {
+                      "params_values": {
                         "description": "Expression parameters values.",
                         "type": "array",
                         "items": {
@@ -2346,7 +2346,7 @@
                         },
                         "x-order": 8
                       },
-                      "ruleId": {
+                      "rule_id": {
                         "description": "Rule ID.",
                         "type": "string",
                         "x-order": 0
@@ -2373,7 +2373,7 @@
                         "type": "string",
                         "x-order": 2
                       },
-                      "templateName": {
+                      "template_name": {
                         "description": "Template used for this rule.",
                         "type": "string",
                         "x-order": 3
@@ -2386,13 +2386,13 @@
                   "description": "PageTotals represents total values for pagination.",
                   "type": "object",
                   "properties": {
-                    "totalItems": {
+                    "total_items": {
                       "description": "Total number of results.",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 0
                     },
-                    "totalPages": {
+                    "total_pages": {
                       "description": "Total number of pages.",
                       "type": "integer",
                       "format": "int32",
@@ -2464,7 +2464,7 @@
                   ],
                   "x-order": 1
                 },
-                "ruleId": {
+                "rule_id": {
                   "description": "Rule ID.",
                   "type": "string",
                   "x-order": 0
@@ -2529,7 +2529,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "channelIds": {
+                "channel_ids": {
                   "description": "Channels. Should be set.",
                   "type": "array",
                   "items": {
@@ -2537,7 +2537,7 @@
                   },
                   "x-order": 8
                 },
-                "customLabels": {
+                "custom_labels": {
                   "description": "All custom labels to add or remove (with empty values) to default labels from template.",
                   "type": "object",
                   "additionalProperties": {
@@ -2634,7 +2634,7 @@
                   },
                   "x-order": 3
                 },
-                "ruleId": {
+                "rule_id": {
                   "description": "Rule ID.",
                   "type": "string",
                   "x-order": 0
@@ -2845,7 +2845,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "pageParams": {
+                "page_params": {
                   "description": "PageParams represents page request parameters for pagination.",
                   "type": "object",
                   "properties": {
@@ -2855,7 +2855,7 @@
                       "format": "int32",
                       "x-order": 1
                     },
-                    "pageSize": {
+                    "page_size": {
                       "description": "Maximum number of results per page.",
                       "type": "integer",
                       "format": "int32",
@@ -2893,7 +2893,7 @@
                         },
                         "x-order": 7
                       },
-                      "createdAt": {
+                      "created_at": {
                         "description": "Template creation time. Empty for built-in and SaaS templates.",
                         "type": "string",
                         "format": "date-time",
@@ -2957,17 +2957,17 @@
                                   "format": "double",
                                   "x-order": 1
                                 },
-                                "hasDefault": {
+                                "has_default": {
                                   "description": "True if default value is set.",
                                   "type": "boolean",
                                   "x-order": 0
                                 },
-                                "hasMax": {
+                                "has_max": {
                                   "description": "True if maximal valid value is set.",
                                   "type": "boolean",
                                   "x-order": 4
                                 },
-                                "hasMin": {
+                                "has_min": {
                                   "description": "True if minimal valid value is set.",
                                   "type": "boolean",
                                   "x-order": 2
@@ -3001,7 +3001,7 @@
                                   "type": "string",
                                   "x-order": 1
                                 },
-                                "hasDefault": {
+                                "has_default": {
                                   "description": "True if default value is set.",
                                   "type": "boolean",
                                   "x-order": 0
@@ -3089,13 +3089,13 @@
                   "description": "PageTotals represents total values for pagination.",
                   "type": "object",
                   "properties": {
-                    "totalItems": {
+                    "total_items": {
                       "description": "Total number of results.",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 0
                     },
-                    "totalPages": {
+                    "total_pages": {
                       "description": "Total number of pages.",
                       "type": "integer",
                       "format": "int32",

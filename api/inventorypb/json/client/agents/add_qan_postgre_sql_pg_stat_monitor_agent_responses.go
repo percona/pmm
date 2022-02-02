@@ -125,10 +125,10 @@ swagger:model AddQANPostgreSQLPgStatMonitorAgentBody
 type AddQANPostgreSQLPgStatMonitorAgentBody struct {
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmmAgentId,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// PostgreSQL username for getting pg stat monitor data.
 	Username string `json:"username,omitempty"`
@@ -140,25 +140,25 @@ type AddQANPostgreSQLPgStatMonitorAgentBody struct {
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// Disable query examples.
-	DisableQueryExamples bool `json:"disableQueryExamples,omitempty"`
+	DisableQueryExamples bool `json:"disable_query_examples,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Skip connection check.
-	SkipConnectionCheck bool `json:"skipConnectionCheck,omitempty"`
+	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 
 	// TLS CA certificate.
-	TLSCa string `json:"tlsCa,omitempty"`
+	TLSCa string `json:"tls_ca,omitempty"`
 
 	// TLS Certifcate.
-	TLSCert string `json:"tlsCert,omitempty"`
+	TLSCert string `json:"tls_cert,omitempty"`
 
 	// TLS Certificate Key.
-	TLSKey string `json:"tlsKey,omitempty"`
+	TLSKey string `json:"tls_key,omitempty"`
 }
 
 // Validate validates this add QAN postgre SQL pg stat monitor agent body
@@ -262,7 +262,7 @@ swagger:model AddQANPostgreSQLPgStatMonitorAgentOKBody
 type AddQANPostgreSQLPgStatMonitorAgentOKBody struct {
 
 	// qan postgresql pgstatmonitor agent
-	QANPostgresqlPgstatmonitorAgent *AddQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent `json:"qanPostgresqlPgstatmonitorAgent,omitempty"`
+	QANPostgresqlPgstatmonitorAgent *AddQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent `json:"qan_postgresql_pgstatmonitor_agent,omitempty"`
 }
 
 // Validate validates this add QAN postgre SQL pg stat monitor agent OK body
@@ -288,7 +288,7 @@ func (o *AddQANPostgreSQLPgStatMonitorAgentOKBody) validateQANPostgresqlPgstatmo
 	if o.QANPostgresqlPgstatmonitorAgent != nil {
 		if err := o.QANPostgresqlPgstatmonitorAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addQanPostgreSqlPgStatMonitorAgentOk" + "." + "qanPostgresqlPgstatmonitorAgent")
+				return ve.ValidateName("addQanPostgreSqlPgStatMonitorAgentOk" + "." + "qan_postgresql_pgstatmonitor_agent")
 			}
 			return err
 		}
@@ -321,16 +321,16 @@ swagger:model AddQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitor
 type AddQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agentId,omitempty"`
+	AgentID string `json:"agent_id,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmmAgentId,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// PostgreSQL username for getting pg stat monitor data.
 	Username string `json:"username,omitempty"`
@@ -339,13 +339,13 @@ type AddQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent str
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// True if query examples are disabled.
-	QueryExamplesDisabled bool `json:"queryExamplesDisabled,omitempty"`
+	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -424,7 +424,7 @@ func (o *AddQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addQanPostgreSqlPgStatMonitorAgentOk"+"."+"qanPostgresqlPgstatmonitorAgent"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addQanPostgreSqlPgStatMonitorAgentOk"+"."+"qan_postgresql_pgstatmonitor_agent"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 

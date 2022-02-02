@@ -230,7 +230,7 @@ type GetQueryPlanOKBody struct {
 	Planid string `json:"planid,omitempty"`
 
 	// query plan
-	QueryPlan string `json:"queryPlan,omitempty"`
+	QueryPlan string `json:"query_plan,omitempty"`
 }
 
 // Validate validates this get query plan OK body

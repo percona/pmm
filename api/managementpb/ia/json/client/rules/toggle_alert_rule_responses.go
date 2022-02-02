@@ -123,7 +123,7 @@ swagger:model ToggleAlertRuleBody
 type ToggleAlertRuleBody struct {
 
 	// Rule ID.
-	RuleID string `json:"ruleId,omitempty"`
+	RuleID string `json:"rule_id,omitempty"`
 
 	// BooleanFlag represent a command to set some boolean property to true,
 	// to false, or avoid changing that property.

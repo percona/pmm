@@ -125,10 +125,10 @@ swagger:model AddQANMongoDBProfilerAgentBody
 type AddQANMongoDBProfilerAgentBody struct {
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmmAgentId,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// MongoDB username for getting profile data.
 	Username string `json:"username,omitempty"`
@@ -140,30 +140,30 @@ type AddQANMongoDBProfilerAgentBody struct {
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// Client certificate and key.
-	TLSCertificateKey string `json:"tlsCertificateKey,omitempty"`
+	TLSCertificateKey string `json:"tls_certificate_key,omitempty"`
 
 	// Password for decrypting tls_certificate_key.
-	TLSCertificateKeyFilePassword string `json:"tlsCertificateKeyFilePassword,omitempty"`
+	TLSCertificateKeyFilePassword string `json:"tls_certificate_key_file_password,omitempty"`
 
 	// Certificate Authority certificate chain.
-	TLSCa string `json:"tlsCa,omitempty"`
+	TLSCa string `json:"tls_ca,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Skip connection check.
-	SkipConnectionCheck bool `json:"skipConnectionCheck,omitempty"`
+	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 
 	// Authentication mechanism.
 	// See https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism
 	// for details.
-	AuthenticationMechanism string `json:"authenticationMechanism,omitempty"`
+	AuthenticationMechanism string `json:"authentication_mechanism,omitempty"`
 
 	// Authentication database.
-	AuthenticationDatabase string `json:"authenticationDatabase,omitempty"`
+	AuthenticationDatabase string `json:"authentication_database,omitempty"`
 }
 
 // Validate validates this add QAN mongo DB profiler agent body
@@ -267,7 +267,7 @@ swagger:model AddQANMongoDBProfilerAgentOKBody
 type AddQANMongoDBProfilerAgentOKBody struct {
 
 	// qan mongodb profiler agent
-	QANMongodbProfilerAgent *AddQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent `json:"qanMongodbProfilerAgent,omitempty"`
+	QANMongodbProfilerAgent *AddQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent `json:"qan_mongodb_profiler_agent,omitempty"`
 }
 
 // Validate validates this add QAN mongo DB profiler agent OK body
@@ -293,7 +293,7 @@ func (o *AddQANMongoDBProfilerAgentOKBody) validateQANMongodbProfilerAgent(forma
 	if o.QANMongodbProfilerAgent != nil {
 		if err := o.QANMongodbProfilerAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addQanMongoDbProfilerAgentOk" + "." + "qanMongodbProfilerAgent")
+				return ve.ValidateName("addQanMongoDbProfilerAgentOk" + "." + "qan_mongodb_profiler_agent")
 			}
 			return err
 		}
@@ -326,16 +326,16 @@ swagger:model AddQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent
 type AddQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent struct {
 
 	// Unique randomly generated instance identifier.
-	AgentID string `json:"agentId,omitempty"`
+	AgentID string `json:"agent_id,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmmAgentId,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Service identifier.
-	ServiceID string `json:"serviceId,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// MongoDB username for getting profiler data.
 	Username string `json:"username,omitempty"`
@@ -344,10 +344,10 @@ type AddQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent struct {
 	TLS bool `json:"tls,omitempty"`
 
 	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"customLabels,omitempty"`
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -426,7 +426,7 @@ func (o *AddQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent) validateStatus
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addQanMongoDbProfilerAgentOk"+"."+"qanMongodbProfilerAgent"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addQanMongoDbProfilerAgentOk"+"."+"qan_mongodb_profiler_agent"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 

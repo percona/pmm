@@ -136,26 +136,26 @@ type EntitlementsItems0 struct {
 	Tier string `json:"tier,omitempty"`
 
 	// Total units covered by this entitlement.
-	TotalUnits string `json:"totalUnits,omitempty"`
+	TotalUnits string `json:"total_units,omitempty"`
 
 	// Flag indicates that unlimited units are covered.
-	UnlimitedUnits bool `json:"unlimitedUnits,omitempty"`
+	UnlimitedUnits bool `json:"unlimited_units,omitempty"`
 
 	// Support level covered by this entitlement.
-	SupportLevel string `json:"supportLevel,omitempty"`
+	SupportLevel string `json:"support_level,omitempty"`
 
 	// Percona product families covered by this entitlement.
-	SoftwareFamilies []string `json:"softwareFamilies"`
+	SoftwareFamilies []string `json:"software_families"`
 
 	// Entitlement start data.
 	// Note: only date is used here but not time.
 	// Format: date-time
-	StartDate strfmt.DateTime `json:"startDate,omitempty"`
+	StartDate strfmt.DateTime `json:"start_date,omitempty"`
 
 	// Entitlement end date.
 	// Note: only date is used here but not time.
 	// Format: date-time
-	EndDate strfmt.DateTime `json:"endDate,omitempty"`
+	EndDate strfmt.DateTime `json:"end_date,omitempty"`
 
 	// platform
 	Platform *EntitlementsItems0Platform `json:"platform,omitempty"`
@@ -189,7 +189,7 @@ func (o *EntitlementsItems0) validateStartDate(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("startDate", "body", "date-time", o.StartDate.String(), formats); err != nil {
+	if err := validate.FormatOf("start_date", "body", "date-time", o.StartDate.String(), formats); err != nil {
 		return err
 	}
 
@@ -202,7 +202,7 @@ func (o *EntitlementsItems0) validateEndDate(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("endDate", "body", "date-time", o.EndDate.String(), formats); err != nil {
+	if err := validate.FormatOf("end_date", "body", "date-time", o.EndDate.String(), formats); err != nil {
 		return err
 	}
 
@@ -251,10 +251,10 @@ swagger:model EntitlementsItems0Platform
 type EntitlementsItems0Platform struct {
 
 	// Flag indicates that security advisors are covered by this entitlement.
-	SecurityAdvisor string `json:"securityAdvisor,omitempty"`
+	SecurityAdvisor string `json:"security_advisor,omitempty"`
 
 	// Flag indicates that config advisors are covered by this entitlement.
-	ConfigAdvisor string `json:"configAdvisor,omitempty"`
+	ConfigAdvisor string `json:"config_advisor,omitempty"`
 }
 
 // Validate validates this entitlements items0 platform

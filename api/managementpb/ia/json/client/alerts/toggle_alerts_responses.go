@@ -124,7 +124,7 @@ type ToggleAlertsBody struct {
 
 	// List of alerts that silence state should be switched. If provided array is empty than all
 	// existing alerts are switched.
-	AlertIds []string `json:"alertIds"`
+	AlertIds []string `json:"alert_ids"`
 
 	// BooleanFlag represent a command to set some boolean property to true,
 	// to false, or avoid changing that property.

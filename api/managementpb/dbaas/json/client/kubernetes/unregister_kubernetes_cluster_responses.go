@@ -121,7 +121,7 @@ swagger:model UnregisterKubernetesClusterBody
 type UnregisterKubernetesClusterBody struct {
 
 	// Kubernetes cluster name.
-	KubernetesClusterName string `json:"kubernetesClusterName,omitempty"`
+	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
 
 	// If true then Kubernetes cluster will be deleted
 	// even if it contains database clusters.

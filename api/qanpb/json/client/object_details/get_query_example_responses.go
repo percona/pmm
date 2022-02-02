@@ -127,17 +127,17 @@ type GetQueryExampleBody struct {
 
 	// period start from
 	// Format: date-time
-	PeriodStartFrom strfmt.DateTime `json:"periodStartFrom,omitempty"`
+	PeriodStartFrom strfmt.DateTime `json:"period_start_from,omitempty"`
 
 	// period start to
 	// Format: date-time
-	PeriodStartTo strfmt.DateTime `json:"periodStartTo,omitempty"`
+	PeriodStartTo strfmt.DateTime `json:"period_start_to,omitempty"`
 
 	// dimension value: ex: queryid - 1D410B4BE5060972.
-	FilterBy string `json:"filterBy,omitempty"`
+	FilterBy string `json:"filter_by,omitempty"`
 
 	// one of dimension: queryid | host ...
-	GroupBy string `json:"groupBy,omitempty"`
+	GroupBy string `json:"group_by,omitempty"`
 
 	// labels
 	Labels []*LabelsItems0 `json:"labels"`
@@ -174,7 +174,7 @@ func (o *GetQueryExampleBody) validatePeriodStartFrom(formats strfmt.Registry) e
 		return nil
 	}
 
-	if err := validate.FormatOf("body"+"."+"periodStartFrom", "body", "date-time", o.PeriodStartFrom.String(), formats); err != nil {
+	if err := validate.FormatOf("body"+"."+"period_start_from", "body", "date-time", o.PeriodStartFrom.String(), formats); err != nil {
 		return err
 	}
 
@@ -187,7 +187,7 @@ func (o *GetQueryExampleBody) validatePeriodStartTo(formats strfmt.Registry) err
 		return nil
 	}
 
-	if err := validate.FormatOf("body"+"."+"periodStartTo", "body", "date-time", o.PeriodStartTo.String(), formats); err != nil {
+	if err := validate.FormatOf("body"+"."+"period_start_to", "body", "date-time", o.PeriodStartTo.String(), formats); err != nil {
 		return err
 	}
 
@@ -315,7 +315,7 @@ swagger:model GetQueryExampleOKBody
 type GetQueryExampleOKBody struct {
 
 	// query examples
-	QueryExamples []*QueryExamplesItems0 `json:"queryExamples"`
+	QueryExamples []*QueryExamplesItems0 `json:"query_examples"`
 }
 
 // Validate validates this get query example OK body
@@ -346,7 +346,7 @@ func (o *GetQueryExampleOKBody) validateQueryExamples(formats strfmt.Registry) e
 		if o.QueryExamples[i] != nil {
 			if err := o.QueryExamples[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("getQueryExampleOk" + "." + "queryExamples" + "." + strconv.Itoa(i))
+					return ve.ValidateName("getQueryExampleOk" + "." + "query_examples" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -387,23 +387,23 @@ type QueryExamplesItems0 struct {
 	//
 	// Deprecated: is not used, should not be used, should be removed.
 	// Enum: [EXAMPLE_FORMAT_INVALID EXAMPLE FINGERPRINT]
-	ExampleFormat *string `json:"exampleFormat,omitempty"`
+	ExampleFormat *string `json:"example_format,omitempty"`
 
 	// ExampleType is a type of query example selected for this query class in given period of time.
 	// Enum: [EXAMPLE_TYPE_INVALID RANDOM SLOWEST FASTEST WITH_ERROR]
-	ExampleType *string `json:"exampleType,omitempty"`
+	ExampleType *string `json:"example_type,omitempty"`
 
 	// is truncated
-	IsTruncated int64 `json:"isTruncated,omitempty"`
+	IsTruncated int64 `json:"is_truncated,omitempty"`
 
 	// example metrics
-	ExampleMetrics string `json:"exampleMetrics,omitempty"`
+	ExampleMetrics string `json:"example_metrics,omitempty"`
 
-	// service Id
-	ServiceID string `json:"serviceId,omitempty"`
+	// service id
+	ServiceID string `json:"service_id,omitempty"`
 
 	// service type
-	ServiceType string `json:"serviceType,omitempty"`
+	ServiceType string `json:"service_type,omitempty"`
 
 	// schema
 	Schema string `json:"schema,omitempty"`
@@ -469,7 +469,7 @@ func (o *QueryExamplesItems0) validateExampleFormat(formats strfmt.Registry) err
 	}
 
 	// value enum
-	if err := o.validateExampleFormatEnum("exampleFormat", "body", *o.ExampleFormat); err != nil {
+	if err := o.validateExampleFormatEnum("example_format", "body", *o.ExampleFormat); err != nil {
 		return err
 	}
 
@@ -521,7 +521,7 @@ func (o *QueryExamplesItems0) validateExampleType(formats strfmt.Registry) error
 	}
 
 	// value enum
-	if err := o.validateExampleTypeEnum("exampleType", "body", *o.ExampleType); err != nil {
+	if err := o.validateExampleTypeEnum("example_type", "body", *o.ExampleType); err != nil {
 		return err
 	}
 
