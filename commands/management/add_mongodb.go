@@ -228,6 +228,6 @@ func init() {
 
 	AddMongoDBC.Flag("stats-collections", "Collections for collstats & indexstats").StringVar(&AddMongoDB.StatsCollections)
 	AddMongoDBC.Flag("max-collections-limit",
-		"Disable collstats & indexstats if there are more than <n> collections. 0: No limit, -1: Let PMM automatically set this value.").
+		"Disable collstats, dbstats, topmetrics and indexstats if there are more than <n> collections. 0: No limit. Default is -1, which let PMM automatically set this value.").
 		Default("-1").Int32Var(&AddMongoDB.CollectionsLimit)
 }
