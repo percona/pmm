@@ -29,6 +29,7 @@ import (
 	"golang.org/x/sys/unix"
 
 	"github.com/percona/pmm-agent/utils/backoff"
+	"github.com/percona/pmm-agent/utils/templates"
 )
 
 const (
@@ -65,11 +66,15 @@ type Process struct {
 	cmdDone chan struct{}
 }
 
-// Params represent Agent process parameters: command path, command-line arguments/flags, and process environment.
+// Params represent Agent process parameters: command path, command-line arguments/flags, process environment,
+// agent type, template renderer and template params. Last 3 params are passed to be able regenerate config during restarting.
 type Params struct {
-	Path string
-	Args []string
-	Env  []string
+	Path             string
+	Args             []string
+	Env              []string
+	Type             inventorypb.AgentType
+	TemplateRenderer *templates.TemplateRenderer
+	TemplateParams   map[string]interface{}
 }
 
 func (p *Params) String() string {
@@ -174,6 +179,14 @@ func (p *Process) toWaiting() {
 	defer t.Stop()
 	select {
 	case <-t.C:
+		// VM_AGENT need recreate config file in temp dir.
+		if p.params.Type == inventorypb.AgentType_VM_AGENT {
+			_, err := p.params.TemplateRenderer.RenderFiles(p.params.TemplateParams)
+			if err != nil {
+				p.l.Warnf("Process: failed to regenerate config in %s.", p.params.TemplateRenderer.TempDir)
+			}
+		}
+
 		go p.toStarting()
 	case <-p.ctxDone:
 		go p.toDone()

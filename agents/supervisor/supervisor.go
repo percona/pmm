@@ -491,6 +491,8 @@ var textFileRE = regexp.MustCompile(`^[A-Za-z][A-Za-z0-9_]*$`) //nolint:gocheckn
 // processParams makes *process.Params from SetStateRequest parameters and other data.
 func (s *Supervisor) processParams(agentID string, agentProcess *agentpb.SetStateRequest_AgentProcess, port uint16) (*process.Params, error) {
 	var processParams process.Params
+	processParams.Type = agentProcess.Type
+
 	templateParams := map[string]interface{}{
 		"listen_port": port,
 	}
@@ -539,6 +541,9 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentpb.SetStat
 		TemplateRightDelim: agentProcess.TemplateRightDelim,
 		TempDir:            filepath.Join(s.paths.TempDir, strings.ToLower(agentProcess.Type.String()), agentID),
 	}
+
+	processParams.TemplateRenderer = tr
+	processParams.TemplateParams = templateParams
 
 	templateParams, err := tr.RenderFiles(templateParams)
 	if err != nil {

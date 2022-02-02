@@ -353,7 +353,11 @@ func TestSupervisorProcessParams(t *testing.T) {
 				"TEST=:12345",
 			},
 		}
-		assert.Equal(t, expected, *actual)
+		assert.Equal(t, expected.Path, actual.Path)
+		assert.Equal(t, expected.Args, actual.Args)
+		assert.Equal(t, expected.Env, actual.Env)
+		assert.NotEmpty(t, actual.TemplateParams)
+		assert.NotEmpty(t, actual.TemplateRenderer)
 	})
 
 	t.Run("BadTemplate", func(t *testing.T) {
