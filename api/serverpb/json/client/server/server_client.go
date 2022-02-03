@@ -51,7 +51,9 @@ type ClientService interface {
 }
 
 /*
-  AWSInstanceCheck AWSs instance check checks AWS e c2 instance ID
+  AWSInstanceCheck AWSs instance check
+
+  Checks AWS EC2 instance ID.
 */
 func (a *Client) AWSInstanceCheck(params *AWSInstanceCheckParams) (*AWSInstanceCheckOK, error) {
 	// TODO: Validate the params before sending
@@ -84,7 +86,9 @@ func (a *Client) AWSInstanceCheck(params *AWSInstanceCheckParams) (*AWSInstanceC
 }
 
 /*
-  ChangeSettings changes settings changes PMM server settings
+  ChangeSettings changes settings
+
+  Changes PMM Server settings.
 */
 func (a *Client) ChangeSettings(params *ChangeSettingsParams) (*ChangeSettingsOK, error) {
 	// TODO: Validate the params before sending
@@ -117,7 +121,9 @@ func (a *Client) ChangeSettings(params *ChangeSettingsParams) (*ChangeSettingsOK
 }
 
 /*
-  CheckUpdates checks updates checks PMM server updates availability
+  CheckUpdates checks updates
+
+  Checks PMM Server updates availability.
 */
 func (a *Client) CheckUpdates(params *CheckUpdatesParams) (*CheckUpdatesOK, error) {
 	// TODO: Validate the params before sending
@@ -150,7 +156,9 @@ func (a *Client) CheckUpdates(params *CheckUpdatesParams) (*CheckUpdatesOK, erro
 }
 
 /*
-  GetSettings gets settings returns current PMM server settings
+  GetSettings gets settings
+
+  Returns current PMM Server settings.
 */
 func (a *Client) GetSettings(params *GetSettingsParams) (*GetSettingsOK, error) {
 	// TODO: Validate the params before sending
@@ -216,7 +224,9 @@ func (a *Client) Logs(params *LogsParams, writer io.Writer) (*LogsOK, error) {
 }
 
 /*
-  Readiness readinesses returns an error when some PMM server component is not ready yet or is being restarted it can be used as for docker health check or kubernetes readiness probe
+  Readiness readinesses
+
+  Returns an error when some PMM Server component is not ready yet or is being restarted. It can be used as for Docker health check or Kubernetes readiness probe.
 */
 func (a *Client) Readiness(params *ReadinessParams) (*ReadinessOK, error) {
 	// TODO: Validate the params before sending
@@ -249,7 +259,9 @@ func (a *Client) Readiness(params *ReadinessParams) (*ReadinessOK, error) {
 }
 
 /*
-  StartUpdate starts update starts PMM server update
+  StartUpdate starts update
+
+  Starts PMM Server update.
 */
 func (a *Client) StartUpdate(params *StartUpdateParams) (*StartUpdateOK, error) {
 	// TODO: Validate the params before sending
@@ -282,7 +294,9 @@ func (a *Client) StartUpdate(params *StartUpdateParams) (*StartUpdateOK, error) 
 }
 
 /*
-  TestEmailAlertingSettings tests email alerting settings tests email alerting SMTP settings by sending testing email
+  TestEmailAlertingSettings tests email alerting settings
+
+  Tests email alerting SMTP settings by sending testing email.
 */
 func (a *Client) TestEmailAlertingSettings(params *TestEmailAlertingSettingsParams) (*TestEmailAlertingSettingsOK, error) {
 	// TODO: Validate the params before sending
@@ -315,7 +329,9 @@ func (a *Client) TestEmailAlertingSettings(params *TestEmailAlertingSettingsPara
 }
 
 /*
-  UpdateStatus updates status returns PMM server update status
+  UpdateStatus updates status
+
+  Returns PMM Server update status.
 */
 func (a *Client) UpdateStatus(params *UpdateStatusParams) (*UpdateStatusOK, error) {
 	// TODO: Validate the params before sending
@@ -348,7 +364,9 @@ func (a *Client) UpdateStatus(params *UpdateStatusParams) (*UpdateStatusOK, erro
 }
 
 /*
-  Version versions returns PMM server versions
+  Version versions
+
+  Returns PMM Server versions.
 */
 func (a *Client) Version(params *VersionParams) (*VersionOK, error) {
 	// TODO: Validate the params before sending

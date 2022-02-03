@@ -4,6 +4,7 @@ package server;
 
 option go_package = "api/serverpb;serverpb";
 
+import "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options/annotations.proto";
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
@@ -291,12 +292,20 @@ service Server {
     option (google.api.http) = {
       get: "/v1/version"
     };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      summary: "Version"
+      description: "Returns PMM Server versions."
+    };
   }
   // Readiness returns an error when some PMM Server component is not ready yet or is being restarted.
   // It can be used as for Docker health check or Kubernetes readiness probe.
   rpc Readiness(ReadinessRequest) returns (ReadinessResponse) {
     option (google.api.http) = {
       get: "/v1/readyz"
+    };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      summary: "Readiness"
+      description: "Returns an error when some PMM Server component is not ready yet or is being restarted. It can be used as for Docker health check or Kubernetes readiness probe."
     };
   }
   // CheckUpdates checks PMM Server updates availability.
@@ -305,12 +314,20 @@ service Server {
       post: "/v1/Updates/Check"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      summary: "CheckUpdates"
+      description: "Checks PMM Server updates availability."
+    };
   }
   // StartUpdate starts PMM Server update.
   rpc StartUpdate(StartUpdateRequest) returns (StartUpdateResponse) {
     option (google.api.http) = {
       post: "/v1/Updates/Start"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      summary: "StartUpdate"
+      description: "Starts PMM Server update."
     };
   }
   // UpdateStatus returns PMM Server update status.
@@ -319,12 +336,20 @@ service Server {
       post: "/v1/Updates/Status"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      summary: "UpdateStatus"
+      description: "Returns PMM Server update status."
+    };
   }
   // GetSettings returns current PMM Server settings.
   rpc GetSettings(GetSettingsRequest) returns (GetSettingsResponse) {
     option (google.api.http) = {
       post: "/v1/Settings/Get"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      summary: "GetSettings"
+      description: "Returns current PMM Server settings."
     };
   }
   // ChangeSettings changes PMM Server settings.
@@ -333,6 +358,10 @@ service Server {
       post: "/v1/Settings/Change"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      summary: "ChangeSettings"
+      description: "Changes PMM Server settings."
+    };
   }
   // TestEmailAlertingSettings tests email alerting SMTP settings by sending testing email.
   rpc TestEmailAlertingSettings(TestEmailAlertingSettingsRequest) returns (TestEmailAlertingSettingsResponse) {
@@ -340,12 +369,20 @@ service Server {
       post: "/v1/Settings/TestEmailAlertingSettings"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      summary: "TestEmailAlertingSettings"
+      description: "Tests email alerting SMTP settings by sending testing email."
+    };
   }
   // AWSInstanceCheck checks AWS EC2 instance ID.
   rpc AWSInstanceCheck(AWSInstanceCheckRequest) returns (AWSInstanceCheckResponse) {
     option (google.api.http) = {
       post: "/v1/AWSInstanceCheck"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      summary: "AWSInstanceCheck"
+      description: "Checks AWS EC2 instance ID."
     };
   }
 }
