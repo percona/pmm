@@ -18687,6 +18687,16 @@
                     }
                   },
                   "x-order": 1
+                },
+                "aws_access_key_id": {
+                  "description": "AWS access key id, only needed when registering EKS cluster and kubeconfig does not contain it.",
+                  "type": "string",
+                  "x-order": 2
+                },
+                "aws_secret_access_key": {
+                  "description": "AWS secret access key, only needed when registering EKS cluster and kubeconfig does not contain it.",
+                  "type": "string",
+                  "x-order": 3
                 }
               }
             }
