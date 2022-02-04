@@ -11,7 +11,6 @@ How to run PMM Server with Docker based on our [Docker image].
 ## Before you start
 
 - Install [Docker] 1.12.6 or higher.
-- (Optional) Install [Docker compose].
 
 ## Run
 
