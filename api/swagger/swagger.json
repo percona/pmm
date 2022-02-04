@@ -19134,5 +19134,13 @@
     {
       "basicAuth": []
     }
-  ]
+  ],
+  "x-readme": {
+    "samples-languages": [
+      "curl",
+      "go",
+      "node",
+      "python"
+    ]
+  }
 }
