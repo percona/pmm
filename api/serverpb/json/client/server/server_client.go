@@ -123,7 +123,7 @@ func (a *Client) ChangeSettings(params *ChangeSettingsParams) (*ChangeSettingsOK
 /*
   CheckUpdates checks updates
 
-  Checks PMM Server updates availability.
+  Checks for available PMM Server updates.
 */
 func (a *Client) CheckUpdates(params *CheckUpdatesParams) (*CheckUpdatesOK, error) {
 	// TODO: Validate the params before sending
@@ -226,7 +226,7 @@ func (a *Client) Logs(params *LogsParams, writer io.Writer) (*LogsOK, error) {
 /*
   Readiness readinesses
 
-  Returns an error when some PMM Server component is not ready yet or is being restarted. It can be used as for Docker health check or Kubernetes readiness probe.
+  Returns an error when Server components being restarted are not ready yet. Use this API for checking the health of Docker containers and for probing Kubernetes readiness.
 */
 func (a *Client) Readiness(params *ReadinessParams) (*ReadinessOK, error) {
 	// TODO: Validate the params before sending
@@ -294,9 +294,9 @@ func (a *Client) StartUpdate(params *StartUpdateParams) (*StartUpdateOK, error) 
 }
 
 /*
-  TestEmailAlertingSettings tests email alerting settings
+  TestEmailAlertingSettings tests email alerting
 
-  Tests email alerting SMTP settings by sending testing email.
+  Sends test email to check current SMTP settings for email alerting.
 */
 func (a *Client) TestEmailAlertingSettings(params *TestEmailAlertingSettingsParams) (*TestEmailAlertingSettingsOK, error) {
 	// TODO: Validate the params before sending
