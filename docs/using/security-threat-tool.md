@@ -2,30 +2,33 @@
 
 The Security Threat Tool runs regular checks against connected databases, alerting you if any servers pose a potential security threat.
 
-All checks run on the PMM Client side. Results are sent to PMM Server where a summary count is shown on the *Home Dashboard*, with details in the *PMM Database Checks* dashboard.
+### Anonymous and registered checks
+All checks are hosted on Percona Platform. PMM Server automatically downloads them from here when the Security Threat Tool is enabled in PMM. 
 
-Checks are automatically downloaded from Percona Platform and run every 24 hours. (This period is not configurable.)
+By default, PMM has access to a set of anonymous checks, which can be downloaded even if PMM is not connected to Percona Platform. 
+As soon as you connect your PMM instance to Percona Platform, you get additional access to registered checks, which offer more advanced database health information.
 
-**Check results data *always* remains on the PMM Server.** It is not related to anonymous data sent for Telemetry purposes.
+​To see the complete list of available checks, see the [Security Checks for PMM](https://docs.percona.com/percona-platform/checks.html) topic in the Percona Platform documentation.  
 
-The *Failed security checks* panel on the *Home Dashboard* shows the number of failed checks classed as *critical* (red), *major* (amber), and *trivial* (blue).
-
-![!Failed security checks panel](../_images/PMM_Home_Dashboard_Panels_Failed_Security_Checks.jpg)
-
-!!! note alert alert-light "Key"
-    <b style="color:#e02f44;">Critical</b> (Red) / <b style="color:#e36526;">Major</b> (Amber) / <b style="color:#5794f2;">Trivial</b> (Blue)
-
-Details are in the *PMM Database Checks* dashboard (select *PMM* → *PMM Database Checks*).
-
-![!PMM Database Checks dashboard](../_images/PMM_Database_Checks.jpg)
 
 ## How to enable
 
-The Security Threat Tool (STT) is disabled by default. To enable it, select <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings*. ([Read more](../how-to/configure.md#advanced-settings)).
+By default, the Security Threat Tool (STT) is disabled. To enable it, select <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings*. ([Read more](../how-to/configure.md#advanced-settings)).
 
-Enabling STT in the settings also causes the PMM server to download STT checks from Percona Platform and run them once. This operation runs in the background so even though the settings update finishes instantly it might take some time for the checks to complete download and execution and the results (if any) to be visible in the *PMM Database Checks* dashboard.
+Enabling STT in the settings causes the PMM server to download STT checks from Percona Platform and run them once. This operation runs in the background, so even though the settings update finishes instantly, it might take some time for the checks to complete download and execution and the results (if any) to be visible in the *PMM Database Checks* dashboard.
+
+## Checks results
+The results are sent to PMM Server where you can review any failed checks on the **Home Dashboard > Failed security checks** panel. The summary count of failed checks is classified as <b style="color:#e02f44;">Critical</b>, <b style="color:#e36526;">Major</b> and <b style="color:#5794f2;">Trivial</b>:
+
+![!Failed security checks panel](../_images/PMM_Home_Dashboard_Panels_Failed_Security_Checks.jpg)
+
+To see more details about the available checks and any checks that failed, click the *{{icon.checks}} Security Checks* on the main menu. This icon is only available if you have enabled the Security Threat Tool.
+
+**Check results data *always* remains on the PMM Server.** It is not related to anonymous data sent for Telemetry purposes.
 
 ## Change a check's interval
+The checks can be executed manually or automatically. By default, PMM runs automatic checks every 24 hours. To configure this interval:
+
 
 1. Click *{{icon.checks}} Security Checks*.
 
@@ -36,16 +39,3 @@ Enabling STT in the settings also causes the PMM server to download STT checks f
 4. Chose an interval: *Standard*, *Rare*, *Frequent*.
 
 5. Click *Save*.
-
-## List of checks made
-
-| Check ID                | Description
-|-------------------------|-----------------------------------------------------------------
-| `mongodb_auth`          | MongoDB authentication is disabled.
-| `mongodb_version`       | MongoDB/Percona Server for MongoDB version is not the latest.
-| `mongodb_cve_version`   | MongoDB/Percona Server for MongoDB version is not the latest with CVE fixes.
-| `mysql_anonymous_users` | There are accounts with no username.
-| `mysql_empty_password`  | There are users without passwords.
-| `mysql_version`         | MySQL/PS/MariaDB version is not the latest.
-| `postgresql_super_role` | PostgreSQL has users (besides `postgres`, `rdsadmin`, and `pmm_user`) with the role 'SUPER'.
-| `postgresql_version`    | PostgreSQL version is not the latest.

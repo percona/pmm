@@ -32,33 +32,16 @@ Before you can get alerts, you must [activate Integrated Alerting](#activate-int
 
 1. Under *Technical preview features*, turn on *Integrated Alerting*.
 
-1. Click *Apply changes*. A new *Communication* tab will appear.
+1. Click *Apply changes*. This adds a new *Communication* tab to the *Settings* menu.
 
-### Set up a communication channel
+### Set up communication channel
 
-1. When the *Communication* tab appears, select it.
-
-1. Select the tab for an alert method, *Email* or *Slack*.
-
-    1. For *Email*, enter values to define the SMTP email server
-
-        - *Server Address*: The default SMTP smarthost used for sending emails, including port number.
-        - *Hello*: The default hostname to identify to the SMTP server.
-        - *From*: The sender's email address.
-        - *Auth type*: Authentication type. Choose from:
-            - *None*
-            - *Plain*
-            - *Login*
-            - *CRAM-MD5*
-        - *Username*: Username for SMTP Auth using CRAM-MD5, LOGIN and PLAIN.
-        - *Password*: Password for SMTP Auth using CRAM-MD5, LOGIN and PLAIN.
-        - *Require TLS*: The SMTP TLS requirement. Some SMTP servers may require enabling this option e.g. Gmail.
-
-    1. For *Slack*, enter a value for *URL*, the Slack webhook URL to use.
-
-1. Click *Apply changes*.
-
-1. From the left menu, select <i class="uil uil-bell"></i> *Alerting* → <i class="uil uil-list-ul"></i> *Integrated Alerting*. The default tab of the *Integrated Alerting* page lists alerts, if any are set up.
+1. Open the new *Communication* tab under <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings*.
+2. Choose whether you want to configure *Email* or *Slack* alerting:
+ - For *Email*, fill in the details of your SMTP email server, enforce TLS encryption if your SMTP server requires this, then click *Test* to confirm that you can connect to the SMTP server with the current settings. 
+ - For *Slack*, specify the Slack webhook URL to use.
+3. Click *Apply changes* to save your settings.
+4. From the left menu, select <i class="uil uil-bell"></i> *Alerting* → <i class="uil uil-list-ul"></i> *Integrated Alerting*. The default tab of the *Integrated Alerting* page lists alerts (if set up).
 
     ![!](../_images/PMM_Integrated_Alerting_Alerts.jpg)
 

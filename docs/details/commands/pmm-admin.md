@@ -323,6 +323,109 @@ When you remove a service, collected data remains on PMM Server for the specifie
         - `push`: agent will push metrics.
         - `pull`: server scrapes metrics from agent.
 
+##### Advanced Options
+
+PMM starts the MongoDB exporter by default only with `diagnosticdata` and `replicasetstatus` collectors enabled.
+
+    FLAGS:
+
+    `--enable-all-collectors`
+    :  Enable all collectors
+
+    `--disable-collectors`
+    :  Comma-separated list of collector names to exclude from exporter
+
+    `--max-collections-limit=-1`
+    :  Disable collstats, dbstats, topmetrics and indexstats if there are more than <n> collections. 0: No limit. Default is -1, PMM automatically sets this value.
+
+        !!! caution ""
+            A very high limit of `max-collections-limit` could impact the CPU and Memory usage. Check `--stats-collections` to limit the scope of collections and DB's metrics to be fetched.
+
+    `--stats-collections=db1,db2.col1`
+    :  Collections for collstats & indexstats
+
+
+###### Enable all collectors
+
+To enable all collectors, pass the parameter `--enable-all-collectors` in the `pmm-admin add mongodb` command.
+This will enable `collstats`, `dbstats`, `indexstats`, and `topmetrics` collectors.
+
+###### Disable some collectors
+
+To enable only some collectors, pass the parameter `--enable-all-collectors` along with the parameter `--disable-collectors`.
+
+For example, if you want all collectors except `topmetrics`, specify:
+
+```
+--enable-all-collectors --disable-collectors=topmetrics
+```
+
+###### Limit dbStats, collStats and indexStats
+
+By default, PMM decides the limit for the number of collections to monitor the collStats and indexStats collectors.
+
+You can also set an additional limit for the collStats, indexStats, dbStats, and topmetrics collectors with the --max-collections-limit parameter.
+
+Set the value of the parameter `--max-collections-limit` to:
+
+- 0: which indicates that collStats and indexStats can handle unlimited collections.
+- n, which indicates that collStats and indexStats can handle <=n collections. If the limit is crossed - exporter stops collecting monitoring data for the collStats and indexStats collectors.
+- -1 (default) doesn't need to be explicitly set. It indicates that PMM decides how many collections it would monitor, currently <=200 (subject to change).
+
+
+To further limit collections to monitor, enable collStats and indexStats for some databases or collections:
+ 
+- Specify the databases and collections that collStats and indexStats will use to collect data using the parameter `--stats-collections`. This parameter receives a comma-separated list of namespaces in the form `database[.collection]`.
+
+
+###### Examples
+
+To add MongoDB with all collectors (`diagnosticdata`, `replicasetstatus`, `collstats`, `dbstats`, `indexstats`, and `topmetrics`) with default limit detected by PMM (currently <=200 collections, but subject to change):
+
+`pmm-admin add mongodb --username=admin --password=admin_pass --enable-all-collectors mongodb_srv_1 127.0.0.1:27017`
+
+To add MongoDB with all collectors (diagnosticdata, replicasetstatus, collstats, dbstats, indexstats, and topmetrics) with `max-collections-limit` set to 1000:
+
+`pmm-admin add mongodb --username=admin --password=admin_pass --enable-all-collectors --max-collections-limit=1000 mongodb_srv_1 127.0.0.1:27017`
+
+To enable all the collectors with an unlimited number of collections monitored:
+
+`pmm-admin add mongodb --username=admin --password=admin_pass --enable-all-collectors --max-collections-limit=0 mongodb_srv_1 127.0.0.1:27017`
+
+To add MongoDB with default collectors (`diagnosticdata` and `replicasetstatus`):
+
+`pmm-admin add mongodb --username=admin --password=admin_pass mongodb_srv_1 127.0.0.1:27017`
+
+Disable `collstats` collector and enable all the others without limiting `max-collections-limit`:
+
+`pmm-admin add mongodb --username=admin --password=admin_pass --enable-all-collectors --max-collections-limit=0 --disable-collectors=collstats mongodb_srv_1 127.0.0.1:27017`
+
+If `--stats-collections=db1,db2.col1` then the collectors are run as follows:
+
+|Database|Collector is run on|
+|-----|-----|
+|db1| All the collections|
+|db2| **Only** for collection col1|
+
+Enable all collectors and limit monitoring for `dbstats`, `indexstats`, `collstats` and `topmetrics` for all collections in `db1` and `col1` collection in `db2`, without limiting `max-collections-limit` for a number of collections in `db1`:
+
+`pmm-admin add mongodb --username=admin --password=admin_pass --enable-all-collectors --max-collections-limit=0 --stats-collections=db1,db2.col1 mongodb_srv_1 127.0.0.1:27017`
+
+##### Resolutions
+
+PMM collects metrics in two resolutions to decrease CPU and Memory usage: high and low resolutions.
+
+In high resolution we collect metrics from collectors which work fast:
+- diagnosticdata
+- replicasetstatus
+- topmetrics
+
+In low resolution we collect metrics from collectors which could take some time:
+- dbstats
+- indexstats
+- collstats
+
+
 #### MySQL
 
 `pmm-admin add mysql [FLAGS] node-name node-address | [--name=service-name] --address=address[:port] | --socket`

@@ -26,6 +26,16 @@ If one is available, click the update button to update to the version indicated.
 !!! seealso alert alert-info "See also"
     [PMM Server Docker upgrade](../setting-up/server/docker.md#upgrade)
 
+## Updating a PMM-Agent
+
+PMM-Agent can be updated from tarball:
+
+ 1. Download tar.gz with pmm2-client.
+ 2. Extract it.
+ 3. Run ./install_tarball script with the "-u" flag.
+
+**Hint!** The configuration file will be overwritten if you do not provide the "-u" flag while the pmm-agent is updated.
+
 ## Upgrade from PMM 1
 
 Because of the significant architectural changes between PMM1 and PMM2, there is no direct upgrade path. The approach to making the switch from PMM version 1 to 2 is a gradual transition, outlined [in this blog post](https://www.percona.com/blog/2019/11/27/running-pmm1-and-pmm2-clients-on-the-same-host/).

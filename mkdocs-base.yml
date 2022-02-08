@@ -68,9 +68,10 @@ plugins:
           - 'setting-up/client/docker.md'
     # https://github.com/orzih/mkdocs-with-pdf
     with-pdf:
-        output_path: '_pdf/PerconaMonitoringAndManagement-2.25.0.pdf'
+
+        output_path: '_pdf/PerconaMonitoringAndManagement-2.26.0.pdf'
         cover_title: 'Documentation'
-        cover_subtitle: 2.25.0 (December 14, 2021)
+        cover_subtitle: 2.26.0 (February 8, 2022)
         author: 'Percona Technical Documentation Team'
         cover_logo: docs/_images/PMM_Logo.svg
         custom_template_path: _resources/templates
@@ -150,6 +151,10 @@ nav:
               - details/dashboards/dashboard-victoriametrics-agents-overview.md
           - PMM:
               - details/dashboards/dashboard-inventory.md
+              - details/dashboards/dashboard-env-overview.md
+              - details/dashboards/dashboard-environent-summary.md
+          - DBaas:
+              - details/dashboards/dashboard-cluster-summary.md
           - OS Dashboards:
               - details/dashboards/dashboard-cpu-utilization-details.md
               - details/dashboards/dashboard-disk-details.md
@@ -212,6 +217,8 @@ nav:
   - faq.md
   - Release Notes:
       - release-notes/index.md
+
+      - 'PMM 2.26.0': release-notes/2.26.0.md
       - 'PMM 2.25.0': release-notes/2.25.0.md
       - 'PMM 2.24.0': release-notes/2.24.0.md
       - 'PMM 2.23.0': release-notes/2.23.0.md
