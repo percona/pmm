@@ -45,8 +45,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 	"gopkg.in/yaml.v3"
 
@@ -743,77 +741,129 @@ func (svc *Service) GetAlerts(ctx context.Context) ([]*ammodels.GettableAlert, e
 	return resp.Payload, nil
 }
 
-// FindAlertByID searches alert by ID in alertmanager.
-func (svc *Service) FindAlertByID(ctx context.Context, id string) (*ammodels.GettableAlert, error) {
+// FindAlertsByID searches alerts by IDs in alertmanager.
+func (svc *Service) FindAlertsByID(ctx context.Context, ids []string) ([]*ammodels.GettableAlert, error) {
 	alerts, err := svc.GetAlerts(ctx)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to get alerts form alertmanager")
 	}
 
+	l := len(ids)
+	m := make(map[string]struct{}, l)
+	for _, id := range ids {
+		m[id] = struct{}{}
+	}
+
+	res := make([]*ammodels.GettableAlert, 0, l)
 	for _, a := range alerts {
-		if *a.Fingerprint == id {
-			return a, nil
+		if _, ok := m[*a.Fingerprint]; ok {
+			res = append(res, a)
 		}
 	}
 
-	return nil, status.Errorf(codes.NotFound, "Alert with id %s not found", id)
+	return res, nil
 }
 
-// Silence mutes alert with specified id.
-func (svc *Service) Silence(ctx context.Context, id string) error {
-	a, err := svc.FindAlertByID(ctx, id)
-	if err != nil {
-		return err
-	}
-
-	if len(a.Status.SilencedBy) != 0 {
-		// already silenced
+// Silence mutes alerts with specified ids.
+func (svc *Service) Silence(ctx context.Context, ids []string) error {
+	if len(ids) == 0 {
 		return nil
 	}
 
-	matchers := make([]*ammodels.Matcher, 0, len(a.Labels))
-	for label, value := range a.Labels {
-		matchers = append(matchers,
-			&ammodels.Matcher{
-				IsRegex: pointer.ToBool(false),
-				Name:    pointer.ToString(label),
-				Value:   pointer.ToString(value),
-			})
-	}
-
-	starts := strfmt.DateTime(time.Now())
-	ends := strfmt.DateTime(time.Now().Add(100 * 365 * 24 * time.Hour)) // Mute for 100 years
-	_, err = amclient.Default.Silence.PostSilences(&silence.PostSilencesParams{
-		Silence: &ammodels.PostableSilence{
-			Silence: ammodels.Silence{
-				Comment:   pointer.ToString(""),
-				CreatedBy: pointer.ToString("PMM"),
-				StartsAt:  &starts,
-				EndsAt:    &ends,
-				Matchers:  matchers,
-			},
-		},
-		Context: ctx,
-	})
-
-	return errors.Wrapf(err, "failed to silence alert with id: %s", id)
-}
-
-// Unsilence unmutes alert with specified id.
-func (svc *Service) Unsilence(ctx context.Context, id string) error {
-	a, err := svc.FindAlertByID(ctx, id)
+	alerts, err := svc.FindAlertsByID(ctx, ids)
 	if err != nil {
 		return err
 	}
 
-	for _, silenceID := range a.Status.SilencedBy {
-		_, err = amclient.Default.Silence.DeleteSilence(&silence.DeleteSilenceParams{
-			SilenceID: strfmt.UUID(silenceID),
-			Context:   ctx,
-		})
+	return silenceAlerts(ctx, alerts)
+}
 
+// SilenceAll mutes all available alerts.
+func (svc *Service) SilenceAll(ctx context.Context) error {
+	alerts, err := svc.GetAlerts(ctx)
+	if err != nil {
+		return err
+	}
+
+	return silenceAlerts(ctx, alerts)
+}
+
+func silenceAlerts(ctx context.Context, alerts []*ammodels.GettableAlert) error {
+	var err error
+	for _, a := range alerts {
+		if len(a.Status.SilencedBy) != 0 {
+			// Skip already silenced alerts
+			continue
+		}
+
+		matchers := make([]*ammodels.Matcher, 0, len(a.Labels))
+		for label, value := range a.Labels {
+			matchers = append(matchers,
+				&ammodels.Matcher{
+					IsRegex: pointer.ToBool(false),
+					Name:    pointer.ToString(label),
+					Value:   pointer.ToString(value),
+				})
+		}
+
+		starts := strfmt.DateTime(time.Now())
+		ends := strfmt.DateTime(time.Now().Add(100 * 365 * 24 * time.Hour)) // Mute for 100 years
+		_, err = amclient.Default.Silence.PostSilences(&silence.PostSilencesParams{
+			Silence: &ammodels.PostableSilence{
+				Silence: ammodels.Silence{
+					Comment:   pointer.ToString(""),
+					CreatedBy: pointer.ToString("PMM"),
+					StartsAt:  &starts,
+					EndsAt:    &ends,
+					Matchers:  matchers,
+				},
+			},
+			Context: ctx,
+		})
 		if err != nil {
-			return errors.Wrapf(err, "failed to delete silence with id %s for alert %s", silenceID, id)
+			return errors.Wrapf(err, "failed to silence alert with id: %s", *a.Fingerprint)
+		}
+	}
+
+	return nil
+}
+
+// Unsilence unmutes alerts with specified ids.
+func (svc *Service) Unsilence(ctx context.Context, ids []string) error {
+	if len(ids) == 0 {
+		return nil
+	}
+
+	alerts, err := svc.FindAlertsByID(ctx, ids)
+	if err != nil {
+		return err
+	}
+
+	return svc.unsilenceAlerts(ctx, alerts)
+}
+
+// UnsilenceAll unmutes all available alerts.
+func (svc *Service) UnsilenceAll(ctx context.Context) error {
+	alerts, err := svc.GetAlerts(ctx)
+	if err != nil {
+		return err
+	}
+
+	return svc.unsilenceAlerts(ctx, alerts)
+}
+
+func (svc *Service) unsilenceAlerts(ctx context.Context, alerts []*ammodels.GettableAlert) error {
+	var err error
+	for _, a := range alerts {
+		for _, silenceID := range a.Status.SilencedBy {
+			_, err = amclient.Default.Silence.DeleteSilence(&silence.DeleteSilenceParams{
+				SilenceID: strfmt.UUID(silenceID),
+				Context:   ctx,
+			})
+
+			if err != nil {
+				return errors.Wrapf(err, "failed to delete silence with id %s for alert %s", silenceID, *a.Fingerprint)
+			}
 		}
 	}
 

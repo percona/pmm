@@ -43,13 +43,13 @@ func (_m *mockAlertManager) RequestConfigurationUpdate() {
 	_m.Called()
 }
 
-// Silence provides a mock function with given fields: ctx, id
-func (_m *mockAlertManager) Silence(ctx context.Context, id string) error {
-	ret := _m.Called(ctx, id)
+// Silence provides a mock function with given fields: ctx, ids
+func (_m *mockAlertManager) Silence(ctx context.Context, ids []string) error {
+	ret := _m.Called(ctx, ids)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
-		r0 = rf(ctx, id)
+	if rf, ok := ret.Get(0).(func(context.Context, []string) error); ok {
+		r0 = rf(ctx, ids)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -57,13 +57,41 @@ func (_m *mockAlertManager) Silence(ctx context.Context, id string) error {
 	return r0
 }
 
-// Unsilence provides a mock function with given fields: ctx, id
-func (_m *mockAlertManager) Unsilence(ctx context.Context, id string) error {
-	ret := _m.Called(ctx, id)
+// SilenceAll provides a mock function with given fields: ctx
+func (_m *mockAlertManager) SilenceAll(ctx context.Context) error {
+	ret := _m.Called(ctx)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
-		r0 = rf(ctx, id)
+	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// Unsilence provides a mock function with given fields: ctx, ids
+func (_m *mockAlertManager) Unsilence(ctx context.Context, ids []string) error {
+	ret := _m.Called(ctx, ids)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, []string) error); ok {
+		r0 = rf(ctx, ids)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// UnsilenceAll provides a mock function with given fields: ctx
+func (_m *mockAlertManager) UnsilenceAll(ctx context.Context) error {
+	ret := _m.Called(ctx)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
+		r0 = rf(ctx)
 	} else {
 		r0 = ret.Error(0)
 	}

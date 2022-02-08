@@ -29,8 +29,10 @@ import (
 // We use it instead of real type for testing and to avoid dependency cycle.
 type alertManager interface {
 	GetAlerts(ctx context.Context) ([]*ammodels.GettableAlert, error)
-	Silence(ctx context.Context, id string) error
-	Unsilence(ctx context.Context, id string) error
+	Silence(ctx context.Context, ids []string) error
+	SilenceAll(ctx context.Context) error
+	Unsilence(ctx context.Context, ids []string) error
+	UnsilenceAll(ctx context.Context) error
 	RequestConfigurationUpdate()
 }
 

@@ -218,24 +218,30 @@ func getAlertID(alert *ammodels.GettableAlert) string {
 	return *alert.Fingerprint
 }
 
-// ToggleAlert allows to silence/unsilence specified alerts.
-func (s *AlertsService) ToggleAlert(ctx context.Context, req *iav1beta1.ToggleAlertRequest) (*iav1beta1.ToggleAlertResponse, error) {
+// ToggleAlerts allows to silence/unsilence specified alerts.
+func (s *AlertsService) ToggleAlerts(ctx context.Context, req *iav1beta1.ToggleAlertsRequest) (*iav1beta1.ToggleAlertsResponse, error) {
+	var err error
 	switch req.Silenced {
 	case iav1beta1.BooleanFlag_DO_NOT_CHANGE:
 		// nothing
 	case iav1beta1.BooleanFlag_TRUE:
-		err := s.alertManager.Silence(ctx, req.AlertId)
-		if err != nil {
-			return nil, err
+		if len(req.AlertIds) == 0 {
+			err = s.alertManager.SilenceAll(ctx)
+		} else {
+			err = s.alertManager.Silence(ctx, req.AlertIds)
 		}
 	case iav1beta1.BooleanFlag_FALSE:
-		err := s.alertManager.Unsilence(ctx, req.AlertId)
-		if err != nil {
-			return nil, err
+		if len(req.AlertIds) == 0 {
+			err = s.alertManager.UnsilenceAll(ctx)
+		} else {
+			err = s.alertManager.Unsilence(ctx, req.AlertIds)
 		}
 	}
+	if err != nil {
+		return nil, err
+	}
 
-	return &iav1beta1.ToggleAlertResponse{}, nil
+	return &iav1beta1.ToggleAlertsResponse{}, nil
 }
 
 // Check interfaces.
