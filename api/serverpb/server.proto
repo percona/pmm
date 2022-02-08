@@ -335,7 +335,7 @@ service Server {
       get: "/v1/readyz"
     };
     option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-      summary: "Readiness"
+      summary: "Check server readiness"
       description: "Returns an error when Server components being restarted are not ready yet. Use this API for checking the health of Docker containers and for probing Kubernetes readiness."
     };
   }

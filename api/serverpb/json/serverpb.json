@@ -1334,7 +1334,7 @@
         "tags": [
           "Server"
         ],
-        "summary": "Readiness",
+        "summary": "Check server readiness",
         "operationId": "Readiness",
         "responses": {
           "200": {
