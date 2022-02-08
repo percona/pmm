@@ -17,13 +17,14 @@
   "paths": {
     "/logs.zip": {
       "get": {
+        "description": "Returns the PMM Server logs.",
         "produces": [
           "application/zip"
         ],
         "tags": [
           "Server"
         ],
-        "summary": "Logs returns logs of the PMM-Server.",
+        "summary": "Logs",
         "operationId": "Logs",
         "responses": {
           "200": {

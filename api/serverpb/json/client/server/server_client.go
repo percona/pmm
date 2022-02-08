@@ -191,7 +191,9 @@ func (a *Client) GetSettings(params *GetSettingsParams) (*GetSettingsOK, error) 
 }
 
 /*
-  Logs logs returns logs of the PMM server
+  Logs logs
+
+  Returns the PMM Server logs.
 */
 func (a *Client) Logs(params *LogsParams, writer io.Writer) (*LogsOK, error) {
 	// TODO: Validate the params before sending
