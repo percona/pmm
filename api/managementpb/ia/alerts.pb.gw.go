@@ -67,8 +67,8 @@ func local_request_Alerts_ListAlerts_0(ctx context.Context, marshaler runtime.Ma
 
 }
 
-func request_Alerts_ToggleAlert_0(ctx context.Context, marshaler runtime.Marshaler, client AlertsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ToggleAlertRequest
+func request_Alerts_ToggleAlerts_0(ctx context.Context, marshaler runtime.Marshaler, client AlertsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ToggleAlertsRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -79,13 +79,13 @@ func request_Alerts_ToggleAlert_0(ctx context.Context, marshaler runtime.Marshal
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := client.ToggleAlert(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.ToggleAlerts(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_Alerts_ToggleAlert_0(ctx context.Context, marshaler runtime.Marshaler, server AlertsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ToggleAlertRequest
+func local_request_Alerts_ToggleAlerts_0(ctx context.Context, marshaler runtime.Marshaler, server AlertsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ToggleAlertsRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -96,7 +96,7 @@ func local_request_Alerts_ToggleAlert_0(ctx context.Context, marshaler runtime.M
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := server.ToggleAlert(ctx, &protoReq)
+	msg, err := server.ToggleAlerts(ctx, &protoReq)
 	return msg, metadata, err
 
 }
@@ -130,7 +130,7 @@ func RegisterAlertsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 
 	})
 
-	mux.Handle("POST", pattern_Alerts_ToggleAlert_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_Alerts_ToggleAlerts_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -141,7 +141,7 @@ func RegisterAlertsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Alerts_ToggleAlert_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Alerts_ToggleAlerts_0(rctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -149,7 +149,7 @@ func RegisterAlertsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 			return
 		}
 
-		forward_Alerts_ToggleAlert_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Alerts_ToggleAlerts_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -214,7 +214,7 @@ func RegisterAlertsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 
 	})
 
-	mux.Handle("POST", pattern_Alerts_ToggleAlert_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_Alerts_ToggleAlerts_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -223,14 +223,14 @@ func RegisterAlertsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Alerts_ToggleAlert_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Alerts_ToggleAlerts_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Alerts_ToggleAlert_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Alerts_ToggleAlerts_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -240,11 +240,11 @@ func RegisterAlertsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 var (
 	pattern_Alerts_ListAlerts_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "ia", "Alerts", "List"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Alerts_ToggleAlert_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "ia", "Alerts", "Toggle"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Alerts_ToggleAlerts_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "ia", "Alerts", "Toggle"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (
 	forward_Alerts_ListAlerts_0 = runtime.ForwardResponseMessage
 
-	forward_Alerts_ToggleAlert_0 = runtime.ForwardResponseMessage
+	forward_Alerts_ToggleAlerts_0 = runtime.ForwardResponseMessage
 )
