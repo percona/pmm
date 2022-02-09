@@ -1,21 +1,14 @@
-# MySQL InnoDB file format in use
+# The advisor checks if InnoDB flush method is set correctly
 
 ## Description
-Before MySQL version 8 InnoDB had two file formats Antelope and Barracuda. Barracuda is the preferred file format.
-From MySQL 8 The following InnoDB file format variables were removed:
-- Innodb_file_format
-- Innodb_file_format_check
-- Innodb_file_format_max
-- innodb_large_prefix
-
-File format variables were necessary for creating tables compatible with earlier versions of InnoDB in MySQL 5.1. Now that MySQL 5.1 has reached the end of its product lifecycle, these options are no longer required.
+When dirty pages are flushed to disk they are done so using the type of IO specified using `innodb_flush_method`:
+- The default flush method (NULL) opens redo logs and data files using buffered IO and calls fsync() to flush data to disk when necessary for ACID compliance.
+- When set to `O_DSYNC`, InnoDB will flush file data and metadata, and uses buffered IO for data files.
+- When set to `O_DIRECT`, InnoDB opens redo log files with buffered IO and uses direct (unbuffered synchronous) IO on data files.
 
 
 ## Rule
-`SELECT * from performance_schema.global_variables where VARIABLE_NAME in ('innodb_file_format','innodb_file_format_max','innodb_flush_method','innodb_data_file_path');`
-
+`SELECT * from performance_schema.global_variables where VARIABLE_NAME in ('innodb_flush_method');`
 
 ## Resolution
-Barracuda is the recommended file format, support for Antelope is removed from MySQL 8.
-
-
+In most of the cases `O_DIRECT` is the recommended flush method.
