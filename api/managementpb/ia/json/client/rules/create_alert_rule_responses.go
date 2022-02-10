@@ -497,7 +497,6 @@ swagger:model DetailsItems0
 */
 type DetailsItems0 struct {
 
-<<<<<<< HEAD
 	// A URL/resource name that uniquely identifies the type of the serialized
 	// protocol buffer message. This string must contain at least
 	// one "/" character. The last segment of the URL's path must represent
@@ -525,15 +524,7 @@ type DetailsItems0 struct {
 	//
 	// Schemes other than `http`, `https` (or the empty scheme) might be
 	// used with implementation specific semantics.
-	TypeURL string `json:"type_url,omitempty"`
-
-	// Must be a valid serialized protocol buffer of the above specified type.
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
-=======
-	// at type
 	AtType string `json:"@type,omitempty"`
->>>>>>> c80b6d66 (PMM-9377 regenerate files)
 }
 
 // Validate validates this details items0

@@ -13,6 +13,7 @@ require (
 	github.com/go-openapi/validate v0.19.10
 	github.com/gogo/protobuf v1.3.1 // indirect
 	github.com/golang/protobuf v1.5.2
+	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.7.3
 	github.com/mitchellh/mapstructure v1.3.3 // indirect
 	github.com/mwitkow/go-proto-validators v0.3.2
