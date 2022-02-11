@@ -295,7 +295,7 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 				prevPSM = prev[queryID]
 			}
 			if prevPSM == nil {
-				prevPSM = new(pgStatMonitorExtended)
+				prevPSM = &pgStatMonitorExtended{}
 			}
 			count := float32(currentPSM.Calls - prevPSM.Calls)
 			switch {
@@ -307,7 +307,7 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 				continue
 			case count < 0:
 				m.l.Debugf("Truncate detected (negative count). Treating as a new query: %s.", currentPSM)
-				prevPSM = new(pgStatMonitorExtended)
+				prevPSM = &pgStatMonitorExtended{}
 				count = float32(currentPSM.Calls)
 			case prevPSM.Calls == 0:
 				m.l.Debugf("New query: %s.", currentPSM)
@@ -328,7 +328,7 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 					AgentType:           inventorypb.AgentType_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
 					PeriodStartUnixSecs: uint32(currentPSM.BucketStartTime.Unix()),
 				},
-				Postgresql: new(agentpb.MetricsBucket_PostgreSQL),
+				Postgresql: &agentpb.MetricsBucket_PostgreSQL{},
 			}
 			if currentPSM.pgStatMonitor.CmdType >= 0 && currentPSM.pgStatMonitor.CmdType < int32(len(commandTypeToText)) {
 				mb.Postgresql.CmdType = commandTypeToText[currentPSM.pgStatMonitor.CmdType]

@@ -50,8 +50,8 @@ type MongoVersion struct {
 }
 
 func GetMongoVersion(ctx context.Context, client *mongo.Client) (string, error) {
-	ver := new(MongoVersion)
-	err := client.Database("admin").RunCommand(ctx, bson.D{{"buildInfo", 1}}).Decode(ver)
+	var ver MongoVersion
+	err := client.Database("admin").RunCommand(ctx, bson.D{{"buildInfo", 1}}).Decode(&ver)
 	if err != nil {
 		return "", nil
 	}
@@ -108,7 +108,7 @@ func testProfiler(t *testing.T, url string) {
 
 	ms := &testWriter{
 		t:       t,
-		reports: make([]*report.Report, 0),
+		reports: []*report.Report{},
 	}
 	prof := New(url, logrus.WithField("component", "profiler-test"), ms, "test-id")
 	err = prof.Start()

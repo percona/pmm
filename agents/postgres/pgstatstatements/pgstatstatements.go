@@ -216,7 +216,7 @@ func makeBuckets(current, prev map[int64]*pgStatStatementsExtended, l *logrus.En
 	for queryID, currentPSS := range current {
 		prevPSS := prev[queryID]
 		if prevPSS == nil {
-			prevPSS = new(pgStatStatementsExtended)
+			prevPSS = &pgStatStatementsExtended{}
 		}
 		count := float32(currentPSS.Calls - prevPSS.Calls)
 		switch {
@@ -228,7 +228,7 @@ func makeBuckets(current, prev map[int64]*pgStatStatementsExtended, l *logrus.En
 			continue
 		case count < 0:
 			l.Debugf("Truncate detected. Treating as a new query: %s.", currentPSS)
-			prevPSS = new(pgStatStatementsExtended)
+			prevPSS = &pgStatStatementsExtended{}
 			count = float32(currentPSS.Calls)
 		case prevPSS.Calls == 0:
 			l.Debugf("New query: %s.", currentPSS)

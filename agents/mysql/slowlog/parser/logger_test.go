@@ -15,7 +15,9 @@
 
 package parser
 
-import "testing"
+import (
+	"testing"
+)
 
 type testLogger struct {
 	t testing.TB

@@ -475,7 +475,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 			require.NoError(t, err)
 			buckets = filter(buckets)
 			t.Logf("Actual:\n%s", tests.FormatBuckets(buckets))
-			if len(buckets) >= 1 {
+			if len(buckets) > 0 {
 				break
 			}
 			time.Sleep(100 * time.Millisecond)

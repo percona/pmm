@@ -37,7 +37,7 @@ func NewMonitors(client *mongo.Client, newMonitor newMonitor, logger *logrus.Ent
 	return &monitors{
 		client:     client,
 		newMonitor: newMonitor,
-		monitors:   map[string]*monitor{},
+		monitors:   make(map[string]*monitor),
 		logger:     logger,
 	}
 }
@@ -56,7 +56,7 @@ type monitors struct {
 }
 
 func (ms *monitors) MonitorAll(ctx context.Context) error {
-	databases := map[string]struct{}{}
+	databases := make(map[string]struct{})
 	databasesSlice, err := ms.listDatabases()
 	if err != nil {
 		return err
@@ -81,8 +81,7 @@ func (ms *monitors) MonitorAll(ctx context.Context) error {
 		m := ms.newMonitor(
 			ms.client,
 			ms.logger,
-			dbName,
-		)
+			dbName)
 		// ... and start it
 		err := m.Start(ctx)
 		if err != nil {
@@ -133,7 +132,7 @@ func (ms *monitors) GetAll() map[string]*monitor {
 	ms.rw.RLock()
 	defer ms.rw.RUnlock()
 
-	list := map[string]*monitor{}
+	list := make(map[string]*monitor)
 	for dbName, m := range ms.monitors {
 		list[dbName] = m
 	}

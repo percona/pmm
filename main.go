@@ -57,8 +57,8 @@ func main() {
 
 	// check that command-line flags and environment variables are correct,
 	// parse command, but do try not load config file
-	cfg := new(config.Config)
-	app, _ := config.Application(cfg)
+	var cfg config.Config
+	app, _ := config.Application(&cfg)
 	kingpin.CommandLine = app
 	kingpin.HelpFlag = app.HelpFlag
 	kingpin.HelpCommand = app.HelpCommand
@@ -69,7 +69,7 @@ func main() {
 		// delay logger configuration until we read configuration file
 		commands.Run()
 	case "setup":
-		config.ConfigureLogger(cfg)
+		config.ConfigureLogger(&cfg)
 		commands.Setup()
 	default:
 		// not reachable due to default kingpin's termination handler; keep it just in case
