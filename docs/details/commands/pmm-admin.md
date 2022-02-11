@@ -413,7 +413,7 @@ Enable all collectors and limit monitoring for `dbstats`, `indexstats`, `collsta
 
 ##### Resolutions
 
-PMM collects metrics in two [resolutions](../../how-to/configure.md#metrics resolution) to decrease CPU and Memory usage: high and low resolutions.
+PMM collects metrics in two [resolutions](../../how-to/configure.md#metrics-resolution) to decrease CPU and Memory usage: high and low resolutions.
 
 In high resolution we collect metrics from collectors which work fast:
 - diagnosticdata
