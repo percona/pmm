@@ -1,7 +1,13 @@
 # Upgrade
 
 !!! caution alert alert-warning "Important"
-    Upgrade PMM Server before upgrading PMM Clients.
+
+Upgrade the PMM Server before you upgrade the PMM Client.
+Ensure that the PMM Server version is higher than or equal to the PMM Client version. Otherwise, there might be configuration issues, thus leading to failure in the client-server communication as PMM Server might not be able to identify all the parameters in the configuration.
+
+For example, for a PMM Server version 2.25.0, the PMM Client version should be 2.25.0 or 2.24.0. If the PMM Client version is 2.26.0, PMM might not work as expected.
+
+    
 
 ## Updating a Server
 
