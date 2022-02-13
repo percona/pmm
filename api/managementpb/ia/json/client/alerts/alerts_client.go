@@ -27,7 +27,7 @@ type Client struct {
 type ClientService interface {
 	ListAlerts(params *ListAlertsParams) (*ListAlertsOK, error)
 
-	ToggleAlert(params *ToggleAlertParams) (*ToggleAlertOK, error)
+	ToggleAlerts(params *ToggleAlertsParams) (*ToggleAlertsOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -66,35 +66,37 @@ func (a *Client) ListAlerts(params *ListAlertsParams) (*ListAlertsOK, error) {
 }
 
 /*
-  ToggleAlert toggles alert allows to switch between silenced and unsilenced states of an alert
+  ToggleAlerts toggles alerts allows to switch alerts state between silenced and unsilenced
+
+  Pass empty list to apply toggle action to all existing alerts
 */
-func (a *Client) ToggleAlert(params *ToggleAlertParams) (*ToggleAlertOK, error) {
+func (a *Client) ToggleAlerts(params *ToggleAlertsParams) (*ToggleAlertsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewToggleAlertParams()
+		params = NewToggleAlertsParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "ToggleAlert",
+		ID:                 "ToggleAlerts",
 		Method:             "POST",
 		PathPattern:        "/v1/management/ia/Alerts/Toggle",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ToggleAlertReader{formats: a.formats},
+		Reader:             &ToggleAlertsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ToggleAlertOK)
+	success, ok := result.(*ToggleAlertsOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ToggleAlertDefault)
+	unexpectedSuccess := result.(*ToggleAlertsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

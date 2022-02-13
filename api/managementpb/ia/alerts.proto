@@ -4,7 +4,7 @@ package ia.v1beta1;
 
 option go_package = "api/managementpb/ia;iav1beta1";
 
-import "github.com/mwitkow/go-proto-validators/validator.proto";
+import "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "managementpb/ia/boolean_flag.proto";
@@ -46,17 +46,15 @@ message ListAlertsResponse {
   PageTotals totals = 2;
 }
 
-message ToggleAlertRequest {
-  string alert_id = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+message ToggleAlertsRequest {
+  // List of alerts that silence state should be switched. If provided array is empty than all
+  // existing alerts are switched.
+  repeated string alert_ids = 1;
   // Silences or unsilences alert if set.
   BooleanFlag silenced = 2;
 }
 
-message ToggleAlertResponse {}
+message ToggleAlertsResponse {}
 
 // Alerts service provides public methods for managing Alerting Alerts.
 service Alerts {
@@ -67,11 +65,14 @@ service Alerts {
       body: "*"
     };
   }
-  // ToggleAlert allows to switch between silenced and unsilenced states of an Alert.
-  rpc ToggleAlert(ToggleAlertRequest) returns (ToggleAlertResponse) {
+  // ToggleAlerts allows to switch alerts state between silenced and unsilenced.
+  rpc ToggleAlerts(ToggleAlertsRequest) returns (ToggleAlertsResponse) {
     option (google.api.http) = {
       post: "/v1/management/ia/Alerts/Toggle"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      description: "Pass empty list to apply toggle action to all existing alerts"
     };
   }
 }
