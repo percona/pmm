@@ -46,16 +46,18 @@ var rules = map[string]role{
 	"/server.Server/AWSInstanceCheck": none, // special case - used before Grafana can be accessed
 	"/server.":                        admin,
 
-	"/v1/inventory/":          admin,
-	"/v1/management/":         admin,
-	"/v1/management/Actions/": viewer,
-	"/v1/management/Jobs":     viewer,
-	"/v1/Updates/Check":       viewer,
-	"/v1/Updates/Status":      none, // special token-based auth
-	"/v1/AWSInstanceCheck":    none, // special case - used before Grafana can be accessed
-	"/v1/Updates/":            admin,
-	"/v1/Settings/":           admin,
-	"/v1/Platform/":           admin,
+	"/v1/inventory/":                         admin,
+	"/v1/management/":                        admin,
+	"/v1/management/Actions/":                viewer,
+	"/v1/management/Jobs":                    viewer,
+	"/v1/Updates/Check":                      viewer,
+	"/v1/Updates/Status":                     none, // special token-based auth
+	"/v1/AWSInstanceCheck":                   none, // special case - used before Grafana can be accessed
+	"/v1/Updates/":                           admin,
+	"/v1/Settings/":                          admin,
+	"/v1/Platform/Connect":                   admin,
+	"/v1/Platform/Disconnect":                admin,
+	"/v1/Platform/SearchOrganizationTickets": viewer,
 
 	// must be available without authentication for health checking
 	"/v1/readyz": none,

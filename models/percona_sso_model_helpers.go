@@ -125,10 +125,11 @@ func DeletePerconaSSODetails(q *reform.Querier) error {
 // InsertPerconaSSODetails inserts a new Percona SSO details.
 func InsertPerconaSSODetails(q *reform.Querier, ssoDetails *PerconaSSODetailsInsert) error {
 	details := &PerconaSSODetails{
-		IssuerURL:    ssoDetails.IssuerURL,
-		ClientID:     ssoDetails.ClientID,
-		ClientSecret: ssoDetails.ClientSecret,
-		Scope:        ssoDetails.Scope,
+		IssuerURL:      ssoDetails.IssuerURL,
+		ClientID:       ssoDetails.ClientID,
+		ClientSecret:   ssoDetails.ClientSecret,
+		Scope:          ssoDetails.Scope,
+		OrganizationID: ssoDetails.OrganizationID,
 	}
 
 	if err := q.Save(details); err != nil {

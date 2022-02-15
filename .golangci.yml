@@ -48,6 +48,7 @@ linters:
     - scopelint         # too many false positives
     - wsl               # too annoying
     - varnamelen        # useless
+    - funlen            # useless
 
 issues:
   exclude-use-default: false
