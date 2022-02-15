@@ -429,8 +429,7 @@ func (s *Service) FindArtifactCompatibleServices(
 			tx.Querier,
 			artifact.ServiceID,
 			serviceType,
-			artifact.DBVersion,
-		)
+			artifact.DBVersion)
 		if err != nil {
 			return err
 		}
@@ -504,8 +503,7 @@ func (s *Service) startRestoreJob(jobID, serviceID string, params *prepareRestor
 			serviceID,
 			0,
 			params.ArtifactName,
-			locationConfig,
-		); err != nil {
+			locationConfig); err != nil {
 			return err
 		}
 	case models.MongoDBServiceType:
@@ -515,8 +513,7 @@ func (s *Service) startRestoreJob(jobID, serviceID string, params *prepareRestor
 			0,
 			params.ArtifactName,
 			params.DBConfig,
-			locationConfig,
-		); err != nil {
+			locationConfig); err != nil {
 			return err
 		}
 	case models.PostgreSQLServiceType,
@@ -643,8 +640,7 @@ func (s *Service) findArtifactCompatibleServices(
 		serviceDBVersion := svm[models.MysqldSoftwareName]
 		if artifactDBVersion != serviceDBVersion {
 			s.l.Debugf("skip incompatible service id %q: artifact version %q != db version %q\"", sv.ServiceID,
-				artifactDBVersion, serviceDBVersion,
-			)
+				artifactDBVersion, serviceDBVersion)
 			continue
 		}
 

@@ -36,7 +36,7 @@ func TestPlatform(t *testing.T) {
 	client := platformClient.Default.Platform
 	serverClient := serverClient.Default.Server
 
-	const serverName string = "my PMM"
+	const serverName = string("my PMM")
 	username, password := os.Getenv("PERCONA_TEST_PORTAL_USERNAME"), os.Getenv("PERCONA_TEST_PORTAL_PASSWORD")
 	t.Run("connect and disconnect", func(t *testing.T) {
 		if username == "" || password == "" {

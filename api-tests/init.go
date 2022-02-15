@@ -114,7 +114,7 @@ func Transport(baseURL *url.URL, insecureTLS bool) *httptransport.Runtime {
 
 	// disable HTTP/2, set TLS config
 	httpTransport := transport.Transport.(*http.Transport)
-	httpTransport.TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{}
+	httpTransport.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
 	if baseURL.Scheme == "https" {
 		httpTransport.TLSClientConfig = tlsconfig.Get()
 		httpTransport.TLSClientConfig.ServerName = baseURL.Hostname()

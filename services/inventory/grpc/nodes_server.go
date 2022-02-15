@@ -61,7 +61,7 @@ func (s *nodesServer) ListNodes(ctx context.Context, req *inventorypb.ListNodesR
 		return nil, err
 	}
 
-	res := new(inventorypb.ListNodesResponse)
+	res := &inventorypb.ListNodesResponse{}
 	for _, node := range nodes {
 		switch node := node.(type) {
 		case *inventorypb.GenericNode:
@@ -88,7 +88,7 @@ func (s *nodesServer) GetNode(ctx context.Context, req *inventorypb.GetNodeReque
 		return nil, err
 	}
 
-	res := new(inventorypb.GetNodeResponse)
+	res := &inventorypb.GetNodeResponse{}
 	switch node := node.(type) {
 	case *inventorypb.GenericNode:
 		res.Node = &inventorypb.GetNodeResponse_Generic{Generic: node}
@@ -170,5 +170,5 @@ func (s *nodesServer) RemoveNode(ctx context.Context, req *inventorypb.RemoveNod
 		return nil, err
 	}
 
-	return new(inventorypb.RemoveNodeResponse), nil
+	return &inventorypb.RemoveNodeResponse{}, nil
 }

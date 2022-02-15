@@ -53,7 +53,7 @@ func NewMySQLService(db *reform.DB, state agentsStateUpdater, cc connectionCheck
 
 // Add adds "MySQL Service", "MySQL Exporter Agent" and "QAN MySQL PerfSchema Agent".
 func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLRequest) (*managementpb.AddMySQLResponse, error) {
-	res := new(managementpb.AddMySQLResponse)
+	res := &managementpb.AddMySQLResponse{}
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {
 		// tweak according to API docs

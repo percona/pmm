@@ -136,7 +136,7 @@ func v226Args(exporter *models.Agent, tdp *models.DelimiterPair) []string {
 		"--discovering-mode",
 	}
 
-	if exporter.MongoDBOptions != nil && len(exporter.MongoDBOptions.StatsCollections) > 0 {
+	if exporter.MongoDBOptions != nil && len(exporter.MongoDBOptions.StatsCollections) != 0 {
 		args = append(args, "--mongodb.collstats-colls="+strings.Join(exporter.MongoDBOptions.StatsCollections, ","))
 		args = append(args, "--mongodb.indexstats-colls="+strings.Join(exporter.MongoDBOptions.StatsCollections, ","))
 	}
@@ -195,7 +195,7 @@ func v225Args(exporter *models.Agent, tdp *models.DelimiterPair) []string {
 		"--discovering-mode",
 	}
 
-	if exporter.MongoDBOptions != nil && len(exporter.MongoDBOptions.StatsCollections) > 0 {
+	if exporter.MongoDBOptions != nil && len(exporter.MongoDBOptions.StatsCollections) != 0 {
 		args = append(args, "--mongodb.collstats-colls="+strings.Join(exporter.MongoDBOptions.StatsCollections, ","))
 	}
 

@@ -247,7 +247,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 		}
 	}
 
-	if len(rdsExporters) > 0 {
+	if len(rdsExporters) != 0 {
 		rdsExporterIDs := make([]string, 0, len(rdsExporters))
 		for _, rdsExporter := range rdsExporters {
 			rdsExporterIDs = append(rdsExporterIDs, rdsExporter.AgentID)

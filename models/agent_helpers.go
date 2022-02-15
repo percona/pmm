@@ -411,7 +411,7 @@ func FindPMMAgentsForVersion(logger *logrus.Entry, agents []*Agent, minPMMAgentV
 	if minPMMAgentVersion == nil {
 		return agents
 	}
-	result := make([]*Agent, 0)
+	result := make([]*Agent, 0, len(agents))
 
 	for _, a := range agents {
 		v, err := version.Parse(pointer.GetString(a.Version))

@@ -44,7 +44,7 @@ func NewNodeService(db *reform.DB) *NodeService {
 
 // Register do registration of the new node.
 func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNodeRequest) (*managementpb.RegisterNodeResponse, error) {
-	res := new(managementpb.RegisterNodeResponse)
+	res := &managementpb.RegisterNodeResponse{}
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {
 		node, err := models.FindNodeByName(tx.Querier, req.NodeName)

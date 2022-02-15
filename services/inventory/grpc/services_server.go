@@ -65,7 +65,7 @@ func (s *servicesServer) ListServices(ctx context.Context, req *inventorypb.List
 		return nil, err
 	}
 
-	res := new(inventorypb.ListServicesResponse)
+	res := &inventorypb.ListServicesResponse{}
 	for _, service := range services {
 		switch service := service.(type) {
 		case *inventorypb.MySQLService:
@@ -94,7 +94,7 @@ func (s *servicesServer) GetService(ctx context.Context, req *inventorypb.GetSer
 		return nil, err
 	}
 
-	res := new(inventorypb.GetServiceResponse)
+	res := &inventorypb.GetServiceResponse{}
 	switch service := service.(type) {
 	case *inventorypb.MySQLService:
 		res.Service = &inventorypb.GetServiceResponse_Mysql{Mysql: service}
@@ -248,5 +248,5 @@ func (s *servicesServer) RemoveService(ctx context.Context, req *inventorypb.Rem
 		return nil, err
 	}
 
-	return new(inventorypb.RemoveServiceResponse), nil
+	return &inventorypb.RemoveServiceResponse{}, nil
 }

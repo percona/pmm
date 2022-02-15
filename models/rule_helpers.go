@@ -144,7 +144,7 @@ func CreateRule(q *reform.Querier, params *CreateRuleParams) (*Rule, error) {
 		Filters:           params.Filters,
 	}
 
-	if len(params.ChannelIDs) > 0 {
+	if len(params.ChannelIDs) != 0 {
 		channelIDs := deduplicateStrings(params.ChannelIDs)
 		channels, err := FindChannelsByIDs(q, channelIDs)
 		if err != nil {

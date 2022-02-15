@@ -49,7 +49,7 @@ func (t *IDReader) Read(b []byte) (int, error) {
 func SetTestIDReader(t *testing.T) {
 	t.Helper()
 
-	uuid.SetRand(new(IDReader))
+	uuid.SetRand(&IDReader{})
 	t.Cleanup(func() { uuid.SetRand(nil) })
 }
 

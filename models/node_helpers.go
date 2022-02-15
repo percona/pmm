@@ -160,10 +160,10 @@ func FindNodeByName(q *reform.Querier, name string) (*Node, error) {
 		return nil, status.Error(codes.InvalidArgument, "Empty Node name.")
 	}
 
-	node := new(Node)
-	switch err := q.FindOneTo(node, "node_name", name); err {
+	var node Node
+	switch err := q.FindOneTo(&node, "node_name", name); err {
 	case nil:
-		return node, nil
+		return &node, nil
 	case reform.ErrNoRows:
 		return nil, status.Errorf(codes.NotFound, "Node with name %q not found.", name)
 	default:

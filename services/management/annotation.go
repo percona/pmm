@@ -53,7 +53,7 @@ func (as *AnnotationService) AddAnnotation(
 		tags = append([]string{"pmm_annotation"}, tags...)
 	}
 	var postfix []string
-	if len(req.ServiceNames) > 0 {
+	if len(req.ServiceNames) != 0 {
 		for _, sn := range req.ServiceNames {
 			_, err := models.FindServiceByName(as.db.Querier, sn)
 			if err != nil {
@@ -75,7 +75,7 @@ func (as *AnnotationService) AddAnnotation(
 		postfix = append(postfix, "Node Name: "+req.NodeName)
 	}
 
-	if len(postfix) > 0 {
+	if len(postfix) != 0 {
 		req.Text += " (" + strings.Join(postfix, ". ") + ")"
 	}
 

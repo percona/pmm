@@ -39,7 +39,7 @@ const (
 	// https://docs.microsoft.com/en-us/azure/governance/resource-graph/concepts/query-language
 	// https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/metrics-supported
 	// TODO: add pagination and filtering https://jira.percona.com/browse/PMM-7813
-	azureDatabaseResourceQuery string = `
+	azureDatabaseResourceQuery = string(`
 		Resources
 			| where type in~ (
 				'Microsoft.DBforMySQL/servers',
@@ -51,7 +51,7 @@ const (
 			)
 			| order by name asc
 			| limit 1000
-	`
+	`)
 )
 
 // AzureDatabaseService represents instance discovery service.

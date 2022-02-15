@@ -59,8 +59,7 @@ func setup(t *testing.T, connect func(*Channel) error, expected ...error) (agent
 
 	server := grpc.NewServer(
 		grpc.UnaryInterceptor(interceptors.Unary),
-		grpc.StreamInterceptor(interceptors.Stream),
-	)
+		grpc.StreamInterceptor(interceptors.Stream))
 
 	agentpb.RegisterAgentServer(server, &testServer{
 		connectFunc: func(stream agentpb.Agent_ConnectServer) error {
@@ -114,11 +113,11 @@ func TestAgentRequest(t *testing.T) {
 			req := <-ch.Requests()
 			require.NotNil(t, req)
 			assert.Equal(t, i, req.ID)
-			assert.IsType(t, new(agentpb.QANCollectRequest), req.Payload)
+			assert.IsType(t, &agentpb.QANCollectRequest{}, req.Payload)
 
 			ch.Send(&ServerResponse{
 				ID:      i,
-				Payload: new(agentpb.QANCollectResponse),
+				Payload: &agentpb.QANCollectResponse{},
 			})
 		}
 
@@ -130,9 +129,10 @@ func TestAgentRequest(t *testing.T) {
 	defer teardown(t)
 
 	for i := uint32(1); i <= count; i++ {
+		collectReq := &agentpb.QANCollectRequest{}
 		err := stream.Send(&agentpb.AgentMessage{
 			Id:      i,
-			Payload: new(agentpb.QANCollectRequest).AgentMessageRequestPayload(),
+			Payload: collectReq.AgentMessageRequestPayload(),
 		})
 		require.NoError(t, err)
 
@@ -159,7 +159,7 @@ func TestServerRequest(t *testing.T) {
 
 	connect := func(ch *Channel) error {
 		for i := uint32(1); i <= count; i++ {
-			resp, err := ch.SendAndWaitResponse(new(agentpb.Ping))
+			resp, err := ch.SendAndWaitResponse(&agentpb.Ping{})
 			require.NoError(t, err)
 			pong := resp.(*agentpb.Pong)
 			ts := pong.CurrentTime.AsTime()
@@ -200,7 +200,7 @@ func TestServerExitsWithGRPCError(t *testing.T) {
 		req := <-ch.Requests()
 		require.NotNil(t, req)
 		assert.EqualValues(t, 1, req.ID)
-		assert.IsType(t, new(agentpb.QANCollectRequest), req.Payload)
+		assert.IsType(t, &agentpb.QANCollectRequest{}, req.Payload)
 
 		return errUnimplemented
 	}
@@ -208,9 +208,10 @@ func TestServerExitsWithGRPCError(t *testing.T) {
 	stream, _, teardown := setup(t, connect, status.Error(codes.Canceled, context.Canceled.Error()))
 	defer teardown(t)
 
+	collectReq := &agentpb.QANCollectRequest{}
 	err := stream.Send(&agentpb.AgentMessage{
 		Id:      1,
-		Payload: new(agentpb.QANCollectRequest).AgentMessageRequestPayload(),
+		Payload: collectReq.AgentMessageRequestPayload(),
 	})
 	assert.NoError(t, err)
 
@@ -223,7 +224,7 @@ func TestServerExitsWithUnknownErrorIntercepted(t *testing.T) {
 		req := <-ch.Requests()
 		require.NotNil(t, req)
 		assert.EqualValues(t, 1, req.ID)
-		assert.IsType(t, new(agentpb.QANCollectRequest), req.Payload)
+		assert.IsType(t, &agentpb.QANCollectRequest{}, req.Payload)
 
 		return io.EOF // any error without GRPCStatus() method
 	}
@@ -231,9 +232,10 @@ func TestServerExitsWithUnknownErrorIntercepted(t *testing.T) {
 	stream, _, teardown := setup(t, connect, status.Error(codes.Canceled, context.Canceled.Error()))
 	defer teardown(t)
 
+	collectReq := &agentpb.QANCollectRequest{}
 	err := stream.Send(&agentpb.AgentMessage{
 		Id:      1,
-		Payload: new(agentpb.QANCollectRequest).AgentMessageRequestPayload(),
+		Payload: collectReq.AgentMessageRequestPayload(),
 	})
 	assert.NoError(t, err)
 
@@ -243,7 +245,7 @@ func TestServerExitsWithUnknownErrorIntercepted(t *testing.T) {
 
 func TestAgentClosesStream(t *testing.T) {
 	connect := func(ch *Channel) error {
-		resp, err := ch.SendAndWaitResponse(new(agentpb.Ping))
+		resp, err := ch.SendAndWaitResponse(&agentpb.Ping{})
 		assert.Errorf(t, err, "channel is closed")
 		assert.Nil(t, resp)
 
@@ -264,7 +266,7 @@ func TestAgentClosesStream(t *testing.T) {
 
 func TestAgentClosesConnection(t *testing.T) {
 	connect := func(ch *Channel) error {
-		resp, err := ch.SendAndWaitResponse(new(agentpb.Ping))
+		resp, err := ch.SendAndWaitResponse(&agentpb.Ping{})
 		assert.Errorf(t, err, "channel is closed")
 		assert.Nil(t, resp)
 
@@ -294,9 +296,10 @@ func TestUnexpectedResponseIdFromAgent(t *testing.T) {
 		}
 		// We can read the message with proper id.
 		respCh := ch.subscribe(9898)
+		ping := &agentpb.Ping{}
 		ch.send(&agentpb.ServerMessage{
 			Id:      9898,
-			Payload: new(agentpb.Ping).ServerMessageRequestPayload(),
+			Payload: ping.ServerMessageRequestPayload(),
 		})
 		response := <-respCh
 		require.NoError(t, response.Error)
@@ -309,17 +312,19 @@ func TestUnexpectedResponseIdFromAgent(t *testing.T) {
 	defer teardown(t)
 
 	// This request with unexpected id is ignored by the pmm-managed, channel stays open.
+	pong := &agentpb.Pong{}
 	err := stream.Send(&agentpb.AgentMessage{
 		Id:      111,
-		Payload: new(agentpb.Pong).AgentMessageResponsePayload(),
+		Payload: pong.AgentMessageResponsePayload(),
 	})
 	assert.NoError(t, err)
 	close(invalidIDSent)
 
 	// This is a request with a proper id.
+	pong = &agentpb.Pong{}
 	err = stream.Send(&agentpb.AgentMessage{
 		Id:      9898,
-		Payload: new(agentpb.Pong).AgentMessageResponsePayload(),
+		Payload: pong.AgentMessageResponsePayload(),
 	})
 	assert.NoError(t, err)
 

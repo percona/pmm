@@ -368,10 +368,10 @@ func (c *Client) authHeadersFromContext(ctx context.Context) (http.Header, error
 	}
 
 	authHeaders := make(http.Header)
-	if len(authorizationHeaders) > 0 {
+	if len(authorizationHeaders) != 0 {
 		authHeaders.Add("Authorization", authorizationHeaders[0])
 	}
-	if len(cookieHeaders) > 0 {
+	if len(cookieHeaders) != 0 {
 		for _, header := range cookieHeaders {
 			authHeaders.Add("Cookie", header)
 		}

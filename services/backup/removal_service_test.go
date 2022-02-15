@@ -70,14 +70,14 @@ func TestDeleteArtifact(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("failed to delete from s3", func(t *testing.T) {
-		mockedS3.On("RemoveRecursive", mock.Anything, endpoint, accessKey, secretKey, bucketName,
-			artifact.Name+"/",
-		).Return(errors.Errorf("failed to remove")).Run(func(args mock.Arguments) {
-			artifact, err := models.FindArtifactByID(db.Querier, artifact.ID)
-			require.NoError(t, err)
-			require.NotNil(t, artifact)
-			assert.Equal(t, artifact.Status, models.DeletingBackupStatus)
-		}).Once()
+		mockedS3.On("RemoveRecursive", mock.Anything, endpoint, accessKey, secretKey, bucketName, artifact.Name+"/").
+			Return(errors.Errorf("failed to remove")).
+			Run(func(args mock.Arguments) {
+				artifact, err := models.FindArtifactByID(db.Querier, artifact.ID)
+				require.NoError(t, err)
+				require.NotNil(t, artifact)
+				assert.Equal(t, artifact.Status, models.DeletingBackupStatus)
+			}).Once()
 
 		err := removalService.DeleteArtifact(ctx, artifact.ID, true)
 		require.EqualError(t, err, "failed to remove")
@@ -90,8 +90,7 @@ func TestDeleteArtifact(t *testing.T) {
 
 	t.Run("successful delete", func(t *testing.T) {
 		mockedS3.On("RemoveRecursive", mock.Anything, endpoint, accessKey, secretKey, bucketName,
-			artifact.Name+"/",
-		).Return(nil).Once()
+			artifact.Name+"/").Return(nil).Once()
 
 		err = removalService.DeleteArtifact(ctx, artifact.ID, true)
 		assert.NoError(t, err)

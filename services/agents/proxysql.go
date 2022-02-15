@@ -49,15 +49,11 @@ func proxysqlExporterConfig(service *models.Service, exporter *models.Agent, red
 	}
 
 	if !pmmAgentVersion.Less(proxysqlExporterStatsCommandVersion) {
-		args = append(args,
-			"-collect.stats_command_counter",
-		)
+		args = append(args, "-collect.stats_command_counter")
 	}
 
 	if !pmmAgentVersion.Less(proxysqlExporterRuntimeVersion) {
-		args = append(args,
-			"-collect.runtime_mysql_servers",
-		)
+		args = append(args, "-collect.runtime_mysql_servers")
 	}
 
 	if pointer.GetString(exporter.MetricsPath) != "" {

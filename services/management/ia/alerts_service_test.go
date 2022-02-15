@@ -73,10 +73,10 @@ func TestSatisfiesFilters(t *testing.T) {
 			result: false,
 			errMsg: "",
 		}, {
-			name:  "na labels",
-			alert: &ammodels.GettableAlert{Alert: ammodels.Alert{Labels: map[string]string{
-				// No labels
-			}}},
+			name: "no labels",
+			alert: &ammodels.GettableAlert{
+				Alert: ammodels.Alert{Labels: make(map[string]string)},
+			},
 			result: false,
 			errMsg: "",
 		}, {

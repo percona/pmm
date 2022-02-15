@@ -79,8 +79,7 @@ func (s *Service) findServiceForUpdate() (*service, error) {
 		servicesVersions, err := models.FindServicesSoftwareVersions(
 			tx.Querier,
 			filter,
-			models.SoftwareVersionsOrderByNextCheckAt,
-		)
+			models.SoftwareVersionsOrderByNextCheckAt)
 		if err != nil {
 			return err
 		}
@@ -121,9 +120,9 @@ func (s *Service) findServiceForUpdate() (*service, error) {
 		// shift the next check time for this service, so, in case of versions fetch error,
 		// it will not loop in trying, but will continue with other services.
 		nextCheckAt := time.Now().UTC().Add(serviceCheckShortInterval)
-		if _, err := models.UpdateServiceSoftwareVersions(tx.Querier, servicesVersions[0].ServiceID,
-			models.UpdateServiceSoftwareVersionsParams{NextCheckAt: &nextCheckAt},
-		); err != nil {
+		if _, err := models.UpdateServiceSoftwareVersions(
+			tx.Querier, servicesVersions[0].ServiceID,
+			models.UpdateServiceSoftwareVersionsParams{NextCheckAt: &nextCheckAt}); err != nil {
 			return err
 		}
 

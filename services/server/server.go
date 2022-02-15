@@ -134,7 +134,7 @@ func NewServer(params *Params) (*Server, error) {
 		emailer:              params.Emailer,
 		l:                    logrus.WithField("component", "server"),
 		pmmUpdateAuthFile:    path,
-		envSettings:          new(models.ChangeSettingsParams),
+		envSettings:          &models.ChangeSettingsParams{},
 	}
 	return s, nil
 }
@@ -149,7 +149,7 @@ func (s *Server) UpdateSettingsFromEnv(env []string) []error {
 	for _, w := range warns {
 		s.l.Warnln(w)
 	}
-	if len(errs) > 0 {
+	if len(errs) != 0 {
 		return errs
 	}
 

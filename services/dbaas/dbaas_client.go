@@ -41,7 +41,7 @@ type Client struct {
 	logsClient                controllerv1beta1.LogsAPIClient
 	pxcOperatorClient         controllerv1beta1.PXCOperatorAPIClient
 	psmdbOperatorClient       controllerv1beta1.PSMDBOperatorAPIClient
-	connM                     *sync.RWMutex
+	connM                     sync.RWMutex
 	conn                      *grpc.ClientConn
 	dbaasControllerAPIAddress string
 }
@@ -50,7 +50,6 @@ type Client struct {
 func NewClient(dbaasControllerAPIAddress string) *Client {
 	c := &Client{
 		l:                         logrus.WithField("component", "dbaas.Client"),
-		connM:                     new(sync.RWMutex),
 		dbaasControllerAPIAddress: dbaasControllerAPIAddress,
 	}
 	return c

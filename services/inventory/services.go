@@ -79,7 +79,7 @@ func (ss *ServicesService) List(ctx context.Context, filters models.ServiceFilte
 // Get selects a single Service by ID.
 //nolint:unparam
 func (ss *ServicesService) Get(ctx context.Context, id string) (inventorypb.Service, error) {
-	service := new(models.Service)
+	service := &models.Service{}
 	e := ss.db.InTransaction(func(tx *reform.TX) error {
 		var err error
 		service, err = models.FindServiceByID(tx.Querier, id)
@@ -99,7 +99,7 @@ func (ss *ServicesService) Get(ctx context.Context, id string) (inventorypb.Serv
 // AddMySQL inserts MySQL Service with given parameters.
 //nolint:dupl,unparam
 func (ss *ServicesService) AddMySQL(ctx context.Context, params *models.AddDBMSServiceParams) (*inventorypb.MySQLService, error) {
-	service := new(models.Service)
+	service := &models.Service{}
 	e := ss.db.InTransaction(func(tx *reform.TX) error {
 		var err error
 		service, err = models.AddNewService(tx.Querier, models.MySQLServiceType, params)
@@ -125,7 +125,7 @@ func (ss *ServicesService) AddMySQL(ctx context.Context, params *models.AddDBMSS
 // AddMongoDB inserts MongoDB Service with given parameters.
 //nolint:dupl,unparam
 func (ss *ServicesService) AddMongoDB(ctx context.Context, params *models.AddDBMSServiceParams) (*inventorypb.MongoDBService, error) {
-	service := new(models.Service)
+	service := &models.Service{}
 	e := ss.db.InTransaction(func(tx *reform.TX) error {
 		var err error
 		service, err = models.AddNewService(tx.Querier, models.MongoDBServiceType, params)
@@ -148,7 +148,7 @@ func (ss *ServicesService) AddMongoDB(ctx context.Context, params *models.AddDBM
 // AddPostgreSQL inserts PostgreSQL Service with given parameters.
 //nolint:dupl,unparam
 func (ss *ServicesService) AddPostgreSQL(ctx context.Context, params *models.AddDBMSServiceParams) (*inventorypb.PostgreSQLService, error) {
-	service := new(models.Service)
+	service := &models.Service{}
 	e := ss.db.InTransaction(func(tx *reform.TX) error {
 		var err error
 		service, err = models.AddNewService(tx.Querier, models.PostgreSQLServiceType, params)
@@ -171,7 +171,7 @@ func (ss *ServicesService) AddPostgreSQL(ctx context.Context, params *models.Add
 // AddProxySQL inserts ProxySQL Service with given parameters.
 //nolint:dupl,unparam
 func (ss *ServicesService) AddProxySQL(ctx context.Context, params *models.AddDBMSServiceParams) (*inventorypb.ProxySQLService, error) {
-	service := new(models.Service)
+	service := &models.Service{}
 	e := ss.db.InTransaction(func(tx *reform.TX) error {
 		var err error
 		service, err = models.AddNewService(tx.Querier, models.ProxySQLServiceType, params)
@@ -190,7 +190,7 @@ func (ss *ServicesService) AddProxySQL(ctx context.Context, params *models.AddDB
 
 // AddHAProxyService inserts HAProxy Service with given parameters.
 func (ss *ServicesService) AddHAProxyService(ctx context.Context, params *models.AddDBMSServiceParams) (*inventorypb.HAProxyService, error) {
-	service := new(models.Service)
+	service := &models.Service{}
 	e := ss.db.InTransaction(func(tx *reform.TX) error {
 		var err error
 		service, err = models.AddNewService(tx.Querier, models.HAProxyServiceType, params)
@@ -213,7 +213,7 @@ func (ss *ServicesService) AddHAProxyService(ctx context.Context, params *models
 // AddExternalService inserts External Service with given parameters.
 //nolint:dupl,unparam
 func (ss *ServicesService) AddExternalService(ctx context.Context, params *models.AddDBMSServiceParams) (*inventorypb.ExternalService, error) {
-	service := new(models.Service)
+	service := &models.Service{}
 	e := ss.db.InTransaction(func(tx *reform.TX) error {
 		var err error
 		service, err = models.AddNewService(tx.Querier, models.ExternalServiceType, params)

@@ -58,7 +58,7 @@ func AssertAPIErrorf(t TestingT, actual error, httpStatus int, grpcCode codes.Co
 
 	require.Error(t, actual)
 
-	require.Implementsf(t, new(ErrorResponse), actual, "Wrong response type. Expected %T, got %T.\nError message: %v", new(ErrorResponse), actual, actual)
+	require.Implementsf(t, (*ErrorResponse)(nil), actual, "Wrong response type. Expected %T, got %T.\nError message: %v", (*ErrorResponse)(nil), actual, actual)
 
 	assert.Equal(t, httpStatus, actual.(ErrorResponse).Code())
 
@@ -72,7 +72,7 @@ func AssertAPIErrorf(t TestingT, actual error, httpStatus int, grpcCode codes.Co
 
 	errorField := payload.Elem().FieldByName("Error")
 	require.True(t, errorField.IsValid(), "Wrong response structure. There is no field Error in Payload.")
-	if len(a) > 0 {
+	if len(a) != 0 {
 		format = fmt.Sprintf(format, a...)
 	}
 	assert.Equal(t, format, errorField.String())

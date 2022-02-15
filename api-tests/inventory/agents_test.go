@@ -306,7 +306,7 @@ func TestPMMAgent(t *testing.T) {
 		require.Equal(t, nodeID, pmmAgentOKBody.PMMAgent.RunsOnNodeID)
 		pmmAgentID := pmmAgentOKBody.PMMAgent.AgentID
 
-		nodeExporterOK := addNodeExporter(t, pmmAgentID, map[string]string{})
+		nodeExporterOK := addNodeExporter(t, pmmAgentID, make(map[string]string))
 		nodeExporterID := nodeExporterOK.Payload.NodeExporter.AgentID
 
 		mySqldExporter := addMySQLdExporter(t, agents.AddMySQLdExporterBody{

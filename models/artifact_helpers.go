@@ -109,7 +109,7 @@ func FindArtifacts(q *reform.Querier, filters ArtifactFilters) ([]*Artifact, err
 // FindArtifactsByIDs finds artifacts by IDs.
 func FindArtifactsByIDs(q *reform.Querier, ids []string) (map[string]*Artifact, error) {
 	if len(ids) == 0 {
-		return map[string]*Artifact{}, nil
+		return make(map[string]*Artifact), nil
 	}
 
 	p := strings.Join(q.Placeholders(1, len(ids)), ", ")
@@ -154,7 +154,7 @@ func FindArtifactByName(q *reform.Querier, name string) (*Artifact, error) {
 	if name == "" {
 		return nil, errors.New("provided backup artifact name is empty")
 	}
-	artifact := new(Artifact)
+	artifact := &Artifact{}
 	err := q.FindOneTo(artifact, "name", name)
 	switch err {
 	case nil:

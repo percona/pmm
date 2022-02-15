@@ -250,7 +250,7 @@ func (s *Service) sendV1Request(ctx context.Context, data []byte) error {
 	defer cancel()
 	req = req.WithContext(ctx)
 
-	client := &http.Client{}
+	var client http.Client
 	resp, err := client.Do(req)
 	if err != nil {
 		return err

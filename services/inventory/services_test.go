@@ -42,24 +42,24 @@ import (
 func setup(t *testing.T) (*ServicesService, *AgentsService, *NodesService, func(t *testing.T), context.Context) {
 	t.Helper()
 
-	uuid.SetRand(new(tests.IDReader))
+	uuid.SetRand(&tests.IDReader{})
 
 	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-	r := new(mockAgentsRegistry)
+	r := &mockAgentsRegistry{}
 	r.Test(t)
 
-	vmdb := new(mockPrometheusService)
+	vmdb := &mockPrometheusService{}
 	vmdb.Test(t)
 
-	state := new(mockAgentsStateUpdater)
+	state := &mockAgentsStateUpdater{}
 	state.Test(t)
 
-	cc := new(mockConnectionChecker)
+	cc := &mockConnectionChecker{}
 	cc.Test(t)
 
-	vc := new(mockVersionCache)
+	vc := &mockVersionCache{}
 	vc.Test(t)
 
 	teardown := func(t *testing.T) {
@@ -135,8 +135,7 @@ func TestServices(t *testing.T) {
 		as.cc.(*mockConnectionChecker).On("CheckConnectionToService", ctx,
 			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
 			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name()),
-		).Return(nil)
+			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
 
 		node, err := ns.AddRemoteRDSNode(ctx, &inventorypb.AddRemoteRDSNodeRequest{NodeName: "test1", Region: "test-region", Address: "test"})
 		require.NoError(t, err)
@@ -194,8 +193,7 @@ func TestServices(t *testing.T) {
 		as.cc.(*mockConnectionChecker).On("CheckConnectionToService", ctx,
 			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
 			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name()),
-		).Return(nil)
+			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
 
 		node, err := ns.AddRemoteAzureDatabaseNode(ctx, &inventorypb.AddRemoteAzureDatabaseNodeRequest{NodeName: "test1", Region: "test-region", Address: "test"})
 		require.NoError(t, err)

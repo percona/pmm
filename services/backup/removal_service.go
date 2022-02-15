@@ -62,8 +62,7 @@ func (s *RemovalService) DeleteArtifact(ctx context.Context, artifactID string, 
 			// There could be a problem e.g. when we have artifacts `backup-daily` and `backup-daily-1`, so
 			// listing by prefix `backup-daily` gives us both artifacts.
 			// To avoid such a situation we need to append a slash.
-			artifactName+"/",
-		); err != nil {
+			artifactName+"/"); err != nil {
 			if _, updateErr := models.UpdateArtifact(s.db.Querier, artifactID, models.UpdateArtifactParams{
 				Status: models.BackupStatusPointer(models.FailedToDeleteBackupStatus),
 			}); updateErr != nil {

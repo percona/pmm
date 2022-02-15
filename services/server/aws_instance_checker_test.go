@@ -48,7 +48,7 @@ func TestAWSInstanceChecker(t *testing.T) {
 		db, teardown := setup(t)
 		defer teardown()
 
-		telemetry := new(mockTelemetryService)
+		telemetry := &mockTelemetryService{}
 		telemetry.Test(t)
 		telemetry.On("DistributionMethod").Return(serverpb.DistributionMethod_DOCKER)
 		defer telemetry.AssertExpectations(t)
@@ -62,7 +62,7 @@ func TestAWSInstanceChecker(t *testing.T) {
 		db, teardown := setup(t)
 		defer teardown()
 
-		telemetry := new(mockTelemetryService)
+		telemetry := &mockTelemetryService{}
 		telemetry.Test(t)
 		telemetry.On("DistributionMethod").Return(serverpb.DistributionMethod_AMI)
 		defer telemetry.AssertExpectations(t)
@@ -82,7 +82,7 @@ func TestAWSInstanceChecker(t *testing.T) {
 		err = models.SaveSettings(db.Querier, settings)
 		require.NoError(t, err)
 
-		telemetry := new(mockTelemetryService)
+		telemetry := &mockTelemetryService{}
 		telemetry.Test(t)
 		telemetry.On("DistributionMethod").Return(serverpb.DistributionMethod_AMI)
 		defer telemetry.AssertExpectations(t)

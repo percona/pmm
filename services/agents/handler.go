@@ -126,7 +126,7 @@ func (h *Handler) Run(stream agentpb.Agent_ConnectServer) error {
 
 					agent.channel.Send(&channel.ServerResponse{
 						ID:      req.ID,
-						Payload: new(agentpb.StateChangedResponse),
+						Payload: &agentpb.StateChangedResponse{},
 					})
 				})
 
@@ -138,7 +138,7 @@ func (h *Handler) Run(stream agentpb.Agent_ConnectServer) error {
 
 					agent.channel.Send(&channel.ServerResponse{
 						ID:      req.ID,
-						Payload: new(agentpb.QANCollectResponse),
+						Payload: &agentpb.QANCollectResponse{},
 					})
 				})
 
@@ -155,7 +155,7 @@ func (h *Handler) Run(stream agentpb.Agent_ConnectServer) error {
 
 				agent.channel.Send(&channel.ServerResponse{
 					ID:      req.ID,
-					Payload: new(agentpb.ActionResultResponse),
+					Payload: &agentpb.ActionResultResponse{},
 				})
 
 			case *agentpb.JobResult:

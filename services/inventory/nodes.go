@@ -72,7 +72,7 @@ func (s *NodesService) List(ctx context.Context, filters models.NodeFilters) ([]
 // Get returns a single Node by ID.
 //nolint:unparam
 func (s *NodesService) Get(ctx context.Context, req *inventorypb.GetNodeRequest) (inventorypb.Node, error) {
-	modelNode := new(models.Node)
+	modelNode := &models.Node{}
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		var err error
 		modelNode, err = models.FindNodeByID(tx.Querier, req.NodeId)
@@ -107,7 +107,7 @@ func (s *NodesService) AddGenericNode(ctx context.Context, req *inventorypb.AddG
 		CustomLabels: req.CustomLabels,
 	}
 
-	node := new(models.Node)
+	node := &models.Node{}
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		var err error
 		node, err = models.CreateNode(tx.Querier, models.GenericNodeType, params)
@@ -143,7 +143,7 @@ func (s *NodesService) AddContainerNode(ctx context.Context, req *inventorypb.Ad
 		CustomLabels:  req.CustomLabels,
 	}
 
-	node := new(models.Node)
+	node := &models.Node{}
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		var err error
 		node, err = models.CreateNode(tx.Querier, models.ContainerNodeType, params)
@@ -176,7 +176,7 @@ func (s *NodesService) AddRemoteNode(ctx context.Context, req *inventorypb.AddRe
 		CustomLabels: req.CustomLabels,
 	}
 
-	node := new(models.Node)
+	node := &models.Node{}
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		var err error
 		node, err = models.CreateNode(tx.Querier, models.RemoteNodeType, params)
@@ -209,7 +209,7 @@ func (s *NodesService) AddRemoteRDSNode(ctx context.Context, req *inventorypb.Ad
 		CustomLabels: req.CustomLabels,
 	}
 
-	node := new(models.Node)
+	node := &models.Node{}
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		var err error
 		node, err = models.CreateNode(tx.Querier, models.RemoteRDSNodeType, params)
@@ -242,7 +242,7 @@ func (s *NodesService) AddRemoteAzureDatabaseNode(ctx context.Context, req *inve
 		CustomLabels: req.CustomLabels,
 	}
 
-	node := new(models.Node)
+	node := &models.Node{}
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		var err error
 		node, err = models.CreateNode(tx.Querier, models.RemoteAzureDatabaseNodeType, params)

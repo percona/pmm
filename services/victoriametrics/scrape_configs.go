@@ -183,7 +183,7 @@ func scrapeConfigForStandardExporter(intervalName string, interval time.Duration
 		HTTPClientConfig: httpClientConfig(params.agent),
 	}
 
-	if len(collect) > 0 {
+	if len(collect) != 0 {
 		sort.Strings(collect)
 		cfg.Params = url.Values{
 			"collect[]": collect,
@@ -258,19 +258,18 @@ func scrapeConfigsForNodeExporter(s *models.MetricsResolutions, params *scrapeCo
 			"standard.process",
 			"stat",
 			"textfile.hr",
-			"vmstat",
-		)
+			"vmstat")
 	}
 
-	hrCollect = append(hrCollect,
+	hrCollect = append(
+		hrCollect,
 		"cpu",
 		"diskstats",
 		"filesystem",
 		"loadavg",
 		"meminfo",
 		"netdev",
-		"time",
-	)
+		"time")
 	hrCollect = collectors.FilterOutCollectors("", hrCollect, params.agent.DisabledCollectors)
 
 	hr, err = scrapeConfigForStandardExporter("hr", s.HR, params, hrCollect)
@@ -347,8 +346,7 @@ func scrapeConfigsForMySQLdExporter(s *models.MetricsResolutions, params *scrape
 			"info_schema.tablestats",
 			"info_schema.innodb_tablespaces",
 			"perf_schema.indexiowaits",
-			"perf_schema.tableiowaits",
-		)
+			"perf_schema.tableiowaits")
 	}
 
 	lrOptions = collectors.FilterOutCollectors("", lrOptions, params.agent.DisabledCollectors)

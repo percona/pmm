@@ -66,7 +66,7 @@ const (
 )
 
 // PMMServerAgentID is a special Agent ID representing pmm-agent on PMM Server.
-const PMMServerAgentID string = "pmm-server" // no /agent_id/ prefix
+const PMMServerAgentID = string("pmm-server") // no /agent_id/ prefix
 
 // MySQLOptions represents structure for special MySQL options.
 type MySQLOptions struct {
@@ -314,7 +314,7 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 			switch {
 			case s.TLSSkipVerify:
 				cfg.Params["tls"] = "skip-verify"
-			case len(s.Files()) > 0:
+			case len(s.Files()) != 0:
 				cfg.Params["tls"] = "custom"
 			default:
 				cfg.Params["tls"] = "true"
@@ -343,7 +343,7 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 			switch {
 			case s.TLSSkipVerify:
 				cfg.Params["tls"] = "skip-verify"
-			case len(s.Files()) > 0:
+			case len(s.Files()) != 0:
 				cfg.Params["tls"] = "custom"
 			default:
 				cfg.Params["tls"] = "true"
@@ -461,7 +461,7 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 		q.Set("sslmode", sslmode)
 
 		if s.PostgreSQLOptions != nil {
-			if files := s.Files(); len(files) > 0 {
+			if files := s.Files(); len(files) != 0 {
 				for key := range files {
 					switch key {
 					case caFilePlaceholder:

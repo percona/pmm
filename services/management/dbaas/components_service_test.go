@@ -57,11 +57,11 @@ func TestComponentService(t *testing.T) {
 		t.Helper()
 
 		ctx = logger.Set(context.Background(), t.Name())
-		uuid.SetRand(new(tests.IDReader))
+		uuid.SetRand(&tests.IDReader{})
 
 		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-		dbaasClient = new(mockDbaasClient)
+		dbaasClient = &mockDbaasClient{}
 
 		kubernetesCluster, err := models.CreateKubernetesCluster(db.Querier, &models.CreateKubernetesClusterParams{
 			KubernetesClusterName: clusterName,
@@ -438,8 +438,8 @@ func TestComponentServiceMatrix(t *testing.T) {
 
 	t.Run("EmptyMatrix", func(t *testing.T) {
 		cs := &componentsService{}
-		m := cs.matrix(map[string]componentVersion{}, nil, nil)
-		assert.Equal(t, map[string]*dbaasv1beta1.Component{}, m)
+		m := cs.matrix(make(map[string]componentVersion), nil, nil)
+		assert.Equal(t, make(map[string]*dbaasv1beta1.Component), m)
 	})
 }
 
@@ -511,11 +511,11 @@ const (
 func setup(t *testing.T, clusterName string, response *VersionServiceResponse, port, defaultPXC, defaultPSMDB string) (*reform.Querier, dbaasv1beta1.ComponentsServer, *mockDbaasClient) {
 	t.Helper()
 
-	uuid.SetRand(new(tests.IDReader))
+	uuid.SetRand(&tests.IDReader{})
 
 	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-	dbaasClient := new(mockDbaasClient)
+	dbaasClient := &mockDbaasClient{}
 
 	kubernetesCluster, err := models.CreateKubernetesCluster(db.Querier, &models.CreateKubernetesClusterParams{
 		KubernetesClusterName: clusterName,

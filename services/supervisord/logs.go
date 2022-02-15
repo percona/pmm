@@ -93,7 +93,7 @@ func (l *Logs) Zip(ctx context.Context, w io.Writer) error {
 			log.WithField("d", time.Since(start).Seconds()).Errorf("%s: %s", file.Name, file.Err)
 
 			// do not let a single error break the whole archive
-			if len(file.Data) > 0 {
+			if len(file.Data) != 0 {
 				file.Data = append(file.Data, "\n\n"...)
 			}
 			file.Data = append(file.Data, file.Err.Error()...)

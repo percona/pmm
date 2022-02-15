@@ -49,7 +49,7 @@ func NewExternalService(db *reform.DB, vmdb prometheusService, state agentsState
 }
 
 func (e *ExternalService) AddExternal(ctx context.Context, req *managementpb.AddExternalRequest) (*managementpb.AddExternalResponse, error) {
-	res := new(managementpb.AddExternalResponse)
+	res := &managementpb.AddExternalResponse{}
 	var pmmAgentID *string
 	if e := e.db.InTransaction(func(tx *reform.TX) error {
 		if (req.NodeId == "") != (req.RunsOnNodeId == "") {

@@ -53,13 +53,13 @@ func TestCreateAlertRule(t *testing.T) {
 	err = models.SaveSettings(db, settings)
 	require.NoError(t, err)
 
-	alertManager := new(mockAlertManager)
+	var alertManager mockAlertManager
 	alertManager.On("RequestConfigurationUpdate").Return()
-	vmAlert := new(mockVmAlert)
+	var vmAlert mockVmAlert
 	vmAlert.On("RequestConfigurationUpdate").Return()
 
 	// Create channel
-	channels := NewChannelsService(db, alertManager)
+	channels := NewChannelsService(db, &alertManager)
 	respC, err := channels.AddChannel(context.Background(), &iav1beta1.AddChannelRequest{
 		Summary: "test channel",
 		EmailConfig: &iav1beta1.EmailConfig{
@@ -86,7 +86,7 @@ func TestCreateAlertRule(t *testing.T) {
 		})
 
 		// Create test rule
-		rules := NewRulesService(db, templates, vmAlert, alertManager)
+		rules := NewRulesService(db, templates, &vmAlert, &alertManager)
 		rules.rulesPath = testDir
 		resp, err := rules.CreateAlertRule(context.Background(), &iav1beta1.CreateAlertRuleRequest{
 			TemplateName: "test_template",
@@ -169,7 +169,7 @@ groups:
 		})
 
 		// Create test rule
-		rules := NewRulesService(db, templates, vmAlert, alertManager)
+		rules := NewRulesService(db, templates, &vmAlert, &alertManager)
 		rules.rulesPath = testDir
 		_, err = rules.CreateAlertRule(context.Background(), &iav1beta1.CreateAlertRuleRequest{
 			TemplateName: "test_template",
@@ -210,7 +210,7 @@ groups:
 		})
 
 		// Create test rule
-		rules := NewRulesService(db, templates, vmAlert, alertManager)
+		rules := NewRulesService(db, templates, &vmAlert, &alertManager)
 		rules.rulesPath = testDir
 		_, err = rules.CreateAlertRule(context.Background(), &iav1beta1.CreateAlertRuleRequest{
 			TemplateName: "test_template",
@@ -251,7 +251,7 @@ groups:
 		})
 
 		// Create test rule
-		rules := NewRulesService(db, templates, vmAlert, alertManager)
+		rules := NewRulesService(db, templates, &vmAlert, &alertManager)
 		rules.rulesPath = testDir
 		_, err = rules.CreateAlertRule(context.Background(), &iav1beta1.CreateAlertRuleRequest{
 			TemplateName: "test_template",
@@ -288,7 +288,7 @@ groups:
 		})
 
 		// Create test rule
-		rules := NewRulesService(db, templates, vmAlert, alertManager)
+		rules := NewRulesService(db, templates, &vmAlert, &alertManager)
 		rules.rulesPath = testDir
 		_, err = rules.CreateAlertRule(context.Background(), &iav1beta1.CreateAlertRuleRequest{
 			TemplateName: "test_template",
@@ -330,7 +330,7 @@ groups:
 		})
 
 		// Create test rule
-		rules := NewRulesService(db, templates, vmAlert, alertManager)
+		rules := NewRulesService(db, templates, &vmAlert, &alertManager)
 		rules.rulesPath = testDir
 		_, err = rules.CreateAlertRule(context.Background(), &iav1beta1.CreateAlertRuleRequest{
 			TemplateName: "unknown template",
@@ -366,11 +366,11 @@ groups:
 			require.NoError(t, err)
 		})
 
-		vmAlert := new(mockVmAlert)
+		vmAlert = mockVmAlert{}
 		vmAlert.On("RequestConfigurationUpdate").Return()
 
 		// Create test rule
-		rules := NewRulesService(db, templates, vmAlert, alertManager)
+		rules := NewRulesService(db, templates, &vmAlert, &alertManager)
 		rules.rulesPath = testDir
 		resp, err := rules.CreateAlertRule(context.Background(), &iav1beta1.CreateAlertRuleRequest{
 			TemplateName: "test_template",

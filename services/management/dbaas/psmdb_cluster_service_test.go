@@ -76,12 +76,12 @@ func TestPSMDBClusterService(t *testing.T) {
 		t.Helper()
 
 		ctx = logger.Set(context.Background(), t.Name())
-		uuid.SetRand(new(tests.IDReader))
+		uuid.SetRand(&tests.IDReader{})
 
 		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 		db = reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-		dbaasClient = new(mockDbaasClient)
-		grafanaClient = new(mockGrafanaClient)
+		dbaasClient = &mockDbaasClient{}
+		grafanaClient = &mockGrafanaClient{}
 
 		teardown = func(t *testing.T) {
 			uuid.SetRand(nil)

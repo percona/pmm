@@ -42,12 +42,12 @@ func TestKubernetesServer(t *testing.T) {
 		t.Helper()
 
 		ctx = logger.Set(context.Background(), t.Name())
-		uuid.SetRand(new(tests.IDReader))
+		uuid.SetRand(&tests.IDReader{})
 
 		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-		dbaasClient = new(mockDbaasClient)
-		grafanaClient := new(mockGrafanaClient)
+		dbaasClient = &mockDbaasClient{}
+		grafanaClient := &mockGrafanaClient{}
 
 		teardown = func(t *testing.T) {
 			uuid.SetRand(nil)
@@ -70,7 +70,7 @@ func TestKubernetesServer(t *testing.T) {
 			},
 			Status: controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
 		}, nil)
-		clusters, err := ks.ListKubernetesClusters(ctx, new(dbaasv1beta1.ListKubernetesClustersRequest))
+		clusters, err := ks.ListKubernetesClusters(ctx, &dbaasv1beta1.ListKubernetesClustersRequest{})
 		require.NoError(t, err)
 		require.Empty(t, clusters.KubernetesClusters)
 
@@ -92,7 +92,7 @@ func TestKubernetesServer(t *testing.T) {
 		assert.NotNil(t, getClusterResponse.KubeAuth)
 		assert.Equal(t, kubeconfig, getClusterResponse.KubeAuth.Kubeconfig)
 
-		clusters, err = ks.ListKubernetesClusters(ctx, new(dbaasv1beta1.ListKubernetesClustersRequest))
+		clusters, err = ks.ListKubernetesClusters(ctx, &dbaasv1beta1.ListKubernetesClustersRequest{})
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(clusters.KubernetesClusters))
 		expected := []*dbaasv1beta1.ListKubernetesClustersResponse_Cluster{
@@ -137,7 +137,7 @@ func TestKubernetesServer(t *testing.T) {
 		require.NoError(t, err)
 		assert.NotNil(t, unregisterKubernetesClusterResponse)
 
-		clusters, err = ks.ListKubernetesClusters(ctx, new(dbaasv1beta1.ListKubernetesClustersRequest))
+		clusters, err = ks.ListKubernetesClusters(ctx, &dbaasv1beta1.ListKubernetesClustersRequest{})
 		assert.NoError(t, err)
 		assert.Empty(t, clusters.KubernetesClusters)
 	})

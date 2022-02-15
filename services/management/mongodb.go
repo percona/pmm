@@ -47,7 +47,7 @@ func NewMongoDBService(db *reform.DB, state agentsStateUpdater, cc connectionChe
 
 // Add adds "MongoDB Service", "MongoDB Exporter Agent" and "QAN MongoDB Profiler".
 func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRequest) (*managementpb.AddMongoDBResponse, error) {
-	res := new(managementpb.AddMongoDBResponse)
+	res := &managementpb.AddMongoDBResponse{}
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {
 		nodeID, err := nodeID(tx, req.NodeId, req.NodeName, req.AddNode, req.Address)

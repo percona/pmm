@@ -43,7 +43,7 @@ func main() {
 	for _, err := range errs {
 		logrus.Errorf("Configuration error: %s.", err)
 	}
-	if len(errs) > 0 {
+	if len(errs) != 0 {
 		os.Exit(1)
 	}
 

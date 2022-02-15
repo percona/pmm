@@ -117,8 +117,8 @@ func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1
 			clusters[i] = &dbaasv1beta1.ListKubernetesClustersResponse_Cluster{
 				KubernetesClusterName: cluster.KubernetesClusterName,
 				Operators: &dbaasv1beta1.Operators{
-					Pxc:   new(dbaasv1beta1.Operator),
-					Psmdb: new(dbaasv1beta1.Operator),
+					Pxc:   &dbaasv1beta1.Operator{},
+					Psmdb: &dbaasv1beta1.Operator{},
 				},
 			}
 			resp, e := k.dbaasClient.CheckKubernetesClusterConnection(ctx, cluster.KubeConfig)
@@ -366,7 +366,7 @@ func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *
 			k.l.Warn(err)
 		case err != nil:
 			return err
-		case len(pxcClusters.Clusters) > 0:
+		case len(pxcClusters.Clusters) != 0:
 			return status.Errorf(codes.FailedPrecondition, "Kubernetes cluster %s has PXC clusters", req.KubernetesClusterName)
 		}
 
@@ -380,7 +380,7 @@ func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *
 			k.l.Warn(err)
 		case err != nil:
 			return err
-		case len(psmdbClusters.Clusters) > 0:
+		case len(psmdbClusters.Clusters) != 0:
 			return status.Errorf(codes.FailedPrecondition, "Kubernetes cluster %s has PSMDB clusters", req.KubernetesClusterName)
 		}
 		return models.RemoveKubernetesCluster(t.Querier, req.KubernetesClusterName)

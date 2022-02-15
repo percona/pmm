@@ -48,7 +48,7 @@ func NewHAProxyService(db *reform.DB, vmdb prometheusService, state agentsStateU
 }
 
 func (e HAProxyService) AddHAProxy(ctx context.Context, req *managementpb.AddHAProxyRequest) (*managementpb.AddHAProxyResponse, error) {
-	res := new(managementpb.AddHAProxyResponse)
+	res := &managementpb.AddHAProxyResponse{}
 	var pmmAgentID *string
 	if e := e.db.InTransaction(func(tx *reform.TX) error {
 		if req.Address == "" && req.AddNode != nil {

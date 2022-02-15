@@ -40,7 +40,7 @@ func TestLabels(t *testing.T) {
 	})
 
 	t.Run("Empty", func(t *testing.T) {
-		err = setLabels(map[string]string{}, &b)
+		err = setLabels(make(map[string]string), &b)
 		assert.NoError(t, err)
 		assert.Nil(t, b)
 		m, err := getLabels(b)

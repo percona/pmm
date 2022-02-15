@@ -60,7 +60,7 @@ func FindScheduledTasks(q *reform.Querier, filters ScheduledTasksFilter) ([]*Sch
 	var args []interface{}
 	var andConds []string
 	idx := 1
-	if len(filters.Types) > 0 {
+	if len(filters.Types) != 0 {
 		p := strings.Join(q.Placeholders(idx, len(filters.Types)), ", ")
 		for _, fType := range filters.Types {
 			args = append(args, fType)
@@ -103,7 +103,7 @@ func FindScheduledTasks(q *reform.Querier, filters ScheduledTasksFilter) ([]*Sch
 		tail.WriteString("CROSS JOIN jsonb_each(data) ")
 	}
 
-	if len(andConds) > 0 {
+	if len(andConds) != 0 {
 		tail.WriteString("WHERE ")
 		tail.WriteString(strings.Join(andConds, " AND "))
 		tail.WriteRune(' ')

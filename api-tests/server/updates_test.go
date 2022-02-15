@@ -209,8 +209,7 @@ func TestUpdate(t *testing.T) {
 		retries = 0
 		assert.True(t, statusRes.Payload.LogOffset > logOffset,
 			"expected statusRes.Payload.LogOffset (%d) > logOffset (%d)",
-			statusRes.Payload.LogOffset, logOffset,
-		)
+			statusRes.Payload.LogOffset, logOffset)
 		require.NotEmpty(t, statusRes.Payload.LogLines, "pmm-managed should delay response until some lines are available")
 		logOffset = statusRes.Payload.LogOffset
 		lastLine = statusRes.Payload.LogLines[len(statusRes.Payload.LogLines)-1]

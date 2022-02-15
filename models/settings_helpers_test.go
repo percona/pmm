@@ -156,7 +156,7 @@ func TestSettings(t *testing.T) {
 		})
 
 		t.Run("", func(t *testing.T) {
-			mr := models.MetricsResolutions{MR: 5e+8 * time.Nanosecond} // 0.5s
+			mr := models.MetricsResolutions{MR: 500 * time.Millisecond} // 0.5s
 			_, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
 				MetricsResolutions: mr,
 			})
@@ -164,7 +164,7 @@ func TestSettings(t *testing.T) {
 			assert.True(t, errors.As(err, &errInvalidArgument))
 			assert.EqualError(t, err, `invalid argument: mr: minimal resolution is 1s`)
 
-			mr = models.MetricsResolutions{MR: 2*time.Second + 5e8*time.Nanosecond} // 2.5s
+			mr = models.MetricsResolutions{MR: 2*time.Second + (500 * time.Millisecond)} // 2.5s
 			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
 				MetricsResolutions: mr,
 			})

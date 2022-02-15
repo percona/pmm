@@ -259,5 +259,5 @@ func (s *PostgresExporterConfigTestSuite) TestAzureTimeout() {
 }
 
 func TestPostgresExporterConfigTestSuite(t *testing.T) {
-	suite.Run(t, new(PostgresExporterConfigTestSuite))
+	suite.Run(t, &PostgresExporterConfigTestSuite{})
 }
