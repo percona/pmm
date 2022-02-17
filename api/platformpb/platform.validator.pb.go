@@ -6,6 +6,7 @@ package platformpb
 import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
+	_ "github.com/golang/protobuf/ptypes/timestamp"
 	_ "github.com/mwitkow/go-proto-validators"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
@@ -36,5 +37,26 @@ func (this *DisconnectRequest) Validate() error {
 	return nil
 }
 func (this *DisconnectResponse) Validate() error {
+	return nil
+}
+func (this *SearchOrganizationTicketsRequest) Validate() error {
+	return nil
+}
+func (this *SearchOrganizationTicketsResponse) Validate() error {
+	for _, item := range this.Tickets {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Tickets", err)
+			}
+		}
+	}
+	return nil
+}
+func (this *OrganizationTicket) Validate() error {
+	if this.CreateTime != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.CreateTime); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("CreateTime", err)
+		}
+	}
 	return nil
 }
