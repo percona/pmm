@@ -4600,7 +4600,7 @@ func (x *StartActionRequest_MongoDBQueryGetCmdLineOptsParams) GetTextFiles() *Te
 	return nil
 }
 
-// MongoDBQueryReplSetGetStatusParams describes MongoDB getCmdLineOpts query action parameters.
+// MongoDBQueryReplSetGetStatusParams describes MongoDB replSetGetStatus query action parameters.
 type StartActionRequest_MongoDBQueryReplSetGetStatusParams struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -4659,7 +4659,7 @@ func (x *StartActionRequest_MongoDBQueryReplSetGetStatusParams) GetTextFiles() *
 	return nil
 }
 
-// MongoDBQueryGetDiagnosticDataParams describes MongoDB getCmdLineOpts query action parameters.
+// MongoDBQueryGetDiagnosticDataParams describes MongoDB getDiagnosticData query action parameters.
 type StartActionRequest_MongoDBQueryGetDiagnosticDataParams struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
