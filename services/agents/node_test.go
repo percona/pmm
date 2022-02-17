@@ -23,15 +23,98 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/version"
 	"github.com/stretchr/testify/require"
+	"golang.org/x/crypto/bcrypt"
+	"gopkg.in/yaml.v3"
 
 	"github.com/percona/pmm-managed/models"
 )
 
-func TestNodeExporterConfig(t *testing.T) {
-	t.Run("Linux", func(t *testing.T) {
+func TestWebConfig(t *testing.T) {
+	t.Parallel()
+
+	t.Run("v2.26.1", func(t *testing.T) {
+		t.Parallel()
+
 		node := &models.Node{}
 		exporter := &models.Agent{
-			AgentID: "agent-id",
+			AgentID:   "agent-id",
+			AgentType: models.NodeExporterType,
+		}
+		agentVersion := version.MustParse("2.26.1")
+
+		actual := nodeExporterConfig(node, exporter, agentVersion)
+		expected := &agentpb.SetStateRequest_AgentProcess{
+			Type:               inventorypb.AgentType_NODE_EXPORTER,
+			TemplateLeftDelim:  "{{",
+			TemplateRightDelim: "}}",
+			Env: []string{
+				"HTTP_AUTH=pmm:agent-id",
+			},
+			TextFiles: map[string]string(nil),
+		}
+
+		require.Equal(t, expected.Env, actual.Env)
+		require.Equal(t, expected.TextFiles, actual.TextFiles)
+	})
+
+	t.Run("v2.27.0", func(t *testing.T) {
+		t.Parallel()
+		node := &models.Node{}
+		exporter := &models.Agent{
+			AgentID:   "agent-id",
+			AgentType: models.NodeExporterType,
+		}
+		agentVersion := version.MustParse("2.27.1")
+
+		actual := nodeExporterConfig(node, exporter, agentVersion)
+		expected := &agentpb.SetStateRequest_AgentProcess{
+			Type:               inventorypb.AgentType_NODE_EXPORTER,
+			TemplateLeftDelim:  "{{",
+			TemplateRightDelim: "}}",
+			Args: []string{
+				"--web.listen-address=:{{ .listen_port }}",
+			},
+			Env: []string{},
+		}
+
+		require.Equal(t, expected.Env, actual.Env)
+		content, exist := actual.TextFiles["webConfigPlaceholder"]
+		if !exist {
+			t.Error("Expected 'webConfigPlaceholder' in text files")
+		}
+
+		var cfg WebConfig
+		err := yaml.Unmarshal([]byte(content), &cfg)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		require.NotEmpty(t, cfg.BasicAuthUsers.Pmm, "WebConfig file should contain a secret for 'pmm' user")
+
+		buff := []byte(cfg.BasicAuthUsers.Pmm)
+
+		err = bcrypt.CompareHashAndPassword(buff, []byte(exporter.AgentID))
+		if err != nil {
+			t.Fatal(err)
+		}
+	})
+}
+
+// expected yaml is plain collection with usernames, so define 'pmm' user as a struct field.
+type WebConfig struct {
+	BasicAuthUsers struct {
+		Pmm string `yaml:"pmm"`
+	} `yaml:"basic_auth_users"`
+}
+
+func TestNodeExporterConfig(t *testing.T) {
+	t.Run("Linux", func(t *testing.T) {
+		t.Parallel()
+
+		node := &models.Node{}
+		exporter := &models.Agent{
+			AgentID:   "agent-id",
+			AgentType: models.NodeExporterType,
 		}
 		agentVersion := version.MustParse("2.15.1")
 
@@ -117,9 +200,11 @@ func TestNodeExporterConfig(t *testing.T) {
 	})
 
 	t.Run("LinuxDisabledCollectors", func(t *testing.T) {
+		t.Parallel()
 		node := &models.Node{}
 		exporter := &models.Agent{
 			AgentID:            "agent-id",
+			AgentType:          models.NodeExporterType,
 			DisabledCollectors: []string{"cpu", "netstat", "netstat.fields", "vmstat", "meminfo"},
 		}
 		agentVersion := version.MustParse("2.15.1")
@@ -196,11 +281,13 @@ func TestNodeExporterConfig(t *testing.T) {
 	})
 
 	t.Run("MacOS", func(t *testing.T) {
+		t.Parallel()
 		node := &models.Node{
 			Distro: "darwin",
 		}
 		exporter := &models.Agent{
-			AgentID: "agent-id",
+			AgentID:   "agent-id",
+			AgentType: models.NodeExporterType,
 		}
 		agentVersion := version.MustParse("2.15.1")
 

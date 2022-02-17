@@ -29,6 +29,33 @@ import (
 	"github.com/percona/pmm-managed/utils/collectors"
 )
 
+var v2_26_99 = version.MustParse("2.26.99")
+
+func getExporterFiles(exporter *models.Agent, pmmAgentVersion *version.Parsed) map[string]string {
+	files := exporter.Files()
+
+	// The node exporter prior 2.26 use exporter_shared and gets basic auth config from env.
+	// Starting with pmm 2.27, the exporter uses Prometheus Web Toolkit and needs a config file
+	// with the basic auth users.
+	if pmmAgentVersion.Less(v2_26_99) { // <= 2.27
+		delete(files, "webConfigPlaceholder")
+	}
+	if len(files) == 0 {
+		return nil
+	}
+
+	return files
+}
+
+func getExporterEnv(exporter *models.Agent, pmmAgentVersion *version.Parsed) []string {
+	// basic auth via env for older exporters
+	if pmmAgentVersion.Less(v2_26_99) { // <= 2.27
+		return []string{fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.GetAgentPassword())}
+	}
+
+	return []string{}
+}
+
 func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion *version.Parsed) *agentpb.SetStateRequest_AgentProcess {
 	tdp := models.TemplateDelimsPair(
 		pointer.GetString(exporter.MetricsPath),
@@ -128,13 +155,22 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion 
 
 	sort.Strings(args)
 
+	env := getExporterEnv(exporter, agentVersion)
+	files := getExporterFiles(exporter, agentVersion)
+
+	for k := range files {
+		if k == "webConfigPlaceholder" {
+			// see https://github.com/prometheus/exporter-toolkit/tree/v0.1.0/https
+			args = append(args, "--web.config="+tdp.Left+" .TextFiles.webConfigPlaceholder "+tdp.Right)
+		}
+	}
+
 	return &agentpb.SetStateRequest_AgentProcess{
 		Type:               inventorypb.AgentType_NODE_EXPORTER,
 		TemplateLeftDelim:  tdp.Left,
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
-		Env: []string{
-			fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.AgentID),
-		},
+		Env:                env,
+		TextFiles:          files,
 	}
 }
