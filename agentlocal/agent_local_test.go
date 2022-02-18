@@ -37,10 +37,10 @@ func TestServerStatus(t *testing.T) {
 			AgentType: inventorypb.AgentType_NODE_EXPORTER,
 			Status:    inventorypb.AgentStatus_RUNNING,
 		}}
-		supervisor := new(mockSupervisor)
+		var supervisor mockSupervisor
 		supervisor.Test(t)
 		supervisor.On("AgentsList").Return(agentInfo)
-		client := new(mockClient)
+		var client mockClient
 		client.Test(t)
 		client.On("GetServerConnectMetadata").Return(&agentpb.ServerConnectMetadata{
 			AgentRunsOnNodeID: "/node_id/00000000-0000-4000-8000-000000000003",
@@ -54,7 +54,7 @@ func TestServerStatus(t *testing.T) {
 				Password: "password",
 			},
 		}
-		return agentInfo, supervisor, client, cfg
+		return agentInfo, &supervisor, &client, cfg
 	}
 
 	t.Run("without network info", func(t *testing.T) {

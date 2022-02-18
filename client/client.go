@@ -295,7 +295,7 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 
 		case *agentpb.SetStateRequest:
 			c.supervisor.SetState(p)
-			responsePayload = new(agentpb.SetStateResponse)
+			responsePayload = &agentpb.SetStateResponse{}
 
 		case *agentpb.StartActionRequest:
 			var action actions.Action
@@ -383,11 +383,11 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 			}
 
 			c.actionsRunner.Start(action, c.getActionTimeout(p))
-			responsePayload = new(agentpb.StartActionResponse)
+			responsePayload = &agentpb.StartActionResponse{}
 
 		case *agentpb.StopActionRequest:
 			c.actionsRunner.Stop(p.ActionId)
-			responsePayload = new(agentpb.StopActionResponse)
+			responsePayload = &agentpb.StopActionResponse{}
 
 		case *agentpb.CheckConnectionRequest:
 			responsePayload = c.connectionChecker.Check(ctx, p, req.ID)
@@ -401,7 +401,7 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 
 		case *agentpb.StopJobRequest:
 			c.jobsRunner.Stop(p.JobId)
-			responsePayload = new(agentpb.StopJobResponse)
+			responsePayload = &agentpb.StopJobResponse{}
 
 		case *agentpb.JobStatusRequest:
 			alive := c.jobsRunner.IsRunning(p.JobId)
@@ -678,7 +678,7 @@ func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) (*dialRe
 func getNetworkInformation(channel *channel.Channel) (latency, clockDrift time.Duration, err error) {
 	start := time.Now()
 	var resp agentpb.ServerResponsePayload
-	resp, err = channel.SendAndWaitResponse(new(agentpb.Ping))
+	resp, err = channel.SendAndWaitResponse(&agentpb.Ping{})
 	if err != nil {
 		return
 	}

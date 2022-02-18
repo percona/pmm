@@ -101,37 +101,37 @@ func (a *postgresqlShowCreateTableAction) Run(ctx context.Context) ([]byte, erro
 	}
 	db := sql.OpenDB(connector)
 	defer db.Close() //nolint:errcheck
-	buf := new(bytes.Buffer)
+	var buf bytes.Buffer
 
 	// Extract table id
-	tableID, err := a.printTableInit(ctx, buf, db)
+	tableID, err := a.printTableInit(ctx, &buf, db)
 	if err != nil {
 		return nil, err
 	}
 
 	// Generate table cells to be printed.
-	err = a.printColumnsInfo(ctx, buf, db, tableID)
+	err = a.printColumnsInfo(ctx, &buf, db, tableID)
 	if err != nil {
 		return nil, err
 	}
 
 	// Print indexes.
-	err = a.printIndexInfo(ctx, buf, db, tableID)
+	err = a.printIndexInfo(ctx, &buf, db, tableID)
 	if err != nil {
 		return nil, err
 	}
 
-	err = a.printCheckConstraints(ctx, buf, db, tableID)
+	err = a.printCheckConstraints(ctx, &buf, db, tableID)
 	if err != nil {
 		return nil, err
 	}
 
-	err = a.printForeignKeyConstraints(ctx, buf, db, tableID)
+	err = a.printForeignKeyConstraints(ctx, &buf, db, tableID)
 	if err != nil {
 		return nil, err
 	}
 
-	err = a.printReferencedBy(ctx, buf, db, tableID)
+	err = a.printReferencedBy(ctx, &buf, db, tableID)
 	if err != nil {
 		return nil, err
 	}
@@ -215,8 +215,7 @@ ORDER BY a.attnum;`, tableID)
 			&ci.Attidentity,
 			&ci.Attstorage,
 			&ci.Attstattarget,
-			&ci.ColDescription,
-		)
+			&ci.ColDescription)
 		if err != nil {
 			return errors.WithStack(err)
 		}
@@ -229,8 +228,7 @@ ORDER BY a.attnum;`, tableID)
 			pointer.GetString(ci.Substring),
 			formatStorage(ci.Attstorage),
 			pointer.GetString(ci.Attstattarget),
-			pointer.GetString(ci.ColDescription),
-		) //nolint:errcheck
+			pointer.GetString(ci.ColDescription)) //nolint:errcheck
 	}
 	err = rows.Err()
 	if err != nil {
@@ -288,8 +286,7 @@ ORDER BY i.indisprimary DESC, i.indisunique DESC, c2.relname`, tableID)
 			&info.Condeferrable,
 			&info.Condeferred,
 			&info.Indisreplident,
-			&info.Reltablespace,
-		)
+			&info.Reltablespace)
 		if err != nil {
 			return errors.WithStack(err)
 		}
@@ -362,8 +359,7 @@ ORDER BY conname`, tableID)
 		var conname, condef string
 		err = rows.Scan(
 			&conname,
-			&condef,
-		)
+			&condef)
 		if err != nil {
 			return errors.WithStack(err)
 		}
@@ -405,8 +401,7 @@ ORDER BY conname`, tableID)
 		err = rows.Scan(
 			&conname,
 			&conrelid,
-			&condef,
-		)
+			&condef)
 		if err != nil {
 			return errors.WithStack(err)
 		}
@@ -446,8 +441,7 @@ ORDER BY conname`, tableID)
 		var conname, condef string
 		err = rows.Scan(
 			&conname,
-			&condef,
-		)
+			&condef)
 		if err != nil {
 			return errors.WithStack(err)
 		}

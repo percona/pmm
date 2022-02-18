@@ -74,8 +74,7 @@ func (p *Parser) Start(context.Context) error {
 			p.docsChan,
 			p.aggregator,
 			p.doneChan,
-			p.logger,
-		)
+			p.logger)
 	})
 
 	p.running = true

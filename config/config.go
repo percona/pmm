@@ -272,7 +272,7 @@ func get(args []string, l *logrus.Entry) (cfg *Config, configFileF string, err e
 	}()
 
 	// parse command-line flags and environment variables
-	cfg = new(Config)
+	cfg = &Config{}
 	app, cfgFileF := Application(cfg)
 	if _, err = app.Parse(args); err != nil {
 		return
@@ -460,7 +460,7 @@ func loadFromFile(path string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	cfg := new(Config)
+	cfg := &Config{}
 	if err = yaml.Unmarshal(b, cfg); err != nil {
 		return nil, err
 	}

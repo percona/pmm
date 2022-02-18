@@ -119,7 +119,7 @@ func (s *Server) Status(ctx context.Context, req *agentlocalpb.StatusRequest) (*
 	md := s.client.GetServerConnectMetadata()
 	if md == nil {
 		connected = false
-		md = new(agentpb.ServerConnectMetadata)
+		md = &agentpb.ServerConnectMetadata{}
 	}
 
 	var serverInfo *agentlocalpb.ServerInfo
@@ -168,7 +168,7 @@ func (s *Server) Reload(ctx context.Context, req *agentlocalpb.ReloadRequest) (*
 	})
 
 	// client may or may not receive this response due to server shutdown
-	return new(agentlocalpb.ReloadResponse), nil
+	return &agentlocalpb.ReloadResponse{}, nil
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.

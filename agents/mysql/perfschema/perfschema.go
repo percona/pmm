@@ -330,7 +330,7 @@ func makeBuckets(current, prev map[string]*eventsStatementsSummaryByDigest, l *l
 	for digest, currentESS := range current {
 		prevESS := prev[digest]
 		if prevESS == nil {
-			prevESS = new(eventsStatementsSummaryByDigest)
+			prevESS = &eventsStatementsSummaryByDigest{}
 		}
 
 		switch {
@@ -343,7 +343,7 @@ func makeBuckets(current, prev map[string]*eventsStatementsSummaryByDigest, l *l
 			continue
 		case currentESS.CountStar < prevESS.CountStar:
 			l.Debugf("Truncate detected. Treating as a new query: %s.", currentESS)
-			prevESS = new(eventsStatementsSummaryByDigest)
+			prevESS = &eventsStatementsSummaryByDigest{}
 		case prevESS.CountStar == 0:
 			l.Debugf("New query: %s.", currentESS)
 		default:
@@ -374,8 +374,8 @@ func makeBuckets(current, prev map[string]*eventsStatementsSummaryByDigest, l *l
 			// in order of events_statements_summary_by_digest columns
 
 			// convert picoseconds to seconds
-			{inc(currentESS.SumTimerWait, prevESS.SumTimerWait) / 1e12, &mb.Common.MQueryTimeSum, &mb.Common.MQueryTimeCnt},
-			{inc(currentESS.SumLockTime, prevESS.SumLockTime) / 1e12, &mb.Mysql.MLockTimeSum, &mb.Mysql.MLockTimeCnt},
+			{inc(currentESS.SumTimerWait, prevESS.SumTimerWait) / 1000000000000, &mb.Common.MQueryTimeSum, &mb.Common.MQueryTimeCnt},
+			{inc(currentESS.SumLockTime, prevESS.SumLockTime) / 1000000000000, &mb.Mysql.MLockTimeSum, &mb.Mysql.MLockTimeCnt},
 
 			{inc(currentESS.SumRowsAffected, prevESS.SumRowsAffected), &mb.Mysql.MRowsAffectedSum, &mb.Mysql.MRowsAffectedCnt},
 			{inc(currentESS.SumRowsSent, prevESS.SumRowsSent), &mb.Mysql.MRowsSentSum, &mb.Mysql.MRowsSentCnt},

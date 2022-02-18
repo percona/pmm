@@ -74,7 +74,6 @@ func TestSupervisor(t *testing.T) {
 			{AgentType: type_TEST_NOOP, AgentId: "noop3", Status: inventorypb.AgentStatus_STARTING},
 			{AgentType: type_TEST_SLEEP, AgentId: "sleep1", Status: inventorypb.AgentStatus_STARTING, ListenPort: 65000, ProcessExecPath: "sleep"},
 		}
-		t.Log(s.AgentsList())
 		assert.Equal(t, expectedList, s.AgentsList())
 
 		assertChanges(t, s,
@@ -155,16 +154,13 @@ func TestSupervisor(t *testing.T) {
 		})
 
 		assertChanges(t, s,
-			&agentpb.StateChangedRequest{AgentId: "noop3", Status: inventorypb.AgentStatus_STOPPING},
-		)
+			&agentpb.StateChangedRequest{AgentId: "noop3", Status: inventorypb.AgentStatus_STOPPING})
 		assertChanges(t, s,
-			&agentpb.StateChangedRequest{AgentId: "noop3", Status: inventorypb.AgentStatus_DONE},
-		)
+			&agentpb.StateChangedRequest{AgentId: "noop3", Status: inventorypb.AgentStatus_DONE})
 
 		assertChanges(t, s,
 			&agentpb.StateChangedRequest{AgentId: "noop3", Status: inventorypb.AgentStatus_STARTING},
-			&agentpb.StateChangedRequest{AgentId: "noop4", Status: inventorypb.AgentStatus_STARTING},
-		)
+			&agentpb.StateChangedRequest{AgentId: "noop4", Status: inventorypb.AgentStatus_STARTING})
 		expectedList = []*agentlocalpb.AgentInfo{
 			{AgentType: type_TEST_NOOP, AgentId: "noop3", Status: inventorypb.AgentStatus_STARTING},
 			{AgentType: type_TEST_NOOP, AgentId: "noop4", Status: inventorypb.AgentStatus_STARTING},
@@ -175,8 +171,7 @@ func TestSupervisor(t *testing.T) {
 
 		assertChanges(t, s,
 			&agentpb.StateChangedRequest{AgentId: "noop3", Status: inventorypb.AgentStatus_RUNNING},
-			&agentpb.StateChangedRequest{AgentId: "noop4", Status: inventorypb.AgentStatus_RUNNING},
-		)
+			&agentpb.StateChangedRequest{AgentId: "noop4", Status: inventorypb.AgentStatus_RUNNING})
 		expectedList = []*agentlocalpb.AgentInfo{
 			{AgentType: type_TEST_NOOP, AgentId: "noop3", Status: inventorypb.AgentStatus_RUNNING},
 			{AgentType: type_TEST_NOOP, AgentId: "noop4", Status: inventorypb.AgentStatus_RUNNING},
@@ -237,11 +232,9 @@ func TestSupervisor(t *testing.T) {
 		})
 
 		assertChanges(t, s,
-			&agentpb.StateChangedRequest{AgentId: "noop3", Status: inventorypb.AgentStatus_STOPPING},
-		)
+			&agentpb.StateChangedRequest{AgentId: "noop3", Status: inventorypb.AgentStatus_STOPPING})
 		assertChanges(t, s,
-			&agentpb.StateChangedRequest{AgentId: "noop3", Status: inventorypb.AgentStatus_DONE},
-		)
+			&agentpb.StateChangedRequest{AgentId: "noop3", Status: inventorypb.AgentStatus_DONE})
 		expectedList = []*agentlocalpb.AgentInfo{
 			{AgentType: type_TEST_NOOP, AgentId: "noop4", Status: inventorypb.AgentStatus_RUNNING},
 			{AgentType: type_TEST_SLEEP, AgentId: "sleep2", Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
@@ -262,8 +255,7 @@ func TestSupervisor(t *testing.T) {
 			&agentpb.StateChangedRequest{AgentId: "sleep2", Status: inventorypb.AgentStatus_STOPPING, ListenPort: 65001, ProcessExecPath: "sleep"},
 			&agentpb.StateChangedRequest{AgentId: "sleep2", Status: inventorypb.AgentStatus_DONE, ListenPort: 65001, ProcessExecPath: "sleep"},
 			&agentpb.StateChangedRequest{AgentId: "noop4", Status: inventorypb.AgentStatus_STOPPING},
-			&agentpb.StateChangedRequest{AgentId: "noop4", Status: inventorypb.AgentStatus_DONE},
-		)
+			&agentpb.StateChangedRequest{AgentId: "noop4", Status: inventorypb.AgentStatus_DONE})
 		assertChanges(t, s, nil)
 		expectedList = []*agentlocalpb.AgentInfo{}
 		require.Equal(t, expectedList, s.AgentsList())
@@ -301,7 +293,7 @@ func TestSupervisorProcessParams(t *testing.T) {
 			TempDir:        temp,
 		}
 
-		s := NewSupervisor(ctx, paths, new(config.Ports), new(config.Server))
+		s := NewSupervisor(ctx, paths, &config.Ports{}, &config.Server{})
 
 		teardown := func() {
 			cancel()
@@ -354,7 +346,11 @@ func TestSupervisorProcessParams(t *testing.T) {
 				"TEST=:12345",
 			},
 		}
-		assert.Equal(t, expected, *actual)
+		assert.Equal(t, expected.Path, actual.Path)
+		assert.Equal(t, expected.Args, actual.Args)
+		assert.Equal(t, expected.Env, actual.Env)
+		assert.NotEmpty(t, actual.TemplateParams)
+		assert.NotEmpty(t, actual.TemplateRenderer)
 	})
 
 	t.Run("BadTemplate", func(t *testing.T) {

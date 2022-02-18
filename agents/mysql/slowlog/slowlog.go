@@ -667,7 +667,7 @@ func (s *SlowLog) Changes() <-chan agents.Change {
 }
 
 func errListsToMap(k, v []uint64) map[uint64]uint64 {
-	m := map[uint64]uint64{}
+	m := make(map[uint64]uint64)
 	for i, e := range k {
 		m[e] = v[i]
 	}

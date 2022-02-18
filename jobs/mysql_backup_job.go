@@ -142,8 +142,7 @@ func (j *MySQLBackupJob) backup(ctx context.Context) (rerr error) {
 		"--backup",
 		// Target dir is created, even though it's empty, because we are streaming it to cloud.
 		// https://jira.percona.com/browse/PXB-2602
-		"--target-dir="+tmpDir,
-	) // #nosec G204
+		"--target-dir="+tmpDir) // #nosec G204
 
 	if j.connConf.User != "" {
 		xtrabackupCmd.Args = append(xtrabackupCmd.Args, "--user="+j.connConf.User)

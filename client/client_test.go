@@ -150,11 +150,11 @@ func TestClient(t *testing.T) {
 				},
 			}
 
-			s := new(mockSupervisor)
+			var s mockSupervisor
 			s.On("Changes").Return(make(<-chan *agentpb.StateChangedRequest))
 			s.On("QANRequests").Return(make(<-chan *agentpb.QANCollectRequest))
 
-			client := New(cfg, s, nil, nil)
+			client := New(cfg, &s, nil, nil)
 			err := client.Run(context.Background())
 			assert.NoError(t, err)
 			assert.Equal(t, serverMD, client.GetServerConnectMetadata())
@@ -265,7 +265,7 @@ func TestUnexpectedActionType(t *testing.T) {
 		},
 	}
 
-	s := new(mockSupervisor)
+	s := &mockSupervisor{}
 	s.On("Changes").Return(make(<-chan *agentpb.StateChangedRequest))
 	s.On("QANRequests").Return(make(<-chan *agentpb.QANCollectRequest))
 
