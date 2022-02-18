@@ -129,7 +129,7 @@ jobs:
 
   check:
     name: Check
-    timeout-minutes: 10
+    timeout-minutes: 15
     if: github.event_name == 'pull_request'
 
     strategy:
