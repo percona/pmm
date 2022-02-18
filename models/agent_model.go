@@ -19,7 +19,6 @@ package models
 import (
 	"database/sql/driver"
 	"fmt"
-	"log"
 	"net"
 	"net/url"
 	"strconv"
@@ -30,7 +29,6 @@ import (
 	"github.com/go-sql-driver/mysql"
 	"github.com/lib/pq"
 	"github.com/percona/pmm/version"
-	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/reform.v1"
 )
 
@@ -44,7 +42,6 @@ const (
 	certificateFilePlaceholder    = "certificateFilePlaceholder"
 	certificateKeyFilePlaceholder = "certificateKeyFilePlaceholder"
 	caFilePlaceholder             = "caFilePlaceholder"
-	webConfigFilePlaceholder      = "webConfigPlaceholder"
 	// AgentStatusUnknown indicates we know nothing about agent because it is not connected.
 	AgentStatusUnknown = "UNKNOWN"
 )
@@ -70,9 +67,6 @@ const (
 
 // PMMServerAgentID is a special Agent ID representing pmm-agent on PMM Server.
 const PMMServerAgentID = string("pmm-server") // no /agent_id/ prefix
-
-// bcrypt hashing cost
-const passwordHashCost = 14
 
 // MySQLOptions represents structure for special MySQL options.
 type MySQLOptions struct {
@@ -571,10 +565,6 @@ func (s *Agent) IsMySQLTablestatsGroupEnabled() bool {
 // Files returns files map required to connect to DB.
 func (s Agent) Files() map[string]string {
 	switch s.AgentType {
-	case NodeExporterType:
-		return map[string]string{
-			webConfigFilePlaceholder: s.buildWebConfigFile(s.GetAgentPassword()),
-		}
 	case MySQLdExporterType, QANMySQLPerfSchemaAgentType, QANMySQLSlowlogAgentType:
 		if s.MySQLOptions != nil {
 			return map[string]string{
@@ -639,15 +629,6 @@ func (s Agent) TemplateDelimiters(svc *Service) *DelimiterPair {
 		templateParams...,
 	)
 	return &tdp
-}
-
-func (s *Agent) buildWebConfigFile(password string) string {
-	buf, err := bcrypt.GenerateFromPassword([]byte(password), passwordHashCost)
-	if err != nil {
-		log.Fatal(err, "cannot calculate hash for password")
-	}
-
-	return fmt.Sprintf("basic_auth_users:\n    pmm: %s\n", string(buf))
 }
 
 // check interfaces.
