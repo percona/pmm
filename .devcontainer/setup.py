@@ -77,29 +77,11 @@ def make_init():
 
 def setup():
     """Runs various setup commands."""
-
-    run_commands([
-        "supervisorctl stop pmm-managed",
-    ])
-
-    # FIXME Remove when https://jira.percona.com/browse/PMM-5197 is done.
-    # This is a hack, not a proper solution for this ticket.
-    with open("/tmp/setup.sql", "w") as f:
-        f.writelines([
-            # for run database
-            "UPDATE pg_database SET encoding = pg_char_to_encoding('UTF8'), datcollate = 'en_US.utf8', datctype = 'en_US.utf8' WHERE datname = 'pmm-managed';\n",
-            # for all future databases, including pmm-managed-dev
-            "UPDATE pg_database SET encoding = pg_char_to_encoding('UTF8'), datcollate = 'en_US.utf8', datctype = 'en_US.utf8' WHERE datname = 'template1';\n",
-        ])
     run_commands([
         # allow connecting from any host, needed to connect from host to PG running in docker
         "sed -i -e \"s/#listen_addresses = \'localhost\'/listen_addresses = \'*\'/\" /srv/postgres/postgresql.conf",
         "echo 'host    all         all     0.0.0.0/0     trust' >> /srv/postgres/pg_hba.conf",
         "supervisorctl restart postgresql",
-
-        "psql --username=postgres --file=/tmp/setup.sql",
-        "psql --username=postgres -l",
-        "supervisorctl start pmm-managed",
     ])
 
 
