@@ -162,11 +162,28 @@ run_root() {
 }
 
 #######################################
+# Check if MacOS 
+#######################################
+is_darwin() {
+   case "$(uname -s)" in
+     *darwin* | *Darwin* ) true ;;
+     * ) false;;
+   esac
+}
+
+#######################################
 # Installs docker if needed.
 #######################################
 install_docker() {
   printf "Checking docker installation"
   if ! check_command docker; then
+    if is_darwin; then
+      echo
+      echo "ERROR: Cannot auto-install components on macOS"
+      echo "Please get Docker Desktop from https://www.docker.com/products/docker-desktop and rerun installer after starting"
+      echo
+      exit 1
+    fi
     printf " - not installed. Installing...\n\n"
     curl -fsSL get.docker.com -o /tmp/get-docker.sh ||
       wget -qO /tmp/get-docker.sh get.docker.com
@@ -179,7 +196,13 @@ install_docker() {
   if ! docker ps 1>/dev/null; then
     root_is_needed='yes'
     if ! run_root 'docker ps > /dev/null'; then
-      die "${RED}ERROR: cannot run "docker ps" command${NOFORMAT}"
+      if is_darwin; then
+        run_root 'open --background -a Docker'
+        echo "Giving docker desktop time to start"
+        sleep 30
+      else
+        die "${RED}ERROR: cannot run "docker ps" command${NOFORMAT}"
+      fi
     fi
   fi
 }
@@ -239,7 +262,7 @@ show_message() {
 
   msg "You can access your new server using the one of following web addresses:"
   for ip in $ips; do
-    msg "\t${BLUE}https://$ip:$port/${NOFORMAT}"
+    msg "\t${GREEN}https://$ip:$port/${NOFORMAT}"
   done
   msg "\nThe default username is '${PURPLE}admin${NOFORMAT}' and the password is '${PURPLE}admin${NOFORMAT}' :)"
   msg "Note: Some browsers may not trust the default SSL certificate when you first open one of the urls above."
