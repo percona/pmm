@@ -1,0 +1,84 @@
+---
+- name: Create Postgres backup dir
+  file:
+    path: /srv/backup/postgres
+    state: directory
+    owner: postgres
+    group: postgres
+    mode: '0700'
+
+- name: Stop pmm-managed before changing encoding
+  command: supervisorctl stop pmm-managed
+  changed_when: True
+
+- name: Change encoding from SQL_ASCII to UTF-8
+  block:
+    - name: Disable connections to pmm-managed database
+      postgresql_query:
+        query: REVOKE CONNECT ON DATABASE "pmm-managed" FROM PUBLIC;
+
+    - name: Terminate all connections to pmm-managed
+      postgresql_query:
+        query: SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname='pmm-managed';
+
+    - name: Dump pmm-managed database
+      postgresql_db:
+        name: pmm-managed
+        state: dump
+        target: /srv/backup/postgres/pmm-managed.sql
+
+    - name: Disable template1 as template
+      postgresql_query:
+        query: UPDATE pg_database SET datistemplate = FALSE WHERE datname = 'template1';
+
+    - name: Remove template1
+      postgresql_db:
+        name: template1
+        state: absent
+
+    - name: Create new template1 database with UTF-8
+      postgresql_db:
+        encoding: UTF-8
+        lc_collate: en_US.UTF-8
+        lc_ctype: en_US.UTF-8
+        name: template1
+        state: present
+        template: template0
+
+    - name: Enable template1 as template
+      postgresql_query:
+        query: UPDATE pg_database SET datistemplate = FALSE WHERE datname = 'template1';
+
+    - name: Remove pmm-managed database
+      postgresql_db:
+        name: pmm-managed
+        state: absent
+
+    - name: Recreate pmm-managed database with UTF-8
+      postgresql_db:
+        encoding: UTF-8
+        lc_collate: en_US.UTF-8
+        lc_ctype: en_US.UTF-8
+        name: pmm-managed
+        state: present
+
+    - name: Restore pmm-managed database
+      postgresql_db:
+        encoding: UTF-8
+        lc_collate: en_US.UTF-8
+        lc_ctype: en_US.UTF-8
+        name: pmm-managed
+        state: restore
+        target: /srv/backup/postgres/pmm-managed.sql
+
+    - name: Return connections to pmm-managed database
+      postgresql_query:
+        query: GRANT CONNECT ON DATABASE "pmm-managed" TO PUBLIC;
+
+  become: true
+  become_user: postgres
+  become_method: su
+
+- name: Start pmm-managed
+  command: supervisorctl start pmm-managed
+  changed_when: True

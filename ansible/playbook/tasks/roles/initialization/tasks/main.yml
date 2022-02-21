@@ -1,5 +1,5 @@
 ---
-# This roles contains tasks executed during initialization PMM Server
+# This role contains tasks executed during initialization PMM Server
 - name: Get current version
   slurp:
     src: /srv/grafana/PERCONA_DASHBOARDS_VERSION
@@ -30,102 +30,59 @@
     msg: "Current version: {{ pmm_current_version }} Image Version: {{ pmm_image_version }}"
 
 - name: Checking if we need an update or not
-  meta: end_play
-  when: pmm_current_version is version(pmm_image_version, '>=')
+  include_role:
+    name: dashboards_upgrade
+  when: not pmm_current_version is version(pmm_image_version, '>=')
 
-- name: Check that old plugin dir exists
-  stat:
-    path: /var/lib/grafana/plugins/
-  register: old_plugin_dir_exist
-
-
-- name: Remove old dashboards from SQLite
-  block:
-  - name: Find custom plugin in old plugin dir
-    find:
-      paths: /var/lib/grafana/plugins
-      recurse: no
-      file_type: directory
-      excludes:
-        - '*-???????'
-        - pmm-app
-    register: custom_plugins
-
-  - name: Synchronization plugins (old version before 2.22.0)
-    synchronize:
-      src: "{{ item['path'] }}"
-      dest: "/srv/grafana/plugins/"
-    loop: "{{ custom_plugins['files'] }}"
-
-  - name: Find custom plugin in old plugin dir
-    find:
-      paths: /var/lib/grafana/plugins
-      recurse: no
-      file_type: directory
-      excludes:
-        - '*-???????'
-        - pmm-app
-
-  when: old_plugin_dir_exist.stat.exists
-
-- name: Get plugin list
-  register: plugin_list
-  find:
-    paths: /usr/share/percona-dashboards/panels/
-    depth: 2
-    file_type: directory
-
-- name: Delete existing dist folder
+- name: Create backup directory
   file:
-    path: "/srv/grafana/plugins/{{ item['path'].split('/')[-1] }}"
-    state: absent
-  loop: "{{ plugin_list['files'] }}"
+    path: /srv/backup
+    state: directory
 
-- name: Synchronization plugin
-  synchronize:
-    src: /usr/share/percona-dashboards/panels/
-    dest: /srv/grafana/plugins/
-  delegate_to: "{{ inventory_hostname }}"
+- name: Wait until postgres socket is present before continuing
+  wait_for:
+    path: /var/run/postgresql/.s.PGSQL.5432
 
-- name: Check that the SQLite grafana database exists
+- name: Get postgres encoding
+  postgresql_query:
+    db: pmm-managed
+    query: SHOW SERVER_ENCODING;
+  register: postgres_encoding
+  become: yes
+  become_user: postgres
+  become_method: su
+
+- debug:
+    var: postgres_encoding.query_result
+
+- name: Change encoding of pmm-managed database
+  include_role:
+    name: postgres-ascii-to-utf8
+  when: "'SQL_ASCII' == postgres_encoding.query_result[0].server_encoding"
+
+- name: Create grafana database
+  postgresql_db:
+    name: grafana
+    state: present
+
+- name: Create grafana user
+  postgresql_user:
+    db: grafana
+    name: grafana
+    password: grafana
+    priv: 'ALL'
+    expires: infinity
+    state: present
+  when: not ansible_check_mode
+
+- name: Check that SQLite database exists
   stat:
     path: /srv/grafana/grafana.db
-  register: sqlite_grafana
+  register: database_exists
 
-- name: Remove old dashboards from SQLite
-  block:
-  - name: Restart grafana before delete data
-    supervisorctl:
-      name: grafana
-      state: stopped
-  - name: Remove old DBaaS dashboard (Before provisioning times)
-    command: sqlite3 /srv/grafana/grafana.db -cmd ".timeout 60000" "DELETE FROM dashboard WHERE title = 'DBaaS' AND slug = 'dbaas';"
-    changed_when: True
-
-  - name: Remove old PMM Inventory (Before provisioning times)
-    command: sqlite3 /srv/grafana/grafana.db -cmd ".timeout 60000" "DELETE FROM dashboard WHERE title = 'PMM Inventory' AND slug = 'pmm-inventory';"
-    changed_when: True
-
-  - name: Remove old PMM Add Instance dashboard (Before provisioning times)
-    command: sqlite3 /srv/grafana/grafana.db -cmd ".timeout 60000" "DELETE FROM dashboard WHERE title = 'PMM Add Instance' AND slug = 'pmm-add-instance';"
-    changed_when: True
-
-  - name: Remove old PMM Database Checks dashboard (Before provisioning times)
-    command: sqlite3 /srv/grafana/grafana.db -cmd ".timeout 60000" "DELETE FROM dashboard WHERE title = 'PMM Database Checks' AND slug = 'pmm-database-checks';"
-    changed_when: True
-
-  - name: Remove old PMM Settings dashboard (Before provisioning times)
-    command: sqlite3 /srv/grafana/grafana.db -cmd ".timeout 60000" "DELETE FROM dashboard WHERE title = 'PMM Settings' AND slug = 'pmm-settings';"
-    changed_when: True
-  when: sqlite_grafana.stat.exists
-
-- name: Restart grafana with new plugins
-  supervisorctl:
-    name: grafana
-    state: restarted
-
-- name: Copy file with image version
-  copy:
-    src: /usr/share/percona-dashboards/VERSION
-    dest: /srv/grafana/PERCONA_DASHBOARDS_VERSION
-    remote_src: yes
+- name: Migrate Grafana database from SQLite to Postgresql
+  include_role:
+    name: sqlite-to-postgres
+  when: database_exists.stat.exists
+  tags:
+    - skip_ansible_lint # '503 Tasks that run when changed should likely be handlers'.

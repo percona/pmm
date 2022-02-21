@@ -8,8 +8,8 @@
       - percona-victoriametrics
       - percona-qan-api2
       - percona-alertmanager
-      - pmm-server
       - pmm-managed
+      - pmm-server
       - pmm-update
       - dbaas-controller
       - dbaas-tools
@@ -45,31 +45,15 @@
           - percona-grafana
         state: latest
 
-    - name: Upgrade grafana database (New schema)
-      command: grafana-cli --homepath=/usr/share/grafana admin data-migration encrypt-datasource-passwords
-      changed_when: True
+    - name: Install grafana-migrate
+      yum:
+        name: "grafana-db-migrator"
+        state: latest
+      ignore_errors: yes # TODO DELETE BEFORE RELEASE
 
-    - name: Create provisioning directory
-      file:
-        path: "/usr/share/grafana/conf/provisioning/{{ item }}"
-        owner: grafana
-        group: grafana
-        state: directory
-      loop:
-        - datasources
-        - plugins
-        - dashboards
-
-    - name: Copy grafana provisioning files
-      copy:
-        src: "{{ item }}.yml"
-        dest: "/usr/share/grafana/conf/provisioning/{{ item }}/default.yml"
-        owner: grafana
-        group: grafana
-      loop:
-        - datasources
-        - plugins
-        - dashboards
+    - name: Create grafana config
+      include_role:
+        name: grafana
 
     # Start the services
     - name: Supervisord start        | Start supervisord service for AMI/OVF
@@ -125,7 +109,6 @@
     - name: Check reread results
       debug: var=reread_result.stdout_lines
 
-
     # see https://jira.percona.com/browse/PMM-8492 for details about a issue
     - name: Delete experimental repo file in 2.16 version
       file:
@@ -141,8 +124,6 @@
       tags:
         - skip_ansible_lint # '503 Tasks that run when changed should likely be handlers'.
                             # The handler looks bad in this case
-
-
 
     # Split download and update to produce a bit more of progress output.
     - name: Download pmm2 packages
@@ -228,59 +209,14 @@
         regexp: "set -o errexit"
         replace: ""
 
-    - name: Set home dashboard for Grafana
-      ini_file:
-        dest: /etc/grafana/grafana.ini
-        section: dashboards
-        option: default_home_dashboard_path
-        value: /usr/share/percona-dashboards/panels/pmm-app/dist/dashboards/Insight/Home_Dashboard.json
-
-    - name: Set home route for Grafana
-      ini_file:
-        dest: /etc/grafana/grafana.ini
-        section: users
-        option: home_page
-        value: d/pmm-home/home-dashboard
-
-    - name: Enable external snapshots in Grafana
-      ini_file:
-        dest: /etc/grafana/grafana.ini
-        section: snapshots
-        option: external_enabled
-        value: "true"
-
-    - name: Set snapshot server URL in Grafana
-      ini_file:
-        dest: /etc/grafana/grafana.ini
-        section: snapshots
-        option: external_snapshot_url
-        value: https://snapshots-g710.percona.com
-
-    - name: Set name for snapshot server in Grafana
-      ini_file:
-        dest: /etc/grafana/grafana.ini
-        section: snapshots
-        option: external_snapshot_name
-        value: Share with Percona
-
-    - name: Set Grafana folder for plugins on /srv partition
-      ini_file:
-        dest: /etc/grafana/grafana.ini
-        section: paths
-        option: plugins
-        value: /srv/grafana/plugins
-
-    - name: Set Grafana folder for plugins on /srv partition for all users
-      lineinfile:
-        path: /etc/bashrc
-        line: 'export GF_PLUGIN_DIR=/srv/grafana/plugins'
-
-    - name: Add ClickHouse datasource to the list of unsigned plugins in Grafana
-      ini_file:
-        dest: /etc/grafana/grafana.ini
-        section: plugins
-        option: allow_loading_unsigned_plugins
-        value: vertamedia-clickhouse-datasource
+    - name: Fix grafana fields type
+      postgresql_query:
+        db: grafana
+        query: "{{ item }}"
+      loop:
+        - ALTER TABLE tag ALTER COLUMN key TYPE text;
+        - ALTER TABLE tag ALTER COLUMN value TYPE text;
+      when: not ansible_check_mode
 
 
 
