@@ -186,7 +186,7 @@ func addVMAgentTargets(ctx context.Context, zipW *zip.Writer, agentsInfo []*agen
 
 	for _, agent := range agentsInfo {
 		if pointer.GetString(agent.AgentType) == types.AgentTypeVMAgent {
-			b, err := getURL(ctx, fmt.Sprintf("http://127.0.0.1:%d/api/v1/targets", agent.ListenPort))
+			b, err := getURL(ctx, fmt.Sprintf("http://%s:%d/api/v1/targets", agentlocal.Localhost, agent.ListenPort))
 			if err != nil {
 				logrus.Debugf("%s", err)
 				b = []byte(err.Error())
@@ -244,11 +244,11 @@ func addPprofData(ctx context.Context, zipW *zip.Writer, skipServer bool) {
 	}
 
 	sources := map[string]string{
-		"client/pprof/pmm-agent": "http://127.0.0.1:7777/debug/pprof",
+		"client/pprof/pmm-agent": fmt.Sprintf("http://%s:%d/debug/pprof", agentlocal.Localhost, GlobalFlags.PMMAgentListenPort),
 	}
 	if !skipServer {
-		sources["server/pprof/pmm-managed"] = "http://127.0.0.1:7773/debug/pprof"
-		sources["server/pprof/qan-api2"] = "http://127.0.0.1:9933/debug/pprof"
+		sources["server/pprof/pmm-managed"] = fmt.Sprintf("http://%s:7773/debug/pprof", agentlocal.Localhost)
+		sources["server/pprof/qan-api2"] = fmt.Sprintf("http://%s:9933/debug/pprof", agentlocal.Localhost)
 	}
 
 	for _, p := range profiles {

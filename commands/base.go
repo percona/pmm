@@ -111,10 +111,11 @@ func RenderTemplate(t *template.Template, data interface{}) string {
 }
 
 type globalFlagsValues struct {
-	ServerURL         *url.URL
-	ServerInsecureTLS bool
-	Debug             bool
-	Trace             bool
+	ServerURL          *url.URL
+	ServerInsecureTLS  bool
+	Debug              bool
+	Trace              bool
+	PMMAgentListenPort uint32
 }
 
 // GlobalFlags contains pmm-admin core flags values.
@@ -186,8 +187,6 @@ func (e errFromNginx) GoString() string {
 
 // SetupClients configures local and PMM Server API clients.
 func SetupClients(ctx context.Context, serverURL string) {
-	agentlocal.SetTransport(ctx, GlobalFlags.Debug || GlobalFlags.Trace)
-
 	if serverURL == "" {
 		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
 		if err != nil {
