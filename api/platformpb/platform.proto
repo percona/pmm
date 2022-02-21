@@ -7,6 +7,7 @@ option go_package = "api/platformpb;platformpb";
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
 
 message ConnectRequest {
   // User defined human readable PMM Server Name.
@@ -64,6 +65,47 @@ message OrganizationTicket {
   string url = 9;
 }
 
+message SearchOrganizationEntitlementsRequest {}
+
+message SearchOrganizationEntitlementsResponse {
+  repeated OrganizationEntitlement entitlements = 1;
+}
+
+// OrganizationEntitlement contains information about Organization entitlement.
+message OrganizationEntitlement {
+  // Platform indicates platform specific entitlements.
+  message Platform {
+    // Flag indicates that security advisors are covered by this entitlement.
+    google.protobuf.StringValue security_advisor = 1;
+    // Flag indicates that config advisors are covered by this entitlement.
+    google.protobuf.StringValue config_advisor = 2;
+  }
+  // Entitlement number.
+  string number = 1;
+  // Entitlement name.
+  string name = 2;
+  // Entitlement short summary.
+  string summary = 3;
+  // Entitlement tier.
+  google.protobuf.StringValue tier = 4;
+  // Total units covered by this entitlement.
+  google.protobuf.StringValue total_units = 5;
+  // Flag indicates that unlimited units are covered.
+  google.protobuf.BoolValue unlimited_units = 6;
+  // Support level covered by this entitlement.
+  google.protobuf.StringValue support_level = 7;
+  // Percona product families covered by this entitlement.
+  repeated string software_families = 8;
+  // Entitlement start data.
+  // Note: only date is used here but not time.
+  google.protobuf.Timestamp start_date = 9;
+  // Entitlement end date.
+  // Note: only date is used here but not time.
+  google.protobuf.Timestamp end_date = 10;
+  // Platform specific options covered by this entitlement.
+  Platform platform = 11;
+}
+
 // Platform contains rpcs related to Percona Platform.
 service Platform {
   // Connect a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.
@@ -84,6 +126,13 @@ service Platform {
   rpc SearchOrganizationTickets(SearchOrganizationTicketsRequest) returns (SearchOrganizationTicketsResponse) {
     option (google.api.http) = {
       post: "/v1/Platform/SearchOrganizationTickets"
+      body: "*"
+    };
+  }
+  // SearchOrganizationEntitlements fetches details of organization's entitlements for the given organization ID.
+  rpc SearchOrganizationEntitlements(SearchOrganizationEntitlementsRequest) returns (SearchOrganizationEntitlementsResponse) {
+    option (google.api.http) = {
+      post: "/v1/Platform/SearchOrganizationEntitlements"
       body: "*"
     };
   }

@@ -29,6 +29,8 @@ type ClientService interface {
 
 	Disconnect(params *DisconnectParams) (*DisconnectOK, error)
 
+	SearchOrganizationEntitlements(params *SearchOrganizationEntitlementsParams) (*SearchOrganizationEntitlementsOK, error)
+
 	SearchOrganizationTickets(params *SearchOrganizationTicketsParams) (*SearchOrganizationTicketsOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
@@ -97,6 +99,39 @@ func (a *Client) Disconnect(params *DisconnectParams) (*DisconnectOK, error) {
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*DisconnectDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  SearchOrganizationEntitlements searches organization entitlements fetches details of organization s entitlements for the given organization ID
+*/
+func (a *Client) SearchOrganizationEntitlements(params *SearchOrganizationEntitlementsParams) (*SearchOrganizationEntitlementsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewSearchOrganizationEntitlementsParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "SearchOrganizationEntitlements",
+		Method:             "POST",
+		PathPattern:        "/v1/Platform/SearchOrganizationEntitlements",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &SearchOrganizationEntitlementsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*SearchOrganizationEntitlementsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*SearchOrganizationEntitlementsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

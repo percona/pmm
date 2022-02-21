@@ -2253,6 +2253,156 @@
         }
       }
     },
+    "/v1/Platform/SearchOrganizationEntitlements": {
+      "post": {
+        "tags": [
+          "Platform"
+        ],
+        "summary": "SearchOrganizationEntitlements fetches details of organization's entitlements for the given organization ID.",
+        "operationId": "SearchOrganizationEntitlements",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "entitlements": {
+                  "type": "array",
+                  "items": {
+                    "description": "OrganizationEntitlement contains information about Organization entitlement.",
+                    "type": "object",
+                    "properties": {
+                      "number": {
+                        "description": "Entitlement number.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "name": {
+                        "description": "Entitlement name.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "summary": {
+                        "description": "Entitlement short summary.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "tier": {
+                        "description": "Entitlement tier.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "total_units": {
+                        "description": "Total units covered by this entitlement.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "unlimited_units": {
+                        "description": "Flag indicates that unlimited units are covered.",
+                        "type": "boolean",
+                        "x-order": 5
+                      },
+                      "support_level": {
+                        "description": "Support level covered by this entitlement.",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "software_families": {
+                        "description": "Percona product families covered by this entitlement.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 7
+                      },
+                      "start_date": {
+                        "description": "Entitlement start data.\nNote: only date is used here but not time.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 8
+                      },
+                      "end_date": {
+                        "description": "Entitlement end date.\nNote: only date is used here but not time.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 9
+                      },
+                      "platform": {
+                        "description": "Platform indicates platform specific entitlements.",
+                        "type": "object",
+                        "properties": {
+                          "security_advisor": {
+                            "description": "Flag indicates that security advisors are covered by this entitlement.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "config_advisor": {
+                            "description": "Flag indicates that config advisors are covered by this entitlement.",
+                            "type": "string",
+                            "x-order": 1
+                          }
+                        },
+                        "x-order": 10
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/Platform/SearchOrganizationTickets": {
       "post": {
         "tags": [
