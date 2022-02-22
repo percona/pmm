@@ -93,77 +93,12 @@ alias kubectl='minikube kubectl --'
 
 ### Amazon AWS EKS
 
-1. Create your cluster via `eksctl` or the Amazon AWS interface. For example:
+1. Create your cluster via [eksctl](https://github.com/weaveworks/eksctl#installation) or the Amazon AWS interface. For example:
 
     ```sh
     eksctl create cluster --write-kubeconfig --name=your-cluster-name --zones=us-west-2a,us-west-2b --kubeconfig <PATH_TO_KUBECONFIG>
     ```
-
-2. When the cluster is running, modify your kubeconfig file, if it's not utilizing the `aws-iam-authenticator` or `client-certificate` method for authentication with Kubernetes. Here are two examples that you can use as templates to modify a copy of your existing kubeconfig:
-
-    - For the `aws-iam-authenticator` method:
-
-        ```yml
-        ---
-        apiVersion: v1
-        clusters:
-        - cluster:
-            certificate-authority-data: << CERT_AUTH_DATA >>
-            server: << K8S_CLUSTER_URL >>
-          name: << K8S_CLUSTER_NAME >>
-        contexts:
-        - context:
-            cluster: << K8S_CLUSTER_NAME >>
-            user: << K8S_CLUSTER_USER >>
-          name: << K8S_CLUSTER_NAME >>
-        current-context: << K8S_CLUSTER_NAME >>
-        kind: Config
-        preferences: {}
-        users:
-        - name: << K8S_CLUSTER_USER >>
-          user:
-            exec:
-              apiVersion: client.authentication.k8s.io/v1alpha1
-              command: aws-iam-authenticator
-              args:
-                - "token"
-                - "-i"
-                - "<< K8S_CLUSTER_NAME >>"
-                - --region
-                - << AWS_REGION >>
-              env:
-                 - name: AWS_ACCESS_KEY_ID
-                   value: "<< AWS_ACCESS_KEY_ID >>"
-                 - name: AWS_SECRET_ACCESS_KEY
-                   value: "<< AWS_SECRET_ACCESS_KEY >>"
-        ```
-
-    - For the `client-certificate` method:
-
-        ```yml
-        ---
-        apiVersion: v1
-        clusters:
-        - cluster:
-            certificate-authority-data: << CERT_AUTH_DATA >>
-            server: << K8S_CLUSTER_URL >>
-          name: << K8S_CLUSTER_NAME >>
-        contexts:
-        - context:
-            cluster: << K8S_CLUSTER_NAME >>
-            user: << K8S_CLUSTER_USER >>
-          name: << K8S_CLUSTER_NAME >>
-        current-context: << K8S_CLUSTER_NAME >>
-        kind: Config
-        preferences: {}
-        users:
-        - name: << K8S_CLUSTER_NAME >>
-          user:
-            client-certificate-data: << CLIENT_CERT_DATA >>
-            client-key-data: << CLIENT_KEY_DATA >>
-        ```
-
-3. Follow the instructions on [How to add a Kubernetes cluster](../../using/dbaas.md#add-a-kubernetes-cluster) with kubeconfig from the previous step.
+2. Follow the instructions on [How to add a Kubernetes cluster](../../using/dbaas.md#add-a-kubernetes-cluster) with kubeconfig from the previous step.
 
     !!! note alert alert-primary ""
         If possible, the connection details will show the cluster's external IP (not possible with minikube).
