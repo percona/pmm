@@ -2,8 +2,14 @@ syntax = "proto3";
 
 package platform;
 
+option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
+  info: {
+    title: "Platform API"
+  }
+};
 option go_package = "api/platformpb;platformpb";
 
+import "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options/annotations.proto";
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
@@ -114,12 +120,20 @@ service Platform {
       post: "/v1/Platform/Connect"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      summary: "Connect"
+      description: "Connect a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account."
+    };
   }
   // Disconnect a PMM server from the organization created on Percona Portal.
   rpc Disconnect(DisconnectRequest) returns (DisconnectResponse) {
     option (google.api.http) = {
       post: "/v1/Platform/Disconnect"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      summary: "Disconnect"
+      description: "Disconnect a PMM server from the organization created on Percona Portal."
     };
   }
   // SearchOrganizationTickets searches support tickets belonging to the Percona Portal Organization that the PMM server is connected to.
@@ -128,12 +142,20 @@ service Platform {
       post: "/v1/Platform/SearchOrganizationTickets"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      summary: "SearchOrganizationTickets"
+      description: "SearchOrganizationTickets searches support tickets belonging to the Percona Portal Organization that the PMM server is connected to."
+    };
   }
-  // SearchOrganizationEntitlements fetches details of organization's entitlements for the given organization ID.
+  // SearchOrganizationEntitlements fetches details of the entitlement's available to the Portal organization that the PMM server is connected to.
   rpc SearchOrganizationEntitlements(SearchOrganizationEntitlementsRequest) returns (SearchOrganizationEntitlementsResponse) {
     option (google.api.http) = {
       post: "/v1/Platform/SearchOrganizationEntitlements"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      summary: "SearchOrganizationEntitlements"
+      description: "SearchOrganizationEntitlements fetches details of the entitlement's available to the Portal organization that the PMM server is connected to."
     };
   }
 }

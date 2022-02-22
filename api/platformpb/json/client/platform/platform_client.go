@@ -37,7 +37,9 @@ type ClientService interface {
 }
 
 /*
-  Connect connects a PMM server to the organization created on percona portal that allows the user to sign in to the PMM server with their percona account
+  Connect connects
+
+  Connect a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.
 */
 func (a *Client) Connect(params *ConnectParams) (*ConnectOK, error) {
 	// TODO: Validate the params before sending
@@ -70,7 +72,9 @@ func (a *Client) Connect(params *ConnectParams) (*ConnectOK, error) {
 }
 
 /*
-  Disconnect disconnects a PMM server from the organization created on percona portal
+  Disconnect disconnects
+
+  Disconnect a PMM server from the organization created on Percona Portal.
 */
 func (a *Client) Disconnect(params *DisconnectParams) (*DisconnectOK, error) {
 	// TODO: Validate the params before sending
@@ -103,7 +107,9 @@ func (a *Client) Disconnect(params *DisconnectParams) (*DisconnectOK, error) {
 }
 
 /*
-  SearchOrganizationEntitlements searches organization entitlements fetches details of organization s entitlements for the given organization ID
+  SearchOrganizationEntitlements searches organization entitlements
+
+  SearchOrganizationEntitlements fetches details of the entitlement's available to the Portal organization that the PMM server is connected to.
 */
 func (a *Client) SearchOrganizationEntitlements(params *SearchOrganizationEntitlementsParams) (*SearchOrganizationEntitlementsOK, error) {
 	// TODO: Validate the params before sending
@@ -136,7 +142,9 @@ func (a *Client) SearchOrganizationEntitlements(params *SearchOrganizationEntitl
 }
 
 /*
-  SearchOrganizationTickets searches organization tickets searches support tickets belonging to the percona portal organization that the PMM server is connected to
+  SearchOrganizationTickets searches organization tickets
+
+  SearchOrganizationTickets searches support tickets belonging to the Percona Portal Organization that the PMM server is connected to.
 */
 func (a *Client) SearchOrganizationTickets(params *SearchOrganizationTicketsParams) (*SearchOrganizationTicketsOK, error) {
 	// TODO: Validate the params before sending
