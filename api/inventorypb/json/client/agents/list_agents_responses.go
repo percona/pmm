@@ -161,6 +161,9 @@ type AzureDatabaseExporterItems0 struct {
 
 	// True if the exporter operates in push metrics mode.
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+
+	// Path to exec process
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this azure database exporter items0
@@ -287,6 +290,9 @@ type ExternalExporterItems0 struct {
 
 	// True if exporter uses push metrics mode.
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+
+	// Path to exec process
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this external exporter items0
@@ -1098,6 +1104,9 @@ type MongodbExporterItems0 struct {
 
 	// Enable All collectors.
 	EnableAllCollectors bool `json:"enable_all_collectors,omitempty"`
+
+	// Path to exec process
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this mongodb exporter items0
@@ -1255,6 +1264,9 @@ type MysqldExporterItems0 struct {
 
 	// True if tablestats group collectors are currently disabled.
 	TablestatsGroupDisabled bool `json:"tablestats_group_disabled,omitempty"`
+
+	// Path to exec process
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this mysqld exporter items0
@@ -1383,6 +1395,9 @@ type NodeExporterItems0 struct {
 
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Path to exec process
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this node exporter items0
@@ -1491,6 +1506,9 @@ type PMMAgentItems0 struct {
 
 	// True if Agent is running and connected to pmm-managed.
 	Connected bool `json:"connected,omitempty"`
+
+	// Path to exec process
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this PMM agent items0
@@ -1564,6 +1582,9 @@ type PostgresExporterItems0 struct {
 
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Path to exec process
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this postgres exporter items0
@@ -1704,6 +1725,9 @@ type ProxysqlExporterItems0 struct {
 
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Path to exec process
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this proxysql exporter items0
@@ -1835,6 +1859,9 @@ type QANMongodbProfilerAgentItems0 struct {
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
+
+	// Path to exec process
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this QAN mongodb profiler agent items0
@@ -1978,6 +2005,9 @@ type QANMysqlPerfschemaAgentItems0 struct {
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
+
+	// Path to exec process
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this QAN mysql perfschema agent items0
@@ -2124,6 +2154,9 @@ type QANMysqlSlowlogAgentItems0 struct {
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
+
+	// Path to exec process
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this QAN mysql slowlog agent items0
@@ -2255,6 +2288,9 @@ type QANPostgresqlPgstatementsAgentItems0 struct {
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
+
+	// Path to exec process
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this QAN postgresql pgstatements agent items0
@@ -2389,6 +2425,9 @@ type QANPostgresqlPgstatmonitorAgentItems0 struct {
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
+
+	// Path to exec process
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this QAN postgresql pgstatmonitor agent items0
@@ -2526,6 +2565,9 @@ type RDSExporterItems0 struct {
 
 	// True if exporter uses push metrics mode.
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+
+	// Path to exec process
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this RDS exporter items0
@@ -2641,6 +2683,9 @@ type VMAgentItems0 struct {
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
+
+	// Path to exec process
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this VM agent items0

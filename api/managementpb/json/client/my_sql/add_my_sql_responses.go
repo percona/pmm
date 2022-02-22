@@ -597,6 +597,9 @@ type AddMySQLOKBodyMysqldExporter struct {
 
 	// True if tablestats group collectors are currently disabled.
 	TablestatsGroupDisabled bool `json:"tablestats_group_disabled,omitempty"`
+
+	// Path to exec process
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this add my SQL OK body mysqld exporter
@@ -740,6 +743,9 @@ type AddMySQLOKBodyQANMysqlPerfschema struct {
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
+
+	// Path to exec process
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this add my SQL OK body QAN mysql perfschema
@@ -886,6 +892,9 @@ type AddMySQLOKBodyQANMysqlSlowlog struct {
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
+
+	// Path to exec process
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this add my SQL OK body QAN mysql slowlog

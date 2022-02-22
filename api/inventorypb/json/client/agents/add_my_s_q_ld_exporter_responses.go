@@ -397,6 +397,9 @@ type AddMySQLdExporterOKBodyMysqldExporter struct {
 
 	// True if tablestats group collectors are currently disabled.
 	TablestatsGroupDisabled bool `json:"tablestats_group_disabled,omitempty"`
+
+	// Path to exec process
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this add my s q ld exporter OK body mysqld exporter
