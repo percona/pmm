@@ -218,8 +218,6 @@
         - ALTER TABLE tag ALTER COLUMN value TYPE text;
       when: not ansible_check_mode
 
-
-
     # TODO: Create /srv/alertmanager/data and /srv/victoriametrics/data in pmm-managed
     # to support Docker-way (swap image) updates.
     # https://jira.percona.com/browse/PMM-7024
