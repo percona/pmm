@@ -29,13 +29,17 @@ type ClientService interface {
 
 	Disconnect(params *DisconnectParams) (*DisconnectOK, error)
 
+	SearchOrganizationEntitlements(params *SearchOrganizationEntitlementsParams) (*SearchOrganizationEntitlementsOK, error)
+
 	SearchOrganizationTickets(params *SearchOrganizationTicketsParams) (*SearchOrganizationTicketsOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  Connect connects a PMM server to the organization created on percona portal that allows the user to sign in to the PMM server with their percona account
+  Connect connects
+
+  Connect a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.
 */
 func (a *Client) Connect(params *ConnectParams) (*ConnectOK, error) {
 	// TODO: Validate the params before sending
@@ -68,7 +72,9 @@ func (a *Client) Connect(params *ConnectParams) (*ConnectOK, error) {
 }
 
 /*
-  Disconnect disconnects a PMM server from the organization created on percona portal
+  Disconnect disconnects
+
+  Disconnect a PMM server from the organization created on Percona Portal.
 */
 func (a *Client) Disconnect(params *DisconnectParams) (*DisconnectOK, error) {
 	// TODO: Validate the params before sending
@@ -101,7 +107,44 @@ func (a *Client) Disconnect(params *DisconnectParams) (*DisconnectOK, error) {
 }
 
 /*
-  SearchOrganizationTickets searches organization tickets searches support tickets belonging to the percona portal organization that the PMM server is connected to
+  SearchOrganizationEntitlements searches organization entitlements
+
+  SearchOrganizationEntitlements fetches details of the entitlement's available to the Portal organization that the PMM server is connected to.
+*/
+func (a *Client) SearchOrganizationEntitlements(params *SearchOrganizationEntitlementsParams) (*SearchOrganizationEntitlementsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewSearchOrganizationEntitlementsParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "SearchOrganizationEntitlements",
+		Method:             "POST",
+		PathPattern:        "/v1/Platform/SearchOrganizationEntitlements",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &SearchOrganizationEntitlementsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*SearchOrganizationEntitlementsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*SearchOrganizationEntitlementsDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  SearchOrganizationTickets searches organization tickets
+
+  SearchOrganizationTickets searches support tickets belonging to the Percona Portal Organization that the PMM server is connected to.
 */
 func (a *Client) SearchOrganizationTickets(params *SearchOrganizationTicketsParams) (*SearchOrganizationTicketsOK, error) {
 	// TODO: Validate the params before sending
