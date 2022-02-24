@@ -59,7 +59,7 @@ func TestClient(t *testing.T) {
 			clientError, _ := errors.Cause(err).(*clientError)
 			require.NotNil(t, clientError, "got role %s", role)
 			assert.Equal(t, 401, clientError.Code)
-			assert.Equal(t, `{"message":"Unauthorized"}`, clientError.Body)
+			assert.Equal(t, "{\n  \"message\": \"Unauthorized\"\n}\n", clientError.Body)
 			assert.Equal(t, `Unauthorized`, clientError.ErrorMessage)
 			assert.Equal(t, none, role)
 			assert.Equal(t, "None", role.String())
@@ -202,7 +202,7 @@ func TestClient(t *testing.T) {
 			authorization := req.Header.Get("Authorization")
 			_, err = c.CreateAnnotation(ctx, nil, time.Now(), "", authorization)
 			require.EqualError(t, err, "failed to create annotation: clientError: "+
-				"POST http://127.0.0.1:3000/api/annotations -> 401 {\"message\":\"invalid username or password\"}")
+				"POST http://127.0.0.1:3000/api/annotations -> 401 {\n  \"message\": \"invalid username or password\"\n}\n")
 		})
 	})
 
