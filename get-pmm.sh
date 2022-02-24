@@ -266,9 +266,10 @@ show_message() {
     msg "\t${GREEN}https://$ip:$port/${NOFORMAT}"
   done
   msg "\nThe default username is '${LIGHTBLUE}admin${NOFORMAT}' and the password is '${LIGHTBLUE}admin${NOFORMAT}' :)"
-  msg "'${YELLOW}Note:${NOFORMAT}' Chrome will not trust the default SSL certificate when you first open one of the urls above."
-  msg "If you encounter the 'Your connection is not private' message and clicking 'Advanced' does not reveal a 'Proceed anyway' option,"
-  msg "You can type '${ORANGE}thisisunsafe${NOFORMAT}' (just type it, there's no box to type it in) to bypass the warning.\n"
+  msg "\n${YELLOW}Note:${NOFORMAT} Chrome will not trust the default SSL certificate when you first open one of the urls above."
+  msg "If you encounter the 'Your connection is not private' message and clicking 'Advanced' does not reveal a 'Proceed anyway' option, "
+  msg "click anywhere on the open browser tab and type '${ORANGE}thisisunsafe${NOFORMAT}', even though no text field appears " 
+  msg "to bypass the warning.\n"
 }
 
 main() {
