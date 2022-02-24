@@ -64,8 +64,9 @@ setup_colors() {
   if [[ -t 2 ]] && [[ -z "${NO_COLOR-}" ]] && [[ "${TERM-}" != "dumb" ]]; then
     NOFORMAT='\033[0m' RED='\033[0;31m' GREEN='\033[0;32m' ORANGE='\033[0;33m'
     BLUE='\033[0;34m' PURPLE='\033[0;35m' CYAN='\033[0;36m' YELLOW='\033[1;33m'
+    LIGHTBLUE='\033[1;34m' WHITE='\033[1;37m'
   else
-    NOFORMAT='' RED='' GREEN='' ORANGE='' BLUE='' PURPLE='' CYAN='' YELLOW=''
+    NOFORMAT='' RED='' GREEN='' ORANGE='' BLUE='' PURPLE='' CYAN='' YELLOW='' LIGHTBLUE='' WHITE=''
   fi
 }
 
@@ -264,9 +265,10 @@ show_message() {
   for ip in $ips; do
     msg "\t${GREEN}https://$ip:$port/${NOFORMAT}"
   done
-  msg "\nThe default username is '${PURPLE}admin${NOFORMAT}' and the password is '${PURPLE}admin${NOFORMAT}' :)"
-  msg "Note: Some browsers may not trust the default SSL certificate when you first open one of the urls above."
-  msg "If this is the case, Chrome users may want to type '${PURPLE}thisisunsafe${NOFORMAT}' to bypass the warning.\n"
+  msg "\nThe default username is '${LIGHTBLUE}admin${NOFORMAT}' and the password is '${LIGHTBLUE}admin${NOFORMAT}' :)"
+  msg "'${YELLOW}Note:${NOFORMAT}' Chrome will not trust the default SSL certificate when you first open one of the urls above."
+  msg "If you encounter the 'Your connection is not private' message and clicking 'Advanced' does not reveal a 'Proceed anyway' option,"
+  msg "You can type '${ORANGE}thisisunsafe${NOFORMAT}' (just type it, there's no box to type it in) to bypass the warning.\n"
 }
 
 main() {
