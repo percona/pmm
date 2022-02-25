@@ -17,10 +17,11 @@
   "paths": {
     "/v1/management/Actions/Cancel": {
       "post": {
+        "description": "Stops an Action.",
         "tags": [
           "Actions"
         ],
-        "summary": "CancelAction stops an Action.",
+        "summary": "Cancel Action",
         "operationId": "CancelAction",
         "parameters": [
           {
@@ -93,10 +94,11 @@
     },
     "/v1/management/Actions/Get": {
       "post": {
+        "description": "Gets an result of given Action.",
         "tags": [
           "Actions"
         ],
-        "summary": "GetAction gets an result of given Action.",
+        "summary": "Get Action",
         "operationId": "GetAction",
         "parameters": [
           {
@@ -196,10 +198,11 @@
     },
     "/v1/management/Actions/StartMongoDBExplain": {
       "post": {
+        "description": "Starts MongoDB EXPLAIN Action.",
         "tags": [
           "Actions"
         ],
-        "summary": "StartMongoDBExplainAction starts MongoDB EXPLAIN Action.",
+        "summary": "Start MongoDBExplain Action",
         "operationId": "StartMongoDBExplainAction",
         "parameters": [
           {
@@ -294,10 +297,11 @@
     },
     "/v1/management/Actions/StartMySQLExplain": {
       "post": {
+        "description": "Starts MySQL EXPLAIN Action with traditional output.",
         "tags": [
           "Actions"
         ],
-        "summary": "StartMySQLExplainAction starts MySQL EXPLAIN Action with traditional output.",
+        "summary": "Start MySQL Explain Action",
         "operationId": "StartMySQLExplainAction",
         "parameters": [
           {
@@ -397,10 +401,11 @@
     },
     "/v1/management/Actions/StartMySQLExplainJSON": {
       "post": {
+        "description": "Starts MySQL EXPLAIN Action with JSON output.",
         "tags": [
           "Actions"
         ],
-        "summary": "StartMySQLExplainJSONAction starts MySQL EXPLAIN Action with JSON output.",
+        "summary": "Start MySQLExplainJSON Action",
         "operationId": "StartMySQLExplainJSONAction",
         "parameters": [
           {
@@ -500,10 +505,11 @@
     },
     "/v1/management/Actions/StartMySQLExplainTraditionalJSON": {
       "post": {
+        "description": "Starts MySQL EXPLAIN Action with traditional JSON output.",
         "tags": [
           "Actions"
         ],
-        "summary": "StartMySQLExplainTraditionalJSONAction starts MySQL EXPLAIN Action with traditional JSON output.",
+        "summary": "Start MySQL Explain Traditional JSON Action",
         "operationId": "StartMySQLExplainTraditionalJSONAction",
         "parameters": [
           {
@@ -603,10 +609,11 @@
     },
     "/v1/management/Actions/StartMySQLShowCreateTable": {
       "post": {
+        "description": "Starts MySQL SHOW CREATE TABLE Action.",
         "tags": [
           "Actions"
         ],
-        "summary": "StartMySQLShowCreateTableAction starts MySQL SHOW CREATE TABLE Action.",
+        "summary": "Start MySQLShowCreateTable Action",
         "operationId": "StartMySQLShowCreateTableAction",
         "parameters": [
           {
@@ -706,10 +713,11 @@
     },
     "/v1/management/Actions/StartMySQLShowIndex": {
       "post": {
+        "description": "Starts MySQL SHOW INDEX Action.",
         "tags": [
           "Actions"
         ],
-        "summary": "StartMySQLShowIndexAction starts MySQL SHOW INDEX Action.",
+        "summary": "Start MySQLShowIndex Action",
         "operationId": "StartMySQLShowIndexAction",
         "parameters": [
           {
@@ -809,10 +817,11 @@
     },
     "/v1/management/Actions/StartMySQLShowTableStatus": {
       "post": {
+        "description": "Starts MySQL SHOW TABLE STATUS Action.",
         "tags": [
           "Actions"
         ],
-        "summary": "StartMySQLShowTableStatusAction starts MySQL SHOW TABLE STATUS Action.",
+        "summary": "Start MySQLShowTableStatus Action",
         "operationId": "StartMySQLShowTableStatusAction",
         "parameters": [
           {
@@ -912,10 +921,11 @@
     },
     "/v1/management/Actions/StartPTMongoDBSummary": {
       "post": {
+        "description": "Starts pt-mongodb-summary Action.",
         "tags": [
           "Actions"
         ],
-        "summary": "StartPTMongoDBSummaryAction starts pt-mongodb-summary Action.",
+        "summary": "Start PTMongoDBSummary Action",
         "operationId": "StartPTMongoDBSummaryAction",
         "parameters": [
           {
@@ -1007,10 +1017,11 @@
     },
     "/v1/management/Actions/StartPTMySQLSummary": {
       "post": {
+        "description": "Starts pt--mysql-summary Action.",
         "tags": [
           "Actions"
         ],
-        "summary": "StartPTMySQLSummaryAction starts pt--mysql-summary Action.",
+        "summary": "Start PTMySQLSummary Action",
         "operationId": "StartPTMySQLSummaryAction",
         "parameters": [
           {
@@ -1102,10 +1113,11 @@
     },
     "/v1/management/Actions/StartPTPgSummary": {
       "post": {
+        "description": "Starts pt-pg-summary Action.",
         "tags": [
           "Actions"
         ],
-        "summary": "StartPTPgSummaryAction starts pt-pg-summary Action.",
+        "summary": "Start PTPgSummary Action",
         "operationId": "StartPTPgSummaryAction",
         "parameters": [
           {
@@ -1197,10 +1209,11 @@
     },
     "/v1/management/Actions/StartPTSummary": {
       "post": {
+        "description": "Starts pt-summary Action.",
         "tags": [
           "Actions"
         ],
-        "summary": "StartPTSummaryAction starts pt-summary Action.",
+        "summary": "Start PTSummary Action",
         "operationId": "StartPTSummaryAction",
         "parameters": [
           {
@@ -1290,10 +1303,11 @@
     },
     "/v1/management/Actions/StartPostgreSQLShowCreateTable": {
       "post": {
+        "description": "Starts PostgreSQL SHOW CREATE TABLE Action.",
         "tags": [
           "Actions"
         ],
-        "summary": "StartPostgreSQLShowCreateTableAction starts PostgreSQL SHOW CREATE TABLE Action.",
+        "summary": "Start PostgreSQLShowCreateTable Action",
         "operationId": "StartPostgreSQLShowCreateTableAction",
         "parameters": [
           {
@@ -1393,10 +1407,11 @@
     },
     "/v1/management/Actions/StartPostgreSQLShowIndex": {
       "post": {
+        "description": "Starts PostgreSQL SHOW INDEX Action.",
         "tags": [
           "Actions"
         ],
-        "summary": "StartPostgreSQLShowIndexAction starts PostgreSQL SHOW INDEX Action.",
+        "summary": "Start PostgreSQLShowIndex Action",
         "operationId": "StartPostgreSQLShowIndexAction",
         "parameters": [
           {
@@ -1496,10 +1511,11 @@
     },
     "/v1/management/Annotations/Add": {
       "post": {
+        "description": "Adds annotation.",
         "tags": [
           "Annotation"
         ],
-        "summary": "AddAnnotation adds annotation.",
+        "summary": "Add Annotation",
         "operationId": "AddAnnotation",
         "parameters": [
           {
@@ -1594,10 +1610,11 @@
     },
     "/v1/management/External/Add": {
       "post": {
+        "description": "Adds external service and adds external exporter. It automatically adds a service to inventory, which is running on provided \"node_id\", then adds an \"external exporter\" agent to inventory, which is running on provided \"runs_on_node_id\".",
         "tags": [
           "External"
         ],
-        "summary": "AddExternal adds external service and adds external exporter.\nIt automatically adds a service to inventory, which is running on provided \"node_id\",\nthen adds an \"external exporter\" agent to inventory, which is running on provided \"runs_on_node_id\".",
+        "summary": "Add External",
         "operationId": "AddExternal",
         "parameters": [
           {
@@ -1942,10 +1959,11 @@
     },
     "/v1/management/HAProxy/Add": {
       "post": {
+        "description": "Adds HAProxy service and adds external exporter. It automatically adds a service to inventory, which is running on provided \"node_id\", then adds an \"external exporter\" agent to inventory.",
         "tags": [
           "HAProxy"
         ],
-        "summary": "AddHAProxy adds HAProxy service and adds external exporter.\nIt automatically adds a service to inventory, which is running on provided \"node_id\",\nthen adds an \"external exporter\" agent to inventory.",
+        "summary": "Add HAProxy",
         "operationId": "AddHAProxy",
         "parameters": [
           {
@@ -2275,10 +2293,11 @@
     },
     "/v1/management/MongoDB/Add": {
       "post": {
+        "description": "Adds MongoDB Service and starts several Agents. It automatically adds a service to inventory, which is running on provided \"node_id\", then adds \"mongodb_exporter\", and \"qan_mongodb_profiler\" agents with provided \"pmm_agent_id\" and other parameters.",
         "tags": [
           "MongoDB"
         ],
-        "summary": "AddMongoDB adds MongoDB Service and starts several Agents.\nIt automatically adds a service to inventory, which is running on provided \"node_id\",\nthen adds \"mongodb_exporter\", and \"qan_mongodb_profiler\" agents\nwith provided \"pmm_agent_id\" and other parameters.",
+        "summary": "Add MongoDB",
         "operationId": "AddMongoDB",
         "parameters": [
           {
@@ -2803,10 +2822,11 @@
     },
     "/v1/management/MySQL/Add": {
       "post": {
+        "description": "Adds MySQL Service and starts several Agents. It automatically adds a service to inventory, which is running on provided \"node_id\", then adds \"mysqld_exporter\", and \"qan_mysql_perfschema\" agents with provided \"pmm_agent_id\" and other parameters.",
         "tags": [
           "MySQL"
         ],
-        "summary": "AddMySQL adds MySQL Service and starts several Agents.\nIt automatically adds a service to inventory, which is running on provided \"node_id\",\nthen adds \"mysqld_exporter\", and \"qan_mysql_perfschema\" agents\nwith provided \"pmm_agent_id\" and other parameters.",
+        "summary": "Add MySQL",
         "operationId": "AddMySQL",
         "parameters": [
           {
@@ -3448,10 +3468,11 @@
     },
     "/v1/management/Node/Register": {
       "post": {
+        "description": "Registers a new Node and pmm-agent.",
         "tags": [
           "Node"
         ],
-        "summary": "RegisterNode registers a new Node and pmm-agent.",
+        "summary": "Register Node",
         "operationId": "RegisterNode",
         "parameters": [
           {
@@ -3757,10 +3778,11 @@
     },
     "/v1/management/PostgreSQL/Add": {
       "post": {
+        "description": "Adds PostgreSQL Service and starts postgres exporter. It automatically adds a service to inventory, which is running on provided \"node_id\", then adds \"postgres_exporter\" with provided \"pmm_agent_id\" and other parameters.",
         "tags": [
           "PostgreSQL"
         ],
-        "summary": "AddPostgreSQL adds PostgreSQL Service and starts postgres exporter.\nIt automatically adds a service to inventory, which is running on provided \"node_id\",\nthen adds \"postgres_exporter\" with provided \"pmm_agent_id\" and other parameters.",
+        "summary": "Add PostgreSQL",
         "operationId": "AddPostgreSQL",
         "parameters": [
           {
@@ -4327,10 +4349,11 @@
     },
     "/v1/management/ProxySQL/Add": {
       "post": {
+        "description": "Adds ProxySQL Service and starts several Agents. It automatically adds a service to inventory, which is running on provided \"node_id\", then adds \"proxysql_exporter\" with provided \"pmm_agent_id\" and other parameters.",
         "tags": [
           "ProxySQL"
         ],
-        "summary": "AddProxySQL adds ProxySQL Service and starts several Agents.\nIt automatically adds a service to inventory, which is running on provided \"node_id\",\nthen adds \"proxysql_exporter\" with provided \"pmm_agent_id\" and other parameters.",
+        "summary": "Add ProxySQL",
         "operationId": "AddProxySQL",
         "parameters": [
           {
@@ -4722,10 +4745,11 @@
     },
     "/v1/management/RDS/Add": {
       "post": {
+        "description": "Adds RDS instance.",
         "tags": [
           "RDS"
         ],
-        "summary": "AddRDS adds RDS instance.",
+        "summary": "Add RDS",
         "operationId": "AddRDS",
         "parameters": [
           {
@@ -5555,10 +5579,11 @@
     },
     "/v1/management/RDS/Discover": {
       "post": {
+        "description": "Discovers RDS instances.",
         "tags": [
           "RDS"
         ],
-        "summary": "DiscoverRDS discovers RDS instances.",
+        "summary": "Discover RDS",
         "operationId": "DiscoverRDS",
         "parameters": [
           {
@@ -5695,10 +5720,11 @@
     },
     "/v1/management/SecurityChecks/Change": {
       "post": {
+        "description": "Enables/disables Security Thread Tool checks or changes their interval by names.",
         "tags": [
           "SecurityChecks"
         ],
-        "summary": "ChangeSecurityChecks enables/disables Security Thread Tool checks or changes their interval by names.",
+        "summary": "Change Security Checks",
         "operationId": "ChangeSecurityChecks",
         "parameters": [
           {
@@ -5801,10 +5827,11 @@
     },
     "/v1/management/SecurityChecks/GetCheckResults": {
       "post": {
+        "description": "Returns Security Thread Tool's latest checks results.",
         "tags": [
           "SecurityChecks"
         ],
-        "summary": "GetSecurityCheckResults returns Security Thread Tool's latest checks results.",
+        "summary": "Get Security Check Results",
         "operationId": "GetSecurityCheckResults",
         "parameters": [
           {
@@ -5924,10 +5951,11 @@
     },
     "/v1/management/SecurityChecks/List": {
       "post": {
+        "description": "Returns a list of available Security Thread Tool checks.",
         "tags": [
           "SecurityChecks"
         ],
-        "summary": "ListSecurityChecks returns a list of available Security Thread Tool checks.",
+        "summary": "List Security Checks",
         "operationId": "ListSecurityChecks",
         "parameters": [
           {
@@ -6037,11 +6065,11 @@
     },
     "/v1/management/SecurityChecks/Start": {
       "post": {
-        "description": "All the available checks will be started if check names aren't specified.",
+        "description": "Executes Security Thread Tool checks and returns when all checks are executed.",
         "tags": [
           "SecurityChecks"
         ],
-        "summary": "StartSecurityChecks executes Security Thread Tool checks and returns when all checks are executed.",
+        "summary": "Start Security Checks",
         "operationId": "StartSecurityChecks",
         "parameters": [
           {
@@ -6117,10 +6145,11 @@
     },
     "/v1/management/Service/Remove": {
       "post": {
+        "description": "Removes Service with Agents.",
         "tags": [
           "Service"
         ],
-        "summary": "RemoveService removes Service with Agents.",
+        "summary": "Remove Service",
         "operationId": "RemoveService",
         "parameters": [
           {

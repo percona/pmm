@@ -45,7 +45,9 @@ type ClientService interface {
 }
 
 /*
-  AddContainerNode adds container node adds container node
+  AddContainerNode adds container node
+
+  Adds Container Node.
 */
 func (a *Client) AddContainerNode(params *AddContainerNodeParams) (*AddContainerNodeOK, error) {
 	// TODO: Validate the params before sending
@@ -78,7 +80,9 @@ func (a *Client) AddContainerNode(params *AddContainerNodeParams) (*AddContainer
 }
 
 /*
-  AddGenericNode adds generic node adds generic node
+  AddGenericNode adds generic node
+
+  Adds generic Node.
 */
 func (a *Client) AddGenericNode(params *AddGenericNodeParams) (*AddGenericNodeOK, error) {
 	// TODO: Validate the params before sending
@@ -111,7 +115,9 @@ func (a *Client) AddGenericNode(params *AddGenericNodeParams) (*AddGenericNodeOK
 }
 
 /*
-  AddRemoteAzureDatabaseNode adds remote azure database node adds remote azure database node
+  AddRemoteAzureDatabaseNode adds remote azure database node
+
+  Adds remote Azure database Node.
 */
 func (a *Client) AddRemoteAzureDatabaseNode(params *AddRemoteAzureDatabaseNodeParams) (*AddRemoteAzureDatabaseNodeOK, error) {
 	// TODO: Validate the params before sending
@@ -144,7 +150,9 @@ func (a *Client) AddRemoteAzureDatabaseNode(params *AddRemoteAzureDatabaseNodePa
 }
 
 /*
-  AddRemoteNode adds remote node adds remote node
+  AddRemoteNode adds remote node
+
+  Adds remote Node.
 */
 func (a *Client) AddRemoteNode(params *AddRemoteNodeParams) (*AddRemoteNodeOK, error) {
 	// TODO: Validate the params before sending
@@ -177,7 +185,9 @@ func (a *Client) AddRemoteNode(params *AddRemoteNodeParams) (*AddRemoteNodeOK, e
 }
 
 /*
-  AddRemoteRDSNode adds remote RDS node adds remote RDS node
+  AddRemoteRDSNode adds remote RDS node
+
+  Adds remote RDS Node.
 */
 func (a *Client) AddRemoteRDSNode(params *AddRemoteRDSNodeParams) (*AddRemoteRDSNodeOK, error) {
 	// TODO: Validate the params before sending
@@ -210,7 +220,9 @@ func (a *Client) AddRemoteRDSNode(params *AddRemoteRDSNodeParams) (*AddRemoteRDS
 }
 
 /*
-  GetNode gets node returns a single node by ID
+  GetNode gets node
+
+  Returns a single Node by ID.
 */
 func (a *Client) GetNode(params *GetNodeParams) (*GetNodeOK, error) {
 	// TODO: Validate the params before sending
@@ -243,7 +255,9 @@ func (a *Client) GetNode(params *GetNodeParams) (*GetNodeOK, error) {
 }
 
 /*
-  ListNodes lists nodes returns a list of all nodes
+  ListNodes lists nodes
+
+  Returns a list of all Nodes.
 */
 func (a *Client) ListNodes(params *ListNodesParams) (*ListNodesOK, error) {
 	// TODO: Validate the params before sending
@@ -276,7 +290,9 @@ func (a *Client) ListNodes(params *ListNodesParams) (*ListNodesOK, error) {
 }
 
 /*
-  RemoveNode removes node removes node
+  RemoveNode removes node
+
+  Removes Node.
 */
 func (a *Client) RemoveNode(params *RemoveNodeParams) (*RemoveNodeOK, error) {
 	// TODO: Validate the params before sending

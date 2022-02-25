@@ -37,7 +37,9 @@ type ClientService interface {
 }
 
 /*
-  ChangeSecurityChecks changes security checks enables disables security thread tool checks or changes their interval by names
+  ChangeSecurityChecks changes security checks
+
+  Enables/disables Security Thread Tool checks or changes their interval by names.
 */
 func (a *Client) ChangeSecurityChecks(params *ChangeSecurityChecksParams) (*ChangeSecurityChecksOK, error) {
 	// TODO: Validate the params before sending
@@ -70,7 +72,9 @@ func (a *Client) ChangeSecurityChecks(params *ChangeSecurityChecksParams) (*Chan
 }
 
 /*
-  GetSecurityCheckResults gets security check results returns security thread tool s latest checks results
+  GetSecurityCheckResults gets security check results
+
+  Returns Security Thread Tool's latest checks results.
 */
 func (a *Client) GetSecurityCheckResults(params *GetSecurityCheckResultsParams) (*GetSecurityCheckResultsOK, error) {
 	// TODO: Validate the params before sending
@@ -103,7 +107,9 @@ func (a *Client) GetSecurityCheckResults(params *GetSecurityCheckResultsParams) 
 }
 
 /*
-  ListSecurityChecks lists security checks returns a list of available security thread tool checks
+  ListSecurityChecks lists security checks
+
+  Returns a list of available Security Thread Tool checks.
 */
 func (a *Client) ListSecurityChecks(params *ListSecurityChecksParams) (*ListSecurityChecksOK, error) {
 	// TODO: Validate the params before sending
@@ -136,9 +142,9 @@ func (a *Client) ListSecurityChecks(params *ListSecurityChecksParams) (*ListSecu
 }
 
 /*
-  StartSecurityChecks starts security checks executes security thread tool checks and returns when all checks are executed
+  StartSecurityChecks starts security checks
 
-  All the available checks will be started if check names aren't specified.
+  Executes Security Thread Tool checks and returns when all checks are executed.
 */
 func (a *Client) StartSecurityChecks(params *StartSecurityChecksParams) (*StartSecurityChecksOK, error) {
 	// TODO: Validate the params before sending

@@ -47,7 +47,9 @@ type ClientService interface {
 }
 
 /*
-  AddExternalService adds external service adds external service
+  AddExternalService adds external service
+
+  Adds External Service.
 */
 func (a *Client) AddExternalService(params *AddExternalServiceParams) (*AddExternalServiceOK, error) {
 	// TODO: Validate the params before sending
@@ -80,7 +82,9 @@ func (a *Client) AddExternalService(params *AddExternalServiceParams) (*AddExter
 }
 
 /*
-  AddHAProxyService adds HA proxy service adds HA proxy service
+  AddHAProxyService adds HA proxy service
+
+  Adds HAProxy Service.
 */
 func (a *Client) AddHAProxyService(params *AddHAProxyServiceParams) (*AddHAProxyServiceOK, error) {
 	// TODO: Validate the params before sending
@@ -113,7 +117,9 @@ func (a *Client) AddHAProxyService(params *AddHAProxyServiceParams) (*AddHAProxy
 }
 
 /*
-  AddMongoDBService adds mongo DB service adds mongo DB service
+  AddMongoDBService adds mongo DB service
+
+  Adds MongoDB Service.
 */
 func (a *Client) AddMongoDBService(params *AddMongoDBServiceParams) (*AddMongoDBServiceOK, error) {
 	// TODO: Validate the params before sending
@@ -146,7 +152,9 @@ func (a *Client) AddMongoDBService(params *AddMongoDBServiceParams) (*AddMongoDB
 }
 
 /*
-  AddMySQLService adds my SQL service adds my SQL service
+  AddMySQLService adds my SQL service
+
+  Adds MySQL Service.
 */
 func (a *Client) AddMySQLService(params *AddMySQLServiceParams) (*AddMySQLServiceOK, error) {
 	// TODO: Validate the params before sending
@@ -179,7 +187,9 @@ func (a *Client) AddMySQLService(params *AddMySQLServiceParams) (*AddMySQLServic
 }
 
 /*
-  AddPostgreSQLService adds postgre SQL service adds postgre SQL service
+  AddPostgreSQLService adds postgre SQL service
+
+  Adds PostgreSQL Service.
 */
 func (a *Client) AddPostgreSQLService(params *AddPostgreSQLServiceParams) (*AddPostgreSQLServiceOK, error) {
 	// TODO: Validate the params before sending
@@ -212,7 +222,9 @@ func (a *Client) AddPostgreSQLService(params *AddPostgreSQLServiceParams) (*AddP
 }
 
 /*
-  AddProxySQLService adds proxy SQL service adds proxy SQL service
+  AddProxySQLService adds proxy SQL service
+
+  Adds ProxySQL Service.
 */
 func (a *Client) AddProxySQLService(params *AddProxySQLServiceParams) (*AddProxySQLServiceOK, error) {
 	// TODO: Validate the params before sending
@@ -245,7 +257,9 @@ func (a *Client) AddProxySQLService(params *AddProxySQLServiceParams) (*AddProxy
 }
 
 /*
-  GetService gets service returns a single service by ID
+  GetService gets service
+
+  Returns a single Service by ID.
 */
 func (a *Client) GetService(params *GetServiceParams) (*GetServiceOK, error) {
 	// TODO: Validate the params before sending
@@ -278,7 +292,9 @@ func (a *Client) GetService(params *GetServiceParams) (*GetServiceOK, error) {
 }
 
 /*
-  ListServices lists services returns a list of all services
+  ListServices lists services
+
+  Returns a list of all Services.
 */
 func (a *Client) ListServices(params *ListServicesParams) (*ListServicesOK, error) {
 	// TODO: Validate the params before sending
@@ -311,7 +327,9 @@ func (a *Client) ListServices(params *ListServicesParams) (*ListServicesOK, erro
 }
 
 /*
-  RemoveService removes service removes service
+  RemoveService removes service
+
+  Removes Service.
 */
 func (a *Client) RemoveService(params *RemoveServiceParams) (*RemoveServiceOK, error) {
 	// TODO: Validate the params before sending
