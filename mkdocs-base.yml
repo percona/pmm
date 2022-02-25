@@ -53,7 +53,6 @@ markdown_extensions:
     pymdownx.superfences: {}
     pymdownx.highlight:
         linenums: false
-    plantuml_markdown: {}
     lightgallery: {}
 
 plugins:
@@ -91,7 +90,7 @@ extra: # Used in main.html template and can't be externalized
     version:
       provider: mike
 
-# Common navigation for percona.com, netlify and PDF
+# Common navigation for percona.com, render.com and PDF
 nav:
   - Welcome: index.md
   - Setting up:

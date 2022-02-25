@@ -234,7 +234,7 @@ A paused cluster can't be edited.
 
     ![!DBaaS Update](../_images/PMM_DBaaS_DB_Cluster_Update_menu.png)
 
-4. Confirm the update by clicking on *Update*, or abadon by clicking *Cancel*.
+4. Confirm the update by clicking on *Update*, or abandon by clicking *Cancel*.
 
     ![!DBaaS Update Confirmation](../_images/PMM_DBaaS_DB_Cluster_Update_confirmation.png)
 

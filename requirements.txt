@@ -4,7 +4,6 @@ mkdocs-exclude
 markdown-include
 mkdocs-material
 mkdocs-with-pdf
-plantuml-markdown
 mkdocs-git-revision-date-plugin
 mkdocs-material-extensions
 mkdocs-bootstrap-tables-plugin

@@ -22,51 +22,8 @@ If you need to, you can [unregister](#unregister), [remove services](#remove-ser
 
 Here's an overview of the choices.
 
-```plantuml
-@startuml "setting-up_client"
-!include docs/_images/plantuml_styles.puml
-split
-    -[hidden]->
-    partition "Docker/Docker compose" {
-        split
-            -[hidden]->
-            :""docker pull ..."";
-            :Create persistent\ndata store;
-            :""docker run ..."";
-        split again
-            -[hidden]->
-            :Create\n""docker-compose.yml"";
-            :""docker-compose up"";
-        end split
-    }
-split again
-    -[hidden]->
-    split
-        -[hidden]->
-        partition "Package manager" {
-            split
-                -[hidden]->
-                :Set up\n""percona-release"";
-                :""apt install"";
-            split again
-                -[hidden]->
-                :Download "".deb""/"".rpm"";
-                :""dpkg -i *.deb""\n""dnf localinstall *.rpm"";
-            end split
-        }
-    split again
-        partition "Binary package" {
-        -[hidden]->
-        :Download &\nverify;
-        :Unpack & \ninstall;
-        }
-    end split
-    :Set up pmm-agent;
-end split
-:Register;
-:Add services;
-@enduml
-```
+![!image](../../_images/PMM_Client_Setup.png)
+
 
 ## Before you start
 

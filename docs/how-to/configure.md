@@ -201,7 +201,7 @@ This panel is where you connect your PMM server to your Percona Platform Account
 ### Connect PMM to Percona Platform
 
 !!! alert alert-info ""
-    Disclaimer: Percona Platform is a Preview release and several functionalities are still under development or subject to change. As such, we recommend connecting PMM to Percona Platfotm only for testing purposes.
+    Disclaimer: Percona Platform is a Preview release and several functionalities are still under development or subject to change. As such, we recommend connecting PMM to Percona Platform only for testing purposes.
 
 Connect your PMM servers to Percona Platform to leverage Platform services that boost the monitoring capabilities of your PMM installations.
 

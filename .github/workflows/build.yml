@@ -1,9 +1,10 @@
-name: BUILD PMM DOCS (2.x)
+name: Build PMM Docs (2.x)
 
 on:
   push:
     branches:
       - main
+  pull_request:
 
   workflow_dispatch:
 
@@ -14,8 +15,6 @@ jobs:
     steps:
       - name: Check out code
         uses: percona-platform/checkout@v2
-        with:
-          fetch-depth: 0
 
       - name: Setup Python
         uses: percona-platform/setup-python@v2
@@ -26,11 +25,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install wheel
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-
-      - name: Setup PlantUML dependencies
-        run: |
-          sudo apt install -y graphviz
+          test -f requirements.txt && pip install -r requirements.txt
 
       - name: Configure git
         env:
@@ -43,19 +38,18 @@ jobs:
           echo "GIT_USER=percona-platform-robot:${ROBOT_TOKEN}" >> $GITHUB_ENV
 
       # Builds theme-less static web site in 'publish' branch for percona.com
-      - name: Run MkDocs (2.x)
+      - name: Build a theme-less site (2.x)
         if: github.ref == 'refs/heads/main'
         run: |
           PATH=$PATH:_resources/bin mike deploy -F mkdocs-percona.yml 2.x -b publish -p
-          mike retitle -F mkdocs-percona.yml 2.x "PMM2 (LATEST)" -b publish -p
+          mike retitle -F mkdocs-percona.yml 2.x "PMM 2.x (LATEST)" -b publish -p
 
-      # Builds Material-themed static web site in 'netlify' branch for netlify.com
-      - name: Run MkDocs for Netlify (2.x)
-        if: github.ref == 'refs/heads/main'
+      # Builds Material-themed static web site in 'preview' branch
+      - name: Build a themed site (2.x)
         run: |
-          PATH=$PATH:_resources/bin mike deploy 2.x -b netlify -p
-          mike set-default 2.x -b netlify -p
-          mike retitle 2.x "PMM2 (LATEST)" -b netlify  -p
+          PATH=$PATH:_resources/bin mike deploy 2.x -b preview
+          mike set-default 2.x -b preview
+          mike retitle 2.x "PMM 2.x (LATEST)" -b preview
 
       - name: Install Node.js 14.x
         uses: percona-platform/setup-node@v2
@@ -64,10 +58,5 @@ jobs:
 
       - name: Spelling
         run: |
-          npx markdown-spellcheck --report --en-us --ignore-acronyms --ignore-numbers "docs/**/*.md" || true
           # Ignore errors, just inspect results
-
-#      - name: Grammar
-#        run: |
-#          npx write-good --no-passive docs/**/*.md || true
-#          # Ignore errors, just inspect results
+          npx markdown-spellcheck --report --en-us --ignore-acronyms --ignore-numbers "docs/**/*.md" || true

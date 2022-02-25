@@ -1,7 +1,5 @@
 # Percona Monitoring and Management (PMM) Documentation
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/52970fb0-4de9-4b89-ab41-bd1cf83564b4/deploy-status)](https://app.netlify.com/sites/pmm-doc/deploys)
-
 [Percona Monitoring and Management] (PMM) is a database monitoring solution that is free and open-source.
 
 This repo holds the source files for the official [PMM technical documentation].
@@ -115,8 +113,6 @@ View the site at <http://0.0.0.0:8000>
 
 - `mkdocs-pdf.yml`: MkDocs configuration file. Creates themed [PDF](#pdf).
 
-- `temp-mkdocs*.yml`: Set of in-test MkDocs configuration files. Uses a base file with a single `nav` element. Pending compatibility with `mike`. (Fails with mike 1.0.1.)
-
 - `docs`:
 
     - `*.md`: Markdown files.
@@ -137,10 +133,6 @@ View the site at <http://0.0.0.0:8000>
 
         - `grafana-dashboards-descriptions.py`: Script to extract dashboard descriptions from <https://github.com/percona/grafana-dashboards/>.
 
-        - `plantuml`: Wrapper script for running PlantUML.
-
-        - `plantuml.jar`: Copy of the PlantUML Java file (needed for Netlify builds).
-
     - `templates`: Stylesheet for PDF output (used by [mkdocs-with-pdf](https://github.com/orzih/mkdocs-with-pdf) extension).
 
     - `theme`:
@@ -149,11 +141,7 @@ View the site at <http://0.0.0.0:8000>
 
 - `requirements.txt`: Python package dependencies.
 
-- `runtime.txt`: Python version specifier (used by netlify).
-
 - `variables.yml`: Values used throughout the Markdown, including the current PMM version/release number.
-
-- `netlify.toml`: Netlify build definition.
 
 - `.spelling`: Words regarded as correct by `mdspell` (See [Spelling and grammar](#spelling-and-grammar).)
 
