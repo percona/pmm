@@ -2,6 +2,37 @@ syntax = "proto3";
 
 package management;
 
+option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
+  info: {
+    title: "Node API"
+  }
+  extensions: {
+    key: "x-readme"
+    value: {
+      struct_value: {
+        fields: {
+          key: "samples-languages"
+          value: {
+            list_value: {
+              values: {
+                string_value: "curl"
+              }
+              values: {
+                string_value: "go"
+              }
+              values: {
+                string_value: "node"
+              }
+              values: {
+                string_value: "python"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+};
 option go_package = "api/managementpb;managementpb";
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
@@ -60,6 +91,10 @@ service Node {
     option (google.api.http) = {
       post: "/v1/management/Node/Register"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      summary: "Register Node"
+      description: "Registers a new Node and pmm-agent."
     };
   }
 }

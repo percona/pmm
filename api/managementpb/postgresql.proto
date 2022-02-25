@@ -2,6 +2,37 @@ syntax = "proto3";
 
 package management;
 
+option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
+  info: {
+    title: "PostgreSQL API"
+  }
+  extensions: {
+    key: "x-readme"
+    value: {
+      struct_value: {
+        fields: {
+          key: "samples-languages"
+          value: {
+            list_value: {
+              values: {
+                string_value: "curl"
+              }
+              values: {
+                string_value: "go"
+              }
+              values: {
+                string_value: "node"
+              }
+              values: {
+                string_value: "python"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+};
 option go_package = "api/managementpb;managementpb";
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
@@ -106,6 +137,10 @@ service PostgreSQL {
     option (google.api.http) = {
       post: "/v1/management/PostgreSQL/Add"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      summary: "Add PostgreSQL"
+      description: "Adds PostgreSQL Service and starts postgres exporter. It automatically adds a service to inventory, which is running on provided \"node_id\", then adds \"postgres_exporter\" with provided \"pmm_agent_id\" and other parameters."
     };
   }
 }

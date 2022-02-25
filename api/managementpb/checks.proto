@@ -2,6 +2,37 @@ syntax = "proto3";
 
 package management;
 
+option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
+  info: {
+    title: "Checks API"
+  }
+  extensions: {
+    key: "x-readme"
+    value: {
+      struct_value: {
+        fields: {
+          key: "samples-languages"
+          value: {
+            list_value: {
+              values: {
+                string_value: "curl"
+              }
+              values: {
+                string_value: "go"
+              }
+              values: {
+                string_value: "node"
+              }
+              values: {
+                string_value: "python"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+};
 option go_package = "api/managementpb;managementpb";
 
 import "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options/annotations.proto";
@@ -85,6 +116,10 @@ service SecurityChecks {
       post: "/v1/management/SecurityChecks/GetCheckResults"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      summary: "Get Security Check Results"
+      description: "Returns Security Thread Tool's latest checks results."
+    };
   }
   // StartSecurityChecks executes Security Thread Tool checks and returns when all checks are executed.
   rpc StartSecurityChecks(StartSecurityChecksRequest) returns (StartSecurityChecksResponse) {
@@ -93,7 +128,8 @@ service SecurityChecks {
       body: "*"
     };
     option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-      description: "All the available checks will be started if check names aren't specified."
+      summary: "Start Security Checks"
+      description: "Executes Security Thread Tool checks and returns when all checks are executed."
     };
   }
   // ListSecurityChecks returns a list of available Security Thread Tool checks.
@@ -102,12 +138,20 @@ service SecurityChecks {
       post: "/v1/management/SecurityChecks/List"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      summary: "List Security Checks"
+      description: "Returns a list of available Security Thread Tool checks."
+    };
   }
   // ChangeSecurityChecks enables/disables Security Thread Tool checks or changes their interval by names.
   rpc ChangeSecurityChecks(ChangeSecurityChecksRequest) returns (ChangeSecurityChecksResponse) {
     option (google.api.http) = {
       post: "/v1/management/SecurityChecks/Change"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      summary: "Change Security Checks"
+      description: "Enables/disables Security Thread Tool checks or changes their interval by names."
     };
   }
 }

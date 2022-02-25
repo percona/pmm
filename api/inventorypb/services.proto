@@ -2,6 +2,37 @@ syntax = "proto3";
 
 package inventory;
 
+option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
+  info: {
+    title: "Services API"
+  }
+  extensions: {
+    key: "x-readme"
+    value: {
+      struct_value: {
+        fields: {
+          key: "samples-languages"
+          value: {
+            list_value: {
+              values: {
+                string_value: "curl"
+              }
+              values: {
+                string_value: "go"
+              }
+              values: {
+                string_value: "node"
+              }
+              values: {
+                string_value: "python"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+};
 option go_package = "api/inventorypb;inventorypb";
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
@@ -443,12 +474,20 @@ service Services {
       post: "/v1/inventory/Services/List"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      summary: "List Services"
+      description: "Returns a list of all Services."
+    };
   }
   // GetService returns a single Service by ID.
   rpc GetService(GetServiceRequest) returns (GetServiceResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Services/Get"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      summary: "Get Service"
+      description: "Returns a single Service by ID."
     };
   }
   // AddMySQLService adds MySQL Service.
@@ -457,12 +496,20 @@ service Services {
       post: "/v1/inventory/Services/AddMySQL"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      summary: "Add MySQL Service"
+      description: "Adds MySQL Service."
+    };
   }
   // AddMongoDBService adds MongoDB Service.
   rpc AddMongoDBService(AddMongoDBServiceRequest) returns (AddMongoDBServiceResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Services/AddMongoDB"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      summary: "Add MongoDB Service"
+      description: "Adds MongoDB Service."
     };
   }
   // AddPostgreSQLService adds PostgreSQL Service.
@@ -471,12 +518,20 @@ service Services {
       post: "/v1/inventory/Services/AddPostgreSQL"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      summary: "Add PostgreSQL Service"
+      description: "Adds PostgreSQL Service."
+    };
   }
   // AddProxySQLService adds ProxySQL Service.
   rpc AddProxySQLService(AddProxySQLServiceRequest) returns (AddProxySQLServiceResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Services/AddProxySQL"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      summary: "Add ProxySQL Service"
+      description: "Adds ProxySQL Service."
     };
   }
   // AddHAProxyService adds HAProxy Service.
@@ -485,6 +540,10 @@ service Services {
       post: "/v1/inventory/Services/AddHAProxyService"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      summary: "Add HAProxy Service"
+      description: "Adds HAProxy Service."
+    };
   }
   // AddExternalService adds External Service.
   rpc AddExternalService(AddExternalServiceRequest) returns (AddExternalServiceResponse) {
@@ -492,12 +551,20 @@ service Services {
       post: "/v1/inventory/Services/AddExternalService"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      summary: "Add External Service"
+      description: "Adds External Service."
+    };
   }
   // RemoveService removes Service.
   rpc RemoveService(RemoveServiceRequest) returns (RemoveServiceResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Services/Remove"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      summary: "Remove Service"
+      description: "Removes Service."
     };
   }
 }
