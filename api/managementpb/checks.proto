@@ -6,6 +6,7 @@ option go_package = "api/managementpb;managementpb";
 
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "google/api/annotations.proto";
+import "managementpb/pagination.proto";
 import "managementpb/severity.proto";
 
 // SecurityCheckInterval represents possible execution interval values for checks.
@@ -26,6 +27,32 @@ message SecurityCheckResult {
   string read_more_url = 5;
   // Name of the monitored service on which the check ran.
   string service_name = 6;
+}
+
+// CheckResultSummary is a summary of check results.
+message CheckResultSummary {
+  string service_name = 1;
+  string service_id = 2;
+  // Number of failed checks for this service that are critical
+  uint32 error_count = 3;
+  // Number of failed checks for this service that are major
+  uint32 warning_count = 4;
+  // Number of failed checks for this service that are trivial
+  uint32 notice_count = 5;
+}
+
+// CheckResult represents the check results for a given service.
+message CheckResult {
+  string summary = 1;
+  string description = 2;
+  Severity severity = 3;
+  map<string, string> labels = 4;
+  // URL containing information on how to resolve an issue detected by an STT check.
+  string read_more_url = 5;
+  // Name of the monitored service on which the check ran.
+  string service_name = 6;
+  // Name of the check that failed
+  string check_name = 7;
 }
 
 // SecurityCheck contains check name and status.
@@ -77,8 +104,42 @@ message ChangeSecurityChecksRequest {
 
 message ChangeSecurityChecksResponse {}
 
+message ListFailedServicesRequest {
+  PageParams page_params = 1;
+}
+
+message ListFailedServicesResponse {
+  repeated CheckResultSummary result = 1;
+  // Total items and pages.
+  PageTotals totals = 2;
+}
+
+message GetFailedChecksRequest {
+  string service_name = 1;
+  PageParams page_params = 2;
+}
+
+message GetFailedChecksResponse {
+  repeated CheckResult results = 1;
+  PageTotals page_totals = 2;
+}
+
 // SecurityChecks service provides public Management API methods for Security Checks Service.
 service SecurityChecks {
+  // ListFailedServices returns a list of services with failed checks.
+  rpc ListFailedServices(ListFailedServicesRequest) returns (ListFailedServicesResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/SecurityChecks/ListFailedServices"
+      body: "*"
+    };
+  }
+  // GetFailedChecks returns the checks result for a given service.
+  rpc GetFailedChecks(GetFailedChecksRequest) returns (GetFailedChecksResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/SecurityChecks/FailedChecks"
+      body: "*"
+    };
+  }
   // GetSecurityCheckResults returns Security Thread Tool's latest checks results.
   rpc GetSecurityCheckResults(GetSecurityCheckResultsRequest) returns (GetSecurityCheckResultsResponse) {
     option (google.api.http) = {
