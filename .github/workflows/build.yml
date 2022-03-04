@@ -15,6 +15,8 @@ jobs:
     steps:
       - name: Check out code
         uses: percona-platform/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Setup Python
         uses: percona-platform/setup-python@v2
@@ -47,14 +49,15 @@ jobs:
       # Builds Material-themed static web site in 'preview' branch
       - name: Build a themed site (2.x)
         run: |
-          PATH=$PATH:_resources/bin mike deploy 2.x -b preview
+          PATH=$PATH:_resources/bin mike deploy 2.x -b preview -p
           mike set-default 2.x -b preview
-          mike retitle 2.x "PMM 2.x (LATEST)" -b preview
+          mike retitle 2.x "PMM 2.x (LATEST)" -b preview -p
 
-      - name: Install Node.js 14.x
+      - name: Install NodeJS
         uses: percona-platform/setup-node@v2
         with:
           node-version: "14"
+          cache: "npm"
 
       - name: Spelling
         run: |
