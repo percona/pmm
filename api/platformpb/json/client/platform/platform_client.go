@@ -29,6 +29,8 @@ type ClientService interface {
 
 	Disconnect(params *DisconnectParams) (*DisconnectOK, error)
 
+	GetContactInformation(params *GetContactInformationParams) (*GetContactInformationOK, error)
+
 	SearchOrganizationEntitlements(params *SearchOrganizationEntitlementsParams) (*SearchOrganizationEntitlementsOK, error)
 
 	SearchOrganizationTickets(params *SearchOrganizationTicketsParams) (*SearchOrganizationTicketsOK, error)
@@ -103,6 +105,41 @@ func (a *Client) Disconnect(params *DisconnectParams) (*DisconnectOK, error) {
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*DisconnectDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  GetContactInformation gets contact information
+
+  GetContactInformation fetches the contact details of the customer success employee handling the Percona customer account from Percona Platform.
+*/
+func (a *Client) GetContactInformation(params *GetContactInformationParams) (*GetContactInformationOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetContactInformationParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "GetContactInformation",
+		Method:             "POST",
+		PathPattern:        "/v1/Platform/GetContactInformation",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &GetContactInformationReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetContactInformationOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*GetContactInformationDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
