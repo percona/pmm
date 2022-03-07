@@ -63,6 +63,12 @@ will give:
 "s3cR%23tpa%24%24worD"
 ```
 
+### Password change
+
+When adding clients to the PMM server, you use the `admin` user. However, if you change the password for the admin user from the PMM UI, then the clients will not be able to access PMM due to authentication issues. Also, due to multiple unsuccessful login attempts, Grafana will lock out the admin user.
+
+In such a scenario, use [API key](../../details/api.md#api-keys-and-authentication) for authentication. You can use API keys as a replacement for basic authentication.
+
 ## Integrated Alerting
 
 ### No <i class="uil uil-bell"></i> Integrated Alerting icon
@@ -144,3 +150,6 @@ Here is a guide to creating templates for Alertmanager: <https://prometheus.io/d
 To reduce space usage, long query examples and fingerprints can be truncated to 1024 symbols. In this case, the query explains section will not work.
 
 [ENCODE_URI]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent
+
+
+
