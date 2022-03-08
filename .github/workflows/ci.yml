@@ -114,6 +114,7 @@ jobs:
       - name: Cache
         run: |
           docker exec pmm-managed-server go clean -testcache
+          docker exec --workdir=/root/go/src/github.com/percona/pmm-managed pmm-managed-server find . -type d -name fuzzdata -exec rm -r {} +
           rm -fr ~/.cache/go-build
           docker cp pmm-managed-server:/root/.cache/go-build ~/.cache/go-build
 
@@ -216,8 +217,8 @@ jobs:
       - name: Cache
         run: |
           docker exec pmm-managed-server go clean -testcache
+          docker exec --workdir=/root/go/src/github.com/percona/pmm-managed pmm-managed-server find . -type d -name fuzzdata -exec rm -r {} +
           rm -fr ~/.cache/go-build
-          mkdir -p ~/.cache
           docker cp pmm-managed-server:/root/.cache/go-build ~/.cache/go-build
 
       - name: Run debug commands on failure
