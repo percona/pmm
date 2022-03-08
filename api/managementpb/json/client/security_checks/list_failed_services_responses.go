@@ -117,65 +117,6 @@ func (o *ListFailedServicesDefault) readResponse(response runtime.ClientResponse
 	return nil
 }
 
-/*ListFailedServicesBody list failed services body
-swagger:model ListFailedServicesBody
-*/
-type ListFailedServicesBody struct {
-
-	// page params
-	PageParams *ListFailedServicesParamsBodyPageParams `json:"page_params,omitempty"`
-}
-
-// Validate validates this list failed services body
-func (o *ListFailedServicesBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validatePageParams(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *ListFailedServicesBody) validatePageParams(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.PageParams) { // not required
-		return nil
-	}
-
-	if o.PageParams != nil {
-		if err := o.PageParams.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "page_params")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ListFailedServicesBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ListFailedServicesBody) UnmarshalBinary(b []byte) error {
-	var res ListFailedServicesBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
 /*ListFailedServicesDefaultBody list failed services default body
 swagger:model ListFailedServicesDefaultBody
 */
@@ -258,9 +199,6 @@ type ListFailedServicesOKBody struct {
 
 	// result
 	Result []*ResultItems0 `json:"result"`
-
-	// totals
-	Totals *ListFailedServicesOKBodyTotals `json:"totals,omitempty"`
 }
 
 // Validate validates this list failed services OK body
@@ -268,10 +206,6 @@ func (o *ListFailedServicesOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateResult(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateTotals(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -306,24 +240,6 @@ func (o *ListFailedServicesOKBody) validateResult(formats strfmt.Registry) error
 	return nil
 }
 
-func (o *ListFailedServicesOKBody) validateTotals(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Totals) { // not required
-		return nil
-	}
-
-	if o.Totals != nil {
-		if err := o.Totals.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("listFailedServicesOk" + "." + "totals")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
 // MarshalBinary interface implementation
 func (o *ListFailedServicesOKBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -335,76 +251,6 @@ func (o *ListFailedServicesOKBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ListFailedServicesOKBody) UnmarshalBinary(b []byte) error {
 	var res ListFailedServicesOKBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*ListFailedServicesOKBodyTotals PageTotals represents total values for pagination.
-swagger:model ListFailedServicesOKBodyTotals
-*/
-type ListFailedServicesOKBodyTotals struct {
-
-	// Total number of results.
-	TotalItems int32 `json:"total_items,omitempty"`
-
-	// Total number of pages.
-	TotalPages int32 `json:"total_pages,omitempty"`
-}
-
-// Validate validates this list failed services OK body totals
-func (o *ListFailedServicesOKBodyTotals) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ListFailedServicesOKBodyTotals) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ListFailedServicesOKBodyTotals) UnmarshalBinary(b []byte) error {
-	var res ListFailedServicesOKBodyTotals
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*ListFailedServicesParamsBodyPageParams PageParams represents page request parameters for pagination.
-swagger:model ListFailedServicesParamsBodyPageParams
-*/
-type ListFailedServicesParamsBodyPageParams struct {
-
-	// Maximum number of results per page.
-	PageSize int32 `json:"page_size,omitempty"`
-
-	// Index of the requested page, starts from 0.
-	Index int32 `json:"index,omitempty"`
-}
-
-// Validate validates this list failed services params body page params
-func (o *ListFailedServicesParamsBodyPageParams) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ListFailedServicesParamsBodyPageParams) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ListFailedServicesParamsBodyPageParams) UnmarshalBinary(b []byte) error {
-	var res ListFailedServicesParamsBodyPageParams
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -424,13 +270,13 @@ type ResultItems0 struct {
 	ServiceID string `json:"service_id,omitempty"`
 
 	// Number of failed checks for this service that are critical
-	ErrorCount int64 `json:"error_count,omitempty"`
+	CriticalCount int64 `json:"critical_count,omitempty"`
 
 	// Number of failed checks for this service that are major
-	WarningCount int64 `json:"warning_count,omitempty"`
+	MajorCount int64 `json:"major_count,omitempty"`
 
 	// Number of failed checks for this service that are trivial
-	NoticeCount int64 `json:"notice_count,omitempty"`
+	TrivialCount int64 `json:"trivial_count,omitempty"`
 }
 
 // Validate validates this result items0

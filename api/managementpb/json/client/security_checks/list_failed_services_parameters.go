@@ -61,7 +61,7 @@ for the list failed services operation typically these are written to a http.Req
 type ListFailedServicesParams struct {
 
 	/*Body*/
-	Body ListFailedServicesBody
+	Body interface{}
 
 	timeout    time.Duration
 	Context    context.Context
@@ -102,13 +102,13 @@ func (o *ListFailedServicesParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the list failed services params
-func (o *ListFailedServicesParams) WithBody(body ListFailedServicesBody) *ListFailedServicesParams {
+func (o *ListFailedServicesParams) WithBody(body interface{}) *ListFailedServicesParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the list failed services params
-func (o *ListFailedServicesParams) SetBody(body ListFailedServicesBody) {
+func (o *ListFailedServicesParams) SetBody(body interface{}) {
 	o.Body = body
 }
 
@@ -120,8 +120,10 @@ func (o *ListFailedServicesParams) WriteToRequest(r runtime.ClientRequest, reg s
 	}
 	var res []error
 
-	if err := r.SetBodyParam(o.Body); err != nil {
-		return err
+	if o.Body != nil {
+		if err := r.SetBodyParam(o.Body); err != nil {
+			return err
+		}
 	}
 
 	if len(res) > 0 {

@@ -24961,28 +24961,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "page_params": {
-                  "description": "PageParams represents page request parameters for pagination.",
-                  "type": "object",
-                  "properties": {
-                    "page_size": {
-                      "description": "Maximum number of results per page.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 0
-                    },
-                    "index": {
-                      "description": "Index of the requested page, starts from 0.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 1
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
+              "type": "object"
             }
           }
         ],
@@ -25006,19 +24985,19 @@
                         "type": "string",
                         "x-order": 1
                       },
-                      "error_count": {
+                      "critical_count": {
                         "type": "integer",
                         "format": "int64",
                         "title": "Number of failed checks for this service that are critical",
                         "x-order": 2
                       },
-                      "warning_count": {
+                      "major_count": {
                         "type": "integer",
                         "format": "int64",
                         "title": "Number of failed checks for this service that are major",
                         "x-order": 3
                       },
-                      "notice_count": {
+                      "trivial_count": {
                         "type": "integer",
                         "format": "int64",
                         "title": "Number of failed checks for this service that are trivial",
@@ -25027,25 +25006,6 @@
                     }
                   },
                   "x-order": 0
-                },
-                "totals": {
-                  "description": "PageTotals represents total values for pagination.",
-                  "type": "object",
-                  "properties": {
-                    "total_items": {
-                      "description": "Total number of results.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 0
-                    },
-                    "total_pages": {
-                      "description": "Total number of pages.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 1
-                    }
-                  },
-                  "x-order": 1
                 }
               }
             }

@@ -80,11 +80,6 @@ func (this *ChangeSecurityChecksResponse) Validate() error {
 	return nil
 }
 func (this *ListFailedServicesRequest) Validate() error {
-	if this.PageParams != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PageParams); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("PageParams", err)
-		}
-	}
 	return nil
 }
 func (this *ListFailedServicesResponse) Validate() error {
@@ -93,11 +88,6 @@ func (this *ListFailedServicesResponse) Validate() error {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("Result", err)
 			}
-		}
-	}
-	if this.Totals != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Totals); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Totals", err)
 		}
 	}
 	return nil

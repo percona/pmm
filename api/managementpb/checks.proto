@@ -34,11 +34,11 @@ message CheckResultSummary {
   string service_name = 1;
   string service_id = 2;
   // Number of failed checks for this service that are critical
-  uint32 error_count = 3;
+  uint32 critical_count = 3;
   // Number of failed checks for this service that are major
-  uint32 warning_count = 4;
+  uint32 major_count = 4;
   // Number of failed checks for this service that are trivial
-  uint32 notice_count = 5;
+  uint32 trivial_count = 5;
 }
 
 // CheckResult represents the check results for a given service.
@@ -104,14 +104,10 @@ message ChangeSecurityChecksRequest {
 
 message ChangeSecurityChecksResponse {}
 
-message ListFailedServicesRequest {
-  PageParams page_params = 1;
-}
+message ListFailedServicesRequest {}
 
 message ListFailedServicesResponse {
   repeated CheckResultSummary result = 1;
-  // Total items and pages.
-  PageTotals totals = 2;
 }
 
 message GetFailedChecksRequest {
