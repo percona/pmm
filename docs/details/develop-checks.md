@@ -197,7 +197,7 @@ Checks format and the current STT UI use different terminology for severities. H
 
 ## Backend
 
-![!](../../../_images/BackendSTT.png)
+![!](../_images/BackendSTT.png)
 
 1. pmm-managed checks that this installation is opted-in into STT.
 2. pmm-managed downloads checks file from SaaS.
@@ -210,7 +210,7 @@ Checks format and the current STT UI use different terminology for severities. H
 
 ## Frontend
 
-![!](../../../_images/FrontEndSTT.png)
+![!](../_images/FrontEndSTT.png)
 
 Our UI in Grafana uses Alertmanager API v2 to get information about failed security checks.
 
@@ -240,17 +240,17 @@ Our UI in Grafana uses Alertmanager API v2 to get information about failed secur
 
 3.  Log in to Grafana (admin/admin) and enable STT in the settings: http://127.0.0.1/graph/d/pmm-settings/pmm-settings
 
-    ![!](../../../_images/Grafana.png)
+    ![!](../_images/Grafana.png)
 
 4.  Create _/srv/custom-checks.yml_ inside a Docker container with the content from the Security Advisor (Security Threat Tool) section above.
 
 5.  STT checks will run with a time interval defined via UI. You can see the result of running the advisor on the home dashboard:
 
-    ![!](../../../_images/HomeDashboard.png)
+    ![!](../_images/HomeDashboard.png)
 
 6.  Click on the number of failed checks to open the Failed Checks dashboard:
 
-    ![!](../../../_images/FailedChecks.png)
+    ![!](../_images/FailedChecks.png)
 
 7.  Go into Docker container to output the logs of pmm-managed and read STT logs:
 
