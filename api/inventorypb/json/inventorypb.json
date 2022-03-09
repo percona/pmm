@@ -1117,7 +1117,7 @@
     },
     "/v1/inventory/Agents/AddPMMAgent": {
       "post": {
-        "description": "Adds pmm-agent Agent.",
+        "description": "Adds PMM Agent.",
         "tags": [
           "Agents"
         ],
@@ -1687,11 +1687,11 @@
     },
     "/v1/inventory/Agents/AddQANMongoDBProfilerAgent": {
       "post": {
-        "description": "Adds MongoDB Profiler QAN Agent.",
+        "description": "Adds 'Query Analytics MongoDB Profiler' Agent.",
         "tags": [
           "Agents"
         ],
-        "summary": "Add QANMongoDBProfiler Agent",
+        "summary": "Add 'QAN MongoDB Profiler' Agent",
         "operationId": "AddQANMongoDBProfilerAgent",
         "parameters": [
           {
@@ -1894,11 +1894,11 @@
     },
     "/v1/inventory/Agents/AddQANMySQLPerfSchemaAgent": {
       "post": {
-        "description": "Adds MySQL PerfSchema QAN Agent.",
+        "description": "Adds 'Query Analytics MySQL PerfSchema' Agent.",
         "tags": [
           "Agents"
         ],
-        "summary": "Add QANMySQLPerfSchema Agent",
+        "summary": "Add 'QAN MySQL PerfSchema' Agent",
         "operationId": "AddQANMySQLPerfSchemaAgent",
         "parameters": [
           {
@@ -2116,11 +2116,11 @@
     },
     "/v1/inventory/Agents/AddQANMySQLSlowlogAgent": {
       "post": {
-        "description": "Adds MySQL Slowlog QAN Agent.",
+        "description": "Adds 'Query Analytics MySQL Slowlog' Agent.",
         "tags": [
           "Agents"
         ],
-        "summary": "Add QANMySQLSlowlog Agent",
+        "summary": "Add 'QAN MySQL Slowlog' Agent",
         "operationId": "AddQANMySQLSlowlogAgent",
         "parameters": [
           {
@@ -2350,11 +2350,11 @@
     },
     "/v1/inventory/Agents/AddQANPostgreSQLPgStatMonitorAgent": {
       "post": {
-        "description": "Adds PostgreSQL PGStatMonitor QAN Agent.",
+        "description": "Adds 'Query Analytics PostgreSQL pg_stat_monitor' Agent.",
         "tags": [
           "Agents"
         ],
-        "summary": "Add QANPostgreSQLPgStatMonitor Agent",
+        "summary": "Add 'QAN PostgreSQL pg_stat_monitor' Agent",
         "operationId": "AddQANPostgreSQLPgStatMonitorAgent",
         "parameters": [
           {
@@ -2557,11 +2557,11 @@
     },
     "/v1/inventory/Agents/AddQANPostgreSQLPgStatementsAgent": {
       "post": {
-        "description": "Adds PostgreSQL PGStatStatements QAN Agent.",
+        "description": "Adds 'Query Analytics PostgreSQL pg_stat_statements' Agent.",
         "tags": [
           "Agents"
         ],
-        "summary": "Add QANPostgreSQLPgStatements Agent",
+        "summary": "Add 'QAN PostgreSQL pg_stat_statements' Agent",
         "operationId": "AddQANPostgreSQLPgStatementsAgent",
         "parameters": [
           {
@@ -4355,11 +4355,11 @@
     },
     "/v1/inventory/Agents/ChangeQANMongoDBProfilerAgent": {
       "post": {
-        "description": "Changes MongoDB Profiler QAN Agent.",
+        "description": "Changes 'Query Analytics MongoDB Profiler' Agent.",
         "tags": [
           "Agents"
         ],
-        "summary": "Change QANMongoDBProfiler Agent",
+        "summary": "Change 'QAN MongoDB Profiler' Agent",
         "operationId": "ChangeQANMongoDBProfilerAgent",
         "parameters": [
           {
@@ -4538,11 +4538,11 @@
     },
     "/v1/inventory/Agents/ChangeQANMySQLPerfSchemaAgent": {
       "post": {
-        "description": "Changes MySQL PerfSchema QAN Agent.",
+        "description": "Changes 'Query Analytics MySQL PerfSchema' Agent.",
         "tags": [
           "Agents"
         ],
-        "summary": "Change QANMySQLPerfSchema Agent",
+        "summary": "Change 'QAN MySQL PerfSchema' Agent",
         "operationId": "ChangeQANMySQLPerfSchemaAgent",
         "parameters": [
           {
@@ -4741,11 +4741,11 @@
     },
     "/v1/inventory/Agents/ChangeQANMySQLSlowlogAgent": {
       "post": {
-        "description": "Changes MySQL Slowlog QAN Agent.",
+        "description": "Changes 'Query Analytics MySQL Slowlog' Agent.",
         "tags": [
           "Agents"
         ],
-        "summary": "Change QANMySQL Slowlog Agent",
+        "summary": "Change 'QAN MySQL Slowlog' Agent",
         "operationId": "ChangeQANMySQLSlowlogAgent",
         "parameters": [
           {
@@ -4950,11 +4950,11 @@
     },
     "/v1/inventory/Agents/ChangeQANPostgreSQLPgStatMonitorAgent": {
       "post": {
-        "description": "Changes PostgreSQL PGStatMonitor QAN Agent.",
+        "description": "Changes 'Query Analytics PostgreSQL pg_stat_monitor' Agent.",
         "tags": [
           "Agents"
         ],
-        "summary": "Change QANPostgreSQLPgStatMonitor Agent",
+        "summary": "Change 'QAN PostgreSQL pg_stat_monitor' Agent",
         "operationId": "ChangeQANPostgreSQLPgStatMonitorAgent",
         "parameters": [
           {
@@ -5138,11 +5138,11 @@
     },
     "/v1/inventory/Agents/ChangeQANPostgreSQLPgStatementsAgent": {
       "post": {
-        "description": "Changes PostgreSQL PGStatStatements QAN Agent.",
+        "description": "Changes 'Query Analytics PostgreSQL pg_stat_statements' Agent.",
         "tags": [
           "Agents"
         ],
-        "summary": "Change QANPostgreSQLPgStatements Agent",
+        "summary": "Change 'QAN PostgreSQL pg_stat_statements' Agent",
         "operationId": "ChangeQANPostgreSQLPgStatementsAgent",
         "parameters": [
           {
@@ -11067,7 +11067,7 @@
     },
     "/v1/inventory/Services/List": {
       "post": {
-        "description": "Returns a list of all Services.",
+        "description": "Returns a list of Services filtered by type.",
         "tags": [
           "Services"
         ],

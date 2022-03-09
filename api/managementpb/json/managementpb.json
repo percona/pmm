@@ -94,7 +94,7 @@
     },
     "/v1/management/Actions/Get": {
       "post": {
-        "description": "Gets an result of given Action.",
+        "description": "Gets result of a given Action.",
         "tags": [
           "Actions"
         ],
@@ -198,11 +198,11 @@
     },
     "/v1/management/Actions/StartMongoDBExplain": {
       "post": {
-        "description": "Starts MongoDB EXPLAIN Action.",
+        "description": "Starts 'MongoDB EXPLAIN' Action.",
         "tags": [
           "Actions"
         ],
-        "summary": "Start MongoDBExplain Action",
+        "summary": "Start 'MongoDB EXPLAIN' Action",
         "operationId": "StartMongoDBExplainAction",
         "parameters": [
           {
@@ -297,11 +297,11 @@
     },
     "/v1/management/Actions/StartMySQLExplain": {
       "post": {
-        "description": "Starts MySQL EXPLAIN Action with traditional output.",
+        "description": "Starts 'MySQL EXPLAIN' Action with traditional output.",
         "tags": [
           "Actions"
         ],
-        "summary": "Start MySQL Explain Action",
+        "summary": "Start 'MySQL EXPLAIN' Action",
         "operationId": "StartMySQLExplainAction",
         "parameters": [
           {
@@ -401,11 +401,11 @@
     },
     "/v1/management/Actions/StartMySQLExplainJSON": {
       "post": {
-        "description": "Starts MySQL EXPLAIN Action with JSON output.",
+        "description": "Starts 'MySQL EXPLAIN' Action with JSON output.",
         "tags": [
           "Actions"
         ],
-        "summary": "Start MySQLExplainJSON Action",
+        "summary": "Start 'MySQL EXPLAIN JSON' Action",
         "operationId": "StartMySQLExplainJSONAction",
         "parameters": [
           {
@@ -505,11 +505,11 @@
     },
     "/v1/management/Actions/StartMySQLExplainTraditionalJSON": {
       "post": {
-        "description": "Starts MySQL EXPLAIN Action with traditional JSON output.",
+        "description": "Starts 'MySQL EXPLAIN' Action with traditional JSON output.",
         "tags": [
           "Actions"
         ],
-        "summary": "Start MySQL Explain Traditional JSON Action",
+        "summary": "Start 'MySQL EXPLAIN Traditional JSON' Action",
         "operationId": "StartMySQLExplainTraditionalJSONAction",
         "parameters": [
           {
@@ -609,11 +609,11 @@
     },
     "/v1/management/Actions/StartMySQLShowCreateTable": {
       "post": {
-        "description": "Starts MySQL SHOW CREATE TABLE Action.",
+        "description": "Starts 'MySQL SHOW CREATE TABLE' Action.",
         "tags": [
           "Actions"
         ],
-        "summary": "Start MySQLShowCreateTable Action",
+        "summary": "Start 'MySQL SHOW CREATE TABLE' Action",
         "operationId": "StartMySQLShowCreateTableAction",
         "parameters": [
           {
@@ -713,11 +713,11 @@
     },
     "/v1/management/Actions/StartMySQLShowIndex": {
       "post": {
-        "description": "Starts MySQL SHOW INDEX Action.",
+        "description": "Starts 'MySQL SHOW INDEX' Action.",
         "tags": [
           "Actions"
         ],
-        "summary": "Start MySQLShowIndex Action",
+        "summary": "Start 'MySQL SHOW INDEX' Action",
         "operationId": "StartMySQLShowIndexAction",
         "parameters": [
           {
@@ -817,11 +817,11 @@
     },
     "/v1/management/Actions/StartMySQLShowTableStatus": {
       "post": {
-        "description": "Starts MySQL SHOW TABLE STATUS Action.",
+        "description": "Starts 'MySQL SHOW TABLE STATUS' Action.",
         "tags": [
           "Actions"
         ],
-        "summary": "Start MySQLShowTableStatus Action",
+        "summary": "Start 'MySQL SHOW TABLE STATUS' Action",
         "operationId": "StartMySQLShowTableStatusAction",
         "parameters": [
           {
@@ -921,11 +921,11 @@
     },
     "/v1/management/Actions/StartPTMongoDBSummary": {
       "post": {
-        "description": "Starts pt-mongodb-summary Action.",
+        "description": "Starts 'Percona Toolkit MongoDB Summary' Action.",
         "tags": [
           "Actions"
         ],
-        "summary": "Start PTMongoDBSummary Action",
+        "summary": "Start 'PT MongoDB Summary' Action",
         "operationId": "StartPTMongoDBSummaryAction",
         "parameters": [
           {
@@ -1017,11 +1017,11 @@
     },
     "/v1/management/Actions/StartPTMySQLSummary": {
       "post": {
-        "description": "Starts pt--mysql-summary Action.",
+        "description": "Starts 'Percona Toolkit MySQL Summary' Action.",
         "tags": [
           "Actions"
         ],
-        "summary": "Start PTMySQLSummary Action",
+        "summary": "Start 'PT MySQL Summary' Action",
         "operationId": "StartPTMySQLSummaryAction",
         "parameters": [
           {
@@ -1113,11 +1113,11 @@
     },
     "/v1/management/Actions/StartPTPgSummary": {
       "post": {
-        "description": "Starts pt-pg-summary Action.",
+        "description": "Starts 'Percona Toolkit PostgreSQL Summary' Action.",
         "tags": [
           "Actions"
         ],
-        "summary": "Start PTPgSummary Action",
+        "summary": "Start 'PT PostgreSQL Summary' Action",
         "operationId": "StartPTPgSummaryAction",
         "parameters": [
           {
@@ -1209,11 +1209,11 @@
     },
     "/v1/management/Actions/StartPTSummary": {
       "post": {
-        "description": "Starts pt-summary Action.",
+        "description": "Starts 'Percona Toolkit Summary' Action.",
         "tags": [
           "Actions"
         ],
-        "summary": "Start PTSummary Action",
+        "summary": "Start 'PT Summary' Action",
         "operationId": "StartPTSummaryAction",
         "parameters": [
           {
@@ -1303,11 +1303,11 @@
     },
     "/v1/management/Actions/StartPostgreSQLShowCreateTable": {
       "post": {
-        "description": "Starts PostgreSQL SHOW CREATE TABLE Action.",
+        "description": "Starts 'PostgreSQL SHOW CREATE TABLE' Action.",
         "tags": [
           "Actions"
         ],
-        "summary": "Start PostgreSQLShowCreateTable Action",
+        "summary": "Start 'PostgreSQL SHOW CREATE TABLE' Action",
         "operationId": "StartPostgreSQLShowCreateTableAction",
         "parameters": [
           {
@@ -1407,11 +1407,11 @@
     },
     "/v1/management/Actions/StartPostgreSQLShowIndex": {
       "post": {
-        "description": "Starts PostgreSQL SHOW INDEX Action.",
+        "description": "Starts 'PostgreSQL SHOW INDEX' Action.",
         "tags": [
           "Actions"
         ],
-        "summary": "Start PostgreSQLShowIndex Action",
+        "summary": "Start 'PostgreSQL SHOW INDEX' Action",
         "operationId": "StartPostgreSQLShowIndexAction",
         "parameters": [
           {
@@ -6065,7 +6065,7 @@
     },
     "/v1/management/SecurityChecks/Start": {
       "post": {
-        "description": "Executes Security Thread Tool checks and returns when all checks are executed.",
+        "description": "Executes Security Thread Tool checks and returns when all checks are executed. All available checks will be started if check names aren't specified.",
         "tags": [
           "SecurityChecks"
         ],

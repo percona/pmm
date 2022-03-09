@@ -266,7 +266,7 @@ func (a *Client) AddNodeExporter(params *AddNodeExporterParams) (*AddNodeExporte
 /*
   AddPMMAgent adds PMM agent
 
-  Adds pmm-agent Agent.
+  Adds PMM Agent.
 */
 func (a *Client) AddPMMAgent(params *AddPMMAgentParams) (*AddPMMAgentOK, error) {
 	// TODO: Validate the params before sending
@@ -371,7 +371,7 @@ func (a *Client) AddProxySQLExporter(params *AddProxySQLExporterParams) (*AddPro
 /*
   AddQANMongoDBProfilerAgent adds QAN mongo DB profiler agent
 
-  Adds MongoDB Profiler QAN Agent.
+  Adds 'Query Analytics MongoDB Profiler' Agent.
 */
 func (a *Client) AddQANMongoDBProfilerAgent(params *AddQANMongoDBProfilerAgentParams) (*AddQANMongoDBProfilerAgentOK, error) {
 	// TODO: Validate the params before sending
@@ -406,7 +406,7 @@ func (a *Client) AddQANMongoDBProfilerAgent(params *AddQANMongoDBProfilerAgentPa
 /*
   AddQANMySQLPerfSchemaAgent adds QAN my SQL perf schema agent
 
-  Adds MySQL PerfSchema QAN Agent.
+  Adds 'Query Analytics MySQL PerfSchema' Agent.
 */
 func (a *Client) AddQANMySQLPerfSchemaAgent(params *AddQANMySQLPerfSchemaAgentParams) (*AddQANMySQLPerfSchemaAgentOK, error) {
 	// TODO: Validate the params before sending
@@ -441,7 +441,7 @@ func (a *Client) AddQANMySQLPerfSchemaAgent(params *AddQANMySQLPerfSchemaAgentPa
 /*
   AddQANMySQLSlowlogAgent adds QAN my SQL slowlog agent
 
-  Adds MySQL Slowlog QAN Agent.
+  Adds 'Query Analytics MySQL Slowlog' Agent.
 */
 func (a *Client) AddQANMySQLSlowlogAgent(params *AddQANMySQLSlowlogAgentParams) (*AddQANMySQLSlowlogAgentOK, error) {
 	// TODO: Validate the params before sending
@@ -476,7 +476,7 @@ func (a *Client) AddQANMySQLSlowlogAgent(params *AddQANMySQLSlowlogAgentParams) 
 /*
   AddQANPostgreSQLPgStatMonitorAgent adds QAN postgre SQL pg stat monitor agent
 
-  Adds PostgreSQL PGStatMonitor QAN Agent.
+  Adds 'Query Analytics PostgreSQL pg_stat_monitor' Agent.
 */
 func (a *Client) AddQANPostgreSQLPgStatMonitorAgent(params *AddQANPostgreSQLPgStatMonitorAgentParams) (*AddQANPostgreSQLPgStatMonitorAgentOK, error) {
 	// TODO: Validate the params before sending
@@ -509,9 +509,9 @@ func (a *Client) AddQANPostgreSQLPgStatMonitorAgent(params *AddQANPostgreSQLPgSt
 }
 
 /*
-  AddQANPostgreSQLPgStatementsAgent adds QAN postgre SQL pg statements agent
+  AddQANPostgreSQLPgStatementsAgent adds QAN postgre SQL pg stat statements agent
 
-  Adds PostgreSQL PGStatStatements QAN Agent.
+  Adds 'Query Analytics PostgreSQL pg_stat_statements' Agent.
 */
 func (a *Client) AddQANPostgreSQLPgStatementsAgent(params *AddQANPostgreSQLPgStatementsAgentParams) (*AddQANPostgreSQLPgStatementsAgentOK, error) {
 	// TODO: Validate the params before sending
@@ -826,7 +826,7 @@ func (a *Client) ChangeProxySQLExporter(params *ChangeProxySQLExporterParams) (*
 /*
   ChangeQANMongoDBProfilerAgent changes QAN mongo DB profiler agent
 
-  Changes MongoDB Profiler QAN Agent.
+  Changes 'Query Analytics MongoDB Profiler' Agent.
 */
 func (a *Client) ChangeQANMongoDBProfilerAgent(params *ChangeQANMongoDBProfilerAgentParams) (*ChangeQANMongoDBProfilerAgentOK, error) {
 	// TODO: Validate the params before sending
@@ -861,7 +861,7 @@ func (a *Client) ChangeQANMongoDBProfilerAgent(params *ChangeQANMongoDBProfilerA
 /*
   ChangeQANMySQLPerfSchemaAgent changes QAN my SQL perf schema agent
 
-  Changes MySQL PerfSchema QAN Agent.
+  Changes 'Query Analytics MySQL PerfSchema' Agent.
 */
 func (a *Client) ChangeQANMySQLPerfSchemaAgent(params *ChangeQANMySQLPerfSchemaAgentParams) (*ChangeQANMySQLPerfSchemaAgentOK, error) {
 	// TODO: Validate the params before sending
@@ -896,7 +896,7 @@ func (a *Client) ChangeQANMySQLPerfSchemaAgent(params *ChangeQANMySQLPerfSchemaA
 /*
   ChangeQANMySQLSlowlogAgent changes QAN my SQL slowlog agent
 
-  Changes MySQL Slowlog QAN Agent.
+  Changes 'Query Analytics MySQL Slowlog' Agent.
 */
 func (a *Client) ChangeQANMySQLSlowlogAgent(params *ChangeQANMySQLSlowlogAgentParams) (*ChangeQANMySQLSlowlogAgentOK, error) {
 	// TODO: Validate the params before sending
@@ -931,7 +931,7 @@ func (a *Client) ChangeQANMySQLSlowlogAgent(params *ChangeQANMySQLSlowlogAgentPa
 /*
   ChangeQANPostgreSQLPgStatMonitorAgent changes QAN postgre SQL pg stat monitor agent
 
-  Changes PostgreSQL PGStatMonitor QAN Agent.
+  Changes 'Query Analytics PostgreSQL pg_stat_monitor' Agent.
 */
 func (a *Client) ChangeQANPostgreSQLPgStatMonitorAgent(params *ChangeQANPostgreSQLPgStatMonitorAgentParams) (*ChangeQANPostgreSQLPgStatMonitorAgentOK, error) {
 	// TODO: Validate the params before sending
@@ -964,9 +964,9 @@ func (a *Client) ChangeQANPostgreSQLPgStatMonitorAgent(params *ChangeQANPostgreS
 }
 
 /*
-  ChangeQANPostgreSQLPgStatementsAgent changes QAN postgre SQL pg statements agent
+  ChangeQANPostgreSQLPgStatementsAgent changes QAN postgre SQL pg stat statements agent
 
-  Changes PostgreSQL PGStatStatements QAN Agent.
+  Changes 'Query Analytics PostgreSQL pg_stat_statements' Agent.
 */
 func (a *Client) ChangeQANPostgreSQLPgStatementsAgent(params *ChangeQANPostgreSQLPgStatementsAgentParams) (*ChangeQANPostgreSQLPgStatementsAgentOK, error) {
 	// TODO: Validate the params before sending

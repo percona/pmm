@@ -294,7 +294,7 @@ func (a *Client) GetService(params *GetServiceParams) (*GetServiceOK, error) {
 /*
   ListServices lists services
 
-  Returns a list of all Services.
+  Returns a list of Services filtered by type.
 */
 func (a *Client) ListServices(params *ListServicesParams) (*ListServicesOK, error) {
 	// TODO: Validate the params before sending
