@@ -353,7 +353,7 @@ message CancelActionResponse {}
 
 // Actions service provides public Management API methods for Actions.
 service Actions {
-  // GetAction gets an result of given Action.
+  // GetAction gets result of a given Action.
   rpc GetAction(GetActionRequest) returns (GetActionResponse) {
     option (google.api.http) = {
       post: "/v1/management/Actions/Get"
@@ -361,7 +361,7 @@ service Actions {
     };
     option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
       summary: "Get Action"
-      description: "Gets an result of given Action."
+      description: "Gets result of a given Action."
     };
   }
   // StartMySQLExplainAction starts MySQL EXPLAIN Action with traditional output.
@@ -371,8 +371,8 @@ service Actions {
       body: "*"
     };
     option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-      summary: "Start MySQL Explain Action"
-      description: "Starts MySQL EXPLAIN Action with traditional output."
+      summary: "Start 'MySQL EXPLAIN' Action"
+      description: "Starts 'MySQL EXPLAIN' Action with traditional output."
     };
   }
   // StartMySQLExplainJSONAction starts MySQL EXPLAIN Action with JSON output.
@@ -382,8 +382,8 @@ service Actions {
       body: "*"
     };
     option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-      summary: "Start MySQLExplainJSON Action"
-      description: "Starts MySQL EXPLAIN Action with JSON output."
+      summary: "Start 'MySQL EXPLAIN JSON' Action"
+      description: "Starts 'MySQL EXPLAIN' Action with JSON output."
     };
   }
   // StartMySQLExplainTraditionalJSONAction starts MySQL EXPLAIN Action with traditional JSON output.
@@ -393,8 +393,8 @@ service Actions {
       body: "*"
     };
     option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-      summary: "Start MySQL Explain Traditional JSON Action"
-      description: "Starts MySQL EXPLAIN Action with traditional JSON output."
+      summary: "Start 'MySQL EXPLAIN Traditional JSON' Action"
+      description: "Starts 'MySQL EXPLAIN' Action with traditional JSON output."
     };
   }
   // StartMySQLShowCreateTableAction starts MySQL SHOW CREATE TABLE Action.
@@ -404,8 +404,8 @@ service Actions {
       body: "*"
     };
     option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-      summary: "Start MySQLShowCreateTable Action"
-      description: "Starts MySQL SHOW CREATE TABLE Action."
+      summary: "Start 'MySQL SHOW CREATE TABLE' Action"
+      description: "Starts 'MySQL SHOW CREATE TABLE' Action."
     };
   }
   // StartMySQLShowTableStatusAction starts MySQL SHOW TABLE STATUS Action.
@@ -415,8 +415,8 @@ service Actions {
       body: "*"
     };
     option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-      summary: "Start MySQLShowTableStatus Action"
-      description: "Starts MySQL SHOW TABLE STATUS Action."
+      summary: "Start 'MySQL SHOW TABLE STATUS' Action"
+      description: "Starts 'MySQL SHOW TABLE STATUS' Action."
     };
   }
   // StartMySQLShowIndexAction starts MySQL SHOW INDEX Action.
@@ -426,8 +426,8 @@ service Actions {
       body: "*"
     };
     option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-      summary: "Start MySQLShowIndex Action"
-      description: "Starts MySQL SHOW INDEX Action."
+      summary: "Start 'MySQL SHOW INDEX' Action"
+      description: "Starts 'MySQL SHOW INDEX' Action."
     };
   }
   // StartPostgreSQLShowCreateTableAction starts PostgreSQL SHOW CREATE TABLE Action.
@@ -437,8 +437,8 @@ service Actions {
       body: "*"
     };
     option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-      summary: "Start PostgreSQLShowCreateTable Action"
-      description: "Starts PostgreSQL SHOW CREATE TABLE Action."
+      summary: "Start 'PostgreSQL SHOW CREATE TABLE' Action"
+      description: "Starts 'PostgreSQL SHOW CREATE TABLE' Action."
     };
   }
   // StartPostgreSQLShowIndexAction starts PostgreSQL SHOW INDEX Action.
@@ -448,8 +448,8 @@ service Actions {
       body: "*"
     };
     option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-      summary: "Start PostgreSQLShowIndex Action"
-      description: "Starts PostgreSQL SHOW INDEX Action."
+      summary: "Start 'PostgreSQL SHOW INDEX' Action"
+      description: "Starts 'PostgreSQL SHOW INDEX' Action."
     };
   }
   // StartMongoDBExplainAction starts MongoDB EXPLAIN Action.
@@ -459,8 +459,8 @@ service Actions {
       body: "*"
     };
     option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-      summary: "Start MongoDBExplain Action"
-      description: "Starts MongoDB EXPLAIN Action."
+      summary: "Start 'MongoDB EXPLAIN' Action"
+      description: "Starts 'MongoDB EXPLAIN' Action."
     };
   }
   // StartPTSummaryAction starts pt-summary Action.
@@ -470,8 +470,8 @@ service Actions {
       body: "*"
     };
     option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-      summary: "Start PTSummary Action"
-      description: "Starts pt-summary Action."
+      summary: "Start 'PT Summary' Action"
+      description: "Starts 'Percona Toolkit Summary' Action."
     };
   }
   // StartPTPgSummaryAction starts pt-pg-summary Action.
@@ -481,8 +481,8 @@ service Actions {
       body: "*"
     };
     option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-      summary: "Start PTPgSummary Action"
-      description: "Starts pt-pg-summary Action."
+      summary: "Start 'PT PostgreSQL Summary' Action"
+      description: "Starts 'Percona Toolkit PostgreSQL Summary' Action."
     };
   }
   // StartPTMongoDBSummaryAction starts pt-mongodb-summary Action.
@@ -492,19 +492,19 @@ service Actions {
       body: "*"
     };
     option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-      summary: "Start PTMongoDBSummary Action"
-      description: "Starts pt-mongodb-summary Action."
+      summary: "Start 'PT MongoDB Summary' Action"
+      description: "Starts 'Percona Toolkit MongoDB Summary' Action."
     };
   }
-  // StartPTMySQLSummaryAction starts pt--mysql-summary Action.
+  // StartPTMySQLSummaryAction starts pt-mysql-summary Action.
   rpc StartPTMySQLSummaryAction(StartPTMySQLSummaryActionRequest) returns (StartPTMySQLSummaryActionResponse) {
     option (google.api.http) = {
       post: "/v1/management/Actions/StartPTMySQLSummary"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-      summary: "Start PTMySQLSummary Action"
-      description: "Starts pt--mysql-summary Action."
+      summary: "Start 'PT MySQL Summary' Action"
+      description: "Starts 'Percona Toolkit MySQL Summary' Action."
     };
   }
   // CancelAction stops an Action.

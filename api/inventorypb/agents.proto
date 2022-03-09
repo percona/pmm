@@ -1352,7 +1352,7 @@ service Agents {
     };
     option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
       summary: "Add PMM Agent"
-      description: "Adds pmm-agent Agent."
+      description: "Adds PMM Agent."
     };
   }
   // AddNodeExporter adds node_exporter Agent.
@@ -1465,114 +1465,114 @@ service Agents {
       description: "Changes proxysql_exporter Agent."
     };
   }
-  // AddQANMySQLPerfSchemaAgent adds MySQL PerfSchema QAN Agent.
+  // AddQANMySQLPerfSchemaAgent adds QAN MySQL PerfSchema Agent.
   rpc AddQANMySQLPerfSchemaAgent(AddQANMySQLPerfSchemaAgentRequest) returns (AddQANMySQLPerfSchemaAgentResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/AddQANMySQLPerfSchemaAgent"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-      summary: "Add QANMySQLPerfSchema Agent"
-      description: "Adds MySQL PerfSchema QAN Agent."
+      summary: "Add 'QAN MySQL PerfSchema' Agent"
+      description: "Adds 'Query Analytics MySQL PerfSchema' Agent."
     };
   }
-  // ChangeQANMySQLPerfSchemaAgent changes MySQL PerfSchema QAN Agent.
+  // ChangeQANMySQLPerfSchemaAgent changes QAN MySQL PerfSchema Agent.
   rpc ChangeQANMySQLPerfSchemaAgent(ChangeQANMySQLPerfSchemaAgentRequest) returns (ChangeQANMySQLPerfSchemaAgentResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/ChangeQANMySQLPerfSchemaAgent"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-      summary: "Change QANMySQLPerfSchema Agent"
-      description: "Changes MySQL PerfSchema QAN Agent."
+      summary: "Change 'QAN MySQL PerfSchema' Agent"
+      description: "Changes 'Query Analytics MySQL PerfSchema' Agent."
     };
   }
-  // AddQANMySQLSlowlogAgent adds MySQL Slowlog QAN Agent.
+  // AddQANMySQLSlowlogAgent adds QAN MySQL Slowlog Agent.
   rpc AddQANMySQLSlowlogAgent(AddQANMySQLSlowlogAgentRequest) returns (AddQANMySQLSlowlogAgentResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/AddQANMySQLSlowlogAgent"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-      summary: "Add QANMySQLSlowlog Agent"
-      description: "Adds MySQL Slowlog QAN Agent."
+      summary: "Add 'QAN MySQL Slowlog' Agent"
+      description: "Adds 'Query Analytics MySQL Slowlog' Agent."
     };
   }
-  // ChangeQANMySQLSlowlogAgent changes MySQL Slowlog QAN Agent.
+  // ChangeQANMySQLSlowlogAgent changes QAN MySQL Slowlog Agent.
   rpc ChangeQANMySQLSlowlogAgent(ChangeQANMySQLSlowlogAgentRequest) returns (ChangeQANMySQLSlowlogAgentResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/ChangeQANMySQLSlowlogAgent"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-      summary: "Change QANMySQL Slowlog Agent"
-      description: "Changes MySQL Slowlog QAN Agent."
+      summary: "Change 'QAN MySQL Slowlog' Agent"
+      description: "Changes 'Query Analytics MySQL Slowlog' Agent."
     };
   }
-  // AddQANMongoDBProfilerAgent adds MongoDB Profiler QAN Agent.
+  // AddQANMongoDBProfilerAgent adds QAN MongoDB Profiler Agent.
   rpc AddQANMongoDBProfilerAgent(AddQANMongoDBProfilerAgentRequest) returns (AddQANMongoDBProfilerAgentResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/AddQANMongoDBProfilerAgent"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-      summary: "Add QANMongoDBProfiler Agent"
-      description: "Adds MongoDB Profiler QAN Agent."
+      summary: "Add 'QAN MongoDB Profiler' Agent"
+      description: "Adds 'Query Analytics MongoDB Profiler' Agent."
     };
   }
-  // ChangeQANMongoDBProfilerAgent changes MongoDB Profiler QAN Agent.
+  // ChangeQANMongoDBProfilerAgent changes QAN MongoDB Profiler Agent.
   rpc ChangeQANMongoDBProfilerAgent(ChangeQANMongoDBProfilerAgentRequest) returns (ChangeQANMongoDBProfilerAgentResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/ChangeQANMongoDBProfilerAgent"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-      summary: "Change QANMongoDBProfiler Agent"
-      description: "Changes MongoDB Profiler QAN Agent."
+      summary: "Change 'QAN MongoDB Profiler' Agent"
+      description: "Changes 'Query Analytics MongoDB Profiler' Agent."
     };
   }
-  // AddQANPostgreSQLPgStatementsAgent adds PostgreSQL Pg Stat Statements QAN Agent.
+  // AddQANPostgreSQLPgStatementsAgent adds QAN PostgreSQL PgStat Statements Agent.
   rpc AddQANPostgreSQLPgStatementsAgent(AddQANPostgreSQLPgStatementsAgentRequest) returns (AddQANPostgreSQLPgStatementsAgentResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/AddQANPostgreSQLPgStatementsAgent"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-      summary: "Add QANPostgreSQLPgStatements Agent"
-      description: "Adds PostgreSQL PGStatStatements QAN Agent."
+      summary: "Add 'QAN PostgreSQL pg_stat_statements' Agent"
+      description: "Adds 'Query Analytics PostgreSQL pg_stat_statements' Agent."
     };
   }
-  // ChangeQANPostgreSQLPgStatementsAgent changes PostgreSQL Pg Stat Statements QAN Agent.
+  // ChangeQANPostgreSQLPgStatementsAgent changes QAN PostgreSQL PgStat Statements Agent.
   rpc ChangeQANPostgreSQLPgStatementsAgent(ChangeQANPostgreSQLPgStatementsAgentRequest) returns (ChangeQANPostgreSQLPgStatementsAgentResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/ChangeQANPostgreSQLPgStatementsAgent"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-      summary: "Change QANPostgreSQLPgStatements Agent"
-      description: "Changes PostgreSQL PGStatStatements QAN Agent."
+      summary: "Change 'QAN PostgreSQL pg_stat_statements' Agent"
+      description: "Changes 'Query Analytics PostgreSQL pg_stat_statements' Agent."
     };
   }
-  // AddQANPostgreSQLPgStatMonitorAgent adds PostgreSQL Pg Stat Monitor QAN Agent.
+  // AddQANPostgreSQLPgStatMonitorAgent adds QAN PostgreSQL PgStat Monitor Agent.
   rpc AddQANPostgreSQLPgStatMonitorAgent(AddQANPostgreSQLPgStatMonitorAgentRequest) returns (AddQANPostgreSQLPgStatMonitorAgentResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/AddQANPostgreSQLPgStatMonitorAgent"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-      summary: "Add QANPostgreSQLPgStatMonitor Agent"
-      description: "Adds PostgreSQL PGStatMonitor QAN Agent."
+      summary: "Add 'QAN PostgreSQL pg_stat_monitor' Agent"
+      description: "Adds 'Query Analytics PostgreSQL pg_stat_monitor' Agent."
     };
   }
-  // ChangeQANPostgreSQLPgStatMonitorAgent changes PostgreSQL Pg Stat Monitor QAN Agent.
+  // ChangeQANPostgreSQLPgStatMonitorAgent changes QAN PostgreSQL PgStat Monitor Agent.
   rpc ChangeQANPostgreSQLPgStatMonitorAgent(ChangeQANPostgreSQLPgStatMonitorAgentRequest) returns (ChangeQANPostgreSQLPgStatMonitorAgentResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/ChangeQANPostgreSQLPgStatMonitorAgent"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-      summary: "Change QANPostgreSQLPgStatMonitor Agent"
-      description: "Changes PostgreSQL PGStatMonitor QAN Agent."
+      summary: "Change 'QAN PostgreSQL pg_stat_monitor' Agent"
+      description: "Changes 'Query Analytics PostgreSQL pg_stat_monitor' Agent."
     };
   }
   // AddRDSExporter adds rds_exporter Agent.

@@ -438,7 +438,7 @@ message RemoveServiceResponse {}
 
 // Services service provides public methods for managing Services.
 service Services {
-  // ListServices returns a list of all Services.
+  // ListServices returns a list of Services filtered by type.
   rpc ListServices(ListServicesRequest) returns (ListServicesResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Services/List"
@@ -446,7 +446,7 @@ service Services {
     };
     option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
       summary: "List Services"
-      description: "Returns a list of all Services."
+      description: "Returns a list of Services filtered by type."
     };
   }
   // GetService returns a single Service by ID.
