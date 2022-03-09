@@ -260,7 +260,7 @@ show_message() {
     die "${RED}ERROR: cannot detect PMM server address${NOFORMAT}"
   fi
 
-  msg "You can access your new server using the one of following web addresses:"
+  msg "You can access your new server using one of the following web addresses:"
   for ip in $ips; do
     msg "\t${GREEN}https://$ip:$port/${NOFORMAT}"
   done
