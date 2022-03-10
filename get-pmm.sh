@@ -162,7 +162,7 @@ run_root() {
 }
 
 #######################################
-# Check if MacOS 
+# Check if MacOS
 #######################################
 is_darwin() {
    case "$(uname -s)" in
@@ -227,7 +227,7 @@ start_pmm() {
   run_docker "pull $repo:$tag 1> /dev/null"
 
   if ! run_docker "inspect pmm-data 1> /dev/null 2> /dev/null"; then
-    run_docker "create -v /srv/ --name pmm-data percona/pmm-server:$tag /bin/true 1> /dev/null"
+    run_docker "create -v /srv/ --name pmm-data $repo:$tag /bin/true 1> /dev/null"
     msg "Created PMM Data Volume: pmm-data"
   fi
 
