@@ -265,6 +265,20 @@ func (this *StartActionRequest) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetParams().(*StartActionRequest_MongodbQueryReplsetgetstatusParams); ok {
+		if oneOfNester.MongodbQueryReplsetgetstatusParams != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.MongodbQueryReplsetgetstatusParams); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("MongodbQueryReplsetgetstatusParams", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetParams().(*StartActionRequest_MongodbQueryGetdiagnosticdataParams); ok {
+		if oneOfNester.MongodbQueryGetdiagnosticdataParams != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.MongodbQueryGetdiagnosticdataParams); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("MongodbQueryGetdiagnosticdataParams", err)
+			}
+		}
+	}
 	if this.Timeout != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Timeout); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Timeout", err)
@@ -389,6 +403,22 @@ func (this *StartActionRequest_MongoDBQueryBuildInfoParams) Validate() error {
 	return nil
 }
 func (this *StartActionRequest_MongoDBQueryGetCmdLineOptsParams) Validate() error {
+	if this.TextFiles != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.TextFiles); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("TextFiles", err)
+		}
+	}
+	return nil
+}
+func (this *StartActionRequest_MongoDBQueryReplSetGetStatusParams) Validate() error {
+	if this.TextFiles != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.TextFiles); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("TextFiles", err)
+		}
+	}
+	return nil
+}
+func (this *StartActionRequest_MongoDBQueryGetDiagnosticDataParams) Validate() error {
 	if this.TextFiles != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.TextFiles); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("TextFiles", err)
