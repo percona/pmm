@@ -119,7 +119,7 @@ service MySQL {
     };
     option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
       summary: "Add MySQL"
-      description: "Adds MySQL Service and starts several Agents. It automatically adds a service to inventory, which is running on provided \"node_id\", then adds \"mysqld_exporter\", and \"qan_mysql_perfschema\" agents with provided \"pmm_agent_id\" and other parameters."
+      description: "Adds MySQL Service and starts several Agents. It automatically adds a service to inventory, which is running on the provided \"node_id\", then adds \"mysqld_exporter\", and \"qan_mysql_perfschema\" agents with the provided \"pmm_agent_id\" and other parameters."
     };
   }
 }

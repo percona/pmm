@@ -380,7 +380,7 @@ service Nodes {
     };
     option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
       summary: "Add Container Node"
-      description: "Adds Container Node."
+      description: "Adds container Node."
     };
   }
   // AddRemoteNode adds remote Node.
