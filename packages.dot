@@ -25,7 +25,7 @@ digraph packages {
 	"/client" -> "/client/channel";
 	"/client" -> "/config";
 	"/client" -> "/jobs";
-	"/client" -> "/versioner";Remove PG
+	"/client" -> "/versioner";
 	"/commands" -> "/agentlocal";
 	"/commands" -> "/agents/supervisor";
 	"/commands" -> "/client";
