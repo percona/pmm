@@ -5820,6 +5820,11 @@
                     "description": "CheckResult represents the check results for a given service.",
                     "type": "object",
                     "properties": {
+                      "alert_id": {
+                        "type": "string",
+                        "title": "ID of the check result as stored in AlertManager",
+                        "x-order": 8
+                      },
                       "check_name": {
                         "type": "string",
                         "title": "Name of the check that failed",
@@ -5867,6 +5872,11 @@
                           "SEVERITY_DEBUG"
                         ],
                         "x-order": 2
+                      },
+                      "silenced": {
+                        "type": "boolean",
+                        "title": "Silence status of the check result",
+                        "x-order": 9
                       },
                       "summary": {
                         "type": "string",

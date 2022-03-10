@@ -55,6 +55,10 @@ message CheckResult {
   string service_id = 7;
   // Name of the check that failed
   string check_name = 8;
+  // ID of the check result as stored in AlertManager
+  string alert_id = 9;
+  // Silence status of the check result
+  bool silenced = 10;
 }
 
 // SecurityCheck contains check name and status.

@@ -24652,6 +24652,16 @@
                         "type": "string",
                         "title": "Name of the check that failed",
                         "x-order": 7
+                      },
+                      "alert_id": {
+                        "type": "string",
+                        "title": "ID of the check result as stored in AlertManager",
+                        "x-order": 8
+                      },
+                      "silenced": {
+                        "type": "boolean",
+                        "title": "Silence status of the check result",
+                        "x-order": 9
                       }
                     }
                   },
