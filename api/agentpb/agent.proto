@@ -307,6 +307,22 @@ message StartActionRequest {
     // Contains files and their contents which can be used in DSN.
     TextFiles text_files = 2;
   }
+  // MongoDBQueryReplSetGetStatusParams describes MongoDB replSetGetStatus query action parameters.
+  message MongoDBQueryReplSetGetStatusParams {
+    // DSN for the service. May contain connection (dial) timeout.
+    // May contain placeholders for file paths in DSN.
+    string dsn = 1;
+    // Contains files and their contents which can be used in DSN.
+    TextFiles text_files = 2;
+  }
+  // MongoDBQueryGetDiagnosticDataParams describes MongoDB getDiagnosticData query action parameters.
+  message MongoDBQueryGetDiagnosticDataParams {
+    // DSN for the service. May contain connection (dial) timeout.
+    // May contain placeholders for file paths in DSN.
+    string dsn = 1;
+    // Contains files and their contents which can be used in DSN.
+    TextFiles text_files = 2;
+  }
   string action_id = 1;
   oneof params {
     MySQLExplainParams mysql_explain_params = 2;
@@ -327,6 +343,8 @@ message StartActionRequest {
     MongoDBQueryGetParameterParams mongodb_query_getparameter_params = 54;
     MongoDBQueryBuildInfoParams mongodb_query_buildinfo_params = 55;
     MongoDBQueryGetCmdLineOptsParams mongodb_query_getcmdlineopts_params = 56;
+    MongoDBQueryReplSetGetStatusParams mongodb_query_replsetgetstatus_params = 57;
+    MongoDBQueryGetDiagnosticDataParams mongodb_query_getdiagnosticdata_params = 58;
   }
   // Timeout for the whole action. If zero or absent, pmm-agent will pick one itself.
   google.protobuf.Duration timeout = 9;
