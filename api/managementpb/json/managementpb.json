@@ -5823,7 +5823,7 @@
                       "check_name": {
                         "type": "string",
                         "title": "Name of the check that failed",
-                        "x-order": 6
+                        "x-order": 7
                       },
                       "description": {
                         "type": "string",
@@ -5840,6 +5840,11 @@
                         "description": "URL containing information on how to resolve an issue detected by an STT check.",
                         "type": "string",
                         "x-order": 4
+                      },
+                      "service_id": {
+                        "description": "ID of the monitored service on which the check ran.",
+                        "type": "string",
+                        "x-order": 6
                       },
                       "service_name": {
                         "description": "Name of the monitored service on which the check ran.",

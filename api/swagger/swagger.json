@@ -18588,10 +18588,15 @@
                         "type": "string",
                         "x-order": 5
                       },
+                      "service_id": {
+                        "description": "ID of the monitored service on which the check ran.",
+                        "type": "string",
+                        "x-order": 6
+                      },
                       "check_name": {
                         "type": "string",
                         "title": "Name of the check that failed",
-                        "x-order": 6
+                        "x-order": 7
                       }
                     }
                   },

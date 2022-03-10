@@ -441,6 +441,9 @@ type ResultsItems0 struct {
 	// Name of the monitored service on which the check ran.
 	ServiceName string `json:"service_name,omitempty"`
 
+	// ID of the monitored service on which the check ran.
+	ServiceID string `json:"service_id,omitempty"`
+
 	// Name of the check that failed
 	CheckName string `json:"check_name,omitempty"`
 }
