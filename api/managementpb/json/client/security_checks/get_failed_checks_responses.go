@@ -124,8 +124,8 @@ swagger:model GetFailedChecksBody
 */
 type GetFailedChecksBody struct {
 
-	// service name
-	ServiceName string `json:"service_name,omitempty"`
+	// service id
+	ServiceID string `json:"service_id,omitempty"`
 
 	// page params
 	PageParams *GetFailedChecksParamsBodyPageParams `json:"page_params,omitempty"`

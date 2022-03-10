@@ -18507,7 +18507,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "service_name": {
+                "service_id": {
                   "type": "string",
                   "x-order": 0
                 },

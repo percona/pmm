@@ -5781,7 +5781,7 @@
                   },
                   "x-order": 1
                 },
-                "service_name": {
+                "service_id": {
                   "type": "string",
                   "x-order": 0
                 }
