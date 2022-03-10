@@ -96,7 +96,7 @@ func (a *Client) CancelAction(params *CancelActionParams) (*CancelActionOK, erro
 /*
   GetAction gets action
 
-  Gets result of a given Action.
+  Gets the result of a given Action.
 */
 func (a *Client) GetAction(params *GetActionParams) (*GetActionOK, error) {
 	// TODO: Validate the params before sending

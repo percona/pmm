@@ -8015,7 +8015,7 @@
     },
     "/v1/inventory/Nodes/AddContainer": {
       "post": {
-        "description": "Adds Container Node.",
+        "description": "Adds container Node.",
         "tags": [
           "Nodes"
         ],

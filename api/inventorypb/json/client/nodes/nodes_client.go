@@ -47,7 +47,7 @@ type ClientService interface {
 /*
   AddContainerNode adds container node
 
-  Adds Container Node.
+  Adds container Node.
 */
 func (a *Client) AddContainerNode(params *AddContainerNodeParams) (*AddContainerNodeOK, error) {
 	// TODO: Validate the params before sending
