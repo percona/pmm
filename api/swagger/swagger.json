@@ -19089,6 +19089,84 @@
         }
       }
     },
+    "/v1/management/SecurityChecks/ToggleCheckAlert": {
+      "post": {
+        "tags": [
+          "SecurityChecks"
+        ],
+        "summary": "ToggleCheckAlert allows to switch alerts state for a check result between \"silenced\" and \"unsilenced\".",
+        "operationId": "ToggleCheckAlert",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "alert_id": {
+                  "description": "Alert ID of the check result.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "silence": {
+                  "description": "Silence the check result if set to true, unsilence otherwise.",
+                  "type": "boolean",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/Service/Remove": {
       "post": {
         "description": "Removes Service with Agents.",

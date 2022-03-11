@@ -115,3 +115,9 @@ func (this *GetFailedChecksResponse) Validate() error {
 	}
 	return nil
 }
+func (this *ToggleCheckAlertRequest) Validate() error {
+	return nil
+}
+func (this *ToggleCheckAlertResponse) Validate() error {
+	return nil
+}

@@ -126,6 +126,15 @@ message GetFailedChecksResponse {
   PageTotals page_totals = 2;
 }
 
+message ToggleCheckAlertRequest {
+  // Alert ID of the check result.
+  string alert_id = 1;
+  // Silence the check result if set to true, unsilence otherwise.
+  bool silence = 2;
+}
+
+message ToggleCheckAlertResponse {}
+
 // SecurityChecks service provides public Management API methods for Security Checks Service.
 service SecurityChecks {
   // ListFailedServices returns a list of services with failed checks.
@@ -139,6 +148,13 @@ service SecurityChecks {
   rpc GetFailedChecks(GetFailedChecksRequest) returns (GetFailedChecksResponse) {
     option (google.api.http) = {
       post: "/v1/management/SecurityChecks/FailedChecks"
+      body: "*"
+    };
+  }
+  // ToggleCheckAlert allows to switch alerts state for a check result between "silenced" and "unsilenced".
+  rpc ToggleCheckAlert(ToggleCheckAlertRequest) returns (ToggleCheckAlertResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/SecurityChecks/ToggleCheckAlert"
       body: "*"
     };
   }

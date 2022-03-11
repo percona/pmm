@@ -37,6 +37,8 @@ type ClientService interface {
 
 	StartSecurityChecks(params *StartSecurityChecksParams) (*StartSecurityChecksOK, error)
 
+	ToggleCheckAlert(params *ToggleCheckAlertParams) (*ToggleCheckAlertOK, error)
+
 	SetTransport(transport runtime.ClientTransport)
 }
 
@@ -243,6 +245,39 @@ func (a *Client) StartSecurityChecks(params *StartSecurityChecksParams) (*StartS
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*StartSecurityChecksDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  ToggleCheckAlert toggles check alert allows to switch alerts state for a check result between silenced and unsilenced
+*/
+func (a *Client) ToggleCheckAlert(params *ToggleCheckAlertParams) (*ToggleCheckAlertOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewToggleCheckAlertParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "ToggleCheckAlert",
+		Method:             "POST",
+		PathPattern:        "/v1/management/SecurityChecks/ToggleCheckAlert",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ToggleCheckAlertReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ToggleCheckAlertOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ToggleCheckAlertDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
