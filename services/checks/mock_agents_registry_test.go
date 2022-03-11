@@ -43,8 +43,36 @@ func (_m *mockAgentsRegistry) StartMongoDBQueryGetCmdLineOptsAction(ctx context.
 	return r0
 }
 
+// StartMongoDBQueryGetDiagnosticDataAction provides a mock function with given fields: ctx, id, pmmAgentID, dsn, files, tdp
+func (_m *mockAgentsRegistry) StartMongoDBQueryGetDiagnosticDataAction(ctx context.Context, id string, pmmAgentID string, dsn string, files map[string]string, tdp *models.DelimiterPair) error {
+	ret := _m.Called(ctx, id, pmmAgentID, dsn, files, tdp)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, map[string]string, *models.DelimiterPair) error); ok {
+		r0 = rf(ctx, id, pmmAgentID, dsn, files, tdp)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // StartMongoDBQueryGetParameterAction provides a mock function with given fields: ctx, id, pmmAgentID, dsn, files, tdp
 func (_m *mockAgentsRegistry) StartMongoDBQueryGetParameterAction(ctx context.Context, id string, pmmAgentID string, dsn string, files map[string]string, tdp *models.DelimiterPair) error {
+	ret := _m.Called(ctx, id, pmmAgentID, dsn, files, tdp)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, map[string]string, *models.DelimiterPair) error); ok {
+		r0 = rf(ctx, id, pmmAgentID, dsn, files, tdp)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// StartMongoDBQueryReplSetGetStatusAction provides a mock function with given fields: ctx, id, pmmAgentID, dsn, files, tdp
+func (_m *mockAgentsRegistry) StartMongoDBQueryReplSetGetStatusAction(ctx context.Context, id string, pmmAgentID string, dsn string, files map[string]string, tdp *models.DelimiterPair) error {
 	ret := _m.Called(ctx, id, pmmAgentID, dsn, files, tdp)
 
 	var r0 error

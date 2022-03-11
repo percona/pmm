@@ -46,3 +46,25 @@ checks:
     script: |
       results = []
       return results
+
+  - version: 1
+    name: check_mongo_replSetGetStatus
+    summary: Check Mongo replSetGetStatus
+    description: Check that we can use command replSetGetStatus.
+    type: MONGODB_REPLSETGETSTATUS
+    query: ""
+    interval: standard
+    script: |
+      results = []
+      return results
+
+  - version: 1
+    name: check_mongo_getDiagnosticData
+    summary: Check Mongo getDiagnosticData
+    description: Check that we can use command getDiagnosticData.
+    type: MONGODB_GETDIAGNOSTICDATA
+    query: ""
+    interval: standard
+    script: |
+      results = []
+      return results

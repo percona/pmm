@@ -392,6 +392,56 @@ func (s *ActionsService) StartMongoDBQueryGetCmdLineOptsAction(ctx context.Conte
 	return err
 }
 
+// StartMongoDBQueryReplSetGetStatusAction starts MongoDB replSetGetStatus query action on pmm-agent.
+func (s *ActionsService) StartMongoDBQueryReplSetGetStatusAction(ctx context.Context, id, pmmAgentID, dsn string, files map[string]string, tdp *models.DelimiterPair) error {
+	aRequest := &agentpb.StartActionRequest{
+		ActionId: id,
+		Params: &agentpb.StartActionRequest_MongodbQueryReplsetgetstatusParams{
+			MongodbQueryReplsetgetstatusParams: &agentpb.StartActionRequest_MongoDBQueryReplSetGetStatusParams{
+				Dsn: dsn,
+				TextFiles: &agentpb.TextFiles{
+					Files:              files,
+					TemplateLeftDelim:  tdp.Left,
+					TemplateRightDelim: tdp.Right,
+				},
+			},
+		},
+		Timeout: defaultQueryActionTimeout,
+	}
+
+	agent, err := s.r.get(pmmAgentID)
+	if err != nil {
+		return err
+	}
+	_, err = agent.channel.SendAndWaitResponse(aRequest)
+	return err
+}
+
+// StartMongoDBQueryGetDiagnosticDataAction starts MongoDB getDiagnosticData query action on pmm-agent.
+func (s *ActionsService) StartMongoDBQueryGetDiagnosticDataAction(ctx context.Context, id, pmmAgentID, dsn string, files map[string]string, tdp *models.DelimiterPair) error {
+	aRequest := &agentpb.StartActionRequest{
+		ActionId: id,
+		Params: &agentpb.StartActionRequest_MongodbQueryGetdiagnosticdataParams{
+			MongodbQueryGetdiagnosticdataParams: &agentpb.StartActionRequest_MongoDBQueryGetDiagnosticDataParams{
+				Dsn: dsn,
+				TextFiles: &agentpb.TextFiles{
+					Files:              files,
+					TemplateLeftDelim:  tdp.Left,
+					TemplateRightDelim: tdp.Right,
+				},
+			},
+		},
+		Timeout: defaultQueryActionTimeout,
+	}
+
+	agent, err := s.r.get(pmmAgentID)
+	if err != nil {
+		return err
+	}
+	_, err = agent.channel.SendAndWaitResponse(aRequest)
+	return err
+}
+
 // StartPTSummaryAction starts pt-summary action on pmm-agent.
 func (s *ActionsService) StartPTSummaryAction(ctx context.Context, id, pmmAgentID string) error {
 	aRequest := &agentpb.StartActionRequest{
