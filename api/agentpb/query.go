@@ -100,6 +100,8 @@ func makeValue(value interface{}) (*QueryActionValue, error) {
 			Subtype: int32(v.Subtype),
 			Bytes:   v.Data,
 		}}}, nil
+	case primitive.ObjectID:
+		return &QueryActionValue{Kind: &QueryActionValue_Bytes{Bytes: []byte(v.String())}}, nil
 	}
 
 	// use reflection for slices (except []byte) and maps
