@@ -29,15 +29,21 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/utils/sqlmetrics"
+	"github.com/pkg/errors"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 	mysqlDialects "gopkg.in/reform.v1/dialects/mysql"
 
 	"github.com/percona/pmm-agent/agents"
+	"github.com/percona/pmm-agent/agents/cache"
 	"github.com/percona/pmm-agent/tlshelpers"
 	"github.com/percona/pmm-agent/utils/truncate"
 	"github.com/percona/pmm-agent/utils/version"
 )
+
+type historyMap map[string]*eventsStatementsHistory
+type summaryMap map[string]*eventsStatementsSummaryByDigest
 
 // mySQLVersion contains
 type mySQLVersion struct {
@@ -64,11 +70,13 @@ func (m *PerfSchema) mySQLVersion() *mySQLVersion {
 }
 
 const (
-	retainHistory  = 5 * time.Minute
-	refreshHistory = 5 * time.Second
+	retainHistory    = 5 * time.Minute
+	refreshHistory   = 5 * time.Second
+	historyCacheSize = 5000 // history cache size rows limit
 
-	retainSummaries = 25 * time.Hour // make it work for daily queries
-	querySummaries  = time.Minute
+	retainSummaries    = 25 * time.Hour // make it work for daily queries
+	querySummaries     = time.Minute
+	summariesCacheSize = 5000 // summary cache size rows limit
 )
 
 // PerfSchema QAN services connects to MySQL and extracts performance data.
@@ -131,10 +139,20 @@ func New(params *Params, l *logrus.Entry) (*PerfSchema, error) {
 		DisableQueryExamples: params.DisableQueryExamples,
 		LogEntry:             l,
 	}
-	return newPerfSchema(newParams), nil
+	return newPerfSchema(newParams)
 }
 
-func newPerfSchema(params *newPerfSchemaParams) *PerfSchema {
+func newPerfSchema(params *newPerfSchemaParams) (*PerfSchema, error) {
+	historyCache, err := newHistoryCache(historyMap{}, retainHistory, historyCacheSize, params.LogEntry)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot create cache")
+	}
+
+	summaryCache, err := newSummaryCache(summaryMap{}, retainSummaries, summariesCacheSize, params.LogEntry)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot create cache")
+	}
+
 	return &PerfSchema{
 		q:                    params.Querier,
 		dbCloser:             params.DBCloser,
@@ -142,10 +160,10 @@ func newPerfSchema(params *newPerfSchemaParams) *PerfSchema {
 		disableQueryExamples: params.DisableQueryExamples,
 		l:                    params.LogEntry,
 		changes:              make(chan agents.Change, 10),
-		historyCache:         newHistoryCache(retainHistory),
-		summaryCache:         newSummaryCache(retainSummaries),
+		historyCache:         historyCache,
+		summaryCache:         summaryCache,
 		versionsCache:        &versionsCache{items: make(map[string]*mySQLVersion)},
-	}
+	}, nil
 }
 
 // Run extracts performance data and sends it to the channel until ctx is canceled.
@@ -158,13 +176,18 @@ func (m *PerfSchema) Run(ctx context.Context) {
 
 	// add current summaries to cache so they are not send as new on first iteration with incorrect timestamps
 	var running bool
+	var err error
 	m.changes <- agents.Change{Status: inventorypb.AgentStatus_STARTING}
+
 	if s, err := getSummaries(m.q); err == nil {
-		m.summaryCache.refresh(s)
-		m.l.Debugf("Got %d initial summaries.", len(s))
-		running = true
-		m.changes <- agents.Change{Status: inventorypb.AgentStatus_RUNNING}
-	} else {
+		if err = m.summaryCache.Set(s); err == nil {
+			m.l.Debugf("Got %d initial summaries.", len(s))
+			running = true
+			m.changes <- agents.Change{Status: inventorypb.AgentStatus_RUNNING}
+		}
+	}
+
+	if err != nil {
 		m.l.Error(err)
 		m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
 	}
@@ -251,7 +274,7 @@ func (m *PerfSchema) refreshHistoryCache() error {
 	mysqlVer := m.mySQLVersion()
 
 	var err error
-	var current map[string]*eventsStatementsHistory
+	var current historyMap
 	switch {
 	case mysqlVer.version >= 8 && mysqlVer.vendor == "oracle":
 		current, err = getHistory80(m.q)
@@ -261,7 +284,11 @@ func (m *PerfSchema) refreshHistoryCache() error {
 	if err != nil {
 		return err
 	}
-	m.historyCache.refresh(current)
+
+	if err = m.historyCache.Set(current); err != nil {
+		return err
+	}
+	m.l.Debugf("historyCache: %s", m.historyCache.cache.Stats())
 	return nil
 }
 
@@ -270,7 +297,10 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 	if err != nil {
 		return nil, err
 	}
-	prev := m.summaryCache.get()
+	prev := make(summaryMap)
+	if err = m.summaryCache.Get(prev); err != nil {
+		return nil, err
+	}
 
 	buckets := makeBuckets(current, prev, m.l)
 	startS := uint32(periodStart.Unix())
@@ -278,10 +308,16 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 		len(buckets), len(current), periodStart.Format("15:04:05"), periodLengthSecs)
 
 	// merge prev and current in cache
-	m.summaryCache.refresh(current)
+	if err = m.summaryCache.Set(current); err != nil {
+		return nil, err
+	}
+	m.l.Debugf("summaryCache: %s", m.summaryCache.cache.Stats())
 
 	// add agent_id, timestamps, and examples from history cache
-	history := m.historyCache.get()
+	history := make(historyMap)
+	if err = m.historyCache.Get(history); err != nil {
+		return nil, err
+	}
 	for i, b := range buckets {
 		b.Common.AgentId = m.agentID
 		b.Common.PeriodStartUnixSecs = startS
@@ -324,7 +360,7 @@ func inc(current, prev uint64) float32 {
 // to make metrics buckets.
 //
 // makeBuckets is a pure function for easier testing.
-func makeBuckets(current, prev map[string]*eventsStatementsSummaryByDigest, l *logrus.Entry) []*agentpb.MetricsBucket {
+func makeBuckets(current, prev summaryMap, l *logrus.Entry) []*agentpb.MetricsBucket {
 	res := make([]*agentpb.MetricsBucket, 0, len(current))
 
 	for digest, currentESS := range current {
@@ -413,3 +449,28 @@ func makeBuckets(current, prev map[string]*eventsStatementsSummaryByDigest, l *l
 func (m *PerfSchema) Changes() <-chan agents.Change {
 	return m.changes
 }
+
+// Describe implements prometheus.Collector.
+func (m *PerfSchema) Describe(ch chan<- *prometheus.Desc) {
+	// This method is needed to satisfy interface.
+}
+
+// Collect implement prometheus.Collector.
+func (m *PerfSchema) Collect(ch chan<- prometheus.Metric) {
+	historyStats := m.historyCache.cache.Stats()
+	summaryStats := m.summaryCache.cache.Stats()
+	historyMetrics := cache.MetricsFromStats(historyStats, m.agentID, "history")
+	summaryMetrics := cache.MetricsFromStats(summaryStats, m.agentID, "summary")
+
+	for _, metric := range historyMetrics {
+		ch <- metric
+	}
+	for _, metric := range summaryMetrics {
+		ch <- metric
+	}
+}
+
+// check interfaces
+var (
+	_ prometheus.Collector = (*PerfSchema)(nil)
+)

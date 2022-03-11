@@ -20,6 +20,7 @@ import (
 
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 // Change represents built-in Agent status change and/or QAN collect request.
@@ -35,4 +36,7 @@ type BuiltinAgent interface {
 
 	// Changes returns channel that should be read until it is closed.
 	Changes() <-chan Change
+
+	// Collector added to use BuiltinAgent as Prometheus collector
+	prometheus.Collector
 }

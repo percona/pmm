@@ -31,6 +31,7 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/pkg/errors"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm-agent/agents"
@@ -76,6 +77,8 @@ type builtinAgentInfo struct {
 	cancel         func()          // to cancel AgentType.Run(ctx)
 	done           <-chan struct{} // closes when AgentType.Changes() channel closes
 	requestedState *agentpb.SetStateRequest_BuiltinAgent
+	describe       func(chan<- *prometheus.Desc)  // agent's func to describe Prometheus metrics
+	collect        func(chan<- prometheus.Metric) // agent's func to provide Prometheus metrics
 }
 
 // NewSupervisor creates new Supervisor object.
@@ -481,6 +484,8 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 		cancel:         cancel,
 		done:           done,
 		requestedState: proto.Clone(builtinAgent).(*agentpb.SetStateRequest_BuiltinAgent),
+		describe:       agent.Describe,
+		collect:        agent.Collect,
 	}
 	return nil
 }
@@ -583,3 +588,28 @@ func (s *Supervisor) stopAll() {
 	close(s.qanRequests)
 	close(s.changes)
 }
+
+// Describe implements prometheus.Collector.
+func (s *Supervisor) Describe(ch chan<- *prometheus.Desc) {
+	s.rw.RLock()
+	defer s.rw.RUnlock()
+
+	for _, agent := range s.builtinAgents {
+		agent.describe(ch)
+	}
+}
+
+// Collect implement prometheus.Collector.
+func (s *Supervisor) Collect(ch chan<- prometheus.Metric) {
+	s.rw.RLock()
+	defer s.rw.RUnlock()
+
+	for _, agent := range s.builtinAgents {
+		agent.collect(ch)
+	}
+}
+
+// check interfaces
+var (
+	_ prometheus.Collector = (*Supervisor)(nil)
+)

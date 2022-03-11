@@ -32,6 +32,7 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/utils/sqlmetrics"
 	"github.com/pkg/errors"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
@@ -456,3 +457,18 @@ func getHistogramRangesArray() []*agentpb.HistogramItem {
 func (m *PGStatMonitorQAN) Changes() <-chan agents.Change {
 	return m.changes
 }
+
+// Describe implements prometheus.Collector.
+func (m *PGStatMonitorQAN) Describe(ch chan<- *prometheus.Desc) {
+	// This method is needed to satisfy interface.
+}
+
+// Collect implement prometheus.Collector.
+func (m *PGStatMonitorQAN) Collect(ch chan<- prometheus.Metric) {
+	// This method is needed to satisfy interface.
+}
+
+// check interfaces
+var (
+	_ prometheus.Collector = (*PGStatMonitorQAN)(nil)
+)

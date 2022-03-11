@@ -34,6 +34,7 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/pkg/errors"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm-agent/agents"
@@ -673,3 +674,18 @@ func errListsToMap(k, v []uint64) map[uint64]uint64 {
 	}
 	return m
 }
+
+// Describe implements prometheus.Collector.
+func (s *SlowLog) Describe(ch chan<- *prometheus.Desc) {
+	// This method is needed to satisfy interface.
+}
+
+// Collect implement prometheus.Collector.
+func (s *SlowLog) Collect(ch chan<- prometheus.Metric) {
+	// This method is needed to satisfy interface.
+}
+
+// check interfaces
+var (
+	_ prometheus.Collector = (*SlowLog)(nil)
+)
