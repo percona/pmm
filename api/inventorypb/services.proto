@@ -4,6 +4,7 @@ package inventory;
 
 option go_package = "api/inventorypb;inventorypb";
 
+import "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options/annotations.proto";
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 
@@ -437,11 +438,15 @@ message RemoveServiceResponse {}
 
 // Services service provides public methods for managing Services.
 service Services {
-  // ListServices returns a list of all Services.
+  // ListServices returns a list of Services filtered by type.
   rpc ListServices(ListServicesRequest) returns (ListServicesResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Services/List"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      summary: "List Services"
+      description: "Returns a list of Services filtered by type."
     };
   }
   // GetService returns a single Service by ID.
@@ -450,12 +455,20 @@ service Services {
       post: "/v1/inventory/Services/Get"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      summary: "Get Service"
+      description: "Returns a single Service by ID."
+    };
   }
   // AddMySQLService adds MySQL Service.
   rpc AddMySQLService(AddMySQLServiceRequest) returns (AddMySQLServiceResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Services/AddMySQL"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      summary: "Add MySQL Service"
+      description: "Adds MySQL Service."
     };
   }
   // AddMongoDBService adds MongoDB Service.
@@ -464,12 +477,20 @@ service Services {
       post: "/v1/inventory/Services/AddMongoDB"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      summary: "Add MongoDB Service"
+      description: "Adds MongoDB Service."
+    };
   }
   // AddPostgreSQLService adds PostgreSQL Service.
   rpc AddPostgreSQLService(AddPostgreSQLServiceRequest) returns (AddPostgreSQLServiceResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Services/AddPostgreSQL"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      summary: "Add PostgreSQL Service"
+      description: "Adds PostgreSQL Service."
     };
   }
   // AddProxySQLService adds ProxySQL Service.
@@ -478,12 +499,20 @@ service Services {
       post: "/v1/inventory/Services/AddProxySQL"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      summary: "Add ProxySQL Service"
+      description: "Adds ProxySQL Service."
+    };
   }
   // AddHAProxyService adds HAProxy Service.
   rpc AddHAProxyService(AddHAProxyServiceRequest) returns (AddHAProxyServiceResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Services/AddHAProxyService"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      summary: "Add HAProxy Service"
+      description: "Adds HAProxy Service."
     };
   }
   // AddExternalService adds External Service.
@@ -492,12 +521,20 @@ service Services {
       post: "/v1/inventory/Services/AddExternalService"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      summary: "Add External Service"
+      description: "Adds External Service."
+    };
   }
   // RemoveService removes Service.
   rpc RemoveService(RemoveServiceRequest) returns (RemoveServiceResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Services/Remove"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      summary: "Remove Service"
+      description: "Removes Service."
     };
   }
 }

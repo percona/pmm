@@ -31,7 +31,9 @@ type ClientService interface {
 }
 
 /*
-  AddProxySQL adds proxy SQL adds proxy SQL service and starts several agents it automatically adds a service to inventory which is running on provided node id then adds proxysql exporter with provided pmm agent id and other parameters
+  AddProxySQL adds proxy SQL
+
+  Adds ProxySQL Service and starts several Agents. It automatically adds a service to inventory, which is running on provided "node_id", then adds "proxysql_exporter" with provided "pmm_agent_id" and other parameters.
 */
 func (a *Client) AddProxySQL(params *AddProxySQLParams) (*AddProxySQLOK, error) {
 	// TODO: Validate the params before sending

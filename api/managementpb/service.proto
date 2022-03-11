@@ -4,6 +4,7 @@ package management;
 
 option go_package = "api/managementpb;managementpb";
 
+import "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options/annotations.proto";
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "inventorypb/nodes.proto";
@@ -56,6 +57,10 @@ service Service {
     option (google.api.http) = {
       post: "/v1/management/Service/Remove"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      summary: "Remove Service"
+      description: "Removes Service with Agents."
     };
   }
 }

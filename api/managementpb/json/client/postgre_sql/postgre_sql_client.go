@@ -31,7 +31,9 @@ type ClientService interface {
 }
 
 /*
-  AddPostgreSQL adds postgre SQL adds postgre SQL service and starts postgres exporter it automatically adds a service to inventory which is running on provided node id then adds postgres exporter with provided pmm agent id and other parameters
+  AddPostgreSQL adds postgre SQL
+
+  Adds PostgreSQL Service and starts postgres exporter. It automatically adds a service to inventory, which is running on provided "node_id", then adds "postgres_exporter" with provided "pmm_agent_id" and other parameters.
 */
 func (a *Client) AddPostgreSQL(params *AddPostgreSQLParams) (*AddPostgreSQLOK, error) {
 	// TODO: Validate the params before sending
