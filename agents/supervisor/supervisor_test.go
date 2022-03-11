@@ -285,7 +285,7 @@ func TestSupervisorProcessParams(t *testing.T) {
 			TempDir:        temp,
 		}
 
-		s := NewSupervisor(ctx, paths, &config.Ports{}, &config.Server{})
+		s := NewSupervisor(ctx, paths, &config.Ports{}, &config.Server{}) //nolint:varnamelen
 
 		teardown := func() {
 			cancel()

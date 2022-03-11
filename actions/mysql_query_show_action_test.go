@@ -53,7 +53,7 @@ func TestMySQLQueryShow(t *testing.T) {
 		require.NoError(t, err)
 		t.Log(spew.Sdump(data))
 		assert.LessOrEqual(t, 400, len(data))
-		assert.LessOrEqual(t, len(data), 706)
+		assert.LessOrEqual(t, len(data), 800)
 
 		var found int
 		for _, m := range data {

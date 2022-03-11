@@ -228,7 +228,7 @@ ORDER BY a.attnum;`, tableID)
 			pointer.GetString(ci.Substring),
 			formatStorage(ci.Attstorage),
 			pointer.GetString(ci.Attstattarget),
-			pointer.GetString(ci.ColDescription)) //nolint:errcheck
+			pointer.GetString(ci.ColDescription))
 	}
 	err = rows.Err()
 	if err != nil {

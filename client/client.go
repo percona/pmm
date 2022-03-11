@@ -363,6 +363,26 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 					TempDir: c.cfg.Paths.TempDir,
 				})
 
+			case *agentpb.StartActionRequest_MongodbQueryReplsetgetstatusParams:
+				action = actions.NewMongoDBQueryAdmincommandAction(actions.MongoDBQueryAdmincommandActionParams{
+					ID:      p.ActionId,
+					DSN:     params.MongodbQueryReplsetgetstatusParams.Dsn,
+					Files:   params.MongodbQueryReplsetgetstatusParams.TextFiles,
+					Command: "replSetGetStatus",
+					Arg:     1,
+					TempDir: c.cfg.Paths.TempDir,
+				})
+
+			case *agentpb.StartActionRequest_MongodbQueryGetdiagnosticdataParams:
+				action = actions.NewMongoDBQueryAdmincommandAction(actions.MongoDBQueryAdmincommandActionParams{
+					ID:      p.ActionId,
+					DSN:     params.MongodbQueryGetdiagnosticdataParams.Dsn,
+					Files:   params.MongodbQueryGetdiagnosticdataParams.TextFiles,
+					Command: "getDiagnosticData",
+					Arg:     1,
+					TempDir: c.cfg.Paths.TempDir,
+				})
+
 			case *agentpb.StartActionRequest_PtSummaryParams:
 				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTSummary, []string{})
 
