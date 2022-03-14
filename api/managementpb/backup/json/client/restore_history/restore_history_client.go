@@ -25,41 +25,41 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	ListRestoreHistory(params *ListRestoreHistoryParams) (*ListRestoreHistoryOK, error)
+	RestoreHistoryListRestoreHistory(params *RestoreHistoryListRestoreHistoryParams) (*RestoreHistoryListRestoreHistoryOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  ListRestoreHistory lists restore history returns a list of all backup restore history items
+  RestoreHistoryListRestoreHistory lists restore history returns a list of all backup restore history items
 */
-func (a *Client) ListRestoreHistory(params *ListRestoreHistoryParams) (*ListRestoreHistoryOK, error) {
+func (a *Client) RestoreHistoryListRestoreHistory(params *RestoreHistoryListRestoreHistoryParams) (*RestoreHistoryListRestoreHistoryOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewListRestoreHistoryParams()
+		params = NewRestoreHistoryListRestoreHistoryParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "ListRestoreHistory",
+		ID:                 "RestoreHistory_ListRestoreHistory",
 		Method:             "POST",
 		PathPattern:        "/v1/management/backup/RestoreHistory/List",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ListRestoreHistoryReader{formats: a.formats},
+		Reader:             &RestoreHistoryListRestoreHistoryReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ListRestoreHistoryOK)
+	success, ok := result.(*RestoreHistoryListRestoreHistoryOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ListRestoreHistoryDefault)
+	unexpectedSuccess := result.(*RestoreHistoryListRestoreHistoryDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

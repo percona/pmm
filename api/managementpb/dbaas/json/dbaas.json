@@ -21,7 +21,7 @@
           "Components"
         ],
         "summary": "ChangePSMDBComponents manages PSMDB related components.",
-        "operationId": "ChangePSMDBComponents",
+        "operationId": "Components_ChangePSMDBComponents",
         "parameters": [
           {
             "name": "body",
@@ -127,7 +127,7 @@
           "Components"
         ],
         "summary": "ChangePXCComponents manages PXC related components.",
-        "operationId": "ChangePXCComponents",
+        "operationId": "Components_ChangePXCComponents",
         "parameters": [
           {
             "name": "body",
@@ -299,7 +299,7 @@
           "Components"
         ],
         "summary": "CheckForOperatorUpdate checks if a new version of an operator is available.",
-        "operationId": "CheckForOperatorUpdate",
+        "operationId": "Components_CheckForOperatorUpdate",
         "parameters": [
           {
             "name": "body",
@@ -393,7 +393,7 @@
           "Components"
         ],
         "summary": "GetPSMDBComponents returns list of available components for PSMDB Clusters.",
-        "operationId": "GetPSMDBComponents",
+        "operationId": "Components_GetPSMDBComponents",
         "parameters": [
           {
             "name": "body",
@@ -770,7 +770,7 @@
           "Components"
         ],
         "summary": "GetPXCComponents returns list of available components for PXC Clusters.",
-        "operationId": "GetPXCComponents",
+        "operationId": "Components_GetPXCComponents",
         "parameters": [
           {
             "name": "body",
@@ -1147,7 +1147,7 @@
           "Components"
         ],
         "summary": "InstallOperator installs given operator in given version.",
-        "operationId": "InstallOperator",
+        "operationId": "Components_InstallOperator",
         "parameters": [
           {
             "name": "body",
@@ -1244,7 +1244,7 @@
           "DBClusters"
         ],
         "summary": "DeleteDBCluster deletes DB cluster.",
-        "operationId": "DeleteDBCluster",
+        "operationId": "DBClusters_DeleteDBCluster",
         "parameters": [
           {
             "name": "body",
@@ -1333,7 +1333,7 @@
           "DBClusters"
         ],
         "summary": "ListDBClusters returns a list of DB clusters.",
-        "operationId": "ListDBClusters",
+        "operationId": "DBClusters_ListDBClusters",
         "parameters": [
           {
             "name": "body",
@@ -1716,7 +1716,7 @@
           "DBClusters"
         ],
         "summary": "RestartDBCluster restarts DB cluster.",
-        "operationId": "RestartDBCluster",
+        "operationId": "DBClusters_RestartDBCluster",
         "parameters": [
           {
             "name": "body",
@@ -1805,7 +1805,7 @@
           "LogsAPI"
         ],
         "summary": "GetLogs gets all logs from db cluster.",
-        "operationId": "GetLogs",
+        "operationId": "LogsAPI_GetLogs",
         "parameters": [
           {
             "name": "body",
@@ -1914,7 +1914,7 @@
           "Kubernetes"
         ],
         "summary": "GetKubernetesCluster return KubeAuth with Kubernetes config.",
-        "operationId": "GetKubernetesCluster",
+        "operationId": "Kubernetes_GetKubernetesCluster",
         "parameters": [
           {
             "name": "body",
@@ -2001,7 +2001,7 @@
           "Kubernetes"
         ],
         "summary": "ListKubernetesClusters returns a list of all registered Kubernetes clusters.",
-        "operationId": "ListKubernetesClusters",
+        "operationId": "Kubernetes_ListKubernetesClusters",
         "parameters": [
           {
             "name": "body",
@@ -2149,7 +2149,7 @@
           "Kubernetes"
         ],
         "summary": "RegisterKubernetesCluster registers an existing Kubernetes cluster in PMM.",
-        "operationId": "RegisterKubernetesCluster",
+        "operationId": "Kubernetes_RegisterKubernetesCluster",
         "parameters": [
           {
             "name": "body",
@@ -2244,7 +2244,7 @@
           "Kubernetes"
         ],
         "summary": "GetResources returns all and available resources of a Kubernetes cluster.\nNOTE: The user defined in kubeconfig for the cluster has to have rights to\n      list and get Pods from all Namespaces. Also getting and listing Nodes\n      has to be allowed.",
-        "operationId": "GetResources",
+        "operationId": "Kubernetes_GetResources",
         "parameters": [
           {
             "name": "body",
@@ -2369,7 +2369,7 @@
           "Kubernetes"
         ],
         "summary": "UnregisterKubernetesCluster removes a registered Kubernetes cluster from PMM.",
-        "operationId": "UnregisterKubernetesCluster",
+        "operationId": "Kubernetes_UnregisterKubernetesCluster",
         "parameters": [
           {
             "name": "body",
@@ -2447,7 +2447,7 @@
           "PSMDBClusters"
         ],
         "summary": "CreatePSMDBCluster creates a new PSMDB cluster.",
-        "operationId": "CreatePSMDBCluster",
+        "operationId": "PSMDBClusters_CreatePSMDBCluster",
         "parameters": [
           {
             "name": "body",
@@ -2580,7 +2580,7 @@
           "PSMDBClusters"
         ],
         "summary": "GetPSMDBClusterResources returns expected resources to be consumed by the cluster.",
-        "operationId": "GetPSMDBClusterResources",
+        "operationId": "PSMDBClusters_GetPSMDBClusterResources",
         "parameters": [
           {
             "name": "body",
@@ -2725,7 +2725,7 @@
           "PSMDBClusters"
         ],
         "summary": "UpdatePSMDBCluster updates existing PSMDB cluster.",
-        "operationId": "UpdatePSMDBCluster",
+        "operationId": "PSMDBClusters_UpdatePSMDBCluster",
         "parameters": [
           {
             "name": "body",
@@ -2857,7 +2857,7 @@
           "PSMDBClusters"
         ],
         "summary": "GetPSMDBClusterCredentials returns a PSMDB cluster credentials by cluster name.",
-        "operationId": "GetPSMDBClusterCredentials",
+        "operationId": "PSMDBClusters_GetPSMDBClusterCredentials",
         "parameters": [
           {
             "name": "body",
@@ -2970,7 +2970,7 @@
           "PXCClusters"
         ],
         "summary": "CreatePXCCluster creates a new PXC cluster.",
-        "operationId": "CreatePXCCluster",
+        "operationId": "PXCClusters_CreatePXCCluster",
         "parameters": [
           {
             "name": "body",
@@ -3171,7 +3171,7 @@
           "PXCClusters"
         ],
         "summary": "GetPXCClusterResources returns expected resources to be consumed by the cluster.",
-        "operationId": "GetPXCClusterResources",
+        "operationId": "PXCClusters_GetPXCClusterResources",
         "parameters": [
           {
             "name": "body",
@@ -3384,7 +3384,7 @@
           "PXCClusters"
         ],
         "summary": "UpdatePXCCluster updates existing PXC cluster.",
-        "operationId": "UpdatePXCCluster",
+        "operationId": "PXCClusters_UpdatePXCCluster",
         "parameters": [
           {
             "name": "body",
@@ -3568,7 +3568,7 @@
           "PXCClusters"
         ],
         "summary": "GetPXCClusterCredentials returns a PXC cluster credentials by cluster name.",
-        "operationId": "GetPXCClusterCredentials",
+        "operationId": "PXCClusters_GetPXCClusterCredentials",
         "parameters": [
           {
             "name": "body",

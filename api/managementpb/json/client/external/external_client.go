@@ -25,43 +25,43 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	AddExternal(params *AddExternalParams) (*AddExternalOK, error)
+	ExternalAddExternal(params *ExternalAddExternalParams) (*ExternalAddExternalOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  AddExternal adds external service
+  ExternalAddExternal adds external service
 
   Adds external service and adds external exporter. It automatically adds a service to inventory, which is running on provided "node_id", then adds an "external exporter" agent to inventory, which is running on provided "runs_on_node_id".
 */
-func (a *Client) AddExternal(params *AddExternalParams) (*AddExternalOK, error) {
+func (a *Client) ExternalAddExternal(params *ExternalAddExternalParams) (*ExternalAddExternalOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAddExternalParams()
+		params = NewExternalAddExternalParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "AddExternal",
+		ID:                 "External_AddExternal",
 		Method:             "POST",
 		PathPattern:        "/v1/management/External/Add",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AddExternalReader{formats: a.formats},
+		Reader:             &ExternalAddExternalReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AddExternalOK)
+	success, ok := result.(*ExternalAddExternalOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AddExternalDefault)
+	unexpectedSuccess := result.(*ExternalAddExternalDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

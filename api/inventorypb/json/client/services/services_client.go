@@ -25,339 +25,339 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	AddExternalService(params *AddExternalServiceParams) (*AddExternalServiceOK, error)
+	ServicesAddExternalService(params *ServicesAddExternalServiceParams) (*ServicesAddExternalServiceOK, error)
 
-	AddHAProxyService(params *AddHAProxyServiceParams) (*AddHAProxyServiceOK, error)
+	ServicesAddHAProxyService(params *ServicesAddHAProxyServiceParams) (*ServicesAddHAProxyServiceOK, error)
 
-	AddMongoDBService(params *AddMongoDBServiceParams) (*AddMongoDBServiceOK, error)
+	ServicesAddMongoDBService(params *ServicesAddMongoDBServiceParams) (*ServicesAddMongoDBServiceOK, error)
 
-	AddMySQLService(params *AddMySQLServiceParams) (*AddMySQLServiceOK, error)
+	ServicesAddMySQLService(params *ServicesAddMySQLServiceParams) (*ServicesAddMySQLServiceOK, error)
 
-	AddPostgreSQLService(params *AddPostgreSQLServiceParams) (*AddPostgreSQLServiceOK, error)
+	ServicesAddPostgreSQLService(params *ServicesAddPostgreSQLServiceParams) (*ServicesAddPostgreSQLServiceOK, error)
 
-	AddProxySQLService(params *AddProxySQLServiceParams) (*AddProxySQLServiceOK, error)
+	ServicesAddProxySQLService(params *ServicesAddProxySQLServiceParams) (*ServicesAddProxySQLServiceOK, error)
 
-	GetService(params *GetServiceParams) (*GetServiceOK, error)
+	ServicesGetService(params *ServicesGetServiceParams) (*ServicesGetServiceOK, error)
 
-	ListServices(params *ListServicesParams) (*ListServicesOK, error)
+	ServicesListServices(params *ServicesListServicesParams) (*ServicesListServicesOK, error)
 
-	RemoveService(params *RemoveServiceParams) (*RemoveServiceOK, error)
+	ServicesRemoveService(params *ServicesRemoveServiceParams) (*ServicesRemoveServiceOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  AddExternalService adds external service
+  ServicesAddExternalService adds external service
 
   Adds External Service.
 */
-func (a *Client) AddExternalService(params *AddExternalServiceParams) (*AddExternalServiceOK, error) {
+func (a *Client) ServicesAddExternalService(params *ServicesAddExternalServiceParams) (*ServicesAddExternalServiceOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAddExternalServiceParams()
+		params = NewServicesAddExternalServiceParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "AddExternalService",
+		ID:                 "Services_AddExternalService",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Services/AddExternalService",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AddExternalServiceReader{formats: a.formats},
+		Reader:             &ServicesAddExternalServiceReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AddExternalServiceOK)
+	success, ok := result.(*ServicesAddExternalServiceOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AddExternalServiceDefault)
+	unexpectedSuccess := result.(*ServicesAddExternalServiceDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  AddHAProxyService adds HA proxy service
+  ServicesAddHAProxyService adds HA proxy service
 
   Adds HAProxy Service.
 */
-func (a *Client) AddHAProxyService(params *AddHAProxyServiceParams) (*AddHAProxyServiceOK, error) {
+func (a *Client) ServicesAddHAProxyService(params *ServicesAddHAProxyServiceParams) (*ServicesAddHAProxyServiceOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAddHAProxyServiceParams()
+		params = NewServicesAddHAProxyServiceParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "AddHAProxyService",
+		ID:                 "Services_AddHAProxyService",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Services/AddHAProxyService",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AddHAProxyServiceReader{formats: a.formats},
+		Reader:             &ServicesAddHAProxyServiceReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AddHAProxyServiceOK)
+	success, ok := result.(*ServicesAddHAProxyServiceOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AddHAProxyServiceDefault)
+	unexpectedSuccess := result.(*ServicesAddHAProxyServiceDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  AddMongoDBService adds mongo DB service
+  ServicesAddMongoDBService adds mongo DB service
 
   Adds MongoDB Service.
 */
-func (a *Client) AddMongoDBService(params *AddMongoDBServiceParams) (*AddMongoDBServiceOK, error) {
+func (a *Client) ServicesAddMongoDBService(params *ServicesAddMongoDBServiceParams) (*ServicesAddMongoDBServiceOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAddMongoDBServiceParams()
+		params = NewServicesAddMongoDBServiceParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "AddMongoDBService",
+		ID:                 "Services_AddMongoDBService",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Services/AddMongoDB",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AddMongoDBServiceReader{formats: a.formats},
+		Reader:             &ServicesAddMongoDBServiceReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AddMongoDBServiceOK)
+	success, ok := result.(*ServicesAddMongoDBServiceOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AddMongoDBServiceDefault)
+	unexpectedSuccess := result.(*ServicesAddMongoDBServiceDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  AddMySQLService adds my SQL service
+  ServicesAddMySQLService adds my SQL service
 
   Adds MySQL Service.
 */
-func (a *Client) AddMySQLService(params *AddMySQLServiceParams) (*AddMySQLServiceOK, error) {
+func (a *Client) ServicesAddMySQLService(params *ServicesAddMySQLServiceParams) (*ServicesAddMySQLServiceOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAddMySQLServiceParams()
+		params = NewServicesAddMySQLServiceParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "AddMySQLService",
+		ID:                 "Services_AddMySQLService",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Services/AddMySQL",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AddMySQLServiceReader{formats: a.formats},
+		Reader:             &ServicesAddMySQLServiceReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AddMySQLServiceOK)
+	success, ok := result.(*ServicesAddMySQLServiceOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AddMySQLServiceDefault)
+	unexpectedSuccess := result.(*ServicesAddMySQLServiceDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  AddPostgreSQLService adds postgre SQL service
+  ServicesAddPostgreSQLService adds postgre SQL service
 
   Adds PostgreSQL Service.
 */
-func (a *Client) AddPostgreSQLService(params *AddPostgreSQLServiceParams) (*AddPostgreSQLServiceOK, error) {
+func (a *Client) ServicesAddPostgreSQLService(params *ServicesAddPostgreSQLServiceParams) (*ServicesAddPostgreSQLServiceOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAddPostgreSQLServiceParams()
+		params = NewServicesAddPostgreSQLServiceParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "AddPostgreSQLService",
+		ID:                 "Services_AddPostgreSQLService",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Services/AddPostgreSQL",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AddPostgreSQLServiceReader{formats: a.formats},
+		Reader:             &ServicesAddPostgreSQLServiceReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AddPostgreSQLServiceOK)
+	success, ok := result.(*ServicesAddPostgreSQLServiceOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AddPostgreSQLServiceDefault)
+	unexpectedSuccess := result.(*ServicesAddPostgreSQLServiceDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  AddProxySQLService adds proxy SQL service
+  ServicesAddProxySQLService adds proxy SQL service
 
   Adds ProxySQL Service.
 */
-func (a *Client) AddProxySQLService(params *AddProxySQLServiceParams) (*AddProxySQLServiceOK, error) {
+func (a *Client) ServicesAddProxySQLService(params *ServicesAddProxySQLServiceParams) (*ServicesAddProxySQLServiceOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAddProxySQLServiceParams()
+		params = NewServicesAddProxySQLServiceParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "AddProxySQLService",
+		ID:                 "Services_AddProxySQLService",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Services/AddProxySQL",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AddProxySQLServiceReader{formats: a.formats},
+		Reader:             &ServicesAddProxySQLServiceReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AddProxySQLServiceOK)
+	success, ok := result.(*ServicesAddProxySQLServiceOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AddProxySQLServiceDefault)
+	unexpectedSuccess := result.(*ServicesAddProxySQLServiceDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  GetService gets service
+  ServicesGetService gets service
 
   Returns a single Service by ID.
 */
-func (a *Client) GetService(params *GetServiceParams) (*GetServiceOK, error) {
+func (a *Client) ServicesGetService(params *ServicesGetServiceParams) (*ServicesGetServiceOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewGetServiceParams()
+		params = NewServicesGetServiceParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "GetService",
+		ID:                 "Services_GetService",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Services/Get",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &GetServiceReader{formats: a.formats},
+		Reader:             &ServicesGetServiceReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*GetServiceOK)
+	success, ok := result.(*ServicesGetServiceOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*GetServiceDefault)
+	unexpectedSuccess := result.(*ServicesGetServiceDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  ListServices lists services
+  ServicesListServices lists services
 
   Returns a list of Services filtered by type.
 */
-func (a *Client) ListServices(params *ListServicesParams) (*ListServicesOK, error) {
+func (a *Client) ServicesListServices(params *ServicesListServicesParams) (*ServicesListServicesOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewListServicesParams()
+		params = NewServicesListServicesParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "ListServices",
+		ID:                 "Services_ListServices",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Services/List",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ListServicesReader{formats: a.formats},
+		Reader:             &ServicesListServicesReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ListServicesOK)
+	success, ok := result.(*ServicesListServicesOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ListServicesDefault)
+	unexpectedSuccess := result.(*ServicesListServicesDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  RemoveService removes service
+  ServicesRemoveService removes service
 
   Removes Service.
 */
-func (a *Client) RemoveService(params *RemoveServiceParams) (*RemoveServiceOK, error) {
+func (a *Client) ServicesRemoveService(params *ServicesRemoveServiceParams) (*ServicesRemoveServiceOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewRemoveServiceParams()
+		params = NewServicesRemoveServiceParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "RemoveService",
+		ID:                 "Services_RemoveService",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Services/Remove",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &RemoveServiceReader{formats: a.formats},
+		Reader:             &ServicesRemoveServiceReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*RemoveServiceOK)
+	success, ok := result.(*ServicesRemoveServiceOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*RemoveServiceDefault)
+	unexpectedSuccess := result.(*ServicesRemoveServiceDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

@@ -25,181 +25,181 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	AddLocation(params *AddLocationParams) (*AddLocationOK, error)
+	LocationsAddLocation(params *LocationsAddLocationParams) (*LocationsAddLocationOK, error)
 
-	ChangeLocation(params *ChangeLocationParams) (*ChangeLocationOK, error)
+	LocationsChangeLocation(params *LocationsChangeLocationParams) (*LocationsChangeLocationOK, error)
 
-	ListLocations(params *ListLocationsParams) (*ListLocationsOK, error)
+	LocationsListLocations(params *LocationsListLocationsParams) (*LocationsListLocationsOK, error)
 
-	RemoveLocation(params *RemoveLocationParams) (*RemoveLocationOK, error)
+	LocationsRemoveLocation(params *LocationsRemoveLocationParams) (*LocationsRemoveLocationOK, error)
 
-	TestLocationConfig(params *TestLocationConfigParams) (*TestLocationConfigOK, error)
+	LocationsTestLocationConfig(params *LocationsTestLocationConfigParams) (*LocationsTestLocationConfigOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  AddLocation adds location adds backup location
+  LocationsAddLocation adds location adds backup location
 */
-func (a *Client) AddLocation(params *AddLocationParams) (*AddLocationOK, error) {
+func (a *Client) LocationsAddLocation(params *LocationsAddLocationParams) (*LocationsAddLocationOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAddLocationParams()
+		params = NewLocationsAddLocationParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "AddLocation",
+		ID:                 "Locations_AddLocation",
 		Method:             "POST",
 		PathPattern:        "/v1/management/backup/Locations/Add",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AddLocationReader{formats: a.formats},
+		Reader:             &LocationsAddLocationReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AddLocationOK)
+	success, ok := result.(*LocationsAddLocationOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AddLocationDefault)
+	unexpectedSuccess := result.(*LocationsAddLocationDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  ChangeLocation changes location changes backup location
+  LocationsChangeLocation changes location changes backup location
 */
-func (a *Client) ChangeLocation(params *ChangeLocationParams) (*ChangeLocationOK, error) {
+func (a *Client) LocationsChangeLocation(params *LocationsChangeLocationParams) (*LocationsChangeLocationOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewChangeLocationParams()
+		params = NewLocationsChangeLocationParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "ChangeLocation",
+		ID:                 "Locations_ChangeLocation",
 		Method:             "POST",
 		PathPattern:        "/v1/management/backup/Locations/Change",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ChangeLocationReader{formats: a.formats},
+		Reader:             &LocationsChangeLocationReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ChangeLocationOK)
+	success, ok := result.(*LocationsChangeLocationOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ChangeLocationDefault)
+	unexpectedSuccess := result.(*LocationsChangeLocationDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  ListLocations lists locations returns a list of all backup locations
+  LocationsListLocations lists locations returns a list of all backup locations
 */
-func (a *Client) ListLocations(params *ListLocationsParams) (*ListLocationsOK, error) {
+func (a *Client) LocationsListLocations(params *LocationsListLocationsParams) (*LocationsListLocationsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewListLocationsParams()
+		params = NewLocationsListLocationsParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "ListLocations",
+		ID:                 "Locations_ListLocations",
 		Method:             "POST",
 		PathPattern:        "/v1/management/backup/Locations/List",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ListLocationsReader{formats: a.formats},
+		Reader:             &LocationsListLocationsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ListLocationsOK)
+	success, ok := result.(*LocationsListLocationsOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ListLocationsDefault)
+	unexpectedSuccess := result.(*LocationsListLocationsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  RemoveLocation removes location removes existing backup location
+  LocationsRemoveLocation removes location removes existing backup location
 */
-func (a *Client) RemoveLocation(params *RemoveLocationParams) (*RemoveLocationOK, error) {
+func (a *Client) LocationsRemoveLocation(params *LocationsRemoveLocationParams) (*LocationsRemoveLocationOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewRemoveLocationParams()
+		params = NewLocationsRemoveLocationParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "RemoveLocation",
+		ID:                 "Locations_RemoveLocation",
 		Method:             "POST",
 		PathPattern:        "/v1/management/backup/Locations/Remove",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &RemoveLocationReader{formats: a.formats},
+		Reader:             &LocationsRemoveLocationReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*RemoveLocationOK)
+	success, ok := result.(*LocationsRemoveLocationOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*RemoveLocationDefault)
+	unexpectedSuccess := result.(*LocationsRemoveLocationDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  TestLocationConfig tests location config tests backup location and credentials
+  LocationsTestLocationConfig tests location config tests backup location and credentials
 */
-func (a *Client) TestLocationConfig(params *TestLocationConfigParams) (*TestLocationConfigOK, error) {
+func (a *Client) LocationsTestLocationConfig(params *LocationsTestLocationConfigParams) (*LocationsTestLocationConfigOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewTestLocationConfigParams()
+		params = NewLocationsTestLocationConfigParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "TestLocationConfig",
+		ID:                 "Locations_TestLocationConfig",
 		Method:             "POST",
 		PathPattern:        "/v1/management/backup/Locations/TestConfig",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &TestLocationConfigReader{formats: a.formats},
+		Reader:             &LocationsTestLocationConfigReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*TestLocationConfigOK)
+	success, ok := result.(*LocationsTestLocationConfigOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*TestLocationConfigDefault)
+	unexpectedSuccess := result.(*LocationsTestLocationConfigDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

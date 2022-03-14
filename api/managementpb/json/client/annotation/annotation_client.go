@@ -25,43 +25,43 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	AddAnnotation(params *AddAnnotationParams) (*AddAnnotationOK, error)
+	AnnotationAddAnnotation(params *AnnotationAddAnnotationParams) (*AnnotationAddAnnotationOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  AddAnnotation adds annotation
+  AnnotationAddAnnotation adds annotation
 
   Adds annotation.
 */
-func (a *Client) AddAnnotation(params *AddAnnotationParams) (*AddAnnotationOK, error) {
+func (a *Client) AnnotationAddAnnotation(params *AnnotationAddAnnotationParams) (*AnnotationAddAnnotationOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAddAnnotationParams()
+		params = NewAnnotationAddAnnotationParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "AddAnnotation",
+		ID:                 "Annotation_AddAnnotation",
 		Method:             "POST",
 		PathPattern:        "/v1/management/Annotations/Add",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AddAnnotationReader{formats: a.formats},
+		Reader:             &AnnotationAddAnnotationReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AddAnnotationOK)
+	success, ok := result.(*AnnotationAddAnnotationOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AddAnnotationDefault)
+	unexpectedSuccess := result.(*AnnotationAddAnnotationDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

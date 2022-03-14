@@ -25,76 +25,76 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	DeleteArtifact(params *DeleteArtifactParams) (*DeleteArtifactOK, error)
+	ArtifactsDeleteArtifact(params *ArtifactsDeleteArtifactParams) (*ArtifactsDeleteArtifactOK, error)
 
-	ListArtifacts(params *ListArtifactsParams) (*ListArtifactsOK, error)
+	ArtifactsListArtifacts(params *ArtifactsListArtifactsParams) (*ArtifactsListArtifactsOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  DeleteArtifact deletes artifact deletes specified artifact
+  ArtifactsDeleteArtifact deletes artifact deletes specified artifact
 */
-func (a *Client) DeleteArtifact(params *DeleteArtifactParams) (*DeleteArtifactOK, error) {
+func (a *Client) ArtifactsDeleteArtifact(params *ArtifactsDeleteArtifactParams) (*ArtifactsDeleteArtifactOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewDeleteArtifactParams()
+		params = NewArtifactsDeleteArtifactParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "DeleteArtifact",
+		ID:                 "Artifacts_DeleteArtifact",
 		Method:             "POST",
 		PathPattern:        "/v1/management/backup/Artifacts/Delete",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &DeleteArtifactReader{formats: a.formats},
+		Reader:             &ArtifactsDeleteArtifactReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*DeleteArtifactOK)
+	success, ok := result.(*ArtifactsDeleteArtifactOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*DeleteArtifactDefault)
+	unexpectedSuccess := result.(*ArtifactsDeleteArtifactDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  ListArtifacts lists artifacts returns a list of all backup artifacts
+  ArtifactsListArtifacts lists artifacts returns a list of all backup artifacts
 */
-func (a *Client) ListArtifacts(params *ListArtifactsParams) (*ListArtifactsOK, error) {
+func (a *Client) ArtifactsListArtifacts(params *ArtifactsListArtifactsParams) (*ArtifactsListArtifactsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewListArtifactsParams()
+		params = NewArtifactsListArtifactsParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "ListArtifacts",
+		ID:                 "Artifacts_ListArtifacts",
 		Method:             "POST",
 		PathPattern:        "/v1/management/backup/Artifacts/List",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ListArtifactsReader{formats: a.formats},
+		Reader:             &ArtifactsListArtifactsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ListArtifactsOK)
+	success, ok := result.(*ArtifactsListArtifactsOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ListArtifactsDefault)
+	unexpectedSuccess := result.(*ArtifactsListArtifactsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

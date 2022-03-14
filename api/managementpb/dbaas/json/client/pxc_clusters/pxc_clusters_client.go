@@ -25,146 +25,146 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	CreatePXCCluster(params *CreatePXCClusterParams) (*CreatePXCClusterOK, error)
+	PXCClustersCreatePXCCluster(params *PXCClustersCreatePXCClusterParams) (*PXCClustersCreatePXCClusterOK, error)
 
-	GetPXCClusterCredentials(params *GetPXCClusterCredentialsParams) (*GetPXCClusterCredentialsOK, error)
+	PXCClustersGetPXCClusterCredentials(params *PXCClustersGetPXCClusterCredentialsParams) (*PXCClustersGetPXCClusterCredentialsOK, error)
 
-	GetPXCClusterResources(params *GetPXCClusterResourcesParams) (*GetPXCClusterResourcesOK, error)
+	PXCClustersGetPXCClusterResources(params *PXCClustersGetPXCClusterResourcesParams) (*PXCClustersGetPXCClusterResourcesOK, error)
 
-	UpdatePXCCluster(params *UpdatePXCClusterParams) (*UpdatePXCClusterOK, error)
+	PXCClustersUpdatePXCCluster(params *PXCClustersUpdatePXCClusterParams) (*PXCClustersUpdatePXCClusterOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  CreatePXCCluster creates PXC cluster creates a new PXC cluster
+  PXCClustersCreatePXCCluster creates PXC cluster creates a new PXC cluster
 */
-func (a *Client) CreatePXCCluster(params *CreatePXCClusterParams) (*CreatePXCClusterOK, error) {
+func (a *Client) PXCClustersCreatePXCCluster(params *PXCClustersCreatePXCClusterParams) (*PXCClustersCreatePXCClusterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewCreatePXCClusterParams()
+		params = NewPXCClustersCreatePXCClusterParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "CreatePXCCluster",
+		ID:                 "PXCClusters_CreatePXCCluster",
 		Method:             "POST",
 		PathPattern:        "/v1/management/DBaaS/PXCCluster/Create",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &CreatePXCClusterReader{formats: a.formats},
+		Reader:             &PXCClustersCreatePXCClusterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*CreatePXCClusterOK)
+	success, ok := result.(*PXCClustersCreatePXCClusterOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*CreatePXCClusterDefault)
+	unexpectedSuccess := result.(*PXCClustersCreatePXCClusterDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  GetPXCClusterCredentials gets PXC cluster credentials returns a PXC cluster credentials by cluster name
+  PXCClustersGetPXCClusterCredentials gets PXC cluster credentials returns a PXC cluster credentials by cluster name
 */
-func (a *Client) GetPXCClusterCredentials(params *GetPXCClusterCredentialsParams) (*GetPXCClusterCredentialsOK, error) {
+func (a *Client) PXCClustersGetPXCClusterCredentials(params *PXCClustersGetPXCClusterCredentialsParams) (*PXCClustersGetPXCClusterCredentialsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewGetPXCClusterCredentialsParams()
+		params = NewPXCClustersGetPXCClusterCredentialsParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "GetPXCClusterCredentials",
+		ID:                 "PXCClusters_GetPXCClusterCredentials",
 		Method:             "POST",
 		PathPattern:        "/v1/management/DBaaS/PXCClusters/GetCredentials",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &GetPXCClusterCredentialsReader{formats: a.formats},
+		Reader:             &PXCClustersGetPXCClusterCredentialsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*GetPXCClusterCredentialsOK)
+	success, ok := result.(*PXCClustersGetPXCClusterCredentialsOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*GetPXCClusterCredentialsDefault)
+	unexpectedSuccess := result.(*PXCClustersGetPXCClusterCredentialsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  GetPXCClusterResources gets PXC cluster resources returns expected resources to be consumed by the cluster
+  PXCClustersGetPXCClusterResources gets PXC cluster resources returns expected resources to be consumed by the cluster
 */
-func (a *Client) GetPXCClusterResources(params *GetPXCClusterResourcesParams) (*GetPXCClusterResourcesOK, error) {
+func (a *Client) PXCClustersGetPXCClusterResources(params *PXCClustersGetPXCClusterResourcesParams) (*PXCClustersGetPXCClusterResourcesOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewGetPXCClusterResourcesParams()
+		params = NewPXCClustersGetPXCClusterResourcesParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "GetPXCClusterResources",
+		ID:                 "PXCClusters_GetPXCClusterResources",
 		Method:             "POST",
 		PathPattern:        "/v1/management/DBaaS/PXCCluster/Resources/Get",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &GetPXCClusterResourcesReader{formats: a.formats},
+		Reader:             &PXCClustersGetPXCClusterResourcesReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*GetPXCClusterResourcesOK)
+	success, ok := result.(*PXCClustersGetPXCClusterResourcesOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*GetPXCClusterResourcesDefault)
+	unexpectedSuccess := result.(*PXCClustersGetPXCClusterResourcesDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  UpdatePXCCluster updates PXC cluster updates existing PXC cluster
+  PXCClustersUpdatePXCCluster updates PXC cluster updates existing PXC cluster
 */
-func (a *Client) UpdatePXCCluster(params *UpdatePXCClusterParams) (*UpdatePXCClusterOK, error) {
+func (a *Client) PXCClustersUpdatePXCCluster(params *PXCClustersUpdatePXCClusterParams) (*PXCClustersUpdatePXCClusterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewUpdatePXCClusterParams()
+		params = NewPXCClustersUpdatePXCClusterParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "UpdatePXCCluster",
+		ID:                 "PXCClusters_UpdatePXCCluster",
 		Method:             "POST",
 		PathPattern:        "/v1/management/DBaaS/PXCCluster/Update",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &UpdatePXCClusterReader{formats: a.formats},
+		Reader:             &PXCClustersUpdatePXCClusterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*UpdatePXCClusterOK)
+	success, ok := result.(*PXCClustersUpdatePXCClusterOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*UpdatePXCClusterDefault)
+	unexpectedSuccess := result.(*PXCClustersUpdatePXCClusterDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

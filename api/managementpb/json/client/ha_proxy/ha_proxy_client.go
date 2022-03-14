@@ -25,43 +25,43 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	AddHAProxy(params *AddHAProxyParams) (*AddHAProxyOK, error)
+	HAProxyAddHAProxy(params *HAProxyAddHAProxyParams) (*HAProxyAddHAProxyOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  AddHAProxy adds HA proxy
+  HAProxyAddHAProxy adds HA proxy
 
   Adds HAProxy service and external exporter. It automatically adds a service to inventory, which is running on the provided "node_id", then adds an "external exporter" agent to the inventory.
 */
-func (a *Client) AddHAProxy(params *AddHAProxyParams) (*AddHAProxyOK, error) {
+func (a *Client) HAProxyAddHAProxy(params *HAProxyAddHAProxyParams) (*HAProxyAddHAProxyOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAddHAProxyParams()
+		params = NewHAProxyAddHAProxyParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "AddHAProxy",
+		ID:                 "HAProxy_AddHAProxy",
 		Method:             "POST",
 		PathPattern:        "/v1/management/HAProxy/Add",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AddHAProxyReader{formats: a.formats},
+		Reader:             &HAProxyAddHAProxyReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AddHAProxyOK)
+	success, ok := result.(*HAProxyAddHAProxyOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AddHAProxyDefault)
+	unexpectedSuccess := result.(*HAProxyAddHAProxyDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

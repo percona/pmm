@@ -25,302 +25,302 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	AddContainerNode(params *AddContainerNodeParams) (*AddContainerNodeOK, error)
+	NodesAddContainerNode(params *NodesAddContainerNodeParams) (*NodesAddContainerNodeOK, error)
 
-	AddGenericNode(params *AddGenericNodeParams) (*AddGenericNodeOK, error)
+	NodesAddGenericNode(params *NodesAddGenericNodeParams) (*NodesAddGenericNodeOK, error)
 
-	AddRemoteAzureDatabaseNode(params *AddRemoteAzureDatabaseNodeParams) (*AddRemoteAzureDatabaseNodeOK, error)
+	NodesAddRemoteAzureDatabaseNode(params *NodesAddRemoteAzureDatabaseNodeParams) (*NodesAddRemoteAzureDatabaseNodeOK, error)
 
-	AddRemoteNode(params *AddRemoteNodeParams) (*AddRemoteNodeOK, error)
+	NodesAddRemoteNode(params *NodesAddRemoteNodeParams) (*NodesAddRemoteNodeOK, error)
 
-	AddRemoteRDSNode(params *AddRemoteRDSNodeParams) (*AddRemoteRDSNodeOK, error)
+	NodesAddRemoteRDSNode(params *NodesAddRemoteRDSNodeParams) (*NodesAddRemoteRDSNodeOK, error)
 
-	GetNode(params *GetNodeParams) (*GetNodeOK, error)
+	NodesGetNode(params *NodesGetNodeParams) (*NodesGetNodeOK, error)
 
-	ListNodes(params *ListNodesParams) (*ListNodesOK, error)
+	NodesListNodes(params *NodesListNodesParams) (*NodesListNodesOK, error)
 
-	RemoveNode(params *RemoveNodeParams) (*RemoveNodeOK, error)
+	NodesRemoveNode(params *NodesRemoveNodeParams) (*NodesRemoveNodeOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  AddContainerNode adds container node
+  NodesAddContainerNode adds container node
 
   Adds container Node.
 */
-func (a *Client) AddContainerNode(params *AddContainerNodeParams) (*AddContainerNodeOK, error) {
+func (a *Client) NodesAddContainerNode(params *NodesAddContainerNodeParams) (*NodesAddContainerNodeOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAddContainerNodeParams()
+		params = NewNodesAddContainerNodeParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "AddContainerNode",
+		ID:                 "Nodes_AddContainerNode",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Nodes/AddContainer",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AddContainerNodeReader{formats: a.formats},
+		Reader:             &NodesAddContainerNodeReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AddContainerNodeOK)
+	success, ok := result.(*NodesAddContainerNodeOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AddContainerNodeDefault)
+	unexpectedSuccess := result.(*NodesAddContainerNodeDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  AddGenericNode adds generic node
+  NodesAddGenericNode adds generic node
 
   Adds generic Node.
 */
-func (a *Client) AddGenericNode(params *AddGenericNodeParams) (*AddGenericNodeOK, error) {
+func (a *Client) NodesAddGenericNode(params *NodesAddGenericNodeParams) (*NodesAddGenericNodeOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAddGenericNodeParams()
+		params = NewNodesAddGenericNodeParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "AddGenericNode",
+		ID:                 "Nodes_AddGenericNode",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Nodes/AddGeneric",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AddGenericNodeReader{formats: a.formats},
+		Reader:             &NodesAddGenericNodeReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AddGenericNodeOK)
+	success, ok := result.(*NodesAddGenericNodeOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AddGenericNodeDefault)
+	unexpectedSuccess := result.(*NodesAddGenericNodeDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  AddRemoteAzureDatabaseNode adds remote azure database node
+  NodesAddRemoteAzureDatabaseNode adds remote azure database node
 
   Adds remote Azure database Node.
 */
-func (a *Client) AddRemoteAzureDatabaseNode(params *AddRemoteAzureDatabaseNodeParams) (*AddRemoteAzureDatabaseNodeOK, error) {
+func (a *Client) NodesAddRemoteAzureDatabaseNode(params *NodesAddRemoteAzureDatabaseNodeParams) (*NodesAddRemoteAzureDatabaseNodeOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAddRemoteAzureDatabaseNodeParams()
+		params = NewNodesAddRemoteAzureDatabaseNodeParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "AddRemoteAzureDatabaseNode",
+		ID:                 "Nodes_AddRemoteAzureDatabaseNode",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Nodes/AddRemoteAzureDatabase",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AddRemoteAzureDatabaseNodeReader{formats: a.formats},
+		Reader:             &NodesAddRemoteAzureDatabaseNodeReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AddRemoteAzureDatabaseNodeOK)
+	success, ok := result.(*NodesAddRemoteAzureDatabaseNodeOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AddRemoteAzureDatabaseNodeDefault)
+	unexpectedSuccess := result.(*NodesAddRemoteAzureDatabaseNodeDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  AddRemoteNode adds remote node
+  NodesAddRemoteNode adds remote node
 
   Adds remote Node.
 */
-func (a *Client) AddRemoteNode(params *AddRemoteNodeParams) (*AddRemoteNodeOK, error) {
+func (a *Client) NodesAddRemoteNode(params *NodesAddRemoteNodeParams) (*NodesAddRemoteNodeOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAddRemoteNodeParams()
+		params = NewNodesAddRemoteNodeParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "AddRemoteNode",
+		ID:                 "Nodes_AddRemoteNode",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Nodes/AddRemote",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AddRemoteNodeReader{formats: a.formats},
+		Reader:             &NodesAddRemoteNodeReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AddRemoteNodeOK)
+	success, ok := result.(*NodesAddRemoteNodeOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AddRemoteNodeDefault)
+	unexpectedSuccess := result.(*NodesAddRemoteNodeDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  AddRemoteRDSNode adds remote RDS node
+  NodesAddRemoteRDSNode adds remote RDS node
 
   Adds remote RDS Node.
 */
-func (a *Client) AddRemoteRDSNode(params *AddRemoteRDSNodeParams) (*AddRemoteRDSNodeOK, error) {
+func (a *Client) NodesAddRemoteRDSNode(params *NodesAddRemoteRDSNodeParams) (*NodesAddRemoteRDSNodeOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAddRemoteRDSNodeParams()
+		params = NewNodesAddRemoteRDSNodeParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "AddRemoteRDSNode",
+		ID:                 "Nodes_AddRemoteRDSNode",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Nodes/AddRemoteRDS",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AddRemoteRDSNodeReader{formats: a.formats},
+		Reader:             &NodesAddRemoteRDSNodeReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AddRemoteRDSNodeOK)
+	success, ok := result.(*NodesAddRemoteRDSNodeOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AddRemoteRDSNodeDefault)
+	unexpectedSuccess := result.(*NodesAddRemoteRDSNodeDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  GetNode gets node
+  NodesGetNode gets node
 
   Returns a single Node by ID.
 */
-func (a *Client) GetNode(params *GetNodeParams) (*GetNodeOK, error) {
+func (a *Client) NodesGetNode(params *NodesGetNodeParams) (*NodesGetNodeOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewGetNodeParams()
+		params = NewNodesGetNodeParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "GetNode",
+		ID:                 "Nodes_GetNode",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Nodes/Get",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &GetNodeReader{formats: a.formats},
+		Reader:             &NodesGetNodeReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*GetNodeOK)
+	success, ok := result.(*NodesGetNodeOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*GetNodeDefault)
+	unexpectedSuccess := result.(*NodesGetNodeDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  ListNodes lists nodes
+  NodesListNodes lists nodes
 
   Returns a list of all Nodes.
 */
-func (a *Client) ListNodes(params *ListNodesParams) (*ListNodesOK, error) {
+func (a *Client) NodesListNodes(params *NodesListNodesParams) (*NodesListNodesOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewListNodesParams()
+		params = NewNodesListNodesParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "ListNodes",
+		ID:                 "Nodes_ListNodes",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Nodes/List",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ListNodesReader{formats: a.formats},
+		Reader:             &NodesListNodesReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ListNodesOK)
+	success, ok := result.(*NodesListNodesOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ListNodesDefault)
+	unexpectedSuccess := result.(*NodesListNodesDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  RemoveNode removes node
+  NodesRemoveNode removes node
 
   Removes Node.
 */
-func (a *Client) RemoveNode(params *RemoveNodeParams) (*RemoveNodeOK, error) {
+func (a *Client) NodesRemoveNode(params *NodesRemoveNodeParams) (*NodesRemoveNodeOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewRemoveNodeParams()
+		params = NewNodesRemoveNodeParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "RemoveNode",
+		ID:                 "Nodes_RemoveNode",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Nodes/Remove",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &RemoveNodeReader{formats: a.formats},
+		Reader:             &NodesRemoveNodeReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*RemoveNodeOK)
+	success, ok := result.(*NodesRemoveNodeOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*RemoveNodeDefault)
+	unexpectedSuccess := result.(*NodesRemoveNodeDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

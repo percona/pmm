@@ -25,78 +25,78 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	ListAlerts(params *ListAlertsParams) (*ListAlertsOK, error)
+	AlertsListAlerts(params *AlertsListAlertsParams) (*AlertsListAlertsOK, error)
 
-	ToggleAlerts(params *ToggleAlertsParams) (*ToggleAlertsOK, error)
+	AlertsToggleAlerts(params *AlertsToggleAlertsParams) (*AlertsToggleAlertsOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  ListAlerts lists alerts returns a list of all alerts
+  AlertsListAlerts lists alerts returns a list of all alerts
 */
-func (a *Client) ListAlerts(params *ListAlertsParams) (*ListAlertsOK, error) {
+func (a *Client) AlertsListAlerts(params *AlertsListAlertsParams) (*AlertsListAlertsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewListAlertsParams()
+		params = NewAlertsListAlertsParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "ListAlerts",
+		ID:                 "Alerts_ListAlerts",
 		Method:             "POST",
 		PathPattern:        "/v1/management/ia/Alerts/List",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ListAlertsReader{formats: a.formats},
+		Reader:             &AlertsListAlertsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ListAlertsOK)
+	success, ok := result.(*AlertsListAlertsOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ListAlertsDefault)
+	unexpectedSuccess := result.(*AlertsListAlertsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  ToggleAlerts toggles alerts allows to switch alerts state between silenced and unsilenced
+  AlertsToggleAlerts toggles alerts allows to switch alerts state between silenced and unsilenced
 
   Pass empty list to apply toggle action to all existing alerts
 */
-func (a *Client) ToggleAlerts(params *ToggleAlertsParams) (*ToggleAlertsOK, error) {
+func (a *Client) AlertsToggleAlerts(params *AlertsToggleAlertsParams) (*AlertsToggleAlertsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewToggleAlertsParams()
+		params = NewAlertsToggleAlertsParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "ToggleAlerts",
+		ID:                 "Alerts_ToggleAlerts",
 		Method:             "POST",
 		PathPattern:        "/v1/management/ia/Alerts/Toggle",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ToggleAlertsReader{formats: a.formats},
+		Reader:             &AlertsToggleAlertsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ToggleAlertsOK)
+	success, ok := result.(*AlertsToggleAlertsOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ToggleAlertsDefault)
+	unexpectedSuccess := result.(*AlertsToggleAlertsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

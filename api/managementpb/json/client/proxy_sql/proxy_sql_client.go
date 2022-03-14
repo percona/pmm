@@ -25,43 +25,43 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	AddProxySQL(params *AddProxySQLParams) (*AddProxySQLOK, error)
+	ProxySQLAddProxySQL(params *ProxySQLAddProxySQLParams) (*ProxySQLAddProxySQLOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  AddProxySQL adds proxy SQL
+  ProxySQLAddProxySQL adds proxy SQL
 
   Adds ProxySQL Service and starts several Agents. It automatically adds a service to inventory, which is running on provided "node_id", then adds "proxysql_exporter" with provided "pmm_agent_id" and other parameters.
 */
-func (a *Client) AddProxySQL(params *AddProxySQLParams) (*AddProxySQLOK, error) {
+func (a *Client) ProxySQLAddProxySQL(params *ProxySQLAddProxySQLParams) (*ProxySQLAddProxySQLOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAddProxySQLParams()
+		params = NewProxySQLAddProxySQLParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "AddProxySQL",
+		ID:                 "ProxySQL_AddProxySQL",
 		Method:             "POST",
 		PathPattern:        "/v1/management/ProxySQL/Add",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AddProxySQLReader{formats: a.formats},
+		Reader:             &ProxySQLAddProxySQLReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AddProxySQLOK)
+	success, ok := result.(*ProxySQLAddProxySQLOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AddProxySQLDefault)
+	unexpectedSuccess := result.(*ProxySQLAddProxySQLDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

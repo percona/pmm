@@ -25,192 +25,192 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	ChangeScheduledBackup(params *ChangeScheduledBackupParams) (*ChangeScheduledBackupOK, error)
+	BackupsChangeScheduledBackup(params *BackupsChangeScheduledBackupParams) (*BackupsChangeScheduledBackupOK, error)
 
-	GetLogs(params *GetLogsParams) (*GetLogsOK, error)
+	BackupsGetLogs(params *BackupsGetLogsParams) (*BackupsGetLogsOK, error)
 
-	ListArtifactCompatibleServices(params *ListArtifactCompatibleServicesParams) (*ListArtifactCompatibleServicesOK, error)
+	BackupsListArtifactCompatibleServices(params *BackupsListArtifactCompatibleServicesParams) (*BackupsListArtifactCompatibleServicesOK, error)
 
-	ListScheduledBackups(params *ListScheduledBackupsParams) (*ListScheduledBackupsOK, error)
+	BackupsListScheduledBackups(params *BackupsListScheduledBackupsParams) (*BackupsListScheduledBackupsOK, error)
 
-	RemoveScheduledBackup(params *RemoveScheduledBackupParams) (*RemoveScheduledBackupOK, error)
+	BackupsRemoveScheduledBackup(params *BackupsRemoveScheduledBackupParams) (*BackupsRemoveScheduledBackupOK, error)
 
-	RestoreBackup(params *RestoreBackupParams) (*RestoreBackupOK, error)
+	BackupsRestoreBackup(params *BackupsRestoreBackupParams) (*BackupsRestoreBackupOK, error)
 
-	ScheduleBackup(params *ScheduleBackupParams) (*ScheduleBackupOK, error)
+	BackupsScheduleBackup(params *BackupsScheduleBackupParams) (*BackupsScheduleBackupOK, error)
 
-	StartBackup(params *StartBackupParams) (*StartBackupOK, error)
+	BackupsStartBackup(params *BackupsStartBackupParams) (*BackupsStartBackupOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  ChangeScheduledBackup changes scheduled backup changes existing scheduled backup
+  BackupsChangeScheduledBackup changes scheduled backup changes existing scheduled backup
 */
-func (a *Client) ChangeScheduledBackup(params *ChangeScheduledBackupParams) (*ChangeScheduledBackupOK, error) {
+func (a *Client) BackupsChangeScheduledBackup(params *BackupsChangeScheduledBackupParams) (*BackupsChangeScheduledBackupOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewChangeScheduledBackupParams()
+		params = NewBackupsChangeScheduledBackupParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "ChangeScheduledBackup",
+		ID:                 "Backups_ChangeScheduledBackup",
 		Method:             "POST",
 		PathPattern:        "/v1/management/backup/Backups/ChangeScheduled",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ChangeScheduledBackupReader{formats: a.formats},
+		Reader:             &BackupsChangeScheduledBackupReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ChangeScheduledBackupOK)
+	success, ok := result.(*BackupsChangeScheduledBackupOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ChangeScheduledBackupDefault)
+	unexpectedSuccess := result.(*BackupsChangeScheduledBackupDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  GetLogs gets logs returns logs for provided artifact
+  BackupsGetLogs gets logs returns logs for provided artifact
 */
-func (a *Client) GetLogs(params *GetLogsParams) (*GetLogsOK, error) {
+func (a *Client) BackupsGetLogs(params *BackupsGetLogsParams) (*BackupsGetLogsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewGetLogsParams()
+		params = NewBackupsGetLogsParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "GetLogs",
+		ID:                 "Backups_GetLogs",
 		Method:             "POST",
 		PathPattern:        "/v1/management/backup/Backups/GetLogs",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &GetLogsReader{formats: a.formats},
+		Reader:             &BackupsGetLogsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*GetLogsOK)
+	success, ok := result.(*BackupsGetLogsOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*GetLogsDefault)
+	unexpectedSuccess := result.(*BackupsGetLogsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  ListArtifactCompatibleServices lists artifact compatible services lists compatible services for restoring a backup
+  BackupsListArtifactCompatibleServices lists artifact compatible services lists compatible services for restoring a backup
 */
-func (a *Client) ListArtifactCompatibleServices(params *ListArtifactCompatibleServicesParams) (*ListArtifactCompatibleServicesOK, error) {
+func (a *Client) BackupsListArtifactCompatibleServices(params *BackupsListArtifactCompatibleServicesParams) (*BackupsListArtifactCompatibleServicesOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewListArtifactCompatibleServicesParams()
+		params = NewBackupsListArtifactCompatibleServicesParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "ListArtifactCompatibleServices",
+		ID:                 "Backups_ListArtifactCompatibleServices",
 		Method:             "POST",
 		PathPattern:        "/v1/management/backup/Backups/ListArtifactCompatibleServices",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ListArtifactCompatibleServicesReader{formats: a.formats},
+		Reader:             &BackupsListArtifactCompatibleServicesReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ListArtifactCompatibleServicesOK)
+	success, ok := result.(*BackupsListArtifactCompatibleServicesOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ListArtifactCompatibleServicesDefault)
+	unexpectedSuccess := result.(*BackupsListArtifactCompatibleServicesDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  ListScheduledBackups lists scheduled backups returns all scheduled backups
+  BackupsListScheduledBackups lists scheduled backups returns all scheduled backups
 */
-func (a *Client) ListScheduledBackups(params *ListScheduledBackupsParams) (*ListScheduledBackupsOK, error) {
+func (a *Client) BackupsListScheduledBackups(params *BackupsListScheduledBackupsParams) (*BackupsListScheduledBackupsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewListScheduledBackupsParams()
+		params = NewBackupsListScheduledBackupsParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "ListScheduledBackups",
+		ID:                 "Backups_ListScheduledBackups",
 		Method:             "POST",
 		PathPattern:        "/v1/management/backup/Backups/ListScheduled",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ListScheduledBackupsReader{formats: a.formats},
+		Reader:             &BackupsListScheduledBackupsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ListScheduledBackupsOK)
+	success, ok := result.(*BackupsListScheduledBackupsOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ListScheduledBackupsDefault)
+	unexpectedSuccess := result.(*BackupsListScheduledBackupsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  RemoveScheduledBackup removes scheduled backup removes existing scheduled backup
+  BackupsRemoveScheduledBackup removes scheduled backup removes existing scheduled backup
 */
-func (a *Client) RemoveScheduledBackup(params *RemoveScheduledBackupParams) (*RemoveScheduledBackupOK, error) {
+func (a *Client) BackupsRemoveScheduledBackup(params *BackupsRemoveScheduledBackupParams) (*BackupsRemoveScheduledBackupOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewRemoveScheduledBackupParams()
+		params = NewBackupsRemoveScheduledBackupParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "RemoveScheduledBackup",
+		ID:                 "Backups_RemoveScheduledBackup",
 		Method:             "POST",
 		PathPattern:        "/v1/management/backup/Backups/RemoveScheduled",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &RemoveScheduledBackupReader{formats: a.formats},
+		Reader:             &BackupsRemoveScheduledBackupReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*RemoveScheduledBackupOK)
+	success, ok := result.(*BackupsRemoveScheduledBackupOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*RemoveScheduledBackupDefault)
+	unexpectedSuccess := result.(*BackupsRemoveScheduledBackupDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  RestoreBackup restores backup requests the backup restore
+  BackupsRestoreBackup restores backup requests the backup restore
 
   Could return the Error message in the details containing specific ErrorCode indicating failure reason:
 ERROR_CODE_XTRABACKUP_NOT_INSTALLED - xtrabackup is not installed on the service
@@ -218,104 +218,104 @@ ERROR_CODE_INVALID_XTRABACKUP - different versions of xtrabackup and xbcloud
 ERROR_CODE_INCOMPATIBLE_XTRABACKUP - xtrabackup is not compatible with MySQL for taking a backup
 ERROR_CODE_INCOMPATIBLE_TARGET_MYSQL - target MySQL version is not compatible with the artifact for performing a restore of the backup
 */
-func (a *Client) RestoreBackup(params *RestoreBackupParams) (*RestoreBackupOK, error) {
+func (a *Client) BackupsRestoreBackup(params *BackupsRestoreBackupParams) (*BackupsRestoreBackupOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewRestoreBackupParams()
+		params = NewBackupsRestoreBackupParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "RestoreBackup",
+		ID:                 "Backups_RestoreBackup",
 		Method:             "POST",
 		PathPattern:        "/v1/management/backup/Backups/Restore",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &RestoreBackupReader{formats: a.formats},
+		Reader:             &BackupsRestoreBackupReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*RestoreBackupOK)
+	success, ok := result.(*BackupsRestoreBackupOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*RestoreBackupDefault)
+	unexpectedSuccess := result.(*BackupsRestoreBackupDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  ScheduleBackup schedules backup schedules repeated backup
+  BackupsScheduleBackup schedules backup schedules repeated backup
 */
-func (a *Client) ScheduleBackup(params *ScheduleBackupParams) (*ScheduleBackupOK, error) {
+func (a *Client) BackupsScheduleBackup(params *BackupsScheduleBackupParams) (*BackupsScheduleBackupOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewScheduleBackupParams()
+		params = NewBackupsScheduleBackupParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "ScheduleBackup",
+		ID:                 "Backups_ScheduleBackup",
 		Method:             "POST",
 		PathPattern:        "/v1/management/backup/Backups/Schedule",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ScheduleBackupReader{formats: a.formats},
+		Reader:             &BackupsScheduleBackupReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ScheduleBackupOK)
+	success, ok := result.(*BackupsScheduleBackupOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ScheduleBackupDefault)
+	unexpectedSuccess := result.(*BackupsScheduleBackupDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  StartBackup starts backup request backup specified service to location
+  BackupsStartBackup starts backup request backup specified service to location
 
   Could return the Error message in the details containing specific ErrorCode indicating failure reason:
 ERROR_CODE_XTRABACKUP_NOT_INSTALLED - xtrabackup is not installed on the service
 ERROR_CODE_INVALID_XTRABACKUP - different versions of xtrabackup and xbcloud
 ERROR_CODE_INCOMPATIBLE_XTRABACKUP - xtrabackup is not compatible with MySQL for taking a backup
 */
-func (a *Client) StartBackup(params *StartBackupParams) (*StartBackupOK, error) {
+func (a *Client) BackupsStartBackup(params *BackupsStartBackupParams) (*BackupsStartBackupOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewStartBackupParams()
+		params = NewBackupsStartBackupParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "StartBackup",
+		ID:                 "Backups_StartBackup",
 		Method:             "POST",
 		PathPattern:        "/v1/management/backup/Backups/Start",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &StartBackupReader{formats: a.formats},
+		Reader:             &BackupsStartBackupReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*StartBackupOK)
+	success, ok := result.(*BackupsStartBackupOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*StartBackupDefault)
+	unexpectedSuccess := result.(*BackupsStartBackupDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
