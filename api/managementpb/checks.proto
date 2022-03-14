@@ -143,6 +143,10 @@ service SecurityChecks {
       post: "/v1/management/SecurityChecks/ListFailedServices"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List Failed Services"
+      description: "Returns a list of services with failed checks and a summary of check results."
+    };
   }
   // GetFailedChecks returns the checks result for a given service.
   rpc GetFailedChecks(GetFailedChecksRequest) returns (GetFailedChecksResponse) {
@@ -150,12 +154,20 @@ service SecurityChecks {
       post: "/v1/management/SecurityChecks/FailedChecks"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get Failed Checks"
+      description: "Returns the latest check results for a given service."
+    };
   }
   // ToggleCheckAlert allows to switch alerts state for a check result between "silenced" and "unsilenced".
   rpc ToggleCheckAlert(ToggleCheckAlertRequest) returns (ToggleCheckAlertResponse) {
     option (google.api.http) = {
       post: "/v1/management/SecurityChecks/ToggleCheckAlert"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Toggle Check Alert"
+      description: "Silence/Unsilence alerts for a specific check result."
     };
   }
   // GetSecurityCheckResults returns Security Thread Tool's latest checks results.

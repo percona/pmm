@@ -78,7 +78,9 @@ func (a *Client) ChangeSecurityChecks(params *ChangeSecurityChecksParams) (*Chan
 }
 
 /*
-  GetFailedChecks gets failed checks returns the checks result for a given service
+  GetFailedChecks gets failed checks
+
+  Returns the latest check results for a given service.
 */
 func (a *Client) GetFailedChecks(params *GetFailedChecksParams) (*GetFailedChecksOK, error) {
 	// TODO: Validate the params before sending
@@ -146,7 +148,9 @@ func (a *Client) GetSecurityCheckResults(params *GetSecurityCheckResultsParams) 
 }
 
 /*
-  ListFailedServices lists failed services returns a list of services with failed checks
+  ListFailedServices lists failed services
+
+  Returns a list of services with failed checks and a summary of check results.
 */
 func (a *Client) ListFailedServices(params *ListFailedServicesParams) (*ListFailedServicesOK, error) {
 	// TODO: Validate the params before sending
@@ -249,7 +253,9 @@ func (a *Client) StartSecurityChecks(params *StartSecurityChecksParams) (*StartS
 }
 
 /*
-  ToggleCheckAlert toggles check alert allows to switch alerts state for a check result between silenced and unsilenced
+  ToggleCheckAlert toggles check alert
+
+  Silence/Unsilence alerts for a specific check result.
 */
 func (a *Client) ToggleCheckAlert(params *ToggleCheckAlertParams) (*ToggleCheckAlertOK, error) {
 	// TODO: Validate the params before sending

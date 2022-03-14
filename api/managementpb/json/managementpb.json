@@ -5749,10 +5749,11 @@
     },
     "/v1/management/SecurityChecks/FailedChecks": {
       "post": {
+        "description": "Returns the latest check results for a given service.",
         "tags": [
           "SecurityChecks"
         ],
-        "summary": "GetFailedChecks returns the checks result for a given service.",
+        "summary": "Get Failed Checks",
         "operationId": "GetFailedChecks",
         "parameters": [
           {
@@ -6165,10 +6166,11 @@
     },
     "/v1/management/SecurityChecks/ListFailedServices": {
       "post": {
+        "description": "Returns a list of services with failed checks and a summary of check results.",
         "tags": [
           "SecurityChecks"
         ],
-        "summary": "ListFailedServices returns a list of services with failed checks.",
+        "summary": "List Failed Services",
         "operationId": "ListFailedServices",
         "parameters": [
           {
@@ -6346,10 +6348,11 @@
     },
     "/v1/management/SecurityChecks/ToggleCheckAlert": {
       "post": {
+        "description": "Silence/Unsilence alerts for a specific check result.",
         "tags": [
           "SecurityChecks"
         ],
-        "summary": "ToggleCheckAlert allows to switch alerts state for a check result between \"silenced\" and \"unsilenced\".",
+        "summary": "Toggle Check Alert",
         "operationId": "ToggleCheckAlert",
         "parameters": [
           {
