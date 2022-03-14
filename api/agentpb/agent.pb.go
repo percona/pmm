@@ -7,8 +7,8 @@
 package agentpb
 
 import (
-	rpc "github.com/percona/pmm/api/google/rpc"
 	inventorypb "github.com/percona/pmm/api/inventorypb"
+	status "google.golang.org/genproto/googleapis/rpc/status"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
@@ -2575,7 +2575,7 @@ type AgentMessage struct {
 	//    That means that responded is older than the requester, and doesn't know about newer payload types.
 	//    Status code UNIMPLEMENTED (12) is reserved for that case.
 	// 2. When the payload is set, but the request can't be performed due to some error.
-	Status *rpc.Status `protobuf:"bytes,2047,opt,name=status,proto3" json:"status,omitempty"`
+	Status *status.Status `protobuf:"bytes,2047,opt,name=status,proto3" json:"status,omitempty"`
 	// Types that are assignable to Payload:
 	//	*AgentMessage_Ping
 	//	*AgentMessage_StateChanged
@@ -2635,7 +2635,7 @@ func (x *AgentMessage) GetId() uint32 {
 	return 0
 }
 
-func (x *AgentMessage) GetStatus() *rpc.Status {
+func (x *AgentMessage) GetStatus() *status.Status {
 	if x != nil {
 		return x.Status
 	}
@@ -2874,7 +2874,7 @@ type ServerMessage struct {
 	//    That means that responded is older than the requester, and doesn't know about newer payload types.
 	//    Status code UNIMPLEMENTED (12) is reserved for that case.
 	// 2. When the payload is set, but the request can't be performed due to some error.
-	Status *rpc.Status `protobuf:"bytes,2047,opt,name=status,proto3" json:"status,omitempty"`
+	Status *status.Status `protobuf:"bytes,2047,opt,name=status,proto3" json:"status,omitempty"`
 	// Types that are assignable to Payload:
 	//	*ServerMessage_Pong
 	//	*ServerMessage_StateChanged
@@ -2932,7 +2932,7 @@ func (x *ServerMessage) GetId() uint32 {
 	return 0
 }
 
-func (x *ServerMessage) GetStatus() *rpc.Status {
+func (x *ServerMessage) GetStatus() *status.Status {
 	if x != nil {
 		return x.Status
 	}
@@ -6902,7 +6902,7 @@ var file_agentpb_agent_proto_goTypes = []interface{}{
 	(inventorypb.AgentStatus)(0),                                   // 86: inventory.AgentStatus
 	(*durationpb.Duration)(nil),                                    // 87: google.protobuf.Duration
 	(inventorypb.ServiceType)(0),                                   // 88: inventory.ServiceType
-	(*rpc.Status)(nil),                                             // 89: google.rpc.Status
+	(*status.Status)(nil),                                          // 89: google.rpc.Status
 	(inventorypb.AgentType)(0),                                     // 90: inventory.AgentType
 }
 var file_agentpb_agent_proto_depIdxs = []int32{

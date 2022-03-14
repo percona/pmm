@@ -6,7 +6,7 @@ package qanv1beta1
 import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
-	_ "github.com/percona/pmm/api/google/api"
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	math "math"
 )
 

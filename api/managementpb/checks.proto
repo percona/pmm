@@ -4,7 +4,7 @@ package management;
 
 option go_package = "api/managementpb;managementpb";
 
-import "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
 import "google/api/annotations.proto";
 import "managementpb/severity.proto";
 
@@ -85,7 +85,7 @@ service SecurityChecks {
       post: "/v1/management/SecurityChecks/GetCheckResults"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get Security Check Results"
       description: "Returns Security Thread Tool's latest checks results."
     };
@@ -96,7 +96,7 @@ service SecurityChecks {
       post: "/v1/management/SecurityChecks/Start"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Start Security Checks"
       description: "Executes Security Thread Tool checks and returns when all checks are executed. All available checks will be started if check names aren't specified."
     };
@@ -107,7 +107,7 @@ service SecurityChecks {
       post: "/v1/management/SecurityChecks/List"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List Security Checks"
       description: "Returns a list of available Security Thread Tool checks."
     };
@@ -118,7 +118,7 @@ service SecurityChecks {
       post: "/v1/management/SecurityChecks/Change"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Change Security Checks"
       description: "Enables/disables Security Thread Tool checks or changes their interval by names."
     };

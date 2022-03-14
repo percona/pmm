@@ -4,7 +4,7 @@ package ia.v1beta1;
 
 option go_package = "api/managementpb/ia;iav1beta1";
 
-import "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "managementpb/ia/boolean_flag.proto";
@@ -71,7 +71,7 @@ service Alerts {
       post: "/v1/management/ia/Alerts/Toggle"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       description: "Pass empty list to apply toggle action to all existing alerts"
     };
   }

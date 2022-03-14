@@ -8,7 +8,7 @@ package azurev1beta1
 
 import (
 	_ "github.com/percona/pmm/api/github.com/mwitkow/go-proto-validators"
-	_ "github.com/percona/pmm/api/google/api"
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"

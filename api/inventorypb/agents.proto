@@ -4,7 +4,7 @@ package inventory;
 
 option go_package = "api/inventorypb;inventorypb";
 
-import "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "inventorypb/agent_status.proto";
@@ -1328,7 +1328,7 @@ service Agents {
       post: "/v1/inventory/Agents/List"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List Agents"
       description: "Returns a list of all Agents."
     };
@@ -1339,7 +1339,7 @@ service Agents {
       post: "/v1/inventory/Agents/Get"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get Agent"
       description: "Returns a single Agent by ID."
     };
@@ -1350,7 +1350,7 @@ service Agents {
       post: "/v1/inventory/Agents/AddPMMAgent"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Add PMM Agent"
       description: "Adds PMM Agent."
     };
@@ -1361,7 +1361,7 @@ service Agents {
       post: "/v1/inventory/Agents/AddNodeExporter"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Add Node Exporter"
       description: "Adds node_exporter Agent."
     };
@@ -1372,7 +1372,7 @@ service Agents {
       post: "/v1/inventory/Agents/ChangeNodeExporter"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Change Node Exporter"
       description: "Changes node_exporter Agent."
     };
@@ -1383,7 +1383,7 @@ service Agents {
       post: "/v1/inventory/Agents/AddMySQLdExporter"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Add mysqld Exporter"
       description: "Adds mysqld_exporter Agent."
     };
@@ -1394,7 +1394,7 @@ service Agents {
       post: "/v1/inventory/Agents/ChangeMySQLdExporter"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Change mysqld Exporter"
       description: "Changes mysqld_exporter Agent."
     };
@@ -1405,7 +1405,7 @@ service Agents {
       post: "/v1/inventory/Agents/AddMongoDBExporter"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Add MongoDB Exporter"
       description: "Adds mongodb_exporter Agent."
     };
@@ -1416,7 +1416,7 @@ service Agents {
       post: "/v1/inventory/Agents/ChangeMongoDBExporter"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Change MongoDB Exporter"
       description: "Changes mongodb_exporter Agent."
     };
@@ -1427,7 +1427,7 @@ service Agents {
       post: "/v1/inventory/Agents/AddPostgresExporter"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Add Postgres Exporter"
       description: "Adds postgres_exporter Agent."
     };
@@ -1438,7 +1438,7 @@ service Agents {
       post: "/v1/inventory/Agents/ChangePostgresExporter"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Change Postgres Exporter"
       description: "Changes postgres_exporter Agent."
     };
@@ -1449,7 +1449,7 @@ service Agents {
       post: "/v1/inventory/Agents/AddProxySQLExporter"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Add ProxySQL Exporter"
       description: "Adds proxysql_exporter Agent."
     };
@@ -1460,7 +1460,7 @@ service Agents {
       post: "/v1/inventory/Agents/ChangeProxySQLExporter"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Change ProxySQL Exporter"
       description: "Changes proxysql_exporter Agent."
     };
@@ -1471,7 +1471,7 @@ service Agents {
       post: "/v1/inventory/Agents/AddQANMySQLPerfSchemaAgent"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Add 'QAN MySQL PerfSchema' Agent"
       description: "Adds 'Query Analytics MySQL PerfSchema' Agent."
     };
@@ -1482,7 +1482,7 @@ service Agents {
       post: "/v1/inventory/Agents/ChangeQANMySQLPerfSchemaAgent"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Change 'QAN MySQL PerfSchema' Agent"
       description: "Changes 'Query Analytics MySQL PerfSchema' Agent."
     };
@@ -1493,7 +1493,7 @@ service Agents {
       post: "/v1/inventory/Agents/AddQANMySQLSlowlogAgent"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Add 'QAN MySQL Slowlog' Agent"
       description: "Adds 'Query Analytics MySQL Slowlog' Agent."
     };
@@ -1504,7 +1504,7 @@ service Agents {
       post: "/v1/inventory/Agents/ChangeQANMySQLSlowlogAgent"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Change 'QAN MySQL Slowlog' Agent"
       description: "Changes 'Query Analytics MySQL Slowlog' Agent."
     };
@@ -1515,7 +1515,7 @@ service Agents {
       post: "/v1/inventory/Agents/AddQANMongoDBProfilerAgent"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Add 'QAN MongoDB Profiler' Agent"
       description: "Adds 'Query Analytics MongoDB Profiler' Agent."
     };
@@ -1526,7 +1526,7 @@ service Agents {
       post: "/v1/inventory/Agents/ChangeQANMongoDBProfilerAgent"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Change 'QAN MongoDB Profiler' Agent"
       description: "Changes 'Query Analytics MongoDB Profiler' Agent."
     };
@@ -1537,7 +1537,7 @@ service Agents {
       post: "/v1/inventory/Agents/AddQANPostgreSQLPgStatementsAgent"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Add 'QAN PostgreSQL pg_stat_statements' Agent"
       description: "Adds 'Query Analytics PostgreSQL pg_stat_statements' Agent."
     };
@@ -1548,7 +1548,7 @@ service Agents {
       post: "/v1/inventory/Agents/ChangeQANPostgreSQLPgStatementsAgent"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Change 'QAN PostgreSQL pg_stat_statements' Agent"
       description: "Changes 'Query Analytics PostgreSQL pg_stat_statements' Agent."
     };
@@ -1559,7 +1559,7 @@ service Agents {
       post: "/v1/inventory/Agents/AddQANPostgreSQLPgStatMonitorAgent"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Add 'QAN PostgreSQL pg_stat_monitor' Agent"
       description: "Adds 'Query Analytics PostgreSQL pg_stat_monitor' Agent."
     };
@@ -1570,7 +1570,7 @@ service Agents {
       post: "/v1/inventory/Agents/ChangeQANPostgreSQLPgStatMonitorAgent"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Change 'QAN PostgreSQL pg_stat_monitor' Agent"
       description: "Changes 'Query Analytics PostgreSQL pg_stat_monitor' Agent."
     };
@@ -1581,7 +1581,7 @@ service Agents {
       post: "/v1/inventory/Agents/AddRDSExporter"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Add RDS Exporter"
       description: "Adds rds_exporter Agent."
     };
@@ -1592,7 +1592,7 @@ service Agents {
       post: "/v1/inventory/Agents/ChangeRDSExporter"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Change RDS Exporter"
       description: "Changes rds_exporter Agent."
     };
@@ -1603,7 +1603,7 @@ service Agents {
       post: "/v1/inventory/Agents/AddExternalExporter"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Add External Exporter"
       description: "Adds external_exporter Agent."
     };
@@ -1614,7 +1614,7 @@ service Agents {
       post: "/v1/inventory/Agents/ChangeExternalExporter"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Change External Exporter"
       description: "Changes external_exporter Agent."
     };
@@ -1625,7 +1625,7 @@ service Agents {
       post: "/v1/inventory/Agents/AddAzureDatabaseExporter"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Add Azure Database Exporter"
       description: "Adds azure_database_exporter Agent."
     };
@@ -1636,7 +1636,7 @@ service Agents {
       post: "/v1/inventory/Agents/ChangeAzureDatabaseExporter"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Change Azure Database Exporter"
       description: "Changes azure_database_exporter Agent."
     };
@@ -1647,7 +1647,7 @@ service Agents {
       post: "/v1/inventory/Agents/Remove"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Remove Agent"
       description: "Removes Agent."
     };
