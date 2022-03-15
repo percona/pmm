@@ -8,7 +8,7 @@ package backupv1beta1
 
 import (
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
-	_ "github.com/percona/pmm/api/github.com/mwitkow/go-proto-validators"
+	_ "github.com/mwitkow/go-proto-validators"
 	inventorypb "github.com/percona/pmm/api/inventorypb"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"

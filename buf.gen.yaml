@@ -6,6 +6,8 @@ managed:
     except:
       - buf.build/googleapis/googleapis
       - buf.build/grpc-ecosystem/grpc-gateway
+      - buf.build/percona/third_party
+
 plugins:
   - name: go
     path: bin/protoc-gen-go
