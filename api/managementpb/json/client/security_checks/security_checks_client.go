@@ -25,154 +25,154 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	SecurityChecksChangeSecurityChecks(params *SecurityChecksChangeSecurityChecksParams) (*SecurityChecksChangeSecurityChecksOK, error)
+	ChangeSecurityChecks(params *ChangeSecurityChecksParams) (*ChangeSecurityChecksOK, error)
 
-	SecurityChecksGetSecurityCheckResults(params *SecurityChecksGetSecurityCheckResultsParams) (*SecurityChecksGetSecurityCheckResultsOK, error)
+	GetSecurityCheckResults(params *GetSecurityCheckResultsParams) (*GetSecurityCheckResultsOK, error)
 
-	SecurityChecksListSecurityChecks(params *SecurityChecksListSecurityChecksParams) (*SecurityChecksListSecurityChecksOK, error)
+	ListSecurityChecks(params *ListSecurityChecksParams) (*ListSecurityChecksOK, error)
 
-	SecurityChecksStartSecurityChecks(params *SecurityChecksStartSecurityChecksParams) (*SecurityChecksStartSecurityChecksOK, error)
+	StartSecurityChecks(params *StartSecurityChecksParams) (*StartSecurityChecksOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  SecurityChecksChangeSecurityChecks changes security checks
+  ChangeSecurityChecks changes security checks
 
   Enables/disables Security Thread Tool checks or changes their interval by names.
 */
-func (a *Client) SecurityChecksChangeSecurityChecks(params *SecurityChecksChangeSecurityChecksParams) (*SecurityChecksChangeSecurityChecksOK, error) {
+func (a *Client) ChangeSecurityChecks(params *ChangeSecurityChecksParams) (*ChangeSecurityChecksOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewSecurityChecksChangeSecurityChecksParams()
+		params = NewChangeSecurityChecksParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "SecurityChecks_ChangeSecurityChecks",
+		ID:                 "ChangeSecurityChecks",
 		Method:             "POST",
 		PathPattern:        "/v1/management/SecurityChecks/Change",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &SecurityChecksChangeSecurityChecksReader{formats: a.formats},
+		Reader:             &ChangeSecurityChecksReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*SecurityChecksChangeSecurityChecksOK)
+	success, ok := result.(*ChangeSecurityChecksOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*SecurityChecksChangeSecurityChecksDefault)
+	unexpectedSuccess := result.(*ChangeSecurityChecksDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  SecurityChecksGetSecurityCheckResults gets security check results
+  GetSecurityCheckResults gets security check results
 
   Returns Security Thread Tool's latest checks results.
 */
-func (a *Client) SecurityChecksGetSecurityCheckResults(params *SecurityChecksGetSecurityCheckResultsParams) (*SecurityChecksGetSecurityCheckResultsOK, error) {
+func (a *Client) GetSecurityCheckResults(params *GetSecurityCheckResultsParams) (*GetSecurityCheckResultsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewSecurityChecksGetSecurityCheckResultsParams()
+		params = NewGetSecurityCheckResultsParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "SecurityChecks_GetSecurityCheckResults",
+		ID:                 "GetSecurityCheckResults",
 		Method:             "POST",
 		PathPattern:        "/v1/management/SecurityChecks/GetCheckResults",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &SecurityChecksGetSecurityCheckResultsReader{formats: a.formats},
+		Reader:             &GetSecurityCheckResultsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*SecurityChecksGetSecurityCheckResultsOK)
+	success, ok := result.(*GetSecurityCheckResultsOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*SecurityChecksGetSecurityCheckResultsDefault)
+	unexpectedSuccess := result.(*GetSecurityCheckResultsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  SecurityChecksListSecurityChecks lists security checks
+  ListSecurityChecks lists security checks
 
   Returns a list of available Security Thread Tool checks.
 */
-func (a *Client) SecurityChecksListSecurityChecks(params *SecurityChecksListSecurityChecksParams) (*SecurityChecksListSecurityChecksOK, error) {
+func (a *Client) ListSecurityChecks(params *ListSecurityChecksParams) (*ListSecurityChecksOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewSecurityChecksListSecurityChecksParams()
+		params = NewListSecurityChecksParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "SecurityChecks_ListSecurityChecks",
+		ID:                 "ListSecurityChecks",
 		Method:             "POST",
 		PathPattern:        "/v1/management/SecurityChecks/List",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &SecurityChecksListSecurityChecksReader{formats: a.formats},
+		Reader:             &ListSecurityChecksReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*SecurityChecksListSecurityChecksOK)
+	success, ok := result.(*ListSecurityChecksOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*SecurityChecksListSecurityChecksDefault)
+	unexpectedSuccess := result.(*ListSecurityChecksDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  SecurityChecksStartSecurityChecks starts security checks
+  StartSecurityChecks starts security checks
 
   Executes Security Thread Tool checks and returns when all checks are executed. All available checks will be started if check names aren't specified.
 */
-func (a *Client) SecurityChecksStartSecurityChecks(params *SecurityChecksStartSecurityChecksParams) (*SecurityChecksStartSecurityChecksOK, error) {
+func (a *Client) StartSecurityChecks(params *StartSecurityChecksParams) (*StartSecurityChecksOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewSecurityChecksStartSecurityChecksParams()
+		params = NewStartSecurityChecksParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "SecurityChecks_StartSecurityChecks",
+		ID:                 "StartSecurityChecks",
 		Method:             "POST",
 		PathPattern:        "/v1/management/SecurityChecks/Start",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &SecurityChecksStartSecurityChecksReader{formats: a.formats},
+		Reader:             &StartSecurityChecksReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*SecurityChecksStartSecurityChecksOK)
+	success, ok := result.(*StartSecurityChecksOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*SecurityChecksStartSecurityChecksDefault)
+	unexpectedSuccess := result.(*StartSecurityChecksDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

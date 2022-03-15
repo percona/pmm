@@ -21,7 +21,7 @@
           "Alerts"
         ],
         "summary": "ListAlerts returns a list of all Alerts.",
-        "operationId": "Alerts_ListAlerts",
+        "operationId": "ListAlerts",
         "parameters": [
           {
             "name": "body",
@@ -694,7 +694,7 @@
           "Alerts"
         ],
         "summary": "ToggleAlerts allows to switch alerts state between silenced and unsilenced.",
-        "operationId": "Alerts_ToggleAlerts",
+        "operationId": "ToggleAlerts",
         "parameters": [
           {
             "name": "body",
@@ -781,7 +781,7 @@
           "Channels"
         ],
         "summary": "AddChannel adds notification channel.",
-        "operationId": "Channels_AddChannel",
+        "operationId": "AddChannel",
         "parameters": [
           {
             "name": "body",
@@ -1025,7 +1025,7 @@
           "Channels"
         ],
         "summary": "ChangeChannel changes notification channel.",
-        "operationId": "Channels_ChangeChannel",
+        "operationId": "ChangeChannel",
         "parameters": [
           {
             "name": "body",
@@ -1267,7 +1267,7 @@
           "Channels"
         ],
         "summary": "ListChannels returns a list of all notifation channels.",
-        "operationId": "Channels_ListChannels",
+        "operationId": "ListChannels",
         "parameters": [
           {
             "name": "body",
@@ -1559,7 +1559,7 @@
           "Channels"
         ],
         "summary": "RemoveChannel removes notification channel.",
-        "operationId": "Channels_RemoveChannel",
+        "operationId": "RemoveChannel",
         "parameters": [
           {
             "name": "body",
@@ -1631,7 +1631,7 @@
           "Rules"
         ],
         "summary": "CreateAlertRule creates Alerting rule.",
-        "operationId": "Rules_CreateAlertRule",
+        "operationId": "CreateAlertRule",
         "parameters": [
           {
             "name": "body",
@@ -1838,7 +1838,7 @@
           "Rules"
         ],
         "summary": "DeleteAlertRule deletes Alerting rule.",
-        "operationId": "Rules_DeleteAlertRule",
+        "operationId": "DeleteAlertRule",
         "parameters": [
           {
             "name": "body",
@@ -1911,7 +1911,7 @@
           "Rules"
         ],
         "summary": "ListAlertRules returns a list of all Alerting rules.",
-        "operationId": "Rules_ListAlertRules",
+        "operationId": "ListAlertRules",
         "parameters": [
           {
             "name": "body",
@@ -2516,7 +2516,7 @@
           "Rules"
         ],
         "summary": "ToggleAlertRule allows to switch between disabled and enabled states of an Alert Rule.",
-        "operationId": "Rules_ToggleAlertRule",
+        "operationId": "ToggleAlertRule",
         "parameters": [
           {
             "name": "body",
@@ -2600,7 +2600,7 @@
           "Rules"
         ],
         "summary": "UpdateAlertRule updates Alerting rule.",
-        "operationId": "Rules_UpdateAlertRule",
+        "operationId": "UpdateAlertRule",
         "parameters": [
           {
             "name": "body",
@@ -2795,7 +2795,7 @@
           "Templates"
         ],
         "summary": "CreateTemplate creates a new template.",
-        "operationId": "Templates_CreateTemplate",
+        "operationId": "CreateTemplate",
         "parameters": [
           {
             "name": "body",
@@ -2868,7 +2868,7 @@
           "Templates"
         ],
         "summary": "DeleteTemplate deletes existing, previously created via API.",
-        "operationId": "Templates_DeleteTemplate",
+        "operationId": "DeleteTemplate",
         "parameters": [
           {
             "name": "body",
@@ -2940,7 +2940,7 @@
           "Templates"
         ],
         "summary": "ListTemplates returns a list of all collected Alert Rule Templates.",
-        "operationId": "Templates_ListTemplates",
+        "operationId": "ListTemplates",
         "parameters": [
           {
             "name": "body",
@@ -3259,7 +3259,7 @@
           "Templates"
         ],
         "summary": "UpdateTemplate updates existing template, previously created via API.",
-        "operationId": "Templates_UpdateTemplate",
+        "operationId": "UpdateTemplate",
         "parameters": [
           {
             "name": "body",

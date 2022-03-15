@@ -25,561 +25,561 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	ActionsCancelAction(params *ActionsCancelActionParams) (*ActionsCancelActionOK, error)
+	CancelAction(params *CancelActionParams) (*CancelActionOK, error)
 
-	ActionsGetAction(params *ActionsGetActionParams) (*ActionsGetActionOK, error)
+	GetAction(params *GetActionParams) (*GetActionOK, error)
 
-	ActionsStartMongoDBExplainAction(params *ActionsStartMongoDBExplainActionParams) (*ActionsStartMongoDBExplainActionOK, error)
+	StartMongoDBExplainAction(params *StartMongoDBExplainActionParams) (*StartMongoDBExplainActionOK, error)
 
-	ActionsStartMySQLExplainAction(params *ActionsStartMySQLExplainActionParams) (*ActionsStartMySQLExplainActionOK, error)
+	StartMySQLExplainAction(params *StartMySQLExplainActionParams) (*StartMySQLExplainActionOK, error)
 
-	ActionsStartMySQLExplainJSONAction(params *ActionsStartMySQLExplainJSONActionParams) (*ActionsStartMySQLExplainJSONActionOK, error)
+	StartMySQLExplainJSONAction(params *StartMySQLExplainJSONActionParams) (*StartMySQLExplainJSONActionOK, error)
 
-	ActionsStartMySQLExplainTraditionalJSONAction(params *ActionsStartMySQLExplainTraditionalJSONActionParams) (*ActionsStartMySQLExplainTraditionalJSONActionOK, error)
+	StartMySQLExplainTraditionalJSONAction(params *StartMySQLExplainTraditionalJSONActionParams) (*StartMySQLExplainTraditionalJSONActionOK, error)
 
-	ActionsStartMySQLShowCreateTableAction(params *ActionsStartMySQLShowCreateTableActionParams) (*ActionsStartMySQLShowCreateTableActionOK, error)
+	StartMySQLShowCreateTableAction(params *StartMySQLShowCreateTableActionParams) (*StartMySQLShowCreateTableActionOK, error)
 
-	ActionsStartMySQLShowIndexAction(params *ActionsStartMySQLShowIndexActionParams) (*ActionsStartMySQLShowIndexActionOK, error)
+	StartMySQLShowIndexAction(params *StartMySQLShowIndexActionParams) (*StartMySQLShowIndexActionOK, error)
 
-	ActionsStartMySQLShowTableStatusAction(params *ActionsStartMySQLShowTableStatusActionParams) (*ActionsStartMySQLShowTableStatusActionOK, error)
+	StartMySQLShowTableStatusAction(params *StartMySQLShowTableStatusActionParams) (*StartMySQLShowTableStatusActionOK, error)
 
-	ActionsStartPTMongoDBSummaryAction(params *ActionsStartPTMongoDBSummaryActionParams) (*ActionsStartPTMongoDBSummaryActionOK, error)
+	StartPTMongoDBSummaryAction(params *StartPTMongoDBSummaryActionParams) (*StartPTMongoDBSummaryActionOK, error)
 
-	ActionsStartPTMySQLSummaryAction(params *ActionsStartPTMySQLSummaryActionParams) (*ActionsStartPTMySQLSummaryActionOK, error)
+	StartPTMySQLSummaryAction(params *StartPTMySQLSummaryActionParams) (*StartPTMySQLSummaryActionOK, error)
 
-	ActionsStartPTPgSummaryAction(params *ActionsStartPTPgSummaryActionParams) (*ActionsStartPTPgSummaryActionOK, error)
+	StartPTPgSummaryAction(params *StartPTPgSummaryActionParams) (*StartPTPgSummaryActionOK, error)
 
-	ActionsStartPTSummaryAction(params *ActionsStartPTSummaryActionParams) (*ActionsStartPTSummaryActionOK, error)
+	StartPTSummaryAction(params *StartPTSummaryActionParams) (*StartPTSummaryActionOK, error)
 
-	ActionsStartPostgreSQLShowCreateTableAction(params *ActionsStartPostgreSQLShowCreateTableActionParams) (*ActionsStartPostgreSQLShowCreateTableActionOK, error)
+	StartPostgreSQLShowCreateTableAction(params *StartPostgreSQLShowCreateTableActionParams) (*StartPostgreSQLShowCreateTableActionOK, error)
 
-	ActionsStartPostgreSQLShowIndexAction(params *ActionsStartPostgreSQLShowIndexActionParams) (*ActionsStartPostgreSQLShowIndexActionOK, error)
+	StartPostgreSQLShowIndexAction(params *StartPostgreSQLShowIndexActionParams) (*StartPostgreSQLShowIndexActionOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  ActionsCancelAction cancels action
+  CancelAction cancels action
 
   Stops an Action.
 */
-func (a *Client) ActionsCancelAction(params *ActionsCancelActionParams) (*ActionsCancelActionOK, error) {
+func (a *Client) CancelAction(params *CancelActionParams) (*CancelActionOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewActionsCancelActionParams()
+		params = NewCancelActionParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Actions_CancelAction",
+		ID:                 "CancelAction",
 		Method:             "POST",
 		PathPattern:        "/v1/management/Actions/Cancel",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ActionsCancelActionReader{formats: a.formats},
+		Reader:             &CancelActionReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ActionsCancelActionOK)
+	success, ok := result.(*CancelActionOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ActionsCancelActionDefault)
+	unexpectedSuccess := result.(*CancelActionDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  ActionsGetAction gets action
+  GetAction gets action
 
   Gets the result of a given Action.
 */
-func (a *Client) ActionsGetAction(params *ActionsGetActionParams) (*ActionsGetActionOK, error) {
+func (a *Client) GetAction(params *GetActionParams) (*GetActionOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewActionsGetActionParams()
+		params = NewGetActionParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Actions_GetAction",
+		ID:                 "GetAction",
 		Method:             "POST",
 		PathPattern:        "/v1/management/Actions/Get",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ActionsGetActionReader{formats: a.formats},
+		Reader:             &GetActionReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ActionsGetActionOK)
+	success, ok := result.(*GetActionOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ActionsGetActionDefault)
+	unexpectedSuccess := result.(*GetActionDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  ActionsStartMongoDBExplainAction starts mongo DB e x p l a i n action
+  StartMongoDBExplainAction starts mongo DB e x p l a i n action
 
   Starts 'MongoDB EXPLAIN' Action.
 */
-func (a *Client) ActionsStartMongoDBExplainAction(params *ActionsStartMongoDBExplainActionParams) (*ActionsStartMongoDBExplainActionOK, error) {
+func (a *Client) StartMongoDBExplainAction(params *StartMongoDBExplainActionParams) (*StartMongoDBExplainActionOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewActionsStartMongoDBExplainActionParams()
+		params = NewStartMongoDBExplainActionParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Actions_StartMongoDBExplainAction",
+		ID:                 "StartMongoDBExplainAction",
 		Method:             "POST",
 		PathPattern:        "/v1/management/Actions/StartMongoDBExplain",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ActionsStartMongoDBExplainActionReader{formats: a.formats},
+		Reader:             &StartMongoDBExplainActionReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ActionsStartMongoDBExplainActionOK)
+	success, ok := result.(*StartMongoDBExplainActionOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ActionsStartMongoDBExplainActionDefault)
+	unexpectedSuccess := result.(*StartMongoDBExplainActionDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  ActionsStartMySQLExplainAction starts my SQL e x p l a i n action
+  StartMySQLExplainAction starts my SQL e x p l a i n action
 
   Starts 'MySQL EXPLAIN' Action with traditional output.
 */
-func (a *Client) ActionsStartMySQLExplainAction(params *ActionsStartMySQLExplainActionParams) (*ActionsStartMySQLExplainActionOK, error) {
+func (a *Client) StartMySQLExplainAction(params *StartMySQLExplainActionParams) (*StartMySQLExplainActionOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewActionsStartMySQLExplainActionParams()
+		params = NewStartMySQLExplainActionParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Actions_StartMySQLExplainAction",
+		ID:                 "StartMySQLExplainAction",
 		Method:             "POST",
 		PathPattern:        "/v1/management/Actions/StartMySQLExplain",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ActionsStartMySQLExplainActionReader{formats: a.formats},
+		Reader:             &StartMySQLExplainActionReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ActionsStartMySQLExplainActionOK)
+	success, ok := result.(*StartMySQLExplainActionOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ActionsStartMySQLExplainActionDefault)
+	unexpectedSuccess := result.(*StartMySQLExplainActionDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  ActionsStartMySQLExplainJSONAction starts my SQL e x p l a i n JSON action
+  StartMySQLExplainJSONAction starts my SQL e x p l a i n JSON action
 
   Starts 'MySQL EXPLAIN' Action with JSON output.
 */
-func (a *Client) ActionsStartMySQLExplainJSONAction(params *ActionsStartMySQLExplainJSONActionParams) (*ActionsStartMySQLExplainJSONActionOK, error) {
+func (a *Client) StartMySQLExplainJSONAction(params *StartMySQLExplainJSONActionParams) (*StartMySQLExplainJSONActionOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewActionsStartMySQLExplainJSONActionParams()
+		params = NewStartMySQLExplainJSONActionParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Actions_StartMySQLExplainJSONAction",
+		ID:                 "StartMySQLExplainJSONAction",
 		Method:             "POST",
 		PathPattern:        "/v1/management/Actions/StartMySQLExplainJSON",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ActionsStartMySQLExplainJSONActionReader{formats: a.formats},
+		Reader:             &StartMySQLExplainJSONActionReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ActionsStartMySQLExplainJSONActionOK)
+	success, ok := result.(*StartMySQLExplainJSONActionOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ActionsStartMySQLExplainJSONActionDefault)
+	unexpectedSuccess := result.(*StartMySQLExplainJSONActionDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  ActionsStartMySQLExplainTraditionalJSONAction starts my SQL e x p l a i n traditional JSON action
+  StartMySQLExplainTraditionalJSONAction starts my SQL e x p l a i n traditional JSON action
 
   Starts 'MySQL EXPLAIN' Action with traditional JSON output.
 */
-func (a *Client) ActionsStartMySQLExplainTraditionalJSONAction(params *ActionsStartMySQLExplainTraditionalJSONActionParams) (*ActionsStartMySQLExplainTraditionalJSONActionOK, error) {
+func (a *Client) StartMySQLExplainTraditionalJSONAction(params *StartMySQLExplainTraditionalJSONActionParams) (*StartMySQLExplainTraditionalJSONActionOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewActionsStartMySQLExplainTraditionalJSONActionParams()
+		params = NewStartMySQLExplainTraditionalJSONActionParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Actions_StartMySQLExplainTraditionalJSONAction",
+		ID:                 "StartMySQLExplainTraditionalJSONAction",
 		Method:             "POST",
 		PathPattern:        "/v1/management/Actions/StartMySQLExplainTraditionalJSON",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ActionsStartMySQLExplainTraditionalJSONActionReader{formats: a.formats},
+		Reader:             &StartMySQLExplainTraditionalJSONActionReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ActionsStartMySQLExplainTraditionalJSONActionOK)
+	success, ok := result.(*StartMySQLExplainTraditionalJSONActionOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ActionsStartMySQLExplainTraditionalJSONActionDefault)
+	unexpectedSuccess := result.(*StartMySQLExplainTraditionalJSONActionDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  ActionsStartMySQLShowCreateTableAction starts my SQL s h o w c r e a t e t a b l e action
+  StartMySQLShowCreateTableAction starts my SQL s h o w c r e a t e t a b l e action
 
   Starts 'MySQL SHOW CREATE TABLE' Action.
 */
-func (a *Client) ActionsStartMySQLShowCreateTableAction(params *ActionsStartMySQLShowCreateTableActionParams) (*ActionsStartMySQLShowCreateTableActionOK, error) {
+func (a *Client) StartMySQLShowCreateTableAction(params *StartMySQLShowCreateTableActionParams) (*StartMySQLShowCreateTableActionOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewActionsStartMySQLShowCreateTableActionParams()
+		params = NewStartMySQLShowCreateTableActionParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Actions_StartMySQLShowCreateTableAction",
+		ID:                 "StartMySQLShowCreateTableAction",
 		Method:             "POST",
 		PathPattern:        "/v1/management/Actions/StartMySQLShowCreateTable",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ActionsStartMySQLShowCreateTableActionReader{formats: a.formats},
+		Reader:             &StartMySQLShowCreateTableActionReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ActionsStartMySQLShowCreateTableActionOK)
+	success, ok := result.(*StartMySQLShowCreateTableActionOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ActionsStartMySQLShowCreateTableActionDefault)
+	unexpectedSuccess := result.(*StartMySQLShowCreateTableActionDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  ActionsStartMySQLShowIndexAction starts my SQL s h o w i n d e x action
+  StartMySQLShowIndexAction starts my SQL s h o w i n d e x action
 
   Starts 'MySQL SHOW INDEX' Action.
 */
-func (a *Client) ActionsStartMySQLShowIndexAction(params *ActionsStartMySQLShowIndexActionParams) (*ActionsStartMySQLShowIndexActionOK, error) {
+func (a *Client) StartMySQLShowIndexAction(params *StartMySQLShowIndexActionParams) (*StartMySQLShowIndexActionOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewActionsStartMySQLShowIndexActionParams()
+		params = NewStartMySQLShowIndexActionParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Actions_StartMySQLShowIndexAction",
+		ID:                 "StartMySQLShowIndexAction",
 		Method:             "POST",
 		PathPattern:        "/v1/management/Actions/StartMySQLShowIndex",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ActionsStartMySQLShowIndexActionReader{formats: a.formats},
+		Reader:             &StartMySQLShowIndexActionReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ActionsStartMySQLShowIndexActionOK)
+	success, ok := result.(*StartMySQLShowIndexActionOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ActionsStartMySQLShowIndexActionDefault)
+	unexpectedSuccess := result.(*StartMySQLShowIndexActionDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  ActionsStartMySQLShowTableStatusAction starts my SQL s h o w t a b l e s t a t u s action
+  StartMySQLShowTableStatusAction starts my SQL s h o w t a b l e s t a t u s action
 
   Starts 'MySQL SHOW TABLE STATUS' Action.
 */
-func (a *Client) ActionsStartMySQLShowTableStatusAction(params *ActionsStartMySQLShowTableStatusActionParams) (*ActionsStartMySQLShowTableStatusActionOK, error) {
+func (a *Client) StartMySQLShowTableStatusAction(params *StartMySQLShowTableStatusActionParams) (*StartMySQLShowTableStatusActionOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewActionsStartMySQLShowTableStatusActionParams()
+		params = NewStartMySQLShowTableStatusActionParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Actions_StartMySQLShowTableStatusAction",
+		ID:                 "StartMySQLShowTableStatusAction",
 		Method:             "POST",
 		PathPattern:        "/v1/management/Actions/StartMySQLShowTableStatus",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ActionsStartMySQLShowTableStatusActionReader{formats: a.formats},
+		Reader:             &StartMySQLShowTableStatusActionReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ActionsStartMySQLShowTableStatusActionOK)
+	success, ok := result.(*StartMySQLShowTableStatusActionOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ActionsStartMySQLShowTableStatusActionDefault)
+	unexpectedSuccess := result.(*StartMySQLShowTableStatusActionDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  ActionsStartPTMongoDBSummaryAction starts PT mongo DB summary action
+  StartPTMongoDBSummaryAction starts PT mongo DB summary action
 
   Starts 'Percona Toolkit MongoDB Summary' Action.
 */
-func (a *Client) ActionsStartPTMongoDBSummaryAction(params *ActionsStartPTMongoDBSummaryActionParams) (*ActionsStartPTMongoDBSummaryActionOK, error) {
+func (a *Client) StartPTMongoDBSummaryAction(params *StartPTMongoDBSummaryActionParams) (*StartPTMongoDBSummaryActionOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewActionsStartPTMongoDBSummaryActionParams()
+		params = NewStartPTMongoDBSummaryActionParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Actions_StartPTMongoDBSummaryAction",
+		ID:                 "StartPTMongoDBSummaryAction",
 		Method:             "POST",
 		PathPattern:        "/v1/management/Actions/StartPTMongoDBSummary",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ActionsStartPTMongoDBSummaryActionReader{formats: a.formats},
+		Reader:             &StartPTMongoDBSummaryActionReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ActionsStartPTMongoDBSummaryActionOK)
+	success, ok := result.(*StartPTMongoDBSummaryActionOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ActionsStartPTMongoDBSummaryActionDefault)
+	unexpectedSuccess := result.(*StartPTMongoDBSummaryActionDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  ActionsStartPTMySQLSummaryAction starts PT my SQL summary action
+  StartPTMySQLSummaryAction starts PT my SQL summary action
 
   Starts 'Percona Toolkit MySQL Summary' Action.
 */
-func (a *Client) ActionsStartPTMySQLSummaryAction(params *ActionsStartPTMySQLSummaryActionParams) (*ActionsStartPTMySQLSummaryActionOK, error) {
+func (a *Client) StartPTMySQLSummaryAction(params *StartPTMySQLSummaryActionParams) (*StartPTMySQLSummaryActionOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewActionsStartPTMySQLSummaryActionParams()
+		params = NewStartPTMySQLSummaryActionParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Actions_StartPTMySQLSummaryAction",
+		ID:                 "StartPTMySQLSummaryAction",
 		Method:             "POST",
 		PathPattern:        "/v1/management/Actions/StartPTMySQLSummary",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ActionsStartPTMySQLSummaryActionReader{formats: a.formats},
+		Reader:             &StartPTMySQLSummaryActionReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ActionsStartPTMySQLSummaryActionOK)
+	success, ok := result.(*StartPTMySQLSummaryActionOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ActionsStartPTMySQLSummaryActionDefault)
+	unexpectedSuccess := result.(*StartPTMySQLSummaryActionDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  ActionsStartPTPgSummaryAction starts PT postgre SQL summary action
+  StartPTPgSummaryAction starts PT postgre SQL summary action
 
   Starts 'Percona Toolkit PostgreSQL Summary' Action.
 */
-func (a *Client) ActionsStartPTPgSummaryAction(params *ActionsStartPTPgSummaryActionParams) (*ActionsStartPTPgSummaryActionOK, error) {
+func (a *Client) StartPTPgSummaryAction(params *StartPTPgSummaryActionParams) (*StartPTPgSummaryActionOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewActionsStartPTPgSummaryActionParams()
+		params = NewStartPTPgSummaryActionParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Actions_StartPTPgSummaryAction",
+		ID:                 "StartPTPgSummaryAction",
 		Method:             "POST",
 		PathPattern:        "/v1/management/Actions/StartPTPgSummary",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ActionsStartPTPgSummaryActionReader{formats: a.formats},
+		Reader:             &StartPTPgSummaryActionReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ActionsStartPTPgSummaryActionOK)
+	success, ok := result.(*StartPTPgSummaryActionOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ActionsStartPTPgSummaryActionDefault)
+	unexpectedSuccess := result.(*StartPTPgSummaryActionDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  ActionsStartPTSummaryAction starts PT summary action
+  StartPTSummaryAction starts PT summary action
 
   Starts 'Percona Toolkit Summary' Action.
 */
-func (a *Client) ActionsStartPTSummaryAction(params *ActionsStartPTSummaryActionParams) (*ActionsStartPTSummaryActionOK, error) {
+func (a *Client) StartPTSummaryAction(params *StartPTSummaryActionParams) (*StartPTSummaryActionOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewActionsStartPTSummaryActionParams()
+		params = NewStartPTSummaryActionParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Actions_StartPTSummaryAction",
+		ID:                 "StartPTSummaryAction",
 		Method:             "POST",
 		PathPattern:        "/v1/management/Actions/StartPTSummary",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ActionsStartPTSummaryActionReader{formats: a.formats},
+		Reader:             &StartPTSummaryActionReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ActionsStartPTSummaryActionOK)
+	success, ok := result.(*StartPTSummaryActionOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ActionsStartPTSummaryActionDefault)
+	unexpectedSuccess := result.(*StartPTSummaryActionDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  ActionsStartPostgreSQLShowCreateTableAction starts postgre SQL s h o w c r e a t e t a b l e action
+  StartPostgreSQLShowCreateTableAction starts postgre SQL s h o w c r e a t e t a b l e action
 
   Starts 'PostgreSQL SHOW CREATE TABLE' Action.
 */
-func (a *Client) ActionsStartPostgreSQLShowCreateTableAction(params *ActionsStartPostgreSQLShowCreateTableActionParams) (*ActionsStartPostgreSQLShowCreateTableActionOK, error) {
+func (a *Client) StartPostgreSQLShowCreateTableAction(params *StartPostgreSQLShowCreateTableActionParams) (*StartPostgreSQLShowCreateTableActionOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewActionsStartPostgreSQLShowCreateTableActionParams()
+		params = NewStartPostgreSQLShowCreateTableActionParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Actions_StartPostgreSQLShowCreateTableAction",
+		ID:                 "StartPostgreSQLShowCreateTableAction",
 		Method:             "POST",
 		PathPattern:        "/v1/management/Actions/StartPostgreSQLShowCreateTable",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ActionsStartPostgreSQLShowCreateTableActionReader{formats: a.formats},
+		Reader:             &StartPostgreSQLShowCreateTableActionReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ActionsStartPostgreSQLShowCreateTableActionOK)
+	success, ok := result.(*StartPostgreSQLShowCreateTableActionOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ActionsStartPostgreSQLShowCreateTableActionDefault)
+	unexpectedSuccess := result.(*StartPostgreSQLShowCreateTableActionDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  ActionsStartPostgreSQLShowIndexAction starts postgre SQL s h o w i n d e x action
+  StartPostgreSQLShowIndexAction starts postgre SQL s h o w i n d e x action
 
   Starts 'PostgreSQL SHOW INDEX' Action.
 */
-func (a *Client) ActionsStartPostgreSQLShowIndexAction(params *ActionsStartPostgreSQLShowIndexActionParams) (*ActionsStartPostgreSQLShowIndexActionOK, error) {
+func (a *Client) StartPostgreSQLShowIndexAction(params *StartPostgreSQLShowIndexActionParams) (*StartPostgreSQLShowIndexActionOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewActionsStartPostgreSQLShowIndexActionParams()
+		params = NewStartPostgreSQLShowIndexActionParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Actions_StartPostgreSQLShowIndexAction",
+		ID:                 "StartPostgreSQLShowIndexAction",
 		Method:             "POST",
 		PathPattern:        "/v1/management/Actions/StartPostgreSQLShowIndex",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ActionsStartPostgreSQLShowIndexActionReader{formats: a.formats},
+		Reader:             &StartPostgreSQLShowIndexActionReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ActionsStartPostgreSQLShowIndexActionOK)
+	success, ok := result.(*StartPostgreSQLShowIndexActionOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ActionsStartPostgreSQLShowIndexActionDefault)
+	unexpectedSuccess := result.(*StartPostgreSQLShowIndexActionDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

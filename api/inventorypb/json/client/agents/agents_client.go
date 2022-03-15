@@ -25,1116 +25,1116 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	AgentsAddAzureDatabaseExporter(params *AgentsAddAzureDatabaseExporterParams) (*AgentsAddAzureDatabaseExporterOK, error)
+	AddAzureDatabaseExporter(params *AddAzureDatabaseExporterParams) (*AddAzureDatabaseExporterOK, error)
 
-	AgentsAddExternalExporter(params *AgentsAddExternalExporterParams) (*AgentsAddExternalExporterOK, error)
+	AddExternalExporter(params *AddExternalExporterParams) (*AddExternalExporterOK, error)
 
-	AgentsAddMongoDBExporter(params *AgentsAddMongoDBExporterParams) (*AgentsAddMongoDBExporterOK, error)
+	AddMongoDBExporter(params *AddMongoDBExporterParams) (*AddMongoDBExporterOK, error)
 
-	AgentsAddMySQLdExporter(params *AgentsAddMySQLdExporterParams) (*AgentsAddMySQLdExporterOK, error)
+	AddMySQLdExporter(params *AddMySQLdExporterParams) (*AddMySQLdExporterOK, error)
 
-	AgentsAddNodeExporter(params *AgentsAddNodeExporterParams) (*AgentsAddNodeExporterOK, error)
+	AddNodeExporter(params *AddNodeExporterParams) (*AddNodeExporterOK, error)
 
-	AgentsAddPMMAgent(params *AgentsAddPMMAgentParams) (*AgentsAddPMMAgentOK, error)
+	AddPMMAgent(params *AddPMMAgentParams) (*AddPMMAgentOK, error)
 
-	AgentsAddPostgresExporter(params *AgentsAddPostgresExporterParams) (*AgentsAddPostgresExporterOK, error)
+	AddPostgresExporter(params *AddPostgresExporterParams) (*AddPostgresExporterOK, error)
 
-	AgentsAddProxySQLExporter(params *AgentsAddProxySQLExporterParams) (*AgentsAddProxySQLExporterOK, error)
+	AddProxySQLExporter(params *AddProxySQLExporterParams) (*AddProxySQLExporterOK, error)
 
-	AgentsAddQANMongoDBProfilerAgent(params *AgentsAddQANMongoDBProfilerAgentParams) (*AgentsAddQANMongoDBProfilerAgentOK, error)
+	AddQANMongoDBProfilerAgent(params *AddQANMongoDBProfilerAgentParams) (*AddQANMongoDBProfilerAgentOK, error)
 
-	AgentsAddQANMySQLPerfSchemaAgent(params *AgentsAddQANMySQLPerfSchemaAgentParams) (*AgentsAddQANMySQLPerfSchemaAgentOK, error)
+	AddQANMySQLPerfSchemaAgent(params *AddQANMySQLPerfSchemaAgentParams) (*AddQANMySQLPerfSchemaAgentOK, error)
 
-	AgentsAddQANMySQLSlowlogAgent(params *AgentsAddQANMySQLSlowlogAgentParams) (*AgentsAddQANMySQLSlowlogAgentOK, error)
+	AddQANMySQLSlowlogAgent(params *AddQANMySQLSlowlogAgentParams) (*AddQANMySQLSlowlogAgentOK, error)
 
-	AgentsAddQANPostgreSQLPgStatMonitorAgent(params *AgentsAddQANPostgreSQLPgStatMonitorAgentParams) (*AgentsAddQANPostgreSQLPgStatMonitorAgentOK, error)
+	AddQANPostgreSQLPgStatMonitorAgent(params *AddQANPostgreSQLPgStatMonitorAgentParams) (*AddQANPostgreSQLPgStatMonitorAgentOK, error)
 
-	AgentsAddQANPostgreSQLPgStatementsAgent(params *AgentsAddQANPostgreSQLPgStatementsAgentParams) (*AgentsAddQANPostgreSQLPgStatementsAgentOK, error)
+	AddQANPostgreSQLPgStatementsAgent(params *AddQANPostgreSQLPgStatementsAgentParams) (*AddQANPostgreSQLPgStatementsAgentOK, error)
 
-	AgentsAddRDSExporter(params *AgentsAddRDSExporterParams) (*AgentsAddRDSExporterOK, error)
+	AddRDSExporter(params *AddRDSExporterParams) (*AddRDSExporterOK, error)
 
-	AgentsChangeAzureDatabaseExporter(params *AgentsChangeAzureDatabaseExporterParams) (*AgentsChangeAzureDatabaseExporterOK, error)
+	ChangeAzureDatabaseExporter(params *ChangeAzureDatabaseExporterParams) (*ChangeAzureDatabaseExporterOK, error)
 
-	AgentsChangeExternalExporter(params *AgentsChangeExternalExporterParams) (*AgentsChangeExternalExporterOK, error)
+	ChangeExternalExporter(params *ChangeExternalExporterParams) (*ChangeExternalExporterOK, error)
 
-	AgentsChangeMongoDBExporter(params *AgentsChangeMongoDBExporterParams) (*AgentsChangeMongoDBExporterOK, error)
+	ChangeMongoDBExporter(params *ChangeMongoDBExporterParams) (*ChangeMongoDBExporterOK, error)
 
-	AgentsChangeMySQLdExporter(params *AgentsChangeMySQLdExporterParams) (*AgentsChangeMySQLdExporterOK, error)
+	ChangeMySQLdExporter(params *ChangeMySQLdExporterParams) (*ChangeMySQLdExporterOK, error)
 
-	AgentsChangeNodeExporter(params *AgentsChangeNodeExporterParams) (*AgentsChangeNodeExporterOK, error)
+	ChangeNodeExporter(params *ChangeNodeExporterParams) (*ChangeNodeExporterOK, error)
 
-	AgentsChangePostgresExporter(params *AgentsChangePostgresExporterParams) (*AgentsChangePostgresExporterOK, error)
+	ChangePostgresExporter(params *ChangePostgresExporterParams) (*ChangePostgresExporterOK, error)
 
-	AgentsChangeProxySQLExporter(params *AgentsChangeProxySQLExporterParams) (*AgentsChangeProxySQLExporterOK, error)
+	ChangeProxySQLExporter(params *ChangeProxySQLExporterParams) (*ChangeProxySQLExporterOK, error)
 
-	AgentsChangeQANMongoDBProfilerAgent(params *AgentsChangeQANMongoDBProfilerAgentParams) (*AgentsChangeQANMongoDBProfilerAgentOK, error)
+	ChangeQANMongoDBProfilerAgent(params *ChangeQANMongoDBProfilerAgentParams) (*ChangeQANMongoDBProfilerAgentOK, error)
 
-	AgentsChangeQANMySQLPerfSchemaAgent(params *AgentsChangeQANMySQLPerfSchemaAgentParams) (*AgentsChangeQANMySQLPerfSchemaAgentOK, error)
+	ChangeQANMySQLPerfSchemaAgent(params *ChangeQANMySQLPerfSchemaAgentParams) (*ChangeQANMySQLPerfSchemaAgentOK, error)
 
-	AgentsChangeQANMySQLSlowlogAgent(params *AgentsChangeQANMySQLSlowlogAgentParams) (*AgentsChangeQANMySQLSlowlogAgentOK, error)
+	ChangeQANMySQLSlowlogAgent(params *ChangeQANMySQLSlowlogAgentParams) (*ChangeQANMySQLSlowlogAgentOK, error)
 
-	AgentsChangeQANPostgreSQLPgStatMonitorAgent(params *AgentsChangeQANPostgreSQLPgStatMonitorAgentParams) (*AgentsChangeQANPostgreSQLPgStatMonitorAgentOK, error)
+	ChangeQANPostgreSQLPgStatMonitorAgent(params *ChangeQANPostgreSQLPgStatMonitorAgentParams) (*ChangeQANPostgreSQLPgStatMonitorAgentOK, error)
 
-	AgentsChangeQANPostgreSQLPgStatementsAgent(params *AgentsChangeQANPostgreSQLPgStatementsAgentParams) (*AgentsChangeQANPostgreSQLPgStatementsAgentOK, error)
+	ChangeQANPostgreSQLPgStatementsAgent(params *ChangeQANPostgreSQLPgStatementsAgentParams) (*ChangeQANPostgreSQLPgStatementsAgentOK, error)
 
-	AgentsChangeRDSExporter(params *AgentsChangeRDSExporterParams) (*AgentsChangeRDSExporterOK, error)
+	ChangeRDSExporter(params *ChangeRDSExporterParams) (*ChangeRDSExporterOK, error)
 
-	AgentsGetAgent(params *AgentsGetAgentParams) (*AgentsGetAgentOK, error)
+	GetAgent(params *GetAgentParams) (*GetAgentOK, error)
 
-	AgentsListAgents(params *AgentsListAgentsParams) (*AgentsListAgentsOK, error)
+	ListAgents(params *ListAgentsParams) (*ListAgentsOK, error)
 
-	AgentsRemoveAgent(params *AgentsRemoveAgentParams) (*AgentsRemoveAgentOK, error)
+	RemoveAgent(params *RemoveAgentParams) (*RemoveAgentOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  AgentsAddAzureDatabaseExporter adds azure database exporter
+  AddAzureDatabaseExporter adds azure database exporter
 
   Adds azure_database_exporter Agent.
 */
-func (a *Client) AgentsAddAzureDatabaseExporter(params *AgentsAddAzureDatabaseExporterParams) (*AgentsAddAzureDatabaseExporterOK, error) {
+func (a *Client) AddAzureDatabaseExporter(params *AddAzureDatabaseExporterParams) (*AddAzureDatabaseExporterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAgentsAddAzureDatabaseExporterParams()
+		params = NewAddAzureDatabaseExporterParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Agents_AddAzureDatabaseExporter",
+		ID:                 "AddAzureDatabaseExporter",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/AddAzureDatabaseExporter",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AgentsAddAzureDatabaseExporterReader{formats: a.formats},
+		Reader:             &AddAzureDatabaseExporterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AgentsAddAzureDatabaseExporterOK)
+	success, ok := result.(*AddAzureDatabaseExporterOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AgentsAddAzureDatabaseExporterDefault)
+	unexpectedSuccess := result.(*AddAzureDatabaseExporterDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  AgentsAddExternalExporter adds external exporter
+  AddExternalExporter adds external exporter
 
   Adds external_exporter Agent.
 */
-func (a *Client) AgentsAddExternalExporter(params *AgentsAddExternalExporterParams) (*AgentsAddExternalExporterOK, error) {
+func (a *Client) AddExternalExporter(params *AddExternalExporterParams) (*AddExternalExporterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAgentsAddExternalExporterParams()
+		params = NewAddExternalExporterParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Agents_AddExternalExporter",
+		ID:                 "AddExternalExporter",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/AddExternalExporter",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AgentsAddExternalExporterReader{formats: a.formats},
+		Reader:             &AddExternalExporterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AgentsAddExternalExporterOK)
+	success, ok := result.(*AddExternalExporterOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AgentsAddExternalExporterDefault)
+	unexpectedSuccess := result.(*AddExternalExporterDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  AgentsAddMongoDBExporter adds mongo DB exporter
+  AddMongoDBExporter adds mongo DB exporter
 
   Adds mongodb_exporter Agent.
 */
-func (a *Client) AgentsAddMongoDBExporter(params *AgentsAddMongoDBExporterParams) (*AgentsAddMongoDBExporterOK, error) {
+func (a *Client) AddMongoDBExporter(params *AddMongoDBExporterParams) (*AddMongoDBExporterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAgentsAddMongoDBExporterParams()
+		params = NewAddMongoDBExporterParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Agents_AddMongoDBExporter",
+		ID:                 "AddMongoDBExporter",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/AddMongoDBExporter",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AgentsAddMongoDBExporterReader{formats: a.formats},
+		Reader:             &AddMongoDBExporterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AgentsAddMongoDBExporterOK)
+	success, ok := result.(*AddMongoDBExporterOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AgentsAddMongoDBExporterDefault)
+	unexpectedSuccess := result.(*AddMongoDBExporterDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  AgentsAddMySQLdExporter adds mysqld exporter
+  AddMySQLdExporter adds mysqld exporter
 
   Adds mysqld_exporter Agent.
 */
-func (a *Client) AgentsAddMySQLdExporter(params *AgentsAddMySQLdExporterParams) (*AgentsAddMySQLdExporterOK, error) {
+func (a *Client) AddMySQLdExporter(params *AddMySQLdExporterParams) (*AddMySQLdExporterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAgentsAddMySQLdExporterParams()
+		params = NewAddMySQLdExporterParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Agents_AddMySQLdExporter",
+		ID:                 "AddMySQLdExporter",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/AddMySQLdExporter",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AgentsAddMySQLdExporterReader{formats: a.formats},
+		Reader:             &AddMySQLdExporterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AgentsAddMySQLdExporterOK)
+	success, ok := result.(*AddMySQLdExporterOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AgentsAddMySQLdExporterDefault)
+	unexpectedSuccess := result.(*AddMySQLdExporterDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  AgentsAddNodeExporter adds node exporter
+  AddNodeExporter adds node exporter
 
   Adds node_exporter Agent.
 */
-func (a *Client) AgentsAddNodeExporter(params *AgentsAddNodeExporterParams) (*AgentsAddNodeExporterOK, error) {
+func (a *Client) AddNodeExporter(params *AddNodeExporterParams) (*AddNodeExporterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAgentsAddNodeExporterParams()
+		params = NewAddNodeExporterParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Agents_AddNodeExporter",
+		ID:                 "AddNodeExporter",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/AddNodeExporter",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AgentsAddNodeExporterReader{formats: a.formats},
+		Reader:             &AddNodeExporterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AgentsAddNodeExporterOK)
+	success, ok := result.(*AddNodeExporterOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AgentsAddNodeExporterDefault)
+	unexpectedSuccess := result.(*AddNodeExporterDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  AgentsAddPMMAgent adds PMM agent
+  AddPMMAgent adds PMM agent
 
   Adds PMM Agent.
 */
-func (a *Client) AgentsAddPMMAgent(params *AgentsAddPMMAgentParams) (*AgentsAddPMMAgentOK, error) {
+func (a *Client) AddPMMAgent(params *AddPMMAgentParams) (*AddPMMAgentOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAgentsAddPMMAgentParams()
+		params = NewAddPMMAgentParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Agents_AddPMMAgent",
+		ID:                 "AddPMMAgent",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/AddPMMAgent",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AgentsAddPMMAgentReader{formats: a.formats},
+		Reader:             &AddPMMAgentReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AgentsAddPMMAgentOK)
+	success, ok := result.(*AddPMMAgentOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AgentsAddPMMAgentDefault)
+	unexpectedSuccess := result.(*AddPMMAgentDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  AgentsAddPostgresExporter adds postgres exporter
+  AddPostgresExporter adds postgres exporter
 
   Adds postgres_exporter Agent.
 */
-func (a *Client) AgentsAddPostgresExporter(params *AgentsAddPostgresExporterParams) (*AgentsAddPostgresExporterOK, error) {
+func (a *Client) AddPostgresExporter(params *AddPostgresExporterParams) (*AddPostgresExporterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAgentsAddPostgresExporterParams()
+		params = NewAddPostgresExporterParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Agents_AddPostgresExporter",
+		ID:                 "AddPostgresExporter",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/AddPostgresExporter",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AgentsAddPostgresExporterReader{formats: a.formats},
+		Reader:             &AddPostgresExporterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AgentsAddPostgresExporterOK)
+	success, ok := result.(*AddPostgresExporterOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AgentsAddPostgresExporterDefault)
+	unexpectedSuccess := result.(*AddPostgresExporterDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  AgentsAddProxySQLExporter adds proxy SQL exporter
+  AddProxySQLExporter adds proxy SQL exporter
 
   Adds proxysql_exporter Agent.
 */
-func (a *Client) AgentsAddProxySQLExporter(params *AgentsAddProxySQLExporterParams) (*AgentsAddProxySQLExporterOK, error) {
+func (a *Client) AddProxySQLExporter(params *AddProxySQLExporterParams) (*AddProxySQLExporterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAgentsAddProxySQLExporterParams()
+		params = NewAddProxySQLExporterParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Agents_AddProxySQLExporter",
+		ID:                 "AddProxySQLExporter",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/AddProxySQLExporter",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AgentsAddProxySQLExporterReader{formats: a.formats},
+		Reader:             &AddProxySQLExporterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AgentsAddProxySQLExporterOK)
+	success, ok := result.(*AddProxySQLExporterOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AgentsAddProxySQLExporterDefault)
+	unexpectedSuccess := result.(*AddProxySQLExporterDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  AgentsAddQANMongoDBProfilerAgent adds QAN mongo DB profiler agent
+  AddQANMongoDBProfilerAgent adds QAN mongo DB profiler agent
 
   Adds 'Query Analytics MongoDB Profiler' Agent.
 */
-func (a *Client) AgentsAddQANMongoDBProfilerAgent(params *AgentsAddQANMongoDBProfilerAgentParams) (*AgentsAddQANMongoDBProfilerAgentOK, error) {
+func (a *Client) AddQANMongoDBProfilerAgent(params *AddQANMongoDBProfilerAgentParams) (*AddQANMongoDBProfilerAgentOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAgentsAddQANMongoDBProfilerAgentParams()
+		params = NewAddQANMongoDBProfilerAgentParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Agents_AddQANMongoDBProfilerAgent",
+		ID:                 "AddQANMongoDBProfilerAgent",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/AddQANMongoDBProfilerAgent",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AgentsAddQANMongoDBProfilerAgentReader{formats: a.formats},
+		Reader:             &AddQANMongoDBProfilerAgentReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AgentsAddQANMongoDBProfilerAgentOK)
+	success, ok := result.(*AddQANMongoDBProfilerAgentOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AgentsAddQANMongoDBProfilerAgentDefault)
+	unexpectedSuccess := result.(*AddQANMongoDBProfilerAgentDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  AgentsAddQANMySQLPerfSchemaAgent adds QAN my SQL perf schema agent
+  AddQANMySQLPerfSchemaAgent adds QAN my SQL perf schema agent
 
   Adds 'Query Analytics MySQL PerfSchema' Agent.
 */
-func (a *Client) AgentsAddQANMySQLPerfSchemaAgent(params *AgentsAddQANMySQLPerfSchemaAgentParams) (*AgentsAddQANMySQLPerfSchemaAgentOK, error) {
+func (a *Client) AddQANMySQLPerfSchemaAgent(params *AddQANMySQLPerfSchemaAgentParams) (*AddQANMySQLPerfSchemaAgentOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAgentsAddQANMySQLPerfSchemaAgentParams()
+		params = NewAddQANMySQLPerfSchemaAgentParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Agents_AddQANMySQLPerfSchemaAgent",
+		ID:                 "AddQANMySQLPerfSchemaAgent",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/AddQANMySQLPerfSchemaAgent",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AgentsAddQANMySQLPerfSchemaAgentReader{formats: a.formats},
+		Reader:             &AddQANMySQLPerfSchemaAgentReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AgentsAddQANMySQLPerfSchemaAgentOK)
+	success, ok := result.(*AddQANMySQLPerfSchemaAgentOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AgentsAddQANMySQLPerfSchemaAgentDefault)
+	unexpectedSuccess := result.(*AddQANMySQLPerfSchemaAgentDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  AgentsAddQANMySQLSlowlogAgent adds QAN my SQL slowlog agent
+  AddQANMySQLSlowlogAgent adds QAN my SQL slowlog agent
 
   Adds 'Query Analytics MySQL Slowlog' Agent.
 */
-func (a *Client) AgentsAddQANMySQLSlowlogAgent(params *AgentsAddQANMySQLSlowlogAgentParams) (*AgentsAddQANMySQLSlowlogAgentOK, error) {
+func (a *Client) AddQANMySQLSlowlogAgent(params *AddQANMySQLSlowlogAgentParams) (*AddQANMySQLSlowlogAgentOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAgentsAddQANMySQLSlowlogAgentParams()
+		params = NewAddQANMySQLSlowlogAgentParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Agents_AddQANMySQLSlowlogAgent",
+		ID:                 "AddQANMySQLSlowlogAgent",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/AddQANMySQLSlowlogAgent",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AgentsAddQANMySQLSlowlogAgentReader{formats: a.formats},
+		Reader:             &AddQANMySQLSlowlogAgentReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AgentsAddQANMySQLSlowlogAgentOK)
+	success, ok := result.(*AddQANMySQLSlowlogAgentOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AgentsAddQANMySQLSlowlogAgentDefault)
+	unexpectedSuccess := result.(*AddQANMySQLSlowlogAgentDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  AgentsAddQANPostgreSQLPgStatMonitorAgent adds QAN postgre SQL pg stat monitor agent
+  AddQANPostgreSQLPgStatMonitorAgent adds QAN postgre SQL pg stat monitor agent
 
   Adds 'Query Analytics PostgreSQL pg_stat_monitor' Agent.
 */
-func (a *Client) AgentsAddQANPostgreSQLPgStatMonitorAgent(params *AgentsAddQANPostgreSQLPgStatMonitorAgentParams) (*AgentsAddQANPostgreSQLPgStatMonitorAgentOK, error) {
+func (a *Client) AddQANPostgreSQLPgStatMonitorAgent(params *AddQANPostgreSQLPgStatMonitorAgentParams) (*AddQANPostgreSQLPgStatMonitorAgentOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAgentsAddQANPostgreSQLPgStatMonitorAgentParams()
+		params = NewAddQANPostgreSQLPgStatMonitorAgentParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Agents_AddQANPostgreSQLPgStatMonitorAgent",
+		ID:                 "AddQANPostgreSQLPgStatMonitorAgent",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/AddQANPostgreSQLPgStatMonitorAgent",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AgentsAddQANPostgreSQLPgStatMonitorAgentReader{formats: a.formats},
+		Reader:             &AddQANPostgreSQLPgStatMonitorAgentReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AgentsAddQANPostgreSQLPgStatMonitorAgentOK)
+	success, ok := result.(*AddQANPostgreSQLPgStatMonitorAgentOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AgentsAddQANPostgreSQLPgStatMonitorAgentDefault)
+	unexpectedSuccess := result.(*AddQANPostgreSQLPgStatMonitorAgentDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  AgentsAddQANPostgreSQLPgStatementsAgent adds QAN postgre SQL pg stat statements agent
+  AddQANPostgreSQLPgStatementsAgent adds QAN postgre SQL pg stat statements agent
 
   Adds 'Query Analytics PostgreSQL pg_stat_statements' Agent.
 */
-func (a *Client) AgentsAddQANPostgreSQLPgStatementsAgent(params *AgentsAddQANPostgreSQLPgStatementsAgentParams) (*AgentsAddQANPostgreSQLPgStatementsAgentOK, error) {
+func (a *Client) AddQANPostgreSQLPgStatementsAgent(params *AddQANPostgreSQLPgStatementsAgentParams) (*AddQANPostgreSQLPgStatementsAgentOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAgentsAddQANPostgreSQLPgStatementsAgentParams()
+		params = NewAddQANPostgreSQLPgStatementsAgentParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Agents_AddQANPostgreSQLPgStatementsAgent",
+		ID:                 "AddQANPostgreSQLPgStatementsAgent",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/AddQANPostgreSQLPgStatementsAgent",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AgentsAddQANPostgreSQLPgStatementsAgentReader{formats: a.formats},
+		Reader:             &AddQANPostgreSQLPgStatementsAgentReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AgentsAddQANPostgreSQLPgStatementsAgentOK)
+	success, ok := result.(*AddQANPostgreSQLPgStatementsAgentOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AgentsAddQANPostgreSQLPgStatementsAgentDefault)
+	unexpectedSuccess := result.(*AddQANPostgreSQLPgStatementsAgentDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  AgentsAddRDSExporter adds RDS exporter
+  AddRDSExporter adds RDS exporter
 
   Adds rds_exporter Agent.
 */
-func (a *Client) AgentsAddRDSExporter(params *AgentsAddRDSExporterParams) (*AgentsAddRDSExporterOK, error) {
+func (a *Client) AddRDSExporter(params *AddRDSExporterParams) (*AddRDSExporterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAgentsAddRDSExporterParams()
+		params = NewAddRDSExporterParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Agents_AddRDSExporter",
+		ID:                 "AddRDSExporter",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/AddRDSExporter",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AgentsAddRDSExporterReader{formats: a.formats},
+		Reader:             &AddRDSExporterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AgentsAddRDSExporterOK)
+	success, ok := result.(*AddRDSExporterOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AgentsAddRDSExporterDefault)
+	unexpectedSuccess := result.(*AddRDSExporterDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  AgentsChangeAzureDatabaseExporter changes azure database exporter
+  ChangeAzureDatabaseExporter changes azure database exporter
 
   Changes azure_database_exporter Agent.
 */
-func (a *Client) AgentsChangeAzureDatabaseExporter(params *AgentsChangeAzureDatabaseExporterParams) (*AgentsChangeAzureDatabaseExporterOK, error) {
+func (a *Client) ChangeAzureDatabaseExporter(params *ChangeAzureDatabaseExporterParams) (*ChangeAzureDatabaseExporterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAgentsChangeAzureDatabaseExporterParams()
+		params = NewChangeAzureDatabaseExporterParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Agents_ChangeAzureDatabaseExporter",
+		ID:                 "ChangeAzureDatabaseExporter",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/ChangeAzureDatabaseExporter",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AgentsChangeAzureDatabaseExporterReader{formats: a.formats},
+		Reader:             &ChangeAzureDatabaseExporterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AgentsChangeAzureDatabaseExporterOK)
+	success, ok := result.(*ChangeAzureDatabaseExporterOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AgentsChangeAzureDatabaseExporterDefault)
+	unexpectedSuccess := result.(*ChangeAzureDatabaseExporterDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  AgentsChangeExternalExporter changes external exporter
+  ChangeExternalExporter changes external exporter
 
   Changes external_exporter Agent.
 */
-func (a *Client) AgentsChangeExternalExporter(params *AgentsChangeExternalExporterParams) (*AgentsChangeExternalExporterOK, error) {
+func (a *Client) ChangeExternalExporter(params *ChangeExternalExporterParams) (*ChangeExternalExporterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAgentsChangeExternalExporterParams()
+		params = NewChangeExternalExporterParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Agents_ChangeExternalExporter",
+		ID:                 "ChangeExternalExporter",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/ChangeExternalExporter",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AgentsChangeExternalExporterReader{formats: a.formats},
+		Reader:             &ChangeExternalExporterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AgentsChangeExternalExporterOK)
+	success, ok := result.(*ChangeExternalExporterOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AgentsChangeExternalExporterDefault)
+	unexpectedSuccess := result.(*ChangeExternalExporterDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  AgentsChangeMongoDBExporter changes mongo DB exporter
+  ChangeMongoDBExporter changes mongo DB exporter
 
   Changes mongodb_exporter Agent.
 */
-func (a *Client) AgentsChangeMongoDBExporter(params *AgentsChangeMongoDBExporterParams) (*AgentsChangeMongoDBExporterOK, error) {
+func (a *Client) ChangeMongoDBExporter(params *ChangeMongoDBExporterParams) (*ChangeMongoDBExporterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAgentsChangeMongoDBExporterParams()
+		params = NewChangeMongoDBExporterParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Agents_ChangeMongoDBExporter",
+		ID:                 "ChangeMongoDBExporter",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/ChangeMongoDBExporter",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AgentsChangeMongoDBExporterReader{formats: a.formats},
+		Reader:             &ChangeMongoDBExporterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AgentsChangeMongoDBExporterOK)
+	success, ok := result.(*ChangeMongoDBExporterOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AgentsChangeMongoDBExporterDefault)
+	unexpectedSuccess := result.(*ChangeMongoDBExporterDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  AgentsChangeMySQLdExporter changes mysqld exporter
+  ChangeMySQLdExporter changes mysqld exporter
 
   Changes mysqld_exporter Agent.
 */
-func (a *Client) AgentsChangeMySQLdExporter(params *AgentsChangeMySQLdExporterParams) (*AgentsChangeMySQLdExporterOK, error) {
+func (a *Client) ChangeMySQLdExporter(params *ChangeMySQLdExporterParams) (*ChangeMySQLdExporterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAgentsChangeMySQLdExporterParams()
+		params = NewChangeMySQLdExporterParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Agents_ChangeMySQLdExporter",
+		ID:                 "ChangeMySQLdExporter",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/ChangeMySQLdExporter",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AgentsChangeMySQLdExporterReader{formats: a.formats},
+		Reader:             &ChangeMySQLdExporterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AgentsChangeMySQLdExporterOK)
+	success, ok := result.(*ChangeMySQLdExporterOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AgentsChangeMySQLdExporterDefault)
+	unexpectedSuccess := result.(*ChangeMySQLdExporterDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  AgentsChangeNodeExporter changes node exporter
+  ChangeNodeExporter changes node exporter
 
   Changes node_exporter Agent.
 */
-func (a *Client) AgentsChangeNodeExporter(params *AgentsChangeNodeExporterParams) (*AgentsChangeNodeExporterOK, error) {
+func (a *Client) ChangeNodeExporter(params *ChangeNodeExporterParams) (*ChangeNodeExporterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAgentsChangeNodeExporterParams()
+		params = NewChangeNodeExporterParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Agents_ChangeNodeExporter",
+		ID:                 "ChangeNodeExporter",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/ChangeNodeExporter",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AgentsChangeNodeExporterReader{formats: a.formats},
+		Reader:             &ChangeNodeExporterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AgentsChangeNodeExporterOK)
+	success, ok := result.(*ChangeNodeExporterOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AgentsChangeNodeExporterDefault)
+	unexpectedSuccess := result.(*ChangeNodeExporterDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  AgentsChangePostgresExporter changes postgres exporter
+  ChangePostgresExporter changes postgres exporter
 
   Changes postgres_exporter Agent.
 */
-func (a *Client) AgentsChangePostgresExporter(params *AgentsChangePostgresExporterParams) (*AgentsChangePostgresExporterOK, error) {
+func (a *Client) ChangePostgresExporter(params *ChangePostgresExporterParams) (*ChangePostgresExporterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAgentsChangePostgresExporterParams()
+		params = NewChangePostgresExporterParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Agents_ChangePostgresExporter",
+		ID:                 "ChangePostgresExporter",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/ChangePostgresExporter",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AgentsChangePostgresExporterReader{formats: a.formats},
+		Reader:             &ChangePostgresExporterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AgentsChangePostgresExporterOK)
+	success, ok := result.(*ChangePostgresExporterOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AgentsChangePostgresExporterDefault)
+	unexpectedSuccess := result.(*ChangePostgresExporterDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  AgentsChangeProxySQLExporter changes proxy SQL exporter
+  ChangeProxySQLExporter changes proxy SQL exporter
 
   Changes proxysql_exporter Agent.
 */
-func (a *Client) AgentsChangeProxySQLExporter(params *AgentsChangeProxySQLExporterParams) (*AgentsChangeProxySQLExporterOK, error) {
+func (a *Client) ChangeProxySQLExporter(params *ChangeProxySQLExporterParams) (*ChangeProxySQLExporterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAgentsChangeProxySQLExporterParams()
+		params = NewChangeProxySQLExporterParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Agents_ChangeProxySQLExporter",
+		ID:                 "ChangeProxySQLExporter",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/ChangeProxySQLExporter",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AgentsChangeProxySQLExporterReader{formats: a.formats},
+		Reader:             &ChangeProxySQLExporterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AgentsChangeProxySQLExporterOK)
+	success, ok := result.(*ChangeProxySQLExporterOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AgentsChangeProxySQLExporterDefault)
+	unexpectedSuccess := result.(*ChangeProxySQLExporterDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  AgentsChangeQANMongoDBProfilerAgent changes QAN mongo DB profiler agent
+  ChangeQANMongoDBProfilerAgent changes QAN mongo DB profiler agent
 
   Changes 'Query Analytics MongoDB Profiler' Agent.
 */
-func (a *Client) AgentsChangeQANMongoDBProfilerAgent(params *AgentsChangeQANMongoDBProfilerAgentParams) (*AgentsChangeQANMongoDBProfilerAgentOK, error) {
+func (a *Client) ChangeQANMongoDBProfilerAgent(params *ChangeQANMongoDBProfilerAgentParams) (*ChangeQANMongoDBProfilerAgentOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAgentsChangeQANMongoDBProfilerAgentParams()
+		params = NewChangeQANMongoDBProfilerAgentParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Agents_ChangeQANMongoDBProfilerAgent",
+		ID:                 "ChangeQANMongoDBProfilerAgent",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/ChangeQANMongoDBProfilerAgent",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AgentsChangeQANMongoDBProfilerAgentReader{formats: a.formats},
+		Reader:             &ChangeQANMongoDBProfilerAgentReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AgentsChangeQANMongoDBProfilerAgentOK)
+	success, ok := result.(*ChangeQANMongoDBProfilerAgentOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AgentsChangeQANMongoDBProfilerAgentDefault)
+	unexpectedSuccess := result.(*ChangeQANMongoDBProfilerAgentDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  AgentsChangeQANMySQLPerfSchemaAgent changes QAN my SQL perf schema agent
+  ChangeQANMySQLPerfSchemaAgent changes QAN my SQL perf schema agent
 
   Changes 'Query Analytics MySQL PerfSchema' Agent.
 */
-func (a *Client) AgentsChangeQANMySQLPerfSchemaAgent(params *AgentsChangeQANMySQLPerfSchemaAgentParams) (*AgentsChangeQANMySQLPerfSchemaAgentOK, error) {
+func (a *Client) ChangeQANMySQLPerfSchemaAgent(params *ChangeQANMySQLPerfSchemaAgentParams) (*ChangeQANMySQLPerfSchemaAgentOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAgentsChangeQANMySQLPerfSchemaAgentParams()
+		params = NewChangeQANMySQLPerfSchemaAgentParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Agents_ChangeQANMySQLPerfSchemaAgent",
+		ID:                 "ChangeQANMySQLPerfSchemaAgent",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/ChangeQANMySQLPerfSchemaAgent",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AgentsChangeQANMySQLPerfSchemaAgentReader{formats: a.formats},
+		Reader:             &ChangeQANMySQLPerfSchemaAgentReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AgentsChangeQANMySQLPerfSchemaAgentOK)
+	success, ok := result.(*ChangeQANMySQLPerfSchemaAgentOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AgentsChangeQANMySQLPerfSchemaAgentDefault)
+	unexpectedSuccess := result.(*ChangeQANMySQLPerfSchemaAgentDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  AgentsChangeQANMySQLSlowlogAgent changes QAN my SQL slowlog agent
+  ChangeQANMySQLSlowlogAgent changes QAN my SQL slowlog agent
 
   Changes 'Query Analytics MySQL Slowlog' Agent.
 */
-func (a *Client) AgentsChangeQANMySQLSlowlogAgent(params *AgentsChangeQANMySQLSlowlogAgentParams) (*AgentsChangeQANMySQLSlowlogAgentOK, error) {
+func (a *Client) ChangeQANMySQLSlowlogAgent(params *ChangeQANMySQLSlowlogAgentParams) (*ChangeQANMySQLSlowlogAgentOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAgentsChangeQANMySQLSlowlogAgentParams()
+		params = NewChangeQANMySQLSlowlogAgentParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Agents_ChangeQANMySQLSlowlogAgent",
+		ID:                 "ChangeQANMySQLSlowlogAgent",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/ChangeQANMySQLSlowlogAgent",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AgentsChangeQANMySQLSlowlogAgentReader{formats: a.formats},
+		Reader:             &ChangeQANMySQLSlowlogAgentReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AgentsChangeQANMySQLSlowlogAgentOK)
+	success, ok := result.(*ChangeQANMySQLSlowlogAgentOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AgentsChangeQANMySQLSlowlogAgentDefault)
+	unexpectedSuccess := result.(*ChangeQANMySQLSlowlogAgentDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  AgentsChangeQANPostgreSQLPgStatMonitorAgent changes QAN postgre SQL pg stat monitor agent
+  ChangeQANPostgreSQLPgStatMonitorAgent changes QAN postgre SQL pg stat monitor agent
 
   Changes 'Query Analytics PostgreSQL pg_stat_monitor' Agent.
 */
-func (a *Client) AgentsChangeQANPostgreSQLPgStatMonitorAgent(params *AgentsChangeQANPostgreSQLPgStatMonitorAgentParams) (*AgentsChangeQANPostgreSQLPgStatMonitorAgentOK, error) {
+func (a *Client) ChangeQANPostgreSQLPgStatMonitorAgent(params *ChangeQANPostgreSQLPgStatMonitorAgentParams) (*ChangeQANPostgreSQLPgStatMonitorAgentOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAgentsChangeQANPostgreSQLPgStatMonitorAgentParams()
+		params = NewChangeQANPostgreSQLPgStatMonitorAgentParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Agents_ChangeQANPostgreSQLPgStatMonitorAgent",
+		ID:                 "ChangeQANPostgreSQLPgStatMonitorAgent",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/ChangeQANPostgreSQLPgStatMonitorAgent",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AgentsChangeQANPostgreSQLPgStatMonitorAgentReader{formats: a.formats},
+		Reader:             &ChangeQANPostgreSQLPgStatMonitorAgentReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AgentsChangeQANPostgreSQLPgStatMonitorAgentOK)
+	success, ok := result.(*ChangeQANPostgreSQLPgStatMonitorAgentOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AgentsChangeQANPostgreSQLPgStatMonitorAgentDefault)
+	unexpectedSuccess := result.(*ChangeQANPostgreSQLPgStatMonitorAgentDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  AgentsChangeQANPostgreSQLPgStatementsAgent changes QAN postgre SQL pg stat statements agent
+  ChangeQANPostgreSQLPgStatementsAgent changes QAN postgre SQL pg stat statements agent
 
   Changes 'Query Analytics PostgreSQL pg_stat_statements' Agent.
 */
-func (a *Client) AgentsChangeQANPostgreSQLPgStatementsAgent(params *AgentsChangeQANPostgreSQLPgStatementsAgentParams) (*AgentsChangeQANPostgreSQLPgStatementsAgentOK, error) {
+func (a *Client) ChangeQANPostgreSQLPgStatementsAgent(params *ChangeQANPostgreSQLPgStatementsAgentParams) (*ChangeQANPostgreSQLPgStatementsAgentOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAgentsChangeQANPostgreSQLPgStatementsAgentParams()
+		params = NewChangeQANPostgreSQLPgStatementsAgentParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Agents_ChangeQANPostgreSQLPgStatementsAgent",
+		ID:                 "ChangeQANPostgreSQLPgStatementsAgent",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/ChangeQANPostgreSQLPgStatementsAgent",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AgentsChangeQANPostgreSQLPgStatementsAgentReader{formats: a.formats},
+		Reader:             &ChangeQANPostgreSQLPgStatementsAgentReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AgentsChangeQANPostgreSQLPgStatementsAgentOK)
+	success, ok := result.(*ChangeQANPostgreSQLPgStatementsAgentOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AgentsChangeQANPostgreSQLPgStatementsAgentDefault)
+	unexpectedSuccess := result.(*ChangeQANPostgreSQLPgStatementsAgentDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  AgentsChangeRDSExporter changes RDS exporter
+  ChangeRDSExporter changes RDS exporter
 
   Changes rds_exporter Agent.
 */
-func (a *Client) AgentsChangeRDSExporter(params *AgentsChangeRDSExporterParams) (*AgentsChangeRDSExporterOK, error) {
+func (a *Client) ChangeRDSExporter(params *ChangeRDSExporterParams) (*ChangeRDSExporterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAgentsChangeRDSExporterParams()
+		params = NewChangeRDSExporterParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Agents_ChangeRDSExporter",
+		ID:                 "ChangeRDSExporter",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/ChangeRDSExporter",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AgentsChangeRDSExporterReader{formats: a.formats},
+		Reader:             &ChangeRDSExporterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AgentsChangeRDSExporterOK)
+	success, ok := result.(*ChangeRDSExporterOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AgentsChangeRDSExporterDefault)
+	unexpectedSuccess := result.(*ChangeRDSExporterDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  AgentsGetAgent gets agent
+  GetAgent gets agent
 
   Returns a single Agent by ID.
 */
-func (a *Client) AgentsGetAgent(params *AgentsGetAgentParams) (*AgentsGetAgentOK, error) {
+func (a *Client) GetAgent(params *GetAgentParams) (*GetAgentOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAgentsGetAgentParams()
+		params = NewGetAgentParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Agents_GetAgent",
+		ID:                 "GetAgent",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/Get",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AgentsGetAgentReader{formats: a.formats},
+		Reader:             &GetAgentReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AgentsGetAgentOK)
+	success, ok := result.(*GetAgentOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AgentsGetAgentDefault)
+	unexpectedSuccess := result.(*GetAgentDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  AgentsListAgents lists agents
+  ListAgents lists agents
 
   Returns a list of all Agents.
 */
-func (a *Client) AgentsListAgents(params *AgentsListAgentsParams) (*AgentsListAgentsOK, error) {
+func (a *Client) ListAgents(params *ListAgentsParams) (*ListAgentsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAgentsListAgentsParams()
+		params = NewListAgentsParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Agents_ListAgents",
+		ID:                 "ListAgents",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/List",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AgentsListAgentsReader{formats: a.formats},
+		Reader:             &ListAgentsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AgentsListAgentsOK)
+	success, ok := result.(*ListAgentsOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AgentsListAgentsDefault)
+	unexpectedSuccess := result.(*ListAgentsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  AgentsRemoveAgent removes agent
+  RemoveAgent removes agent
 
   Removes Agent.
 */
-func (a *Client) AgentsRemoveAgent(params *AgentsRemoveAgentParams) (*AgentsRemoveAgentOK, error) {
+func (a *Client) RemoveAgent(params *RemoveAgentParams) (*RemoveAgentOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAgentsRemoveAgentParams()
+		params = NewRemoveAgentParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Agents_RemoveAgent",
+		ID:                 "RemoveAgent",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/Remove",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AgentsRemoveAgentReader{formats: a.formats},
+		Reader:             &RemoveAgentReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AgentsRemoveAgentOK)
+	success, ok := result.(*RemoveAgentOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AgentsRemoveAgentDefault)
+	unexpectedSuccess := result.(*RemoveAgentDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

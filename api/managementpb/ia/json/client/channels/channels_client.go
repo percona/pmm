@@ -25,146 +25,146 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	ChannelsAddChannel(params *ChannelsAddChannelParams) (*ChannelsAddChannelOK, error)
+	AddChannel(params *AddChannelParams) (*AddChannelOK, error)
 
-	ChannelsChangeChannel(params *ChannelsChangeChannelParams) (*ChannelsChangeChannelOK, error)
+	ChangeChannel(params *ChangeChannelParams) (*ChangeChannelOK, error)
 
-	ChannelsListChannels(params *ChannelsListChannelsParams) (*ChannelsListChannelsOK, error)
+	ListChannels(params *ListChannelsParams) (*ListChannelsOK, error)
 
-	ChannelsRemoveChannel(params *ChannelsRemoveChannelParams) (*ChannelsRemoveChannelOK, error)
+	RemoveChannel(params *RemoveChannelParams) (*RemoveChannelOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  ChannelsAddChannel adds channel adds notification channel
+  AddChannel adds channel adds notification channel
 */
-func (a *Client) ChannelsAddChannel(params *ChannelsAddChannelParams) (*ChannelsAddChannelOK, error) {
+func (a *Client) AddChannel(params *AddChannelParams) (*AddChannelOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewChannelsAddChannelParams()
+		params = NewAddChannelParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Channels_AddChannel",
+		ID:                 "AddChannel",
 		Method:             "POST",
 		PathPattern:        "/v1/management/ia/Channels/Add",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ChannelsAddChannelReader{formats: a.formats},
+		Reader:             &AddChannelReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ChannelsAddChannelOK)
+	success, ok := result.(*AddChannelOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ChannelsAddChannelDefault)
+	unexpectedSuccess := result.(*AddChannelDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  ChannelsChangeChannel changes channel changes notification channel
+  ChangeChannel changes channel changes notification channel
 */
-func (a *Client) ChannelsChangeChannel(params *ChannelsChangeChannelParams) (*ChannelsChangeChannelOK, error) {
+func (a *Client) ChangeChannel(params *ChangeChannelParams) (*ChangeChannelOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewChannelsChangeChannelParams()
+		params = NewChangeChannelParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Channels_ChangeChannel",
+		ID:                 "ChangeChannel",
 		Method:             "POST",
 		PathPattern:        "/v1/management/ia/Channels/Change",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ChannelsChangeChannelReader{formats: a.formats},
+		Reader:             &ChangeChannelReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ChannelsChangeChannelOK)
+	success, ok := result.(*ChangeChannelOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ChannelsChangeChannelDefault)
+	unexpectedSuccess := result.(*ChangeChannelDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  ChannelsListChannels lists channels returns a list of all notifation channels
+  ListChannels lists channels returns a list of all notifation channels
 */
-func (a *Client) ChannelsListChannels(params *ChannelsListChannelsParams) (*ChannelsListChannelsOK, error) {
+func (a *Client) ListChannels(params *ListChannelsParams) (*ListChannelsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewChannelsListChannelsParams()
+		params = NewListChannelsParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Channels_ListChannels",
+		ID:                 "ListChannels",
 		Method:             "POST",
 		PathPattern:        "/v1/management/ia/Channels/List",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ChannelsListChannelsReader{formats: a.formats},
+		Reader:             &ListChannelsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ChannelsListChannelsOK)
+	success, ok := result.(*ListChannelsOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ChannelsListChannelsDefault)
+	unexpectedSuccess := result.(*ListChannelsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  ChannelsRemoveChannel removes channel removes notification channel
+  RemoveChannel removes channel removes notification channel
 */
-func (a *Client) ChannelsRemoveChannel(params *ChannelsRemoveChannelParams) (*ChannelsRemoveChannelOK, error) {
+func (a *Client) RemoveChannel(params *RemoveChannelParams) (*RemoveChannelOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewChannelsRemoveChannelParams()
+		params = NewRemoveChannelParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Channels_RemoveChannel",
+		ID:                 "RemoveChannel",
 		Method:             "POST",
 		PathPattern:        "/v1/management/ia/Channels/Remove",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ChannelsRemoveChannelReader{formats: a.formats},
+		Reader:             &RemoveChannelReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ChannelsRemoveChannelOK)
+	success, ok := result.(*RemoveChannelOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ChannelsRemoveChannelDefault)
+	unexpectedSuccess := result.(*RemoveChannelDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

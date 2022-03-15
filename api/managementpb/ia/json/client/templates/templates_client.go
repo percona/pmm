@@ -25,146 +25,146 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	TemplatesCreateTemplate(params *TemplatesCreateTemplateParams) (*TemplatesCreateTemplateOK, error)
+	CreateTemplate(params *CreateTemplateParams) (*CreateTemplateOK, error)
 
-	TemplatesDeleteTemplate(params *TemplatesDeleteTemplateParams) (*TemplatesDeleteTemplateOK, error)
+	DeleteTemplate(params *DeleteTemplateParams) (*DeleteTemplateOK, error)
 
-	TemplatesListTemplates(params *TemplatesListTemplatesParams) (*TemplatesListTemplatesOK, error)
+	ListTemplates(params *ListTemplatesParams) (*ListTemplatesOK, error)
 
-	TemplatesUpdateTemplate(params *TemplatesUpdateTemplateParams) (*TemplatesUpdateTemplateOK, error)
+	UpdateTemplate(params *UpdateTemplateParams) (*UpdateTemplateOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  TemplatesCreateTemplate creates template creates a new template
+  CreateTemplate creates template creates a new template
 */
-func (a *Client) TemplatesCreateTemplate(params *TemplatesCreateTemplateParams) (*TemplatesCreateTemplateOK, error) {
+func (a *Client) CreateTemplate(params *CreateTemplateParams) (*CreateTemplateOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewTemplatesCreateTemplateParams()
+		params = NewCreateTemplateParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Templates_CreateTemplate",
+		ID:                 "CreateTemplate",
 		Method:             "POST",
 		PathPattern:        "/v1/management/ia/Templates/Create",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &TemplatesCreateTemplateReader{formats: a.formats},
+		Reader:             &CreateTemplateReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*TemplatesCreateTemplateOK)
+	success, ok := result.(*CreateTemplateOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*TemplatesCreateTemplateDefault)
+	unexpectedSuccess := result.(*CreateTemplateDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  TemplatesDeleteTemplate deletes template deletes existing previously created via API
+  DeleteTemplate deletes template deletes existing previously created via API
 */
-func (a *Client) TemplatesDeleteTemplate(params *TemplatesDeleteTemplateParams) (*TemplatesDeleteTemplateOK, error) {
+func (a *Client) DeleteTemplate(params *DeleteTemplateParams) (*DeleteTemplateOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewTemplatesDeleteTemplateParams()
+		params = NewDeleteTemplateParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Templates_DeleteTemplate",
+		ID:                 "DeleteTemplate",
 		Method:             "POST",
 		PathPattern:        "/v1/management/ia/Templates/Delete",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &TemplatesDeleteTemplateReader{formats: a.formats},
+		Reader:             &DeleteTemplateReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*TemplatesDeleteTemplateOK)
+	success, ok := result.(*DeleteTemplateOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*TemplatesDeleteTemplateDefault)
+	unexpectedSuccess := result.(*DeleteTemplateDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  TemplatesListTemplates lists templates returns a list of all collected alert rule templates
+  ListTemplates lists templates returns a list of all collected alert rule templates
 */
-func (a *Client) TemplatesListTemplates(params *TemplatesListTemplatesParams) (*TemplatesListTemplatesOK, error) {
+func (a *Client) ListTemplates(params *ListTemplatesParams) (*ListTemplatesOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewTemplatesListTemplatesParams()
+		params = NewListTemplatesParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Templates_ListTemplates",
+		ID:                 "ListTemplates",
 		Method:             "POST",
 		PathPattern:        "/v1/management/ia/Templates/List",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &TemplatesListTemplatesReader{formats: a.formats},
+		Reader:             &ListTemplatesReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*TemplatesListTemplatesOK)
+	success, ok := result.(*ListTemplatesOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*TemplatesListTemplatesDefault)
+	unexpectedSuccess := result.(*ListTemplatesDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  TemplatesUpdateTemplate updates template updates existing template previously created via API
+  UpdateTemplate updates template updates existing template previously created via API
 */
-func (a *Client) TemplatesUpdateTemplate(params *TemplatesUpdateTemplateParams) (*TemplatesUpdateTemplateOK, error) {
+func (a *Client) UpdateTemplate(params *UpdateTemplateParams) (*UpdateTemplateOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewTemplatesUpdateTemplateParams()
+		params = NewUpdateTemplateParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Templates_UpdateTemplate",
+		ID:                 "UpdateTemplate",
 		Method:             "POST",
 		PathPattern:        "/v1/management/ia/Templates/Update",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &TemplatesUpdateTemplateReader{formats: a.formats},
+		Reader:             &UpdateTemplateReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*TemplatesUpdateTemplateOK)
+	success, ok := result.(*UpdateTemplateOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*TemplatesUpdateTemplateDefault)
+	unexpectedSuccess := result.(*UpdateTemplateDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

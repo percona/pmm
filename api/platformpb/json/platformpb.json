@@ -22,7 +22,7 @@
           "Platform"
         ],
         "summary": "Connect",
-        "operationId": "Platform_Connect",
+        "operationId": "Connect",
         "parameters": [
           {
             "name": "body",
@@ -106,7 +106,7 @@
           "Platform"
         ],
         "summary": "Disconnect",
-        "operationId": "Platform_Disconnect",
+        "operationId": "Disconnect",
         "parameters": [
           {
             "name": "body",
@@ -173,7 +173,7 @@
           "Platform"
         ],
         "summary": "SearchOrganizationEntitlements",
-        "operationId": "Platform_SearchOrganizationEntitlements",
+        "operationId": "SearchOrganizationEntitlements",
         "parameters": [
           {
             "name": "body",
@@ -324,7 +324,7 @@
           "Platform"
         ],
         "summary": "SearchOrganizationTickets",
-        "operationId": "Platform_SearchOrganizationTickets",
+        "operationId": "SearchOrganizationTickets",
         "parameters": [
           {
             "name": "body",

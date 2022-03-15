@@ -27,27 +27,167 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
+	AWSInstanceCheck(params *AWSInstanceCheckParams) (*AWSInstanceCheckOK, error)
+
+	ChangeSettings(params *ChangeSettingsParams) (*ChangeSettingsOK, error)
+
+	CheckUpdates(params *CheckUpdatesParams) (*CheckUpdatesOK, error)
+
+	GetSettings(params *GetSettingsParams) (*GetSettingsOK, error)
+
 	Logs(params *LogsParams, writer io.Writer) (*LogsOK, error)
 
-	ServerAWSInstanceCheck(params *ServerAWSInstanceCheckParams) (*ServerAWSInstanceCheckOK, error)
+	Readiness(params *ReadinessParams) (*ReadinessOK, error)
 
-	ServerChangeSettings(params *ServerChangeSettingsParams) (*ServerChangeSettingsOK, error)
+	StartUpdate(params *StartUpdateParams) (*StartUpdateOK, error)
 
-	ServerCheckUpdates(params *ServerCheckUpdatesParams) (*ServerCheckUpdatesOK, error)
+	TestEmailAlertingSettings(params *TestEmailAlertingSettingsParams) (*TestEmailAlertingSettingsOK, error)
 
-	ServerGetSettings(params *ServerGetSettingsParams) (*ServerGetSettingsOK, error)
+	UpdateStatus(params *UpdateStatusParams) (*UpdateStatusOK, error)
 
-	ServerReadiness(params *ServerReadinessParams) (*ServerReadinessOK, error)
-
-	ServerStartUpdate(params *ServerStartUpdateParams) (*ServerStartUpdateOK, error)
-
-	ServerTestEmailAlertingSettings(params *ServerTestEmailAlertingSettingsParams) (*ServerTestEmailAlertingSettingsOK, error)
-
-	ServerUpdateStatus(params *ServerUpdateStatusParams) (*ServerUpdateStatusOK, error)
-
-	ServerVersion(params *ServerVersionParams) (*ServerVersionOK, error)
+	Version(params *VersionParams) (*VersionOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+  AWSInstanceCheck AWSs instance check
+
+  Checks AWS EC2 instance ID.
+*/
+func (a *Client) AWSInstanceCheck(params *AWSInstanceCheckParams) (*AWSInstanceCheckOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAWSInstanceCheckParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "AWSInstanceCheck",
+		Method:             "POST",
+		PathPattern:        "/v1/AWSInstanceCheck",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &AWSInstanceCheckReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*AWSInstanceCheckOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AWSInstanceCheckDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  ChangeSettings changes settings
+
+  Changes PMM Server settings.
+*/
+func (a *Client) ChangeSettings(params *ChangeSettingsParams) (*ChangeSettingsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewChangeSettingsParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "ChangeSettings",
+		Method:             "POST",
+		PathPattern:        "/v1/Settings/Change",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ChangeSettingsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ChangeSettingsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ChangeSettingsDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  CheckUpdates checks updates
+
+  Checks for available PMM Server updates.
+*/
+func (a *Client) CheckUpdates(params *CheckUpdatesParams) (*CheckUpdatesOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewCheckUpdatesParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "CheckUpdates",
+		Method:             "POST",
+		PathPattern:        "/v1/Updates/Check",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &CheckUpdatesReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*CheckUpdatesOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*CheckUpdatesDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  GetSettings gets settings
+
+  Returns current PMM Server settings.
+*/
+func (a *Client) GetSettings(params *GetSettingsParams) (*GetSettingsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetSettingsParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "GetSettings",
+		Method:             "POST",
+		PathPattern:        "/v1/Settings/Get",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &GetSettingsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetSettingsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*GetSettingsDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -86,317 +226,177 @@ func (a *Client) Logs(params *LogsParams, writer io.Writer) (*LogsOK, error) {
 }
 
 /*
-  ServerAWSInstanceCheck AWSs instance check
-
-  Checks AWS EC2 instance ID.
-*/
-func (a *Client) ServerAWSInstanceCheck(params *ServerAWSInstanceCheckParams) (*ServerAWSInstanceCheckOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewServerAWSInstanceCheckParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Server_AWSInstanceCheck",
-		Method:             "POST",
-		PathPattern:        "/v1/AWSInstanceCheck",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &ServerAWSInstanceCheckReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*ServerAWSInstanceCheckOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*ServerAWSInstanceCheckDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-  ServerChangeSettings changes settings
-
-  Changes PMM Server settings.
-*/
-func (a *Client) ServerChangeSettings(params *ServerChangeSettingsParams) (*ServerChangeSettingsOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewServerChangeSettingsParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Server_ChangeSettings",
-		Method:             "POST",
-		PathPattern:        "/v1/Settings/Change",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &ServerChangeSettingsReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*ServerChangeSettingsOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*ServerChangeSettingsDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-  ServerCheckUpdates checks updates
-
-  Checks for available PMM Server updates.
-*/
-func (a *Client) ServerCheckUpdates(params *ServerCheckUpdatesParams) (*ServerCheckUpdatesOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewServerCheckUpdatesParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Server_CheckUpdates",
-		Method:             "POST",
-		PathPattern:        "/v1/Updates/Check",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &ServerCheckUpdatesReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*ServerCheckUpdatesOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*ServerCheckUpdatesDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-  ServerGetSettings gets settings
-
-  Returns current PMM Server settings.
-*/
-func (a *Client) ServerGetSettings(params *ServerGetSettingsParams) (*ServerGetSettingsOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewServerGetSettingsParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Server_GetSettings",
-		Method:             "POST",
-		PathPattern:        "/v1/Settings/Get",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &ServerGetSettingsReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*ServerGetSettingsOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*ServerGetSettingsDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-  ServerReadiness checks server readiness
+  Readiness checks server readiness
 
   Returns an error when Server components being restarted are not ready yet. Use this API for checking the health of Docker containers and for probing Kubernetes readiness.
 */
-func (a *Client) ServerReadiness(params *ServerReadinessParams) (*ServerReadinessOK, error) {
+func (a *Client) Readiness(params *ReadinessParams) (*ReadinessOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewServerReadinessParams()
+		params = NewReadinessParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Server_Readiness",
+		ID:                 "Readiness",
 		Method:             "GET",
 		PathPattern:        "/v1/readyz",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ServerReadinessReader{formats: a.formats},
+		Reader:             &ReadinessReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ServerReadinessOK)
+	success, ok := result.(*ReadinessOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ServerReadinessDefault)
+	unexpectedSuccess := result.(*ReadinessDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  ServerStartUpdate starts update
+  StartUpdate starts update
 
   Starts PMM Server update.
 */
-func (a *Client) ServerStartUpdate(params *ServerStartUpdateParams) (*ServerStartUpdateOK, error) {
+func (a *Client) StartUpdate(params *StartUpdateParams) (*StartUpdateOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewServerStartUpdateParams()
+		params = NewStartUpdateParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Server_StartUpdate",
+		ID:                 "StartUpdate",
 		Method:             "POST",
 		PathPattern:        "/v1/Updates/Start",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ServerStartUpdateReader{formats: a.formats},
+		Reader:             &StartUpdateReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ServerStartUpdateOK)
+	success, ok := result.(*StartUpdateOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ServerStartUpdateDefault)
+	unexpectedSuccess := result.(*StartUpdateDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  ServerTestEmailAlertingSettings tests email alerting
+  TestEmailAlertingSettings tests email alerting
 
   Sends test email to check current SMTP settings for email alerting.
 */
-func (a *Client) ServerTestEmailAlertingSettings(params *ServerTestEmailAlertingSettingsParams) (*ServerTestEmailAlertingSettingsOK, error) {
+func (a *Client) TestEmailAlertingSettings(params *TestEmailAlertingSettingsParams) (*TestEmailAlertingSettingsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewServerTestEmailAlertingSettingsParams()
+		params = NewTestEmailAlertingSettingsParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Server_TestEmailAlertingSettings",
+		ID:                 "TestEmailAlertingSettings",
 		Method:             "POST",
 		PathPattern:        "/v1/Settings/TestEmailAlertingSettings",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ServerTestEmailAlertingSettingsReader{formats: a.formats},
+		Reader:             &TestEmailAlertingSettingsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ServerTestEmailAlertingSettingsOK)
+	success, ok := result.(*TestEmailAlertingSettingsOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ServerTestEmailAlertingSettingsDefault)
+	unexpectedSuccess := result.(*TestEmailAlertingSettingsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  ServerUpdateStatus updates status
+  UpdateStatus updates status
 
   Returns PMM Server update status.
 */
-func (a *Client) ServerUpdateStatus(params *ServerUpdateStatusParams) (*ServerUpdateStatusOK, error) {
+func (a *Client) UpdateStatus(params *UpdateStatusParams) (*UpdateStatusOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewServerUpdateStatusParams()
+		params = NewUpdateStatusParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Server_UpdateStatus",
+		ID:                 "UpdateStatus",
 		Method:             "POST",
 		PathPattern:        "/v1/Updates/Status",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ServerUpdateStatusReader{formats: a.formats},
+		Reader:             &UpdateStatusReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ServerUpdateStatusOK)
+	success, ok := result.(*UpdateStatusOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ServerUpdateStatusDefault)
+	unexpectedSuccess := result.(*UpdateStatusDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  ServerVersion versions
+  Version versions
 
   Returns PMM Server versions.
 */
-func (a *Client) ServerVersion(params *ServerVersionParams) (*ServerVersionOK, error) {
+func (a *Client) Version(params *VersionParams) (*VersionOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewServerVersionParams()
+		params = NewVersionParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Server_Version",
+		ID:                 "Version",
 		Method:             "GET",
 		PathPattern:        "/v1/version",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ServerVersionReader{formats: a.formats},
+		Reader:             &VersionReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ServerVersionOK)
+	success, ok := result.(*VersionOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ServerVersionDefault)
+	unexpectedSuccess := result.(*VersionDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

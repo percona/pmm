@@ -62,7 +62,7 @@
           "Server"
         ],
         "summary": "AWS instance check",
-        "operationId": "Server_AWSInstanceCheck",
+        "operationId": "AWSInstanceCheck",
         "parameters": [
           {
             "name": "body",
@@ -136,7 +136,7 @@
           "Server"
         ],
         "summary": "Change settings",
-        "operationId": "Server_ChangeSettings",
+        "operationId": "ChangeSettings",
         "parameters": [
           {
             "name": "body",
@@ -616,7 +616,7 @@
           "Server"
         ],
         "summary": "Get settings",
-        "operationId": "Server_GetSettings",
+        "operationId": "GetSettings",
         "parameters": [
           {
             "name": "body",
@@ -870,7 +870,7 @@
           "Server"
         ],
         "summary": "Test email alerting",
-        "operationId": "Server_TestEmailAlertingSettings",
+        "operationId": "TestEmailAlertingSettings",
         "parameters": [
           {
             "name": "body",
@@ -991,7 +991,7 @@
           "Server"
         ],
         "summary": "Check updates",
-        "operationId": "Server_CheckUpdates",
+        "operationId": "CheckUpdates",
         "parameters": [
           {
             "name": "body",
@@ -1134,7 +1134,7 @@
           "Server"
         ],
         "summary": "Start update",
-        "operationId": "Server_StartUpdate",
+        "operationId": "StartUpdate",
         "parameters": [
           {
             "name": "body",
@@ -1214,7 +1214,7 @@
           "Server"
         ],
         "summary": "Update status",
-        "operationId": "Server_UpdateStatus",
+        "operationId": "UpdateStatus",
         "parameters": [
           {
             "name": "body",
@@ -1315,7 +1315,7 @@
           "Server"
         ],
         "summary": "Check server readiness",
-        "operationId": "Server_Readiness",
+        "operationId": "Readiness",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -1372,7 +1372,7 @@
           "Server"
         ],
         "summary": "Version",
-        "operationId": "Server_Version",
+        "operationId": "Version",
         "parameters": [
           {
             "type": "string",

@@ -25,111 +25,111 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	DBClustersDeleteDBCluster(params *DBClustersDeleteDBClusterParams) (*DBClustersDeleteDBClusterOK, error)
+	DeleteDBCluster(params *DeleteDBClusterParams) (*DeleteDBClusterOK, error)
 
-	DBClustersListDBClusters(params *DBClustersListDBClustersParams) (*DBClustersListDBClustersOK, error)
+	ListDBClusters(params *ListDBClustersParams) (*ListDBClustersOK, error)
 
-	DBClustersRestartDBCluster(params *DBClustersRestartDBClusterParams) (*DBClustersRestartDBClusterOK, error)
+	RestartDBCluster(params *RestartDBClusterParams) (*RestartDBClusterOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  DBClustersDeleteDBCluster deletes DB cluster deletes DB cluster
+  DeleteDBCluster deletes DB cluster deletes DB cluster
 */
-func (a *Client) DBClustersDeleteDBCluster(params *DBClustersDeleteDBClusterParams) (*DBClustersDeleteDBClusterOK, error) {
+func (a *Client) DeleteDBCluster(params *DeleteDBClusterParams) (*DeleteDBClusterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewDBClustersDeleteDBClusterParams()
+		params = NewDeleteDBClusterParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "DBClusters_DeleteDBCluster",
+		ID:                 "DeleteDBCluster",
 		Method:             "POST",
 		PathPattern:        "/v1/management/DBaaS/DBClusters/Delete",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &DBClustersDeleteDBClusterReader{formats: a.formats},
+		Reader:             &DeleteDBClusterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*DBClustersDeleteDBClusterOK)
+	success, ok := result.(*DeleteDBClusterOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*DBClustersDeleteDBClusterDefault)
+	unexpectedSuccess := result.(*DeleteDBClusterDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  DBClustersListDBClusters lists DB clusters returns a list of DB clusters
+  ListDBClusters lists DB clusters returns a list of DB clusters
 */
-func (a *Client) DBClustersListDBClusters(params *DBClustersListDBClustersParams) (*DBClustersListDBClustersOK, error) {
+func (a *Client) ListDBClusters(params *ListDBClustersParams) (*ListDBClustersOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewDBClustersListDBClustersParams()
+		params = NewListDBClustersParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "DBClusters_ListDBClusters",
+		ID:                 "ListDBClusters",
 		Method:             "POST",
 		PathPattern:        "/v1/management/DBaaS/DBClusters/List",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &DBClustersListDBClustersReader{formats: a.formats},
+		Reader:             &ListDBClustersReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*DBClustersListDBClustersOK)
+	success, ok := result.(*ListDBClustersOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*DBClustersListDBClustersDefault)
+	unexpectedSuccess := result.(*ListDBClustersDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  DBClustersRestartDBCluster restarts DB cluster restarts DB cluster
+  RestartDBCluster restarts DB cluster restarts DB cluster
 */
-func (a *Client) DBClustersRestartDBCluster(params *DBClustersRestartDBClusterParams) (*DBClustersRestartDBClusterOK, error) {
+func (a *Client) RestartDBCluster(params *RestartDBClusterParams) (*RestartDBClusterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewDBClustersRestartDBClusterParams()
+		params = NewRestartDBClusterParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "DBClusters_RestartDBCluster",
+		ID:                 "RestartDBCluster",
 		Method:             "POST",
 		PathPattern:        "/v1/management/DBaaS/DBClusters/Restart",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &DBClustersRestartDBClusterReader{formats: a.formats},
+		Reader:             &RestartDBClusterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*DBClustersRestartDBClusterOK)
+	success, ok := result.(*RestartDBClusterOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*DBClustersRestartDBClusterDefault)
+	unexpectedSuccess := result.(*RestartDBClusterDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

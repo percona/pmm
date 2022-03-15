@@ -33,7 +33,10 @@ plugins:
     opt:
       - paths=source_relative
       - lang=go
+      - gogoimport=false
 
   - name: swagger
     out: api
     path: bin/protoc-gen-swagger
+    opt:
+      - simple_operation_ids=true

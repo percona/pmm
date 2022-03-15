@@ -25,43 +25,43 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	MySQLAddMySQL(params *MySQLAddMySQLParams) (*MySQLAddMySQLOK, error)
+	AddMySQL(params *AddMySQLParams) (*AddMySQLOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  MySQLAddMySQL adds my SQL
+  AddMySQL adds my SQL
 
   Adds MySQL Service and starts several Agents. It automatically adds a service to inventory, which is running on the provided "node_id", then adds "mysqld_exporter", and "qan_mysql_perfschema" agents with the provided "pmm_agent_id" and other parameters.
 */
-func (a *Client) MySQLAddMySQL(params *MySQLAddMySQLParams) (*MySQLAddMySQLOK, error) {
+func (a *Client) AddMySQL(params *AddMySQLParams) (*AddMySQLOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewMySQLAddMySQLParams()
+		params = NewAddMySQLParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "MySQL_AddMySQL",
+		ID:                 "AddMySQL",
 		Method:             "POST",
 		PathPattern:        "/v1/management/MySQL/Add",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &MySQLAddMySQLReader{formats: a.formats},
+		Reader:             &AddMySQLReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*MySQLAddMySQLOK)
+	success, ok := result.(*AddMySQLOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*MySQLAddMySQLDefault)
+	unexpectedSuccess := result.(*AddMySQLDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

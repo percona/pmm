@@ -21,7 +21,7 @@
           "AgentLocal"
         ],
         "summary": "Reload reloads pmm-agent configuration.",
-        "operationId": "AgentLocal_Reload",
+        "operationId": "Reload",
         "parameters": [
           {
             "name": "body",
@@ -88,7 +88,7 @@
           "AgentLocal"
         ],
         "summary": "Status returns current pmm-agent status.",
-        "operationId": "AgentLocal_Status2",
+        "operationId": "Status2",
         "parameters": [
           {
             "type": "boolean",
@@ -266,7 +266,7 @@
           "AgentLocal"
         ],
         "summary": "Status returns current pmm-agent status.",
-        "operationId": "AgentLocal_Status",
+        "operationId": "Status",
         "parameters": [
           {
             "name": "body",

@@ -25,154 +25,154 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	PlatformConnect(params *PlatformConnectParams) (*PlatformConnectOK, error)
+	Connect(params *ConnectParams) (*ConnectOK, error)
 
-	PlatformDisconnect(params *PlatformDisconnectParams) (*PlatformDisconnectOK, error)
+	Disconnect(params *DisconnectParams) (*DisconnectOK, error)
 
-	PlatformSearchOrganizationEntitlements(params *PlatformSearchOrganizationEntitlementsParams) (*PlatformSearchOrganizationEntitlementsOK, error)
+	SearchOrganizationEntitlements(params *SearchOrganizationEntitlementsParams) (*SearchOrganizationEntitlementsOK, error)
 
-	PlatformSearchOrganizationTickets(params *PlatformSearchOrganizationTicketsParams) (*PlatformSearchOrganizationTicketsOK, error)
+	SearchOrganizationTickets(params *SearchOrganizationTicketsParams) (*SearchOrganizationTicketsOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  PlatformConnect connects
+  Connect connects
 
   Connect a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.
 */
-func (a *Client) PlatformConnect(params *PlatformConnectParams) (*PlatformConnectOK, error) {
+func (a *Client) Connect(params *ConnectParams) (*ConnectOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewPlatformConnectParams()
+		params = NewConnectParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Platform_Connect",
+		ID:                 "Connect",
 		Method:             "POST",
 		PathPattern:        "/v1/Platform/Connect",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &PlatformConnectReader{formats: a.formats},
+		Reader:             &ConnectReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*PlatformConnectOK)
+	success, ok := result.(*ConnectOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*PlatformConnectDefault)
+	unexpectedSuccess := result.(*ConnectDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  PlatformDisconnect disconnects
+  Disconnect disconnects
 
   Disconnect a PMM server from the organization created on Percona Portal.
 */
-func (a *Client) PlatformDisconnect(params *PlatformDisconnectParams) (*PlatformDisconnectOK, error) {
+func (a *Client) Disconnect(params *DisconnectParams) (*DisconnectOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewPlatformDisconnectParams()
+		params = NewDisconnectParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Platform_Disconnect",
+		ID:                 "Disconnect",
 		Method:             "POST",
 		PathPattern:        "/v1/Platform/Disconnect",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &PlatformDisconnectReader{formats: a.formats},
+		Reader:             &DisconnectReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*PlatformDisconnectOK)
+	success, ok := result.(*DisconnectOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*PlatformDisconnectDefault)
+	unexpectedSuccess := result.(*DisconnectDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  PlatformSearchOrganizationEntitlements searches organization entitlements
+  SearchOrganizationEntitlements searches organization entitlements
 
   SearchOrganizationEntitlements fetches details of the entitlement's available to the Portal organization that the PMM server is connected to.
 */
-func (a *Client) PlatformSearchOrganizationEntitlements(params *PlatformSearchOrganizationEntitlementsParams) (*PlatformSearchOrganizationEntitlementsOK, error) {
+func (a *Client) SearchOrganizationEntitlements(params *SearchOrganizationEntitlementsParams) (*SearchOrganizationEntitlementsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewPlatformSearchOrganizationEntitlementsParams()
+		params = NewSearchOrganizationEntitlementsParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Platform_SearchOrganizationEntitlements",
+		ID:                 "SearchOrganizationEntitlements",
 		Method:             "POST",
 		PathPattern:        "/v1/Platform/SearchOrganizationEntitlements",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &PlatformSearchOrganizationEntitlementsReader{formats: a.formats},
+		Reader:             &SearchOrganizationEntitlementsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*PlatformSearchOrganizationEntitlementsOK)
+	success, ok := result.(*SearchOrganizationEntitlementsOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*PlatformSearchOrganizationEntitlementsDefault)
+	unexpectedSuccess := result.(*SearchOrganizationEntitlementsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  PlatformSearchOrganizationTickets searches organization tickets
+  SearchOrganizationTickets searches organization tickets
 
   SearchOrganizationTickets searches support tickets belonging to the Percona Portal Organization that the PMM server is connected to.
 */
-func (a *Client) PlatformSearchOrganizationTickets(params *PlatformSearchOrganizationTicketsParams) (*PlatformSearchOrganizationTicketsOK, error) {
+func (a *Client) SearchOrganizationTickets(params *SearchOrganizationTicketsParams) (*SearchOrganizationTicketsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewPlatformSearchOrganizationTicketsParams()
+		params = NewSearchOrganizationTicketsParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Platform_SearchOrganizationTickets",
+		ID:                 "SearchOrganizationTickets",
 		Method:             "POST",
 		PathPattern:        "/v1/Platform/SearchOrganizationTickets",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &PlatformSearchOrganizationTicketsReader{formats: a.formats},
+		Reader:             &SearchOrganizationTicketsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*PlatformSearchOrganizationTicketsOK)
+	success, ok := result.(*SearchOrganizationTicketsOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*PlatformSearchOrganizationTicketsDefault)
+	unexpectedSuccess := result.(*SearchOrganizationTicketsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

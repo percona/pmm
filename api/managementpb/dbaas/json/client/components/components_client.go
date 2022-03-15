@@ -25,216 +25,216 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	ComponentsChangePSMDBComponents(params *ComponentsChangePSMDBComponentsParams) (*ComponentsChangePSMDBComponentsOK, error)
+	ChangePSMDBComponents(params *ChangePSMDBComponentsParams) (*ChangePSMDBComponentsOK, error)
 
-	ComponentsChangePXCComponents(params *ComponentsChangePXCComponentsParams) (*ComponentsChangePXCComponentsOK, error)
+	ChangePXCComponents(params *ChangePXCComponentsParams) (*ChangePXCComponentsOK, error)
 
-	ComponentsCheckForOperatorUpdate(params *ComponentsCheckForOperatorUpdateParams) (*ComponentsCheckForOperatorUpdateOK, error)
+	CheckForOperatorUpdate(params *CheckForOperatorUpdateParams) (*CheckForOperatorUpdateOK, error)
 
-	ComponentsGetPSMDBComponents(params *ComponentsGetPSMDBComponentsParams) (*ComponentsGetPSMDBComponentsOK, error)
+	GetPSMDBComponents(params *GetPSMDBComponentsParams) (*GetPSMDBComponentsOK, error)
 
-	ComponentsGetPXCComponents(params *ComponentsGetPXCComponentsParams) (*ComponentsGetPXCComponentsOK, error)
+	GetPXCComponents(params *GetPXCComponentsParams) (*GetPXCComponentsOK, error)
 
-	ComponentsInstallOperator(params *ComponentsInstallOperatorParams) (*ComponentsInstallOperatorOK, error)
+	InstallOperator(params *InstallOperatorParams) (*InstallOperatorOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  ComponentsChangePSMDBComponents changes PSMDB components manages PSMDB related components
+  ChangePSMDBComponents changes PSMDB components manages PSMDB related components
 */
-func (a *Client) ComponentsChangePSMDBComponents(params *ComponentsChangePSMDBComponentsParams) (*ComponentsChangePSMDBComponentsOK, error) {
+func (a *Client) ChangePSMDBComponents(params *ChangePSMDBComponentsParams) (*ChangePSMDBComponentsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewComponentsChangePSMDBComponentsParams()
+		params = NewChangePSMDBComponentsParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Components_ChangePSMDBComponents",
+		ID:                 "ChangePSMDBComponents",
 		Method:             "POST",
 		PathPattern:        "/v1/management/DBaaS/Components/ChangePSMDB",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ComponentsChangePSMDBComponentsReader{formats: a.formats},
+		Reader:             &ChangePSMDBComponentsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ComponentsChangePSMDBComponentsOK)
+	success, ok := result.(*ChangePSMDBComponentsOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ComponentsChangePSMDBComponentsDefault)
+	unexpectedSuccess := result.(*ChangePSMDBComponentsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  ComponentsChangePXCComponents changes PXC components manages PXC related components
+  ChangePXCComponents changes PXC components manages PXC related components
 */
-func (a *Client) ComponentsChangePXCComponents(params *ComponentsChangePXCComponentsParams) (*ComponentsChangePXCComponentsOK, error) {
+func (a *Client) ChangePXCComponents(params *ChangePXCComponentsParams) (*ChangePXCComponentsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewComponentsChangePXCComponentsParams()
+		params = NewChangePXCComponentsParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Components_ChangePXCComponents",
+		ID:                 "ChangePXCComponents",
 		Method:             "POST",
 		PathPattern:        "/v1/management/DBaaS/Components/ChangePXC",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ComponentsChangePXCComponentsReader{formats: a.formats},
+		Reader:             &ChangePXCComponentsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ComponentsChangePXCComponentsOK)
+	success, ok := result.(*ChangePXCComponentsOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ComponentsChangePXCComponentsDefault)
+	unexpectedSuccess := result.(*ChangePXCComponentsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  ComponentsCheckForOperatorUpdate checks for operator update checks if a new version of an operator is available
+  CheckForOperatorUpdate checks for operator update checks if a new version of an operator is available
 */
-func (a *Client) ComponentsCheckForOperatorUpdate(params *ComponentsCheckForOperatorUpdateParams) (*ComponentsCheckForOperatorUpdateOK, error) {
+func (a *Client) CheckForOperatorUpdate(params *CheckForOperatorUpdateParams) (*CheckForOperatorUpdateOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewComponentsCheckForOperatorUpdateParams()
+		params = NewCheckForOperatorUpdateParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Components_CheckForOperatorUpdate",
+		ID:                 "CheckForOperatorUpdate",
 		Method:             "POST",
 		PathPattern:        "/v1/management/DBaaS/Components/CheckForOperatorUpdate",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ComponentsCheckForOperatorUpdateReader{formats: a.formats},
+		Reader:             &CheckForOperatorUpdateReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ComponentsCheckForOperatorUpdateOK)
+	success, ok := result.(*CheckForOperatorUpdateOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ComponentsCheckForOperatorUpdateDefault)
+	unexpectedSuccess := result.(*CheckForOperatorUpdateDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  ComponentsGetPSMDBComponents gets PSMDB components returns list of available components for PSMDB clusters
+  GetPSMDBComponents gets PSMDB components returns list of available components for PSMDB clusters
 */
-func (a *Client) ComponentsGetPSMDBComponents(params *ComponentsGetPSMDBComponentsParams) (*ComponentsGetPSMDBComponentsOK, error) {
+func (a *Client) GetPSMDBComponents(params *GetPSMDBComponentsParams) (*GetPSMDBComponentsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewComponentsGetPSMDBComponentsParams()
+		params = NewGetPSMDBComponentsParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Components_GetPSMDBComponents",
+		ID:                 "GetPSMDBComponents",
 		Method:             "POST",
 		PathPattern:        "/v1/management/DBaaS/Components/GetPSMDB",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ComponentsGetPSMDBComponentsReader{formats: a.formats},
+		Reader:             &GetPSMDBComponentsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ComponentsGetPSMDBComponentsOK)
+	success, ok := result.(*GetPSMDBComponentsOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ComponentsGetPSMDBComponentsDefault)
+	unexpectedSuccess := result.(*GetPSMDBComponentsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  ComponentsGetPXCComponents gets PXC components returns list of available components for PXC clusters
+  GetPXCComponents gets PXC components returns list of available components for PXC clusters
 */
-func (a *Client) ComponentsGetPXCComponents(params *ComponentsGetPXCComponentsParams) (*ComponentsGetPXCComponentsOK, error) {
+func (a *Client) GetPXCComponents(params *GetPXCComponentsParams) (*GetPXCComponentsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewComponentsGetPXCComponentsParams()
+		params = NewGetPXCComponentsParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Components_GetPXCComponents",
+		ID:                 "GetPXCComponents",
 		Method:             "POST",
 		PathPattern:        "/v1/management/DBaaS/Components/GetPXC",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ComponentsGetPXCComponentsReader{formats: a.formats},
+		Reader:             &GetPXCComponentsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ComponentsGetPXCComponentsOK)
+	success, ok := result.(*GetPXCComponentsOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ComponentsGetPXCComponentsDefault)
+	unexpectedSuccess := result.(*GetPXCComponentsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  ComponentsInstallOperator installs operator installs given operator in given version
+  InstallOperator installs operator installs given operator in given version
 */
-func (a *Client) ComponentsInstallOperator(params *ComponentsInstallOperatorParams) (*ComponentsInstallOperatorOK, error) {
+func (a *Client) InstallOperator(params *InstallOperatorParams) (*InstallOperatorOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewComponentsInstallOperatorParams()
+		params = NewInstallOperatorParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Components_InstallOperator",
+		ID:                 "InstallOperator",
 		Method:             "POST",
 		PathPattern:        "/v1/management/DBaaS/Components/InstallOperator",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ComponentsInstallOperatorReader{formats: a.formats},
+		Reader:             &InstallOperatorReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ComponentsInstallOperatorOK)
+	success, ok := result.(*InstallOperatorOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ComponentsInstallOperatorDefault)
+	unexpectedSuccess := result.(*InstallOperatorDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

@@ -25,43 +25,43 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	NodeRegisterNode(params *NodeRegisterNodeParams) (*NodeRegisterNodeOK, error)
+	RegisterNode(params *RegisterNodeParams) (*RegisterNodeOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  NodeRegisterNode registers node
+  RegisterNode registers node
 
   Registers a new Node and pmm-agent.
 */
-func (a *Client) NodeRegisterNode(params *NodeRegisterNodeParams) (*NodeRegisterNodeOK, error) {
+func (a *Client) RegisterNode(params *RegisterNodeParams) (*RegisterNodeOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewNodeRegisterNodeParams()
+		params = NewRegisterNodeParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Node_RegisterNode",
+		ID:                 "RegisterNode",
 		Method:             "POST",
 		PathPattern:        "/v1/management/Node/Register",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &NodeRegisterNodeReader{formats: a.formats},
+		Reader:             &RegisterNodeReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*NodeRegisterNodeOK)
+	success, ok := result.(*RegisterNodeOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*NodeRegisterNodeDefault)
+	unexpectedSuccess := result.(*RegisterNodeDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

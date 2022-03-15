@@ -25,43 +25,43 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	ServiceRemoveService(params *ServiceRemoveServiceParams) (*ServiceRemoveServiceOK, error)
+	RemoveService(params *RemoveServiceParams) (*RemoveServiceOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  ServiceRemoveService removes service
+  RemoveService removes service
 
   Removes Service with Agents.
 */
-func (a *Client) ServiceRemoveService(params *ServiceRemoveServiceParams) (*ServiceRemoveServiceOK, error) {
+func (a *Client) RemoveService(params *RemoveServiceParams) (*RemoveServiceOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewServiceRemoveServiceParams()
+		params = NewRemoveServiceParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Service_RemoveService",
+		ID:                 "RemoveService",
 		Method:             "POST",
 		PathPattern:        "/v1/management/Service/Remove",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ServiceRemoveServiceReader{formats: a.formats},
+		Reader:             &RemoveServiceReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ServiceRemoveServiceOK)
+	success, ok := result.(*RemoveServiceOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ServiceRemoveServiceDefault)
+	unexpectedSuccess := result.(*RemoveServiceDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

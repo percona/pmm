@@ -25,41 +25,41 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	ProfileGetReport(params *ProfileGetReportParams) (*ProfileGetReportOK, error)
+	GetReport(params *GetReportParams) (*GetReportOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  ProfileGetReport gets report returns list of metrics group by queryid or other dimentions
+  GetReport gets report returns list of metrics group by queryid or other dimentions
 */
-func (a *Client) ProfileGetReport(params *ProfileGetReportParams) (*ProfileGetReportOK, error) {
+func (a *Client) GetReport(params *GetReportParams) (*GetReportOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewProfileGetReportParams()
+		params = NewGetReportParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Profile_GetReport",
+		ID:                 "GetReport",
 		Method:             "POST",
 		PathPattern:        "/v0/qan/GetReport",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ProfileGetReportReader{formats: a.formats},
+		Reader:             &GetReportReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ProfileGetReportOK)
+	success, ok := result.(*GetReportOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ProfileGetReportDefault)
+	unexpectedSuccess := result.(*GetReportDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

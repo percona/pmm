@@ -21,7 +21,7 @@
           "Artifacts"
         ],
         "summary": "DeleteArtifact deletes specified artifact.",
-        "operationId": "Artifacts_DeleteArtifact",
+        "operationId": "DeleteArtifact",
         "parameters": [
           {
             "name": "body",
@@ -99,7 +99,7 @@
           "Artifacts"
         ],
         "summary": "ListArtifacts returns a list of all backup artifacts.",
-        "operationId": "Artifacts_ListArtifacts",
+        "operationId": "ListArtifacts",
         "parameters": [
           {
             "name": "body",
@@ -257,7 +257,7 @@
           "Backups"
         ],
         "summary": "ChangeScheduledBackup changes existing scheduled backup.",
-        "operationId": "Backups_ChangeScheduledBackup",
+        "operationId": "ChangeScheduledBackup",
         "parameters": [
           {
             "name": "body",
@@ -371,7 +371,7 @@
           "Backups"
         ],
         "summary": "GetLogs returns logs for provided artifact.",
-        "operationId": "Backups_GetLogs",
+        "operationId": "GetLogs",
         "parameters": [
           {
             "name": "body",
@@ -478,7 +478,7 @@
           "Backups"
         ],
         "summary": "ListArtifactCompatibleServices lists compatible services for restoring a backup.",
-        "operationId": "Backups_ListArtifactCompatibleServices",
+        "operationId": "ListArtifactCompatibleServices",
         "parameters": [
           {
             "name": "body",
@@ -681,7 +681,7 @@
           "Backups"
         ],
         "summary": "ListScheduledBackups returns all scheduled backups.",
-        "operationId": "Backups_ListScheduledBackups",
+        "operationId": "ListScheduledBackups",
         "parameters": [
           {
             "name": "body",
@@ -867,7 +867,7 @@
           "Backups"
         ],
         "summary": "RemoveScheduledBackup removes existing scheduled backup.",
-        "operationId": "Backups_RemoveScheduledBackup",
+        "operationId": "RemoveScheduledBackup",
         "parameters": [
           {
             "name": "body",
@@ -940,7 +940,7 @@
           "Backups"
         ],
         "summary": "RestoreBackup requests the backup restore.",
-        "operationId": "Backups_RestoreBackup",
+        "operationId": "RestoreBackup",
         "parameters": [
           {
             "name": "body",
@@ -1025,7 +1025,7 @@
           "Backups"
         ],
         "summary": "ScheduleBackup schedules repeated backup.",
-        "operationId": "Backups_ScheduleBackup",
+        "operationId": "ScheduleBackup",
         "parameters": [
           {
             "name": "body",
@@ -1165,7 +1165,7 @@
           "Backups"
         ],
         "summary": "StartBackup request backup specified service to location.",
-        "operationId": "Backups_StartBackup",
+        "operationId": "StartBackup",
         "parameters": [
           {
             "name": "body",
@@ -1271,7 +1271,7 @@
           "Locations"
         ],
         "summary": "AddLocation adds backup location.",
-        "operationId": "Locations_AddLocation",
+        "operationId": "AddLocation",
         "parameters": [
           {
             "name": "body",
@@ -1400,7 +1400,7 @@
           "Locations"
         ],
         "summary": "ChangeLocation changes backup location.",
-        "operationId": "Locations_ChangeLocation",
+        "operationId": "ChangeLocation",
         "parameters": [
           {
             "name": "body",
@@ -1527,7 +1527,7 @@
           "Locations"
         ],
         "summary": "ListLocations returns a list of all backup locations.",
-        "operationId": "Locations_ListLocations",
+        "operationId": "ListLocations",
         "parameters": [
           {
             "name": "body",
@@ -1665,7 +1665,7 @@
           "Locations"
         ],
         "summary": "RemoveLocation removes existing backup location.",
-        "operationId": "Locations_RemoveLocation",
+        "operationId": "RemoveLocation",
         "parameters": [
           {
             "name": "body",
@@ -1743,7 +1743,7 @@
           "Locations"
         ],
         "summary": "TestLocationConfig tests backup location and credentials.",
-        "operationId": "Locations_TestLocationConfig",
+        "operationId": "TestLocationConfig",
         "parameters": [
           {
             "name": "body",
@@ -1856,7 +1856,7 @@
           "RestoreHistory"
         ],
         "summary": "ListRestoreHistory returns a list of all backup restore history items.",
-        "operationId": "RestoreHistory_ListRestoreHistory",
+        "operationId": "ListRestoreHistory",
         "parameters": [
           {
             "name": "body",

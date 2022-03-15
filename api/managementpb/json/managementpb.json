@@ -22,7 +22,7 @@
           "Actions"
         ],
         "summary": "Cancel Action",
-        "operationId": "Actions_CancelAction",
+        "operationId": "CancelAction",
         "parameters": [
           {
             "name": "body",
@@ -96,7 +96,7 @@
           "Actions"
         ],
         "summary": "Get Action",
-        "operationId": "Actions_GetAction",
+        "operationId": "GetAction",
         "parameters": [
           {
             "name": "body",
@@ -197,7 +197,7 @@
           "Actions"
         ],
         "summary": "Start 'MongoDB EXPLAIN' Action",
-        "operationId": "Actions_StartMongoDBExplainAction",
+        "operationId": "StartMongoDBExplainAction",
         "parameters": [
           {
             "name": "body",
@@ -293,7 +293,7 @@
           "Actions"
         ],
         "summary": "Start 'MySQL EXPLAIN' Action",
-        "operationId": "Actions_StartMySQLExplainAction",
+        "operationId": "StartMySQLExplainAction",
         "parameters": [
           {
             "name": "body",
@@ -394,7 +394,7 @@
           "Actions"
         ],
         "summary": "Start 'MySQL EXPLAIN JSON' Action",
-        "operationId": "Actions_StartMySQLExplainJSONAction",
+        "operationId": "StartMySQLExplainJSONAction",
         "parameters": [
           {
             "name": "body",
@@ -495,7 +495,7 @@
           "Actions"
         ],
         "summary": "Start 'MySQL EXPLAIN Traditional JSON' Action",
-        "operationId": "Actions_StartMySQLExplainTraditionalJSONAction",
+        "operationId": "StartMySQLExplainTraditionalJSONAction",
         "parameters": [
           {
             "name": "body",
@@ -596,7 +596,7 @@
           "Actions"
         ],
         "summary": "Start 'MySQL SHOW CREATE TABLE' Action",
-        "operationId": "Actions_StartMySQLShowCreateTableAction",
+        "operationId": "StartMySQLShowCreateTableAction",
         "parameters": [
           {
             "name": "body",
@@ -697,7 +697,7 @@
           "Actions"
         ],
         "summary": "Start 'MySQL SHOW INDEX' Action",
-        "operationId": "Actions_StartMySQLShowIndexAction",
+        "operationId": "StartMySQLShowIndexAction",
         "parameters": [
           {
             "name": "body",
@@ -798,7 +798,7 @@
           "Actions"
         ],
         "summary": "Start 'MySQL SHOW TABLE STATUS' Action",
-        "operationId": "Actions_StartMySQLShowTableStatusAction",
+        "operationId": "StartMySQLShowTableStatusAction",
         "parameters": [
           {
             "name": "body",
@@ -899,7 +899,7 @@
           "Actions"
         ],
         "summary": "Start 'PT MongoDB Summary' Action",
-        "operationId": "Actions_StartPTMongoDBSummaryAction",
+        "operationId": "StartPTMongoDBSummaryAction",
         "parameters": [
           {
             "name": "body",
@@ -992,7 +992,7 @@
           "Actions"
         ],
         "summary": "Start 'PT MySQL Summary' Action",
-        "operationId": "Actions_StartPTMySQLSummaryAction",
+        "operationId": "StartPTMySQLSummaryAction",
         "parameters": [
           {
             "name": "body",
@@ -1085,7 +1085,7 @@
           "Actions"
         ],
         "summary": "Start 'PT PostgreSQL Summary' Action",
-        "operationId": "Actions_StartPTPgSummaryAction",
+        "operationId": "StartPTPgSummaryAction",
         "parameters": [
           {
             "name": "body",
@@ -1178,7 +1178,7 @@
           "Actions"
         ],
         "summary": "Start 'PT Summary' Action",
-        "operationId": "Actions_StartPTSummaryAction",
+        "operationId": "StartPTSummaryAction",
         "parameters": [
           {
             "name": "body",
@@ -1269,7 +1269,7 @@
           "Actions"
         ],
         "summary": "Start 'PostgreSQL SHOW CREATE TABLE' Action",
-        "operationId": "Actions_StartPostgreSQLShowCreateTableAction",
+        "operationId": "StartPostgreSQLShowCreateTableAction",
         "parameters": [
           {
             "name": "body",
@@ -1370,7 +1370,7 @@
           "Actions"
         ],
         "summary": "Start 'PostgreSQL SHOW INDEX' Action",
-        "operationId": "Actions_StartPostgreSQLShowIndexAction",
+        "operationId": "StartPostgreSQLShowIndexAction",
         "parameters": [
           {
             "name": "body",
@@ -1471,7 +1471,7 @@
           "Annotation"
         ],
         "summary": "Add Annotation",
-        "operationId": "Annotation_AddAnnotation",
+        "operationId": "AddAnnotation",
         "parameters": [
           {
             "name": "body",
@@ -1567,7 +1567,7 @@
           "External"
         ],
         "summary": "Add External Service",
-        "operationId": "External_AddExternal",
+        "operationId": "AddExternal",
         "parameters": [
           {
             "name": "body",
@@ -1913,7 +1913,7 @@
           "HAProxy"
         ],
         "summary": "Add HAProxy",
-        "operationId": "HAProxy_AddHAProxy",
+        "operationId": "AddHAProxy",
         "parameters": [
           {
             "name": "body",
@@ -2244,7 +2244,7 @@
           "MongoDB"
         ],
         "summary": "Add MongoDB",
-        "operationId": "MongoDB_AddMongoDB",
+        "operationId": "AddMongoDB",
         "parameters": [
           {
             "name": "body",
@@ -2770,7 +2770,7 @@
           "MySQL"
         ],
         "summary": "Add MySQL",
-        "operationId": "MySQL_AddMySQL",
+        "operationId": "AddMySQL",
         "parameters": [
           {
             "name": "body",
@@ -3413,7 +3413,7 @@
           "Node"
         ],
         "summary": "Register Node",
-        "operationId": "Node_RegisterNode",
+        "operationId": "RegisterNode",
         "parameters": [
           {
             "name": "body",
@@ -3720,7 +3720,7 @@
           "PostgreSQL"
         ],
         "summary": "Add PostgreSQL",
-        "operationId": "PostgreSQL_AddPostgreSQL",
+        "operationId": "AddPostgreSQL",
         "parameters": [
           {
             "name": "body",
@@ -4288,7 +4288,7 @@
           "ProxySQL"
         ],
         "summary": "Add ProxySQL",
-        "operationId": "ProxySQL_AddProxySQL",
+        "operationId": "AddProxySQL",
         "parameters": [
           {
             "name": "body",
@@ -4681,7 +4681,7 @@
           "RDS"
         ],
         "summary": "Add RDS",
-        "operationId": "RDS_AddRDS",
+        "operationId": "AddRDS",
         "parameters": [
           {
             "name": "body",
@@ -5512,7 +5512,7 @@
           "RDS"
         ],
         "summary": "Discover RDS",
-        "operationId": "RDS_DiscoverRDS",
+        "operationId": "DiscoverRDS",
         "parameters": [
           {
             "name": "body",
@@ -5650,7 +5650,7 @@
           "SecurityChecks"
         ],
         "summary": "Change Security Checks",
-        "operationId": "SecurityChecks_ChangeSecurityChecks",
+        "operationId": "ChangeSecurityChecks",
         "parameters": [
           {
             "name": "body",
@@ -5754,7 +5754,7 @@
           "SecurityChecks"
         ],
         "summary": "Get Security Check Results",
-        "operationId": "SecurityChecks_GetSecurityCheckResults",
+        "operationId": "GetSecurityCheckResults",
         "parameters": [
           {
             "name": "body",
@@ -5875,7 +5875,7 @@
           "SecurityChecks"
         ],
         "summary": "List Security Checks",
-        "operationId": "SecurityChecks_ListSecurityChecks",
+        "operationId": "ListSecurityChecks",
         "parameters": [
           {
             "name": "body",
@@ -5986,7 +5986,7 @@
           "SecurityChecks"
         ],
         "summary": "Start Security Checks",
-        "operationId": "SecurityChecks_StartSecurityChecks",
+        "operationId": "StartSecurityChecks",
         "parameters": [
           {
             "name": "body",
@@ -6063,7 +6063,7 @@
           "Service"
         ],
         "summary": "Remove Service",
-        "operationId": "Service_RemoveService",
+        "operationId": "RemoveService",
         "parameters": [
           {
             "name": "body",

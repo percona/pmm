@@ -25,80 +25,80 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	RDSAddRDS(params *RDSAddRDSParams) (*RDSAddRDSOK, error)
+	AddRDS(params *AddRDSParams) (*AddRDSOK, error)
 
-	RDSDiscoverRDS(params *RDSDiscoverRDSParams) (*RDSDiscoverRDSOK, error)
+	DiscoverRDS(params *DiscoverRDSParams) (*DiscoverRDSOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  RDSAddRDS adds RDS
+  AddRDS adds RDS
 
   Adds RDS instance.
 */
-func (a *Client) RDSAddRDS(params *RDSAddRDSParams) (*RDSAddRDSOK, error) {
+func (a *Client) AddRDS(params *AddRDSParams) (*AddRDSOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewRDSAddRDSParams()
+		params = NewAddRDSParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "RDS_AddRDS",
+		ID:                 "AddRDS",
 		Method:             "POST",
 		PathPattern:        "/v1/management/RDS/Add",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &RDSAddRDSReader{formats: a.formats},
+		Reader:             &AddRDSReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*RDSAddRDSOK)
+	success, ok := result.(*AddRDSOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*RDSAddRDSDefault)
+	unexpectedSuccess := result.(*AddRDSDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  RDSDiscoverRDS discovers RDS
+  DiscoverRDS discovers RDS
 
   Discovers RDS instances.
 */
-func (a *Client) RDSDiscoverRDS(params *RDSDiscoverRDSParams) (*RDSDiscoverRDSOK, error) {
+func (a *Client) DiscoverRDS(params *DiscoverRDSParams) (*DiscoverRDSOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewRDSDiscoverRDSParams()
+		params = NewDiscoverRDSParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "RDS_DiscoverRDS",
+		ID:                 "DiscoverRDS",
 		Method:             "POST",
 		PathPattern:        "/v1/management/RDS/Discover",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &RDSDiscoverRDSReader{formats: a.formats},
+		Reader:             &DiscoverRDSReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*RDSDiscoverRDSOK)
+	success, ok := result.(*DiscoverRDSOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*RDSDiscoverRDSDefault)
+	unexpectedSuccess := result.(*DiscoverRDSDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

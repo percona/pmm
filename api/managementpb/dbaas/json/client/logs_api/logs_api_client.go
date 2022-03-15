@@ -25,41 +25,41 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	LogsAPIGetLogs(params *LogsAPIGetLogsParams) (*LogsAPIGetLogsOK, error)
+	GetLogs(params *GetLogsParams) (*GetLogsOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  LogsAPIGetLogs gets logs gets all logs from db cluster
+  GetLogs gets logs gets all logs from db cluster
 */
-func (a *Client) LogsAPIGetLogs(params *LogsAPIGetLogsParams) (*LogsAPIGetLogsOK, error) {
+func (a *Client) GetLogs(params *GetLogsParams) (*GetLogsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewLogsAPIGetLogsParams()
+		params = NewGetLogsParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "LogsAPI_GetLogs",
+		ID:                 "GetLogs",
 		Method:             "POST",
 		PathPattern:        "/v1/management/DBaaS/GetLogs",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &LogsAPIGetLogsReader{formats: a.formats},
+		Reader:             &GetLogsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*LogsAPIGetLogsOK)
+	success, ok := result.(*GetLogsOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*LogsAPIGetLogsDefault)
+	unexpectedSuccess := result.(*GetLogsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
