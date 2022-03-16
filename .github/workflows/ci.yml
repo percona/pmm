@@ -70,19 +70,19 @@ jobs:
         run: go mod download
 
       - name: API make Init
-        run: make -C api init
+        run: make init
 
       - name: API Prepare
         run: |
           # Ensure that generated files are not changed
-          make -C api gen gen-alertmanager
+          make gen gen-alertmanager
           git status
           git diff --exit-code
 
       - name: Update API compatibility descriptors.
         run: |
           # log if descriptors changed, useful for "update descriptors" PRs
-          make -C api descriptors
+          make descriptors
           git diff --text
 
       - name: Run tests
