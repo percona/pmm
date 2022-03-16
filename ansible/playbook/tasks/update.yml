@@ -49,7 +49,6 @@
       yum:
         name: "grafana-db-migrator"
         state: latest
-      ignore_errors: yes # TODO DELETE BEFORE RELEASE
 
     - name: Create grafana config
       include_role:
