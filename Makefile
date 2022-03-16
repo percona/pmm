@@ -98,6 +98,12 @@ clean: clean_swagger  ## Remove generated files.
 	done
 	rm -f api/swagger/swagger.json api/swagger/swagger-dev.json
 
+test:                 ## Run tests
+	go test ./...
+
+format:               ## Format source code
+	go fmt ./...
+
 serve:                ## Serve API documentation with nginx.
 	# http://127.0.0.1:8080/swagger-ui.html
 	nginx -p . -c api/nginx/nginx.conf

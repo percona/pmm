@@ -5,15 +5,15 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-// go-sumtype:decl isAgentMessage_Payload
-// go-sumtype:decl isServerMessage_Payload
+//go-sumtype:decl isAgentMessage_Payload
+//go-sumtype:decl isServerMessage_Payload
 
-// go-sumtype:decl AgentRequestPayload
-// go-sumtype:decl AgentResponsePayload
-// go-sumtype:decl ServerResponsePayload
-// go-sumtype:decl ServerRequestPayload
+//go-sumtype:decl AgentRequestPayload
+//go-sumtype:decl AgentResponsePayload
+//go-sumtype:decl ServerResponsePayload
+//go-sumtype:decl ServerRequestPayload
 
-// go-sumtype:decl isStartActionRequest_Params
+//go-sumtype:decl isStartActionRequest_Params
 
 // code below uses the same order as payload types at AgentMessage / ServerMessage
 
@@ -219,7 +219,7 @@ var (
 	_ ServerRequestPayload = (*PBMSwitchPITRRequest)(nil)
 )
 
-// go-sumtype:decl AgentParams
+//go-sumtype:decl AgentParams
 
 // AgentParams is a common interface for AgentProcess and BuiltinAgent parameters.
 type AgentParams interface {

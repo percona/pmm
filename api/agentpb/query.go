@@ -11,7 +11,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// go-sumtype:decl isQueryActionValue_Kind
+//go-sumtype:decl isQueryActionValue_Kind
 
 func makeValue(value interface{}) (*QueryActionValue, error) {
 	// In the future, we may decide to:
@@ -223,7 +223,7 @@ func makeInterface(value *QueryActionValue) (interface{}, error) {
 		// See https://jira.percona.com/browse/SAAS-107.
 		return string(v.Bytes), nil
 	case *QueryActionValue_Timestamp:
-		return v.Timestamp, nil
+		return v.Timestamp.AsTime(), nil
 
 	case *QueryActionValue_Slice:
 		s := make([]interface{}, len(v.Slice.Slice))

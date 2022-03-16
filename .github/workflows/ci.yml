@@ -86,7 +86,7 @@ jobs:
           git diff --text
 
       - name: Run tests
-        run: go test ./...
+        run: make test
 
       - name: Clean Testcache
         run: go clean -testcache
