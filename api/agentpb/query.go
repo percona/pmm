@@ -223,6 +223,9 @@ func makeInterface(value *QueryActionValue) (interface{}, error) {
 		// See https://jira.percona.com/browse/SAAS-107.
 		return string(v.Bytes), nil
 	case *QueryActionValue_Timestamp:
+		if err := v.Timestamp.CheckValid(); err != nil {
+			return nil, err
+		}
 		return v.Timestamp.AsTime(), nil
 
 	case *QueryActionValue_Slice:
