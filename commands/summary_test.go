@@ -30,7 +30,7 @@ import (
 )
 
 func TestSummary(t *testing.T) {
-	agentlocal.SetTransport(context.TODO(), true)
+	agentlocal.SetTransport(context.TODO(), true, agentlocal.DefaultPMMAgentListenPort)
 
 	f, err := ioutil.TempFile("", "pmm-admin-test-summary")
 	require.NoError(t, err)

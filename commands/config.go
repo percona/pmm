@@ -54,6 +54,7 @@ type configCommand struct {
 	DisableCollectors string
 	CustomLabels      string
 	BasePath          string
+	ListenPort        uint32
 
 	Force bool
 }
@@ -76,6 +77,10 @@ func (cmd *configCommand) args() (res []string, switchedToTLS bool) {
 		if ok {
 			res = append(res, fmt.Sprintf("--server-password=%s", password))
 		}
+	}
+
+	if GlobalFlags.PMMAgentListenPort != 0 {
+		res = append(res, fmt.Sprintf("--listen-port=%d", GlobalFlags.PMMAgentListenPort))
 	}
 
 	if GlobalFlags.ServerInsecureTLS {
