@@ -14,6 +14,7 @@ replace github.com/lfittl/pg_query_go v1.0.2 => github.com/Percona-Lab/pg_query_
 
 require (
 	github.com/AlekSi/pointer v1.1.0
+	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/davecgh/go-spew v1.1.1
 	github.com/go-openapi/runtime v0.19.20
 	github.com/go-sql-driver/mysql v1.5.0
@@ -43,7 +44,6 @@ require (
 )
 
 require (
-	github.com/DATA-DOG/go-sqlmock v1.5.0 // indirect
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751 // indirect
