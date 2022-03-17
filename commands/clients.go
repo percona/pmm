@@ -55,7 +55,7 @@ func setLocalTransport(host string, port uint16, l *logrus.Entry) {
 
 	// disable HTTP/2
 	httpTransport := transport.Transport.(*http.Transport)
-	httpTransport.TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{}
+	httpTransport.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
 
 	agentlocalpb.Default.SetTransport(transport)
 }
@@ -125,7 +125,7 @@ func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 
 	// disable HTTP/2, set TLS config
 	httpTransport := transport.Transport.(*http.Transport)
-	httpTransport.TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{}
+	httpTransport.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
 	if u.Scheme == "https" {
 		httpTransport.TLSClientConfig = tlsconfig.Get()
 		httpTransport.TLSClientConfig.ServerName = u.Hostname()
@@ -141,7 +141,7 @@ func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 // E.g. the value of [[--custom-labels='region=us-east1, mylabel=mylab-22']] will be received by this function
 // as [[region=us-east1, mylabel=mylab-22]].
 func ParseCustomLabels(labels string) (map[string]string, error) {
-	result := map[string]string{}
+	result := make(map[string]string)
 	parts := strings.Split(labels, ",")
 	for _, part := range parts {
 		part = strings.TrimSpace(part)

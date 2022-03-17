@@ -88,7 +88,7 @@ func BenchmarkCollector(b *testing.B) {
 		wg.Add(1)
 		go genData(ctx, client, maxLoops, maxDocs)
 
-		profiles := make([]proto.SystemProfile, 0)
+		var profiles []proto.SystemProfile
 		docsChan, err := ctr.Start(ctx)
 		if err != nil {
 			return
@@ -140,7 +140,7 @@ func TestCollector(t *testing.T) {
 	ctr := New(client, "test_collector", logrus.WithField("component", "collector-test"))
 
 	// Start the collector
-	profiles := make([]proto.SystemProfile, 0)
+	var profiles []proto.SystemProfile
 	docsChan, err := ctr.Start(ctx)
 	wg := &sync.WaitGroup{}
 	wg.Add(1)

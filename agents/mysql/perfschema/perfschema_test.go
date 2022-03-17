@@ -69,7 +69,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 	})
 
 	t.Run("New", func(t *testing.T) {
-		prev := map[string]*eventsStatementsSummaryByDigest{}
+		prev := make(map[string]*eventsStatementsSummaryByDigest)
 		current := map[string]*eventsStatementsSummaryByDigest{
 			"New": {
 				Digest:          pointer.ToString("New"),
@@ -125,7 +125,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 				SumRowsAffected: 50,
 			},
 		}
-		current := map[string]*eventsStatementsSummaryByDigest{}
+		current := make(map[string]*eventsStatementsSummaryByDigest)
 		actual := makeBuckets(current, prev, logrus.WithField("test", t.Name()))
 		require.Len(t, actual, 0)
 	})
@@ -187,7 +187,8 @@ func setup(t *testing.T, sp *setupParams) *PerfSchema {
 		LogEntry:             logrus.WithField("test", t.Name()),
 	}
 
-	p := newPerfSchema(newParams)
+	p, err := newPerfSchema(newParams)
+	require.NoError(t, err)
 	require.NoError(t, p.refreshHistoryCache())
 	return p
 }

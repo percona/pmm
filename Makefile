@@ -35,6 +35,7 @@ init:                           ## Installs development tools
 	go build -modfile=tools/go.mod -o $(BIN_PATH)/goimports golang.org/x/tools/cmd/goimports
 	go build -modfile=tools/go.mod -o $(BIN_PATH)/reviewdog github.com/reviewdog/reviewdog/cmd/reviewdog
 	go build -modfile=tools/go.mod -o $(BIN_PATH)/reform gopkg.in/reform.v1/reform
+	go build -modfile=tools/go.mod -o $(BIN_PATH)/go-consistent github.com/quasilyte/go-consistent
 
 gen:                            ## Generate files.
 	go generate ./...
@@ -97,6 +98,7 @@ bench:                          ## Run benchmarks.
 check:                          ## Run required checkers and linters.
 	go run .github/check-license.go
 	$(BIN_PATH)/golangci-lint run -c=.golangci-required.yml
+	$(BIN_PATH)/go-consistent -pedantic ./...
 
 check-all: check                ## Run golang ci linter to check new changes from main.
 	$(BIN_PATH)/golangci-lint run -c=.golangci.yml --new-from-rev=main
@@ -163,3 +165,4 @@ env-sysbench-run:
 ci-reviewdog:                   ## Runs reviewdog checks.
 	$(BIN_PATH)/golangci-lint run -c=.golangci-required.yml --out-format=line-number | $(BIN_PATH)/reviewdog -f=golangci-lint -level=error -reporter=github-pr-check
 	$(BIN_PATH)/golangci-lint run -c=.golangci.yml --out-format=line-number | $(BIN_PATH)/reviewdog -f=golangci-lint -level=error -reporter=github-pr-review
+	$(BIN_PATH)/go-consistent -pedantic -exclude "tests" ./... | $(BIN_PATH)/reviewdog -f=go-consistent -name='Required go-consistent checks' -reporter=github-pr-check
