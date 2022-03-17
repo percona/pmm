@@ -118,7 +118,7 @@ func v226Args(exporter *models.Agent, tdp *models.DelimiterPair) []string {
 		collstatsLimit = exporter.MongoDBOptions.CollectionsLimit
 	}
 
-	collectors := defaultCollectors(collectAll, collstatsLimit)
+	collectors := defaultCollectors(collectAll)
 
 	for _, collector := range exporter.DisabledCollectors {
 		col, ok := collectors[strings.ToLower(collector)]
@@ -215,7 +215,7 @@ func v225Args(exporter *models.Agent, tdp *models.DelimiterPair) []string {
 	return args
 }
 
-func defaultCollectors(collectAll bool, collstatsLimit int32) map[string]collectorArgs {
+func defaultCollectors(collectAll bool) map[string]collectorArgs {
 	return map[string]collectorArgs{
 		"diagnosticdata": {
 			enabled:     true,
@@ -227,7 +227,7 @@ func defaultCollectors(collectAll bool, collstatsLimit int32) map[string]collect
 		},
 		// disabled until we have better information on the resources usage impact
 		"collstats": {
-			enabled:     collectAll && collstatsLimit != 0,
+			enabled:     collectAll,
 			enableParam: "--collector.collstats",
 		},
 		// disabled until we have better information on the resources usage impact
@@ -237,7 +237,7 @@ func defaultCollectors(collectAll bool, collstatsLimit int32) map[string]collect
 		},
 		// disabled until we have better information on the resources usage impact
 		"indexstats": {
-			enabled:     collectAll && collstatsLimit != 0,
+			enabled:     collectAll,
 			enableParam: "--collector.indexstats",
 		},
 		// disabled until we have better information on the resources usage impact

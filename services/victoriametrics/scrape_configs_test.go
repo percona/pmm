@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
+	"github.com/percona/pmm/version"
 	config "github.com/percona/promconfig"
 	"github.com/pmezard/go-difflib/difflib"
 	"github.com/stretchr/testify/assert"
@@ -704,10 +705,11 @@ func TestScrapeConfig(t *testing.T) {
 				CustomLabels: []byte(`{"_some_service_label": "bar"}`),
 			}
 			agent := &models.Agent{
-				AgentID:      "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
-				AgentType:    models.MongoDBExporterType,
-				CustomLabels: []byte(`{"_some_agent_label": "baz"}`),
-				ListenPort:   pointer.ToUint16(12345),
+				AgentID:        "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+				AgentType:      models.MongoDBExporterType,
+				CustomLabels:   []byte(`{"_some_agent_label": "baz"}`),
+				ListenPort:     pointer.ToUint16(12345),
+				MongoDBOptions: &models.MongoDBOptions{EnableAllCollectors: true},
 			}
 
 			expected := []*config.ScrapeConfig{{
@@ -715,6 +717,9 @@ func TestScrapeConfig(t *testing.T) {
 				ScrapeInterval: config.Duration(s.HR),
 				ScrapeTimeout:  scrapeTimeout(s.HR),
 				MetricsPath:    "/metrics",
+				Params: map[string][]string{
+					"collect[]": {"diagnosticdata", "replicasetstatus", "topmetrics"},
+				},
 				HTTPClientConfig: config.HTTPClientConfig{
 					BasicAuth: &config.BasicAuth{
 						Username: "pmm",
@@ -737,13 +742,45 @@ func TestScrapeConfig(t *testing.T) {
 						},
 					}},
 				},
-			}}
+			}, {
+				JobName:        "mongodb_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_lr-1m0s",
+				ScrapeInterval: config.Duration(s.LR),
+				ScrapeTimeout:  scrapeTimeout(s.LR),
+				MetricsPath:    "/metrics",
+				Params: map[string][]string{
+					"collect[]": {"collstats", "dbstats", "indexstats"},
+				},
+				HTTPClientConfig: config.HTTPClientConfig{
+					BasicAuth: &config.BasicAuth{
+						Username: "pmm",
+						Password: "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+					},
+				},
+				ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
+					StaticConfigs: []*config.Group{{
+						Targets: []string{"4.5.6.7:12345"},
+						Labels: map[string]string{
+							"_some_agent_label":   "baz",
+							"_some_node_label":    "foo",
+							"_some_service_label": "bar",
+							"agent_id":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"agent_type":          "mongodb_exporter",
+							"instance":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"node_id":             "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"node_name":           "node_name",
+							"service_id":          "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+						},
+					}},
+				},
+			},
+			}
 
 			actual, err := scrapeConfigsForMongoDBExporter(s, &scrapeConfigParams{
-				host:    "4.5.6.7",
-				node:    node,
-				service: service,
-				agent:   agent,
+				host:            "4.5.6.7",
+				node:            node,
+				service:         service,
+				agent:           agent,
+				pmmAgentVersion: version.MustParse("2.26.0"),
 			})
 			require.NoError(t, err)
 			require.Len(t, actual, len(expected))
@@ -761,10 +798,11 @@ func TestScrapeConfig(t *testing.T) {
 			}
 
 			_, err := scrapeConfigsForMongoDBExporter(s, &scrapeConfigParams{
-				host:    "4.5.6.7",
-				node:    node,
-				service: service,
-				agent:   agent,
+				host:            "4.5.6.7",
+				node:            node,
+				service:         service,
+				agent:           agent,
+				pmmAgentVersion: version.MustParse("2.26.0"),
 			})
 			require.EqualError(t, err, "failed to decode custom labels: unexpected end of JSON input")
 		})
@@ -1159,10 +1197,11 @@ func TestScrapeConfig(t *testing.T) {
 			}
 
 			_, err := scrapeConfigsForMongoDBExporter(s, &scrapeConfigParams{
-				host:    "4.5.6.7",
-				node:    node,
-				service: service,
-				agent:   agent,
+				host:            "4.5.6.7",
+				node:            node,
+				service:         service,
+				agent:           agent,
+				pmmAgentVersion: version.MustParse("2.26.0"),
 			})
 			require.EqualError(t, err, "failed to decode custom labels: unexpected end of JSON input")
 		})
