@@ -29,11 +29,13 @@ import (
 
 type servicesServer struct {
 	s *inventory.ServicesService
+
+	inventorypb.UnimplementedServicesServer
 }
 
 // NewServicesServer returns Inventory API handler for managing Services.
 func NewServicesServer(s *inventory.ServicesService) inventorypb.ServicesServer {
-	return &servicesServer{s}
+	return &servicesServer{s: s}
 }
 
 var serviceTypes = map[inventorypb.ServiceType]models.ServiceType{

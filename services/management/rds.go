@@ -53,6 +53,8 @@ type RDSService struct {
 	db    *reform.DB
 	state agentsStateUpdater
 	cc    connectionChecker
+
+	managementpb.UnimplementedRDSServer
 }
 
 // NewRDSService creates new instance discovery service.

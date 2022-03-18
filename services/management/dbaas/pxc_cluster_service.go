@@ -40,6 +40,8 @@ type PXCClustersService struct {
 	controllerClient     dbaasClient
 	grafanaClient        grafanaClient
 	versionServiceClient versionService
+
+	dbaasv1beta1.UnimplementedPXCClustersServer
 }
 
 // NewPXCClusterService creates PXC Service.

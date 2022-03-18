@@ -28,11 +28,13 @@ import (
 
 type agentsServer struct {
 	s *inventory.AgentsService
+
+	inventorypb.UnimplementedAgentsServer
 }
 
 // NewAgentsServer returns Inventory API handler for managing Agents.
 func NewAgentsServer(s *inventory.AgentsService) inventorypb.AgentsServer {
-	return &agentsServer{s}
+	return &agentsServer{s: s}
 }
 
 var agentTypes = map[inventorypb.AgentType]models.AgentType{

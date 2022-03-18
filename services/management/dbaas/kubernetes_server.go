@@ -57,6 +57,8 @@ type kubernetesServer struct {
 	dbaasClient    dbaasClient
 	versionService versionService
 	grafanaClient  grafanaClient
+
+	dbaasv1beta1.UnimplementedKubernetesServer
 }
 
 // NewKubernetesServer creates Kubernetes Server.

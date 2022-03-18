@@ -19,7 +19,7 @@ package qan
 import (
 	"context"
 
-	"github.com/percona/pmm/api/qanpb"
+	qanpb "github.com/percona/pmm/api/qanpb"
 	"google.golang.org/grpc"
 )
 

@@ -78,6 +78,8 @@ type Server struct {
 	envSettings *models.ChangeSettingsParams
 
 	sshKeyM sync.Mutex
+
+	serverpb.UnimplementedServerServer
 }
 
 type dbaasClient interface {

@@ -27,6 +27,8 @@ import (
 // TODO merge into ../proxysql.go
 type proxySQLServer struct {
 	svc *management.ProxySQLService
+
+	managementpb.UnimplementedProxySQLServer
 }
 
 // NewManagementProxySQLServer creates Management ProxySQL Server.

@@ -27,6 +27,8 @@ import (
 // TODO merge into ../service.go
 type serviceServer struct {
 	svc *management.ServiceService
+
+	managementpb.UnimplementedServiceServer
 }
 
 // NewManagementServiceServer creates Management Service Server.

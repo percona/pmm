@@ -58,6 +58,8 @@ type Service struct {
 	supervisord   supervisordService
 	client        http.Client
 	grafanaClient grafanaClient
+
+	platformpb.UnimplementedPlatformServer
 }
 
 type grafanaClient interface {

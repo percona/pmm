@@ -34,6 +34,8 @@ type ArtifactsService struct {
 	l          *logrus.Entry
 	db         *reform.DB
 	removalSVC removalService
+
+	backupv1beta1.UnimplementedArtifactsServer
 }
 
 // NewArtifactsService creates new artifacts API service.

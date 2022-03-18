@@ -33,6 +33,8 @@ import (
 type RestoreHistoryService struct {
 	l  *logrus.Entry
 	db *reform.DB
+
+	backupv1beta1.UnimplementedRestoreHistoryServer
 }
 
 // NewRestoreHistoryService creates new restore history API service.

@@ -43,6 +43,8 @@ type AlertsService struct {
 	l                *logrus.Entry
 	alertManager     alertManager
 	templatesService *TemplatesService
+
+	iav1beta1.UnimplementedAlertsServer
 }
 
 // NewAlertsService creates new alerts API service.

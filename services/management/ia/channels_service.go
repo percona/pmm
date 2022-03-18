@@ -32,6 +32,8 @@ type ChannelsService struct {
 	l            *logrus.Entry
 	db           *reform.DB
 	alertManager alertManager
+
+	iav1beta1.UnimplementedChannelsServer
 }
 
 // NewChannelsService creates new channels API service.

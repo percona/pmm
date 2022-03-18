@@ -28,11 +28,13 @@ import (
 
 type nodesServer struct {
 	svc *inventory.NodesService
+
+	inventorypb.UnimplementedNodesServer
 }
 
 // NewNodesServer returns Inventory API handler for managing Nodes.
 func NewNodesServer(svc *inventory.NodesService) inventorypb.NodesServer {
-	return &nodesServer{svc}
+	return &nodesServer{svc: svc}
 }
 
 var nodeTypes = map[inventorypb.NodeType]models.NodeType{

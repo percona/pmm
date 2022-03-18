@@ -14,16 +14,16 @@ go 1.17
 
 require (
 	github.com/AlekSi/pointer v1.2.0
-	github.com/Azure/azure-sdk-for-go v61.3.0+incompatible
+	github.com/Azure/azure-sdk-for-go v62.2.0+incompatible
 	github.com/Azure/go-autorest/autorest v0.11.24
 	github.com/Azure/go-autorest/autorest/azure/auth v0.5.11
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
-	github.com/aws/aws-sdk-go v1.42.42
-	github.com/brianvoe/gofakeit/v6 v6.9.0
+	github.com/aws/aws-sdk-go v1.43.17
+	github.com/brianvoe/gofakeit/v6 v6.14.5
 	github.com/davecgh/go-spew v1.1.1
-	github.com/go-co-op/gocron v1.11.0
-	github.com/go-openapi/runtime v0.21.1
-	github.com/go-openapi/strfmt v0.21.1
+	github.com/go-co-op/gocron v1.13.0
+	github.com/go-openapi/runtime v0.23.2
+	github.com/go-openapi/strfmt v0.21.2
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/golang/protobuf v1.5.2
 	github.com/google/uuid v1.3.0
@@ -32,10 +32,10 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/hashicorp/go-version v1.4.0
 	github.com/lib/pq v1.10.4
-	github.com/minio/minio-go/v7 v7.0.21
+	github.com/minio/minio-go/v7 v7.0.23
 	github.com/percona-platform/dbaas-api v0.0.0-20220110092915-5aacd784d472
-	github.com/percona-platform/saas v0.0.0-20220310105301-9ab66b34782b
-	github.com/percona/pmm v0.0.0-20220310104949-dd33560bcdde
+	github.com/percona-platform/saas v0.0.0-20220317155708-e7f0cb2ec37f
+	github.com/percona/pmm v0.0.0-20220318094121-37f33aa12a72
 	github.com/percona/promconfig v0.2.4-0.20211110115058-98687f586f54
 	github.com/pkg/errors v0.9.1
 	github.com/pmezard/go-difflib v1.0.0
@@ -45,11 +45,11 @@ require (
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.7.0
-	go.starlark.net v0.0.0-20211203141949-70c0e40ae128
+	go.starlark.net v0.0.0-20220302181546-5411bad688d1
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
-	golang.org/x/sys v0.0.0-20220114195835-da31bd327af9
-	google.golang.org/genproto v0.0.0-20220126215142-9970aeb2e350
-	google.golang.org/grpc v1.44.0
+	golang.org/x/sys v0.0.0-20220310020820-b874c991c1a5
+	google.golang.org/genproto v0.0.0-20220314164441-57ef72a4c106
+	google.golang.org/grpc v1.45.0
 	google.golang.org/protobuf v1.27.1
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/reform.v1 v1.5.1
@@ -81,16 +81,16 @@ require (
 	github.com/go-openapi/errors v0.20.2 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/jsonreference v0.19.6 // indirect
-	github.com/go-openapi/loads v0.21.0 // indirect
+	github.com/go-openapi/loads v0.21.1 // indirect
 	github.com/go-openapi/spec v0.20.4 // indirect
-	github.com/go-openapi/swag v0.19.15 // indirect
-	github.com/go-openapi/validate v0.20.3 // indirect
+	github.com/go-openapi/swag v0.21.1 // indirect
+	github.com/go-openapi/validate v0.21.0 // indirect
 	github.com/go-stack/stack v1.8.1 // indirect
 	github.com/gofrs/uuid v4.2.0+incompatible // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/golang-jwt/jwt/v4 v4.2.0 // indirect
+	github.com/golang-jwt/jwt/v4 v4.3.0 // indirect
 	github.com/google/btree v1.0.1 // indirect
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.7.3 // indirect
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.8.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
 	github.com/hashicorp/go-msgpack v1.1.5 // indirect
@@ -102,11 +102,11 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/jpillora/backoff v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/klauspost/compress v1.14.2 // indirect
-	github.com/klauspost/cpuid/v2 v2.0.9 // indirect
+	github.com/klauspost/compress v1.15.1 // indirect
+	github.com/klauspost/cpuid/v2 v2.0.11 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
-	github.com/miekg/dns v1.1.45 // indirect
+	github.com/miekg/dns v1.1.47 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/minio/sha256-simd v1.0.0 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
@@ -126,15 +126,15 @@ require (
 	github.com/shurcooL/httpfs v0.0.0-20190707220628-8d4bc4ba7749 // indirect
 	github.com/shurcooL/vfsgen v0.0.0-20200824052919-0d455de96546 // indirect
 	github.com/stretchr/objx v0.3.0 // indirect
-	go.mongodb.org/mongo-driver v1.8.2 // indirect
-	golang.org/x/crypto v0.0.0-20220126234351-aa10faf2a1f8 // indirect
+	go.mongodb.org/mongo-driver v1.8.4 // indirect
+	golang.org/x/crypto v0.0.0-20220313003712-b769efc7c000 // indirect
 	golang.org/x/mod v0.5.1 // indirect
-	golang.org/x/net v0.0.0-20220127074510-2fabfed7e28f // indirect
-	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8 // indirect
+	golang.org/x/net v0.0.0-20220225172249-27dd8689420f // indirect
+	golang.org/x/oauth2 v0.0.0-20220309155454-6242fa91716a // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/tools v0.1.9 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	gopkg.in/ini.v1 v1.66.3 // indirect
+	gopkg.in/ini.v1 v1.66.4 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )

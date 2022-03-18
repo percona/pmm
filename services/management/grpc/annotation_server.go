@@ -34,6 +34,8 @@ import (
 // AnnotationServer is a server for making annotations in Grafana.
 type AnnotationServer struct {
 	svc *management.AnnotationService
+
+	managementpb.UnimplementedAnnotationServer
 }
 
 // NewAnnotationServer creates Annotation Server.

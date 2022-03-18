@@ -40,6 +40,8 @@ type componentsService struct {
 	db                   *reform.DB
 	dbaasClient          dbaasClient
 	versionServiceClient versionService
+
+	dbaasv1beta1.UnimplementedComponentsServer
 }
 
 type installedComponentsVersion struct {

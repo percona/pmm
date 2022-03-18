@@ -35,6 +35,8 @@ type HAProxyService struct {
 	vmdb  prometheusService
 	state agentsStateUpdater
 	cc    connectionChecker
+
+	managementpb.UnimplementedHAProxyServer
 }
 
 // NewHAProxyService creates new HAProxy Management Service.

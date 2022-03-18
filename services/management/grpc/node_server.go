@@ -27,6 +27,8 @@ import (
 // TODO merge into ../node.go
 type nodeServer struct {
 	svc *management.NodeService
+
+	managementpb.UnimplementedNodeServer
 }
 
 // NewManagementNodeServer creates Management Node Server.

@@ -27,6 +27,8 @@ import (
 // TODO merge into ../mongodb.go
 type mongoDBServer struct {
 	svc *management.MongoDBService
+
+	managementpb.UnimplementedMongoDBServer
 }
 
 // NewManagementMongoDBServer creates Management MongoDB Server.

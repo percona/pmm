@@ -44,6 +44,8 @@ type BackupsService struct {
 	backupService   backupService
 	scheduleService scheduleService
 	l               *logrus.Entry
+
+	backupv1beta1.UnimplementedBackupsServer
 }
 
 const (

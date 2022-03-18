@@ -36,6 +36,8 @@ type ExternalService struct {
 	vmdb  prometheusService
 	state agentsStateUpdater
 	cc    connectionChecker
+
+	managementpb.UnimplementedExternalServer
 }
 
 // NewExternalService creates new External Management Service.

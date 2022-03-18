@@ -55,6 +55,8 @@ type RulesService struct {
 	vmalert      vmAlert
 	alertManager alertManager
 	rulesPath    string // used for testing
+
+	iav1beta1.UnimplementedRulesServer
 }
 
 // NewRulesService creates an API for Integrated Alerting Rules.

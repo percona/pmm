@@ -24,7 +24,7 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/qanpb"
+	qanpb "github.com/percona/pmm/api/qanpb"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"

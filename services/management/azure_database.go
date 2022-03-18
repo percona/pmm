@@ -61,6 +61,8 @@ type AzureDatabaseService struct {
 	registry agentsRegistry
 	state    agentsStateUpdater
 	cc       connectionChecker
+
+	azurev1beta1.UnimplementedAzureDatabaseServer
 }
 
 // NewAzureDatabaseService creates new instance discovery service.

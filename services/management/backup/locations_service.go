@@ -36,6 +36,8 @@ type LocationsService struct {
 	db *reform.DB
 	s3 awsS3
 	l  *logrus.Entry
+
+	backupv1beta1.UnimplementedLocationsServer
 }
 
 // NewLocationsService creates new backup locations API service.

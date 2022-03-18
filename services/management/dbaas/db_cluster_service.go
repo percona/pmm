@@ -39,6 +39,8 @@ type DBClusterService struct {
 	controllerClient     dbaasClient
 	grafanaClient        grafanaClient
 	versionServiceClient *VersionServiceClient
+
+	dbaasv1beta1.UnimplementedDBClustersServer
 }
 
 // NewDBClusterService creates DB Clusters Service.

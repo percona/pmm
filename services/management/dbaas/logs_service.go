@@ -32,6 +32,8 @@ type LogsService struct {
 	l                *logrus.Entry
 	db               *reform.DB
 	controllerClient dbaasClient
+
+	dbaasv1beta1.UnimplementedLogsAPIServer
 }
 
 // NewLogsService creates new LogsService.

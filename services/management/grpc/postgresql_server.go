@@ -27,6 +27,8 @@ import (
 // TODO merge into ../postgresql.go
 type postgreSQLServer struct {
 	svc *management.PostgreSQLService
+
+	managementpb.UnimplementedPostgreSQLServer
 }
 
 // NewManagementPostgreSQLServer creates Management PostgreSQL Server.

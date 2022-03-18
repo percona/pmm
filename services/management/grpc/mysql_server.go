@@ -27,6 +27,8 @@ import (
 // TODO merge into ../mysql.go
 type mySQLServer struct {
 	svc *management.MySQLService
+
+	managementpb.UnimplementedMySQLServer
 }
 
 // NewManagementMySQLServer creates Management MySQL Server.

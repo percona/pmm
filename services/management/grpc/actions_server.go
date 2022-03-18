@@ -36,6 +36,8 @@ type actionsServer struct {
 	a  *agents.ActionsService
 	db *reform.DB
 	l  *logrus.Entry
+
+	managementpb.UnimplementedActionsServer
 }
 
 var (
@@ -46,7 +48,7 @@ var (
 // NewActionsServer creates Management Actions Server.
 func NewActionsServer(a *agents.ActionsService, db *reform.DB) managementpb.ActionsServer {
 	l := logrus.WithField("component", "actions.go")
-	return &actionsServer{a, db, l}
+	return &actionsServer{a: a, db: db, l: l}
 }
 
 // GetAction gets an action result.

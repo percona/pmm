@@ -38,6 +38,8 @@ type PSMDBClusterService struct {
 	controllerClient     dbaasClient
 	grafanaClient        grafanaClient
 	versionServiceClient versionService
+
+	dbaasv1beta1.UnimplementedPSMDBClustersServer
 }
 
 // NewPSMDBClusterService creates PSMDB Service.

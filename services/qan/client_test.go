@@ -25,7 +25,7 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/api/qanpb"
+	qanpb "github.com/percona/pmm/api/qanpb"
 	"github.com/percona/pmm/utils/sqlmetrics"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
