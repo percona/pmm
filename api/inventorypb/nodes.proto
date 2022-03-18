@@ -4,7 +4,7 @@ package inventory;
 
 option go_package = "api/inventorypb;inventorypb";
 
-import "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 
@@ -345,7 +345,7 @@ service Nodes {
       post: "/v1/inventory/Nodes/List"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List Nodes"
       description: "Returns a list of all Nodes."
     };
@@ -356,7 +356,7 @@ service Nodes {
       post: "/v1/inventory/Nodes/Get"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get Node"
       description: "Returns a single Node by ID."
     };
@@ -367,7 +367,7 @@ service Nodes {
       post: "/v1/inventory/Nodes/AddGeneric"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Add Generic Node"
       description: "Adds generic Node."
     };
@@ -378,7 +378,7 @@ service Nodes {
       post: "/v1/inventory/Nodes/AddContainer"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Add Container Node"
       description: "Adds container Node."
     };
@@ -389,7 +389,7 @@ service Nodes {
       post: "/v1/inventory/Nodes/AddRemote"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Add Remote Node"
       description: "Adds remote Node."
     };
@@ -400,7 +400,7 @@ service Nodes {
       post: "/v1/inventory/Nodes/AddRemoteRDS"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Add Remote RDS Node"
       description: "Adds remote RDS Node."
     };
@@ -411,7 +411,7 @@ service Nodes {
       post: "/v1/inventory/Nodes/AddRemoteAzureDatabase"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Add Remote Azure Database Node"
       description: "Adds remote Azure database Node."
     };
@@ -422,7 +422,7 @@ service Nodes {
       post: "/v1/inventory/Nodes/Remove"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Remove Node"
       description: "Removes Node."
     };

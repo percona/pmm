@@ -4,7 +4,7 @@ package management;
 
 option go_package = "api/managementpb;managementpb";
 
-import "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 
@@ -359,7 +359,7 @@ service Actions {
       post: "/v1/management/Actions/Get"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get Action"
       description: "Gets the result of a given Action."
     };
@@ -370,7 +370,7 @@ service Actions {
       post: "/v1/management/Actions/StartMySQLExplain"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Start 'MySQL EXPLAIN' Action"
       description: "Starts 'MySQL EXPLAIN' Action with traditional output."
     };
@@ -381,7 +381,7 @@ service Actions {
       post: "/v1/management/Actions/StartMySQLExplainJSON"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Start 'MySQL EXPLAIN JSON' Action"
       description: "Starts 'MySQL EXPLAIN' Action with JSON output."
     };
@@ -392,7 +392,7 @@ service Actions {
       post: "/v1/management/Actions/StartMySQLExplainTraditionalJSON"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Start 'MySQL EXPLAIN Traditional JSON' Action"
       description: "Starts 'MySQL EXPLAIN' Action with traditional JSON output."
     };
@@ -403,7 +403,7 @@ service Actions {
       post: "/v1/management/Actions/StartMySQLShowCreateTable"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Start 'MySQL SHOW CREATE TABLE' Action"
       description: "Starts 'MySQL SHOW CREATE TABLE' Action."
     };
@@ -414,7 +414,7 @@ service Actions {
       post: "/v1/management/Actions/StartMySQLShowTableStatus"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Start 'MySQL SHOW TABLE STATUS' Action"
       description: "Starts 'MySQL SHOW TABLE STATUS' Action."
     };
@@ -425,7 +425,7 @@ service Actions {
       post: "/v1/management/Actions/StartMySQLShowIndex"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Start 'MySQL SHOW INDEX' Action"
       description: "Starts 'MySQL SHOW INDEX' Action."
     };
@@ -436,7 +436,7 @@ service Actions {
       post: "/v1/management/Actions/StartPostgreSQLShowCreateTable"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Start 'PostgreSQL SHOW CREATE TABLE' Action"
       description: "Starts 'PostgreSQL SHOW CREATE TABLE' Action."
     };
@@ -447,7 +447,7 @@ service Actions {
       post: "/v1/management/Actions/StartPostgreSQLShowIndex"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Start 'PostgreSQL SHOW INDEX' Action"
       description: "Starts 'PostgreSQL SHOW INDEX' Action."
     };
@@ -458,7 +458,7 @@ service Actions {
       post: "/v1/management/Actions/StartMongoDBExplain"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Start 'MongoDB EXPLAIN' Action"
       description: "Starts 'MongoDB EXPLAIN' Action."
     };
@@ -469,7 +469,7 @@ service Actions {
       post: "/v1/management/Actions/StartPTSummary"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Start 'PT Summary' Action"
       description: "Starts 'Percona Toolkit Summary' Action."
     };
@@ -480,7 +480,7 @@ service Actions {
       post: "/v1/management/Actions/StartPTPgSummary"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Start 'PT PostgreSQL Summary' Action"
       description: "Starts 'Percona Toolkit PostgreSQL Summary' Action."
     };
@@ -491,7 +491,7 @@ service Actions {
       post: "/v1/management/Actions/StartPTMongoDBSummary"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Start 'PT MongoDB Summary' Action"
       description: "Starts 'Percona Toolkit MongoDB Summary' Action."
     };
@@ -502,7 +502,7 @@ service Actions {
       post: "/v1/management/Actions/StartPTMySQLSummary"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Start 'PT MySQL Summary' Action"
       description: "Starts 'Percona Toolkit MySQL Summary' Action."
     };
@@ -513,7 +513,7 @@ service Actions {
       post: "/v1/management/Actions/Cancel"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Cancel Action"
       description: "Stops an Action."
     };

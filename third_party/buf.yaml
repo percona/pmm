@@ -1,0 +1,8 @@
+version: v1
+name: buf.build/percona/third_party
+breaking:
+  use:
+    - FILE
+lint:
+  use:
+    - DEFAULT

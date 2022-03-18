@@ -4,7 +4,7 @@ package inventory;
 
 option go_package = "api/inventorypb;inventorypb";
 
-import "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 
@@ -444,7 +444,7 @@ service Services {
       post: "/v1/inventory/Services/List"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List Services"
       description: "Returns a list of Services filtered by type."
     };
@@ -455,7 +455,7 @@ service Services {
       post: "/v1/inventory/Services/Get"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get Service"
       description: "Returns a single Service by ID."
     };
@@ -466,7 +466,7 @@ service Services {
       post: "/v1/inventory/Services/AddMySQL"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Add MySQL Service"
       description: "Adds MySQL Service."
     };
@@ -477,7 +477,7 @@ service Services {
       post: "/v1/inventory/Services/AddMongoDB"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Add MongoDB Service"
       description: "Adds MongoDB Service."
     };
@@ -488,7 +488,7 @@ service Services {
       post: "/v1/inventory/Services/AddPostgreSQL"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Add PostgreSQL Service"
       description: "Adds PostgreSQL Service."
     };
@@ -499,7 +499,7 @@ service Services {
       post: "/v1/inventory/Services/AddProxySQL"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Add ProxySQL Service"
       description: "Adds ProxySQL Service."
     };
@@ -510,7 +510,7 @@ service Services {
       post: "/v1/inventory/Services/AddHAProxyService"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Add HAProxy Service"
       description: "Adds HAProxy Service."
     };
@@ -521,7 +521,7 @@ service Services {
       post: "/v1/inventory/Services/AddExternalService"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Add External Service"
       description: "Adds External Service."
     };
@@ -532,7 +532,7 @@ service Services {
       post: "/v1/inventory/Services/Remove"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Remove Service"
       description: "Removes Service."
     };

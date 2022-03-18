@@ -4,7 +4,7 @@ package server;
 
 option go_package = "api/serverpb;serverpb";
 
-import "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
@@ -292,7 +292,7 @@ service Server {
     option (google.api.http) = {
       get: "/v1/version"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Version"
       description: "Returns PMM Server versions."
     };
@@ -303,7 +303,7 @@ service Server {
     option (google.api.http) = {
       get: "/v1/readyz"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Check server readiness"
       description: "Returns an error when Server components being restarted are not ready yet. Use this API for checking the health of Docker containers and for probing Kubernetes readiness."
     };
@@ -314,7 +314,7 @@ service Server {
       post: "/v1/Updates/Check"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Check updates"
       description: "Checks for available PMM Server updates."
     };
@@ -325,7 +325,7 @@ service Server {
       post: "/v1/Updates/Start"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Start update"
       description: "Starts PMM Server update."
     };
@@ -336,7 +336,7 @@ service Server {
       post: "/v1/Updates/Status"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Update status"
       description: "Returns PMM Server update status."
     };
@@ -347,7 +347,7 @@ service Server {
       post: "/v1/Settings/Get"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get settings"
       description: "Returns current PMM Server settings."
     };
@@ -358,7 +358,7 @@ service Server {
       post: "/v1/Settings/Change"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Change settings"
       description: "Changes PMM Server settings."
     };
@@ -369,7 +369,7 @@ service Server {
       post: "/v1/Settings/TestEmailAlertingSettings"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Test email alerting"
       description: "Sends test email to check current SMTP settings for email alerting."
     };
@@ -380,7 +380,7 @@ service Server {
       post: "/v1/AWSInstanceCheck"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "AWS instance check"
       description: "Checks AWS EC2 instance ID."
     };
