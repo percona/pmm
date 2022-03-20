@@ -358,8 +358,10 @@ github.com/gliderlabs/ssh v0.1.1/go.mod h1:U7qILu1NlMHj9FlMhZLlkCdDnU1DBEAqr0aev
 github.com/gliderlabs/ssh v0.3.3/go.mod h1:ZSS+CUoKHDrqVakTfTWUlKSr9MtMFkC4UvtQKD7O914=
 github.com/go-critic/go-critic v0.6.2 h1:L5SDut1N4ZfsWZY0sH4DCrsHLHnhuuWak2wa165t9gs=
 github.com/go-critic/go-critic v0.6.2/go.mod h1:td1s27kfmLpe5G/DPjlnFI7o1UCzePptwU7Az0V5iCM=
-github.com/go-delve/delve v1.8.0 h1:uvwPyfr6n2g1S6/bt270lM4fBK76P/3FDCufOsK0CjQ=
-github.com/go-delve/delve v1.8.0/go.mod h1:yXxoIaOOdTmNapkt5yfol6NIeNSqMxWRTfqy9qQMWZY=
+github.com/go-delve/delve v1.8.2 h1:gsRTPR3Yi61RpeuCFvJb6vIxB3xABx6pnNKGISxdsSU=
+github.com/go-delve/delve v1.8.2/go.mod h1:XB6XKpI5DqMCNai0MkNPVbrd3OtBovJ/vfcVofkWy/k=
+github.com/go-delve/liner v1.2.2-1 h1:0hGpZh6vjI6LFTlXuHFCX9PebaluzDzps2owdMrrSuk=
+github.com/go-delve/liner v1.2.2-1/go.mod h1:biJCRbqp51wS+I92HMqn5H8/A0PAhxn2vyOT+JqhiGI=
 github.com/go-gl/glfw v0.0.0-20190409004039-e6da0acd62b1/go.mod h1:vR7hzQXu2zJy9AVAgeJqvqgH9Q5CA+iKCZ2gyEVpxRU=
 github.com/go-gl/glfw/v3.3/glfw v0.0.0-20191125211704-12ad95a8df72/go.mod h1:tQ2UAYgL5IevRw8kRxooKSPJfGvJ9fJQFa0TUsXzTg8=
 github.com/go-gl/glfw/v3.3/glfw v0.0.0-20200222043503-6f7a984d4dc4/go.mod h1:tQ2UAYgL5IevRw8kRxooKSPJfGvJ9fJQFa0TUsXzTg8=
@@ -1044,9 +1046,6 @@ github.com/pelletier/go-toml v1.9.4 h1:tjENF6MfZAg8e4ZmZTeWaWiT2vXtsoO6+iuOjFhEC
 github.com/pelletier/go-toml v1.9.4/go.mod h1:u1nR/EPcESfeI/szUZKdtJ0xRNbUoANCkoOuaOx1Y+c=
 github.com/performancecopilot/speed v3.0.0+incompatible/go.mod h1:/CLtqpZ5gBg1M9iaPbIdPPGyKcA8hKdoy6hAWba7Yac=
 github.com/peterbourgon/diskv v2.0.1+incompatible/go.mod h1:uqqh8zWWbv1HBMNONnaR/tNboyR3/BZd58JJSHlUSCU=
-github.com/peterh/liner v1.2.1/go.mod h1:CRroGNssyjTd/qIG2FyxByd2S8JEAZXBl4qUrZf8GS0=
-github.com/peterh/liner v1.2.2 h1:aJ4AOodmL+JxOZZEL2u9iJf8omNRpqHc/EbrK+3mAXw=
-github.com/peterh/liner v1.2.2/go.mod h1:xFwJyiKIXJZUKItq5dGHZSTBRAuG/CpeNpWLyiNRNwI=
 github.com/phayes/checkstyle v0.0.0-20170904204023-bfd46e6a821d h1:CdDQnGF8Nq9ocOS/xlSptM1N3BbrA6/kmaep5ggwaIA=
 github.com/phayes/checkstyle v0.0.0-20170904204023-bfd46e6a821d/go.mod h1:3OzsM7FXDQlpCiw2j81fOmAwQLnZnLGXVKUzeKQXIAw=
 github.com/pierrec/lz4 v1.0.2-0.20190131084431-473cd7ce01a1/go.mod h1:3/3N9NVKO0jef7pBehbT1qWhCMrIgbYNnFAZCqQ5LRc=

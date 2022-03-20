@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/BurntSushi/go-sumtype v0.0.0-20190304192233-fcb4a6205bdc
-	github.com/go-delve/delve v1.8.0
+	github.com/go-delve/delve v1.8.2
 	github.com/golangci/golangci-lint v1.44.0
 	github.com/kevinburke/go-bindata v3.23.0+incompatible
 	github.com/quasilyte/go-consistent v0.0.0-20200404105227-766526bf1e96
@@ -57,6 +57,7 @@ require (
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/fzipp/gocyclo v0.4.0 // indirect
 	github.com/go-critic/go-critic v0.6.2 // indirect
+	github.com/go-delve/liner v1.2.2-1 // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/go-toolsmith/astcast v1.0.0 // indirect
 	github.com/go-toolsmith/astcopy v1.0.0 // indirect
@@ -139,7 +140,6 @@ require (
 	github.com/nishanths/predeclared v0.2.1 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/pelletier/go-toml v1.9.4 // indirect
-	github.com/peterh/liner v1.2.2 // indirect
 	github.com/phayes/checkstyle v0.0.0-20170904204023-bfd46e6a821d // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
