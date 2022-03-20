@@ -22,7 +22,7 @@ require (
 	go.mongodb.org/mongo-driver v1.7.1
 	golang.org/x/sys v0.0.0-20220114195835-da31bd327af9
 	google.golang.org/genproto v0.0.0-20220302033224-9aa15565e42a
-	google.golang.org/grpc v1.44.0
+	google.golang.org/grpc v1.45.0
 	google.golang.org/protobuf v1.27.1
 	gopkg.in/reform.v1 v1.5.0
 )
