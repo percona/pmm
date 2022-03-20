@@ -44,7 +44,7 @@ require (
 	github.com/prometheus/common v0.32.1
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/sirupsen/logrus v1.8.1
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.7.1
 	go.starlark.net v0.0.0-20220302181546-5411bad688d1
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/sys v0.0.0-20220310020820-b874c991c1a5
