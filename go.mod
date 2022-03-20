@@ -17,12 +17,10 @@ require (
 	github.com/mitchellh/mapstructure v1.3.3 // indirect
 	github.com/mwitkow/go-proto-validators v0.3.2
 	github.com/pkg/errors v0.9.1
-	github.com/prometheus/client_golang v1.1.0
-	github.com/prometheus/common v0.10.0 // indirect
-	github.com/prometheus/procfs v0.1.3 // indirect
+	github.com/prometheus/client_golang v1.12.1
 	github.com/stretchr/testify v1.7.0
 	go.mongodb.org/mongo-driver v1.7.1
-	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e
+	golang.org/x/sys v0.0.0-20220114195835-da31bd327af9
 	google.golang.org/genproto v0.0.0-20220302033224-9aa15565e42a
 	google.golang.org/grpc v1.44.0
 	google.golang.org/protobuf v1.27.1
