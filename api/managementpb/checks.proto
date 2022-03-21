@@ -85,9 +85,12 @@ message ChangeSecurityCheckParams {
   SecurityCheckInterval interval = 4;
 }
 
-message GetSecurityCheckResultsRequest {}
+message GetSecurityCheckResultsRequest {
+  option deprecated = true;
+}
 
 message GetSecurityCheckResultsResponse {
+  option deprecated = true;
   repeated SecurityCheckResult results = 1;
 }
 
@@ -172,6 +175,7 @@ service SecurityChecks {
   }
   // GetSecurityCheckResults returns Security Thread Tool's latest checks results.
   rpc GetSecurityCheckResults(GetSecurityCheckResultsRequest) returns (GetSecurityCheckResultsResponse) {
+    option deprecated = true;
     option (google.api.http) = {
       post: "/v1/management/SecurityChecks/GetCheckResults"
       body: "*"

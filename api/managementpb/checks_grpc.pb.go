@@ -28,6 +28,7 @@ type SecurityChecksClient interface {
 	GetFailedChecks(ctx context.Context, in *GetFailedChecksRequest, opts ...grpc.CallOption) (*GetFailedChecksResponse, error)
 	// ToggleCheckAlert allows to switch alerts state for a check result between "silenced" and "unsilenced".
 	ToggleCheckAlert(ctx context.Context, in *ToggleCheckAlertRequest, opts ...grpc.CallOption) (*ToggleCheckAlertResponse, error)
+	// Deprecated: Do not use.
 	// GetSecurityCheckResults returns Security Thread Tool's latest checks results.
 	GetSecurityCheckResults(ctx context.Context, in *GetSecurityCheckResultsRequest, opts ...grpc.CallOption) (*GetSecurityCheckResultsResponse, error)
 	// StartSecurityChecks executes Security Thread Tool checks and returns when all checks are executed.
@@ -73,6 +74,7 @@ func (c *securityChecksClient) ToggleCheckAlert(ctx context.Context, in *ToggleC
 	return out, nil
 }
 
+// Deprecated: Do not use.
 func (c *securityChecksClient) GetSecurityCheckResults(ctx context.Context, in *GetSecurityCheckResultsRequest, opts ...grpc.CallOption) (*GetSecurityCheckResultsResponse, error) {
 	out := new(GetSecurityCheckResultsResponse)
 	err := c.cc.Invoke(ctx, "/management.SecurityChecks/GetSecurityCheckResults", in, out, opts...)
@@ -119,6 +121,7 @@ type SecurityChecksServer interface {
 	GetFailedChecks(context.Context, *GetFailedChecksRequest) (*GetFailedChecksResponse, error)
 	// ToggleCheckAlert allows to switch alerts state for a check result between "silenced" and "unsilenced".
 	ToggleCheckAlert(context.Context, *ToggleCheckAlertRequest) (*ToggleCheckAlertResponse, error)
+	// Deprecated: Do not use.
 	// GetSecurityCheckResults returns Security Thread Tool's latest checks results.
 	GetSecurityCheckResults(context.Context, *GetSecurityCheckResultsRequest) (*GetSecurityCheckResultsResponse, error)
 	// StartSecurityChecks executes Security Thread Tool checks and returns when all checks are executed.
