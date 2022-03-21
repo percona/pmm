@@ -213,7 +213,7 @@ func RegisterLocationsHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Locations/ListLocations", runtime.WithHTTPPathPattern("/v1/management/backup/Locations/List"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Locations/ListLocations")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -236,7 +236,7 @@ func RegisterLocationsHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Locations/AddLocation", runtime.WithHTTPPathPattern("/v1/management/backup/Locations/Add"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Locations/AddLocation")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -259,7 +259,7 @@ func RegisterLocationsHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Locations/ChangeLocation", runtime.WithHTTPPathPattern("/v1/management/backup/Locations/Change"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Locations/ChangeLocation")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -282,7 +282,7 @@ func RegisterLocationsHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Locations/RemoveLocation", runtime.WithHTTPPathPattern("/v1/management/backup/Locations/Remove"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Locations/RemoveLocation")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -305,7 +305,7 @@ func RegisterLocationsHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Locations/TestLocationConfig", runtime.WithHTTPPathPattern("/v1/management/backup/Locations/TestConfig"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Locations/TestLocationConfig")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -367,7 +367,7 @@ func RegisterLocationsHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Locations/ListLocations", runtime.WithHTTPPathPattern("/v1/management/backup/Locations/List"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Locations/ListLocations")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -387,7 +387,7 @@ func RegisterLocationsHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Locations/AddLocation", runtime.WithHTTPPathPattern("/v1/management/backup/Locations/Add"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Locations/AddLocation")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -407,7 +407,7 @@ func RegisterLocationsHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Locations/ChangeLocation", runtime.WithHTTPPathPattern("/v1/management/backup/Locations/Change"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Locations/ChangeLocation")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -427,7 +427,7 @@ func RegisterLocationsHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Locations/RemoveLocation", runtime.WithHTTPPathPattern("/v1/management/backup/Locations/Remove"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Locations/RemoveLocation")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -447,7 +447,7 @@ func RegisterLocationsHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Locations/TestLocationConfig", runtime.WithHTTPPathPattern("/v1/management/backup/Locations/TestConfig"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Locations/TestLocationConfig")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return

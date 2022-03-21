@@ -40,3 +40,4 @@ plugins:
     path: bin/protoc-gen-openapi
     opt:
       - simple_operation_ids=true
+      - json_names_for_fields=false

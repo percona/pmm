@@ -145,7 +145,7 @@ func RegisterDBClustersHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.DBClusters/ListDBClusters", runtime.WithHTTPPathPattern("/v1/management/DBaaS/DBClusters/List"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.DBClusters/ListDBClusters")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -168,7 +168,7 @@ func RegisterDBClustersHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.DBClusters/RestartDBCluster", runtime.WithHTTPPathPattern("/v1/management/DBaaS/DBClusters/Restart"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.DBClusters/RestartDBCluster")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -191,7 +191,7 @@ func RegisterDBClustersHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.DBClusters/DeleteDBCluster", runtime.WithHTTPPathPattern("/v1/management/DBaaS/DBClusters/Delete"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.DBClusters/DeleteDBCluster")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -253,7 +253,7 @@ func RegisterDBClustersHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.DBClusters/ListDBClusters", runtime.WithHTTPPathPattern("/v1/management/DBaaS/DBClusters/List"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.DBClusters/ListDBClusters")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -273,7 +273,7 @@ func RegisterDBClustersHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.DBClusters/RestartDBCluster", runtime.WithHTTPPathPattern("/v1/management/DBaaS/DBClusters/Restart"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.DBClusters/RestartDBCluster")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -293,7 +293,7 @@ func RegisterDBClustersHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.DBClusters/DeleteDBCluster", runtime.WithHTTPPathPattern("/v1/management/DBaaS/DBClusters/Delete"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.DBClusters/DeleteDBCluster")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return

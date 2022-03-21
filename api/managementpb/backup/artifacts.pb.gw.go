@@ -111,7 +111,7 @@ func RegisterArtifactsHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Artifacts/ListArtifacts", runtime.WithHTTPPathPattern("/v1/management/backup/Artifacts/List"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Artifacts/ListArtifacts")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -134,7 +134,7 @@ func RegisterArtifactsHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Artifacts/DeleteArtifact", runtime.WithHTTPPathPattern("/v1/management/backup/Artifacts/Delete"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Artifacts/DeleteArtifact")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -196,7 +196,7 @@ func RegisterArtifactsHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Artifacts/ListArtifacts", runtime.WithHTTPPathPattern("/v1/management/backup/Artifacts/List"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Artifacts/ListArtifacts")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -216,7 +216,7 @@ func RegisterArtifactsHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Artifacts/DeleteArtifact", runtime.WithHTTPPathPattern("/v1/management/backup/Artifacts/Delete"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Artifacts/DeleteArtifact")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return

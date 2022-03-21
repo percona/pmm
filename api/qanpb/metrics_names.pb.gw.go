@@ -77,7 +77,7 @@ func RegisterMetricsNamesHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.MetricsNames/GetMetricsNames", runtime.WithHTTPPathPattern("/v0/qan/GetMetricsNames"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.MetricsNames/GetMetricsNames")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -139,7 +139,7 @@ func RegisterMetricsNamesHandlerClient(ctx context.Context, mux *runtime.ServeMu
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.MetricsNames/GetMetricsNames", runtime.WithHTTPPathPattern("/v0/qan/GetMetricsNames"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.MetricsNames/GetMetricsNames")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return

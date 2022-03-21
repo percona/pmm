@@ -77,7 +77,7 @@ func RegisterMySQLHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/management.MySQL/AddMySQL", runtime.WithHTTPPathPattern("/v1/management/MySQL/Add"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/management.MySQL/AddMySQL")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -139,7 +139,7 @@ func RegisterMySQLHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/management.MySQL/AddMySQL", runtime.WithHTTPPathPattern("/v1/management/MySQL/Add"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/management.MySQL/AddMySQL")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return

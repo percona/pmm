@@ -147,7 +147,7 @@ func RegisterAgentLocalHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/agentlocal.AgentLocal/Status", runtime.WithHTTPPathPattern("/local/Status"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/agentlocal.AgentLocal/Status")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -170,7 +170,7 @@ func RegisterAgentLocalHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/agentlocal.AgentLocal/Status", runtime.WithHTTPPathPattern("/local/Status"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/agentlocal.AgentLocal/Status")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -193,7 +193,7 @@ func RegisterAgentLocalHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/agentlocal.AgentLocal/Reload", runtime.WithHTTPPathPattern("/local/Reload"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/agentlocal.AgentLocal/Reload")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -255,7 +255,7 @@ func RegisterAgentLocalHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/agentlocal.AgentLocal/Status", runtime.WithHTTPPathPattern("/local/Status"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/agentlocal.AgentLocal/Status")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -275,7 +275,7 @@ func RegisterAgentLocalHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/agentlocal.AgentLocal/Status", runtime.WithHTTPPathPattern("/local/Status"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/agentlocal.AgentLocal/Status")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -295,7 +295,7 @@ func RegisterAgentLocalHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/agentlocal.AgentLocal/Reload", runtime.WithHTTPPathPattern("/local/Reload"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/agentlocal.AgentLocal/Reload")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return

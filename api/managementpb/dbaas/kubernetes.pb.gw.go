@@ -213,7 +213,7 @@ func RegisterKubernetesHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.Kubernetes/ListKubernetesClusters", runtime.WithHTTPPathPattern("/v1/management/DBaaS/Kubernetes/List"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.Kubernetes/ListKubernetesClusters")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -236,7 +236,7 @@ func RegisterKubernetesHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.Kubernetes/RegisterKubernetesCluster", runtime.WithHTTPPathPattern("/v1/management/DBaaS/Kubernetes/Register"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.Kubernetes/RegisterKubernetesCluster")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -259,7 +259,7 @@ func RegisterKubernetesHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.Kubernetes/UnregisterKubernetesCluster", runtime.WithHTTPPathPattern("/v1/management/DBaaS/Kubernetes/Unregister"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.Kubernetes/UnregisterKubernetesCluster")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -282,7 +282,7 @@ func RegisterKubernetesHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.Kubernetes/GetKubernetesCluster", runtime.WithHTTPPathPattern("/v1/management/DBaaS/Kubernetes/Get"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.Kubernetes/GetKubernetesCluster")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -305,7 +305,7 @@ func RegisterKubernetesHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.Kubernetes/GetResources", runtime.WithHTTPPathPattern("/v1/management/DBaaS/Kubernetes/Resources/Get"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.Kubernetes/GetResources")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -367,7 +367,7 @@ func RegisterKubernetesHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.Kubernetes/ListKubernetesClusters", runtime.WithHTTPPathPattern("/v1/management/DBaaS/Kubernetes/List"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.Kubernetes/ListKubernetesClusters")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -387,7 +387,7 @@ func RegisterKubernetesHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.Kubernetes/RegisterKubernetesCluster", runtime.WithHTTPPathPattern("/v1/management/DBaaS/Kubernetes/Register"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.Kubernetes/RegisterKubernetesCluster")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -407,7 +407,7 @@ func RegisterKubernetesHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.Kubernetes/UnregisterKubernetesCluster", runtime.WithHTTPPathPattern("/v1/management/DBaaS/Kubernetes/Unregister"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.Kubernetes/UnregisterKubernetesCluster")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -427,7 +427,7 @@ func RegisterKubernetesHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.Kubernetes/GetKubernetesCluster", runtime.WithHTTPPathPattern("/v1/management/DBaaS/Kubernetes/Get"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.Kubernetes/GetKubernetesCluster")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -447,7 +447,7 @@ func RegisterKubernetesHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.Kubernetes/GetResources", runtime.WithHTTPPathPattern("/v1/management/DBaaS/Kubernetes/Resources/Get"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.Kubernetes/GetResources")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return

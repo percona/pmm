@@ -111,7 +111,7 @@ func RegisterAlertsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Alerts/ListAlerts", runtime.WithHTTPPathPattern("/v1/management/ia/Alerts/List"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Alerts/ListAlerts")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -134,7 +134,7 @@ func RegisterAlertsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Alerts/ToggleAlerts", runtime.WithHTTPPathPattern("/v1/management/ia/Alerts/Toggle"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Alerts/ToggleAlerts")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -196,7 +196,7 @@ func RegisterAlertsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Alerts/ListAlerts", runtime.WithHTTPPathPattern("/v1/management/ia/Alerts/List"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Alerts/ListAlerts")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -216,7 +216,7 @@ func RegisterAlertsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Alerts/ToggleAlerts", runtime.WithHTTPPathPattern("/v1/management/ia/Alerts/Toggle"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Alerts/ToggleAlerts")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return

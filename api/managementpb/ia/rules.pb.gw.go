@@ -213,7 +213,7 @@ func RegisterRulesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Rules/ListAlertRules", runtime.WithHTTPPathPattern("/v1/management/ia/Rules/List"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Rules/ListAlertRules")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -236,7 +236,7 @@ func RegisterRulesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Rules/CreateAlertRule", runtime.WithHTTPPathPattern("/v1/management/ia/Rules/Create"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Rules/CreateAlertRule")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -259,7 +259,7 @@ func RegisterRulesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Rules/UpdateAlertRule", runtime.WithHTTPPathPattern("/v1/management/ia/Rules/Update"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Rules/UpdateAlertRule")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -282,7 +282,7 @@ func RegisterRulesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Rules/ToggleAlertRule", runtime.WithHTTPPathPattern("/v1/management/ia/Rules/Toggle"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Rules/ToggleAlertRule")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -305,7 +305,7 @@ func RegisterRulesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Rules/DeleteAlertRule", runtime.WithHTTPPathPattern("/v1/management/ia/Rules/Delete"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Rules/DeleteAlertRule")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -367,7 +367,7 @@ func RegisterRulesHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Rules/ListAlertRules", runtime.WithHTTPPathPattern("/v1/management/ia/Rules/List"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Rules/ListAlertRules")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -387,7 +387,7 @@ func RegisterRulesHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Rules/CreateAlertRule", runtime.WithHTTPPathPattern("/v1/management/ia/Rules/Create"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Rules/CreateAlertRule")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -407,7 +407,7 @@ func RegisterRulesHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Rules/UpdateAlertRule", runtime.WithHTTPPathPattern("/v1/management/ia/Rules/Update"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Rules/UpdateAlertRule")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -427,7 +427,7 @@ func RegisterRulesHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Rules/ToggleAlertRule", runtime.WithHTTPPathPattern("/v1/management/ia/Rules/Toggle"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Rules/ToggleAlertRule")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -447,7 +447,7 @@ func RegisterRulesHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Rules/DeleteAlertRule", runtime.WithHTTPPathPattern("/v1/management/ia/Rules/Delete"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Rules/DeleteAlertRule")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return

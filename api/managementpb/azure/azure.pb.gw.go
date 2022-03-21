@@ -111,7 +111,7 @@ func RegisterAzureDatabaseHandlerServer(ctx context.Context, mux *runtime.ServeM
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/azure.v1beta1.AzureDatabase/DiscoverAzureDatabase", runtime.WithHTTPPathPattern("/v1/management/azure/AzureDatabase/Discover"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/azure.v1beta1.AzureDatabase/DiscoverAzureDatabase")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -134,7 +134,7 @@ func RegisterAzureDatabaseHandlerServer(ctx context.Context, mux *runtime.ServeM
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/azure.v1beta1.AzureDatabase/AddAzureDatabase", runtime.WithHTTPPathPattern("/v1/management/azure/AzureDatabase/Add"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/azure.v1beta1.AzureDatabase/AddAzureDatabase")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -196,7 +196,7 @@ func RegisterAzureDatabaseHandlerClient(ctx context.Context, mux *runtime.ServeM
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/azure.v1beta1.AzureDatabase/DiscoverAzureDatabase", runtime.WithHTTPPathPattern("/v1/management/azure/AzureDatabase/Discover"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/azure.v1beta1.AzureDatabase/DiscoverAzureDatabase")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -216,7 +216,7 @@ func RegisterAzureDatabaseHandlerClient(ctx context.Context, mux *runtime.ServeM
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/azure.v1beta1.AzureDatabase/AddAzureDatabase", runtime.WithHTTPPathPattern("/v1/management/azure/AzureDatabase/Add"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/azure.v1beta1.AzureDatabase/AddAzureDatabase")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return

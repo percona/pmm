@@ -356,8 +356,12 @@ swagger:model DetailsItems0
 */
 type DetailsItems0 struct {
 
-	// at type
-	AtType string `json:"@type,omitempty"`
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
 }
 
 // Validate validates this details items0

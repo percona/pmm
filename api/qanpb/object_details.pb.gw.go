@@ -213,7 +213,7 @@ func RegisterObjectDetailsHandlerServer(ctx context.Context, mux *runtime.ServeM
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetMetrics", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetMetrics"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetMetrics")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -236,7 +236,7 @@ func RegisterObjectDetailsHandlerServer(ctx context.Context, mux *runtime.ServeM
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetQueryExample", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetQueryExample"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetQueryExample")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -259,7 +259,7 @@ func RegisterObjectDetailsHandlerServer(ctx context.Context, mux *runtime.ServeM
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetLabels", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetLabels"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetLabels")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -282,7 +282,7 @@ func RegisterObjectDetailsHandlerServer(ctx context.Context, mux *runtime.ServeM
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetQueryPlan", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetQueryPlan"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetQueryPlan")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -305,7 +305,7 @@ func RegisterObjectDetailsHandlerServer(ctx context.Context, mux *runtime.ServeM
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetHistogram", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetHistogram"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetHistogram")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -367,7 +367,7 @@ func RegisterObjectDetailsHandlerClient(ctx context.Context, mux *runtime.ServeM
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetMetrics", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetMetrics"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetMetrics")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -387,7 +387,7 @@ func RegisterObjectDetailsHandlerClient(ctx context.Context, mux *runtime.ServeM
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetQueryExample", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetQueryExample"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetQueryExample")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -407,7 +407,7 @@ func RegisterObjectDetailsHandlerClient(ctx context.Context, mux *runtime.ServeM
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetLabels", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetLabels"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetLabels")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -427,7 +427,7 @@ func RegisterObjectDetailsHandlerClient(ctx context.Context, mux *runtime.ServeM
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetQueryPlan", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetQueryPlan"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetQueryPlan")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -447,7 +447,7 @@ func RegisterObjectDetailsHandlerClient(ctx context.Context, mux *runtime.ServeM
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetHistogram", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetHistogram"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetHistogram")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return

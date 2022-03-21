@@ -179,7 +179,7 @@ func RegisterPXCClustersHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.PXCClusters/GetPXCClusterCredentials", runtime.WithHTTPPathPattern("/v1/management/DBaaS/PXCClusters/GetCredentials"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.PXCClusters/GetPXCClusterCredentials")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -202,7 +202,7 @@ func RegisterPXCClustersHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.PXCClusters/CreatePXCCluster", runtime.WithHTTPPathPattern("/v1/management/DBaaS/PXCCluster/Create"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.PXCClusters/CreatePXCCluster")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -225,7 +225,7 @@ func RegisterPXCClustersHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.PXCClusters/UpdatePXCCluster", runtime.WithHTTPPathPattern("/v1/management/DBaaS/PXCCluster/Update"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.PXCClusters/UpdatePXCCluster")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -248,7 +248,7 @@ func RegisterPXCClustersHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.PXCClusters/GetPXCClusterResources", runtime.WithHTTPPathPattern("/v1/management/DBaaS/PXCCluster/Resources/Get"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.PXCClusters/GetPXCClusterResources")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -310,7 +310,7 @@ func RegisterPXCClustersHandlerClient(ctx context.Context, mux *runtime.ServeMux
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.PXCClusters/GetPXCClusterCredentials", runtime.WithHTTPPathPattern("/v1/management/DBaaS/PXCClusters/GetCredentials"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.PXCClusters/GetPXCClusterCredentials")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -330,7 +330,7 @@ func RegisterPXCClustersHandlerClient(ctx context.Context, mux *runtime.ServeMux
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.PXCClusters/CreatePXCCluster", runtime.WithHTTPPathPattern("/v1/management/DBaaS/PXCCluster/Create"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.PXCClusters/CreatePXCCluster")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -350,7 +350,7 @@ func RegisterPXCClustersHandlerClient(ctx context.Context, mux *runtime.ServeMux
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.PXCClusters/UpdatePXCCluster", runtime.WithHTTPPathPattern("/v1/management/DBaaS/PXCCluster/Update"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.PXCClusters/UpdatePXCCluster")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -370,7 +370,7 @@ func RegisterPXCClustersHandlerClient(ctx context.Context, mux *runtime.ServeMux
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.PXCClusters/GetPXCClusterResources", runtime.WithHTTPPathPattern("/v1/management/DBaaS/PXCCluster/Resources/Get"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.PXCClusters/GetPXCClusterResources")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return

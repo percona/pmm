@@ -77,7 +77,7 @@ func RegisterProfileHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.Profile/GetReport", runtime.WithHTTPPathPattern("/v0/qan/GetReport"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.Profile/GetReport")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -139,7 +139,7 @@ func RegisterProfileHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.Profile/GetReport", runtime.WithHTTPPathPattern("/v0/qan/GetReport"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.Profile/GetReport")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return

@@ -179,7 +179,7 @@ func RegisterTemplatesHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Templates/ListTemplates", runtime.WithHTTPPathPattern("/v1/management/ia/Templates/List"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Templates/ListTemplates")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -202,7 +202,7 @@ func RegisterTemplatesHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Templates/CreateTemplate", runtime.WithHTTPPathPattern("/v1/management/ia/Templates/Create"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Templates/CreateTemplate")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -225,7 +225,7 @@ func RegisterTemplatesHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Templates/UpdateTemplate", runtime.WithHTTPPathPattern("/v1/management/ia/Templates/Update"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Templates/UpdateTemplate")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -248,7 +248,7 @@ func RegisterTemplatesHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Templates/DeleteTemplate", runtime.WithHTTPPathPattern("/v1/management/ia/Templates/Delete"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Templates/DeleteTemplate")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -310,7 +310,7 @@ func RegisterTemplatesHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Templates/ListTemplates", runtime.WithHTTPPathPattern("/v1/management/ia/Templates/List"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Templates/ListTemplates")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -330,7 +330,7 @@ func RegisterTemplatesHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Templates/CreateTemplate", runtime.WithHTTPPathPattern("/v1/management/ia/Templates/Create"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Templates/CreateTemplate")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -350,7 +350,7 @@ func RegisterTemplatesHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Templates/UpdateTemplate", runtime.WithHTTPPathPattern("/v1/management/ia/Templates/Update"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Templates/UpdateTemplate")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -370,7 +370,7 @@ func RegisterTemplatesHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Templates/DeleteTemplate", runtime.WithHTTPPathPattern("/v1/management/ia/Templates/Delete"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Templates/DeleteTemplate")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return

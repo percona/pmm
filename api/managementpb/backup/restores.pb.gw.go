@@ -77,7 +77,7 @@ func RegisterRestoreHistoryHandlerServer(ctx context.Context, mux *runtime.Serve
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.RestoreHistory/ListRestoreHistory", runtime.WithHTTPPathPattern("/v1/management/backup/RestoreHistory/List"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.RestoreHistory/ListRestoreHistory")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -139,7 +139,7 @@ func RegisterRestoreHistoryHandlerClient(ctx context.Context, mux *runtime.Serve
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.RestoreHistory/ListRestoreHistory", runtime.WithHTTPPathPattern("/v1/management/backup/RestoreHistory/List"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.RestoreHistory/ListRestoreHistory")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return

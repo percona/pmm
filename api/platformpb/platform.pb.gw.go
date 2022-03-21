@@ -179,7 +179,7 @@ func RegisterPlatformHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/platform.Platform/Connect", runtime.WithHTTPPathPattern("/v1/Platform/Connect"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/platform.Platform/Connect")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -202,7 +202,7 @@ func RegisterPlatformHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/platform.Platform/Disconnect", runtime.WithHTTPPathPattern("/v1/Platform/Disconnect"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/platform.Platform/Disconnect")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -225,7 +225,7 @@ func RegisterPlatformHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/platform.Platform/SearchOrganizationTickets", runtime.WithHTTPPathPattern("/v1/Platform/SearchOrganizationTickets"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/platform.Platform/SearchOrganizationTickets")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -248,7 +248,7 @@ func RegisterPlatformHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/platform.Platform/SearchOrganizationEntitlements", runtime.WithHTTPPathPattern("/v1/Platform/SearchOrganizationEntitlements"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/platform.Platform/SearchOrganizationEntitlements")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -310,7 +310,7 @@ func RegisterPlatformHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/platform.Platform/Connect", runtime.WithHTTPPathPattern("/v1/Platform/Connect"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/platform.Platform/Connect")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -330,7 +330,7 @@ func RegisterPlatformHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/platform.Platform/Disconnect", runtime.WithHTTPPathPattern("/v1/Platform/Disconnect"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/platform.Platform/Disconnect")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -350,7 +350,7 @@ func RegisterPlatformHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/platform.Platform/SearchOrganizationTickets", runtime.WithHTTPPathPattern("/v1/Platform/SearchOrganizationTickets"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/platform.Platform/SearchOrganizationTickets")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -370,7 +370,7 @@ func RegisterPlatformHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/platform.Platform/SearchOrganizationEntitlements", runtime.WithHTTPPathPattern("/v1/Platform/SearchOrganizationEntitlements"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/platform.Platform/SearchOrganizationEntitlements")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return

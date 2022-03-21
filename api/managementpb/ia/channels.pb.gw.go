@@ -179,7 +179,7 @@ func RegisterChannelsHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Channels/ListChannels", runtime.WithHTTPPathPattern("/v1/management/ia/Channels/List"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Channels/ListChannels")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -202,7 +202,7 @@ func RegisterChannelsHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Channels/AddChannel", runtime.WithHTTPPathPattern("/v1/management/ia/Channels/Add"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Channels/AddChannel")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -225,7 +225,7 @@ func RegisterChannelsHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Channels/ChangeChannel", runtime.WithHTTPPathPattern("/v1/management/ia/Channels/Change"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Channels/ChangeChannel")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -248,7 +248,7 @@ func RegisterChannelsHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Channels/RemoveChannel", runtime.WithHTTPPathPattern("/v1/management/ia/Channels/Remove"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Channels/RemoveChannel")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -310,7 +310,7 @@ func RegisterChannelsHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Channels/ListChannels", runtime.WithHTTPPathPattern("/v1/management/ia/Channels/List"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Channels/ListChannels")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -330,7 +330,7 @@ func RegisterChannelsHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Channels/AddChannel", runtime.WithHTTPPathPattern("/v1/management/ia/Channels/Add"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Channels/AddChannel")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -350,7 +350,7 @@ func RegisterChannelsHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Channels/ChangeChannel", runtime.WithHTTPPathPattern("/v1/management/ia/Channels/Change"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Channels/ChangeChannel")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -370,7 +370,7 @@ func RegisterChannelsHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Channels/RemoveChannel", runtime.WithHTTPPathPattern("/v1/management/ia/Channels/Remove"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Channels/RemoveChannel")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return

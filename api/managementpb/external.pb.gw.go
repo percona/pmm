@@ -77,7 +77,7 @@ func RegisterExternalHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/management.External/AddExternal", runtime.WithHTTPPathPattern("/v1/management/External/Add"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/management.External/AddExternal")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -139,7 +139,7 @@ func RegisterExternalHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/management.External/AddExternal", runtime.WithHTTPPathPattern("/v1/management/External/Add"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/management.External/AddExternal")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return

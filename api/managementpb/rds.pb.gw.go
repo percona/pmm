@@ -111,7 +111,7 @@ func RegisterRDSHandlerServer(ctx context.Context, mux *runtime.ServeMux, server
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/management.RDS/DiscoverRDS", runtime.WithHTTPPathPattern("/v1/management/RDS/Discover"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/management.RDS/DiscoverRDS")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -134,7 +134,7 @@ func RegisterRDSHandlerServer(ctx context.Context, mux *runtime.ServeMux, server
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/management.RDS/AddRDS", runtime.WithHTTPPathPattern("/v1/management/RDS/Add"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/management.RDS/AddRDS")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -196,7 +196,7 @@ func RegisterRDSHandlerClient(ctx context.Context, mux *runtime.ServeMux, client
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/management.RDS/DiscoverRDS", runtime.WithHTTPPathPattern("/v1/management/RDS/Discover"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/management.RDS/DiscoverRDS")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -216,7 +216,7 @@ func RegisterRDSHandlerClient(ctx context.Context, mux *runtime.ServeMux, client
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/management.RDS/AddRDS", runtime.WithHTTPPathPattern("/v1/management/RDS/Add"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/management.RDS/AddRDS")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return

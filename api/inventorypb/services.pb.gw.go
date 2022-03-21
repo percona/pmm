@@ -349,7 +349,7 @@ func RegisterServicesHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Services/ListServices", runtime.WithHTTPPathPattern("/v1/inventory/Services/List"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Services/ListServices")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -372,7 +372,7 @@ func RegisterServicesHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Services/GetService", runtime.WithHTTPPathPattern("/v1/inventory/Services/Get"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Services/GetService")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -395,7 +395,7 @@ func RegisterServicesHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Services/AddMySQLService", runtime.WithHTTPPathPattern("/v1/inventory/Services/AddMySQL"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Services/AddMySQLService")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -418,7 +418,7 @@ func RegisterServicesHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Services/AddMongoDBService", runtime.WithHTTPPathPattern("/v1/inventory/Services/AddMongoDB"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Services/AddMongoDBService")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -441,7 +441,7 @@ func RegisterServicesHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Services/AddPostgreSQLService", runtime.WithHTTPPathPattern("/v1/inventory/Services/AddPostgreSQL"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Services/AddPostgreSQLService")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -464,7 +464,7 @@ func RegisterServicesHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Services/AddProxySQLService", runtime.WithHTTPPathPattern("/v1/inventory/Services/AddProxySQL"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Services/AddProxySQLService")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -487,7 +487,7 @@ func RegisterServicesHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Services/AddHAProxyService", runtime.WithHTTPPathPattern("/v1/inventory/Services/AddHAProxyService"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Services/AddHAProxyService")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -510,7 +510,7 @@ func RegisterServicesHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Services/AddExternalService", runtime.WithHTTPPathPattern("/v1/inventory/Services/AddExternalService"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Services/AddExternalService")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -533,7 +533,7 @@ func RegisterServicesHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Services/RemoveService", runtime.WithHTTPPathPattern("/v1/inventory/Services/Remove"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Services/RemoveService")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -595,7 +595,7 @@ func RegisterServicesHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Services/ListServices", runtime.WithHTTPPathPattern("/v1/inventory/Services/List"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Services/ListServices")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -615,7 +615,7 @@ func RegisterServicesHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Services/GetService", runtime.WithHTTPPathPattern("/v1/inventory/Services/Get"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Services/GetService")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -635,7 +635,7 @@ func RegisterServicesHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Services/AddMySQLService", runtime.WithHTTPPathPattern("/v1/inventory/Services/AddMySQL"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Services/AddMySQLService")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -655,7 +655,7 @@ func RegisterServicesHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Services/AddMongoDBService", runtime.WithHTTPPathPattern("/v1/inventory/Services/AddMongoDB"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Services/AddMongoDBService")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -675,7 +675,7 @@ func RegisterServicesHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Services/AddPostgreSQLService", runtime.WithHTTPPathPattern("/v1/inventory/Services/AddPostgreSQL"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Services/AddPostgreSQLService")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -695,7 +695,7 @@ func RegisterServicesHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Services/AddProxySQLService", runtime.WithHTTPPathPattern("/v1/inventory/Services/AddProxySQL"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Services/AddProxySQLService")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -715,7 +715,7 @@ func RegisterServicesHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Services/AddHAProxyService", runtime.WithHTTPPathPattern("/v1/inventory/Services/AddHAProxyService"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Services/AddHAProxyService")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -735,7 +735,7 @@ func RegisterServicesHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Services/AddExternalService", runtime.WithHTTPPathPattern("/v1/inventory/Services/AddExternalService"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Services/AddExternalService")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -755,7 +755,7 @@ func RegisterServicesHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Services/RemoveService", runtime.WithHTTPPathPattern("/v1/inventory/Services/Remove"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Services/RemoveService")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
