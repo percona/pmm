@@ -112,6 +112,12 @@ message OrganizationEntitlement {
   Platform platform = 11;
 }
 
+message StatusRequest {}
+
+message StatusResponse {
+  bool connected = 1;
+}
+
 // Platform contains rpcs related to Percona Platform.
 service Platform {
   // Connect a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.
@@ -156,6 +162,17 @@ service Platform {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "SearchOrganizationEntitlements"
       description: "SearchOrganizationEntitlements fetches details of the entitlement's available to the Portal organization that the PMM server is connected to."
+    };
+  }
+  // Status returns a boolean indicating whether the PMM server is connected to Percona Platform or not.
+  rpc Status(StatusRequest) returns (StatusResponse) {
+    option (google.api.http) = {
+      post: "/v1/Platform/Status"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Status"
+      description: "Status returns a boolean indicating whether the PMM server is connected to Percona Platform or not. This endpoint can be accessed by all user roles."
     };
   }
 }

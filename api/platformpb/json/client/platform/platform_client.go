@@ -33,6 +33,8 @@ type ClientService interface {
 
 	SearchOrganizationTickets(params *SearchOrganizationTicketsParams) (*SearchOrganizationTicketsOK, error)
 
+	Status(params *StatusParams) (*StatusOK, error)
+
 	SetTransport(transport runtime.ClientTransport)
 }
 
@@ -173,6 +175,41 @@ func (a *Client) SearchOrganizationTickets(params *SearchOrganizationTicketsPara
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*SearchOrganizationTicketsDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  Status statuses
+
+  Status returns a boolean indicating whether the PMM server is connected to Percona Platform or not. This endpoint can be accessed by all user roles.
+*/
+func (a *Client) Status(params *StatusParams) (*StatusOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewStatusParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "Status",
+		Method:             "POST",
+		PathPattern:        "/v1/Platform/Status",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &StatusReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*StatusOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*StatusDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

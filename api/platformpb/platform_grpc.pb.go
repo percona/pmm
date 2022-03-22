@@ -30,6 +30,8 @@ type PlatformClient interface {
 	SearchOrganizationTickets(ctx context.Context, in *SearchOrganizationTicketsRequest, opts ...grpc.CallOption) (*SearchOrganizationTicketsResponse, error)
 	// SearchOrganizationEntitlements fetches details of the entitlement's available to the Portal organization that the PMM server is connected to.
 	SearchOrganizationEntitlements(ctx context.Context, in *SearchOrganizationEntitlementsRequest, opts ...grpc.CallOption) (*SearchOrganizationEntitlementsResponse, error)
+	// Status returns a boolean indicating whether the PMM server is connected to Percona Platform or not.
+	Status(ctx context.Context, in *StatusRequest, opts ...grpc.CallOption) (*StatusResponse, error)
 }
 
 type platformClient struct {
@@ -76,6 +78,15 @@ func (c *platformClient) SearchOrganizationEntitlements(ctx context.Context, in 
 	return out, nil
 }
 
+func (c *platformClient) Status(ctx context.Context, in *StatusRequest, opts ...grpc.CallOption) (*StatusResponse, error) {
+	out := new(StatusResponse)
+	err := c.cc.Invoke(ctx, "/platform.Platform/Status", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PlatformServer is the server API for Platform service.
 // All implementations must embed UnimplementedPlatformServer
 // for forward compatibility
@@ -88,6 +99,8 @@ type PlatformServer interface {
 	SearchOrganizationTickets(context.Context, *SearchOrganizationTicketsRequest) (*SearchOrganizationTicketsResponse, error)
 	// SearchOrganizationEntitlements fetches details of the entitlement's available to the Portal organization that the PMM server is connected to.
 	SearchOrganizationEntitlements(context.Context, *SearchOrganizationEntitlementsRequest) (*SearchOrganizationEntitlementsResponse, error)
+	// Status returns a boolean indicating whether the PMM server is connected to Percona Platform or not.
+	Status(context.Context, *StatusRequest) (*StatusResponse, error)
 	mustEmbedUnimplementedPlatformServer()
 }
 
@@ -106,6 +119,9 @@ func (UnimplementedPlatformServer) SearchOrganizationTickets(context.Context, *S
 }
 func (UnimplementedPlatformServer) SearchOrganizationEntitlements(context.Context, *SearchOrganizationEntitlementsRequest) (*SearchOrganizationEntitlementsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SearchOrganizationEntitlements not implemented")
+}
+func (UnimplementedPlatformServer) Status(context.Context, *StatusRequest) (*StatusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Status not implemented")
 }
 func (UnimplementedPlatformServer) mustEmbedUnimplementedPlatformServer() {}
 
@@ -192,6 +208,24 @@ func _Platform_SearchOrganizationEntitlements_Handler(srv interface{}, ctx conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Platform_Status_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StatusRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PlatformServer).Status(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/platform.Platform/Status",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PlatformServer).Status(ctx, req.(*StatusRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Platform_ServiceDesc is the grpc.ServiceDesc for Platform service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -214,6 +248,10 @@ var Platform_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SearchOrganizationEntitlements",
 			Handler:    _Platform_SearchOrganizationEntitlements_Handler,
+		},
+		{
+			MethodName: "Status",
+			Handler:    _Platform_Status_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

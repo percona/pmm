@@ -126,3 +126,9 @@ func (this *OrganizationEntitlement_Platform) Validate() error {
 	}
 	return nil
 }
+func (this *StatusRequest) Validate() error {
+	return nil
+}
+func (this *StatusResponse) Validate() error {
+	return nil
+}
