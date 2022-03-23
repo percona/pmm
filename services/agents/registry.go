@@ -198,11 +198,7 @@ func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, 
 		return nil, err
 	}
 
-	r.rw.Lock()
-	defer r.rw.Unlock()
-
-	// do not use r.get() - r.rw is already locked
-	if agent := r.agents[agentMD.ID]; agent != nil {
+	if r.IsConnected(agentMD.ID) {
 		// pmm-agent with the same ID can still be connected in two cases:
 		//   1. Someone uses the same ID by mistake, glitch, or malicious intent.
 		//   2. pmm-agent detects broken connection and reconnects,
@@ -211,6 +207,8 @@ func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, 
 		l.Warnf("Another pmm-agent with ID %q is already connected.", agentMD.ID)
 		r.Kick(ctx, agentMD.ID)
 	}
+	r.rw.Lock()
+	defer r.rw.Unlock()
 
 	agent := &pmmAgentInfo{
 		channel:         channel.New(stream),
