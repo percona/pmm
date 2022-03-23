@@ -32,17 +32,17 @@
 - name: Import clickhouse repo GPG key
   rpm_key:
     state: present
-    key: "https://repo.clickhouse.tech/CLICKHOUSE-KEY.GPG"
+    key: "https://repo.clickhouse.com/CLICKHOUSE-KEY.GPG"
 
 - name: Install clickhouse repo
   yum_repository:
     name: clickhouse
     file: clickhouse
     description: "Clickhouse repo"
-    baseurl: "https://repo.clickhouse.tech/rpm/stable/x86_64/"
+    baseurl: "https://repo.clickhouse.com/rpm/stable/x86_64/"
     enabled: no
     gpgcheck: 1
-    gpgkey: "https://repo.clickhouse.tech/CLICKHOUSE-KEY.GPG"
+    gpgkey: "https://repo.clickhouse.com/CLICKHOUSE-KEY.GPG"
 
 - name: Install clickhouse package
   yum:
