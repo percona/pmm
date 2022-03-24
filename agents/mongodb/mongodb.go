@@ -20,6 +20,7 @@ import (
 	"context"
 
 	"github.com/percona/pmm/api/inventorypb"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/x/mongo/driver/connstring"
 
@@ -106,3 +107,18 @@ type Profiler interface {
 	Start() error
 	Stop() error
 }
+
+// Describe implements prometheus.Collector.
+func (m *MongoDB) Describe(ch chan<- *prometheus.Desc) {
+	// This method is needed to satisfy interface.
+}
+
+// Collect implement prometheus.Collector.
+func (m *MongoDB) Collect(ch chan<- prometheus.Metric) {
+	// This method is needed to satisfy interface.
+}
+
+// check interfaces
+var (
+	_ prometheus.Collector = (*MongoDB)(nil)
+)

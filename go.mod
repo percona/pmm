@@ -2,26 +2,31 @@ module github.com/percona/pmm-agent
 
 go 1.17
 
+// Use for local development, but do not commit:
+// replace github.com/percona/pmm => ../pmm
+
+// Update depedencies with:
+// go get -v github.com/percona/pmm@main
+
 replace gopkg.in/alecthomas/kingpin.v2 => github.com/Percona-Lab/kingpin v2.2.6-percona+incompatible
 
 replace github.com/lfittl/pg_query_go v1.0.2 => github.com/Percona-Lab/pg_query_go v1.0.1-0.20190723081422-3fc3af54a6f7
 
-//replace "github.com/percona/pmm" => "../pmm"
-
 require (
 	github.com/AlekSi/pointer v1.1.0
+	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/davecgh/go-spew v1.1.1
 	github.com/go-openapi/runtime v0.19.20
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/golang/protobuf v1.4.3
-	github.com/grpc-ecosystem/grpc-gateway v1.16.0
+	github.com/grpc-ecosystem/grpc-gateway v1.15.1
 	github.com/hashicorp/go-version v1.3.0
 	github.com/lfittl/pg_query_go v1.0.2
 	github.com/lib/pq v1.10.0
 	github.com/percona/exporter_shared v0.7.3
 	github.com/percona/go-mysql v0.0.0-20200630114833-b77f37c0bfa2
 	github.com/percona/percona-toolkit v3.2.1+incompatible
-	github.com/percona/pmm v0.0.0-20220307112626-1d9999207125
+	github.com/percona/pmm v0.0.0-20220310104949-dd33560bcdde
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.5.1
 	github.com/prometheus/common v0.10.0
@@ -31,7 +36,7 @@ require (
 	go.mongodb.org/mongo-driver v1.7.1
 	golang.org/x/sys v0.0.0-20200724161237-0e2f3a69832c
 	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013
-	google.golang.org/grpc v1.33.1
+	google.golang.org/grpc v1.32.0
 	google.golang.org/protobuf v1.25.0
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/reform.v1 v1.5.0
@@ -39,7 +44,6 @@ require (
 )
 
 require (
-	github.com/DATA-DOG/go-sqlmock v1.5.0 // indirect
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751 // indirect
@@ -75,7 +79,7 @@ require (
 	github.com/xdg-go/stringprep v1.0.2 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20181117223130-1be2e3e5546d // indirect
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9 // indirect
-	golang.org/x/net v0.0.0-20200822124328-c89045814202 // indirect
+	golang.org/x/net v0.0.0-20200707034311-ab3426394381 // indirect
 	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a // indirect
 	golang.org/x/text v0.3.5 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect

@@ -124,27 +124,27 @@ func TestAgentRequestWithTruncatedInvalidUTF8(t *testing.T) {
 	}
 	channel, _, teardown := setup(t, connect, status.Error(codes.Internal, `grpc: error while marshaling: string field contains invalid UTF-8`))
 	defer teardown()
-	var rq agentpb.QANCollectRequest
-	rq.MetricsBucket = []*agentpb.MetricsBucket{{
+	var request agentpb.QANCollectRequest
+	request.MetricsBucket = []*agentpb.MetricsBucket{{
 		Common: &agentpb.MetricsBucket_Common{
 			Fingerprint: fingerprint,
 			Example:     query,
 		},
 		Mysql: &agentpb.MetricsBucket_MySQL{},
 	}}
-	resp, err := channel.SendAndWaitResponse(&rq)
+	resp, err := channel.SendAndWaitResponse(&request)
 	require.NoError(t, err)
 	assert.NotNil(t, resp)
 
 	// Testing that it was failing with invalid query
-	rq.MetricsBucket = []*agentpb.MetricsBucket{{
+	request.MetricsBucket = []*agentpb.MetricsBucket{{
 		Common: &agentpb.MetricsBucket_Common{
 			Fingerprint: fingerprint,
 			Example:     invalidQuery,
 		},
 		Mysql: &agentpb.MetricsBucket_MySQL{},
 	}}
-	resp, err = channel.SendAndWaitResponse(&rq)
+	resp, err = channel.SendAndWaitResponse(&request)
 	require.NoError(t, err)
 	assert.Nil(t, resp)
 }

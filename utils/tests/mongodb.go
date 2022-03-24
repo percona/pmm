@@ -31,12 +31,19 @@ import (
 // GetTestMongoDBDSN returns DNS for MongoDB test database.
 func GetTestMongoDBDSN(tb testing.TB) string {
 	tb.Helper()
-
 	if testing.Short() {
 		tb.Skip("-short flag is passed, skipping test with real database.")
 	}
-
 	return "mongodb://root:root-password@127.0.0.1:27017/admin"
+}
+
+// GetTestMongoDBReplicatedDSN returns DNS for replicated MongoDB test database.
+func GetTestMongoDBReplicatedDSN(tb testing.TB) string {
+	tb.Helper()
+	if testing.Short() {
+		tb.Skip("-short flag is passed, skipping test with real database.")
+	}
+	return "mongodb://127.0.0.1:27020,127.0.0.1:27021/admin?replicaSet=rs0"
 }
 
 // GetTestMongoDBWithSSLDSN returns DNS template and files for MongoDB test database with ssl.
@@ -53,6 +60,33 @@ func GetTestMongoDBWithSSLDSN(tb testing.TB, pathToRoot string) (string, *agentp
 	require.NoError(tb, err)
 
 	certificateKey, err := ioutil.ReadFile(filepath.Join(pathToRoot, "utils/tests/testdata/", "mongodb/", "client.pem"))
+	require.NoError(tb, err)
+
+	return dsn, &agentpb.TextFiles{
+		Files: map[string]string{
+			"caFilePlaceholder":             string(caFile),
+			"certificateKeyFilePlaceholder": string(certificateKey),
+		},
+		TemplateLeftDelim:  "{{",
+		TemplateRightDelim: "}}",
+	}
+}
+
+// GetTestMongoDBReplicatedWithSSLDSN returns DNS template and files for replicated MongoDB test database with ssl.
+func GetTestMongoDBReplicatedWithSSLDSN(tb testing.TB, pathToRoot string) (string, *agentpb.TextFiles) {
+	tb.Helper()
+
+	if testing.Short() {
+		tb.Skip("-short flag is passed, skipping test with real database.")
+	}
+
+	dsn := "mongodb://localhost:27022,localhost:27023/admin/?ssl=true&tlsCaFile=" +
+		"{{.TextFiles.caFilePlaceholder}}&tlsCertificateKeyFile={{.TextFiles.certificateKeyFilePlaceholder}}"
+
+	caFile, err := ioutil.ReadFile(filepath.Join(filepath.Clean(pathToRoot), "utils/tests/testdata/", "mongodb/", "ca.crt"))
+	require.NoError(tb, err)
+
+	certificateKey, err := ioutil.ReadFile(filepath.Join(filepath.Clean(pathToRoot), "utils/tests/testdata/", "mongodb/", "client.pem"))
 	require.NoError(tb, err)
 
 	return dsn, &agentpb.TextFiles{

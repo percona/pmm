@@ -44,7 +44,10 @@ func setup(t *testing.T, db *reform.DB) *PGStatStatementsQAN {
 	_, err := db.Exec(selectQuery + "pg_stat_statements_reset()")
 	require.NoError(t, err)
 
-	return newPgStatStatementsQAN(db.WithTag(queryTag), nil, "agent_id", logrus.WithField("test", t.Name()))
+	p, err := newPgStatStatementsQAN(db.WithTag(queryTag), nil, "agent_id", logrus.WithField("test", t.Name()))
+	require.NoError(t, err)
+
+	return p
 }
 
 // filter removes buckets for queries that are not expected by tests.

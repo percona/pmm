@@ -101,6 +101,8 @@ func TestImports(t *testing.T) {
 
 	constraints := make(map[string]constraint)
 
+	agentsUsingCache := []string{"/perfschema", "/pgstatstatements"}
+
 	// agents code should be independent
 	for _, a := range []string{
 		"github.com/percona/pmm-agent/agents/mongodb",
@@ -110,6 +112,7 @@ func TestImports(t *testing.T) {
 		"github.com/percona/pmm-agent/agents/postgres/pgstatmonitor",
 		"github.com/percona/pmm-agent/agents/postgres/pgstatstatements",
 		"github.com/percona/pmm-agent/agents/process",
+		"github.com/percona/pmm-agent/agents/cache",
 	} {
 		c := constraint{
 			denyPrefixes: []string{
@@ -124,6 +127,13 @@ func TestImports(t *testing.T) {
 		if strings.HasSuffix(a, "/pgstatstatements") {
 			c.allowPrefixes = []string{
 				"github.com/percona/pmm-agent/agents/postgres/parser",
+			}
+		}
+
+		// allows agents to use cache
+		for _, cachedAgent := range agentsUsingCache {
+			if strings.HasSuffix(a, cachedAgent) {
+				c.allowPrefixes = append(c.allowPrefixes, "github.com/percona/pmm-agent/agents/cache")
 			}
 		}
 

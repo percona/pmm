@@ -187,7 +187,8 @@ func setup(t *testing.T, sp *setupParams) *PerfSchema {
 		LogEntry:             logrus.WithField("test", t.Name()),
 	}
 
-	p := newPerfSchema(newParams)
+	p, err := newPerfSchema(newParams)
+	require.NoError(t, err)
 	require.NoError(t, p.refreshHistoryCache())
 	return p
 }

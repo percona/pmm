@@ -4,6 +4,7 @@ digraph packages {
 	"/agents/mongodb" -> "/agents/mongodb/internal/profiler";
 	"/agents/mongodb" -> "/agents/mongodb/internal/report";
 	"/agents/mysql/perfschema" -> "/agents";
+	"/agents/mysql/perfschema" -> "/agents/cache";
 	"/agents/mysql/perfschema" -> "/tlshelpers";
 	"/agents/mysql/slowlog" -> "/agents";
 	"/agents/mysql/slowlog" -> "/agents/mysql/slowlog/parser";
@@ -11,6 +12,7 @@ digraph packages {
 	"/agents/noop" -> "/agents";
 	"/agents/postgres/pgstatmonitor" -> "/agents";
 	"/agents/postgres/pgstatstatements" -> "/agents";
+	"/agents/postgres/pgstatstatements" -> "/agents/cache";
 	"/agents/postgres/pgstatstatements" -> "/agents/postgres/parser";
 	"/agents/supervisor" -> "/agents";
 	"/agents/supervisor" -> "/agents/mongodb";

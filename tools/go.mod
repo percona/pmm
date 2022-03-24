@@ -8,7 +8,7 @@ require (
 	github.com/reviewdog/reviewdog v0.13.1
 	github.com/vektra/mockery v1.1.2
 	golang.org/x/perf v0.0.0-20211012211434-03971e389cd3
-	golang.org/x/tools v0.1.9
+	golang.org/x/tools v0.1.10
 	gopkg.in/reform.v1 v1.5.1
 )
 
@@ -180,7 +180,7 @@ require (
 	go.opencensus.io v0.23.0 // indirect
 	golang.org/x/build v0.0.0-20220201010333-015a2a0c58f3 // indirect
 	golang.org/x/crypto v0.0.0-20220131195533-30dcbda58838 // indirect
-	golang.org/x/mod v0.5.1 // indirect
+	golang.org/x/mod v0.6.0-dev.0.20220106191415-9b9b3d81d5e3 // indirect
 	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd // indirect
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect

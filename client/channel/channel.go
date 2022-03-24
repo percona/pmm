@@ -37,7 +37,7 @@ const (
 	prometheusSubsystem = "channel"
 )
 
-// ServerRequest represents an request from server.
+// ServerRequest represents a request from server.
 // It is similar to agentpb.ServerMessage except it can contain only requests,
 // and the payload is already unwrapped (XXX instead of ServerMessage_XXX).
 type ServerRequest struct {
