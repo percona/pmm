@@ -6194,17 +6194,47 @@
                     "description": "CheckResultSummary is a summary of check results.",
                     "type": "object",
                     "properties": {
-                      "critical_count": {
+                      "alert_count": {
+                        "description": "Number of failed checks for this service with severity level \"ALERT\".",
                         "type": "integer",
                         "format": "int64",
-                        "title": "Number of failed checks for this service that are critical",
-                        "x-order": 2
+                        "x-order": 4
                       },
-                      "major_count": {
+                      "critical_count": {
+                        "description": "Number of failed checks for this service with severity level \"CRITICAL\".",
                         "type": "integer",
                         "format": "int64",
-                        "title": "Number of failed checks for this service that are major",
+                        "x-order": 5
+                      },
+                      "debug_count": {
+                        "description": "Number of failed checks for this service with severity level \"DEBUG\".",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 10
+                      },
+                      "emergency_count": {
+                        "description": "Number of failed checks for this service with severity level \"EMERGENCY\".",
+                        "type": "integer",
+                        "format": "int64",
                         "x-order": 3
+                      },
+                      "error_count": {
+                        "description": "Number of failed checks for this service with severity level \"ERROR\".",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 6
+                      },
+                      "info_count": {
+                        "description": "Number of failed checks for this service with severity level \"INFO\".",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 9
+                      },
+                      "notice_count": {
+                        "description": "Number of failed checks for this service with severity level \"NOTICE\".",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 8
                       },
                       "service_id": {
                         "type": "string",
@@ -6214,11 +6244,17 @@
                         "type": "string",
                         "x-order": 0
                       },
-                      "trivial_count": {
+                      "unknown_count": {
+                        "description": "Number of failed checks for this service with unknown severity level.",
                         "type": "integer",
                         "format": "int64",
-                        "title": "Number of failed checks for this service that are trivial",
-                        "x-order": 4
+                        "x-order": 2
+                      },
+                      "warning_count": {
+                        "description": "Number of failed checks for this service with severity level \"WARNING\".",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 7
                       }
                     }
                   },

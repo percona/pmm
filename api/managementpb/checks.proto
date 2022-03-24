@@ -33,12 +33,24 @@ message SecurityCheckResult {
 message CheckResultSummary {
   string service_name = 1;
   string service_id = 2;
-  // Number of failed checks for this service that are critical
-  uint32 critical_count = 3;
-  // Number of failed checks for this service that are major
-  uint32 major_count = 4;
-  // Number of failed checks for this service that are trivial
-  uint32 trivial_count = 5;
+  // Number of failed checks for this service with unknown severity level.
+  uint32 unknown_count = 3;
+  // Number of failed checks for this service with severity level "EMERGENCY".
+  uint32 emergency_count = 4;
+  // Number of failed checks for this service with severity level "ALERT".
+  uint32 alert_count = 5;
+  // Number of failed checks for this service with severity level "CRITICAL".
+  uint32 critical_count = 6;
+  // Number of failed checks for this service with severity level "ERROR".
+  uint32 error_count = 7;
+  // Number of failed checks for this service with severity level "WARNING".
+  uint32 warning_count = 8;
+  // Number of failed checks for this service with severity level "NOTICE".
+  uint32 notice_count = 9;
+  // Number of failed checks for this service with severity level "INFO".
+  uint32 info_count = 10;
+  // Number of failed checks for this service with severity level "DEBUG".
+  uint32 debug_count = 11;
 }
 
 // CheckResult represents the check results for a given service.

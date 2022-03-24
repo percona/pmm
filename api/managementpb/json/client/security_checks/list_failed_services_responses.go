@@ -269,14 +269,32 @@ type ResultItems0 struct {
 	// service id
 	ServiceID string `json:"service_id,omitempty"`
 
-	// Number of failed checks for this service that are critical
+	// Number of failed checks for this service with unknown severity level.
+	UnknownCount int64 `json:"unknown_count,omitempty"`
+
+	// Number of failed checks for this service with severity level "EMERGENCY".
+	EmergencyCount int64 `json:"emergency_count,omitempty"`
+
+	// Number of failed checks for this service with severity level "ALERT".
+	AlertCount int64 `json:"alert_count,omitempty"`
+
+	// Number of failed checks for this service with severity level "CRITICAL".
 	CriticalCount int64 `json:"critical_count,omitempty"`
 
-	// Number of failed checks for this service that are major
-	MajorCount int64 `json:"major_count,omitempty"`
+	// Number of failed checks for this service with severity level "ERROR".
+	ErrorCount int64 `json:"error_count,omitempty"`
 
-	// Number of failed checks for this service that are trivial
-	TrivialCount int64 `json:"trivial_count,omitempty"`
+	// Number of failed checks for this service with severity level "WARNING".
+	WarningCount int64 `json:"warning_count,omitempty"`
+
+	// Number of failed checks for this service with severity level "NOTICE".
+	NoticeCount int64 `json:"notice_count,omitempty"`
+
+	// Number of failed checks for this service with severity level "INFO".
+	InfoCount int64 `json:"info_count,omitempty"`
+
+	// Number of failed checks for this service with severity level "DEBUG".
+	DebugCount int64 `json:"debug_count,omitempty"`
 }
 
 // Validate validates this result items0
