@@ -6,7 +6,6 @@ require (
 	github.com/BurntSushi/go-sumtype v0.0.0-20190304192233-fcb4a6205bdc
 	github.com/go-delve/delve v1.8.2
 	github.com/golangci/golangci-lint v1.44.0
-	github.com/kevinburke/go-bindata v3.23.0+incompatible
 	github.com/quasilyte/go-consistent v0.0.0-20200404105227-766526bf1e96
 	github.com/reviewdog/reviewdog v0.14.0
 	github.com/vektra/mockery v1.1.2

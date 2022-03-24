@@ -456,7 +456,7 @@ func TestTemplatesAPI(t *testing.T) {
 			// list rules, so they are all on the first page
 			body := templates.ListTemplatesBody{
 				PageParams: &templates.ListTemplatesParamsBodyPageParams{
-					PageSize: 20,
+					PageSize: 30,
 					Index:    0,
 				},
 			}

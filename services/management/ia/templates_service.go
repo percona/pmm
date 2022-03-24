@@ -21,6 +21,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/fs"
 	"io/ioutil"
 	"net/http"
 	"path/filepath"
@@ -139,7 +140,7 @@ func (s *TemplatesService) getTemplates() map[string]templateInfo {
 }
 
 // CollectTemplates collects IA rule templates from various sources like:
-// builtin templates: read from the generated code in bindata.go.
+// builtin templates: read from the generated variable of type embed.FS
 // SaaS templates: templates downloaded from checks service.
 // user file templates: read from yaml files created by the user in `/srv/ia/templates`
 // user API templates: in the DB created using the API.
@@ -209,16 +210,23 @@ func (s *TemplatesService) CollectTemplates(ctx context.Context) {
 
 // loadTemplatesFromAssets loads built-in alerting rule templates from pmm-managed binary's assets.
 func (s *TemplatesService) loadTemplatesFromAssets(ctx context.Context) ([]alert.Template, error) {
-	paths := data.AssetNames()
-	res := make([]alert.Template, 0, len(paths))
-	for _, path := range paths {
-		if ctx.Err() != nil {
-			return nil, ctx.Err()
+	var res []alert.Template
+	walkDirFunc := func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return errors.Wrapf(err, "error occurred while traversing templates folder: %s", path)
 		}
 
-		data, err := data.Asset(path)
+		if ctx.Err() != nil {
+			return ctx.Err()
+		}
+
+		if d.IsDir() {
+			return nil
+		}
+
+		data, err := fs.ReadFile(data.IATemplates, path)
 		if err != nil {
-			return nil, errors.Wrapf(err, "failed to read rule template asset: %s", path)
+			return errors.Wrapf(err, "failed to read rule template asset: %s", path)
 		}
 
 		// be strict about built-in templates
@@ -228,33 +236,38 @@ func (s *TemplatesService) loadTemplatesFromAssets(ctx context.Context) ([]alert
 		}
 		templates, err := alert.Parse(bytes.NewReader(data), params)
 		if err != nil {
-			return nil, errors.Wrapf(err, "failed to parse rule template asset: %s", path)
+			return errors.Wrapf(err, "failed to parse rule template asset: %s", path)
 		}
 
 		// built-in-specific validations
 		// TODO move to some better / common place
 
 		if l := len(templates); l != 1 {
-			return nil, errors.Errorf("%q should contain exactly one template, got %d", path, l)
+			return errors.Errorf("%q should contain exactly one template, got %d", path, l)
 		}
 
 		t := templates[0]
 
 		filename := filepath.Base(path)
 		if strings.HasPrefix(filename, "pmm_") {
-			return nil, errors.Errorf("%q file name should not start with 'pmm_' prefix", path)
+			return errors.Errorf("%q file name should not start with 'pmm_' prefix", path)
 		}
 		if !strings.HasPrefix(t.Name, "pmm_") {
-			return nil, errors.Errorf("%s %q: template name should start with 'pmm_' prefix", path, t.Name)
+			return errors.Errorf("%s %q: template name should start with 'pmm_' prefix", path, t.Name)
 		}
 		if expected := strings.TrimPrefix(t.Name, "pmm_") + ".yml"; filename != expected {
-			return nil, errors.Errorf("template file name %q should be %q", filename, expected)
+			return errors.Errorf("template file name %q should be %q", filename, expected)
 		}
 		if len(t.Annotations) != 2 || t.Annotations["summary"] == "" || t.Annotations["description"] == "" {
-			return nil, errors.Errorf("%s %q: template should contain exactly two annotations: summary and description", path, t.Name)
+			return errors.Errorf("%s %q: template should contain exactly two annotations: summary and description", path, t.Name)
 		}
 
 		res = append(res, t)
+		return nil
+	}
+	err := fs.WalkDir(data.IATemplates, ".", walkDirFunc)
+	if err != nil {
+		return nil, err
 	}
 	return res, nil
 }
