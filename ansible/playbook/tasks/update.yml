@@ -155,6 +155,13 @@
         exclude:
           - nginx
 
+    - name: Updating vulnerable packages
+      yum:
+        name: "{{ item }}"
+        state: latest
+      loop:
+        - nss
+
     - name: Install nginx
       include_role:
         name: nginx
