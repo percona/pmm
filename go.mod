@@ -18,28 +18,28 @@ require (
 	github.com/davecgh/go-spew v1.1.1
 	github.com/go-openapi/runtime v0.19.20
 	github.com/go-sql-driver/mysql v1.5.0
-	github.com/golang/protobuf v1.4.3
-	github.com/grpc-ecosystem/grpc-gateway v1.15.1
+	github.com/golang/protobuf v1.5.2
+	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/hashicorp/go-version v1.3.0
 	github.com/lfittl/pg_query_go v1.0.2
 	github.com/lib/pq v1.10.0
 	github.com/percona/exporter_shared v0.7.3
 	github.com/percona/go-mysql v0.0.0-20200630114833-b77f37c0bfa2
 	github.com/percona/percona-toolkit v3.2.1+incompatible
-	github.com/percona/pmm v0.0.0-20220310104949-dd33560bcdde
+	github.com/percona/pmm v0.0.0-20220324201937-e5a13271766f
 	github.com/pkg/errors v0.9.1
-	github.com/prometheus/client_golang v1.5.1
-	github.com/prometheus/common v0.10.0
+	github.com/prometheus/client_golang v1.12.1
+	github.com/prometheus/common v0.32.1
 	github.com/sirupsen/logrus v1.6.0
 	github.com/stretchr/objx v0.2.0
-	github.com/stretchr/testify v1.6.1
+	github.com/stretchr/testify v1.7.1
 	go.mongodb.org/mongo-driver v1.7.1
-	golang.org/x/sys v0.0.0-20200724161237-0e2f3a69832c
-	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013
-	google.golang.org/grpc v1.32.0
-	google.golang.org/protobuf v1.25.0
+	golang.org/x/sys v0.0.0-20220114195835-da31bd327af9
+	google.golang.org/genproto v0.0.0-20220302033224-9aa15565e42a
+	google.golang.org/grpc v1.45.0
+	google.golang.org/protobuf v1.27.1
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
-	gopkg.in/reform.v1 v1.5.0
+	gopkg.in/reform.v1 v1.5.1
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 )
 
@@ -50,7 +50,7 @@ require (
 	github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d // indirect
 	github.com/asaskevich/govalidator v0.0.0-20200428143746-21a406dcc535 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
-	github.com/cespare/xxhash/v2 v2.1.1 // indirect
+	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/go-openapi/analysis v0.19.10 // indirect
 	github.com/go-openapi/errors v0.19.6 // indirect
 	github.com/go-openapi/jsonpointer v0.19.3 // indirect
@@ -73,15 +73,15 @@ require (
 	github.com/mwitkow/go-proto-validators v0.3.2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
-	github.com/prometheus/procfs v0.5.0 // indirect
+	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
 	github.com/xdg-go/scram v1.0.2 // indirect
 	github.com/xdg-go/stringprep v1.0.2 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20181117223130-1be2e3e5546d // indirect
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9 // indirect
-	golang.org/x/net v0.0.0-20200707034311-ab3426394381 // indirect
+	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd // indirect
 	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a // indirect
-	golang.org/x/text v0.3.5 // indirect
+	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
-	gopkg.in/yaml.v2 v2.3.0 // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
