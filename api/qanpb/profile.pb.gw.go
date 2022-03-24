@@ -2,11 +2,11 @@
 // source: qanpb/profile.proto
 
 /*
-Package qanpb is a reverse proxy.
+Package qanv1beta1 is a reverse proxy.
 
 It translates gRPC into RESTful JSON APIs.
 */
-package qanpb
+package qanv1beta1
 
 import (
 	"context"

@@ -4,6 +4,7 @@ package inventory;
 
 option go_package = "api/inventorypb;inventorypb";
 
+import "protoc-gen-openapiv2/options/annotations.proto";
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "inventorypb/agent_status.proto";
@@ -1357,12 +1358,20 @@ service Agents {
       post: "/v1/inventory/Agents/List"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List Agents"
+      description: "Returns a list of all Agents."
+    };
   }
   // GetAgent returns a single Agent by ID.
   rpc GetAgent(GetAgentRequest) returns (GetAgentResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/Get"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get Agent"
+      description: "Returns a single Agent by ID."
     };
   }
   // AddPMMAgent adds pmm-agent Agent.
@@ -1371,12 +1380,20 @@ service Agents {
       post: "/v1/inventory/Agents/AddPMMAgent"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Add PMM Agent"
+      description: "Adds PMM Agent."
+    };
   }
   // AddNodeExporter adds node_exporter Agent.
   rpc AddNodeExporter(AddNodeExporterRequest) returns (AddNodeExporterResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/AddNodeExporter"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Add Node Exporter"
+      description: "Adds node_exporter Agent."
     };
   }
   // ChangeNodeExporter changes node_exporter Agent.
@@ -1385,12 +1402,20 @@ service Agents {
       post: "/v1/inventory/Agents/ChangeNodeExporter"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Change Node Exporter"
+      description: "Changes node_exporter Agent."
+    };
   }
   // AddMySQLdExporter adds mysqld_exporter Agent.
   rpc AddMySQLdExporter(AddMySQLdExporterRequest) returns (AddMySQLdExporterResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/AddMySQLdExporter"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Add mysqld Exporter"
+      description: "Adds mysqld_exporter Agent."
     };
   }
   // ChangeMySQLdExporter changes mysqld_exporter Agent.
@@ -1399,12 +1424,20 @@ service Agents {
       post: "/v1/inventory/Agents/ChangeMySQLdExporter"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Change mysqld Exporter"
+      description: "Changes mysqld_exporter Agent."
+    };
   }
   // AddMongoDBExporter adds mongodb_exporter Agent.
   rpc AddMongoDBExporter(AddMongoDBExporterRequest) returns (AddMongoDBExporterResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/AddMongoDBExporter"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Add MongoDB Exporter"
+      description: "Adds mongodb_exporter Agent."
     };
   }
   // ChangeMongoDBExporter changes mongodb_exporter Agent.
@@ -1413,12 +1446,20 @@ service Agents {
       post: "/v1/inventory/Agents/ChangeMongoDBExporter"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Change MongoDB Exporter"
+      description: "Changes mongodb_exporter Agent."
+    };
   }
   // AddPostgresExporter adds postgres_exporter Agent.
   rpc AddPostgresExporter(AddPostgresExporterRequest) returns (AddPostgresExporterResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/AddPostgresExporter"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Add Postgres Exporter"
+      description: "Adds postgres_exporter Agent."
     };
   }
   // ChangePostgresExporter changes postgres_exporter Agent.
@@ -1427,12 +1468,20 @@ service Agents {
       post: "/v1/inventory/Agents/ChangePostgresExporter"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Change Postgres Exporter"
+      description: "Changes postgres_exporter Agent."
+    };
   }
   // AddProxySQLExporter adds proxysql_exporter Agent.
   rpc AddProxySQLExporter(AddProxySQLExporterRequest) returns (AddProxySQLExporterResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/AddProxySQLExporter"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Add ProxySQL Exporter"
+      description: "Adds proxysql_exporter Agent."
     };
   }
   // ChangeProxySQLExporter changes proxysql_exporter Agent.
@@ -1441,75 +1490,119 @@ service Agents {
       post: "/v1/inventory/Agents/ChangeProxySQLExporter"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Change ProxySQL Exporter"
+      description: "Changes proxysql_exporter Agent."
+    };
   }
-  // AddQANMySQLPerfSchemaAgent adds MySQL PerfSchema QAN Agent.
+  // AddQANMySQLPerfSchemaAgent adds QAN MySQL PerfSchema Agent.
   rpc AddQANMySQLPerfSchemaAgent(AddQANMySQLPerfSchemaAgentRequest) returns (AddQANMySQLPerfSchemaAgentResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/AddQANMySQLPerfSchemaAgent"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Add 'QAN MySQL PerfSchema' Agent"
+      description: "Adds 'Query Analytics MySQL PerfSchema' Agent."
+    };
   }
-  // ChangeQANMySQLPerfSchemaAgent changes MySQL PerfSchema QAN Agent.
+  // ChangeQANMySQLPerfSchemaAgent changes QAN MySQL PerfSchema Agent.
   rpc ChangeQANMySQLPerfSchemaAgent(ChangeQANMySQLPerfSchemaAgentRequest) returns (ChangeQANMySQLPerfSchemaAgentResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/ChangeQANMySQLPerfSchemaAgent"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Change 'QAN MySQL PerfSchema' Agent"
+      description: "Changes 'Query Analytics MySQL PerfSchema' Agent."
+    };
   }
-  // AddQANMySQLSlowlogAgent adds MySQL PerfSchema QAN Agent.
+  // AddQANMySQLSlowlogAgent adds QAN MySQL Slowlog Agent.
   rpc AddQANMySQLSlowlogAgent(AddQANMySQLSlowlogAgentRequest) returns (AddQANMySQLSlowlogAgentResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/AddQANMySQLSlowlogAgent"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Add 'QAN MySQL Slowlog' Agent"
+      description: "Adds 'Query Analytics MySQL Slowlog' Agent."
+    };
   }
-  // ChangeQANMySQLSlowlogAgent changes MySQL PerfSchema QAN Agent.
+  // ChangeQANMySQLSlowlogAgent changes QAN MySQL Slowlog Agent.
   rpc ChangeQANMySQLSlowlogAgent(ChangeQANMySQLSlowlogAgentRequest) returns (ChangeQANMySQLSlowlogAgentResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/ChangeQANMySQLSlowlogAgent"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Change 'QAN MySQL Slowlog' Agent"
+      description: "Changes 'Query Analytics MySQL Slowlog' Agent."
+    };
   }
-  // AddQANMongoDBProfilerAgent adds MongoDB Profiler QAN Agent.
+  // AddQANMongoDBProfilerAgent adds QAN MongoDB Profiler Agent.
   rpc AddQANMongoDBProfilerAgent(AddQANMongoDBProfilerAgentRequest) returns (AddQANMongoDBProfilerAgentResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/AddQANMongoDBProfilerAgent"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Add 'QAN MongoDB Profiler' Agent"
+      description: "Adds 'Query Analytics MongoDB Profiler' Agent."
+    };
   }
-  // ChangeQANMongoDBProfilerAgent changes MongoDB Profiler QAN Agent.
+  // ChangeQANMongoDBProfilerAgent changes QAN MongoDB Profiler Agent.
   rpc ChangeQANMongoDBProfilerAgent(ChangeQANMongoDBProfilerAgentRequest) returns (ChangeQANMongoDBProfilerAgentResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/ChangeQANMongoDBProfilerAgent"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Change 'QAN MongoDB Profiler' Agent"
+      description: "Changes 'Query Analytics MongoDB Profiler' Agent."
+    };
   }
-  // AddQANPostgreSQLPgStatementsAgent adds PostgreSQL Pg Stat Statements QAN Agent.
+  // AddQANPostgreSQLPgStatementsAgent adds QAN PostgreSQL PgStat Statements Agent.
   rpc AddQANPostgreSQLPgStatementsAgent(AddQANPostgreSQLPgStatementsAgentRequest) returns (AddQANPostgreSQLPgStatementsAgentResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/AddQANPostgreSQLPgStatementsAgent"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Add 'QAN PostgreSQL pg_stat_statements' Agent"
+      description: "Adds 'Query Analytics PostgreSQL pg_stat_statements' Agent."
+    };
   }
-  // ChangeQANPostgreSQLPgStatementsAgent changes PostgreSQL Pg Stat Statements QAN Agent.
+  // ChangeQANPostgreSQLPgStatementsAgent changes QAN PostgreSQL PgStat Statements Agent.
   rpc ChangeQANPostgreSQLPgStatementsAgent(ChangeQANPostgreSQLPgStatementsAgentRequest) returns (ChangeQANPostgreSQLPgStatementsAgentResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/ChangeQANPostgreSQLPgStatementsAgent"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Change 'QAN PostgreSQL pg_stat_statements' Agent"
+      description: "Changes 'Query Analytics PostgreSQL pg_stat_statements' Agent."
+    };
   }
-  // AddQANPostgreSQLPgStatMonitorAgent adds PostgreSQL Pg Stat Monitor QAN Agent.
+  // AddQANPostgreSQLPgStatMonitorAgent adds QAN PostgreSQL PgStat Monitor Agent.
   rpc AddQANPostgreSQLPgStatMonitorAgent(AddQANPostgreSQLPgStatMonitorAgentRequest) returns (AddQANPostgreSQLPgStatMonitorAgentResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/AddQANPostgreSQLPgStatMonitorAgent"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Add 'QAN PostgreSQL pg_stat_monitor' Agent"
+      description: "Adds 'Query Analytics PostgreSQL pg_stat_monitor' Agent."
+    };
   }
-  // ChangeQANPostgreSQLPgStatMonitorAgent changes PostgreSQL Pg Stat Monitor QAN Agent.
+  // ChangeQANPostgreSQLPgStatMonitorAgent changes QAN PostgreSQL PgStat Monitor Agent.
   rpc ChangeQANPostgreSQLPgStatMonitorAgent(ChangeQANPostgreSQLPgStatMonitorAgentRequest) returns (ChangeQANPostgreSQLPgStatMonitorAgentResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/ChangeQANPostgreSQLPgStatMonitorAgent"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Change 'QAN PostgreSQL pg_stat_monitor' Agent"
+      description: "Changes 'Query Analytics PostgreSQL pg_stat_monitor' Agent."
     };
   }
   // AddRDSExporter adds rds_exporter Agent.
@@ -1518,12 +1611,20 @@ service Agents {
       post: "/v1/inventory/Agents/AddRDSExporter"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Add RDS Exporter"
+      description: "Adds rds_exporter Agent."
+    };
   }
   // ChangeRDSExporter changes rds_exporter Agent.
   rpc ChangeRDSExporter(ChangeRDSExporterRequest) returns (ChangeRDSExporterResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/ChangeRDSExporter"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Change RDS Exporter"
+      description: "Changes rds_exporter Agent."
     };
   }
   // AddExternalExporter adds external_exporter Agent.
@@ -1532,12 +1633,20 @@ service Agents {
       post: "/v1/inventory/Agents/AddExternalExporter"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Add External Exporter"
+      description: "Adds external_exporter Agent."
+    };
   }
   // ChangeExternalExporter changes external_exporter Agent.
   rpc ChangeExternalExporter(ChangeExternalExporterRequest) returns (ChangeExternalExporterResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/ChangeExternalExporter"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Change External Exporter"
+      description: "Changes external_exporter Agent."
     };
   }
   // AddAzureDatabaseExporter adds azure_database_exporter Agent.
@@ -1546,12 +1655,20 @@ service Agents {
       post: "/v1/inventory/Agents/AddAzureDatabaseExporter"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Add Azure Database Exporter"
+      description: "Adds azure_database_exporter Agent."
+    };
   }
-  // ChangeAzureDatabaseExporter changes_database azure_database_exporter Agent.
+  // ChangeAzureDatabaseExporter changes azure_database_exporter Agent.
   rpc ChangeAzureDatabaseExporter(ChangeAzureDatabaseExporterRequest) returns (ChangeAzureDatabaseExporterResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/ChangeAzureDatabaseExporter"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Change Azure Database Exporter"
+      description: "Changes azure_database_exporter Agent."
     };
   }
   // RemoveAgent removes Agent.
@@ -1559,6 +1676,10 @@ service Agents {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/Remove"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Remove Agent"
+      description: "Removes Agent."
     };
   }
 }

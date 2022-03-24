@@ -2,7 +2,7 @@
 package agentpb
 
 import (
-	"github.com/golang/protobuf/proto"
+	"google.golang.org/protobuf/proto"
 )
 
 //go-sumtype:decl isAgentMessage_Payload
