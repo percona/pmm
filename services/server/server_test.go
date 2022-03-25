@@ -100,6 +100,7 @@ func TestServer(t *testing.T) {
 				"METRICS_RESOLUTION_MR=2s",
 				"METRICS_RESOLUTION_LR=3s",
 				"DATA_RETENTION=240h",
+				"PMM_PUBLIC_ADDRESS=1.2.3.4:5678",
 			})
 			require.Empty(t, errs)
 			assert.Equal(t, true, s.envSettings.DisableUpdates)
@@ -108,6 +109,7 @@ func TestServer(t *testing.T) {
 			assert.Equal(t, 2*time.Second, s.envSettings.MetricsResolutions.MR)
 			assert.Equal(t, 3*time.Second, s.envSettings.MetricsResolutions.LR)
 			assert.Equal(t, 10*24*time.Hour, s.envSettings.DataRetention)
+			assert.Equal(t, "1.2.3.4:5678", s.envSettings.PMMPublicAddress)
 		})
 
 		t.Run("Untypical", func(t *testing.T) {
