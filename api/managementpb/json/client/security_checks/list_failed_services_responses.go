@@ -269,9 +269,6 @@ type ResultItems0 struct {
 	// service id
 	ServiceID string `json:"service_id,omitempty"`
 
-	// Number of failed checks for this service with unknown severity level.
-	UnknownCount int64 `json:"unknown_count,omitempty"`
-
 	// Number of failed checks for this service with severity level "EMERGENCY".
 	EmergencyCount int64 `json:"emergency_count,omitempty"`
 

@@ -6198,43 +6198,43 @@
                         "description": "Number of failed checks for this service with severity level \"ALERT\".",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 4
+                        "x-order": 3
                       },
                       "critical_count": {
                         "description": "Number of failed checks for this service with severity level \"CRITICAL\".",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 5
+                        "x-order": 4
                       },
                       "debug_count": {
                         "description": "Number of failed checks for this service with severity level \"DEBUG\".",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 10
+                        "x-order": 9
                       },
                       "emergency_count": {
                         "description": "Number of failed checks for this service with severity level \"EMERGENCY\".",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 3
+                        "x-order": 2
                       },
                       "error_count": {
                         "description": "Number of failed checks for this service with severity level \"ERROR\".",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 6
+                        "x-order": 5
                       },
                       "info_count": {
                         "description": "Number of failed checks for this service with severity level \"INFO\".",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 9
+                        "x-order": 8
                       },
                       "notice_count": {
                         "description": "Number of failed checks for this service with severity level \"NOTICE\".",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 8
+                        "x-order": 7
                       },
                       "service_id": {
                         "type": "string",
@@ -6244,17 +6244,11 @@
                         "type": "string",
                         "x-order": 0
                       },
-                      "unknown_count": {
-                        "description": "Number of failed checks for this service with unknown severity level.",
-                        "type": "integer",
-                        "format": "int64",
-                        "x-order": 2
-                      },
                       "warning_count": {
                         "description": "Number of failed checks for this service with severity level \"WARNING\".",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 7
+                        "x-order": 6
                       }
                     }
                   },
