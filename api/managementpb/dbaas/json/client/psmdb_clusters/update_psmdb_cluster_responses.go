@@ -185,6 +185,9 @@ swagger:model UpdatePSMDBClusterDefaultBody
 */
 type UpdatePSMDBClusterDefaultBody struct {
 
+	// error
+	Error string `json:"error,omitempty"`
+
 	// code
 	Code int32 `json:"code,omitempty"`
 

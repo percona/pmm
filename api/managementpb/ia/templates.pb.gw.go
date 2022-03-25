@@ -13,8 +13,8 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"github.com/grpc-ecosystem/grpc-gateway/v2/utilities"
+	"github.com/Percona-Lab/grpc-gateway/v2/runtime"
+	"github.com/Percona-Lab/grpc-gateway/v2/utilities"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/grpclog"
@@ -179,12 +179,13 @@ func RegisterTemplatesHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Templates/ListTemplates")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Templates/ListTemplates", runtime.WithHTTPPathPattern("/v1/management/ia/Templates/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Templates_ListTemplates_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Templates_ListTemplates_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -202,12 +203,13 @@ func RegisterTemplatesHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Templates/CreateTemplate")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Templates/CreateTemplate", runtime.WithHTTPPathPattern("/v1/management/ia/Templates/Create"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Templates_CreateTemplate_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Templates_CreateTemplate_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -225,12 +227,13 @@ func RegisterTemplatesHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Templates/UpdateTemplate")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Templates/UpdateTemplate", runtime.WithHTTPPathPattern("/v1/management/ia/Templates/Update"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Templates_UpdateTemplate_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Templates_UpdateTemplate_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -248,12 +251,13 @@ func RegisterTemplatesHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Templates/DeleteTemplate")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Templates/DeleteTemplate", runtime.WithHTTPPathPattern("/v1/management/ia/Templates/Delete"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Templates_DeleteTemplate_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Templates_DeleteTemplate_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -310,12 +314,13 @@ func RegisterTemplatesHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Templates/ListTemplates")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Templates/ListTemplates", runtime.WithHTTPPathPattern("/v1/management/ia/Templates/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Templates_ListTemplates_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Templates_ListTemplates_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -330,12 +335,13 @@ func RegisterTemplatesHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Templates/CreateTemplate")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Templates/CreateTemplate", runtime.WithHTTPPathPattern("/v1/management/ia/Templates/Create"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Templates_CreateTemplate_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Templates_CreateTemplate_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -350,12 +356,13 @@ func RegisterTemplatesHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Templates/UpdateTemplate")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Templates/UpdateTemplate", runtime.WithHTTPPathPattern("/v1/management/ia/Templates/Update"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Templates_UpdateTemplate_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Templates_UpdateTemplate_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -370,12 +377,13 @@ func RegisterTemplatesHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Templates/DeleteTemplate")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Templates/DeleteTemplate", runtime.WithHTTPPathPattern("/v1/management/ia/Templates/Delete"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Templates_DeleteTemplate_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Templates_DeleteTemplate_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)

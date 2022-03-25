@@ -194,6 +194,9 @@ swagger:model AddQANMongoDBProfilerAgentDefaultBody
 */
 type AddQANMongoDBProfilerAgentDefaultBody struct {
 
+	// error
+	Error string `json:"error,omitempty"`
+
 	// code
 	Code int32 `json:"code,omitempty"`
 

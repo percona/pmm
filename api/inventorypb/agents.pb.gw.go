@@ -13,8 +13,8 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"github.com/grpc-ecosystem/grpc-gateway/v2/utilities"
+	"github.com/Percona-Lab/grpc-gateway/v2/runtime"
+	"github.com/Percona-Lab/grpc-gateway/v2/utilities"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/grpclog"
@@ -1063,12 +1063,13 @@ func RegisterAgentsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/ListAgents")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/ListAgents", runtime.WithHTTPPathPattern("/v1/inventory/Agents/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Agents_ListAgents_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Agents_ListAgents_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -1086,12 +1087,13 @@ func RegisterAgentsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/GetAgent")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/GetAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/Get"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Agents_GetAgent_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Agents_GetAgent_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -1109,12 +1111,13 @@ func RegisterAgentsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/AddPMMAgent")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/AddPMMAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddPMMAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Agents_AddPMMAgent_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Agents_AddPMMAgent_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -1132,12 +1135,13 @@ func RegisterAgentsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/AddNodeExporter")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/AddNodeExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddNodeExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Agents_AddNodeExporter_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Agents_AddNodeExporter_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -1155,12 +1159,13 @@ func RegisterAgentsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/ChangeNodeExporter")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/ChangeNodeExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeNodeExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Agents_ChangeNodeExporter_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Agents_ChangeNodeExporter_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -1178,12 +1183,13 @@ func RegisterAgentsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/AddMySQLdExporter")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/AddMySQLdExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddMySQLdExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Agents_AddMySQLdExporter_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Agents_AddMySQLdExporter_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -1201,12 +1207,13 @@ func RegisterAgentsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/ChangeMySQLdExporter")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/ChangeMySQLdExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeMySQLdExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Agents_ChangeMySQLdExporter_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Agents_ChangeMySQLdExporter_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -1224,12 +1231,13 @@ func RegisterAgentsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/AddMongoDBExporter")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/AddMongoDBExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddMongoDBExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Agents_AddMongoDBExporter_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Agents_AddMongoDBExporter_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -1247,12 +1255,13 @@ func RegisterAgentsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/ChangeMongoDBExporter")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/ChangeMongoDBExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeMongoDBExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Agents_ChangeMongoDBExporter_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Agents_ChangeMongoDBExporter_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -1270,12 +1279,13 @@ func RegisterAgentsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/AddPostgresExporter")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/AddPostgresExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddPostgresExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Agents_AddPostgresExporter_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Agents_AddPostgresExporter_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -1293,12 +1303,13 @@ func RegisterAgentsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/ChangePostgresExporter")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/ChangePostgresExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangePostgresExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Agents_ChangePostgresExporter_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Agents_ChangePostgresExporter_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -1316,12 +1327,13 @@ func RegisterAgentsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/AddProxySQLExporter")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/AddProxySQLExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddProxySQLExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Agents_AddProxySQLExporter_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Agents_AddProxySQLExporter_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -1339,12 +1351,13 @@ func RegisterAgentsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/ChangeProxySQLExporter")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/ChangeProxySQLExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeProxySQLExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Agents_ChangeProxySQLExporter_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Agents_ChangeProxySQLExporter_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -1362,12 +1375,13 @@ func RegisterAgentsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/AddQANMySQLPerfSchemaAgent")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/AddQANMySQLPerfSchemaAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddQANMySQLPerfSchemaAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Agents_AddQANMySQLPerfSchemaAgent_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Agents_AddQANMySQLPerfSchemaAgent_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -1385,12 +1399,13 @@ func RegisterAgentsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/ChangeQANMySQLPerfSchemaAgent")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/ChangeQANMySQLPerfSchemaAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeQANMySQLPerfSchemaAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Agents_ChangeQANMySQLPerfSchemaAgent_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Agents_ChangeQANMySQLPerfSchemaAgent_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -1408,12 +1423,13 @@ func RegisterAgentsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/AddQANMySQLSlowlogAgent")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/AddQANMySQLSlowlogAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddQANMySQLSlowlogAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Agents_AddQANMySQLSlowlogAgent_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Agents_AddQANMySQLSlowlogAgent_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -1431,12 +1447,13 @@ func RegisterAgentsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/ChangeQANMySQLSlowlogAgent")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/ChangeQANMySQLSlowlogAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeQANMySQLSlowlogAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Agents_ChangeQANMySQLSlowlogAgent_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Agents_ChangeQANMySQLSlowlogAgent_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -1454,12 +1471,13 @@ func RegisterAgentsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/AddQANMongoDBProfilerAgent")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/AddQANMongoDBProfilerAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddQANMongoDBProfilerAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Agents_AddQANMongoDBProfilerAgent_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Agents_AddQANMongoDBProfilerAgent_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -1477,12 +1495,13 @@ func RegisterAgentsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/ChangeQANMongoDBProfilerAgent")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/ChangeQANMongoDBProfilerAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeQANMongoDBProfilerAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Agents_ChangeQANMongoDBProfilerAgent_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Agents_ChangeQANMongoDBProfilerAgent_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -1500,12 +1519,13 @@ func RegisterAgentsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/AddQANPostgreSQLPgStatementsAgent")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/AddQANPostgreSQLPgStatementsAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddQANPostgreSQLPgStatementsAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Agents_AddQANPostgreSQLPgStatementsAgent_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Agents_AddQANPostgreSQLPgStatementsAgent_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -1523,12 +1543,13 @@ func RegisterAgentsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/ChangeQANPostgreSQLPgStatementsAgent")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/ChangeQANPostgreSQLPgStatementsAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeQANPostgreSQLPgStatementsAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Agents_ChangeQANPostgreSQLPgStatementsAgent_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Agents_ChangeQANPostgreSQLPgStatementsAgent_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -1546,12 +1567,13 @@ func RegisterAgentsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/AddQANPostgreSQLPgStatMonitorAgent")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/AddQANPostgreSQLPgStatMonitorAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddQANPostgreSQLPgStatMonitorAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Agents_AddQANPostgreSQLPgStatMonitorAgent_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Agents_AddQANPostgreSQLPgStatMonitorAgent_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -1569,12 +1591,13 @@ func RegisterAgentsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/ChangeQANPostgreSQLPgStatMonitorAgent")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/ChangeQANPostgreSQLPgStatMonitorAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeQANPostgreSQLPgStatMonitorAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Agents_ChangeQANPostgreSQLPgStatMonitorAgent_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Agents_ChangeQANPostgreSQLPgStatMonitorAgent_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -1592,12 +1615,13 @@ func RegisterAgentsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/AddRDSExporter")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/AddRDSExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddRDSExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Agents_AddRDSExporter_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Agents_AddRDSExporter_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -1615,12 +1639,13 @@ func RegisterAgentsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/ChangeRDSExporter")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/ChangeRDSExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeRDSExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Agents_ChangeRDSExporter_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Agents_ChangeRDSExporter_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -1638,12 +1663,13 @@ func RegisterAgentsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/AddExternalExporter")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/AddExternalExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddExternalExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Agents_AddExternalExporter_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Agents_AddExternalExporter_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -1661,12 +1687,13 @@ func RegisterAgentsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/ChangeExternalExporter")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/ChangeExternalExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeExternalExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Agents_ChangeExternalExporter_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Agents_ChangeExternalExporter_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -1684,12 +1711,13 @@ func RegisterAgentsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/AddAzureDatabaseExporter")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/AddAzureDatabaseExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddAzureDatabaseExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Agents_AddAzureDatabaseExporter_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Agents_AddAzureDatabaseExporter_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -1707,12 +1735,13 @@ func RegisterAgentsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/ChangeAzureDatabaseExporter")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/ChangeAzureDatabaseExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeAzureDatabaseExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Agents_ChangeAzureDatabaseExporter_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Agents_ChangeAzureDatabaseExporter_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -1730,12 +1759,13 @@ func RegisterAgentsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/RemoveAgent")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Agents/RemoveAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/Remove"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Agents_RemoveAgent_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Agents_RemoveAgent_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -1792,12 +1822,13 @@ func RegisterAgentsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/ListAgents")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/ListAgents", runtime.WithHTTPPathPattern("/v1/inventory/Agents/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Agents_ListAgents_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Agents_ListAgents_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -1812,12 +1843,13 @@ func RegisterAgentsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/GetAgent")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/GetAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/Get"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Agents_GetAgent_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Agents_GetAgent_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -1832,12 +1864,13 @@ func RegisterAgentsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/AddPMMAgent")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/AddPMMAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddPMMAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Agents_AddPMMAgent_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Agents_AddPMMAgent_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -1852,12 +1885,13 @@ func RegisterAgentsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/AddNodeExporter")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/AddNodeExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddNodeExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Agents_AddNodeExporter_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Agents_AddNodeExporter_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -1872,12 +1906,13 @@ func RegisterAgentsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/ChangeNodeExporter")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/ChangeNodeExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeNodeExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Agents_ChangeNodeExporter_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Agents_ChangeNodeExporter_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -1892,12 +1927,13 @@ func RegisterAgentsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/AddMySQLdExporter")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/AddMySQLdExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddMySQLdExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Agents_AddMySQLdExporter_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Agents_AddMySQLdExporter_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -1912,12 +1948,13 @@ func RegisterAgentsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/ChangeMySQLdExporter")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/ChangeMySQLdExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeMySQLdExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Agents_ChangeMySQLdExporter_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Agents_ChangeMySQLdExporter_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -1932,12 +1969,13 @@ func RegisterAgentsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/AddMongoDBExporter")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/AddMongoDBExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddMongoDBExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Agents_AddMongoDBExporter_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Agents_AddMongoDBExporter_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -1952,12 +1990,13 @@ func RegisterAgentsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/ChangeMongoDBExporter")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/ChangeMongoDBExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeMongoDBExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Agents_ChangeMongoDBExporter_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Agents_ChangeMongoDBExporter_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -1972,12 +2011,13 @@ func RegisterAgentsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/AddPostgresExporter")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/AddPostgresExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddPostgresExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Agents_AddPostgresExporter_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Agents_AddPostgresExporter_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -1992,12 +2032,13 @@ func RegisterAgentsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/ChangePostgresExporter")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/ChangePostgresExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangePostgresExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Agents_ChangePostgresExporter_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Agents_ChangePostgresExporter_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -2012,12 +2053,13 @@ func RegisterAgentsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/AddProxySQLExporter")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/AddProxySQLExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddProxySQLExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Agents_AddProxySQLExporter_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Agents_AddProxySQLExporter_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -2032,12 +2074,13 @@ func RegisterAgentsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/ChangeProxySQLExporter")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/ChangeProxySQLExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeProxySQLExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Agents_ChangeProxySQLExporter_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Agents_ChangeProxySQLExporter_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -2052,12 +2095,13 @@ func RegisterAgentsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/AddQANMySQLPerfSchemaAgent")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/AddQANMySQLPerfSchemaAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddQANMySQLPerfSchemaAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Agents_AddQANMySQLPerfSchemaAgent_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Agents_AddQANMySQLPerfSchemaAgent_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -2072,12 +2116,13 @@ func RegisterAgentsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/ChangeQANMySQLPerfSchemaAgent")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/ChangeQANMySQLPerfSchemaAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeQANMySQLPerfSchemaAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Agents_ChangeQANMySQLPerfSchemaAgent_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Agents_ChangeQANMySQLPerfSchemaAgent_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -2092,12 +2137,13 @@ func RegisterAgentsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/AddQANMySQLSlowlogAgent")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/AddQANMySQLSlowlogAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddQANMySQLSlowlogAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Agents_AddQANMySQLSlowlogAgent_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Agents_AddQANMySQLSlowlogAgent_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -2112,12 +2158,13 @@ func RegisterAgentsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/ChangeQANMySQLSlowlogAgent")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/ChangeQANMySQLSlowlogAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeQANMySQLSlowlogAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Agents_ChangeQANMySQLSlowlogAgent_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Agents_ChangeQANMySQLSlowlogAgent_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -2132,12 +2179,13 @@ func RegisterAgentsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/AddQANMongoDBProfilerAgent")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/AddQANMongoDBProfilerAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddQANMongoDBProfilerAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Agents_AddQANMongoDBProfilerAgent_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Agents_AddQANMongoDBProfilerAgent_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -2152,12 +2200,13 @@ func RegisterAgentsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/ChangeQANMongoDBProfilerAgent")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/ChangeQANMongoDBProfilerAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeQANMongoDBProfilerAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Agents_ChangeQANMongoDBProfilerAgent_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Agents_ChangeQANMongoDBProfilerAgent_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -2172,12 +2221,13 @@ func RegisterAgentsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/AddQANPostgreSQLPgStatementsAgent")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/AddQANPostgreSQLPgStatementsAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddQANPostgreSQLPgStatementsAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Agents_AddQANPostgreSQLPgStatementsAgent_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Agents_AddQANPostgreSQLPgStatementsAgent_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -2192,12 +2242,13 @@ func RegisterAgentsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/ChangeQANPostgreSQLPgStatementsAgent")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/ChangeQANPostgreSQLPgStatementsAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeQANPostgreSQLPgStatementsAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Agents_ChangeQANPostgreSQLPgStatementsAgent_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Agents_ChangeQANPostgreSQLPgStatementsAgent_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -2212,12 +2263,13 @@ func RegisterAgentsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/AddQANPostgreSQLPgStatMonitorAgent")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/AddQANPostgreSQLPgStatMonitorAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddQANPostgreSQLPgStatMonitorAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Agents_AddQANPostgreSQLPgStatMonitorAgent_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Agents_AddQANPostgreSQLPgStatMonitorAgent_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -2232,12 +2284,13 @@ func RegisterAgentsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/ChangeQANPostgreSQLPgStatMonitorAgent")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/ChangeQANPostgreSQLPgStatMonitorAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeQANPostgreSQLPgStatMonitorAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Agents_ChangeQANPostgreSQLPgStatMonitorAgent_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Agents_ChangeQANPostgreSQLPgStatMonitorAgent_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -2252,12 +2305,13 @@ func RegisterAgentsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/AddRDSExporter")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/AddRDSExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddRDSExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Agents_AddRDSExporter_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Agents_AddRDSExporter_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -2272,12 +2326,13 @@ func RegisterAgentsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/ChangeRDSExporter")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/ChangeRDSExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeRDSExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Agents_ChangeRDSExporter_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Agents_ChangeRDSExporter_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -2292,12 +2347,13 @@ func RegisterAgentsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/AddExternalExporter")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/AddExternalExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddExternalExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Agents_AddExternalExporter_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Agents_AddExternalExporter_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -2312,12 +2368,13 @@ func RegisterAgentsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/ChangeExternalExporter")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/ChangeExternalExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeExternalExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Agents_ChangeExternalExporter_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Agents_ChangeExternalExporter_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -2332,12 +2389,13 @@ func RegisterAgentsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/AddAzureDatabaseExporter")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/AddAzureDatabaseExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddAzureDatabaseExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Agents_AddAzureDatabaseExporter_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Agents_AddAzureDatabaseExporter_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -2352,12 +2410,13 @@ func RegisterAgentsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/ChangeAzureDatabaseExporter")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/ChangeAzureDatabaseExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeAzureDatabaseExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Agents_ChangeAzureDatabaseExporter_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Agents_ChangeAzureDatabaseExporter_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -2372,12 +2431,13 @@ func RegisterAgentsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/RemoveAgent")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.Agents/RemoveAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/Remove"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Agents_RemoveAgent_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Agents_RemoveAgent_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)

@@ -227,6 +227,9 @@ swagger:model ListSecurityChecksDefaultBody
 */
 type ListSecurityChecksDefaultBody struct {
 
+	// error
+	Error string `json:"error,omitempty"`
+
 	// code
 	Code int32 `json:"code,omitempty"`
 

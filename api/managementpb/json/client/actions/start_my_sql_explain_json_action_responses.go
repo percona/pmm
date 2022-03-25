@@ -163,6 +163,9 @@ swagger:model StartMySQLExplainJSONActionDefaultBody
 */
 type StartMySQLExplainJSONActionDefaultBody struct {
 
+	// error
+	Error string `json:"error,omitempty"`
+
 	// code
 	Code int32 `json:"code,omitempty"`
 

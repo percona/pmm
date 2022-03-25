@@ -220,6 +220,9 @@ swagger:model RestartDBClusterDefaultBody
 */
 type RestartDBClusterDefaultBody struct {
 
+	// error
+	Error string `json:"error,omitempty"`
+
 	// code
 	Code int32 `json:"code,omitempty"`
 

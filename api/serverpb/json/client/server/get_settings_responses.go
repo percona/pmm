@@ -122,6 +122,9 @@ swagger:model GetSettingsDefaultBody
 */
 type GetSettingsDefaultBody struct {
 
+	// error
+	Error string `json:"error,omitempty"`
+
 	// code
 	Code int32 `json:"code,omitempty"`
 

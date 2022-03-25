@@ -456,6 +456,9 @@ swagger:model ListAgentsDefaultBody
 */
 type ListAgentsDefaultBody struct {
 
+	// error
+	Error string `json:"error,omitempty"`
+
 	// code
 	Code int32 `json:"code,omitempty"`
 

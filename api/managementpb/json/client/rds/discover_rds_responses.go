@@ -159,6 +159,9 @@ swagger:model DiscoverRDSDefaultBody
 */
 type DiscoverRDSDefaultBody struct {
 
+	// error
+	Error string `json:"error,omitempty"`
+
 	// code
 	Code int32 `json:"code,omitempty"`
 

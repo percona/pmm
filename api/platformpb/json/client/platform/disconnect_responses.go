@@ -120,6 +120,9 @@ swagger:model DisconnectDefaultBody
 */
 type DisconnectDefaultBody struct {
 
+	// error
+	Error string `json:"error,omitempty"`
+
 	// code
 	Code int32 `json:"code,omitempty"`
 

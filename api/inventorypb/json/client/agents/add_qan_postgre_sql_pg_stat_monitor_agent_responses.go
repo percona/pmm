@@ -189,6 +189,9 @@ swagger:model AddQANPostgreSQLPgStatMonitorAgentDefaultBody
 */
 type AddQANPostgreSQLPgStatMonitorAgentDefaultBody struct {
 
+	// error
+	Error string `json:"error,omitempty"`
+
 	// code
 	Code int32 `json:"code,omitempty"`
 

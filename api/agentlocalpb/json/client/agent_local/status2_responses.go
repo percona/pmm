@@ -122,6 +122,9 @@ swagger:model Status2DefaultBody
 */
 type Status2DefaultBody struct {
 
+	// error
+	Error string `json:"error,omitempty"`
+
 	// code
 	Code int32 `json:"code,omitempty"`
 

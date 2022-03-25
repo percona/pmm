@@ -156,6 +156,9 @@ swagger:model ListDBClustersDefaultBody
 */
 type ListDBClustersDefaultBody struct {
 
+	// error
+	Error string `json:"error,omitempty"`
+
 	// code
 	Code int32 `json:"code,omitempty"`
 

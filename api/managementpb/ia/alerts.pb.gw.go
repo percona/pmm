@@ -13,8 +13,8 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"github.com/grpc-ecosystem/grpc-gateway/v2/utilities"
+	"github.com/Percona-Lab/grpc-gateway/v2/runtime"
+	"github.com/Percona-Lab/grpc-gateway/v2/utilities"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/grpclog"
@@ -111,12 +111,13 @@ func RegisterAlertsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Alerts/ListAlerts")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Alerts/ListAlerts", runtime.WithHTTPPathPattern("/v1/management/ia/Alerts/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Alerts_ListAlerts_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Alerts_ListAlerts_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -134,12 +135,13 @@ func RegisterAlertsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Alerts/ToggleAlerts")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Alerts/ToggleAlerts", runtime.WithHTTPPathPattern("/v1/management/ia/Alerts/Toggle"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Alerts_ToggleAlerts_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Alerts_ToggleAlerts_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -196,12 +198,13 @@ func RegisterAlertsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Alerts/ListAlerts")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Alerts/ListAlerts", runtime.WithHTTPPathPattern("/v1/management/ia/Alerts/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Alerts_ListAlerts_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Alerts_ListAlerts_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -216,12 +219,13 @@ func RegisterAlertsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Alerts/ToggleAlerts")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Alerts/ToggleAlerts", runtime.WithHTTPPathPattern("/v1/management/ia/Alerts/Toggle"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Alerts_ToggleAlerts_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Alerts_ToggleAlerts_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)

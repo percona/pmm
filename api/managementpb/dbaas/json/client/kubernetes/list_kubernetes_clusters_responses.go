@@ -527,6 +527,9 @@ swagger:model ListKubernetesClustersDefaultBody
 */
 type ListKubernetesClustersDefaultBody struct {
 
+	// error
+	Error string `json:"error,omitempty"`
+
 	// code
 	Code int32 `json:"code,omitempty"`
 

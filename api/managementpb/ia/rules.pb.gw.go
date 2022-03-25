@@ -13,8 +13,8 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"github.com/grpc-ecosystem/grpc-gateway/v2/utilities"
+	"github.com/Percona-Lab/grpc-gateway/v2/runtime"
+	"github.com/Percona-Lab/grpc-gateway/v2/utilities"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/grpclog"
@@ -213,12 +213,13 @@ func RegisterRulesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Rules/ListAlertRules")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Rules/ListAlertRules", runtime.WithHTTPPathPattern("/v1/management/ia/Rules/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Rules_ListAlertRules_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Rules_ListAlertRules_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -236,12 +237,13 @@ func RegisterRulesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Rules/CreateAlertRule")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Rules/CreateAlertRule", runtime.WithHTTPPathPattern("/v1/management/ia/Rules/Create"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Rules_CreateAlertRule_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Rules_CreateAlertRule_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -259,12 +261,13 @@ func RegisterRulesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Rules/UpdateAlertRule")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Rules/UpdateAlertRule", runtime.WithHTTPPathPattern("/v1/management/ia/Rules/Update"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Rules_UpdateAlertRule_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Rules_UpdateAlertRule_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -282,12 +285,13 @@ func RegisterRulesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Rules/ToggleAlertRule")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Rules/ToggleAlertRule", runtime.WithHTTPPathPattern("/v1/management/ia/Rules/Toggle"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Rules_ToggleAlertRule_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Rules_ToggleAlertRule_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -305,12 +309,13 @@ func RegisterRulesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Rules/DeleteAlertRule")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/ia.v1beta1.Rules/DeleteAlertRule", runtime.WithHTTPPathPattern("/v1/management/ia/Rules/Delete"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Rules_DeleteAlertRule_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Rules_DeleteAlertRule_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -367,12 +372,13 @@ func RegisterRulesHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Rules/ListAlertRules")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Rules/ListAlertRules", runtime.WithHTTPPathPattern("/v1/management/ia/Rules/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Rules_ListAlertRules_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Rules_ListAlertRules_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -387,12 +393,13 @@ func RegisterRulesHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Rules/CreateAlertRule")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Rules/CreateAlertRule", runtime.WithHTTPPathPattern("/v1/management/ia/Rules/Create"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Rules_CreateAlertRule_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Rules_CreateAlertRule_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -407,12 +414,13 @@ func RegisterRulesHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Rules/UpdateAlertRule")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Rules/UpdateAlertRule", runtime.WithHTTPPathPattern("/v1/management/ia/Rules/Update"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Rules_UpdateAlertRule_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Rules_UpdateAlertRule_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -427,12 +435,13 @@ func RegisterRulesHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Rules/ToggleAlertRule")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Rules/ToggleAlertRule", runtime.WithHTTPPathPattern("/v1/management/ia/Rules/Toggle"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Rules_ToggleAlertRule_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Rules_ToggleAlertRule_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -447,12 +456,13 @@ func RegisterRulesHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Rules/DeleteAlertRule")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/ia.v1beta1.Rules/DeleteAlertRule", runtime.WithHTTPPathPattern("/v1/management/ia/Rules/Delete"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Rules_DeleteAlertRule_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Rules_DeleteAlertRule_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)

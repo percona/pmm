@@ -13,8 +13,8 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"github.com/grpc-ecosystem/grpc-gateway/v2/utilities"
+	"github.com/Percona-Lab/grpc-gateway/v2/runtime"
+	"github.com/Percona-Lab/grpc-gateway/v2/utilities"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/grpclog"
@@ -179,12 +179,13 @@ func RegisterPSMDBClustersHandlerServer(ctx context.Context, mux *runtime.ServeM
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.PSMDBClusters/GetPSMDBClusterCredentials")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.PSMDBClusters/GetPSMDBClusterCredentials", runtime.WithHTTPPathPattern("/v1/management/DBaaS/PSMDBClusters/GetCredentials"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_PSMDBClusters_GetPSMDBClusterCredentials_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_PSMDBClusters_GetPSMDBClusterCredentials_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -202,12 +203,13 @@ func RegisterPSMDBClustersHandlerServer(ctx context.Context, mux *runtime.ServeM
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.PSMDBClusters/CreatePSMDBCluster")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.PSMDBClusters/CreatePSMDBCluster", runtime.WithHTTPPathPattern("/v1/management/DBaaS/PSMDBCluster/Create"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_PSMDBClusters_CreatePSMDBCluster_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_PSMDBClusters_CreatePSMDBCluster_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -225,12 +227,13 @@ func RegisterPSMDBClustersHandlerServer(ctx context.Context, mux *runtime.ServeM
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.PSMDBClusters/UpdatePSMDBCluster")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.PSMDBClusters/UpdatePSMDBCluster", runtime.WithHTTPPathPattern("/v1/management/DBaaS/PSMDBCluster/Update"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_PSMDBClusters_UpdatePSMDBCluster_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_PSMDBClusters_UpdatePSMDBCluster_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -248,12 +251,13 @@ func RegisterPSMDBClustersHandlerServer(ctx context.Context, mux *runtime.ServeM
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.PSMDBClusters/GetPSMDBClusterResources")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.PSMDBClusters/GetPSMDBClusterResources", runtime.WithHTTPPathPattern("/v1/management/DBaaS/PSMDBCluster/Resources/Get"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_PSMDBClusters_GetPSMDBClusterResources_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_PSMDBClusters_GetPSMDBClusterResources_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -310,12 +314,13 @@ func RegisterPSMDBClustersHandlerClient(ctx context.Context, mux *runtime.ServeM
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.PSMDBClusters/GetPSMDBClusterCredentials")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.PSMDBClusters/GetPSMDBClusterCredentials", runtime.WithHTTPPathPattern("/v1/management/DBaaS/PSMDBClusters/GetCredentials"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_PSMDBClusters_GetPSMDBClusterCredentials_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_PSMDBClusters_GetPSMDBClusterCredentials_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -330,12 +335,13 @@ func RegisterPSMDBClustersHandlerClient(ctx context.Context, mux *runtime.ServeM
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.PSMDBClusters/CreatePSMDBCluster")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.PSMDBClusters/CreatePSMDBCluster", runtime.WithHTTPPathPattern("/v1/management/DBaaS/PSMDBCluster/Create"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_PSMDBClusters_CreatePSMDBCluster_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_PSMDBClusters_CreatePSMDBCluster_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -350,12 +356,13 @@ func RegisterPSMDBClustersHandlerClient(ctx context.Context, mux *runtime.ServeM
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.PSMDBClusters/UpdatePSMDBCluster")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.PSMDBClusters/UpdatePSMDBCluster", runtime.WithHTTPPathPattern("/v1/management/DBaaS/PSMDBCluster/Update"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_PSMDBClusters_UpdatePSMDBCluster_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_PSMDBClusters_UpdatePSMDBCluster_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -370,12 +377,13 @@ func RegisterPSMDBClustersHandlerClient(ctx context.Context, mux *runtime.ServeM
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.PSMDBClusters/GetPSMDBClusterResources")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.PSMDBClusters/GetPSMDBClusterResources", runtime.WithHTTPPathPattern("/v1/management/DBaaS/PSMDBCluster/Resources/Get"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_PSMDBClusters_GetPSMDBClusterResources_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_PSMDBClusters_GetPSMDBClusterResources_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)

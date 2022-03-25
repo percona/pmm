@@ -157,6 +157,9 @@ swagger:model GetPXCClusterCredentialsDefaultBody
 */
 type GetPXCClusterCredentialsDefaultBody struct {
 
+	// error
+	Error string `json:"error,omitempty"`
+
 	// code
 	Code int32 `json:"code,omitempty"`
 

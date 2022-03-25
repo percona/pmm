@@ -5,6 +5,7 @@ go 1.16
 replace github.com/go-openapi/spec => github.com/Percona-Lab/spec v0.19.8-percona
 
 require (
+	github.com/Percona-Lab/grpc-gateway/v2 v2.10.1
 	github.com/go-openapi/errors v0.19.6
 	github.com/go-openapi/jsonreference v0.19.4 // indirect
 	github.com/go-openapi/runtime v0.19.20
@@ -12,15 +13,15 @@ require (
 	github.com/go-openapi/swag v0.19.9
 	github.com/go-openapi/validate v0.19.10
 	github.com/golang/protobuf v1.5.2
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.7.3
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.10.0
 	github.com/mwitkow/go-proto-validators v0.3.2
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.12.1
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.7.1
 	go.mongodb.org/mongo-driver v1.7.1
 	golang.org/x/sys v0.0.0-20220114195835-da31bd327af9
-	google.golang.org/genproto v0.0.0-20220302033224-9aa15565e42a
-	google.golang.org/grpc v1.44.0
-	google.golang.org/protobuf v1.27.1
-	gopkg.in/reform.v1 v1.5.0
+	google.golang.org/genproto v0.0.0-20220322021311-435b647f9ef2
+	google.golang.org/grpc v1.45.0
+	google.golang.org/protobuf v1.28.0
+	gopkg.in/reform.v1 v1.5.1
 )

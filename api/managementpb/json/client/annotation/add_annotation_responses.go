@@ -161,6 +161,9 @@ swagger:model AddAnnotationDefaultBody
 */
 type AddAnnotationDefaultBody struct {
 
+	// error
+	Error string `json:"error,omitempty"`
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -233,12 +236,8 @@ swagger:model DetailsItems0
 */
 type DetailsItems0 struct {
 
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this details items0

@@ -152,6 +152,9 @@ swagger:model RemoveScheduledBackupDefaultBody
 */
 type RemoveScheduledBackupDefaultBody struct {
 
+	// error
+	Error string `json:"error,omitempty"`
+
 	// code
 	Code int32 `json:"code,omitempty"`
 

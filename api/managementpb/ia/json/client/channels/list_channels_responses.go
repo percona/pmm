@@ -691,6 +691,9 @@ swagger:model ListChannelsDefaultBody
 */
 type ListChannelsDefaultBody struct {
 
+	// error
+	Error string `json:"error,omitempty"`
+
 	// code
 	Code int32 `json:"code,omitempty"`
 

@@ -169,6 +169,9 @@ swagger:model AddRemoteNodeDefaultBody
 */
 type AddRemoteNodeDefaultBody struct {
 
+	// error
+	Error string `json:"error,omitempty"`
+
 	// code
 	Code int32 `json:"code,omitempty"`
 

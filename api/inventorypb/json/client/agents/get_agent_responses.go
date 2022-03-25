@@ -156,6 +156,9 @@ swagger:model GetAgentDefaultBody
 */
 type GetAgentDefaultBody struct {
 
+	// error
+	Error string `json:"error,omitempty"`
+
 	// code
 	Code int32 `json:"code,omitempty"`
 

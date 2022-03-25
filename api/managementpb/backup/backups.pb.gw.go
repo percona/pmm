@@ -13,8 +13,8 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"github.com/grpc-ecosystem/grpc-gateway/v2/utilities"
+	"github.com/Percona-Lab/grpc-gateway/v2/runtime"
+	"github.com/Percona-Lab/grpc-gateway/v2/utilities"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/grpclog"
@@ -315,12 +315,13 @@ func RegisterBackupsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Backups/StartBackup")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Backups/StartBackup", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/Start"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Backups_StartBackup_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Backups_StartBackup_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -338,12 +339,13 @@ func RegisterBackupsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Backups/ListArtifactCompatibleServices")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Backups/ListArtifactCompatibleServices", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/ListArtifactCompatibleServices"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Backups_ListArtifactCompatibleServices_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Backups_ListArtifactCompatibleServices_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -361,12 +363,13 @@ func RegisterBackupsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Backups/RestoreBackup")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Backups/RestoreBackup", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/Restore"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Backups_RestoreBackup_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Backups_RestoreBackup_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -384,12 +387,13 @@ func RegisterBackupsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Backups/ScheduleBackup")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Backups/ScheduleBackup", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/Schedule"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Backups_ScheduleBackup_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Backups_ScheduleBackup_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -407,12 +411,13 @@ func RegisterBackupsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Backups/ListScheduledBackups")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Backups/ListScheduledBackups", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/ListScheduled"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Backups_ListScheduledBackups_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Backups_ListScheduledBackups_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -430,12 +435,13 @@ func RegisterBackupsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Backups/ChangeScheduledBackup")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Backups/ChangeScheduledBackup", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/ChangeScheduled"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Backups_ChangeScheduledBackup_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Backups_ChangeScheduledBackup_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -453,12 +459,13 @@ func RegisterBackupsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Backups/RemoveScheduledBackup")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Backups/RemoveScheduledBackup", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/RemoveScheduled"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Backups_RemoveScheduledBackup_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Backups_RemoveScheduledBackup_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -476,12 +483,13 @@ func RegisterBackupsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Backups/GetLogs")
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Backups/GetLogs", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/GetLogs"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Backups_GetLogs_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Backups_GetLogs_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -538,12 +546,13 @@ func RegisterBackupsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Backups/StartBackup")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Backups/StartBackup", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/Start"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Backups_StartBackup_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Backups_StartBackup_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -558,12 +567,13 @@ func RegisterBackupsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Backups/ListArtifactCompatibleServices")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Backups/ListArtifactCompatibleServices", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/ListArtifactCompatibleServices"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Backups_ListArtifactCompatibleServices_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Backups_ListArtifactCompatibleServices_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -578,12 +588,13 @@ func RegisterBackupsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Backups/RestoreBackup")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Backups/RestoreBackup", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/Restore"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Backups_RestoreBackup_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Backups_RestoreBackup_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -598,12 +609,13 @@ func RegisterBackupsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Backups/ScheduleBackup")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Backups/ScheduleBackup", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/Schedule"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Backups_ScheduleBackup_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Backups_ScheduleBackup_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -618,12 +630,13 @@ func RegisterBackupsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Backups/ListScheduledBackups")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Backups/ListScheduledBackups", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/ListScheduled"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Backups_ListScheduledBackups_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Backups_ListScheduledBackups_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -638,12 +651,13 @@ func RegisterBackupsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Backups/ChangeScheduledBackup")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Backups/ChangeScheduledBackup", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/ChangeScheduled"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Backups_ChangeScheduledBackup_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Backups_ChangeScheduledBackup_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -658,12 +672,13 @@ func RegisterBackupsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Backups/RemoveScheduledBackup")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Backups/RemoveScheduledBackup", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/RemoveScheduled"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Backups_RemoveScheduledBackup_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Backups_RemoveScheduledBackup_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -678,12 +693,13 @@ func RegisterBackupsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Backups/GetLogs")
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Backups/GetLogs", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/GetLogs"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Backups_GetLogs_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Backups_GetLogs_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)

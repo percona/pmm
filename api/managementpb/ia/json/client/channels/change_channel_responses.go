@@ -263,6 +263,9 @@ swagger:model ChangeChannelDefaultBody
 */
 type ChangeChannelDefaultBody struct {
 
+	// error
+	Error string `json:"error,omitempty"`
+
 	// code
 	Code int32 `json:"code,omitempty"`
 

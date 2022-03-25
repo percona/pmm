@@ -6,15 +6,15 @@ replace github.com/go-openapi/spec => github.com/Percona-Lab/spec v0.19.8-percon
 
 require (
 	github.com/BurntSushi/go-sumtype v0.0.0-20190304192233-fcb4a6205bdc
+	github.com/Percona-Lab/grpc-gateway/v2 v2.10.1
 	github.com/Percona-Lab/swagger-order v0.0.0-20191002141859-166b3973d026
 	github.com/bufbuild/buf v1.1.0
 	github.com/go-openapi/runtime v0.19.28
 	github.com/go-openapi/spec v0.20.3
 	github.com/go-swagger/go-swagger v0.24.0
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.2.0
 	github.com/mwitkow/go-proto-validators v0.3.2
-	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.1.0
-	google.golang.org/protobuf v1.27.1
+	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.2.0
+	google.golang.org/protobuf v1.28.0
 )
 
 require (
@@ -25,7 +25,6 @@ require (
 	github.com/asaskevich/govalidator v0.0.0-20200428143746-21a406dcc535 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.1 // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
-	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/go-openapi/analysis v0.19.10 // indirect
 	github.com/go-openapi/errors v0.19.6 // indirect
 	github.com/go-openapi/inflect v0.19.0 // indirect
@@ -82,10 +81,11 @@ require (
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/tools v0.1.9 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
-	google.golang.org/genproto v0.0.0-20220228195345-15d65a4533f7 // indirect
-	google.golang.org/grpc v1.45.0-dev.0.20220209221444-a354b1eec350 // indirect
+	google.golang.org/genproto v0.0.0-20220322021311-435b647f9ef2 // indirect
+	google.golang.org/grpc v1.45.0 // indirect
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6 // indirect
 	gopkg.in/ini.v1 v1.66.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
+	sigs.k8s.io/yaml v1.3.0 // indirect
 )

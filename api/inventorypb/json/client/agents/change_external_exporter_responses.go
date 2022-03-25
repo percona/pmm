@@ -184,6 +184,9 @@ swagger:model ChangeExternalExporterDefaultBody
 */
 type ChangeExternalExporterDefaultBody struct {
 
+	// error
+	Error string `json:"error,omitempty"`
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
