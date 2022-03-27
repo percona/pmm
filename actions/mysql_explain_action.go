@@ -21,12 +21,12 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"strings"
 	"text/tabwriter"
 
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
-	"github.com/prometheus/common/log"
 
 	"github.com/percona/pmm-agent/tlshelpers"
 )
@@ -55,7 +55,7 @@ func NewMySQLExplainAction(id string, params *agentpb.StartActionRequest_MySQLEx
 	if params.TlsFiles != nil && params.TlsFiles.Files != nil {
 		err := tlshelpers.RegisterMySQLCerts(params.TlsFiles.Files)
 		if err != nil {
-			log.Error(err)
+			logrus.Error(err)
 		}
 	}
 
