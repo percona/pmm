@@ -35,7 +35,7 @@ import (
 type registry struct {
 	rw sync.RWMutex
 	// Results stored grouped by interval and by check name. It allows us to remove results for specific group.
-	checkResults map[check.Interval]map[string][]services.STTCheckResult
+	checkResults map[check.Interval]map[string][]services.CheckResult
 
 	alertTTL time.Duration
 	nowF     func() time.Time // for tests
@@ -44,14 +44,14 @@ type registry struct {
 // newRegistry creates a new registry.
 func newRegistry(alertTTL time.Duration) *registry {
 	return &registry{
-		checkResults: make(map[check.Interval]map[string][]services.STTCheckResult),
+		checkResults: make(map[check.Interval]map[string][]services.CheckResult),
 		alertTTL:     alertTTL,
 		nowF:         time.Now,
 	}
 }
 
 // set adds check results.
-func (r *registry) set(checkResults []services.STTCheckResult) {
+func (r *registry) set(checkResults []services.CheckResult) {
 	r.rw.Lock()
 	defer r.rw.Unlock()
 
@@ -62,7 +62,7 @@ func (r *registry) set(checkResults []services.STTCheckResult) {
 		}
 
 		if _, ok := r.checkResults[result.Interval]; !ok {
-			r.checkResults[result.Interval] = make(map[string][]services.STTCheckResult)
+			r.checkResults[result.Interval] = make(map[string][]services.CheckResult)
 		}
 
 		r.checkResults[result.Interval][result.CheckName] = append(r.checkResults[result.Interval][result.CheckName], result)
@@ -93,7 +93,7 @@ func (r *registry) cleanup() {
 	r.rw.Lock()
 	defer r.rw.Unlock()
 
-	r.checkResults = make(map[check.Interval]map[string][]services.STTCheckResult)
+	r.checkResults = make(map[check.Interval]map[string][]services.CheckResult)
 }
 
 // collect returns a slice of alerts created from the stored check results.
@@ -105,18 +105,19 @@ func (r *registry) collect() ammodels.PostableAlerts {
 	for _, intervalGroup := range r.checkResults {
 		for _, checkNameGroup := range intervalGroup {
 			for _, checkResult := range checkNameGroup {
-				alerts = append(alerts, r.createAlert(checkResult.CheckName, &checkResult.Target, &checkResult.Result, r.alertTTL))
+				checkResult := checkResult
+				alerts = append(alerts, r.createAlert(&checkResult))
 			}
 		}
 	}
 	return alerts
 }
 
-func (r *registry) getCheckResults() []services.STTCheckResult {
+func (r *registry) getCheckResults() []services.CheckResult {
 	r.rw.RLock()
 	defer r.rw.RUnlock()
 
-	var results []services.STTCheckResult
+	var results []services.CheckResult
 	for _, intervalGroup := range r.checkResults {
 		for _, checkNameGroup := range intervalGroup {
 			results = append(results, checkNameGroup...)
@@ -126,7 +127,8 @@ func (r *registry) getCheckResults() []services.STTCheckResult {
 	return results
 }
 
-func (r *registry) createAlert(name string, target *services.Target, result *check.Result, alertTTL time.Duration) *ammodels.PostableAlert {
+func (r *registry) createAlert(checkResult *services.CheckResult) *ammodels.PostableAlert {
+	name, target, result, alertTTL := checkResult.CheckName, &checkResult.Target, &checkResult.Result, r.alertTTL
 	labels := make(map[string]string, len(target.Labels)+len(result.Labels)+4)
 	annotations := make(map[string]string, 2)
 	for k, v := range result.Labels {
@@ -137,9 +139,11 @@ func (r *registry) createAlert(name string, target *services.Target, result *che
 	}
 
 	labels[model.AlertNameLabel] = name
+	checkResult.AlertID = makeID(target, result)
 	labels["severity"] = result.Severity.String()
 	labels["stt_check"] = "1"
-	labels["alert_id"] = makeID(target, result)
+	labels["alert_id"] = checkResult.AlertID
+	labels["interval_group"] = string(checkResult.Interval)
 
 	annotations["summary"] = result.Summary
 	annotations["description"] = result.Description

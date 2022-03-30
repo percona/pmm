@@ -37,7 +37,7 @@ func TestRegistry(t *testing.T) {
 
 		nowValue := time.Now().UTC().Round(0) // strip a monotonic clock reading
 		r.nowF = func() time.Time { return nowValue }
-		checkResults := []services.STTCheckResult{
+		checkResults := []services.CheckResult{
 			{
 				CheckName: "name",
 				Interval:  check.Standard,
@@ -91,12 +91,13 @@ func TestRegistry(t *testing.T) {
 				EndsAt: strfmt.DateTime(nowValue.Add(alertTTL)),
 				Alert: ammodels.Alert{
 					Labels: map[string]string{
-						"alert_id":  "/stt/e7b471407fe9734eac5b6adb178ee0ef08ef45f2",
-						"alertname": "name",
-						"baz":       "qux",
-						"foo":       "bar",
-						"severity":  "warning",
-						"stt_check": "1",
+						"alert_id":       "/stt/e7b471407fe9734eac5b6adb178ee0ef08ef45f2",
+						"alertname":      "name",
+						"baz":            "qux",
+						"foo":            "bar",
+						"severity":       "warning",
+						"stt_check":      "1",
+						"interval_group": string(check.Standard),
 					},
 				},
 			},
@@ -109,12 +110,13 @@ func TestRegistry(t *testing.T) {
 				EndsAt: strfmt.DateTime(nowValue.Add(alertTTL)),
 				Alert: ammodels.Alert{
 					Labels: map[string]string{
-						"alert_id":  "/stt/8fa5695dc34160333eeeb05f00bf1ddbd98be59c",
-						"alertname": "name2",
-						"qux":       "baz",
-						"bar":       "foo",
-						"severity":  "notice",
-						"stt_check": "1",
+						"alert_id":       "/stt/8fa5695dc34160333eeeb05f00bf1ddbd98be59c",
+						"alertname":      "name2",
+						"qux":            "baz",
+						"bar":            "foo",
+						"severity":       "notice",
+						"stt_check":      "1",
+						"interval_group": string(check.Standard),
 					},
 				},
 			},
@@ -130,7 +132,7 @@ func TestRegistry(t *testing.T) {
 
 		nowValue := time.Now().UTC().Round(0) // strip a monotonic clock reading
 		r.nowF = func() time.Time { return nowValue }
-		checkResults := []services.STTCheckResult{
+		checkResults := []services.CheckResult{
 			{
 				CheckName: "name",
 				Interval:  check.Standard,
@@ -185,12 +187,13 @@ func TestRegistry(t *testing.T) {
 			EndsAt: strfmt.DateTime(nowValue.Add(alertTTL)),
 			Alert: ammodels.Alert{
 				Labels: map[string]string{
-					"alert_id":  "/stt/8fa5695dc34160333eeeb05f00bf1ddbd98be59c",
-					"alertname": "name2",
-					"qux":       "baz",
-					"bar":       "foo",
-					"severity":  "notice",
-					"stt_check": "1",
+					"alert_id":       "/stt/8fa5695dc34160333eeeb05f00bf1ddbd98be59c",
+					"alertname":      "name2",
+					"qux":            "baz",
+					"bar":            "foo",
+					"severity":       "notice",
+					"stt_check":      "1",
+					"interval_group": string(check.Frequent),
 				},
 			},
 		}
@@ -206,7 +209,7 @@ func TestRegistry(t *testing.T) {
 
 		nowValue := time.Now().UTC().Round(0) // strip a monotonic clock reading
 		r.nowF = func() time.Time { return nowValue }
-		checkResults := []services.STTCheckResult{
+		checkResults := []services.CheckResult{
 			{
 				CheckName: "name1",
 				Target: services.Target{
@@ -259,12 +262,13 @@ func TestRegistry(t *testing.T) {
 			EndsAt: strfmt.DateTime(nowValue.Add(alertTTL)),
 			Alert: ammodels.Alert{
 				Labels: map[string]string{
-					"alert_id":  "/stt/8fa5695dc34160333eeeb05f00bf1ddbd98be59c",
-					"alertname": "name2",
-					"qux":       "baz",
-					"bar":       "foo",
-					"severity":  "notice",
-					"stt_check": "1",
+					"alert_id":       "/stt/8fa5695dc34160333eeeb05f00bf1ddbd98be59c",
+					"alertname":      "name2",
+					"qux":            "baz",
+					"bar":            "foo",
+					"severity":       "notice",
+					"stt_check":      "1",
+					"interval_group": string(check.Standard),
 				},
 			},
 		}
@@ -280,7 +284,7 @@ func TestRegistry(t *testing.T) {
 
 		nowValue := time.Now().UTC().Round(0) // strip a monotonic clock reading
 		r.nowF = func() time.Time { return nowValue }
-		checkResults := []services.STTCheckResult{
+		checkResults := []services.CheckResult{
 			{
 				CheckName: "name",
 				Interval:  check.Standard,

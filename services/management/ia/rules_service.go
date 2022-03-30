@@ -29,6 +29,7 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/percona-platform/saas/pkg/alert"
 	"github.com/percona-platform/saas/pkg/common"
+	"github.com/percona/pmm/api/managementpb"
 	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
 	"github.com/percona/promconfig"
 	"github.com/pkg/errors"
@@ -315,7 +316,7 @@ func (s *RulesService) ListAlertRules(ctx context.Context, req *iav1beta1.ListAl
 		totalPages++
 	}
 
-	totals := &iav1beta1.PageTotals{
+	totals := &managementpb.PageTotals{
 		TotalItems: int32(totalItems),
 		TotalPages: int32(totalPages),
 	}

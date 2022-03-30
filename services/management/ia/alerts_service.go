@@ -23,6 +23,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/percona/pmm-managed/services"
+
 	"github.com/percona-platform/saas/pkg/common"
 	"github.com/percona/pmm/api/alertmanager/ammodels"
 	"github.com/percona/pmm/api/managementpb"
@@ -69,17 +71,16 @@ func (s *AlertsService) Enabled() bool {
 
 // ListAlerts returns list of existing alerts.
 func (s *AlertsService) ListAlerts(ctx context.Context, req *iav1beta1.ListAlertsRequest) (*iav1beta1.ListAlertsResponse, error) {
-	alerts, err := s.alertManager.GetAlerts(ctx)
+	filter := &services.FilterParams{
+		IsIA: true,
+	}
+	alerts, err := s.alertManager.GetAlerts(ctx, filter)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get alerts form alertmanager")
 	}
 
 	var res []*iav1beta1.Alert
 	for _, alert := range alerts {
-		if _, ok := alert.Labels["ia"]; !ok { // Skip non-IA alerts
-			continue
-		}
-
 		updatedAt := timestamppb.New(time.Time(*alert.UpdatedAt))
 		if err := updatedAt.CheckValid(); err != nil {
 			return nil, errors.Wrap(err, "failed to convert timestamp")
@@ -153,7 +154,7 @@ func (s *AlertsService) ListAlerts(ctx context.Context, req *iav1beta1.ListAlert
 		})
 	}
 
-	pageTotals := &iav1beta1.PageTotals{
+	pageTotals := &managementpb.PageTotals{
 		TotalPages: 1,
 	}
 
@@ -223,21 +224,27 @@ func getAlertID(alert *ammodels.GettableAlert) string {
 // ToggleAlerts allows to silence/unsilence specified alerts.
 func (s *AlertsService) ToggleAlerts(ctx context.Context, req *iav1beta1.ToggleAlertsRequest) (*iav1beta1.ToggleAlertsResponse, error) {
 	var err error
+	var alerts []*ammodels.GettableAlert
+
+	filters := &services.FilterParams{
+		IsIA: true,
+	}
+	if len(req.AlertIds) == 0 {
+		alerts, err = s.alertManager.GetAlerts(ctx, filters)
+	} else {
+		alerts, err = s.alertManager.FindAlertsByID(ctx, filters, req.AlertIds)
+	}
+	if err != nil {
+		return nil, err
+	}
+
 	switch req.Silenced {
 	case iav1beta1.BooleanFlag_DO_NOT_CHANGE:
 		// nothing
 	case iav1beta1.BooleanFlag_TRUE:
-		if len(req.AlertIds) == 0 {
-			err = s.alertManager.SilenceAll(ctx)
-		} else {
-			err = s.alertManager.Silence(ctx, req.AlertIds)
-		}
+		err = s.alertManager.SilenceAlerts(ctx, alerts)
 	case iav1beta1.BooleanFlag_FALSE:
-		if len(req.AlertIds) == 0 {
-			err = s.alertManager.UnsilenceAll(ctx)
-		} else {
-			err = s.alertManager.Unsilence(ctx, req.AlertIds)
-		}
+		err = s.alertManager.UnsilenceAlerts(ctx, alerts)
 	}
 	if err != nil {
 		return nil, err

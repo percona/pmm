@@ -22,6 +22,7 @@ import (
 	"github.com/percona/pmm/api/alertmanager/ammodels"
 
 	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm-managed/services"
 )
 
 //go:generate mockery -name=agentsRegistry -case=snake -inpkg -testonly
@@ -45,4 +46,7 @@ type agentsRegistry interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type alertmanagerService interface {
 	SendAlerts(ctx context.Context, alerts ammodels.PostableAlerts)
+	SilenceAlerts(ctx context.Context, alerts []*ammodels.GettableAlert) error
+	UnsilenceAlerts(ctx context.Context, alerts []*ammodels.GettableAlert) error
+	GetAlerts(ctx context.Context, params *services.FilterParams) ([]*ammodels.GettableAlert, error)
 }

@@ -49,6 +49,7 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm-managed/services"
 	"github.com/percona/pmm-managed/utils/dir"
 )
 
@@ -65,10 +66,17 @@ const (
 	alertmanagerBaseConfigPath = "/srv/alertmanager/alertmanager.base.yml"
 
 	receiverNameSeparator = " + "
+
+	// CheckFilter represents AlertManager filter for Checks/Advisor results.
+	CheckFilter = "stt_check=1"
+	// IAFilter represents AlertManager filter for Integrated Alerts.
+	IAFilter = "ia=1"
 )
 
-var notificationLabels = []string{"node_name", "node_id", "service_name", "service_id", "service_type", "rule_id",
-	"alertgroup", "template_name", "severity", "agent_id", "agent_type", "job"}
+var notificationLabels = []string{
+	"node_name", "node_id", "service_name", "service_id", "service_type", "rule_id",
+	"alertgroup", "template_name", "severity", "agent_id", "agent_type", "job",
+}
 
 //go:embed email_template.html
 var emailTemplate string
@@ -730,10 +738,27 @@ func (svc *Service) SendAlerts(ctx context.Context, alerts ammodels.PostableAler
 }
 
 // GetAlerts returns alerts available in alertmanager.
-func (svc *Service) GetAlerts(ctx context.Context) ([]*ammodels.GettableAlert, error) {
-	resp, err := amclient.Default.Alert.GetAlerts(&alert.GetAlertsParams{
-		Context: ctx,
-	})
+func (svc *Service) GetAlerts(ctx context.Context, fp *services.FilterParams) ([]*ammodels.GettableAlert, error) {
+	alertParams := alert.NewGetAlertsParams()
+	alertParams.Context = ctx
+
+	if fp != nil {
+		if fp.IsCheck {
+			alertParams.Filter = append(alertParams.Filter, CheckFilter)
+		}
+		if fp.IsIA {
+			alertParams.Filter = append(alertParams.Filter, IAFilter)
+		}
+		if fp.ServiceID != "" {
+			alertParams.Filter = append(alertParams.Filter, fmt.Sprintf("service_id=\"%s\"", fp.ServiceID))
+		}
+		if fp.AlertID != "" {
+			alertParams.Filter = append(alertParams.Filter, fmt.Sprintf("alert_id=\"%s\"", fp.AlertID))
+		}
+	}
+
+	svc.l.Debugf("%+v", alertParams)
+	resp, err := amclient.Default.Alert.GetAlerts(alertParams)
 	if err != nil {
 		return nil, err
 	}
@@ -742,8 +767,8 @@ func (svc *Service) GetAlerts(ctx context.Context) ([]*ammodels.GettableAlert, e
 }
 
 // FindAlertsByID searches alerts by IDs in alertmanager.
-func (svc *Service) FindAlertsByID(ctx context.Context, ids []string) ([]*ammodels.GettableAlert, error) {
-	alerts, err := svc.GetAlerts(ctx)
+func (svc *Service) FindAlertsByID(ctx context.Context, params *services.FilterParams, ids []string) ([]*ammodels.GettableAlert, error) {
+	alerts, err := svc.GetAlerts(ctx, params)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to get alerts form alertmanager")
 	}
@@ -764,31 +789,8 @@ func (svc *Service) FindAlertsByID(ctx context.Context, ids []string) ([]*ammode
 	return res, nil
 }
 
-// Silence mutes alerts with specified ids.
-func (svc *Service) Silence(ctx context.Context, ids []string) error {
-	if len(ids) == 0 {
-		return nil
-	}
-
-	alerts, err := svc.FindAlertsByID(ctx, ids)
-	if err != nil {
-		return err
-	}
-
-	return silenceAlerts(ctx, alerts)
-}
-
-// SilenceAll mutes all available alerts.
-func (svc *Service) SilenceAll(ctx context.Context) error {
-	alerts, err := svc.GetAlerts(ctx)
-	if err != nil {
-		return err
-	}
-
-	return silenceAlerts(ctx, alerts)
-}
-
-func silenceAlerts(ctx context.Context, alerts []*ammodels.GettableAlert) error {
+// SilenceAlerts silences a group of provided alerts.
+func (svc *Service) SilenceAlerts(ctx context.Context, alerts []*ammodels.GettableAlert) error {
 	var err error
 	for _, a := range alerts {
 		if len(a.Status.SilencedBy) != 0 {
@@ -828,31 +830,8 @@ func silenceAlerts(ctx context.Context, alerts []*ammodels.GettableAlert) error 
 	return nil
 }
 
-// Unsilence unmutes alerts with specified ids.
-func (svc *Service) Unsilence(ctx context.Context, ids []string) error {
-	if len(ids) == 0 {
-		return nil
-	}
-
-	alerts, err := svc.FindAlertsByID(ctx, ids)
-	if err != nil {
-		return err
-	}
-
-	return svc.unsilenceAlerts(ctx, alerts)
-}
-
-// UnsilenceAll unmutes all available alerts.
-func (svc *Service) UnsilenceAll(ctx context.Context) error {
-	alerts, err := svc.GetAlerts(ctx)
-	if err != nil {
-		return err
-	}
-
-	return svc.unsilenceAlerts(ctx, alerts)
-}
-
-func (svc *Service) unsilenceAlerts(ctx context.Context, alerts []*ammodels.GettableAlert) error {
+// UnsilenceAlerts unmutes the provided alerts.
+func (svc *Service) UnsilenceAlerts(ctx context.Context, alerts []*ammodels.GettableAlert) error {
 	var err error
 	for _, a := range alerts {
 		for _, silenceID := range a.Status.SilencedBy {

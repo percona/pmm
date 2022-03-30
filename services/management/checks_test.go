@@ -18,9 +18,11 @@ package management
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/percona-platform/saas/pkg/check"
+	"github.com/percona-platform/saas/pkg/common"
 	"github.com/percona/pmm/api/managementpb"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
@@ -81,7 +83,7 @@ func TestGetSecurityCheckResults(t *testing.T) {
 	})
 
 	t.Run("STT enabled", func(t *testing.T) {
-		checkResult := []services.STTCheckResult{
+		checkResult := []services.CheckResult{
 			{
 				Result: check.Result{
 					Summary:     "Check summary",
@@ -113,6 +115,250 @@ func TestGetSecurityCheckResults(t *testing.T) {
 		resp, err := s.GetSecurityCheckResults(context.Background(), nil)
 		require.NoError(t, err)
 		assert.Equal(t, resp, response)
+	})
+}
+
+func TestGetFailedChecks(t *testing.T) {
+	t.Parallel()
+
+	t.Run("internal error", func(t *testing.T) {
+		t.Parallel()
+
+		var checksService mockChecksService
+		checksService.On("GetChecksResults", mock.Anything, mock.Anything).Return(nil, errors.New("random error"))
+
+		s := NewChecksAPIService(&checksService)
+		serviceID := "test_svc"
+
+		resp, err := s.GetFailedChecks(context.Background(), &managementpb.GetFailedChecksRequest{
+			ServiceId: serviceID,
+		})
+		assert.EqualError(t, err, fmt.Sprintf("failed to get check results for service '%s': random error", serviceID))
+		assert.Nil(t, resp)
+	})
+
+	t.Run("STT disabled error", func(t *testing.T) {
+		t.Parallel()
+
+		var checksService mockChecksService
+		checksService.On("GetChecksResults", mock.Anything, mock.Anything).Return(nil, services.ErrSTTDisabled)
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.GetFailedChecks(context.Background(), &managementpb.GetFailedChecksRequest{
+			ServiceId: "test_svc",
+		})
+		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "STT is disabled."), err)
+		assert.Nil(t, resp)
+	})
+
+	t.Run("get failed checks for requested service", func(t *testing.T) {
+		t.Parallel()
+
+		checkResult := []services.CheckResult{
+			{
+				Result: check.Result{
+					Summary:     "Check summary",
+					Description: "Check Description",
+					ReadMoreURL: "https://www.example.com",
+					Severity:    common.Emergency,
+					Labels:      map[string]string{"label_key": "label_value"},
+				},
+				Target:    services.Target{ServiceName: "svc", ServiceID: "test_svc"},
+				CheckName: "test_check",
+			},
+		}
+		response := &managementpb.GetFailedChecksResponse{
+			Results: []*managementpb.CheckResult{
+				{
+					Summary:     "Check summary",
+					Description: "Check Description",
+					ReadMoreUrl: "https://www.example.com",
+					Severity:    managementpb.Severity(common.Emergency),
+					Labels:      map[string]string{"label_key": "label_value"},
+					ServiceName: "svc",
+					ServiceId:   "test_svc",
+					CheckName:   "test_check",
+				},
+			},
+			PageTotals: &managementpb.PageTotals{
+				TotalPages: 1,
+				TotalItems: 1,
+			},
+		}
+		var checksService mockChecksService
+		checksService.On("GetChecksResults", mock.Anything, mock.Anything).Return(checkResult, nil)
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.GetFailedChecks(context.Background(), &managementpb.GetFailedChecksRequest{
+			ServiceId: "test_svc",
+		})
+		require.NoError(t, err)
+		assert.Equal(t, response, resp)
+	})
+
+	t.Run("get failed checks with pagination", func(t *testing.T) {
+		t.Parallel()
+
+		checkResult := []services.CheckResult{
+			{
+				Result: check.Result{
+					Summary:     "Check summary",
+					Description: "Check Description",
+					ReadMoreURL: "https://www.example.com",
+					Severity:    common.Critical,
+					Labels:      map[string]string{"label_key": "label_value"},
+				},
+				Target:    services.Target{ServiceName: "svc", ServiceID: "test_svc"},
+				CheckName: "test_check1",
+			},
+			{
+				Result: check.Result{
+					Summary:     "Check summary 2",
+					Description: "Check Description 2",
+					ReadMoreURL: "https://www.example.com",
+					Severity:    common.Warning,
+					Labels:      map[string]string{"label_key": "label_value"},
+				},
+				Target:    services.Target{ServiceName: "svc", ServiceID: "test_svc"},
+				CheckName: "test_check2",
+			},
+			{
+				Result: check.Result{
+					Summary:     "Check summary 3",
+					Description: "Check Description 3",
+					ReadMoreURL: "https://www.example.com",
+					Severity:    common.Notice,
+					Labels:      map[string]string{"label_key": "label_value"},
+				},
+				Target:    services.Target{ServiceName: "svc", ServiceID: "test_svc"},
+				CheckName: "test_check3",
+			},
+		}
+		response := &managementpb.GetFailedChecksResponse{
+			Results: []*managementpb.CheckResult{
+				{
+					Summary:     "Check summary 2",
+					Description: "Check Description 2",
+					ReadMoreUrl: "https://www.example.com",
+					Severity:    managementpb.Severity(common.Warning),
+					Labels:      map[string]string{"label_key": "label_value"},
+					ServiceName: "svc",
+					ServiceId:   "test_svc",
+					CheckName:   "test_check2",
+				},
+			},
+			PageTotals: &managementpb.PageTotals{
+				TotalPages: 3,
+				TotalItems: 3,
+			},
+		}
+		var checksService mockChecksService
+		checksService.On("GetChecksResults", mock.Anything, mock.Anything).Return(checkResult, nil)
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.GetFailedChecks(context.Background(), &managementpb.GetFailedChecksRequest{
+			ServiceId: "test_svc",
+			PageParams: &managementpb.PageParams{
+				PageSize: 1,
+				Index:    1,
+			},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, response, resp)
+	})
+}
+
+func TestListFailedServices(t *testing.T) {
+	t.Parallel()
+
+	t.Run("internal error", func(t *testing.T) {
+		t.Parallel()
+
+		var checksService mockChecksService
+		checksService.On("GetSecurityCheckResults", mock.Anything).Return(nil, errors.New("random error"))
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.ListFailedServices(context.Background(), &managementpb.ListFailedServicesRequest{})
+		assert.EqualError(t, err, "failed to get check results: random error")
+		assert.Nil(t, resp)
+	})
+
+	t.Run("list services with failed checks", func(t *testing.T) {
+		t.Parallel()
+
+		checkResult := []services.CheckResult{
+			{
+				Result: check.Result{
+					Summary:     "Check summary",
+					Description: "Check Description",
+					ReadMoreURL: "https://www.example.com",
+					Severity:    common.Critical,
+					Labels:      map[string]string{"label_key": "label_value"},
+				},
+				Target:    services.Target{ServiceName: "svc1", ServiceID: "test_svc1"},
+				CheckName: "test_check",
+			},
+			{
+				Result: check.Result{
+					Summary:     "Check summary",
+					Description: "Check Description",
+					ReadMoreURL: "https://www.example.com",
+					Severity:    common.Error,
+					Labels:      map[string]string{"label_key": "label_value"},
+				},
+				Target:    services.Target{ServiceName: "svc1", ServiceID: "test_svc1"},
+				CheckName: "test_check",
+			},
+			{
+				Result: check.Result{
+					Summary:     "Check summary",
+					Description: "Check Description",
+					ReadMoreURL: "https://www.example.com",
+					Severity:    common.Notice,
+					Labels:      map[string]string{"label_key": "label_value"},
+				},
+				Target:    services.Target{ServiceName: "svc1", ServiceID: "test_svc1"},
+				CheckName: "test_check",
+			},
+			{
+				Result: check.Result{
+					Summary:     "Check summary 2",
+					Description: "Check Description 2",
+					ReadMoreURL: "https://www.example.com",
+					Severity:    common.Warning,
+					Labels:      map[string]string{"label_key": "label_value"},
+				},
+				Target:    services.Target{ServiceName: "svc2", ServiceID: "test_svc2"},
+				CheckName: "test_check",
+			},
+		}
+		response := &managementpb.ListFailedServicesResponse{
+			Result: []*managementpb.CheckResultSummary{
+				{
+					ServiceName:   "svc1",
+					ServiceId:     "test_svc1",
+					CriticalCount: 2,
+					NoticeCount:   1,
+				},
+				{
+					ServiceName:  "svc2",
+					ServiceId:    "test_svc2",
+					WarningCount: 1,
+				},
+			},
+		}
+		var checksService mockChecksService
+		checksService.On("GetSecurityCheckResults", mock.Anything).Return(checkResult, nil)
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.ListFailedServices(context.Background(), &managementpb.ListFailedServicesRequest{})
+		require.NoError(t, err)
+		assert.ElementsMatch(t, resp.Result, response.Result)
 	})
 }
 

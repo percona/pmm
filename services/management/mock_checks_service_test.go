@@ -3,7 +3,10 @@
 package management
 
 import (
+	context "context"
+
 	check "github.com/percona-platform/saas/pkg/check"
+
 	mock "github.com/stretchr/testify/mock"
 
 	services "github.com/percona/pmm-managed/services"
@@ -79,6 +82,29 @@ func (_m *mockChecksService) GetChecks() (map[string]check.Check, error) {
 	return r0, r1
 }
 
+// GetChecksResults provides a mock function with given fields: ctx, serviceID
+func (_m *mockChecksService) GetChecksResults(ctx context.Context, serviceID string) ([]services.CheckResult, error) {
+	ret := _m.Called(ctx, serviceID)
+
+	var r0 []services.CheckResult
+	if rf, ok := ret.Get(0).(func(context.Context, string) []services.CheckResult); ok {
+		r0 = rf(ctx, serviceID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]services.CheckResult)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, serviceID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetDisabledChecks provides a mock function with given fields:
 func (_m *mockChecksService) GetDisabledChecks() ([]string, error) {
 	ret := _m.Called()
@@ -103,15 +129,15 @@ func (_m *mockChecksService) GetDisabledChecks() ([]string, error) {
 }
 
 // GetSecurityCheckResults provides a mock function with given fields:
-func (_m *mockChecksService) GetSecurityCheckResults() ([]services.STTCheckResult, error) {
+func (_m *mockChecksService) GetSecurityCheckResults() ([]services.CheckResult, error) {
 	ret := _m.Called()
 
-	var r0 []services.STTCheckResult
-	if rf, ok := ret.Get(0).(func() []services.STTCheckResult); ok {
+	var r0 []services.CheckResult
+	if rf, ok := ret.Get(0).(func() []services.CheckResult); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]services.STTCheckResult)
+			r0 = ret.Get(0).([]services.CheckResult)
 		}
 	}
 
@@ -132,6 +158,20 @@ func (_m *mockChecksService) StartChecks(checkNames []string) error {
 	var r0 error
 	if rf, ok := ret.Get(0).(func([]string) error); ok {
 		r0 = rf(checkNames)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// ToggleCheckAlert provides a mock function with given fields: ctx, alertID, newStatus
+func (_m *mockChecksService) ToggleCheckAlert(ctx context.Context, alertID string, newStatus bool) error {
+	ret := _m.Called(ctx, alertID, newStatus)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, bool) error); ok {
+		r0 = rf(ctx, alertID, newStatus)
 	} else {
 		r0 = ret.Error(0)
 	}

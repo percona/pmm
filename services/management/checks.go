@@ -20,6 +20,7 @@ import (
 	"context"
 
 	"github.com/percona-platform/saas/pkg/check"
+	"github.com/percona-platform/saas/pkg/common"
 	"github.com/percona/pmm/api/managementpb"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -45,11 +46,124 @@ func NewChecksAPIService(checksService checksService) *ChecksAPIService {
 	}
 }
 
+// ListFailedServices returns a list of services with failed checks and their summaries.
+func (s *ChecksAPIService) ListFailedServices(ctx context.Context, req *managementpb.ListFailedServicesRequest) (*managementpb.ListFailedServicesResponse, error) {
+	results, err := s.checksService.GetSecurityCheckResults()
+	if err != nil {
+		if errors.Is(err, services.ErrSTTDisabled) {
+			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)
+		}
+
+		return nil, errors.Wrap(err, "failed to get check results")
+	}
+
+	summaries := make(map[string]*services.CheckResultSummary)
+	var svcSummary *services.CheckResultSummary
+	var exists bool
+	for _, result := range results {
+		if svcSummary, exists = summaries[result.Target.ServiceID]; !exists {
+			svcSummary = &services.CheckResultSummary{
+				ServiceName: result.Target.ServiceName,
+				ServiceID:   result.Target.ServiceID,
+			}
+			summaries[result.Target.ServiceID] = svcSummary
+		}
+		switch result.Result.Severity {
+		case common.Emergency, common.Alert, common.Critical, common.Error:
+			svcSummary.CriticalCount++
+		case common.Warning:
+			svcSummary.WarningCount++
+		case common.Notice, common.Debug, common.Info:
+			svcSummary.NoticeCount++
+		case common.Unknown:
+		}
+	}
+
+	failedServices := make([]*managementpb.CheckResultSummary, 0, len(summaries))
+	for _, result := range summaries {
+		failedServices = append(failedServices, &managementpb.CheckResultSummary{
+			ServiceId:     result.ServiceID,
+			ServiceName:   result.ServiceName,
+			CriticalCount: result.CriticalCount,
+			WarningCount:  result.WarningCount,
+			NoticeCount:   result.NoticeCount,
+		})
+	}
+
+	return &managementpb.ListFailedServicesResponse{Result: failedServices}, nil
+}
+
+// GetFailedChecks returns details of failed checks for a given service.
+func (s *ChecksAPIService) GetFailedChecks(ctx context.Context, req *managementpb.GetFailedChecksRequest) (*managementpb.GetFailedChecksResponse, error) {
+	results, err := s.checksService.GetChecksResults(ctx, req.ServiceId)
+	if err != nil {
+		if errors.Is(err, services.ErrSTTDisabled) {
+			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)
+		}
+
+		return nil, errors.Wrapf(err, "failed to get check results for service '%s'", req.ServiceId)
+	}
+
+	failedChecks := make([]*managementpb.CheckResult, 0, len(results))
+	for _, result := range results {
+		failedChecks = append(failedChecks, &managementpb.CheckResult{
+			Summary:     result.Result.Summary,
+			CheckName:   result.CheckName,
+			Description: result.Result.Description,
+			ReadMoreUrl: result.Result.ReadMoreURL,
+			Severity:    managementpb.Severity(result.Result.Severity),
+			Labels:      result.Result.Labels,
+			ServiceName: result.Target.ServiceName,
+			ServiceId:   result.Target.ServiceID,
+			AlertId:     result.AlertID,
+			Silenced:    result.Silenced,
+		})
+	}
+
+	pageTotals := &managementpb.PageTotals{
+		TotalPages: 1,
+		TotalItems: int32(len(failedChecks)),
+	}
+	var pageIndex int
+	var pageSize int
+	if req.PageParams != nil {
+		pageIndex = int(req.PageParams.Index)
+		pageSize = int(req.PageParams.PageSize)
+	}
+
+	from, to := pageIndex*pageSize, (pageIndex+1)*pageSize
+	if to > len(failedChecks) || to == 0 {
+		to = len(failedChecks)
+	}
+	if from > len(failedChecks) {
+		from = len(failedChecks)
+	}
+
+	if pageSize > 0 {
+		pageTotals.TotalPages = int32(len(failedChecks) / pageSize)
+		if len(failedChecks)%pageSize > 0 {
+			pageTotals.TotalPages++
+		}
+	}
+
+	return &managementpb.GetFailedChecksResponse{Results: failedChecks[from:to], PageTotals: pageTotals}, nil
+}
+
+// ToggleCheckAlert toggles the silence state of the check with the provided alertID.
+func (s *ChecksAPIService) ToggleCheckAlert(ctx context.Context, req *managementpb.ToggleCheckAlertRequest) (*managementpb.ToggleCheckAlertResponse, error) {
+	err := s.checksService.ToggleCheckAlert(ctx, req.AlertId, req.Silence)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to toggle silence status of alert with id: %s", req.AlertId)
+	}
+
+	return &managementpb.ToggleCheckAlertResponse{}, nil
+}
+
 // GetSecurityCheckResults returns Security Thread Tool's latest checks results.
 func (s *ChecksAPIService) GetSecurityCheckResults(ctx context.Context, req *managementpb.GetSecurityCheckResultsRequest) (*managementpb.GetSecurityCheckResultsResponse, error) {
 	results, err := s.checksService.GetSecurityCheckResults()
 	if err != nil {
-		if err == services.ErrSTTDisabled {
+		if errors.Is(err, services.ErrSTTDisabled) {
 			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)
 		}
 

@@ -19,6 +19,7 @@ package ia
 import (
 	"context"
 
+	"github.com/percona/pmm/api/managementpb"
 	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -65,7 +66,7 @@ func (s *ChannelsService) ListChannels(ctx context.Context, req *iav1beta1.ListC
 	}
 
 	var channels []*iav1beta1.Channel
-	pageTotals := &iav1beta1.PageTotals{
+	pageTotals := &managementpb.PageTotals{
 		TotalPages: 1,
 	}
 
@@ -111,7 +112,7 @@ func (s *ChannelsService) getNotificationChannels() ([]*iav1beta1.Channel, error
 	return res, nil
 }
 
-func (s *ChannelsService) getNotificationChannelsPage(pageIndex, pageSize int) ([]*iav1beta1.Channel, *iav1beta1.PageTotals, error) {
+func (s *ChannelsService) getNotificationChannelsPage(pageIndex, pageSize int) ([]*iav1beta1.Channel, *managementpb.PageTotals, error) {
 	var channels []*models.Channel
 	var totalItems int
 	errTx := s.db.InTransaction(func(tx *reform.TX) error {
@@ -146,7 +147,7 @@ func (s *ChannelsService) getNotificationChannelsPage(pageIndex, pageSize int) (
 		totalPages++
 	}
 
-	totals := &iav1beta1.PageTotals{
+	totals := &managementpb.PageTotals{
 		TotalItems: int32(totalItems),
 		TotalPages: int32(totalPages),
 	}

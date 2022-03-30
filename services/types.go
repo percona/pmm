@@ -34,10 +34,33 @@ type Target struct {
 	TLSSkipVerify bool
 }
 
-// STTCheckResult contains the output from the check file and other information.
-type STTCheckResult struct {
+// CheckResult contains the output from the check file and other information.
+type CheckResult struct {
 	CheckName string
+	Silenced  bool
+	AlertID   string
 	Interval  check.Interval
 	Target    Target
 	Result    check.Result
+}
+
+// CheckResultSummary contains the summary of failed checks for a service.
+type CheckResultSummary struct {
+	ServiceName   string
+	ServiceID     string
+	CriticalCount uint32
+	WarningCount  uint32
+	NoticeCount   uint32
+}
+
+// FilterParams provides fields needed to filter alerts from AlertManager.
+type FilterParams struct {
+	// IsIA specifies if only Integrated Alerts should be matched.
+	IsIA bool
+	// IsCheck specifies if only Checks/Advisors alerts should be matched.
+	IsCheck bool
+	// AlertID is the ID of alert to be matched (if any).
+	AlertID string
+	// ServiceID is the ID of service to be matched (if any).
+	ServiceID string
 }

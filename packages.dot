@@ -31,6 +31,7 @@ digraph packages {
 	"/services/agents" -> "/services/agents/channel";
 	"/services/agents/grpc" -> "/services/agents";
 	"/services/alertmanager" -> "/models";
+	"/services/alertmanager" -> "/services";
 	"/services/checks" -> "/models";
 	"/services/checks" -> "/services";
 	"/services/inventory" -> "/models";

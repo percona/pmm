@@ -509,7 +509,7 @@ func (s *TemplatesService) ListTemplates(ctx context.Context, req *iav1beta1.Lis
 	templates := s.getTemplates()
 	res := &iav1beta1.ListTemplatesResponse{
 		Templates: make([]*iav1beta1.Template, 0, len(templates)),
-		Totals: &iav1beta1.PageTotals{
+		Totals: &managementpb.PageTotals{
 			TotalItems: int32(len(templates)),
 			TotalPages: 1,
 		},

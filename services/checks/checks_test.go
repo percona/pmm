@@ -23,8 +23,12 @@ import (
 	"testing"
 	"time"
 
+	"github.com/percona-platform/saas/pkg/common"
+	"github.com/prometheus/common/model"
+
 	"github.com/AlekSi/pointer"
 	"github.com/percona-platform/saas/pkg/check"
+	"github.com/percona/pmm/api/alertmanager/ammodels"
 	"github.com/percona/pmm/version"
 	promtest "github.com/prometheus/client_golang/prometheus/testutil"
 	"github.com/stretchr/testify/assert"
@@ -358,6 +362,7 @@ func TestSTTMetrics(t *testing.T) {
 		assert.NoError(t, promtest.CollectAndCompare(s, expected))
 	})
 }
+
 func TestGetSecurityCheckResults(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
@@ -599,4 +604,165 @@ func TestFilterChecksByInterval(t *testing.T) {
 
 	frequentChecks := s.filterChecks(checks, check.Frequent, nil, nil)
 	assert.Equal(t, map[string]check.Check{"frequentCheck": frequentCheck}, frequentChecks)
+}
+
+func TestGetFailedChecks(t *testing.T) {
+	t.Parallel()
+
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+
+	t.Run("STT disabled", func(t *testing.T) {
+		t.Parallel()
+
+		ams := mockAlertmanagerService{}
+		ctx := context.Background()
+		ams.On("GetAlerts", ctx, mock.Anything).Return(nil, services.ErrSTTDisabled)
+
+		s, err := New(nil, &ams, db)
+		require.NoError(t, err)
+		results, err := s.GetChecksResults(ctx, "test_svc")
+		assert.Nil(t, results)
+		assert.EqualError(t, err, services.ErrSTTDisabled.Error())
+	})
+
+	t.Run("no failed check for service", func(t *testing.T) {
+		t.Parallel()
+
+		var ams mockAlertmanagerService
+		ctx := context.Background()
+		ams.On("GetAlerts", ctx, mock.Anything).Return([]*ammodels.GettableAlert{}, nil)
+
+		s, err := New(nil, &ams, db)
+		require.NoError(t, err)
+		settings, err := models.GetSettings(db)
+		require.NoError(t, err)
+
+		settings.SaaS.STTEnabled = true
+		err = models.SaveSettings(db, settings)
+		require.NoError(t, err)
+
+		results, err := s.GetChecksResults(context.Background(), "test_svc")
+		assert.Empty(t, results)
+		require.NoError(t, err)
+	})
+
+	t.Run("non empty failed checks", func(t *testing.T) {
+		t.Parallel()
+
+		alertLabels := map[string]string{
+			model.AlertNameLabel: "test_check",
+			"alert_id":           "test_alert",
+			"service_name":       "test_svc",
+			"service_id":         "/service_id/test_svc1",
+			"interval_group":     "frequent",
+			"severity":           common.Severity(4).String(),
+		}
+
+		testAlert := ammodels.GettableAlert{
+			Annotations: map[string]string{
+				"summary":       "Check summary",
+				"description":   "Check description",
+				"read_more_url": "https://www.example.com",
+			},
+			Alert: ammodels.Alert{
+				Labels: alertLabels,
+			},
+			Status: &ammodels.AlertStatus{},
+		}
+
+		results := []services.CheckResult{
+			{
+				CheckName: "test_check",
+				AlertID:   "test_alert",
+				Silenced:  false,
+				Interval:  check.Frequent,
+				Target: services.Target{
+					ServiceName: "test_svc",
+					ServiceID:   "/service_id/test_svc1",
+					Labels:      alertLabels,
+				},
+				Result: check.Result{
+					Summary:     "Check summary",
+					Description: "Check description",
+					ReadMoreURL: "https://www.example.com",
+					Severity:    common.Error,
+					Labels:      alertLabels,
+				},
+			},
+		}
+
+		ams := mockAlertmanagerService{}
+		ctx := context.Background()
+		ams.On("GetAlerts", ctx, mock.Anything).Return([]*ammodels.GettableAlert{&testAlert}, nil)
+
+		s, err := New(nil, &ams, db)
+		require.NoError(t, err)
+		settings, err := models.GetSettings(db)
+		require.NoError(t, err)
+
+		settings.SaaS.STTEnabled = true
+		err = models.SaveSettings(db, settings)
+		require.NoError(t, err)
+
+		response, err := s.GetChecksResults(ctx, "test_svc")
+		require.NoError(t, err)
+		assert.Equal(t, results, response)
+	})
+}
+
+func TestToggleCheckAlert(t *testing.T) {
+	t.Parallel()
+
+	t.Run("silence alert", func(t *testing.T) {
+		t.Parallel()
+
+		testAlert := &ammodels.GettableAlert{
+			Alert: ammodels.Alert{
+				Labels: map[string]string{
+					"alert_id": "test_alert_1",
+				},
+			},
+			Status: &ammodels.AlertStatus{},
+		}
+
+		var ams mockAlertmanagerService
+		ctx := context.Background()
+		ams.On("GetAlerts", ctx, mock.Anything).Return([]*ammodels.GettableAlert{testAlert}, nil)
+		ams.On("SilenceAlerts", ctx, []*ammodels.GettableAlert{testAlert}).Return(nil)
+
+		s, err := New(nil, &ams, nil)
+		require.NoError(t, err)
+
+		active := len(testAlert.Status.SilencedBy) == 0
+		err = s.ToggleCheckAlert(ctx, "test_alert_1", active)
+		require.NoError(t, err)
+		ams.AssertCalled(t, "SilenceAlerts", ctx, []*ammodels.GettableAlert{testAlert})
+	})
+
+	t.Run("unsilence alert", func(t *testing.T) {
+		t.Parallel()
+
+		testAlert := &ammodels.GettableAlert{
+			Alert: ammodels.Alert{
+				Labels: map[string]string{
+					"alert_id": "test_alert_2",
+				},
+			},
+			Status: &ammodels.AlertStatus{SilencedBy: []string{"test_silence"}},
+		}
+
+		var ams mockAlertmanagerService
+		ctx := context.Background()
+		ams.On("GetAlerts", ctx, mock.Anything).Return([]*ammodels.GettableAlert{testAlert}, nil)
+		ams.On("UnsilenceAlerts", ctx, []*ammodels.GettableAlert{testAlert}).Return(nil)
+
+		s, err := New(nil, &ams, nil)
+		require.NoError(t, err)
+
+		active := len(testAlert.Status.SilencedBy) == 0
+		err = s.ToggleCheckAlert(ctx, "test_alert_1", active)
+		require.NoError(t, err)
+		ams.AssertCalled(t, "UnsilenceAlerts", ctx, []*ammodels.GettableAlert{testAlert})
+	})
 }
