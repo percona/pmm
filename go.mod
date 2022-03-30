@@ -14,7 +14,7 @@ go 1.17
 
 require (
 	github.com/AlekSi/pointer v1.2.0
-	github.com/Azure/azure-sdk-for-go v62.2.0+incompatible
+	github.com/Azure/azure-sdk-for-go v63.0.0+incompatible
 	github.com/Azure/go-autorest/autorest v0.11.24
 	github.com/Azure/go-autorest/autorest/azure/auth v0.5.11
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
