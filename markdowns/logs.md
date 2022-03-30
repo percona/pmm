@@ -1,19 +1,27 @@
 ---
 slug: "logs"
 ---
-This is body text for the page.
-Source of truth is github
+Sometimes users need to troubleshoot an issue. PMM Server offers an ability to download the logs as well as configuration of its components. 
 
-[block:embed]
+You can download the logs either by calling this endpoint or by visiting a dedicated URL (ex: https://pmmdemo.percona.com/logs.zip) or via the **Settings UI** as explained in the [Troubleshooting](https://www.percona.com/doc/percona-monitoring-and-management/2.x/how-to/troubleshoot.html#client-server-connections) section of our docs.
+
+The structure of the logs is as follows:
+[block:code]
 {
-"html": "<iframe class=\"embedly-embed\" src=\"//cdn.embedly.com/widgets/media.html?src=https%3A%2F%2Fwww.youtube.com%2Fembed%2FBZNw5HHXnW0%3Ffeature%3Doembed&display_name=YouTube&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DBZNw5HHXnW0&image=https%3A%2F%2Fi.ytimg.com%2Fvi%2FBZNw5HHXnW0%2Fhqdefault.jpg&key=f2aa6fc3595946d0afc3d76cbbd25dc3&type=text%2Fhtml&schema=youtube\" width=\"854\" height=\"480\" scrolling=\"no\" title=\"YouTube embed\" frameborder=\"0\" allow=\"autoplay; fullscreen\" allowfullscreen=\"true\"></iframe>",
-"url": "https://www.youtube.com/watch?v=BZNw5HHXnW0",
-"title": "Optimization of PostgreSQL instances - Percona MeetUp for PostgreSQL Dec 15th, 2021",
-"favicon": "https://www.youtube.com/s/desktop/18069be1/img/favicon.ico",
-"image": "https://i.ytimg.com/vi/BZNw5HHXnW0/hqdefault.jpg"
+  "codes": [
+    {
+      "code": "# tree\n├── alertmanager.base.yml\n├── alertmanager.ini\n├── alertmanager.log\n├── alertmanager.yml\n├── clickhouse-server.err.log\n├── clickhouse-server.log\n├── clickhouse-server.startup.log\n├── client\n│   ├── list.txt\n│   ├── pmm-admin-version.txt\n│   ├── pmm-agent-config.yaml\n│   ├── pmm-agent-version.txt\n│   └── status.json\n├── cron.log\n├── dashboard-upgrade.log\n├── dbaas-controller.log\n├── grafana.log\n├── installed.json\n├── nginx.conf\n├── nginx.log\n├── nginx.startup.log\n├── pmm-agent.log\n├── pmm-agent.yaml\n├── pmm-managed.log\n├── pmm-ssl.conf\n├── pmm-update-perform-init.log\n├── pmm-update-perform.log\n├── pmm-version.txt\n├── pmm.conf\n├── pmm.ini\n├── postgresql.log\n├── postgresql.startup.log\n├── prometheus.base.yml\n├── prometheus.log\n├── qan-api2.ini\n├── qan-api2.log\n├── supervisorctl_status.log\n├── supervisord.conf\n├── supervisord.log\n├── systemctl_status.log\n├── victoriametrics-promscrape.yml\n├── victoriametrics.ini\n├── victoriametrics.log\n├── victoriametrics_targets.json\n├── vmalert.ini\n└── vmalert.log",
+      "language": "text"
+    }
+  ]
 }
 [/block]
 
-Without title and subtitle
+[block:callout]
+{
+  "type": "info",
+  "title": "PMM Server Version",
+  "body": "PMM Server also dumps its version info to a special file `installed.json`. \n\n```bash\n% cat installed.json | jq\n{\n  \"version\": \"2.26.0\",\n  \"full_version\": \"2.26.0-17.2202021129.6914083.el7\",\n  \"build_time\": \"2022-02-02T11:30:45Z\",\n  \"repo\": \"local\"\n}\n```"
+}
+[/block]
 
-without category
