@@ -8,9 +8,9 @@ import "protoc-gen-openapiv2/options/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "managementpb/ia/boolean_flag.proto";
-import "managementpb/ia/pagination.proto";
 import "managementpb/ia/rules.proto";
 import "managementpb/ia/status.proto";
+import "managementpb/pagination.proto";
 import "managementpb/severity.proto";
 
 // TODO move it to parent directory / package once API is v1-stable
@@ -37,13 +37,13 @@ message Alert {
 
 message ListAlertsRequest {
   // Page request.
-  PageParams page_params = 1;
+  management.PageParams page_params = 1;
 }
 
 message ListAlertsResponse {
   repeated Alert alerts = 1;
   // Total items and pages.
-  PageTotals totals = 2;
+  management.PageTotals totals = 2;
 }
 
 message ToggleAlertsRequest {

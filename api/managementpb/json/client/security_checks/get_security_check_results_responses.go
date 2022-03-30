@@ -6,7 +6,6 @@ package security_checks
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -15,7 +14,6 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
 // GetSecurityCheckResultsReader is a Reader for the GetSecurityCheckResults structure.
@@ -253,127 +251,6 @@ func (o *GetSecurityCheckResultsOKBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetSecurityCheckResultsOKBody) UnmarshalBinary(b []byte) error {
 	var res GetSecurityCheckResultsOKBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*ResultsItems0 SecurityCheckResult represents the check result returned from pmm-managed after running the check.
-swagger:model ResultsItems0
-*/
-type ResultsItems0 struct {
-
-	// summary
-	Summary string `json:"summary,omitempty"`
-
-	// description
-	Description string `json:"description,omitempty"`
-
-	// Severity represents severity level of the check result or alert.
-	// Enum: [SEVERITY_INVALID SEVERITY_EMERGENCY SEVERITY_ALERT SEVERITY_CRITICAL SEVERITY_ERROR SEVERITY_WARNING SEVERITY_NOTICE SEVERITY_INFO SEVERITY_DEBUG]
-	Severity *string `json:"severity,omitempty"`
-
-	// labels
-	Labels map[string]string `json:"labels,omitempty"`
-
-	// URL containing information on how to resolve an issue detected by an STT check.
-	ReadMoreURL string `json:"read_more_url,omitempty"`
-
-	// Name of the monitored service on which the check ran.
-	ServiceName string `json:"service_name,omitempty"`
-}
-
-// Validate validates this results items0
-func (o *ResultsItems0) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateSeverity(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-var resultsItems0TypeSeverityPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["SEVERITY_INVALID","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		resultsItems0TypeSeverityPropEnum = append(resultsItems0TypeSeverityPropEnum, v)
-	}
-}
-
-const (
-
-	// ResultsItems0SeveritySEVERITYINVALID captures enum value "SEVERITY_INVALID"
-	ResultsItems0SeveritySEVERITYINVALID string = "SEVERITY_INVALID"
-
-	// ResultsItems0SeveritySEVERITYEMERGENCY captures enum value "SEVERITY_EMERGENCY"
-	ResultsItems0SeveritySEVERITYEMERGENCY string = "SEVERITY_EMERGENCY"
-
-	// ResultsItems0SeveritySEVERITYALERT captures enum value "SEVERITY_ALERT"
-	ResultsItems0SeveritySEVERITYALERT string = "SEVERITY_ALERT"
-
-	// ResultsItems0SeveritySEVERITYCRITICAL captures enum value "SEVERITY_CRITICAL"
-	ResultsItems0SeveritySEVERITYCRITICAL string = "SEVERITY_CRITICAL"
-
-	// ResultsItems0SeveritySEVERITYERROR captures enum value "SEVERITY_ERROR"
-	ResultsItems0SeveritySEVERITYERROR string = "SEVERITY_ERROR"
-
-	// ResultsItems0SeveritySEVERITYWARNING captures enum value "SEVERITY_WARNING"
-	ResultsItems0SeveritySEVERITYWARNING string = "SEVERITY_WARNING"
-
-	// ResultsItems0SeveritySEVERITYNOTICE captures enum value "SEVERITY_NOTICE"
-	ResultsItems0SeveritySEVERITYNOTICE string = "SEVERITY_NOTICE"
-
-	// ResultsItems0SeveritySEVERITYINFO captures enum value "SEVERITY_INFO"
-	ResultsItems0SeveritySEVERITYINFO string = "SEVERITY_INFO"
-
-	// ResultsItems0SeveritySEVERITYDEBUG captures enum value "SEVERITY_DEBUG"
-	ResultsItems0SeveritySEVERITYDEBUG string = "SEVERITY_DEBUG"
-)
-
-// prop value enum
-func (o *ResultsItems0) validateSeverityEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, resultsItems0TypeSeverityPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *ResultsItems0) validateSeverity(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Severity) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateSeverityEnum("severity", "body", *o.Severity); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ResultsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ResultsItems0) UnmarshalBinary(b []byte) error {
-	var res ResultsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
