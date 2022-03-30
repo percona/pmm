@@ -130,10 +130,5 @@ func (this *UserStatusRequest) Validate() error {
 	return nil
 }
 func (this *UserStatusResponse) Validate() error {
-	if this.IsPlatformUser != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.IsPlatformUser); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("IsPlatformUser", err)
-		}
-	}
 	return nil
 }

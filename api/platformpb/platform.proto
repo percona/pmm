@@ -115,7 +115,7 @@ message OrganizationEntitlement {
 message UserStatusRequest {}
 
 message UserStatusResponse {
-  google.protobuf.BoolValue is_platform_user = 1;
+  bool is_platform_user = 1;
 }
 
 // Platform contains rpcs related to Percona Platform.
