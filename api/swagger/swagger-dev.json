@@ -2529,14 +2529,14 @@
         }
       }
     },
-    "/v1/Platform/Status": {
+    "/v1/Platform/UserStatus": {
       "post": {
-        "description": "Status returns a boolean indicating whether the PMM server is connected to Percona Platform or not. This endpoint can be accessed by all user roles.",
+        "description": "UserStatus returns a boolean indicating whether the current user is logged in with their Percona Account or not.",
         "tags": [
           "Platform"
         ],
-        "summary": "Status",
-        "operationId": "Status",
+        "summary": "UserStatus",
+        "operationId": "UserStatus",
         "parameters": [
           {
             "name": "body",
@@ -2553,7 +2553,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "connected": {
+                "is_platform_user": {
                   "type": "boolean",
                   "x-order": 0
                 }
