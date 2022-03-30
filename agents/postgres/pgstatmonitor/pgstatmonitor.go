@@ -71,6 +71,7 @@ type Params struct {
 }
 
 type pgStatMonitorVersion int
+type pgStatMonitorPrerelease string
 
 const (
 	pgStatMonitorVersion06 pgStatMonitorVersion = iota
@@ -119,21 +120,86 @@ func New(params *Params, l *logrus.Entry) (*PGStatMonitorQAN, error) {
 	return newPgStatMonitorQAN(q, sqlDB, params.AgentID, params.DisableQueryExamples, l)
 }
 
+func isPropertyValueInt(property string) bool {
+	switch property {
+	case
+		"pg_stat_monitor.pgsm_histogram_max",
+		"pg_stat_monitor.pgsm_query_max_len",
+		"pg_stat_monitor.pgsm_max",
+		"pg_stat_monitor.pgsm_bucket_time",
+		"pg_stat_monitor.pgsm_query_shared_buffer",
+		"pg_stat_monitor.pgsm_max_buckets",
+		"pg_stat_monitor.pgsm_histogram_buckets",
+		"pg_stat_monitor.pgsm_overflow_target",
+		"pg_stat_monitor.pgsm_histogram_min":
+
+		return true
+	}
+
+	return false
+}
+
+func areSettingsTextValues(q *reform.Querier) (bool, error) {
+	pgsmVersion, prerelease, err := getPGMonitorVersion(q)
+	if err != nil {
+		return false, err
+	}
+
+	if pgsmVersion >= 3 && prerelease != "beta-2" && prerelease != "rc.1" {
+		return true, nil
+	}
+
+	return false, nil
+}
+
 func newPgStatMonitorQAN(q *reform.Querier, dbCloser io.Closer, agentID string, disableQueryExamples bool, l *logrus.Entry) (*PGStatMonitorQAN, error) {
-	settings, err := q.SelectAllFrom(pgStatMonitorSettingsView, "")
+	var settings []reform.Struct
+
+	settingsValuesAreText, err := areSettingsTextValues(q)
 	if err != nil {
 		return nil, err
 	}
+	if settingsValuesAreText {
+		settings, err = q.SelectAllFrom(pgStatMonitorSettingsTextValueView, "")
+	} else {
+		settings, err = q.SelectAllFrom(pgStatMonitorSettingsView, "")
+	}
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get settings")
+	}
+
 	var normalizedQuery bool
 	waitTime := defaultWaitTime
 	for _, row := range settings {
-		setting := row.(*pgStatMonitorSettings)
-		switch setting.Name {
-		case "pg_stat_monitor.pgsm_normalized_query":
-			normalizedQuery = setting.Value == 1
-		case "pg_stat_monitor.pgsm_bucket_time":
-			if setting.Value < int64(defaultWaitTime.Seconds()) {
-				waitTime = time.Duration(setting.Value) * time.Second
+		var name string
+		var value int64
+
+		if settingsValuesAreText {
+			setting := row.(*pgStatMonitorSettingsTextValue)
+			name = setting.Name
+			if !isPropertyValueInt(name) {
+				continue
+			}
+
+			valueInt, err := strconv.ParseInt(setting.Value, 10, 64)
+			if err != nil {
+				return nil, errors.Wrap(err, "value cannot be parsed as integer")
+			}
+			value = valueInt
+		} else {
+			setting := row.(*pgStatMonitorSettings)
+			name = setting.Name
+			value = setting.Value
+		}
+
+		if err == nil {
+			switch name {
+			case "pg_stat_monitor.pgsm_normalized_query":
+				normalizedQuery = value == 1
+			case "pg_stat_monitor.pgsm_bucket_time":
+				if value < int64(defaultWaitTime.Seconds()) {
+					waitTime = time.Duration(value) * time.Second
+				}
 			}
 		}
 	}
@@ -161,38 +227,43 @@ func getPGVersion(q *reform.Querier) (pgVersion float64, err error) {
 	return strconv.ParseFloat(v, 64)
 }
 
-func getPGMonitorVersion(q *reform.Querier) (pgStatMonitorVersion, error) {
+func getPGMonitorVersion(q *reform.Querier) (pgStatMonitorVersion, pgStatMonitorPrerelease, error) {
 	var result string
 	err := q.QueryRow(fmt.Sprintf("SELECT /* %s */ pg_stat_monitor_version()", queryTag)).Scan(&result)
 	if err != nil {
-		return pgStatMonitorVersion06, errors.Wrap(err, "failed to get pg_stat_monitor version from DB")
+		return pgStatMonitorVersion06, "", errors.Wrap(err, "failed to get pg_stat_monitor version from DB")
 	}
 	pgsmVersion, err := ver.NewVersion(result)
 	if err != nil {
-		return pgStatMonitorVersion06, errors.Wrap(err, "failed to parse pg_stat_monitor version")
+		return pgStatMonitorVersion06, "", errors.Wrap(err, "failed to parse pg_stat_monitor version")
 	}
 
 	pgVersion, err := getPGVersion(q)
 	if err != nil {
-		return pgStatMonitorVersion06, err
+		return pgStatMonitorVersion06, "", err
 	}
 
+	version := pgStatMonitorVersion06
 	switch {
 	case pgsmVersion.Core().GreaterThanOrEqual(v10):
 		if pgVersion >= 14 {
-			return pgStatMonitorVersion10PG14, nil
+			version = pgStatMonitorVersion10PG14
+			break
 		}
 		if pgVersion >= 13 {
-			return pgStatMonitorVersion10PG13, nil
+			version = pgStatMonitorVersion10PG13
+			break
 		}
-		return pgStatMonitorVersion10PG12, nil
+		version = pgStatMonitorVersion10PG12
 	case pgsmVersion.GreaterThanOrEqual(v09):
-		return pgStatMonitorVersion09, nil
+		version = pgStatMonitorVersion09
 	case pgsmVersion.GreaterThanOrEqual(v08):
-		return pgStatMonitorVersion08, nil
-	default:
-		return pgStatMonitorVersion06, nil
+		version = pgStatMonitorVersion08
 	}
+
+	prerelease := pgsmVersion.Prerelease()
+
+	return version, pgStatMonitorPrerelease(prerelease), nil
 }
 
 // Run extracts stats data and sends it to the channel until ctx is canceled.

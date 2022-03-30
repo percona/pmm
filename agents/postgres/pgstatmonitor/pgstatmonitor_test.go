@@ -114,7 +114,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		assert.NoError(t, err)
 	}()
 
-	version, err := getPGMonitorVersion(db.Querier)
+	version, _, err := getPGMonitorVersion(db.Querier)
 	assert.NoError(t, err)
 
 	_, view := NewPgStatMonitorStructs(version)
@@ -177,7 +177,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 
 	var selectCMDType, insertCMDType string
 	var mPlansCallsCnt, mPlansTimeCnt float32
-	pgsmVersion, err := getPGMonitorVersion(db.Querier)
+	pgsmVersion, _, err := getPGMonitorVersion(db.Querier)
 	assert.NoError(t, err)
 	switch pgsmVersion {
 	case pgStatMonitorVersion06:
