@@ -61,6 +61,13 @@
   command: sqlite3 /srv/grafana/grafana.db -cmd ".timeout 60000" "UPDATE dashboard SET data = REPLACE(data, '`', '');"
   changed_when: True
 
+# https://jira.percona.com/browse/PMM-9754
+- name: Delete default admin user in postgres database
+  postgresql_query:
+    db: grafana
+    query: DELETE FROM public.user WHERE id = 1
+  when: not ansible_check_mode
+
 - name: Run grafana migrator
   command: grafana-db-migrator --change-char-to-text --reset-home-dashboard /srv/grafana/grafana.db "postgres://grafana:grafana@localhost:5432/grafana?sslmode=disable"
   register: migrator_output
