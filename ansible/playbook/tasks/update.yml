@@ -294,7 +294,7 @@
     - name: Check supervisord log
       debug: var=maintail_result.stdout_lines
 
-    - name: Cleanup yum cache
-      command: yum clean all
-      register: yum_clean_result
-      changed_when: "'Cleaning repos' in yum_clean_result.stdout"
+    - name: Delete content & directory
+      file:
+        state: absent
+        path: /var/cache/yum
