@@ -455,8 +455,7 @@ func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform 
 
 		AlertingEnabled:         settings.IntegratedAlerting.Enabled,
 		BackupManagementEnabled: settings.BackupManagement.Enabled,
-
-		ConnectedToPlatform: connectedToPlatform,
+		ConnectedToPlatform:     connectedToPlatform,
 	}
 
 	if settings.IntegratedAlerting.EmailAlertingSettings != nil {
@@ -800,7 +799,7 @@ func (s *Server) UpdateConfigurations(ctx context.Context) error {
 	}
 	ssoDetails, err := models.GetPerconaSSODetails(ctx, s.db.Querier)
 	if err != nil {
-		if !errors.Is(err, reform.ErrNoRows) {
+		if !errors.Is(err, models.ErrNotConnectedToPortal) {
 			return errors.Wrap(err, "failed to get SSO details")
 		}
 	}
