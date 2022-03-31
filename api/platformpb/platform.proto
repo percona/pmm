@@ -116,6 +116,13 @@ message OrganizationEntitlement {
   Platform platform = 11;
 }
 
+message ServerInfoRequest {}
+
+message ServerInfoResponse {
+  string pmm_server_name = 1;
+  string pmm_server_id = 2;
+}
+
 // Platform contains rpcs related to Percona Platform.
 service Platform {
   // Connect a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.
@@ -160,6 +167,17 @@ service Platform {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "SearchOrganizationEntitlements"
       description: "SearchOrganizationEntitlements fetches details of the entitlement's available to the Portal organization that the PMM server is connected to."
+    };
+  }
+  // ServerInfo returns PMM server ID and name.
+  rpc ServerInfo(ServerInfoRequest) returns (ServerInfoResponse) {
+    option (google.api.http) = {
+      post: "/v1/Platform/ServerInfo"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "ServerInfo"
+      description: "ServerInfo returns PMM server ID and name."
     };
   }
 }
