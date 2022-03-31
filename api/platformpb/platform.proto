@@ -23,19 +23,9 @@ message ConnectRequest {
     }
   ];
   // Existing Percona Platform user's email.
-  string email = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    },
-    deprecated = true
-  ];
+  string email = 2 [deprecated = true];
   // Existing Percona Platform user's password.
-  string password = 3 [
-    (validator.field) = {
-      string_not_empty: true
-    },
-    deprecated = true
-  ];
+  string password = 3 [deprecated = true];
   // Personal Access Token that the user obtains from Percona Portal.
   string personal_access_token = 4;
 }
