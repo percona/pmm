@@ -169,6 +169,11 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 				continue
 			}
 
+			// skip Victoria Metric's environment variables
+			if strings.HasPrefix(k, "VM_") {
+				continue
+			}
+
 			// skip supervisord environment variables
 			if strings.HasPrefix(k, "SUPERVISOR_") {
 				continue

@@ -487,7 +487,7 @@ func (s *Service) saveConfigAndReload(name string, cfg []byte) (bool, error) {
 	restore := true
 	defer func() {
 		if restore {
-			if err = ioutil.WriteFile(path, oldCfg, 0644); err != nil {
+			if err = ioutil.WriteFile(path, oldCfg, 0o644); err != nil {
 				s.l.Errorf("Failed to restore: %s.", err)
 			}
 			if err = s.reload(name); err != nil {
@@ -497,7 +497,7 @@ func (s *Service) saveConfigAndReload(name string, cfg []byte) (bool, error) {
 	}()
 
 	// write and reload
-	if err = ioutil.WriteFile(path, cfg, 0644); err != nil {
+	if err = ioutil.WriteFile(path, cfg, 0o644); err != nil {
 		return false, errors.WithStack(err)
 	}
 	if err = s.reload(name); err != nil {
@@ -604,6 +604,8 @@ command =
 		--promscrape.streamParse=true
 		--prometheusDataPath=/srv/prometheus/data
 		--http.pathPrefix=/prometheus
+		--envflag.enable
+		--envflag.prefix=VM_
 user = pmm
 autorestart = true
 autostart = true
