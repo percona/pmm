@@ -34,6 +34,7 @@ func (v *perconaSSODetailsTableType) Columns() []string {
 		"scope",
 		"access_token",
 		"organization_id",
+		"pmm_server_name",
 		"created_at",
 	}
 }
@@ -65,6 +66,7 @@ var PerconaSSODetailsTable = &perconaSSODetailsTableType{
 			{Name: "Scope", Type: "string", Column: "scope"},
 			{Name: "AccessToken", Type: "*PerconaSSOAccessToken", Column: "access_token"},
 			{Name: "OrganizationID", Type: "string", Column: "organization_id"},
+			{Name: "PMMServerName", Type: "string", Column: "pmm_server_name"},
 			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
 		},
 		PKFieldIndex: 0,
@@ -74,14 +76,15 @@ var PerconaSSODetailsTable = &perconaSSODetailsTableType{
 
 // String returns a string representation of this struct or record.
 func (s PerconaSSODetails) String() string {
-	res := make([]string, 7)
+	res := make([]string, 8)
 	res[0] = "ClientID: " + reform.Inspect(s.ClientID, true)
 	res[1] = "ClientSecret: " + reform.Inspect(s.ClientSecret, true)
 	res[2] = "IssuerURL: " + reform.Inspect(s.IssuerURL, true)
 	res[3] = "Scope: " + reform.Inspect(s.Scope, true)
 	res[4] = "AccessToken: " + reform.Inspect(s.AccessToken, true)
 	res[5] = "OrganizationID: " + reform.Inspect(s.OrganizationID, true)
-	res[6] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
+	res[6] = "PMMServerName: " + reform.Inspect(s.PMMServerName, true)
+	res[7] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
 	return strings.Join(res, ", ")
 }
 
@@ -95,6 +98,7 @@ func (s *PerconaSSODetails) Values() []interface{} {
 		s.Scope,
 		s.AccessToken,
 		s.OrganizationID,
+		s.PMMServerName,
 		s.CreatedAt,
 	}
 }
@@ -109,6 +113,7 @@ func (s *PerconaSSODetails) Pointers() []interface{} {
 		&s.Scope,
 		&s.AccessToken,
 		&s.OrganizationID,
+		&s.PMMServerName,
 		&s.CreatedAt,
 	}
 }

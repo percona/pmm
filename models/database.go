@@ -691,6 +691,10 @@ var databaseSchema = [][]string{
 		`UPDATE agents SET mongo_db_tls_options = jsonb_set(mongo_db_tls_options, '{stats_collections}', to_jsonb(string_to_array(mongo_db_tls_options->>'stats_collections', ',')))
 			WHERE 'mongo_db_tls_options' is not null AND jsonb_typeof(mongo_db_tls_options->'stats_collections') = 'string'`,
 	},
+	59: {
+		`ALTER TABLE percona_sso_details
+			ADD COLUMN pmm_server_name VARCHAR`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

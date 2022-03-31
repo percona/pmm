@@ -110,11 +110,10 @@ func (s *Service) Connect(ctx context.Context, req *platformpb.ConnectRequest) (
 
 	connectResp, err := s.connect(ctx, &connectPMMParams{
 		serverName:                req.ServerName,
-		email:                     req.Email,
-		password:                  req.Password,
 		pmmServerURL:              pmmServerURL,
 		pmmServerOAuthCallbackURL: fmt.Sprintf("%s/login/generic_oauth", pmmServerURL),
 		pmmServerID:               settings.PMMServerID,
+		personalAccessToken:       req.PersonalAccessToken,
 	})
 	if err != nil {
 		return nil, err // this is already a status error
@@ -126,6 +125,7 @@ func (s *Service) Connect(ctx context.Context, req *platformpb.ConnectRequest) (
 		IssuerURL:      connectResp.SSODetails.IssuerURL,
 		Scope:          connectResp.SSODetails.Scope,
 		OrganizationID: connectResp.OrganizationID,
+		PMMServerName:  req.ServerName,
 	})
 	if err != nil {
 		s.l.Errorf("Failed to insert SSO details: %s", err)
@@ -207,7 +207,7 @@ func (s *Service) UpdateSupervisordConfigurations(ctx context.Context) error {
 }
 
 type connectPMMParams struct {
-	pmmServerURL, pmmServerOAuthCallbackURL, pmmServerID, serverName, email, password string
+	pmmServerURL, pmmServerOAuthCallbackURL, pmmServerID, serverName, personalAccessToken string
 }
 
 type connectPMMRequest struct {
@@ -256,7 +256,8 @@ func (s *Service) connect(ctx context.Context, params *connectPMMParams) (*conne
 		s.l.Errorf("Failed to build Connect to Platform request: %s", err)
 		return nil, errInternalServer
 	}
-	req.SetBasicAuth(params.email, params.password)
+	h := req.Header
+	h.Add("Authorization", fmt.Sprintf("Bearer %s", params.personalAccessToken))
 	resp, err := s.client.Do(req)
 	if err != nil {
 		s.l.Errorf("Connect to Platform request failed: %s", err)
@@ -540,6 +541,29 @@ func convertEntitlement(ent *entitlementResponse) (*platformpb.OrganizationEntit
 			ConfigAdvisor:   &wrapperspb.StringValue{Value: ent.Platform.ConfigAdvisor},
 			SecurityAdvisor: &wrapperspb.StringValue{Value: ent.Platform.SecurityAdvisor},
 		},
+	}, nil
+}
+
+func (s *Service) ServerInfo(ctx context.Context, req *platformpb.ServerInfoRequest) (*platformpb.ServerInfoResponse, error) {
+	settings, err := models.GetSettings(s.db)
+	if err != nil {
+		s.l.Errorf("Failed to fetch PMM server ID: %s", err)
+		return nil, errInternalServer
+	}
+
+	serverName := ""
+	ssoDetails, err := models.GetPerconaSSODetails(ctx, s.db.Querier)
+	if err != nil {
+		s.l.Errorf("failed to get SSO details: %s", err)
+	}
+
+	if ssoDetails != nil {
+		serverName = ssoDetails.PMMServerName
+	}
+
+	return &platformpb.ServerInfoResponse{
+		PmmServerName: serverName,
+		PmmServerId:   settings.PMMServerID,
 	}, nil
 }
 
