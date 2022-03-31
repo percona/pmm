@@ -113,6 +113,12 @@ message ServerInfoResponse {
   string pmm_server_id = 2;
 }
 
+message UserStatusRequest {}
+
+message UserStatusResponse {
+  bool is_platform_user = 1;
+}
+
 // Platform contains rpcs related to Percona Platform.
 service Platform {
   // Connect a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.
@@ -168,6 +174,18 @@ service Platform {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "ServerInfo"
       description: "ServerInfo returns PMM server ID and name."
+    };
+  }
+
+  // UserStatus returns a boolean indicating whether the current user is logged in with their Percona Account or not.
+  rpc UserStatus(UserStatusRequest) returns (UserStatusResponse) {
+    option (google.api.http) = {
+      post: "/v1/Platform/UserStatus"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "UserStatus"
+      description: "UserStatus returns a boolean indicating whether the current user is logged in with their Percona Account or not."
     };
   }
 }

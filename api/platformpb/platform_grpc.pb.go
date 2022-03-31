@@ -32,6 +32,8 @@ type PlatformClient interface {
 	SearchOrganizationEntitlements(ctx context.Context, in *SearchOrganizationEntitlementsRequest, opts ...grpc.CallOption) (*SearchOrganizationEntitlementsResponse, error)
 	// ServerInfo returns PMM server ID and name.
 	ServerInfo(ctx context.Context, in *ServerInfoRequest, opts ...grpc.CallOption) (*ServerInfoResponse, error)
+	// UserStatus returns a boolean indicating whether the current user is logged in with their Percona Account or not.
+	UserStatus(ctx context.Context, in *UserStatusRequest, opts ...grpc.CallOption) (*UserStatusResponse, error)
 }
 
 type platformClient struct {
@@ -87,6 +89,15 @@ func (c *platformClient) ServerInfo(ctx context.Context, in *ServerInfoRequest, 
 	return out, nil
 }
 
+func (c *platformClient) UserStatus(ctx context.Context, in *UserStatusRequest, opts ...grpc.CallOption) (*UserStatusResponse, error) {
+	out := new(UserStatusResponse)
+	err := c.cc.Invoke(ctx, "/platform.Platform/UserStatus", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PlatformServer is the server API for Platform service.
 // All implementations must embed UnimplementedPlatformServer
 // for forward compatibility
@@ -101,6 +112,8 @@ type PlatformServer interface {
 	SearchOrganizationEntitlements(context.Context, *SearchOrganizationEntitlementsRequest) (*SearchOrganizationEntitlementsResponse, error)
 	// ServerInfo returns PMM server ID and name.
 	ServerInfo(context.Context, *ServerInfoRequest) (*ServerInfoResponse, error)
+	// UserStatus returns a boolean indicating whether the current user is logged in with their Percona Account or not.
+	UserStatus(context.Context, *UserStatusRequest) (*UserStatusResponse, error)
 	mustEmbedUnimplementedPlatformServer()
 }
 
@@ -122,6 +135,9 @@ func (UnimplementedPlatformServer) SearchOrganizationEntitlements(context.Contex
 }
 func (UnimplementedPlatformServer) ServerInfo(context.Context, *ServerInfoRequest) (*ServerInfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ServerInfo not implemented")
+}
+func (UnimplementedPlatformServer) UserStatus(context.Context, *UserStatusRequest) (*UserStatusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UserStatus not implemented")
 }
 func (UnimplementedPlatformServer) mustEmbedUnimplementedPlatformServer() {}
 
@@ -226,6 +242,24 @@ func _Platform_ServerInfo_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Platform_UserStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserStatusRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PlatformServer).UserStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/platform.Platform/UserStatus",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PlatformServer).UserStatus(ctx, req.(*UserStatusRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Platform_ServiceDesc is the grpc.ServiceDesc for Platform service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -252,6 +286,10 @@ var Platform_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ServerInfo",
 			Handler:    _Platform_ServerInfo_Handler,
+		},
+		{
+			MethodName: "UserStatus",
+			Handler:    _Platform_UserStatus_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

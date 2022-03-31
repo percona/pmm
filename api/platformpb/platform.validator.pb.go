@@ -126,3 +126,9 @@ func (this *ServerInfoRequest) Validate() error {
 func (this *ServerInfoResponse) Validate() error {
 	return nil
 }
+func (this *UserStatusRequest) Validate() error {
+	return nil
+}
+func (this *UserStatusResponse) Validate() error {
+	return nil
+}
