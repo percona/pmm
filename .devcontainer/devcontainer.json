@@ -20,13 +20,13 @@
 		"go.useLanguageServer": true,
 		"go.inferGopath": true,
 		"go.toolsGopath": "/root/go",
+		"editor.codeActionsOnSaveTimeout": 3000,
 		"[go]": {
 			"editor.snippetSuggestions": "none",
 			"editor.formatOnSave": true,
 			"editor.codeActionsOnSave": {
 				"source.organizeImports": true
 			},
-			"editor.codeActionsOnSaveTimeout": 3000
 		},
 		"gopls": {
 			"usePlaceholders": true, // add parameter placeholders when completing a function
