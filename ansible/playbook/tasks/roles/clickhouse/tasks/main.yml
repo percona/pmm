@@ -77,6 +77,12 @@
     path: "/usr/bin/clickhouse-odbc-bridge"
     state: absent
 
+- name: Change ownership for clickhouse directory
+  file:
+    path: /srv/clickhouse/
+    owner: root
+    group: root
+
 - name: Start clickhouse
   command: supervisorctl add clickhouse
   changed_when: True
