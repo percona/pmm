@@ -21,6 +21,7 @@ jobs:
         with:
           rdme: openapi ./api/swagger/swagger-dev-only.json --id=6248ad743930240056ce27b6 --key=${{ secrets.README_TOKEN }}
 
-      - uses: percona-platform/rdme@7.0.3
+      - name: Upload markdown content
+        uses: percona-platform/rdme@7.0.3
         with:
-          rdme: docs markdowns --version=v1.0 --key=${{ secrets.README_TOKEN }}
+          rdme: docs markdown --version=v1.0 --key=${{ secrets.README_TOKEN }}
