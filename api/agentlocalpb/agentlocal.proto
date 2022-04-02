@@ -33,6 +33,8 @@ message AgentInfo {
   // The current listen port of this Agent (exporter or vmagent).
   // Zero for other Agent types, or if unknown or not yet supported.
   uint32 listen_port = 4;
+  //Store logs
+  repeated string logs = 5;
 }
 
 message StatusRequest {
