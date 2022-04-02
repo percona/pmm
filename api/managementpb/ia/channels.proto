@@ -6,7 +6,7 @@ option go_package = "api/managementpb/ia;iav1beta1";
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
-import "managementpb/ia/pagination.proto";
+import "managementpb/pagination.proto";
 
 // TODO move it to parent directory / package once API is v1-stable
 
@@ -120,13 +120,13 @@ message Channel {
 
 message ListChannelsRequest {
   // Page request.
-  PageParams page_params = 1;
+  management.PageParams page_params = 1;
 }
 
 message ListChannelsResponse {
   repeated Channel channels = 1;
   // Total items and pages.
-  PageTotals totals = 2;
+  management.PageTotals totals = 2;
 }
 
 message AddChannelRequest {

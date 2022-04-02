@@ -128,6 +128,9 @@ type ConnectBody struct {
 
 	// Existing Percona Platform user's password.
 	Password string `json:"password,omitempty"`
+
+	// Personal Access Token that the user obtains from Percona Portal.
+	PersonalAccessToken string `json:"personal_access_token,omitempty"`
 }
 
 // Validate validates this connect body

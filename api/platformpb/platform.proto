@@ -23,17 +23,11 @@ message ConnectRequest {
     }
   ];
   // Existing Percona Platform user's email.
-  string email = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string email = 2 [deprecated = true];
   // Existing Percona Platform user's password.
-  string password = 3 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string password = 3 [deprecated = true];
+  // Personal Access Token that the user obtains from Percona Portal.
+  string personal_access_token = 4;
 }
 
 message ConnectResponse {}
@@ -112,6 +106,19 @@ message OrganizationEntitlement {
   Platform platform = 11;
 }
 
+message ServerInfoRequest {}
+
+message ServerInfoResponse {
+  string pmm_server_name = 1;
+  string pmm_server_id = 2;
+}
+
+message UserStatusRequest {}
+
+message UserStatusResponse {
+  bool is_platform_user = 1;
+}
+
 // Platform contains rpcs related to Percona Platform.
 service Platform {
   // Connect a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.
@@ -156,6 +163,29 @@ service Platform {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "SearchOrganizationEntitlements"
       description: "SearchOrganizationEntitlements fetches details of the entitlement's available to the Portal organization that the PMM server is connected to."
+    };
+  }
+  // ServerInfo returns PMM server ID and name.
+  rpc ServerInfo(ServerInfoRequest) returns (ServerInfoResponse) {
+    option (google.api.http) = {
+      post: "/v1/Platform/ServerInfo"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "ServerInfo"
+      description: "ServerInfo returns PMM server ID and name."
+    };
+  }
+
+  // UserStatus returns a boolean indicating whether the current user is logged in with their Percona Account or not.
+  rpc UserStatus(UserStatusRequest) returns (UserStatusResponse) {
+    option (google.api.http) = {
+      post: "/v1/Platform/UserStatus"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "UserStatus"
+      description: "UserStatus returns a boolean indicating whether the current user is logged in with their Percona Account or not."
     };
   }
 }

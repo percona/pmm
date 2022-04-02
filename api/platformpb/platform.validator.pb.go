@@ -24,12 +24,6 @@ func (this *ConnectRequest) Validate() error {
 	if this.ServerName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ServerName", fmt.Errorf(`value '%v' must not be an empty string`, this.ServerName))
 	}
-	if this.Email == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Email", fmt.Errorf(`value '%v' must not be an empty string`, this.Email))
-	}
-	if this.Password == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Password", fmt.Errorf(`value '%v' must not be an empty string`, this.Password))
-	}
 	return nil
 }
 func (this *ConnectResponse) Validate() error {
@@ -124,5 +118,17 @@ func (this *OrganizationEntitlement_Platform) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("ConfigAdvisor", err)
 		}
 	}
+	return nil
+}
+func (this *ServerInfoRequest) Validate() error {
+	return nil
+}
+func (this *ServerInfoResponse) Validate() error {
+	return nil
+}
+func (this *UserStatusRequest) Validate() error {
+	return nil
+}
+func (this *UserStatusResponse) Validate() error {
 	return nil
 }
