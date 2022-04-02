@@ -4,13 +4,13 @@ package ia.v1beta1;
 
 option go_package = "api/managementpb/ia;iav1beta1";
 
-import "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "managementpb/ia/boolean_flag.proto";
-import "managementpb/ia/pagination.proto";
 import "managementpb/ia/rules.proto";
 import "managementpb/ia/status.proto";
+import "managementpb/pagination.proto";
 import "managementpb/severity.proto";
 
 // TODO move it to parent directory / package once API is v1-stable
@@ -37,13 +37,13 @@ message Alert {
 
 message ListAlertsRequest {
   // Page request.
-  PageParams page_params = 1;
+  management.PageParams page_params = 1;
 }
 
 message ListAlertsResponse {
   repeated Alert alerts = 1;
   // Total items and pages.
-  PageTotals totals = 2;
+  management.PageTotals totals = 2;
 }
 
 message ToggleAlertsRequest {
@@ -71,7 +71,7 @@ service Alerts {
       post: "/v1/management/ia/Alerts/Toggle"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       description: "Pass empty list to apply toggle action to all existing alerts"
     };
   }

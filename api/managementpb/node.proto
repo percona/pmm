@@ -4,6 +4,7 @@ package management;
 
 option go_package = "api/managementpb;managementpb";
 
+import "protoc-gen-openapiv2/options/annotations.proto";
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "inventorypb/agents.proto";
@@ -60,6 +61,10 @@ service Node {
     option (google.api.http) = {
       post: "/v1/management/Node/Register"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Register Node"
+      description: "Registers a new Node and pmm-agent."
     };
   }
 }

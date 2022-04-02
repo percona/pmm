@@ -4,6 +4,7 @@ package management;
 
 option go_package = "api/managementpb;managementpb";
 
+import "protoc-gen-openapiv2/options/annotations.proto";
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "inventorypb/agents.proto";
@@ -154,12 +155,20 @@ service RDS {
       post: "/v1/management/RDS/Discover"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Discover RDS"
+      description: "Discovers RDS instances."
+    };
   }
   // AddRDS adds RDS instance.
   rpc AddRDS(AddRDSRequest) returns (AddRDSResponse) {
     option (google.api.http) = {
       post: "/v1/management/RDS/Add"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Add RDS"
+      description: "Adds RDS instance."
     };
   }
 }

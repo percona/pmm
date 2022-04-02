@@ -10,9 +10,9 @@ import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "managementpb/ia/boolean_flag.proto";
 import "managementpb/ia/channels.proto";
-import "managementpb/ia/pagination.proto";
 import "managementpb/ia/params.proto";
 import "managementpb/ia/templates.proto";
+import "managementpb/pagination.proto";
 import "managementpb/severity.proto";
 
 // TODO move it to parent directory / package once API is v1-stable
@@ -104,13 +104,13 @@ message Rule {
 
 message ListAlertRulesRequest {
   // Page request.
-  PageParams page_params = 1;
+  management.PageParams page_params = 1;
 }
 
 message ListAlertRulesResponse {
   repeated Rule rules = 1;
   // Total items and pages.
-  PageTotals totals = 2;
+  management.PageTotals totals = 2;
 }
 
 message CreateAlertRuleRequest {

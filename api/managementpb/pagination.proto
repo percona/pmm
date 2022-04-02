@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package ia.v1beta1;
+package management;
 
-option go_package = "api/managementpb/ia;iav1beta1";
+option go_package = "api/managementpb;managementpb";
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 

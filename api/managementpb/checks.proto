@@ -4,8 +4,9 @@ package management;
 
 option go_package = "api/managementpb;managementpb";
 
-import "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
 import "google/api/annotations.proto";
+import "managementpb/pagination.proto";
 import "managementpb/severity.proto";
 
 // SecurityCheckInterval represents possible execution interval values for checks.
@@ -26,6 +27,48 @@ message SecurityCheckResult {
   string read_more_url = 5;
   // Name of the monitored service on which the check ran.
   string service_name = 6;
+}
+
+// CheckResultSummary is a summary of check results.
+message CheckResultSummary {
+  string service_name = 1;
+  string service_id = 2;
+  // Number of failed checks for this service with severity level "EMERGENCY".
+  uint32 emergency_count = 3;
+  // Number of failed checks for this service with severity level "ALERT".
+  uint32 alert_count = 4;
+  // Number of failed checks for this service with severity level "CRITICAL".
+  uint32 critical_count = 5;
+  // Number of failed checks for this service with severity level "ERROR".
+  uint32 error_count = 6;
+  // Number of failed checks for this service with severity level "WARNING".
+  uint32 warning_count = 7;
+  // Number of failed checks for this service with severity level "NOTICE".
+  uint32 notice_count = 8;
+  // Number of failed checks for this service with severity level "INFO".
+  uint32 info_count = 9;
+  // Number of failed checks for this service with severity level "DEBUG".
+  uint32 debug_count = 10;
+}
+
+// CheckResult represents the check results for a given service.
+message CheckResult {
+  string summary = 1;
+  string description = 2;
+  Severity severity = 3;
+  map<string, string> labels = 4;
+  // URL containing information on how to resolve an issue detected by an STT check.
+  string read_more_url = 5;
+  // Name of the monitored service on which the check ran.
+  string service_name = 6;
+  // ID of the monitored service on which the check ran.
+  string service_id = 7;
+  // Name of the check that failed
+  string check_name = 8;
+  // ID of the check result as stored in AlertManager
+  string alert_id = 9;
+  // Silence status of the check result
+  bool silenced = 10;
 }
 
 // SecurityCheck contains check name and status.
@@ -52,9 +95,12 @@ message ChangeSecurityCheckParams {
   SecurityCheckInterval interval = 4;
 }
 
-message GetSecurityCheckResultsRequest {}
+message GetSecurityCheckResultsRequest {
+  option deprecated = true;
+}
 
 message GetSecurityCheckResultsResponse {
+  option deprecated = true;
   repeated SecurityCheckResult results = 1;
 }
 
@@ -77,13 +123,76 @@ message ChangeSecurityChecksRequest {
 
 message ChangeSecurityChecksResponse {}
 
+message ListFailedServicesRequest {}
+
+message ListFailedServicesResponse {
+  repeated CheckResultSummary result = 1;
+}
+
+message GetFailedChecksRequest {
+  string service_id = 1;
+  PageParams page_params = 2;
+}
+
+message GetFailedChecksResponse {
+  repeated CheckResult results = 1;
+  PageTotals page_totals = 2;
+}
+
+message ToggleCheckAlertRequest {
+  // Alert ID of the check result.
+  string alert_id = 1;
+  // Silence the check result if set to true, unsilence otherwise.
+  bool silence = 2;
+}
+
+message ToggleCheckAlertResponse {}
+
 // SecurityChecks service provides public Management API methods for Security Checks Service.
 service SecurityChecks {
+  // ListFailedServices returns a list of services with failed checks.
+  rpc ListFailedServices(ListFailedServicesRequest) returns (ListFailedServicesResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/SecurityChecks/ListFailedServices"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List Failed Services"
+      description: "Returns a list of services with failed checks and a summary of check results."
+    };
+  }
+  // GetFailedChecks returns the checks result for a given service.
+  rpc GetFailedChecks(GetFailedChecksRequest) returns (GetFailedChecksResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/SecurityChecks/FailedChecks"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get Failed Checks"
+      description: "Returns the latest check results for a given service."
+    };
+  }
+  // ToggleCheckAlert allows to switch alerts state for a check result between "silenced" and "unsilenced".
+  rpc ToggleCheckAlert(ToggleCheckAlertRequest) returns (ToggleCheckAlertResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/SecurityChecks/ToggleCheckAlert"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Toggle Check Alert"
+      description: "Silence/Unsilence alerts for a specific check result."
+    };
+  }
   // GetSecurityCheckResults returns Security Thread Tool's latest checks results.
   rpc GetSecurityCheckResults(GetSecurityCheckResultsRequest) returns (GetSecurityCheckResultsResponse) {
+    option deprecated = true;
     option (google.api.http) = {
       post: "/v1/management/SecurityChecks/GetCheckResults"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get Security Check Results"
+      description: "Returns Security Thread Tool's latest checks results."
     };
   }
   // StartSecurityChecks executes Security Thread Tool checks and returns when all checks are executed.
@@ -92,8 +201,9 @@ service SecurityChecks {
       post: "/v1/management/SecurityChecks/Start"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-      description: "All the available checks will be started if check names aren't specified."
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Start Security Checks"
+      description: "Executes Security Thread Tool checks and returns when all checks are executed. All available checks will be started if check names aren't specified."
     };
   }
   // ListSecurityChecks returns a list of available Security Thread Tool checks.
@@ -102,12 +212,20 @@ service SecurityChecks {
       post: "/v1/management/SecurityChecks/List"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List Security Checks"
+      description: "Returns a list of available Security Thread Tool checks."
+    };
   }
   // ChangeSecurityChecks enables/disables Security Thread Tool checks or changes their interval by names.
   rpc ChangeSecurityChecks(ChangeSecurityChecksRequest) returns (ChangeSecurityChecksResponse) {
     option (google.api.http) = {
       post: "/v1/management/SecurityChecks/Change"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Change Security Checks"
+      description: "Enables/disables Security Thread Tool checks or changes their interval by names."
     };
   }
 }
