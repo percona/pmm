@@ -7,6 +7,7 @@ option go_package = "api/managementpb;managementpb";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "google/api/annotations.proto";
 import "managementpb/pagination.proto";
+import "managementpb/filter.proto";
 import "managementpb/severity.proto";
 
 // SecurityCheckInterval represents possible execution interval values for checks.
@@ -111,10 +112,15 @@ message StartSecurityChecksRequest {
 
 message StartSecurityChecksResponse {}
 
-message ListSecurityChecksRequest {}
+message ListSecurityChecksRequest {
+  // Optional parameters to filter the results by. All checks will be returned if no filter is present.
+  FilterParams filter_params = 1;
+}
 
 message ListSecurityChecksResponse {
   repeated SecurityCheck checks = 1;
+  // Filter parameters that was applied on the results (if any).
+  FilterParams filter_params = 2;
 }
 
 message ChangeSecurityChecksRequest {
@@ -183,7 +189,7 @@ service SecurityChecks {
       description: "Silence/Unsilence alerts for a specific check result."
     };
   }
-  // GetSecurityCheckResults returns Security Thread Tool's latest checks results.
+  // GetSecurityCheckResults returns latest checks results.
   rpc GetSecurityCheckResults(GetSecurityCheckResultsRequest) returns (GetSecurityCheckResultsResponse) {
     option deprecated = true;
     option (google.api.http) = {
@@ -195,7 +201,7 @@ service SecurityChecks {
       description: "Returns Security Thread Tool's latest checks results."
     };
   }
-  // StartSecurityChecks executes Security Thread Tool checks and returns when all checks are executed.
+  // StartSecurityChecks executes Advisor checks and returns when all checks are executed.
   rpc StartSecurityChecks(StartSecurityChecksRequest) returns (StartSecurityChecksResponse) {
     option (google.api.http) = {
       post: "/v1/management/SecurityChecks/Start"
@@ -206,7 +212,7 @@ service SecurityChecks {
       description: "Executes Security Thread Tool checks and returns when all checks are executed. All available checks will be started if check names aren't specified."
     };
   }
-  // ListSecurityChecks returns a list of available Security Thread Tool checks.
+  // ListSecurityChecks returns a list of available Advisor checks.
   rpc ListSecurityChecks(ListSecurityChecksRequest) returns (ListSecurityChecksResponse) {
     option (google.api.http) = {
       post: "/v1/management/SecurityChecks/List"
@@ -217,7 +223,7 @@ service SecurityChecks {
       description: "Returns a list of available Security Thread Tool checks."
     };
   }
-  // ChangeSecurityChecks enables/disables Security Thread Tool checks or changes their interval by names.
+  // ChangeSecurityChecks enables/disables Advisor checks or changes their interval by names.
   rpc ChangeSecurityChecks(ChangeSecurityChecksRequest) returns (ChangeSecurityChecksResponse) {
     option (google.api.http) = {
       post: "/v1/management/SecurityChecks/Change"

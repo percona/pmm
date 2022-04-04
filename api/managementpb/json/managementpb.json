@@ -6067,7 +6067,112 @@
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "filter_params": {
+                  "description": "FilterParams is used to filter the data returned in a response.",
+                  "type": "object",
+                  "properties": {
+                    "filter": {
+                      "type": "object",
+                      "properties": {
+                        "int_range_values": {
+                          "type": "object",
+                          "properties": {
+                            "maximum": {
+                              "description": "Maximum value in the range.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 1
+                            },
+                            "minimum": {
+                              "description": "Minimum value in the range.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 0
+                            }
+                          },
+                          "x-order": 8
+                        },
+                        "int_value": {
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 2
+                        },
+                        "int_values": {
+                          "type": "object",
+                          "properties": {
+                            "values": {
+                              "type": "array",
+                              "items": {
+                                "type": "integer",
+                                "format": "int32"
+                              },
+                              "x-order": 0
+                            }
+                          },
+                          "x-order": 5
+                        },
+                        "key": {
+                          "description": "Key to filter the results by.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "long_value": {
+                          "type": "string",
+                          "format": "int64",
+                          "x-order": 3
+                        },
+                        "long_values": {
+                          "type": "object",
+                          "properties": {
+                            "values": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "format": "int64"
+                              },
+                              "x-order": 0
+                            }
+                          },
+                          "x-order": 6
+                        },
+                        "op": {
+                          "description": " - EQUALS: Checks if value is equal to the provided scalar value (int_value | long_value | string_value).\n - BETWEEN: Returns results whose value lies within the inclusive range of the provided minimum and maximum values.\nValid for IntRangeValues.\n - IN: Checks if value exists in a given array. Valid for int_values | long_values | string_values.",
+                          "type": "string",
+                          "default": "INVALID",
+                          "enum": [
+                            "INVALID",
+                            "EQUALS",
+                            "BETWEEN",
+                            "IN"
+                          ],
+                          "x-order": 1
+                        },
+                        "string_value": {
+                          "type": "string",
+                          "x-order": 4
+                        },
+                        "string_values": {
+                          "type": "object",
+                          "properties": {
+                            "values": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              },
+                              "x-order": 0
+                            }
+                          },
+                          "x-order": 7
+                        }
+                      },
+                      "x-order": 0
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
             }
           }
         ],
@@ -6118,6 +6223,109 @@
                     }
                   },
                   "x-order": 0
+                },
+                "filter_params": {
+                  "description": "FilterParams is used to filter the data returned in a response.",
+                  "type": "object",
+                  "properties": {
+                    "filter": {
+                      "type": "object",
+                      "properties": {
+                        "int_range_values": {
+                          "type": "object",
+                          "properties": {
+                            "maximum": {
+                              "description": "Maximum value in the range.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 1
+                            },
+                            "minimum": {
+                              "description": "Minimum value in the range.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 0
+                            }
+                          },
+                          "x-order": 8
+                        },
+                        "int_value": {
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 2
+                        },
+                        "int_values": {
+                          "type": "object",
+                          "properties": {
+                            "values": {
+                              "type": "array",
+                              "items": {
+                                "type": "integer",
+                                "format": "int32"
+                              },
+                              "x-order": 0
+                            }
+                          },
+                          "x-order": 5
+                        },
+                        "key": {
+                          "description": "Key to filter the results by.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "long_value": {
+                          "type": "string",
+                          "format": "int64",
+                          "x-order": 3
+                        },
+                        "long_values": {
+                          "type": "object",
+                          "properties": {
+                            "values": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "format": "int64"
+                              },
+                              "x-order": 0
+                            }
+                          },
+                          "x-order": 6
+                        },
+                        "op": {
+                          "description": " - EQUALS: Checks if value is equal to the provided scalar value (int_value | long_value | string_value).\n - BETWEEN: Returns results whose value lies within the inclusive range of the provided minimum and maximum values.\nValid for IntRangeValues.\n - IN: Checks if value exists in a given array. Valid for int_values | long_values | string_values.",
+                          "type": "string",
+                          "default": "INVALID",
+                          "enum": [
+                            "INVALID",
+                            "EQUALS",
+                            "BETWEEN",
+                            "IN"
+                          ],
+                          "x-order": 1
+                        },
+                        "string_value": {
+                          "type": "string",
+                          "x-order": 4
+                        },
+                        "string_values": {
+                          "type": "object",
+                          "properties": {
+                            "values": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              },
+                              "x-order": 0
+                            }
+                          },
+                          "x-order": 7
+                        }
+                      },
+                      "x-order": 0
+                    }
+                  },
+                  "x-order": 1
                 }
               }
             }

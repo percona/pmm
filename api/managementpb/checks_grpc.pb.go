@@ -29,13 +29,13 @@ type SecurityChecksClient interface {
 	// ToggleCheckAlert allows to switch alerts state for a check result between "silenced" and "unsilenced".
 	ToggleCheckAlert(ctx context.Context, in *ToggleCheckAlertRequest, opts ...grpc.CallOption) (*ToggleCheckAlertResponse, error)
 	// Deprecated: Do not use.
-	// GetSecurityCheckResults returns Security Thread Tool's latest checks results.
+	// GetSecurityCheckResults returns latest checks results.
 	GetSecurityCheckResults(ctx context.Context, in *GetSecurityCheckResultsRequest, opts ...grpc.CallOption) (*GetSecurityCheckResultsResponse, error)
-	// StartSecurityChecks executes Security Thread Tool checks and returns when all checks are executed.
+	// StartSecurityChecks executes Advisor checks and returns when all checks are executed.
 	StartSecurityChecks(ctx context.Context, in *StartSecurityChecksRequest, opts ...grpc.CallOption) (*StartSecurityChecksResponse, error)
-	// ListSecurityChecks returns a list of available Security Thread Tool checks.
+	// ListSecurityChecks returns a list of available Advisor checks.
 	ListSecurityChecks(ctx context.Context, in *ListSecurityChecksRequest, opts ...grpc.CallOption) (*ListSecurityChecksResponse, error)
-	// ChangeSecurityChecks enables/disables Security Thread Tool checks or changes their interval by names.
+	// ChangeSecurityChecks enables/disables Advisor checks or changes their interval by names.
 	ChangeSecurityChecks(ctx context.Context, in *ChangeSecurityChecksRequest, opts ...grpc.CallOption) (*ChangeSecurityChecksResponse, error)
 }
 
@@ -122,13 +122,13 @@ type SecurityChecksServer interface {
 	// ToggleCheckAlert allows to switch alerts state for a check result between "silenced" and "unsilenced".
 	ToggleCheckAlert(context.Context, *ToggleCheckAlertRequest) (*ToggleCheckAlertResponse, error)
 	// Deprecated: Do not use.
-	// GetSecurityCheckResults returns Security Thread Tool's latest checks results.
+	// GetSecurityCheckResults returns latest checks results.
 	GetSecurityCheckResults(context.Context, *GetSecurityCheckResultsRequest) (*GetSecurityCheckResultsResponse, error)
-	// StartSecurityChecks executes Security Thread Tool checks and returns when all checks are executed.
+	// StartSecurityChecks executes Advisor checks and returns when all checks are executed.
 	StartSecurityChecks(context.Context, *StartSecurityChecksRequest) (*StartSecurityChecksResponse, error)
-	// ListSecurityChecks returns a list of available Security Thread Tool checks.
+	// ListSecurityChecks returns a list of available Advisor checks.
 	ListSecurityChecks(context.Context, *ListSecurityChecksRequest) (*ListSecurityChecksResponse, error)
-	// ChangeSecurityChecks enables/disables Security Thread Tool checks or changes their interval by names.
+	// ChangeSecurityChecks enables/disables Advisor checks or changes their interval by names.
 	ChangeSecurityChecks(context.Context, *ChangeSecurityChecksRequest) (*ChangeSecurityChecksResponse, error)
 	mustEmbedUnimplementedSecurityChecksServer()
 }

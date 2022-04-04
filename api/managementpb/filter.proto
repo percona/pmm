@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package management;
+
+option go_package = "api/managementpb;managementpb";
+
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "google/api/annotations.proto";
+
+enum Operation {
+  INVALID = 0;
+  // Checks if value is equal to the provided scalar value (int_value | long_value | string_value).
+  EQUALS = 1;
+  // Returns results whose value lies within the inclusive range of the provided minimum and maximum values.
+  // Valid for IntRangeValues.
+  BETWEEN = 2;
+  // Checks if value exists in a given array. Valid for int_values | long_values | string_values.
+  IN = 3;
+}
+
+message Filter {
+  // Key to filter the results by.
+  string key = 1;
+
+  // Operation to apply on the provided value(s).
+  Operation op = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    title: "Operation",
+    description: "Operation to apply on the provided value(s).",
+    example: "\"IN\""
+  }];
+
+  oneof value {
+    int32 int_value = 3;
+    int64 long_value = 4;
+    string string_value = 5;
+
+    // Array values. Meant to be used with IN operations.
+    IntValues int_values = 6;
+    LongValues long_values = 7;
+    StringValues string_values = 8;
+
+    // Range values. Meant to be used with BETWEEN operations.
+    IntRangeValues int_range_values = 9;
+  }
+}
+
+message IntValues {
+  repeated int32 values = 1;
+}
+
+message LongValues {
+  repeated int64 values = 1;
+}
+
+message StringValues {
+  repeated string values = 1;
+}
+
+message IntRangeValues {
+  // Minimum value in the range.
+  int32 minimum = 1;
+  // Maximum value in the range.
+  int32 maximum = 2;
+}
+
+// FilterParams is used to filter the data returned in a response.
+message FilterParams {
+  // for now, only one filter is supported at a time. We can extend this later on to support multiple filters and "AND" them.
+  Filter filter = 1;
+}

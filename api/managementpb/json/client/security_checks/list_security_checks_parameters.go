@@ -61,7 +61,7 @@ for the list security checks operation typically these are written to a http.Req
 type ListSecurityChecksParams struct {
 
 	/*Body*/
-	Body interface{}
+	Body ListSecurityChecksBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -102,13 +102,13 @@ func (o *ListSecurityChecksParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the list security checks params
-func (o *ListSecurityChecksParams) WithBody(body interface{}) *ListSecurityChecksParams {
+func (o *ListSecurityChecksParams) WithBody(body ListSecurityChecksBody) *ListSecurityChecksParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the list security checks params
-func (o *ListSecurityChecksParams) SetBody(body interface{}) {
+func (o *ListSecurityChecksParams) SetBody(body ListSecurityChecksBody) {
 	o.Body = body
 }
 
@@ -120,10 +120,8 @@ func (o *ListSecurityChecksParams) WriteToRequest(r runtime.ClientRequest, reg s
 	}
 	var res []error
 
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
+	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
 	}
 
 	if len(res) > 0 {
