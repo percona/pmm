@@ -29,4 +29,4 @@ jobs:
       - name: Upload markdown content
         uses: percona-platform/rdme@7.0.3
         with:
-          rdme: docs markdown --version=${{ github.event.inputs.version }}  --key=${{ secrets.README_TOKEN }}
+          rdme: docs markdown --version=${{ github.event.inputs.version || 'v1.0' }}  --key=${{ secrets.README_TOKEN }}
