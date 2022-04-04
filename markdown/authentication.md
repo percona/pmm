@@ -25,7 +25,7 @@ curl -X GET -H 'Authorization: Basic YWRtaW46YWRtaW4=' \
 If you use `curl` to make API calls, a simple equivalent to the command above is:
 
 ```bash
-curl -X GET -H 'Content-Type: application/json' -u admin:amin https://127.0.0.1/v1/version
+curl -X GET -u admin:admin -H 'Content-Type: application/json' https://127.0.0.1/v1/version
 ```
 
 ### Bearer Authentication
@@ -40,6 +40,7 @@ curl -X GET -H 'Authorization: Bearer eyJrIjoiUXRkeDNMS1g1bFVyY0tUj1o0SmhBc3g4QU
 You can use the API key in basic authentication as well:
 
 ```bash
-curl -X GET https://api_key:eyJrIjoiUXRkeDNMS1g1bFVyY0tUj1o0SmhBc3g4QUdTRVAwekoiLCJuIjoicG1tLXRlc3QiLCJpZCI6MX0=@127.0.0.1/v1/version
+curl -X GET -H 'Content-Type: application/json' \
+https://api_key:eyJrIjoiUXRkeDNMS1g1bFVyY0tUj1o0SmhBc3g4QUdTRVAwekoiLCJuIjoicG1tLXRlc3QiLCJpZCI6MX0=@127.0.0.1/v1/version
 
 ```
