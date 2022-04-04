@@ -84,7 +84,7 @@ gen: clean         ## Generate files.
 		api/managementpb/azure/json/azure.json \
 		api/qanpb/json/qanpb.json \
 		api/platformpb/json/platformpb.json
-	bin/swagger validate api/swagger/swagger-dev.json
+	bin/swagger validate api/swagger/swagger-dev-only.json
 
 	bin/swagger-order --output=api/swagger/swagger-dev-only.json api/swagger/swagger-dev-only.json
 
