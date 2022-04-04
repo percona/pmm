@@ -42,12 +42,12 @@ var initLogger sync.Once
 
 // ConfigureLogger configures standard Logrus logger.
 func ConfigureLogger(cfg *Config) {
-	level, trace := parseLoggerConfig(cfg.LogLevel, cfg.Debug, cfg.Trace)
+	level := parseLoggerConfig(cfg.LogLevel, cfg.Debug, cfg.Trace)
 
 	initLogger.Do(func() {
 		logrus.SetLevel(level)
 
-		if trace {
+		if level == logrus.TraceLevel {
 			// grpclog.SetLoggerV2 is not thread-safe
 			grpclog.SetLoggerV2(&gRPCLogger{Entry: logrus.WithField("component", "grpclog")})
 
@@ -63,9 +63,8 @@ func ConfigureLogger(cfg *Config) {
 
 		logrus.SetLevel(level)
 
-		if trace {
+		if level == logrus.TraceLevel {
 			// grpclog.SetLoggerV2 is not thread-safe
-			// grpclog.SetLoggerV2(&gRPCLogger{Entry: logrus.WithField("component", "grpclog")})
 
 			// logrus.SetReportCaller thread-safe: https://github.com/sirupsen/logrus/issues/954
 			logrus.SetReportCaller(true)
@@ -73,25 +72,24 @@ func ConfigureLogger(cfg *Config) {
 	}
 }
 
-func parseLoggerConfig(level string, debug, trace bool) (logrus.Level, bool) {
+func parseLoggerConfig(level string, debug, trace bool) logrus.Level {
 	if trace {
-		return logrus.TraceLevel, true
+		return logrus.TraceLevel
 	}
 
 	if debug {
-		return logrus.DebugLevel, false
+		return logrus.DebugLevel
 	}
 
 	if level != "" {
 		parsedLevel, err := logrus.ParseLevel(level)
-
 		if err != nil {
 			logrus.Errorf("config: cannot parse logging level: %s, error: %v", level, err)
 		} else {
-			return parsedLevel, false
+			return parsedLevel
 		}
 	}
 
 	// warning level default by issue PMM-7326
-	return logrus.WarnLevel, false
+	return logrus.WarnLevel
 }
