@@ -4,6 +4,11 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      version:
+        description: "API Version on readme.io"
+        required: true
+        default: "v1.0" # v0.0 stands for the dev version
 
 jobs:
   build:
@@ -24,4 +29,4 @@ jobs:
       - name: Upload markdown content
         uses: percona-platform/rdme@7.0.3
         with:
-          rdme: docs markdown --version=v1.0 --key=${{ secrets.README_TOKEN }}
+          rdme: docs markdown --version=${{ github.event.inputs.version }}  --key=${{ secrets.README_TOKEN }}
