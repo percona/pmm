@@ -113,7 +113,6 @@ func TestEnsureRetention(t *testing.T) {
 			Data: task.Data,
 		})
 		require.NoError(t, err)
-
 	}
 
 	createArtifact()
@@ -139,5 +138,4 @@ func TestEnsureRetention(t *testing.T) {
 	changeRetention(2)
 	assert.NoError(t, retentionService.EnforceRetention(ctx, task.ID))
 	assert.Equal(t, 2, countArtifacts())
-
 }

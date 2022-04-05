@@ -130,7 +130,6 @@ func (s *LocationsService) AddLocation(ctx context.Context, req *backupv1beta1.A
 		}
 		return nil
 	})
-
 	if err != nil {
 		return nil, err
 	}
@@ -190,7 +189,6 @@ func (s *LocationsService) ChangeLocation(ctx context.Context, req *backupv1beta
 		}
 		return nil
 	})
-
 	if err != nil {
 		return nil, err
 	}
@@ -252,7 +250,6 @@ func (s *LocationsService) RemoveLocation(ctx context.Context, req *backupv1beta
 	err := s.db.InTransaction(func(tx *reform.TX) error {
 		return models.RemoveBackupLocation(tx.Querier, req.LocationId, mode)
 	})
-
 	if err != nil {
 		return nil, err
 	}

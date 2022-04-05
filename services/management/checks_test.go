@@ -95,7 +95,7 @@ func TestGetSecurityCheckResults(t *testing.T) {
 				Target: services.Target{ServiceName: "svc"},
 			},
 		}
-		response := &managementpb.GetSecurityCheckResultsResponse{
+		response := &managementpb.GetSecurityCheckResultsResponse{ //nolint:staticcheck
 			Results: []*managementpb.SecurityCheckResult{
 				{
 					Summary:     "Check summary",

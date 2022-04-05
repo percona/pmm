@@ -26,12 +26,15 @@ services:
       memlock: 67108864
 
     ports:
-      - 127.0.0.1:80:80
-      - 443:443
+      - ${PMM_PORT_HTTP:-80}:80
+      - ${PMM_PORT_HTTPS:-443}:443
       # For headless delve
-      - 2345:2345
+      - ${PMM_PORT_DELVE:-2345}:2345
       # PG
-      - 15432:5432
+      - ${PMM_PORT_PG:-15432}:5432
+      # CH
+      - ${PMM_PORT_CH_TCP:-11000}:9000
+      - ${PMM_PORT_CH_HTTP:-11123}:8123
     volumes:
       - .:/root/go/src/github.com/percona/pmm-managed
       - ./Makefile.devcontainer:/root/go/src/github.com/percona/pmm-managed/Makefile:ro

@@ -34,8 +34,8 @@ var postgresExporterAutodiscoveryVersion = version.MustParse("2.15.99")
 
 // postgresExporterConfig returns desired configuration of postgres_exporter process.
 func postgresExporterConfig(service *models.Service, exporter *models.Agent, redactMode redactMode,
-	pmmAgentVersion *version.Parsed) *agentpb.SetStateRequest_AgentProcess {
-
+	pmmAgentVersion *version.Parsed,
+) *agentpb.SetStateRequest_AgentProcess {
 	if service.DatabaseName == "" {
 		panic("database name not set")
 	}

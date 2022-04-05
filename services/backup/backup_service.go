@@ -320,13 +320,15 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 			jobData = &models.JobData{
 				MySQLRestoreBackup: &models.MySQLRestoreBackupJobData{
 					RestoreID: restoreID,
-				}}
+				},
+			}
 		case models.MongoDBServiceType:
 			jobType = models.MongoDBRestoreBackupJob
 			jobData = &models.JobData{
 				MongoDBRestoreBackup: &models.MongoDBRestoreBackupJobData{
 					RestoreID: restoreID,
-				}}
+				},
+			}
 		case models.PostgreSQLServiceType,
 			models.ProxySQLServiceType,
 			models.HAProxyServiceType,

@@ -47,7 +47,8 @@ type Handler struct {
 
 // NewHandler creates new agents handler.
 func NewHandler(db *reform.DB, qanClient qanClient, vmdb prometheusService, registry *Registry, state *StateUpdater,
-	jobsService jobsService) *Handler {
+	jobsService jobsService,
+) *Handler {
 	h := &Handler{
 		db:          db,
 		r:           registry,
@@ -57,7 +58,6 @@ func NewHandler(db *reform.DB, qanClient qanClient, vmdb prometheusService, regi
 		jobsService: jobsService,
 	}
 	return h
-
 }
 
 // Run takes over pmm-agent gRPC stream and runs it until completion.
@@ -221,7 +221,6 @@ func (h *Handler) SetAllAgentsStatusUnknown(ctx context.Context) error {
 	agents, err := models.FindAgents(h.db.Querier, models.AgentFilters{AgentType: &agentType})
 	if err != nil {
 		return errors.Wrap(err, "failed to get pmm-agents")
-
 	}
 	for _, agent := range agents {
 		if !h.r.IsConnected(agent.AgentID) {

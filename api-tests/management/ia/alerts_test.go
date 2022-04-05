@@ -32,7 +32,8 @@ func TestAlertsAPI(t *testing.T) {
 	t.Run("list", func(t *testing.T) {
 		_, err := client.ListAlerts(&alerts.ListAlertsParams{
 			Body:    alerts.ListAlertsBody{},
-			Context: pmmapitests.Context})
+			Context: pmmapitests.Context,
+		})
 
 		require.NoError(t, err)
 	})

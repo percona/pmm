@@ -82,7 +82,6 @@ func (s *PostgresExporterConfigTestSuite) TestConfig() {
 }
 
 func (s *PostgresExporterConfigTestSuite) TestDatabaseName() {
-
 	s.Run("Set", func() {
 		s.postgresql.DatabaseName = "db1"
 		s.expected.Env[0] = "DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/db1?connect_timeout=1&sslmode=disable"

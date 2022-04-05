@@ -29,8 +29,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type clientStub struct {
-}
+type clientStub struct{}
 
 func (clientStub) getRole(context.Context, http.Header) (role, error) {
 	return grafanaAdmin, nil

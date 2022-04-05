@@ -1,0 +1,45 @@
+telemetry:
+  - id: PMMServerIAEnabled
+    source: PMMDB_SELECT
+    # only SELECT statements are supported
+    query: ia->'enabled' AS ia_enabled FROM settings s, jsonb_extract_path(s.settings, 'ia') AS ia
+    summary: “Select PMM Server Integration Alering feature enabled”
+    data:
+      - metric_name: "ia_enabled"
+        column: "ia_enabled"
+
+  - id: PMMServerSTTEnabled
+    source: PMMDB_SELECT
+    # only SELECT statements are supported
+    query: stt->'stt_enabled' AS stt_enabled FROM settings s, jsonb_extract_path(s.settings, 'sass') AS stt
+    summary: “Select PMM Server Security Thread Tool feature enabled”
+    data:
+      - metric_name: "stt_enabled"
+        column: "stt_enabled"
+
+  - id: PMMServerDBaaSEnabled
+    source: PMMDB_SELECT
+    # only SELECT statements are supported
+    query: dbaas->'enabled' AS dbaas_enabled FROM settings s, jsonb_extract_path(s.settings, 'dbaas') AS dbaas
+    summary: “Select PMM Server DBaaS feature enabled”
+    data:
+      - metric_name: "dbaas_enabled"
+        column: "dbaas_enabled"
+
+  - id: PMMServerUpdatesDisabled
+    source: PMMDB_SELECT
+    # only SELECT statements are supported
+    query: updates->'disabled' AS updates_disabled FROM settings s, jsonb_extract_path(s.settings, 'updates') AS updates
+    summary: “Select PMM Server Check Updates feature disabled”
+    data:
+      - metric_name: "updates_disabled"
+        column: "updates_disabled"
+
+  - id: PMMServerBackupManagementEnabled
+    source: PMMDB_SELECT
+    # only SELECT statements are supported
+    query: backup_management->'enabled' AS backup_management_enabled FROM settings s, jsonb_extract_path(s.settings, 'backup_management') AS backup_management
+    summary: “Select PMM Server Backup Management feature enabled”
+    data:
+      - metric_name: "backup_management_enabled"
+        column: "backup_management_enabled"

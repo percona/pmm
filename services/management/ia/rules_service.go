@@ -516,6 +516,7 @@ func (s *RulesService) updateConfigurations() {
 	s.vmalert.RequestConfigurationUpdate()
 	s.alertManager.RequestConfigurationUpdate()
 }
+
 func convertModelToParamsDefinitions(definitions models.AlertExprParamsDefinitions) ([]*iav1beta1.ParamDefinition, error) {
 	res := make([]*iav1beta1.ParamDefinition, 0, len(definitions))
 	for _, definition := range definitions {

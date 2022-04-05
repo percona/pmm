@@ -105,7 +105,6 @@ func (s *ArtifactsService) DeleteArtifact(
 	ctx context.Context,
 	req *backupv1beta1.DeleteArtifactRequest,
 ) (*backupv1beta1.DeleteArtifactResponse, error) {
-
 	if err := s.removalSVC.DeleteArtifact(ctx, req.ArtifactId, req.RemoveFiles); err != nil {
 		return nil, err
 	}

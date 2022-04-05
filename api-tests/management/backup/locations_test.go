@@ -451,7 +451,6 @@ func TestChangeLocation(t *testing.T) {
 		})
 
 		pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, `Location with name "%s" already exists.`, updateBody.Name)
-
 	})
 }
 

@@ -203,6 +203,7 @@ users:
                   value: regional
             provideClusterInfo: false
 `
+
 const awsIAMAuthenticatorKubeconfigTransformed = `kind: Config
 apiVersion: v1
 current-context: arn:aws:eks:zone-2:123465545:cluster/cluster

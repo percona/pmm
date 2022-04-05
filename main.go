@@ -27,6 +27,7 @@ import (
 	"net"
 	"net/http"
 	_ "net/http/pprof" // register /debug/pprof
+	"net/url"
 	"os"
 	"os/signal"
 	"sort"
@@ -69,6 +70,7 @@ import (
 	"github.com/percona/pmm-managed/services/alertmanager"
 	"github.com/percona/pmm-managed/services/backup"
 	"github.com/percona/pmm-managed/services/checks"
+	"github.com/percona/pmm-managed/services/config"
 	"github.com/percona/pmm-managed/services/dbaas"
 	"github.com/percona/pmm-managed/services/grafana"
 	"github.com/percona/pmm-managed/services/inventory"
@@ -151,6 +153,7 @@ type gRPCServerDeps struct {
 	minioService         *minio.Service
 	versionCache         *versioncache.Service
 	supervisord          *supervisord.Service
+	config               *config.Config
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -221,7 +224,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	dbaasv1beta1.RegisterLogsAPIServer(gRPCServer, managementdbaas.NewLogsService(deps.db, deps.dbaasClient))
 	dbaasv1beta1.RegisterComponentsServer(gRPCServer, managementdbaas.NewComponentsService(deps.db, deps.dbaasClient, deps.versionServiceClient))
 
-	platformService, err := platform.New(deps.db, deps.supervisord, deps.grafanaClient)
+	platformService, err := platform.New(deps.db, deps.supervisord, deps.grafanaClient, deps.config.Services.Platform)
 	if err == nil {
 		platformpb.RegisterPlatformServer(gRPCServer, platformService)
 	} else {
@@ -610,6 +613,22 @@ func main() {
 	ctx = logger.Set(ctx, "main")
 	defer l.Info("Done.")
 
+	cfg := config.NewService()
+	if err := cfg.Load(); err != nil {
+		l.Panicf("Failed to load config: %+v", err)
+	}
+	ds := cfg.Config.Services.Telemetry.DataSources
+	pmmdb := ds.PmmDBSelect
+
+	pmmdb.Credentials.Username = *postgresDBUsernameF
+	pmmdb.Credentials.Password = *postgresDBPasswordF
+	pmmdb.DSN.Scheme = "postgres" // TODO: should be configurable
+	pmmdb.DSN.Host = *postgresAddrF
+	pmmdb.DSN.DB = *postgresDBNameF
+	q := make(url.Values)
+	q.Set("sslmode", "disable")
+	pmmdb.DSN.Params = q.Encode()
+
 	sqlDB, err := models.OpenDB(*postgresAddrF, *postgresDBNameF, *postgresDBUsernameF, *postgresDBPasswordF)
 	if err != nil {
 		l.Panicf("Failed to connect to database: %+v", err)
@@ -667,7 +686,7 @@ func main() {
 	logs := supervisord.NewLogs(version.FullInfo(), pmmUpdateCheck)
 	supervisord := supervisord.New(*supervisordConfigDirF, pmmUpdateCheck, vmParams)
 
-	telemetry, err := telemetry.NewService(db, version.Version)
+	telemetry, err := telemetry.NewService(db, version.Version, cfg.Config.Services.Telemetry)
 	if err != nil {
 		l.Fatalf("Could not create telemetry service: %s", err)
 	}
@@ -879,33 +898,35 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		runGRPCServer(ctx, &gRPCServerDeps{
-			db:                   db,
-			vmdb:                 vmdb,
-			server:               server,
-			agentsRegistry:       agentsRegistry,
-			handler:              agentsHandler,
-			actions:              actionsService,
-			agentsStateUpdater:   agentsStateUpdater,
-			connectionCheck:      connectionCheck,
-			grafanaClient:        grafanaClient,
-			checksService:        checksService,
-			dbaasClient:          dbaasClient,
-			alertmanager:         alertManager,
-			vmalert:              vmalert,
-			settings:             settings,
-			alertsService:        alertsService,
-			templatesService:     templatesService,
-			rulesService:         rulesService,
-			jobsService:          jobsService,
-			versionServiceClient: versionService,
-			schedulerService:     schedulerService,
-			backupService:        backupService,
-			backupRemovalService: backupRemovalService,
-			minioService:         minioService,
-			versionCache:         versionCache,
-			supervisord:          supervisord,
-		})
+		runGRPCServer(ctx,
+			&gRPCServerDeps{
+				db:                   db,
+				vmdb:                 vmdb,
+				server:               server,
+				agentsRegistry:       agentsRegistry,
+				handler:              agentsHandler,
+				actions:              actionsService,
+				agentsStateUpdater:   agentsStateUpdater,
+				connectionCheck:      connectionCheck,
+				grafanaClient:        grafanaClient,
+				checksService:        checksService,
+				dbaasClient:          dbaasClient,
+				alertmanager:         alertManager,
+				vmalert:              vmalert,
+				settings:             settings,
+				alertsService:        alertsService,
+				templatesService:     templatesService,
+				rulesService:         rulesService,
+				jobsService:          jobsService,
+				versionServiceClient: versionService,
+				schedulerService:     schedulerService,
+				backupService:        backupService,
+				backupRemovalService: backupRemovalService,
+				minioService:         minioService,
+				versionCache:         versionCache,
+				supervisord:          supervisord,
+				config:               &cfg.Config,
+			})
 	}()
 
 	wg.Add(1)

@@ -124,8 +124,8 @@ func TestJobs(t *testing.T) {
 			assert.Equal(t, tc.Expect, ids)
 		}
 	})
-
 }
+
 func TestJobLogs(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))

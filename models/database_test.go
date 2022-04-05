@@ -439,7 +439,8 @@ func TestDatabaseMigrations(t *testing.T) {
 				NodeID:     "node_id",
 				MongoDBOptions: &models.MongoDBOptions{StatsCollections: []string{
 					"db.col1", "db.col2", "db.col3",
-				}}})
+				}},
+			})
 		require.NoError(t, err)
 
 		// Apply migration

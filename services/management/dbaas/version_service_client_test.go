@@ -171,7 +171,6 @@ func TestOperatorVersionGetting(t *testing.T) {
 	})
 	response := &VersionServiceResponse{
 		Versions: []Version{
-
 			{
 				ProductVersion: onePointSix,
 				Product:        pxcOperator,

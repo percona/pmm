@@ -333,7 +333,8 @@ func (s *actionsServer) StartPostgreSQLShowIndexAction(ctx context.Context, req 
 // StartMongoDBExplainAction starts MongoDB Explain action
 //nolint:lll
 func (s *actionsServer) StartMongoDBExplainAction(ctx context.Context, req *managementpb.StartMongoDBExplainActionRequest) (
-	*managementpb.StartMongoDBExplainActionResponse, error) {
+	*managementpb.StartMongoDBExplainActionResponse, error,
+) {
 	// Explain action must be executed against the admin database
 	res, dsn, files, tdp, err := s.prepareServiceActionWithFiles(req.ServiceId, req.PmmAgentId, "admin")
 	if err != nil {

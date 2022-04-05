@@ -172,7 +172,6 @@ func (s *BackupsService) RestoreBackup(
 	ctx context.Context,
 	req *backupv1beta1.RestoreBackupRequest,
 ) (*backupv1beta1.RestoreBackupResponse, error) {
-
 	id, err := s.backupService.RestoreBackup(ctx, req.ServiceId, req.ArtifactId)
 	if err != nil {
 		return nil, convertRestoreBackupError(err)
@@ -321,7 +320,6 @@ func (s *BackupsService) ListScheduledBackups(ctx context.Context, req *backupv1
 	return &backupv1beta1.ListScheduledBackupsResponse{
 		ScheduledBackups: scheduledBackups,
 	}, nil
-
 }
 
 // ChangeScheduledBackup changes existing scheduled backup task.
@@ -551,7 +549,8 @@ func (s *BackupsService) ListArtifactCompatibleServices(
 
 func convertTaskToScheduledBackup(task *models.ScheduledTask,
 	services map[string]*models.Service,
-	locations map[string]*models.BackupLocation) (*backupv1beta1.ScheduledBackup, error) {
+	locations map[string]*models.BackupLocation,
+) (*backupv1beta1.ScheduledBackup, error) {
 	scheduledBackup := &backupv1beta1.ScheduledBackup{
 		ScheduledBackupId: task.ID,
 		CronExpression:    task.CronExpression,

@@ -767,8 +767,8 @@ func SetupDB(sqlDB *sql.DB, params *SetupDBParams) (*reform.DB, error) {
 
 	if pErr, ok := errDB.(*pq.Error); ok && pErr.Code == "28000" {
 		// invalid_authorization_specification	(see https://www.postgresql.org/docs/current/errcodes-appendix.html)
-		var databaseName = params.Name
-		var roleName = params.Username
+		databaseName := params.Name
+		roleName := params.Username
 
 		if params.Logf != nil {
 			params.Logf("Creating database %s and role %s", databaseName, roleName)

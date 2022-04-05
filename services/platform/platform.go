@@ -20,6 +20,7 @@ package platform
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -70,7 +71,7 @@ type grafanaClient interface {
 }
 
 // New returns platform Service.
-func New(db *reform.DB, supervisord supervisordService, grafanaClient grafanaClient) (*Service, error) {
+func New(db *reform.DB, supervisord supervisordService, grafanaClient grafanaClient, c Config) (*Service, error) {
 	l := logrus.WithField("component", "platform")
 
 	host, err := envvars.GetSAASHost()
@@ -81,11 +82,18 @@ func New(db *reform.DB, supervisord supervisordService, grafanaClient grafanaCli
 	timeout := envvars.GetPlatformAPITimeout(l)
 
 	s := Service{
-		host:          host,
-		db:            db,
-		l:             l,
-		supervisord:   supervisord,
-		client:        http.Client{Timeout: timeout},
+		host:        host,
+		db:          db,
+		l:           l,
+		supervisord: supervisord,
+		client: http.Client{
+			Timeout: timeout,
+			Transport: &http.Transport{
+				TLSClientConfig: &tls.Config{
+					InsecureSkipVerify: c.SkipTLSVerification, //nolint:gosec
+				},
+			},
+		},
 		grafanaClient: grafanaClient,
 	}
 
@@ -587,5 +595,4 @@ func (s *Service) UserStatus(ctx context.Context, req *platformpb.UserStatusRequ
 	return &platformpb.UserStatusResponse{
 		IsPlatformUser: true,
 	}, nil
-
 }

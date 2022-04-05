@@ -14,25 +14,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package depstests
+package platform
 
-import (
-	"testing"
-	"time"
+// Config platform config.
+type Config struct {
+	SkipTLSVerification bool `yaml:"skip_tls_verification"` //nolint:tagliatelle
+}
 
-	"google.golang.org/protobuf/encoding/protojson"
-	"google.golang.org/protobuf/types/known/durationpb"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-)
-
-func TestDuration(t *testing.T) {
-	// https://github.com/golang/protobuf/issues/883
-	// https://github.com/golang/protobuf/issues/1219
-	// https://jira.percona.com/browse/PMM-6760
-
-	s, err := protojson.Marshal(durationpb.New(-time.Nanosecond))
-	require.NoError(t, err)
-	assert.Equal(t, `"-0.000000001s"`, string(s))
+// Init platform config init.
+func (c *Config) Init() {
 }

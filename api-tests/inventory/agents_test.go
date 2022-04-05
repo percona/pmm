@@ -232,7 +232,6 @@ func TestAgents(t *testing.T) {
 		})
 
 		pmmapitests.AssertAPIErrorf(t, err, http.StatusBadRequest, codes.FailedPrecondition, "invalid combination of service type mysql and agent type mongodb_exporter")
-
 	})
 }
 

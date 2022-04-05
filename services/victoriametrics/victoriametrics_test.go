@@ -57,7 +57,7 @@ func teardown(t *testing.T, db *reform.DB, svc *Service, original []byte) {
 	t.Helper()
 	check := assert.New(t)
 
-	check.NoError(ioutil.WriteFile(configPath, original, 0600))
+	check.NoError(ioutil.WriteFile(configPath, original, 0o600))
 	check.NoError(svc.reload(context.Background()))
 
 	check.NoError(db.DBInterface().(*sql.DB).Close())

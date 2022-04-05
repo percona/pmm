@@ -228,6 +228,7 @@ func (s *Service) addDBTask(dbTask *models.ScheduledTask) error {
 	s.jobsMx.Unlock()
 	return nil
 }
+
 func (s *Service) wrapTask(task Task, id string) func() {
 	return func() {
 		var err error

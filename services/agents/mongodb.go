@@ -45,7 +45,8 @@ var (
 
 // mongodbExporterConfig returns desired configuration of mongodb_exporter process.
 func mongodbExporterConfig(service *models.Service, exporter *models.Agent, redactMode redactMode,
-	pmmAgentVersion *version.Parsed) *agentpb.SetStateRequest_AgentProcess {
+	pmmAgentVersion *version.Parsed,
+) *agentpb.SetStateRequest_AgentProcess {
 	tdp := exporter.TemplateDelimiters(service)
 
 	var args []string

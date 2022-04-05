@@ -37,20 +37,16 @@ const (
 )
 
 // MySQLBackupJobResult stores MySQL job specific result data.
-type MySQLBackupJobResult struct {
-}
+type MySQLBackupJobResult struct{}
 
 // MySQLRestoreBackupJobResult stores MySQL restore backup job specific result data.
-type MySQLRestoreBackupJobResult struct {
-}
+type MySQLRestoreBackupJobResult struct{}
 
 // MongoDBBackupJobResult stores MongoDB job specific result data.
-type MongoDBBackupJobResult struct {
-}
+type MongoDBBackupJobResult struct{}
 
 // MongoDBRestoreBackupJobResult stores MongoDB restore backup job specific result data.
-type MongoDBRestoreBackupJobResult struct {
-}
+type MongoDBRestoreBackupJobResult struct{}
 
 // JobResult holds result data for different job types.
 type JobResult struct {

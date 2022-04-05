@@ -27,10 +27,8 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-var (
-	// ErrNotFound returned when entity is not found.
-	ErrNotFound = errors.New("not found")
-)
+// ErrNotFound returned when entity is not found.
+var ErrNotFound = errors.New("not found")
 
 // ErrInvalidArgument returned when some passed argument is invalid.
 type ErrInvalidArgument struct {

@@ -160,7 +160,7 @@ func (s *ChecksAPIService) ToggleCheckAlert(ctx context.Context, req *management
 }
 
 // GetSecurityCheckResults returns Security Thread Tool's latest checks results.
-func (s *ChecksAPIService) GetSecurityCheckResults(ctx context.Context, req *managementpb.GetSecurityCheckResultsRequest) (*managementpb.GetSecurityCheckResultsResponse, error) {
+func (s *ChecksAPIService) GetSecurityCheckResults(ctx context.Context, req *managementpb.GetSecurityCheckResultsRequest) (*managementpb.GetSecurityCheckResultsResponse, error) { //nolint:staticcheck
 	results, err := s.checksService.GetSecurityCheckResults()
 	if err != nil {
 		if errors.Is(err, services.ErrSTTDisabled) {
@@ -182,7 +182,7 @@ func (s *ChecksAPIService) GetSecurityCheckResults(ctx context.Context, req *man
 		})
 	}
 
-	return &managementpb.GetSecurityCheckResultsResponse{Results: checkResults}, nil
+	return &managementpb.GetSecurityCheckResultsResponse{Results: checkResults}, nil //nolint:staticcheck
 }
 
 // StartSecurityChecks executes Security Thread Tool checks and returns when all checks are executed.

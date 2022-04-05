@@ -65,7 +65,6 @@ func TestSettings(t *testing.T) {
 		assert.Empty(t, res.Payload.Settings.SlackAlertingSettings)
 
 		t.Run("ChangeSettings", func(t *testing.T) {
-
 			defer restoreSettingsDefaults(t)
 
 			t.Run("Updates", func(t *testing.T) {

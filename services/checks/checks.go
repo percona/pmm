@@ -1047,7 +1047,8 @@ func (s *Service) downloadChecks(ctx context.Context) ([]check.Check, error) {
 	}
 
 	endpoint := fmt.Sprintf("https://%s/v1/check/GetAllChecks", s.host)
-	bodyBytes, err := saasreq.MakeRequest(nCtx, http.MethodPost, endpoint, accessToken, nil)
+	bodyBytes, err := saasreq.MakeRequest(nCtx, http.MethodPost, endpoint, accessToken, nil,
+		&saasreq.SaasRequestOptions{})
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to dial")
 	}
