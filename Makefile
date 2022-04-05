@@ -59,7 +59,7 @@ gen: clean         ## Generate files.
 
 	bin/swagger-order --output=api/swagger/swagger.json api/swagger/swagger.json
 
-	# generate dev API spec with all PMM Server APIs (omit agentlocalpb)
+	# generate API spec with all PMM Server APIs (omit agentlocalpb)
 	bin/swagger mixin --output=api/swagger/swagger-dev.json \
 		api/swagger/header-dev.json \
 		api/serverpb/json/serverpb.json \
@@ -74,6 +74,19 @@ gen: clean         ## Generate files.
 	bin/swagger validate api/swagger/swagger-dev.json
 
 	bin/swagger-order --output=api/swagger/swagger-dev.json api/swagger/swagger-dev.json
+
+	# generate API spec with only dev PMM Server APIs specifically for readme.io (omit agentlocalpb)
+	bin/swagger mixin --output=api/swagger/swagger-dev-only.json \
+		api/swagger/header-dev.json \
+		api/managementpb/dbaas/json/dbaas.json \
+		api/managementpb/ia/json/ia.json \
+		api/managementpb/backup/json/backup.json \
+		api/managementpb/azure/json/azure.json \
+		api/qanpb/json/qanpb.json \
+		api/platformpb/json/platformpb.json
+	bin/swagger validate api/swagger/swagger-dev-only.json
+
+	bin/swagger-order --output=api/swagger/swagger-dev-only.json api/swagger/swagger-dev-only.json
 
 	make clean_swagger
 	go fmt ./...
@@ -96,7 +109,7 @@ clean: clean_swagger  ## Remove generated files.
 	for API in api/agentlocalpb api/serverpb api/inventorypb api/managementpb api/managementpb/dbaas api/managementpb/ia api/managementpb/backup api/qanpb api/platformpb ; do \
 		rm -fr $$API/json/client $$API/json/models $$API/json/$$(basename $$API).json ; \
 	done
-	rm -f api/swagger/swagger.json api/swagger/swagger-dev.json
+	rm -f api/swagger/swagger.json api/swagger/swagger-dev.json api/swagger/swagger-dev-only.json
 
 test:                 ## Run tests
 	go test ./...
