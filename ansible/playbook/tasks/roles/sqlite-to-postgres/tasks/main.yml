@@ -15,10 +15,13 @@
     group: grafana
     mode: '0700'
 
-- name: Stop grafana before upgrade
+- name: Stop grafana and nginx before upgrade
   supervisorctl:
-    name: 'grafana'
+    name: "{{ item }}"
     state: stopped
+  loop:
+    - grafana
+    - nginx
 
 - name: Create actual grafana config and grafana db
   include_role:
@@ -62,11 +65,17 @@
   changed_when: True
 
 # https://jira.percona.com/browse/PMM-9754
-- name: Delete default admin user in postgres database
+- name: Delete default data in postgres database
   postgresql_query:
     db: grafana
-    query: DELETE FROM public.user WHERE id = 1
+    query: TRUNCATE public.{{ item }};
   when: not ansible_check_mode
+  loop:
+    - user
+    - org
+    - org_user
+    - session
+    - user_auth_token
 
 - name: Run grafana migrator
   command: grafana-db-migrator --change-char-to-text --reset-home-dashboard /srv/grafana/grafana.db "postgres://grafana:grafana@localhost:5432/grafana?sslmode=disable"
@@ -103,3 +112,8 @@
   file:
     path: /srv/grafana/grafana.db
     state: absent
+
+- name: Start nginx again
+  supervisorctl:
+    name: nginx
+    state: started
