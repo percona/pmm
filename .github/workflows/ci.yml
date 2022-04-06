@@ -29,7 +29,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: percona-platform/checkout@v2
+        uses: percona-platform/checkout@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           path: ${{ env.WORKING_DIR }}
@@ -85,7 +85,7 @@ jobs:
       SLACK_FOOTER: "Please check the Actions URL ^"
 
     steps:
-      - uses: percona-platform/checkout@v2
+      - uses: percona-platform/checkout@v3
       - uses: percona-platform/setup-node@v3
       - name: Slack Notification
         uses: percona-platform/action-slack-notify@v2
@@ -106,6 +106,6 @@ jobs:
       SLACK_FOOTER: "Please check the Actions URL ^"
 
     steps:
-      - uses: percona-platform/checkout@v2
+      - uses: percona-platform/checkout@v3
       - name: Slack Notification
         uses: percona-platform/action-slack-notify@v2
