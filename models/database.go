@@ -692,8 +692,17 @@ var databaseSchema = [][]string{
 			WHERE 'mongo_db_tls_options' is not null AND jsonb_typeof(mongo_db_tls_options->'stats_collections') = 'string'`,
 	},
 	59: {
+		`DELETE FROM percona_sso_details WHERE organization_id IS NULL`,
+	},
+	60: {
 		`ALTER TABLE percona_sso_details
-			ADD COLUMN pmm_server_name VARCHAR`,
+			RENAME COLUMN client_id TO pmm_managed_client_id;
+		ALTER TABLE percona_sso_details
+			RENAME COLUMN client_secret TO pmm_managed_client_secret;
+		ALTER TABLE percona_sso_details
+			ADD COLUMN grafana_client_id VARCHAR NOT NULL,
+			ADD COLUMN pmm_server_name VARCHAR NOT NULL,
+			ALTER COLUMN organization_id SET NOT NULL`,
 	},
 }
 

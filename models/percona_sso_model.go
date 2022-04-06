@@ -29,13 +29,14 @@ import (
 // It is intended to have only one row in this table as PMM can be connected to Portal only once.
 //reform:percona_sso_details
 type PerconaSSODetails struct {
-	ClientID       string                 `reform:"client_id,pk"`
-	ClientSecret   string                 `reform:"client_secret"`
-	IssuerURL      string                 `reform:"issuer_url"`
-	Scope          string                 `reform:"scope"`
-	AccessToken    *PerconaSSOAccessToken `reform:"access_token"`
-	OrganizationID string                 `reform:"organization_id"`
-	PMMServerName  string                 `reform:"pmm_server_name"`
+	PMMManagedClientID     string                 `reform:"pmm_managed_client_id,pk"`
+	PMMManagedClientSecret string                 `reform:"pmm_managed_client_secret"`
+	GrafanaClientID        string                 `reform:"grafana_client_id"`
+	IssuerURL              string                 `reform:"issuer_url"`
+	Scope                  string                 `reform:"scope"`
+	AccessToken            *PerconaSSOAccessToken `reform:"access_token"`
+	OrganizationID         string                 `reform:"organization_id"`
+	PMMServerName          string                 `reform:"pmm_server_name"`
 
 	CreatedAt time.Time `reform:"created_at"`
 }
@@ -43,12 +44,13 @@ type PerconaSSODetails struct {
 // PerconaSSODetailsInsert stores everything what we can set. Other properties missing compared to
 // PerconaSSODetails will be added automatically.
 type PerconaSSODetailsInsert struct {
-	ClientID       string
-	ClientSecret   string
-	IssuerURL      string
-	Scope          string
-	OrganizationID string
-	PMMServerName  string
+	PMMManagedClientID     string
+	PMMManagedClientSecret string
+	GrafanaClientID        string
+	IssuerURL              string
+	Scope                  string
+	OrganizationID         string
+	PMMServerName          string
 }
 
 // PerconaSSOAccessToken represents structure for special access token options.

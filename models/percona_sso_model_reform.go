@@ -28,8 +28,9 @@ func (v *perconaSSODetailsTableType) Name() string {
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *perconaSSODetailsTableType) Columns() []string {
 	return []string{
-		"client_id",
-		"client_secret",
+		"pmm_managed_client_id",
+		"pmm_managed_client_secret",
+		"grafana_client_id",
 		"issuer_url",
 		"scope",
 		"access_token",
@@ -60,8 +61,9 @@ var PerconaSSODetailsTable = &perconaSSODetailsTableType{
 		Type:    "PerconaSSODetails",
 		SQLName: "percona_sso_details",
 		Fields: []parse.FieldInfo{
-			{Name: "ClientID", Type: "string", Column: "client_id"},
-			{Name: "ClientSecret", Type: "string", Column: "client_secret"},
+			{Name: "PMMManagedClientID", Type: "string", Column: "pmm_managed_client_id"},
+			{Name: "PMMManagedClientSecret", Type: "string", Column: "pmm_managed_client_secret"},
+			{Name: "GrafanaClientID", Type: "string", Column: "grafana_client_id"},
 			{Name: "IssuerURL", Type: "string", Column: "issuer_url"},
 			{Name: "Scope", Type: "string", Column: "scope"},
 			{Name: "AccessToken", Type: "*PerconaSSOAccessToken", Column: "access_token"},
@@ -76,15 +78,16 @@ var PerconaSSODetailsTable = &perconaSSODetailsTableType{
 
 // String returns a string representation of this struct or record.
 func (s PerconaSSODetails) String() string {
-	res := make([]string, 8)
-	res[0] = "ClientID: " + reform.Inspect(s.ClientID, true)
-	res[1] = "ClientSecret: " + reform.Inspect(s.ClientSecret, true)
-	res[2] = "IssuerURL: " + reform.Inspect(s.IssuerURL, true)
-	res[3] = "Scope: " + reform.Inspect(s.Scope, true)
-	res[4] = "AccessToken: " + reform.Inspect(s.AccessToken, true)
-	res[5] = "OrganizationID: " + reform.Inspect(s.OrganizationID, true)
-	res[6] = "PMMServerName: " + reform.Inspect(s.PMMServerName, true)
-	res[7] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
+	res := make([]string, 9)
+	res[0] = "PMMManagedClientID: " + reform.Inspect(s.PMMManagedClientID, true)
+	res[1] = "PMMManagedClientSecret: " + reform.Inspect(s.PMMManagedClientSecret, true)
+	res[2] = "GrafanaClientID: " + reform.Inspect(s.GrafanaClientID, true)
+	res[3] = "IssuerURL: " + reform.Inspect(s.IssuerURL, true)
+	res[4] = "Scope: " + reform.Inspect(s.Scope, true)
+	res[5] = "AccessToken: " + reform.Inspect(s.AccessToken, true)
+	res[6] = "OrganizationID: " + reform.Inspect(s.OrganizationID, true)
+	res[7] = "PMMServerName: " + reform.Inspect(s.PMMServerName, true)
+	res[8] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
 	return strings.Join(res, ", ")
 }
 
@@ -92,8 +95,9 @@ func (s PerconaSSODetails) String() string {
 // Returned interface{} values are never untyped nils.
 func (s *PerconaSSODetails) Values() []interface{} {
 	return []interface{}{
-		s.ClientID,
-		s.ClientSecret,
+		s.PMMManagedClientID,
+		s.PMMManagedClientSecret,
+		s.GrafanaClientID,
 		s.IssuerURL,
 		s.Scope,
 		s.AccessToken,
@@ -107,8 +111,9 @@ func (s *PerconaSSODetails) Values() []interface{} {
 // Returned interface{} values are never untyped nils.
 func (s *PerconaSSODetails) Pointers() []interface{} {
 	return []interface{}{
-		&s.ClientID,
-		&s.ClientSecret,
+		&s.PMMManagedClientID,
+		&s.PMMManagedClientSecret,
+		&s.GrafanaClientID,
 		&s.IssuerURL,
 		&s.Scope,
 		&s.AccessToken,
@@ -131,23 +136,23 @@ func (s *PerconaSSODetails) Table() reform.Table {
 // PKValue returns a value of primary key for that record.
 // Returned interface{} value is never untyped nil.
 func (s *PerconaSSODetails) PKValue() interface{} {
-	return s.ClientID
+	return s.PMMManagedClientID
 }
 
 // PKPointer returns a pointer to primary key field for that record.
 // Returned interface{} value is never untyped nil.
 func (s *PerconaSSODetails) PKPointer() interface{} {
-	return &s.ClientID
+	return &s.PMMManagedClientID
 }
 
 // HasPK returns true if record has non-zero primary key set, false otherwise.
 func (s *PerconaSSODetails) HasPK() bool {
-	return s.ClientID != PerconaSSODetailsTable.z[PerconaSSODetailsTable.s.PKFieldIndex]
+	return s.PMMManagedClientID != PerconaSSODetailsTable.z[PerconaSSODetailsTable.s.PKFieldIndex]
 }
 
 // SetPK sets record primary key, if possible.
 //
-// Deprecated: prefer direct field assignment where possible: s.ClientID = pk.
+// Deprecated: prefer direct field assignment where possible: s.PMMManagedClientID = pk.
 func (s *PerconaSSODetails) SetPK(pk interface{}) {
 	reform.SetPK(s, pk)
 }

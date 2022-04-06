@@ -56,18 +56,18 @@ func TestPerconaSSODetails(t *testing.T) {
 		defer cleanup()
 
 		expectedSSODetails := &models.PerconaSSODetails{
-			IssuerURL:      issuerURL,
-			ClientID:       clientID,
-			ClientSecret:   clientSecret,
-			Scope:          "percona",
-			OrganizationID: orgID,
+			IssuerURL:              issuerURL,
+			PMMManagedClientID:     clientID,
+			PMMManagedClientSecret: clientSecret,
+			Scope:                  "percona",
+			OrganizationID:         orgID,
 		}
 		insertSSODetails := &models.PerconaSSODetailsInsert{
-			IssuerURL:      expectedSSODetails.IssuerURL,
-			ClientID:       expectedSSODetails.ClientID,
-			ClientSecret:   expectedSSODetails.ClientSecret,
-			Scope:          expectedSSODetails.Scope,
-			OrganizationID: expectedSSODetails.OrganizationID,
+			IssuerURL:              expectedSSODetails.IssuerURL,
+			PMMManagedClientID:     expectedSSODetails.PMMManagedClientID,
+			PMMManagedClientSecret: expectedSSODetails.PMMManagedClientSecret,
+			Scope:                  expectedSSODetails.Scope,
+			OrganizationID:         expectedSSODetails.OrganizationID,
 		}
 		err := models.InsertPerconaSSODetails(db.Querier, insertSSODetails)
 		require.NoError(t, err)
@@ -75,8 +75,8 @@ func TestPerconaSSODetails(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.NotNil(t, ssoDetails)
-		assert.Equal(t, expectedSSODetails.ClientID, ssoDetails.ClientID)
-		assert.Equal(t, expectedSSODetails.ClientSecret, ssoDetails.ClientSecret)
+		assert.Equal(t, expectedSSODetails.PMMManagedClientID, ssoDetails.PMMManagedClientID)
+		assert.Equal(t, expectedSSODetails.PMMManagedClientSecret, ssoDetails.PMMManagedClientSecret)
 		assert.Equal(t, expectedSSODetails.IssuerURL, ssoDetails.IssuerURL)
 		assert.Equal(t, expectedSSODetails.Scope, ssoDetails.Scope)
 		assert.Equal(t, expectedSSODetails.OrganizationID, ssoDetails.OrganizationID)
@@ -104,11 +104,11 @@ func TestPerconaSSODetails(t *testing.T) {
 		defer cleanup()
 
 		InsertSSODetails := &models.PerconaSSODetailsInsert{
-			IssuerURL:      issuerURL,
-			ClientID:       "wrongClientID",
-			ClientSecret:   "wrongClientSecret",
-			Scope:          "percona",
-			OrganizationID: "org-id",
+			IssuerURL:              issuerURL,
+			PMMManagedClientID:     "wrongClientID",
+			PMMManagedClientSecret: "wrongClientSecret",
+			Scope:                  "percona",
+			OrganizationID:         "org-id",
 		}
 		err := models.InsertPerconaSSODetails(db.Querier, InsertSSODetails)
 		require.NoError(t, err)
@@ -126,10 +126,10 @@ func TestPerconaSSODetails(t *testing.T) {
 		defer cleanup()
 
 		InsertSSODetails := &models.PerconaSSODetailsInsert{
-			IssuerURL:    wrongIssuerURL,
-			ClientID:     clientID,
-			ClientSecret: clientSecret,
-			Scope:        "percona",
+			IssuerURL:              wrongIssuerURL,
+			PMMManagedClientID:     clientID,
+			PMMManagedClientSecret: clientSecret,
+			Scope:                  "percona",
 		}
 		err := models.InsertPerconaSSODetails(db.Querier, InsertSSODetails)
 		require.NoError(t, err)
