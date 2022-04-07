@@ -2871,6 +2871,11 @@
                   },
                   "x-order": 15
                 },
+                "defaults_file": {
+                  "type": "string",
+                  "title": "Path to .cnf file which contains user-name and password",
+                  "x-order": 28
+                },
                 "disable_collectors": {
                   "description": "List of collector names to disable in this exporter.",
                   "type": "array",

@@ -216,6 +216,9 @@ type AddMySQLBody struct {
 	// Custom password for exporter endpoint /metrics.
 	AgentPassword string `json:"agent_password,omitempty"`
 
+	// Path to .cnf file which contains user-name and password
+	DefaultsFile string `json:"defaults_file,omitempty"`
+
 	// add node
 	AddNode *AddMySQLParamsBodyAddNode `json:"add_node,omitempty"`
 }

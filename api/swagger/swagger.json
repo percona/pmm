@@ -15742,6 +15742,11 @@
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 27
+                },
+                "defaults_file": {
+                  "type": "string",
+                  "title": "Path to .cnf file which contains user-name and password",
+                  "x-order": 28
                 }
               }
             }
