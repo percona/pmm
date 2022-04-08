@@ -139,6 +139,9 @@ type ChecksItems0 struct {
 	// SecurityCheckInterval represents possible execution interval values for checks.
 	// Enum: [SECURITY_CHECK_INTERVAL_INVALID STANDARD FREQUENT RARE]
 	Interval *string `json:"interval,omitempty"`
+
+	// Category to which the check belongs.
+	Category string `json:"category,omitempty"`
 }
 
 // Validate validates this checks items0

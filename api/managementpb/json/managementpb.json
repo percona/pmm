@@ -5962,6 +5962,11 @@
                     "description": "SecurityCheckResult represents the check result returned from pmm-managed after running the check.",
                     "type": "object",
                     "properties": {
+                      "category": {
+                        "description": "Category to which the check belongs.",
+                        "type": "string",
+                        "x-order": 6
+                      },
                       "description": {
                         "type": "string",
                         "x-order": 1
@@ -5974,7 +5979,7 @@
                         "x-order": 3
                       },
                       "read_more_url": {
-                        "description": "URL containing information on how to resolve an issue detected by an STT check.",
+                        "description": "URL containing information on how to resolve an issue detected by a check.",
                         "type": "string",
                         "x-order": 4
                       },
@@ -6188,6 +6193,11 @@
                     "description": "SecurityCheck contains check name and status.",
                     "type": "object",
                     "properties": {
+                      "category": {
+                        "description": "Category to which the check belongs.",
+                        "type": "string",
+                        "x-order": 5
+                      },
                       "description": {
                         "description": "Long human-readable description.",
                         "type": "string",

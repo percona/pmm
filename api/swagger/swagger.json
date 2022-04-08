@@ -18740,7 +18740,7 @@
                         "x-order": 3
                       },
                       "read_more_url": {
-                        "description": "URL containing information on how to resolve an issue detected by an STT check.",
+                        "description": "URL containing information on how to resolve an issue detected by a check.",
                         "type": "string",
                         "x-order": 4
                       },
@@ -18748,6 +18748,11 @@
                         "description": "Name of the monitored service on which the check ran.",
                         "type": "string",
                         "x-order": 5
+                      },
+                      "category": {
+                        "description": "Category to which the check belongs.",
+                        "type": "string",
+                        "x-order": 6
                       }
                     }
                   },
@@ -18964,6 +18969,11 @@
                           "RARE"
                         ],
                         "x-order": 4
+                      },
+                      "category": {
+                        "description": "Category to which the check belongs.",
+                        "type": "string",
+                        "x-order": 5
                       }
                     }
                   },
