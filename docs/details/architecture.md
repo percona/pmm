@@ -1,6 +1,6 @@
 # Architecture
 
-PMM is a client/server application built by us with our own and third-party open-source tools.
+PMM is a client/server application built by Percona comprising its own and third-party components and tools.```
 
 <!-- The source of this image is maintained at https://miro.com/app/board/uXjVOPgKgrE=/ -->
 
@@ -8,17 +8,17 @@ PMM is a client/server application built by us with our own and third-party open
 
 ## PMM Server
 
-PMM Server is the heart of PMM. It receives data from clients, collates it and stores it. Metrics are drawn as tables, charts and graphs within [_dashboards_](dashboards/), each a part of the web-based [user interface](../using/interface.md).
+PMM Server is the heart of PMM. It receives data from clients, collects it, and stores it. Metrics are drawn as tables, charts and graphs within [_dashboards_](dashboards/), each a part of the web-based [user interface](../using/interface.md).
 
 ## PMM Client
 
 PMM Client is a collection of agents and exporters that run on the host being monitored.
 
-PMM Client runs on every database host or node you want to monitor. The client collects server metrics, general system metrics, and query analytics data, and sends it to the server. Except when monitoring AWS RDS instances, a PMM Client must be running on the host to be monitored.
+PMM Client runs on every database host or node you want to monitor. The client collects server metrics, general system metrics, query analytics and sends it to the server. Except when monitoring AWS RDS instances, a PMM Client must be running on the host to be monitored.
 
 ## Percona Platform
 
-[Percona Platform](../using/platform/) (in development) provides value-added services for PMM.
+[Percona Platform](../using/platform/) provides value-added services for PMM.
 
 ## PMM context
 
@@ -30,10 +30,10 @@ The PMM Client package provides:
 
 The PMM Server package provides:
 
-- `pmm-managed`;
-- Query Analytics;
-- Grafana;
-- VictoriaMetrics.
+- `pmm-managed`
+- Query Analytics
+- Grafana
+- VictoriaMetrics
 
 ### PMM Server
 
@@ -41,17 +41,17 @@ The PMM Server package provides:
 
 PMM Server includes the following tools:
 
-- Query Analytics (QAN) enables you to analyze MySQL query performance over periods of time. In addition to the client-side QAN agent, it includes the following:
+- Query Analytics (QAN) enables you to analyze database query performance over periods of time. In addition to the client-side QAN agent, it includes the following:
 
   - QAN API is the back-end for storing and accessing query data collected by the QAN agent running on a PMM Client.
-  - QAN Web App is a web application for visualizing collected Query Analytics data.
+  - QAN App is a web application for visualizing collected Query Analytics data which is part of the PMM Server's UI.
 
 - Metrics Monitor provides a historical view of metrics that are critical to a MySQL or MongoDB server instance. It includes the following:
 
   - [VictoriaMetrics](https://github.com/VictoriaMetrics/VictoriaMetrics), a scalable time-series database. (Replaced [Prometheus](https://prometheus.io) in [PMM 2.12.0](../release-notes/2.12.0.md).)
-  - [ClickHouse](https://clickhouse.tech/) is a third-party column-oriented database that facilitates the Query Analytics functionality.
-  - [Grafana](http://docs.grafana.org/) is a third-party dashboard and graph builder for visualizing data aggregated (by VictoriaMetrics or Prometheus) in an intuitive web interface.
-  - Percona Dashboards is a set of dashboards for Grafana developed by us.
+  - [ClickHouse](https://clickhouse.com) is a third-party column-oriented database that facilitates the Query Analytics functionality.
+  - [Grafana](http://docs.grafana.org) is a third-party dashboard and graph builder for visualizing data aggregated (by VictoriaMetrics or Prometheus) in an intuitive web interface.
+  - [Percona Dashboards](https://github.com/percona/grafana-dashboards) is a set of dashboards for Grafana developed by Percona.
 
 ### PMM Client
 
