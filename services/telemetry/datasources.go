@@ -78,11 +78,11 @@ func (r *dataSourceRegistry) LocateTelemetryDataSource(name string) (DataSource,
 
 // DataSource telemetry data source.
 type DataSource interface {
-	FetchMetrics(ctx context.Context, config Config) ([]*pmmv1.ServerMetric_Metric, error)
+	FetchMetrics(ctx context.Context, config Config) ([][]*pmmv1.ServerMetric_Metric, error)
 	Enabled() bool
 }
 
-func fetchMetricsFromDB(ctx context.Context, l *logrus.Entry, timeout time.Duration, db *sql.DB, config Config) ([]*pmmv1.ServerMetric_Metric, error) {
+func fetchMetricsFromDB(ctx context.Context, l *logrus.Entry, timeout time.Duration, db *sql.DB, config Config) ([][]*pmmv1.ServerMetric_Metric, error) {
 	localCtx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 	tx, err := db.BeginTx(localCtx, &sql.TxOptions{})
@@ -92,12 +92,10 @@ func fetchMetricsFromDB(ctx context.Context, l *logrus.Entry, timeout time.Durat
 	// to minimize risk of modifying DB
 	defer tx.Rollback() //nolint:errcheck
 
-	rows, err := db.Query("SELECT " + config.Query) //nolint:gosec,rowserrcheck,sqlclosecheck
+	rows, err := tx.Query("SELECT " + config.Query) //nolint:gosec,rowserrcheck,sqlclosecheck
 	if err != nil {
 		return nil, err
 	}
-
-	var metrics []*pmmv1.ServerMetric_Metric
 
 	columns, err := rows.Columns()
 	if err != nil {
@@ -109,19 +107,33 @@ func fetchMetricsFromDB(ctx context.Context, l *logrus.Entry, timeout time.Durat
 		values[i] = &strs[i]
 	}
 	cfgColumns := config.mapByColumn()
+
+	var metrics [][]*pmmv1.ServerMetric_Metric
 	for rows.Next() {
 		if err := rows.Scan(values...); err != nil {
 			l.Error(err)
 			continue
 		}
 
+		var metric []*pmmv1.ServerMetric_Metric
 		for idx, column := range columns {
-			if _, ok := cfgColumns[column]; ok {
-				metrics = append(metrics, &pmmv1.ServerMetric_Metric{
-					Key:   column,
-					Value: *strs[idx],
-				})
+			var value string
+			if strs[idx] != nil && *strs[idx] != "" {
+				value = *strs[idx]
+				// According to spec we need to skip empty data, but it will break composed metrics
+				// https://confluence.percona.com/display/PMM/Telemetry+Service+v2?focusedCommentId=114514247#comment-114514247
 			}
+			if cols, ok := cfgColumns[column]; ok {
+				for _, col := range cols {
+					metric = append(metric, &pmmv1.ServerMetric_Metric{
+						Key:   col.MetricName,
+						Value: value,
+					})
+				}
+			}
+		}
+		if len(metric) != 0 {
+			metrics = append(metrics, metric)
 		}
 	}
 

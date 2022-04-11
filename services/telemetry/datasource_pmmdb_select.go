@@ -22,6 +22,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/url"
+	"time"
 
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	"github.com/pkg/errors"
@@ -83,7 +84,8 @@ func openPMMDBConnection(config DSConfigPMMDB) (*sql.DB, error) {
 		return nil, errors.Wrap(err, "failed to create a connection pool to PostgreSQL")
 	}
 
-	db.SetConnMaxLifetime(0)
+	db.SetConnMaxIdleTime(time.Second * 30)
+	db.SetConnMaxLifetime(time.Second * 180)
 	db.SetMaxIdleConns(1)
 	db.SetMaxOpenConns(1)
 
@@ -94,6 +96,6 @@ func openPMMDBConnection(config DSConfigPMMDB) (*sql.DB, error) {
 	return db, nil
 }
 
-func (d *dsPmmDBSelect) FetchMetrics(ctx context.Context, config Config) ([]*pmmv1.ServerMetric_Metric, error) {
+func (d *dsPmmDBSelect) FetchMetrics(ctx context.Context, config Config) ([][]*pmmv1.ServerMetric_Metric, error) {
 	return fetchMetricsFromDB(ctx, d.l, d.config.Timeout, d.db, config)
 }
