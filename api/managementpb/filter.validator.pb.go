@@ -61,9 +61,11 @@ func (this *IntRangeValues) Validate() error {
 	return nil
 }
 func (this *FilterParams) Validate() error {
-	if this.Filter != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Filter); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Filter", err)
+	for _, item := range this.Filters {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Filters", err)
+			}
 		}
 	}
 	return nil

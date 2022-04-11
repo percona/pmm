@@ -9,13 +9,26 @@ import "google/api/annotations.proto";
 
 enum Operation {
   INVALID = 0;
-  // Checks if value is equal to the provided scalar value (int_value | long_value | string_value).
+
+  // Checks for results whose key is equal to the provided scalar value.
+  // Valid for (int32 | int64 | string ).
   EQUALS = 1;
-  // Returns results whose value lies within the inclusive range of the provided minimum and maximum values.
-  // Valid for IntRangeValues.
-  BETWEEN = 2;
-  // Checks if value exists in a given array. Valid for int_values | long_values | string_values.
-  IN = 3;
+
+  // Checks for results whose key is not equal to the provided scalar value.
+  // Valid for (int32 | int64 | string).
+  NOT_EQUALS = 2;
+
+  // Returns results whose key lies within the inclusive range of the provided minimum and maximum values.
+  // Valid for (IntRangeValues).
+  BETWEEN = 3;
+
+  // Checks for results whose key exists in a given array.
+  // Valid for (int_values | long_values | string_values).
+  IN = 4;
+
+  // Checks for results whose key contains value as a substring
+  // Valid for (string_values).
+  CONTAINS = 5;
 }
 
 message Filter {
@@ -65,6 +78,6 @@ message IntRangeValues {
 
 // FilterParams is used to filter the data returned in a response.
 message FilterParams {
-  // for now, only one filter is supported at a time. We can extend this later on to support multiple filters and "AND" them.
-  Filter filter = 1;
+  // Accepts multiple filters, but if/how they are handled is up to the specific implementation.
+  repeated Filter filters = 1;
 }
