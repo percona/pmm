@@ -21,10 +21,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/golang/protobuf/ptypes"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/percona/pmm-agent/client/channel"
 )
@@ -87,7 +87,7 @@ func (r *Runner) Run(ctx context.Context) {
 				if err != nil {
 					r.send(&agentpb.JobResult{
 						JobId:     job.ID(),
-						Timestamp: ptypes.TimestampNow(),
+						Timestamp: timestamppb.Now(),
 						Result: &agentpb.JobResult_Error_{
 							Error: &agentpb.JobResult_Error{
 								Message: err.Error(),

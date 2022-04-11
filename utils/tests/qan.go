@@ -19,23 +19,23 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/golang/protobuf/proto" //nolint:staticcheck
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/stretchr/testify/assert"
+	"google.golang.org/protobuf/encoding/prototext"
 )
 
 // AssertBucketsEqual asserts that two MetricsBuckets are equal while providing a good diff.
 func AssertBucketsEqual(t *testing.T, expected, actual *agentpb.MetricsBucket) bool {
 	t.Helper()
 
-	return assert.Equal(t, proto.MarshalTextString(expected), proto.MarshalTextString(actual))
+	return assert.Equal(t, prototext.Format(expected), prototext.Format(actual))
 }
 
 // FormatBuckets formats MetricsBuckets to string for tests.
 func FormatBuckets(mb []*agentpb.MetricsBucket) string {
 	res := make([]string, len(mb))
 	for i, b := range mb {
-		res[i] = proto.MarshalTextString(b)
+		res[i] = prototext.Format(b)
 	}
 	return strings.Join(res, "\n")
 }

@@ -24,10 +24,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/golang/protobuf/ptypes"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const (
@@ -94,7 +94,7 @@ func (j *MySQLBackupJob) Run(ctx context.Context, send Send) error {
 
 	send(&agentpb.JobResult{
 		JobId:     j.id,
-		Timestamp: ptypes.TimestampNow(),
+		Timestamp: timestamppb.Now(),
 		Result: &agentpb.JobResult_MysqlBackup{
 			MysqlBackup: &agentpb.JobResult_MySQLBackup{},
 		},

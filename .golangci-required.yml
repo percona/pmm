@@ -8,9 +8,9 @@ linters-settings:
     packages:
       # use "github.com/pkg/errors" instead
       - errors
-      # we use "github.com/golang/protobuf/proto" for now
+      # we use "google.golang.org/protobuf/proto"
+      - github.com/golang/protobuf/proto
       - github.com/gogo/protobuf/proto
-      - google.golang.org/protobuf/proto
       # use only forked parser
       - github.com/percona/go-mysql/log/slow
       # use "gopkg.in/yaml.v3" instead
