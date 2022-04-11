@@ -10,8 +10,8 @@ require (
 	github.com/reviewdog/reviewdog v0.14.0
 	github.com/vektra/mockery v1.1.2
 	golang.org/x/perf v0.0.0-20211012211434-03971e389cd3
-	golang.org/x/tools v0.1.10-0.20220315142906-0c66750444e6
-	golang.org/x/tools/gopls v0.8.1
+	golang.org/x/tools v0.1.11-0.20220329213715-7cf6cf0fb5fd
+	golang.org/x/tools/gopls v0.8.2
 	gopkg.in/reform.v1 v1.5.1
 	mvdan.cc/gofumpt v0.3.0
 )
@@ -202,6 +202,7 @@ require (
 	golang.org/x/sys v0.0.0-20220209214540-3681064d5158 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20211116232009-f0f3c7e86c11 // indirect
+	golang.org/x/vuln v0.0.0-20220324005316-18fd808f5c7f // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/api v0.65.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
