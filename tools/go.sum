@@ -199,7 +199,6 @@ github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869/go.mod h1:Ekp36dR
 github.com/bombsimon/wsl/v3 v3.3.0 h1:Mka/+kRLoQJq7g2rggtgQsjuI/K5Efd87WX96EWFxjM=
 github.com/bombsimon/wsl/v3 v3.3.0/go.mod h1:st10JtZYLE4D5sC7b8xV4zTKZwAQjCH/Hy2Pm1FNZIc=
 github.com/bradfitz/go-smtpd v0.0.0-20170404230938-deb6d6237625/go.mod h1:HYsPBTaaSFSlLx/70C2HPIMNZpVV8+vt/A+FMnYP11g=
-github.com/bradleyfalzon/ghinstallation/v2 v2.0.3/go.mod h1:tlgi+JWCXnKFx/Y4WtnDbZEINo31N5bcvnCoqieefmk=
 github.com/bradleyfalzon/ghinstallation/v2 v2.0.4 h1:tXKVfhE7FcSkhkv0UwkLvPDeZ4kz6OXd0PKPlFqf81M=
 github.com/bradleyfalzon/ghinstallation/v2 v2.0.4/go.mod h1:B40qPqJxWE0jDZgOR1JmaMy+4AY1eBP+IByOvqyAKp0=
 github.com/breml/bidichk v0.2.1 h1:SRNtZuLdfkxtocj+xyHXKC1Uv3jVi6EPYx+NHSTNQvE=
@@ -522,7 +521,6 @@ github.com/google/go-cmp v0.5.7/go.mod h1:n+brtR0CgQNWTVd5ZUFpTBC8YFBDLK/h/bpaJ8
 github.com/google/go-github v17.0.0+incompatible h1:N0LgJ1j65A7kfXrZnUDaYCs/Sf4rEjNlfyDHW9dolSY=
 github.com/google/go-github v17.0.0+incompatible/go.mod h1:zLgOLi98H3fifZn+44m+umXrS52loVEgC2AApnigrVQ=
 github.com/google/go-github/v35 v35.2.0/go.mod h1:s0515YVTI+IMrDoy9Y4pHt9ShGpzHvHO8rZ7L7acgvs=
-github.com/google/go-github/v39 v39.0.0/go.mod h1:C1s8C5aCC9L+JXIYpJM5GYytdX52vC1bLvHEF1IhBrE=
 github.com/google/go-github/v39 v39.2.0 h1:rNNM311XtPOz5rDdsJXAp2o8F67X9FnROXTvto3aSnQ=
 github.com/google/go-github/v39 v39.2.0/go.mod h1:C1s8C5aCC9L+JXIYpJM5GYytdX52vC1bLvHEF1IhBrE=
 github.com/google/go-github/v41 v41.0.0 h1:HseJrM2JFf2vfiZJ8anY2hqBjdfY1Vlj/K27ueww4gg=
@@ -1095,13 +1093,12 @@ github.com/remyoudompheng/bigfft v0.0.0-20190728182440-6a916e37a237/go.mod h1:qq
 github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0/go.mod h1:qqbHyh8v60DhA7CoWK5oRCqLrMHRGoxYCSS9EjAz6Eo=
 github.com/reva2/bitbucket-insights-api v1.0.0 h1:lpQ/Q7OmnG04w/EM77piOwZBxP41PeTlbytXxVrnplA=
 github.com/reva2/bitbucket-insights-api v1.0.0/go.mod h1:pLs+ki3MKUntrPryxaGIvpRLiEtBhwfJ/uvxQIMfqHU=
-github.com/reviewdog/errorformat v0.0.0-20210809090836-cda72036d1df/go.mod h1:AqhrP0G7F9YRROF10JQwdd4cNO8bdm6bY6KzcOc3Cp8=
-github.com/reviewdog/errorformat v0.0.0-20220124160001-859f277de5cc h1:BzOOMkjf9aLWPh9pQEkaEhD4fzMZwv66qF+8lkoxqfU=
-github.com/reviewdog/errorformat v0.0.0-20220124160001-859f277de5cc/go.mod h1:AqhrP0G7F9YRROF10JQwdd4cNO8bdm6bY6KzcOc3Cp8=
+github.com/reviewdog/errorformat v0.0.0-20220211042446-3cbfabf46dbd h1:iGVK930KPln2YpfncuLSDOZCNRU6n0LGSjJiMiwbobA=
+github.com/reviewdog/errorformat v0.0.0-20220211042446-3cbfabf46dbd/go.mod h1:AqhrP0G7F9YRROF10JQwdd4cNO8bdm6bY6KzcOc3Cp8=
 github.com/reviewdog/go-bitbucket v0.0.0-20201024094602-708c3f6a7de0 h1:XZ60Bp2UqwaJ6fDQExoFVrgs4nIzwBCy9ct6GCj9hH8=
 github.com/reviewdog/go-bitbucket v0.0.0-20201024094602-708c3f6a7de0/go.mod h1:5JbWAMFyq9hbISZawRyIe7QTcLaptvCIvmZnYo+1VvA=
-github.com/reviewdog/reviewdog v0.13.1 h1:Jfeo7mkkisyHSVsqXDJZTDUXxZFgIxy4fKy2tzYFp0c=
-github.com/reviewdog/reviewdog v0.13.1/go.mod h1:P5cY88oDUNZjzsyIe8f4JO2eHqiwMSBxpdpyzpKPc/A=
+github.com/reviewdog/reviewdog v0.14.0 h1:A3SYqtx1IgpnpCzTx9m6QxlUegTltN0c0g5Ol/Lidyw=
+github.com/reviewdog/reviewdog v0.14.0/go.mod h1:no/4tG7dC6yLUTPqmO1puLrz8xfHJycVbSmUn2Aoygo=
 github.com/rivo/uniseg v0.2.0 h1:S1pD9weZBuJdFmowNwbpi7BJ8TNftyUImj/0WQi72jY=
 github.com/rivo/uniseg v0.2.0/go.mod h1:J6wj4VEh+S6ZtnVlnTBMWIodfgj8LQOQFoIToxlJtxc=
 github.com/rogpeppe/fastuuid v0.0.0-20150106093220-6724a57986af/go.mod h1:XWv6SoW27p1b0cqNHllgS5HIMJraePCO15w5zCzIWYg=
@@ -1259,9 +1256,8 @@ github.com/viki-org/dnscache v0.0.0-20130720023526-c70c1f23c5d8/go.mod h1:dniwbG
 github.com/vvakame/sdlog v0.0.0-20200409072131-7c0d359efddc h1:El7LEavRpa49dYFE9ezO8aQxQn5E7u7eQkFsaXsoQAY=
 github.com/vvakame/sdlog v0.0.0-20200409072131-7c0d359efddc/go.mod h1:MmhrKtbECoUJTctfak+MnOFoJ9XQqYZ7chcwV9O7v3I=
 github.com/xanzy/go-gitlab v0.15.0/go.mod h1:8zdQa/ri1dfn8eS3Ir1SyfvOKlw7WBJ8DVThkpGiXrs=
-github.com/xanzy/go-gitlab v0.52.2/go.mod h1:Q+hQhV508bDPoBijv7YjK/Lvlb4PhVhJdKqXVQrUoAE=
-github.com/xanzy/go-gitlab v0.54.3 h1:fPfZ3Jcu5dPc3xyIYtAALZsEgoyKNFNuULD+TdJ7Zvk=
-github.com/xanzy/go-gitlab v0.54.3/go.mod h1:F0QEXwmqiBUxCgJm8fE9S+1veX4XC9Z4cfaAbqwk4YM=
+github.com/xanzy/go-gitlab v0.55.0 h1:klg5EgPYtsF6QlnVFpOpv/FmhqQxCUUG7zLJIL1NKz8=
+github.com/xanzy/go-gitlab v0.55.0/go.mod h1:F0QEXwmqiBUxCgJm8fE9S+1veX4XC9Z4cfaAbqwk4YM=
 github.com/xdg-go/pbkdf2 v1.0.0/go.mod h1:jrpuAogTd400dnrH08LKmI/xc1MbPOebTwRqcT5RDeI=
 github.com/xdg-go/scram v1.0.2/go.mod h1:1WAq6h33pAW+iRreB34OORO2Nf7qel3VV3fjBj+hCSs=
 github.com/xdg-go/stringprep v1.0.2/go.mod h1:8F9zXuvzgwmyT5DUm4GUfZGDdT3W+LCvS6+da4O5kxM=
