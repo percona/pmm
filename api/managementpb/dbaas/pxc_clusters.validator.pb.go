@@ -19,12 +19,6 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 func (this *PXCClusterParams) Validate() error {
-	if !(this.ClusterSize > 0) {
-		return github_com_mwitkow_go_proto_validators.FieldError("ClusterSize", fmt.Errorf(`value '%v' must be greater than '0'`, this.ClusterSize))
-	}
-	if nil == this.Pxc {
-		return github_com_mwitkow_go_proto_validators.FieldError("Pxc", fmt.Errorf("message must exist"))
-	}
 	if this.Pxc != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Pxc); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Pxc", err)
@@ -48,9 +42,6 @@ func (this *PXCClusterParams_PXC) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("ComputeResources", err)
 		}
 	}
-	if !(this.DiskSize > 0) {
-		return github_com_mwitkow_go_proto_validators.FieldError("DiskSize", fmt.Errorf(`value '%v' must be greater than '0'`, this.DiskSize))
-	}
 	return nil
 }
 func (this *PXCClusterParams_ProxySQL) Validate() error {
@@ -58,9 +49,6 @@ func (this *PXCClusterParams_ProxySQL) Validate() error {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ComputeResources); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("ComputeResources", err)
 		}
-	}
-	if !(this.DiskSize > 0) {
-		return github_com_mwitkow_go_proto_validators.FieldError("DiskSize", fmt.Errorf(`value '%v' must be greater than '0'`, this.DiskSize))
 	}
 	return nil
 }

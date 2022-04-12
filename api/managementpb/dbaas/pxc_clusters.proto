@@ -32,11 +32,7 @@ message PXCClusterParams {
     // Requested compute resources.
     ComputeResources compute_resources = 1;
     // Disk size in bytes.
-    int64 disk_size = 2 [
-      (validator.field) = {
-        int_gt: 0
-      }
-    ];
+    int64 disk_size = 2;
   }
   // ProxySQL container parameters.
   // TODO Do not use inner messages in all public APIs (for consistency).
@@ -46,11 +42,7 @@ message PXCClusterParams {
     // Requested compute resources.
     ComputeResources compute_resources = 1;
     // Disk size in bytes.
-    int64 disk_size = 2 [
-      (validator.field) = {
-        int_gt: 0
-      }
-    ];
+    int64 disk_size = 2;
   }
   // HAProxy container parameters.
   // NOTE: HAProxy does not need disk size as ProxySQL does because the container does not require it.
@@ -61,17 +53,9 @@ message PXCClusterParams {
     ComputeResources compute_resources = 2;
   }
   // Cluster size.
-  int32 cluster_size = 1 [
-    (validator.field) = {
-      int_gt: 0
-    }
-  ];
+  int32 cluster_size = 1;
   // PXC container parameters.
-  PXC pxc = 2 [
-    (validator.field) = {
-      msg_exists: true
-    }
-  ];
+  PXC pxc = 2;
   // NOTE: Only one of fields proxysql or haproxy has to be set, we check this in the code.
   // ProxySQL container parameters.
   ProxySQL proxysql = 3;
