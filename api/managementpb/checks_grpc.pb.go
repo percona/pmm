@@ -33,7 +33,7 @@ type SecurityChecksClient interface {
 	GetSecurityCheckResults(ctx context.Context, in *GetSecurityCheckResultsRequest, opts ...grpc.CallOption) (*GetSecurityCheckResultsResponse, error)
 	// StartSecurityChecks executes Advisor checks and returns when all checks are executed.
 	StartSecurityChecks(ctx context.Context, in *StartSecurityChecksRequest, opts ...grpc.CallOption) (*StartSecurityChecksResponse, error)
-	// ListSecurityChecks returns a list of available Advisor checks.
+	// ListSecurityChecks returns a list of all available Advisor checks and the list can be filtered optionally. At the moment, filtering is only supported via the `category` key.
 	ListSecurityChecks(ctx context.Context, in *ListSecurityChecksRequest, opts ...grpc.CallOption) (*ListSecurityChecksResponse, error)
 	// ChangeSecurityChecks enables/disables Advisor checks or changes their interval by names.
 	ChangeSecurityChecks(ctx context.Context, in *ChangeSecurityChecksRequest, opts ...grpc.CallOption) (*ChangeSecurityChecksResponse, error)
@@ -126,7 +126,7 @@ type SecurityChecksServer interface {
 	GetSecurityCheckResults(context.Context, *GetSecurityCheckResultsRequest) (*GetSecurityCheckResultsResponse, error)
 	// StartSecurityChecks executes Advisor checks and returns when all checks are executed.
 	StartSecurityChecks(context.Context, *StartSecurityChecksRequest) (*StartSecurityChecksResponse, error)
-	// ListSecurityChecks returns a list of available Advisor checks.
+	// ListSecurityChecks returns a list of all available Advisor checks and the list can be filtered optionally. At the moment, filtering is only supported via the `category` key.
 	ListSecurityChecks(context.Context, *ListSecurityChecksRequest) (*ListSecurityChecksResponse, error)
 	// ChangeSecurityChecks enables/disables Advisor checks or changes their interval by names.
 	ChangeSecurityChecks(context.Context, *ChangeSecurityChecksRequest) (*ChangeSecurityChecksResponse, error)

@@ -117,13 +117,12 @@ message StartSecurityChecksRequest {
 message StartSecurityChecksResponse {}
 
 message ListSecurityChecksRequest {
-  // Optional parameters to filter the results by. All checks will be returned if no filter is present.
   FilterParams filter_params = 1;
 }
 
 message ListSecurityChecksResponse {
   repeated SecurityCheck checks = 1;
-  // Filter parameters that was applied on the results (if any).
+  // Filter parameters that were applied on the results (if any).
   FilterParams filter_params = 2;
 }
 
@@ -213,10 +212,10 @@ service SecurityChecks {
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Start Security Checks"
-      description: "Executes Security Thread Tool checks and returns when all checks are executed. All available checks will be started if check names aren't specified."
+      description: "Executes Advisor checks and returns when all checks are executed. All available checks will be started if check names aren't specified."
     };
   }
-  // ListSecurityChecks returns a list of available Advisor checks.
+  // ListSecurityChecks returns a list of all available Advisor checks and the list can be filtered optionally. At the moment, filtering is only supported via the `category` key.
   rpc ListSecurityChecks(ListSecurityChecksRequest) returns (ListSecurityChecksResponse) {
     option (google.api.http) = {
       post: "/v1/management/SecurityChecks/List"
@@ -224,7 +223,7 @@ service SecurityChecks {
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List Security Checks"
-      description: "Returns a list of available Security Thread Tool checks."
+      description: "Returns a list of all available Advisor checks and the list can be filtered optionally. At the moment, filtering is only supported via the `category` key."
     };
   }
   // ChangeSecurityChecks enables/disables Advisor checks or changes their interval by names.

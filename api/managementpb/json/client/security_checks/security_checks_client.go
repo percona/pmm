@@ -185,7 +185,7 @@ func (a *Client) ListFailedServices(params *ListFailedServicesParams) (*ListFail
 /*
   ListSecurityChecks lists security checks
 
-  Returns a list of available Security Thread Tool checks.
+  Returns a list of all available Advisor checks and the list can be filtered optionally. At the moment, filtering is only supported via the `category` key.
 */
 func (a *Client) ListSecurityChecks(params *ListSecurityChecksParams) (*ListSecurityChecksOK, error) {
 	// TODO: Validate the params before sending
@@ -220,7 +220,7 @@ func (a *Client) ListSecurityChecks(params *ListSecurityChecksParams) (*ListSecu
 /*
   StartSecurityChecks starts security checks
 
-  Executes Security Thread Tool checks and returns when all checks are executed. All available checks will be started if check names aren't specified.
+  Executes Advisor checks and returns when all checks are executed. All available checks will be started if check names aren't specified.
 */
 func (a *Client) StartSecurityChecks(params *StartSecurityChecksParams) (*StartSecurityChecksOK, error) {
 	// TODO: Validate the params before sending

@@ -6060,7 +6060,7 @@
     },
     "/v1/management/SecurityChecks/List": {
       "post": {
-        "description": "Returns a list of available Security Thread Tool checks.",
+        "description": "Returns a list of all available Advisor checks and the list can be filtered optionally. At the moment, filtering is only supported via the `category` key.",
         "tags": [
           "SecurityChecks"
         ],
@@ -6531,7 +6531,7 @@
     },
     "/v1/management/SecurityChecks/Start": {
       "post": {
-        "description": "Executes Security Thread Tool checks and returns when all checks are executed. All available checks will be started if check names aren't specified.",
+        "description": "Executes Advisor checks and returns when all checks are executed. All available checks will be started if check names aren't specified.",
         "tags": [
           "SecurityChecks"
         ],
