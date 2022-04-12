@@ -391,6 +391,16 @@ message PBMSwitchPITRResponse {
   // Error message.
   string error = 1;
 }
+// ParseDefaultsFileRequest is an ServerMessage asking pmm-agent to parse defaults file.
+message ParseDefaultsFileRequest {
+  string path_to_file = 1;
+}
+
+// ParseDefaultsFileResponse is an AgentMessage containing a result of parding defaults file.
+message ParseDefaultsFileResponse {
+  string username = 1;
+  string password = 2;
+}
 
 // CheckConnectionRequest is a ServerMessage asking pmm-agent to check connection with Service.
 message CheckConnectionRequest {
@@ -653,6 +663,7 @@ message AgentMessage {
     JobProgress job_progress = 17;
     GetVersionsResponse get_versions = 18;
     PBMSwitchPITRResponse pbm_switch_pitr = 19;
+    ParseDefaultsFileResponse parse_defaults_file = 20;
   }
 }
 
@@ -683,6 +694,7 @@ message ServerMessage {
     JobStatusRequest job_status = 15;
     GetVersionsRequest get_versions = 16;
     PBMSwitchPITRRequest pbm_switch_pitr = 17;
+    ParseDefaultsFileRequest parse_defaults_file = 18;
   }
 }
 
