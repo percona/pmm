@@ -33,7 +33,7 @@ jobs:
         echo "GOROOT=$HOME/gotip" >> $GITHUB_ENV
         echo "$HOME/gotip/bin" >> $GITHUB_PATH
     - name: Checkout code
-      uses: percona-platform/checkout@v2
+      uses: percona-platform/checkout@v3
     - name: Prepare
       run: |
         make init gen format
