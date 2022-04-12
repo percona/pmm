@@ -27,7 +27,7 @@ jobs:
           go-version: ${{ matrix.go-version }}
 
       - name: Checkout code
-        uses: percona-platform/checkout@v2
+        uses: percona-platform/checkout@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
