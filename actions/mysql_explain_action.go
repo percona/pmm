@@ -26,7 +26,6 @@ import (
 
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
-	"github.com/prometheus/common/log"
 
 	"github.com/percona/pmm-agent/tlshelpers"
 )
@@ -34,10 +33,7 @@ import (
 type mysqlExplainAction struct {
 	id     string
 	params *agentpb.StartActionRequest_MySQLExplainParams
-	// query has a copy of the original params.Query field if the query is a SELECT or the equivalent
-	// SELECT after converting DML queries.
-	query      string
-	isDMLQuery bool
+	query  string
 }
 
 type explainResponse struct {
@@ -52,22 +48,10 @@ var errCannotEncodeExplainResponse = errors.New("cannot JSON encode the explain 
 // NewMySQLExplainAction creates MySQL Explain Action.
 // This is an Action that can run `EXPLAIN` command on MySQL service with given DSN.
 func NewMySQLExplainAction(id string, params *agentpb.StartActionRequest_MySQLExplainParams) Action {
-	if params.TlsFiles != nil && params.TlsFiles.Files != nil {
-		err := tlshelpers.RegisterMySQLCerts(params.TlsFiles.Files)
-		if err != nil {
-			log.Error(err)
-		}
-	}
-
 	ret := &mysqlExplainAction{
-		id:         id,
-		params:     params,
-		query:      params.Query,
-		isDMLQuery: isDMLQuery(params.Query),
-	}
-
-	if ret.isDMLQuery {
-		ret.query = dmlToSelect(params.Query)
+		id:     id,
+		params: params,
+		query:  params.Query,
 	}
 
 	return ret
@@ -85,6 +69,13 @@ func (a *mysqlExplainAction) Type() string {
 
 // Run runs an Action and returns output and error.
 func (a *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
+	// query has a copy of the original params.Query field if the query is a SELECT or the equivalent
+	// SELECT after converting DML queries.
+	query := a.query
+	isDMLQuery := isDMLQuery(query)
+	if isDMLQuery {
+		query = dmlToSelect(query)
+	}
 	db, err := mysqlOpen(a.params.Dsn, a.params.TlsFiles)
 	if err != nil {
 		return nil, err
@@ -101,8 +92,8 @@ func (a *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 	defer tx.Rollback() //nolint:errcheck
 
 	response := explainResponse{
-		Query:      a.query,
-		IsDMLQuery: a.isDMLQuery,
+		Query:      query,
+		IsDMLQuery: isDMLQuery,
 	}
 
 	switch a.params.OutputFormat {

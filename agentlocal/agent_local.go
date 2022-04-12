@@ -30,19 +30,21 @@ import (
 	"sync"
 	"time"
 
-	"github.com/golang/protobuf/ptypes"
 	grpc_gateway "github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/percona/pmm/api/agentlocalpb"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/version"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/collectors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	channelz "google.golang.org/grpc/channelz/service"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/durationpb"
 
 	"github.com/percona/pmm-agent/config"
 )
@@ -61,6 +63,8 @@ type Server struct {
 	l               *logrus.Entry
 	reload          chan struct{}
 	reloadCloseOnce sync.Once
+
+	agentlocalpb.UnimplementedAgentLocalServer
 }
 
 // NewServer creates new server.
@@ -136,8 +140,8 @@ func (s *Server) Status(ctx context.Context, req *agentlocalpb.StatusRequest) (*
 			if err != nil {
 				s.l.Errorf("Can't get network info: %s", err)
 			} else {
-				serverInfo.Latency = ptypes.DurationProto(latency)
-				serverInfo.ClockDrift = ptypes.DurationProto(clockDrift)
+				serverInfo.Latency = durationpb.New(latency)
+				serverInfo.ClockDrift = durationpb.New(clockDrift)
 			}
 		}
 	}
@@ -251,8 +255,8 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 	}
 
 	registry := prometheus.NewRegistry()
-	registry.MustRegister(prometheus.NewProcessCollector(prometheus.ProcessCollectorOpts{}))
-	registry.MustRegister(prometheus.NewGoCollector())
+	registry.MustRegister(collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}))
+	registry.MustRegister(collectors.NewGoCollector())
 	registry.MustRegister(s.client)
 	metricsHandler := promhttp.InstrumentMetricHandler(registry, promhttp.HandlerFor(registry, promhttp.HandlerOpts{
 		ErrorLog:      l,
@@ -273,7 +277,7 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 		}),
 	)
 	opts := []grpc.DialOption{
-		grpc.WithInsecure(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithBlock(),
 	}
 	if err := agentlocalpb.RegisterAgentLocalHandlerFromEndpoint(ctx, proxyMux, grpcAddress, opts); err != nil {
