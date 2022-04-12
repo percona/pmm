@@ -100,6 +100,9 @@ func (m *GetVersionsResponse) AgentMessageResponsePayload() isAgentMessage_Paylo
 func (m *PBMSwitchPITRResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
 	return &AgentMessage_PbmSwitchPitr{PbmSwitchPitr: m}
 }
+func (m *ParseDefaultsFileResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
+	return &AgentMessage_ParseDefaultsFile{ParseDefaultsFile: m}
+}
 
 // A list of ServerMessage response payloads.
 
@@ -148,36 +151,41 @@ func (m *GetVersionsRequest) ServerMessageRequestPayload() isServerMessage_Paylo
 func (m *PBMSwitchPITRRequest) ServerMessageRequestPayload() isServerMessage_Payload {
 	return &ServerMessage_PbmSwitchPitr{PbmSwitchPitr: m}
 }
+func (m *ParseDefaultsFileRequest) ServerMessageRequestPayload() isServerMessage_Payload {
+	return &ServerMessage_ParseDefaultsFile{ParseDefaultsFile: m}
+}
 
 // in alphabetical order
-func (*ActionResultRequest) sealed()     {}
-func (*ActionResultResponse) sealed()    {}
-func (*CheckConnectionRequest) sealed()  {}
-func (*CheckConnectionResponse) sealed() {}
-func (*JobProgress) sealed()             {}
-func (*JobResult) sealed()               {}
-func (*JobStatusRequest) sealed()        {}
-func (*JobStatusResponse) sealed()       {}
-func (*Ping) sealed()                    {}
-func (*Pong) sealed()                    {}
-func (*QANCollectRequest) sealed()       {}
-func (*QANCollectResponse) sealed()      {}
-func (*SetStateRequest) sealed()         {}
-func (*SetStateResponse) sealed()        {}
-func (*StartActionRequest) sealed()      {}
-func (*StartActionResponse) sealed()     {}
-func (*StartJobRequest) sealed()         {}
-func (*StartJobResponse) sealed()        {}
-func (*StateChangedRequest) sealed()     {}
-func (*StateChangedResponse) sealed()    {}
-func (*StopActionRequest) sealed()       {}
-func (*StopActionResponse) sealed()      {}
-func (*StopJobRequest) sealed()          {}
-func (*StopJobResponse) sealed()         {}
-func (*GetVersionsRequest) sealed()      {}
-func (*GetVersionsResponse) sealed()     {}
-func (*PBMSwitchPITRRequest) sealed()    {}
-func (*PBMSwitchPITRResponse) sealed()   {}
+func (*ActionResultRequest) sealed()       {}
+func (*ActionResultResponse) sealed()      {}
+func (*CheckConnectionRequest) sealed()    {}
+func (*CheckConnectionResponse) sealed()   {}
+func (*JobProgress) sealed()               {}
+func (*JobResult) sealed()                 {}
+func (*JobStatusRequest) sealed()          {}
+func (*JobStatusResponse) sealed()         {}
+func (*ParseDefaultsFileRequest) sealed()  {}
+func (*ParseDefaultsFileResponse) sealed() {}
+func (*Ping) sealed()                      {}
+func (*Pong) sealed()                      {}
+func (*QANCollectRequest) sealed()         {}
+func (*QANCollectResponse) sealed()        {}
+func (*SetStateRequest) sealed()           {}
+func (*SetStateResponse) sealed()          {}
+func (*StartActionRequest) sealed()        {}
+func (*StartActionResponse) sealed()       {}
+func (*StartJobRequest) sealed()           {}
+func (*StartJobResponse) sealed()          {}
+func (*StateChangedRequest) sealed()       {}
+func (*StateChangedResponse) sealed()      {}
+func (*StopActionRequest) sealed()         {}
+func (*StopActionResponse) sealed()        {}
+func (*StopJobRequest) sealed()            {}
+func (*StopJobResponse) sealed()           {}
+func (*GetVersionsRequest) sealed()        {}
+func (*GetVersionsResponse) sealed()       {}
+func (*PBMSwitchPITRRequest) sealed()      {}
+func (*PBMSwitchPITRResponse) sealed()     {}
 
 // check interfaces
 var (
@@ -199,6 +207,7 @@ var (
 	_ AgentResponsePayload = (*StopJobResponse)(nil)
 	_ AgentResponsePayload = (*JobStatusResponse)(nil)
 	_ AgentResponsePayload = (*GetVersionsResponse)(nil)
+	_ AgentResponsePayload = (*ParseDefaultsFileResponse)(nil)
 
 	// A list of ServerMessage response payloads.
 	_ ServerResponsePayload = (*Pong)(nil)
@@ -217,6 +226,7 @@ var (
 	_ ServerRequestPayload = (*JobStatusRequest)(nil)
 	_ ServerRequestPayload = (*GetVersionsRequest)(nil)
 	_ ServerRequestPayload = (*PBMSwitchPITRRequest)(nil)
+	_ ServerRequestPayload = (*ParseDefaultsFileRequest)(nil)
 )
 
 //go-sumtype:decl AgentParams
