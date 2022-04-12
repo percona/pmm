@@ -46,11 +46,6 @@
           - percona-grafana
         state: latest
 
-    - name: Install grafana-migrate
-      yum:
-        name: "grafana-db-migrator"
-        state: latest
-
     - name: Create grafana config
       include_role:
         name: grafana
@@ -215,15 +210,6 @@
         dest: /var/lib/cloud/scripts/per-boot/resize-xfs
         regexp: "set -o errexit"
         replace: ""
-
-    - name: Fix grafana fields type
-      postgresql_query:
-        db: grafana
-        query: "{{ item }}"
-      loop:
-        - ALTER TABLE tag ALTER COLUMN key TYPE text;
-        - ALTER TABLE tag ALTER COLUMN value TYPE text;
-      when: not ansible_check_mode
 
     # TODO: Create /srv/alertmanager/data and /srv/victoriametrics/data in pmm-managed
     # to support Docker-way (swap image) updates.

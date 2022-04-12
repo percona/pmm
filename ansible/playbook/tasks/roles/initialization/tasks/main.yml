@@ -59,30 +59,3 @@
   include_role:
     name: postgres-ascii-to-utf8
   when: "'SQL_ASCII' == postgres_encoding.query_result[0].server_encoding"
-
-- name: Create grafana database
-  postgresql_db:
-    name: grafana
-    state: present
-
-- name: Create grafana user
-  postgresql_user:
-    db: grafana
-    name: grafana
-    password: grafana
-    priv: 'ALL'
-    expires: infinity
-    state: present
-  when: not ansible_check_mode
-
-- name: Check that SQLite database exists
-  stat:
-    path: /srv/grafana/grafana.db
-  register: database_exists
-
-- name: Migrate Grafana database from SQLite to Postgresql
-  include_role:
-    name: sqlite-to-postgres
-  when: database_exists.stat.exists
-  tags:
-    - skip_ansible_lint # '503 Tasks that run when changed should likely be handlers'.
