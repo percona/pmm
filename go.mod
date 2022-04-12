@@ -32,7 +32,7 @@ require (
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/hashicorp/go-version v1.4.0
-	github.com/lib/pq v1.10.4
+	github.com/lib/pq v1.10.5
 	github.com/minio/minio-go/v7 v7.0.23
 	github.com/percona-platform/dbaas-api v0.0.0-20220110092915-5aacd784d472
 	github.com/percona-platform/saas v0.0.0-20220326163809-90f261fe195c
