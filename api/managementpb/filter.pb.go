@@ -22,96 +22,24 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type Operation int32
-
-const (
-	Operation_INVALID Operation = 0
-	// Checks for results whose key is equal to the provided scalar value.
-	// Valid for (int32 | int64 | string ).
-	Operation_EQUALS Operation = 1
-	// Checks for results whose key is not equal to the provided scalar value.
-	// Valid for (int32 | int64 | string).
-	Operation_NOT_EQUALS Operation = 2
-	// Returns results whose key lies within the inclusive range of the provided minimum and maximum values.
-	// Valid for (IntRangeValues).
-	Operation_BETWEEN Operation = 3
-	// Checks for results whose key exists in a given array.
-	// Valid for (int_values | long_values | string_values).
-	Operation_IN Operation = 4
-	// Checks for results whose key contains value as a substring
-	// Valid for (string_values).
-	Operation_CONTAINS Operation = 5
-)
-
-// Enum value maps for Operation.
-var (
-	Operation_name = map[int32]string{
-		0: "INVALID",
-		1: "EQUALS",
-		2: "NOT_EQUALS",
-		3: "BETWEEN",
-		4: "IN",
-		5: "CONTAINS",
-	}
-	Operation_value = map[string]int32{
-		"INVALID":    0,
-		"EQUALS":     1,
-		"NOT_EQUALS": 2,
-		"BETWEEN":    3,
-		"IN":         4,
-		"CONTAINS":   5,
-	}
-)
-
-func (x Operation) Enum() *Operation {
-	p := new(Operation)
-	*p = x
-	return p
-}
-
-func (x Operation) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (Operation) Descriptor() protoreflect.EnumDescriptor {
-	return file_managementpb_filter_proto_enumTypes[0].Descriptor()
-}
-
-func (Operation) Type() protoreflect.EnumType {
-	return &file_managementpb_filter_proto_enumTypes[0]
-}
-
-func (x Operation) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use Operation.Descriptor instead.
-func (Operation) EnumDescriptor() ([]byte, []int) {
-	return file_managementpb_filter_proto_rawDescGZIP(), []int{0}
-}
-
-type Filter struct {
+// Checks for results whose key is equal to the provided scalar value.
+// Valid for (int32 | int64 | string ).
+type EqualsFilter struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
 	// Key to filter the results by.
 	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
-	// Operation to apply on the provided value(s).
-	Op Operation `protobuf:"varint,2,opt,name=op,proto3,enum=management.Operation" json:"op,omitempty"`
 	// Types that are assignable to Value:
-	//	*Filter_IntValue
-	//	*Filter_LongValue
-	//	*Filter_StringValue
-	//	*Filter_IntValues
-	//	*Filter_LongValues
-	//	*Filter_StringValues
-	//	*Filter_IntRangeValues
-	Value isFilter_Value `protobuf_oneof:"value"`
+	//	*EqualsFilter_IntValue
+	//	*EqualsFilter_LongValue
+	//	*EqualsFilter_StringValue
+	Value isEqualsFilter_Value `protobuf_oneof:"value"`
 }
 
-func (x *Filter) Reset() {
-	*x = Filter{}
+func (x *EqualsFilter) Reset() {
+	*x = EqualsFilter{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_managementpb_filter_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -119,13 +47,13 @@ func (x *Filter) Reset() {
 	}
 }
 
-func (x *Filter) String() string {
+func (x *EqualsFilter) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Filter) ProtoMessage() {}
+func (*EqualsFilter) ProtoMessage() {}
 
-func (x *Filter) ProtoReflect() protoreflect.Message {
+func (x *EqualsFilter) ProtoReflect() protoreflect.Message {
 	mi := &file_managementpb_filter_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -137,128 +65,394 @@ func (x *Filter) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Filter.ProtoReflect.Descriptor instead.
-func (*Filter) Descriptor() ([]byte, []int) {
+// Deprecated: Use EqualsFilter.ProtoReflect.Descriptor instead.
+func (*EqualsFilter) Descriptor() ([]byte, []int) {
 	return file_managementpb_filter_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *Filter) GetKey() string {
+func (x *EqualsFilter) GetKey() string {
 	if x != nil {
 		return x.Key
 	}
 	return ""
 }
 
-func (x *Filter) GetOp() Operation {
-	if x != nil {
-		return x.Op
-	}
-	return Operation_INVALID
-}
-
-func (m *Filter) GetValue() isFilter_Value {
+func (m *EqualsFilter) GetValue() isEqualsFilter_Value {
 	if m != nil {
 		return m.Value
 	}
 	return nil
 }
 
-func (x *Filter) GetIntValue() int32 {
-	if x, ok := x.GetValue().(*Filter_IntValue); ok {
+func (x *EqualsFilter) GetIntValue() int32 {
+	if x, ok := x.GetValue().(*EqualsFilter_IntValue); ok {
 		return x.IntValue
 	}
 	return 0
 }
 
-func (x *Filter) GetLongValue() int64 {
-	if x, ok := x.GetValue().(*Filter_LongValue); ok {
+func (x *EqualsFilter) GetLongValue() int64 {
+	if x, ok := x.GetValue().(*EqualsFilter_LongValue); ok {
 		return x.LongValue
 	}
 	return 0
 }
 
-func (x *Filter) GetStringValue() string {
-	if x, ok := x.GetValue().(*Filter_StringValue); ok {
+func (x *EqualsFilter) GetStringValue() string {
+	if x, ok := x.GetValue().(*EqualsFilter_StringValue); ok {
 		return x.StringValue
 	}
 	return ""
 }
 
-func (x *Filter) GetIntValues() *IntValues {
-	if x, ok := x.GetValue().(*Filter_IntValues); ok {
-		return x.IntValues
+type isEqualsFilter_Value interface {
+	isEqualsFilter_Value()
+}
+
+type EqualsFilter_IntValue struct {
+	IntValue int32 `protobuf:"varint,3,opt,name=int_value,json=intValue,proto3,oneof"`
+}
+
+type EqualsFilter_LongValue struct {
+	LongValue int64 `protobuf:"varint,4,opt,name=long_value,json=longValue,proto3,oneof"`
+}
+
+type EqualsFilter_StringValue struct {
+	StringValue string `protobuf:"bytes,5,opt,name=string_value,json=stringValue,proto3,oneof"`
+}
+
+func (*EqualsFilter_IntValue) isEqualsFilter_Value() {}
+
+func (*EqualsFilter_LongValue) isEqualsFilter_Value() {}
+
+func (*EqualsFilter_StringValue) isEqualsFilter_Value() {}
+
+// Checks for results whose key is not equal to the provided scalar value.
+// Valid for (int32 | int64 | string).
+type NotEqualsFilter struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Key to filter the results by.
+	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	// Types that are assignable to Value:
+	//	*NotEqualsFilter_IntValue
+	//	*NotEqualsFilter_LongValue
+	//	*NotEqualsFilter_StringValue
+	Value isNotEqualsFilter_Value `protobuf_oneof:"value"`
+}
+
+func (x *NotEqualsFilter) Reset() {
+	*x = NotEqualsFilter{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_managementpb_filter_proto_msgTypes[1]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *NotEqualsFilter) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NotEqualsFilter) ProtoMessage() {}
+
+func (x *NotEqualsFilter) ProtoReflect() protoreflect.Message {
+	mi := &file_managementpb_filter_proto_msgTypes[1]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NotEqualsFilter.ProtoReflect.Descriptor instead.
+func (*NotEqualsFilter) Descriptor() ([]byte, []int) {
+	return file_managementpb_filter_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *NotEqualsFilter) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+func (m *NotEqualsFilter) GetValue() isNotEqualsFilter_Value {
+	if m != nil {
+		return m.Value
 	}
 	return nil
 }
 
-func (x *Filter) GetLongValues() *LongValues {
-	if x, ok := x.GetValue().(*Filter_LongValues); ok {
-		return x.LongValues
+func (x *NotEqualsFilter) GetIntValue() int32 {
+	if x, ok := x.GetValue().(*NotEqualsFilter_IntValue); ok {
+		return x.IntValue
 	}
-	return nil
+	return 0
 }
 
-func (x *Filter) GetStringValues() *StringValues {
-	if x, ok := x.GetValue().(*Filter_StringValues); ok {
-		return x.StringValues
+func (x *NotEqualsFilter) GetLongValue() int64 {
+	if x, ok := x.GetValue().(*NotEqualsFilter_LongValue); ok {
+		return x.LongValue
 	}
-	return nil
+	return 0
 }
 
-func (x *Filter) GetIntRangeValues() *IntRangeValues {
-	if x, ok := x.GetValue().(*Filter_IntRangeValues); ok {
+func (x *NotEqualsFilter) GetStringValue() string {
+	if x, ok := x.GetValue().(*NotEqualsFilter_StringValue); ok {
+		return x.StringValue
+	}
+	return ""
+}
+
+type isNotEqualsFilter_Value interface {
+	isNotEqualsFilter_Value()
+}
+
+type NotEqualsFilter_IntValue struct {
+	IntValue int32 `protobuf:"varint,2,opt,name=int_value,json=intValue,proto3,oneof"`
+}
+
+type NotEqualsFilter_LongValue struct {
+	LongValue int64 `protobuf:"varint,3,opt,name=long_value,json=longValue,proto3,oneof"`
+}
+
+type NotEqualsFilter_StringValue struct {
+	StringValue string `protobuf:"bytes,4,opt,name=string_value,json=stringValue,proto3,oneof"`
+}
+
+func (*NotEqualsFilter_IntValue) isNotEqualsFilter_Value() {}
+
+func (*NotEqualsFilter_LongValue) isNotEqualsFilter_Value() {}
+
+func (*NotEqualsFilter_StringValue) isNotEqualsFilter_Value() {}
+
+// Returns results whose key lies within the inclusive range of the provided minimum and maximum values.
+// Valid for (IntRangeValues).
+type BetweenFilter struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Key to filter the results by.
+	Key            string          `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	IntRangeValues *IntRangeValues `protobuf:"bytes,2,opt,name=int_range_values,json=intRangeValues,proto3" json:"int_range_values,omitempty"`
+}
+
+func (x *BetweenFilter) Reset() {
+	*x = BetweenFilter{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_managementpb_filter_proto_msgTypes[2]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *BetweenFilter) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BetweenFilter) ProtoMessage() {}
+
+func (x *BetweenFilter) ProtoReflect() protoreflect.Message {
+	mi := &file_managementpb_filter_proto_msgTypes[2]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BetweenFilter.ProtoReflect.Descriptor instead.
+func (*BetweenFilter) Descriptor() ([]byte, []int) {
+	return file_managementpb_filter_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *BetweenFilter) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+func (x *BetweenFilter) GetIntRangeValues() *IntRangeValues {
+	if x != nil {
 		return x.IntRangeValues
 	}
 	return nil
 }
 
-type isFilter_Value interface {
-	isFilter_Value()
+// Checks for results whose key exists in a given array.
+// Valid for (int_values | long_values | string_values).
+type InFilter struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Key to filter the results by.
+	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	// Types that are assignable to Value:
+	//	*InFilter_IntValues
+	//	*InFilter_LongValues
+	//	*InFilter_StringValues
+	Value isInFilter_Value `protobuf_oneof:"value"`
 }
 
-type Filter_IntValue struct {
-	IntValue int32 `protobuf:"varint,3,opt,name=int_value,json=intValue,proto3,oneof"`
+func (x *InFilter) Reset() {
+	*x = InFilter{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_managementpb_filter_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
 }
 
-type Filter_LongValue struct {
-	LongValue int64 `protobuf:"varint,4,opt,name=long_value,json=longValue,proto3,oneof"`
+func (x *InFilter) String() string {
+	return protoimpl.X.MessageStringOf(x)
 }
 
-type Filter_StringValue struct {
-	StringValue string `protobuf:"bytes,5,opt,name=string_value,json=stringValue,proto3,oneof"`
+func (*InFilter) ProtoMessage() {}
+
+func (x *InFilter) ProtoReflect() protoreflect.Message {
+	mi := &file_managementpb_filter_proto_msgTypes[3]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
 }
 
-type Filter_IntValues struct {
-	// Array values. Meant to be used with IN operations.
-	IntValues *IntValues `protobuf:"bytes,6,opt,name=int_values,json=intValues,proto3,oneof"`
+// Deprecated: Use InFilter.ProtoReflect.Descriptor instead.
+func (*InFilter) Descriptor() ([]byte, []int) {
+	return file_managementpb_filter_proto_rawDescGZIP(), []int{3}
 }
 
-type Filter_LongValues struct {
-	LongValues *LongValues `protobuf:"bytes,7,opt,name=long_values,json=longValues,proto3,oneof"`
+func (x *InFilter) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
 }
 
-type Filter_StringValues struct {
-	StringValues *StringValues `protobuf:"bytes,8,opt,name=string_values,json=stringValues,proto3,oneof"`
+func (m *InFilter) GetValue() isInFilter_Value {
+	if m != nil {
+		return m.Value
+	}
+	return nil
 }
 
-type Filter_IntRangeValues struct {
-	// Range values. Meant to be used with BETWEEN operations.
-	IntRangeValues *IntRangeValues `protobuf:"bytes,9,opt,name=int_range_values,json=intRangeValues,proto3,oneof"`
+func (x *InFilter) GetIntValues() *IntValues {
+	if x, ok := x.GetValue().(*InFilter_IntValues); ok {
+		return x.IntValues
+	}
+	return nil
 }
 
-func (*Filter_IntValue) isFilter_Value() {}
+func (x *InFilter) GetLongValues() *LongValues {
+	if x, ok := x.GetValue().(*InFilter_LongValues); ok {
+		return x.LongValues
+	}
+	return nil
+}
 
-func (*Filter_LongValue) isFilter_Value() {}
+func (x *InFilter) GetStringValues() *StringValues {
+	if x, ok := x.GetValue().(*InFilter_StringValues); ok {
+		return x.StringValues
+	}
+	return nil
+}
 
-func (*Filter_StringValue) isFilter_Value() {}
+type isInFilter_Value interface {
+	isInFilter_Value()
+}
 
-func (*Filter_IntValues) isFilter_Value() {}
+type InFilter_IntValues struct {
+	IntValues *IntValues `protobuf:"bytes,2,opt,name=int_values,json=intValues,proto3,oneof"`
+}
 
-func (*Filter_LongValues) isFilter_Value() {}
+type InFilter_LongValues struct {
+	LongValues *LongValues `protobuf:"bytes,3,opt,name=long_values,json=longValues,proto3,oneof"`
+}
 
-func (*Filter_StringValues) isFilter_Value() {}
+type InFilter_StringValues struct {
+	StringValues *StringValues `protobuf:"bytes,4,opt,name=string_values,json=stringValues,proto3,oneof"`
+}
 
-func (*Filter_IntRangeValues) isFilter_Value() {}
+func (*InFilter_IntValues) isInFilter_Value() {}
+
+func (*InFilter_LongValues) isInFilter_Value() {}
+
+func (*InFilter_StringValues) isInFilter_Value() {}
+
+// Checks for results whose key contains value as a substring
+// Valid for (string_values).
+type ContainsFilter struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Key to filter the results by.
+	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	// Value to search results in.
+	Value string `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
+}
+
+func (x *ContainsFilter) Reset() {
+	*x = ContainsFilter{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_managementpb_filter_proto_msgTypes[4]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ContainsFilter) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ContainsFilter) ProtoMessage() {}
+
+func (x *ContainsFilter) ProtoReflect() protoreflect.Message {
+	mi := &file_managementpb_filter_proto_msgTypes[4]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ContainsFilter.ProtoReflect.Descriptor instead.
+func (*ContainsFilter) Descriptor() ([]byte, []int) {
+	return file_managementpb_filter_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *ContainsFilter) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+func (x *ContainsFilter) GetValue() string {
+	if x != nil {
+		return x.Value
+	}
+	return ""
+}
 
 type IntValues struct {
 	state         protoimpl.MessageState
@@ -271,7 +465,7 @@ type IntValues struct {
 func (x *IntValues) Reset() {
 	*x = IntValues{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_managementpb_filter_proto_msgTypes[1]
+		mi := &file_managementpb_filter_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -284,7 +478,7 @@ func (x *IntValues) String() string {
 func (*IntValues) ProtoMessage() {}
 
 func (x *IntValues) ProtoReflect() protoreflect.Message {
-	mi := &file_managementpb_filter_proto_msgTypes[1]
+	mi := &file_managementpb_filter_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -297,7 +491,7 @@ func (x *IntValues) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IntValues.ProtoReflect.Descriptor instead.
 func (*IntValues) Descriptor() ([]byte, []int) {
-	return file_managementpb_filter_proto_rawDescGZIP(), []int{1}
+	return file_managementpb_filter_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *IntValues) GetValues() []int32 {
@@ -318,7 +512,7 @@ type LongValues struct {
 func (x *LongValues) Reset() {
 	*x = LongValues{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_managementpb_filter_proto_msgTypes[2]
+		mi := &file_managementpb_filter_proto_msgTypes[6]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -331,7 +525,7 @@ func (x *LongValues) String() string {
 func (*LongValues) ProtoMessage() {}
 
 func (x *LongValues) ProtoReflect() protoreflect.Message {
-	mi := &file_managementpb_filter_proto_msgTypes[2]
+	mi := &file_managementpb_filter_proto_msgTypes[6]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -344,7 +538,7 @@ func (x *LongValues) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LongValues.ProtoReflect.Descriptor instead.
 func (*LongValues) Descriptor() ([]byte, []int) {
-	return file_managementpb_filter_proto_rawDescGZIP(), []int{2}
+	return file_managementpb_filter_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *LongValues) GetValues() []int64 {
@@ -365,7 +559,7 @@ type StringValues struct {
 func (x *StringValues) Reset() {
 	*x = StringValues{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_managementpb_filter_proto_msgTypes[3]
+		mi := &file_managementpb_filter_proto_msgTypes[7]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -378,7 +572,7 @@ func (x *StringValues) String() string {
 func (*StringValues) ProtoMessage() {}
 
 func (x *StringValues) ProtoReflect() protoreflect.Message {
-	mi := &file_managementpb_filter_proto_msgTypes[3]
+	mi := &file_managementpb_filter_proto_msgTypes[7]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -391,7 +585,7 @@ func (x *StringValues) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StringValues.ProtoReflect.Descriptor instead.
 func (*StringValues) Descriptor() ([]byte, []int) {
-	return file_managementpb_filter_proto_rawDescGZIP(), []int{3}
+	return file_managementpb_filter_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *StringValues) GetValues() []string {
@@ -415,7 +609,7 @@ type IntRangeValues struct {
 func (x *IntRangeValues) Reset() {
 	*x = IntRangeValues{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_managementpb_filter_proto_msgTypes[4]
+		mi := &file_managementpb_filter_proto_msgTypes[8]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -428,7 +622,7 @@ func (x *IntRangeValues) String() string {
 func (*IntRangeValues) ProtoMessage() {}
 
 func (x *IntRangeValues) ProtoReflect() protoreflect.Message {
-	mi := &file_managementpb_filter_proto_msgTypes[4]
+	mi := &file_managementpb_filter_proto_msgTypes[8]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -441,7 +635,7 @@ func (x *IntRangeValues) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IntRangeValues.ProtoReflect.Descriptor instead.
 func (*IntRangeValues) Descriptor() ([]byte, []int) {
-	return file_managementpb_filter_proto_rawDescGZIP(), []int{4}
+	return file_managementpb_filter_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *IntRangeValues) GetMinimum() int32 {
@@ -458,55 +652,6 @@ func (x *IntRangeValues) GetMaximum() int32 {
 	return 0
 }
 
-// FilterParams is used to filter the data returned in a response.
-type FilterParams struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	// Accepts multiple filters, but if/how they are handled is up to the specific implementation.
-	Filters []*Filter `protobuf:"bytes,1,rep,name=filters,proto3" json:"filters,omitempty"`
-}
-
-func (x *FilterParams) Reset() {
-	*x = FilterParams{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_managementpb_filter_proto_msgTypes[5]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *FilterParams) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*FilterParams) ProtoMessage() {}
-
-func (x *FilterParams) ProtoReflect() protoreflect.Message {
-	mi := &file_managementpb_filter_proto_msgTypes[5]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use FilterParams.ProtoReflect.Descriptor instead.
-func (*FilterParams) Descriptor() ([]byte, []int) {
-	return file_managementpb_filter_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *FilterParams) GetFilters() []*Filter {
-	if x != nil {
-		return x.Filters
-	}
-	return nil
-}
-
 var File_managementpb_filter_proto protoreflect.FileDescriptor
 
 var file_managementpb_filter_proto_rawDesc = []byte{
@@ -517,68 +662,70 @@ var file_managementpb_filter_proto_rawDesc = []byte{
 	0x74, 0x69, 0x6f, 0x6e, 0x73, 0x2f, 0x61, 0x6e, 0x6e, 0x6f, 0x74, 0x61, 0x74, 0x69, 0x6f, 0x6e,
 	0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x1c, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2f,
 	0x61, 0x70, 0x69, 0x2f, 0x61, 0x6e, 0x6e, 0x6f, 0x74, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x2e,
-	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0xef, 0x03, 0x0a, 0x06, 0x46, 0x69, 0x6c, 0x74, 0x65, 0x72,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x8e, 0x01, 0x0a, 0x0c, 0x45, 0x71, 0x75, 0x61, 0x6c, 0x73,
+	0x46, 0x69, 0x6c, 0x74, 0x65, 0x72, 0x12, 0x10, 0x0a, 0x03, 0x6b, 0x65, 0x79, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x09, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12, 0x1d, 0x0a, 0x09, 0x69, 0x6e, 0x74, 0x5f,
+	0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x03, 0x20, 0x01, 0x28, 0x05, 0x48, 0x00, 0x52, 0x08, 0x69,
+	0x6e, 0x74, 0x56, 0x61, 0x6c, 0x75, 0x65, 0x12, 0x1f, 0x0a, 0x0a, 0x6c, 0x6f, 0x6e, 0x67, 0x5f,
+	0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x04, 0x20, 0x01, 0x28, 0x03, 0x48, 0x00, 0x52, 0x09, 0x6c,
+	0x6f, 0x6e, 0x67, 0x56, 0x61, 0x6c, 0x75, 0x65, 0x12, 0x23, 0x0a, 0x0c, 0x73, 0x74, 0x72, 0x69,
+	0x6e, 0x67, 0x5f, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x05, 0x20, 0x01, 0x28, 0x09, 0x48, 0x00,
+	0x52, 0x0b, 0x73, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x56, 0x61, 0x6c, 0x75, 0x65, 0x42, 0x07, 0x0a,
+	0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x22, 0x91, 0x01, 0x0a, 0x0f, 0x4e, 0x6f, 0x74, 0x45, 0x71,
+	0x75, 0x61, 0x6c, 0x73, 0x46, 0x69, 0x6c, 0x74, 0x65, 0x72, 0x12, 0x10, 0x0a, 0x03, 0x6b, 0x65,
+	0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12, 0x1d, 0x0a, 0x09,
+	0x69, 0x6e, 0x74, 0x5f, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x05, 0x48,
+	0x00, 0x52, 0x08, 0x69, 0x6e, 0x74, 0x56, 0x61, 0x6c, 0x75, 0x65, 0x12, 0x1f, 0x0a, 0x0a, 0x6c,
+	0x6f, 0x6e, 0x67, 0x5f, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x03, 0x20, 0x01, 0x28, 0x03, 0x48,
+	0x00, 0x52, 0x09, 0x6c, 0x6f, 0x6e, 0x67, 0x56, 0x61, 0x6c, 0x75, 0x65, 0x12, 0x23, 0x0a, 0x0c,
+	0x73, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x5f, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x04, 0x20, 0x01,
+	0x28, 0x09, 0x48, 0x00, 0x52, 0x0b, 0x73, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x56, 0x61, 0x6c, 0x75,
+	0x65, 0x42, 0x07, 0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x22, 0x67, 0x0a, 0x0d, 0x42, 0x65,
+	0x74, 0x77, 0x65, 0x65, 0x6e, 0x46, 0x69, 0x6c, 0x74, 0x65, 0x72, 0x12, 0x10, 0x0a, 0x03, 0x6b,
+	0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12, 0x44, 0x0a,
+	0x10, 0x69, 0x6e, 0x74, 0x5f, 0x72, 0x61, 0x6e, 0x67, 0x65, 0x5f, 0x76, 0x61, 0x6c, 0x75, 0x65,
+	0x73, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65,
+	0x6d, 0x65, 0x6e, 0x74, 0x2e, 0x49, 0x6e, 0x74, 0x52, 0x61, 0x6e, 0x67, 0x65, 0x56, 0x61, 0x6c,
+	0x75, 0x65, 0x73, 0x52, 0x0e, 0x69, 0x6e, 0x74, 0x52, 0x61, 0x6e, 0x67, 0x65, 0x56, 0x61, 0x6c,
+	0x75, 0x65, 0x73, 0x22, 0xd9, 0x01, 0x0a, 0x08, 0x49, 0x6e, 0x46, 0x69, 0x6c, 0x74, 0x65, 0x72,
 	0x12, 0x10, 0x0a, 0x03, 0x6b, 0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x6b,
-	0x65, 0x79, 0x12, 0x69, 0x0a, 0x02, 0x6f, 0x70, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x15,
-	0x2e, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2e, 0x4f, 0x70, 0x65, 0x72,
-	0x61, 0x74, 0x69, 0x6f, 0x6e, 0x42, 0x42, 0x92, 0x41, 0x3f, 0x2a, 0x09, 0x4f, 0x70, 0x65, 0x72,
-	0x61, 0x74, 0x69, 0x6f, 0x6e, 0x32, 0x2c, 0x4f, 0x70, 0x65, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e,
-	0x20, 0x74, 0x6f, 0x20, 0x61, 0x70, 0x70, 0x6c, 0x79, 0x20, 0x6f, 0x6e, 0x20, 0x74, 0x68, 0x65,
-	0x20, 0x70, 0x72, 0x6f, 0x76, 0x69, 0x64, 0x65, 0x64, 0x20, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x28,
-	0x73, 0x29, 0x2e, 0x4a, 0x04, 0x22, 0x49, 0x4e, 0x22, 0x52, 0x02, 0x6f, 0x70, 0x12, 0x1d, 0x0a,
-	0x09, 0x69, 0x6e, 0x74, 0x5f, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x03, 0x20, 0x01, 0x28, 0x05,
-	0x48, 0x00, 0x52, 0x08, 0x69, 0x6e, 0x74, 0x56, 0x61, 0x6c, 0x75, 0x65, 0x12, 0x1f, 0x0a, 0x0a,
-	0x6c, 0x6f, 0x6e, 0x67, 0x5f, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x04, 0x20, 0x01, 0x28, 0x03,
-	0x48, 0x00, 0x52, 0x09, 0x6c, 0x6f, 0x6e, 0x67, 0x56, 0x61, 0x6c, 0x75, 0x65, 0x12, 0x23, 0x0a,
-	0x0c, 0x73, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x5f, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x05, 0x20,
-	0x01, 0x28, 0x09, 0x48, 0x00, 0x52, 0x0b, 0x73, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x56, 0x61, 0x6c,
-	0x75, 0x65, 0x12, 0x36, 0x0a, 0x0a, 0x69, 0x6e, 0x74, 0x5f, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x73,
-	0x18, 0x06, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x15, 0x2e, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d,
+	0x65, 0x79, 0x12, 0x36, 0x0a, 0x0a, 0x69, 0x6e, 0x74, 0x5f, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x73,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x15, 0x2e, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d,
 	0x65, 0x6e, 0x74, 0x2e, 0x49, 0x6e, 0x74, 0x56, 0x61, 0x6c, 0x75, 0x65, 0x73, 0x48, 0x00, 0x52,
 	0x09, 0x69, 0x6e, 0x74, 0x56, 0x61, 0x6c, 0x75, 0x65, 0x73, 0x12, 0x39, 0x0a, 0x0b, 0x6c, 0x6f,
-	0x6e, 0x67, 0x5f, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x73, 0x18, 0x07, 0x20, 0x01, 0x28, 0x0b, 0x32,
+	0x6e, 0x67, 0x5f, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x73, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0b, 0x32,
 	0x16, 0x2e, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2e, 0x4c, 0x6f, 0x6e,
 	0x67, 0x56, 0x61, 0x6c, 0x75, 0x65, 0x73, 0x48, 0x00, 0x52, 0x0a, 0x6c, 0x6f, 0x6e, 0x67, 0x56,
 	0x61, 0x6c, 0x75, 0x65, 0x73, 0x12, 0x3f, 0x0a, 0x0d, 0x73, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x5f,
-	0x76, 0x61, 0x6c, 0x75, 0x65, 0x73, 0x18, 0x08, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x18, 0x2e, 0x6d,
+	0x76, 0x61, 0x6c, 0x75, 0x65, 0x73, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x18, 0x2e, 0x6d,
 	0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2e, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67,
 	0x56, 0x61, 0x6c, 0x75, 0x65, 0x73, 0x48, 0x00, 0x52, 0x0c, 0x73, 0x74, 0x72, 0x69, 0x6e, 0x67,
-	0x56, 0x61, 0x6c, 0x75, 0x65, 0x73, 0x12, 0x46, 0x0a, 0x10, 0x69, 0x6e, 0x74, 0x5f, 0x72, 0x61,
-	0x6e, 0x67, 0x65, 0x5f, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x73, 0x18, 0x09, 0x20, 0x01, 0x28, 0x0b,
-	0x32, 0x1a, 0x2e, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2e, 0x49, 0x6e,
-	0x74, 0x52, 0x61, 0x6e, 0x67, 0x65, 0x56, 0x61, 0x6c, 0x75, 0x65, 0x73, 0x48, 0x00, 0x52, 0x0e,
-	0x69, 0x6e, 0x74, 0x52, 0x61, 0x6e, 0x67, 0x65, 0x56, 0x61, 0x6c, 0x75, 0x65, 0x73, 0x42, 0x07,
-	0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x22, 0x23, 0x0a, 0x09, 0x49, 0x6e, 0x74, 0x56, 0x61,
+	0x56, 0x61, 0x6c, 0x75, 0x65, 0x73, 0x42, 0x07, 0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x22,
+	0x38, 0x0a, 0x0e, 0x43, 0x6f, 0x6e, 0x74, 0x61, 0x69, 0x6e, 0x73, 0x46, 0x69, 0x6c, 0x74, 0x65,
+	0x72, 0x12, 0x10, 0x0a, 0x03, 0x6b, 0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03,
+	0x6b, 0x65, 0x79, 0x12, 0x14, 0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x22, 0x23, 0x0a, 0x09, 0x49, 0x6e, 0x74,
+	0x56, 0x61, 0x6c, 0x75, 0x65, 0x73, 0x12, 0x16, 0x0a, 0x06, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x73,
+	0x18, 0x01, 0x20, 0x03, 0x28, 0x05, 0x52, 0x06, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x73, 0x22, 0x24,
+	0x0a, 0x0a, 0x4c, 0x6f, 0x6e, 0x67, 0x56, 0x61, 0x6c, 0x75, 0x65, 0x73, 0x12, 0x16, 0x0a, 0x06,
+	0x76, 0x61, 0x6c, 0x75, 0x65, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x03, 0x52, 0x06, 0x76, 0x61,
+	0x6c, 0x75, 0x65, 0x73, 0x22, 0x26, 0x0a, 0x0c, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x56, 0x61,
 	0x6c, 0x75, 0x65, 0x73, 0x12, 0x16, 0x0a, 0x06, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x73, 0x18, 0x01,
-	0x20, 0x03, 0x28, 0x05, 0x52, 0x06, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x73, 0x22, 0x24, 0x0a, 0x0a,
-	0x4c, 0x6f, 0x6e, 0x67, 0x56, 0x61, 0x6c, 0x75, 0x65, 0x73, 0x12, 0x16, 0x0a, 0x06, 0x76, 0x61,
-	0x6c, 0x75, 0x65, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x03, 0x52, 0x06, 0x76, 0x61, 0x6c, 0x75,
-	0x65, 0x73, 0x22, 0x26, 0x0a, 0x0c, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x56, 0x61, 0x6c, 0x75,
-	0x65, 0x73, 0x12, 0x16, 0x0a, 0x06, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x73, 0x18, 0x01, 0x20, 0x03,
-	0x28, 0x09, 0x52, 0x06, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x73, 0x22, 0x44, 0x0a, 0x0e, 0x49, 0x6e,
-	0x74, 0x52, 0x61, 0x6e, 0x67, 0x65, 0x56, 0x61, 0x6c, 0x75, 0x65, 0x73, 0x12, 0x18, 0x0a, 0x07,
-	0x6d, 0x69, 0x6e, 0x69, 0x6d, 0x75, 0x6d, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x07, 0x6d,
-	0x69, 0x6e, 0x69, 0x6d, 0x75, 0x6d, 0x12, 0x18, 0x0a, 0x07, 0x6d, 0x61, 0x78, 0x69, 0x6d, 0x75,
-	0x6d, 0x18, 0x02, 0x20, 0x01, 0x28, 0x05, 0x52, 0x07, 0x6d, 0x61, 0x78, 0x69, 0x6d, 0x75, 0x6d,
-	0x22, 0x3c, 0x0a, 0x0c, 0x46, 0x69, 0x6c, 0x74, 0x65, 0x72, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73,
-	0x12, 0x2c, 0x0a, 0x07, 0x66, 0x69, 0x6c, 0x74, 0x65, 0x72, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28,
-	0x0b, 0x32, 0x12, 0x2e, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2e, 0x46,
-	0x69, 0x6c, 0x74, 0x65, 0x72, 0x52, 0x07, 0x66, 0x69, 0x6c, 0x74, 0x65, 0x72, 0x73, 0x2a, 0x57,
-	0x0a, 0x09, 0x4f, 0x70, 0x65, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x0b, 0x0a, 0x07, 0x49,
-	0x4e, 0x56, 0x41, 0x4c, 0x49, 0x44, 0x10, 0x00, 0x12, 0x0a, 0x0a, 0x06, 0x45, 0x51, 0x55, 0x41,
-	0x4c, 0x53, 0x10, 0x01, 0x12, 0x0e, 0x0a, 0x0a, 0x4e, 0x4f, 0x54, 0x5f, 0x45, 0x51, 0x55, 0x41,
-	0x4c, 0x53, 0x10, 0x02, 0x12, 0x0b, 0x0a, 0x07, 0x42, 0x45, 0x54, 0x57, 0x45, 0x45, 0x4e, 0x10,
-	0x03, 0x12, 0x06, 0x0a, 0x02, 0x49, 0x4e, 0x10, 0x04, 0x12, 0x0c, 0x0a, 0x08, 0x43, 0x4f, 0x4e,
-	0x54, 0x41, 0x49, 0x4e, 0x53, 0x10, 0x05, 0x42, 0x8e, 0x01, 0x0a, 0x0e, 0x63, 0x6f, 0x6d, 0x2e,
-	0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x42, 0x0b, 0x46, 0x69, 0x6c, 0x74,
-	0x65, 0x72, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x27, 0x67, 0x69, 0x74, 0x68, 0x75,
-	0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x70, 0x65, 0x72, 0x63, 0x6f, 0x6e, 0x61, 0x2f, 0x70, 0x6d,
-	0x6d, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74,
-	0x70, 0x62, 0xa2, 0x02, 0x03, 0x4d, 0x58, 0x58, 0xaa, 0x02, 0x0a, 0x4d, 0x61, 0x6e, 0x61, 0x67,
-	0x65, 0x6d, 0x65, 0x6e, 0x74, 0xca, 0x02, 0x0a, 0x4d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65,
-	0x6e, 0x74, 0xe2, 0x02, 0x16, 0x4d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x5c,
-	0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x0a, 0x4d, 0x61,
-	0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x20, 0x03, 0x28, 0x09, 0x52, 0x06, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x73, 0x22, 0x44, 0x0a, 0x0e,
+	0x49, 0x6e, 0x74, 0x52, 0x61, 0x6e, 0x67, 0x65, 0x56, 0x61, 0x6c, 0x75, 0x65, 0x73, 0x12, 0x18,
+	0x0a, 0x07, 0x6d, 0x69, 0x6e, 0x69, 0x6d, 0x75, 0x6d, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52,
+	0x07, 0x6d, 0x69, 0x6e, 0x69, 0x6d, 0x75, 0x6d, 0x12, 0x18, 0x0a, 0x07, 0x6d, 0x61, 0x78, 0x69,
+	0x6d, 0x75, 0x6d, 0x18, 0x02, 0x20, 0x01, 0x28, 0x05, 0x52, 0x07, 0x6d, 0x61, 0x78, 0x69, 0x6d,
+	0x75, 0x6d, 0x42, 0x8e, 0x01, 0x0a, 0x0e, 0x63, 0x6f, 0x6d, 0x2e, 0x6d, 0x61, 0x6e, 0x61, 0x67,
+	0x65, 0x6d, 0x65, 0x6e, 0x74, 0x42, 0x0b, 0x46, 0x69, 0x6c, 0x74, 0x65, 0x72, 0x50, 0x72, 0x6f,
+	0x74, 0x6f, 0x50, 0x01, 0x5a, 0x27, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d,
+	0x2f, 0x70, 0x65, 0x72, 0x63, 0x6f, 0x6e, 0x61, 0x2f, 0x70, 0x6d, 0x6d, 0x2f, 0x61, 0x70, 0x69,
+	0x2f, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x70, 0x62, 0xa2, 0x02, 0x03,
+	0x4d, 0x58, 0x58, 0xaa, 0x02, 0x0a, 0x4d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74,
+	0xca, 0x02, 0x0a, 0x4d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0xe2, 0x02, 0x16,
+	0x4d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65,
+	0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x0a, 0x4d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d,
+	0x65, 0x6e, 0x74, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -593,29 +740,28 @@ func file_managementpb_filter_proto_rawDescGZIP() []byte {
 	return file_managementpb_filter_proto_rawDescData
 }
 
-var file_managementpb_filter_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_managementpb_filter_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_managementpb_filter_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_managementpb_filter_proto_goTypes = []interface{}{
-	(Operation)(0),         // 0: management.Operation
-	(*Filter)(nil),         // 1: management.Filter
-	(*IntValues)(nil),      // 2: management.IntValues
-	(*LongValues)(nil),     // 3: management.LongValues
-	(*StringValues)(nil),   // 4: management.StringValues
-	(*IntRangeValues)(nil), // 5: management.IntRangeValues
-	(*FilterParams)(nil),   // 6: management.FilterParams
+	(*EqualsFilter)(nil),    // 0: management.EqualsFilter
+	(*NotEqualsFilter)(nil), // 1: management.NotEqualsFilter
+	(*BetweenFilter)(nil),   // 2: management.BetweenFilter
+	(*InFilter)(nil),        // 3: management.InFilter
+	(*ContainsFilter)(nil),  // 4: management.ContainsFilter
+	(*IntValues)(nil),       // 5: management.IntValues
+	(*LongValues)(nil),      // 6: management.LongValues
+	(*StringValues)(nil),    // 7: management.StringValues
+	(*IntRangeValues)(nil),  // 8: management.IntRangeValues
 }
 var file_managementpb_filter_proto_depIdxs = []int32{
-	0, // 0: management.Filter.op:type_name -> management.Operation
-	2, // 1: management.Filter.int_values:type_name -> management.IntValues
-	3, // 2: management.Filter.long_values:type_name -> management.LongValues
-	4, // 3: management.Filter.string_values:type_name -> management.StringValues
-	5, // 4: management.Filter.int_range_values:type_name -> management.IntRangeValues
-	1, // 5: management.FilterParams.filters:type_name -> management.Filter
-	6, // [6:6] is the sub-list for method output_type
-	6, // [6:6] is the sub-list for method input_type
-	6, // [6:6] is the sub-list for extension type_name
-	6, // [6:6] is the sub-list for extension extendee
-	0, // [0:6] is the sub-list for field type_name
+	8, // 0: management.BetweenFilter.int_range_values:type_name -> management.IntRangeValues
+	5, // 1: management.InFilter.int_values:type_name -> management.IntValues
+	6, // 2: management.InFilter.long_values:type_name -> management.LongValues
+	7, // 3: management.InFilter.string_values:type_name -> management.StringValues
+	4, // [4:4] is the sub-list for method output_type
+	4, // [4:4] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_managementpb_filter_proto_init() }
@@ -625,7 +771,7 @@ func file_managementpb_filter_proto_init() {
 	}
 	if !protoimpl.UnsafeEnabled {
 		file_managementpb_filter_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Filter); i {
+			switch v := v.(*EqualsFilter); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -637,7 +783,7 @@ func file_managementpb_filter_proto_init() {
 			}
 		}
 		file_managementpb_filter_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*IntValues); i {
+			switch v := v.(*NotEqualsFilter); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -649,7 +795,7 @@ func file_managementpb_filter_proto_init() {
 			}
 		}
 		file_managementpb_filter_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*LongValues); i {
+			switch v := v.(*BetweenFilter); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -661,7 +807,7 @@ func file_managementpb_filter_proto_init() {
 			}
 		}
 		file_managementpb_filter_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*StringValues); i {
+			switch v := v.(*InFilter); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -673,7 +819,7 @@ func file_managementpb_filter_proto_init() {
 			}
 		}
 		file_managementpb_filter_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*IntRangeValues); i {
+			switch v := v.(*ContainsFilter); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -685,7 +831,43 @@ func file_managementpb_filter_proto_init() {
 			}
 		}
 		file_managementpb_filter_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*FilterParams); i {
+			switch v := v.(*IntValues); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_managementpb_filter_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*LongValues); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_managementpb_filter_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*StringValues); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_managementpb_filter_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*IntRangeValues); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -698,27 +880,32 @@ func file_managementpb_filter_proto_init() {
 		}
 	}
 	file_managementpb_filter_proto_msgTypes[0].OneofWrappers = []interface{}{
-		(*Filter_IntValue)(nil),
-		(*Filter_LongValue)(nil),
-		(*Filter_StringValue)(nil),
-		(*Filter_IntValues)(nil),
-		(*Filter_LongValues)(nil),
-		(*Filter_StringValues)(nil),
-		(*Filter_IntRangeValues)(nil),
+		(*EqualsFilter_IntValue)(nil),
+		(*EqualsFilter_LongValue)(nil),
+		(*EqualsFilter_StringValue)(nil),
+	}
+	file_managementpb_filter_proto_msgTypes[1].OneofWrappers = []interface{}{
+		(*NotEqualsFilter_IntValue)(nil),
+		(*NotEqualsFilter_LongValue)(nil),
+		(*NotEqualsFilter_StringValue)(nil),
+	}
+	file_managementpb_filter_proto_msgTypes[3].OneofWrappers = []interface{}{
+		(*InFilter_IntValues)(nil),
+		(*InFilter_LongValues)(nil),
+		(*InFilter_StringValues)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_managementpb_filter_proto_rawDesc,
-			NumEnums:      1,
-			NumMessages:   6,
+			NumEnums:      0,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_managementpb_filter_proto_goTypes,
 		DependencyIndexes: file_managementpb_filter_proto_depIdxs,
-		EnumInfos:         file_managementpb_filter_proto_enumTypes,
 		MessageInfos:      file_managementpb_filter_proto_msgTypes,
 	}.Build()
 	File_managementpb_filter_proto = out.File

@@ -53,6 +53,14 @@ func (this *StartSecurityChecksRequest) Validate() error {
 func (this *StartSecurityChecksResponse) Validate() error {
 	return nil
 }
+func (this *FilterParams) Validate() error {
+	if this.Category != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Category); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Category", err)
+		}
+	}
+	return nil
+}
 func (this *ListSecurityChecksRequest) Validate() error {
 	if this.FilterParams != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.FilterParams); err != nil {

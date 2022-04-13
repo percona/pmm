@@ -450,20 +450,20 @@ func (o *ListSecurityChecksOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListSecurityChecksOKBodyFilterParams FilterParams is used to filter the data returned in a response.
+/*ListSecurityChecksOKBodyFilterParams list security checks OK body filter params
 swagger:model ListSecurityChecksOKBodyFilterParams
 */
 type ListSecurityChecksOKBodyFilterParams struct {
 
-	// Accepts multiple filters, but if/how they are handled is up to the specific implementation.
-	Filters []*ListSecurityChecksOKBodyFilterParamsFiltersItems0 `json:"filters"`
+	// category
+	Category *ListSecurityChecksOKBodyFilterParamsCategory `json:"category,omitempty"`
 }
 
 // Validate validates this list security checks OK body filter params
 func (o *ListSecurityChecksOKBodyFilterParams) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateFilters(formats); err != nil {
+	if err := o.validateCategory(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -473,26 +473,19 @@ func (o *ListSecurityChecksOKBodyFilterParams) Validate(formats strfmt.Registry)
 	return nil
 }
 
-func (o *ListSecurityChecksOKBodyFilterParams) validateFilters(formats strfmt.Registry) error {
+func (o *ListSecurityChecksOKBodyFilterParams) validateCategory(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.Filters) { // not required
+	if swag.IsZero(o.Category) { // not required
 		return nil
 	}
 
-	for i := 0; i < len(o.Filters); i++ {
-		if swag.IsZero(o.Filters[i]) { // not required
-			continue
-		}
-
-		if o.Filters[i] != nil {
-			if err := o.Filters[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listSecurityChecksOk" + "." + "filter_params" + "." + "filters" + "." + strconv.Itoa(i))
-				}
-				return err
+	if o.Category != nil {
+		if err := o.Category.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("listSecurityChecksOk" + "." + "filter_params" + "." + "category")
 			}
+			return err
 		}
-
 	}
 
 	return nil
@@ -516,60 +509,28 @@ func (o *ListSecurityChecksOKBodyFilterParams) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListSecurityChecksOKBodyFilterParamsFiltersItems0 list security checks OK body filter params filters items0
-swagger:model ListSecurityChecksOKBodyFilterParamsFiltersItems0
+/*ListSecurityChecksOKBodyFilterParamsCategory Checks for results whose key exists in a given array.
+// Valid for (int_values | long_values | string_values).
+swagger:model ListSecurityChecksOKBodyFilterParamsCategory
 */
-type ListSecurityChecksOKBodyFilterParamsFiltersItems0 struct {
+type ListSecurityChecksOKBodyFilterParamsCategory struct {
 
 	// Key to filter the results by.
 	Key string `json:"key,omitempty"`
 
-	//  - EQUALS: Checks for results whose key is equal to the provided scalar value.
-	// Valid for (int32 | int64 | string ).
-	//  - NOT_EQUALS: Checks for results whose key is not equal to the provided scalar value.
-	// Valid for (int32 | int64 | string).
-	//  - BETWEEN: Returns results whose key lies within the inclusive range of the provided minimum and maximum values.
-	// Valid for (IntRangeValues).
-	//  - IN: Checks for results whose key exists in a given array.
-	// Valid for (int_values | long_values | string_values).
-	//  - CONTAINS: Checks for results whose key contains value as a substring
-	// Valid for (string_values).
-	// Enum: [INVALID EQUALS NOT_EQUALS BETWEEN IN CONTAINS]
-	Op *string `json:"op,omitempty"`
-
-	// int value
-	IntValue int32 `json:"int_value,omitempty"`
-
-	// long value
-	LongValue string `json:"long_value,omitempty"`
-
-	// string value
-	StringValue string `json:"string_value,omitempty"`
-
-	// int range values
-	IntRangeValues *ListSecurityChecksOKBodyFilterParamsFiltersItems0IntRangeValues `json:"int_range_values,omitempty"`
-
 	// int values
-	IntValues *ListSecurityChecksOKBodyFilterParamsFiltersItems0IntValues `json:"int_values,omitempty"`
+	IntValues *ListSecurityChecksOKBodyFilterParamsCategoryIntValues `json:"int_values,omitempty"`
 
 	// long values
-	LongValues *ListSecurityChecksOKBodyFilterParamsFiltersItems0LongValues `json:"long_values,omitempty"`
+	LongValues *ListSecurityChecksOKBodyFilterParamsCategoryLongValues `json:"long_values,omitempty"`
 
 	// string values
-	StringValues *ListSecurityChecksOKBodyFilterParamsFiltersItems0StringValues `json:"string_values,omitempty"`
+	StringValues *ListSecurityChecksOKBodyFilterParamsCategoryStringValues `json:"string_values,omitempty"`
 }
 
-// Validate validates this list security checks OK body filter params filters items0
-func (o *ListSecurityChecksOKBodyFilterParamsFiltersItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this list security checks OK body filter params category
+func (o *ListSecurityChecksOKBodyFilterParamsCategory) Validate(formats strfmt.Registry) error {
 	var res []error
-
-	if err := o.validateOp(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateIntRangeValues(formats); err != nil {
-		res = append(res, err)
-	}
 
 	if err := o.validateIntValues(formats); err != nil {
 		res = append(res, err)
@@ -589,80 +550,7 @@ func (o *ListSecurityChecksOKBodyFilterParamsFiltersItems0) Validate(formats str
 	return nil
 }
 
-var listSecurityChecksOkBodyFilterParamsFiltersItems0TypeOpPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["INVALID","EQUALS","NOT_EQUALS","BETWEEN","IN","CONTAINS"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		listSecurityChecksOkBodyFilterParamsFiltersItems0TypeOpPropEnum = append(listSecurityChecksOkBodyFilterParamsFiltersItems0TypeOpPropEnum, v)
-	}
-}
-
-const (
-
-	// ListSecurityChecksOKBodyFilterParamsFiltersItems0OpINVALID captures enum value "INVALID"
-	ListSecurityChecksOKBodyFilterParamsFiltersItems0OpINVALID string = "INVALID"
-
-	// ListSecurityChecksOKBodyFilterParamsFiltersItems0OpEQUALS captures enum value "EQUALS"
-	ListSecurityChecksOKBodyFilterParamsFiltersItems0OpEQUALS string = "EQUALS"
-
-	// ListSecurityChecksOKBodyFilterParamsFiltersItems0OpNOTEQUALS captures enum value "NOT_EQUALS"
-	ListSecurityChecksOKBodyFilterParamsFiltersItems0OpNOTEQUALS string = "NOT_EQUALS"
-
-	// ListSecurityChecksOKBodyFilterParamsFiltersItems0OpBETWEEN captures enum value "BETWEEN"
-	ListSecurityChecksOKBodyFilterParamsFiltersItems0OpBETWEEN string = "BETWEEN"
-
-	// ListSecurityChecksOKBodyFilterParamsFiltersItems0OpIN captures enum value "IN"
-	ListSecurityChecksOKBodyFilterParamsFiltersItems0OpIN string = "IN"
-
-	// ListSecurityChecksOKBodyFilterParamsFiltersItems0OpCONTAINS captures enum value "CONTAINS"
-	ListSecurityChecksOKBodyFilterParamsFiltersItems0OpCONTAINS string = "CONTAINS"
-)
-
-// prop value enum
-func (o *ListSecurityChecksOKBodyFilterParamsFiltersItems0) validateOpEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, listSecurityChecksOkBodyFilterParamsFiltersItems0TypeOpPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *ListSecurityChecksOKBodyFilterParamsFiltersItems0) validateOp(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Op) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateOpEnum("op", "body", *o.Op); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *ListSecurityChecksOKBodyFilterParamsFiltersItems0) validateIntRangeValues(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.IntRangeValues) { // not required
-		return nil
-	}
-
-	if o.IntRangeValues != nil {
-		if err := o.IntRangeValues.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("int_range_values")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (o *ListSecurityChecksOKBodyFilterParamsFiltersItems0) validateIntValues(formats strfmt.Registry) error {
+func (o *ListSecurityChecksOKBodyFilterParamsCategory) validateIntValues(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.IntValues) { // not required
 		return nil
@@ -671,7 +559,7 @@ func (o *ListSecurityChecksOKBodyFilterParamsFiltersItems0) validateIntValues(fo
 	if o.IntValues != nil {
 		if err := o.IntValues.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("int_values")
+				return ve.ValidateName("listSecurityChecksOk" + "." + "filter_params" + "." + "category" + "." + "int_values")
 			}
 			return err
 		}
@@ -680,7 +568,7 @@ func (o *ListSecurityChecksOKBodyFilterParamsFiltersItems0) validateIntValues(fo
 	return nil
 }
 
-func (o *ListSecurityChecksOKBodyFilterParamsFiltersItems0) validateLongValues(formats strfmt.Registry) error {
+func (o *ListSecurityChecksOKBodyFilterParamsCategory) validateLongValues(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.LongValues) { // not required
 		return nil
@@ -689,7 +577,7 @@ func (o *ListSecurityChecksOKBodyFilterParamsFiltersItems0) validateLongValues(f
 	if o.LongValues != nil {
 		if err := o.LongValues.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("long_values")
+				return ve.ValidateName("listSecurityChecksOk" + "." + "filter_params" + "." + "category" + "." + "long_values")
 			}
 			return err
 		}
@@ -698,7 +586,7 @@ func (o *ListSecurityChecksOKBodyFilterParamsFiltersItems0) validateLongValues(f
 	return nil
 }
 
-func (o *ListSecurityChecksOKBodyFilterParamsFiltersItems0) validateStringValues(formats strfmt.Registry) error {
+func (o *ListSecurityChecksOKBodyFilterParamsCategory) validateStringValues(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.StringValues) { // not required
 		return nil
@@ -707,7 +595,7 @@ func (o *ListSecurityChecksOKBodyFilterParamsFiltersItems0) validateStringValues
 	if o.StringValues != nil {
 		if err := o.StringValues.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("string_values")
+				return ve.ValidateName("listSecurityChecksOk" + "." + "filter_params" + "." + "category" + "." + "string_values")
 			}
 			return err
 		}
@@ -717,7 +605,7 @@ func (o *ListSecurityChecksOKBodyFilterParamsFiltersItems0) validateStringValues
 }
 
 // MarshalBinary interface implementation
-func (o *ListSecurityChecksOKBodyFilterParamsFiltersItems0) MarshalBinary() ([]byte, error) {
+func (o *ListSecurityChecksOKBodyFilterParamsCategory) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -725,8 +613,8 @@ func (o *ListSecurityChecksOKBodyFilterParamsFiltersItems0) MarshalBinary() ([]b
 }
 
 // UnmarshalBinary interface implementation
-func (o *ListSecurityChecksOKBodyFilterParamsFiltersItems0) UnmarshalBinary(b []byte) error {
-	var res ListSecurityChecksOKBodyFilterParamsFiltersItems0
+func (o *ListSecurityChecksOKBodyFilterParamsCategory) UnmarshalBinary(b []byte) error {
+	var res ListSecurityChecksOKBodyFilterParamsCategory
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -734,57 +622,22 @@ func (o *ListSecurityChecksOKBodyFilterParamsFiltersItems0) UnmarshalBinary(b []
 	return nil
 }
 
-/*ListSecurityChecksOKBodyFilterParamsFiltersItems0IntRangeValues list security checks OK body filter params filters items0 int range values
-swagger:model ListSecurityChecksOKBodyFilterParamsFiltersItems0IntRangeValues
+/*ListSecurityChecksOKBodyFilterParamsCategoryIntValues list security checks OK body filter params category int values
+swagger:model ListSecurityChecksOKBodyFilterParamsCategoryIntValues
 */
-type ListSecurityChecksOKBodyFilterParamsFiltersItems0IntRangeValues struct {
-
-	// Minimum value in the range.
-	Minimum int32 `json:"minimum,omitempty"`
-
-	// Maximum value in the range.
-	Maximum int32 `json:"maximum,omitempty"`
-}
-
-// Validate validates this list security checks OK body filter params filters items0 int range values
-func (o *ListSecurityChecksOKBodyFilterParamsFiltersItems0IntRangeValues) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ListSecurityChecksOKBodyFilterParamsFiltersItems0IntRangeValues) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ListSecurityChecksOKBodyFilterParamsFiltersItems0IntRangeValues) UnmarshalBinary(b []byte) error {
-	var res ListSecurityChecksOKBodyFilterParamsFiltersItems0IntRangeValues
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*ListSecurityChecksOKBodyFilterParamsFiltersItems0IntValues list security checks OK body filter params filters items0 int values
-swagger:model ListSecurityChecksOKBodyFilterParamsFiltersItems0IntValues
-*/
-type ListSecurityChecksOKBodyFilterParamsFiltersItems0IntValues struct {
+type ListSecurityChecksOKBodyFilterParamsCategoryIntValues struct {
 
 	// values
 	Values []int32 `json:"values"`
 }
 
-// Validate validates this list security checks OK body filter params filters items0 int values
-func (o *ListSecurityChecksOKBodyFilterParamsFiltersItems0IntValues) Validate(formats strfmt.Registry) error {
+// Validate validates this list security checks OK body filter params category int values
+func (o *ListSecurityChecksOKBodyFilterParamsCategoryIntValues) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *ListSecurityChecksOKBodyFilterParamsFiltersItems0IntValues) MarshalBinary() ([]byte, error) {
+func (o *ListSecurityChecksOKBodyFilterParamsCategoryIntValues) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -792,8 +645,8 @@ func (o *ListSecurityChecksOKBodyFilterParamsFiltersItems0IntValues) MarshalBina
 }
 
 // UnmarshalBinary interface implementation
-func (o *ListSecurityChecksOKBodyFilterParamsFiltersItems0IntValues) UnmarshalBinary(b []byte) error {
-	var res ListSecurityChecksOKBodyFilterParamsFiltersItems0IntValues
+func (o *ListSecurityChecksOKBodyFilterParamsCategoryIntValues) UnmarshalBinary(b []byte) error {
+	var res ListSecurityChecksOKBodyFilterParamsCategoryIntValues
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -801,22 +654,22 @@ func (o *ListSecurityChecksOKBodyFilterParamsFiltersItems0IntValues) UnmarshalBi
 	return nil
 }
 
-/*ListSecurityChecksOKBodyFilterParamsFiltersItems0LongValues list security checks OK body filter params filters items0 long values
-swagger:model ListSecurityChecksOKBodyFilterParamsFiltersItems0LongValues
+/*ListSecurityChecksOKBodyFilterParamsCategoryLongValues list security checks OK body filter params category long values
+swagger:model ListSecurityChecksOKBodyFilterParamsCategoryLongValues
 */
-type ListSecurityChecksOKBodyFilterParamsFiltersItems0LongValues struct {
+type ListSecurityChecksOKBodyFilterParamsCategoryLongValues struct {
 
 	// values
 	Values []string `json:"values"`
 }
 
-// Validate validates this list security checks OK body filter params filters items0 long values
-func (o *ListSecurityChecksOKBodyFilterParamsFiltersItems0LongValues) Validate(formats strfmt.Registry) error {
+// Validate validates this list security checks OK body filter params category long values
+func (o *ListSecurityChecksOKBodyFilterParamsCategoryLongValues) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *ListSecurityChecksOKBodyFilterParamsFiltersItems0LongValues) MarshalBinary() ([]byte, error) {
+func (o *ListSecurityChecksOKBodyFilterParamsCategoryLongValues) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -824,8 +677,8 @@ func (o *ListSecurityChecksOKBodyFilterParamsFiltersItems0LongValues) MarshalBin
 }
 
 // UnmarshalBinary interface implementation
-func (o *ListSecurityChecksOKBodyFilterParamsFiltersItems0LongValues) UnmarshalBinary(b []byte) error {
-	var res ListSecurityChecksOKBodyFilterParamsFiltersItems0LongValues
+func (o *ListSecurityChecksOKBodyFilterParamsCategoryLongValues) UnmarshalBinary(b []byte) error {
+	var res ListSecurityChecksOKBodyFilterParamsCategoryLongValues
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -833,22 +686,22 @@ func (o *ListSecurityChecksOKBodyFilterParamsFiltersItems0LongValues) UnmarshalB
 	return nil
 }
 
-/*ListSecurityChecksOKBodyFilterParamsFiltersItems0StringValues list security checks OK body filter params filters items0 string values
-swagger:model ListSecurityChecksOKBodyFilterParamsFiltersItems0StringValues
+/*ListSecurityChecksOKBodyFilterParamsCategoryStringValues list security checks OK body filter params category string values
+swagger:model ListSecurityChecksOKBodyFilterParamsCategoryStringValues
 */
-type ListSecurityChecksOKBodyFilterParamsFiltersItems0StringValues struct {
+type ListSecurityChecksOKBodyFilterParamsCategoryStringValues struct {
 
 	// values
 	Values []string `json:"values"`
 }
 
-// Validate validates this list security checks OK body filter params filters items0 string values
-func (o *ListSecurityChecksOKBodyFilterParamsFiltersItems0StringValues) Validate(formats strfmt.Registry) error {
+// Validate validates this list security checks OK body filter params category string values
+func (o *ListSecurityChecksOKBodyFilterParamsCategoryStringValues) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *ListSecurityChecksOKBodyFilterParamsFiltersItems0StringValues) MarshalBinary() ([]byte, error) {
+func (o *ListSecurityChecksOKBodyFilterParamsCategoryStringValues) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -856,8 +709,8 @@ func (o *ListSecurityChecksOKBodyFilterParamsFiltersItems0StringValues) MarshalB
 }
 
 // UnmarshalBinary interface implementation
-func (o *ListSecurityChecksOKBodyFilterParamsFiltersItems0StringValues) UnmarshalBinary(b []byte) error {
-	var res ListSecurityChecksOKBodyFilterParamsFiltersItems0StringValues
+func (o *ListSecurityChecksOKBodyFilterParamsCategoryStringValues) UnmarshalBinary(b []byte) error {
+	var res ListSecurityChecksOKBodyFilterParamsCategoryStringValues
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -865,20 +718,20 @@ func (o *ListSecurityChecksOKBodyFilterParamsFiltersItems0StringValues) Unmarsha
 	return nil
 }
 
-/*ListSecurityChecksParamsBodyFilterParams FilterParams is used to filter the data returned in a response.
+/*ListSecurityChecksParamsBodyFilterParams list security checks params body filter params
 swagger:model ListSecurityChecksParamsBodyFilterParams
 */
 type ListSecurityChecksParamsBodyFilterParams struct {
 
-	// Accepts multiple filters, but if/how they are handled is up to the specific implementation.
-	Filters []*ListSecurityChecksParamsBodyFilterParamsFiltersItems0 `json:"filters"`
+	// category
+	Category *ListSecurityChecksParamsBodyFilterParamsCategory `json:"category,omitempty"`
 }
 
 // Validate validates this list security checks params body filter params
 func (o *ListSecurityChecksParamsBodyFilterParams) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateFilters(formats); err != nil {
+	if err := o.validateCategory(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -888,26 +741,19 @@ func (o *ListSecurityChecksParamsBodyFilterParams) Validate(formats strfmt.Regis
 	return nil
 }
 
-func (o *ListSecurityChecksParamsBodyFilterParams) validateFilters(formats strfmt.Registry) error {
+func (o *ListSecurityChecksParamsBodyFilterParams) validateCategory(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.Filters) { // not required
+	if swag.IsZero(o.Category) { // not required
 		return nil
 	}
 
-	for i := 0; i < len(o.Filters); i++ {
-		if swag.IsZero(o.Filters[i]) { // not required
-			continue
-		}
-
-		if o.Filters[i] != nil {
-			if err := o.Filters[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("body" + "." + "filter_params" + "." + "filters" + "." + strconv.Itoa(i))
-				}
-				return err
+	if o.Category != nil {
+		if err := o.Category.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "filter_params" + "." + "category")
 			}
+			return err
 		}
-
 	}
 
 	return nil
@@ -931,60 +777,28 @@ func (o *ListSecurityChecksParamsBodyFilterParams) UnmarshalBinary(b []byte) err
 	return nil
 }
 
-/*ListSecurityChecksParamsBodyFilterParamsFiltersItems0 list security checks params body filter params filters items0
-swagger:model ListSecurityChecksParamsBodyFilterParamsFiltersItems0
+/*ListSecurityChecksParamsBodyFilterParamsCategory Checks for results whose key exists in a given array.
+// Valid for (int_values | long_values | string_values).
+swagger:model ListSecurityChecksParamsBodyFilterParamsCategory
 */
-type ListSecurityChecksParamsBodyFilterParamsFiltersItems0 struct {
+type ListSecurityChecksParamsBodyFilterParamsCategory struct {
 
 	// Key to filter the results by.
 	Key string `json:"key,omitempty"`
 
-	//  - EQUALS: Checks for results whose key is equal to the provided scalar value.
-	// Valid for (int32 | int64 | string ).
-	//  - NOT_EQUALS: Checks for results whose key is not equal to the provided scalar value.
-	// Valid for (int32 | int64 | string).
-	//  - BETWEEN: Returns results whose key lies within the inclusive range of the provided minimum and maximum values.
-	// Valid for (IntRangeValues).
-	//  - IN: Checks for results whose key exists in a given array.
-	// Valid for (int_values | long_values | string_values).
-	//  - CONTAINS: Checks for results whose key contains value as a substring
-	// Valid for (string_values).
-	// Enum: [INVALID EQUALS NOT_EQUALS BETWEEN IN CONTAINS]
-	Op *string `json:"op,omitempty"`
-
-	// int value
-	IntValue int32 `json:"int_value,omitempty"`
-
-	// long value
-	LongValue string `json:"long_value,omitempty"`
-
-	// string value
-	StringValue string `json:"string_value,omitempty"`
-
-	// int range values
-	IntRangeValues *ListSecurityChecksParamsBodyFilterParamsFiltersItems0IntRangeValues `json:"int_range_values,omitempty"`
-
 	// int values
-	IntValues *ListSecurityChecksParamsBodyFilterParamsFiltersItems0IntValues `json:"int_values,omitempty"`
+	IntValues *ListSecurityChecksParamsBodyFilterParamsCategoryIntValues `json:"int_values,omitempty"`
 
 	// long values
-	LongValues *ListSecurityChecksParamsBodyFilterParamsFiltersItems0LongValues `json:"long_values,omitempty"`
+	LongValues *ListSecurityChecksParamsBodyFilterParamsCategoryLongValues `json:"long_values,omitempty"`
 
 	// string values
-	StringValues *ListSecurityChecksParamsBodyFilterParamsFiltersItems0StringValues `json:"string_values,omitempty"`
+	StringValues *ListSecurityChecksParamsBodyFilterParamsCategoryStringValues `json:"string_values,omitempty"`
 }
 
-// Validate validates this list security checks params body filter params filters items0
-func (o *ListSecurityChecksParamsBodyFilterParamsFiltersItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this list security checks params body filter params category
+func (o *ListSecurityChecksParamsBodyFilterParamsCategory) Validate(formats strfmt.Registry) error {
 	var res []error
-
-	if err := o.validateOp(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateIntRangeValues(formats); err != nil {
-		res = append(res, err)
-	}
 
 	if err := o.validateIntValues(formats); err != nil {
 		res = append(res, err)
@@ -1004,80 +818,7 @@ func (o *ListSecurityChecksParamsBodyFilterParamsFiltersItems0) Validate(formats
 	return nil
 }
 
-var listSecurityChecksParamsBodyFilterParamsFiltersItems0TypeOpPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["INVALID","EQUALS","NOT_EQUALS","BETWEEN","IN","CONTAINS"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		listSecurityChecksParamsBodyFilterParamsFiltersItems0TypeOpPropEnum = append(listSecurityChecksParamsBodyFilterParamsFiltersItems0TypeOpPropEnum, v)
-	}
-}
-
-const (
-
-	// ListSecurityChecksParamsBodyFilterParamsFiltersItems0OpINVALID captures enum value "INVALID"
-	ListSecurityChecksParamsBodyFilterParamsFiltersItems0OpINVALID string = "INVALID"
-
-	// ListSecurityChecksParamsBodyFilterParamsFiltersItems0OpEQUALS captures enum value "EQUALS"
-	ListSecurityChecksParamsBodyFilterParamsFiltersItems0OpEQUALS string = "EQUALS"
-
-	// ListSecurityChecksParamsBodyFilterParamsFiltersItems0OpNOTEQUALS captures enum value "NOT_EQUALS"
-	ListSecurityChecksParamsBodyFilterParamsFiltersItems0OpNOTEQUALS string = "NOT_EQUALS"
-
-	// ListSecurityChecksParamsBodyFilterParamsFiltersItems0OpBETWEEN captures enum value "BETWEEN"
-	ListSecurityChecksParamsBodyFilterParamsFiltersItems0OpBETWEEN string = "BETWEEN"
-
-	// ListSecurityChecksParamsBodyFilterParamsFiltersItems0OpIN captures enum value "IN"
-	ListSecurityChecksParamsBodyFilterParamsFiltersItems0OpIN string = "IN"
-
-	// ListSecurityChecksParamsBodyFilterParamsFiltersItems0OpCONTAINS captures enum value "CONTAINS"
-	ListSecurityChecksParamsBodyFilterParamsFiltersItems0OpCONTAINS string = "CONTAINS"
-)
-
-// prop value enum
-func (o *ListSecurityChecksParamsBodyFilterParamsFiltersItems0) validateOpEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, listSecurityChecksParamsBodyFilterParamsFiltersItems0TypeOpPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *ListSecurityChecksParamsBodyFilterParamsFiltersItems0) validateOp(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Op) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateOpEnum("op", "body", *o.Op); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *ListSecurityChecksParamsBodyFilterParamsFiltersItems0) validateIntRangeValues(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.IntRangeValues) { // not required
-		return nil
-	}
-
-	if o.IntRangeValues != nil {
-		if err := o.IntRangeValues.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("int_range_values")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (o *ListSecurityChecksParamsBodyFilterParamsFiltersItems0) validateIntValues(formats strfmt.Registry) error {
+func (o *ListSecurityChecksParamsBodyFilterParamsCategory) validateIntValues(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.IntValues) { // not required
 		return nil
@@ -1086,7 +827,7 @@ func (o *ListSecurityChecksParamsBodyFilterParamsFiltersItems0) validateIntValue
 	if o.IntValues != nil {
 		if err := o.IntValues.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("int_values")
+				return ve.ValidateName("body" + "." + "filter_params" + "." + "category" + "." + "int_values")
 			}
 			return err
 		}
@@ -1095,7 +836,7 @@ func (o *ListSecurityChecksParamsBodyFilterParamsFiltersItems0) validateIntValue
 	return nil
 }
 
-func (o *ListSecurityChecksParamsBodyFilterParamsFiltersItems0) validateLongValues(formats strfmt.Registry) error {
+func (o *ListSecurityChecksParamsBodyFilterParamsCategory) validateLongValues(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.LongValues) { // not required
 		return nil
@@ -1104,7 +845,7 @@ func (o *ListSecurityChecksParamsBodyFilterParamsFiltersItems0) validateLongValu
 	if o.LongValues != nil {
 		if err := o.LongValues.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("long_values")
+				return ve.ValidateName("body" + "." + "filter_params" + "." + "category" + "." + "long_values")
 			}
 			return err
 		}
@@ -1113,7 +854,7 @@ func (o *ListSecurityChecksParamsBodyFilterParamsFiltersItems0) validateLongValu
 	return nil
 }
 
-func (o *ListSecurityChecksParamsBodyFilterParamsFiltersItems0) validateStringValues(formats strfmt.Registry) error {
+func (o *ListSecurityChecksParamsBodyFilterParamsCategory) validateStringValues(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.StringValues) { // not required
 		return nil
@@ -1122,7 +863,7 @@ func (o *ListSecurityChecksParamsBodyFilterParamsFiltersItems0) validateStringVa
 	if o.StringValues != nil {
 		if err := o.StringValues.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("string_values")
+				return ve.ValidateName("body" + "." + "filter_params" + "." + "category" + "." + "string_values")
 			}
 			return err
 		}
@@ -1132,7 +873,7 @@ func (o *ListSecurityChecksParamsBodyFilterParamsFiltersItems0) validateStringVa
 }
 
 // MarshalBinary interface implementation
-func (o *ListSecurityChecksParamsBodyFilterParamsFiltersItems0) MarshalBinary() ([]byte, error) {
+func (o *ListSecurityChecksParamsBodyFilterParamsCategory) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -1140,8 +881,8 @@ func (o *ListSecurityChecksParamsBodyFilterParamsFiltersItems0) MarshalBinary() 
 }
 
 // UnmarshalBinary interface implementation
-func (o *ListSecurityChecksParamsBodyFilterParamsFiltersItems0) UnmarshalBinary(b []byte) error {
-	var res ListSecurityChecksParamsBodyFilterParamsFiltersItems0
+func (o *ListSecurityChecksParamsBodyFilterParamsCategory) UnmarshalBinary(b []byte) error {
+	var res ListSecurityChecksParamsBodyFilterParamsCategory
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1149,57 +890,22 @@ func (o *ListSecurityChecksParamsBodyFilterParamsFiltersItems0) UnmarshalBinary(
 	return nil
 }
 
-/*ListSecurityChecksParamsBodyFilterParamsFiltersItems0IntRangeValues list security checks params body filter params filters items0 int range values
-swagger:model ListSecurityChecksParamsBodyFilterParamsFiltersItems0IntRangeValues
+/*ListSecurityChecksParamsBodyFilterParamsCategoryIntValues list security checks params body filter params category int values
+swagger:model ListSecurityChecksParamsBodyFilterParamsCategoryIntValues
 */
-type ListSecurityChecksParamsBodyFilterParamsFiltersItems0IntRangeValues struct {
-
-	// Minimum value in the range.
-	Minimum int32 `json:"minimum,omitempty"`
-
-	// Maximum value in the range.
-	Maximum int32 `json:"maximum,omitempty"`
-}
-
-// Validate validates this list security checks params body filter params filters items0 int range values
-func (o *ListSecurityChecksParamsBodyFilterParamsFiltersItems0IntRangeValues) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ListSecurityChecksParamsBodyFilterParamsFiltersItems0IntRangeValues) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ListSecurityChecksParamsBodyFilterParamsFiltersItems0IntRangeValues) UnmarshalBinary(b []byte) error {
-	var res ListSecurityChecksParamsBodyFilterParamsFiltersItems0IntRangeValues
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*ListSecurityChecksParamsBodyFilterParamsFiltersItems0IntValues list security checks params body filter params filters items0 int values
-swagger:model ListSecurityChecksParamsBodyFilterParamsFiltersItems0IntValues
-*/
-type ListSecurityChecksParamsBodyFilterParamsFiltersItems0IntValues struct {
+type ListSecurityChecksParamsBodyFilterParamsCategoryIntValues struct {
 
 	// values
 	Values []int32 `json:"values"`
 }
 
-// Validate validates this list security checks params body filter params filters items0 int values
-func (o *ListSecurityChecksParamsBodyFilterParamsFiltersItems0IntValues) Validate(formats strfmt.Registry) error {
+// Validate validates this list security checks params body filter params category int values
+func (o *ListSecurityChecksParamsBodyFilterParamsCategoryIntValues) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *ListSecurityChecksParamsBodyFilterParamsFiltersItems0IntValues) MarshalBinary() ([]byte, error) {
+func (o *ListSecurityChecksParamsBodyFilterParamsCategoryIntValues) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -1207,8 +913,8 @@ func (o *ListSecurityChecksParamsBodyFilterParamsFiltersItems0IntValues) Marshal
 }
 
 // UnmarshalBinary interface implementation
-func (o *ListSecurityChecksParamsBodyFilterParamsFiltersItems0IntValues) UnmarshalBinary(b []byte) error {
-	var res ListSecurityChecksParamsBodyFilterParamsFiltersItems0IntValues
+func (o *ListSecurityChecksParamsBodyFilterParamsCategoryIntValues) UnmarshalBinary(b []byte) error {
+	var res ListSecurityChecksParamsBodyFilterParamsCategoryIntValues
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1216,22 +922,22 @@ func (o *ListSecurityChecksParamsBodyFilterParamsFiltersItems0IntValues) Unmarsh
 	return nil
 }
 
-/*ListSecurityChecksParamsBodyFilterParamsFiltersItems0LongValues list security checks params body filter params filters items0 long values
-swagger:model ListSecurityChecksParamsBodyFilterParamsFiltersItems0LongValues
+/*ListSecurityChecksParamsBodyFilterParamsCategoryLongValues list security checks params body filter params category long values
+swagger:model ListSecurityChecksParamsBodyFilterParamsCategoryLongValues
 */
-type ListSecurityChecksParamsBodyFilterParamsFiltersItems0LongValues struct {
+type ListSecurityChecksParamsBodyFilterParamsCategoryLongValues struct {
 
 	// values
 	Values []string `json:"values"`
 }
 
-// Validate validates this list security checks params body filter params filters items0 long values
-func (o *ListSecurityChecksParamsBodyFilterParamsFiltersItems0LongValues) Validate(formats strfmt.Registry) error {
+// Validate validates this list security checks params body filter params category long values
+func (o *ListSecurityChecksParamsBodyFilterParamsCategoryLongValues) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *ListSecurityChecksParamsBodyFilterParamsFiltersItems0LongValues) MarshalBinary() ([]byte, error) {
+func (o *ListSecurityChecksParamsBodyFilterParamsCategoryLongValues) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -1239,8 +945,8 @@ func (o *ListSecurityChecksParamsBodyFilterParamsFiltersItems0LongValues) Marsha
 }
 
 // UnmarshalBinary interface implementation
-func (o *ListSecurityChecksParamsBodyFilterParamsFiltersItems0LongValues) UnmarshalBinary(b []byte) error {
-	var res ListSecurityChecksParamsBodyFilterParamsFiltersItems0LongValues
+func (o *ListSecurityChecksParamsBodyFilterParamsCategoryLongValues) UnmarshalBinary(b []byte) error {
+	var res ListSecurityChecksParamsBodyFilterParamsCategoryLongValues
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1248,22 +954,22 @@ func (o *ListSecurityChecksParamsBodyFilterParamsFiltersItems0LongValues) Unmars
 	return nil
 }
 
-/*ListSecurityChecksParamsBodyFilterParamsFiltersItems0StringValues list security checks params body filter params filters items0 string values
-swagger:model ListSecurityChecksParamsBodyFilterParamsFiltersItems0StringValues
+/*ListSecurityChecksParamsBodyFilterParamsCategoryStringValues list security checks params body filter params category string values
+swagger:model ListSecurityChecksParamsBodyFilterParamsCategoryStringValues
 */
-type ListSecurityChecksParamsBodyFilterParamsFiltersItems0StringValues struct {
+type ListSecurityChecksParamsBodyFilterParamsCategoryStringValues struct {
 
 	// values
 	Values []string `json:"values"`
 }
 
-// Validate validates this list security checks params body filter params filters items0 string values
-func (o *ListSecurityChecksParamsBodyFilterParamsFiltersItems0StringValues) Validate(formats strfmt.Registry) error {
+// Validate validates this list security checks params body filter params category string values
+func (o *ListSecurityChecksParamsBodyFilterParamsCategoryStringValues) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *ListSecurityChecksParamsBodyFilterParamsFiltersItems0StringValues) MarshalBinary() ([]byte, error) {
+func (o *ListSecurityChecksParamsBodyFilterParamsCategoryStringValues) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -1271,8 +977,8 @@ func (o *ListSecurityChecksParamsBodyFilterParamsFiltersItems0StringValues) Mars
 }
 
 // UnmarshalBinary interface implementation
-func (o *ListSecurityChecksParamsBodyFilterParamsFiltersItems0StringValues) UnmarshalBinary(b []byte) error {
-	var res ListSecurityChecksParamsBodyFilterParamsFiltersItems0StringValues
+func (o *ListSecurityChecksParamsBodyFilterParamsCategoryStringValues) UnmarshalBinary(b []byte) error {
+	var res ListSecurityChecksParamsBodyFilterParamsCategoryStringValues
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
