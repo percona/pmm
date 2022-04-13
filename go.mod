@@ -13,7 +13,7 @@ require (
 	github.com/go-openapi/validate v0.19.10
 	github.com/golang/protobuf v1.5.2
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.8.0
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.10.0
 	github.com/mitchellh/mapstructure v1.3.3 // indirect
 	github.com/mwitkow/go-proto-validators v0.3.2
 	github.com/pkg/errors v0.9.1
@@ -21,7 +21,7 @@ require (
 	github.com/stretchr/testify v1.7.1
 	go.mongodb.org/mongo-driver v1.7.1
 	golang.org/x/sys v0.0.0-20220114195835-da31bd327af9
-	google.golang.org/genproto v0.0.0-20220302033224-9aa15565e42a
+	google.golang.org/genproto v0.0.0-20220317150908-0efb43f6373e
 	google.golang.org/grpc v1.45.0
 	google.golang.org/protobuf v1.27.1
 	gopkg.in/reform.v1 v1.5.1
