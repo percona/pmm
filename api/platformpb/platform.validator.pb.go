@@ -6,12 +6,12 @@ package platformpb
 import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
-	_ "github.com/golang/protobuf/ptypes/timestamp"
-	_ "github.com/golang/protobuf/ptypes/wrappers"
-	_ "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options"
+	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "github.com/mwitkow/go-proto-validators"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
+	_ "google.golang.org/protobuf/types/known/timestamppb"
+	_ "google.golang.org/protobuf/types/known/wrapperspb"
 	math "math"
 )
 
@@ -23,12 +23,6 @@ var _ = math.Inf
 func (this *ConnectRequest) Validate() error {
 	if this.ServerName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ServerName", fmt.Errorf(`value '%v' must not be an empty string`, this.ServerName))
-	}
-	if this.Email == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Email", fmt.Errorf(`value '%v' must not be an empty string`, this.Email))
-	}
-	if this.Password == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Password", fmt.Errorf(`value '%v' must not be an empty string`, this.Password))
 	}
 	return nil
 }
@@ -124,5 +118,17 @@ func (this *OrganizationEntitlement_Platform) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("ConfigAdvisor", err)
 		}
 	}
+	return nil
+}
+func (this *ServerInfoRequest) Validate() error {
+	return nil
+}
+func (this *ServerInfoResponse) Validate() error {
+	return nil
+}
+func (this *UserStatusRequest) Validate() error {
+	return nil
+}
+func (this *UserStatusResponse) Validate() error {
 	return nil
 }

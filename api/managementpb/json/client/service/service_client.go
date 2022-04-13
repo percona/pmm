@@ -31,7 +31,9 @@ type ClientService interface {
 }
 
 /*
-  RemoveService removes service removes service with agents
+  RemoveService removes service
+
+  Removes Service with Agents.
 */
 func (a *Client) RemoveService(params *RemoveServiceParams) (*RemoveServiceOK, error) {
 	// TODO: Validate the params before sending

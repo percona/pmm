@@ -17,10 +17,11 @@
   "paths": {
     "/v1/inventory/Agents/AddAzureDatabaseExporter": {
       "post": {
+        "description": "Adds azure_database_exporter Agent.",
         "tags": [
           "Agents"
         ],
-        "summary": "AddAzureDatabaseExporter adds azure_database_exporter Agent.",
+        "summary": "Add Azure Database Exporter",
         "operationId": "AddAzureDatabaseExporter",
         "parameters": [
           {
@@ -216,10 +217,11 @@
     },
     "/v1/inventory/Agents/AddExternalExporter": {
       "post": {
+        "description": "Adds external_exporter Agent.",
         "tags": [
           "Agents"
         ],
-        "summary": "AddExternalExporter adds external_exporter Agent.",
+        "summary": "Add External Exporter",
         "operationId": "AddExternalExporter",
         "parameters": [
           {
@@ -396,10 +398,11 @@
     },
     "/v1/inventory/Agents/AddMongoDBExporter": {
       "post": {
+        "description": "Adds mongodb_exporter Agent.",
         "tags": [
           "Agents"
         ],
-        "summary": "AddMongoDBExporter adds mongodb_exporter Agent.",
+        "summary": "Add MongoDB Exporter",
         "operationId": "AddMongoDBExporter",
         "parameters": [
           {
@@ -669,10 +672,11 @@
     },
     "/v1/inventory/Agents/AddMySQLdExporter": {
       "post": {
+        "description": "Adds mysqld_exporter Agent.",
         "tags": [
           "Agents"
         ],
-        "summary": "AddMySQLdExporter adds mysqld_exporter Agent.",
+        "summary": "Add mysqld Exporter",
         "operationId": "AddMySQLdExporter",
         "parameters": [
           {
@@ -937,10 +941,11 @@
     },
     "/v1/inventory/Agents/AddNodeExporter": {
       "post": {
+        "description": "Adds node_exporter Agent.",
         "tags": [
           "Agents"
         ],
-        "summary": "AddNodeExporter adds node_exporter Agent.",
+        "summary": "Add Node Exporter",
         "operationId": "AddNodeExporter",
         "parameters": [
           {
@@ -1097,10 +1102,11 @@
     },
     "/v1/inventory/Agents/AddPMMAgent": {
       "post": {
+        "description": "Adds PMM Agent.",
         "tags": [
           "Agents"
         ],
-        "summary": "AddPMMAgent adds pmm-agent Agent.",
+        "summary": "Add PMM Agent",
         "operationId": "AddPMMAgent",
         "parameters": [
           {
@@ -1210,10 +1216,11 @@
     },
     "/v1/inventory/Agents/AddPostgresExporter": {
       "post": {
+        "description": "Adds postgres_exporter Agent.",
         "tags": [
           "Agents"
         ],
-        "summary": "AddPostgresExporter adds postgres_exporter Agent.",
+        "summary": "Add Postgres Exporter",
         "operationId": "AddPostgresExporter",
         "parameters": [
           {
@@ -1440,10 +1447,11 @@
     },
     "/v1/inventory/Agents/AddProxySQLExporter": {
       "post": {
+        "description": "Adds proxysql_exporter Agent.",
         "tags": [
           "Agents"
         ],
-        "summary": "AddProxySQLExporter adds proxysql_exporter Agent.",
+        "summary": "Add ProxySQL Exporter",
         "operationId": "AddProxySQLExporter",
         "parameters": [
           {
@@ -1655,10 +1663,11 @@
     },
     "/v1/inventory/Agents/AddQANMongoDBProfilerAgent": {
       "post": {
+        "description": "Adds 'Query Analytics MongoDB Profiler' Agent.",
         "tags": [
           "Agents"
         ],
-        "summary": "AddQANMongoDBProfilerAgent adds MongoDB Profiler QAN Agent.",
+        "summary": "Add 'QAN MongoDB Profiler' Agent",
         "operationId": "AddQANMongoDBProfilerAgent",
         "parameters": [
           {
@@ -1858,10 +1867,11 @@
     },
     "/v1/inventory/Agents/AddQANMySQLPerfSchemaAgent": {
       "post": {
+        "description": "Adds 'Query Analytics MySQL PerfSchema' Agent.",
         "tags": [
           "Agents"
         ],
-        "summary": "AddQANMySQLPerfSchemaAgent adds MySQL PerfSchema QAN Agent.",
+        "summary": "Add 'QAN MySQL PerfSchema' Agent",
         "operationId": "AddQANMySQLPerfSchemaAgent",
         "parameters": [
           {
@@ -2076,10 +2086,11 @@
     },
     "/v1/inventory/Agents/AddQANMySQLSlowlogAgent": {
       "post": {
+        "description": "Adds 'Query Analytics MySQL Slowlog' Agent.",
         "tags": [
           "Agents"
         ],
-        "summary": "AddQANMySQLSlowlogAgent adds MySQL PerfSchema QAN Agent.",
+        "summary": "Add 'QAN MySQL Slowlog' Agent",
         "operationId": "AddQANMySQLSlowlogAgent",
         "parameters": [
           {
@@ -2306,10 +2317,11 @@
     },
     "/v1/inventory/Agents/AddQANPostgreSQLPgStatMonitorAgent": {
       "post": {
+        "description": "Adds 'Query Analytics PostgreSQL pg_stat_monitor' Agent.",
         "tags": [
           "Agents"
         ],
-        "summary": "AddQANPostgreSQLPgStatMonitorAgent adds PostgreSQL Pg Stat Monitor QAN Agent.",
+        "summary": "Add 'QAN PostgreSQL pg_stat_monitor' Agent",
         "operationId": "AddQANPostgreSQLPgStatMonitorAgent",
         "parameters": [
           {
@@ -2509,10 +2521,11 @@
     },
     "/v1/inventory/Agents/AddQANPostgreSQLPgStatementsAgent": {
       "post": {
+        "description": "Adds 'Query Analytics PostgreSQL pg_stat_statements' Agent.",
         "tags": [
           "Agents"
         ],
-        "summary": "AddQANPostgreSQLPgStatementsAgent adds PostgreSQL Pg Stat Statements QAN Agent.",
+        "summary": "Add 'QAN PostgreSQL pg_stat_statements' Agent",
         "operationId": "AddQANPostgreSQLPgStatementsAgent",
         "parameters": [
           {
@@ -2702,10 +2715,11 @@
     },
     "/v1/inventory/Agents/AddRDSExporter": {
       "post": {
+        "description": "Adds rds_exporter Agent.",
         "tags": [
           "Agents"
         ],
-        "summary": "AddRDSExporter adds rds_exporter Agent.",
+        "summary": "Add RDS Exporter",
         "operationId": "AddRDSExporter",
         "parameters": [
           {
@@ -2896,10 +2910,11 @@
     },
     "/v1/inventory/Agents/ChangeAzureDatabaseExporter": {
       "post": {
+        "description": "Changes azure_database_exporter Agent.",
         "tags": [
           "Agents"
         ],
-        "summary": "ChangeAzureDatabaseExporter changes_database azure_database_exporter Agent.",
+        "summary": "Change Azure Database Exporter",
         "operationId": "ChangeAzureDatabaseExporter",
         "parameters": [
           {
@@ -3081,10 +3096,11 @@
     },
     "/v1/inventory/Agents/ChangeExternalExporter": {
       "post": {
+        "description": "Changes external_exporter Agent.",
         "tags": [
           "Agents"
         ],
-        "summary": "ChangeExternalExporter changes external_exporter Agent.",
+        "summary": "Change External Exporter",
         "operationId": "ChangeExternalExporter",
         "parameters": [
           {
@@ -3256,10 +3272,11 @@
     },
     "/v1/inventory/Agents/ChangeMongoDBExporter": {
       "post": {
+        "description": "Changes mongodb_exporter Agent.",
         "tags": [
           "Agents"
         ],
-        "summary": "ChangeMongoDBExporter changes mongodb_exporter Agent.",
+        "summary": "Change MongoDB Exporter",
         "operationId": "ChangeMongoDBExporter",
         "parameters": [
           {
@@ -3473,10 +3490,11 @@
     },
     "/v1/inventory/Agents/ChangeMySQLdExporter": {
       "post": {
+        "description": "Changes mysqld_exporter Agent.",
         "tags": [
           "Agents"
         ],
-        "summary": "ChangeMySQLdExporter changes mysqld_exporter Agent.",
+        "summary": "Change mysqld Exporter",
         "operationId": "ChangeMySQLdExporter",
         "parameters": [
           {
@@ -3697,10 +3715,11 @@
     },
     "/v1/inventory/Agents/ChangeNodeExporter": {
       "post": {
+        "description": "Changes node_exporter Agent.",
         "tags": [
           "Agents"
         ],
-        "summary": "ChangeNodeExporter changes node_exporter Agent.",
+        "summary": "Change Node Exporter",
         "operationId": "ChangeNodeExporter",
         "parameters": [
           {
@@ -3875,10 +3894,11 @@
     },
     "/v1/inventory/Agents/ChangePostgresExporter": {
       "post": {
+        "description": "Changes postgres_exporter Agent.",
         "tags": [
           "Agents"
         ],
-        "summary": "ChangePostgresExporter changes postgres_exporter Agent.",
+        "summary": "Change Postgres Exporter",
         "operationId": "ChangePostgresExporter",
         "parameters": [
           {
@@ -4073,10 +4093,11 @@
     },
     "/v1/inventory/Agents/ChangeProxySQLExporter": {
       "post": {
+        "description": "Changes proxysql_exporter Agent.",
         "tags": [
           "Agents"
         ],
-        "summary": "ChangeProxySQLExporter changes proxysql_exporter Agent.",
+        "summary": "Change ProxySQL Exporter",
         "operationId": "ChangeProxySQLExporter",
         "parameters": [
           {
@@ -4271,10 +4292,11 @@
     },
     "/v1/inventory/Agents/ChangeQANMongoDBProfilerAgent": {
       "post": {
+        "description": "Changes 'Query Analytics MongoDB Profiler' Agent.",
         "tags": [
           "Agents"
         ],
-        "summary": "ChangeQANMongoDBProfilerAgent changes MongoDB Profiler QAN Agent.",
+        "summary": "Change 'QAN MongoDB Profiler' Agent",
         "operationId": "ChangeQANMongoDBProfilerAgent",
         "parameters": [
           {
@@ -4450,10 +4472,11 @@
     },
     "/v1/inventory/Agents/ChangeQANMySQLPerfSchemaAgent": {
       "post": {
+        "description": "Changes 'Query Analytics MySQL PerfSchema' Agent.",
         "tags": [
           "Agents"
         ],
-        "summary": "ChangeQANMySQLPerfSchemaAgent changes MySQL PerfSchema QAN Agent.",
+        "summary": "Change 'QAN MySQL PerfSchema' Agent",
         "operationId": "ChangeQANMySQLPerfSchemaAgent",
         "parameters": [
           {
@@ -4649,10 +4672,11 @@
     },
     "/v1/inventory/Agents/ChangeQANMySQLSlowlogAgent": {
       "post": {
+        "description": "Changes 'Query Analytics MySQL Slowlog' Agent.",
         "tags": [
           "Agents"
         ],
-        "summary": "ChangeQANMySQLSlowlogAgent changes MySQL PerfSchema QAN Agent.",
+        "summary": "Change 'QAN MySQL Slowlog' Agent",
         "operationId": "ChangeQANMySQLSlowlogAgent",
         "parameters": [
           {
@@ -4854,10 +4878,11 @@
     },
     "/v1/inventory/Agents/ChangeQANPostgreSQLPgStatMonitorAgent": {
       "post": {
+        "description": "Changes 'Query Analytics PostgreSQL pg_stat_monitor' Agent.",
         "tags": [
           "Agents"
         ],
-        "summary": "ChangeQANPostgreSQLPgStatMonitorAgent changes PostgreSQL Pg Stat Monitor QAN Agent.",
+        "summary": "Change 'QAN PostgreSQL pg_stat_monitor' Agent",
         "operationId": "ChangeQANPostgreSQLPgStatMonitorAgent",
         "parameters": [
           {
@@ -5038,10 +5063,11 @@
     },
     "/v1/inventory/Agents/ChangeQANPostgreSQLPgStatementsAgent": {
       "post": {
+        "description": "Changes 'Query Analytics PostgreSQL pg_stat_statements' Agent.",
         "tags": [
           "Agents"
         ],
-        "summary": "ChangeQANPostgreSQLPgStatementsAgent changes PostgreSQL Pg Stat Statements QAN Agent.",
+        "summary": "Change 'QAN PostgreSQL pg_stat_statements' Agent",
         "operationId": "ChangeQANPostgreSQLPgStatementsAgent",
         "parameters": [
           {
@@ -5217,10 +5243,11 @@
     },
     "/v1/inventory/Agents/ChangeRDSExporter": {
       "post": {
+        "description": "Changes rds_exporter Agent.",
         "tags": [
           "Agents"
         ],
-        "summary": "ChangeRDSExporter changes rds_exporter Agent.",
+        "summary": "Change RDS Exporter",
         "operationId": "ChangeRDSExporter",
         "parameters": [
           {
@@ -5407,10 +5434,11 @@
     },
     "/v1/inventory/Agents/Get": {
       "post": {
+        "description": "Returns a single Agent by ID.",
         "tags": [
           "Agents"
         ],
-        "summary": "GetAgent returns a single Agent by ID.",
+        "summary": "Get Agent",
         "operationId": "GetAgent",
         "parameters": [
           {
@@ -6573,10 +6601,11 @@
     },
     "/v1/inventory/Agents/List": {
       "post": {
+        "description": "Returns a list of all Agents.",
         "tags": [
           "Agents"
         ],
-        "summary": "ListAgents returns a list of all Agents.",
+        "summary": "List Agents",
         "operationId": "ListAgents",
         "parameters": [
           {
@@ -7818,10 +7847,11 @@
     },
     "/v1/inventory/Agents/Remove": {
       "post": {
+        "description": "Removes Agent.",
         "tags": [
           "Agents"
         ],
-        "summary": "RemoveAgent removes Agent.",
+        "summary": "Remove Agent",
         "operationId": "RemoveAgent",
         "parameters": [
           {
@@ -7895,10 +7925,11 @@
     },
     "/v1/inventory/Nodes/AddContainer": {
       "post": {
+        "description": "Adds container Node.",
         "tags": [
           "Nodes"
         ],
-        "summary": "AddContainerNode adds Container Node.",
+        "summary": "Add Container Node",
         "operationId": "AddContainerNode",
         "parameters": [
           {
@@ -8073,10 +8104,11 @@
     },
     "/v1/inventory/Nodes/AddGeneric": {
       "post": {
+        "description": "Adds generic Node.",
         "tags": [
           "Nodes"
         ],
-        "summary": "AddGenericNode adds generic Node.",
+        "summary": "Add Generic Node",
         "operationId": "AddGenericNode",
         "parameters": [
           {
@@ -8241,10 +8273,11 @@
     },
     "/v1/inventory/Nodes/AddRemote": {
       "post": {
+        "description": "Adds remote Node.",
         "tags": [
           "Nodes"
         ],
-        "summary": "AddRemoteNode adds remote Node.",
+        "summary": "Add Remote Node",
         "operationId": "AddRemoteNode",
         "parameters": [
           {
@@ -8389,10 +8422,11 @@
     },
     "/v1/inventory/Nodes/AddRemoteAzureDatabase": {
       "post": {
+        "description": "Adds remote Azure database Node.",
         "tags": [
           "Nodes"
         ],
-        "summary": "AddRemoteAzureDatabaseNode adds remote Azure database Node.",
+        "summary": "Add Remote Azure Database Node",
         "operationId": "AddRemoteAzureDatabaseNode",
         "parameters": [
           {
@@ -8537,10 +8571,11 @@
     },
     "/v1/inventory/Nodes/AddRemoteRDS": {
       "post": {
+        "description": "Adds remote RDS Node.",
         "tags": [
           "Nodes"
         ],
-        "summary": "AddRemoteRDSNode adds remote RDS Node.",
+        "summary": "Add Remote RDS Node",
         "operationId": "AddRemoteRDSNode",
         "parameters": [
           {
@@ -8685,10 +8720,11 @@
     },
     "/v1/inventory/Nodes/Get": {
       "post": {
+        "description": "Returns a single Node by ID.",
         "tags": [
           "Nodes"
         ],
-        "summary": "GetNode returns a single Node by ID.",
+        "summary": "Get Node",
         "operationId": "GetNode",
         "parameters": [
           {
@@ -9010,10 +9046,11 @@
     },
     "/v1/inventory/Nodes/List": {
       "post": {
+        "description": "Returns a list of all Nodes.",
         "tags": [
           "Nodes"
         ],
-        "summary": "ListNodes returns a list of all Nodes.",
+        "summary": "List Nodes",
         "operationId": "ListNodes",
         "parameters": [
           {
@@ -9359,10 +9396,11 @@
     },
     "/v1/inventory/Nodes/Remove": {
       "post": {
+        "description": "Removes Node.",
         "tags": [
           "Nodes"
         ],
-        "summary": "RemoveNode removes Node.",
+        "summary": "Remove Node",
         "operationId": "RemoveNode",
         "parameters": [
           {
@@ -9437,10 +9475,11 @@
     },
     "/v1/inventory/Services/AddExternalService": {
       "post": {
+        "description": "Adds External Service.",
         "tags": [
           "Services"
         ],
-        "summary": "AddExternalService adds External Service.",
+        "summary": "Add External Service",
         "operationId": "AddExternalService",
         "parameters": [
           {
@@ -9595,10 +9634,11 @@
     },
     "/v1/inventory/Services/AddHAProxyService": {
       "post": {
+        "description": "Adds HAProxy Service.",
         "tags": [
           "Services"
         ],
-        "summary": "AddHAProxyService adds HAProxy Service.",
+        "summary": "Add HAProxy Service",
         "operationId": "AddHAProxyService",
         "parameters": [
           {
@@ -9743,10 +9783,11 @@
     },
     "/v1/inventory/Services/AddMongoDB": {
       "post": {
+        "description": "Adds MongoDB Service.",
         "tags": [
           "Services"
         ],
-        "summary": "AddMongoDBService adds MongoDB Service.",
+        "summary": "Add MongoDB Service",
         "operationId": "AddMongoDBService",
         "parameters": [
           {
@@ -9923,10 +9964,11 @@
     },
     "/v1/inventory/Services/AddMySQL": {
       "post": {
+        "description": "Adds MySQL Service.",
         "tags": [
           "Services"
         ],
-        "summary": "AddMySQLService adds MySQL Service.",
+        "summary": "Add MySQL Service",
         "operationId": "AddMySQLService",
         "parameters": [
           {
@@ -10103,10 +10145,11 @@
     },
     "/v1/inventory/Services/AddPostgreSQL": {
       "post": {
+        "description": "Adds PostgreSQL Service.",
         "tags": [
           "Services"
         ],
-        "summary": "AddPostgreSQLService adds PostgreSQL Service.",
+        "summary": "Add PostgreSQL Service",
         "operationId": "AddPostgreSQLService",
         "parameters": [
           {
@@ -10288,10 +10331,11 @@
     },
     "/v1/inventory/Services/AddProxySQL": {
       "post": {
+        "description": "Adds ProxySQL Service.",
         "tags": [
           "Services"
         ],
-        "summary": "AddProxySQLService adds ProxySQL Service.",
+        "summary": "Add ProxySQL Service",
         "operationId": "AddProxySQLService",
         "parameters": [
           {
@@ -10468,10 +10512,11 @@
     },
     "/v1/inventory/Services/Get": {
       "post": {
+        "description": "Returns a single Service by ID.",
         "tags": [
           "Services"
         ],
-        "summary": "GetService returns a single Service by ID.",
+        "summary": "Get Service",
         "operationId": "GetService",
         "parameters": [
           {
@@ -10887,10 +10932,11 @@
     },
     "/v1/inventory/Services/List": {
       "post": {
+        "description": "Returns a list of Services filtered by type.",
         "tags": [
           "Services"
         ],
-        "summary": "ListServices returns a list of all Services.",
+        "summary": "List Services",
         "operationId": "ListServices",
         "parameters": [
           {
@@ -11344,10 +11390,11 @@
     },
     "/v1/inventory/Services/Remove": {
       "post": {
+        "description": "Removes Service.",
         "tags": [
           "Services"
         ],
-        "summary": "RemoveService removes Service.",
+        "summary": "Remove Service",
         "operationId": "RemoveService",
         "parameters": [
           {

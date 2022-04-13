@@ -4,6 +4,7 @@ package management;
 
 option go_package = "api/managementpb;managementpb";
 
+import "protoc-gen-openapiv2/options/annotations.proto";
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "inventorypb/agents.proto";
@@ -80,6 +81,10 @@ service HAProxy {
     option (google.api.http) = {
       post: "/v1/management/HAProxy/Add"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Add HAProxy"
+      description: "Adds HAProxy service and external exporter. It automatically adds a service to inventory, which is running on the provided \"node_id\", then adds an \"external exporter\" agent to the inventory."
     };
   }
 }
