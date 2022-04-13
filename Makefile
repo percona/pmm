@@ -100,8 +100,10 @@ gen-alertmanager:     # Generate Alertmanager client.
 	go install -v ./api/alertmanager/...
 
 update-deps:
-	go get -u ./... 	# deps
-	go get -t -u ./... 	# test deps
+	go get -u ./...
+	cd tools && go get -u .
+	go get -t -u ./...
+	cd tools && go get -t -u .
 	go mod tidy
 
 clean_swagger:
