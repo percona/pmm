@@ -1,6 +1,6 @@
 # Architecture
 
-PMM is a client/server application built by Percona comprising its own and third-party components and tools.```
+PMM is a client/server application built by Percona comprising its own and third-party components and tools.
 
 <!-- The source of this image is maintained at https://miro.com/app/board/uXjVOPgKgrE=/ -->
 
