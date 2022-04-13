@@ -99,6 +99,11 @@ gen-alertmanager:     # Generate Alertmanager client.
 	go fmt ./api/alertmanager/...
 	go install -v ./api/alertmanager/...
 
+update-deps:
+	go get -u ./... 	# deps
+	go get -t -u ./... 	# test deps
+	go mod tidy
+
 clean_swagger:
 	find api -name '*.swagger.json' -print -delete
 
