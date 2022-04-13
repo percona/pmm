@@ -515,9 +515,6 @@ swagger:model ListSecurityChecksOKBodyFilterParamsCategory
 */
 type ListSecurityChecksOKBodyFilterParamsCategory struct {
 
-	// Key to filter the results by.
-	Key string `json:"key,omitempty"`
-
 	// int values
 	IntValues *ListSecurityChecksOKBodyFilterParamsCategoryIntValues `json:"int_values,omitempty"`
 
@@ -782,9 +779,6 @@ func (o *ListSecurityChecksParamsBodyFilterParams) UnmarshalBinary(b []byte) err
 swagger:model ListSecurityChecksParamsBodyFilterParamsCategory
 */
 type ListSecurityChecksParamsBodyFilterParamsCategory struct {
-
-	// Key to filter the results by.
-	Key string `json:"key,omitempty"`
 
 	// int values
 	IntValues *ListSecurityChecksParamsBodyFilterParamsCategoryIntValues `json:"int_values,omitempty"`

@@ -6093,11 +6093,6 @@
                               "x-order": 0
                             }
                           },
-                          "x-order": 1
-                        },
-                        "key": {
-                          "description": "Key to filter the results by.",
-                          "type": "string",
                           "x-order": 0
                         },
                         "long_values": {
@@ -6112,7 +6107,7 @@
                               "x-order": 0
                             }
                           },
-                          "x-order": 2
+                          "x-order": 1
                         },
                         "string_values": {
                           "type": "object",
@@ -6125,7 +6120,7 @@
                               "x-order": 0
                             }
                           },
-                          "x-order": 3
+                          "x-order": 2
                         }
                       },
                       "x-order": 0
@@ -6209,11 +6204,6 @@
                               "x-order": 0
                             }
                           },
-                          "x-order": 1
-                        },
-                        "key": {
-                          "description": "Key to filter the results by.",
-                          "type": "string",
                           "x-order": 0
                         },
                         "long_values": {
@@ -6228,7 +6218,7 @@
                               "x-order": 0
                             }
                           },
-                          "x-order": 2
+                          "x-order": 1
                         },
                         "string_values": {
                           "type": "object",
@@ -6241,7 +6231,7 @@
                               "x-order": 0
                             }
                           },
-                          "x-order": 3
+                          "x-order": 2
                         }
                       },
                       "x-order": 0

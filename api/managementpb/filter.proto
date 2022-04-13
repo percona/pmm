@@ -10,58 +10,44 @@ import "google/api/annotations.proto";
 // Checks for results whose key is equal to the provided scalar value.
 // Valid for (int32 | int64 | string ).
 message EqualsFilter {
-  // Key to filter the results by.
-  string key = 1;
-
   oneof value {
-    int32 int_value = 3;
-    int64 long_value = 4;
-    string string_value = 5;
+    int32 int_value = 1;
+    int64 long_value = 2;
+    string string_value = 3;
   }
 }
 
 // Checks for results whose key is not equal to the provided scalar value.
 // Valid for (int32 | int64 | string).
 message NotEqualsFilter {
-  // Key to filter the results by.
-  string key = 1;
-
   oneof value {
-    int32 int_value = 2;
-    int64 long_value = 3;
-    string string_value = 4;
+    int32 int_value = 1;
+    int64 long_value = 2;
+    string string_value = 3;
   }
 }
 
 // Returns results whose key lies within the inclusive range of the provided minimum and maximum values.
 // Valid for (IntRangeValues).
 message BetweenFilter {
-  // Key to filter the results by.
-  string key = 1;
-  IntRangeValues int_range_values = 2;
+  IntRangeValues int_range_values = 1;
 }
 
 // Checks for results whose key exists in a given array.
 // Valid for (int_values | long_values | string_values).
 message InFilter {
-  // Key to filter the results by.
-  string key = 1;
-
   oneof value {
-    IntValues int_values = 2;
-    LongValues long_values = 3;
-    StringValues string_values = 4;
+    IntValues int_values = 1;
+    LongValues long_values = 2;
+    StringValues string_values = 3;
   }
 }
 
 // Checks for results whose key contains value as a substring
 // Valid for (string_values).
 message ContainsFilter {
-  // Key to filter the results by.
-  string key = 1;
-
   // Value to search results in.
-  string value = 2;
+  string value = 1;
 }
 
 message IntValues {

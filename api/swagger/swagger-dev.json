@@ -25036,11 +25036,6 @@
                       "description": "Checks for results whose key exists in a given array.\nValid for (int_values | long_values | string_values).",
                       "type": "object",
                       "properties": {
-                        "key": {
-                          "description": "Key to filter the results by.",
-                          "type": "string",
-                          "x-order": 0
-                        },
                         "int_values": {
                           "type": "object",
                           "properties": {
@@ -25053,7 +25048,7 @@
                               "x-order": 0
                             }
                           },
-                          "x-order": 1
+                          "x-order": 0
                         },
                         "long_values": {
                           "type": "object",
@@ -25067,7 +25062,7 @@
                               "x-order": 0
                             }
                           },
-                          "x-order": 2
+                          "x-order": 1
                         },
                         "string_values": {
                           "type": "object",
@@ -25080,7 +25075,7 @@
                               "x-order": 0
                             }
                           },
-                          "x-order": 3
+                          "x-order": 2
                         }
                       },
                       "x-order": 0
@@ -25152,11 +25147,6 @@
                       "description": "Checks for results whose key exists in a given array.\nValid for (int_values | long_values | string_values).",
                       "type": "object",
                       "properties": {
-                        "key": {
-                          "description": "Key to filter the results by.",
-                          "type": "string",
-                          "x-order": 0
-                        },
                         "int_values": {
                           "type": "object",
                           "properties": {
@@ -25169,7 +25159,7 @@
                               "x-order": 0
                             }
                           },
-                          "x-order": 1
+                          "x-order": 0
                         },
                         "long_values": {
                           "type": "object",
@@ -25183,7 +25173,7 @@
                               "x-order": 0
                             }
                           },
-                          "x-order": 2
+                          "x-order": 1
                         },
                         "string_values": {
                           "type": "object",
@@ -25196,7 +25186,7 @@
                               "x-order": 0
                             }
                           },
-                          "x-order": 3
+                          "x-order": 2
                         }
                       },
                       "x-order": 0
