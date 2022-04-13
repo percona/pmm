@@ -116,18 +116,15 @@ message StartSecurityChecksRequest {
 
 message StartSecurityChecksResponse {}
 
-
-message FilterParams {
-  InFilter category = 1;
-}
-
 message ListSecurityChecksRequest {
+  message FilterParams {
+    InFilter category = 1;
+  }
   FilterParams filter_params = 1;
 }
 
 message ListSecurityChecksResponse {
   repeated SecurityCheck checks = 1;
-  FilterParams filter_params = 2;
 }
 
 message ChangeSecurityChecksRequest {
