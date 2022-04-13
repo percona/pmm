@@ -46,8 +46,7 @@
                       "format": "int32",
                       "x-order": 0
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -128,8 +127,7 @@
                                       },
                                       "x-order": 1
                                     }
-                                  },
-                                  "x-order": 2
+                                  }
                                 },
                                 "pagerduty_config": {
                                   "description": "PagerDutyConfig represents PagerDuty configuration.",
@@ -149,8 +147,7 @@
                                       "type": "string",
                                       "x-order": 2
                                     }
-                                  },
-                                  "x-order": 3
+                                  }
                                 },
                                 "slack_config": {
                                   "description": "SlackConfig represents Slack configuration.",
@@ -164,8 +161,7 @@
                                       "type": "boolean",
                                       "x-order": 0
                                     }
-                                  },
-                                  "x-order": 4
+                                  }
                                 },
                                 "summary": {
                                   "description": "Short human-readable summary.",
@@ -196,8 +192,7 @@
                                               "type": "string",
                                               "x-order": 0
                                             }
-                                          },
-                                          "x-order": 0
+                                          }
                                         },
                                         "bearer_token": {
                                           "type": "string",
@@ -255,11 +250,9 @@
                                               "type": "string",
                                               "x-order": 3
                                             }
-                                          },
-                                          "x-order": 3
+                                          }
                                         }
-                                      },
-                                      "x-order": 2
+                                      }
                                     },
                                     "max_alerts": {
                                       "type": "integer",
@@ -274,8 +267,7 @@
                                       "type": "string",
                                       "x-order": 1
                                     }
-                                  },
-                                  "x-order": 5
+                                  }
                                 }
                               }
                             },
@@ -314,8 +306,7 @@
                               "SEVERITY_NOTICE",
                               "SEVERITY_INFO",
                               "SEVERITY_DEBUG"
-                            ],
-                            "x-order": 11
+                            ]
                           },
                           "disabled": {
                             "description": "True if that rule is disabled.",
@@ -351,8 +342,7 @@
                                     "FILTER_TYPE_INVALID",
                                     "EQUAL",
                                     "REGEX"
-                                  ],
-                                  "x-order": 0
+                                  ]
                                 },
                                 "value": {
                                   "type": "string",
@@ -399,11 +389,9 @@
                                         "DO_NOT_CHANGE",
                                         "TRUE",
                                         "FALSE"
-                                      ],
-                                      "x-order": 0
+                                      ]
                                     }
-                                  },
-                                  "x-order": 4
+                                  }
                                 },
                                 "float": {
                                   "description": "FloatParamDefinition represents float parameter's default value and valid range.",
@@ -442,8 +430,7 @@
                                       "format": "double",
                                       "x-order": 3
                                     }
-                                  },
-                                  "x-order": 5
+                                  }
                                 },
                                 "name": {
                                   "description": "Machine-readable name (ID) that is used in expression.",
@@ -464,8 +451,7 @@
                                       "type": "boolean",
                                       "x-order": 0
                                     }
-                                  },
-                                  "x-order": 6
+                                  }
                                 },
                                 "summary": {
                                   "description": "Short human-readable parameter summary.",
@@ -481,8 +467,7 @@
                                     "BOOL",
                                     "FLOAT",
                                     "STRING"
-                                  ],
-                                  "x-order": 3
+                                  ]
                                 },
                                 "unit": {
                                   "description": "ParamUnit represents template parameter unit.\n\n - PARAM_UNIT_INVALID: Invalid, unknown or absent.\n - PERCENTAGE: %\n - SECONDS: s",
@@ -492,8 +477,7 @@
                                     "PARAM_UNIT_INVALID",
                                     "PERCENTAGE",
                                     "SECONDS"
-                                  ],
-                                  "x-order": 2
+                                  ]
                                 }
                               }
                             },
@@ -536,8 +520,7 @@
                                     "BOOL",
                                     "FLOAT",
                                     "STRING"
-                                  ],
-                                  "x-order": 1
+                                  ]
                                 }
                               }
                             },
@@ -562,8 +545,7 @@
                               "SEVERITY_NOTICE",
                               "SEVERITY_INFO",
                               "SEVERITY_DEBUG"
-                            ],
-                            "x-order": 12
+                            ]
                           },
                           "summary": {
                             "description": "Rule human-readable summary.",
@@ -575,8 +557,7 @@
                             "type": "string",
                             "x-order": 3
                           }
-                        },
-                        "x-order": 5
+                        }
                       },
                       "severity": {
                         "description": "Severity represents severity level of the check result or alert.",
@@ -592,8 +573,7 @@
                           "SEVERITY_NOTICE",
                           "SEVERITY_INFO",
                           "SEVERITY_DEBUG"
-                        ],
-                        "x-order": 2
+                        ]
                       },
                       "status": {
                         "description": "Status represents Alert Rule's and Alert's combined status.\n\n - CLEAR: No alert.\n - PENDING: Pending, but not triggering alert.\n - TRIGGERING: Triggering (firing) alert.\n - SILENCED: Silenced alert.",
@@ -605,8 +585,7 @@
                           "PENDING",
                           "TRIGGERING",
                           "SILENCED"
-                        ],
-                        "x-order": 3
+                        ]
                       },
                       "summary": {
                         "description": "Human-readable summary.",
@@ -639,8 +618,7 @@
                       "format": "int32",
                       "x-order": 1
                     }
-                  },
-                  "x-order": 1
+                  }
                 }
               }
             }
@@ -719,8 +697,7 @@
                     "DO_NOT_CHANGE",
                     "TRUE",
                     "FALSE"
-                  ],
-                  "x-order": 1
+                  ]
                 }
               }
             }
@@ -810,8 +787,7 @@
                       },
                       "x-order": 1
                     }
-                  },
-                  "x-order": 1
+                  }
                 },
                 "pagerduty_config": {
                   "description": "PagerDutyConfig represents PagerDuty configuration.",
@@ -831,8 +807,7 @@
                       "type": "string",
                       "x-order": 2
                     }
-                  },
-                  "x-order": 2
+                  }
                 },
                 "slack_config": {
                   "description": "SlackConfig represents Slack configuration.",
@@ -846,8 +821,7 @@
                       "type": "boolean",
                       "x-order": 0
                     }
-                  },
-                  "x-order": 3
+                  }
                 },
                 "summary": {
                   "description": "Short human-readable summary.",
@@ -878,8 +852,7 @@
                               "type": "string",
                               "x-order": 0
                             }
-                          },
-                          "x-order": 0
+                          }
                         },
                         "bearer_token": {
                           "type": "string",
@@ -937,11 +910,9 @@
                               "type": "string",
                               "x-order": 3
                             }
-                          },
-                          "x-order": 3
+                          }
                         }
-                      },
-                      "x-order": 2
+                      }
                     },
                     "max_alerts": {
                       "type": "integer",
@@ -956,8 +927,7 @@
                       "type": "string",
                       "x-order": 1
                     }
-                  },
-                  "x-order": 4
+                  }
                 }
               }
             }
@@ -1059,8 +1029,7 @@
                       },
                       "x-order": 1
                     }
-                  },
-                  "x-order": 2
+                  }
                 },
                 "pagerduty_config": {
                   "description": "PagerDutyConfig represents PagerDuty configuration.",
@@ -1080,8 +1049,7 @@
                       "type": "string",
                       "x-order": 2
                     }
-                  },
-                  "x-order": 3
+                  }
                 },
                 "slack_config": {
                   "description": "SlackConfig represents Slack configuration.",
@@ -1095,8 +1063,7 @@
                       "type": "boolean",
                       "x-order": 0
                     }
-                  },
-                  "x-order": 4
+                  }
                 },
                 "summary": {
                   "description": "Short human-readable summary. Empty value will not change it.",
@@ -1127,8 +1094,7 @@
                               "type": "string",
                               "x-order": 0
                             }
-                          },
-                          "x-order": 0
+                          }
                         },
                         "bearer_token": {
                           "type": "string",
@@ -1186,11 +1152,9 @@
                               "type": "string",
                               "x-order": 3
                             }
-                          },
-                          "x-order": 3
+                          }
                         }
-                      },
-                      "x-order": 2
+                      }
                     },
                     "max_alerts": {
                       "type": "integer",
@@ -1205,8 +1169,7 @@
                       "type": "string",
                       "x-order": 1
                     }
-                  },
-                  "x-order": 5
+                  }
                 }
               }
             }
@@ -1292,8 +1255,7 @@
                       "format": "int32",
                       "x-order": 0
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -1336,8 +1298,7 @@
                             },
                             "x-order": 1
                           }
-                        },
-                        "x-order": 2
+                        }
                       },
                       "pagerduty_config": {
                         "description": "PagerDutyConfig represents PagerDuty configuration.",
@@ -1357,8 +1318,7 @@
                             "type": "string",
                             "x-order": 2
                           }
-                        },
-                        "x-order": 3
+                        }
                       },
                       "slack_config": {
                         "description": "SlackConfig represents Slack configuration.",
@@ -1372,8 +1332,7 @@
                             "type": "boolean",
                             "x-order": 0
                           }
-                        },
-                        "x-order": 4
+                        }
                       },
                       "summary": {
                         "description": "Short human-readable summary.",
@@ -1404,8 +1363,7 @@
                                     "type": "string",
                                     "x-order": 0
                                   }
-                                },
-                                "x-order": 0
+                                }
                               },
                               "bearer_token": {
                                 "type": "string",
@@ -1463,11 +1421,9 @@
                                     "type": "string",
                                     "x-order": 3
                                   }
-                                },
-                                "x-order": 3
+                                }
                               }
-                            },
-                            "x-order": 2
+                            }
                           },
                           "max_alerts": {
                             "type": "integer",
@@ -1482,8 +1438,7 @@
                             "type": "string",
                             "x-order": 1
                           }
-                        },
-                        "x-order": 5
+                        }
                       }
                     }
                   },
@@ -1505,8 +1460,7 @@
                       "format": "int32",
                       "x-order": 1
                     }
-                  },
-                  "x-order": 1
+                  }
                 }
               }
             }
@@ -1680,8 +1634,7 @@
                           "FILTER_TYPE_INVALID",
                           "EQUAL",
                           "REGEX"
-                        ],
-                        "x-order": 0
+                        ]
                       },
                       "value": {
                         "type": "string",
@@ -1738,8 +1691,7 @@
                           "BOOL",
                           "FLOAT",
                           "STRING"
-                        ],
-                        "x-order": 1
+                        ]
                       }
                     }
                   },
@@ -1759,8 +1711,7 @@
                     "SEVERITY_NOTICE",
                     "SEVERITY_INFO",
                     "SEVERITY_DEBUG"
-                  ],
-                  "x-order": 6
+                  ]
                 },
                 "source_rule_id": {
                   "description": "ID of the rule that will be used as source. Can't be specified simultaneously with template_name.",
@@ -1936,8 +1887,7 @@
                       "format": "int32",
                       "x-order": 0
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -1995,8 +1945,7 @@
                                   },
                                   "x-order": 1
                                 }
-                              },
-                              "x-order": 2
+                              }
                             },
                             "pagerduty_config": {
                               "description": "PagerDutyConfig represents PagerDuty configuration.",
@@ -2016,8 +1965,7 @@
                                   "type": "string",
                                   "x-order": 2
                                 }
-                              },
-                              "x-order": 3
+                              }
                             },
                             "slack_config": {
                               "description": "SlackConfig represents Slack configuration.",
@@ -2031,8 +1979,7 @@
                                   "type": "boolean",
                                   "x-order": 0
                                 }
-                              },
-                              "x-order": 4
+                              }
                             },
                             "summary": {
                               "description": "Short human-readable summary.",
@@ -2063,8 +2010,7 @@
                                           "type": "string",
                                           "x-order": 0
                                         }
-                                      },
-                                      "x-order": 0
+                                      }
                                     },
                                     "bearer_token": {
                                       "type": "string",
@@ -2122,11 +2068,9 @@
                                           "type": "string",
                                           "x-order": 3
                                         }
-                                      },
-                                      "x-order": 3
+                                      }
                                     }
-                                  },
-                                  "x-order": 2
+                                  }
                                 },
                                 "max_alerts": {
                                   "type": "integer",
@@ -2141,8 +2085,7 @@
                                   "type": "string",
                                   "x-order": 1
                                 }
-                              },
-                              "x-order": 5
+                              }
                             }
                           }
                         },
@@ -2181,8 +2124,7 @@
                           "SEVERITY_NOTICE",
                           "SEVERITY_INFO",
                           "SEVERITY_DEBUG"
-                        ],
-                        "x-order": 11
+                        ]
                       },
                       "disabled": {
                         "description": "True if that rule is disabled.",
@@ -2218,8 +2160,7 @@
                                 "FILTER_TYPE_INVALID",
                                 "EQUAL",
                                 "REGEX"
-                              ],
-                              "x-order": 0
+                              ]
                             },
                             "value": {
                               "type": "string",
@@ -2266,11 +2207,9 @@
                                     "DO_NOT_CHANGE",
                                     "TRUE",
                                     "FALSE"
-                                  ],
-                                  "x-order": 0
+                                  ]
                                 }
-                              },
-                              "x-order": 4
+                              }
                             },
                             "float": {
                               "description": "FloatParamDefinition represents float parameter's default value and valid range.",
@@ -2309,8 +2248,7 @@
                                   "format": "double",
                                   "x-order": 3
                                 }
-                              },
-                              "x-order": 5
+                              }
                             },
                             "name": {
                               "description": "Machine-readable name (ID) that is used in expression.",
@@ -2331,8 +2269,7 @@
                                   "type": "boolean",
                                   "x-order": 0
                                 }
-                              },
-                              "x-order": 6
+                              }
                             },
                             "summary": {
                               "description": "Short human-readable parameter summary.",
@@ -2348,8 +2285,7 @@
                                 "BOOL",
                                 "FLOAT",
                                 "STRING"
-                              ],
-                              "x-order": 3
+                              ]
                             },
                             "unit": {
                               "description": "ParamUnit represents template parameter unit.\n\n - PARAM_UNIT_INVALID: Invalid, unknown or absent.\n - PERCENTAGE: %\n - SECONDS: s",
@@ -2359,8 +2295,7 @@
                                 "PARAM_UNIT_INVALID",
                                 "PERCENTAGE",
                                 "SECONDS"
-                              ],
-                              "x-order": 2
+                              ]
                             }
                           }
                         },
@@ -2403,8 +2338,7 @@
                                 "BOOL",
                                 "FLOAT",
                                 "STRING"
-                              ],
-                              "x-order": 1
+                              ]
                             }
                           }
                         },
@@ -2429,8 +2363,7 @@
                           "SEVERITY_NOTICE",
                           "SEVERITY_INFO",
                           "SEVERITY_DEBUG"
-                        ],
-                        "x-order": 12
+                        ]
                       },
                       "summary": {
                         "description": "Rule human-readable summary.",
@@ -2462,8 +2395,7 @@
                       "format": "int32",
                       "x-order": 1
                     }
-                  },
-                  "x-order": 1
+                  }
                 }
               }
             }
@@ -2533,8 +2465,7 @@
                     "DO_NOT_CHANGE",
                     "TRUE",
                     "FALSE"
-                  ],
-                  "x-order": 1
+                  ]
                 },
                 "rule_id": {
                   "description": "Rule ID.",
@@ -2649,8 +2580,7 @@
                           "FILTER_TYPE_INVALID",
                           "EQUAL",
                           "REGEX"
-                        ],
-                        "x-order": 0
+                        ]
                       },
                       "value": {
                         "type": "string",
@@ -2707,8 +2637,7 @@
                           "BOOL",
                           "FLOAT",
                           "STRING"
-                        ],
-                        "x-order": 1
+                        ]
                       }
                     }
                   },
@@ -2733,8 +2662,7 @@
                     "SEVERITY_NOTICE",
                     "SEVERITY_INFO",
                     "SEVERITY_DEBUG"
-                  ],
-                  "x-order": 5
+                  ]
                 }
               }
             }
@@ -2965,8 +2893,7 @@
                       "format": "int32",
                       "x-order": 0
                     }
-                  },
-                  "x-order": 1
+                  }
                 },
                 "reload": {
                   "description": "If true, template files will be re-read from disk.",
@@ -3045,11 +2972,9 @@
                                     "DO_NOT_CHANGE",
                                     "TRUE",
                                     "FALSE"
-                                  ],
-                                  "x-order": 0
+                                  ]
                                 }
-                              },
-                              "x-order": 4
+                              }
                             },
                             "float": {
                               "description": "FloatParamDefinition represents float parameter's default value and valid range.",
@@ -3088,8 +3013,7 @@
                                   "format": "double",
                                   "x-order": 3
                                 }
-                              },
-                              "x-order": 5
+                              }
                             },
                             "name": {
                               "description": "Machine-readable name (ID) that is used in expression.",
@@ -3110,8 +3034,7 @@
                                   "type": "boolean",
                                   "x-order": 0
                                 }
-                              },
-                              "x-order": 6
+                              }
                             },
                             "summary": {
                               "description": "Short human-readable parameter summary.",
@@ -3127,8 +3050,7 @@
                                 "BOOL",
                                 "FLOAT",
                                 "STRING"
-                              ],
-                              "x-order": 3
+                              ]
                             },
                             "unit": {
                               "description": "ParamUnit represents template parameter unit.\n\n - PARAM_UNIT_INVALID: Invalid, unknown or absent.\n - PERCENTAGE: %\n - SECONDS: s",
@@ -3138,8 +3060,7 @@
                                 "PARAM_UNIT_INVALID",
                                 "PERCENTAGE",
                                 "SECONDS"
-                              ],
-                              "x-order": 2
+                              ]
                             }
                           }
                         },
@@ -3159,8 +3080,7 @@
                           "SEVERITY_NOTICE",
                           "SEVERITY_INFO",
                           "SEVERITY_DEBUG"
-                        ],
-                        "x-order": 5
+                        ]
                       },
                       "source": {
                         "description": "TemplateSource defines template source.\n\n - BUILT_IN: Template that is shipped with PMM Server releases.\n - SAAS: Template that is downloaded from check.percona.com.\n - USER_FILE: Templated loaded from user-suplied file.\n - USER_API: Templated created via API.",
@@ -3172,8 +3092,7 @@
                           "SAAS",
                           "USER_FILE",
                           "USER_API"
-                        ],
-                        "x-order": 8
+                        ]
                       },
                       "summary": {
                         "description": "Short human-readable summary.",
@@ -3205,8 +3124,7 @@
                       "format": "int32",
                       "x-order": 1
                     }
-                  },
-                  "x-order": 1
+                  }
                 }
               }
             }

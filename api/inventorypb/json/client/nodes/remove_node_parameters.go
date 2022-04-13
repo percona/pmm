@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewRemoveNodeParams creates a new RemoveNodeParams object
-// with the default values initialized.
+// NewRemoveNodeParams creates a new RemoveNodeParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewRemoveNodeParams() *RemoveNodeParams {
-	var ()
 	return &RemoveNodeParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewRemoveNodeParamsWithTimeout creates a new RemoveNodeParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewRemoveNodeParamsWithTimeout(timeout time.Duration) *RemoveNodeParams {
-	var ()
 	return &RemoveNodeParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewRemoveNodeParamsWithContext creates a new RemoveNodeParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewRemoveNodeParamsWithContext(ctx context.Context) *RemoveNodeParams {
-	var ()
 	return &RemoveNodeParams{
-
 		Context: ctx,
 	}
 }
 
 // NewRemoveNodeParamsWithHTTPClient creates a new RemoveNodeParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewRemoveNodeParamsWithHTTPClient(client *http.Client) *RemoveNodeParams {
-	var ()
 	return &RemoveNodeParams{
 		HTTPClient: client,
 	}
 }
 
-/*RemoveNodeParams contains all the parameters to send to the API endpoint
-for the remove node operation typically these are written to a http.Request
+/* RemoveNodeParams contains all the parameters to send to the API endpoint
+   for the remove node operation.
+
+   Typically these are written to a http.Request.
 */
 type RemoveNodeParams struct {
 
-	/*Body*/
+	// Body.
 	Body RemoveNodeBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the remove node params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *RemoveNodeParams) WithDefaults() *RemoveNodeParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the remove node params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *RemoveNodeParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the remove node params
@@ -119,7 +133,6 @@ func (o *RemoveNodeParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Re
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

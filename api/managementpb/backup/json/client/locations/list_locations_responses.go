@@ -6,6 +6,7 @@ package locations
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewListLocationsOK() *ListLocationsOK {
 	return &ListLocationsOK{}
 }
 
-/*ListLocationsOK handles this case with default header values.
+/* ListLocationsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type ListLocationsOK struct {
 func (o *ListLocationsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Locations/List][%d] listLocationsOk  %+v", 200, o.Payload)
 }
-
 func (o *ListLocationsOK) GetPayload() *ListLocationsOKBody {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewListLocationsDefault(code int) *ListLocationsDefault {
 	}
 }
 
-/*ListLocationsDefault handles this case with default header values.
+/* ListLocationsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *ListLocationsDefault) Code() int {
 func (o *ListLocationsDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Locations/List][%d] ListLocations default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ListLocationsDefault) GetPayload() *ListLocationsDefaultBody {
 	return o.Payload
 }
@@ -132,7 +131,7 @@ type ListLocationsDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*ListLocationsDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this list locations default body
@@ -150,7 +149,6 @@ func (o *ListLocationsDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *ListLocationsDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -164,6 +162,42 @@ func (o *ListLocationsDefaultBody) validateDetails(formats strfmt.Registry) erro
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ListLocations default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ListLocations default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list locations default body based on the context it is used
+func (o *ListLocationsDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListLocationsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("ListLocations default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ListLocations default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -192,13 +226,54 @@ func (o *ListLocationsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*ListLocationsDefaultBodyDetailsItems0 list locations default body details items0
+swagger:model ListLocationsDefaultBodyDetailsItems0
+*/
+type ListLocationsDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this list locations default body details items0
+func (o *ListLocationsDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list locations default body details items0 based on context it is used
+func (o *ListLocationsDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListLocationsDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListLocationsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res ListLocationsDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*ListLocationsOKBody list locations OK body
 swagger:model ListLocationsOKBody
 */
 type ListLocationsOKBody struct {
 
 	// locations
-	Locations []*LocationsItems0 `json:"locations"`
+	Locations []*ListLocationsOKBodyLocationsItems0 `json:"locations"`
 }
 
 // Validate validates this list locations OK body
@@ -216,7 +291,6 @@ func (o *ListLocationsOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *ListLocationsOKBody) validateLocations(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Locations) { // not required
 		return nil
 	}
@@ -230,6 +304,42 @@ func (o *ListLocationsOKBody) validateLocations(formats strfmt.Registry) error {
 			if err := o.Locations[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listLocationsOk" + "." + "locations" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listLocationsOk" + "." + "locations" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list locations OK body based on the context it is used
+func (o *ListLocationsOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateLocations(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListLocationsOKBody) contextValidateLocations(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Locations); i++ {
+
+		if o.Locations[i] != nil {
+			if err := o.Locations[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listLocationsOk" + "." + "locations" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listLocationsOk" + "." + "locations" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -258,10 +368,10 @@ func (o *ListLocationsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*LocationsItems0 Location represents single Backup Location.
-swagger:model LocationsItems0
+/*ListLocationsOKBodyLocationsItems0 Location represents single Backup Location.
+swagger:model ListLocationsOKBodyLocationsItems0
 */
-type LocationsItems0 struct {
+type ListLocationsOKBodyLocationsItems0 struct {
 
 	// Machine-readable ID.
 	LocationID string `json:"location_id,omitempty"`
@@ -273,17 +383,17 @@ type LocationsItems0 struct {
 	Description string `json:"description,omitempty"`
 
 	// pmm client config
-	PMMClientConfig *LocationsItems0PMMClientConfig `json:"pmm_client_config,omitempty"`
+	PMMClientConfig *ListLocationsOKBodyLocationsItems0PMMClientConfig `json:"pmm_client_config,omitempty"`
 
 	// pmm server config
-	PMMServerConfig *LocationsItems0PMMServerConfig `json:"pmm_server_config,omitempty"`
+	PMMServerConfig *ListLocationsOKBodyLocationsItems0PMMServerConfig `json:"pmm_server_config,omitempty"`
 
 	// s3 config
-	S3Config *LocationsItems0S3Config `json:"s3_config,omitempty"`
+	S3Config *ListLocationsOKBodyLocationsItems0S3Config `json:"s3_config,omitempty"`
 }
 
-// Validate validates this locations items0
-func (o *LocationsItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this list locations OK body locations items0
+func (o *ListLocationsOKBodyLocationsItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validatePMMClientConfig(formats); err != nil {
@@ -304,8 +414,7 @@ func (o *LocationsItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *LocationsItems0) validatePMMClientConfig(formats strfmt.Registry) error {
-
+func (o *ListLocationsOKBodyLocationsItems0) validatePMMClientConfig(formats strfmt.Registry) error {
 	if swag.IsZero(o.PMMClientConfig) { // not required
 		return nil
 	}
@@ -314,6 +423,8 @@ func (o *LocationsItems0) validatePMMClientConfig(formats strfmt.Registry) error
 		if err := o.PMMClientConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("pmm_client_config")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("pmm_client_config")
 			}
 			return err
 		}
@@ -322,8 +433,7 @@ func (o *LocationsItems0) validatePMMClientConfig(formats strfmt.Registry) error
 	return nil
 }
 
-func (o *LocationsItems0) validatePMMServerConfig(formats strfmt.Registry) error {
-
+func (o *ListLocationsOKBodyLocationsItems0) validatePMMServerConfig(formats strfmt.Registry) error {
 	if swag.IsZero(o.PMMServerConfig) { // not required
 		return nil
 	}
@@ -332,6 +442,8 @@ func (o *LocationsItems0) validatePMMServerConfig(formats strfmt.Registry) error
 		if err := o.PMMServerConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("pmm_server_config")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("pmm_server_config")
 			}
 			return err
 		}
@@ -340,8 +452,7 @@ func (o *LocationsItems0) validatePMMServerConfig(formats strfmt.Registry) error
 	return nil
 }
 
-func (o *LocationsItems0) validateS3Config(formats strfmt.Registry) error {
-
+func (o *ListLocationsOKBodyLocationsItems0) validateS3Config(formats strfmt.Registry) error {
 	if swag.IsZero(o.S3Config) { // not required
 		return nil
 	}
@@ -350,6 +461,78 @@ func (o *LocationsItems0) validateS3Config(formats strfmt.Registry) error {
 		if err := o.S3Config.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("s3_config")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("s3_config")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list locations OK body locations items0 based on the context it is used
+func (o *ListLocationsOKBodyLocationsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidatePMMClientConfig(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidatePMMServerConfig(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateS3Config(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListLocationsOKBodyLocationsItems0) contextValidatePMMClientConfig(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.PMMClientConfig != nil {
+		if err := o.PMMClientConfig.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("pmm_client_config")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("pmm_client_config")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ListLocationsOKBodyLocationsItems0) contextValidatePMMServerConfig(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.PMMServerConfig != nil {
+		if err := o.PMMServerConfig.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("pmm_server_config")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("pmm_server_config")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ListLocationsOKBodyLocationsItems0) contextValidateS3Config(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.S3Config != nil {
+		if err := o.S3Config.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("s3_config")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("s3_config")
 			}
 			return err
 		}
@@ -359,7 +542,7 @@ func (o *LocationsItems0) validateS3Config(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (o *LocationsItems0) MarshalBinary() ([]byte, error) {
+func (o *ListLocationsOKBodyLocationsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -367,8 +550,8 @@ func (o *LocationsItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *LocationsItems0) UnmarshalBinary(b []byte) error {
-	var res LocationsItems0
+func (o *ListLocationsOKBodyLocationsItems0) UnmarshalBinary(b []byte) error {
+	var res ListLocationsOKBodyLocationsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -376,22 +559,27 @@ func (o *LocationsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*LocationsItems0PMMClientConfig PMMClientLocationConfig represents file system config inside pmm-client.
-swagger:model LocationsItems0PMMClientConfig
+/*ListLocationsOKBodyLocationsItems0PMMClientConfig PMMClientLocationConfig represents file system config inside pmm-client.
+swagger:model ListLocationsOKBodyLocationsItems0PMMClientConfig
 */
-type LocationsItems0PMMClientConfig struct {
+type ListLocationsOKBodyLocationsItems0PMMClientConfig struct {
 
 	// path
 	Path string `json:"path,omitempty"`
 }
 
-// Validate validates this locations items0 PMM client config
-func (o *LocationsItems0PMMClientConfig) Validate(formats strfmt.Registry) error {
+// Validate validates this list locations OK body locations items0 PMM client config
+func (o *ListLocationsOKBodyLocationsItems0PMMClientConfig) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list locations OK body locations items0 PMM client config based on context it is used
+func (o *ListLocationsOKBodyLocationsItems0PMMClientConfig) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *LocationsItems0PMMClientConfig) MarshalBinary() ([]byte, error) {
+func (o *ListLocationsOKBodyLocationsItems0PMMClientConfig) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -399,8 +587,8 @@ func (o *LocationsItems0PMMClientConfig) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *LocationsItems0PMMClientConfig) UnmarshalBinary(b []byte) error {
-	var res LocationsItems0PMMClientConfig
+func (o *ListLocationsOKBodyLocationsItems0PMMClientConfig) UnmarshalBinary(b []byte) error {
+	var res ListLocationsOKBodyLocationsItems0PMMClientConfig
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -408,22 +596,27 @@ func (o *LocationsItems0PMMClientConfig) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*LocationsItems0PMMServerConfig PMMServerLocationConfig represents file system config inside pmm-server.
-swagger:model LocationsItems0PMMServerConfig
+/*ListLocationsOKBodyLocationsItems0PMMServerConfig PMMServerLocationConfig represents file system config inside pmm-server.
+swagger:model ListLocationsOKBodyLocationsItems0PMMServerConfig
 */
-type LocationsItems0PMMServerConfig struct {
+type ListLocationsOKBodyLocationsItems0PMMServerConfig struct {
 
 	// path
 	Path string `json:"path,omitempty"`
 }
 
-// Validate validates this locations items0 PMM server config
-func (o *LocationsItems0PMMServerConfig) Validate(formats strfmt.Registry) error {
+// Validate validates this list locations OK body locations items0 PMM server config
+func (o *ListLocationsOKBodyLocationsItems0PMMServerConfig) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list locations OK body locations items0 PMM server config based on context it is used
+func (o *ListLocationsOKBodyLocationsItems0PMMServerConfig) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *LocationsItems0PMMServerConfig) MarshalBinary() ([]byte, error) {
+func (o *ListLocationsOKBodyLocationsItems0PMMServerConfig) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -431,8 +624,8 @@ func (o *LocationsItems0PMMServerConfig) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *LocationsItems0PMMServerConfig) UnmarshalBinary(b []byte) error {
-	var res LocationsItems0PMMServerConfig
+func (o *ListLocationsOKBodyLocationsItems0PMMServerConfig) UnmarshalBinary(b []byte) error {
+	var res ListLocationsOKBodyLocationsItems0PMMServerConfig
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -440,10 +633,10 @@ func (o *LocationsItems0PMMServerConfig) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*LocationsItems0S3Config S3LocationConfig represents S3 bucket configuration.
-swagger:model LocationsItems0S3Config
+/*ListLocationsOKBodyLocationsItems0S3Config S3LocationConfig represents S3 bucket configuration.
+swagger:model ListLocationsOKBodyLocationsItems0S3Config
 */
-type LocationsItems0S3Config struct {
+type ListLocationsOKBodyLocationsItems0S3Config struct {
 
 	// endpoint
 	Endpoint string `json:"endpoint,omitempty"`
@@ -458,13 +651,18 @@ type LocationsItems0S3Config struct {
 	BucketName string `json:"bucket_name,omitempty"`
 }
 
-// Validate validates this locations items0 s3 config
-func (o *LocationsItems0S3Config) Validate(formats strfmt.Registry) error {
+// Validate validates this list locations OK body locations items0 s3 config
+func (o *ListLocationsOKBodyLocationsItems0S3Config) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list locations OK body locations items0 s3 config based on context it is used
+func (o *ListLocationsOKBodyLocationsItems0S3Config) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *LocationsItems0S3Config) MarshalBinary() ([]byte, error) {
+func (o *ListLocationsOKBodyLocationsItems0S3Config) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -472,8 +670,8 @@ func (o *LocationsItems0S3Config) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *LocationsItems0S3Config) UnmarshalBinary(b []byte) error {
-	var res LocationsItems0S3Config
+func (o *ListLocationsOKBodyLocationsItems0S3Config) UnmarshalBinary(b []byte) error {
+	var res ListLocationsOKBodyLocationsItems0S3Config
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

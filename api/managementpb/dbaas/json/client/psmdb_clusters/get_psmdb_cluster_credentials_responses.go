@@ -6,6 +6,7 @@ package psmdb_clusters
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewGetPSMDBClusterCredentialsOK() *GetPSMDBClusterCredentialsOK {
 	return &GetPSMDBClusterCredentialsOK{}
 }
 
-/*GetPSMDBClusterCredentialsOK handles this case with default header values.
+/* GetPSMDBClusterCredentialsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type GetPSMDBClusterCredentialsOK struct {
 func (o *GetPSMDBClusterCredentialsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/PSMDBClusters/GetCredentials][%d] getPsmdbClusterCredentialsOk  %+v", 200, o.Payload)
 }
-
 func (o *GetPSMDBClusterCredentialsOK) GetPayload() *GetPSMDBClusterCredentialsOKBody {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewGetPSMDBClusterCredentialsDefault(code int) *GetPSMDBClusterCredentialsD
 	}
 }
 
-/*GetPSMDBClusterCredentialsDefault handles this case with default header values.
+/* GetPSMDBClusterCredentialsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *GetPSMDBClusterCredentialsDefault) Code() int {
 func (o *GetPSMDBClusterCredentialsDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/PSMDBClusters/GetCredentials][%d] GetPSMDBClusterCredentials default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *GetPSMDBClusterCredentialsDefault) GetPayload() *GetPSMDBClusterCredentialsDefaultBody {
 	return o.Payload
 }
@@ -131,6 +130,11 @@ type GetPSMDBClusterCredentialsBody struct {
 
 // Validate validates this get PSMDB cluster credentials body
 func (o *GetPSMDBClusterCredentialsBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get PSMDB cluster credentials body based on context it is used
+func (o *GetPSMDBClusterCredentialsBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -167,7 +171,7 @@ type GetPSMDBClusterCredentialsDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*GetPSMDBClusterCredentialsDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this get PSMDB cluster credentials default body
@@ -185,7 +189,6 @@ func (o *GetPSMDBClusterCredentialsDefaultBody) Validate(formats strfmt.Registry
 }
 
 func (o *GetPSMDBClusterCredentialsDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -199,6 +202,42 @@ func (o *GetPSMDBClusterCredentialsDefaultBody) validateDetails(formats strfmt.R
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("GetPSMDBClusterCredentials default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("GetPSMDBClusterCredentials default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get PSMDB cluster credentials default body based on the context it is used
+func (o *GetPSMDBClusterCredentialsDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetPSMDBClusterCredentialsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("GetPSMDBClusterCredentials default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("GetPSMDBClusterCredentials default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -220,6 +259,47 @@ func (o *GetPSMDBClusterCredentialsDefaultBody) MarshalBinary() ([]byte, error) 
 // UnmarshalBinary interface implementation
 func (o *GetPSMDBClusterCredentialsDefaultBody) UnmarshalBinary(b []byte) error {
 	var res GetPSMDBClusterCredentialsDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetPSMDBClusterCredentialsDefaultBodyDetailsItems0 get PSMDB cluster credentials default body details items0
+swagger:model GetPSMDBClusterCredentialsDefaultBodyDetailsItems0
+*/
+type GetPSMDBClusterCredentialsDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this get PSMDB cluster credentials default body details items0
+func (o *GetPSMDBClusterCredentialsDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get PSMDB cluster credentials default body details items0 based on context it is used
+func (o *GetPSMDBClusterCredentialsDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetPSMDBClusterCredentialsDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetPSMDBClusterCredentialsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetPSMDBClusterCredentialsDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -251,7 +331,6 @@ func (o *GetPSMDBClusterCredentialsOKBody) Validate(formats strfmt.Registry) err
 }
 
 func (o *GetPSMDBClusterCredentialsOKBody) validateConnectionCredentials(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.ConnectionCredentials) { // not required
 		return nil
 	}
@@ -260,6 +339,38 @@ func (o *GetPSMDBClusterCredentialsOKBody) validateConnectionCredentials(formats
 		if err := o.ConnectionCredentials.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getPsmdbClusterCredentialsOk" + "." + "connection_credentials")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getPsmdbClusterCredentialsOk" + "." + "connection_credentials")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get PSMDB cluster credentials OK body based on the context it is used
+func (o *GetPSMDBClusterCredentialsOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateConnectionCredentials(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetPSMDBClusterCredentialsOKBody) contextValidateConnectionCredentials(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.ConnectionCredentials != nil {
+		if err := o.ConnectionCredentials.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getPsmdbClusterCredentialsOk" + "." + "connection_credentials")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getPsmdbClusterCredentialsOk" + "." + "connection_credentials")
 			}
 			return err
 		}
@@ -310,6 +421,11 @@ type GetPSMDBClusterCredentialsOKBodyConnectionCredentials struct {
 
 // Validate validates this get PSMDB cluster credentials OK body connection credentials
 func (o *GetPSMDBClusterCredentialsOKBodyConnectionCredentials) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get PSMDB cluster credentials OK body connection credentials based on context it is used
+func (o *GetPSMDBClusterCredentialsOKBodyConnectionCredentials) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

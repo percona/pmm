@@ -164,11 +164,9 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 7
+                      ]
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -348,8 +346,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -604,8 +601,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 10
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -622,8 +618,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -841,8 +836,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 14
+                      ]
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
@@ -885,8 +879,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 0
+                  }
                 },
                 "table_count": {
                   "description": "Actual table count at the moment of adding.",
@@ -1049,11 +1042,9 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 6
+                      ]
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -1166,8 +1157,7 @@
                       "type": "string",
                       "x-order": 1
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -1379,8 +1369,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 10
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -1397,8 +1386,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -1595,8 +1583,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 10
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -1613,8 +1600,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -1799,8 +1785,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 8
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -1817,8 +1802,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -2003,8 +1987,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 12
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -2036,8 +2019,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -2234,8 +2216,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 13
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -2267,8 +2248,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -2453,8 +2433,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 9
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -2471,8 +2450,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -2647,8 +2625,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 8
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -2665,8 +2642,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -2857,11 +2833,9 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 6
+                      ]
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -2965,8 +2939,7 @@
                       "type": "boolean",
                       "x-order": 3
                     }
-                  },
-                  "x-order": 1
+                  }
                 }
               }
             }
@@ -3043,11 +3016,9 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 7
+                      ]
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -3151,8 +3122,7 @@
                       "type": "boolean",
                       "x-order": 3
                     }
-                  },
-                  "x-order": 1
+                  }
                 }
               }
             }
@@ -3222,8 +3192,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -3327,8 +3296,7 @@
                       "type": "boolean",
                       "x-order": 3
                     }
-                  },
-                  "x-order": 1
+                  }
                 }
               }
             }
@@ -3422,8 +3390,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 10
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -3440,8 +3407,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -3545,8 +3511,7 @@
                       "type": "boolean",
                       "x-order": 3
                     }
-                  },
-                  "x-order": 1
+                  }
                 }
               }
             }
@@ -3621,8 +3586,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 14
+                      ]
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
@@ -3665,8 +3629,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -3770,8 +3733,7 @@
                       "type": "boolean",
                       "x-order": 3
                     }
-                  },
-                  "x-order": 1
+                  }
                 }
               }
             }
@@ -3841,11 +3803,9 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 6
+                      ]
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -3949,8 +3909,7 @@
                       "type": "boolean",
                       "x-order": 3
                     }
-                  },
-                  "x-order": 1
+                  }
                 }
               }
             }
@@ -4025,8 +3984,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 10
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -4043,8 +4001,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -4148,8 +4105,7 @@
                       "type": "boolean",
                       "x-order": 3
                     }
-                  },
-                  "x-order": 1
+                  }
                 }
               }
             }
@@ -4224,8 +4180,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 10
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -4242,8 +4197,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -4347,8 +4301,7 @@
                       "type": "boolean",
                       "x-order": 3
                     }
-                  },
-                  "x-order": 1
+                  }
                 }
               }
             }
@@ -4404,8 +4357,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 8
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -4422,8 +4374,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -4527,8 +4478,7 @@
                       "type": "boolean",
                       "x-order": 3
                     }
-                  },
-                  "x-order": 1
+                  }
                 }
               }
             }
@@ -4589,8 +4539,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 12
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -4622,8 +4571,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -4727,8 +4675,7 @@
                       "type": "boolean",
                       "x-order": 3
                     }
-                  },
-                  "x-order": 1
+                  }
                 }
               }
             }
@@ -4795,8 +4742,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 13
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -4828,8 +4774,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -4933,8 +4878,7 @@
                       "type": "boolean",
                       "x-order": 3
                     }
-                  },
-                  "x-order": 1
+                  }
                 }
               }
             }
@@ -4995,8 +4939,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 9
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -5013,8 +4956,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -5118,8 +5060,7 @@
                       "type": "boolean",
                       "x-order": 3
                     }
-                  },
-                  "x-order": 1
+                  }
                 }
               }
             }
@@ -5175,8 +5116,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 8
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -5193,8 +5133,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -5298,8 +5237,7 @@
                       "type": "boolean",
                       "x-order": 3
                     }
-                  },
-                  "x-order": 1
+                  }
                 }
               }
             }
@@ -5381,11 +5319,9 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 6
+                      ]
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -5528,11 +5464,9 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 7
+                      ]
                     }
-                  },
-                  "x-order": 14
+                  }
                 },
                 "external_exporter": {
                   "description": "ExternalExporter runs on any Node type, including Remote Node.",
@@ -5592,8 +5526,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 13
+                  }
                 },
                 "mongodb_exporter": {
                   "description": "MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.",
@@ -5677,8 +5610,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 10
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -5695,8 +5627,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 4
+                  }
                 },
                 "mysqld_exporter": {
                   "description": "MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
@@ -5761,8 +5692,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 14
+                      ]
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
@@ -5805,8 +5735,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 3
+                  }
                 },
                 "node_exporter": {
                   "description": "NodeExporter runs on Generic or Container Node and exposes its metrics.",
@@ -5866,11 +5795,9 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 6
+                      ]
                     }
-                  },
-                  "x-order": 2
+                  }
                 },
                 "pmm_agent": {
                   "description": "PMMAgent runs on Generic or Container Node.",
@@ -5899,8 +5826,7 @@
                       "type": "string",
                       "x-order": 1
                     }
-                  },
-                  "x-order": 0
+                  }
                 },
                 "postgres_exporter": {
                   "description": "PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.",
@@ -5965,8 +5891,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 10
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -5983,8 +5908,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 5
+                  }
                 },
                 "proxysql_exporter": {
                   "description": "ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.",
@@ -6049,8 +5973,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 10
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -6067,8 +5990,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 6
+                  }
                 },
                 "qan_mongodb_profiler_agent": {
                   "description": "QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.",
@@ -6114,8 +6036,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 8
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -6132,8 +6053,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 9
+                  }
                 },
                 "qan_mysql_perfschema_agent": {
                   "description": "QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.",
@@ -6184,8 +6104,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 12
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -6217,8 +6136,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 7
+                  }
                 },
                 "qan_mysql_slowlog_agent": {
                   "description": "QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.",
@@ -6275,8 +6193,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 13
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -6308,8 +6225,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 8
+                  }
                 },
                 "qan_postgresql_pgstatements_agent": {
                   "description": "QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
@@ -6355,8 +6271,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 8
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -6373,8 +6288,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 10
+                  }
                 },
                 "qan_postgresql_pgstatmonitor_agent": {
                   "description": "QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
@@ -6425,8 +6339,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 9
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -6443,8 +6356,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 11
+                  }
                 },
                 "rds_exporter": {
                   "description": "RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.",
@@ -6516,11 +6428,9 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 6
+                      ]
                     }
-                  },
-                  "x-order": 12
+                  }
                 },
                 "vmagent": {
                   "description": "VMAgent runs on Generic or Container Node alongside pmm-agent.\nIt scrapes other exporter Agents that are configured with push_metrics_enabled\nand uses Prometheus remote write protocol to push metrics to PMM Server.",
@@ -6548,11 +6458,9 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 2
+                      ]
                     }
-                  },
-                  "x-order": 1
+                  }
                 }
               }
             }
@@ -6636,8 +6544,7 @@
                     "RDS_EXPORTER",
                     "EXTERNAL_EXPORTER",
                     "AZURE_DATABASE_EXPORTER"
-                  ],
-                  "x-order": 3
+                  ]
                 },
                 "node_id": {
                   "description": "Return only Agents that provide insights for that Node.\nExactly one of these parameters should be present: pmm_agent_id, node_id, service_id.",
@@ -6731,8 +6638,7 @@
                           "STOPPING",
                           "DONE",
                           "UNKNOWN"
-                        ],
-                        "x-order": 7
+                        ]
                       }
                     }
                   },
@@ -6886,8 +6792,7 @@
                           "STOPPING",
                           "DONE",
                           "UNKNOWN"
-                        ],
-                        "x-order": 10
+                        ]
                       },
                       "tls": {
                         "description": "Use TLS for database connections.",
@@ -6973,8 +6878,7 @@
                           "STOPPING",
                           "DONE",
                           "UNKNOWN"
-                        ],
-                        "x-order": 14
+                        ]
                       },
                       "tablestats_group_disabled": {
                         "description": "True if tablestats group collectors are currently disabled.",
@@ -7081,8 +6985,7 @@
                           "STOPPING",
                           "DONE",
                           "UNKNOWN"
-                        ],
-                        "x-order": 6
+                        ]
                       }
                     }
                   },
@@ -7186,8 +7089,7 @@
                           "STOPPING",
                           "DONE",
                           "UNKNOWN"
-                        ],
-                        "x-order": 10
+                        ]
                       },
                       "tls": {
                         "description": "Use TLS for database connections.",
@@ -7273,8 +7175,7 @@
                           "STOPPING",
                           "DONE",
                           "UNKNOWN"
-                        ],
-                        "x-order": 10
+                        ]
                       },
                       "tls": {
                         "description": "Use TLS for database connections.",
@@ -7341,8 +7242,7 @@
                           "STOPPING",
                           "DONE",
                           "UNKNOWN"
-                        ],
-                        "x-order": 8
+                        ]
                       },
                       "tls": {
                         "description": "Use TLS for database connections.",
@@ -7414,8 +7314,7 @@
                           "STOPPING",
                           "DONE",
                           "UNKNOWN"
-                        ],
-                        "x-order": 12
+                        ]
                       },
                       "tls": {
                         "description": "Use TLS for database connections.",
@@ -7508,8 +7407,7 @@
                           "STOPPING",
                           "DONE",
                           "UNKNOWN"
-                        ],
-                        "x-order": 13
+                        ]
                       },
                       "tls": {
                         "description": "Use TLS for database connections.",
@@ -7591,8 +7489,7 @@
                           "STOPPING",
                           "DONE",
                           "UNKNOWN"
-                        ],
-                        "x-order": 8
+                        ]
                       },
                       "tls": {
                         "description": "Use TLS for database connections.",
@@ -7664,8 +7561,7 @@
                           "STOPPING",
                           "DONE",
                           "UNKNOWN"
-                        ],
-                        "x-order": 9
+                        ]
                       },
                       "tls": {
                         "description": "Use TLS for database connections.",
@@ -7758,8 +7654,7 @@
                           "STOPPING",
                           "DONE",
                           "UNKNOWN"
-                        ],
-                        "x-order": 6
+                        ]
                       }
                     }
                   },
@@ -7793,8 +7688,7 @@
                           "STOPPING",
                           "DONE",
                           "UNKNOWN"
-                        ],
-                        "x-order": 2
+                        ]
                       }
                     }
                   },
@@ -8054,8 +7948,7 @@
                       "type": "string",
                       "x-order": 7
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -8223,8 +8116,7 @@
                       "type": "string",
                       "x-order": 6
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -8372,8 +8264,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -8521,8 +8412,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -8670,8 +8560,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -8806,8 +8695,7 @@
                       "type": "string",
                       "x-order": 7
                     }
-                  },
-                  "x-order": 1
+                  }
                 },
                 "generic": {
                   "description": "GenericNode represents a bare metal server or virtual machine.",
@@ -8861,8 +8749,7 @@
                       "type": "string",
                       "x-order": 6
                     }
-                  },
-                  "x-order": 0
+                  }
                 },
                 "remote": {
                   "description": "RemoteNode represents generic remote Node. It's a node where we don't run pmm-agents. Only external exporters can run on Remote Nodes.",
@@ -8906,8 +8793,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 2
+                  }
                 },
                 "remote_azure_database": {
                   "description": "RemoteAzureDatabaseNode represents remote AzureDatabase Node. Agents can't run on Remote AzureDatabase Nodes.",
@@ -8951,8 +8837,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 4
+                  }
                 },
                 "remote_rds": {
                   "description": "RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes.",
@@ -8996,8 +8881,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 3
+                  }
                 }
               }
             }
@@ -9071,8 +8955,7 @@
                     "REMOTE_NODE",
                     "REMOTE_RDS_NODE",
                     "REMOTE_AZURE_DATABASE_NODE"
-                  ],
-                  "x-order": 0
+                  ]
                 }
               }
             }
@@ -9584,8 +9467,7 @@
                       "type": "string",
                       "x-order": 1
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -9733,8 +9615,7 @@
                       "type": "string",
                       "x-order": 1
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -9914,8 +9795,7 @@
                       "type": "string",
                       "x-order": 5
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -10095,8 +9975,7 @@
                       "type": "string",
                       "x-order": 5
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -10281,8 +10160,7 @@
                       "type": "string",
                       "x-order": 6
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -10462,8 +10340,7 @@
                       "type": "string",
                       "x-order": 5
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -10588,8 +10465,7 @@
                       "type": "string",
                       "x-order": 1
                     }
-                  },
-                  "x-order": 5
+                  }
                 },
                 "haproxy": {
                   "description": "HAProxyService represents a generic HAProxy service instance.",
@@ -10633,8 +10509,7 @@
                       "type": "string",
                       "x-order": 1
                     }
-                  },
-                  "x-order": 4
+                  }
                 },
                 "mongodb": {
                   "description": "MongoDBService represents a generic MongoDB instance.",
@@ -10694,8 +10569,7 @@
                       "type": "string",
                       "x-order": 5
                     }
-                  },
-                  "x-order": 1
+                  }
                 },
                 "mysql": {
                   "description": "MySQLService represents a generic MySQL instance.",
@@ -10755,8 +10629,7 @@
                       "type": "string",
                       "x-order": 5
                     }
-                  },
-                  "x-order": 0
+                  }
                 },
                 "postgresql": {
                   "description": "PostgreSQLService represents a generic PostgreSQL instance.",
@@ -10821,8 +10694,7 @@
                       "type": "string",
                       "x-order": 6
                     }
-                  },
-                  "x-order": 2
+                  }
                 },
                 "proxysql": {
                   "description": "ProxySQLService represents a generic ProxySQL instance.",
@@ -10882,8 +10754,7 @@
                       "type": "string",
                       "x-order": 5
                     }
-                  },
-                  "x-order": 3
+                  }
                 }
               }
             }
@@ -10968,8 +10839,7 @@
                     "PROXYSQL_SERVICE",
                     "HAPROXY_SERVICE",
                     "EXTERNAL_SERVICE"
-                  ],
-                  "x-order": 1
+                  ]
                 }
               }
             }

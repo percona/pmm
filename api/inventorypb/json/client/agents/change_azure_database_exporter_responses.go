@@ -6,6 +6,7 @@ package agents
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,7 +50,7 @@ func NewChangeAzureDatabaseExporterOK() *ChangeAzureDatabaseExporterOK {
 	return &ChangeAzureDatabaseExporterOK{}
 }
 
-/*ChangeAzureDatabaseExporterOK handles this case with default header values.
+/* ChangeAzureDatabaseExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -60,7 +61,6 @@ type ChangeAzureDatabaseExporterOK struct {
 func (o *ChangeAzureDatabaseExporterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeAzureDatabaseExporter][%d] changeAzureDatabaseExporterOk  %+v", 200, o.Payload)
 }
-
 func (o *ChangeAzureDatabaseExporterOK) GetPayload() *ChangeAzureDatabaseExporterOKBody {
 	return o.Payload
 }
@@ -84,7 +84,7 @@ func NewChangeAzureDatabaseExporterDefault(code int) *ChangeAzureDatabaseExporte
 	}
 }
 
-/*ChangeAzureDatabaseExporterDefault handles this case with default header values.
+/* ChangeAzureDatabaseExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -102,7 +102,6 @@ func (o *ChangeAzureDatabaseExporterDefault) Code() int {
 func (o *ChangeAzureDatabaseExporterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeAzureDatabaseExporter][%d] ChangeAzureDatabaseExporter default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ChangeAzureDatabaseExporterDefault) GetPayload() *ChangeAzureDatabaseExporterDefaultBody {
 	return o.Payload
 }
@@ -146,7 +145,6 @@ func (o *ChangeAzureDatabaseExporterBody) Validate(formats strfmt.Registry) erro
 }
 
 func (o *ChangeAzureDatabaseExporterBody) validateCommon(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Common) { // not required
 		return nil
 	}
@@ -155,6 +153,38 @@ func (o *ChangeAzureDatabaseExporterBody) validateCommon(formats strfmt.Registry
 		if err := o.Common.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "common")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "common")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change azure database exporter body based on the context it is used
+func (o *ChangeAzureDatabaseExporterBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateCommon(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeAzureDatabaseExporterBody) contextValidateCommon(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Common != nil {
+		if err := o.Common.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "common")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "common")
 			}
 			return err
 		}
@@ -196,7 +226,7 @@ type ChangeAzureDatabaseExporterDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*ChangeAzureDatabaseExporterDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this change azure database exporter default body
@@ -214,7 +244,6 @@ func (o *ChangeAzureDatabaseExporterDefaultBody) Validate(formats strfmt.Registr
 }
 
 func (o *ChangeAzureDatabaseExporterDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -228,6 +257,42 @@ func (o *ChangeAzureDatabaseExporterDefaultBody) validateDetails(formats strfmt.
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ChangeAzureDatabaseExporter default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ChangeAzureDatabaseExporter default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change azure database exporter default body based on the context it is used
+func (o *ChangeAzureDatabaseExporterDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeAzureDatabaseExporterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("ChangeAzureDatabaseExporter default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ChangeAzureDatabaseExporter default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -249,6 +314,47 @@ func (o *ChangeAzureDatabaseExporterDefaultBody) MarshalBinary() ([]byte, error)
 // UnmarshalBinary interface implementation
 func (o *ChangeAzureDatabaseExporterDefaultBody) UnmarshalBinary(b []byte) error {
 	var res ChangeAzureDatabaseExporterDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ChangeAzureDatabaseExporterDefaultBodyDetailsItems0 change azure database exporter default body details items0
+swagger:model ChangeAzureDatabaseExporterDefaultBodyDetailsItems0
+*/
+type ChangeAzureDatabaseExporterDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this change azure database exporter default body details items0
+func (o *ChangeAzureDatabaseExporterDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change azure database exporter default body details items0 based on context it is used
+func (o *ChangeAzureDatabaseExporterDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAzureDatabaseExporterDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAzureDatabaseExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res ChangeAzureDatabaseExporterDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -280,7 +386,6 @@ func (o *ChangeAzureDatabaseExporterOKBody) Validate(formats strfmt.Registry) er
 }
 
 func (o *ChangeAzureDatabaseExporterOKBody) validateAzureDatabaseExporter(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.AzureDatabaseExporter) { // not required
 		return nil
 	}
@@ -289,6 +394,38 @@ func (o *ChangeAzureDatabaseExporterOKBody) validateAzureDatabaseExporter(format
 		if err := o.AzureDatabaseExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changeAzureDatabaseExporterOk" + "." + "azure_database_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeAzureDatabaseExporterOk" + "." + "azure_database_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change azure database exporter OK body based on the context it is used
+func (o *ChangeAzureDatabaseExporterOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateAzureDatabaseExporter(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeAzureDatabaseExporterOKBody) contextValidateAzureDatabaseExporter(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.AzureDatabaseExporter != nil {
+		if err := o.AzureDatabaseExporter.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeAzureDatabaseExporterOk" + "." + "azure_database_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeAzureDatabaseExporterOk" + "." + "azure_database_exporter")
 			}
 			return err
 		}
@@ -341,6 +478,12 @@ type ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
+	// Listen port for scraping metrics (the same for several configurations).
+	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// True if the exporter operates in push metrics mode.
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
@@ -351,12 +494,6 @@ type ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter struct {
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
-
-	// Listen port for scraping metrics (the same for several configurations).
-	ListenPort int64 `json:"listen_port,omitempty"`
-
-	// True if the exporter operates in push metrics mode.
-	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 }
 
 // Validate validates this change azure database exporter OK body azure database exporter
@@ -418,7 +555,6 @@ func (o *ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter) validateStatusE
 }
 
 func (o *ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -428,6 +564,11 @@ func (o *ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter) validateStatus(
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this change azure database exporter OK body azure database exporter based on context it is used
+func (o *ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -476,6 +617,11 @@ type ChangeAzureDatabaseExporterParamsBodyCommon struct {
 
 // Validate validates this change azure database exporter params body common
 func (o *ChangeAzureDatabaseExporterParamsBodyCommon) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change azure database exporter params body common based on context it is used
+func (o *ChangeAzureDatabaseExporterParamsBodyCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

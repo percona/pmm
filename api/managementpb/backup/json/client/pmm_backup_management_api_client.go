@@ -10,13 +10,13 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm/api/qanpb/json/client/filters"
-	"github.com/percona/pmm/api/qanpb/json/client/metrics_names"
-	"github.com/percona/pmm/api/qanpb/json/client/object_details"
-	"github.com/percona/pmm/api/qanpb/json/client/profile"
+	"github.com/percona/pmm/api/managementpb/backup/json/client/artifacts"
+	"github.com/percona/pmm/api/managementpb/backup/json/client/backups"
+	"github.com/percona/pmm/api/managementpb/backup/json/client/locations"
+	"github.com/percona/pmm/api/managementpb/backup/json/client/restore_history"
 )
 
-// Default PMM QAN HTTP client.
+// Default PMM backup management API HTTP client.
 var Default = NewHTTPClient(nil)
 
 const (
@@ -31,14 +31,14 @@ const (
 // DefaultSchemes are the default schemes found in Meta (info) section of spec file
 var DefaultSchemes = []string{"http", "https"}
 
-// NewHTTPClient creates a new PMM QAN HTTP client.
-func NewHTTPClient(formats strfmt.Registry) *PMMQAN {
+// NewHTTPClient creates a new PMM backup management API HTTP client.
+func NewHTTPClient(formats strfmt.Registry) *PMMBackupManagementAPI {
 	return NewHTTPClientWithConfig(formats, nil)
 }
 
-// NewHTTPClientWithConfig creates a new PMM QAN HTTP client,
+// NewHTTPClientWithConfig creates a new PMM backup management API HTTP client,
 // using a customizable transport config.
-func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMMQAN {
+func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMMBackupManagementAPI {
 	// ensure nullable parameters have default
 	if cfg == nil {
 		cfg = DefaultTransportConfig()
@@ -49,19 +49,19 @@ func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMM
 	return New(transport, formats)
 }
 
-// New creates a new PMM QAN client
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMQAN {
+// New creates a new PMM backup management API client
+func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMBackupManagementAPI {
 	// ensure nullable parameters have default
 	if formats == nil {
 		formats = strfmt.Default
 	}
 
-	cli := new(PMMQAN)
+	cli := new(PMMBackupManagementAPI)
 	cli.Transport = transport
-	cli.Filters = filters.New(transport, formats)
-	cli.MetricsNames = metrics_names.New(transport, formats)
-	cli.ObjectDetails = object_details.New(transport, formats)
-	cli.Profile = profile.New(transport, formats)
+	cli.Artifacts = artifacts.New(transport, formats)
+	cli.Backups = backups.New(transport, formats)
+	cli.Locations = locations.New(transport, formats)
+	cli.RestoreHistory = restore_history.New(transport, formats)
 	return cli
 }
 
@@ -104,24 +104,24 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 	return cfg
 }
 
-// PMMQAN is a client for PMM QAN
-type PMMQAN struct {
-	Filters filters.ClientService
+// PMMBackupManagementAPI is a client for PMM backup management API
+type PMMBackupManagementAPI struct {
+	Artifacts artifacts.ClientService
 
-	MetricsNames metrics_names.ClientService
+	Backups backups.ClientService
 
-	ObjectDetails object_details.ClientService
+	Locations locations.ClientService
 
-	Profile profile.ClientService
+	RestoreHistory restore_history.ClientService
 
 	Transport runtime.ClientTransport
 }
 
 // SetTransport changes the transport on the client and all its subresources
-func (c *PMMQAN) SetTransport(transport runtime.ClientTransport) {
+func (c *PMMBackupManagementAPI) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
-	c.Filters.SetTransport(transport)
-	c.MetricsNames.SetTransport(transport)
-	c.ObjectDetails.SetTransport(transport)
-	c.Profile.SetTransport(transport)
+	c.Artifacts.SetTransport(transport)
+	c.Backups.SetTransport(transport)
+	c.Locations.SetTransport(transport)
+	c.RestoreHistory.SetTransport(transport)
 }

@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewGetPXCClusterResourcesParams creates a new GetPXCClusterResourcesParams object
-// with the default values initialized.
+// NewGetPXCClusterResourcesParams creates a new GetPXCClusterResourcesParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewGetPXCClusterResourcesParams() *GetPXCClusterResourcesParams {
-	var ()
 	return &GetPXCClusterResourcesParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewGetPXCClusterResourcesParamsWithTimeout creates a new GetPXCClusterResourcesParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewGetPXCClusterResourcesParamsWithTimeout(timeout time.Duration) *GetPXCClusterResourcesParams {
-	var ()
 	return &GetPXCClusterResourcesParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewGetPXCClusterResourcesParamsWithContext creates a new GetPXCClusterResourcesParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewGetPXCClusterResourcesParamsWithContext(ctx context.Context) *GetPXCClusterResourcesParams {
-	var ()
 	return &GetPXCClusterResourcesParams{
-
 		Context: ctx,
 	}
 }
 
 // NewGetPXCClusterResourcesParamsWithHTTPClient creates a new GetPXCClusterResourcesParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewGetPXCClusterResourcesParamsWithHTTPClient(client *http.Client) *GetPXCClusterResourcesParams {
-	var ()
 	return &GetPXCClusterResourcesParams{
 		HTTPClient: client,
 	}
 }
 
-/*GetPXCClusterResourcesParams contains all the parameters to send to the API endpoint
-for the get PXC cluster resources operation typically these are written to a http.Request
+/* GetPXCClusterResourcesParams contains all the parameters to send to the API endpoint
+   for the get PXC cluster resources operation.
+
+   Typically these are written to a http.Request.
 */
 type GetPXCClusterResourcesParams struct {
 
-	/*Body*/
+	// Body.
 	Body GetPXCClusterResourcesBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the get PXC cluster resources params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *GetPXCClusterResourcesParams) WithDefaults() *GetPXCClusterResourcesParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the get PXC cluster resources params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *GetPXCClusterResourcesParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the get PXC cluster resources params
@@ -119,7 +133,6 @@ func (o *GetPXCClusterResourcesParams) WriteToRequest(r runtime.ClientRequest, r
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

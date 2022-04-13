@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewChangeMySQLdExporterParams creates a new ChangeMySQLdExporterParams object
-// with the default values initialized.
+// NewChangeMySQLdExporterParams creates a new ChangeMySQLdExporterParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewChangeMySQLdExporterParams() *ChangeMySQLdExporterParams {
-	var ()
 	return &ChangeMySQLdExporterParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewChangeMySQLdExporterParamsWithTimeout creates a new ChangeMySQLdExporterParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewChangeMySQLdExporterParamsWithTimeout(timeout time.Duration) *ChangeMySQLdExporterParams {
-	var ()
 	return &ChangeMySQLdExporterParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewChangeMySQLdExporterParamsWithContext creates a new ChangeMySQLdExporterParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewChangeMySQLdExporterParamsWithContext(ctx context.Context) *ChangeMySQLdExporterParams {
-	var ()
 	return &ChangeMySQLdExporterParams{
-
 		Context: ctx,
 	}
 }
 
 // NewChangeMySQLdExporterParamsWithHTTPClient creates a new ChangeMySQLdExporterParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewChangeMySQLdExporterParamsWithHTTPClient(client *http.Client) *ChangeMySQLdExporterParams {
-	var ()
 	return &ChangeMySQLdExporterParams{
 		HTTPClient: client,
 	}
 }
 
-/*ChangeMySQLdExporterParams contains all the parameters to send to the API endpoint
-for the change my s q ld exporter operation typically these are written to a http.Request
+/* ChangeMySQLdExporterParams contains all the parameters to send to the API endpoint
+   for the change my s q ld exporter operation.
+
+   Typically these are written to a http.Request.
 */
 type ChangeMySQLdExporterParams struct {
 
-	/*Body*/
+	// Body.
 	Body ChangeMySQLdExporterBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the change my s q ld exporter params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ChangeMySQLdExporterParams) WithDefaults() *ChangeMySQLdExporterParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the change my s q ld exporter params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ChangeMySQLdExporterParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the change my s q ld exporter params
@@ -119,7 +133,6 @@ func (o *ChangeMySQLdExporterParams) WriteToRequest(r runtime.ClientRequest, reg
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

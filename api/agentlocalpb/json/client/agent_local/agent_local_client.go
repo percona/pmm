@@ -23,13 +23,16 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	Reload(params *ReloadParams) (*ReloadOK, error)
+	Reload(params *ReloadParams, opts ...ClientOption) (*ReloadOK, error)
 
-	Status(params *StatusParams) (*StatusOK, error)
+	Status(params *StatusParams, opts ...ClientOption) (*StatusOK, error)
 
-	Status2(params *Status2Params) (*Status2OK, error)
+	Status2(params *Status2Params, opts ...ClientOption) (*Status2OK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -37,13 +40,12 @@ type ClientService interface {
 /*
   Reload reloads reloads pmm agent configuration
 */
-func (a *Client) Reload(params *ReloadParams) (*ReloadOK, error) {
+func (a *Client) Reload(params *ReloadParams, opts ...ClientOption) (*ReloadOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewReloadParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "Reload",
 		Method:             "POST",
 		PathPattern:        "/local/Reload",
@@ -54,7 +56,12 @@ func (a *Client) Reload(params *ReloadParams) (*ReloadOK, error) {
 		Reader:             &ReloadReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -70,13 +77,12 @@ func (a *Client) Reload(params *ReloadParams) (*ReloadOK, error) {
 /*
   Status statuses returns current pmm agent status
 */
-func (a *Client) Status(params *StatusParams) (*StatusOK, error) {
+func (a *Client) Status(params *StatusParams, opts ...ClientOption) (*StatusOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewStatusParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "Status",
 		Method:             "POST",
 		PathPattern:        "/local/Status",
@@ -87,7 +93,12 @@ func (a *Client) Status(params *StatusParams) (*StatusOK, error) {
 		Reader:             &StatusReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -103,13 +114,12 @@ func (a *Client) Status(params *StatusParams) (*StatusOK, error) {
 /*
   Status2 statuses returns current pmm agent status
 */
-func (a *Client) Status2(params *Status2Params) (*Status2OK, error) {
+func (a *Client) Status2(params *Status2Params, opts ...ClientOption) (*Status2OK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewStatus2Params()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "Status2",
 		Method:             "GET",
 		PathPattern:        "/local/Status",
@@ -120,7 +130,12 @@ func (a *Client) Status2(params *Status2Params) (*Status2OK, error) {
 		Reader:             &Status2Reader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

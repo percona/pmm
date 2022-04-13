@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewAddPMMAgentParams creates a new AddPMMAgentParams object
-// with the default values initialized.
+// NewAddPMMAgentParams creates a new AddPMMAgentParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewAddPMMAgentParams() *AddPMMAgentParams {
-	var ()
 	return &AddPMMAgentParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewAddPMMAgentParamsWithTimeout creates a new AddPMMAgentParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewAddPMMAgentParamsWithTimeout(timeout time.Duration) *AddPMMAgentParams {
-	var ()
 	return &AddPMMAgentParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewAddPMMAgentParamsWithContext creates a new AddPMMAgentParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewAddPMMAgentParamsWithContext(ctx context.Context) *AddPMMAgentParams {
-	var ()
 	return &AddPMMAgentParams{
-
 		Context: ctx,
 	}
 }
 
 // NewAddPMMAgentParamsWithHTTPClient creates a new AddPMMAgentParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewAddPMMAgentParamsWithHTTPClient(client *http.Client) *AddPMMAgentParams {
-	var ()
 	return &AddPMMAgentParams{
 		HTTPClient: client,
 	}
 }
 
-/*AddPMMAgentParams contains all the parameters to send to the API endpoint
-for the add PMM agent operation typically these are written to a http.Request
+/* AddPMMAgentParams contains all the parameters to send to the API endpoint
+   for the add PMM agent operation.
+
+   Typically these are written to a http.Request.
 */
 type AddPMMAgentParams struct {
 
-	/*Body*/
+	// Body.
 	Body AddPMMAgentBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the add PMM agent params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AddPMMAgentParams) WithDefaults() *AddPMMAgentParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the add PMM agent params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AddPMMAgentParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the add PMM agent params
@@ -119,7 +133,6 @@ func (o *AddPMMAgentParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.R
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

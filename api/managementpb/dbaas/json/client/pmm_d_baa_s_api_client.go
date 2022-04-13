@@ -18,7 +18,7 @@ import (
 	"github.com/percona/pmm/api/managementpb/dbaas/json/client/pxc_clusters"
 )
 
-// Default PMM d baa s HTTP client.
+// Default PMM d baa s API HTTP client.
 var Default = NewHTTPClient(nil)
 
 const (
@@ -33,14 +33,14 @@ const (
 // DefaultSchemes are the default schemes found in Meta (info) section of spec file
 var DefaultSchemes = []string{"http", "https"}
 
-// NewHTTPClient creates a new PMM d baa s HTTP client.
-func NewHTTPClient(formats strfmt.Registry) *PMMDBaaS {
+// NewHTTPClient creates a new PMM d baa s API HTTP client.
+func NewHTTPClient(formats strfmt.Registry) *PMMDBaaSAPI {
 	return NewHTTPClientWithConfig(formats, nil)
 }
 
-// NewHTTPClientWithConfig creates a new PMM d baa s HTTP client,
+// NewHTTPClientWithConfig creates a new PMM d baa s API HTTP client,
 // using a customizable transport config.
-func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMMDBaaS {
+func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMMDBaaSAPI {
 	// ensure nullable parameters have default
 	if cfg == nil {
 		cfg = DefaultTransportConfig()
@@ -51,14 +51,14 @@ func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMM
 	return New(transport, formats)
 }
 
-// New creates a new PMM d baa s client
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMDBaaS {
+// New creates a new PMM d baa s API client
+func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMDBaaSAPI {
 	// ensure nullable parameters have default
 	if formats == nil {
 		formats = strfmt.Default
 	}
 
-	cli := new(PMMDBaaS)
+	cli := new(PMMDBaaSAPI)
 	cli.Transport = transport
 	cli.Components = components.New(transport, formats)
 	cli.DBClusters = db_clusters.New(transport, formats)
@@ -108,8 +108,8 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 	return cfg
 }
 
-// PMMDBaaS is a client for PMM d baa s
-type PMMDBaaS struct {
+// PMMDBaaSAPI is a client for PMM d baa s API
+type PMMDBaaSAPI struct {
 	Components components.ClientService
 
 	DBClusters db_clusters.ClientService
@@ -126,7 +126,7 @@ type PMMDBaaS struct {
 }
 
 // SetTransport changes the transport on the client and all its subresources
-func (c *PMMDBaaS) SetTransport(transport runtime.ClientTransport) {
+func (c *PMMDBaaSAPI) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
 	c.Components.SetTransport(transport)
 	c.DBClusters.SetTransport(transport)

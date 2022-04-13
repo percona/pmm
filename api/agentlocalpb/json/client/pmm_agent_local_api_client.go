@@ -10,32 +10,32 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm/api/managementpb/azure/json/client/azure_database"
+	"github.com/percona/pmm/api/agentlocalpb/json/client/agent_local"
 )
 
-// Default PMM d baa s HTTP client.
+// Default PMM agent local API HTTP client.
 var Default = NewHTTPClient(nil)
 
 const (
 	// DefaultHost is the default Host
 	// found in Meta (info) section of spec file
-	DefaultHost string = "localhost"
+	DefaultHost string = "127.0.0.1:7777"
 	// DefaultBasePath is the default BasePath
 	// found in Meta (info) section of spec file
 	DefaultBasePath string = "/"
 )
 
 // DefaultSchemes are the default schemes found in Meta (info) section of spec file
-var DefaultSchemes = []string{"http", "https"}
+var DefaultSchemes = []string{"http"}
 
-// NewHTTPClient creates a new PMM d baa s HTTP client.
-func NewHTTPClient(formats strfmt.Registry) *PMMDBaaS {
+// NewHTTPClient creates a new PMM agent local API HTTP client.
+func NewHTTPClient(formats strfmt.Registry) *PMMAgentLocalAPI {
 	return NewHTTPClientWithConfig(formats, nil)
 }
 
-// NewHTTPClientWithConfig creates a new PMM d baa s HTTP client,
+// NewHTTPClientWithConfig creates a new PMM agent local API HTTP client,
 // using a customizable transport config.
-func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMMDBaaS {
+func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMMAgentLocalAPI {
 	// ensure nullable parameters have default
 	if cfg == nil {
 		cfg = DefaultTransportConfig()
@@ -46,16 +46,16 @@ func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMM
 	return New(transport, formats)
 }
 
-// New creates a new PMM d baa s client
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMDBaaS {
+// New creates a new PMM agent local API client
+func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMAgentLocalAPI {
 	// ensure nullable parameters have default
 	if formats == nil {
 		formats = strfmt.Default
 	}
 
-	cli := new(PMMDBaaS)
+	cli := new(PMMAgentLocalAPI)
 	cli.Transport = transport
-	cli.AzureDatabase = azure_database.New(transport, formats)
+	cli.AgentLocal = agent_local.New(transport, formats)
 	return cli
 }
 
@@ -98,15 +98,15 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 	return cfg
 }
 
-// PMMDBaaS is a client for PMM d baa s
-type PMMDBaaS struct {
-	AzureDatabase azure_database.ClientService
+// PMMAgentLocalAPI is a client for PMM agent local API
+type PMMAgentLocalAPI struct {
+	AgentLocal agent_local.ClientService
 
 	Transport runtime.ClientTransport
 }
 
 // SetTransport changes the transport on the client and all its subresources
-func (c *PMMDBaaS) SetTransport(transport runtime.ClientTransport) {
+func (c *PMMAgentLocalAPI) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
-	c.AzureDatabase.SetTransport(transport)
+	c.AgentLocal.SetTransport(transport)
 }

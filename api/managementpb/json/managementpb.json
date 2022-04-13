@@ -1634,16 +1634,14 @@
                         "REMOTE_NODE",
                         "REMOTE_RDS_NODE",
                         "REMOTE_AZURE_DATABASE_NODE"
-                      ],
-                      "x-order": 0
+                      ]
                     },
                     "region": {
                       "description": "Node region.",
                       "type": "string",
                       "x-order": 7
                     }
-                  },
-                  "x-order": 2
+                  }
                 },
                 "address": {
                   "description": "Node and Exporter access address (DNS name or IP).\naddress always should be passed with add_node.",
@@ -1687,8 +1685,7 @@
                     "AUTO",
                     "PULL",
                     "PUSH"
-                  ],
-                  "x-order": 16
+                  ]
                 },
                 "metrics_path": {
                   "description": "Path under which metrics are exposed, used to generate URI.",
@@ -1808,8 +1805,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 1
+                  }
                 },
                 "service": {
                   "description": "ExternalService represents a generic External service instance.",
@@ -1858,8 +1854,7 @@
                       "type": "string",
                       "x-order": 1
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -1980,16 +1975,14 @@
                         "REMOTE_NODE",
                         "REMOTE_RDS_NODE",
                         "REMOTE_AZURE_DATABASE_NODE"
-                      ],
-                      "x-order": 0
+                      ]
                     },
                     "region": {
                       "description": "Node region.",
                       "type": "string",
                       "x-order": 7
                     }
-                  },
-                  "x-order": 2
+                  }
                 },
                 "address": {
                   "description": "Node and Exporter access address (DNS name or IP).\naddress always should be passed with add_node.",
@@ -2028,8 +2021,7 @@
                     "AUTO",
                     "PULL",
                     "PUSH"
-                  ],
-                  "x-order": 14
+                  ]
                 },
                 "metrics_path": {
                   "description": "Path under which metrics are exposed, used to generate URI.",
@@ -2144,8 +2136,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 1
+                  }
                 },
                 "service": {
                   "description": "HAProxyService represents a generic HAProxy service instance.",
@@ -2189,8 +2180,7 @@
                       "type": "string",
                       "x-order": 1
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -2311,16 +2301,14 @@
                         "REMOTE_NODE",
                         "REMOTE_RDS_NODE",
                         "REMOTE_AZURE_DATABASE_NODE"
-                      ],
-                      "x-order": 0
+                      ]
                     },
                     "region": {
                       "description": "Node region.",
                       "type": "string",
                       "x-order": 7
                     }
-                  },
-                  "x-order": 2
+                  }
                 },
                 "address": {
                   "description": "Node and Service access address (DNS name or IP).\nAddress (and port) or socket is required.",
@@ -2387,8 +2375,7 @@
                     "AUTO",
                     "PULL",
                     "PUSH"
-                  ],
-                  "x-order": 21
+                  ]
                 },
                 "node_id": {
                   "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
@@ -2571,8 +2558,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 10
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -2589,8 +2575,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 1
+                  }
                 },
                 "qan_mongodb_profiler": {
                   "description": "QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.",
@@ -2636,8 +2621,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 8
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -2654,8 +2638,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 2
+                  }
                 },
                 "service": {
                   "description": "MongoDBService represents a generic MongoDB instance.",
@@ -2715,8 +2698,7 @@
                       "type": "string",
                       "x-order": 5
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -2837,16 +2819,14 @@
                         "REMOTE_NODE",
                         "REMOTE_RDS_NODE",
                         "REMOTE_AZURE_DATABASE_NODE"
-                      ],
-                      "x-order": 0
+                      ]
                     },
                     "region": {
                       "description": "Node region.",
                       "type": "string",
                       "x-order": 7
                     }
-                  },
-                  "x-order": 2
+                  }
                 },
                 "address": {
                   "description": "Node and Service access address (DNS name or IP).\nAddress (and port) or socket is required.",
@@ -2903,8 +2883,7 @@
                     "AUTO",
                     "PULL",
                     "PUSH"
-                  ],
-                  "x-order": 25
+                  ]
                 },
                 "node_id": {
                   "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
@@ -3071,8 +3050,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 14
+                      ]
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
@@ -3115,8 +3093,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 1
+                  }
                 },
                 "qan_mysql_perfschema": {
                   "description": "QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.",
@@ -3167,8 +3144,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 12
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -3200,8 +3176,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 2
+                  }
                 },
                 "qan_mysql_slowlog": {
                   "description": "QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.",
@@ -3258,8 +3233,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 13
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -3291,8 +3265,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 3
+                  }
                 },
                 "service": {
                   "description": "MySQLService represents a generic MySQL instance.",
@@ -3352,8 +3325,7 @@
                       "type": "string",
                       "x-order": 5
                     }
-                  },
-                  "x-order": 0
+                  }
                 },
                 "table_count": {
                   "description": "Actual table count at the moment of adding.",
@@ -3476,8 +3448,7 @@
                     "AUTO",
                     "PULL",
                     "PUSH"
-                  ],
-                  "x-order": 12
+                  ]
                 },
                 "node_model": {
                   "description": "Node model.",
@@ -3500,8 +3471,7 @@
                     "REMOTE_NODE",
                     "REMOTE_RDS_NODE",
                     "REMOTE_AZURE_DATABASE_NODE"
-                  ],
-                  "x-order": 0
+                  ]
                 },
                 "region": {
                   "description": "Node region.",
@@ -3580,8 +3550,7 @@
                       "type": "string",
                       "x-order": 7
                     }
-                  },
-                  "x-order": 1
+                  }
                 },
                 "generic_node": {
                   "description": "GenericNode represents a bare metal server or virtual machine.",
@@ -3635,8 +3604,7 @@
                       "type": "string",
                       "x-order": 6
                     }
-                  },
-                  "x-order": 0
+                  }
                 },
                 "pmm_agent": {
                   "description": "PMMAgent runs on Generic or Container Node.",
@@ -3665,8 +3633,7 @@
                       "type": "string",
                       "x-order": 1
                     }
-                  },
-                  "x-order": 2
+                  }
                 }
               }
             }
@@ -3787,16 +3754,14 @@
                         "REMOTE_NODE",
                         "REMOTE_RDS_NODE",
                         "REMOTE_AZURE_DATABASE_NODE"
-                      ],
-                      "x-order": 0
+                      ]
                     },
                     "region": {
                       "description": "Node region.",
                       "type": "string",
                       "x-order": 7
                     }
-                  },
-                  "x-order": 2
+                  }
                 },
                 "address": {
                   "description": "Node and Service access address (DNS name or IP).\nAddress (and port) or socket is required.",
@@ -3852,8 +3817,7 @@
                     "AUTO",
                     "PULL",
                     "PUSH"
-                  ],
-                  "x-order": 21
+                  ]
                 },
                 "node_id": {
                   "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
@@ -4014,8 +3978,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 10
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -4032,8 +3995,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 1
+                  }
                 },
                 "qan_postgresql_pgstatements_agent": {
                   "description": "QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
@@ -4079,8 +4041,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 8
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -4097,8 +4058,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 2
+                  }
                 },
                 "qan_postgresql_pgstatmonitor_agent": {
                   "description": "QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
@@ -4149,8 +4109,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 9
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -4167,8 +4126,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 3
+                  }
                 },
                 "service": {
                   "description": "PostgreSQLService represents a generic PostgreSQL instance.",
@@ -4233,8 +4191,7 @@
                       "type": "string",
                       "x-order": 6
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -4355,16 +4312,14 @@
                         "REMOTE_NODE",
                         "REMOTE_RDS_NODE",
                         "REMOTE_AZURE_DATABASE_NODE"
-                      ],
-                      "x-order": 0
+                      ]
                     },
                     "region": {
                       "description": "Node region.",
                       "type": "string",
                       "x-order": 7
                     }
-                  },
-                  "x-order": 2
+                  }
                 },
                 "address": {
                   "description": "Node and Service access address (DNS name or IP).\nAddress (and port) or socket is required.",
@@ -4410,8 +4365,7 @@
                     "AUTO",
                     "PULL",
                     "PUSH"
-                  ],
-                  "x-order": 17
+                  ]
                 },
                 "node_id": {
                   "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
@@ -4547,8 +4501,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 10
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -4565,8 +4518,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 1
+                  }
                 },
                 "service": {
                   "description": "ProxySQLService represents a generic ProxySQL instance.",
@@ -4626,8 +4578,7 @@
                       "type": "string",
                       "x-order": 5
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -4751,8 +4702,7 @@
                     "DISCOVER_RDS_ENGINE_INVALID",
                     "DISCOVER_RDS_MYSQL",
                     "DISCOVER_RDS_POSTGRESQL"
-                  ],
-                  "x-order": 6
+                  ]
                 },
                 "environment": {
                   "description": "Environment name.",
@@ -4772,8 +4722,7 @@
                     "AUTO",
                     "PULL",
                     "PUSH"
-                  ],
-                  "x-order": 26
+                  ]
                 },
                 "node_model": {
                   "description": "AWS instance class.",
@@ -4920,8 +4869,7 @@
                       "type": "string",
                       "x-order": 5
                     }
-                  },
-                  "x-order": 2
+                  }
                 },
                 "mysqld_exporter": {
                   "description": "MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
@@ -4986,8 +4934,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 14
+                      ]
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
@@ -5030,8 +4977,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 3
+                  }
                 },
                 "node": {
                   "description": "RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes.",
@@ -5075,8 +5021,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 0
+                  }
                 },
                 "postgresql": {
                   "description": "PostgreSQLService represents a generic PostgreSQL instance.",
@@ -5141,8 +5086,7 @@
                       "type": "string",
                       "x-order": 6
                     }
-                  },
-                  "x-order": 6
+                  }
                 },
                 "postgresql_exporter": {
                   "description": "PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.",
@@ -5207,8 +5151,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 10
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -5225,8 +5168,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 7
+                  }
                 },
                 "qan_mysql_perfschema": {
                   "description": "QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.",
@@ -5277,8 +5219,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 12
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -5310,8 +5251,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 4
+                  }
                 },
                 "qan_postgresql_pgstatements": {
                   "description": "QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
@@ -5357,8 +5297,7 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 8
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -5375,8 +5314,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 8
+                  }
                 },
                 "rds_exporter": {
                   "description": "RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.",
@@ -5448,11 +5386,9 @@
                         "STOPPING",
                         "DONE",
                         "UNKNOWN"
-                      ],
-                      "x-order": 6
+                      ]
                     }
-                  },
-                  "x-order": 1
+                  }
                 },
                 "table_count": {
                   "description": "Actual table count at the moment of adding.",
@@ -5565,8 +5501,7 @@
                           "DISCOVER_RDS_ENGINE_INVALID",
                           "DISCOVER_RDS_MYSQL",
                           "DISCOVER_RDS_POSTGRESQL"
-                        ],
-                        "x-order": 6
+                        ]
                       },
                       "engine_version": {
                         "description": "Engine version.",
@@ -5682,8 +5617,7 @@
                           "STANDARD",
                           "FREQUENT",
                           "RARE"
-                        ],
-                        "x-order": 3
+                        ]
                       },
                       "name": {
                         "description": "The name of the check to change.",
@@ -5779,8 +5713,7 @@
                       "format": "int32",
                       "x-order": 0
                     }
-                  },
-                  "x-order": 1
+                  }
                 },
                 "service_id": {
                   "type": "string",
@@ -5812,8 +5745,7 @@
                       "format": "int32",
                       "x-order": 1
                     }
-                  },
-                  "x-order": 1
+                  }
                 },
                 "results": {
                   "type": "array",
@@ -5871,8 +5803,7 @@
                           "SEVERITY_NOTICE",
                           "SEVERITY_INFO",
                           "SEVERITY_DEBUG"
-                        ],
-                        "x-order": 2
+                        ]
                       },
                       "silenced": {
                         "type": "boolean",
@@ -5997,8 +5928,7 @@
                           "SEVERITY_NOTICE",
                           "SEVERITY_INFO",
                           "SEVERITY_DEBUG"
-                        ],
-                        "x-order": 2
+                        ]
                       },
                       "summary": {
                         "type": "string",
@@ -6102,8 +6032,7 @@
                           "STANDARD",
                           "FREQUENT",
                           "RARE"
-                        ],
-                        "x-order": 4
+                        ]
                       },
                       "name": {
                         "description": "Machine-readable name (ID) that is used in expression.",
@@ -6493,8 +6422,7 @@
                     "PROXYSQL_SERVICE",
                     "HAPROXY_SERVICE",
                     "EXTERNAL_SERVICE"
-                  ],
-                  "x-order": 0
+                  ]
                 }
               }
             }

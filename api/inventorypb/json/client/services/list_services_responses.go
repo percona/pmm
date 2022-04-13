@@ -6,6 +6,7 @@ package services
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,7 +50,7 @@ func NewListServicesOK() *ListServicesOK {
 	return &ListServicesOK{}
 }
 
-/*ListServicesOK handles this case with default header values.
+/* ListServicesOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -60,7 +61,6 @@ type ListServicesOK struct {
 func (o *ListServicesOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/List][%d] listServicesOk  %+v", 200, o.Payload)
 }
-
 func (o *ListServicesOK) GetPayload() *ListServicesOKBody {
 	return o.Payload
 }
@@ -84,7 +84,7 @@ func NewListServicesDefault(code int) *ListServicesDefault {
 	}
 }
 
-/*ListServicesDefault handles this case with default header values.
+/* ListServicesDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -102,7 +102,6 @@ func (o *ListServicesDefault) Code() int {
 func (o *ListServicesDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/List][%d] ListServices default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ListServicesDefault) GetPayload() *ListServicesDefaultBody {
 	return o.Payload
 }
@@ -119,109 +118,6 @@ func (o *ListServicesDefault) readResponse(response runtime.ClientResponse, cons
 	return nil
 }
 
-/*ExternalItems0 ExternalService represents a generic External service instance.
-swagger:model ExternalItems0
-*/
-type ExternalItems0 struct {
-
-	// Unique randomly generated instance identifier.
-	ServiceID string `json:"service_id,omitempty"`
-
-	// Unique across all Services user-defined name.
-	ServiceName string `json:"service_name,omitempty"`
-
-	// Node identifier where this service instance runs.
-	NodeID string `json:"node_id,omitempty"`
-
-	// Environment name.
-	Environment string `json:"environment,omitempty"`
-
-	// Cluster name.
-	Cluster string `json:"cluster,omitempty"`
-
-	// Replication set name.
-	ReplicationSet string `json:"replication_set,omitempty"`
-
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Group name of external service.
-	Group string `json:"group,omitempty"`
-}
-
-// Validate validates this external items0
-func (o *ExternalItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ExternalItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ExternalItems0) UnmarshalBinary(b []byte) error {
-	var res ExternalItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*HaproxyItems0 HAProxyService represents a generic HAProxy service instance.
-swagger:model HaproxyItems0
-*/
-type HaproxyItems0 struct {
-
-	// Unique randomly generated instance identifier.
-	ServiceID string `json:"service_id,omitempty"`
-
-	// Unique across all Services user-defined name.
-	ServiceName string `json:"service_name,omitempty"`
-
-	// Node identifier where this service instance runs.
-	NodeID string `json:"node_id,omitempty"`
-
-	// Environment name.
-	Environment string `json:"environment,omitempty"`
-
-	// Cluster name.
-	Cluster string `json:"cluster,omitempty"`
-
-	// Replication set name.
-	ReplicationSet string `json:"replication_set,omitempty"`
-
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-}
-
-// Validate validates this haproxy items0
-func (o *HaproxyItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *HaproxyItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *HaproxyItems0) UnmarshalBinary(b []byte) error {
-	var res HaproxyItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
 /*ListServicesBody list services body
 swagger:model ListServicesBody
 */
@@ -230,12 +126,12 @@ type ListServicesBody struct {
 	// Return only Services running on that Node.
 	NodeID string `json:"node_id,omitempty"`
 
+	// Return only services in this external group.
+	ExternalGroup string `json:"external_group,omitempty"`
+
 	// ServiceType describes supported Service types.
 	// Enum: [SERVICE_TYPE_INVALID MYSQL_SERVICE MONGODB_SERVICE POSTGRESQL_SERVICE PROXYSQL_SERVICE HAPROXY_SERVICE EXTERNAL_SERVICE]
 	ServiceType *string `json:"service_type,omitempty"`
-
-	// Return only services in this external group.
-	ExternalGroup string `json:"external_group,omitempty"`
 }
 
 // Validate validates this list services body
@@ -297,7 +193,6 @@ func (o *ListServicesBody) validateServiceTypeEnum(path, location string, value 
 }
 
 func (o *ListServicesBody) validateServiceType(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.ServiceType) { // not required
 		return nil
 	}
@@ -307,6 +202,11 @@ func (o *ListServicesBody) validateServiceType(formats strfmt.Registry) error {
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this list services body based on context it is used
+func (o *ListServicesBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -343,7 +243,7 @@ type ListServicesDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*ListServicesDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this list services default body
@@ -361,7 +261,6 @@ func (o *ListServicesDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *ListServicesDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -375,6 +274,42 @@ func (o *ListServicesDefaultBody) validateDetails(formats strfmt.Registry) error
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ListServices default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ListServices default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list services default body based on the context it is used
+func (o *ListServicesDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListServicesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("ListServices default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ListServices default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -403,28 +338,69 @@ func (o *ListServicesDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*ListServicesDefaultBodyDetailsItems0 list services default body details items0
+swagger:model ListServicesDefaultBodyDetailsItems0
+*/
+type ListServicesDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this list services default body details items0
+func (o *ListServicesDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list services default body details items0 based on context it is used
+func (o *ListServicesDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListServicesDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListServicesDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res ListServicesDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*ListServicesOKBody list services OK body
 swagger:model ListServicesOKBody
 */
 type ListServicesOKBody struct {
 
 	// mysql
-	Mysql []*MysqlItems0 `json:"mysql"`
+	Mysql []*ListServicesOKBodyMysqlItems0 `json:"mysql"`
 
 	// mongodb
-	Mongodb []*MongodbItems0 `json:"mongodb"`
+	Mongodb []*ListServicesOKBodyMongodbItems0 `json:"mongodb"`
 
 	// postgresql
-	Postgresql []*PostgresqlItems0 `json:"postgresql"`
+	Postgresql []*ListServicesOKBodyPostgresqlItems0 `json:"postgresql"`
 
 	// proxysql
-	Proxysql []*ProxysqlItems0 `json:"proxysql"`
+	Proxysql []*ListServicesOKBodyProxysqlItems0 `json:"proxysql"`
 
 	// haproxy
-	Haproxy []*HaproxyItems0 `json:"haproxy"`
+	Haproxy []*ListServicesOKBodyHaproxyItems0 `json:"haproxy"`
 
 	// external
-	External []*ExternalItems0 `json:"external"`
+	External []*ListServicesOKBodyExternalItems0 `json:"external"`
 }
 
 // Validate validates this list services OK body
@@ -462,7 +438,6 @@ func (o *ListServicesOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *ListServicesOKBody) validateMysql(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Mysql) { // not required
 		return nil
 	}
@@ -476,6 +451,8 @@ func (o *ListServicesOKBody) validateMysql(formats strfmt.Registry) error {
 			if err := o.Mysql[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listServicesOk" + "." + "mysql" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listServicesOk" + "." + "mysql" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -487,7 +464,6 @@ func (o *ListServicesOKBody) validateMysql(formats strfmt.Registry) error {
 }
 
 func (o *ListServicesOKBody) validateMongodb(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Mongodb) { // not required
 		return nil
 	}
@@ -501,6 +477,8 @@ func (o *ListServicesOKBody) validateMongodb(formats strfmt.Registry) error {
 			if err := o.Mongodb[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listServicesOk" + "." + "mongodb" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listServicesOk" + "." + "mongodb" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -512,7 +490,6 @@ func (o *ListServicesOKBody) validateMongodb(formats strfmt.Registry) error {
 }
 
 func (o *ListServicesOKBody) validatePostgresql(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Postgresql) { // not required
 		return nil
 	}
@@ -526,6 +503,8 @@ func (o *ListServicesOKBody) validatePostgresql(formats strfmt.Registry) error {
 			if err := o.Postgresql[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listServicesOk" + "." + "postgresql" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listServicesOk" + "." + "postgresql" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -537,7 +516,6 @@ func (o *ListServicesOKBody) validatePostgresql(formats strfmt.Registry) error {
 }
 
 func (o *ListServicesOKBody) validateProxysql(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Proxysql) { // not required
 		return nil
 	}
@@ -551,6 +529,8 @@ func (o *ListServicesOKBody) validateProxysql(formats strfmt.Registry) error {
 			if err := o.Proxysql[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listServicesOk" + "." + "proxysql" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listServicesOk" + "." + "proxysql" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -562,7 +542,6 @@ func (o *ListServicesOKBody) validateProxysql(formats strfmt.Registry) error {
 }
 
 func (o *ListServicesOKBody) validateHaproxy(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Haproxy) { // not required
 		return nil
 	}
@@ -576,6 +555,8 @@ func (o *ListServicesOKBody) validateHaproxy(formats strfmt.Registry) error {
 			if err := o.Haproxy[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listServicesOk" + "." + "haproxy" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listServicesOk" + "." + "haproxy" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -587,7 +568,6 @@ func (o *ListServicesOKBody) validateHaproxy(formats strfmt.Registry) error {
 }
 
 func (o *ListServicesOKBody) validateExternal(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.External) { // not required
 		return nil
 	}
@@ -601,6 +581,162 @@ func (o *ListServicesOKBody) validateExternal(formats strfmt.Registry) error {
 			if err := o.External[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listServicesOk" + "." + "external" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listServicesOk" + "." + "external" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list services OK body based on the context it is used
+func (o *ListServicesOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMysql(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateMongodb(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidatePostgresql(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateProxysql(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateHaproxy(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateExternal(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListServicesOKBody) contextValidateMysql(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Mysql); i++ {
+
+		if o.Mysql[i] != nil {
+			if err := o.Mysql[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listServicesOk" + "." + "mysql" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listServicesOk" + "." + "mysql" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ListServicesOKBody) contextValidateMongodb(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Mongodb); i++ {
+
+		if o.Mongodb[i] != nil {
+			if err := o.Mongodb[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listServicesOk" + "." + "mongodb" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listServicesOk" + "." + "mongodb" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ListServicesOKBody) contextValidatePostgresql(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Postgresql); i++ {
+
+		if o.Postgresql[i] != nil {
+			if err := o.Postgresql[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listServicesOk" + "." + "postgresql" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listServicesOk" + "." + "postgresql" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ListServicesOKBody) contextValidateProxysql(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Proxysql); i++ {
+
+		if o.Proxysql[i] != nil {
+			if err := o.Proxysql[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listServicesOk" + "." + "proxysql" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listServicesOk" + "." + "proxysql" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ListServicesOKBody) contextValidateHaproxy(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Haproxy); i++ {
+
+		if o.Haproxy[i] != nil {
+			if err := o.Haproxy[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listServicesOk" + "." + "haproxy" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listServicesOk" + "." + "haproxy" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ListServicesOKBody) contextValidateExternal(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.External); i++ {
+
+		if o.External[i] != nil {
+			if err := o.External[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listServicesOk" + "." + "external" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listServicesOk" + "." + "external" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -629,10 +765,123 @@ func (o *ListServicesOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*MongodbItems0 MongoDBService represents a generic MongoDB instance.
-swagger:model MongodbItems0
+/*ListServicesOKBodyExternalItems0 ExternalService represents a generic External service instance.
+swagger:model ListServicesOKBodyExternalItems0
 */
-type MongodbItems0 struct {
+type ListServicesOKBodyExternalItems0 struct {
+
+	// Unique randomly generated instance identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// Unique across all Services user-defined name.
+	ServiceName string `json:"service_name,omitempty"`
+
+	// Node identifier where this service instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Group name of external service.
+	Group string `json:"group,omitempty"`
+}
+
+// Validate validates this list services OK body external items0
+func (o *ListServicesOKBodyExternalItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list services OK body external items0 based on context it is used
+func (o *ListServicesOKBodyExternalItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListServicesOKBodyExternalItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListServicesOKBodyExternalItems0) UnmarshalBinary(b []byte) error {
+	var res ListServicesOKBodyExternalItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ListServicesOKBodyHaproxyItems0 HAProxyService represents a generic HAProxy service instance.
+swagger:model ListServicesOKBodyHaproxyItems0
+*/
+type ListServicesOKBodyHaproxyItems0 struct {
+
+	// Unique randomly generated instance identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// Unique across all Services user-defined name.
+	ServiceName string `json:"service_name,omitempty"`
+
+	// Node identifier where this service instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+}
+
+// Validate validates this list services OK body haproxy items0
+func (o *ListServicesOKBodyHaproxyItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list services OK body haproxy items0 based on context it is used
+func (o *ListServicesOKBodyHaproxyItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListServicesOKBodyHaproxyItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListServicesOKBodyHaproxyItems0) UnmarshalBinary(b []byte) error {
+	var res ListServicesOKBodyHaproxyItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ListServicesOKBodyMongodbItems0 MongoDBService represents a generic MongoDB instance.
+swagger:model ListServicesOKBodyMongodbItems0
+*/
+type ListServicesOKBodyMongodbItems0 struct {
 
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
@@ -668,13 +917,18 @@ type MongodbItems0 struct {
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
-// Validate validates this mongodb items0
-func (o *MongodbItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this list services OK body mongodb items0
+func (o *ListServicesOKBodyMongodbItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list services OK body mongodb items0 based on context it is used
+func (o *ListServicesOKBodyMongodbItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *MongodbItems0) MarshalBinary() ([]byte, error) {
+func (o *ListServicesOKBodyMongodbItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -682,8 +936,8 @@ func (o *MongodbItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *MongodbItems0) UnmarshalBinary(b []byte) error {
-	var res MongodbItems0
+func (o *ListServicesOKBodyMongodbItems0) UnmarshalBinary(b []byte) error {
+	var res ListServicesOKBodyMongodbItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -691,10 +945,10 @@ func (o *MongodbItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*MysqlItems0 MySQLService represents a generic MySQL instance.
-swagger:model MysqlItems0
+/*ListServicesOKBodyMysqlItems0 MySQLService represents a generic MySQL instance.
+swagger:model ListServicesOKBodyMysqlItems0
 */
-type MysqlItems0 struct {
+type ListServicesOKBodyMysqlItems0 struct {
 
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
@@ -730,13 +984,18 @@ type MysqlItems0 struct {
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
-// Validate validates this mysql items0
-func (o *MysqlItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this list services OK body mysql items0
+func (o *ListServicesOKBodyMysqlItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list services OK body mysql items0 based on context it is used
+func (o *ListServicesOKBodyMysqlItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *MysqlItems0) MarshalBinary() ([]byte, error) {
+func (o *ListServicesOKBodyMysqlItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -744,8 +1003,8 @@ func (o *MysqlItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *MysqlItems0) UnmarshalBinary(b []byte) error {
-	var res MysqlItems0
+func (o *ListServicesOKBodyMysqlItems0) UnmarshalBinary(b []byte) error {
+	var res ListServicesOKBodyMysqlItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -753,10 +1012,10 @@ func (o *MysqlItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*PostgresqlItems0 PostgreSQLService represents a generic PostgreSQL instance.
-swagger:model PostgresqlItems0
+/*ListServicesOKBodyPostgresqlItems0 PostgreSQLService represents a generic PostgreSQL instance.
+swagger:model ListServicesOKBodyPostgresqlItems0
 */
-type PostgresqlItems0 struct {
+type ListServicesOKBodyPostgresqlItems0 struct {
 
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
@@ -795,13 +1054,18 @@ type PostgresqlItems0 struct {
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
-// Validate validates this postgresql items0
-func (o *PostgresqlItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this list services OK body postgresql items0
+func (o *ListServicesOKBodyPostgresqlItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list services OK body postgresql items0 based on context it is used
+func (o *ListServicesOKBodyPostgresqlItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *PostgresqlItems0) MarshalBinary() ([]byte, error) {
+func (o *ListServicesOKBodyPostgresqlItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -809,8 +1073,8 @@ func (o *PostgresqlItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *PostgresqlItems0) UnmarshalBinary(b []byte) error {
-	var res PostgresqlItems0
+func (o *ListServicesOKBodyPostgresqlItems0) UnmarshalBinary(b []byte) error {
+	var res ListServicesOKBodyPostgresqlItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -818,10 +1082,10 @@ func (o *PostgresqlItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ProxysqlItems0 ProxySQLService represents a generic ProxySQL instance.
-swagger:model ProxysqlItems0
+/*ListServicesOKBodyProxysqlItems0 ProxySQLService represents a generic ProxySQL instance.
+swagger:model ListServicesOKBodyProxysqlItems0
 */
-type ProxysqlItems0 struct {
+type ListServicesOKBodyProxysqlItems0 struct {
 
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
@@ -857,13 +1121,18 @@ type ProxysqlItems0 struct {
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
-// Validate validates this proxysql items0
-func (o *ProxysqlItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this list services OK body proxysql items0
+func (o *ListServicesOKBodyProxysqlItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list services OK body proxysql items0 based on context it is used
+func (o *ListServicesOKBodyProxysqlItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *ProxysqlItems0) MarshalBinary() ([]byte, error) {
+func (o *ListServicesOKBodyProxysqlItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -871,8 +1140,8 @@ func (o *ProxysqlItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *ProxysqlItems0) UnmarshalBinary(b []byte) error {
-	var res ProxysqlItems0
+func (o *ListServicesOKBodyProxysqlItems0) UnmarshalBinary(b []byte) error {
+	var res ListServicesOKBodyProxysqlItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

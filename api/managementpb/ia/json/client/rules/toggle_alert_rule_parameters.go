@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewToggleAlertRuleParams creates a new ToggleAlertRuleParams object
-// with the default values initialized.
+// NewToggleAlertRuleParams creates a new ToggleAlertRuleParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewToggleAlertRuleParams() *ToggleAlertRuleParams {
-	var ()
 	return &ToggleAlertRuleParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewToggleAlertRuleParamsWithTimeout creates a new ToggleAlertRuleParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewToggleAlertRuleParamsWithTimeout(timeout time.Duration) *ToggleAlertRuleParams {
-	var ()
 	return &ToggleAlertRuleParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewToggleAlertRuleParamsWithContext creates a new ToggleAlertRuleParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewToggleAlertRuleParamsWithContext(ctx context.Context) *ToggleAlertRuleParams {
-	var ()
 	return &ToggleAlertRuleParams{
-
 		Context: ctx,
 	}
 }
 
 // NewToggleAlertRuleParamsWithHTTPClient creates a new ToggleAlertRuleParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewToggleAlertRuleParamsWithHTTPClient(client *http.Client) *ToggleAlertRuleParams {
-	var ()
 	return &ToggleAlertRuleParams{
 		HTTPClient: client,
 	}
 }
 
-/*ToggleAlertRuleParams contains all the parameters to send to the API endpoint
-for the toggle alert rule operation typically these are written to a http.Request
+/* ToggleAlertRuleParams contains all the parameters to send to the API endpoint
+   for the toggle alert rule operation.
+
+   Typically these are written to a http.Request.
 */
 type ToggleAlertRuleParams struct {
 
-	/*Body*/
+	// Body.
 	Body ToggleAlertRuleBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the toggle alert rule params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ToggleAlertRuleParams) WithDefaults() *ToggleAlertRuleParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the toggle alert rule params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ToggleAlertRuleParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the toggle alert rule params
@@ -119,7 +133,6 @@ func (o *ToggleAlertRuleParams) WriteToRequest(r runtime.ClientRequest, reg strf
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

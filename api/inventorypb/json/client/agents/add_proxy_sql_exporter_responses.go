@@ -6,6 +6,7 @@ package agents
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,7 +50,7 @@ func NewAddProxySQLExporterOK() *AddProxySQLExporterOK {
 	return &AddProxySQLExporterOK{}
 }
 
-/*AddProxySQLExporterOK handles this case with default header values.
+/* AddProxySQLExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -60,7 +61,6 @@ type AddProxySQLExporterOK struct {
 func (o *AddProxySQLExporterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddProxySQLExporter][%d] addProxySqlExporterOk  %+v", 200, o.Payload)
 }
-
 func (o *AddProxySQLExporterOK) GetPayload() *AddProxySQLExporterOKBody {
 	return o.Payload
 }
@@ -84,7 +84,7 @@ func NewAddProxySQLExporterDefault(code int) *AddProxySQLExporterDefault {
 	}
 }
 
-/*AddProxySQLExporterDefault handles this case with default header values.
+/* AddProxySQLExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -102,7 +102,6 @@ func (o *AddProxySQLExporterDefault) Code() int {
 func (o *AddProxySQLExporterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddProxySQLExporter][%d] AddProxySQLExporter default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AddProxySQLExporterDefault) GetPayload() *AddProxySQLExporterDefaultBody {
 	return o.Payload
 }
@@ -163,6 +162,11 @@ func (o *AddProxySQLExporterBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+// ContextValidate validates this add proxy SQL exporter body based on context it is used
+func (o *AddProxySQLExporterBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *AddProxySQLExporterBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -196,7 +200,7 @@ type AddProxySQLExporterDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*AddProxySQLExporterDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this add proxy SQL exporter default body
@@ -214,7 +218,6 @@ func (o *AddProxySQLExporterDefaultBody) Validate(formats strfmt.Registry) error
 }
 
 func (o *AddProxySQLExporterDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -228,6 +231,42 @@ func (o *AddProxySQLExporterDefaultBody) validateDetails(formats strfmt.Registry
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("AddProxySQLExporter default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddProxySQLExporter default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add proxy SQL exporter default body based on the context it is used
+func (o *AddProxySQLExporterDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddProxySQLExporterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("AddProxySQLExporter default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddProxySQLExporter default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -249,6 +288,47 @@ func (o *AddProxySQLExporterDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddProxySQLExporterDefaultBody) UnmarshalBinary(b []byte) error {
 	var res AddProxySQLExporterDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddProxySQLExporterDefaultBodyDetailsItems0 add proxy SQL exporter default body details items0
+swagger:model AddProxySQLExporterDefaultBodyDetailsItems0
+*/
+type AddProxySQLExporterDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this add proxy SQL exporter default body details items0
+func (o *AddProxySQLExporterDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add proxy SQL exporter default body details items0 based on context it is used
+func (o *AddProxySQLExporterDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddProxySQLExporterDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddProxySQLExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res AddProxySQLExporterDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -280,7 +360,6 @@ func (o *AddProxySQLExporterOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *AddProxySQLExporterOKBody) validateProxysqlExporter(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.ProxysqlExporter) { // not required
 		return nil
 	}
@@ -289,6 +368,38 @@ func (o *AddProxySQLExporterOKBody) validateProxysqlExporter(formats strfmt.Regi
 		if err := o.ProxysqlExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addProxySqlExporterOk" + "." + "proxysql_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addProxySqlExporterOk" + "." + "proxysql_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add proxy SQL exporter OK body based on the context it is used
+func (o *AddProxySQLExporterOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateProxysqlExporter(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddProxySQLExporterOKBody) contextValidateProxysqlExporter(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.ProxysqlExporter != nil {
+		if err := o.ProxysqlExporter.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addProxySqlExporterOk" + "." + "proxysql_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addProxySqlExporterOk" + "." + "proxysql_exporter")
 			}
 			return err
 		}
@@ -350,6 +461,9 @@ type AddProxySQLExporterOKBodyProxysqlExporter struct {
 	// List of disabled collector names.
 	DisabledCollectors []string `json:"disabled_collectors"`
 
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
+
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
@@ -360,9 +474,6 @@ type AddProxySQLExporterOKBodyProxysqlExporter struct {
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
-
-	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listen_port,omitempty"`
 }
 
 // Validate validates this add proxy SQL exporter OK body proxysql exporter
@@ -424,7 +535,6 @@ func (o *AddProxySQLExporterOKBodyProxysqlExporter) validateStatusEnum(path, loc
 }
 
 func (o *AddProxySQLExporterOKBodyProxysqlExporter) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -434,6 +544,11 @@ func (o *AddProxySQLExporterOKBodyProxysqlExporter) validateStatus(formats strfm
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this add proxy SQL exporter OK body proxysql exporter based on context it is used
+func (o *AddProxySQLExporterOKBodyProxysqlExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

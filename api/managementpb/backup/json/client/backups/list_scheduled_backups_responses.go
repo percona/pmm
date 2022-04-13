@@ -6,6 +6,7 @@ package backups
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,7 +50,7 @@ func NewListScheduledBackupsOK() *ListScheduledBackupsOK {
 	return &ListScheduledBackupsOK{}
 }
 
-/*ListScheduledBackupsOK handles this case with default header values.
+/* ListScheduledBackupsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -60,7 +61,6 @@ type ListScheduledBackupsOK struct {
 func (o *ListScheduledBackupsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/ListScheduled][%d] listScheduledBackupsOk  %+v", 200, o.Payload)
 }
-
 func (o *ListScheduledBackupsOK) GetPayload() *ListScheduledBackupsOKBody {
 	return o.Payload
 }
@@ -84,7 +84,7 @@ func NewListScheduledBackupsDefault(code int) *ListScheduledBackupsDefault {
 	}
 }
 
-/*ListScheduledBackupsDefault handles this case with default header values.
+/* ListScheduledBackupsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -102,7 +102,6 @@ func (o *ListScheduledBackupsDefault) Code() int {
 func (o *ListScheduledBackupsDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/ListScheduled][%d] ListScheduledBackups default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ListScheduledBackupsDefault) GetPayload() *ListScheduledBackupsDefaultBody {
 	return o.Payload
 }
@@ -134,7 +133,7 @@ type ListScheduledBackupsDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*ListScheduledBackupsDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this list scheduled backups default body
@@ -152,7 +151,6 @@ func (o *ListScheduledBackupsDefaultBody) Validate(formats strfmt.Registry) erro
 }
 
 func (o *ListScheduledBackupsDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -166,6 +164,42 @@ func (o *ListScheduledBackupsDefaultBody) validateDetails(formats strfmt.Registr
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ListScheduledBackups default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ListScheduledBackups default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list scheduled backups default body based on the context it is used
+func (o *ListScheduledBackupsDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListScheduledBackupsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("ListScheduledBackups default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ListScheduledBackups default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -194,13 +228,54 @@ func (o *ListScheduledBackupsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*ListScheduledBackupsDefaultBodyDetailsItems0 list scheduled backups default body details items0
+swagger:model ListScheduledBackupsDefaultBodyDetailsItems0
+*/
+type ListScheduledBackupsDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this list scheduled backups default body details items0
+func (o *ListScheduledBackupsDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list scheduled backups default body details items0 based on context it is used
+func (o *ListScheduledBackupsDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListScheduledBackupsDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListScheduledBackupsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res ListScheduledBackupsDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*ListScheduledBackupsOKBody list scheduled backups OK body
 swagger:model ListScheduledBackupsOKBody
 */
 type ListScheduledBackupsOKBody struct {
 
 	// scheduled backups
-	ScheduledBackups []*ScheduledBackupsItems0 `json:"scheduled_backups"`
+	ScheduledBackups []*ListScheduledBackupsOKBodyScheduledBackupsItems0 `json:"scheduled_backups"`
 }
 
 // Validate validates this list scheduled backups OK body
@@ -218,7 +293,6 @@ func (o *ListScheduledBackupsOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *ListScheduledBackupsOKBody) validateScheduledBackups(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.ScheduledBackups) { // not required
 		return nil
 	}
@@ -232,6 +306,42 @@ func (o *ListScheduledBackupsOKBody) validateScheduledBackups(formats strfmt.Reg
 			if err := o.ScheduledBackups[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listScheduledBackupsOk" + "." + "scheduled_backups" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listScheduledBackupsOk" + "." + "scheduled_backups" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list scheduled backups OK body based on the context it is used
+func (o *ListScheduledBackupsOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateScheduledBackups(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListScheduledBackupsOKBody) contextValidateScheduledBackups(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.ScheduledBackups); i++ {
+
+		if o.ScheduledBackups[i] != nil {
+			if err := o.ScheduledBackups[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listScheduledBackupsOk" + "." + "scheduled_backups" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listScheduledBackupsOk" + "." + "scheduled_backups" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -260,10 +370,10 @@ func (o *ListScheduledBackupsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ScheduledBackupsItems0 ScheduledBackup represents scheduled task for backup.
-swagger:model ScheduledBackupsItems0
+/*ListScheduledBackupsOKBodyScheduledBackupsItems0 ScheduledBackup represents scheduled task for backup.
+swagger:model ListScheduledBackupsOKBodyScheduledBackupsItems0
 */
-type ScheduledBackupsItems0 struct {
+type ListScheduledBackupsOKBodyScheduledBackupsItems0 struct {
 
 	// Machine-readable ID.
 	ScheduledBackupID string `json:"scheduled_backup_id,omitempty"`
@@ -302,10 +412,6 @@ type ScheduledBackupsItems0 struct {
 	// If scheduling is enabled.
 	Enabled bool `json:"enabled,omitempty"`
 
-	// DataModel is a model used for performing a backup.
-	// Enum: [DATA_MODEL_INVALID PHYSICAL LOGICAL]
-	DataModel *string `json:"data_model,omitempty"`
-
 	// Database vendor e.g. PostgreSQL, MongoDB, MySQL.
 	Vendor string `json:"vendor,omitempty"`
 
@@ -320,20 +426,20 @@ type ScheduledBackupsItems0 struct {
 	// How many artifacts keep. 0 - unlimited.
 	Retention int64 `json:"retention,omitempty"`
 
+	// DataModel is a model used for performing a backup.
+	// Enum: [DATA_MODEL_INVALID PHYSICAL LOGICAL]
+	DataModel *string `json:"data_model,omitempty"`
+
 	// BackupMode specifies backup mode.
 	// Enum: [BACKUP_MODE_INVALID SNAPSHOT INCREMENTAL PITR]
 	Mode *string `json:"mode,omitempty"`
 }
 
-// Validate validates this scheduled backups items0
-func (o *ScheduledBackupsItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this list scheduled backups OK body scheduled backups items0
+func (o *ListScheduledBackupsOKBodyScheduledBackupsItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateStartTime(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateDataModel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -342,6 +448,10 @@ func (o *ScheduledBackupsItems0) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateNextRun(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateDataModel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -355,8 +465,7 @@ func (o *ScheduledBackupsItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *ScheduledBackupsItems0) validateStartTime(formats strfmt.Registry) error {
-
+func (o *ListScheduledBackupsOKBodyScheduledBackupsItems0) validateStartTime(formats strfmt.Registry) error {
 	if swag.IsZero(o.StartTime) { // not required
 		return nil
 	}
@@ -368,7 +477,31 @@ func (o *ScheduledBackupsItems0) validateStartTime(formats strfmt.Registry) erro
 	return nil
 }
 
-var scheduledBackupsItems0TypeDataModelPropEnum []interface{}
+func (o *ListScheduledBackupsOKBodyScheduledBackupsItems0) validateLastRun(formats strfmt.Registry) error {
+	if swag.IsZero(o.LastRun) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("last_run", "body", "date-time", o.LastRun.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *ListScheduledBackupsOKBodyScheduledBackupsItems0) validateNextRun(formats strfmt.Registry) error {
+	if swag.IsZero(o.NextRun) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("next_run", "body", "date-time", o.NextRun.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var listScheduledBackupsOkBodyScheduledBackupsItems0TypeDataModelPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -376,32 +509,31 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		scheduledBackupsItems0TypeDataModelPropEnum = append(scheduledBackupsItems0TypeDataModelPropEnum, v)
+		listScheduledBackupsOkBodyScheduledBackupsItems0TypeDataModelPropEnum = append(listScheduledBackupsOkBodyScheduledBackupsItems0TypeDataModelPropEnum, v)
 	}
 }
 
 const (
 
-	// ScheduledBackupsItems0DataModelDATAMODELINVALID captures enum value "DATA_MODEL_INVALID"
-	ScheduledBackupsItems0DataModelDATAMODELINVALID string = "DATA_MODEL_INVALID"
+	// ListScheduledBackupsOKBodyScheduledBackupsItems0DataModelDATAMODELINVALID captures enum value "DATA_MODEL_INVALID"
+	ListScheduledBackupsOKBodyScheduledBackupsItems0DataModelDATAMODELINVALID string = "DATA_MODEL_INVALID"
 
-	// ScheduledBackupsItems0DataModelPHYSICAL captures enum value "PHYSICAL"
-	ScheduledBackupsItems0DataModelPHYSICAL string = "PHYSICAL"
+	// ListScheduledBackupsOKBodyScheduledBackupsItems0DataModelPHYSICAL captures enum value "PHYSICAL"
+	ListScheduledBackupsOKBodyScheduledBackupsItems0DataModelPHYSICAL string = "PHYSICAL"
 
-	// ScheduledBackupsItems0DataModelLOGICAL captures enum value "LOGICAL"
-	ScheduledBackupsItems0DataModelLOGICAL string = "LOGICAL"
+	// ListScheduledBackupsOKBodyScheduledBackupsItems0DataModelLOGICAL captures enum value "LOGICAL"
+	ListScheduledBackupsOKBodyScheduledBackupsItems0DataModelLOGICAL string = "LOGICAL"
 )
 
 // prop value enum
-func (o *ScheduledBackupsItems0) validateDataModelEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, scheduledBackupsItems0TypeDataModelPropEnum, true); err != nil {
+func (o *ListScheduledBackupsOKBodyScheduledBackupsItems0) validateDataModelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listScheduledBackupsOkBodyScheduledBackupsItems0TypeDataModelPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *ScheduledBackupsItems0) validateDataModel(formats strfmt.Registry) error {
-
+func (o *ListScheduledBackupsOKBodyScheduledBackupsItems0) validateDataModel(formats strfmt.Registry) error {
 	if swag.IsZero(o.DataModel) { // not required
 		return nil
 	}
@@ -414,33 +546,7 @@ func (o *ScheduledBackupsItems0) validateDataModel(formats strfmt.Registry) erro
 	return nil
 }
 
-func (o *ScheduledBackupsItems0) validateLastRun(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.LastRun) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("last_run", "body", "date-time", o.LastRun.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *ScheduledBackupsItems0) validateNextRun(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.NextRun) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("next_run", "body", "date-time", o.NextRun.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-var scheduledBackupsItems0TypeModePropEnum []interface{}
+var listScheduledBackupsOkBodyScheduledBackupsItems0TypeModePropEnum []interface{}
 
 func init() {
 	var res []string
@@ -448,35 +554,34 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		scheduledBackupsItems0TypeModePropEnum = append(scheduledBackupsItems0TypeModePropEnum, v)
+		listScheduledBackupsOkBodyScheduledBackupsItems0TypeModePropEnum = append(listScheduledBackupsOkBodyScheduledBackupsItems0TypeModePropEnum, v)
 	}
 }
 
 const (
 
-	// ScheduledBackupsItems0ModeBACKUPMODEINVALID captures enum value "BACKUP_MODE_INVALID"
-	ScheduledBackupsItems0ModeBACKUPMODEINVALID string = "BACKUP_MODE_INVALID"
+	// ListScheduledBackupsOKBodyScheduledBackupsItems0ModeBACKUPMODEINVALID captures enum value "BACKUP_MODE_INVALID"
+	ListScheduledBackupsOKBodyScheduledBackupsItems0ModeBACKUPMODEINVALID string = "BACKUP_MODE_INVALID"
 
-	// ScheduledBackupsItems0ModeSNAPSHOT captures enum value "SNAPSHOT"
-	ScheduledBackupsItems0ModeSNAPSHOT string = "SNAPSHOT"
+	// ListScheduledBackupsOKBodyScheduledBackupsItems0ModeSNAPSHOT captures enum value "SNAPSHOT"
+	ListScheduledBackupsOKBodyScheduledBackupsItems0ModeSNAPSHOT string = "SNAPSHOT"
 
-	// ScheduledBackupsItems0ModeINCREMENTAL captures enum value "INCREMENTAL"
-	ScheduledBackupsItems0ModeINCREMENTAL string = "INCREMENTAL"
+	// ListScheduledBackupsOKBodyScheduledBackupsItems0ModeINCREMENTAL captures enum value "INCREMENTAL"
+	ListScheduledBackupsOKBodyScheduledBackupsItems0ModeINCREMENTAL string = "INCREMENTAL"
 
-	// ScheduledBackupsItems0ModePITR captures enum value "PITR"
-	ScheduledBackupsItems0ModePITR string = "PITR"
+	// ListScheduledBackupsOKBodyScheduledBackupsItems0ModePITR captures enum value "PITR"
+	ListScheduledBackupsOKBodyScheduledBackupsItems0ModePITR string = "PITR"
 )
 
 // prop value enum
-func (o *ScheduledBackupsItems0) validateModeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, scheduledBackupsItems0TypeModePropEnum, true); err != nil {
+func (o *ListScheduledBackupsOKBodyScheduledBackupsItems0) validateModeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listScheduledBackupsOkBodyScheduledBackupsItems0TypeModePropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *ScheduledBackupsItems0) validateMode(formats strfmt.Registry) error {
-
+func (o *ListScheduledBackupsOKBodyScheduledBackupsItems0) validateMode(formats strfmt.Registry) error {
 	if swag.IsZero(o.Mode) { // not required
 		return nil
 	}
@@ -489,8 +594,13 @@ func (o *ScheduledBackupsItems0) validateMode(formats strfmt.Registry) error {
 	return nil
 }
 
+// ContextValidate validates this list scheduled backups OK body scheduled backups items0 based on context it is used
+func (o *ListScheduledBackupsOKBodyScheduledBackupsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
-func (o *ScheduledBackupsItems0) MarshalBinary() ([]byte, error) {
+func (o *ListScheduledBackupsOKBodyScheduledBackupsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -498,8 +608,8 @@ func (o *ScheduledBackupsItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *ScheduledBackupsItems0) UnmarshalBinary(b []byte) error {
-	var res ScheduledBackupsItems0
+func (o *ListScheduledBackupsOKBodyScheduledBackupsItems0) UnmarshalBinary(b []byte) error {
+	var res ListScheduledBackupsOKBodyScheduledBackupsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

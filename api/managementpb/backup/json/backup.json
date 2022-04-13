@@ -141,8 +141,7 @@
                           "DATA_MODEL_INVALID",
                           "PHYSICAL",
                           "LOGICAL"
-                        ],
-                        "x-order": 7
+                        ]
                       },
                       "location_id": {
                         "description": "Machine-readable location ID.",
@@ -163,8 +162,7 @@
                           "SNAPSHOT",
                           "INCREMENTAL",
                           "PITR"
-                        ],
-                        "x-order": 10
+                        ]
                       },
                       "name": {
                         "type": "string",
@@ -194,8 +192,7 @@
                           "BACKUP_STATUS_ERROR",
                           "BACKUP_STATUS_DELETING",
                           "BACKUP_STATUS_FAILED_TO_DELETE"
-                        ],
-                        "x-order": 8
+                        ]
                       },
                       "vendor": {
                         "description": "Database vendor e.g. PostgreSQL, MongoDB, MySQL.",
@@ -717,8 +714,7 @@
                           "DATA_MODEL_INVALID",
                           "PHYSICAL",
                           "LOGICAL"
-                        ],
-                        "x-order": 12
+                        ]
                       },
                       "description": {
                         "description": "Description.",
@@ -755,8 +751,7 @@
                           "SNAPSHOT",
                           "INCREMENTAL",
                           "PITR"
-                        ],
-                        "x-order": 17
+                        ]
                       },
                       "name": {
                         "description": "Artifact name.",
@@ -1063,8 +1058,7 @@
                     "SNAPSHOT",
                     "INCREMENTAL",
                     "PITR"
-                  ],
-                  "x-order": 10
+                  ]
                 },
                 "name": {
                   "description": "Name of backup.",
@@ -1297,8 +1291,7 @@
                       "type": "string",
                       "x-order": 0
                     }
-                  },
-                  "x-order": 2
+                  }
                 },
                 "pmm_server_config": {
                   "description": "PMMServerLocationConfig represents file system config inside pmm-server.",
@@ -1308,8 +1301,7 @@
                       "type": "string",
                       "x-order": 0
                     }
-                  },
-                  "x-order": 3
+                  }
                 },
                 "s3_config": {
                   "description": "S3LocationConfig represents S3 bucket configuration.",
@@ -1331,8 +1323,7 @@
                       "type": "string",
                       "x-order": 2
                     }
-                  },
-                  "x-order": 4
+                  }
                 }
               }
             }
@@ -1431,8 +1422,7 @@
                       "type": "string",
                       "x-order": 0
                     }
-                  },
-                  "x-order": 3
+                  }
                 },
                 "pmm_server_config": {
                   "description": "PMMServerLocationConfig represents file system config inside pmm-server.",
@@ -1442,8 +1432,7 @@
                       "type": "string",
                       "x-order": 0
                     }
-                  },
-                  "x-order": 4
+                  }
                 },
                 "s3_config": {
                   "description": "S3LocationConfig represents S3 bucket configuration.",
@@ -1465,8 +1454,7 @@
                       "type": "string",
                       "x-order": 2
                     }
-                  },
-                  "x-order": 5
+                  }
                 }
               }
             }
@@ -1573,8 +1561,7 @@
                             "type": "string",
                             "x-order": 0
                           }
-                        },
-                        "x-order": 3
+                        }
                       },
                       "pmm_server_config": {
                         "description": "PMMServerLocationConfig represents file system config inside pmm-server.",
@@ -1584,8 +1571,7 @@
                             "type": "string",
                             "x-order": 0
                           }
-                        },
-                        "x-order": 4
+                        }
                       },
                       "s3_config": {
                         "description": "S3LocationConfig represents S3 bucket configuration.",
@@ -1607,8 +1593,7 @@
                             "type": "string",
                             "x-order": 2
                           }
-                        },
-                        "x-order": 5
+                        }
                       }
                     }
                   },
@@ -1760,8 +1745,7 @@
                       "type": "string",
                       "x-order": 0
                     }
-                  },
-                  "x-order": 0
+                  }
                 },
                 "pmm_server_config": {
                   "description": "PMMServerLocationConfig represents file system config inside pmm-server.",
@@ -1771,8 +1755,7 @@
                       "type": "string",
                       "x-order": 0
                     }
-                  },
-                  "x-order": 1
+                  }
                 },
                 "s3_config": {
                   "description": "S3LocationConfig represents S3 bucket configuration.",
@@ -1794,8 +1777,7 @@
                       "type": "string",
                       "x-order": 2
                     }
-                  },
-                  "x-order": 2
+                  }
                 }
               }
             }
@@ -1892,8 +1874,7 @@
                           "DATA_MODEL_INVALID",
                           "PHYSICAL",
                           "LOGICAL"
-                        ],
-                        "x-order": 8
+                        ]
                       },
                       "finished_at": {
                         "description": "Restore finish time.",
@@ -1946,8 +1927,7 @@
                           "RESTORE_STATUS_IN_PROGRESS",
                           "RESTORE_STATUS_SUCCESS",
                           "RESTORE_STATUS_ERROR"
-                        ],
-                        "x-order": 9
+                        ]
                       },
                       "vendor": {
                         "description": "Database vendor e.g. PostgreSQL, MongoDB, MySQL.",

@@ -6,6 +6,7 @@ package mongo_db
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,7 +50,7 @@ func NewAddMongoDBOK() *AddMongoDBOK {
 	return &AddMongoDBOK{}
 }
 
-/*AddMongoDBOK handles this case with default header values.
+/* AddMongoDBOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -60,7 +61,6 @@ type AddMongoDBOK struct {
 func (o *AddMongoDBOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/MongoDB/Add][%d] addMongoDbOk  %+v", 200, o.Payload)
 }
-
 func (o *AddMongoDBOK) GetPayload() *AddMongoDBOKBody {
 	return o.Payload
 }
@@ -84,7 +84,7 @@ func NewAddMongoDBDefault(code int) *AddMongoDBDefault {
 	}
 }
 
-/*AddMongoDBDefault handles this case with default header values.
+/* AddMongoDBDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -102,7 +102,6 @@ func (o *AddMongoDBDefault) Code() int {
 func (o *AddMongoDBDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/MongoDB/Add][%d] AddMongoDB default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AddMongoDBDefault) GetPayload() *AddMongoDBDefaultBody {
 	return o.Payload
 }
@@ -189,11 +188,6 @@ type AddMongoDBBody struct {
 	// Certificate Authority certificate chain.
 	TLSCa string `json:"tls_ca,omitempty"`
 
-	// MetricsMode defines desired metrics mode for agent,
-	// it can be pull, push or auto mode chosen by server.
-	// Enum: [AUTO PULL PUSH]
-	MetricsMode *string `json:"metrics_mode,omitempty"`
-
 	// List of collector names to disable in this exporter.
 	DisableCollectors []string `json:"disable_collectors"`
 
@@ -220,23 +214,47 @@ type AddMongoDBBody struct {
 
 	// add node
 	AddNode *AddMongoDBParamsBodyAddNode `json:"add_node,omitempty"`
+
+	// MetricsMode defines desired metrics mode for agent,
+	// it can be pull, push or auto mode chosen by server.
+	// Enum: [AUTO PULL PUSH]
+	MetricsMode *string `json:"metrics_mode,omitempty"`
 }
 
 // Validate validates this add mongo DB body
 func (o *AddMongoDBBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateMetricsMode(formats); err != nil {
+	if err := o.validateAddNode(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.validateAddNode(formats); err != nil {
+	if err := o.validateMetricsMode(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *AddMongoDBBody) validateAddNode(formats strfmt.Registry) error {
+	if swag.IsZero(o.AddNode) { // not required
+		return nil
+	}
+
+	if o.AddNode != nil {
+		if err := o.AddNode.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "add_node")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "add_node")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -273,7 +291,6 @@ func (o *AddMongoDBBody) validateMetricsModeEnum(path, location string, value st
 }
 
 func (o *AddMongoDBBody) validateMetricsMode(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.MetricsMode) { // not required
 		return nil
 	}
@@ -286,16 +303,28 @@ func (o *AddMongoDBBody) validateMetricsMode(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *AddMongoDBBody) validateAddNode(formats strfmt.Registry) error {
+// ContextValidate validate this add mongo DB body based on the context it is used
+func (o *AddMongoDBBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
 
-	if swag.IsZero(o.AddNode) { // not required
-		return nil
+	if err := o.contextValidateAddNode(ctx, formats); err != nil {
+		res = append(res, err)
 	}
 
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddMongoDBBody) contextValidateAddNode(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.AddNode != nil {
-		if err := o.AddNode.Validate(formats); err != nil {
+		if err := o.AddNode.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "add_node")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "add_node")
 			}
 			return err
 		}
@@ -337,7 +366,7 @@ type AddMongoDBDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*AddMongoDBDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this add mongo DB default body
@@ -355,7 +384,6 @@ func (o *AddMongoDBDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *AddMongoDBDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -369,6 +397,42 @@ func (o *AddMongoDBDefaultBody) validateDetails(formats strfmt.Registry) error {
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("AddMongoDB default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddMongoDB default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add mongo DB default body based on the context it is used
+func (o *AddMongoDBDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddMongoDBDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("AddMongoDB default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddMongoDB default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -390,6 +454,47 @@ func (o *AddMongoDBDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddMongoDBDefaultBody) UnmarshalBinary(b []byte) error {
 	var res AddMongoDBDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddMongoDBDefaultBodyDetailsItems0 add mongo DB default body details items0
+swagger:model AddMongoDBDefaultBodyDetailsItems0
+*/
+type AddMongoDBDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this add mongo DB default body details items0
+func (o *AddMongoDBDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add mongo DB default body details items0 based on context it is used
+func (o *AddMongoDBDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddMongoDBDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddMongoDBDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res AddMongoDBDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -435,7 +540,6 @@ func (o *AddMongoDBOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *AddMongoDBOKBody) validateMongodbExporter(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.MongodbExporter) { // not required
 		return nil
 	}
@@ -444,6 +548,8 @@ func (o *AddMongoDBOKBody) validateMongodbExporter(formats strfmt.Registry) erro
 		if err := o.MongodbExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addMongoDbOk" + "." + "mongodb_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addMongoDbOk" + "." + "mongodb_exporter")
 			}
 			return err
 		}
@@ -453,7 +559,6 @@ func (o *AddMongoDBOKBody) validateMongodbExporter(formats strfmt.Registry) erro
 }
 
 func (o *AddMongoDBOKBody) validateQANMongodbProfiler(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.QANMongodbProfiler) { // not required
 		return nil
 	}
@@ -462,6 +567,8 @@ func (o *AddMongoDBOKBody) validateQANMongodbProfiler(formats strfmt.Registry) e
 		if err := o.QANMongodbProfiler.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addMongoDbOk" + "." + "qan_mongodb_profiler")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addMongoDbOk" + "." + "qan_mongodb_profiler")
 			}
 			return err
 		}
@@ -471,7 +578,6 @@ func (o *AddMongoDBOKBody) validateQANMongodbProfiler(formats strfmt.Registry) e
 }
 
 func (o *AddMongoDBOKBody) validateService(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Service) { // not required
 		return nil
 	}
@@ -480,6 +586,78 @@ func (o *AddMongoDBOKBody) validateService(formats strfmt.Registry) error {
 		if err := o.Service.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addMongoDbOk" + "." + "service")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addMongoDbOk" + "." + "service")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add mongo DB OK body based on the context it is used
+func (o *AddMongoDBOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMongodbExporter(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateQANMongodbProfiler(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateService(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddMongoDBOKBody) contextValidateMongodbExporter(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.MongodbExporter != nil {
+		if err := o.MongodbExporter.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addMongoDbOk" + "." + "mongodb_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addMongoDbOk" + "." + "mongodb_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddMongoDBOKBody) contextValidateQANMongodbProfiler(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.QANMongodbProfiler != nil {
+		if err := o.QANMongodbProfiler.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addMongoDbOk" + "." + "qan_mongodb_profiler")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addMongoDbOk" + "." + "qan_mongodb_profiler")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddMongoDBOKBody) contextValidateService(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Service != nil {
+		if err := o.Service.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addMongoDbOk" + "." + "service")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addMongoDbOk" + "." + "service")
 			}
 			return err
 		}
@@ -541,17 +719,6 @@ type AddMongoDBOKBodyMongodbExporter struct {
 	// List of disabled collector names.
 	DisabledCollectors []string `json:"disabled_collectors"`
 
-	// AgentStatus represents actual Agent status.
-	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
-	Status *string `json:"status,omitempty"`
-
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
@@ -564,6 +731,17 @@ type AddMongoDBOKBodyMongodbExporter struct {
 
 	// Enable All collectors.
 	EnableAllCollectors bool `json:"enable_all_collectors,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
+	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	Status *string `json:"status,omitempty"`
 }
 
 // Validate validates this add mongo DB OK body mongodb exporter
@@ -625,7 +803,6 @@ func (o *AddMongoDBOKBodyMongodbExporter) validateStatusEnum(path, location stri
 }
 
 func (o *AddMongoDBOKBodyMongodbExporter) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -635,6 +812,11 @@ func (o *AddMongoDBOKBodyMongodbExporter) validateStatus(formats strfmt.Registry
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this add mongo DB OK body mongodb exporter based on context it is used
+func (o *AddMongoDBOKBodyMongodbExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -756,7 +938,6 @@ func (o *AddMongoDBOKBodyQANMongodbProfiler) validateStatusEnum(path, location s
 }
 
 func (o *AddMongoDBOKBodyQANMongodbProfiler) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -766,6 +947,11 @@ func (o *AddMongoDBOKBodyQANMongodbProfiler) validateStatus(formats strfmt.Regis
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this add mongo DB OK body QAN mongodb profiler based on context it is used
+func (o *AddMongoDBOKBodyQANMongodbProfiler) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -831,6 +1017,11 @@ func (o *AddMongoDBOKBodyService) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+// ContextValidate validates this add mongo DB OK body service based on context it is used
+func (o *AddMongoDBOKBodyService) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *AddMongoDBOKBodyService) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -853,10 +1044,6 @@ func (o *AddMongoDBOKBodyService) UnmarshalBinary(b []byte) error {
 swagger:model AddMongoDBParamsBodyAddNode
 */
 type AddMongoDBParamsBodyAddNode struct {
-
-	// NodeType describes supported Node types.
-	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE REMOTE_AZURE_DATABASE_NODE]
-	NodeType *string `json:"node_type,omitempty"`
 
 	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
@@ -884,6 +1071,10 @@ type AddMongoDBParamsBodyAddNode struct {
 
 	// Custom user-assigned labels for Node.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// NodeType describes supported Node types.
+	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE REMOTE_AZURE_DATABASE_NODE]
+	NodeType *string `json:"node_type,omitempty"`
 }
 
 // Validate validates this add mongo DB params body add node
@@ -942,7 +1133,6 @@ func (o *AddMongoDBParamsBodyAddNode) validateNodeTypeEnum(path, location string
 }
 
 func (o *AddMongoDBParamsBodyAddNode) validateNodeType(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.NodeType) { // not required
 		return nil
 	}
@@ -952,6 +1142,11 @@ func (o *AddMongoDBParamsBodyAddNode) validateNodeType(formats strfmt.Registry) 
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this add mongo DB params body add node based on context it is used
+func (o *AddMongoDBParamsBodyAddNode) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -966,42 +1161,6 @@ func (o *AddMongoDBParamsBodyAddNode) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddMongoDBParamsBodyAddNode) UnmarshalBinary(b []byte) error {
 	var res AddMongoDBParamsBodyAddNode
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*DetailsItems0 details items0
-swagger:model DetailsItems0
-*/
-type DetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
-}
-
-// Validate validates this details items0
-func (o *DetailsItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
-	var res DetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

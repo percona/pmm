@@ -6,6 +6,7 @@ package templates
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,7 +50,7 @@ func NewListTemplatesOK() *ListTemplatesOK {
 	return &ListTemplatesOK{}
 }
 
-/*ListTemplatesOK handles this case with default header values.
+/* ListTemplatesOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -60,7 +61,6 @@ type ListTemplatesOK struct {
 func (o *ListTemplatesOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Templates/List][%d] listTemplatesOk  %+v", 200, o.Payload)
 }
-
 func (o *ListTemplatesOK) GetPayload() *ListTemplatesOKBody {
 	return o.Payload
 }
@@ -84,7 +84,7 @@ func NewListTemplatesDefault(code int) *ListTemplatesDefault {
 	}
 }
 
-/*ListTemplatesDefault handles this case with default header values.
+/* ListTemplatesDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -102,7 +102,6 @@ func (o *ListTemplatesDefault) Code() int {
 func (o *ListTemplatesDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Templates/List][%d] ListTemplates default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ListTemplatesDefault) GetPayload() *ListTemplatesDefaultBody {
 	return o.Payload
 }
@@ -146,7 +145,6 @@ func (o *ListTemplatesBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *ListTemplatesBody) validatePageParams(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.PageParams) { // not required
 		return nil
 	}
@@ -155,6 +153,38 @@ func (o *ListTemplatesBody) validatePageParams(formats strfmt.Registry) error {
 		if err := o.PageParams.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "page_params")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "page_params")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list templates body based on the context it is used
+func (o *ListTemplatesBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidatePageParams(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListTemplatesBody) contextValidatePageParams(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.PageParams != nil {
+		if err := o.PageParams.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "page_params")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "page_params")
 			}
 			return err
 		}
@@ -196,7 +226,7 @@ type ListTemplatesDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*ListTemplatesDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this list templates default body
@@ -214,7 +244,6 @@ func (o *ListTemplatesDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *ListTemplatesDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -228,6 +257,42 @@ func (o *ListTemplatesDefaultBody) validateDetails(formats strfmt.Registry) erro
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ListTemplates default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ListTemplates default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list templates default body based on the context it is used
+func (o *ListTemplatesDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListTemplatesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("ListTemplates default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ListTemplates default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -256,13 +321,54 @@ func (o *ListTemplatesDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*ListTemplatesDefaultBodyDetailsItems0 list templates default body details items0
+swagger:model ListTemplatesDefaultBodyDetailsItems0
+*/
+type ListTemplatesDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this list templates default body details items0
+func (o *ListTemplatesDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list templates default body details items0 based on context it is used
+func (o *ListTemplatesDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListTemplatesDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListTemplatesDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res ListTemplatesDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*ListTemplatesOKBody list templates OK body
 swagger:model ListTemplatesOKBody
 */
 type ListTemplatesOKBody struct {
 
 	// templates
-	Templates []*TemplatesItems0 `json:"templates"`
+	Templates []*ListTemplatesOKBodyTemplatesItems0 `json:"templates"`
 
 	// totals
 	Totals *ListTemplatesOKBodyTotals `json:"totals,omitempty"`
@@ -287,7 +393,6 @@ func (o *ListTemplatesOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *ListTemplatesOKBody) validateTemplates(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Templates) { // not required
 		return nil
 	}
@@ -301,6 +406,8 @@ func (o *ListTemplatesOKBody) validateTemplates(formats strfmt.Registry) error {
 			if err := o.Templates[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listTemplatesOk" + "." + "templates" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listTemplatesOk" + "." + "templates" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -312,7 +419,6 @@ func (o *ListTemplatesOKBody) validateTemplates(formats strfmt.Registry) error {
 }
 
 func (o *ListTemplatesOKBody) validateTotals(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Totals) { // not required
 		return nil
 	}
@@ -321,6 +427,62 @@ func (o *ListTemplatesOKBody) validateTotals(formats strfmt.Registry) error {
 		if err := o.Totals.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("listTemplatesOk" + "." + "totals")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("listTemplatesOk" + "." + "totals")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list templates OK body based on the context it is used
+func (o *ListTemplatesOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateTemplates(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateTotals(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListTemplatesOKBody) contextValidateTemplates(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Templates); i++ {
+
+		if o.Templates[i] != nil {
+			if err := o.Templates[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listTemplatesOk" + "." + "templates" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listTemplatesOk" + "." + "templates" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ListTemplatesOKBody) contextValidateTotals(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Totals != nil {
+		if err := o.Totals.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("listTemplatesOk" + "." + "totals")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("listTemplatesOk" + "." + "totals")
 			}
 			return err
 		}
@@ -347,6 +509,773 @@ func (o *ListTemplatesOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*ListTemplatesOKBodyTemplatesItems0 Template represents Alert Template that is used to create Alert Rule.
+swagger:model ListTemplatesOKBodyTemplatesItems0
+*/
+type ListTemplatesOKBodyTemplatesItems0 struct {
+
+	// Machine-readable name (ID).
+	Name string `json:"name,omitempty"`
+
+	// Short human-readable summary.
+	Summary string `json:"summary,omitempty"`
+
+	// PromQL query expression with templating parameters.
+	Expr string `json:"expr,omitempty"`
+
+	// Query parameters definitions.
+	Params []*ListTemplatesOKBodyTemplatesItems0ParamsItems0 `json:"params"`
+
+	// Default duration value.
+	For string `json:"for,omitempty"`
+
+	// Labels.
+	Labels map[string]string `json:"labels,omitempty"`
+
+	// Annotations.
+	Annotations map[string]string `json:"annotations,omitempty"`
+
+	// Template creation time. Empty for built-in and SaaS templates.
+	// Format: date-time
+	CreatedAt strfmt.DateTime `json:"created_at,omitempty"`
+
+	// YAML (or JSON) template file content. Empty for built-in and SaaS templates.
+	Yaml string `json:"yaml,omitempty"`
+
+	// Severity represents severity level of the check result or alert.
+	// Enum: [SEVERITY_INVALID SEVERITY_EMERGENCY SEVERITY_ALERT SEVERITY_CRITICAL SEVERITY_ERROR SEVERITY_WARNING SEVERITY_NOTICE SEVERITY_INFO SEVERITY_DEBUG]
+	Severity *string `json:"severity,omitempty"`
+
+	// TemplateSource defines template source.
+	//
+	//  - BUILT_IN: Template that is shipped with PMM Server releases.
+	//  - SAAS: Template that is downloaded from check.percona.com.
+	//  - USER_FILE: Templated loaded from user-suplied file.
+	//  - USER_API: Templated created via API.
+	// Enum: [TEMPLATE_SOURCE_INVALID BUILT_IN SAAS USER_FILE USER_API]
+	Source *string `json:"source,omitempty"`
+}
+
+// Validate validates this list templates OK body templates items0
+func (o *ListTemplatesOKBodyTemplatesItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateParams(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateCreatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateSeverity(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateSource(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListTemplatesOKBodyTemplatesItems0) validateParams(formats strfmt.Registry) error {
+	if swag.IsZero(o.Params) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Params); i++ {
+		if swag.IsZero(o.Params[i]) { // not required
+			continue
+		}
+
+		if o.Params[i] != nil {
+			if err := o.Params[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("params" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("params" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ListTemplatesOKBodyTemplatesItems0) validateCreatedAt(formats strfmt.Registry) error {
+	if swag.IsZero(o.CreatedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("created_at", "body", "date-time", o.CreatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var listTemplatesOkBodyTemplatesItems0TypeSeverityPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["SEVERITY_INVALID","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		listTemplatesOkBodyTemplatesItems0TypeSeverityPropEnum = append(listTemplatesOkBodyTemplatesItems0TypeSeverityPropEnum, v)
+	}
+}
+
+const (
+
+	// ListTemplatesOKBodyTemplatesItems0SeveritySEVERITYINVALID captures enum value "SEVERITY_INVALID"
+	ListTemplatesOKBodyTemplatesItems0SeveritySEVERITYINVALID string = "SEVERITY_INVALID"
+
+	// ListTemplatesOKBodyTemplatesItems0SeveritySEVERITYEMERGENCY captures enum value "SEVERITY_EMERGENCY"
+	ListTemplatesOKBodyTemplatesItems0SeveritySEVERITYEMERGENCY string = "SEVERITY_EMERGENCY"
+
+	// ListTemplatesOKBodyTemplatesItems0SeveritySEVERITYALERT captures enum value "SEVERITY_ALERT"
+	ListTemplatesOKBodyTemplatesItems0SeveritySEVERITYALERT string = "SEVERITY_ALERT"
+
+	// ListTemplatesOKBodyTemplatesItems0SeveritySEVERITYCRITICAL captures enum value "SEVERITY_CRITICAL"
+	ListTemplatesOKBodyTemplatesItems0SeveritySEVERITYCRITICAL string = "SEVERITY_CRITICAL"
+
+	// ListTemplatesOKBodyTemplatesItems0SeveritySEVERITYERROR captures enum value "SEVERITY_ERROR"
+	ListTemplatesOKBodyTemplatesItems0SeveritySEVERITYERROR string = "SEVERITY_ERROR"
+
+	// ListTemplatesOKBodyTemplatesItems0SeveritySEVERITYWARNING captures enum value "SEVERITY_WARNING"
+	ListTemplatesOKBodyTemplatesItems0SeveritySEVERITYWARNING string = "SEVERITY_WARNING"
+
+	// ListTemplatesOKBodyTemplatesItems0SeveritySEVERITYNOTICE captures enum value "SEVERITY_NOTICE"
+	ListTemplatesOKBodyTemplatesItems0SeveritySEVERITYNOTICE string = "SEVERITY_NOTICE"
+
+	// ListTemplatesOKBodyTemplatesItems0SeveritySEVERITYINFO captures enum value "SEVERITY_INFO"
+	ListTemplatesOKBodyTemplatesItems0SeveritySEVERITYINFO string = "SEVERITY_INFO"
+
+	// ListTemplatesOKBodyTemplatesItems0SeveritySEVERITYDEBUG captures enum value "SEVERITY_DEBUG"
+	ListTemplatesOKBodyTemplatesItems0SeveritySEVERITYDEBUG string = "SEVERITY_DEBUG"
+)
+
+// prop value enum
+func (o *ListTemplatesOKBodyTemplatesItems0) validateSeverityEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listTemplatesOkBodyTemplatesItems0TypeSeverityPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ListTemplatesOKBodyTemplatesItems0) validateSeverity(formats strfmt.Registry) error {
+	if swag.IsZero(o.Severity) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateSeverityEnum("severity", "body", *o.Severity); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var listTemplatesOkBodyTemplatesItems0TypeSourcePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["TEMPLATE_SOURCE_INVALID","BUILT_IN","SAAS","USER_FILE","USER_API"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		listTemplatesOkBodyTemplatesItems0TypeSourcePropEnum = append(listTemplatesOkBodyTemplatesItems0TypeSourcePropEnum, v)
+	}
+}
+
+const (
+
+	// ListTemplatesOKBodyTemplatesItems0SourceTEMPLATESOURCEINVALID captures enum value "TEMPLATE_SOURCE_INVALID"
+	ListTemplatesOKBodyTemplatesItems0SourceTEMPLATESOURCEINVALID string = "TEMPLATE_SOURCE_INVALID"
+
+	// ListTemplatesOKBodyTemplatesItems0SourceBUILTIN captures enum value "BUILT_IN"
+	ListTemplatesOKBodyTemplatesItems0SourceBUILTIN string = "BUILT_IN"
+
+	// ListTemplatesOKBodyTemplatesItems0SourceSAAS captures enum value "SAAS"
+	ListTemplatesOKBodyTemplatesItems0SourceSAAS string = "SAAS"
+
+	// ListTemplatesOKBodyTemplatesItems0SourceUSERFILE captures enum value "USER_FILE"
+	ListTemplatesOKBodyTemplatesItems0SourceUSERFILE string = "USER_FILE"
+
+	// ListTemplatesOKBodyTemplatesItems0SourceUSERAPI captures enum value "USER_API"
+	ListTemplatesOKBodyTemplatesItems0SourceUSERAPI string = "USER_API"
+)
+
+// prop value enum
+func (o *ListTemplatesOKBodyTemplatesItems0) validateSourceEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listTemplatesOkBodyTemplatesItems0TypeSourcePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ListTemplatesOKBodyTemplatesItems0) validateSource(formats strfmt.Registry) error {
+	if swag.IsZero(o.Source) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateSourceEnum("source", "body", *o.Source); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list templates OK body templates items0 based on the context it is used
+func (o *ListTemplatesOKBodyTemplatesItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateParams(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListTemplatesOKBodyTemplatesItems0) contextValidateParams(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Params); i++ {
+
+		if o.Params[i] != nil {
+			if err := o.Params[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("params" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("params" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListTemplatesOKBodyTemplatesItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListTemplatesOKBodyTemplatesItems0) UnmarshalBinary(b []byte) error {
+	var res ListTemplatesOKBodyTemplatesItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ListTemplatesOKBodyTemplatesItems0ParamsItems0 ParamDefinition represents a single query parameter.
+swagger:model ListTemplatesOKBodyTemplatesItems0ParamsItems0
+*/
+type ListTemplatesOKBodyTemplatesItems0ParamsItems0 struct {
+
+	// Machine-readable name (ID) that is used in expression.
+	Name string `json:"name,omitempty"`
+
+	// Short human-readable parameter summary.
+	Summary string `json:"summary,omitempty"`
+
+	// bool
+	Bool *ListTemplatesOKBodyTemplatesItems0ParamsItems0Bool `json:"bool,omitempty"`
+
+	// float
+	Float *ListTemplatesOKBodyTemplatesItems0ParamsItems0Float `json:"float,omitempty"`
+
+	// string
+	String *ListTemplatesOKBodyTemplatesItems0ParamsItems0String `json:"string,omitempty"`
+
+	// ParamType represents template parameter type.
+	// Enum: [PARAM_TYPE_INVALID BOOL FLOAT STRING]
+	Type *string `json:"type,omitempty"`
+
+	// ParamUnit represents template parameter unit.
+	//
+	//  - PARAM_UNIT_INVALID: Invalid, unknown or absent.
+	//  - PERCENTAGE: %
+	//  - SECONDS: s
+	// Enum: [PARAM_UNIT_INVALID PERCENTAGE SECONDS]
+	Unit *string `json:"unit,omitempty"`
+}
+
+// Validate validates this list templates OK body templates items0 params items0
+func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateBool(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateFloat(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateString(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateUnit(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0) validateBool(formats strfmt.Registry) error {
+	if swag.IsZero(o.Bool) { // not required
+		return nil
+	}
+
+	if o.Bool != nil {
+		if err := o.Bool.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("bool")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("bool")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0) validateFloat(formats strfmt.Registry) error {
+	if swag.IsZero(o.Float) { // not required
+		return nil
+	}
+
+	if o.Float != nil {
+		if err := o.Float.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("float")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("float")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0) validateString(formats strfmt.Registry) error {
+	if swag.IsZero(o.String) { // not required
+		return nil
+	}
+
+	if o.String != nil {
+		if err := o.String.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("string")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("string")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+var listTemplatesOkBodyTemplatesItems0ParamsItems0TypeTypePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["PARAM_TYPE_INVALID","BOOL","FLOAT","STRING"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		listTemplatesOkBodyTemplatesItems0ParamsItems0TypeTypePropEnum = append(listTemplatesOkBodyTemplatesItems0ParamsItems0TypeTypePropEnum, v)
+	}
+}
+
+const (
+
+	// ListTemplatesOKBodyTemplatesItems0ParamsItems0TypePARAMTYPEINVALID captures enum value "PARAM_TYPE_INVALID"
+	ListTemplatesOKBodyTemplatesItems0ParamsItems0TypePARAMTYPEINVALID string = "PARAM_TYPE_INVALID"
+
+	// ListTemplatesOKBodyTemplatesItems0ParamsItems0TypeBOOL captures enum value "BOOL"
+	ListTemplatesOKBodyTemplatesItems0ParamsItems0TypeBOOL string = "BOOL"
+
+	// ListTemplatesOKBodyTemplatesItems0ParamsItems0TypeFLOAT captures enum value "FLOAT"
+	ListTemplatesOKBodyTemplatesItems0ParamsItems0TypeFLOAT string = "FLOAT"
+
+	// ListTemplatesOKBodyTemplatesItems0ParamsItems0TypeSTRING captures enum value "STRING"
+	ListTemplatesOKBodyTemplatesItems0ParamsItems0TypeSTRING string = "STRING"
+)
+
+// prop value enum
+func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0) validateTypeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listTemplatesOkBodyTemplatesItems0ParamsItems0TypeTypePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0) validateType(formats strfmt.Registry) error {
+	if swag.IsZero(o.Type) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateTypeEnum("type", "body", *o.Type); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var listTemplatesOkBodyTemplatesItems0ParamsItems0TypeUnitPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["PARAM_UNIT_INVALID","PERCENTAGE","SECONDS"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		listTemplatesOkBodyTemplatesItems0ParamsItems0TypeUnitPropEnum = append(listTemplatesOkBodyTemplatesItems0ParamsItems0TypeUnitPropEnum, v)
+	}
+}
+
+const (
+
+	// ListTemplatesOKBodyTemplatesItems0ParamsItems0UnitPARAMUNITINVALID captures enum value "PARAM_UNIT_INVALID"
+	ListTemplatesOKBodyTemplatesItems0ParamsItems0UnitPARAMUNITINVALID string = "PARAM_UNIT_INVALID"
+
+	// ListTemplatesOKBodyTemplatesItems0ParamsItems0UnitPERCENTAGE captures enum value "PERCENTAGE"
+	ListTemplatesOKBodyTemplatesItems0ParamsItems0UnitPERCENTAGE string = "PERCENTAGE"
+
+	// ListTemplatesOKBodyTemplatesItems0ParamsItems0UnitSECONDS captures enum value "SECONDS"
+	ListTemplatesOKBodyTemplatesItems0ParamsItems0UnitSECONDS string = "SECONDS"
+)
+
+// prop value enum
+func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0) validateUnitEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listTemplatesOkBodyTemplatesItems0ParamsItems0TypeUnitPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0) validateUnit(formats strfmt.Registry) error {
+	if swag.IsZero(o.Unit) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateUnitEnum("unit", "body", *o.Unit); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list templates OK body templates items0 params items0 based on the context it is used
+func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateBool(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateFloat(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateString(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0) contextValidateBool(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Bool != nil {
+		if err := o.Bool.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("bool")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("bool")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0) contextValidateFloat(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Float != nil {
+		if err := o.Float.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("float")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("float")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0) contextValidateString(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.String != nil {
+		if err := o.String.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("string")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("string")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0) UnmarshalBinary(b []byte) error {
+	var res ListTemplatesOKBodyTemplatesItems0ParamsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ListTemplatesOKBodyTemplatesItems0ParamsItems0Bool BoolParamDefinition represents boolean parameter's default value.
+swagger:model ListTemplatesOKBodyTemplatesItems0ParamsItems0Bool
+*/
+type ListTemplatesOKBodyTemplatesItems0ParamsItems0Bool struct {
+
+	// BooleanFlag represent a command to set some boolean property to true,
+	// to false, or avoid changing that property.
+	//
+	//  - DO_NOT_CHANGE: Do not change boolean property. Default value.
+	//  - TRUE: True.
+	//  - FALSE: False.
+	// Enum: [DO_NOT_CHANGE TRUE FALSE]
+	Default *string `json:"default,omitempty"`
+}
+
+// Validate validates this list templates OK body templates items0 params items0 bool
+func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0Bool) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateDefault(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var listTemplatesOkBodyTemplatesItems0ParamsItems0BoolTypeDefaultPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["DO_NOT_CHANGE","TRUE","FALSE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		listTemplatesOkBodyTemplatesItems0ParamsItems0BoolTypeDefaultPropEnum = append(listTemplatesOkBodyTemplatesItems0ParamsItems0BoolTypeDefaultPropEnum, v)
+	}
+}
+
+const (
+
+	// ListTemplatesOKBodyTemplatesItems0ParamsItems0BoolDefaultDONOTCHANGE captures enum value "DO_NOT_CHANGE"
+	ListTemplatesOKBodyTemplatesItems0ParamsItems0BoolDefaultDONOTCHANGE string = "DO_NOT_CHANGE"
+
+	// ListTemplatesOKBodyTemplatesItems0ParamsItems0BoolDefaultTRUE captures enum value "TRUE"
+	ListTemplatesOKBodyTemplatesItems0ParamsItems0BoolDefaultTRUE string = "TRUE"
+
+	// ListTemplatesOKBodyTemplatesItems0ParamsItems0BoolDefaultFALSE captures enum value "FALSE"
+	ListTemplatesOKBodyTemplatesItems0ParamsItems0BoolDefaultFALSE string = "FALSE"
+)
+
+// prop value enum
+func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0Bool) validateDefaultEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listTemplatesOkBodyTemplatesItems0ParamsItems0BoolTypeDefaultPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0Bool) validateDefault(formats strfmt.Registry) error {
+	if swag.IsZero(o.Default) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateDefaultEnum("bool"+"."+"default", "body", *o.Default); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validates this list templates OK body templates items0 params items0 bool based on context it is used
+func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0Bool) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0Bool) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0Bool) UnmarshalBinary(b []byte) error {
+	var res ListTemplatesOKBodyTemplatesItems0ParamsItems0Bool
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ListTemplatesOKBodyTemplatesItems0ParamsItems0Float FloatParamDefinition represents float parameter's default value and valid range.
+swagger:model ListTemplatesOKBodyTemplatesItems0ParamsItems0Float
+*/
+type ListTemplatesOKBodyTemplatesItems0ParamsItems0Float struct {
+
+	// True if default value is set.
+	HasDefault bool `json:"has_default,omitempty"`
+
+	// Default value if has_default is true.
+	Default float64 `json:"default,omitempty"`
+
+	// True if minimal valid value is set.
+	HasMin bool `json:"has_min,omitempty"`
+
+	// Minimal valid value (inclusive) if has_min is true.
+	Min float64 `json:"min,omitempty"`
+
+	// True if maximal valid value is set.
+	HasMax bool `json:"has_max,omitempty"`
+
+	// Maximal valid value (inclusive) if has_max is true.
+	Max float64 `json:"max,omitempty"`
+}
+
+// Validate validates this list templates OK body templates items0 params items0 float
+func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0Float) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list templates OK body templates items0 params items0 float based on context it is used
+func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0Float) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0Float) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0Float) UnmarshalBinary(b []byte) error {
+	var res ListTemplatesOKBodyTemplatesItems0ParamsItems0Float
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ListTemplatesOKBodyTemplatesItems0ParamsItems0String StringParamDefinition represents string parameter's default value.
+swagger:model ListTemplatesOKBodyTemplatesItems0ParamsItems0String
+*/
+type ListTemplatesOKBodyTemplatesItems0ParamsItems0String struct {
+
+	// True if default value is set.
+	HasDefault bool `json:"has_default,omitempty"`
+
+	// Default value if has_default is true.
+	Default string `json:"default,omitempty"`
+}
+
+// Validate validates this list templates OK body templates items0 params items0 string
+func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0String) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list templates OK body templates items0 params items0 string based on context it is used
+func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0String) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0String) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0String) UnmarshalBinary(b []byte) error {
+	var res ListTemplatesOKBodyTemplatesItems0ParamsItems0String
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*ListTemplatesOKBodyTotals PageTotals represents total values for pagination.
 swagger:model ListTemplatesOKBodyTotals
 */
@@ -361,6 +1290,11 @@ type ListTemplatesOKBodyTotals struct {
 
 // Validate validates this list templates OK body totals
 func (o *ListTemplatesOKBodyTotals) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list templates OK body totals based on context it is used
+func (o *ListTemplatesOKBodyTotals) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -399,6 +1333,11 @@ func (o *ListTemplatesParamsBodyPageParams) Validate(formats strfmt.Registry) er
 	return nil
 }
 
+// ContextValidate validates this list templates params body page params based on context it is used
+func (o *ListTemplatesParamsBodyPageParams) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *ListTemplatesParamsBodyPageParams) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -410,656 +1349,6 @@ func (o *ListTemplatesParamsBodyPageParams) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ListTemplatesParamsBodyPageParams) UnmarshalBinary(b []byte) error {
 	var res ListTemplatesParamsBodyPageParams
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*TemplatesItems0 Template represents Alert Template that is used to create Alert Rule.
-swagger:model TemplatesItems0
-*/
-type TemplatesItems0 struct {
-
-	// Machine-readable name (ID).
-	Name string `json:"name,omitempty"`
-
-	// Short human-readable summary.
-	Summary string `json:"summary,omitempty"`
-
-	// PromQL query expression with templating parameters.
-	Expr string `json:"expr,omitempty"`
-
-	// Query parameters definitions.
-	Params []*TemplatesItems0ParamsItems0 `json:"params"`
-
-	// Default duration value.
-	For string `json:"for,omitempty"`
-
-	// Severity represents severity level of the check result or alert.
-	// Enum: [SEVERITY_INVALID SEVERITY_EMERGENCY SEVERITY_ALERT SEVERITY_CRITICAL SEVERITY_ERROR SEVERITY_WARNING SEVERITY_NOTICE SEVERITY_INFO SEVERITY_DEBUG]
-	Severity *string `json:"severity,omitempty"`
-
-	// Labels.
-	Labels map[string]string `json:"labels,omitempty"`
-
-	// Annotations.
-	Annotations map[string]string `json:"annotations,omitempty"`
-
-	// TemplateSource defines template source.
-	//
-	//  - BUILT_IN: Template that is shipped with PMM Server releases.
-	//  - SAAS: Template that is downloaded from check.percona.com.
-	//  - USER_FILE: Templated loaded from user-suplied file.
-	//  - USER_API: Templated created via API.
-	// Enum: [TEMPLATE_SOURCE_INVALID BUILT_IN SAAS USER_FILE USER_API]
-	Source *string `json:"source,omitempty"`
-
-	// Template creation time. Empty for built-in and SaaS templates.
-	// Format: date-time
-	CreatedAt strfmt.DateTime `json:"created_at,omitempty"`
-
-	// YAML (or JSON) template file content. Empty for built-in and SaaS templates.
-	Yaml string `json:"yaml,omitempty"`
-}
-
-// Validate validates this templates items0
-func (o *TemplatesItems0) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateParams(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateSeverity(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateSource(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateCreatedAt(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *TemplatesItems0) validateParams(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Params) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(o.Params); i++ {
-		if swag.IsZero(o.Params[i]) { // not required
-			continue
-		}
-
-		if o.Params[i] != nil {
-			if err := o.Params[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("params" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-var templatesItems0TypeSeverityPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["SEVERITY_INVALID","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		templatesItems0TypeSeverityPropEnum = append(templatesItems0TypeSeverityPropEnum, v)
-	}
-}
-
-const (
-
-	// TemplatesItems0SeveritySEVERITYINVALID captures enum value "SEVERITY_INVALID"
-	TemplatesItems0SeveritySEVERITYINVALID string = "SEVERITY_INVALID"
-
-	// TemplatesItems0SeveritySEVERITYEMERGENCY captures enum value "SEVERITY_EMERGENCY"
-	TemplatesItems0SeveritySEVERITYEMERGENCY string = "SEVERITY_EMERGENCY"
-
-	// TemplatesItems0SeveritySEVERITYALERT captures enum value "SEVERITY_ALERT"
-	TemplatesItems0SeveritySEVERITYALERT string = "SEVERITY_ALERT"
-
-	// TemplatesItems0SeveritySEVERITYCRITICAL captures enum value "SEVERITY_CRITICAL"
-	TemplatesItems0SeveritySEVERITYCRITICAL string = "SEVERITY_CRITICAL"
-
-	// TemplatesItems0SeveritySEVERITYERROR captures enum value "SEVERITY_ERROR"
-	TemplatesItems0SeveritySEVERITYERROR string = "SEVERITY_ERROR"
-
-	// TemplatesItems0SeveritySEVERITYWARNING captures enum value "SEVERITY_WARNING"
-	TemplatesItems0SeveritySEVERITYWARNING string = "SEVERITY_WARNING"
-
-	// TemplatesItems0SeveritySEVERITYNOTICE captures enum value "SEVERITY_NOTICE"
-	TemplatesItems0SeveritySEVERITYNOTICE string = "SEVERITY_NOTICE"
-
-	// TemplatesItems0SeveritySEVERITYINFO captures enum value "SEVERITY_INFO"
-	TemplatesItems0SeveritySEVERITYINFO string = "SEVERITY_INFO"
-
-	// TemplatesItems0SeveritySEVERITYDEBUG captures enum value "SEVERITY_DEBUG"
-	TemplatesItems0SeveritySEVERITYDEBUG string = "SEVERITY_DEBUG"
-)
-
-// prop value enum
-func (o *TemplatesItems0) validateSeverityEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, templatesItems0TypeSeverityPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *TemplatesItems0) validateSeverity(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Severity) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateSeverityEnum("severity", "body", *o.Severity); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-var templatesItems0TypeSourcePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["TEMPLATE_SOURCE_INVALID","BUILT_IN","SAAS","USER_FILE","USER_API"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		templatesItems0TypeSourcePropEnum = append(templatesItems0TypeSourcePropEnum, v)
-	}
-}
-
-const (
-
-	// TemplatesItems0SourceTEMPLATESOURCEINVALID captures enum value "TEMPLATE_SOURCE_INVALID"
-	TemplatesItems0SourceTEMPLATESOURCEINVALID string = "TEMPLATE_SOURCE_INVALID"
-
-	// TemplatesItems0SourceBUILTIN captures enum value "BUILT_IN"
-	TemplatesItems0SourceBUILTIN string = "BUILT_IN"
-
-	// TemplatesItems0SourceSAAS captures enum value "SAAS"
-	TemplatesItems0SourceSAAS string = "SAAS"
-
-	// TemplatesItems0SourceUSERFILE captures enum value "USER_FILE"
-	TemplatesItems0SourceUSERFILE string = "USER_FILE"
-
-	// TemplatesItems0SourceUSERAPI captures enum value "USER_API"
-	TemplatesItems0SourceUSERAPI string = "USER_API"
-)
-
-// prop value enum
-func (o *TemplatesItems0) validateSourceEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, templatesItems0TypeSourcePropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *TemplatesItems0) validateSource(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Source) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateSourceEnum("source", "body", *o.Source); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *TemplatesItems0) validateCreatedAt(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.CreatedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("created_at", "body", "date-time", o.CreatedAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *TemplatesItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *TemplatesItems0) UnmarshalBinary(b []byte) error {
-	var res TemplatesItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*TemplatesItems0ParamsItems0 ParamDefinition represents a single query parameter.
-swagger:model TemplatesItems0ParamsItems0
-*/
-type TemplatesItems0ParamsItems0 struct {
-
-	// Machine-readable name (ID) that is used in expression.
-	Name string `json:"name,omitempty"`
-
-	// Short human-readable parameter summary.
-	Summary string `json:"summary,omitempty"`
-
-	// ParamUnit represents template parameter unit.
-	//
-	//  - PARAM_UNIT_INVALID: Invalid, unknown or absent.
-	//  - PERCENTAGE: %
-	//  - SECONDS: s
-	// Enum: [PARAM_UNIT_INVALID PERCENTAGE SECONDS]
-	Unit *string `json:"unit,omitempty"`
-
-	// ParamType represents template parameter type.
-	// Enum: [PARAM_TYPE_INVALID BOOL FLOAT STRING]
-	Type *string `json:"type,omitempty"`
-
-	// bool
-	Bool *TemplatesItems0ParamsItems0Bool `json:"bool,omitempty"`
-
-	// float
-	Float *TemplatesItems0ParamsItems0Float `json:"float,omitempty"`
-
-	// string
-	String *TemplatesItems0ParamsItems0String `json:"string,omitempty"`
-}
-
-// Validate validates this templates items0 params items0
-func (o *TemplatesItems0ParamsItems0) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateUnit(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateType(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateBool(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateFloat(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateString(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-var templatesItems0ParamsItems0TypeUnitPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["PARAM_UNIT_INVALID","PERCENTAGE","SECONDS"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		templatesItems0ParamsItems0TypeUnitPropEnum = append(templatesItems0ParamsItems0TypeUnitPropEnum, v)
-	}
-}
-
-const (
-
-	// TemplatesItems0ParamsItems0UnitPARAMUNITINVALID captures enum value "PARAM_UNIT_INVALID"
-	TemplatesItems0ParamsItems0UnitPARAMUNITINVALID string = "PARAM_UNIT_INVALID"
-
-	// TemplatesItems0ParamsItems0UnitPERCENTAGE captures enum value "PERCENTAGE"
-	TemplatesItems0ParamsItems0UnitPERCENTAGE string = "PERCENTAGE"
-
-	// TemplatesItems0ParamsItems0UnitSECONDS captures enum value "SECONDS"
-	TemplatesItems0ParamsItems0UnitSECONDS string = "SECONDS"
-)
-
-// prop value enum
-func (o *TemplatesItems0ParamsItems0) validateUnitEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, templatesItems0ParamsItems0TypeUnitPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *TemplatesItems0ParamsItems0) validateUnit(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Unit) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateUnitEnum("unit", "body", *o.Unit); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-var templatesItems0ParamsItems0TypeTypePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["PARAM_TYPE_INVALID","BOOL","FLOAT","STRING"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		templatesItems0ParamsItems0TypeTypePropEnum = append(templatesItems0ParamsItems0TypeTypePropEnum, v)
-	}
-}
-
-const (
-
-	// TemplatesItems0ParamsItems0TypePARAMTYPEINVALID captures enum value "PARAM_TYPE_INVALID"
-	TemplatesItems0ParamsItems0TypePARAMTYPEINVALID string = "PARAM_TYPE_INVALID"
-
-	// TemplatesItems0ParamsItems0TypeBOOL captures enum value "BOOL"
-	TemplatesItems0ParamsItems0TypeBOOL string = "BOOL"
-
-	// TemplatesItems0ParamsItems0TypeFLOAT captures enum value "FLOAT"
-	TemplatesItems0ParamsItems0TypeFLOAT string = "FLOAT"
-
-	// TemplatesItems0ParamsItems0TypeSTRING captures enum value "STRING"
-	TemplatesItems0ParamsItems0TypeSTRING string = "STRING"
-)
-
-// prop value enum
-func (o *TemplatesItems0ParamsItems0) validateTypeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, templatesItems0ParamsItems0TypeTypePropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *TemplatesItems0ParamsItems0) validateType(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Type) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateTypeEnum("type", "body", *o.Type); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *TemplatesItems0ParamsItems0) validateBool(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Bool) { // not required
-		return nil
-	}
-
-	if o.Bool != nil {
-		if err := o.Bool.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("bool")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (o *TemplatesItems0ParamsItems0) validateFloat(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Float) { // not required
-		return nil
-	}
-
-	if o.Float != nil {
-		if err := o.Float.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("float")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (o *TemplatesItems0ParamsItems0) validateString(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.String) { // not required
-		return nil
-	}
-
-	if o.String != nil {
-		if err := o.String.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("string")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *TemplatesItems0ParamsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *TemplatesItems0ParamsItems0) UnmarshalBinary(b []byte) error {
-	var res TemplatesItems0ParamsItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*TemplatesItems0ParamsItems0Bool BoolParamDefinition represents boolean parameter's default value.
-swagger:model TemplatesItems0ParamsItems0Bool
-*/
-type TemplatesItems0ParamsItems0Bool struct {
-
-	// BooleanFlag represent a command to set some boolean property to true,
-	// to false, or avoid changing that property.
-	//
-	//  - DO_NOT_CHANGE: Do not change boolean property. Default value.
-	//  - TRUE: True.
-	//  - FALSE: False.
-	// Enum: [DO_NOT_CHANGE TRUE FALSE]
-	Default *string `json:"default,omitempty"`
-}
-
-// Validate validates this templates items0 params items0 bool
-func (o *TemplatesItems0ParamsItems0Bool) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateDefault(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-var templatesItems0ParamsItems0BoolTypeDefaultPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["DO_NOT_CHANGE","TRUE","FALSE"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		templatesItems0ParamsItems0BoolTypeDefaultPropEnum = append(templatesItems0ParamsItems0BoolTypeDefaultPropEnum, v)
-	}
-}
-
-const (
-
-	// TemplatesItems0ParamsItems0BoolDefaultDONOTCHANGE captures enum value "DO_NOT_CHANGE"
-	TemplatesItems0ParamsItems0BoolDefaultDONOTCHANGE string = "DO_NOT_CHANGE"
-
-	// TemplatesItems0ParamsItems0BoolDefaultTRUE captures enum value "TRUE"
-	TemplatesItems0ParamsItems0BoolDefaultTRUE string = "TRUE"
-
-	// TemplatesItems0ParamsItems0BoolDefaultFALSE captures enum value "FALSE"
-	TemplatesItems0ParamsItems0BoolDefaultFALSE string = "FALSE"
-)
-
-// prop value enum
-func (o *TemplatesItems0ParamsItems0Bool) validateDefaultEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, templatesItems0ParamsItems0BoolTypeDefaultPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *TemplatesItems0ParamsItems0Bool) validateDefault(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Default) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateDefaultEnum("bool"+"."+"default", "body", *o.Default); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *TemplatesItems0ParamsItems0Bool) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *TemplatesItems0ParamsItems0Bool) UnmarshalBinary(b []byte) error {
-	var res TemplatesItems0ParamsItems0Bool
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*TemplatesItems0ParamsItems0Float FloatParamDefinition represents float parameter's default value and valid range.
-swagger:model TemplatesItems0ParamsItems0Float
-*/
-type TemplatesItems0ParamsItems0Float struct {
-
-	// True if default value is set.
-	HasDefault bool `json:"has_default,omitempty"`
-
-	// Default value if has_default is true.
-	Default float64 `json:"default,omitempty"`
-
-	// True if minimal valid value is set.
-	HasMin bool `json:"has_min,omitempty"`
-
-	// Minimal valid value (inclusive) if has_min is true.
-	Min float64 `json:"min,omitempty"`
-
-	// True if maximal valid value is set.
-	HasMax bool `json:"has_max,omitempty"`
-
-	// Maximal valid value (inclusive) if has_max is true.
-	Max float64 `json:"max,omitempty"`
-}
-
-// Validate validates this templates items0 params items0 float
-func (o *TemplatesItems0ParamsItems0Float) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *TemplatesItems0ParamsItems0Float) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *TemplatesItems0ParamsItems0Float) UnmarshalBinary(b []byte) error {
-	var res TemplatesItems0ParamsItems0Float
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*TemplatesItems0ParamsItems0String StringParamDefinition represents string parameter's default value.
-swagger:model TemplatesItems0ParamsItems0String
-*/
-type TemplatesItems0ParamsItems0String struct {
-
-	// True if default value is set.
-	HasDefault bool `json:"has_default,omitempty"`
-
-	// Default value if has_default is true.
-	Default string `json:"default,omitempty"`
-}
-
-// Validate validates this templates items0 params items0 string
-func (o *TemplatesItems0ParamsItems0String) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *TemplatesItems0ParamsItems0String) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *TemplatesItems0ParamsItems0String) UnmarshalBinary(b []byte) error {
-	var res TemplatesItems0ParamsItems0String
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

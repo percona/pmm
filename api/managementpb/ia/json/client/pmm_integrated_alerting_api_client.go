@@ -10,13 +10,13 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm/api/managementpb/backup/json/client/artifacts"
-	"github.com/percona/pmm/api/managementpb/backup/json/client/backups"
-	"github.com/percona/pmm/api/managementpb/backup/json/client/locations"
-	"github.com/percona/pmm/api/managementpb/backup/json/client/restore_history"
+	"github.com/percona/pmm/api/managementpb/ia/json/client/alerts"
+	"github.com/percona/pmm/api/managementpb/ia/json/client/channels"
+	"github.com/percona/pmm/api/managementpb/ia/json/client/rules"
+	"github.com/percona/pmm/api/managementpb/ia/json/client/templates"
 )
 
-// Default PMM backup management HTTP client.
+// Default PMM integrated alerting API HTTP client.
 var Default = NewHTTPClient(nil)
 
 const (
@@ -31,14 +31,14 @@ const (
 // DefaultSchemes are the default schemes found in Meta (info) section of spec file
 var DefaultSchemes = []string{"http", "https"}
 
-// NewHTTPClient creates a new PMM backup management HTTP client.
-func NewHTTPClient(formats strfmt.Registry) *PMMBackupManagement {
+// NewHTTPClient creates a new PMM integrated alerting API HTTP client.
+func NewHTTPClient(formats strfmt.Registry) *PMMIntegratedAlertingAPI {
 	return NewHTTPClientWithConfig(formats, nil)
 }
 
-// NewHTTPClientWithConfig creates a new PMM backup management HTTP client,
+// NewHTTPClientWithConfig creates a new PMM integrated alerting API HTTP client,
 // using a customizable transport config.
-func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMMBackupManagement {
+func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMMIntegratedAlertingAPI {
 	// ensure nullable parameters have default
 	if cfg == nil {
 		cfg = DefaultTransportConfig()
@@ -49,19 +49,19 @@ func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMM
 	return New(transport, formats)
 }
 
-// New creates a new PMM backup management client
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMBackupManagement {
+// New creates a new PMM integrated alerting API client
+func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMIntegratedAlertingAPI {
 	// ensure nullable parameters have default
 	if formats == nil {
 		formats = strfmt.Default
 	}
 
-	cli := new(PMMBackupManagement)
+	cli := new(PMMIntegratedAlertingAPI)
 	cli.Transport = transport
-	cli.Artifacts = artifacts.New(transport, formats)
-	cli.Backups = backups.New(transport, formats)
-	cli.Locations = locations.New(transport, formats)
-	cli.RestoreHistory = restore_history.New(transport, formats)
+	cli.Alerts = alerts.New(transport, formats)
+	cli.Channels = channels.New(transport, formats)
+	cli.Rules = rules.New(transport, formats)
+	cli.Templates = templates.New(transport, formats)
 	return cli
 }
 
@@ -104,24 +104,24 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 	return cfg
 }
 
-// PMMBackupManagement is a client for PMM backup management
-type PMMBackupManagement struct {
-	Artifacts artifacts.ClientService
+// PMMIntegratedAlertingAPI is a client for PMM integrated alerting API
+type PMMIntegratedAlertingAPI struct {
+	Alerts alerts.ClientService
 
-	Backups backups.ClientService
+	Channels channels.ClientService
 
-	Locations locations.ClientService
+	Rules rules.ClientService
 
-	RestoreHistory restore_history.ClientService
+	Templates templates.ClientService
 
 	Transport runtime.ClientTransport
 }
 
 // SetTransport changes the transport on the client and all its subresources
-func (c *PMMBackupManagement) SetTransport(transport runtime.ClientTransport) {
+func (c *PMMIntegratedAlertingAPI) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
-	c.Artifacts.SetTransport(transport)
-	c.Backups.SetTransport(transport)
-	c.Locations.SetTransport(transport)
-	c.RestoreHistory.SetTransport(transport)
+	c.Alerts.SetTransport(transport)
+	c.Channels.SetTransport(transport)
+	c.Rules.SetTransport(transport)
+	c.Templates.SetTransport(transport)
 }

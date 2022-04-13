@@ -6,6 +6,7 @@ package templates
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewCreateTemplateOK() *CreateTemplateOK {
 	return &CreateTemplateOK{}
 }
 
-/*CreateTemplateOK handles this case with default header values.
+/* CreateTemplateOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type CreateTemplateOK struct {
 func (o *CreateTemplateOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Templates/Create][%d] createTemplateOk  %+v", 200, o.Payload)
 }
-
 func (o *CreateTemplateOK) GetPayload() interface{} {
 	return o.Payload
 }
@@ -80,7 +80,7 @@ func NewCreateTemplateDefault(code int) *CreateTemplateDefault {
 	}
 }
 
-/*CreateTemplateDefault handles this case with default header values.
+/* CreateTemplateDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -98,7 +98,6 @@ func (o *CreateTemplateDefault) Code() int {
 func (o *CreateTemplateDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Templates/Create][%d] CreateTemplate default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *CreateTemplateDefault) GetPayload() *CreateTemplateDefaultBody {
 	return o.Payload
 }
@@ -126,6 +125,11 @@ type CreateTemplateBody struct {
 
 // Validate validates this create template body
 func (o *CreateTemplateBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this create template body based on context it is used
+func (o *CreateTemplateBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -162,7 +166,7 @@ type CreateTemplateDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*CreateTemplateDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this create template default body
@@ -180,7 +184,6 @@ func (o *CreateTemplateDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *CreateTemplateDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -194,6 +197,42 @@ func (o *CreateTemplateDefaultBody) validateDetails(formats strfmt.Registry) err
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("CreateTemplate default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("CreateTemplate default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this create template default body based on the context it is used
+func (o *CreateTemplateDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *CreateTemplateDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("CreateTemplate default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("CreateTemplate default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -222,10 +261,10 @@ func (o *CreateTemplateDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*DetailsItems0 details items0
-swagger:model DetailsItems0
+/*CreateTemplateDefaultBodyDetailsItems0 create template default body details items0
+swagger:model CreateTemplateDefaultBodyDetailsItems0
 */
-type DetailsItems0 struct {
+type CreateTemplateDefaultBodyDetailsItems0 struct {
 
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
@@ -235,13 +274,18 @@ type DetailsItems0 struct {
 	Value strfmt.Base64 `json:"value,omitempty"`
 }
 
-// Validate validates this details items0
-func (o *DetailsItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this create template default body details items0
+func (o *CreateTemplateDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this create template default body details items0 based on context it is used
+func (o *CreateTemplateDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
+func (o *CreateTemplateDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -249,8 +293,8 @@ func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
-	var res DetailsItems0
+func (o *CreateTemplateDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res CreateTemplateDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

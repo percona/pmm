@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewAddRemoteRDSNodeParams creates a new AddRemoteRDSNodeParams object
-// with the default values initialized.
+// NewAddRemoteRDSNodeParams creates a new AddRemoteRDSNodeParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewAddRemoteRDSNodeParams() *AddRemoteRDSNodeParams {
-	var ()
 	return &AddRemoteRDSNodeParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewAddRemoteRDSNodeParamsWithTimeout creates a new AddRemoteRDSNodeParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewAddRemoteRDSNodeParamsWithTimeout(timeout time.Duration) *AddRemoteRDSNodeParams {
-	var ()
 	return &AddRemoteRDSNodeParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewAddRemoteRDSNodeParamsWithContext creates a new AddRemoteRDSNodeParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewAddRemoteRDSNodeParamsWithContext(ctx context.Context) *AddRemoteRDSNodeParams {
-	var ()
 	return &AddRemoteRDSNodeParams{
-
 		Context: ctx,
 	}
 }
 
 // NewAddRemoteRDSNodeParamsWithHTTPClient creates a new AddRemoteRDSNodeParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewAddRemoteRDSNodeParamsWithHTTPClient(client *http.Client) *AddRemoteRDSNodeParams {
-	var ()
 	return &AddRemoteRDSNodeParams{
 		HTTPClient: client,
 	}
 }
 
-/*AddRemoteRDSNodeParams contains all the parameters to send to the API endpoint
-for the add remote RDS node operation typically these are written to a http.Request
+/* AddRemoteRDSNodeParams contains all the parameters to send to the API endpoint
+   for the add remote RDS node operation.
+
+   Typically these are written to a http.Request.
 */
 type AddRemoteRDSNodeParams struct {
 
-	/*Body*/
+	// Body.
 	Body AddRemoteRDSNodeBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the add remote RDS node params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AddRemoteRDSNodeParams) WithDefaults() *AddRemoteRDSNodeParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the add remote RDS node params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AddRemoteRDSNodeParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the add remote RDS node params
@@ -119,7 +133,6 @@ func (o *AddRemoteRDSNodeParams) WriteToRequest(r runtime.ClientRequest, reg str
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

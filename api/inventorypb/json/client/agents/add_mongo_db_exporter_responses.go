@@ -6,6 +6,7 @@ package agents
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,7 +50,7 @@ func NewAddMongoDBExporterOK() *AddMongoDBExporterOK {
 	return &AddMongoDBExporterOK{}
 }
 
-/*AddMongoDBExporterOK handles this case with default header values.
+/* AddMongoDBExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -60,7 +61,6 @@ type AddMongoDBExporterOK struct {
 func (o *AddMongoDBExporterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddMongoDBExporter][%d] addMongoDbExporterOk  %+v", 200, o.Payload)
 }
-
 func (o *AddMongoDBExporterOK) GetPayload() *AddMongoDBExporterOKBody {
 	return o.Payload
 }
@@ -84,7 +84,7 @@ func NewAddMongoDBExporterDefault(code int) *AddMongoDBExporterDefault {
 	}
 }
 
-/*AddMongoDBExporterDefault handles this case with default header values.
+/* AddMongoDBExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -102,7 +102,6 @@ func (o *AddMongoDBExporterDefault) Code() int {
 func (o *AddMongoDBExporterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddMongoDBExporter][%d] AddMongoDBExporter default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AddMongoDBExporterDefault) GetPayload() *AddMongoDBExporterDefaultBody {
 	return o.Payload
 }
@@ -187,6 +186,11 @@ func (o *AddMongoDBExporterBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+// ContextValidate validates this add mongo DB exporter body based on context it is used
+func (o *AddMongoDBExporterBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *AddMongoDBExporterBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -220,7 +224,7 @@ type AddMongoDBExporterDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*AddMongoDBExporterDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this add mongo DB exporter default body
@@ -238,7 +242,6 @@ func (o *AddMongoDBExporterDefaultBody) Validate(formats strfmt.Registry) error 
 }
 
 func (o *AddMongoDBExporterDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -252,6 +255,42 @@ func (o *AddMongoDBExporterDefaultBody) validateDetails(formats strfmt.Registry)
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("AddMongoDBExporter default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddMongoDBExporter default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add mongo DB exporter default body based on the context it is used
+func (o *AddMongoDBExporterDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddMongoDBExporterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("AddMongoDBExporter default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddMongoDBExporter default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -273,6 +312,47 @@ func (o *AddMongoDBExporterDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddMongoDBExporterDefaultBody) UnmarshalBinary(b []byte) error {
 	var res AddMongoDBExporterDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddMongoDBExporterDefaultBodyDetailsItems0 add mongo DB exporter default body details items0
+swagger:model AddMongoDBExporterDefaultBodyDetailsItems0
+*/
+type AddMongoDBExporterDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this add mongo DB exporter default body details items0
+func (o *AddMongoDBExporterDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add mongo DB exporter default body details items0 based on context it is used
+func (o *AddMongoDBExporterDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddMongoDBExporterDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddMongoDBExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res AddMongoDBExporterDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -304,7 +384,6 @@ func (o *AddMongoDBExporterOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *AddMongoDBExporterOKBody) validateMongodbExporter(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.MongodbExporter) { // not required
 		return nil
 	}
@@ -313,6 +392,38 @@ func (o *AddMongoDBExporterOKBody) validateMongodbExporter(formats strfmt.Regist
 		if err := o.MongodbExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addMongoDbExporterOk" + "." + "mongodb_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addMongoDbExporterOk" + "." + "mongodb_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add mongo DB exporter OK body based on the context it is used
+func (o *AddMongoDBExporterOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMongodbExporter(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddMongoDBExporterOKBody) contextValidateMongodbExporter(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.MongodbExporter != nil {
+		if err := o.MongodbExporter.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addMongoDbExporterOk" + "." + "mongodb_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addMongoDbExporterOk" + "." + "mongodb_exporter")
 			}
 			return err
 		}
@@ -374,17 +485,6 @@ type AddMongoDBExporterOKBodyMongodbExporter struct {
 	// List of disabled collector names.
 	DisabledCollectors []string `json:"disabled_collectors"`
 
-	// AgentStatus represents actual Agent status.
-	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
-	Status *string `json:"status,omitempty"`
-
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
@@ -397,6 +497,17 @@ type AddMongoDBExporterOKBodyMongodbExporter struct {
 
 	// Enable All collectors.
 	EnableAllCollectors bool `json:"enable_all_collectors,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
+	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	Status *string `json:"status,omitempty"`
 }
 
 // Validate validates this add mongo DB exporter OK body mongodb exporter
@@ -458,7 +569,6 @@ func (o *AddMongoDBExporterOKBodyMongodbExporter) validateStatusEnum(path, locat
 }
 
 func (o *AddMongoDBExporterOKBodyMongodbExporter) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -468,6 +578,11 @@ func (o *AddMongoDBExporterOKBodyMongodbExporter) validateStatus(formats strfmt.
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this add mongo DB exporter OK body mongodb exporter based on context it is used
+func (o *AddMongoDBExporterOKBodyMongodbExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

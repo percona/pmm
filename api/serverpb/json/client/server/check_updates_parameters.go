@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewCheckUpdatesParams creates a new CheckUpdatesParams object
-// with the default values initialized.
+// NewCheckUpdatesParams creates a new CheckUpdatesParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewCheckUpdatesParams() *CheckUpdatesParams {
-	var ()
 	return &CheckUpdatesParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewCheckUpdatesParamsWithTimeout creates a new CheckUpdatesParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewCheckUpdatesParamsWithTimeout(timeout time.Duration) *CheckUpdatesParams {
-	var ()
 	return &CheckUpdatesParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewCheckUpdatesParamsWithContext creates a new CheckUpdatesParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewCheckUpdatesParamsWithContext(ctx context.Context) *CheckUpdatesParams {
-	var ()
 	return &CheckUpdatesParams{
-
 		Context: ctx,
 	}
 }
 
 // NewCheckUpdatesParamsWithHTTPClient creates a new CheckUpdatesParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewCheckUpdatesParamsWithHTTPClient(client *http.Client) *CheckUpdatesParams {
-	var ()
 	return &CheckUpdatesParams{
 		HTTPClient: client,
 	}
 }
 
-/*CheckUpdatesParams contains all the parameters to send to the API endpoint
-for the check updates operation typically these are written to a http.Request
+/* CheckUpdatesParams contains all the parameters to send to the API endpoint
+   for the check updates operation.
+
+   Typically these are written to a http.Request.
 */
 type CheckUpdatesParams struct {
 
-	/*Body*/
+	// Body.
 	Body CheckUpdatesBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the check updates params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *CheckUpdatesParams) WithDefaults() *CheckUpdatesParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the check updates params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *CheckUpdatesParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the check updates params
@@ -119,7 +133,6 @@ func (o *CheckUpdatesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

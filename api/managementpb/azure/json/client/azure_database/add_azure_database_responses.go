@@ -6,6 +6,7 @@ package azure_database
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,7 +50,7 @@ func NewAddAzureDatabaseOK() *AddAzureDatabaseOK {
 	return &AddAzureDatabaseOK{}
 }
 
-/*AddAzureDatabaseOK handles this case with default header values.
+/* AddAzureDatabaseOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -60,7 +61,6 @@ type AddAzureDatabaseOK struct {
 func (o *AddAzureDatabaseOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/azure/AzureDatabase/Add][%d] addAzureDatabaseOk  %+v", 200, o.Payload)
 }
-
 func (o *AddAzureDatabaseOK) GetPayload() interface{} {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewAddAzureDatabaseDefault(code int) *AddAzureDatabaseDefault {
 	}
 }
 
-/*AddAzureDatabaseDefault handles this case with default header values.
+/* AddAzureDatabaseDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *AddAzureDatabaseDefault) Code() int {
 func (o *AddAzureDatabaseDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/azure/AzureDatabase/Add][%d] AddAzureDatabase default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AddAzureDatabaseDefault) GetPayload() *AddAzureDatabaseDefaultBody {
 	return o.Payload
 }
@@ -252,7 +251,6 @@ func (o *AddAzureDatabaseBody) validateTypeEnum(path, location string, value str
 }
 
 func (o *AddAzureDatabaseBody) validateType(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Type) { // not required
 		return nil
 	}
@@ -262,6 +260,11 @@ func (o *AddAzureDatabaseBody) validateType(formats strfmt.Registry) error {
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this add azure database body based on context it is used
+func (o *AddAzureDatabaseBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -298,7 +301,7 @@ type AddAzureDatabaseDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*AddAzureDatabaseDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this add azure database default body
@@ -316,7 +319,6 @@ func (o *AddAzureDatabaseDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *AddAzureDatabaseDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -330,6 +332,42 @@ func (o *AddAzureDatabaseDefaultBody) validateDetails(formats strfmt.Registry) e
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("AddAzureDatabase default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddAzureDatabase default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add azure database default body based on the context it is used
+func (o *AddAzureDatabaseDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddAzureDatabaseDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("AddAzureDatabase default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddAzureDatabase default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -358,10 +396,10 @@ func (o *AddAzureDatabaseDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*DetailsItems0 details items0
-swagger:model DetailsItems0
+/*AddAzureDatabaseDefaultBodyDetailsItems0 add azure database default body details items0
+swagger:model AddAzureDatabaseDefaultBodyDetailsItems0
 */
-type DetailsItems0 struct {
+type AddAzureDatabaseDefaultBodyDetailsItems0 struct {
 
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
@@ -371,13 +409,18 @@ type DetailsItems0 struct {
 	Value strfmt.Base64 `json:"value,omitempty"`
 }
 
-// Validate validates this details items0
-func (o *DetailsItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this add azure database default body details items0
+func (o *AddAzureDatabaseDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add azure database default body details items0 based on context it is used
+func (o *AddAzureDatabaseDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
+func (o *AddAzureDatabaseDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -385,8 +428,8 @@ func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
-	var res DetailsItems0
+func (o *AddAzureDatabaseDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res AddAzureDatabaseDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

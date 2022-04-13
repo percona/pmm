@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewChangeQANMySQLPerfSchemaAgentParams creates a new ChangeQANMySQLPerfSchemaAgentParams object
-// with the default values initialized.
+// NewChangeQANMySQLPerfSchemaAgentParams creates a new ChangeQANMySQLPerfSchemaAgentParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewChangeQANMySQLPerfSchemaAgentParams() *ChangeQANMySQLPerfSchemaAgentParams {
-	var ()
 	return &ChangeQANMySQLPerfSchemaAgentParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewChangeQANMySQLPerfSchemaAgentParamsWithTimeout creates a new ChangeQANMySQLPerfSchemaAgentParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewChangeQANMySQLPerfSchemaAgentParamsWithTimeout(timeout time.Duration) *ChangeQANMySQLPerfSchemaAgentParams {
-	var ()
 	return &ChangeQANMySQLPerfSchemaAgentParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewChangeQANMySQLPerfSchemaAgentParamsWithContext creates a new ChangeQANMySQLPerfSchemaAgentParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewChangeQANMySQLPerfSchemaAgentParamsWithContext(ctx context.Context) *ChangeQANMySQLPerfSchemaAgentParams {
-	var ()
 	return &ChangeQANMySQLPerfSchemaAgentParams{
-
 		Context: ctx,
 	}
 }
 
 // NewChangeQANMySQLPerfSchemaAgentParamsWithHTTPClient creates a new ChangeQANMySQLPerfSchemaAgentParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewChangeQANMySQLPerfSchemaAgentParamsWithHTTPClient(client *http.Client) *ChangeQANMySQLPerfSchemaAgentParams {
-	var ()
 	return &ChangeQANMySQLPerfSchemaAgentParams{
 		HTTPClient: client,
 	}
 }
 
-/*ChangeQANMySQLPerfSchemaAgentParams contains all the parameters to send to the API endpoint
-for the change QAN my SQL perf schema agent operation typically these are written to a http.Request
+/* ChangeQANMySQLPerfSchemaAgentParams contains all the parameters to send to the API endpoint
+   for the change QAN my SQL perf schema agent operation.
+
+   Typically these are written to a http.Request.
 */
 type ChangeQANMySQLPerfSchemaAgentParams struct {
 
-	/*Body*/
+	// Body.
 	Body ChangeQANMySQLPerfSchemaAgentBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the change QAN my SQL perf schema agent params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ChangeQANMySQLPerfSchemaAgentParams) WithDefaults() *ChangeQANMySQLPerfSchemaAgentParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the change QAN my SQL perf schema agent params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ChangeQANMySQLPerfSchemaAgentParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the change QAN my SQL perf schema agent params
@@ -119,7 +133,6 @@ func (o *ChangeQANMySQLPerfSchemaAgentParams) WriteToRequest(r runtime.ClientReq
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

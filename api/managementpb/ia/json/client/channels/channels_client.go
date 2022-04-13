@@ -23,15 +23,18 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	AddChannel(params *AddChannelParams) (*AddChannelOK, error)
+	AddChannel(params *AddChannelParams, opts ...ClientOption) (*AddChannelOK, error)
 
-	ChangeChannel(params *ChangeChannelParams) (*ChangeChannelOK, error)
+	ChangeChannel(params *ChangeChannelParams, opts ...ClientOption) (*ChangeChannelOK, error)
 
-	ListChannels(params *ListChannelsParams) (*ListChannelsOK, error)
+	ListChannels(params *ListChannelsParams, opts ...ClientOption) (*ListChannelsOK, error)
 
-	RemoveChannel(params *RemoveChannelParams) (*RemoveChannelOK, error)
+	RemoveChannel(params *RemoveChannelParams, opts ...ClientOption) (*RemoveChannelOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -39,13 +42,12 @@ type ClientService interface {
 /*
   AddChannel adds channel adds notification channel
 */
-func (a *Client) AddChannel(params *AddChannelParams) (*AddChannelOK, error) {
+func (a *Client) AddChannel(params *AddChannelParams, opts ...ClientOption) (*AddChannelOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewAddChannelParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "AddChannel",
 		Method:             "POST",
 		PathPattern:        "/v1/management/ia/Channels/Add",
@@ -56,7 +58,12 @@ func (a *Client) AddChannel(params *AddChannelParams) (*AddChannelOK, error) {
 		Reader:             &AddChannelReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -72,13 +79,12 @@ func (a *Client) AddChannel(params *AddChannelParams) (*AddChannelOK, error) {
 /*
   ChangeChannel changes channel changes notification channel
 */
-func (a *Client) ChangeChannel(params *ChangeChannelParams) (*ChangeChannelOK, error) {
+func (a *Client) ChangeChannel(params *ChangeChannelParams, opts ...ClientOption) (*ChangeChannelOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewChangeChannelParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "ChangeChannel",
 		Method:             "POST",
 		PathPattern:        "/v1/management/ia/Channels/Change",
@@ -89,7 +95,12 @@ func (a *Client) ChangeChannel(params *ChangeChannelParams) (*ChangeChannelOK, e
 		Reader:             &ChangeChannelReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -105,13 +116,12 @@ func (a *Client) ChangeChannel(params *ChangeChannelParams) (*ChangeChannelOK, e
 /*
   ListChannels lists channels returns a list of all notifation channels
 */
-func (a *Client) ListChannels(params *ListChannelsParams) (*ListChannelsOK, error) {
+func (a *Client) ListChannels(params *ListChannelsParams, opts ...ClientOption) (*ListChannelsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewListChannelsParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "ListChannels",
 		Method:             "POST",
 		PathPattern:        "/v1/management/ia/Channels/List",
@@ -122,7 +132,12 @@ func (a *Client) ListChannels(params *ListChannelsParams) (*ListChannelsOK, erro
 		Reader:             &ListChannelsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -138,13 +153,12 @@ func (a *Client) ListChannels(params *ListChannelsParams) (*ListChannelsOK, erro
 /*
   RemoveChannel removes channel removes notification channel
 */
-func (a *Client) RemoveChannel(params *RemoveChannelParams) (*RemoveChannelOK, error) {
+func (a *Client) RemoveChannel(params *RemoveChannelParams, opts ...ClientOption) (*RemoveChannelOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewRemoveChannelParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "RemoveChannel",
 		Method:             "POST",
 		PathPattern:        "/v1/management/ia/Channels/Remove",
@@ -155,7 +169,12 @@ func (a *Client) RemoveChannel(params *RemoveChannelParams) (*RemoveChannelOK, e
 		Reader:             &RemoveChannelReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
