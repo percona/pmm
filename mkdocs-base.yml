@@ -92,6 +92,7 @@ extra: # Used in main.html template and can't be externalized
 # Common navigation for percona.com, render.com and PDF
 nav:
 
+
     - Welcome: index.md
     - Setting up:
           - setting-up/index.md
@@ -221,7 +222,7 @@ nav:
     - faq.md
     - Release Notes:
           - release-notes/index.md
-
+          - "PMM 2.27.0": release-notes/2.27.0.md
           - "PMM 2.26.0": release-notes/2.26.0.md
           - "PMM 2.25.0": release-notes/2.25.0.md
           - "PMM 2.24.0": release-notes/2.24.0.md

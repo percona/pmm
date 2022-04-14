@@ -33,6 +33,27 @@ As a result of the move to VictoriaMetrics some direct Prometheus paths are no l
 | `/prometheus/status`            | Some information at `/prometheus/metrics`. High cardinality metrics information at `/prometheus/api/v1/status/tsdb`.
 | `/prometheus/targets`           | `/victoriametrics/targets`
 
+
+
+## Environment variables
+
+
+PMM predefines certain flags that allow users to set all other [VictoriaMetrics parameters](https://docs.victoriametrics.com/#list-of-command-line-flags) as environment variables:
+ 
+The environment variable must be prepended with `VM_`.
+
+**Example**
+
+To set downsampling, use the `downsampling.period` parameter as follows:
+
+```
+-e VM_downsampling_period=20d:10m,120d:2h
+```
+
+This instructs VictoriaMetrics to [deduplicate](https://docs.victoriametrics.com/#deduplication) samples older than 20 days with 10 mins intervals and samples older than 120 days with two-hour intervals.
+
+
+
 ## Troubleshooting
 
 To troubleshoot issues, see the VictoriaMetrics [troubleshooting documentation](https://victoriametrics.github.io/#troubleshooting).

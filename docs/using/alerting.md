@@ -21,6 +21,7 @@ Before creating alert rules:
 2. Set up an Email (SMTP) or Slack sender settings for receiving alerts.
 3. Specify the Email/Slack/Webhooks/PagerDuty settings and channels to notify.
  
+
 ### Enable Integrated Alerting
  
 1. Select **Configuration > Settings > Advanced Settings**.
