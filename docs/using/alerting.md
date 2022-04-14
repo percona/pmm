@@ -90,7 +90,7 @@ When creating custom templates, make sure to use the required template format be
  
 ### Template example
  
- ```yaml
+```yaml
        ---
     templates:
       - name: pmm_mongodb_high_memory_usage
