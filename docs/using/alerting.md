@@ -90,8 +90,7 @@ When creating custom templates, make sure to use the required template format be
  
 ### Template example
  
-      ```
-      {% raw %}
+```yml
        ---
     templates:
       - name: pmm_mongodb_high_memory_usage
@@ -118,8 +117,7 @@ When creating custom templates, make sure to use the required template format be
               description: |-
                  {{ $value }}% of memory (more than [[ .threshold ]]%) is used
                  by {{ $labels.service_name }} on {{ $labels.node_name }}.
-      ```
-      {% endraw %}
+```
 
 ## Test alert expressions
 If you want to create custom templates, you can test the MetricsQ expressions for your custom template in the **Explore** section of PMM. Here you can also query any PMM internal database.
