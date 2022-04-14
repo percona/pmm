@@ -14,7 +14,7 @@
 
 - [Query Analytics](query-analytics.md), a specialized dashboard for detailed query analysis.
 
-- [Security Threat Tool](security-threat-tool.md): Enabling and seeing the results of database security checks.
+- [Advisors](../how-to/advisors.md): Enabling and seeing the results of database Advisor checks.
 
 - [DBaaS](dbaas.md): Configuration for DBaaS and UI for creating Database clusters.
 

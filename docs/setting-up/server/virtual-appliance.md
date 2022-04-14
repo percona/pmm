@@ -291,6 +291,9 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 
 4. (Recommended) Follow the prompts to change the default password.
 
+!!! note alert alert-primary ""
+    You also can change the default password through SSH by using the `change-admin-password` command.
+
 5. The PMM Home Dashboard appears.
 
 ## (Optional) Change root password
