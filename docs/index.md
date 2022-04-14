@@ -11,7 +11,7 @@ PMM helps you improve the performance of your databases, simplify their manageme
 - Additional features include checking databases for [security threats](using/security-threat-tool.md).
 
 !!! alert alert-info ""
-This is the documentation for the latest release, **PMM {{release}}** ([Release Notes](release-notes/{{release}}.md)).
+    This is the documentation for the latest release, **PMM {{release}}** ([Release Notes](release-notes/{{release}}.md)).
 
 Here's how the home page looks on our <a href='https://pmmdemo.percona.com/' target='_blank'>free, live demo system</a>.
 
