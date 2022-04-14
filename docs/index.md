@@ -8,7 +8,7 @@ PMM helps you improve the performance of your databases, simplify their manageme
 
 - The PMM [web UI](using/interface.md) **visualizes data** in [dashboards](details/dashboards/).
 
-- Additional features include checking databases for security threats.
+- Additional features include checking databases for [security threats](how-to/advisors.md).
 
 !!! alert alert-info ""
     This is the documentation for the latest release, **PMM {{release}}** ([Release Notes](release-notes/{{release}}.md)).
