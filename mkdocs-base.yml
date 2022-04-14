@@ -124,7 +124,7 @@ nav:
           - using/backup.md
           - using/query-analytics.md
           - using/dbaas.md
-          - using/security-threat-tool.md
+          
     - How to:
           - how-to/index.md
           - how-to/configure.md
