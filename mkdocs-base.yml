@@ -147,6 +147,7 @@ nav:
           - details/interface.md
           - Developing Advisors:
                 - details/develop-checks.md
+            
           - Dashboards:
                 - details/dashboards/index.md
                 - Insight:
