@@ -1,6 +1,5 @@
 DROP EXTENSION pg_stat_monitor;
 Create EXTENSION pg_stat_monitor;
-SELECT pg_stat_monitor_reset();
 ​
 Set application_name = 'naeem' ; 
 SELECT 1 AS num;
