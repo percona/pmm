@@ -402,8 +402,13 @@ message ParseDefaultsFileRequest {
 
 // ParseDefaultsFileResponse is an AgentMessage containing a result of parding defaults file.
 message ParseDefaultsFileResponse {
-  string username = 1;
-  string password = 2;
+
+  // Error message if parse failed.
+  string error = 1;
+
+  string username = 2;
+  string password = 3;
+
 }
 
 // CheckConnectionRequest is a ServerMessage asking pmm-agent to check connection with Service.
