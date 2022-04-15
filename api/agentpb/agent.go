@@ -1,9 +1,7 @@
 // Package agentpb contains pmm-agent<->pmm-managed protocol messages and helpers.
 package agentpb
 
-import (
-	"google.golang.org/protobuf/proto"
-)
+import "google.golang.org/protobuf/proto"
 
 //go-sumtype:decl isAgentMessage_Payload
 //go-sumtype:decl isServerMessage_Payload

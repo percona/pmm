@@ -111,6 +111,10 @@ format:               ## Format source code
 	bin/goimports -local github.com/percona/pmm -l -w .
 	bin/gci write --Section Standard --Section Default --Section "Prefix(github.com/percona/pmm)" .
 
+check:                ## Run required checkers and linters.
+	bin/golangci-lint run -c=.golangci.yml
+	bin/go-consistent -pedantic ./...
+
 serve:                ## Serve API documentation with nginx.
 	# http://127.0.0.1:8080/swagger-ui.html
 	nginx -p . -c api/nginx/nginx.conf

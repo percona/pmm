@@ -29,10 +29,16 @@ linters-settings:
     check-exported: true
 
 linters:
-  enable-all: true
-  disable:
-    - scopelint         # too many false positives
-    - gochecknoglobals  # mostly useless
+  disable-all: true
+  enable:
+    # keep sorted
+    - depguard
+    - goimports
+    - govet
+    - ineffassign
+    - nolintlint
+    - staticcheck
+    - gci
 
 issues:
   exclude-use-default: false
