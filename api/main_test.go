@@ -53,7 +53,7 @@ func TestImports(t *testing.T) {
 		p, err := build.Import(path, ".", build.IgnoreVendor)
 		require.NoError(t, err)
 
-		var allImports map[string]struct{}
+		allImports := make(map[string]struct{}, len(p.Imports)+len(p.TestImports)+len(p.XTestImports))
 		for _, i := range p.Imports {
 			allImports[i] = struct{}{}
 		}
