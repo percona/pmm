@@ -128,6 +128,7 @@ type Setup struct {
 	MetricsMode       string
 	DisableCollectors string
 	CustomLabels      string
+	AgentPassword     string
 
 	Force            bool
 	SkipRegistration bool
@@ -412,6 +413,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 	nodeNameHelp := fmt.Sprintf("Node name (autodetected default: %s) [PMM_AGENT_SETUP_NODE_NAME]", hostname)
 	setupCmd.Arg("node-name", nodeNameHelp).Default(hostname).
 		Envar("PMM_AGENT_SETUP_NODE_NAME").StringVar(&cfg.Setup.NodeName)
+	setupCmd.Arg("agent-password", "Custom password for /metrics endpoint").
+		Envar("PMM_AGENT_SETUP_NODE_PASSWORD").StringVar(&cfg.Setup.AgentPassword)
 
 	var defaultMachineID string
 	if nodeinfo.MachineID != "" {
