@@ -204,6 +204,9 @@ type RegisterNodeBody struct {
 
 	// List of collector names to disable in this exporter.
 	DisableCollectors []string `json:"disable_collectors"`
+
+	// Custom password for exporter endpoint /metrics.
+	AgentPassword string `json:"agent_password,omitempty"`
 }
 
 // Validate validates this register node body
