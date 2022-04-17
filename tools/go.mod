@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	github.com/BurntSushi/go-sumtype v0.0.0-20190304192233-fcb4a6205bdc
+	github.com/daixiang0/gci v0.3.3
 	github.com/go-delve/delve v1.8.2
 	github.com/golangci/golangci-lint v1.45.2
 	github.com/quasilyte/go-consistent v0.0.0-20200404105227-766526bf1e96
@@ -44,7 +45,6 @@ require (
 	github.com/cilium/ebpf v0.8.0 // indirect
 	github.com/cosiner/argv v0.1.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.1 // indirect
-	github.com/daixiang0/gci v0.3.3 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/denis-tingaikin/go-header v0.4.3 // indirect
 	github.com/denisenkom/go-mssqldb v0.12.0 // indirect

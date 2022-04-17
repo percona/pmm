@@ -21,6 +21,7 @@ package tools
 
 import (
 	_ "github.com/BurntSushi/go-sumtype"
+	_ "github.com/daixiang0/gci"
 	_ "github.com/go-delve/delve/cmd/dlv"
 	_ "github.com/golangci/golangci-lint/cmd/golangci-lint"
 	_ "github.com/quasilyte/go-consistent"
@@ -34,14 +35,15 @@ import (
 	_ "mvdan.cc/gofumpt"
 )
 
-//go:generate go build -o ../bin/benchstat golang.org/x/perf/cmd/benchstat
-//go:generate go build -o ../bin/dlv github.com/go-delve/delve/cmd/dlv
 //go:generate go build -o ../bin/go-sumtype github.com/BurntSushi/go-sumtype
-//go:generate go build -o ../bin/gofumpt mvdan.cc/gofumpt
-//go:generate go build -o ../bin/goimports golang.org/x/tools/cmd/goimports
+//go:generate go build -o ../bin/gci github.com/daixiang0/gci
+//go:generate go build -o ../bin/dlv github.com/go-delve/delve/cmd/dlv
 //go:generate go build -o ../bin/golangci-lint github.com/golangci/golangci-lint/cmd/golangci-lint
-//go:generate go build -o ../bin/gopls golang.org/x/tools/gopls
-//go:generate go build -o ../bin/mockery github.com/vektra/mockery/cmd/mockery
-//go:generate go build -o ../bin/reform gopkg.in/reform.v1/reform
-//go:generate go build -o ../bin/reviewdog github.com/reviewdog/reviewdog/cmd/reviewdog
 //go:generate go build -o ../bin/go-consistent github.com/quasilyte/go-consistent
+//go:generate go build -o ../bin/reviewdog github.com/reviewdog/reviewdog/cmd/reviewdog
+//go:generate go build -o ../bin/mockery github.com/vektra/mockery/cmd/mockery
+//go:generate go build -o ../bin/benchstat golang.org/x/perf/cmd/benchstat
+//go:generate go build -o ../bin/goimports golang.org/x/tools/cmd/goimports
+//go:generate go build -o ../bin/gopls golang.org/x/tools/gopls
+//go:generate go build -o ../bin/reform gopkg.in/reform.v1/reform
+//go:generate go build -o ../bin/gofumpt mvdan.cc/gofumpt

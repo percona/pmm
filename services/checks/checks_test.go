@@ -23,14 +23,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/percona-platform/saas/pkg/common"
-	"github.com/prometheus/common/model"
-
 	"github.com/AlekSi/pointer"
 	"github.com/percona-platform/saas/pkg/check"
+	"github.com/percona-platform/saas/pkg/common"
 	"github.com/percona/pmm/api/alertmanager/ammodels"
 	"github.com/percona/pmm/version"
 	promtest "github.com/prometheus/client_golang/prometheus/testutil"
+	"github.com/prometheus/common/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"

@@ -19,9 +19,8 @@ package backup
 import (
 	"context"
 
-	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
-
 	"github.com/minio/minio-go/v7"
+	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"

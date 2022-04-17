@@ -22,16 +22,15 @@ import (
 	"sync"
 	"time"
 
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-
-	"github.com/percona/pmm-managed/models"
-
 	"github.com/AlekSi/pointer"
 	"github.com/go-co-op/gocron"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
+
+	"github.com/percona/pmm-managed/models"
 )
 
 // Service is responsible for executing tasks and storing them to DB.

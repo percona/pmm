@@ -19,11 +19,10 @@ package server
 import (
 	"testing"
 
-	"google.golang.org/grpc/codes"
-
 	serverClient "github.com/percona/pmm/api/serverpb/json/client"
 	"github.com/percona/pmm/api/serverpb/json/client/server"
 	"github.com/stretchr/testify/assert"
+	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm-managed/api-tests"
 )

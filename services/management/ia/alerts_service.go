@@ -23,8 +23,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/percona/pmm-managed/services"
-
 	"github.com/percona-platform/saas/pkg/common"
 	"github.com/percona/pmm/api/alertmanager/ammodels"
 	"github.com/percona/pmm/api/managementpb"
@@ -37,6 +35,7 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm-managed/services"
 )
 
 // AlertsService represents integrated alerting alerts API.

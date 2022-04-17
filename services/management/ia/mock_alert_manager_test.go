@@ -6,7 +6,6 @@ import (
 	context "context"
 
 	ammodels "github.com/percona/pmm/api/alertmanager/ammodels"
-
 	mock "github.com/stretchr/testify/mock"
 
 	services "github.com/percona/pmm-managed/services"

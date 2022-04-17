@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus/hooks/test"
-
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"

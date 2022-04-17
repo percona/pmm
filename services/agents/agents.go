@@ -18,7 +18,6 @@ package agents
 
 import (
 	"github.com/AlekSi/pointer"
-
 	"github.com/percona/pmm/version"
 
 	"github.com/percona/pmm-managed/models"

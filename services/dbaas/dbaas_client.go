@@ -22,14 +22,13 @@ import (
 	"sync"
 	"time"
 
+	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
+	"github.com/percona/pmm/version"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/backoff"
 	"google.golang.org/grpc/credentials/insecure"
-
-	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
-	"github.com/percona/pmm/version"
 )
 
 // Client is a client for dbaas-controller.

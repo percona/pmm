@@ -26,6 +26,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/percona/pmm/api/platformpb"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -33,8 +34,6 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 	"gopkg.in/reform.v1"
-
-	"github.com/percona/pmm/api/platformpb"
 
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/services/grafana"
