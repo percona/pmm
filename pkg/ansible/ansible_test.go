@@ -30,7 +30,8 @@ func TestAnsible(t *testing.T) {
 
 	t.Run("SyntaxCheck", func(t *testing.T) {
 		err := RunPlaybook(context.Background(), playbook, &RunPlaybookOpts{
-			ExtraFlags: []string{"--syntax-check"}},
+			ExtraFlags: []string{"--syntax-check"},
+		},
 		)
 		require.NoError(t, err)
 	})

@@ -1,6 +1,6 @@
 module github.com/percona/pmm-update
 
-go 1.17
+go 1.18
 
 require (
 	github.com/percona/pmm v2.18.0+incompatible

@@ -27,10 +27,9 @@ LD_FLAGS = -ldflags " \
 release:                        ## Build pmm-update release binary.
 	env CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-update
 
-init:                           ## Installs development tools
-	go build -modfile=tools/go.mod -o $(BIN_PATH)/golangci-lint github.com/golangci/golangci-lint/cmd/golangci-lint
-	go build -modfile=tools/go.mod -o $(BIN_PATH)/goimports golang.org/x/tools/cmd/goimports
-	go build -modfile=tools/go.mod -o $(BIN_PATH)/reviewdog github.com/reviewdog/reviewdog/cmd/reviewdog
+init:                           ## Install development tools
+	rm -rf ./bin
+	cd tools && go generate -x -tags=tools
 
 install:                        ## Install pmm-update binary.
 	go install $(LD_FLAGS) ./...
@@ -62,8 +61,9 @@ check-all: check                ## Run all linters for new code.
 FILES = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 
 format:                         ## Format source code.
-	gofmt -w -s $(FILES)
+	$(BIN_PATH)/gofumpt -l -w $(FILES)
 	$(BIN_PATH)/goimports -local github.com/percona/pmm-update -l -w $(FILES)
+	$(BIN_PATH)/gci write --Section Standard --Section Default --Section "Prefix(github.com/percona/pmm-update)" $(FILES)
 
 RUN_FLAGS ?=
 
