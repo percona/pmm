@@ -35,6 +35,7 @@ type statementsCache struct {
 func (c *statementsCache) Set(src statementsMap) error {
 	return c.cache.Set(src)
 }
+
 func (c *statementsCache) Get(dest statementsMap) error {
 	return c.cache.Get(dest)
 }

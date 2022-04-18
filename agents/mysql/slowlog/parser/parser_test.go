@@ -70,7 +70,7 @@ func TestParserGolden(t *testing.T) {
 				b, err := json.MarshalIndent(actual, "", "  ")
 				require.NoError(t, err)
 				b = append(b, '\n')
-				err = ioutil.WriteFile(goldenFile, b, 0666)
+				err = ioutil.WriteFile(goldenFile, b, 0o666)
 				require.NoError(t, err)
 				t.Skipf("%s updated.", goldenFile)
 			}
@@ -103,7 +103,7 @@ func TestParserSpecial(t *testing.T) {
 			User:      "root",
 			Offset:    196,
 			OffsetEnd: 562,
-			Ts:        time.Date(2009, 03, 11, 18, 11, 50, 0, time.UTC),
+			Ts:        time.Date(2009, 0o3, 11, 18, 11, 50, 0, time.UTC),
 			TimeMetrics: map[string]float64{
 				"Query_time": 0.017850,
 				"Lock_time":  0.000000,

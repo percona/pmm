@@ -308,7 +308,6 @@ func pbmConfigure(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL, con
 		"config",
 		"--mongodb-uri="+dbURL.String(),
 		"--file="+confFile).CombinedOutput()
-
 	if err != nil {
 		return errors.Wrapf(err, "pbm config error: %s", string(output))
 	}

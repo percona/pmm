@@ -29,13 +29,8 @@ release:                        ## Build static pmm-agent release binary (Linux 
 	-ldd $(PMM_RELEASE_PATH)/pmm-agent
 
 init:                           ## Installs development tools
-	go build -modfile=tools/go.mod -o $(BIN_PATH)/golangci-lint github.com/golangci/golangci-lint/cmd/golangci-lint
-	go build -modfile=tools/go.mod -o $(BIN_PATH)/mockery github.com/vektra/mockery/cmd/mockery
-	go build -modfile=tools/go.mod -o $(BIN_PATH)/benchstat golang.org/x/perf/cmd/benchstat
-	go build -modfile=tools/go.mod -o $(BIN_PATH)/goimports golang.org/x/tools/cmd/goimports
-	go build -modfile=tools/go.mod -o $(BIN_PATH)/reviewdog github.com/reviewdog/reviewdog/cmd/reviewdog
-	go build -modfile=tools/go.mod -o $(BIN_PATH)/reform gopkg.in/reform.v1/reform
-	go build -modfile=tools/go.mod -o $(BIN_PATH)/go-consistent github.com/quasilyte/go-consistent
+	rm -rf ./bin
+	cd tools && go generate -x -tags=tools
 
 gen:                            ## Generate files.
 	go generate ./...
@@ -106,8 +101,10 @@ check-all: check                ## Run golang ci linter to check new changes fro
 FILES = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 
 format:                         ## Format source code.
-	gofmt -w -s $(FILES)
+	$(BIN_PATH)/gofumpt -l -w $(FILES)
 	$(BIN_PATH)/goimports -local github.com/percona/pmm-agent -l -w $(FILES)
+	$(BIN_PATH)/gci write --Section Standard --Section Default --Section "Prefix(github.com/percona/pmm-agent)" $(FILES)
+	$(BIN_PATH)/goimports -local github.com/percona/pmm-agent -l -w $(FILES) # Temporary fix, gci has bug with sorting black imports.
 
 RUN_FLAGS = --config-file=pmm-agent-dev.yaml
 
