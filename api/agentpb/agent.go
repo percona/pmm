@@ -114,6 +114,7 @@ func (m *GetVersionsResponse) AgentMessageResponsePayload() isAgentMessage_Paylo
 func (m *PBMSwitchPITRResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
 	return &AgentMessage_PbmSwitchPitr{PbmSwitchPitr: m}
 }
+
 func (m *ParseDefaultsFileResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
 	return &AgentMessage_ParseDefaultsFile{ParseDefaultsFile: m}
 }
@@ -177,6 +178,7 @@ func (m *GetVersionsRequest) ServerMessageRequestPayload() isServerMessage_Paylo
 func (m *PBMSwitchPITRRequest) ServerMessageRequestPayload() isServerMessage_Payload {
 	return &ServerMessage_PbmSwitchPitr{PbmSwitchPitr: m}
 }
+
 func (m *ParseDefaultsFileRequest) ServerMessageRequestPayload() isServerMessage_Payload {
 	return &ServerMessage_ParseDefaultsFile{ParseDefaultsFile: m}
 }
