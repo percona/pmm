@@ -8,7 +8,7 @@ require (
 	github.com/go-openapi/errors v0.19.6
 	github.com/go-openapi/runtime v0.19.20
 	github.com/go-openapi/strfmt v0.19.5
-	github.com/go-openapi/swag v0.19.9
+	github.com/go-openapi/swag v0.21.1
 	github.com/go-openapi/validate v0.19.10
 	github.com/golang/protobuf v1.5.2
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
@@ -39,7 +39,8 @@ require (
 	github.com/go-openapi/spec v0.19.8 // indirect
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/mailru/easyjson v0.7.1 // indirect
+	github.com/josharian/intern v1.0.0 // indirect
+	github.com/mailru/easyjson v0.7.6 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/mitchellh/mapstructure v1.3.3 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
