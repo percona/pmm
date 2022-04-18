@@ -26,7 +26,7 @@ import (
 
 	"github.com/AlekSi/pointer"
 	ver "github.com/hashicorp/go-version"
-	"github.com/lib/pq"
+	"github.com/lib/pq"   //nolint:gci
 	_ "github.com/lib/pq" // register SQL driver.
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
@@ -70,8 +70,10 @@ type Params struct {
 	AgentID              string
 }
 
-type pgStatMonitorVersion int
-type pgStatMonitorPrerelease string
+type (
+	pgStatMonitorVersion    int
+	pgStatMonitorPrerelease string
+)
 
 const (
 	pgStatMonitorVersion06 pgStatMonitorVersion = iota
@@ -431,7 +433,7 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 
 			if !m.disableQueryExamples && currentPSM.Example != "" {
 				mb.Common.Example = currentPSM.Example
-				mb.Common.ExampleFormat = agentpb.ExampleFormat_EXAMPLE // nolint:staticcheck
+				mb.Common.ExampleFormat = agentpb.ExampleFormat_EXAMPLE
 				mb.Common.ExampleType = agentpb.ExampleType_RANDOM
 			}
 

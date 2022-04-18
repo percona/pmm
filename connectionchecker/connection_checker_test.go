@@ -45,7 +45,8 @@ func TestConnectionChecker(t *testing.T) {
 				Type:    inventorypb.ServiceType_MYSQL_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
 			},
-		}, {
+		},
+		{
 			name: "MySQL wrong params",
 			req: &agentpb.CheckConnectionRequest{
 				Dsn:     "pmm-agent:pmm-agent-wrong-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=1s",
@@ -53,7 +54,8 @@ func TestConnectionChecker(t *testing.T) {
 				Timeout: durationpb.New(3 * time.Second),
 			},
 			expectedErr: `Error 1045: Access denied for user 'pmm-agent'@'.+' \(using password: YES\)`,
-		}, {
+		},
+		{
 			name: "MySQL timeout",
 			req: &agentpb.CheckConnectionRequest{
 				Dsn:     "root:root-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=10s",
@@ -70,7 +72,8 @@ func TestConnectionChecker(t *testing.T) {
 				Type:    inventorypb.ServiceType_MONGODB_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
 			},
-		}, {
+		},
+		{
 			name: "MongoDB with no auth with params",
 			req: &agentpb.CheckConnectionRequest{
 				Dsn:     "mongodb://root:root-password@127.0.0.1:27019/admin?connectTimeoutMS=1000",
@@ -79,14 +82,16 @@ func TestConnectionChecker(t *testing.T) {
 			},
 			expectedErr: `.*auth error: (sasl conversation error: )?unable to authenticate using mechanism "[\w-]+": ` +
 				`\(AuthenticationFailed\) Authentication failed.`,
-		}, {
+		},
+		{
 			name: "MongoDB",
 			req: &agentpb.CheckConnectionRequest{
 				Dsn:     "mongodb://root:root-password@127.0.0.1:27017/admin?connectTimeoutMS=1000",
 				Type:    inventorypb.ServiceType_MONGODB_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
 			},
-		}, {
+		},
+		{
 			name: "MongoDB no params",
 			req: &agentpb.CheckConnectionRequest{
 				Dsn:     "mongodb://127.0.0.1:27017/admin?connectTimeoutMS=1000",
@@ -96,7 +101,8 @@ func TestConnectionChecker(t *testing.T) {
 			expectedErr: `\(Unauthorized\) (?:command listDatabases requires authentication|` +
 				`there are no users authenticated|` +
 				`not authorized on admin to execute command \{ listDatabases\: 1 \})`,
-		}, {
+		},
+		{
 			name: "MongoDB wrong params",
 			req: &agentpb.CheckConnectionRequest{
 				Dsn:     "mongodb://root:root-password-wrong@127.0.0.1:27017/admin?connectTimeoutMS=1000",
@@ -105,7 +111,8 @@ func TestConnectionChecker(t *testing.T) {
 			},
 			expectedErr: `.*auth error: (sasl conversation error: )?unable to authenticate using mechanism "[\w-]+": ` +
 				`\(AuthenticationFailed\) Authentication failed.`,
-		}, {
+		},
+		{
 			name: "MongoDB timeout",
 			req: &agentpb.CheckConnectionRequest{
 				Dsn:     "mongodb://root:root-password@127.0.0.1:27017/admin?connectTimeoutMS=10000",
@@ -113,7 +120,8 @@ func TestConnectionChecker(t *testing.T) {
 				Timeout: durationpb.New(time.Nanosecond),
 			},
 			expectedErr: `server selection error: context deadline exceeded, current topology: \{ Type: Unknown, Servers: \[\{ Addr: 127.0.0.1:27017, Type: Unknown \}, \] \}`,
-		}, {
+		},
+		{
 			name: "MongoDB no database",
 			req: &agentpb.CheckConnectionRequest{
 				Dsn:     "mongodb://root:root-password@127.0.0.1:27017?connectTimeoutMS=1000",
@@ -130,7 +138,8 @@ func TestConnectionChecker(t *testing.T) {
 				Type:    inventorypb.ServiceType_POSTGRESQL_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
 			},
-		}, {
+		},
+		{
 			name: "PostgreSQL wrong params",
 			req: &agentpb.CheckConnectionRequest{
 				Dsn:     "postgres://pmm-agent:pmm-agent-wrong-password@127.0.0.1:5432/postgres?connect_timeout=1&sslmode=disable",
@@ -138,7 +147,8 @@ func TestConnectionChecker(t *testing.T) {
 				Timeout: durationpb.New(3 * time.Second),
 			},
 			expectedErr: `pq: password authentication failed for user "pmm-agent"`,
-		}, {
+		},
+		{
 			name: "PostgreSQL timeout",
 			req: &agentpb.CheckConnectionRequest{
 				Dsn:     "postgres://pmm-agent:pmm-agent-password@127.0.0.1:5432/postgres?connect_timeout=10&sslmode=disable",
@@ -157,7 +167,8 @@ func TestConnectionChecker(t *testing.T) {
 				Type:    inventorypb.ServiceType_PROXYSQL_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
 			},
-		}, {
+		},
+		{
 			name: "ProxySQL/MySQL wrong params",
 			req: &agentpb.CheckConnectionRequest{
 				Dsn:     "pmm-agent:pmm-agent-wrong-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=1s",
@@ -165,7 +176,8 @@ func TestConnectionChecker(t *testing.T) {
 				Timeout: durationpb.New(3 * time.Second),
 			},
 			expectedErr: `Error 1045: Access denied for user 'pmm-agent'@'.+' \(using password: YES\)`,
-		}, {
+		},
+		{
 			name: "ProxySQL/MySQL timeout",
 			req: &agentpb.CheckConnectionRequest{
 				Dsn:     "root:root-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=10s",

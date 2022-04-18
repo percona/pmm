@@ -42,8 +42,10 @@ import (
 	"github.com/percona/pmm-agent/utils/version"
 )
 
-type historyMap map[string]*eventsStatementsHistory
-type summaryMap map[string]*eventsStatementsSummaryByDigest
+type (
+	historyMap map[string]*eventsStatementsHistory
+	summaryMap map[string]*eventsStatementsSummaryByDigest
+)
 
 // mySQLVersion contains
 type mySQLVersion struct {
@@ -337,7 +339,7 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 					b.Common.IsTruncated = truncated
 				}
 				b.Common.Example = example
-				b.Common.ExampleFormat = agentpb.ExampleFormat_EXAMPLE //nolint:staticcheck
+				b.Common.ExampleFormat = agentpb.ExampleFormat_EXAMPLE
 				b.Common.ExampleType = agentpb.ExampleType_RANDOM
 			}
 		}

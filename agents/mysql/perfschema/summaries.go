@@ -34,6 +34,7 @@ type summaryCache struct {
 func (c *summaryCache) Set(src summaryMap) error {
 	return c.cache.Set(src)
 }
+
 func (c *summaryCache) Get(dest summaryMap) error {
 	return c.cache.Get(dest)
 }

@@ -481,7 +481,7 @@ func SaveToFile(path string, cfg *Config, comment string) error {
 	}
 	res = append(res, "---\n"...)
 	res = append(res, b...)
-	return ioutil.WriteFile(path, res, 0640)
+	return ioutil.WriteFile(path, res, 0o640)
 }
 
 // IsWritable checks if specified path is writable.

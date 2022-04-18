@@ -95,7 +95,7 @@ func setup(t *testing.T, connect func(agentpb.Agent_ConnectServer) error, expect
 			}
 			return false
 		}, "%+v", err)
-		//assert.Contains(t, expected, errors.Cause(err), "%+v", err)
+		// assert.Contains(t, expected, errors.Cause(err), "%+v", err)
 
 		server.Stop()
 		cancel()

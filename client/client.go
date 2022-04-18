@@ -695,7 +695,8 @@ func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) (*dialRe
 		conn:         conn,
 		streamCancel: streamCancel,
 		channel:      channel,
-		md:           md}, nil
+		md:           md,
+	}, nil
 }
 
 func getNetworkInformation(channel *channel.Channel) (latency, clockDrift time.Duration, err error) {
