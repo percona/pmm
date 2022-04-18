@@ -8,7 +8,7 @@ It allows you to observe the health of your database systems, explore new patter
 
 - The PMM [web UI](using/interface.md) **visualizes data** in [dashboards](details/dashboards/).
 
-- Additional features include checking databases for [security threats](how-to/advisors.md).
+- Additional features include checking databases for [security threats](details/develop-checks.md).
 
 !!! alert alert-info ""
     This is the documentation for the latest release, **PMM {{release}}** ([Release Notes](release-notes/{{release}}.md)).
