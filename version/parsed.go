@@ -6,8 +6,10 @@ import (
 	"strconv"
 )
 
-var versionRE = regexp.MustCompile(`^(\d+)\.(\d+)\.(\d+)(.*)$`)
-var fetchRest = regexp.MustCompile(`^-(\d+)-?(.*)$`)
+var (
+	versionRE = regexp.MustCompile(`^(\d+)\.(\d+)\.(\d+)(.*)$`)
+	fetchRest = regexp.MustCompile(`^-(\d+)-?(.*)$`)
+)
 
 // Parsed represents a SemVer-like version information.
 type Parsed struct {
