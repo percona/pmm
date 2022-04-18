@@ -8,7 +8,7 @@ jobs:
     strategy:
       matrix:
         go-version:
-          - 1.17
+          - 1.18
           - tip
         include:
           - go-version: tip

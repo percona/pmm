@@ -39,7 +39,7 @@ import (
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	grpc_gateway "github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/jmoiron/sqlx"
-	"github.com/percona/pmm/api/qanpb"
+	qanpb "github.com/percona/pmm/api/qanpb"
 	"github.com/percona/pmm/utils/sqlmetrics"
 	"github.com/percona/pmm/version"
 	prom "github.com/prometheus/client_golang/prometheus"

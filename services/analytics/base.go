@@ -17,6 +17,8 @@
 package analytics
 
 import (
+	qanpb "github.com/percona/pmm/api/qanpb"
+
 	"github.com/percona/qan-api2/models"
 )
 
@@ -24,11 +26,16 @@ import (
 type Service struct {
 	rm models.Reporter
 	mm models.Metrics
+
+	qanpb.UnimplementedProfileServer
+	qanpb.UnimplementedFiltersServer
+	qanpb.UnimplementedObjectDetailsServer
+	qanpb.UnimplementedMetricsNamesServer
 }
 
 // NewService create new insstance of Service.
 func NewService(rm models.Reporter, mm models.Metrics) *Service {
-	return &Service{rm, mm}
+	return &Service{rm: rm, mm: mm}
 }
 
 var standartDimensions = map[string]struct{}{

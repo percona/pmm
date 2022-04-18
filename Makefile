@@ -20,11 +20,9 @@ release:                        ## Build qan-api2 release binary.
 		-X 'github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)' \
 		"
 
-init:                           ## Installs tools to $GOPATH/bin (which is expected to be in $PATH).
-	go build -modfile=tools/go.mod -o bin/golangci-lint github.com/golangci/golangci-lint/cmd/golangci-lint
-	go build -modfile=tools/go.mod -o bin/go-bindata github.com/kevinburke/go-bindata/go-bindata
-	go build -modfile=tools/go.mod -o bin/goimports golang.org/x/tools/cmd/goimports
-	go build -modfile=tools/go.mod -o bin/reviewdog github.com/reviewdog/reviewdog/cmd/reviewdog
+init:                           ## Install development tools
+	rm -rf ./bin
+	cd tools && go generate -x -tags=tools
 
 gen:                            ## Generate files.
 	bin/go-bindata -nometadata -pkg migrations -o migrations/bindata.go -prefix migrations/sql migrations/sql

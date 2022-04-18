@@ -22,7 +22,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/percona/pmm/api/qanpb"
+	qanpb "github.com/percona/pmm/api/qanpb"
 
 	"github.com/percona/qan-api2/models"
 )

@@ -19,7 +19,7 @@ package receiver
 import (
 	"context"
 
-	"github.com/percona/pmm/api/qanpb"
+	qanpb "github.com/percona/pmm/api/qanpb"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/qan-api2/models"
@@ -30,6 +30,8 @@ import (
 type Service struct {
 	mbm *models.MetricsBucket
 	l   *logrus.Entry
+
+	qanpb.UnimplementedCollectorServer
 }
 
 // NewService create new insstance of Service.

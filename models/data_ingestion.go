@@ -21,7 +21,7 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/percona/pmm/api/qanpb"
+	qanpb "github.com/percona/pmm/api/qanpb"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
