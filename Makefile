@@ -7,15 +7,7 @@ help:                 ## Display this help message.
 
 init:                 ## Install tools.
 	rm -rf bin
-	go build -modfile=tools/go.mod -o bin/buf github.com/bufbuild/buf/cmd/buf
-	go build -modfile=tools/go.mod -o bin/protoc-gen-go google.golang.org/protobuf/cmd/protoc-gen-go
-	go build -modfile=tools/go.mod -o bin/protoc-gen-go-grpc google.golang.org/grpc/cmd/protoc-gen-go-grpc
-	go build -modfile=tools/go.mod -o bin/protoc-gen-govalidators github.com/mwitkow/go-proto-validators/protoc-gen-govalidators
-	go build -modfile=tools/go.mod -o bin/protoc-gen-grpc-gateway github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
-	go build -modfile=tools/go.mod -o bin/protoc-gen-swagger github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger
-	go build -modfile=tools/go.mod -o bin/swagger github.com/go-swagger/go-swagger/cmd/swagger
-	go build -modfile=tools/go.mod -o bin/swagger-order github.com/Percona-Lab/swagger-order
-	go build -modfile=tools/go.mod -o bin/go-sumtype github.com/BurntSushi/go-sumtype
+	cd tools && go generate -x -tags=tools
 
 	# Download third-party proto files
 	$(eval GO_PROTO_VALIDATOR=$(shell go list -f '{{ .Version }}' -m github.com/mwitkow/go-proto-validators))
@@ -89,14 +81,14 @@ gen: clean         ## Generate files.
 	bin/swagger-order --output=api/swagger/swagger-dev-only.json api/swagger/swagger-dev-only.json
 
 	make clean_swagger
-	go fmt ./...
+	make format
 	bin/go-sumtype ./...
 	go install -v ./...
 
 gen-alertmanager:     # Generate Alertmanager client.
 	bin/swagger generate client --model-package=ammodels --client-package=amclient --spec=api/alertmanager/openapi.yaml --target=api/alertmanager
 
-	go fmt ./api/alertmanager/...
+	bin/gofumpt  -l -w ./api/alertmanager
 	go install -v ./api/alertmanager/...
 
 clean_swagger:
@@ -115,7 +107,13 @@ test:                 ## Run tests
 	go test ./...
 
 format:               ## Format source code
-	go fmt ./...
+	bin/gofumpt -l -w .
+	bin/goimports -local github.com/percona/pmm -l -w .
+	bin/gci write --Section Standard --Section Default --Section "Prefix(github.com/percona/pmm)" .
+
+check:                ## Run required checkers and linters.
+	bin/golangci-lint run -c=.golangci.yml
+	bin/go-consistent -pedantic ./...
 
 serve:                ## Serve API documentation with nginx.
 	# http://127.0.0.1:8080/swagger-ui.html
