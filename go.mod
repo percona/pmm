@@ -5,9 +5,9 @@ go 1.18
 replace github.com/go-openapi/spec => github.com/Percona-Lab/spec v0.19.8-percona
 
 require (
-	github.com/go-openapi/errors v0.19.6
+	github.com/go-openapi/errors v0.19.8
 	github.com/go-openapi/runtime v0.19.20
-	github.com/go-openapi/strfmt v0.19.5
+	github.com/go-openapi/strfmt v0.21.2
 	github.com/go-openapi/swag v0.19.9
 	github.com/go-openapi/validate v0.19.10
 	github.com/golang/protobuf v1.5.2
@@ -28,7 +28,7 @@ require (
 require (
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
-	github.com/asaskevich/govalidator v0.0.0-20200428143746-21a406dcc535 // indirect
+	github.com/asaskevich/govalidator v0.0.0-20200907205600-7a23bdc65eef // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
@@ -42,6 +42,7 @@ require (
 	github.com/mailru/easyjson v0.7.1 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/mitchellh/mapstructure v1.3.3 // indirect
+	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/common v0.32.1 // indirect
