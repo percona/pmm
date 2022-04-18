@@ -413,8 +413,6 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 	nodeNameHelp := fmt.Sprintf("Node name (autodetected default: %s) [PMM_AGENT_SETUP_NODE_NAME]", hostname)
 	setupCmd.Arg("node-name", nodeNameHelp).Default(hostname).
 		Envar("PMM_AGENT_SETUP_NODE_NAME").StringVar(&cfg.Setup.NodeName)
-	setupCmd.Arg("agent-password", "Custom password for /metrics endpoint").
-		Envar("PMM_AGENT_SETUP_NODE_PASSWORD").StringVar(&cfg.Setup.AgentPassword)
 
 	var defaultMachineID string
 	if nodeinfo.MachineID != "" {
@@ -446,6 +444,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_SETUP_DISABLE_COLLECTORS").Default("").StringVar(&cfg.Setup.DisableCollectors)
 	setupCmd.Flag("custom-labels", "Custom labels [PMM_AGENT_SETUP_CUSTOM_LABELS]").
 		Envar("PMM_AGENT_SETUP_CUSTOM_LABELS").StringVar(&cfg.Setup.CustomLabels)
+	setupCmd.Flag("agent-password", "Custom password for /metrics endpoint [PMM_AGENT_SETUP_NODE_PASSWORD]").
+		Envar("PMM_AGENT_SETUP_NODE_PASSWORD").StringVar(&cfg.Setup.AgentPassword)
 
 	return app, configFileF
 }
