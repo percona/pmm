@@ -6,7 +6,6 @@ package dbaasv1beta1
 import (
 	fmt "fmt"
 	math "math"
-	regexp "regexp"
 
 	proto "github.com/golang/protobuf/proto"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
