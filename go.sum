@@ -357,12 +357,8 @@ github.com/percona/go-mysql v0.0.0-20200630114833-b77f37c0bfa2 h1:0tQBti5FIrKfH3
 github.com/percona/go-mysql v0.0.0-20200630114833-b77f37c0bfa2/go.mod h1:/SGLf9OMxlnK6jq4mkFiImBcJXXk5jwD+lDrwDaGXcw=
 github.com/percona/percona-toolkit v3.2.1+incompatible h1:5jLvtZKcu9fDmaLRB8qA4bLR727t5iYyguHJJQTk9w0=
 github.com/percona/percona-toolkit v3.2.1+incompatible/go.mod h1:netQWdWMaF1cnmwiIS+i5uyaqNXz46yNeM6HKkR6yeI=
-github.com/percona/pmm v0.0.0-20220404174627-9de9a91ebd60 h1:foaElnWcHW3psgUBAPhWlTo5j8M7876cWWASrJIzcrs=
-github.com/percona/pmm v0.0.0-20220404174627-9de9a91ebd60/go.mod h1:stX2hCHtTjCsIhcvZXuu7VoaCiU+DYHwHxzANI/7Ps0=
 github.com/percona/pmm v0.0.0-20220416221822-2e0e0ead6301 h1:MKM7ncbmY52RFUQ/zQ+N7SB4w+wBu6fLyR1FS/eLxMQ=
 github.com/percona/pmm v0.0.0-20220416221822-2e0e0ead6301/go.mod h1:stX2hCHtTjCsIhcvZXuu7VoaCiU+DYHwHxzANI/7Ps0=
-github.com/percona/pmm v0.0.0-20220418101857-7c8201461efd h1:2V+yWa8f81b8nKPNnbvH6oddoIOCxbrXn85XEtjnew8=
-github.com/percona/pmm v0.0.0-20220418101857-7c8201461efd/go.mod h1:T1LlFmiSJQxKX18/lfBfmfj4VuGm2ktUnHlHlJeeQbY=
 github.com/pkg/errors v0.8.0/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
