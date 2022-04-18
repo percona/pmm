@@ -7,7 +7,7 @@ scrape_configs:
     - job_name: victoriametrics
       honor_timestamps: false
       scrape_interval: 5s
-      scrape_timeout: 4s
+      scrape_timeout: 4500ms
       metrics_path: /prometheus/metrics
       static_configs:
         - targets:
@@ -17,7 +17,7 @@ scrape_configs:
     - job_name: vmalert
       honor_timestamps: false
       scrape_interval: 5s
-      scrape_timeout: 4s
+      scrape_timeout: 4500ms
       metrics_path: /metrics
       static_configs:
         - targets:

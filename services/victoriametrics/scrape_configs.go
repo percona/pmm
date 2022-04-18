@@ -43,8 +43,6 @@ func scrapeTimeout(interval time.Duration) config.Duration {
 	switch {
 	case interval <= 2*time.Second:
 		return config.Duration(time.Second)
-	case interval <= 10*time.Second:
-		return config.Duration(interval - time.Second)
 	default:
 		return config.Duration(float64(interval) * 0.9)
 	}

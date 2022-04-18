@@ -257,7 +257,7 @@ scrape_configs:
     - job_name: victoriametrics
       honor_timestamps: false
       scrape_interval: 5s
-      scrape_timeout: 4s
+      scrape_timeout: 4500ms
       metrics_path: /prometheus/metrics
       static_configs:
         - targets:
@@ -267,7 +267,7 @@ scrape_configs:
     - job_name: vmalert
       honor_timestamps: false
       scrape_interval: 5s
-      scrape_timeout: 4s
+      scrape_timeout: 4500ms
       metrics_path: /metrics
       static_configs:
         - targets:
@@ -317,7 +317,7 @@ scrape_configs:
     - job_name: mongodb_exporter_agent_id_cfec996c-4fe6-41d9-83cb-e1a3b1fe10a8_hr-5s
       honor_timestamps: false
       scrape_interval: 5s
-      scrape_timeout: 4s
+      scrape_timeout: 4500ms
       metrics_path: /metrics
       static_configs:
         - targets:
@@ -346,7 +346,7 @@ scrape_configs:
             - replicasetstatus
             - topmetrics
       scrape_interval: 5s
-      scrape_timeout: 4s
+      scrape_timeout: 4500ms
       metrics_path: /metrics
       static_configs:
         - targets:
@@ -406,7 +406,7 @@ scrape_configs:
             - standard.go
             - standard.process
       scrape_interval: 5s
-      scrape_timeout: 4s
+      scrape_timeout: 4500ms
       metrics_path: /metrics
       static_configs:
         - targets:
@@ -514,7 +514,7 @@ scrape_configs:
             - standard.go
             - standard.process
       scrape_interval: 5s
-      scrape_timeout: 4s
+      scrape_timeout: 4500ms
       metrics_path: /metrics
       static_configs:
         - targets:
@@ -621,7 +621,7 @@ scrape_configs:
             - standard.go
             - standard.process
       scrape_interval: 5s
-      scrape_timeout: 4s
+      scrape_timeout: 4500ms
       metrics_path: /metrics
       static_configs:
         - targets:
@@ -720,7 +720,7 @@ scrape_configs:
 - job_name: victoriametrics
   honor_timestamps: false
   scrape_interval: 5s
-  scrape_timeout: 4s
+  scrape_timeout: 4500ms
   metrics_path: /prometheus/metrics
   static_configs:
   - targets:
@@ -730,7 +730,7 @@ scrape_configs:
 - job_name: vmalert
   honor_timestamps: false
   scrape_interval: 5s
-  scrape_timeout: 4s
+  scrape_timeout: 4500ms
   metrics_path: /metrics
   static_configs:
   - targets:
@@ -787,7 +787,7 @@ scrape_configs:
     - job_name: external-service
       honor_timestamps: true
       scrape_interval: 5s
-      scrape_timeout: 4s
+      scrape_timeout: 4500ms
       metrics_path: /metrics
       scheme: http
       static_configs:
@@ -798,7 +798,7 @@ scrape_configs:
     - job_name: victoriametrics
       honor_timestamps: false
       scrape_interval: 5s
-      scrape_timeout: 4s
+      scrape_timeout: 4500ms
       metrics_path: /prometheus/metrics
       static_configs:
         - targets:
@@ -808,7 +808,7 @@ scrape_configs:
     - job_name: vmalert
       honor_timestamps: false
       scrape_interval: 5s
-      scrape_timeout: 4s
+      scrape_timeout: 4500ms
       metrics_path: /metrics
       static_configs:
         - targets:

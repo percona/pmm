@@ -114,10 +114,10 @@ type ConfigData struct {
 	Column     string `yaml:"column"`
 }
 
-func (c *Config) mapByColumn() map[string]ConfigData {
-	result := make(map[string]ConfigData, len(c.Data))
+func (c *Config) mapByColumn() map[string][]ConfigData {
+	result := make(map[string][]ConfigData, len(c.Data))
 	for _, each := range c.Data {
-		result[each.Column] = each
+		result[each.Column] = append(result[each.Column], each)
 	}
 	return result
 }

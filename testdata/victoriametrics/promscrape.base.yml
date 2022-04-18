@@ -6,7 +6,7 @@ scrape_configs:
     - job_name: external-service
       honor_timestamps: true
       scrape_interval: 5s
-      scrape_timeout: 4s
+      scrape_timeout: 4500ms
       metrics_path: /metrics
       scheme: http
       static_configs:
