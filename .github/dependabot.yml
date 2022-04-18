@@ -9,6 +9,10 @@ updates:
     directory: "/tools"
     schedule:
       interval: "weekly"
+  - package-ecosystem: "gomod"
+    directory: "/api-tests/tools"
+    schedule:
+      interval: "weekly"
   - package-ecosystem: "docker"
     directory: "/"
     schedule:

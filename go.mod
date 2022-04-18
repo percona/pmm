@@ -1,6 +1,6 @@
 module github.com/percona/pmm-managed
 
-go 1.17
+go 1.18
 
 // Use for local development, but do not commit:
 // replace github.com/percona/pmm => ../pmm
@@ -36,7 +36,7 @@ require (
 	github.com/minio/minio-go/v7 v7.0.23
 	github.com/percona-platform/dbaas-api v0.0.0-20220110092915-5aacd784d472
 	github.com/percona-platform/saas v0.0.0-20220326163809-90f261fe195c
-	github.com/percona/pmm v0.0.0-20220404174627-9de9a91ebd60
+	github.com/percona/pmm v0.0.0-20220418101857-7c8201461efd
 	github.com/percona/promconfig v0.2.4-0.20211110115058-98687f586f54
 	github.com/pkg/errors v0.9.1
 	github.com/pmezard/go-difflib v1.0.0
@@ -130,7 +130,7 @@ require (
 	github.com/shurcooL/httpfs v0.0.0-20190707220628-8d4bc4ba7749 // indirect
 	github.com/shurcooL/vfsgen v0.0.0-20200824052919-0d455de96546 // indirect
 	github.com/stretchr/objx v0.3.0 // indirect
-	go.mongodb.org/mongo-driver v1.8.4 // indirect
+	go.mongodb.org/mongo-driver v1.9.0 // indirect
 	go.opentelemetry.io/otel v1.4.1 // indirect
 	go.opentelemetry.io/otel/trace v1.4.1 // indirect
 	golang.org/x/crypto v0.0.0-20220313003712-b769efc7c000 // indirect
