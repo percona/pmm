@@ -5,12 +5,14 @@ package agentlocalpb
 
 import (
 	fmt "fmt"
+	math "math"
+
 	proto "github.com/golang/protobuf/proto"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
-	_ "github.com/percona/pmm/api/inventorypb"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	_ "google.golang.org/protobuf/types/known/durationpb"
-	math "math"
+
+	_ "github.com/percona/pmm/api/inventorypb"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
