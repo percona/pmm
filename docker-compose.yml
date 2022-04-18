@@ -7,7 +7,7 @@ services:
     hostname: pmm-managed-server
     environment:
       - PATH=/root/go/bin:$PATH
-      - GO_VERSION=${GO_VERSION:-1.17.x}
+      - GO_VERSION=${GO_VERSION:-1.18.x}
       - REVIEWDOG_GITHUB_API_TOKEN=${REVIEWDOG_GITHUB_API_TOKEN}
       - ENABLE_DBAAS=${ENABLE_DBAAS:-0}
       - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}

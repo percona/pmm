@@ -1,6 +1,6 @@
 module github.com/percona/pmm-managed/tools
 
-go 1.17
+go 1.18
 
 require (
 	github.com/BurntSushi/go-sumtype v0.0.0-20190304192233-fcb4a6205bdc
