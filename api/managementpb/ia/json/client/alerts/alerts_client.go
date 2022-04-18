@@ -23,11 +23,14 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	ListAlerts(params *ListAlertsParams) (*ListAlertsOK, error)
+	ListAlerts(params *ListAlertsParams, opts ...ClientOption) (*ListAlertsOK, error)
 
-	ToggleAlerts(params *ToggleAlertsParams) (*ToggleAlertsOK, error)
+	ToggleAlerts(params *ToggleAlertsParams, opts ...ClientOption) (*ToggleAlertsOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -35,13 +38,12 @@ type ClientService interface {
 /*
   ListAlerts lists alerts returns a list of all alerts
 */
-func (a *Client) ListAlerts(params *ListAlertsParams) (*ListAlertsOK, error) {
+func (a *Client) ListAlerts(params *ListAlertsParams, opts ...ClientOption) (*ListAlertsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewListAlertsParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "ListAlerts",
 		Method:             "POST",
 		PathPattern:        "/v1/management/ia/Alerts/List",
@@ -52,7 +54,12 @@ func (a *Client) ListAlerts(params *ListAlertsParams) (*ListAlertsOK, error) {
 		Reader:             &ListAlertsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -70,13 +77,12 @@ func (a *Client) ListAlerts(params *ListAlertsParams) (*ListAlertsOK, error) {
 
   Pass empty list to apply toggle action to all existing alerts
 */
-func (a *Client) ToggleAlerts(params *ToggleAlertsParams) (*ToggleAlertsOK, error) {
+func (a *Client) ToggleAlerts(params *ToggleAlertsParams, opts ...ClientOption) (*ToggleAlertsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewToggleAlertsParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "ToggleAlerts",
 		Method:             "POST",
 		PathPattern:        "/v1/management/ia/Alerts/Toggle",
@@ -87,7 +93,12 @@ func (a *Client) ToggleAlerts(params *ToggleAlertsParams) (*ToggleAlertsOK, erro
 		Reader:             &ToggleAlertsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

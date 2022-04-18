@@ -6,6 +6,7 @@ package actions
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewStartMySQLShowTableStatusActionOK() *StartMySQLShowTableStatusActionOK {
 	return &StartMySQLShowTableStatusActionOK{}
 }
 
-/*StartMySQLShowTableStatusActionOK handles this case with default header values.
+/* StartMySQLShowTableStatusActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type StartMySQLShowTableStatusActionOK struct {
 func (o *StartMySQLShowTableStatusActionOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLShowTableStatus][%d] startMySqlShowTableStatusActionOk  %+v", 200, o.Payload)
 }
-
 func (o *StartMySQLShowTableStatusActionOK) GetPayload() *StartMySQLShowTableStatusActionOKBody {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewStartMySQLShowTableStatusActionDefault(code int) *StartMySQLShowTableSta
 	}
 }
 
-/*StartMySQLShowTableStatusActionDefault handles this case with default header values.
+/* StartMySQLShowTableStatusActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *StartMySQLShowTableStatusActionDefault) Code() int {
 func (o *StartMySQLShowTableStatusActionDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLShowTableStatus][%d] StartMySQLShowTableStatusAction default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *StartMySQLShowTableStatusActionDefault) GetPayload() *StartMySQLShowTableStatusActionDefaultBody {
 	return o.Payload
 }
@@ -140,6 +139,11 @@ func (o *StartMySQLShowTableStatusActionBody) Validate(formats strfmt.Registry) 
 	return nil
 }
 
+// ContextValidate validates this start my SQL show table status action body based on context it is used
+func (o *StartMySQLShowTableStatusActionBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *StartMySQLShowTableStatusActionBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -173,7 +177,7 @@ type StartMySQLShowTableStatusActionDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*StartMySQLShowTableStatusActionDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this start my SQL show table status action default body
@@ -191,7 +195,6 @@ func (o *StartMySQLShowTableStatusActionDefaultBody) Validate(formats strfmt.Reg
 }
 
 func (o *StartMySQLShowTableStatusActionDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -205,6 +208,42 @@ func (o *StartMySQLShowTableStatusActionDefaultBody) validateDetails(formats str
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("StartMySQLShowTableStatusAction default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("StartMySQLShowTableStatusAction default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this start my SQL show table status action default body based on the context it is used
+func (o *StartMySQLShowTableStatusActionDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *StartMySQLShowTableStatusActionDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("StartMySQLShowTableStatusAction default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("StartMySQLShowTableStatusAction default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -233,6 +272,47 @@ func (o *StartMySQLShowTableStatusActionDefaultBody) UnmarshalBinary(b []byte) e
 	return nil
 }
 
+/*StartMySQLShowTableStatusActionDefaultBodyDetailsItems0 start my SQL show table status action default body details items0
+swagger:model StartMySQLShowTableStatusActionDefaultBodyDetailsItems0
+*/
+type StartMySQLShowTableStatusActionDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this start my SQL show table status action default body details items0
+func (o *StartMySQLShowTableStatusActionDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this start my SQL show table status action default body details items0 based on context it is used
+func (o *StartMySQLShowTableStatusActionDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *StartMySQLShowTableStatusActionDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *StartMySQLShowTableStatusActionDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res StartMySQLShowTableStatusActionDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*StartMySQLShowTableStatusActionOKBody start my SQL show table status action OK body
 swagger:model StartMySQLShowTableStatusActionOKBody
 */
@@ -247,6 +327,11 @@ type StartMySQLShowTableStatusActionOKBody struct {
 
 // Validate validates this start my SQL show table status action OK body
 func (o *StartMySQLShowTableStatusActionOKBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this start my SQL show table status action OK body based on context it is used
+func (o *StartMySQLShowTableStatusActionOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

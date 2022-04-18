@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewConnectParams creates a new ConnectParams object
-// with the default values initialized.
+// NewConnectParams creates a new ConnectParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewConnectParams() *ConnectParams {
-	var ()
 	return &ConnectParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewConnectParamsWithTimeout creates a new ConnectParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewConnectParamsWithTimeout(timeout time.Duration) *ConnectParams {
-	var ()
 	return &ConnectParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewConnectParamsWithContext creates a new ConnectParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewConnectParamsWithContext(ctx context.Context) *ConnectParams {
-	var ()
 	return &ConnectParams{
-
 		Context: ctx,
 	}
 }
 
 // NewConnectParamsWithHTTPClient creates a new ConnectParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewConnectParamsWithHTTPClient(client *http.Client) *ConnectParams {
-	var ()
 	return &ConnectParams{
 		HTTPClient: client,
 	}
 }
 
-/*ConnectParams contains all the parameters to send to the API endpoint
-for the connect operation typically these are written to a http.Request
+/* ConnectParams contains all the parameters to send to the API endpoint
+   for the connect operation.
+
+   Typically these are written to a http.Request.
 */
 type ConnectParams struct {
 
-	/*Body*/
+	// Body.
 	Body ConnectBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the connect params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ConnectParams) WithDefaults() *ConnectParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the connect params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ConnectParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the connect params
@@ -119,7 +133,6 @@ func (o *ConnectParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Regis
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

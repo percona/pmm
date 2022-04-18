@@ -23,9 +23,12 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	AddMongoDB(params *AddMongoDBParams) (*AddMongoDBOK, error)
+	AddMongoDB(params *AddMongoDBParams, opts ...ClientOption) (*AddMongoDBOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -35,13 +38,12 @@ type ClientService interface {
 
   Adds MongoDB Service and starts several Agents. It automatically adds a service to inventory, which is running on the provided "node_id", then adds "mongodb_exporter", and "qan_mongodb_profiler" agents with the provided "pmm_agent_id" and other parameters.
 */
-func (a *Client) AddMongoDB(params *AddMongoDBParams) (*AddMongoDBOK, error) {
+func (a *Client) AddMongoDB(params *AddMongoDBParams, opts ...ClientOption) (*AddMongoDBOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewAddMongoDBParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "AddMongoDB",
 		Method:             "POST",
 		PathPattern:        "/v1/management/MongoDB/Add",
@@ -52,7 +54,12 @@ func (a *Client) AddMongoDB(params *AddMongoDBParams) (*AddMongoDBOK, error) {
 		Reader:             &AddMongoDBReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

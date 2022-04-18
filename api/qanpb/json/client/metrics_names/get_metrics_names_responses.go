@@ -6,6 +6,7 @@ package metrics_names
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewGetMetricsNamesOK() *GetMetricsNamesOK {
 	return &GetMetricsNamesOK{}
 }
 
-/*GetMetricsNamesOK handles this case with default header values.
+/* GetMetricsNamesOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type GetMetricsNamesOK struct {
 func (o *GetMetricsNamesOK) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/GetMetricsNames][%d] getMetricsNamesOk  %+v", 200, o.Payload)
 }
-
 func (o *GetMetricsNamesOK) GetPayload() *GetMetricsNamesOKBody {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewGetMetricsNamesDefault(code int) *GetMetricsNamesDefault {
 	}
 }
 
-/*GetMetricsNamesDefault handles this case with default header values.
+/* GetMetricsNamesDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *GetMetricsNamesDefault) Code() int {
 func (o *GetMetricsNamesDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/GetMetricsNames][%d] GetMetricsNames default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *GetMetricsNamesDefault) GetPayload() *GetMetricsNamesDefaultBody {
 	return o.Payload
 }
@@ -114,42 +113,6 @@ func (o *GetMetricsNamesDefault) readResponse(response runtime.ClientResponse, c
 		return err
 	}
 
-	return nil
-}
-
-/*DetailsItems0 details items0
-swagger:model DetailsItems0
-*/
-type DetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
-}
-
-// Validate validates this details items0
-func (o *DetailsItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
-	var res DetailsItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }
 
@@ -168,7 +131,7 @@ type GetMetricsNamesDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*GetMetricsNamesDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this get metrics names default body
@@ -186,7 +149,6 @@ func (o *GetMetricsNamesDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *GetMetricsNamesDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -200,6 +162,42 @@ func (o *GetMetricsNamesDefaultBody) validateDetails(formats strfmt.Registry) er
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("GetMetricsNames default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("GetMetricsNames default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get metrics names default body based on the context it is used
+func (o *GetMetricsNamesDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetMetricsNamesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("GetMetricsNames default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("GetMetricsNames default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -228,6 +226,47 @@ func (o *GetMetricsNamesDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*GetMetricsNamesDefaultBodyDetailsItems0 get metrics names default body details items0
+swagger:model GetMetricsNamesDefaultBodyDetailsItems0
+*/
+type GetMetricsNamesDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this get metrics names default body details items0
+func (o *GetMetricsNamesDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get metrics names default body details items0 based on context it is used
+func (o *GetMetricsNamesDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetMetricsNamesDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetMetricsNamesDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetMetricsNamesDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*GetMetricsNamesOKBody MetricsNamesReply is map of stored metrics:
 // key is root of metric name in db (Ex:. [m_]query_time[_sum]);
 // value - Human readable name of metrics.
@@ -241,6 +280,11 @@ type GetMetricsNamesOKBody struct {
 
 // Validate validates this get metrics names OK body
 func (o *GetMetricsNamesOKBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get metrics names OK body based on context it is used
+func (o *GetMetricsNamesOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

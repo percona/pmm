@@ -6,6 +6,7 @@ package security_checks
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,7 +50,7 @@ func NewChangeSecurityChecksOK() *ChangeSecurityChecksOK {
 	return &ChangeSecurityChecksOK{}
 }
 
-/*ChangeSecurityChecksOK handles this case with default header values.
+/* ChangeSecurityChecksOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -60,7 +61,6 @@ type ChangeSecurityChecksOK struct {
 func (o *ChangeSecurityChecksOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/Change][%d] changeSecurityChecksOk  %+v", 200, o.Payload)
 }
-
 func (o *ChangeSecurityChecksOK) GetPayload() interface{} {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewChangeSecurityChecksDefault(code int) *ChangeSecurityChecksDefault {
 	}
 }
 
-/*ChangeSecurityChecksDefault handles this case with default header values.
+/* ChangeSecurityChecksDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *ChangeSecurityChecksDefault) Code() int {
 func (o *ChangeSecurityChecksDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/Change][%d] ChangeSecurityChecks default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ChangeSecurityChecksDefault) GetPayload() *ChangeSecurityChecksDefaultBody {
 	return o.Payload
 }
@@ -123,7 +122,7 @@ swagger:model ChangeSecurityChecksBody
 type ChangeSecurityChecksBody struct {
 
 	// params
-	Params []*ParamsItems0 `json:"params"`
+	Params []*ChangeSecurityChecksParamsBodyParamsItems0 `json:"params"`
 }
 
 // Validate validates this change security checks body
@@ -141,7 +140,6 @@ func (o *ChangeSecurityChecksBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *ChangeSecurityChecksBody) validateParams(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Params) { // not required
 		return nil
 	}
@@ -155,6 +153,42 @@ func (o *ChangeSecurityChecksBody) validateParams(formats strfmt.Registry) error
 			if err := o.Params[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("body" + "." + "params" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("body" + "." + "params" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change security checks body based on the context it is used
+func (o *ChangeSecurityChecksBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateParams(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeSecurityChecksBody) contextValidateParams(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Params); i++ {
+
+		if o.Params[i] != nil {
+			if err := o.Params[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("body" + "." + "params" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("body" + "." + "params" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -198,7 +232,7 @@ type ChangeSecurityChecksDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*ChangeSecurityChecksDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this change security checks default body
@@ -216,7 +250,6 @@ func (o *ChangeSecurityChecksDefaultBody) Validate(formats strfmt.Registry) erro
 }
 
 func (o *ChangeSecurityChecksDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -230,6 +263,42 @@ func (o *ChangeSecurityChecksDefaultBody) validateDetails(formats strfmt.Registr
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ChangeSecurityChecks default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ChangeSecurityChecks default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change security checks default body based on the context it is used
+func (o *ChangeSecurityChecksDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeSecurityChecksDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("ChangeSecurityChecks default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ChangeSecurityChecks default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -258,10 +327,10 @@ func (o *ChangeSecurityChecksDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*DetailsItems0 details items0
-swagger:model DetailsItems0
+/*ChangeSecurityChecksDefaultBodyDetailsItems0 change security checks default body details items0
+swagger:model ChangeSecurityChecksDefaultBodyDetailsItems0
 */
-type DetailsItems0 struct {
+type ChangeSecurityChecksDefaultBodyDetailsItems0 struct {
 
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
@@ -271,13 +340,18 @@ type DetailsItems0 struct {
 	Value strfmt.Base64 `json:"value,omitempty"`
 }
 
-// Validate validates this details items0
-func (o *DetailsItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this change security checks default body details items0
+func (o *ChangeSecurityChecksDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change security checks default body details items0 based on context it is used
+func (o *ChangeSecurityChecksDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
+func (o *ChangeSecurityChecksDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -285,8 +359,8 @@ func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
-	var res DetailsItems0
+func (o *ChangeSecurityChecksDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res ChangeSecurityChecksDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -294,10 +368,10 @@ func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ParamsItems0 ChangeSecurityCheckParams specifies a single check parameters.
-swagger:model ParamsItems0
+/*ChangeSecurityChecksParamsBodyParamsItems0 ChangeSecurityCheckParams specifies a single check parameters.
+swagger:model ChangeSecurityChecksParamsBodyParamsItems0
 */
-type ParamsItems0 struct {
+type ChangeSecurityChecksParamsBodyParamsItems0 struct {
 
 	// The name of the check to change.
 	Name string `json:"name,omitempty"`
@@ -313,8 +387,8 @@ type ParamsItems0 struct {
 	Interval *string `json:"interval,omitempty"`
 }
 
-// Validate validates this params items0
-func (o *ParamsItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this change security checks params body params items0
+func (o *ChangeSecurityChecksParamsBodyParamsItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateInterval(formats); err != nil {
@@ -327,7 +401,7 @@ func (o *ParamsItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var paramsItems0TypeIntervalPropEnum []interface{}
+var changeSecurityChecksParamsBodyParamsItems0TypeIntervalPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -335,35 +409,34 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		paramsItems0TypeIntervalPropEnum = append(paramsItems0TypeIntervalPropEnum, v)
+		changeSecurityChecksParamsBodyParamsItems0TypeIntervalPropEnum = append(changeSecurityChecksParamsBodyParamsItems0TypeIntervalPropEnum, v)
 	}
 }
 
 const (
 
-	// ParamsItems0IntervalSECURITYCHECKINTERVALINVALID captures enum value "SECURITY_CHECK_INTERVAL_INVALID"
-	ParamsItems0IntervalSECURITYCHECKINTERVALINVALID string = "SECURITY_CHECK_INTERVAL_INVALID"
+	// ChangeSecurityChecksParamsBodyParamsItems0IntervalSECURITYCHECKINTERVALINVALID captures enum value "SECURITY_CHECK_INTERVAL_INVALID"
+	ChangeSecurityChecksParamsBodyParamsItems0IntervalSECURITYCHECKINTERVALINVALID string = "SECURITY_CHECK_INTERVAL_INVALID"
 
-	// ParamsItems0IntervalSTANDARD captures enum value "STANDARD"
-	ParamsItems0IntervalSTANDARD string = "STANDARD"
+	// ChangeSecurityChecksParamsBodyParamsItems0IntervalSTANDARD captures enum value "STANDARD"
+	ChangeSecurityChecksParamsBodyParamsItems0IntervalSTANDARD string = "STANDARD"
 
-	// ParamsItems0IntervalFREQUENT captures enum value "FREQUENT"
-	ParamsItems0IntervalFREQUENT string = "FREQUENT"
+	// ChangeSecurityChecksParamsBodyParamsItems0IntervalFREQUENT captures enum value "FREQUENT"
+	ChangeSecurityChecksParamsBodyParamsItems0IntervalFREQUENT string = "FREQUENT"
 
-	// ParamsItems0IntervalRARE captures enum value "RARE"
-	ParamsItems0IntervalRARE string = "RARE"
+	// ChangeSecurityChecksParamsBodyParamsItems0IntervalRARE captures enum value "RARE"
+	ChangeSecurityChecksParamsBodyParamsItems0IntervalRARE string = "RARE"
 )
 
 // prop value enum
-func (o *ParamsItems0) validateIntervalEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, paramsItems0TypeIntervalPropEnum, true); err != nil {
+func (o *ChangeSecurityChecksParamsBodyParamsItems0) validateIntervalEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, changeSecurityChecksParamsBodyParamsItems0TypeIntervalPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *ParamsItems0) validateInterval(formats strfmt.Registry) error {
-
+func (o *ChangeSecurityChecksParamsBodyParamsItems0) validateInterval(formats strfmt.Registry) error {
 	if swag.IsZero(o.Interval) { // not required
 		return nil
 	}
@@ -376,8 +449,13 @@ func (o *ParamsItems0) validateInterval(formats strfmt.Registry) error {
 	return nil
 }
 
+// ContextValidate validates this change security checks params body params items0 based on context it is used
+func (o *ChangeSecurityChecksParamsBodyParamsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
-func (o *ParamsItems0) MarshalBinary() ([]byte, error) {
+func (o *ChangeSecurityChecksParamsBodyParamsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -385,8 +463,8 @@ func (o *ParamsItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *ParamsItems0) UnmarshalBinary(b []byte) error {
-	var res ParamsItems0
+func (o *ChangeSecurityChecksParamsBodyParamsItems0) UnmarshalBinary(b []byte) error {
+	var res ChangeSecurityChecksParamsBodyParamsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

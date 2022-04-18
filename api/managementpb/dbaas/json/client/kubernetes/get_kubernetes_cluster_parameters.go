@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewGetKubernetesClusterParams creates a new GetKubernetesClusterParams object
-// with the default values initialized.
+// NewGetKubernetesClusterParams creates a new GetKubernetesClusterParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewGetKubernetesClusterParams() *GetKubernetesClusterParams {
-	var ()
 	return &GetKubernetesClusterParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewGetKubernetesClusterParamsWithTimeout creates a new GetKubernetesClusterParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewGetKubernetesClusterParamsWithTimeout(timeout time.Duration) *GetKubernetesClusterParams {
-	var ()
 	return &GetKubernetesClusterParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewGetKubernetesClusterParamsWithContext creates a new GetKubernetesClusterParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewGetKubernetesClusterParamsWithContext(ctx context.Context) *GetKubernetesClusterParams {
-	var ()
 	return &GetKubernetesClusterParams{
-
 		Context: ctx,
 	}
 }
 
 // NewGetKubernetesClusterParamsWithHTTPClient creates a new GetKubernetesClusterParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewGetKubernetesClusterParamsWithHTTPClient(client *http.Client) *GetKubernetesClusterParams {
-	var ()
 	return &GetKubernetesClusterParams{
 		HTTPClient: client,
 	}
 }
 
-/*GetKubernetesClusterParams contains all the parameters to send to the API endpoint
-for the get kubernetes cluster operation typically these are written to a http.Request
+/* GetKubernetesClusterParams contains all the parameters to send to the API endpoint
+   for the get kubernetes cluster operation.
+
+   Typically these are written to a http.Request.
 */
 type GetKubernetesClusterParams struct {
 
-	/*Body*/
+	// Body.
 	Body GetKubernetesClusterBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the get kubernetes cluster params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *GetKubernetesClusterParams) WithDefaults() *GetKubernetesClusterParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the get kubernetes cluster params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *GetKubernetesClusterParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the get kubernetes cluster params
@@ -119,7 +133,6 @@ func (o *GetKubernetesClusterParams) WriteToRequest(r runtime.ClientRequest, reg
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

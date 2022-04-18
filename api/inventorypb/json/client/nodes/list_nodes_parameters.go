@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewListNodesParams creates a new ListNodesParams object
-// with the default values initialized.
+// NewListNodesParams creates a new ListNodesParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewListNodesParams() *ListNodesParams {
-	var ()
 	return &ListNodesParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewListNodesParamsWithTimeout creates a new ListNodesParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewListNodesParamsWithTimeout(timeout time.Duration) *ListNodesParams {
-	var ()
 	return &ListNodesParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewListNodesParamsWithContext creates a new ListNodesParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewListNodesParamsWithContext(ctx context.Context) *ListNodesParams {
-	var ()
 	return &ListNodesParams{
-
 		Context: ctx,
 	}
 }
 
 // NewListNodesParamsWithHTTPClient creates a new ListNodesParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewListNodesParamsWithHTTPClient(client *http.Client) *ListNodesParams {
-	var ()
 	return &ListNodesParams{
 		HTTPClient: client,
 	}
 }
 
-/*ListNodesParams contains all the parameters to send to the API endpoint
-for the list nodes operation typically these are written to a http.Request
+/* ListNodesParams contains all the parameters to send to the API endpoint
+   for the list nodes operation.
+
+   Typically these are written to a http.Request.
 */
 type ListNodesParams struct {
 
-	/*Body*/
+	// Body.
 	Body ListNodesBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the list nodes params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ListNodesParams) WithDefaults() *ListNodesParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the list nodes params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ListNodesParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the list nodes params
@@ -119,7 +133,6 @@ func (o *ListNodesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Reg
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

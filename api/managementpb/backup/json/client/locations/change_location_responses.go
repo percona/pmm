@@ -6,6 +6,7 @@ package locations
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewChangeLocationOK() *ChangeLocationOK {
 	return &ChangeLocationOK{}
 }
 
-/*ChangeLocationOK handles this case with default header values.
+/* ChangeLocationOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type ChangeLocationOK struct {
 func (o *ChangeLocationOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Locations/Change][%d] changeLocationOk  %+v", 200, o.Payload)
 }
-
 func (o *ChangeLocationOK) GetPayload() interface{} {
 	return o.Payload
 }
@@ -80,7 +80,7 @@ func NewChangeLocationDefault(code int) *ChangeLocationDefault {
 	}
 }
 
-/*ChangeLocationDefault handles this case with default header values.
+/* ChangeLocationDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -98,7 +98,6 @@ func (o *ChangeLocationDefault) Code() int {
 func (o *ChangeLocationDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Locations/Change][%d] ChangeLocation default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ChangeLocationDefault) GetPayload() *ChangeLocationDefaultBody {
 	return o.Payload
 }
@@ -162,7 +161,6 @@ func (o *ChangeLocationBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *ChangeLocationBody) validatePMMClientConfig(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.PMMClientConfig) { // not required
 		return nil
 	}
@@ -171,6 +169,8 @@ func (o *ChangeLocationBody) validatePMMClientConfig(formats strfmt.Registry) er
 		if err := o.PMMClientConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "pmm_client_config")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "pmm_client_config")
 			}
 			return err
 		}
@@ -180,7 +180,6 @@ func (o *ChangeLocationBody) validatePMMClientConfig(formats strfmt.Registry) er
 }
 
 func (o *ChangeLocationBody) validatePMMServerConfig(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.PMMServerConfig) { // not required
 		return nil
 	}
@@ -189,6 +188,8 @@ func (o *ChangeLocationBody) validatePMMServerConfig(formats strfmt.Registry) er
 		if err := o.PMMServerConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "pmm_server_config")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "pmm_server_config")
 			}
 			return err
 		}
@@ -198,7 +199,6 @@ func (o *ChangeLocationBody) validatePMMServerConfig(formats strfmt.Registry) er
 }
 
 func (o *ChangeLocationBody) validateS3Config(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.S3Config) { // not required
 		return nil
 	}
@@ -207,6 +207,78 @@ func (o *ChangeLocationBody) validateS3Config(formats strfmt.Registry) error {
 		if err := o.S3Config.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "s3_config")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "s3_config")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change location body based on the context it is used
+func (o *ChangeLocationBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidatePMMClientConfig(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidatePMMServerConfig(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateS3Config(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeLocationBody) contextValidatePMMClientConfig(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.PMMClientConfig != nil {
+		if err := o.PMMClientConfig.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "pmm_client_config")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "pmm_client_config")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeLocationBody) contextValidatePMMServerConfig(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.PMMServerConfig != nil {
+		if err := o.PMMServerConfig.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "pmm_server_config")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "pmm_server_config")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeLocationBody) contextValidateS3Config(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.S3Config != nil {
+		if err := o.S3Config.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "s3_config")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "s3_config")
 			}
 			return err
 		}
@@ -248,7 +320,7 @@ type ChangeLocationDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*ChangeLocationDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this change location default body
@@ -266,7 +338,6 @@ func (o *ChangeLocationDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *ChangeLocationDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -280,6 +351,42 @@ func (o *ChangeLocationDefaultBody) validateDetails(formats strfmt.Registry) err
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ChangeLocation default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ChangeLocation default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change location default body based on the context it is used
+func (o *ChangeLocationDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeLocationDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("ChangeLocation default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ChangeLocation default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -308,6 +415,47 @@ func (o *ChangeLocationDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*ChangeLocationDefaultBodyDetailsItems0 change location default body details items0
+swagger:model ChangeLocationDefaultBodyDetailsItems0
+*/
+type ChangeLocationDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this change location default body details items0
+func (o *ChangeLocationDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change location default body details items0 based on context it is used
+func (o *ChangeLocationDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeLocationDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeLocationDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res ChangeLocationDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*ChangeLocationParamsBodyPMMClientConfig PMMClientLocationConfig represents file system config inside pmm-client.
 swagger:model ChangeLocationParamsBodyPMMClientConfig
 */
@@ -319,6 +467,11 @@ type ChangeLocationParamsBodyPMMClientConfig struct {
 
 // Validate validates this change location params body PMM client config
 func (o *ChangeLocationParamsBodyPMMClientConfig) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change location params body PMM client config based on context it is used
+func (o *ChangeLocationParamsBodyPMMClientConfig) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -351,6 +504,11 @@ type ChangeLocationParamsBodyPMMServerConfig struct {
 
 // Validate validates this change location params body PMM server config
 func (o *ChangeLocationParamsBodyPMMServerConfig) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change location params body PMM server config based on context it is used
+func (o *ChangeLocationParamsBodyPMMServerConfig) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -392,6 +550,11 @@ type ChangeLocationParamsBodyS3Config struct {
 
 // Validate validates this change location params body s3 config
 func (o *ChangeLocationParamsBodyS3Config) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change location params body s3 config based on context it is used
+func (o *ChangeLocationParamsBodyS3Config) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

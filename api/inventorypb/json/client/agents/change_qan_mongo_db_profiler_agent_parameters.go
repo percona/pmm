@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewChangeQANMongoDBProfilerAgentParams creates a new ChangeQANMongoDBProfilerAgentParams object
-// with the default values initialized.
+// NewChangeQANMongoDBProfilerAgentParams creates a new ChangeQANMongoDBProfilerAgentParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewChangeQANMongoDBProfilerAgentParams() *ChangeQANMongoDBProfilerAgentParams {
-	var ()
 	return &ChangeQANMongoDBProfilerAgentParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewChangeQANMongoDBProfilerAgentParamsWithTimeout creates a new ChangeQANMongoDBProfilerAgentParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewChangeQANMongoDBProfilerAgentParamsWithTimeout(timeout time.Duration) *ChangeQANMongoDBProfilerAgentParams {
-	var ()
 	return &ChangeQANMongoDBProfilerAgentParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewChangeQANMongoDBProfilerAgentParamsWithContext creates a new ChangeQANMongoDBProfilerAgentParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewChangeQANMongoDBProfilerAgentParamsWithContext(ctx context.Context) *ChangeQANMongoDBProfilerAgentParams {
-	var ()
 	return &ChangeQANMongoDBProfilerAgentParams{
-
 		Context: ctx,
 	}
 }
 
 // NewChangeQANMongoDBProfilerAgentParamsWithHTTPClient creates a new ChangeQANMongoDBProfilerAgentParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewChangeQANMongoDBProfilerAgentParamsWithHTTPClient(client *http.Client) *ChangeQANMongoDBProfilerAgentParams {
-	var ()
 	return &ChangeQANMongoDBProfilerAgentParams{
 		HTTPClient: client,
 	}
 }
 
-/*ChangeQANMongoDBProfilerAgentParams contains all the parameters to send to the API endpoint
-for the change QAN mongo DB profiler agent operation typically these are written to a http.Request
+/* ChangeQANMongoDBProfilerAgentParams contains all the parameters to send to the API endpoint
+   for the change QAN mongo DB profiler agent operation.
+
+   Typically these are written to a http.Request.
 */
 type ChangeQANMongoDBProfilerAgentParams struct {
 
-	/*Body*/
+	// Body.
 	Body ChangeQANMongoDBProfilerAgentBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the change QAN mongo DB profiler agent params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ChangeQANMongoDBProfilerAgentParams) WithDefaults() *ChangeQANMongoDBProfilerAgentParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the change QAN mongo DB profiler agent params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ChangeQANMongoDBProfilerAgentParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the change QAN mongo DB profiler agent params
@@ -119,7 +133,6 @@ func (o *ChangeQANMongoDBProfilerAgentParams) WriteToRequest(r runtime.ClientReq
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

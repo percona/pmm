@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewGetHistogramParams creates a new GetHistogramParams object
-// with the default values initialized.
+// NewGetHistogramParams creates a new GetHistogramParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewGetHistogramParams() *GetHistogramParams {
-	var ()
 	return &GetHistogramParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewGetHistogramParamsWithTimeout creates a new GetHistogramParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewGetHistogramParamsWithTimeout(timeout time.Duration) *GetHistogramParams {
-	var ()
 	return &GetHistogramParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewGetHistogramParamsWithContext creates a new GetHistogramParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewGetHistogramParamsWithContext(ctx context.Context) *GetHistogramParams {
-	var ()
 	return &GetHistogramParams{
-
 		Context: ctx,
 	}
 }
 
 // NewGetHistogramParamsWithHTTPClient creates a new GetHistogramParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewGetHistogramParamsWithHTTPClient(client *http.Client) *GetHistogramParams {
-	var ()
 	return &GetHistogramParams{
 		HTTPClient: client,
 	}
 }
 
-/*GetHistogramParams contains all the parameters to send to the API endpoint
-for the get histogram operation typically these are written to a http.Request
+/* GetHistogramParams contains all the parameters to send to the API endpoint
+   for the get histogram operation.
+
+   Typically these are written to a http.Request.
 */
 type GetHistogramParams struct {
 
-	/*Body*/
+	// Body.
 	Body GetHistogramBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the get histogram params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *GetHistogramParams) WithDefaults() *GetHistogramParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the get histogram params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *GetHistogramParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the get histogram params
@@ -119,7 +133,6 @@ func (o *GetHistogramParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

@@ -6,6 +6,7 @@ package psmdb_clusters
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewUpdatePSMDBClusterOK() *UpdatePSMDBClusterOK {
 	return &UpdatePSMDBClusterOK{}
 }
 
-/*UpdatePSMDBClusterOK handles this case with default header values.
+/* UpdatePSMDBClusterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type UpdatePSMDBClusterOK struct {
 func (o *UpdatePSMDBClusterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/PSMDBCluster/Update][%d] updatePsmdbClusterOk  %+v", 200, o.Payload)
 }
-
 func (o *UpdatePSMDBClusterOK) GetPayload() interface{} {
 	return o.Payload
 }
@@ -80,7 +80,7 @@ func NewUpdatePSMDBClusterDefault(code int) *UpdatePSMDBClusterDefault {
 	}
 }
 
-/*UpdatePSMDBClusterDefault handles this case with default header values.
+/* UpdatePSMDBClusterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -98,7 +98,6 @@ func (o *UpdatePSMDBClusterDefault) Code() int {
 func (o *UpdatePSMDBClusterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/PSMDBCluster/Update][%d] UpdatePSMDBCluster default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *UpdatePSMDBClusterDefault) GetPayload() *UpdatePSMDBClusterDefaultBody {
 	return o.Payload
 }
@@ -145,7 +144,6 @@ func (o *UpdatePSMDBClusterBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *UpdatePSMDBClusterBody) validateParams(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Params) { // not required
 		return nil
 	}
@@ -154,6 +152,38 @@ func (o *UpdatePSMDBClusterBody) validateParams(formats strfmt.Registry) error {
 		if err := o.Params.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "params")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this update PSMDB cluster body based on the context it is used
+func (o *UpdatePSMDBClusterBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateParams(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *UpdatePSMDBClusterBody) contextValidateParams(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Params != nil {
+		if err := o.Params.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "params")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params")
 			}
 			return err
 		}
@@ -195,7 +225,7 @@ type UpdatePSMDBClusterDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*UpdatePSMDBClusterDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this update PSMDB cluster default body
@@ -213,7 +243,6 @@ func (o *UpdatePSMDBClusterDefaultBody) Validate(formats strfmt.Registry) error 
 }
 
 func (o *UpdatePSMDBClusterDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -227,6 +256,42 @@ func (o *UpdatePSMDBClusterDefaultBody) validateDetails(formats strfmt.Registry)
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("UpdatePSMDBCluster default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("UpdatePSMDBCluster default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this update PSMDB cluster default body based on the context it is used
+func (o *UpdatePSMDBClusterDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *UpdatePSMDBClusterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("UpdatePSMDBCluster default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("UpdatePSMDBCluster default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -248,6 +313,47 @@ func (o *UpdatePSMDBClusterDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *UpdatePSMDBClusterDefaultBody) UnmarshalBinary(b []byte) error {
 	var res UpdatePSMDBClusterDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*UpdatePSMDBClusterDefaultBodyDetailsItems0 update PSMDB cluster default body details items0
+swagger:model UpdatePSMDBClusterDefaultBodyDetailsItems0
+*/
+type UpdatePSMDBClusterDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this update PSMDB cluster default body details items0
+func (o *UpdatePSMDBClusterDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this update PSMDB cluster default body details items0 based on context it is used
+func (o *UpdatePSMDBClusterDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *UpdatePSMDBClusterDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *UpdatePSMDBClusterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res UpdatePSMDBClusterDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -292,7 +398,6 @@ func (o *UpdatePSMDBClusterParamsBodyParams) Validate(formats strfmt.Registry) e
 }
 
 func (o *UpdatePSMDBClusterParamsBodyParams) validateReplicaset(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Replicaset) { // not required
 		return nil
 	}
@@ -301,6 +406,38 @@ func (o *UpdatePSMDBClusterParamsBodyParams) validateReplicaset(formats strfmt.R
 		if err := o.Replicaset.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "params" + "." + "replicaset")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params" + "." + "replicaset")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this update PSMDB cluster params body params based on the context it is used
+func (o *UpdatePSMDBClusterParamsBodyParams) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateReplicaset(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *UpdatePSMDBClusterParamsBodyParams) contextValidateReplicaset(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Replicaset != nil {
+		if err := o.Replicaset.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "params" + "." + "replicaset")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params" + "." + "replicaset")
 			}
 			return err
 		}
@@ -351,7 +488,6 @@ func (o *UpdatePSMDBClusterParamsBodyParamsReplicaset) Validate(formats strfmt.R
 }
 
 func (o *UpdatePSMDBClusterParamsBodyParamsReplicaset) validateComputeResources(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.ComputeResources) { // not required
 		return nil
 	}
@@ -360,6 +496,38 @@ func (o *UpdatePSMDBClusterParamsBodyParamsReplicaset) validateComputeResources(
 		if err := o.ComputeResources.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "params" + "." + "replicaset" + "." + "compute_resources")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params" + "." + "replicaset" + "." + "compute_resources")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this update PSMDB cluster params body params replicaset based on the context it is used
+func (o *UpdatePSMDBClusterParamsBodyParamsReplicaset) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateComputeResources(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *UpdatePSMDBClusterParamsBodyParamsReplicaset) contextValidateComputeResources(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.ComputeResources != nil {
+		if err := o.ComputeResources.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "params" + "." + "replicaset" + "." + "compute_resources")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params" + "." + "replicaset" + "." + "compute_resources")
 			}
 			return err
 		}
@@ -400,6 +568,11 @@ type UpdatePSMDBClusterParamsBodyParamsReplicasetComputeResources struct {
 
 // Validate validates this update PSMDB cluster params body params replicaset compute resources
 func (o *UpdatePSMDBClusterParamsBodyParamsReplicasetComputeResources) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this update PSMDB cluster params body params replicaset compute resources based on context it is used
+func (o *UpdatePSMDBClusterParamsBodyParamsReplicasetComputeResources) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

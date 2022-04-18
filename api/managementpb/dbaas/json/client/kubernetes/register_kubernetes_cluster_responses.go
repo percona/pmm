@@ -6,6 +6,7 @@ package kubernetes
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewRegisterKubernetesClusterOK() *RegisterKubernetesClusterOK {
 	return &RegisterKubernetesClusterOK{}
 }
 
-/*RegisterKubernetesClusterOK handles this case with default header values.
+/* RegisterKubernetesClusterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type RegisterKubernetesClusterOK struct {
 func (o *RegisterKubernetesClusterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/Register][%d] registerKubernetesClusterOk  %+v", 200, o.Payload)
 }
-
 func (o *RegisterKubernetesClusterOK) GetPayload() interface{} {
 	return o.Payload
 }
@@ -80,7 +80,7 @@ func NewRegisterKubernetesClusterDefault(code int) *RegisterKubernetesClusterDef
 	}
 }
 
-/*RegisterKubernetesClusterDefault handles this case with default header values.
+/* RegisterKubernetesClusterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -98,7 +98,6 @@ func (o *RegisterKubernetesClusterDefault) Code() int {
 func (o *RegisterKubernetesClusterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/Register][%d] RegisterKubernetesCluster default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *RegisterKubernetesClusterDefault) GetPayload() *RegisterKubernetesClusterDefaultBody {
 	return o.Payload
 }
@@ -148,7 +147,6 @@ func (o *RegisterKubernetesClusterBody) Validate(formats strfmt.Registry) error 
 }
 
 func (o *RegisterKubernetesClusterBody) validateKubeAuth(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.KubeAuth) { // not required
 		return nil
 	}
@@ -157,6 +155,38 @@ func (o *RegisterKubernetesClusterBody) validateKubeAuth(formats strfmt.Registry
 		if err := o.KubeAuth.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "kube_auth")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "kube_auth")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this register kubernetes cluster body based on the context it is used
+func (o *RegisterKubernetesClusterBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateKubeAuth(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *RegisterKubernetesClusterBody) contextValidateKubeAuth(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.KubeAuth != nil {
+		if err := o.KubeAuth.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "kube_auth")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "kube_auth")
 			}
 			return err
 		}
@@ -198,7 +228,7 @@ type RegisterKubernetesClusterDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*RegisterKubernetesClusterDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this register kubernetes cluster default body
@@ -216,7 +246,6 @@ func (o *RegisterKubernetesClusterDefaultBody) Validate(formats strfmt.Registry)
 }
 
 func (o *RegisterKubernetesClusterDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -230,6 +259,42 @@ func (o *RegisterKubernetesClusterDefaultBody) validateDetails(formats strfmt.Re
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("RegisterKubernetesCluster default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("RegisterKubernetesCluster default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this register kubernetes cluster default body based on the context it is used
+func (o *RegisterKubernetesClusterDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *RegisterKubernetesClusterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("RegisterKubernetesCluster default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("RegisterKubernetesCluster default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -258,6 +323,47 @@ func (o *RegisterKubernetesClusterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*RegisterKubernetesClusterDefaultBodyDetailsItems0 register kubernetes cluster default body details items0
+swagger:model RegisterKubernetesClusterDefaultBodyDetailsItems0
+*/
+type RegisterKubernetesClusterDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this register kubernetes cluster default body details items0
+func (o *RegisterKubernetesClusterDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this register kubernetes cluster default body details items0 based on context it is used
+func (o *RegisterKubernetesClusterDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *RegisterKubernetesClusterDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *RegisterKubernetesClusterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res RegisterKubernetesClusterDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*RegisterKubernetesClusterParamsBodyKubeAuth KubeAuth represents Kubernetes / kubectl authentication and authorization information.
 swagger:model RegisterKubernetesClusterParamsBodyKubeAuth
 */
@@ -269,6 +375,11 @@ type RegisterKubernetesClusterParamsBodyKubeAuth struct {
 
 // Validate validates this register kubernetes cluster params body kube auth
 func (o *RegisterKubernetesClusterParamsBodyKubeAuth) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this register kubernetes cluster params body kube auth based on context it is used
+func (o *RegisterKubernetesClusterParamsBodyKubeAuth) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

@@ -6,6 +6,7 @@ package db_clusters
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,7 +50,7 @@ func NewRestartDBClusterOK() *RestartDBClusterOK {
 	return &RestartDBClusterOK{}
 }
 
-/*RestartDBClusterOK handles this case with default header values.
+/* RestartDBClusterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -60,7 +61,6 @@ type RestartDBClusterOK struct {
 func (o *RestartDBClusterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/DBClusters/Restart][%d] restartDbClusterOk  %+v", 200, o.Payload)
 }
-
 func (o *RestartDBClusterOK) GetPayload() interface{} {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewRestartDBClusterDefault(code int) *RestartDBClusterDefault {
 	}
 }
 
-/*RestartDBClusterDefault handles this case with default header values.
+/* RestartDBClusterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *RestartDBClusterDefault) Code() int {
 func (o *RestartDBClusterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/DBClusters/Restart][%d] RestartDBCluster default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *RestartDBClusterDefault) GetPayload() *RestartDBClusterDefaultBody {
 	return o.Payload
 }
@@ -184,7 +183,6 @@ func (o *RestartDBClusterBody) validateClusterTypeEnum(path, location string, va
 }
 
 func (o *RestartDBClusterBody) validateClusterType(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.ClusterType) { // not required
 		return nil
 	}
@@ -194,6 +192,11 @@ func (o *RestartDBClusterBody) validateClusterType(formats strfmt.Registry) erro
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this restart DB cluster body based on context it is used
+func (o *RestartDBClusterBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -230,7 +233,7 @@ type RestartDBClusterDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*RestartDBClusterDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this restart DB cluster default body
@@ -248,7 +251,6 @@ func (o *RestartDBClusterDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *RestartDBClusterDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -262,6 +264,42 @@ func (o *RestartDBClusterDefaultBody) validateDetails(formats strfmt.Registry) e
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("RestartDBCluster default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("RestartDBCluster default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this restart DB cluster default body based on the context it is used
+func (o *RestartDBClusterDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *RestartDBClusterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("RestartDBCluster default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("RestartDBCluster default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -283,6 +321,47 @@ func (o *RestartDBClusterDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *RestartDBClusterDefaultBody) UnmarshalBinary(b []byte) error {
 	var res RestartDBClusterDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*RestartDBClusterDefaultBodyDetailsItems0 restart DB cluster default body details items0
+swagger:model RestartDBClusterDefaultBodyDetailsItems0
+*/
+type RestartDBClusterDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this restart DB cluster default body details items0
+func (o *RestartDBClusterDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this restart DB cluster default body details items0 based on context it is used
+func (o *RestartDBClusterDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *RestartDBClusterDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *RestartDBClusterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res RestartDBClusterDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

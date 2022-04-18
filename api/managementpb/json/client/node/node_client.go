@@ -23,9 +23,12 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	RegisterNode(params *RegisterNodeParams) (*RegisterNodeOK, error)
+	RegisterNode(params *RegisterNodeParams, opts ...ClientOption) (*RegisterNodeOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -35,13 +38,12 @@ type ClientService interface {
 
   Registers a new Node and pmm-agent.
 */
-func (a *Client) RegisterNode(params *RegisterNodeParams) (*RegisterNodeOK, error) {
+func (a *Client) RegisterNode(params *RegisterNodeParams, opts ...ClientOption) (*RegisterNodeOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewRegisterNodeParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "RegisterNode",
 		Method:             "POST",
 		PathPattern:        "/v1/management/Node/Register",
@@ -52,7 +54,12 @@ func (a *Client) RegisterNode(params *RegisterNodeParams) (*RegisterNodeOK, erro
 		Reader:             &RegisterNodeReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

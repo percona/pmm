@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewGetLabelsParams creates a new GetLabelsParams object
-// with the default values initialized.
+// NewGetLabelsParams creates a new GetLabelsParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewGetLabelsParams() *GetLabelsParams {
-	var ()
 	return &GetLabelsParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewGetLabelsParamsWithTimeout creates a new GetLabelsParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewGetLabelsParamsWithTimeout(timeout time.Duration) *GetLabelsParams {
-	var ()
 	return &GetLabelsParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewGetLabelsParamsWithContext creates a new GetLabelsParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewGetLabelsParamsWithContext(ctx context.Context) *GetLabelsParams {
-	var ()
 	return &GetLabelsParams{
-
 		Context: ctx,
 	}
 }
 
 // NewGetLabelsParamsWithHTTPClient creates a new GetLabelsParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewGetLabelsParamsWithHTTPClient(client *http.Client) *GetLabelsParams {
-	var ()
 	return &GetLabelsParams{
 		HTTPClient: client,
 	}
 }
 
-/*GetLabelsParams contains all the parameters to send to the API endpoint
-for the get labels operation typically these are written to a http.Request
+/* GetLabelsParams contains all the parameters to send to the API endpoint
+   for the get labels operation.
+
+   Typically these are written to a http.Request.
 */
 type GetLabelsParams struct {
 
-	/*Body*/
+	// Body.
 	Body GetLabelsBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the get labels params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *GetLabelsParams) WithDefaults() *GetLabelsParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the get labels params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *GetLabelsParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the get labels params
@@ -119,7 +133,6 @@ func (o *GetLabelsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Reg
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

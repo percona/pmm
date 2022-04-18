@@ -6,6 +6,7 @@ package components
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewChangePXCComponentsOK() *ChangePXCComponentsOK {
 	return &ChangePXCComponentsOK{}
 }
 
-/*ChangePXCComponentsOK handles this case with default header values.
+/* ChangePXCComponentsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type ChangePXCComponentsOK struct {
 func (o *ChangePXCComponentsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/ChangePXC][%d] changePxcComponentsOk  %+v", 200, o.Payload)
 }
-
 func (o *ChangePXCComponentsOK) GetPayload() interface{} {
 	return o.Payload
 }
@@ -80,7 +80,7 @@ func NewChangePXCComponentsDefault(code int) *ChangePXCComponentsDefault {
 	}
 }
 
-/*ChangePXCComponentsDefault handles this case with default header values.
+/* ChangePXCComponentsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -98,7 +98,6 @@ func (o *ChangePXCComponentsDefault) Code() int {
 func (o *ChangePXCComponentsDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/ChangePXC][%d] ChangePXCComponents default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ChangePXCComponentsDefault) GetPayload() *ChangePXCComponentsDefaultBody {
 	return o.Payload
 }
@@ -156,7 +155,6 @@ func (o *ChangePXCComponentsBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *ChangePXCComponentsBody) validateHaproxy(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Haproxy) { // not required
 		return nil
 	}
@@ -165,6 +163,8 @@ func (o *ChangePXCComponentsBody) validateHaproxy(formats strfmt.Registry) error
 		if err := o.Haproxy.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "haproxy")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "haproxy")
 			}
 			return err
 		}
@@ -174,7 +174,6 @@ func (o *ChangePXCComponentsBody) validateHaproxy(formats strfmt.Registry) error
 }
 
 func (o *ChangePXCComponentsBody) validateProxysql(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Proxysql) { // not required
 		return nil
 	}
@@ -183,6 +182,8 @@ func (o *ChangePXCComponentsBody) validateProxysql(formats strfmt.Registry) erro
 		if err := o.Proxysql.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "proxysql")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "proxysql")
 			}
 			return err
 		}
@@ -192,7 +193,6 @@ func (o *ChangePXCComponentsBody) validateProxysql(formats strfmt.Registry) erro
 }
 
 func (o *ChangePXCComponentsBody) validatePXC(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.PXC) { // not required
 		return nil
 	}
@@ -201,6 +201,78 @@ func (o *ChangePXCComponentsBody) validatePXC(formats strfmt.Registry) error {
 		if err := o.PXC.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "pxc")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "pxc")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change PXC components body based on the context it is used
+func (o *ChangePXCComponentsBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateHaproxy(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateProxysql(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidatePXC(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangePXCComponentsBody) contextValidateHaproxy(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Haproxy != nil {
+		if err := o.Haproxy.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "haproxy")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "haproxy")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangePXCComponentsBody) contextValidateProxysql(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Proxysql != nil {
+		if err := o.Proxysql.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "proxysql")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "proxysql")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangePXCComponentsBody) contextValidatePXC(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.PXC != nil {
+		if err := o.PXC.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "pxc")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "pxc")
 			}
 			return err
 		}
@@ -242,7 +314,7 @@ type ChangePXCComponentsDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*ChangePXCComponentsDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this change PXC components default body
@@ -260,7 +332,6 @@ func (o *ChangePXCComponentsDefaultBody) Validate(formats strfmt.Registry) error
 }
 
 func (o *ChangePXCComponentsDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -274,6 +345,42 @@ func (o *ChangePXCComponentsDefaultBody) validateDetails(formats strfmt.Registry
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ChangePXCComponents default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ChangePXCComponents default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change PXC components default body based on the context it is used
+func (o *ChangePXCComponentsDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangePXCComponentsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("ChangePXCComponents default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ChangePXCComponents default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -295,6 +402,47 @@ func (o *ChangePXCComponentsDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ChangePXCComponentsDefaultBody) UnmarshalBinary(b []byte) error {
 	var res ChangePXCComponentsDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ChangePXCComponentsDefaultBodyDetailsItems0 change PXC components default body details items0
+swagger:model ChangePXCComponentsDefaultBodyDetailsItems0
+*/
+type ChangePXCComponentsDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this change PXC components default body details items0
+func (o *ChangePXCComponentsDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change PXC components default body details items0 based on context it is used
+func (o *ChangePXCComponentsDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangePXCComponentsDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangePXCComponentsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res ChangePXCComponentsDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -329,7 +477,6 @@ func (o *ChangePXCComponentsParamsBodyHaproxy) Validate(formats strfmt.Registry)
 }
 
 func (o *ChangePXCComponentsParamsBodyHaproxy) validateVersions(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Versions) { // not required
 		return nil
 	}
@@ -343,6 +490,42 @@ func (o *ChangePXCComponentsParamsBodyHaproxy) validateVersions(formats strfmt.R
 			if err := o.Versions[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("body" + "." + "haproxy" + "." + "versions" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("body" + "." + "haproxy" + "." + "versions" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change PXC components params body haproxy based on the context it is used
+func (o *ChangePXCComponentsParamsBodyHaproxy) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateVersions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangePXCComponentsParamsBodyHaproxy) contextValidateVersions(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Versions); i++ {
+
+		if o.Versions[i] != nil {
+			if err := o.Versions[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("body" + "." + "haproxy" + "." + "versions" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("body" + "." + "haproxy" + "." + "versions" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -391,6 +574,11 @@ func (o *ChangePXCComponentsParamsBodyHaproxyVersionsItems0) Validate(formats st
 	return nil
 }
 
+// ContextValidate validates this change PXC components params body haproxy versions items0 based on context it is used
+func (o *ChangePXCComponentsParamsBodyHaproxyVersionsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *ChangePXCComponentsParamsBodyHaproxyVersionsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -436,7 +624,6 @@ func (o *ChangePXCComponentsParamsBodyPXC) Validate(formats strfmt.Registry) err
 }
 
 func (o *ChangePXCComponentsParamsBodyPXC) validateVersions(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Versions) { // not required
 		return nil
 	}
@@ -450,6 +637,42 @@ func (o *ChangePXCComponentsParamsBodyPXC) validateVersions(formats strfmt.Regis
 			if err := o.Versions[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("body" + "." + "pxc" + "." + "versions" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("body" + "." + "pxc" + "." + "versions" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change PXC components params body PXC based on the context it is used
+func (o *ChangePXCComponentsParamsBodyPXC) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateVersions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangePXCComponentsParamsBodyPXC) contextValidateVersions(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Versions); i++ {
+
+		if o.Versions[i] != nil {
+			if err := o.Versions[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("body" + "." + "pxc" + "." + "versions" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("body" + "." + "pxc" + "." + "versions" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -498,6 +721,11 @@ func (o *ChangePXCComponentsParamsBodyPXCVersionsItems0) Validate(formats strfmt
 	return nil
 }
 
+// ContextValidate validates this change PXC components params body PXC versions items0 based on context it is used
+func (o *ChangePXCComponentsParamsBodyPXCVersionsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *ChangePXCComponentsParamsBodyPXCVersionsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -543,7 +771,6 @@ func (o *ChangePXCComponentsParamsBodyProxysql) Validate(formats strfmt.Registry
 }
 
 func (o *ChangePXCComponentsParamsBodyProxysql) validateVersions(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Versions) { // not required
 		return nil
 	}
@@ -557,6 +784,42 @@ func (o *ChangePXCComponentsParamsBodyProxysql) validateVersions(formats strfmt.
 			if err := o.Versions[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("body" + "." + "proxysql" + "." + "versions" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("body" + "." + "proxysql" + "." + "versions" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change PXC components params body proxysql based on the context it is used
+func (o *ChangePXCComponentsParamsBodyProxysql) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateVersions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangePXCComponentsParamsBodyProxysql) contextValidateVersions(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Versions); i++ {
+
+		if o.Versions[i] != nil {
+			if err := o.Versions[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("body" + "." + "proxysql" + "." + "versions" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("body" + "." + "proxysql" + "." + "versions" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -602,6 +865,11 @@ type ChangePXCComponentsParamsBodyProxysqlVersionsItems0 struct {
 
 // Validate validates this change PXC components params body proxysql versions items0
 func (o *ChangePXCComponentsParamsBodyProxysqlVersionsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change PXC components params body proxysql versions items0 based on context it is used
+func (o *ChangePXCComponentsParamsBodyProxysqlVersionsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
