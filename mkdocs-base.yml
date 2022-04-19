@@ -145,8 +145,8 @@ nav:
           - details/index.md
           - details/architecture.md
           - details/interface.md
-          - Developing Advisors:
-                - details/develop-checks.md
+    - Developing Advisor checks:
+          - details/develop-checks.md
             
           - Dashboards:
                 - details/dashboards/index.md
