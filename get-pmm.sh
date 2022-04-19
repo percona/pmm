@@ -73,7 +73,7 @@ setup_colors() {
 # Prints message to stderr with new line at the end.
 #######################################
 msg() {
-  echo >&2 -e "${1-}"
+  echo >&2 -ne "${1-}"
 }
 
 #######################################
@@ -223,19 +223,25 @@ run_docker() {
 # If any PMM server instance is run - stop and backup it.
 #######################################
 start_pmm() {
-  msg "Starting PMM server..."
+  msg "Fetching docker image...\n"
   run_docker "pull $repo:$tag 1> /dev/null"
 
+  msg "Checking data volume...\n"
+  pmm_archive="$(date "+%F-%H%M%S")"
   if ! run_docker "inspect pmm-data 1> /dev/null 2> /dev/null"; then
     run_docker "create -v /srv/ --name pmm-data $repo:$tag /bin/true 1> /dev/null"
-    msg "Created PMM Data Volume: pmm-data"
+    msg "Created PMM Data Volume: pmm-data\n"
+  else 
+    msg "\n\t${YELLOW}Existing PMM Data volume found, renaming to pmm-data-$pmm_archive${NOFORMAT}\n"
+    run_docker "rename pmm-data pmm-data-$pmm_archive"
+    run_docker "create -v /srv/ --name pmm-data $repo:$tag /bin/true 1> /dev/null"
+    msg "Created PMM Data Volume: pmm-data\n"
   fi
 
   if run_docker "inspect pmm-server 1> /dev/null 2> /dev/null"; then
-    pmm_archive="pmm-server-$(date "+%F-%H%M%S")"
-    msg "\tExisting PMM Server found, renaming to $pmm_archive\n"
+    msg "\t${YELLOW}Existing PMM Server found, renaming to pmm-server-$pmm_archive${NOFORMAT}\n"
     run_docker 'stop pmm-server' || :
-    run_docker "rename pmm-server $pmm_archive\n"
+    run_docker "rename pmm-server pmm-server-$pmm_archive"
   fi
   run_pmm="run -d -p $port:443 --volumes-from pmm-data --name $container_name --restart always $repo:$tag"
 
@@ -260,13 +266,14 @@ show_message() {
     die "${RED}ERROR: cannot detect PMM server address${NOFORMAT}"
   fi
 
-  msg "You can access your new server using one of the following web addresses:"
+  msg "You can access your new server using one of the following web addresses:\n"
   for ip in $ips; do
-    msg "\t${GREEN}https://$ip:$port/${NOFORMAT}"
+    msg "\t${GREEN}https://$ip:$port/${NOFORMAT}\n"
   done
-  msg "\nThe default username is '${PURPLE}admin${NOFORMAT}' and the password is '${PURPLE}admin${NOFORMAT}' :)"
-  msg "Note: Some browsers may not trust the default SSL certificate when you first open one of the urls above."
-  msg "If this is the case, Chrome users may want to type '${PURPLE}thisisunsafe${NOFORMAT}' to bypass the warning.\n"
+  msg "\nThe default username is '${PURPLE}admin${NOFORMAT}' and the password is '${PURPLE}admin${NOFORMAT}'\n"
+  msg "${BLUE}Note${NOFORMAT}: Some browsers may not trust the default SSL certificate when you first open one of the urls above.\n"
+  msg "If this is the case, Chrome users may need to type '${PURPLE}thisisunsafe${NOFORMAT}' to bypass the warning.\n"
+  msg "(just type it with the chrome window in focus...there's no textbox to enter it in)\n"
 }
 
 main() {
@@ -283,4 +290,4 @@ main() {
 parse_params "$@"
 
 main
-die "Enjoy Percona Monitoring and Management!" 0
+die "Enjoy Percona Monitoring and Management!\n" 0
