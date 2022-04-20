@@ -28,10 +28,8 @@ release:                        ## Build pmm-admin release binary.
 	env CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-admin
 
 init:                           ## Installs development tools
-	go build -modfile=tools/go.mod -o $(BIN_PATH)/go-consistent github.com/quasilyte/go-consistent
-	go build -modfile=tools/go.mod -o $(BIN_PATH)/golangci-lint github.com/golangci/golangci-lint/cmd/golangci-lint
-	go build -modfile=tools/go.mod -o $(BIN_PATH)/reviewdog github.com/reviewdog/reviewdog/cmd/reviewdog
-	go build -modfile=tools/go.mod -o $(BIN_PATH)/goimports golang.org/x/tools/cmd/goimports
+	rm -rf ./bin
+	cd tools && go generate -x -tags=tools
 
 install:                        ## Install pmm-admin binary.
 	go install $(LD_FLAGS) ./...
@@ -55,18 +53,15 @@ test-crosscover:                ## Run tests and collect cross-package coverage 
 
 check:                          ## Run required checkers and linters.
 	go run .github/check-license.go
-
-check-style:                    ## Run style checkers and linters.
 	$(BIN_PATH)/golangci-lint run -c=.golangci.yml ./... --new-from-rev=main
 	$(BIN_PATH)/go-consistent -pedantic ./...
-
-check-all: check check-style    ## Run all linters for new code..
 
 FILES = $(shell find . -type f -name '*.go')
 
 format:                         ## Format source code.
-	gofmt -w -s $(FILES)
+	$(BIN_PATH)/gofumpt -l -w $(FILES)
 	$(BIN_PATH)/goimports -local github.com/percona/pmm-admin -l -w $(FILES)
+	$(BIN_PATH)/gci write --Section Standard --Section Default --Section "Prefix(github.com/percona/pmm-admin)" $(FILES)
 
 env-up:                         ## Start development environment.
 	docker-compose up --force-recreate --abort-on-container-exit --renew-anon-volumes --remove-orphans
@@ -75,6 +70,7 @@ env-down:                       ## Stop development environment.
 	docker-compose down --volumes --remove-orphans
 
 ci-reviewdog:                   ## Runs reviewdog checks.
+	go run .github/check-license.go
 	$(BIN_PATH)/golangci-lint run -c=.golangci-required.yml --out-format=line-number | $(BIN_PATH)/reviewdog -f=golangci-lint -level=error -reporter=github-pr-check
 	$(BIN_PATH)/golangci-lint run -c=.golangci.yml --out-format=line-number | $(BIN_PATH)/reviewdog -f=golangci-lint -level=error -reporter=github-pr-review
 	$(BIN_PATH)/go-consistent -pedantic -exclude "tests" ./... | $(BIN_PATH)/reviewdog -f=go-consistent -name='Required go-consistent checks' -reporter=github-pr-check

@@ -19,12 +19,26 @@ linters-settings:
   unparam:
     check-exported: true
 
+  goimports:
+    local-prefixes: github.com/percona/pmm-admin
+
+  gci:
+    sections:
+      - standard # Captures all standard packages if they do not match another section.
+      - default # Contains all imports that could not be matched to another section type.
+      - prefix(github.com/percona/pmm-admin) # Groups all local imports.
+
 linters:
   enable-all: true
   disable:
+    # keep sorted
     - gochecknoglobals  # we need global variables for commands
     - gochecknoinits    # we need inits for commands
+    - golint            # deprecated
     - gomodguard        # we don't use go modules
+    - interfacer        # deprecated
+    - maligned          # deprecated
+    - scopelint         # deprecated
 
 issues:
   exclude-use-default: false

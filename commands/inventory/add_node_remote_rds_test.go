@@ -20,7 +20,6 @@ import (
 	"testing"
 
 	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
-
 	"github.com/stretchr/testify/assert"
 )
 

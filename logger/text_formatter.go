@@ -26,8 +26,7 @@ import (
 )
 
 // TextFormatter formats logs into text.
-type TextFormatter struct {
-}
+type TextFormatter struct{}
 
 // Format renders a single log entry.
 func (f *TextFormatter) Format(entry *logrus.Entry) ([]byte, error) {
