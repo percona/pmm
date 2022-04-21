@@ -410,7 +410,7 @@ message ParseDefaultsFileResponse {
   string password = 3;
   string host = 4;
   uint32 port = 5;
-
+  string socket = 6;
 }
 
 // CheckConnectionRequest is a ServerMessage asking pmm-agent to check connection with Service.
