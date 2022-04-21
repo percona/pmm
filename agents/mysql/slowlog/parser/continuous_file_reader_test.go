@@ -17,7 +17,6 @@ package parser
 
 import (
 	"io"
-	"io/ioutil"
 	"os"
 	"testing"
 	"time"
@@ -42,7 +41,7 @@ func TestContinuousFileReader(t *testing.T) {
 			cleanup(t, files)
 		}()
 
-		f, err := ioutil.TempFile("", "pmm-agent-test-slowlog-reader-normal")
+		f, err := os.CreateTemp("", "pmm-agent-test-slowlog-reader-normal")
 		require.NoError(t, err)
 		files = append(files, f.Name())
 
@@ -123,11 +122,11 @@ func TestContinuousFileReader(t *testing.T) {
 			cleanup(t, files)
 		}()
 
-		f, err := ioutil.TempFile("", "pmm-agent-test-slowlog-reader-symlink-file1")
+		f, err := os.CreateTemp("", "pmm-agent-test-slowlog-reader-symlink-file1")
 		require.NoError(t, err)
 		files = append(files, f.Name())
 
-		symlink, err := ioutil.TempFile("", "pmm-agent-test-slowlog-reader-symlink")
+		symlink, err := os.CreateTemp("", "pmm-agent-test-slowlog-reader-symlink")
 		require.NoError(t, err)
 		require.NoError(t, symlink.Close())
 		symlinkName := symlink.Name()
@@ -196,7 +195,7 @@ func TestContinuousFileReader(t *testing.T) {
 		assert.Equal(t, &ReaderMetrics{InputSize: 3, InputPos: 3}, r.Metrics())
 
 		// test symlink change
-		f, err = ioutil.TempFile("", "pmm-agent-test-slowlog-reader-symlink-file2")
+		f, err = os.CreateTemp("", "pmm-agent-test-slowlog-reader-symlink-file2")
 		require.NoError(t, err)
 		files = append(files, f.Name())
 		require.NoError(t, os.Remove(symlinkName))

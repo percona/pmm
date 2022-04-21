@@ -18,7 +18,6 @@ package templates
 
 import (
 	"fmt"
-	"io/ioutil"
 	"math/rand"
 	"os"
 	"path/filepath"
@@ -85,7 +84,7 @@ func fileExist(file string) bool {
 }
 
 func fileContentMatch(file, content string) bool {
-	fileContent, err := ioutil.ReadFile(filepath.Clean(file))
+	fileContent, err := os.ReadFile(filepath.Clean(file))
 	if err != nil {
 		return false
 	}

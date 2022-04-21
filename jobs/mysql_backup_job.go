@@ -18,7 +18,6 @@ package jobs
 import (
 	"bytes"
 	"context"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"strconv"
@@ -125,7 +124,7 @@ func (j *MySQLBackupJob) backup(ctx context.Context) (rerr error) {
 	pipeCtx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	tmpDir, err := ioutil.TempDir("", "mysql-backup")
+	tmpDir, err := os.MkdirTemp("", "mysql-backup")
 	if err != nil {
 		return errors.Wrapf(err, "failed to create tempdir")
 	}
