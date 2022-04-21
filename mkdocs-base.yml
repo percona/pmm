@@ -145,9 +145,6 @@ nav:
           - details/index.md
           - details/architecture.md
           - details/interface.md
-    - Developing Advisor checks:
-          - details/develop-checks.md
-            
           - Dashboards:
                 - details/dashboards/index.md
                 - Insight:
@@ -220,6 +217,8 @@ nav:
           - details/api.md
           - details/victoria-metrics.md
           - details/glossary.md
+          - details/develop-checks.md
+            
     - faq.md
     
     - Release Notes:

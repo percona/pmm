@@ -125,156 +125,157 @@ supervisorctl tail -f pmm-managed
  
 ```
 
-### Format
+### Checks Format
 To create checks use the following format:
+``` yaml 
+---
+checks:
+- version: 1
+    name: example
+    summary: Example check
+    description: This check is just an example.
+    type: MONGODB_BUILDINFO
+    script: |
+    def check(docs):
+        # for compatibility with PMM Server < 2.12
+        context = {
+            "format_version_num": format_version_num,
+            "parse_version": parse_version,
+        }
+        return check_context(docs, context)
 
-=== "Check format"
-            ---
-        checks:
-        - version: 1
-            name: example
-            summary: Example check
-            description: This check is just an example.
-            type: MONGODB_BUILDINFO
-            script: |
-            def check(docs):
-                # for compatibility with PMM Server < 2.12
-                context = {
-                    "format_version_num": format_version_num,
-                    "parse_version": parse_version,
-                }
-                return check_context(docs, context)
 
+    def check_context(docs, context):
+        # `docs` is a frozen (deeply immutable) list of dicts where each dict represents a single document in result set.
+        # `context` is a dict with additional functions.
+        #
+        # Global `print` and `fail` functions are available.
+        #
+        # `check_context` function is expected to return a list of dicts that are then converted to alerts;
+        # in particular, that list can be empty.
+        # Any other value (for example, string) is treated as script execution failure
+        # (Starlark does not support Python exceptions);
+        # it is recommended to use global function `fail` for that instead.
 
-            def check_context(docs, context):
-                # `docs` is a frozen (deeply immutable) list of dicts where each dict represents a single document in result set.
-                # `context` is a dict with additional functions.
-                #
-                # Global `print` and `fail` functions are available.
-                #
-                # `check_context` function is expected to return a list of dicts that are then converted to alerts;
-                # in particular, that list can be empty.
-                # Any other value (for example, string) is treated as script execution failure
-                # (Starlark does not support Python exceptions);
-                # it is recommended to use global function `fail` for that instead.
+        format_version_num = context.get("format_version_num", fail)
+        parse_version = context.get("parse_version", fail)
 
-                format_version_num = context.get("format_version_num", fail)
-                parse_version = context.get("parse_version", fail)
+        print("first doc =", repr(docs[0]))
 
-                print("first doc =", repr(docs[0]))
-
-                return [{
-                    "summary": "Example summary",
-                    "description": "Example description",
-                    "severity": "warning",
-                    "labels": {
-                        "version": format_version_num(10203),
-                    }
-                }]
-
-=== "Realistic example"
-            ---
-        checks:
-        - version: 1
-            name: mongodb_version
-            summary: MongoDB Version
-            description: This check returns warnings if MongoDB/PSMDB version is not the latest one.
-            type: MONGODB_BUILDINFO
-            script: |
-            LATEST_VERSIONS = {
-                "mongodb": {
-                    "3.6": 30620,  # https://docs.mongodb.com/manual/release-notes/3.6/
-                    "4.0": 40020,  # https://docs.mongodb.com/manual/release-notes/4.0/
-                    "4.2": 40210,  # https://docs.mongodb.com/manual/release-notes/4.2/
-                    "4.4": 40401,  # https://docs.mongodb.com/manual/release-notes/4.4/
-                },
-                "percona": {
-                    "3.6": 30620,  # https://www.percona.com/downloads/percona-server-mongodb-3.6/
-                    "4.0": 40020,  # https://www.percona.com/downloads/percona-server-mongodb-4.0/
-                    "4.2": 40209,  # https://www.percona.com/downloads/percona-server-mongodb-4.2/
-                    "4.4": 40401,  # https://www.percona.com/downloads/percona-server-mongodb-4.4/
-                },
+        return [{
+            "summary": "Example summary",
+            "description": "Example description",
+            "severity": "warning",
+            "labels": {
+                "version": format_version_num(10203),
             }
+        }]
+```
+Here's a more realistic example
+
+```yaml 
+---
+    checks:
+     - version: 1
+         name: mongodb_version
+         summary: MongoDB Version
+         description: This check returns warnings if MongoDB/PSMDB version is not the latest one.
+         type: MONGODB_BUILDINFO
+         script: |
+         LATEST_VERSIONS = {
+             "mongodb": {
+                 "3.6": 30620,  # https://docs.mongodb.com/manual/release-notes/3.6/
+                 "4.0": 40020,  # https://docs.mongodb.com/manual/release-notes/4.0/
+                 "4.2": 40210,  # https://docs.mongodb.com/manual/release-notes/4.2/
+                 "4.4": 40401,  # https://docs.mongodb.com/manual/release-notes/4.4/
+             },
+             "percona": {
+                 "3.6": 30620,  # https://www.percona.com/downloads/percona-server-mongodb-3.6/
+                 "4.0": 40020,  # https://www.percona.com/downloads/percona-server-mongodb-4.0/
+                 "4.2": 40209,  # https://www.percona.com/downloads/percona-server-mongodb-4.2/
+                 "4.4": 40401,  # https://www.percona.com/downloads/percona-server-mongodb-4.4/
+             },
+         }
 
 
-            def check(docs):
-                # for compatibility with PMM Server < 2.12
-                context = {
-                    "format_version_num": format_version_num,
-                    "parse_version": parse_version,
-                }
-                return check_context(docs, context)
+         def check(docs):
+             # for compatibility with PMM Server < 2.12
+             context = {
+                 "format_version_num": format_version_num,
+                 "parse_version": parse_version,
+             }
+             return check_context(docs, context)
 
 
-            def check_context(docs, context):
-                # `docs` is a frozen (deeply immutable) list of dicts where each dict represents a single document in result set.
-                # `context` is a dict with additional functions.
-                #
-                # Global `print` and `fail` functions are available.
-                #
-                # `check_context` function is expected to return a list of dicts that are then converted to alerts;
-                # in particular, that list can be empty.
-                # Any other value (for example, string) is treated as script execution failure
-                # (Starlark does not support Python exceptions);
-                # it is recommended to use global function `fail` for that instead.
+         def check_context(docs, context):
+             # `docs` is a frozen (deeply immutable) list of dicts where each dict represents a single document in result set.
+             # `context` is a dict with additional functions.
+             #
+             # Global `print` and `fail` functions are available.
+             #
+             # `check_context` function is expected to return a list of dicts that are then converted to alerts;
+             # in particular, that list can be empty.
+             # Any other value (for example, string) is treated as script execution failure
+             # (Starlark does not support Python exceptions);
+             # it is recommended to use global function `fail` for that instead.
 
-                """
-                This check returns warnings if MongoDB/PSMDB version is not the latest one.
-                """
+             """
+             This check returns warnings if MongoDB/PSMDB version is not the latest one.
+             """
 
-                format_version_num = context.get("format_version_num", fail)
-                parse_version = context.get("parse_version", fail)
+             format_version_num = context.get("format_version_num", fail)
+             parse_version = context.get("parse_version", fail)
 
-                if len(docs) != 1:
-                    return "Unexpected number of documents"
+             if len(docs) != 1:
+                 return "Unexpected number of documents"
 
-                info = docs[0]
+             info = docs[0]
 
-                # extract information
-                is_percona = 'psmdbVersion' in info
+             # extract information
+             is_percona = 'psmdbVersion' in info
 
-                # parse_version returns a dict with keys: major, minor, patch, rest, num
-                version = parse_version(info["version"])
-                print("version =", repr(version))
-                num = version["num"]
-                mm = "{}.{}".format(version["major"], version["minor"])
+             # parse_version returns a dict with keys: major, minor, patch, rest, num
+             version = parse_version(info["version"])
+             print("version =", repr(version))
+             num = version["num"]
+             mm = "{}.{}".format(version["major"], version["minor"])
 
-                results = []
+             results = []
 
-                if is_percona:
-                    latest = LATEST_VERSIONS["percona"][mm]
-                    if latest > num:
-                        results.append({
-                            "summary": "Newer version of Percona Server for MongoDB is available",
-                            "description": "Current version is {}, latest available version is {}.".format(format_version_num(num), format_version_num(latest)),
-                            "severity": "warning",
-                            "labels": {
-                                "current": format_version_num(num),
-                                "latest":  format_version_num(latest),
-                            },
-                        })
+             if is_percona:
+                 latest = LATEST_VERSIONS["percona"][mm]
+                 if latest > num:
+                     results.append({
+                         "summary": "Newer version of Percona Server for MongoDB is available",
+                         "description": "Current version is {}, latest available version is {}.".format(format_version_num(num), format_version_num(latest)),
+                         "severity": "warning",
+                         "labels": {
+                             "current": format_version_num(num),
+                             "latest":  format_version_num(latest),
+                         },
+                     })
 
-                    return results
+                 return results
 
-                if True:  # MongoDB
-                    latest = LATEST_VERSIONS["mongodb"][mm]
-                    if latest > num:
-                        results.append({
-                            "summary": "Newer version of MongoDB is available",
-                            "description": "Current version is {}, latest available version is {}.".format(format_version_num(num), format_version_num(latest)),
-                            "severity": "warning",
-                            "labels": {
-                                "current": format_version_num(num),
-                                "latest":  format_version_num(latest),
-                            },
-                        })
+             if True:  # MongoDB
+                 latest = LATEST_VERSIONS["mongodb"][mm]
+                 if latest > num:
+                     results.append({
+                         "summary": "Newer version of MongoDB is available",
+                         "description": "Current version is {}, latest available version is {}.".format(format_version_num(num), format_version_num(latest)),
+                         "severity": "warning",
+                         "labels": {
+                             "current": format_version_num(num),
+                             "latest":  format_version_num(latest),
+                         },
+                     })
 
-                    return results
+                   return results
+```
 ## Security checks in PMM 2.26 and older
 PMM 2.26 and older included a set of security checks grouped under the **Security Threat Tool** option.
  
 With the 2.27 release, security checks have been renamed to Advisor checks, and the **Security Threat Tool** option in the PMM Settings was renamed to **Advisors**.
-
 
 ## Submit feedback
  We welcome your feedback on the current process for developing and debugging checks. Send us your comments over [Slack](https://percona.slack.com) or post a question on the [Percona Forums](https://forums.percona.com/).

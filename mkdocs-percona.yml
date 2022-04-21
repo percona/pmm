@@ -15,9 +15,4 @@ extra_css:
   - css/version-select.css
   - css/toctree.css
   
-markdown_extensions:
-  - pymdownx.details
-  - pymdownx.superfences
-  - pymdownx.tabbed:
-      alternate_style: true 
       

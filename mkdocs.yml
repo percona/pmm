@@ -3,10 +3,5 @@ INHERIT: mkdocs-base.yml
 site_url: https://pmm-doc.onrender.com/
 plugins:
   section-index: {}
-  
-markdown_extensions:
-  - pymdownx.details
-  - pymdownx.superfences
-  - pymdownx.tabbed:
-      alternate_style: true 
+   
 
