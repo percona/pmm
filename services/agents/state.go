@@ -189,7 +189,12 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			if err != nil {
 				return err
 			}
-			agentProcesses[row.AgentID] = nodeExporterConfig(node, row, pmmAgentVersion)
+
+			params, err := nodeExporterConfig(node, row, pmmAgentVersion)
+			if err != nil {
+				return err
+			}
+			agentProcesses[row.AgentID] = params
 
 		case models.RDSExporterType:
 			node, err := models.FindNodeByID(u.db.Querier, pointer.GetString(row.NodeID))

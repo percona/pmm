@@ -27,15 +27,74 @@ import (
 	"github.com/percona/pmm-managed/models"
 )
 
-func TestNodeExporterConfig(t *testing.T) {
-	t.Run("Linux", func(t *testing.T) {
+func TestAuthWebConfig(t *testing.T) {
+	t.Parallel()
+
+	t.Run("v2.26.1", func(t *testing.T) {
+		t.Parallel()
+
 		node := &models.Node{}
 		exporter := &models.Agent{
-			AgentID: "agent-id",
+			AgentID:   "agent-id",
+			AgentType: models.NodeExporterType,
+		}
+		agentVersion := version.MustParse("2.26.1")
+
+		actual, err := nodeExporterConfig(node, exporter, agentVersion)
+		require.NoError(t, err, "Unable to build node exporter config")
+
+		expected := &agentpb.SetStateRequest_AgentProcess{
+			Env: []string{
+				"HTTP_AUTH=pmm:agent-id",
+			},
+			TextFiles: map[string]string(nil),
+		}
+
+		require.Equal(t, expected.Env, actual.Env)
+		require.Equal(t, expected.TextFiles, actual.TextFiles)
+	})
+
+	t.Run("v2.28.0", func(t *testing.T) {
+		t.Parallel()
+
+		node := &models.Node{}
+		exporter := &models.Agent{
+			AgentID:   "agent-id",
+			AgentType: models.NodeExporterType,
+		}
+		agentVersion := version.MustParse("2.28.0")
+
+		actual, err := nodeExporterConfig(node, exporter, agentVersion)
+		require.NoError(t, err, "Unable to build node exporter config")
+
+		expected := &agentpb.SetStateRequest_AgentProcess{
+			Env: []string(nil),
+			TextFiles: map[string]string{
+				"webConfigPlaceholder": "basic_auth_users:\n    pmm: agent-id\n",
+			},
+		}
+
+		require.Equal(t, expected.Env, actual.Env)
+		require.Equal(t, expected.TextFiles, actual.TextFiles)
+	})
+}
+
+func TestNodeExporterConfig(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Linux", func(t *testing.T) {
+		t.Parallel()
+
+		node := &models.Node{}
+		exporter := &models.Agent{
+			AgentID:   "agent-id",
+			AgentType: models.NodeExporterType,
 		}
 		agentVersion := version.MustParse("2.15.1")
 
-		actual := nodeExporterConfig(node, exporter, agentVersion)
+		actual, err := nodeExporterConfig(node, exporter, agentVersion)
+		require.NoError(t, err, "Unable to build node exporter config")
+
 		expected := &agentpb.SetStateRequest_AgentProcess{
 			Type:               inventorypb.AgentType_NODE_EXPORTER,
 			TemplateLeftDelim:  "{{",
@@ -117,14 +176,18 @@ func TestNodeExporterConfig(t *testing.T) {
 	})
 
 	t.Run("LinuxDisabledCollectors", func(t *testing.T) {
+		t.Parallel()
 		node := &models.Node{}
 		exporter := &models.Agent{
 			AgentID:            "agent-id",
+			AgentType:          models.NodeExporterType,
 			DisabledCollectors: []string{"cpu", "netstat", "netstat.fields", "vmstat", "meminfo"},
 		}
 		agentVersion := version.MustParse("2.15.1")
 
-		actual := nodeExporterConfig(node, exporter, agentVersion)
+		actual, err := nodeExporterConfig(node, exporter, agentVersion)
+		require.NoError(t, err, "Unable to build node exporter config")
+
 		expected := &agentpb.SetStateRequest_AgentProcess{
 			Type:               inventorypb.AgentType_NODE_EXPORTER,
 			TemplateLeftDelim:  "{{",
@@ -196,15 +259,19 @@ func TestNodeExporterConfig(t *testing.T) {
 	})
 
 	t.Run("MacOS", func(t *testing.T) {
+		t.Parallel()
 		node := &models.Node{
 			Distro: "darwin",
 		}
 		exporter := &models.Agent{
-			AgentID: "agent-id",
+			AgentID:   "agent-id",
+			AgentType: models.NodeExporterType,
 		}
 		agentVersion := version.MustParse("2.15.1")
 
-		actual := nodeExporterConfig(node, exporter, agentVersion)
+		actual, err := nodeExporterConfig(node, exporter, agentVersion)
+		require.NoError(t, err, "Unable to build node exporter config")
+
 		expected := &agentpb.SetStateRequest_AgentProcess{
 			Type:               inventorypb.AgentType_NODE_EXPORTER,
 			TemplateLeftDelim:  "{{",

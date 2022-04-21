@@ -47,6 +47,7 @@ require (
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.7.1
 	go.starlark.net v0.0.0-20220302181546-5411bad688d1
+	golang.org/x/crypto v0.0.0-20220313003712-b769efc7c000
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/sys v0.0.0-20220310020820-b874c991c1a5
 	google.golang.org/genproto v0.0.0-20220314164441-57ef72a4c106
@@ -133,7 +134,6 @@ require (
 	go.mongodb.org/mongo-driver v1.9.0 // indirect
 	go.opentelemetry.io/otel v1.4.1 // indirect
 	go.opentelemetry.io/otel/trace v1.4.1 // indirect
-	golang.org/x/crypto v0.0.0-20220313003712-b769efc7c000 // indirect
 	golang.org/x/mod v0.5.1 // indirect
 	golang.org/x/net v0.0.0-20220225172249-27dd8689420f // indirect
 	golang.org/x/oauth2 v0.0.0-20220309155454-6242fa91716a // indirect
@@ -144,3 +144,5 @@ require (
 	gopkg.in/ini.v1 v1.66.4 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
+
+replace golang.org/x/crypto v0.0.0-20220313003712-b769efc7c000 => github.com/percona-lab/crypto v0.0.0-20220413143500-70ef7e9f1813

@@ -17,7 +17,6 @@
 package agents
 
 import (
-	"fmt"
 	"sort"
 
 	"github.com/AlekSi/pointer"
@@ -29,7 +28,12 @@ import (
 	"github.com/percona/pmm-managed/utils/collectors"
 )
 
-func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion *version.Parsed) *agentpb.SetStateRequest_AgentProcess {
+// The node exporter prior 2.28 use exporter_shared and gets basic auth config from env.
+// Starting with pmm 2.28, the exporter uses Prometheus Web Toolkit and needs a config file
+// with the basic auth users.
+var v2_27_99 = version.MustParse("2.27.99")
+
+func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion *version.Parsed) (*agentpb.SetStateRequest_AgentProcess, error) {
 	tdp := models.TemplateDelimsPair(
 		pointer.GetString(exporter.MetricsPath),
 	)
@@ -128,13 +132,16 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion 
 
 	sort.Strings(args)
 
-	return &agentpb.SetStateRequest_AgentProcess{
+	params := &agentpb.SetStateRequest_AgentProcess{
 		Type:               inventorypb.AgentType_NODE_EXPORTER,
 		TemplateLeftDelim:  tdp.Left,
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
-		Env: []string{
-			fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.AgentID),
-		},
 	}
+
+	if err := ensureAuthParams(exporter, params, agentVersion, v2_27_99); err != nil {
+		return nil, err
+	}
+
+	return params, nil
 }

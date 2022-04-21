@@ -17,18 +17,22 @@
 package models
 
 import (
+	"bytes"
 	"database/sql/driver"
 	"fmt"
 	"net"
 	"net/url"
 	"strconv"
 	"strings"
+	"text/template"
 	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/go-sql-driver/mysql"
 	"github.com/lib/pq"
 	"github.com/percona/pmm/version"
+	"github.com/pkg/errors"
+	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/reform.v1"
 )
 
@@ -629,6 +633,49 @@ func (s Agent) TemplateDelimiters(svc *Service) *DelimiterPair {
 		templateParams...,
 	)
 	return &tdp
+}
+
+// HashPassword func to calculate password hash. Public and overridable for testing purposes.
+var HashPassword = func(password, salt string) (string, error) {
+	buf, err := bcrypt.GenerateFromPasswordAndSalt([]byte(password), bcrypt.DefaultCost, []byte(salt))
+	if err != nil {
+		return "", err
+	}
+	return string(buf), nil
+}
+
+const webConfigTemplate = `basic_auth_users:
+    pmm: {{ . }}
+`
+
+// BuildWebConfigFile builds prometheus-compatible basic auth configuration.
+func (s *Agent) BuildWebConfigFile() (string, error) {
+	password := s.GetAgentPassword()
+	salt := getPasswordSalt(s)
+
+	hashedPassword, err := HashPassword(password, salt)
+	if err != nil {
+		return "", errors.Wrap(err, "Failed to hash password")
+	}
+
+	var configBuffer bytes.Buffer
+	if tmpl, err := template.New("webConfig").Parse(webConfigTemplate); err != nil {
+		return "", errors.Wrap(err, "Failed to parse webconfig template")
+	} else if err = tmpl.Execute(&configBuffer, hashedPassword); err != nil {
+		return "", errors.Wrap(err, "Failed to execute webconfig template")
+	}
+
+	config := configBuffer.String()
+
+	return config, nil
+}
+
+func getPasswordSalt(s *Agent) string {
+	if s.AgentID != "" && len(s.AgentID) >= bcrypt.MaxSaltSize {
+		return s.AgentID[len(s.AgentID)-bcrypt.MaxSaltSize:]
+	}
+
+	return "pmm-salt-magic--"
 }
 
 // check interfaces.
