@@ -19,112 +19,144 @@ package backup
 import (
 	"testing"
 
-	"github.com/hashicorp/go-version"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
-func TestMySQLAndXtrabackupCompatibility(t *testing.T) {
-	xtrabackupVersions := []string{
-		"8.0.26-18.0",
-		"8.0.25-17.0",
-		"8.0.23-16.0",
-		"8.0.22-15.0",
-		"8.0.14",
-		"8.0.13",
-		"8.0.12",
-		"8.0.11",
-		"8.0.10",
-		"8.0.9",
-		"8.0.8",
-		"8.0.7",
-		"8.0.6",
-		"8.0.5",
-		"8.0.4",
+type mysqlAndPXBVersions struct {
+	mysql, pxb string
+}
 
-		"2.4.24",
-		"2.4.23",
-		"2.4.22",
-		"2.4.21",
-		"2.4.20",
-		"2.4.19",
-		"2.4.18",
-		"2.4.17",
-		"2.4.16",
+func TestMysqlAndXtrabackupCompatible(t *testing.T) {
+	t.Parallel()
+
+	compatible := []mysqlAndPXBVersions{
+		// MySQL [5.5; 5.8), PXB [2.4.18; 5.2)
+		{"5.5", "2.4.18"},
+		{"5.5", "2.4.20"},
+		{"5.5", "2.4.99"},
+		{"5.6", "2.4.18"},
+		{"5.6", "2.4.20"},
+		{"5.6", "2.4.99"},
+		{"5.7", "2.4.18"},
+		{"5.7", "2.4.20"},
+		{"5.7", "2.4.99"},
+
+		// MySQL [8.0; 8.0.20), PXB [8.0.6; 9.0)
+		{"8.0", "8.0.6"},
+		{"8.0", "8.0.8"},
+		{"8.0", "8.99.99"},
+		{"8.0.12", "8.0.6"},
+		{"8.0.12", "8.0.8"},
+		{"8.0.12", "8.99.99"},
+		{"8.0.19", "8.0.6"},
+		{"8.0.19", "8.0.8"},
+		{"8.0.19", "8.99.99"},
+
+		// MySQL [8.0.20; 8.0.21), PXB [8.0.12; 9.0)
+		{"8.0.20", "8.0.12"},
+		{"8.0.20", "8.0.18"},
+		{"8.0.20", "8.99.99"},
+
+		// MySQL [8.0.21; 8.0.22), PXB [8.0.14; 9.0)
+		{"8.0.21", "8.0.14"},
+		{"8.0.21", "8.0.18"},
+		{"8.0.21", "8.99.99"},
+
+		// MySQL [8.0.22; 9.0), PXB [8.0.22; 9.0)
+		{"8.0.22", "8.0.22"},
+		{"8.0.22", "8.0.22-15.0"},
+		{"8.0.22", "8.0.50"},
+		{"8.0.22", "8.99.99"},
+		{"8.0.22-13", "8.0.22"},
+		{"8.0.22-13", "8.0.22-15.0"},
+		{"8.0.22-13", "8.0.50"},
+		{"8.0.22-13", "8.99.99"},
+		{"8.0.28", "8.0.28"},
+		{"8.0.28", "8.0.50"},
+		{"8.0.28", "8.99.99"},
+		{"8.99.99", "8.99.99"},
 	}
 
-	mysqlVersions := []string{
-		"8.0.26",
-		"8.0.25",
-		"8.0.24",
-		"8.0.23",
-		"8.0.22",
-		"8.0.21",
-		"8.0.20",
-		"8.0.19",
-		"8.0.18",
-		"8.0.17",
-		"8.0.16",
-		"8.0.15",
-		"8.0.14",
-		"8.0.13",
-		"8.0.12",
-		"8.0.11",
+	incompatible := []mysqlAndPXBVersions{
+		// MySQL [5.5; 5.8), PXB [2.4.18; 2.5)
+		{"5.4", "2.4.17"},
+		{"5.4", "2.4.18"},
+		{"5.4", "2.4.25"},
+		{"5.4", "2.4.99"},
+		{"5.4", "2.5"},
+		//
+		{"5.5", "2.4.17"},
+		{"5.5", "2.5"},
+		//
+		{"5.6", "2.4.17"},
+		{"5.6", "2.5"},
+		//
+		{"5.7", "2.4.17"},
+		{"5.7", "2.5"},
+		//
+		{"5.8", "2.4.17"},
+		{"5.8", "2.4.18"},
+		{"5.8", "2.4.25"},
+		{"5.8", "2.4.99"},
+		{"5.8", "2.5"},
 
-		"5.5",
-		"5.6",
-		"5.7",
+		// MySQL [8.0; 8.0.20), PXB [8.0.6; 9.0)
+		{"7.99.99", "8.0.5"},
+		{"7.99.99", "8.0.6"},
+		{"7.99.99", "8.0.10"},
+		{"7.99.99", "8.99.99"},
+		{"7.99.99", "9.0"},
+		//
+		{"8.0", "8.0.5"},
+		{"8.0", "9.0"},
+		//
+		{"8.0.10", "8.0.5"},
+		{"8.0.10", "9.0"},
+		//
+		{"8.0.19", "8.0.5"},
+		{"8.0.19", "9.0"},
+
+		// MySQL [8.0.20; 8.0.21), PXB [8.0.12; 9.0)
+		{"8.0.20", "8.0.11"},
+		{"8.0.20", "9.0"},
+
+		// MySQL [8.0.21; 8.0.22), PXB [8.0.14; 9.0)
+		{"8.0.21", "8.0.13"},
+		{"8.0.21", "9.0"},
+
+		// MySQL [8.0.22; 9.0), PXB [8.0.22; 9.0)
+		{"8.0.22", "8.0.21"},
+		{"8.0.22", "9.0"},
+		//
+		{"8.0.28", "8.0.22-15.0"},
+		{"8.0.28", "8.0.27"},
+		{"8.0.28", "9.0"},
+		//
+		{"8.99.99", "8.99.98"},
+		{"8.99.99", "9.0"},
+		//
+		{"9.0", "8.0.21"},
+		{"9.0", "8.0.22"},
+		{"9.0", "8.0.30"},
+		{"9.0", "8.99.99"},
+		{"9.0", "9.0"},
 	}
 
-	type compatibleRange struct {
-		from string // inclusively
-		to   string // exclusively
-	}
-	supportedMatrix := map[string]compatibleRange{
-		"8.0.26-18.0": {from: "8.0", to: "8.0.27"},
-		"8.0.25-17.0": {from: "8.0", to: "8.0.26"},
-		"8.0.23-16.0": {from: "8.0", to: "8.0.24"},
-		"8.0.22-15.0": {from: "8.0", to: "8.0.23"},
-		"8.0.14":      {from: "8.0", to: "8.0.22"},
-		"8.0.13":      {from: "8.0", to: "8.0.21"},
-		"8.0.12":      {from: "8.0", to: "8.0.21"},
-		"8.0.11":      {from: "8.0", to: "8.0.20"},
-		"8.0.10":      {from: "8.0", to: "8.0.20"},
-		"8.0.9":       {from: "8.0", to: "8.0.20"},
-		"8.0.8":       {from: "8.0", to: "8.0.20"},
-		"8.0.7":       {from: "8.0", to: "8.0.20"},
-		"8.0.6":       {from: "8.0", to: "8.0.20"},
-
-		"2.4.24": {from: "5.5", to: "5.8"},
-		"2.4.23": {from: "5.5", to: "5.8"},
-		"2.4.22": {from: "5.5", to: "5.8"},
-		"2.4.21": {from: "5.5", to: "5.8"},
-		"2.4.20": {from: "5.5", to: "5.8"},
-		"2.4.19": {from: "5.5", to: "5.8"},
-		"2.4.18": {from: "5.5", to: "5.8"},
+	for _, ver := range compatible {
+		actual, err := mysqlAndXtrabackupCompatible(ver.mysql, ver.pxb)
+		assert.NoError(t, err)
+		assert.True(t, actual, "mysql version %q, xtrabackup version %q", ver.mysql, ver.pxb)
 	}
 
-	for _, xtrabackupVersion := range xtrabackupVersions {
-		for _, mysqlVersion := range mysqlVersions {
-			var supported bool
-			if r, ok := supportedMatrix[xtrabackupVersion]; ok {
-				mysqlMinVersion, err := version.NewVersion(r.from)
-				require.NoError(t, err)
-
-				mysqlMaxVersion, err := version.NewVersion(r.to)
-				require.NoError(t, err)
-
-				mysqlVersion, err := version.NewVersion(mysqlVersion)
-				require.NoError(t, err)
-
-				if mysqlVersion.GreaterThanOrEqual(mysqlMinVersion) && mysqlVersion.LessThan(mysqlMaxVersion) {
-					supported = true
-				}
-			}
-
-			actualSupported, err := mysqlAndXtrabackupCompatible(mysqlVersion, xtrabackupVersion)
-			require.NoError(t, err)
-			assert.Equal(t, supported, actualSupported, "xtrabackup version %q, mysql version %q", xtrabackupVersion, mysqlVersion)
-		}
+	for _, ver := range incompatible {
+		actual, err := mysqlAndXtrabackupCompatible(ver.mysql, ver.pxb)
+		assert.NoError(t, err)
+		assert.False(t, actual, "mysql version %q, xtrabackup version %q", ver.mysql, ver.pxb)
 	}
+
+	_, err := mysqlAndXtrabackupCompatible("eight", "8.0.6")
+	assert.Error(t, err)
+
+	_, err = mysqlAndXtrabackupCompatible("8.0", "eight")
+	assert.Error(t, err)
 }

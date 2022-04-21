@@ -27,7 +27,16 @@ type compatibility struct {
 	backupToolMaxVersion *version.Version
 }
 
-var mysqlAndXtrabackupCompatibleVersions []compatibility
+var (
+	mysqlAndXtrabackupCompatibleVersions []compatibility
+
+	// Starting from MySQL 8.0.22 if the Percona XtraBackup version is lower than the database version,
+	// processing will be stopped and Percona XtraBackup will not be allowed to continue.
+	// https://www.percona.com/blog/2020/08/18/aligning-percona-xtrabackup-versions-with-percona-server-for-mysql/
+	alignedVersion = version.Must(version.NewVersion("8.0.22"))
+	// Since there is no version 9 or greater let's limit aligning rule by this number.
+	maxAlignedVersion = version.Must(version.NewVersion("9.0"))
+)
 
 func init() {
 	versionStrings := []struct {
@@ -52,7 +61,7 @@ func init() {
 			mysqlMinVersion:      "8.0",
 			mysqlMaxVersion:      "8.0.20",
 			xtrabackupMinVersion: "8.0.6",
-			xtrabackupMaxVersion: "8.0.12",
+			xtrabackupMaxVersion: "9.0",
 		},
 		// Percona XtraBackup 8.0.12 now supports backup and restore processing for all versions of MySQL;
 		// previous versions of Percona XtraBackup will not work with MySQL 8.0.20 and higher.
@@ -61,46 +70,19 @@ func init() {
 		// and has been tested with the latest MySQL 8.0.20.
 		// https://www.percona.com/doc/percona-xtrabackup/8.0/release-notes/8.0/8.0.13.html
 		{
-			mysqlMinVersion:      "8.0",
+			mysqlMinVersion:      "8.0.20",
 			mysqlMaxVersion:      "8.0.21",
 			xtrabackupMinVersion: "8.0.12",
-			xtrabackupMaxVersion: "8.0.14",
+			xtrabackupMaxVersion: "9.0",
 		},
 		// Percona XtraBackup 8.0.14 supports backup and restore processing for all versions of MySQL
 		// and has been tested with the latest MySQL 8.0.21.
 		// https://www.percona.com/doc/percona-xtrabackup/8.0/release-notes/8.0/8.0.14.html
 		{
-			mysqlMinVersion:      "8.0",
+			mysqlMinVersion:      "8.0.21",
 			mysqlMaxVersion:      "8.0.22",
 			xtrabackupMinVersion: "8.0.14",
-			xtrabackupMaxVersion: "8.0.15",
-		},
-		// If the Percona XtraBackup version is lower than the database version,
-		// processing will be stopped and Percona XtraBackup will not be allowed to continue.
-		// https://www.percona.com/blog/2020/08/18/aligning-percona-xtrabackup-versions-with-percona-server-for-mysql/
-		{
-			mysqlMinVersion:      "8.0",
-			mysqlMaxVersion:      "8.0.23",
-			xtrabackupMinVersion: "8.0.22",
-			xtrabackupMaxVersion: "8.0.23",
-		},
-		{
-			mysqlMinVersion:      "8.0",
-			mysqlMaxVersion:      "8.0.24",
-			xtrabackupMinVersion: "8.0.23",
-			xtrabackupMaxVersion: "8.0.24",
-		},
-		{
-			mysqlMinVersion:      "8.0",
-			mysqlMaxVersion:      "8.0.26",
-			xtrabackupMinVersion: "8.0.25",
-			xtrabackupMaxVersion: "8.0.26",
-		},
-		{
-			mysqlMinVersion:      "8.0",
-			mysqlMaxVersion:      "8.0.27",
-			xtrabackupMinVersion: "8.0.26",
-			xtrabackupMaxVersion: "8.0.27",
+			xtrabackupMaxVersion: "9.0",
 		},
 	}
 
@@ -145,16 +127,21 @@ func mysqlAndXtrabackupCompatible(mysqlVersionString, xtrabackupVersionString st
 	}
 	xtrabackupVersion = xtrabackupVersion.Core()
 
-	for _, cv := range mysqlAndXtrabackupCompatibleVersions {
-		if !(mysqlVersion.GreaterThanOrEqual(cv.dbMinVersion) && mysqlVersion.LessThan(cv.dbMaxVersion)) {
-			continue
-		}
-
-		if xtrabackupVersion.GreaterThanOrEqual(cv.backupToolMinVersion) &&
-			xtrabackupVersion.LessThan(cv.backupToolMaxVersion) {
+	// See comment to alignedVersion.
+	// Using compatibility rule.
+	if mysqlVersion.GreaterThanOrEqual(alignedVersion) {
+		if xtrabackupVersion.GreaterThanOrEqual(mysqlVersion) && xtrabackupVersion.LessThan(maxAlignedVersion) {
 			return true, nil
 		}
+	} else { // Using compatibility matrix.
+		for _, cv := range mysqlAndXtrabackupCompatibleVersions {
+			if (mysqlVersion.GreaterThanOrEqual(cv.dbMinVersion) &&
+				mysqlVersion.LessThan(cv.dbMaxVersion)) &&
+				xtrabackupVersion.GreaterThanOrEqual(cv.backupToolMinVersion) &&
+				xtrabackupVersion.LessThan(cv.backupToolMaxVersion) {
+				return true, nil
+			}
+		}
 	}
-
 	return false, nil
 }
