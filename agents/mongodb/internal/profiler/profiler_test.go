@@ -19,7 +19,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"sort"
 	"strings"
@@ -67,7 +66,7 @@ func TestProfiler(t *testing.T) {
 	defer logrus.SetLevel(logrus.InfoLevel)
 
 	sslDSNTemplate, files := tests.GetTestMongoDBWithSSLDSN(t, "../../../../")
-	tempDir, err := ioutil.TempDir("", "pmm-agent-mongodb-")
+	tempDir, err := os.MkdirTemp("", "pmm-agent-mongodb-")
 	require.NoError(t, err)
 	sslDSN, err := templates.RenderDSN(sslDSNTemplate, files, tempDir)
 	require.NoError(t, err)

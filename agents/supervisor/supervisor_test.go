@@ -17,7 +17,6 @@ package supervisor
 
 import (
 	"context"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sort"
@@ -49,7 +48,7 @@ func assertChanges(t *testing.T, s *Supervisor, expected ...*agentpb.StateChange
 
 func TestSupervisor(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
-	tempDir, err := ioutil.TempDir("", "pmm-agent-")
+	tempDir, err := os.MkdirTemp("", "pmm-agent-")
 	require.NoError(t, err)
 	s := NewSupervisor(ctx, &config.Paths{TempDir: tempDir}, &config.Ports{Min: 65000, Max: 65099}, &config.Server{Address: "localhost:443"})
 
@@ -276,7 +275,7 @@ func TestFilter(t *testing.T) {
 
 func TestSupervisorProcessParams(t *testing.T) {
 	setup := func(t *testing.T) (*Supervisor, func()) {
-		temp, err := ioutil.TempDir("", "pmm-agent-")
+		temp, err := os.MkdirTemp("", "pmm-agent-")
 		require.NoError(t, err)
 
 		ctx, cancel := context.WithCancel(context.Background())

@@ -17,8 +17,8 @@ package connectionchecker
 
 import (
 	"context"
-	"io/ioutil"
 	"math/rand"
+	"os"
 	"testing"
 	"time"
 
@@ -190,7 +190,7 @@ func TestConnectionChecker(t *testing.T) {
 
 	for _, tt := range tt {
 		t.Run(tt.name, func(t *testing.T) {
-			temp, err := ioutil.TempDir("", "pmm-agent-")
+			temp, err := os.MkdirTemp("", "pmm-agent-")
 			require.NoError(t, err)
 
 			c := New(&config.Paths{
@@ -208,7 +208,7 @@ func TestConnectionChecker(t *testing.T) {
 	}
 
 	t.Run("TableCount", func(t *testing.T) {
-		temp, err := ioutil.TempDir("", "pmm-agent-")
+		temp, err := os.MkdirTemp("", "pmm-agent-")
 		require.NoError(t, err)
 
 		c := New(&config.Paths{
@@ -224,7 +224,7 @@ func TestConnectionChecker(t *testing.T) {
 
 	t.Run("MongoDBWithSSL", func(t *testing.T) {
 		mongoDBDSNWithSSL, mongoDBTextFiles := tests.GetTestMongoDBWithSSLDSN(t, "../")
-		temp, err := ioutil.TempDir("", "pmm-agent-")
+		temp, err := os.MkdirTemp("", "pmm-agent-")
 		require.NoError(t, err)
 
 		c := New(&config.Paths{

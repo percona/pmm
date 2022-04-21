@@ -17,7 +17,7 @@ package actions
 
 import (
 	"context"
-	"io/ioutil"
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -307,7 +307,7 @@ func getCmdLineOptsAssertionsWithSSL(t *testing.T, b []byte) { //nolint:thelper
 
 func createTempDir(t *testing.T) string {
 	t.Helper()
-	tempDir, err := ioutil.TempDir("", "pmm-agent-")
+	tempDir, err := os.MkdirTemp("", "pmm-agent-")
 	require.NoError(t, err)
 	return tempDir
 }

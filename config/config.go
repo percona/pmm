@@ -18,7 +18,6 @@ package config
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net"
 	"net/url"
 	"os"
@@ -459,7 +458,7 @@ func loadFromFile(path string) (*Config, error) {
 		return nil, ErrConfigFileDoesNotExist(path)
 	}
 
-	b, err := ioutil.ReadFile(path) //nolint:gosec
+	b, err := os.ReadFile(path) //nolint:gosec
 	if err != nil {
 		return nil, err
 	}
@@ -484,7 +483,7 @@ func SaveToFile(path string, cfg *Config, comment string) error {
 	}
 	res = append(res, "---\n"...)
 	res = append(res, b...)
-	return ioutil.WriteFile(path, res, 0o640)
+	return os.WriteFile(path, res, 0o640)
 }
 
 // IsWritable checks if specified path is writable.
