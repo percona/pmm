@@ -70,7 +70,7 @@ setup_colors() {
 }
 
 #######################################
-# Prints message to stderr with new line at the end.
+# Prints message to stderr.
 #######################################
 msg() {
   echo >&2 -ne "${1-}"
@@ -113,7 +113,7 @@ parse_params() {
       port="${2-}"
       shift
       ;;
-    -?*) die "Unknown option: $1" ;;
+    -?*) die "Unknown option: $1\n" ;;
     *) break ;;
     esac
     shift
@@ -128,7 +128,7 @@ parse_params() {
 # Gathers PMM setup param in interactive mode.
 #######################################
 gather_info() {
-  msg "${GREEN}PMM Server Wizard Install${NOFORMAT}"
+  msg "${GREEN}PMM Server Wizard Install${NOFORMAT}\n"
   default_port=$port
   default_container_name=$container_name
   default_tag=$tag
@@ -155,7 +155,7 @@ run_root() {
     elif check_command su; then
       sh='su -c'
     else
-      die "${RED}ERROR: root rights needed to run "$*" command${NOFORMAT}"
+      die "${RED}ERROR: root rights needed to run "$*" command${NOFORMAT}\n"
     fi
   fi
   ${sh} "$@"
@@ -201,7 +201,7 @@ install_docker() {
         echo "Giving docker desktop time to start"
         sleep 30
       else
-        die "${RED}ERROR: cannot run "docker ps" command${NOFORMAT}"
+        die "${RED}ERROR: cannot run "docker ps" command${NOFORMAT}\n"
       fi
     fi
   fi
@@ -224,19 +224,17 @@ run_docker() {
 #######################################
 start_pmm() {
   msg "Fetching docker image...\n"
-  run_docker "pull $repo:$tag 1> /dev/null"
+  run_docker "pull $repo:$tag" 
 
   msg "Checking data volume...\n"
   pmm_archive="$(date "+%F-%H%M%S")"
-  if ! run_docker "inspect pmm-data 1> /dev/null 2> /dev/null"; then
-    run_docker "create -v /srv/ --name pmm-data $repo:$tag /bin/true 1> /dev/null"
-    msg "Created PMM Data Volume: pmm-data\n"
-  else 
+  if run_docker "inspect pmm-data 1> /dev/null 2> /dev/null"; then
     msg "\n\t${YELLOW}Existing PMM Data volume found, renaming to pmm-data-$pmm_archive${NOFORMAT}\n"
     run_docker "rename pmm-data pmm-data-$pmm_archive"
-    run_docker "create -v /srv/ --name pmm-data $repo:$tag /bin/true 1> /dev/null"
-    msg "Created PMM Data Volume: pmm-data\n"
   fi
+
+  run_docker "create -v /srv/ --name pmm-data $repo:$tag /bin/true 1> /dev/null"
+  msg "Created PMM Data Volume: pmm-data\n"
 
   if run_docker "inspect pmm-server 1> /dev/null 2> /dev/null"; then
     msg "\t${YELLOW}Existing PMM Server found, renaming to pmm-server-$pmm_archive${NOFORMAT}\n"
@@ -246,8 +244,8 @@ start_pmm() {
   run_pmm="run -d -p $port:443 --volumes-from pmm-data --name $container_name --restart always $repo:$tag"
 
   run_docker "$run_pmm 1> /dev/null"
-  msg "Created PMM Server: $container_name"
-  msg "\tUse the following command if you ever need to update your container by hand:"
+  msg "Created PMM Server: $container_name\n"
+  msg "\tUse the following command if you ever need to update your container by hand:\n"
   msg "\tdocker $run_pmm \n"
 }
 
@@ -263,7 +261,7 @@ show_message() {
   elif check_command ip; then
     ips=$(ip -f inet a | awk -F"[/ ]+" '/inet / {print $3}')
   else
-    die "${RED}ERROR: cannot detect PMM server address${NOFORMAT}"
+    die "${RED}ERROR: cannot detect PMM server address${NOFORMAT}\n"
   fi
 
   msg "You can access your new server using one of the following web addresses:\n"
