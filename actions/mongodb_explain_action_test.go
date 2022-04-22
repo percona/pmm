@@ -19,7 +19,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -125,7 +124,7 @@ func TestNewMongoDBExplain(t *testing.T) {
 		}
 
 		t.Run(tf.in, func(t *testing.T) {
-			query, err := ioutil.ReadFile(filepath.Join("testdata/", filepath.Clean(tf.in)))
+			query, err := os.ReadFile(filepath.Join("testdata/", filepath.Clean(tf.in)))
 			assert.NoError(t, err)
 			params := &agentpb.StartActionRequest_MongoDBExplainParams{
 				Dsn:   tests.GetTestMongoDBDSN(t),

@@ -20,7 +20,6 @@ import (
 	"crypto/tls"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"net/url"
@@ -113,7 +112,7 @@ func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 
 	// set error handlers for nginx responses if pmm-managed is down
 	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, data interface{}) error {
-		b, _ := ioutil.ReadAll(reader)
+		b, _ := io.ReadAll(reader)
 		return errFromNginx(string(b))
 	})
 	transport.Consumers = map[string]runtime.Consumer{

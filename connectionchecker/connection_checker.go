@@ -20,7 +20,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"math"
 	"net/http"
 	"path/filepath"
@@ -260,7 +260,7 @@ func (cc *ConnectionChecker) checkExternalConnection(ctx context.Context, uri st
 		return &res
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		res.Error = fmt.Sprintf("Cannot read body of exporter's response: %v", err)
 		return &res

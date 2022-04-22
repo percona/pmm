@@ -18,7 +18,6 @@ package slowlog
 import (
 	"context"
 	"encoding/json"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -36,7 +35,7 @@ import (
 )
 
 func getDataFromFile(t *testing.T, filePath string, data interface{}) {
-	jsonData, err := ioutil.ReadFile(filePath) //nolint:gosec
+	jsonData, err := os.ReadFile(filePath) //nolint:gosec
 	require.NoError(t, err)
 	err = json.Unmarshal(jsonData, &data)
 	require.NoError(t, err)

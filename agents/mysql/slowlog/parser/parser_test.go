@@ -19,7 +19,7 @@ import (
 	"encoding/json"
 	"flag"
 	"io"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -70,12 +70,12 @@ func TestParserGolden(t *testing.T) {
 				b, err := json.MarshalIndent(actual, "", "  ")
 				require.NoError(t, err)
 				b = append(b, '\n')
-				err = ioutil.WriteFile(goldenFile, b, 0o666)
+				err = os.WriteFile(goldenFile, b, 0o666) //nolint:gosec
 				require.NoError(t, err)
 				t.Skipf("%s updated.", goldenFile)
 			}
 
-			b, err := ioutil.ReadFile(goldenFile) //nolint:gosec
+			b, err := os.ReadFile(goldenFile) //nolint:gosec
 			require.NoError(t, err)
 			var expected []log.Event
 			err = json.Unmarshal(b, &expected)
