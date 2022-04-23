@@ -6,9 +6,9 @@ option go_package = "api/managementpb;managementpb";
 
 // Log level for exporters
 enum LogLevel {
-  WARN = 0;
-  DEBUG = 1;
-  INFO = 2;
-  ERROR = 3;
-  FATAL = 4;
+  warn = 0;
+  debug = 1;
+  info = 2;
+  error = 3;
+  fatal = 4;
 }

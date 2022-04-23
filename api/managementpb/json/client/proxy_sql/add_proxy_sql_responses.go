@@ -189,7 +189,7 @@ type AddProxySQLBody struct {
 	AgentPassword string `json:"agent_password,omitempty"`
 
 	// Log level for exporters
-	// Enum: [WARN DEBUG INFO ERROR FATAL]
+	// Enum: [warn debug info error fatal]
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// add node
@@ -268,7 +268,7 @@ var addProxySqlBodyTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["WARN","DEBUG","INFO","ERROR","FATAL"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["warn","debug","info","error","fatal"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -278,20 +278,20 @@ func init() {
 
 const (
 
-	// AddProxySQLBodyLogLevelWARN captures enum value "WARN"
-	AddProxySQLBodyLogLevelWARN string = "WARN"
+	// AddProxySQLBodyLogLevelWarn captures enum value "warn"
+	AddProxySQLBodyLogLevelWarn string = "warn"
 
-	// AddProxySQLBodyLogLevelDEBUG captures enum value "DEBUG"
-	AddProxySQLBodyLogLevelDEBUG string = "DEBUG"
+	// AddProxySQLBodyLogLevelDebug captures enum value "debug"
+	AddProxySQLBodyLogLevelDebug string = "debug"
 
-	// AddProxySQLBodyLogLevelINFO captures enum value "INFO"
-	AddProxySQLBodyLogLevelINFO string = "INFO"
+	// AddProxySQLBodyLogLevelInfo captures enum value "info"
+	AddProxySQLBodyLogLevelInfo string = "info"
 
-	// AddProxySQLBodyLogLevelERROR captures enum value "ERROR"
-	AddProxySQLBodyLogLevelERROR string = "ERROR"
+	// AddProxySQLBodyLogLevelError captures enum value "error"
+	AddProxySQLBodyLogLevelError string = "error"
 
-	// AddProxySQLBodyLogLevelFATAL captures enum value "FATAL"
-	AddProxySQLBodyLogLevelFATAL string = "FATAL"
+	// AddProxySQLBodyLogLevelFatal captures enum value "fatal"
+	AddProxySQLBodyLogLevelFatal string = "fatal"
 )
 
 // prop value enum

@@ -15227,13 +15227,13 @@
                 "log_level": {
                   "type": "string",
                   "title": "Log level for exporters",
-                  "default": "WARN",
+                  "default": "warn",
                   "enum": [
-                    "WARN",
-                    "DEBUG",
-                    "INFO",
-                    "ERROR",
-                    "FATAL"
+                    "warn",
+                    "debug",
+                    "info",
+                    "error",
+                    "fatal"
                   ],
                   "x-order": 29
                 }
@@ -15759,13 +15759,13 @@
                 "log_level": {
                   "type": "string",
                   "title": "Log level for exporters",
-                  "default": "WARN",
+                  "default": "warn",
                   "enum": [
-                    "WARN",
-                    "DEBUG",
-                    "INFO",
-                    "ERROR",
-                    "FATAL"
+                    "warn",
+                    "debug",
+                    "info",
+                    "error",
+                    "fatal"
                   ],
                   "x-order": 28
                 }
@@ -16715,13 +16715,13 @@
                 "log_level": {
                   "type": "string",
                   "title": "Log level for exporters",
-                  "default": "WARN",
+                  "default": "warn",
                   "enum": [
-                    "WARN",
-                    "DEBUG",
-                    "INFO",
-                    "ERROR",
-                    "FATAL"
+                    "warn",
+                    "debug",
+                    "info",
+                    "error",
+                    "fatal"
                   ],
                   "x-order": 27
                 }
@@ -17261,13 +17261,13 @@
                 "log_level": {
                   "type": "string",
                   "title": "Log level for exporters",
-                  "default": "WARN",
+                  "default": "warn",
                   "enum": [
-                    "WARN",
-                    "DEBUG",
-                    "INFO",
-                    "ERROR",
-                    "FATAL"
+                    "warn",
+                    "debug",
+                    "info",
+                    "error",
+                    "fatal"
                   ],
                   "x-order": 20
                 }

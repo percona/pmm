@@ -217,7 +217,7 @@ type AddMySQLBody struct {
 	AgentPassword string `json:"agent_password,omitempty"`
 
 	// Log level for exporters
-	// Enum: [WARN DEBUG INFO ERROR FATAL]
+	// Enum: [warn debug info error fatal]
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// add node
@@ -296,7 +296,7 @@ var addMySqlBodyTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["WARN","DEBUG","INFO","ERROR","FATAL"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["warn","debug","info","error","fatal"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -306,20 +306,20 @@ func init() {
 
 const (
 
-	// AddMySQLBodyLogLevelWARN captures enum value "WARN"
-	AddMySQLBodyLogLevelWARN string = "WARN"
+	// AddMySQLBodyLogLevelWarn captures enum value "warn"
+	AddMySQLBodyLogLevelWarn string = "warn"
 
-	// AddMySQLBodyLogLevelDEBUG captures enum value "DEBUG"
-	AddMySQLBodyLogLevelDEBUG string = "DEBUG"
+	// AddMySQLBodyLogLevelDebug captures enum value "debug"
+	AddMySQLBodyLogLevelDebug string = "debug"
 
-	// AddMySQLBodyLogLevelINFO captures enum value "INFO"
-	AddMySQLBodyLogLevelINFO string = "INFO"
+	// AddMySQLBodyLogLevelInfo captures enum value "info"
+	AddMySQLBodyLogLevelInfo string = "info"
 
-	// AddMySQLBodyLogLevelERROR captures enum value "ERROR"
-	AddMySQLBodyLogLevelERROR string = "ERROR"
+	// AddMySQLBodyLogLevelError captures enum value "error"
+	AddMySQLBodyLogLevelError string = "error"
 
-	// AddMySQLBodyLogLevelFATAL captures enum value "FATAL"
-	AddMySQLBodyLogLevelFATAL string = "FATAL"
+	// AddMySQLBodyLogLevelFatal captures enum value "fatal"
+	AddMySQLBodyLogLevelFatal string = "fatal"
 )
 
 // prop value enum

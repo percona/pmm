@@ -259,7 +259,7 @@ func (x *AddProxySQLRequest) GetLogLevel() LogLevel {
 	if x != nil {
 		return x.LogLevel
 	}
-	return LogLevel_WARN
+	return LogLevel_warn
 }
 
 type AddProxySQLResponse struct {
