@@ -188,6 +188,10 @@ type AddProxySQLBody struct {
 	// Custom password for exporter endpoint /metrics.
 	AgentPassword string `json:"agent_password,omitempty"`
 
+	// Log level for exporters
+	// Enum: [WARN DEBUG INFO ERROR FATAL]
+	LogLevel *string `json:"log_level,omitempty"`
+
 	// add node
 	AddNode *AddProxySQLParamsBodyAddNode `json:"add_node,omitempty"`
 }
@@ -197,6 +201,10 @@ func (o *AddProxySQLBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateMetricsMode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -250,6 +258,58 @@ func (o *AddProxySQLBody) validateMetricsMode(formats strfmt.Registry) error {
 
 	// value enum
 	if err := o.validateMetricsModeEnum("body"+"."+"metrics_mode", "body", *o.MetricsMode); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addProxySqlBodyTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["WARN","DEBUG","INFO","ERROR","FATAL"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addProxySqlBodyTypeLogLevelPropEnum = append(addProxySqlBodyTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddProxySQLBodyLogLevelWARN captures enum value "WARN"
+	AddProxySQLBodyLogLevelWARN string = "WARN"
+
+	// AddProxySQLBodyLogLevelDEBUG captures enum value "DEBUG"
+	AddProxySQLBodyLogLevelDEBUG string = "DEBUG"
+
+	// AddProxySQLBodyLogLevelINFO captures enum value "INFO"
+	AddProxySQLBodyLogLevelINFO string = "INFO"
+
+	// AddProxySQLBodyLogLevelERROR captures enum value "ERROR"
+	AddProxySQLBodyLogLevelERROR string = "ERROR"
+
+	// AddProxySQLBodyLogLevelFATAL captures enum value "FATAL"
+	AddProxySQLBodyLogLevelFATAL string = "FATAL"
+)
+
+// prop value enum
+func (o *AddProxySQLBody) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addProxySqlBodyTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddProxySQLBody) validateLogLevel(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("body"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 

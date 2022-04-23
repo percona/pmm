@@ -209,6 +209,10 @@ type AddPostgreSQLBody struct {
 	// Custom password for exporter endpoint /metrics.
 	AgentPassword string `json:"agent_password,omitempty"`
 
+	// Log level for exporters
+	// Enum: [WARN DEBUG INFO ERROR FATAL]
+	LogLevel *string `json:"log_level,omitempty"`
+
 	// add node
 	AddNode *AddPostgreSQLParamsBodyAddNode `json:"add_node,omitempty"`
 }
@@ -218,6 +222,10 @@ func (o *AddPostgreSQLBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateMetricsMode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -271,6 +279,58 @@ func (o *AddPostgreSQLBody) validateMetricsMode(formats strfmt.Registry) error {
 
 	// value enum
 	if err := o.validateMetricsModeEnum("body"+"."+"metrics_mode", "body", *o.MetricsMode); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addPostgreSqlBodyTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["WARN","DEBUG","INFO","ERROR","FATAL"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addPostgreSqlBodyTypeLogLevelPropEnum = append(addPostgreSqlBodyTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddPostgreSQLBodyLogLevelWARN captures enum value "WARN"
+	AddPostgreSQLBodyLogLevelWARN string = "WARN"
+
+	// AddPostgreSQLBodyLogLevelDEBUG captures enum value "DEBUG"
+	AddPostgreSQLBodyLogLevelDEBUG string = "DEBUG"
+
+	// AddPostgreSQLBodyLogLevelINFO captures enum value "INFO"
+	AddPostgreSQLBodyLogLevelINFO string = "INFO"
+
+	// AddPostgreSQLBodyLogLevelERROR captures enum value "ERROR"
+	AddPostgreSQLBodyLogLevelERROR string = "ERROR"
+
+	// AddPostgreSQLBodyLogLevelFATAL captures enum value "FATAL"
+	AddPostgreSQLBodyLogLevelFATAL string = "FATAL"
+)
+
+// prop value enum
+func (o *AddPostgreSQLBody) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addPostgreSqlBodyTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddPostgreSQLBody) validateLogLevel(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("body"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 

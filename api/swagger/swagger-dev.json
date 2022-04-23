@@ -21433,6 +21433,19 @@
                   "type": "boolean",
                   "title": "Enable all collectors",
                   "x-order": 28
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "WARN",
+                  "enum": [
+                    "WARN",
+                    "DEBUG",
+                    "INFO",
+                    "ERROR",
+                    "FATAL"
+                  ],
+                  "x-order": 29
                 }
               }
             }
@@ -21952,6 +21965,19 @@
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 27
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "WARN",
+                  "enum": [
+                    "WARN",
+                    "DEBUG",
+                    "INFO",
+                    "ERROR",
+                    "FATAL"
+                  ],
+                  "x-order": 28
                 }
               }
             }
@@ -22895,6 +22921,19 @@
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 26
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "WARN",
+                  "enum": [
+                    "WARN",
+                    "DEBUG",
+                    "INFO",
+                    "ERROR",
+                    "FATAL"
+                  ],
+                  "x-order": 27
                 }
               }
             }
@@ -23428,6 +23467,19 @@
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 19
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "WARN",
+                  "enum": [
+                    "WARN",
+                    "DEBUG",
+                    "INFO",
+                    "ERROR",
+                    "FATAL"
+                  ],
+                  "x-order": 20
                 }
               }
             }

@@ -2379,6 +2379,19 @@
                   "type": "string",
                   "x-order": 8
                 },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "WARN",
+                  "enum": [
+                    "WARN",
+                    "DEBUG",
+                    "INFO",
+                    "ERROR",
+                    "FATAL"
+                  ],
+                  "x-order": 29
+                },
                 "metrics_mode": {
                   "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
                   "type": "string",
@@ -2888,6 +2901,19 @@
                   "description": "Environment name.",
                   "type": "string",
                   "x-order": 8
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "WARN",
+                  "enum": [
+                    "WARN",
+                    "DEBUG",
+                    "INFO",
+                    "ERROR",
+                    "FATAL"
+                  ],
+                  "x-order": 28
                 },
                 "max_slowlog_file_size": {
                   "description": "If qan-mysql-slowlog-agent is added, slowlog file is rotated at this size if \u003e 0.\nIf zero, server's default value is used.\nUse negative value to disable rotation.",
@@ -3844,6 +3870,19 @@
                   "type": "string",
                   "x-order": 9
                 },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "WARN",
+                  "enum": [
+                    "WARN",
+                    "DEBUG",
+                    "INFO",
+                    "ERROR",
+                    "FATAL"
+                  ],
+                  "x-order": 27
+                },
                 "metrics_mode": {
                   "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
                   "type": "string",
@@ -4401,6 +4440,19 @@
                   "description": "Environment name.",
                   "type": "string",
                   "x-order": 8
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "WARN",
+                  "enum": [
+                    "WARN",
+                    "DEBUG",
+                    "INFO",
+                    "ERROR",
+                    "FATAL"
+                  ],
+                  "x-order": 20
                 },
                 "metrics_mode": {
                   "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",

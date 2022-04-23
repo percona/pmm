@@ -216,6 +216,10 @@ type AddMySQLBody struct {
 	// Custom password for exporter endpoint /metrics.
 	AgentPassword string `json:"agent_password,omitempty"`
 
+	// Log level for exporters
+	// Enum: [WARN DEBUG INFO ERROR FATAL]
+	LogLevel *string `json:"log_level,omitempty"`
+
 	// add node
 	AddNode *AddMySQLParamsBodyAddNode `json:"add_node,omitempty"`
 }
@@ -225,6 +229,10 @@ func (o *AddMySQLBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateMetricsMode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -278,6 +286,58 @@ func (o *AddMySQLBody) validateMetricsMode(formats strfmt.Registry) error {
 
 	// value enum
 	if err := o.validateMetricsModeEnum("body"+"."+"metrics_mode", "body", *o.MetricsMode); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addMySqlBodyTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["WARN","DEBUG","INFO","ERROR","FATAL"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addMySqlBodyTypeLogLevelPropEnum = append(addMySqlBodyTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddMySQLBodyLogLevelWARN captures enum value "WARN"
+	AddMySQLBodyLogLevelWARN string = "WARN"
+
+	// AddMySQLBodyLogLevelDEBUG captures enum value "DEBUG"
+	AddMySQLBodyLogLevelDEBUG string = "DEBUG"
+
+	// AddMySQLBodyLogLevelINFO captures enum value "INFO"
+	AddMySQLBodyLogLevelINFO string = "INFO"
+
+	// AddMySQLBodyLogLevelERROR captures enum value "ERROR"
+	AddMySQLBodyLogLevelERROR string = "ERROR"
+
+	// AddMySQLBodyLogLevelFATAL captures enum value "FATAL"
+	AddMySQLBodyLogLevelFATAL string = "FATAL"
+)
+
+// prop value enum
+func (o *AddMySQLBody) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addMySqlBodyTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddMySQLBody) validateLogLevel(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("body"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 

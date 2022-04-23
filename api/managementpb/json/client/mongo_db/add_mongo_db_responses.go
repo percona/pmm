@@ -218,6 +218,10 @@ type AddMongoDBBody struct {
 	// Enable all collectors
 	EnableAllCollectors bool `json:"enable_all_collectors,omitempty"`
 
+	// Log level for exporters
+	// Enum: [WARN DEBUG INFO ERROR FATAL]
+	LogLevel *string `json:"log_level,omitempty"`
+
 	// add node
 	AddNode *AddMongoDBParamsBodyAddNode `json:"add_node,omitempty"`
 }
@@ -227,6 +231,10 @@ func (o *AddMongoDBBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateMetricsMode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -280,6 +288,58 @@ func (o *AddMongoDBBody) validateMetricsMode(formats strfmt.Registry) error {
 
 	// value enum
 	if err := o.validateMetricsModeEnum("body"+"."+"metrics_mode", "body", *o.MetricsMode); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addMongoDbBodyTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["WARN","DEBUG","INFO","ERROR","FATAL"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addMongoDbBodyTypeLogLevelPropEnum = append(addMongoDbBodyTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddMongoDBBodyLogLevelWARN captures enum value "WARN"
+	AddMongoDBBodyLogLevelWARN string = "WARN"
+
+	// AddMongoDBBodyLogLevelDEBUG captures enum value "DEBUG"
+	AddMongoDBBodyLogLevelDEBUG string = "DEBUG"
+
+	// AddMongoDBBodyLogLevelINFO captures enum value "INFO"
+	AddMongoDBBodyLogLevelINFO string = "INFO"
+
+	// AddMongoDBBodyLogLevelERROR captures enum value "ERROR"
+	AddMongoDBBodyLogLevelERROR string = "ERROR"
+
+	// AddMongoDBBodyLogLevelFATAL captures enum value "FATAL"
+	AddMongoDBBodyLogLevelFATAL string = "FATAL"
+)
+
+// prop value enum
+func (o *AddMongoDBBody) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addMongoDbBodyTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddMongoDBBody) validateLogLevel(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("body"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
