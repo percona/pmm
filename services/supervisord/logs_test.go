@@ -42,7 +42,6 @@ var commonExpectedFiles = []string{
 	"alertmanager.log",
 	"alertmanager.yml",
 	"clickhouse-server.log",
-	"cron.log",
 	"grafana.log",
 	"installed.json",
 	"nginx.conf",

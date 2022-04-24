@@ -1,7 +1,5 @@
 # pmm-api-tests
 
-[![Build Status](https://travis-ci.com/Percona-Lab/pmm-api-tests.svg?branch=master)](https://travis-ci.com/Percona-Lab/pmm-api-tests)
-
 API tests for PMM 2.x
 
 # Setup Instructions
