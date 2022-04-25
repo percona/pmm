@@ -373,6 +373,10 @@ type ChangeMongoDBExporterOKBodyMongodbExporter struct {
 
 	// Enable All collectors.
 	EnableAllCollectors bool `json:"enable_all_collectors,omitempty"`
+
+	// Log level for exporters
+	// Enum: [warn debug info error fatal]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this change mongo DB exporter OK body mongodb exporter
@@ -380,6 +384,10 @@ func (o *ChangeMongoDBExporterOKBodyMongodbExporter) Validate(formats strfmt.Reg
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -441,6 +449,58 @@ func (o *ChangeMongoDBExporterOKBodyMongodbExporter) validateStatus(formats strf
 
 	// value enum
 	if err := o.validateStatusEnum("changeMongoDbExporterOk"+"."+"mongodb_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var changeMongoDbExporterOkBodyMongodbExporterTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["warn","debug","info","error","fatal"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		changeMongoDbExporterOkBodyMongodbExporterTypeLogLevelPropEnum = append(changeMongoDbExporterOkBodyMongodbExporterTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// ChangeMongoDBExporterOKBodyMongodbExporterLogLevelWarn captures enum value "warn"
+	ChangeMongoDBExporterOKBodyMongodbExporterLogLevelWarn string = "warn"
+
+	// ChangeMongoDBExporterOKBodyMongodbExporterLogLevelDebug captures enum value "debug"
+	ChangeMongoDBExporterOKBodyMongodbExporterLogLevelDebug string = "debug"
+
+	// ChangeMongoDBExporterOKBodyMongodbExporterLogLevelInfo captures enum value "info"
+	ChangeMongoDBExporterOKBodyMongodbExporterLogLevelInfo string = "info"
+
+	// ChangeMongoDBExporterOKBodyMongodbExporterLogLevelError captures enum value "error"
+	ChangeMongoDBExporterOKBodyMongodbExporterLogLevelError string = "error"
+
+	// ChangeMongoDBExporterOKBodyMongodbExporterLogLevelFatal captures enum value "fatal"
+	ChangeMongoDBExporterOKBodyMongodbExporterLogLevelFatal string = "fatal"
+)
+
+// prop value enum
+func (o *ChangeMongoDBExporterOKBodyMongodbExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, changeMongoDbExporterOkBodyMongodbExporterTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ChangeMongoDBExporterOKBodyMongodbExporter) validateLogLevel(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("changeMongoDbExporterOk"+"."+"mongodb_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 

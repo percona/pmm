@@ -784,6 +784,10 @@ type AddRDSOKBodyMysqldExporter struct {
 
 	// True if tablestats group collectors are currently disabled.
 	TablestatsGroupDisabled bool `json:"tablestats_group_disabled,omitempty"`
+
+	// Log level for exporters
+	// Enum: [warn debug info error fatal]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add RDS OK body mysqld exporter
@@ -791,6 +795,10 @@ func (o *AddRDSOKBodyMysqldExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -852,6 +860,58 @@ func (o *AddRDSOKBodyMysqldExporter) validateStatus(formats strfmt.Registry) err
 
 	// value enum
 	if err := o.validateStatusEnum("addRdsOk"+"."+"mysqld_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addRdsOkBodyMysqldExporterTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["warn","debug","info","error","fatal"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addRdsOkBodyMysqldExporterTypeLogLevelPropEnum = append(addRdsOkBodyMysqldExporterTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddRDSOKBodyMysqldExporterLogLevelWarn captures enum value "warn"
+	AddRDSOKBodyMysqldExporterLogLevelWarn string = "warn"
+
+	// AddRDSOKBodyMysqldExporterLogLevelDebug captures enum value "debug"
+	AddRDSOKBodyMysqldExporterLogLevelDebug string = "debug"
+
+	// AddRDSOKBodyMysqldExporterLogLevelInfo captures enum value "info"
+	AddRDSOKBodyMysqldExporterLogLevelInfo string = "info"
+
+	// AddRDSOKBodyMysqldExporterLogLevelError captures enum value "error"
+	AddRDSOKBodyMysqldExporterLogLevelError string = "error"
+
+	// AddRDSOKBodyMysqldExporterLogLevelFatal captures enum value "fatal"
+	AddRDSOKBodyMysqldExporterLogLevelFatal string = "fatal"
+)
+
+// prop value enum
+func (o *AddRDSOKBodyMysqldExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addRdsOkBodyMysqldExporterTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddRDSOKBodyMysqldExporter) validateLogLevel(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addRdsOk"+"."+"mysqld_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
@@ -1039,6 +1099,10 @@ type AddRDSOKBodyPostgresqlExporter struct {
 
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Log level for exporters
+	// Enum: [warn debug info error fatal]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add RDS OK body postgresql exporter
@@ -1046,6 +1110,10 @@ func (o *AddRDSOKBodyPostgresqlExporter) Validate(formats strfmt.Registry) error
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1107,6 +1175,58 @@ func (o *AddRDSOKBodyPostgresqlExporter) validateStatus(formats strfmt.Registry)
 
 	// value enum
 	if err := o.validateStatusEnum("addRdsOk"+"."+"postgresql_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addRdsOkBodyPostgresqlExporterTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["warn","debug","info","error","fatal"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addRdsOkBodyPostgresqlExporterTypeLogLevelPropEnum = append(addRdsOkBodyPostgresqlExporterTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddRDSOKBodyPostgresqlExporterLogLevelWarn captures enum value "warn"
+	AddRDSOKBodyPostgresqlExporterLogLevelWarn string = "warn"
+
+	// AddRDSOKBodyPostgresqlExporterLogLevelDebug captures enum value "debug"
+	AddRDSOKBodyPostgresqlExporterLogLevelDebug string = "debug"
+
+	// AddRDSOKBodyPostgresqlExporterLogLevelInfo captures enum value "info"
+	AddRDSOKBodyPostgresqlExporterLogLevelInfo string = "info"
+
+	// AddRDSOKBodyPostgresqlExporterLogLevelError captures enum value "error"
+	AddRDSOKBodyPostgresqlExporterLogLevelError string = "error"
+
+	// AddRDSOKBodyPostgresqlExporterLogLevelFatal captures enum value "fatal"
+	AddRDSOKBodyPostgresqlExporterLogLevelFatal string = "fatal"
+)
+
+// prop value enum
+func (o *AddRDSOKBodyPostgresqlExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addRdsOkBodyPostgresqlExporterTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddRDSOKBodyPostgresqlExporter) validateLogLevel(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addRdsOk"+"."+"postgresql_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 

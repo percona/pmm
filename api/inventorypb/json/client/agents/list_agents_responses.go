@@ -1098,6 +1098,10 @@ type MongodbExporterItems0 struct {
 
 	// Enable All collectors.
 	EnableAllCollectors bool `json:"enable_all_collectors,omitempty"`
+
+	// Log level for exporters
+	// Enum: [warn debug info error fatal]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this mongodb exporter items0
@@ -1105,6 +1109,10 @@ func (o *MongodbExporterItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1166,6 +1174,58 @@ func (o *MongodbExporterItems0) validateStatus(formats strfmt.Registry) error {
 
 	// value enum
 	if err := o.validateStatusEnum("status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var mongodbExporterItems0TypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["warn","debug","info","error","fatal"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		mongodbExporterItems0TypeLogLevelPropEnum = append(mongodbExporterItems0TypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// MongodbExporterItems0LogLevelWarn captures enum value "warn"
+	MongodbExporterItems0LogLevelWarn string = "warn"
+
+	// MongodbExporterItems0LogLevelDebug captures enum value "debug"
+	MongodbExporterItems0LogLevelDebug string = "debug"
+
+	// MongodbExporterItems0LogLevelInfo captures enum value "info"
+	MongodbExporterItems0LogLevelInfo string = "info"
+
+	// MongodbExporterItems0LogLevelError captures enum value "error"
+	MongodbExporterItems0LogLevelError string = "error"
+
+	// MongodbExporterItems0LogLevelFatal captures enum value "fatal"
+	MongodbExporterItems0LogLevelFatal string = "fatal"
+)
+
+// prop value enum
+func (o *MongodbExporterItems0) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, mongodbExporterItems0TypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *MongodbExporterItems0) validateLogLevel(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
@@ -1255,6 +1315,10 @@ type MysqldExporterItems0 struct {
 
 	// True if tablestats group collectors are currently disabled.
 	TablestatsGroupDisabled bool `json:"tablestats_group_disabled,omitempty"`
+
+	// Log level for exporters
+	// Enum: [warn debug info error fatal]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this mysqld exporter items0
@@ -1262,6 +1326,10 @@ func (o *MysqldExporterItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1323,6 +1391,58 @@ func (o *MysqldExporterItems0) validateStatus(formats strfmt.Registry) error {
 
 	// value enum
 	if err := o.validateStatusEnum("status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var mysqldExporterItems0TypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["warn","debug","info","error","fatal"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		mysqldExporterItems0TypeLogLevelPropEnum = append(mysqldExporterItems0TypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// MysqldExporterItems0LogLevelWarn captures enum value "warn"
+	MysqldExporterItems0LogLevelWarn string = "warn"
+
+	// MysqldExporterItems0LogLevelDebug captures enum value "debug"
+	MysqldExporterItems0LogLevelDebug string = "debug"
+
+	// MysqldExporterItems0LogLevelInfo captures enum value "info"
+	MysqldExporterItems0LogLevelInfo string = "info"
+
+	// MysqldExporterItems0LogLevelError captures enum value "error"
+	MysqldExporterItems0LogLevelError string = "error"
+
+	// MysqldExporterItems0LogLevelFatal captures enum value "fatal"
+	MysqldExporterItems0LogLevelFatal string = "fatal"
+)
+
+// prop value enum
+func (o *MysqldExporterItems0) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, mysqldExporterItems0TypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *MysqldExporterItems0) validateLogLevel(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
@@ -1564,6 +1684,10 @@ type PostgresExporterItems0 struct {
 
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Log level for exporters
+	// Enum: [warn debug info error fatal]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this postgres exporter items0
@@ -1571,6 +1695,10 @@ func (o *PostgresExporterItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1632,6 +1760,58 @@ func (o *PostgresExporterItems0) validateStatus(formats strfmt.Registry) error {
 
 	// value enum
 	if err := o.validateStatusEnum("status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var postgresExporterItems0TypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["warn","debug","info","error","fatal"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		postgresExporterItems0TypeLogLevelPropEnum = append(postgresExporterItems0TypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// PostgresExporterItems0LogLevelWarn captures enum value "warn"
+	PostgresExporterItems0LogLevelWarn string = "warn"
+
+	// PostgresExporterItems0LogLevelDebug captures enum value "debug"
+	PostgresExporterItems0LogLevelDebug string = "debug"
+
+	// PostgresExporterItems0LogLevelInfo captures enum value "info"
+	PostgresExporterItems0LogLevelInfo string = "info"
+
+	// PostgresExporterItems0LogLevelError captures enum value "error"
+	PostgresExporterItems0LogLevelError string = "error"
+
+	// PostgresExporterItems0LogLevelFatal captures enum value "fatal"
+	PostgresExporterItems0LogLevelFatal string = "fatal"
+)
+
+// prop value enum
+func (o *PostgresExporterItems0) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, postgresExporterItems0TypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *PostgresExporterItems0) validateLogLevel(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
@@ -1704,6 +1884,10 @@ type ProxysqlExporterItems0 struct {
 
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Log level for exporters
+	// Enum: [warn debug info error fatal]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this proxysql exporter items0
@@ -1711,6 +1895,10 @@ func (o *ProxysqlExporterItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1772,6 +1960,58 @@ func (o *ProxysqlExporterItems0) validateStatus(formats strfmt.Registry) error {
 
 	// value enum
 	if err := o.validateStatusEnum("status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var proxysqlExporterItems0TypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["warn","debug","info","error","fatal"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		proxysqlExporterItems0TypeLogLevelPropEnum = append(proxysqlExporterItems0TypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// ProxysqlExporterItems0LogLevelWarn captures enum value "warn"
+	ProxysqlExporterItems0LogLevelWarn string = "warn"
+
+	// ProxysqlExporterItems0LogLevelDebug captures enum value "debug"
+	ProxysqlExporterItems0LogLevelDebug string = "debug"
+
+	// ProxysqlExporterItems0LogLevelInfo captures enum value "info"
+	ProxysqlExporterItems0LogLevelInfo string = "info"
+
+	// ProxysqlExporterItems0LogLevelError captures enum value "error"
+	ProxysqlExporterItems0LogLevelError string = "error"
+
+	// ProxysqlExporterItems0LogLevelFatal captures enum value "fatal"
+	ProxysqlExporterItems0LogLevelFatal string = "fatal"
+)
+
+// prop value enum
+func (o *ProxysqlExporterItems0) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, proxysqlExporterItems0TypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ProxysqlExporterItems0) validateLogLevel(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 

@@ -11,7 +11,7 @@ import "inventorypb/agents.proto";
 import "inventorypb/services.proto";
 import "managementpb/metrics.proto";
 import "managementpb/service.proto";
-import "managementpb/log_level.proto";
+import "inventorypb/log_level.proto";
 
 // Add ProxySQL
 
@@ -77,7 +77,7 @@ message AddProxySQLRequest {
   // Custom password for exporter endpoint /metrics.
   string agent_password = 20;
   // Exporter log level
-  LogLevel log_level = 21;
+  inventory.LogLevel log_level = 21;
 }
 
 message AddProxySQLResponse {

@@ -569,6 +569,19 @@
                       "format": "int64",
                       "x-order": 11
                     },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "warn",
+                      "enum": [
+                        "warn",
+                        "debug",
+                        "info",
+                        "error",
+                        "fatal"
+                      ],
+                      "x-order": 15
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -813,6 +826,19 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 15
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "warn",
+                      "enum": [
+                        "warn",
+                        "debug",
+                        "info",
+                        "error",
+                        "fatal"
+                      ],
+                      "x-order": 17
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -1352,6 +1378,19 @@
                       "format": "int64",
                       "x-order": 11
                     },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "warn",
+                      "enum": [
+                        "warn",
+                        "debug",
+                        "info",
+                        "error",
+                        "fatal"
+                      ],
+                      "x-order": 12
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -1567,6 +1606,19 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "warn",
+                      "enum": [
+                        "warn",
+                        "debug",
+                        "info",
+                        "error",
+                        "fatal"
+                      ],
+                      "x-order": 12
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -3387,6 +3439,19 @@
                       "format": "int64",
                       "x-order": 11
                     },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "warn",
+                      "enum": [
+                        "warn",
+                        "debug",
+                        "info",
+                        "error",
+                        "fatal"
+                      ],
+                      "x-order": 15
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -3593,6 +3658,19 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 15
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "warn",
+                      "enum": [
+                        "warn",
+                        "debug",
+                        "info",
+                        "error",
+                        "fatal"
+                      ],
+                      "x-order": 17
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -3998,6 +4076,19 @@
                       "format": "int64",
                       "x-order": 11
                     },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "warn",
+                      "enum": [
+                        "warn",
+                        "debug",
+                        "info",
+                        "error",
+                        "fatal"
+                      ],
+                      "x-order": 12
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -4196,6 +4287,19 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "warn",
+                      "enum": [
+                        "warn",
+                        "debug",
+                        "info",
+                        "error",
+                        "fatal"
+                      ],
+                      "x-order": 12
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -5642,6 +5746,19 @@
                       "format": "int64",
                       "x-order": 11
                     },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "warn",
+                      "enum": [
+                        "warn",
+                        "debug",
+                        "info",
+                        "error",
+                        "fatal"
+                      ],
+                      "x-order": 15
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -5733,6 +5850,19 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 15
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "warn",
+                      "enum": [
+                        "warn",
+                        "debug",
+                        "info",
+                        "error",
+                        "fatal"
+                      ],
+                      "x-order": 17
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -5938,6 +6068,19 @@
                       "format": "int64",
                       "x-order": 11
                     },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "warn",
+                      "enum": [
+                        "warn",
+                        "debug",
+                        "info",
+                        "error",
+                        "fatal"
+                      ],
+                      "x-order": 12
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -6021,6 +6164,19 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "warn",
+                      "enum": [
+                        "warn",
+                        "debug",
+                        "info",
+                        "error",
+                        "fatal"
+                      ],
+                      "x-order": 12
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -6851,6 +7007,19 @@
                         "format": "int64",
                         "x-order": 11
                       },
+                      "log_level": {
+                        "type": "string",
+                        "title": "Log level for exporters",
+                        "default": "warn",
+                        "enum": [
+                          "warn",
+                          "debug",
+                          "info",
+                          "error",
+                          "fatal"
+                        ],
+                        "x-order": 15
+                      },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string",
@@ -6945,6 +7114,19 @@
                         "type": "integer",
                         "format": "int64",
                         "x-order": 15
+                      },
+                      "log_level": {
+                        "type": "string",
+                        "title": "Log level for exporters",
+                        "default": "warn",
+                        "enum": [
+                          "warn",
+                          "debug",
+                          "info",
+                          "error",
+                          "fatal"
+                        ],
+                        "x-order": 17
                       },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
@@ -7159,6 +7341,19 @@
                         "format": "int64",
                         "x-order": 11
                       },
+                      "log_level": {
+                        "type": "string",
+                        "title": "Log level for exporters",
+                        "default": "warn",
+                        "enum": [
+                          "warn",
+                          "debug",
+                          "info",
+                          "error",
+                          "fatal"
+                        ],
+                        "x-order": 12
+                      },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string",
@@ -7245,6 +7440,19 @@
                         "type": "integer",
                         "format": "int64",
                         "x-order": 11
+                      },
+                      "log_level": {
+                        "type": "string",
+                        "title": "Log level for exporters",
+                        "default": "warn",
+                        "enum": [
+                          "warn",
+                          "debug",
+                          "info",
+                          "error",
+                          "fatal"
+                        ],
+                        "x-order": 12
                       },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",

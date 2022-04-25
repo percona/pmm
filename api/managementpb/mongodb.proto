@@ -11,7 +11,7 @@ import "inventorypb/agents.proto";
 import "inventorypb/services.proto";
 import "managementpb/metrics.proto";
 import "managementpb/service.proto";
-import "managementpb/log_level.proto";
+import "inventorypb/log_level.proto";
 
 // Add MongoDB
 
@@ -97,7 +97,7 @@ message AddMongoDBRequest {
   // Enable all collectors
   bool enable_all_collectors = 30;
   // Exporter log level
-  LogLevel log_level = 31;
+  inventory.LogLevel log_level = 31;
 }
 
 message AddMongoDBResponse {

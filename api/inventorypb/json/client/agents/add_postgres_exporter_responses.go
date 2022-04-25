@@ -372,6 +372,10 @@ type AddPostgresExporterOKBodyPostgresExporter struct {
 
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Log level for exporters
+	// Enum: [warn debug info error fatal]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add postgres exporter OK body postgres exporter
@@ -379,6 +383,10 @@ func (o *AddPostgresExporterOKBodyPostgresExporter) Validate(formats strfmt.Regi
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -440,6 +448,58 @@ func (o *AddPostgresExporterOKBodyPostgresExporter) validateStatus(formats strfm
 
 	// value enum
 	if err := o.validateStatusEnum("addPostgresExporterOk"+"."+"postgres_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addPostgresExporterOkBodyPostgresExporterTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["warn","debug","info","error","fatal"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addPostgresExporterOkBodyPostgresExporterTypeLogLevelPropEnum = append(addPostgresExporterOkBodyPostgresExporterTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddPostgresExporterOKBodyPostgresExporterLogLevelWarn captures enum value "warn"
+	AddPostgresExporterOKBodyPostgresExporterLogLevelWarn string = "warn"
+
+	// AddPostgresExporterOKBodyPostgresExporterLogLevelDebug captures enum value "debug"
+	AddPostgresExporterOKBodyPostgresExporterLogLevelDebug string = "debug"
+
+	// AddPostgresExporterOKBodyPostgresExporterLogLevelInfo captures enum value "info"
+	AddPostgresExporterOKBodyPostgresExporterLogLevelInfo string = "info"
+
+	// AddPostgresExporterOKBodyPostgresExporterLogLevelError captures enum value "error"
+	AddPostgresExporterOKBodyPostgresExporterLogLevelError string = "error"
+
+	// AddPostgresExporterOKBodyPostgresExporterLogLevelFatal captures enum value "fatal"
+	AddPostgresExporterOKBodyPostgresExporterLogLevelFatal string = "fatal"
+)
+
+// prop value enum
+func (o *AddPostgresExporterOKBodyPostgresExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addPostgresExporterOkBodyPostgresExporterTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddPostgresExporterOKBodyPostgresExporter) validateLogLevel(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addPostgresExporterOk"+"."+"postgres_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
