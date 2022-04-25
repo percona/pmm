@@ -33,7 +33,9 @@ type ClientService interface {
 }
 
 /*
-  AddRDS adds RDS adds RDS instance
+  AddRDS adds RDS
+
+  Adds RDS instance.
 */
 func (a *Client) AddRDS(params *AddRDSParams) (*AddRDSOK, error) {
 	// TODO: Validate the params before sending
@@ -66,7 +68,9 @@ func (a *Client) AddRDS(params *AddRDSParams) (*AddRDSOK, error) {
 }
 
 /*
-  DiscoverRDS discovers RDS discovers RDS instances
+  DiscoverRDS discovers RDS
+
+  Discovers RDS instances.
 */
 func (a *Client) DiscoverRDS(params *DiscoverRDSParams) (*DiscoverRDSOK, error) {
 	// TODO: Validate the params before sending

@@ -19,7 +19,7 @@ jobs:
       fail-fast: false
       matrix:
         go:
-          - version: 1.17.x
+          - version: 1.18.x
             may-fail: false
           - version: tip
             may-fail: true
@@ -38,7 +38,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: percona-platform/checkout@v2
+        uses: percona-platform/checkout@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           path: ${{ env.WORKING_DIR }}
@@ -70,23 +70,23 @@ jobs:
         run: go mod download
 
       - name: API make Init
-        run: make -C api init
+        run: make init
 
       - name: API Prepare
         run: |
           # Ensure that generated files are not changed
-          make -C api gen gen-alertmanager
+          make gen gen-alertmanager
           git status
           git diff --exit-code
 
       - name: Update API compatibility descriptors.
         run: |
           # log if descriptors changed, useful for "update descriptors" PRs
-          make -C api descriptors
+          make descriptors
           git diff --text
 
       - name: Run tests
-        run: go test ./...
+        run: make test
 
       - name: Clean Testcache
         run: go clean -testcache
@@ -105,7 +105,7 @@ jobs:
       SLACK_MESSAGE: "${{ github.event.inputs.repo || github.repository }}:${{ github.event.inputs.branch || github.head_ref }}"
 
     steps:
-      - uses: percona-platform/checkout@v2
+      - uses: percona-platform/checkout@v3
       - uses: percona-platform/setup-node@v2
       - name: Slack Notification
         uses: percona-platform/action-slack-notify@v2
@@ -125,6 +125,6 @@ jobs:
       SLACK_MESSAGE: "Workflow failed: ${{ github.event.inputs.repo || github.repository }}:${{ github.event.inputs.branch || github.head_ref }}"
 
     steps:
-      - uses: percona-platform/checkout@v2
+      - uses: percona-platform/checkout@v3
       - name: Slack Notification
         uses: percona-platform/action-slack-notify@v2

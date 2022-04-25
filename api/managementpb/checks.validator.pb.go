@@ -5,11 +5,12 @@ package managementpb
 
 import (
 	fmt "fmt"
+	math "math"
+
 	proto "github.com/golang/protobuf/proto"
-	_ "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options"
+	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
-	math "math"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -18,6 +19,13 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 func (this *SecurityCheckResult) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
+func (this *CheckResultSummary) Validate() error {
+	return nil
+}
+func (this *CheckResult) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
@@ -70,5 +78,47 @@ func (this *ChangeSecurityChecksRequest) Validate() error {
 	return nil
 }
 func (this *ChangeSecurityChecksResponse) Validate() error {
+	return nil
+}
+func (this *ListFailedServicesRequest) Validate() error {
+	return nil
+}
+func (this *ListFailedServicesResponse) Validate() error {
+	for _, item := range this.Result {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Result", err)
+			}
+		}
+	}
+	return nil
+}
+func (this *GetFailedChecksRequest) Validate() error {
+	if this.PageParams != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PageParams); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("PageParams", err)
+		}
+	}
+	return nil
+}
+func (this *GetFailedChecksResponse) Validate() error {
+	for _, item := range this.Results {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Results", err)
+			}
+		}
+	}
+	if this.PageTotals != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PageTotals); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("PageTotals", err)
+		}
+	}
+	return nil
+}
+func (this *ToggleCheckAlertRequest) Validate() error {
+	return nil
+}
+func (this *ToggleCheckAlertResponse) Validate() error {
 	return nil
 }
