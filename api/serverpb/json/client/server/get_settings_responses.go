@@ -6,6 +6,7 @@ package server
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewGetSettingsOK() *GetSettingsOK {
 	return &GetSettingsOK{}
 }
 
-/*GetSettingsOK handles this case with default header values.
+/* GetSettingsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type GetSettingsOK struct {
 func (o *GetSettingsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/Settings/Get][%d] getSettingsOk  %+v", 200, o.Payload)
 }
-
 func (o *GetSettingsOK) GetPayload() *GetSettingsOKBody {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewGetSettingsDefault(code int) *GetSettingsDefault {
 	}
 }
 
-/*GetSettingsDefault handles this case with default header values.
+/* GetSettingsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *GetSettingsDefault) Code() int {
 func (o *GetSettingsDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/Settings/Get][%d] GetSettings default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *GetSettingsDefault) GetPayload() *GetSettingsDefaultBody {
 	return o.Payload
 }
@@ -132,7 +131,7 @@ type GetSettingsDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*GetSettingsDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this get settings default body
@@ -150,7 +149,6 @@ func (o *GetSettingsDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *GetSettingsDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -164,6 +162,42 @@ func (o *GetSettingsDefaultBody) validateDetails(formats strfmt.Registry) error 
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("GetSettings default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("GetSettings default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get settings default body based on the context it is used
+func (o *GetSettingsDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetSettingsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("GetSettings default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("GetSettings default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -185,6 +219,47 @@ func (o *GetSettingsDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetSettingsDefaultBody) UnmarshalBinary(b []byte) error {
 	var res GetSettingsDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetSettingsDefaultBodyDetailsItems0 get settings default body details items0
+swagger:model GetSettingsDefaultBodyDetailsItems0
+*/
+type GetSettingsDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this get settings default body details items0
+func (o *GetSettingsDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get settings default body details items0 based on context it is used
+func (o *GetSettingsDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetSettingsDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetSettingsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetSettingsDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -216,7 +291,6 @@ func (o *GetSettingsOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *GetSettingsOKBody) validateSettings(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Settings) { // not required
 		return nil
 	}
@@ -225,6 +299,38 @@ func (o *GetSettingsOKBody) validateSettings(formats strfmt.Registry) error {
 		if err := o.Settings.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getSettingsOk" + "." + "settings")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getSettingsOk" + "." + "settings")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get settings OK body based on the context it is used
+func (o *GetSettingsOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateSettings(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetSettingsOKBody) contextValidateSettings(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Settings != nil {
+		if err := o.Settings.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getSettingsOk" + "." + "settings")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getSettingsOk" + "." + "settings")
 			}
 			return err
 		}
@@ -341,7 +447,6 @@ func (o *GetSettingsOKBodySettings) Validate(formats strfmt.Registry) error {
 }
 
 func (o *GetSettingsOKBodySettings) validateEmailAlertingSettings(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.EmailAlertingSettings) { // not required
 		return nil
 	}
@@ -350,6 +455,8 @@ func (o *GetSettingsOKBodySettings) validateEmailAlertingSettings(formats strfmt
 		if err := o.EmailAlertingSettings.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getSettingsOk" + "." + "settings" + "." + "email_alerting_settings")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getSettingsOk" + "." + "settings" + "." + "email_alerting_settings")
 			}
 			return err
 		}
@@ -359,7 +466,6 @@ func (o *GetSettingsOKBodySettings) validateEmailAlertingSettings(formats strfmt
 }
 
 func (o *GetSettingsOKBodySettings) validateMetricsResolutions(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.MetricsResolutions) { // not required
 		return nil
 	}
@@ -368,6 +474,8 @@ func (o *GetSettingsOKBodySettings) validateMetricsResolutions(formats strfmt.Re
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getSettingsOk" + "." + "settings" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getSettingsOk" + "." + "settings" + "." + "metrics_resolutions")
 			}
 			return err
 		}
@@ -377,7 +485,6 @@ func (o *GetSettingsOKBodySettings) validateMetricsResolutions(formats strfmt.Re
 }
 
 func (o *GetSettingsOKBodySettings) validateSlackAlertingSettings(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.SlackAlertingSettings) { // not required
 		return nil
 	}
@@ -386,6 +493,8 @@ func (o *GetSettingsOKBodySettings) validateSlackAlertingSettings(formats strfmt
 		if err := o.SlackAlertingSettings.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getSettingsOk" + "." + "settings" + "." + "slack_alerting_settings")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getSettingsOk" + "." + "settings" + "." + "slack_alerting_settings")
 			}
 			return err
 		}
@@ -395,7 +504,6 @@ func (o *GetSettingsOKBodySettings) validateSlackAlertingSettings(formats strfmt
 }
 
 func (o *GetSettingsOKBodySettings) validateSttCheckIntervals(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.SttCheckIntervals) { // not required
 		return nil
 	}
@@ -404,6 +512,98 @@ func (o *GetSettingsOKBodySettings) validateSttCheckIntervals(formats strfmt.Reg
 		if err := o.SttCheckIntervals.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getSettingsOk" + "." + "settings" + "." + "stt_check_intervals")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getSettingsOk" + "." + "settings" + "." + "stt_check_intervals")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get settings OK body settings based on the context it is used
+func (o *GetSettingsOKBodySettings) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateEmailAlertingSettings(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateSlackAlertingSettings(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateSttCheckIntervals(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetSettingsOKBodySettings) contextValidateEmailAlertingSettings(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.EmailAlertingSettings != nil {
+		if err := o.EmailAlertingSettings.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getSettingsOk" + "." + "settings" + "." + "email_alerting_settings")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getSettingsOk" + "." + "settings" + "." + "email_alerting_settings")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetSettingsOKBodySettings) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getSettingsOk" + "." + "settings" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getSettingsOk" + "." + "settings" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetSettingsOKBodySettings) contextValidateSlackAlertingSettings(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.SlackAlertingSettings != nil {
+		if err := o.SlackAlertingSettings.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getSettingsOk" + "." + "settings" + "." + "slack_alerting_settings")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getSettingsOk" + "." + "settings" + "." + "slack_alerting_settings")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetSettingsOKBodySettings) contextValidateSttCheckIntervals(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.SttCheckIntervals != nil {
+		if err := o.SttCheckIntervals.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getSettingsOk" + "." + "settings" + "." + "stt_check_intervals")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getSettingsOk" + "." + "settings" + "." + "stt_check_intervals")
 			}
 			return err
 		}
@@ -465,6 +665,11 @@ func (o *GetSettingsOKBodySettingsEmailAlertingSettings) Validate(formats strfmt
 	return nil
 }
 
+// ContextValidate validates this get settings OK body settings email alerting settings based on context it is used
+func (o *GetSettingsOKBodySettingsEmailAlertingSettings) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *GetSettingsOKBodySettingsEmailAlertingSettings) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -503,6 +708,11 @@ func (o *GetSettingsOKBodySettingsMetricsResolutions) Validate(formats strfmt.Re
 	return nil
 }
 
+// ContextValidate validates this get settings OK body settings metrics resolutions based on context it is used
+func (o *GetSettingsOKBodySettingsMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *GetSettingsOKBodySettingsMetricsResolutions) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -532,6 +742,11 @@ type GetSettingsOKBodySettingsSlackAlertingSettings struct {
 
 // Validate validates this get settings OK body settings slack alerting settings
 func (o *GetSettingsOKBodySettingsSlackAlertingSettings) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get settings OK body settings slack alerting settings based on context it is used
+func (o *GetSettingsOKBodySettingsSlackAlertingSettings) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -570,6 +785,11 @@ type GetSettingsOKBodySettingsSttCheckIntervals struct {
 
 // Validate validates this get settings OK body settings stt check intervals
 func (o *GetSettingsOKBodySettingsSttCheckIntervals) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get settings OK body settings stt check intervals based on context it is used
+func (o *GetSettingsOKBodySettingsSttCheckIntervals) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

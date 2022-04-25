@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewChangeAzureDatabaseExporterParams creates a new ChangeAzureDatabaseExporterParams object
-// with the default values initialized.
+// NewChangeAzureDatabaseExporterParams creates a new ChangeAzureDatabaseExporterParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewChangeAzureDatabaseExporterParams() *ChangeAzureDatabaseExporterParams {
-	var ()
 	return &ChangeAzureDatabaseExporterParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewChangeAzureDatabaseExporterParamsWithTimeout creates a new ChangeAzureDatabaseExporterParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewChangeAzureDatabaseExporterParamsWithTimeout(timeout time.Duration) *ChangeAzureDatabaseExporterParams {
-	var ()
 	return &ChangeAzureDatabaseExporterParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewChangeAzureDatabaseExporterParamsWithContext creates a new ChangeAzureDatabaseExporterParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewChangeAzureDatabaseExporterParamsWithContext(ctx context.Context) *ChangeAzureDatabaseExporterParams {
-	var ()
 	return &ChangeAzureDatabaseExporterParams{
-
 		Context: ctx,
 	}
 }
 
 // NewChangeAzureDatabaseExporterParamsWithHTTPClient creates a new ChangeAzureDatabaseExporterParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewChangeAzureDatabaseExporterParamsWithHTTPClient(client *http.Client) *ChangeAzureDatabaseExporterParams {
-	var ()
 	return &ChangeAzureDatabaseExporterParams{
 		HTTPClient: client,
 	}
 }
 
-/*ChangeAzureDatabaseExporterParams contains all the parameters to send to the API endpoint
-for the change azure database exporter operation typically these are written to a http.Request
+/* ChangeAzureDatabaseExporterParams contains all the parameters to send to the API endpoint
+   for the change azure database exporter operation.
+
+   Typically these are written to a http.Request.
 */
 type ChangeAzureDatabaseExporterParams struct {
 
-	/*Body*/
+	// Body.
 	Body ChangeAzureDatabaseExporterBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the change azure database exporter params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ChangeAzureDatabaseExporterParams) WithDefaults() *ChangeAzureDatabaseExporterParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the change azure database exporter params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ChangeAzureDatabaseExporterParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the change azure database exporter params
@@ -119,7 +133,6 @@ func (o *ChangeAzureDatabaseExporterParams) WriteToRequest(r runtime.ClientReque
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

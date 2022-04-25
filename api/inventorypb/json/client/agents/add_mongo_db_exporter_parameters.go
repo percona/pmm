@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewAddMongoDBExporterParams creates a new AddMongoDBExporterParams object
-// with the default values initialized.
+// NewAddMongoDBExporterParams creates a new AddMongoDBExporterParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewAddMongoDBExporterParams() *AddMongoDBExporterParams {
-	var ()
 	return &AddMongoDBExporterParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewAddMongoDBExporterParamsWithTimeout creates a new AddMongoDBExporterParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewAddMongoDBExporterParamsWithTimeout(timeout time.Duration) *AddMongoDBExporterParams {
-	var ()
 	return &AddMongoDBExporterParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewAddMongoDBExporterParamsWithContext creates a new AddMongoDBExporterParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewAddMongoDBExporterParamsWithContext(ctx context.Context) *AddMongoDBExporterParams {
-	var ()
 	return &AddMongoDBExporterParams{
-
 		Context: ctx,
 	}
 }
 
 // NewAddMongoDBExporterParamsWithHTTPClient creates a new AddMongoDBExporterParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewAddMongoDBExporterParamsWithHTTPClient(client *http.Client) *AddMongoDBExporterParams {
-	var ()
 	return &AddMongoDBExporterParams{
 		HTTPClient: client,
 	}
 }
 
-/*AddMongoDBExporterParams contains all the parameters to send to the API endpoint
-for the add mongo DB exporter operation typically these are written to a http.Request
+/* AddMongoDBExporterParams contains all the parameters to send to the API endpoint
+   for the add mongo DB exporter operation.
+
+   Typically these are written to a http.Request.
 */
 type AddMongoDBExporterParams struct {
 
-	/*Body*/
+	// Body.
 	Body AddMongoDBExporterBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the add mongo DB exporter params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AddMongoDBExporterParams) WithDefaults() *AddMongoDBExporterParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the add mongo DB exporter params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AddMongoDBExporterParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the add mongo DB exporter params
@@ -119,7 +133,6 @@ func (o *AddMongoDBExporterParams) WriteToRequest(r runtime.ClientRequest, reg s
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

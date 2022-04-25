@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewAddMongoDBParams creates a new AddMongoDBParams object
-// with the default values initialized.
+// NewAddMongoDBParams creates a new AddMongoDBParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewAddMongoDBParams() *AddMongoDBParams {
-	var ()
 	return &AddMongoDBParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewAddMongoDBParamsWithTimeout creates a new AddMongoDBParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewAddMongoDBParamsWithTimeout(timeout time.Duration) *AddMongoDBParams {
-	var ()
 	return &AddMongoDBParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewAddMongoDBParamsWithContext creates a new AddMongoDBParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewAddMongoDBParamsWithContext(ctx context.Context) *AddMongoDBParams {
-	var ()
 	return &AddMongoDBParams{
-
 		Context: ctx,
 	}
 }
 
 // NewAddMongoDBParamsWithHTTPClient creates a new AddMongoDBParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewAddMongoDBParamsWithHTTPClient(client *http.Client) *AddMongoDBParams {
-	var ()
 	return &AddMongoDBParams{
 		HTTPClient: client,
 	}
 }
 
-/*AddMongoDBParams contains all the parameters to send to the API endpoint
-for the add mongo DB operation typically these are written to a http.Request
+/* AddMongoDBParams contains all the parameters to send to the API endpoint
+   for the add mongo DB operation.
+
+   Typically these are written to a http.Request.
 */
 type AddMongoDBParams struct {
 
-	/*Body*/
+	// Body.
 	Body AddMongoDBBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the add mongo DB params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AddMongoDBParams) WithDefaults() *AddMongoDBParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the add mongo DB params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AddMongoDBParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the add mongo DB params
@@ -119,7 +133,6 @@ func (o *AddMongoDBParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Re
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

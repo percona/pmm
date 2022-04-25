@@ -6,6 +6,7 @@ package security_checks
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewListFailedServicesOK() *ListFailedServicesOK {
 	return &ListFailedServicesOK{}
 }
 
-/*ListFailedServicesOK handles this case with default header values.
+/* ListFailedServicesOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type ListFailedServicesOK struct {
 func (o *ListFailedServicesOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/ListFailedServices][%d] listFailedServicesOk  %+v", 200, o.Payload)
 }
-
 func (o *ListFailedServicesOK) GetPayload() *ListFailedServicesOKBody {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewListFailedServicesDefault(code int) *ListFailedServicesDefault {
 	}
 }
 
-/*ListFailedServicesDefault handles this case with default header values.
+/* ListFailedServicesDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *ListFailedServicesDefault) Code() int {
 func (o *ListFailedServicesDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/ListFailedServices][%d] ListFailedServices default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ListFailedServicesDefault) GetPayload() *ListFailedServicesDefaultBody {
 	return o.Payload
 }
@@ -132,7 +131,7 @@ type ListFailedServicesDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*ListFailedServicesDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this list failed services default body
@@ -150,7 +149,6 @@ func (o *ListFailedServicesDefaultBody) Validate(formats strfmt.Registry) error 
 }
 
 func (o *ListFailedServicesDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -164,6 +162,42 @@ func (o *ListFailedServicesDefaultBody) validateDetails(formats strfmt.Registry)
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ListFailedServices default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ListFailedServices default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list failed services default body based on the context it is used
+func (o *ListFailedServicesDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListFailedServicesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("ListFailedServices default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ListFailedServices default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -192,13 +226,54 @@ func (o *ListFailedServicesDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*ListFailedServicesDefaultBodyDetailsItems0 list failed services default body details items0
+swagger:model ListFailedServicesDefaultBodyDetailsItems0
+*/
+type ListFailedServicesDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this list failed services default body details items0
+func (o *ListFailedServicesDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list failed services default body details items0 based on context it is used
+func (o *ListFailedServicesDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListFailedServicesDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListFailedServicesDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res ListFailedServicesDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*ListFailedServicesOKBody list failed services OK body
 swagger:model ListFailedServicesOKBody
 */
 type ListFailedServicesOKBody struct {
 
 	// result
-	Result []*ResultItems0 `json:"result"`
+	Result []*ListFailedServicesOKBodyResultItems0 `json:"result"`
 }
 
 // Validate validates this list failed services OK body
@@ -216,7 +291,6 @@ func (o *ListFailedServicesOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *ListFailedServicesOKBody) validateResult(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Result) { // not required
 		return nil
 	}
@@ -230,6 +304,42 @@ func (o *ListFailedServicesOKBody) validateResult(formats strfmt.Registry) error
 			if err := o.Result[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listFailedServicesOk" + "." + "result" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listFailedServicesOk" + "." + "result" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list failed services OK body based on the context it is used
+func (o *ListFailedServicesOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateResult(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListFailedServicesOKBody) contextValidateResult(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Result); i++ {
+
+		if o.Result[i] != nil {
+			if err := o.Result[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listFailedServicesOk" + "." + "result" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listFailedServicesOk" + "." + "result" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -258,10 +368,10 @@ func (o *ListFailedServicesOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ResultItems0 CheckResultSummary is a summary of check results.
-swagger:model ResultItems0
+/*ListFailedServicesOKBodyResultItems0 CheckResultSummary is a summary of check results.
+swagger:model ListFailedServicesOKBodyResultItems0
 */
-type ResultItems0 struct {
+type ListFailedServicesOKBodyResultItems0 struct {
 
 	// service name
 	ServiceName string `json:"service_name,omitempty"`
@@ -294,13 +404,18 @@ type ResultItems0 struct {
 	DebugCount int64 `json:"debug_count,omitempty"`
 }
 
-// Validate validates this result items0
-func (o *ResultItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this list failed services OK body result items0
+func (o *ListFailedServicesOKBodyResultItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list failed services OK body result items0 based on context it is used
+func (o *ListFailedServicesOKBodyResultItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *ResultItems0) MarshalBinary() ([]byte, error) {
+func (o *ListFailedServicesOKBodyResultItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -308,8 +423,8 @@ func (o *ResultItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *ResultItems0) UnmarshalBinary(b []byte) error {
-	var res ResultItems0
+func (o *ListFailedServicesOKBodyResultItems0) UnmarshalBinary(b []byte) error {
+	var res ListFailedServicesOKBodyResultItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

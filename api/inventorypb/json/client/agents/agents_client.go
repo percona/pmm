@@ -23,67 +23,70 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	AddAzureDatabaseExporter(params *AddAzureDatabaseExporterParams) (*AddAzureDatabaseExporterOK, error)
+	AddAzureDatabaseExporter(params *AddAzureDatabaseExporterParams, opts ...ClientOption) (*AddAzureDatabaseExporterOK, error)
 
-	AddExternalExporter(params *AddExternalExporterParams) (*AddExternalExporterOK, error)
+	AddExternalExporter(params *AddExternalExporterParams, opts ...ClientOption) (*AddExternalExporterOK, error)
 
-	AddMongoDBExporter(params *AddMongoDBExporterParams) (*AddMongoDBExporterOK, error)
+	AddMongoDBExporter(params *AddMongoDBExporterParams, opts ...ClientOption) (*AddMongoDBExporterOK, error)
 
-	AddMySQLdExporter(params *AddMySQLdExporterParams) (*AddMySQLdExporterOK, error)
+	AddMySQLdExporter(params *AddMySQLdExporterParams, opts ...ClientOption) (*AddMySQLdExporterOK, error)
 
-	AddNodeExporter(params *AddNodeExporterParams) (*AddNodeExporterOK, error)
+	AddNodeExporter(params *AddNodeExporterParams, opts ...ClientOption) (*AddNodeExporterOK, error)
 
-	AddPMMAgent(params *AddPMMAgentParams) (*AddPMMAgentOK, error)
+	AddPMMAgent(params *AddPMMAgentParams, opts ...ClientOption) (*AddPMMAgentOK, error)
 
-	AddPostgresExporter(params *AddPostgresExporterParams) (*AddPostgresExporterOK, error)
+	AddPostgresExporter(params *AddPostgresExporterParams, opts ...ClientOption) (*AddPostgresExporterOK, error)
 
-	AddProxySQLExporter(params *AddProxySQLExporterParams) (*AddProxySQLExporterOK, error)
+	AddProxySQLExporter(params *AddProxySQLExporterParams, opts ...ClientOption) (*AddProxySQLExporterOK, error)
 
-	AddQANMongoDBProfilerAgent(params *AddQANMongoDBProfilerAgentParams) (*AddQANMongoDBProfilerAgentOK, error)
+	AddQANMongoDBProfilerAgent(params *AddQANMongoDBProfilerAgentParams, opts ...ClientOption) (*AddQANMongoDBProfilerAgentOK, error)
 
-	AddQANMySQLPerfSchemaAgent(params *AddQANMySQLPerfSchemaAgentParams) (*AddQANMySQLPerfSchemaAgentOK, error)
+	AddQANMySQLPerfSchemaAgent(params *AddQANMySQLPerfSchemaAgentParams, opts ...ClientOption) (*AddQANMySQLPerfSchemaAgentOK, error)
 
-	AddQANMySQLSlowlogAgent(params *AddQANMySQLSlowlogAgentParams) (*AddQANMySQLSlowlogAgentOK, error)
+	AddQANMySQLSlowlogAgent(params *AddQANMySQLSlowlogAgentParams, opts ...ClientOption) (*AddQANMySQLSlowlogAgentOK, error)
 
-	AddQANPostgreSQLPgStatMonitorAgent(params *AddQANPostgreSQLPgStatMonitorAgentParams) (*AddQANPostgreSQLPgStatMonitorAgentOK, error)
+	AddQANPostgreSQLPgStatMonitorAgent(params *AddQANPostgreSQLPgStatMonitorAgentParams, opts ...ClientOption) (*AddQANPostgreSQLPgStatMonitorAgentOK, error)
 
-	AddQANPostgreSQLPgStatementsAgent(params *AddQANPostgreSQLPgStatementsAgentParams) (*AddQANPostgreSQLPgStatementsAgentOK, error)
+	AddQANPostgreSQLPgStatementsAgent(params *AddQANPostgreSQLPgStatementsAgentParams, opts ...ClientOption) (*AddQANPostgreSQLPgStatementsAgentOK, error)
 
-	AddRDSExporter(params *AddRDSExporterParams) (*AddRDSExporterOK, error)
+	AddRDSExporter(params *AddRDSExporterParams, opts ...ClientOption) (*AddRDSExporterOK, error)
 
-	ChangeAzureDatabaseExporter(params *ChangeAzureDatabaseExporterParams) (*ChangeAzureDatabaseExporterOK, error)
+	ChangeAzureDatabaseExporter(params *ChangeAzureDatabaseExporterParams, opts ...ClientOption) (*ChangeAzureDatabaseExporterOK, error)
 
-	ChangeExternalExporter(params *ChangeExternalExporterParams) (*ChangeExternalExporterOK, error)
+	ChangeExternalExporter(params *ChangeExternalExporterParams, opts ...ClientOption) (*ChangeExternalExporterOK, error)
 
-	ChangeMongoDBExporter(params *ChangeMongoDBExporterParams) (*ChangeMongoDBExporterOK, error)
+	ChangeMongoDBExporter(params *ChangeMongoDBExporterParams, opts ...ClientOption) (*ChangeMongoDBExporterOK, error)
 
-	ChangeMySQLdExporter(params *ChangeMySQLdExporterParams) (*ChangeMySQLdExporterOK, error)
+	ChangeMySQLdExporter(params *ChangeMySQLdExporterParams, opts ...ClientOption) (*ChangeMySQLdExporterOK, error)
 
-	ChangeNodeExporter(params *ChangeNodeExporterParams) (*ChangeNodeExporterOK, error)
+	ChangeNodeExporter(params *ChangeNodeExporterParams, opts ...ClientOption) (*ChangeNodeExporterOK, error)
 
-	ChangePostgresExporter(params *ChangePostgresExporterParams) (*ChangePostgresExporterOK, error)
+	ChangePostgresExporter(params *ChangePostgresExporterParams, opts ...ClientOption) (*ChangePostgresExporterOK, error)
 
-	ChangeProxySQLExporter(params *ChangeProxySQLExporterParams) (*ChangeProxySQLExporterOK, error)
+	ChangeProxySQLExporter(params *ChangeProxySQLExporterParams, opts ...ClientOption) (*ChangeProxySQLExporterOK, error)
 
-	ChangeQANMongoDBProfilerAgent(params *ChangeQANMongoDBProfilerAgentParams) (*ChangeQANMongoDBProfilerAgentOK, error)
+	ChangeQANMongoDBProfilerAgent(params *ChangeQANMongoDBProfilerAgentParams, opts ...ClientOption) (*ChangeQANMongoDBProfilerAgentOK, error)
 
-	ChangeQANMySQLPerfSchemaAgent(params *ChangeQANMySQLPerfSchemaAgentParams) (*ChangeQANMySQLPerfSchemaAgentOK, error)
+	ChangeQANMySQLPerfSchemaAgent(params *ChangeQANMySQLPerfSchemaAgentParams, opts ...ClientOption) (*ChangeQANMySQLPerfSchemaAgentOK, error)
 
-	ChangeQANMySQLSlowlogAgent(params *ChangeQANMySQLSlowlogAgentParams) (*ChangeQANMySQLSlowlogAgentOK, error)
+	ChangeQANMySQLSlowlogAgent(params *ChangeQANMySQLSlowlogAgentParams, opts ...ClientOption) (*ChangeQANMySQLSlowlogAgentOK, error)
 
-	ChangeQANPostgreSQLPgStatMonitorAgent(params *ChangeQANPostgreSQLPgStatMonitorAgentParams) (*ChangeQANPostgreSQLPgStatMonitorAgentOK, error)
+	ChangeQANPostgreSQLPgStatMonitorAgent(params *ChangeQANPostgreSQLPgStatMonitorAgentParams, opts ...ClientOption) (*ChangeQANPostgreSQLPgStatMonitorAgentOK, error)
 
-	ChangeQANPostgreSQLPgStatementsAgent(params *ChangeQANPostgreSQLPgStatementsAgentParams) (*ChangeQANPostgreSQLPgStatementsAgentOK, error)
+	ChangeQANPostgreSQLPgStatementsAgent(params *ChangeQANPostgreSQLPgStatementsAgentParams, opts ...ClientOption) (*ChangeQANPostgreSQLPgStatementsAgentOK, error)
 
-	ChangeRDSExporter(params *ChangeRDSExporterParams) (*ChangeRDSExporterOK, error)
+	ChangeRDSExporter(params *ChangeRDSExporterParams, opts ...ClientOption) (*ChangeRDSExporterOK, error)
 
-	GetAgent(params *GetAgentParams) (*GetAgentOK, error)
+	GetAgent(params *GetAgentParams, opts ...ClientOption) (*GetAgentOK, error)
 
-	ListAgents(params *ListAgentsParams) (*ListAgentsOK, error)
+	ListAgents(params *ListAgentsParams, opts ...ClientOption) (*ListAgentsOK, error)
 
-	RemoveAgent(params *RemoveAgentParams) (*RemoveAgentOK, error)
+	RemoveAgent(params *RemoveAgentParams, opts ...ClientOption) (*RemoveAgentOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -93,13 +96,12 @@ type ClientService interface {
 
   Adds azure_database_exporter Agent.
 */
-func (a *Client) AddAzureDatabaseExporter(params *AddAzureDatabaseExporterParams) (*AddAzureDatabaseExporterOK, error) {
+func (a *Client) AddAzureDatabaseExporter(params *AddAzureDatabaseExporterParams, opts ...ClientOption) (*AddAzureDatabaseExporterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewAddAzureDatabaseExporterParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "AddAzureDatabaseExporter",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/AddAzureDatabaseExporter",
@@ -110,7 +112,12 @@ func (a *Client) AddAzureDatabaseExporter(params *AddAzureDatabaseExporterParams
 		Reader:             &AddAzureDatabaseExporterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -128,13 +135,12 @@ func (a *Client) AddAzureDatabaseExporter(params *AddAzureDatabaseExporterParams
 
   Adds external_exporter Agent.
 */
-func (a *Client) AddExternalExporter(params *AddExternalExporterParams) (*AddExternalExporterOK, error) {
+func (a *Client) AddExternalExporter(params *AddExternalExporterParams, opts ...ClientOption) (*AddExternalExporterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewAddExternalExporterParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "AddExternalExporter",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/AddExternalExporter",
@@ -145,7 +151,12 @@ func (a *Client) AddExternalExporter(params *AddExternalExporterParams) (*AddExt
 		Reader:             &AddExternalExporterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -163,13 +174,12 @@ func (a *Client) AddExternalExporter(params *AddExternalExporterParams) (*AddExt
 
   Adds mongodb_exporter Agent.
 */
-func (a *Client) AddMongoDBExporter(params *AddMongoDBExporterParams) (*AddMongoDBExporterOK, error) {
+func (a *Client) AddMongoDBExporter(params *AddMongoDBExporterParams, opts ...ClientOption) (*AddMongoDBExporterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewAddMongoDBExporterParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "AddMongoDBExporter",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/AddMongoDBExporter",
@@ -180,7 +190,12 @@ func (a *Client) AddMongoDBExporter(params *AddMongoDBExporterParams) (*AddMongo
 		Reader:             &AddMongoDBExporterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -198,13 +213,12 @@ func (a *Client) AddMongoDBExporter(params *AddMongoDBExporterParams) (*AddMongo
 
   Adds mysqld_exporter Agent.
 */
-func (a *Client) AddMySQLdExporter(params *AddMySQLdExporterParams) (*AddMySQLdExporterOK, error) {
+func (a *Client) AddMySQLdExporter(params *AddMySQLdExporterParams, opts ...ClientOption) (*AddMySQLdExporterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewAddMySQLdExporterParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "AddMySQLdExporter",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/AddMySQLdExporter",
@@ -215,7 +229,12 @@ func (a *Client) AddMySQLdExporter(params *AddMySQLdExporterParams) (*AddMySQLdE
 		Reader:             &AddMySQLdExporterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -233,13 +252,12 @@ func (a *Client) AddMySQLdExporter(params *AddMySQLdExporterParams) (*AddMySQLdE
 
   Adds node_exporter Agent.
 */
-func (a *Client) AddNodeExporter(params *AddNodeExporterParams) (*AddNodeExporterOK, error) {
+func (a *Client) AddNodeExporter(params *AddNodeExporterParams, opts ...ClientOption) (*AddNodeExporterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewAddNodeExporterParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "AddNodeExporter",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/AddNodeExporter",
@@ -250,7 +268,12 @@ func (a *Client) AddNodeExporter(params *AddNodeExporterParams) (*AddNodeExporte
 		Reader:             &AddNodeExporterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -268,13 +291,12 @@ func (a *Client) AddNodeExporter(params *AddNodeExporterParams) (*AddNodeExporte
 
   Adds PMM Agent.
 */
-func (a *Client) AddPMMAgent(params *AddPMMAgentParams) (*AddPMMAgentOK, error) {
+func (a *Client) AddPMMAgent(params *AddPMMAgentParams, opts ...ClientOption) (*AddPMMAgentOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewAddPMMAgentParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "AddPMMAgent",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/AddPMMAgent",
@@ -285,7 +307,12 @@ func (a *Client) AddPMMAgent(params *AddPMMAgentParams) (*AddPMMAgentOK, error) 
 		Reader:             &AddPMMAgentReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -303,13 +330,12 @@ func (a *Client) AddPMMAgent(params *AddPMMAgentParams) (*AddPMMAgentOK, error) 
 
   Adds postgres_exporter Agent.
 */
-func (a *Client) AddPostgresExporter(params *AddPostgresExporterParams) (*AddPostgresExporterOK, error) {
+func (a *Client) AddPostgresExporter(params *AddPostgresExporterParams, opts ...ClientOption) (*AddPostgresExporterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewAddPostgresExporterParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "AddPostgresExporter",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/AddPostgresExporter",
@@ -320,7 +346,12 @@ func (a *Client) AddPostgresExporter(params *AddPostgresExporterParams) (*AddPos
 		Reader:             &AddPostgresExporterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -338,13 +369,12 @@ func (a *Client) AddPostgresExporter(params *AddPostgresExporterParams) (*AddPos
 
   Adds proxysql_exporter Agent.
 */
-func (a *Client) AddProxySQLExporter(params *AddProxySQLExporterParams) (*AddProxySQLExporterOK, error) {
+func (a *Client) AddProxySQLExporter(params *AddProxySQLExporterParams, opts ...ClientOption) (*AddProxySQLExporterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewAddProxySQLExporterParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "AddProxySQLExporter",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/AddProxySQLExporter",
@@ -355,7 +385,12 @@ func (a *Client) AddProxySQLExporter(params *AddProxySQLExporterParams) (*AddPro
 		Reader:             &AddProxySQLExporterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -373,13 +408,12 @@ func (a *Client) AddProxySQLExporter(params *AddProxySQLExporterParams) (*AddPro
 
   Adds 'Query Analytics MongoDB Profiler' Agent.
 */
-func (a *Client) AddQANMongoDBProfilerAgent(params *AddQANMongoDBProfilerAgentParams) (*AddQANMongoDBProfilerAgentOK, error) {
+func (a *Client) AddQANMongoDBProfilerAgent(params *AddQANMongoDBProfilerAgentParams, opts ...ClientOption) (*AddQANMongoDBProfilerAgentOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewAddQANMongoDBProfilerAgentParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "AddQANMongoDBProfilerAgent",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/AddQANMongoDBProfilerAgent",
@@ -390,7 +424,12 @@ func (a *Client) AddQANMongoDBProfilerAgent(params *AddQANMongoDBProfilerAgentPa
 		Reader:             &AddQANMongoDBProfilerAgentReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -408,13 +447,12 @@ func (a *Client) AddQANMongoDBProfilerAgent(params *AddQANMongoDBProfilerAgentPa
 
   Adds 'Query Analytics MySQL PerfSchema' Agent.
 */
-func (a *Client) AddQANMySQLPerfSchemaAgent(params *AddQANMySQLPerfSchemaAgentParams) (*AddQANMySQLPerfSchemaAgentOK, error) {
+func (a *Client) AddQANMySQLPerfSchemaAgent(params *AddQANMySQLPerfSchemaAgentParams, opts ...ClientOption) (*AddQANMySQLPerfSchemaAgentOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewAddQANMySQLPerfSchemaAgentParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "AddQANMySQLPerfSchemaAgent",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/AddQANMySQLPerfSchemaAgent",
@@ -425,7 +463,12 @@ func (a *Client) AddQANMySQLPerfSchemaAgent(params *AddQANMySQLPerfSchemaAgentPa
 		Reader:             &AddQANMySQLPerfSchemaAgentReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -443,13 +486,12 @@ func (a *Client) AddQANMySQLPerfSchemaAgent(params *AddQANMySQLPerfSchemaAgentPa
 
   Adds 'Query Analytics MySQL Slowlog' Agent.
 */
-func (a *Client) AddQANMySQLSlowlogAgent(params *AddQANMySQLSlowlogAgentParams) (*AddQANMySQLSlowlogAgentOK, error) {
+func (a *Client) AddQANMySQLSlowlogAgent(params *AddQANMySQLSlowlogAgentParams, opts ...ClientOption) (*AddQANMySQLSlowlogAgentOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewAddQANMySQLSlowlogAgentParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "AddQANMySQLSlowlogAgent",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/AddQANMySQLSlowlogAgent",
@@ -460,7 +502,12 @@ func (a *Client) AddQANMySQLSlowlogAgent(params *AddQANMySQLSlowlogAgentParams) 
 		Reader:             &AddQANMySQLSlowlogAgentReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -478,13 +525,12 @@ func (a *Client) AddQANMySQLSlowlogAgent(params *AddQANMySQLSlowlogAgentParams) 
 
   Adds 'Query Analytics PostgreSQL pg_stat_monitor' Agent.
 */
-func (a *Client) AddQANPostgreSQLPgStatMonitorAgent(params *AddQANPostgreSQLPgStatMonitorAgentParams) (*AddQANPostgreSQLPgStatMonitorAgentOK, error) {
+func (a *Client) AddQANPostgreSQLPgStatMonitorAgent(params *AddQANPostgreSQLPgStatMonitorAgentParams, opts ...ClientOption) (*AddQANPostgreSQLPgStatMonitorAgentOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewAddQANPostgreSQLPgStatMonitorAgentParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "AddQANPostgreSQLPgStatMonitorAgent",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/AddQANPostgreSQLPgStatMonitorAgent",
@@ -495,7 +541,12 @@ func (a *Client) AddQANPostgreSQLPgStatMonitorAgent(params *AddQANPostgreSQLPgSt
 		Reader:             &AddQANPostgreSQLPgStatMonitorAgentReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -513,13 +564,12 @@ func (a *Client) AddQANPostgreSQLPgStatMonitorAgent(params *AddQANPostgreSQLPgSt
 
   Adds 'Query Analytics PostgreSQL pg_stat_statements' Agent.
 */
-func (a *Client) AddQANPostgreSQLPgStatementsAgent(params *AddQANPostgreSQLPgStatementsAgentParams) (*AddQANPostgreSQLPgStatementsAgentOK, error) {
+func (a *Client) AddQANPostgreSQLPgStatementsAgent(params *AddQANPostgreSQLPgStatementsAgentParams, opts ...ClientOption) (*AddQANPostgreSQLPgStatementsAgentOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewAddQANPostgreSQLPgStatementsAgentParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "AddQANPostgreSQLPgStatementsAgent",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/AddQANPostgreSQLPgStatementsAgent",
@@ -530,7 +580,12 @@ func (a *Client) AddQANPostgreSQLPgStatementsAgent(params *AddQANPostgreSQLPgSta
 		Reader:             &AddQANPostgreSQLPgStatementsAgentReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -548,13 +603,12 @@ func (a *Client) AddQANPostgreSQLPgStatementsAgent(params *AddQANPostgreSQLPgSta
 
   Adds rds_exporter Agent.
 */
-func (a *Client) AddRDSExporter(params *AddRDSExporterParams) (*AddRDSExporterOK, error) {
+func (a *Client) AddRDSExporter(params *AddRDSExporterParams, opts ...ClientOption) (*AddRDSExporterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewAddRDSExporterParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "AddRDSExporter",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/AddRDSExporter",
@@ -565,7 +619,12 @@ func (a *Client) AddRDSExporter(params *AddRDSExporterParams) (*AddRDSExporterOK
 		Reader:             &AddRDSExporterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -583,13 +642,12 @@ func (a *Client) AddRDSExporter(params *AddRDSExporterParams) (*AddRDSExporterOK
 
   Changes azure_database_exporter Agent.
 */
-func (a *Client) ChangeAzureDatabaseExporter(params *ChangeAzureDatabaseExporterParams) (*ChangeAzureDatabaseExporterOK, error) {
+func (a *Client) ChangeAzureDatabaseExporter(params *ChangeAzureDatabaseExporterParams, opts ...ClientOption) (*ChangeAzureDatabaseExporterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewChangeAzureDatabaseExporterParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "ChangeAzureDatabaseExporter",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/ChangeAzureDatabaseExporter",
@@ -600,7 +658,12 @@ func (a *Client) ChangeAzureDatabaseExporter(params *ChangeAzureDatabaseExporter
 		Reader:             &ChangeAzureDatabaseExporterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -618,13 +681,12 @@ func (a *Client) ChangeAzureDatabaseExporter(params *ChangeAzureDatabaseExporter
 
   Changes external_exporter Agent.
 */
-func (a *Client) ChangeExternalExporter(params *ChangeExternalExporterParams) (*ChangeExternalExporterOK, error) {
+func (a *Client) ChangeExternalExporter(params *ChangeExternalExporterParams, opts ...ClientOption) (*ChangeExternalExporterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewChangeExternalExporterParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "ChangeExternalExporter",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/ChangeExternalExporter",
@@ -635,7 +697,12 @@ func (a *Client) ChangeExternalExporter(params *ChangeExternalExporterParams) (*
 		Reader:             &ChangeExternalExporterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -653,13 +720,12 @@ func (a *Client) ChangeExternalExporter(params *ChangeExternalExporterParams) (*
 
   Changes mongodb_exporter Agent.
 */
-func (a *Client) ChangeMongoDBExporter(params *ChangeMongoDBExporterParams) (*ChangeMongoDBExporterOK, error) {
+func (a *Client) ChangeMongoDBExporter(params *ChangeMongoDBExporterParams, opts ...ClientOption) (*ChangeMongoDBExporterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewChangeMongoDBExporterParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "ChangeMongoDBExporter",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/ChangeMongoDBExporter",
@@ -670,7 +736,12 @@ func (a *Client) ChangeMongoDBExporter(params *ChangeMongoDBExporterParams) (*Ch
 		Reader:             &ChangeMongoDBExporterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -688,13 +759,12 @@ func (a *Client) ChangeMongoDBExporter(params *ChangeMongoDBExporterParams) (*Ch
 
   Changes mysqld_exporter Agent.
 */
-func (a *Client) ChangeMySQLdExporter(params *ChangeMySQLdExporterParams) (*ChangeMySQLdExporterOK, error) {
+func (a *Client) ChangeMySQLdExporter(params *ChangeMySQLdExporterParams, opts ...ClientOption) (*ChangeMySQLdExporterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewChangeMySQLdExporterParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "ChangeMySQLdExporter",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/ChangeMySQLdExporter",
@@ -705,7 +775,12 @@ func (a *Client) ChangeMySQLdExporter(params *ChangeMySQLdExporterParams) (*Chan
 		Reader:             &ChangeMySQLdExporterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -723,13 +798,12 @@ func (a *Client) ChangeMySQLdExporter(params *ChangeMySQLdExporterParams) (*Chan
 
   Changes node_exporter Agent.
 */
-func (a *Client) ChangeNodeExporter(params *ChangeNodeExporterParams) (*ChangeNodeExporterOK, error) {
+func (a *Client) ChangeNodeExporter(params *ChangeNodeExporterParams, opts ...ClientOption) (*ChangeNodeExporterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewChangeNodeExporterParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "ChangeNodeExporter",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/ChangeNodeExporter",
@@ -740,7 +814,12 @@ func (a *Client) ChangeNodeExporter(params *ChangeNodeExporterParams) (*ChangeNo
 		Reader:             &ChangeNodeExporterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -758,13 +837,12 @@ func (a *Client) ChangeNodeExporter(params *ChangeNodeExporterParams) (*ChangeNo
 
   Changes postgres_exporter Agent.
 */
-func (a *Client) ChangePostgresExporter(params *ChangePostgresExporterParams) (*ChangePostgresExporterOK, error) {
+func (a *Client) ChangePostgresExporter(params *ChangePostgresExporterParams, opts ...ClientOption) (*ChangePostgresExporterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewChangePostgresExporterParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "ChangePostgresExporter",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/ChangePostgresExporter",
@@ -775,7 +853,12 @@ func (a *Client) ChangePostgresExporter(params *ChangePostgresExporterParams) (*
 		Reader:             &ChangePostgresExporterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -793,13 +876,12 @@ func (a *Client) ChangePostgresExporter(params *ChangePostgresExporterParams) (*
 
   Changes proxysql_exporter Agent.
 */
-func (a *Client) ChangeProxySQLExporter(params *ChangeProxySQLExporterParams) (*ChangeProxySQLExporterOK, error) {
+func (a *Client) ChangeProxySQLExporter(params *ChangeProxySQLExporterParams, opts ...ClientOption) (*ChangeProxySQLExporterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewChangeProxySQLExporterParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "ChangeProxySQLExporter",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/ChangeProxySQLExporter",
@@ -810,7 +892,12 @@ func (a *Client) ChangeProxySQLExporter(params *ChangeProxySQLExporterParams) (*
 		Reader:             &ChangeProxySQLExporterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -828,13 +915,12 @@ func (a *Client) ChangeProxySQLExporter(params *ChangeProxySQLExporterParams) (*
 
   Changes 'Query Analytics MongoDB Profiler' Agent.
 */
-func (a *Client) ChangeQANMongoDBProfilerAgent(params *ChangeQANMongoDBProfilerAgentParams) (*ChangeQANMongoDBProfilerAgentOK, error) {
+func (a *Client) ChangeQANMongoDBProfilerAgent(params *ChangeQANMongoDBProfilerAgentParams, opts ...ClientOption) (*ChangeQANMongoDBProfilerAgentOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewChangeQANMongoDBProfilerAgentParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "ChangeQANMongoDBProfilerAgent",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/ChangeQANMongoDBProfilerAgent",
@@ -845,7 +931,12 @@ func (a *Client) ChangeQANMongoDBProfilerAgent(params *ChangeQANMongoDBProfilerA
 		Reader:             &ChangeQANMongoDBProfilerAgentReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -863,13 +954,12 @@ func (a *Client) ChangeQANMongoDBProfilerAgent(params *ChangeQANMongoDBProfilerA
 
   Changes 'Query Analytics MySQL PerfSchema' Agent.
 */
-func (a *Client) ChangeQANMySQLPerfSchemaAgent(params *ChangeQANMySQLPerfSchemaAgentParams) (*ChangeQANMySQLPerfSchemaAgentOK, error) {
+func (a *Client) ChangeQANMySQLPerfSchemaAgent(params *ChangeQANMySQLPerfSchemaAgentParams, opts ...ClientOption) (*ChangeQANMySQLPerfSchemaAgentOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewChangeQANMySQLPerfSchemaAgentParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "ChangeQANMySQLPerfSchemaAgent",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/ChangeQANMySQLPerfSchemaAgent",
@@ -880,7 +970,12 @@ func (a *Client) ChangeQANMySQLPerfSchemaAgent(params *ChangeQANMySQLPerfSchemaA
 		Reader:             &ChangeQANMySQLPerfSchemaAgentReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -898,13 +993,12 @@ func (a *Client) ChangeQANMySQLPerfSchemaAgent(params *ChangeQANMySQLPerfSchemaA
 
   Changes 'Query Analytics MySQL Slowlog' Agent.
 */
-func (a *Client) ChangeQANMySQLSlowlogAgent(params *ChangeQANMySQLSlowlogAgentParams) (*ChangeQANMySQLSlowlogAgentOK, error) {
+func (a *Client) ChangeQANMySQLSlowlogAgent(params *ChangeQANMySQLSlowlogAgentParams, opts ...ClientOption) (*ChangeQANMySQLSlowlogAgentOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewChangeQANMySQLSlowlogAgentParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "ChangeQANMySQLSlowlogAgent",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/ChangeQANMySQLSlowlogAgent",
@@ -915,7 +1009,12 @@ func (a *Client) ChangeQANMySQLSlowlogAgent(params *ChangeQANMySQLSlowlogAgentPa
 		Reader:             &ChangeQANMySQLSlowlogAgentReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -933,13 +1032,12 @@ func (a *Client) ChangeQANMySQLSlowlogAgent(params *ChangeQANMySQLSlowlogAgentPa
 
   Changes 'Query Analytics PostgreSQL pg_stat_monitor' Agent.
 */
-func (a *Client) ChangeQANPostgreSQLPgStatMonitorAgent(params *ChangeQANPostgreSQLPgStatMonitorAgentParams) (*ChangeQANPostgreSQLPgStatMonitorAgentOK, error) {
+func (a *Client) ChangeQANPostgreSQLPgStatMonitorAgent(params *ChangeQANPostgreSQLPgStatMonitorAgentParams, opts ...ClientOption) (*ChangeQANPostgreSQLPgStatMonitorAgentOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewChangeQANPostgreSQLPgStatMonitorAgentParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "ChangeQANPostgreSQLPgStatMonitorAgent",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/ChangeQANPostgreSQLPgStatMonitorAgent",
@@ -950,7 +1048,12 @@ func (a *Client) ChangeQANPostgreSQLPgStatMonitorAgent(params *ChangeQANPostgreS
 		Reader:             &ChangeQANPostgreSQLPgStatMonitorAgentReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -968,13 +1071,12 @@ func (a *Client) ChangeQANPostgreSQLPgStatMonitorAgent(params *ChangeQANPostgreS
 
   Changes 'Query Analytics PostgreSQL pg_stat_statements' Agent.
 */
-func (a *Client) ChangeQANPostgreSQLPgStatementsAgent(params *ChangeQANPostgreSQLPgStatementsAgentParams) (*ChangeQANPostgreSQLPgStatementsAgentOK, error) {
+func (a *Client) ChangeQANPostgreSQLPgStatementsAgent(params *ChangeQANPostgreSQLPgStatementsAgentParams, opts ...ClientOption) (*ChangeQANPostgreSQLPgStatementsAgentOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewChangeQANPostgreSQLPgStatementsAgentParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "ChangeQANPostgreSQLPgStatementsAgent",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/ChangeQANPostgreSQLPgStatementsAgent",
@@ -985,7 +1087,12 @@ func (a *Client) ChangeQANPostgreSQLPgStatementsAgent(params *ChangeQANPostgreSQ
 		Reader:             &ChangeQANPostgreSQLPgStatementsAgentReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -1003,13 +1110,12 @@ func (a *Client) ChangeQANPostgreSQLPgStatementsAgent(params *ChangeQANPostgreSQ
 
   Changes rds_exporter Agent.
 */
-func (a *Client) ChangeRDSExporter(params *ChangeRDSExporterParams) (*ChangeRDSExporterOK, error) {
+func (a *Client) ChangeRDSExporter(params *ChangeRDSExporterParams, opts ...ClientOption) (*ChangeRDSExporterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewChangeRDSExporterParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "ChangeRDSExporter",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/ChangeRDSExporter",
@@ -1020,7 +1126,12 @@ func (a *Client) ChangeRDSExporter(params *ChangeRDSExporterParams) (*ChangeRDSE
 		Reader:             &ChangeRDSExporterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -1038,13 +1149,12 @@ func (a *Client) ChangeRDSExporter(params *ChangeRDSExporterParams) (*ChangeRDSE
 
   Returns a single Agent by ID.
 */
-func (a *Client) GetAgent(params *GetAgentParams) (*GetAgentOK, error) {
+func (a *Client) GetAgent(params *GetAgentParams, opts ...ClientOption) (*GetAgentOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetAgentParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "GetAgent",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/Get",
@@ -1055,7 +1165,12 @@ func (a *Client) GetAgent(params *GetAgentParams) (*GetAgentOK, error) {
 		Reader:             &GetAgentReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -1073,13 +1188,12 @@ func (a *Client) GetAgent(params *GetAgentParams) (*GetAgentOK, error) {
 
   Returns a list of all Agents.
 */
-func (a *Client) ListAgents(params *ListAgentsParams) (*ListAgentsOK, error) {
+func (a *Client) ListAgents(params *ListAgentsParams, opts ...ClientOption) (*ListAgentsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewListAgentsParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "ListAgents",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/List",
@@ -1090,7 +1204,12 @@ func (a *Client) ListAgents(params *ListAgentsParams) (*ListAgentsOK, error) {
 		Reader:             &ListAgentsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -1108,13 +1227,12 @@ func (a *Client) ListAgents(params *ListAgentsParams) (*ListAgentsOK, error) {
 
   Removes Agent.
 */
-func (a *Client) RemoveAgent(params *RemoveAgentParams) (*RemoveAgentOK, error) {
+func (a *Client) RemoveAgent(params *RemoveAgentParams, opts ...ClientOption) (*RemoveAgentOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewRemoveAgentParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "RemoveAgent",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Agents/Remove",
@@ -1125,7 +1243,12 @@ func (a *Client) RemoveAgent(params *RemoveAgentParams) (*RemoveAgentOK, error) 
 		Reader:             &RemoveAgentReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

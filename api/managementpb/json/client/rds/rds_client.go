@@ -23,11 +23,14 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	AddRDS(params *AddRDSParams) (*AddRDSOK, error)
+	AddRDS(params *AddRDSParams, opts ...ClientOption) (*AddRDSOK, error)
 
-	DiscoverRDS(params *DiscoverRDSParams) (*DiscoverRDSOK, error)
+	DiscoverRDS(params *DiscoverRDSParams, opts ...ClientOption) (*DiscoverRDSOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -37,13 +40,12 @@ type ClientService interface {
 
   Adds RDS instance.
 */
-func (a *Client) AddRDS(params *AddRDSParams) (*AddRDSOK, error) {
+func (a *Client) AddRDS(params *AddRDSParams, opts ...ClientOption) (*AddRDSOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewAddRDSParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "AddRDS",
 		Method:             "POST",
 		PathPattern:        "/v1/management/RDS/Add",
@@ -54,7 +56,12 @@ func (a *Client) AddRDS(params *AddRDSParams) (*AddRDSOK, error) {
 		Reader:             &AddRDSReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -72,13 +79,12 @@ func (a *Client) AddRDS(params *AddRDSParams) (*AddRDSOK, error) {
 
   Discovers RDS instances.
 */
-func (a *Client) DiscoverRDS(params *DiscoverRDSParams) (*DiscoverRDSOK, error) {
+func (a *Client) DiscoverRDS(params *DiscoverRDSParams, opts ...ClientOption) (*DiscoverRDSOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewDiscoverRDSParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "DiscoverRDS",
 		Method:             "POST",
 		PathPattern:        "/v1/management/RDS/Discover",
@@ -89,7 +95,12 @@ func (a *Client) DiscoverRDS(params *DiscoverRDSParams) (*DiscoverRDSOK, error) 
 		Reader:             &DiscoverRDSReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

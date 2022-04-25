@@ -6,6 +6,7 @@ package backups
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewRemoveScheduledBackupOK() *RemoveScheduledBackupOK {
 	return &RemoveScheduledBackupOK{}
 }
 
-/*RemoveScheduledBackupOK handles this case with default header values.
+/* RemoveScheduledBackupOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type RemoveScheduledBackupOK struct {
 func (o *RemoveScheduledBackupOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/RemoveScheduled][%d] removeScheduledBackupOk  %+v", 200, o.Payload)
 }
-
 func (o *RemoveScheduledBackupOK) GetPayload() interface{} {
 	return o.Payload
 }
@@ -80,7 +80,7 @@ func NewRemoveScheduledBackupDefault(code int) *RemoveScheduledBackupDefault {
 	}
 }
 
-/*RemoveScheduledBackupDefault handles this case with default header values.
+/* RemoveScheduledBackupDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -98,7 +98,6 @@ func (o *RemoveScheduledBackupDefault) Code() int {
 func (o *RemoveScheduledBackupDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/RemoveScheduled][%d] RemoveScheduledBackup default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *RemoveScheduledBackupDefault) GetPayload() *RemoveScheduledBackupDefaultBody {
 	return o.Payload
 }
@@ -126,6 +125,11 @@ type RemoveScheduledBackupBody struct {
 
 // Validate validates this remove scheduled backup body
 func (o *RemoveScheduledBackupBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this remove scheduled backup body based on context it is used
+func (o *RemoveScheduledBackupBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -162,7 +166,7 @@ type RemoveScheduledBackupDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*RemoveScheduledBackupDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this remove scheduled backup default body
@@ -180,7 +184,6 @@ func (o *RemoveScheduledBackupDefaultBody) Validate(formats strfmt.Registry) err
 }
 
 func (o *RemoveScheduledBackupDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -194,6 +197,42 @@ func (o *RemoveScheduledBackupDefaultBody) validateDetails(formats strfmt.Regist
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("RemoveScheduledBackup default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("RemoveScheduledBackup default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this remove scheduled backup default body based on the context it is used
+func (o *RemoveScheduledBackupDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *RemoveScheduledBackupDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("RemoveScheduledBackup default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("RemoveScheduledBackup default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -215,6 +254,47 @@ func (o *RemoveScheduledBackupDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *RemoveScheduledBackupDefaultBody) UnmarshalBinary(b []byte) error {
 	var res RemoveScheduledBackupDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*RemoveScheduledBackupDefaultBodyDetailsItems0 remove scheduled backup default body details items0
+swagger:model RemoveScheduledBackupDefaultBodyDetailsItems0
+*/
+type RemoveScheduledBackupDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this remove scheduled backup default body details items0
+func (o *RemoveScheduledBackupDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this remove scheduled backup default body details items0 based on context it is used
+func (o *RemoveScheduledBackupDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *RemoveScheduledBackupDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *RemoveScheduledBackupDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res RemoveScheduledBackupDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

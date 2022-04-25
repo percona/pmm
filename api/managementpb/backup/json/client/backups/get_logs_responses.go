@@ -6,6 +6,7 @@ package backups
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewGetLogsOK() *GetLogsOK {
 	return &GetLogsOK{}
 }
 
-/*GetLogsOK handles this case with default header values.
+/* GetLogsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type GetLogsOK struct {
 func (o *GetLogsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/GetLogs][%d] getLogsOk  %+v", 200, o.Payload)
 }
-
 func (o *GetLogsOK) GetPayload() *GetLogsOKBody {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewGetLogsDefault(code int) *GetLogsDefault {
 	}
 }
 
-/*GetLogsDefault handles this case with default header values.
+/* GetLogsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *GetLogsDefault) Code() int {
 func (o *GetLogsDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/GetLogs][%d] GetLogs default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *GetLogsDefault) GetPayload() *GetLogsDefaultBody {
 	return o.Payload
 }
@@ -137,6 +136,11 @@ func (o *GetLogsBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+// ContextValidate validates this get logs body based on context it is used
+func (o *GetLogsBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *GetLogsBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -170,7 +174,7 @@ type GetLogsDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*GetLogsDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this get logs default body
@@ -188,7 +192,6 @@ func (o *GetLogsDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *GetLogsDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -202,6 +205,42 @@ func (o *GetLogsDefaultBody) validateDetails(formats strfmt.Registry) error {
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("GetLogs default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("GetLogs default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get logs default body based on the context it is used
+func (o *GetLogsDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetLogsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("GetLogs default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("GetLogs default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -230,13 +269,54 @@ func (o *GetLogsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*GetLogsDefaultBodyDetailsItems0 get logs default body details items0
+swagger:model GetLogsDefaultBodyDetailsItems0
+*/
+type GetLogsDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this get logs default body details items0
+func (o *GetLogsDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get logs default body details items0 based on context it is used
+func (o *GetLogsDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetLogsDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetLogsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetLogsDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*GetLogsOKBody get logs OK body
 swagger:model GetLogsOKBody
 */
 type GetLogsOKBody struct {
 
 	// logs
-	Logs []*LogsItems0 `json:"logs"`
+	Logs []*GetLogsOKBodyLogsItems0 `json:"logs"`
 
 	// end
 	End bool `json:"end,omitempty"`
@@ -257,7 +337,6 @@ func (o *GetLogsOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *GetLogsOKBody) validateLogs(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Logs) { // not required
 		return nil
 	}
@@ -271,6 +350,42 @@ func (o *GetLogsOKBody) validateLogs(formats strfmt.Registry) error {
 			if err := o.Logs[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getLogsOk" + "." + "logs" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getLogsOk" + "." + "logs" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get logs OK body based on the context it is used
+func (o *GetLogsOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateLogs(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetLogsOKBody) contextValidateLogs(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Logs); i++ {
+
+		if o.Logs[i] != nil {
+			if err := o.Logs[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("getLogsOk" + "." + "logs" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getLogsOk" + "." + "logs" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -299,10 +414,10 @@ func (o *GetLogsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*LogsItems0 LogChunk represent one chunk of logs.
-swagger:model LogsItems0
+/*GetLogsOKBodyLogsItems0 LogChunk represent one chunk of logs.
+swagger:model GetLogsOKBodyLogsItems0
 */
-type LogsItems0 struct {
+type GetLogsOKBodyLogsItems0 struct {
 
 	// chunk id
 	ChunkID int64 `json:"chunk_id,omitempty"`
@@ -311,13 +426,18 @@ type LogsItems0 struct {
 	Data string `json:"data,omitempty"`
 }
 
-// Validate validates this logs items0
-func (o *LogsItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this get logs OK body logs items0
+func (o *GetLogsOKBodyLogsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get logs OK body logs items0 based on context it is used
+func (o *GetLogsOKBodyLogsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *LogsItems0) MarshalBinary() ([]byte, error) {
+func (o *GetLogsOKBodyLogsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -325,8 +445,8 @@ func (o *LogsItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *LogsItems0) UnmarshalBinary(b []byte) error {
-	var res LogsItems0
+func (o *GetLogsOKBodyLogsItems0) UnmarshalBinary(b []byte) error {
+	var res GetLogsOKBodyLogsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

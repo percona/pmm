@@ -6,6 +6,7 @@ package actions
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewStartMySQLExplainActionOK() *StartMySQLExplainActionOK {
 	return &StartMySQLExplainActionOK{}
 }
 
-/*StartMySQLExplainActionOK handles this case with default header values.
+/* StartMySQLExplainActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type StartMySQLExplainActionOK struct {
 func (o *StartMySQLExplainActionOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLExplain][%d] startMySqlExplainActionOk  %+v", 200, o.Payload)
 }
-
 func (o *StartMySQLExplainActionOK) GetPayload() *StartMySQLExplainActionOKBody {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewStartMySQLExplainActionDefault(code int) *StartMySQLExplainActionDefault
 	}
 }
 
-/*StartMySQLExplainActionDefault handles this case with default header values.
+/* StartMySQLExplainActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *StartMySQLExplainActionDefault) Code() int {
 func (o *StartMySQLExplainActionDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLExplain][%d] StartMySQLExplainAction default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *StartMySQLExplainActionDefault) GetPayload() *StartMySQLExplainActionDefaultBody {
 	return o.Payload
 }
@@ -140,6 +139,11 @@ func (o *StartMySQLExplainActionBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+// ContextValidate validates this start my SQL explain action body based on context it is used
+func (o *StartMySQLExplainActionBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *StartMySQLExplainActionBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -173,7 +177,7 @@ type StartMySQLExplainActionDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*StartMySQLExplainActionDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this start my SQL explain action default body
@@ -191,7 +195,6 @@ func (o *StartMySQLExplainActionDefaultBody) Validate(formats strfmt.Registry) e
 }
 
 func (o *StartMySQLExplainActionDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -205,6 +208,42 @@ func (o *StartMySQLExplainActionDefaultBody) validateDetails(formats strfmt.Regi
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("StartMySQLExplainAction default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("StartMySQLExplainAction default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this start my SQL explain action default body based on the context it is used
+func (o *StartMySQLExplainActionDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *StartMySQLExplainActionDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("StartMySQLExplainAction default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("StartMySQLExplainAction default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -233,6 +272,47 @@ func (o *StartMySQLExplainActionDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*StartMySQLExplainActionDefaultBodyDetailsItems0 start my SQL explain action default body details items0
+swagger:model StartMySQLExplainActionDefaultBodyDetailsItems0
+*/
+type StartMySQLExplainActionDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this start my SQL explain action default body details items0
+func (o *StartMySQLExplainActionDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this start my SQL explain action default body details items0 based on context it is used
+func (o *StartMySQLExplainActionDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *StartMySQLExplainActionDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *StartMySQLExplainActionDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res StartMySQLExplainActionDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*StartMySQLExplainActionOKBody start my SQL explain action OK body
 swagger:model StartMySQLExplainActionOKBody
 */
@@ -247,6 +327,11 @@ type StartMySQLExplainActionOKBody struct {
 
 // Validate validates this start my SQL explain action OK body
 func (o *StartMySQLExplainActionOKBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this start my SQL explain action OK body based on context it is used
+func (o *StartMySQLExplainActionOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

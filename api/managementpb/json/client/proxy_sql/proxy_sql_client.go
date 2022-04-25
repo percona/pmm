@@ -23,9 +23,12 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	AddProxySQL(params *AddProxySQLParams) (*AddProxySQLOK, error)
+	AddProxySQL(params *AddProxySQLParams, opts ...ClientOption) (*AddProxySQLOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -35,13 +38,12 @@ type ClientService interface {
 
   Adds ProxySQL Service and starts several Agents. It automatically adds a service to inventory, which is running on provided "node_id", then adds "proxysql_exporter" with provided "pmm_agent_id" and other parameters.
 */
-func (a *Client) AddProxySQL(params *AddProxySQLParams) (*AddProxySQLOK, error) {
+func (a *Client) AddProxySQL(params *AddProxySQLParams, opts ...ClientOption) (*AddProxySQLOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewAddProxySQLParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "AddProxySQL",
 		Method:             "POST",
 		PathPattern:        "/v1/management/ProxySQL/Add",
@@ -52,7 +54,12 @@ func (a *Client) AddProxySQL(params *AddProxySQLParams) (*AddProxySQLOK, error) 
 		Reader:             &AddProxySQLReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

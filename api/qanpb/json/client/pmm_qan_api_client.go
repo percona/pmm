@@ -10,10 +10,13 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm/api/serverpb/json/client/server"
+	"github.com/percona/pmm/api/qanpb/json/client/filters"
+	"github.com/percona/pmm/api/qanpb/json/client/metrics_names"
+	"github.com/percona/pmm/api/qanpb/json/client/object_details"
+	"github.com/percona/pmm/api/qanpb/json/client/profile"
 )
 
-// Default PMM server HTTP client.
+// Default PMM QAN API HTTP client.
 var Default = NewHTTPClient(nil)
 
 const (
@@ -28,14 +31,14 @@ const (
 // DefaultSchemes are the default schemes found in Meta (info) section of spec file
 var DefaultSchemes = []string{"http", "https"}
 
-// NewHTTPClient creates a new PMM server HTTP client.
-func NewHTTPClient(formats strfmt.Registry) *PMMServer {
+// NewHTTPClient creates a new PMM QAN API HTTP client.
+func NewHTTPClient(formats strfmt.Registry) *PMMQANAPI {
 	return NewHTTPClientWithConfig(formats, nil)
 }
 
-// NewHTTPClientWithConfig creates a new PMM server HTTP client,
+// NewHTTPClientWithConfig creates a new PMM QAN API HTTP client,
 // using a customizable transport config.
-func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMMServer {
+func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMMQANAPI {
 	// ensure nullable parameters have default
 	if cfg == nil {
 		cfg = DefaultTransportConfig()
@@ -46,16 +49,19 @@ func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMM
 	return New(transport, formats)
 }
 
-// New creates a new PMM server client
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMServer {
+// New creates a new PMM QAN API client
+func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMQANAPI {
 	// ensure nullable parameters have default
 	if formats == nil {
 		formats = strfmt.Default
 	}
 
-	cli := new(PMMServer)
+	cli := new(PMMQANAPI)
 	cli.Transport = transport
-	cli.Server = server.New(transport, formats)
+	cli.Filters = filters.New(transport, formats)
+	cli.MetricsNames = metrics_names.New(transport, formats)
+	cli.ObjectDetails = object_details.New(transport, formats)
+	cli.Profile = profile.New(transport, formats)
 	return cli
 }
 
@@ -98,15 +104,24 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 	return cfg
 }
 
-// PMMServer is a client for PMM server
-type PMMServer struct {
-	Server server.ClientService
+// PMMQANAPI is a client for PMM QAN API
+type PMMQANAPI struct {
+	Filters filters.ClientService
+
+	MetricsNames metrics_names.ClientService
+
+	ObjectDetails object_details.ClientService
+
+	Profile profile.ClientService
 
 	Transport runtime.ClientTransport
 }
 
 // SetTransport changes the transport on the client and all its subresources
-func (c *PMMServer) SetTransport(transport runtime.ClientTransport) {
+func (c *PMMQANAPI) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
-	c.Server.SetTransport(transport)
+	c.Filters.SetTransport(transport)
+	c.MetricsNames.SetTransport(transport)
+	c.ObjectDetails.SetTransport(transport)
+	c.Profile.SetTransport(transport)
 }

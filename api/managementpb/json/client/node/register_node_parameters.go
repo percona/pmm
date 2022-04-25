@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewRegisterNodeParams creates a new RegisterNodeParams object
-// with the default values initialized.
+// NewRegisterNodeParams creates a new RegisterNodeParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewRegisterNodeParams() *RegisterNodeParams {
-	var ()
 	return &RegisterNodeParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewRegisterNodeParamsWithTimeout creates a new RegisterNodeParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewRegisterNodeParamsWithTimeout(timeout time.Duration) *RegisterNodeParams {
-	var ()
 	return &RegisterNodeParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewRegisterNodeParamsWithContext creates a new RegisterNodeParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewRegisterNodeParamsWithContext(ctx context.Context) *RegisterNodeParams {
-	var ()
 	return &RegisterNodeParams{
-
 		Context: ctx,
 	}
 }
 
 // NewRegisterNodeParamsWithHTTPClient creates a new RegisterNodeParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewRegisterNodeParamsWithHTTPClient(client *http.Client) *RegisterNodeParams {
-	var ()
 	return &RegisterNodeParams{
 		HTTPClient: client,
 	}
 }
 
-/*RegisterNodeParams contains all the parameters to send to the API endpoint
-for the register node operation typically these are written to a http.Request
+/* RegisterNodeParams contains all the parameters to send to the API endpoint
+   for the register node operation.
+
+   Typically these are written to a http.Request.
 */
 type RegisterNodeParams struct {
 
-	/*Body*/
+	// Body.
 	Body RegisterNodeBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the register node params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *RegisterNodeParams) WithDefaults() *RegisterNodeParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the register node params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *RegisterNodeParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the register node params
@@ -119,7 +133,6 @@ func (o *RegisterNodeParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewAddHAProxyServiceParams creates a new AddHAProxyServiceParams object
-// with the default values initialized.
+// NewAddHAProxyServiceParams creates a new AddHAProxyServiceParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewAddHAProxyServiceParams() *AddHAProxyServiceParams {
-	var ()
 	return &AddHAProxyServiceParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewAddHAProxyServiceParamsWithTimeout creates a new AddHAProxyServiceParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewAddHAProxyServiceParamsWithTimeout(timeout time.Duration) *AddHAProxyServiceParams {
-	var ()
 	return &AddHAProxyServiceParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewAddHAProxyServiceParamsWithContext creates a new AddHAProxyServiceParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewAddHAProxyServiceParamsWithContext(ctx context.Context) *AddHAProxyServiceParams {
-	var ()
 	return &AddHAProxyServiceParams{
-
 		Context: ctx,
 	}
 }
 
 // NewAddHAProxyServiceParamsWithHTTPClient creates a new AddHAProxyServiceParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewAddHAProxyServiceParamsWithHTTPClient(client *http.Client) *AddHAProxyServiceParams {
-	var ()
 	return &AddHAProxyServiceParams{
 		HTTPClient: client,
 	}
 }
 
-/*AddHAProxyServiceParams contains all the parameters to send to the API endpoint
-for the add HA proxy service operation typically these are written to a http.Request
+/* AddHAProxyServiceParams contains all the parameters to send to the API endpoint
+   for the add HA proxy service operation.
+
+   Typically these are written to a http.Request.
 */
 type AddHAProxyServiceParams struct {
 
-	/*Body*/
+	// Body.
 	Body AddHAProxyServiceBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the add HA proxy service params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AddHAProxyServiceParams) WithDefaults() *AddHAProxyServiceParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the add HA proxy service params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AddHAProxyServiceParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the add HA proxy service params
@@ -119,7 +133,6 @@ func (o *AddHAProxyServiceParams) WriteToRequest(r runtime.ClientRequest, reg st
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

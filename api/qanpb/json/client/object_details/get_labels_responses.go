@@ -6,6 +6,7 @@ package object_details
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -48,7 +49,7 @@ func NewGetLabelsOK() *GetLabelsOK {
 	return &GetLabelsOK{}
 }
 
-/*GetLabelsOK handles this case with default header values.
+/* GetLabelsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -59,7 +60,6 @@ type GetLabelsOK struct {
 func (o *GetLabelsOK) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetLabels][%d] getLabelsOk  %+v", 200, o.Payload)
 }
-
 func (o *GetLabelsOK) GetPayload() *GetLabelsOKBody {
 	return o.Payload
 }
@@ -83,7 +83,7 @@ func NewGetLabelsDefault(code int) *GetLabelsDefault {
 	}
 }
 
-/*GetLabelsDefault handles this case with default header values.
+/* GetLabelsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -101,7 +101,6 @@ func (o *GetLabelsDefault) Code() int {
 func (o *GetLabelsDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetLabels][%d] GetLabels default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *GetLabelsDefault) GetPayload() *GetLabelsDefaultBody {
 	return o.Payload
 }
@@ -158,7 +157,6 @@ func (o *GetLabelsBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *GetLabelsBody) validatePeriodStartFrom(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.PeriodStartFrom) { // not required
 		return nil
 	}
@@ -171,7 +169,6 @@ func (o *GetLabelsBody) validatePeriodStartFrom(formats strfmt.Registry) error {
 }
 
 func (o *GetLabelsBody) validatePeriodStartTo(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.PeriodStartTo) { // not required
 		return nil
 	}
@@ -180,6 +177,11 @@ func (o *GetLabelsBody) validatePeriodStartTo(formats strfmt.Registry) error {
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this get labels body based on context it is used
+func (o *GetLabelsBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -216,7 +218,7 @@ type GetLabelsDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*GetLabelsDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this get labels default body
@@ -234,7 +236,6 @@ func (o *GetLabelsDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *GetLabelsDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -248,6 +249,42 @@ func (o *GetLabelsDefaultBody) validateDetails(formats strfmt.Registry) error {
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("GetLabels default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("GetLabels default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get labels default body based on the context it is used
+func (o *GetLabelsDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetLabelsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("GetLabels default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("GetLabels default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -276,13 +313,54 @@ func (o *GetLabelsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*GetLabelsDefaultBodyDetailsItems0 get labels default body details items0
+swagger:model GetLabelsDefaultBodyDetailsItems0
+*/
+type GetLabelsDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this get labels default body details items0
+func (o *GetLabelsDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get labels default body details items0 based on context it is used
+func (o *GetLabelsDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetLabelsDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetLabelsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetLabelsDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*GetLabelsOKBody ObjectDetailsLabelsReply is a map of labels names as keys and labels values as a list.
 swagger:model GetLabelsOKBody
 */
 type GetLabelsOKBody struct {
 
 	// labels
-	Labels map[string]LabelsAnon `json:"labels,omitempty"`
+	Labels map[string]GetLabelsOKBodyLabelsAnon `json:"labels,omitempty"`
 }
 
 // Validate validates this get labels OK body
@@ -300,7 +378,6 @@ func (o *GetLabelsOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *GetLabelsOKBody) validateLabels(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Labels) { // not required
 		return nil
 	}
@@ -312,6 +389,40 @@ func (o *GetLabelsOKBody) validateLabels(formats strfmt.Registry) error {
 		}
 		if val, ok := o.Labels[k]; ok {
 			if err := val.Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("getLabelsOk" + "." + "labels" + "." + k)
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getLabelsOk" + "." + "labels" + "." + k)
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get labels OK body based on the context it is used
+func (o *GetLabelsOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateLabels(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetLabelsOKBody) contextValidateLabels(ctx context.Context, formats strfmt.Registry) error {
+
+	for k := range o.Labels {
+
+		if val, ok := o.Labels[k]; ok {
+			if err := val.ContextValidate(ctx, formats); err != nil {
 				return err
 			}
 		}
@@ -339,22 +450,27 @@ func (o *GetLabelsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*LabelsAnon ListLabelValues is list of label's values.
-swagger:model LabelsAnon
+/*GetLabelsOKBodyLabelsAnon ListLabelValues is list of label's values.
+swagger:model GetLabelsOKBodyLabelsAnon
 */
-type LabelsAnon struct {
+type GetLabelsOKBodyLabelsAnon struct {
 
 	// values
 	Values []string `json:"values"`
 }
 
-// Validate validates this labels anon
-func (o *LabelsAnon) Validate(formats strfmt.Registry) error {
+// Validate validates this get labels OK body labels anon
+func (o *GetLabelsOKBodyLabelsAnon) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get labels OK body labels anon based on context it is used
+func (o *GetLabelsOKBodyLabelsAnon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *LabelsAnon) MarshalBinary() ([]byte, error) {
+func (o *GetLabelsOKBodyLabelsAnon) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -362,8 +478,8 @@ func (o *LabelsAnon) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *LabelsAnon) UnmarshalBinary(b []byte) error {
-	var res LabelsAnon
+func (o *GetLabelsOKBodyLabelsAnon) UnmarshalBinary(b []byte) error {
+	var res GetLabelsOKBodyLabelsAnon
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -6,6 +6,7 @@ package components
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,7 +50,7 @@ func NewInstallOperatorOK() *InstallOperatorOK {
 	return &InstallOperatorOK{}
 }
 
-/*InstallOperatorOK handles this case with default header values.
+/* InstallOperatorOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -60,7 +61,6 @@ type InstallOperatorOK struct {
 func (o *InstallOperatorOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/InstallOperator][%d] installOperatorOk  %+v", 200, o.Payload)
 }
-
 func (o *InstallOperatorOK) GetPayload() *InstallOperatorOKBody {
 	return o.Payload
 }
@@ -84,7 +84,7 @@ func NewInstallOperatorDefault(code int) *InstallOperatorDefault {
 	}
 }
 
-/*InstallOperatorDefault handles this case with default header values.
+/* InstallOperatorDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -102,7 +102,6 @@ func (o *InstallOperatorDefault) Code() int {
 func (o *InstallOperatorDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/InstallOperator][%d] InstallOperator default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *InstallOperatorDefault) GetPayload() *InstallOperatorDefaultBody {
 	return o.Payload
 }
@@ -139,6 +138,11 @@ func (o *InstallOperatorBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+// ContextValidate validates this install operator body based on context it is used
+func (o *InstallOperatorBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *InstallOperatorBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -172,7 +176,7 @@ type InstallOperatorDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*InstallOperatorDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this install operator default body
@@ -190,7 +194,6 @@ func (o *InstallOperatorDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *InstallOperatorDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -204,6 +207,42 @@ func (o *InstallOperatorDefaultBody) validateDetails(formats strfmt.Registry) er
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("InstallOperator default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("InstallOperator default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this install operator default body based on the context it is used
+func (o *InstallOperatorDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *InstallOperatorDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("InstallOperator default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("InstallOperator default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -225,6 +264,47 @@ func (o *InstallOperatorDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *InstallOperatorDefaultBody) UnmarshalBinary(b []byte) error {
 	var res InstallOperatorDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*InstallOperatorDefaultBodyDetailsItems0 install operator default body details items0
+swagger:model InstallOperatorDefaultBodyDetailsItems0
+*/
+type InstallOperatorDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this install operator default body details items0
+func (o *InstallOperatorDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this install operator default body details items0 based on context it is used
+func (o *InstallOperatorDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *InstallOperatorDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *InstallOperatorDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res InstallOperatorDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -297,7 +377,6 @@ func (o *InstallOperatorOKBody) validateStatusEnum(path, location string, value 
 }
 
 func (o *InstallOperatorOKBody) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -307,6 +386,11 @@ func (o *InstallOperatorOKBody) validateStatus(formats strfmt.Registry) error {
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this install operator OK body based on context it is used
+func (o *InstallOperatorOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
