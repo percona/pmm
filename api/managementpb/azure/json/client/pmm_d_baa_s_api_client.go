@@ -10,13 +10,10 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm/api/managementpb/ia/json/client/alerts"
-	"github.com/percona/pmm/api/managementpb/ia/json/client/channels"
-	"github.com/percona/pmm/api/managementpb/ia/json/client/rules"
-	"github.com/percona/pmm/api/managementpb/ia/json/client/templates"
+	"github.com/percona/pmm/api/managementpb/azure/json/client/azure_database"
 )
 
-// Default PMM integrated alerting HTTP client.
+// Default PMM d baa s API HTTP client.
 var Default = NewHTTPClient(nil)
 
 const (
@@ -31,14 +28,14 @@ const (
 // DefaultSchemes are the default schemes found in Meta (info) section of spec file
 var DefaultSchemes = []string{"http", "https"}
 
-// NewHTTPClient creates a new PMM integrated alerting HTTP client.
-func NewHTTPClient(formats strfmt.Registry) *PMMIntegratedAlerting {
+// NewHTTPClient creates a new PMM d baa s API HTTP client.
+func NewHTTPClient(formats strfmt.Registry) *PMMDBaaSAPI {
 	return NewHTTPClientWithConfig(formats, nil)
 }
 
-// NewHTTPClientWithConfig creates a new PMM integrated alerting HTTP client,
+// NewHTTPClientWithConfig creates a new PMM d baa s API HTTP client,
 // using a customizable transport config.
-func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMMIntegratedAlerting {
+func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMMDBaaSAPI {
 	// ensure nullable parameters have default
 	if cfg == nil {
 		cfg = DefaultTransportConfig()
@@ -49,19 +46,16 @@ func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMM
 	return New(transport, formats)
 }
 
-// New creates a new PMM integrated alerting client
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMIntegratedAlerting {
+// New creates a new PMM d baa s API client
+func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMDBaaSAPI {
 	// ensure nullable parameters have default
 	if formats == nil {
 		formats = strfmt.Default
 	}
 
-	cli := new(PMMIntegratedAlerting)
+	cli := new(PMMDBaaSAPI)
 	cli.Transport = transport
-	cli.Alerts = alerts.New(transport, formats)
-	cli.Channels = channels.New(transport, formats)
-	cli.Rules = rules.New(transport, formats)
-	cli.Templates = templates.New(transport, formats)
+	cli.AzureDatabase = azure_database.New(transport, formats)
 	return cli
 }
 
@@ -104,24 +98,15 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 	return cfg
 }
 
-// PMMIntegratedAlerting is a client for PMM integrated alerting
-type PMMIntegratedAlerting struct {
-	Alerts alerts.ClientService
-
-	Channels channels.ClientService
-
-	Rules rules.ClientService
-
-	Templates templates.ClientService
+// PMMDBaaSAPI is a client for PMM d baa s API
+type PMMDBaaSAPI struct {
+	AzureDatabase azure_database.ClientService
 
 	Transport runtime.ClientTransport
 }
 
 // SetTransport changes the transport on the client and all its subresources
-func (c *PMMIntegratedAlerting) SetTransport(transport runtime.ClientTransport) {
+func (c *PMMDBaaSAPI) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
-	c.Alerts.SetTransport(transport)
-	c.Channels.SetTransport(transport)
-	c.Rules.SetTransport(transport)
-	c.Templates.SetTransport(transport)
+	c.AzureDatabase.SetTransport(transport)
 }

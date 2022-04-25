@@ -6,6 +6,7 @@ package actions
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewStartMySQLExplainTraditionalJSONActionOK() *StartMySQLExplainTraditional
 	return &StartMySQLExplainTraditionalJSONActionOK{}
 }
 
-/*StartMySQLExplainTraditionalJSONActionOK handles this case with default header values.
+/* StartMySQLExplainTraditionalJSONActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type StartMySQLExplainTraditionalJSONActionOK struct {
 func (o *StartMySQLExplainTraditionalJSONActionOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLExplainTraditionalJSON][%d] startMySqlExplainTraditionalJsonActionOk  %+v", 200, o.Payload)
 }
-
 func (o *StartMySQLExplainTraditionalJSONActionOK) GetPayload() *StartMySQLExplainTraditionalJSONActionOKBody {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewStartMySQLExplainTraditionalJSONActionDefault(code int) *StartMySQLExpla
 	}
 }
 
-/*StartMySQLExplainTraditionalJSONActionDefault handles this case with default header values.
+/* StartMySQLExplainTraditionalJSONActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *StartMySQLExplainTraditionalJSONActionDefault) Code() int {
 func (o *StartMySQLExplainTraditionalJSONActionDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLExplainTraditionalJSON][%d] StartMySQLExplainTraditionalJSONAction default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *StartMySQLExplainTraditionalJSONActionDefault) GetPayload() *StartMySQLExplainTraditionalJSONActionDefaultBody {
 	return o.Payload
 }
@@ -140,6 +139,11 @@ func (o *StartMySQLExplainTraditionalJSONActionBody) Validate(formats strfmt.Reg
 	return nil
 }
 
+// ContextValidate validates this start my SQL explain traditional JSON action body based on context it is used
+func (o *StartMySQLExplainTraditionalJSONActionBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *StartMySQLExplainTraditionalJSONActionBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -173,7 +177,7 @@ type StartMySQLExplainTraditionalJSONActionDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*StartMySQLExplainTraditionalJSONActionDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this start my SQL explain traditional JSON action default body
@@ -191,7 +195,6 @@ func (o *StartMySQLExplainTraditionalJSONActionDefaultBody) Validate(formats str
 }
 
 func (o *StartMySQLExplainTraditionalJSONActionDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -205,6 +208,42 @@ func (o *StartMySQLExplainTraditionalJSONActionDefaultBody) validateDetails(form
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("StartMySQLExplainTraditionalJSONAction default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("StartMySQLExplainTraditionalJSONAction default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this start my SQL explain traditional JSON action default body based on the context it is used
+func (o *StartMySQLExplainTraditionalJSONActionDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *StartMySQLExplainTraditionalJSONActionDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("StartMySQLExplainTraditionalJSONAction default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("StartMySQLExplainTraditionalJSONAction default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -233,6 +272,47 @@ func (o *StartMySQLExplainTraditionalJSONActionDefaultBody) UnmarshalBinary(b []
 	return nil
 }
 
+/*StartMySQLExplainTraditionalJSONActionDefaultBodyDetailsItems0 start my SQL explain traditional JSON action default body details items0
+swagger:model StartMySQLExplainTraditionalJSONActionDefaultBodyDetailsItems0
+*/
+type StartMySQLExplainTraditionalJSONActionDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this start my SQL explain traditional JSON action default body details items0
+func (o *StartMySQLExplainTraditionalJSONActionDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this start my SQL explain traditional JSON action default body details items0 based on context it is used
+func (o *StartMySQLExplainTraditionalJSONActionDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *StartMySQLExplainTraditionalJSONActionDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *StartMySQLExplainTraditionalJSONActionDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res StartMySQLExplainTraditionalJSONActionDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*StartMySQLExplainTraditionalJSONActionOKBody start my SQL explain traditional JSON action OK body
 swagger:model StartMySQLExplainTraditionalJSONActionOKBody
 */
@@ -247,6 +327,11 @@ type StartMySQLExplainTraditionalJSONActionOKBody struct {
 
 // Validate validates this start my SQL explain traditional JSON action OK body
 func (o *StartMySQLExplainTraditionalJSONActionOKBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this start my SQL explain traditional JSON action OK body based on context it is used
+func (o *StartMySQLExplainTraditionalJSONActionOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

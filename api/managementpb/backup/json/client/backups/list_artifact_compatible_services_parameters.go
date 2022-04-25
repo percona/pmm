@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewListArtifactCompatibleServicesParams creates a new ListArtifactCompatibleServicesParams object
-// with the default values initialized.
+// NewListArtifactCompatibleServicesParams creates a new ListArtifactCompatibleServicesParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewListArtifactCompatibleServicesParams() *ListArtifactCompatibleServicesParams {
-	var ()
 	return &ListArtifactCompatibleServicesParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewListArtifactCompatibleServicesParamsWithTimeout creates a new ListArtifactCompatibleServicesParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewListArtifactCompatibleServicesParamsWithTimeout(timeout time.Duration) *ListArtifactCompatibleServicesParams {
-	var ()
 	return &ListArtifactCompatibleServicesParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewListArtifactCompatibleServicesParamsWithContext creates a new ListArtifactCompatibleServicesParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewListArtifactCompatibleServicesParamsWithContext(ctx context.Context) *ListArtifactCompatibleServicesParams {
-	var ()
 	return &ListArtifactCompatibleServicesParams{
-
 		Context: ctx,
 	}
 }
 
 // NewListArtifactCompatibleServicesParamsWithHTTPClient creates a new ListArtifactCompatibleServicesParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewListArtifactCompatibleServicesParamsWithHTTPClient(client *http.Client) *ListArtifactCompatibleServicesParams {
-	var ()
 	return &ListArtifactCompatibleServicesParams{
 		HTTPClient: client,
 	}
 }
 
-/*ListArtifactCompatibleServicesParams contains all the parameters to send to the API endpoint
-for the list artifact compatible services operation typically these are written to a http.Request
+/* ListArtifactCompatibleServicesParams contains all the parameters to send to the API endpoint
+   for the list artifact compatible services operation.
+
+   Typically these are written to a http.Request.
 */
 type ListArtifactCompatibleServicesParams struct {
 
-	/*Body*/
+	// Body.
 	Body ListArtifactCompatibleServicesBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the list artifact compatible services params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ListArtifactCompatibleServicesParams) WithDefaults() *ListArtifactCompatibleServicesParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the list artifact compatible services params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ListArtifactCompatibleServicesParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the list artifact compatible services params
@@ -119,7 +133,6 @@ func (o *ListArtifactCompatibleServicesParams) WriteToRequest(r runtime.ClientRe
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

@@ -6,6 +6,7 @@ package channels
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewAddChannelOK() *AddChannelOK {
 	return &AddChannelOK{}
 }
 
-/*AddChannelOK handles this case with default header values.
+/* AddChannelOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type AddChannelOK struct {
 func (o *AddChannelOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Channels/Add][%d] addChannelOk  %+v", 200, o.Payload)
 }
-
 func (o *AddChannelOK) GetPayload() *AddChannelOKBody {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewAddChannelDefault(code int) *AddChannelDefault {
 	}
 }
 
-/*AddChannelDefault handles this case with default header values.
+/* AddChannelDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *AddChannelDefault) Code() int {
 func (o *AddChannelDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Channels/Add][%d] AddChannel default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AddChannelDefault) GetPayload() *AddChannelDefaultBody {
 	return o.Payload
 }
@@ -168,7 +167,6 @@ func (o *AddChannelBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *AddChannelBody) validateEmailConfig(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.EmailConfig) { // not required
 		return nil
 	}
@@ -177,6 +175,8 @@ func (o *AddChannelBody) validateEmailConfig(formats strfmt.Registry) error {
 		if err := o.EmailConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "email_config")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "email_config")
 			}
 			return err
 		}
@@ -186,7 +186,6 @@ func (o *AddChannelBody) validateEmailConfig(formats strfmt.Registry) error {
 }
 
 func (o *AddChannelBody) validatePagerdutyConfig(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.PagerdutyConfig) { // not required
 		return nil
 	}
@@ -195,6 +194,8 @@ func (o *AddChannelBody) validatePagerdutyConfig(formats strfmt.Registry) error 
 		if err := o.PagerdutyConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "pagerduty_config")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "pagerduty_config")
 			}
 			return err
 		}
@@ -204,7 +205,6 @@ func (o *AddChannelBody) validatePagerdutyConfig(formats strfmt.Registry) error 
 }
 
 func (o *AddChannelBody) validateSlackConfig(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.SlackConfig) { // not required
 		return nil
 	}
@@ -213,6 +213,8 @@ func (o *AddChannelBody) validateSlackConfig(formats strfmt.Registry) error {
 		if err := o.SlackConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "slack_config")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "slack_config")
 			}
 			return err
 		}
@@ -222,7 +224,6 @@ func (o *AddChannelBody) validateSlackConfig(formats strfmt.Registry) error {
 }
 
 func (o *AddChannelBody) validateWebhookConfig(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.WebhookConfig) { // not required
 		return nil
 	}
@@ -231,6 +232,98 @@ func (o *AddChannelBody) validateWebhookConfig(formats strfmt.Registry) error {
 		if err := o.WebhookConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "webhook_config")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "webhook_config")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add channel body based on the context it is used
+func (o *AddChannelBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateEmailConfig(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidatePagerdutyConfig(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateSlackConfig(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateWebhookConfig(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddChannelBody) contextValidateEmailConfig(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.EmailConfig != nil {
+		if err := o.EmailConfig.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "email_config")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "email_config")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddChannelBody) contextValidatePagerdutyConfig(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.PagerdutyConfig != nil {
+		if err := o.PagerdutyConfig.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "pagerduty_config")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "pagerduty_config")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddChannelBody) contextValidateSlackConfig(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.SlackConfig != nil {
+		if err := o.SlackConfig.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "slack_config")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "slack_config")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddChannelBody) contextValidateWebhookConfig(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.WebhookConfig != nil {
+		if err := o.WebhookConfig.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "webhook_config")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "webhook_config")
 			}
 			return err
 		}
@@ -272,7 +365,7 @@ type AddChannelDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*AddChannelDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this add channel default body
@@ -290,7 +383,6 @@ func (o *AddChannelDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *AddChannelDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -304,6 +396,42 @@ func (o *AddChannelDefaultBody) validateDetails(formats strfmt.Registry) error {
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("AddChannel default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddChannel default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add channel default body based on the context it is used
+func (o *AddChannelDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddChannelDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("AddChannel default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddChannel default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -332,6 +460,47 @@ func (o *AddChannelDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*AddChannelDefaultBodyDetailsItems0 add channel default body details items0
+swagger:model AddChannelDefaultBodyDetailsItems0
+*/
+type AddChannelDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this add channel default body details items0
+func (o *AddChannelDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add channel default body details items0 based on context it is used
+func (o *AddChannelDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddChannelDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddChannelDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res AddChannelDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*AddChannelOKBody add channel OK body
 swagger:model AddChannelOKBody
 */
@@ -343,6 +512,11 @@ type AddChannelOKBody struct {
 
 // Validate validates this add channel OK body
 func (o *AddChannelOKBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add channel OK body based on context it is used
+func (o *AddChannelOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -378,6 +552,11 @@ type AddChannelParamsBodyEmailConfig struct {
 
 // Validate validates this add channel params body email config
 func (o *AddChannelParamsBodyEmailConfig) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add channel params body email config based on context it is used
+func (o *AddChannelParamsBodyEmailConfig) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -419,6 +598,11 @@ func (o *AddChannelParamsBodyPagerdutyConfig) Validate(formats strfmt.Registry) 
 	return nil
 }
 
+// ContextValidate validates this add channel params body pagerduty config based on context it is used
+func (o *AddChannelParamsBodyPagerdutyConfig) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *AddChannelParamsBodyPagerdutyConfig) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -451,6 +635,11 @@ type AddChannelParamsBodySlackConfig struct {
 
 // Validate validates this add channel params body slack config
 func (o *AddChannelParamsBodySlackConfig) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add channel params body slack config based on context it is used
+func (o *AddChannelParamsBodySlackConfig) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -505,7 +694,6 @@ func (o *AddChannelParamsBodyWebhookConfig) Validate(formats strfmt.Registry) er
 }
 
 func (o *AddChannelParamsBodyWebhookConfig) validateHTTPConfig(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.HTTPConfig) { // not required
 		return nil
 	}
@@ -514,6 +702,38 @@ func (o *AddChannelParamsBodyWebhookConfig) validateHTTPConfig(formats strfmt.Re
 		if err := o.HTTPConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "webhook_config" + "." + "http_config")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "webhook_config" + "." + "http_config")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add channel params body webhook config based on the context it is used
+func (o *AddChannelParamsBodyWebhookConfig) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateHTTPConfig(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddChannelParamsBodyWebhookConfig) contextValidateHTTPConfig(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.HTTPConfig != nil {
+		if err := o.HTTPConfig.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "webhook_config" + "." + "http_config")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "webhook_config" + "." + "http_config")
 			}
 			return err
 		}
@@ -580,7 +800,6 @@ func (o *AddChannelParamsBodyWebhookConfigHTTPConfig) Validate(formats strfmt.Re
 }
 
 func (o *AddChannelParamsBodyWebhookConfigHTTPConfig) validateBasicAuth(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.BasicAuth) { // not required
 		return nil
 	}
@@ -589,6 +808,8 @@ func (o *AddChannelParamsBodyWebhookConfigHTTPConfig) validateBasicAuth(formats 
 		if err := o.BasicAuth.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "webhook_config" + "." + "http_config" + "." + "basic_auth")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "webhook_config" + "." + "http_config" + "." + "basic_auth")
 			}
 			return err
 		}
@@ -598,7 +819,6 @@ func (o *AddChannelParamsBodyWebhookConfigHTTPConfig) validateBasicAuth(formats 
 }
 
 func (o *AddChannelParamsBodyWebhookConfigHTTPConfig) validateTLSConfig(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.TLSConfig) { // not required
 		return nil
 	}
@@ -607,6 +827,58 @@ func (o *AddChannelParamsBodyWebhookConfigHTTPConfig) validateTLSConfig(formats 
 		if err := o.TLSConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "webhook_config" + "." + "http_config" + "." + "tls_config")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "webhook_config" + "." + "http_config" + "." + "tls_config")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add channel params body webhook config HTTP config based on the context it is used
+func (o *AddChannelParamsBodyWebhookConfigHTTPConfig) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateBasicAuth(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateTLSConfig(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddChannelParamsBodyWebhookConfigHTTPConfig) contextValidateBasicAuth(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.BasicAuth != nil {
+		if err := o.BasicAuth.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "webhook_config" + "." + "http_config" + "." + "basic_auth")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "webhook_config" + "." + "http_config" + "." + "basic_auth")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddChannelParamsBodyWebhookConfigHTTPConfig) contextValidateTLSConfig(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.TLSConfig != nil {
+		if err := o.TLSConfig.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "webhook_config" + "." + "http_config" + "." + "tls_config")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "webhook_config" + "." + "http_config" + "." + "tls_config")
 			}
 			return err
 		}
@@ -650,6 +922,11 @@ type AddChannelParamsBodyWebhookConfigHTTPConfigBasicAuth struct {
 
 // Validate validates this add channel params body webhook config HTTP config basic auth
 func (o *AddChannelParamsBodyWebhookConfigHTTPConfigBasicAuth) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add channel params body webhook config HTTP config basic auth based on context it is used
+func (o *AddChannelParamsBodyWebhookConfigHTTPConfigBasicAuth) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -713,6 +990,11 @@ func (o *AddChannelParamsBodyWebhookConfigHTTPConfigTLSConfig) Validate(formats 
 	return nil
 }
 
+// ContextValidate validates this add channel params body webhook config HTTP config TLS config based on context it is used
+func (o *AddChannelParamsBodyWebhookConfigHTTPConfigTLSConfig) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *AddChannelParamsBodyWebhookConfigHTTPConfigTLSConfig) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -724,42 +1006,6 @@ func (o *AddChannelParamsBodyWebhookConfigHTTPConfigTLSConfig) MarshalBinary() (
 // UnmarshalBinary interface implementation
 func (o *AddChannelParamsBodyWebhookConfigHTTPConfigTLSConfig) UnmarshalBinary(b []byte) error {
 	var res AddChannelParamsBodyWebhookConfigHTTPConfigTLSConfig
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*DetailsItems0 details items0
-swagger:model DetailsItems0
-*/
-type DetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
-}
-
-// Validate validates this details items0
-func (o *DetailsItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
-	var res DetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -6,6 +6,7 @@ package agents
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,7 +50,7 @@ func NewChangeMongoDBExporterOK() *ChangeMongoDBExporterOK {
 	return &ChangeMongoDBExporterOK{}
 }
 
-/*ChangeMongoDBExporterOK handles this case with default header values.
+/* ChangeMongoDBExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -60,7 +61,6 @@ type ChangeMongoDBExporterOK struct {
 func (o *ChangeMongoDBExporterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeMongoDBExporter][%d] changeMongoDbExporterOk  %+v", 200, o.Payload)
 }
-
 func (o *ChangeMongoDBExporterOK) GetPayload() *ChangeMongoDBExporterOKBody {
 	return o.Payload
 }
@@ -84,7 +84,7 @@ func NewChangeMongoDBExporterDefault(code int) *ChangeMongoDBExporterDefault {
 	}
 }
 
-/*ChangeMongoDBExporterDefault handles this case with default header values.
+/* ChangeMongoDBExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -102,7 +102,6 @@ func (o *ChangeMongoDBExporterDefault) Code() int {
 func (o *ChangeMongoDBExporterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeMongoDBExporter][%d] ChangeMongoDBExporter default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ChangeMongoDBExporterDefault) GetPayload() *ChangeMongoDBExporterDefaultBody {
 	return o.Payload
 }
@@ -146,7 +145,6 @@ func (o *ChangeMongoDBExporterBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *ChangeMongoDBExporterBody) validateCommon(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Common) { // not required
 		return nil
 	}
@@ -155,6 +153,38 @@ func (o *ChangeMongoDBExporterBody) validateCommon(formats strfmt.Registry) erro
 		if err := o.Common.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "common")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "common")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change mongo DB exporter body based on the context it is used
+func (o *ChangeMongoDBExporterBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateCommon(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeMongoDBExporterBody) contextValidateCommon(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Common != nil {
+		if err := o.Common.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "common")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "common")
 			}
 			return err
 		}
@@ -196,7 +226,7 @@ type ChangeMongoDBExporterDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*ChangeMongoDBExporterDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this change mongo DB exporter default body
@@ -214,7 +244,6 @@ func (o *ChangeMongoDBExporterDefaultBody) Validate(formats strfmt.Registry) err
 }
 
 func (o *ChangeMongoDBExporterDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -228,6 +257,42 @@ func (o *ChangeMongoDBExporterDefaultBody) validateDetails(formats strfmt.Regist
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ChangeMongoDBExporter default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ChangeMongoDBExporter default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change mongo DB exporter default body based on the context it is used
+func (o *ChangeMongoDBExporterDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeMongoDBExporterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("ChangeMongoDBExporter default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ChangeMongoDBExporter default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -249,6 +314,47 @@ func (o *ChangeMongoDBExporterDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ChangeMongoDBExporterDefaultBody) UnmarshalBinary(b []byte) error {
 	var res ChangeMongoDBExporterDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ChangeMongoDBExporterDefaultBodyDetailsItems0 change mongo DB exporter default body details items0
+swagger:model ChangeMongoDBExporterDefaultBodyDetailsItems0
+*/
+type ChangeMongoDBExporterDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this change mongo DB exporter default body details items0
+func (o *ChangeMongoDBExporterDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change mongo DB exporter default body details items0 based on context it is used
+func (o *ChangeMongoDBExporterDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeMongoDBExporterDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeMongoDBExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res ChangeMongoDBExporterDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -280,7 +386,6 @@ func (o *ChangeMongoDBExporterOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *ChangeMongoDBExporterOKBody) validateMongodbExporter(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.MongodbExporter) { // not required
 		return nil
 	}
@@ -289,6 +394,38 @@ func (o *ChangeMongoDBExporterOKBody) validateMongodbExporter(formats strfmt.Reg
 		if err := o.MongodbExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changeMongoDbExporterOk" + "." + "mongodb_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeMongoDbExporterOk" + "." + "mongodb_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change mongo DB exporter OK body based on the context it is used
+func (o *ChangeMongoDBExporterOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMongodbExporter(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeMongoDBExporterOKBody) contextValidateMongodbExporter(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.MongodbExporter != nil {
+		if err := o.MongodbExporter.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeMongoDbExporterOk" + "." + "mongodb_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeMongoDbExporterOk" + "." + "mongodb_exporter")
 			}
 			return err
 		}
@@ -434,7 +571,6 @@ func (o *ChangeMongoDBExporterOKBodyMongodbExporter) validateStatusEnum(path, lo
 }
 
 func (o *ChangeMongoDBExporterOKBodyMongodbExporter) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -444,6 +580,11 @@ func (o *ChangeMongoDBExporterOKBodyMongodbExporter) validateStatus(formats strf
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this change mongo DB exporter OK body mongodb exporter based on context it is used
+func (o *ChangeMongoDBExporterOKBodyMongodbExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -492,6 +633,11 @@ type ChangeMongoDBExporterParamsBodyCommon struct {
 
 // Validate validates this change mongo DB exporter params body common
 func (o *ChangeMongoDBExporterParamsBodyCommon) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change mongo DB exporter params body common based on context it is used
+func (o *ChangeMongoDBExporterParamsBodyCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

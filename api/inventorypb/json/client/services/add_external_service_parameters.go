@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewAddExternalServiceParams creates a new AddExternalServiceParams object
-// with the default values initialized.
+// NewAddExternalServiceParams creates a new AddExternalServiceParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewAddExternalServiceParams() *AddExternalServiceParams {
-	var ()
 	return &AddExternalServiceParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewAddExternalServiceParamsWithTimeout creates a new AddExternalServiceParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewAddExternalServiceParamsWithTimeout(timeout time.Duration) *AddExternalServiceParams {
-	var ()
 	return &AddExternalServiceParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewAddExternalServiceParamsWithContext creates a new AddExternalServiceParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewAddExternalServiceParamsWithContext(ctx context.Context) *AddExternalServiceParams {
-	var ()
 	return &AddExternalServiceParams{
-
 		Context: ctx,
 	}
 }
 
 // NewAddExternalServiceParamsWithHTTPClient creates a new AddExternalServiceParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewAddExternalServiceParamsWithHTTPClient(client *http.Client) *AddExternalServiceParams {
-	var ()
 	return &AddExternalServiceParams{
 		HTTPClient: client,
 	}
 }
 
-/*AddExternalServiceParams contains all the parameters to send to the API endpoint
-for the add external service operation typically these are written to a http.Request
+/* AddExternalServiceParams contains all the parameters to send to the API endpoint
+   for the add external service operation.
+
+   Typically these are written to a http.Request.
 */
 type AddExternalServiceParams struct {
 
-	/*Body*/
+	// Body.
 	Body AddExternalServiceBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the add external service params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AddExternalServiceParams) WithDefaults() *AddExternalServiceParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the add external service params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AddExternalServiceParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the add external service params
@@ -119,7 +133,6 @@ func (o *AddExternalServiceParams) WriteToRequest(r runtime.ClientRequest, reg s
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

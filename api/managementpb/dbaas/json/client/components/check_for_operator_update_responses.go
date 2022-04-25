@@ -6,6 +6,7 @@ package components
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewCheckForOperatorUpdateOK() *CheckForOperatorUpdateOK {
 	return &CheckForOperatorUpdateOK{}
 }
 
-/*CheckForOperatorUpdateOK handles this case with default header values.
+/* CheckForOperatorUpdateOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type CheckForOperatorUpdateOK struct {
 func (o *CheckForOperatorUpdateOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/CheckForOperatorUpdate][%d] checkForOperatorUpdateOk  %+v", 200, o.Payload)
 }
-
 func (o *CheckForOperatorUpdateOK) GetPayload() *CheckForOperatorUpdateOKBody {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewCheckForOperatorUpdateDefault(code int) *CheckForOperatorUpdateDefault {
 	}
 }
 
-/*CheckForOperatorUpdateDefault handles this case with default header values.
+/* CheckForOperatorUpdateDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *CheckForOperatorUpdateDefault) Code() int {
 func (o *CheckForOperatorUpdateDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/CheckForOperatorUpdate][%d] CheckForOperatorUpdate default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *CheckForOperatorUpdateDefault) GetPayload() *CheckForOperatorUpdateDefaultBody {
 	return o.Payload
 }
@@ -132,7 +131,7 @@ type CheckForOperatorUpdateDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*CheckForOperatorUpdateDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this check for operator update default body
@@ -150,7 +149,6 @@ func (o *CheckForOperatorUpdateDefaultBody) Validate(formats strfmt.Registry) er
 }
 
 func (o *CheckForOperatorUpdateDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -164,6 +162,42 @@ func (o *CheckForOperatorUpdateDefaultBody) validateDetails(formats strfmt.Regis
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("CheckForOperatorUpdate default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("CheckForOperatorUpdate default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this check for operator update default body based on the context it is used
+func (o *CheckForOperatorUpdateDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *CheckForOperatorUpdateDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("CheckForOperatorUpdate default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("CheckForOperatorUpdate default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -192,13 +226,54 @@ func (o *CheckForOperatorUpdateDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*CheckForOperatorUpdateDefaultBodyDetailsItems0 check for operator update default body details items0
+swagger:model CheckForOperatorUpdateDefaultBodyDetailsItems0
+*/
+type CheckForOperatorUpdateDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this check for operator update default body details items0
+func (o *CheckForOperatorUpdateDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this check for operator update default body details items0 based on context it is used
+func (o *CheckForOperatorUpdateDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *CheckForOperatorUpdateDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *CheckForOperatorUpdateDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res CheckForOperatorUpdateDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*CheckForOperatorUpdateOKBody check for operator update OK body
 swagger:model CheckForOperatorUpdateOKBody
 */
 type CheckForOperatorUpdateOKBody struct {
 
 	// The cluster name is used as a key for this map, value contains components and their inforamtion about update.
-	ClusterToComponents map[string]ClusterToComponentsAnon `json:"cluster_to_components,omitempty"`
+	ClusterToComponents map[string]CheckForOperatorUpdateOKBodyClusterToComponentsAnon `json:"cluster_to_components,omitempty"`
 }
 
 // Validate validates this check for operator update OK body
@@ -216,7 +291,6 @@ func (o *CheckForOperatorUpdateOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *CheckForOperatorUpdateOKBody) validateClusterToComponents(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.ClusterToComponents) { // not required
 		return nil
 	}
@@ -228,6 +302,40 @@ func (o *CheckForOperatorUpdateOKBody) validateClusterToComponents(formats strfm
 		}
 		if val, ok := o.ClusterToComponents[k]; ok {
 			if err := val.Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("checkForOperatorUpdateOk" + "." + "cluster_to_components" + "." + k)
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("checkForOperatorUpdateOk" + "." + "cluster_to_components" + "." + k)
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this check for operator update OK body based on the context it is used
+func (o *CheckForOperatorUpdateOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateClusterToComponents(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *CheckForOperatorUpdateOKBody) contextValidateClusterToComponents(ctx context.Context, formats strfmt.Registry) error {
+
+	for k := range o.ClusterToComponents {
+
+		if val, ok := o.ClusterToComponents[k]; ok {
+			if err := val.ContextValidate(ctx, formats); err != nil {
 				return err
 			}
 		}
@@ -255,18 +363,18 @@ func (o *CheckForOperatorUpdateOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ClusterToComponentsAnon ComponentsUpdateInformation contains info about components and their available latest versions.
-swagger:model ClusterToComponentsAnon
+/*CheckForOperatorUpdateOKBodyClusterToComponentsAnon ComponentsUpdateInformation contains info about components and their available latest versions.
+swagger:model CheckForOperatorUpdateOKBodyClusterToComponentsAnon
 */
-type ClusterToComponentsAnon struct {
+type CheckForOperatorUpdateOKBodyClusterToComponentsAnon struct {
 
 	// component_to_update_information stores, under the name of the component, information about the update.
 	// "pxc-operator", "psmdb-operator" are names used by backend for our operators.
-	ComponentToUpdateInformation map[string]ClusterToComponentsAnonComponentToUpdateInformationAnon `json:"component_to_update_information,omitempty"`
+	ComponentToUpdateInformation map[string]CheckForOperatorUpdateOKBodyClusterToComponentsAnonComponentToUpdateInformationAnon `json:"component_to_update_information,omitempty"`
 }
 
-// Validate validates this cluster to components anon
-func (o *ClusterToComponentsAnon) Validate(formats strfmt.Registry) error {
+// Validate validates this check for operator update OK body cluster to components anon
+func (o *CheckForOperatorUpdateOKBodyClusterToComponentsAnon) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateComponentToUpdateInformation(formats); err != nil {
@@ -279,8 +387,7 @@ func (o *ClusterToComponentsAnon) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *ClusterToComponentsAnon) validateComponentToUpdateInformation(formats strfmt.Registry) error {
-
+func (o *CheckForOperatorUpdateOKBodyClusterToComponentsAnon) validateComponentToUpdateInformation(formats strfmt.Registry) error {
 	if swag.IsZero(o.ComponentToUpdateInformation) { // not required
 		return nil
 	}
@@ -292,6 +399,40 @@ func (o *ClusterToComponentsAnon) validateComponentToUpdateInformation(formats s
 		}
 		if val, ok := o.ComponentToUpdateInformation[k]; ok {
 			if err := val.Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("component_to_update_information" + "." + k)
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("component_to_update_information" + "." + k)
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this check for operator update OK body cluster to components anon based on the context it is used
+func (o *CheckForOperatorUpdateOKBodyClusterToComponentsAnon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateComponentToUpdateInformation(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *CheckForOperatorUpdateOKBodyClusterToComponentsAnon) contextValidateComponentToUpdateInformation(ctx context.Context, formats strfmt.Registry) error {
+
+	for k := range o.ComponentToUpdateInformation {
+
+		if val, ok := o.ComponentToUpdateInformation[k]; ok {
+			if err := val.ContextValidate(ctx, formats); err != nil {
 				return err
 			}
 		}
@@ -302,7 +443,7 @@ func (o *ClusterToComponentsAnon) validateComponentToUpdateInformation(formats s
 }
 
 // MarshalBinary interface implementation
-func (o *ClusterToComponentsAnon) MarshalBinary() ([]byte, error) {
+func (o *CheckForOperatorUpdateOKBodyClusterToComponentsAnon) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -310,8 +451,8 @@ func (o *ClusterToComponentsAnon) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *ClusterToComponentsAnon) UnmarshalBinary(b []byte) error {
-	var res ClusterToComponentsAnon
+func (o *CheckForOperatorUpdateOKBodyClusterToComponentsAnon) UnmarshalBinary(b []byte) error {
+	var res CheckForOperatorUpdateOKBodyClusterToComponentsAnon
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -319,22 +460,27 @@ func (o *ClusterToComponentsAnon) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ClusterToComponentsAnonComponentToUpdateInformationAnon ComponentUpdateInformation contains version we can update to for certain component.
-swagger:model ClusterToComponentsAnonComponentToUpdateInformationAnon
+/*CheckForOperatorUpdateOKBodyClusterToComponentsAnonComponentToUpdateInformationAnon ComponentUpdateInformation contains version we can update to for certain component.
+swagger:model CheckForOperatorUpdateOKBodyClusterToComponentsAnonComponentToUpdateInformationAnon
 */
-type ClusterToComponentsAnonComponentToUpdateInformationAnon struct {
+type CheckForOperatorUpdateOKBodyClusterToComponentsAnonComponentToUpdateInformationAnon struct {
 
 	// available version
 	AvailableVersion string `json:"available_version,omitempty"`
 }
 
-// Validate validates this cluster to components anon component to update information anon
-func (o *ClusterToComponentsAnonComponentToUpdateInformationAnon) Validate(formats strfmt.Registry) error {
+// Validate validates this check for operator update OK body cluster to components anon component to update information anon
+func (o *CheckForOperatorUpdateOKBodyClusterToComponentsAnonComponentToUpdateInformationAnon) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this check for operator update OK body cluster to components anon component to update information anon based on context it is used
+func (o *CheckForOperatorUpdateOKBodyClusterToComponentsAnonComponentToUpdateInformationAnon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *ClusterToComponentsAnonComponentToUpdateInformationAnon) MarshalBinary() ([]byte, error) {
+func (o *CheckForOperatorUpdateOKBodyClusterToComponentsAnonComponentToUpdateInformationAnon) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -342,8 +488,8 @@ func (o *ClusterToComponentsAnonComponentToUpdateInformationAnon) MarshalBinary(
 }
 
 // UnmarshalBinary interface implementation
-func (o *ClusterToComponentsAnonComponentToUpdateInformationAnon) UnmarshalBinary(b []byte) error {
-	var res ClusterToComponentsAnonComponentToUpdateInformationAnon
+func (o *CheckForOperatorUpdateOKBodyClusterToComponentsAnonComponentToUpdateInformationAnon) UnmarshalBinary(b []byte) error {
+	var res CheckForOperatorUpdateOKBodyClusterToComponentsAnonComponentToUpdateInformationAnon
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

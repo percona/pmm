@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewAddMySQLParams creates a new AddMySQLParams object
-// with the default values initialized.
+// NewAddMySQLParams creates a new AddMySQLParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewAddMySQLParams() *AddMySQLParams {
-	var ()
 	return &AddMySQLParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewAddMySQLParamsWithTimeout creates a new AddMySQLParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewAddMySQLParamsWithTimeout(timeout time.Duration) *AddMySQLParams {
-	var ()
 	return &AddMySQLParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewAddMySQLParamsWithContext creates a new AddMySQLParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewAddMySQLParamsWithContext(ctx context.Context) *AddMySQLParams {
-	var ()
 	return &AddMySQLParams{
-
 		Context: ctx,
 	}
 }
 
 // NewAddMySQLParamsWithHTTPClient creates a new AddMySQLParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewAddMySQLParamsWithHTTPClient(client *http.Client) *AddMySQLParams {
-	var ()
 	return &AddMySQLParams{
 		HTTPClient: client,
 	}
 }
 
-/*AddMySQLParams contains all the parameters to send to the API endpoint
-for the add my SQL operation typically these are written to a http.Request
+/* AddMySQLParams contains all the parameters to send to the API endpoint
+   for the add my SQL operation.
+
+   Typically these are written to a http.Request.
 */
 type AddMySQLParams struct {
 
-	/*Body*/
+	// Body.
 	Body AddMySQLBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the add my SQL params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AddMySQLParams) WithDefaults() *AddMySQLParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the add my SQL params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AddMySQLParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the add my SQL params
@@ -119,7 +133,6 @@ func (o *AddMySQLParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Regi
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

@@ -10,12 +10,13 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
-	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	"github.com/percona/pmm/api/managementpb/ia/json/client/alerts"
+	"github.com/percona/pmm/api/managementpb/ia/json/client/channels"
+	"github.com/percona/pmm/api/managementpb/ia/json/client/rules"
+	"github.com/percona/pmm/api/managementpb/ia/json/client/templates"
 )
 
-// Default PMM inventory HTTP client.
+// Default PMM integrated alerting API HTTP client.
 var Default = NewHTTPClient(nil)
 
 const (
@@ -30,14 +31,14 @@ const (
 // DefaultSchemes are the default schemes found in Meta (info) section of spec file
 var DefaultSchemes = []string{"http", "https"}
 
-// NewHTTPClient creates a new PMM inventory HTTP client.
-func NewHTTPClient(formats strfmt.Registry) *PMMInventory {
+// NewHTTPClient creates a new PMM integrated alerting API HTTP client.
+func NewHTTPClient(formats strfmt.Registry) *PMMIntegratedAlertingAPI {
 	return NewHTTPClientWithConfig(formats, nil)
 }
 
-// NewHTTPClientWithConfig creates a new PMM inventory HTTP client,
+// NewHTTPClientWithConfig creates a new PMM integrated alerting API HTTP client,
 // using a customizable transport config.
-func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMMInventory {
+func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMMIntegratedAlertingAPI {
 	// ensure nullable parameters have default
 	if cfg == nil {
 		cfg = DefaultTransportConfig()
@@ -48,18 +49,19 @@ func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMM
 	return New(transport, formats)
 }
 
-// New creates a new PMM inventory client
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMInventory {
+// New creates a new PMM integrated alerting API client
+func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMIntegratedAlertingAPI {
 	// ensure nullable parameters have default
 	if formats == nil {
 		formats = strfmt.Default
 	}
 
-	cli := new(PMMInventory)
+	cli := new(PMMIntegratedAlertingAPI)
 	cli.Transport = transport
-	cli.Agents = agents.New(transport, formats)
-	cli.Nodes = nodes.New(transport, formats)
-	cli.Services = services.New(transport, formats)
+	cli.Alerts = alerts.New(transport, formats)
+	cli.Channels = channels.New(transport, formats)
+	cli.Rules = rules.New(transport, formats)
+	cli.Templates = templates.New(transport, formats)
 	return cli
 }
 
@@ -102,21 +104,24 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 	return cfg
 }
 
-// PMMInventory is a client for PMM inventory
-type PMMInventory struct {
-	Agents agents.ClientService
+// PMMIntegratedAlertingAPI is a client for PMM integrated alerting API
+type PMMIntegratedAlertingAPI struct {
+	Alerts alerts.ClientService
 
-	Nodes nodes.ClientService
+	Channels channels.ClientService
 
-	Services services.ClientService
+	Rules rules.ClientService
+
+	Templates templates.ClientService
 
 	Transport runtime.ClientTransport
 }
 
 // SetTransport changes the transport on the client and all its subresources
-func (c *PMMInventory) SetTransport(transport runtime.ClientTransport) {
+func (c *PMMIntegratedAlertingAPI) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
-	c.Agents.SetTransport(transport)
-	c.Nodes.SetTransport(transport)
-	c.Services.SetTransport(transport)
+	c.Alerts.SetTransport(transport)
+	c.Channels.SetTransport(transport)
+	c.Rules.SetTransport(transport)
+	c.Templates.SetTransport(transport)
 }

@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewCreatePXCClusterParams creates a new CreatePXCClusterParams object
-// with the default values initialized.
+// NewCreatePXCClusterParams creates a new CreatePXCClusterParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewCreatePXCClusterParams() *CreatePXCClusterParams {
-	var ()
 	return &CreatePXCClusterParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewCreatePXCClusterParamsWithTimeout creates a new CreatePXCClusterParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewCreatePXCClusterParamsWithTimeout(timeout time.Duration) *CreatePXCClusterParams {
-	var ()
 	return &CreatePXCClusterParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewCreatePXCClusterParamsWithContext creates a new CreatePXCClusterParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewCreatePXCClusterParamsWithContext(ctx context.Context) *CreatePXCClusterParams {
-	var ()
 	return &CreatePXCClusterParams{
-
 		Context: ctx,
 	}
 }
 
 // NewCreatePXCClusterParamsWithHTTPClient creates a new CreatePXCClusterParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewCreatePXCClusterParamsWithHTTPClient(client *http.Client) *CreatePXCClusterParams {
-	var ()
 	return &CreatePXCClusterParams{
 		HTTPClient: client,
 	}
 }
 
-/*CreatePXCClusterParams contains all the parameters to send to the API endpoint
-for the create PXC cluster operation typically these are written to a http.Request
+/* CreatePXCClusterParams contains all the parameters to send to the API endpoint
+   for the create PXC cluster operation.
+
+   Typically these are written to a http.Request.
 */
 type CreatePXCClusterParams struct {
 
-	/*Body*/
+	// Body.
 	Body CreatePXCClusterBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the create PXC cluster params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *CreatePXCClusterParams) WithDefaults() *CreatePXCClusterParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the create PXC cluster params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *CreatePXCClusterParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the create PXC cluster params
@@ -119,7 +133,6 @@ func (o *CreatePXCClusterParams) WriteToRequest(r runtime.ClientRequest, reg str
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

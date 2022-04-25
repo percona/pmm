@@ -6,6 +6,7 @@ package annotation
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewAddAnnotationOK() *AddAnnotationOK {
 	return &AddAnnotationOK{}
 }
 
-/*AddAnnotationOK handles this case with default header values.
+/* AddAnnotationOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type AddAnnotationOK struct {
 func (o *AddAnnotationOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Annotations/Add][%d] addAnnotationOk  %+v", 200, o.Payload)
 }
-
 func (o *AddAnnotationOK) GetPayload() interface{} {
 	return o.Payload
 }
@@ -80,7 +80,7 @@ func NewAddAnnotationDefault(code int) *AddAnnotationDefault {
 	}
 }
 
-/*AddAnnotationDefault handles this case with default header values.
+/* AddAnnotationDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -98,7 +98,6 @@ func (o *AddAnnotationDefault) Code() int {
 func (o *AddAnnotationDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Annotations/Add][%d] AddAnnotation default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AddAnnotationDefault) GetPayload() *AddAnnotationDefaultBody {
 	return o.Payload
 }
@@ -138,6 +137,11 @@ func (o *AddAnnotationBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+// ContextValidate validates this add annotation body based on context it is used
+func (o *AddAnnotationBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *AddAnnotationBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -171,7 +175,7 @@ type AddAnnotationDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*AddAnnotationDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this add annotation default body
@@ -189,7 +193,6 @@ func (o *AddAnnotationDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *AddAnnotationDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -203,6 +206,42 @@ func (o *AddAnnotationDefaultBody) validateDetails(formats strfmt.Registry) erro
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("AddAnnotation default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddAnnotation default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add annotation default body based on the context it is used
+func (o *AddAnnotationDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddAnnotationDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("AddAnnotation default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddAnnotation default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -231,10 +270,10 @@ func (o *AddAnnotationDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*DetailsItems0 details items0
-swagger:model DetailsItems0
+/*AddAnnotationDefaultBodyDetailsItems0 add annotation default body details items0
+swagger:model AddAnnotationDefaultBodyDetailsItems0
 */
-type DetailsItems0 struct {
+type AddAnnotationDefaultBodyDetailsItems0 struct {
 
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
@@ -244,13 +283,18 @@ type DetailsItems0 struct {
 	Value strfmt.Base64 `json:"value,omitempty"`
 }
 
-// Validate validates this details items0
-func (o *DetailsItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this add annotation default body details items0
+func (o *AddAnnotationDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add annotation default body details items0 based on context it is used
+func (o *AddAnnotationDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
+func (o *AddAnnotationDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -258,8 +302,8 @@ func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
-	var res DetailsItems0
+func (o *AddAnnotationDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res AddAnnotationDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

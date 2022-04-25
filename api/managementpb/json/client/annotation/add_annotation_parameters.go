@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewAddAnnotationParams creates a new AddAnnotationParams object
-// with the default values initialized.
+// NewAddAnnotationParams creates a new AddAnnotationParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewAddAnnotationParams() *AddAnnotationParams {
-	var ()
 	return &AddAnnotationParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewAddAnnotationParamsWithTimeout creates a new AddAnnotationParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewAddAnnotationParamsWithTimeout(timeout time.Duration) *AddAnnotationParams {
-	var ()
 	return &AddAnnotationParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewAddAnnotationParamsWithContext creates a new AddAnnotationParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewAddAnnotationParamsWithContext(ctx context.Context) *AddAnnotationParams {
-	var ()
 	return &AddAnnotationParams{
-
 		Context: ctx,
 	}
 }
 
 // NewAddAnnotationParamsWithHTTPClient creates a new AddAnnotationParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewAddAnnotationParamsWithHTTPClient(client *http.Client) *AddAnnotationParams {
-	var ()
 	return &AddAnnotationParams{
 		HTTPClient: client,
 	}
 }
 
-/*AddAnnotationParams contains all the parameters to send to the API endpoint
-for the add annotation operation typically these are written to a http.Request
+/* AddAnnotationParams contains all the parameters to send to the API endpoint
+   for the add annotation operation.
+
+   Typically these are written to a http.Request.
 */
 type AddAnnotationParams struct {
 
-	/*Body*/
+	// Body.
 	Body AddAnnotationBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the add annotation params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AddAnnotationParams) WithDefaults() *AddAnnotationParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the add annotation params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AddAnnotationParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the add annotation params
@@ -119,7 +133,6 @@ func (o *AddAnnotationParams) WriteToRequest(r runtime.ClientRequest, reg strfmt
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

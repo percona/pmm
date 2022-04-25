@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewUpdateAlertRuleParams creates a new UpdateAlertRuleParams object
-// with the default values initialized.
+// NewUpdateAlertRuleParams creates a new UpdateAlertRuleParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewUpdateAlertRuleParams() *UpdateAlertRuleParams {
-	var ()
 	return &UpdateAlertRuleParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewUpdateAlertRuleParamsWithTimeout creates a new UpdateAlertRuleParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewUpdateAlertRuleParamsWithTimeout(timeout time.Duration) *UpdateAlertRuleParams {
-	var ()
 	return &UpdateAlertRuleParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewUpdateAlertRuleParamsWithContext creates a new UpdateAlertRuleParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewUpdateAlertRuleParamsWithContext(ctx context.Context) *UpdateAlertRuleParams {
-	var ()
 	return &UpdateAlertRuleParams{
-
 		Context: ctx,
 	}
 }
 
 // NewUpdateAlertRuleParamsWithHTTPClient creates a new UpdateAlertRuleParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewUpdateAlertRuleParamsWithHTTPClient(client *http.Client) *UpdateAlertRuleParams {
-	var ()
 	return &UpdateAlertRuleParams{
 		HTTPClient: client,
 	}
 }
 
-/*UpdateAlertRuleParams contains all the parameters to send to the API endpoint
-for the update alert rule operation typically these are written to a http.Request
+/* UpdateAlertRuleParams contains all the parameters to send to the API endpoint
+   for the update alert rule operation.
+
+   Typically these are written to a http.Request.
 */
 type UpdateAlertRuleParams struct {
 
-	/*Body*/
+	// Body.
 	Body UpdateAlertRuleBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the update alert rule params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *UpdateAlertRuleParams) WithDefaults() *UpdateAlertRuleParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the update alert rule params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *UpdateAlertRuleParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the update alert rule params
@@ -119,7 +133,6 @@ func (o *UpdateAlertRuleParams) WriteToRequest(r runtime.ClientRequest, reg strf
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

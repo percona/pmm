@@ -23,17 +23,20 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	GetHistogram(params *GetHistogramParams) (*GetHistogramOK, error)
+	GetHistogram(params *GetHistogramParams, opts ...ClientOption) (*GetHistogramOK, error)
 
-	GetLabels(params *GetLabelsParams) (*GetLabelsOK, error)
+	GetLabels(params *GetLabelsParams, opts ...ClientOption) (*GetLabelsOK, error)
 
-	GetMetrics(params *GetMetricsParams) (*GetMetricsOK, error)
+	GetMetrics(params *GetMetricsParams, opts ...ClientOption) (*GetMetricsOK, error)
 
-	GetQueryExample(params *GetQueryExampleParams) (*GetQueryExampleOK, error)
+	GetQueryExample(params *GetQueryExampleParams, opts ...ClientOption) (*GetQueryExampleOK, error)
 
-	GetQueryPlan(params *GetQueryPlanParams) (*GetQueryPlanOK, error)
+	GetQueryPlan(params *GetQueryPlanParams, opts ...ClientOption) (*GetQueryPlanOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -41,13 +44,12 @@ type ClientService interface {
 /*
   GetHistogram gets histogram gets histogram items for specific filtering
 */
-func (a *Client) GetHistogram(params *GetHistogramParams) (*GetHistogramOK, error) {
+func (a *Client) GetHistogram(params *GetHistogramParams, opts ...ClientOption) (*GetHistogramOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetHistogramParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "GetHistogram",
 		Method:             "POST",
 		PathPattern:        "/v0/qan/ObjectDetails/GetHistogram",
@@ -58,7 +60,12 @@ func (a *Client) GetHistogram(params *GetHistogramParams) (*GetHistogramOK, erro
 		Reader:             &GetHistogramReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -74,13 +81,12 @@ func (a *Client) GetHistogram(params *GetHistogramParams) (*GetHistogramOK, erro
 /*
   GetLabels gets labels gets list of labels for object details
 */
-func (a *Client) GetLabels(params *GetLabelsParams) (*GetLabelsOK, error) {
+func (a *Client) GetLabels(params *GetLabelsParams, opts ...ClientOption) (*GetLabelsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetLabelsParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "GetLabels",
 		Method:             "POST",
 		PathPattern:        "/v0/qan/ObjectDetails/GetLabels",
@@ -91,7 +97,12 @@ func (a *Client) GetLabels(params *GetLabelsParams) (*GetLabelsOK, error) {
 		Reader:             &GetLabelsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -107,13 +118,12 @@ func (a *Client) GetLabels(params *GetLabelsParams) (*GetLabelsOK, error) {
 /*
   GetMetrics gets metrics gets map of metrics for specific filtering
 */
-func (a *Client) GetMetrics(params *GetMetricsParams) (*GetMetricsOK, error) {
+func (a *Client) GetMetrics(params *GetMetricsParams, opts ...ClientOption) (*GetMetricsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetMetricsParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "GetMetrics",
 		Method:             "POST",
 		PathPattern:        "/v0/qan/ObjectDetails/GetMetrics",
@@ -124,7 +134,12 @@ func (a *Client) GetMetrics(params *GetMetricsParams) (*GetMetricsOK, error) {
 		Reader:             &GetMetricsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -140,13 +155,12 @@ func (a *Client) GetMetrics(params *GetMetricsParams) (*GetMetricsOK, error) {
 /*
   GetQueryExample gets query example gets list of query examples
 */
-func (a *Client) GetQueryExample(params *GetQueryExampleParams) (*GetQueryExampleOK, error) {
+func (a *Client) GetQueryExample(params *GetQueryExampleParams, opts ...ClientOption) (*GetQueryExampleOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetQueryExampleParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "GetQueryExample",
 		Method:             "POST",
 		PathPattern:        "/v0/qan/ObjectDetails/GetQueryExample",
@@ -157,7 +171,12 @@ func (a *Client) GetQueryExample(params *GetQueryExampleParams) (*GetQueryExampl
 		Reader:             &GetQueryExampleReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -173,13 +192,12 @@ func (a *Client) GetQueryExample(params *GetQueryExampleParams) (*GetQueryExampl
 /*
   GetQueryPlan gets query plan gets query plan and plan id for specific filtering
 */
-func (a *Client) GetQueryPlan(params *GetQueryPlanParams) (*GetQueryPlanOK, error) {
+func (a *Client) GetQueryPlan(params *GetQueryPlanParams, opts ...ClientOption) (*GetQueryPlanOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetQueryPlanParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "GetQueryPlan",
 		Method:             "POST",
 		PathPattern:        "/v0/qan/ObjectDetails/GetQueryPlan",
@@ -190,7 +208,12 @@ func (a *Client) GetQueryPlan(params *GetQueryPlanParams) (*GetQueryPlanOK, erro
 		Reader:             &GetQueryPlanReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

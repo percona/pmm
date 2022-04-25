@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewListAlertsParams creates a new ListAlertsParams object
-// with the default values initialized.
+// NewListAlertsParams creates a new ListAlertsParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewListAlertsParams() *ListAlertsParams {
-	var ()
 	return &ListAlertsParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewListAlertsParamsWithTimeout creates a new ListAlertsParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewListAlertsParamsWithTimeout(timeout time.Duration) *ListAlertsParams {
-	var ()
 	return &ListAlertsParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewListAlertsParamsWithContext creates a new ListAlertsParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewListAlertsParamsWithContext(ctx context.Context) *ListAlertsParams {
-	var ()
 	return &ListAlertsParams{
-
 		Context: ctx,
 	}
 }
 
 // NewListAlertsParamsWithHTTPClient creates a new ListAlertsParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewListAlertsParamsWithHTTPClient(client *http.Client) *ListAlertsParams {
-	var ()
 	return &ListAlertsParams{
 		HTTPClient: client,
 	}
 }
 
-/*ListAlertsParams contains all the parameters to send to the API endpoint
-for the list alerts operation typically these are written to a http.Request
+/* ListAlertsParams contains all the parameters to send to the API endpoint
+   for the list alerts operation.
+
+   Typically these are written to a http.Request.
 */
 type ListAlertsParams struct {
 
-	/*Body*/
+	// Body.
 	Body ListAlertsBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the list alerts params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ListAlertsParams) WithDefaults() *ListAlertsParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the list alerts params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ListAlertsParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the list alerts params
@@ -119,7 +133,6 @@ func (o *ListAlertsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Re
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}
