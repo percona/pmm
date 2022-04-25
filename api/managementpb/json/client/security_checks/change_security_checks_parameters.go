@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewChangeSecurityChecksParams creates a new ChangeSecurityChecksParams object
-// with the default values initialized.
+// NewChangeSecurityChecksParams creates a new ChangeSecurityChecksParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewChangeSecurityChecksParams() *ChangeSecurityChecksParams {
-	var ()
 	return &ChangeSecurityChecksParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewChangeSecurityChecksParamsWithTimeout creates a new ChangeSecurityChecksParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewChangeSecurityChecksParamsWithTimeout(timeout time.Duration) *ChangeSecurityChecksParams {
-	var ()
 	return &ChangeSecurityChecksParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewChangeSecurityChecksParamsWithContext creates a new ChangeSecurityChecksParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewChangeSecurityChecksParamsWithContext(ctx context.Context) *ChangeSecurityChecksParams {
-	var ()
 	return &ChangeSecurityChecksParams{
-
 		Context: ctx,
 	}
 }
 
 // NewChangeSecurityChecksParamsWithHTTPClient creates a new ChangeSecurityChecksParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewChangeSecurityChecksParamsWithHTTPClient(client *http.Client) *ChangeSecurityChecksParams {
-	var ()
 	return &ChangeSecurityChecksParams{
 		HTTPClient: client,
 	}
 }
 
-/*ChangeSecurityChecksParams contains all the parameters to send to the API endpoint
-for the change security checks operation typically these are written to a http.Request
+/* ChangeSecurityChecksParams contains all the parameters to send to the API endpoint
+   for the change security checks operation.
+
+   Typically these are written to a http.Request.
 */
 type ChangeSecurityChecksParams struct {
 
-	/*Body*/
+	// Body.
 	Body ChangeSecurityChecksBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the change security checks params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ChangeSecurityChecksParams) WithDefaults() *ChangeSecurityChecksParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the change security checks params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ChangeSecurityChecksParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the change security checks params
@@ -119,7 +133,6 @@ func (o *ChangeSecurityChecksParams) WriteToRequest(r runtime.ClientRequest, reg
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

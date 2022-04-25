@@ -6,6 +6,7 @@ package backups
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewListArtifactCompatibleServicesOK() *ListArtifactCompatibleServicesOK {
 	return &ListArtifactCompatibleServicesOK{}
 }
 
-/*ListArtifactCompatibleServicesOK handles this case with default header values.
+/* ListArtifactCompatibleServicesOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type ListArtifactCompatibleServicesOK struct {
 func (o *ListArtifactCompatibleServicesOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/ListArtifactCompatibleServices][%d] listArtifactCompatibleServicesOk  %+v", 200, o.Payload)
 }
-
 func (o *ListArtifactCompatibleServicesOK) GetPayload() *ListArtifactCompatibleServicesOKBody {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewListArtifactCompatibleServicesDefault(code int) *ListArtifactCompatibleS
 	}
 }
 
-/*ListArtifactCompatibleServicesDefault handles this case with default header values.
+/* ListArtifactCompatibleServicesDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *ListArtifactCompatibleServicesDefault) Code() int {
 func (o *ListArtifactCompatibleServicesDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/ListArtifactCompatibleServices][%d] ListArtifactCompatibleServices default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ListArtifactCompatibleServicesDefault) GetPayload() *ListArtifactCompatibleServicesDefaultBody {
 	return o.Payload
 }
@@ -128,6 +127,11 @@ type ListArtifactCompatibleServicesBody struct {
 
 // Validate validates this list artifact compatible services body
 func (o *ListArtifactCompatibleServicesBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list artifact compatible services body based on context it is used
+func (o *ListArtifactCompatibleServicesBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -164,7 +168,7 @@ type ListArtifactCompatibleServicesDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*ListArtifactCompatibleServicesDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this list artifact compatible services default body
@@ -182,7 +186,6 @@ func (o *ListArtifactCompatibleServicesDefaultBody) Validate(formats strfmt.Regi
 }
 
 func (o *ListArtifactCompatibleServicesDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -196,6 +199,42 @@ func (o *ListArtifactCompatibleServicesDefaultBody) validateDetails(formats strf
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ListArtifactCompatibleServices default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ListArtifactCompatibleServices default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list artifact compatible services default body based on the context it is used
+func (o *ListArtifactCompatibleServicesDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListArtifactCompatibleServicesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("ListArtifactCompatibleServices default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ListArtifactCompatibleServices default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -224,16 +263,57 @@ func (o *ListArtifactCompatibleServicesDefaultBody) UnmarshalBinary(b []byte) er
 	return nil
 }
 
+/*ListArtifactCompatibleServicesDefaultBodyDetailsItems0 list artifact compatible services default body details items0
+swagger:model ListArtifactCompatibleServicesDefaultBodyDetailsItems0
+*/
+type ListArtifactCompatibleServicesDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this list artifact compatible services default body details items0
+func (o *ListArtifactCompatibleServicesDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list artifact compatible services default body details items0 based on context it is used
+func (o *ListArtifactCompatibleServicesDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListArtifactCompatibleServicesDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListArtifactCompatibleServicesDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res ListArtifactCompatibleServicesDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*ListArtifactCompatibleServicesOKBody list artifact compatible services OK body
 swagger:model ListArtifactCompatibleServicesOKBody
 */
 type ListArtifactCompatibleServicesOKBody struct {
 
 	// mysql
-	Mysql []*MysqlItems0 `json:"mysql"`
+	Mysql []*ListArtifactCompatibleServicesOKBodyMysqlItems0 `json:"mysql"`
 
 	// mongodb
-	Mongodb []*MongodbItems0 `json:"mongodb"`
+	Mongodb []*ListArtifactCompatibleServicesOKBodyMongodbItems0 `json:"mongodb"`
 }
 
 // Validate validates this list artifact compatible services OK body
@@ -255,7 +335,6 @@ func (o *ListArtifactCompatibleServicesOKBody) Validate(formats strfmt.Registry)
 }
 
 func (o *ListArtifactCompatibleServicesOKBody) validateMysql(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Mysql) { // not required
 		return nil
 	}
@@ -269,6 +348,8 @@ func (o *ListArtifactCompatibleServicesOKBody) validateMysql(formats strfmt.Regi
 			if err := o.Mysql[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listArtifactCompatibleServicesOk" + "." + "mysql" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listArtifactCompatibleServicesOk" + "." + "mysql" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -280,7 +361,6 @@ func (o *ListArtifactCompatibleServicesOKBody) validateMysql(formats strfmt.Regi
 }
 
 func (o *ListArtifactCompatibleServicesOKBody) validateMongodb(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Mongodb) { // not required
 		return nil
 	}
@@ -294,6 +374,66 @@ func (o *ListArtifactCompatibleServicesOKBody) validateMongodb(formats strfmt.Re
 			if err := o.Mongodb[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listArtifactCompatibleServicesOk" + "." + "mongodb" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listArtifactCompatibleServicesOk" + "." + "mongodb" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list artifact compatible services OK body based on the context it is used
+func (o *ListArtifactCompatibleServicesOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMysql(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateMongodb(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListArtifactCompatibleServicesOKBody) contextValidateMysql(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Mysql); i++ {
+
+		if o.Mysql[i] != nil {
+			if err := o.Mysql[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listArtifactCompatibleServicesOk" + "." + "mysql" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listArtifactCompatibleServicesOk" + "." + "mysql" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ListArtifactCompatibleServicesOKBody) contextValidateMongodb(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Mongodb); i++ {
+
+		if o.Mongodb[i] != nil {
+			if err := o.Mongodb[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listArtifactCompatibleServicesOk" + "." + "mongodb" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listArtifactCompatibleServicesOk" + "." + "mongodb" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -322,10 +462,10 @@ func (o *ListArtifactCompatibleServicesOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*MongodbItems0 MongoDBService represents a generic MongoDB instance.
-swagger:model MongodbItems0
+/*ListArtifactCompatibleServicesOKBodyMongodbItems0 MongoDBService represents a generic MongoDB instance.
+swagger:model ListArtifactCompatibleServicesOKBodyMongodbItems0
 */
-type MongodbItems0 struct {
+type ListArtifactCompatibleServicesOKBodyMongodbItems0 struct {
 
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
@@ -361,13 +501,18 @@ type MongodbItems0 struct {
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
-// Validate validates this mongodb items0
-func (o *MongodbItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this list artifact compatible services OK body mongodb items0
+func (o *ListArtifactCompatibleServicesOKBodyMongodbItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list artifact compatible services OK body mongodb items0 based on context it is used
+func (o *ListArtifactCompatibleServicesOKBodyMongodbItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *MongodbItems0) MarshalBinary() ([]byte, error) {
+func (o *ListArtifactCompatibleServicesOKBodyMongodbItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -375,8 +520,8 @@ func (o *MongodbItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *MongodbItems0) UnmarshalBinary(b []byte) error {
-	var res MongodbItems0
+func (o *ListArtifactCompatibleServicesOKBodyMongodbItems0) UnmarshalBinary(b []byte) error {
+	var res ListArtifactCompatibleServicesOKBodyMongodbItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -384,10 +529,10 @@ func (o *MongodbItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*MysqlItems0 MySQLService represents a generic MySQL instance.
-swagger:model MysqlItems0
+/*ListArtifactCompatibleServicesOKBodyMysqlItems0 MySQLService represents a generic MySQL instance.
+swagger:model ListArtifactCompatibleServicesOKBodyMysqlItems0
 */
-type MysqlItems0 struct {
+type ListArtifactCompatibleServicesOKBodyMysqlItems0 struct {
 
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
@@ -423,13 +568,18 @@ type MysqlItems0 struct {
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
-// Validate validates this mysql items0
-func (o *MysqlItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this list artifact compatible services OK body mysql items0
+func (o *ListArtifactCompatibleServicesOKBodyMysqlItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list artifact compatible services OK body mysql items0 based on context it is used
+func (o *ListArtifactCompatibleServicesOKBodyMysqlItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *MysqlItems0) MarshalBinary() ([]byte, error) {
+func (o *ListArtifactCompatibleServicesOKBodyMysqlItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -437,8 +587,8 @@ func (o *MysqlItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *MysqlItems0) UnmarshalBinary(b []byte) error {
-	var res MysqlItems0
+func (o *ListArtifactCompatibleServicesOKBodyMysqlItems0) UnmarshalBinary(b []byte) error {
+	var res ListArtifactCompatibleServicesOKBodyMysqlItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -10,15 +10,12 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm/api/managementpb/dbaas/json/client/components"
-	"github.com/percona/pmm/api/managementpb/dbaas/json/client/db_clusters"
-	"github.com/percona/pmm/api/managementpb/dbaas/json/client/kubernetes"
-	"github.com/percona/pmm/api/managementpb/dbaas/json/client/logs_api"
-	"github.com/percona/pmm/api/managementpb/dbaas/json/client/psmdb_clusters"
-	"github.com/percona/pmm/api/managementpb/dbaas/json/client/pxc_clusters"
+	"github.com/percona/pmm/api/inventorypb/json/client/agents"
+	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
+	"github.com/percona/pmm/api/inventorypb/json/client/services"
 )
 
-// Default PMM d baa s HTTP client.
+// Default PMM inventory API HTTP client.
 var Default = NewHTTPClient(nil)
 
 const (
@@ -33,14 +30,14 @@ const (
 // DefaultSchemes are the default schemes found in Meta (info) section of spec file
 var DefaultSchemes = []string{"http", "https"}
 
-// NewHTTPClient creates a new PMM d baa s HTTP client.
-func NewHTTPClient(formats strfmt.Registry) *PMMDBaaS {
+// NewHTTPClient creates a new PMM inventory API HTTP client.
+func NewHTTPClient(formats strfmt.Registry) *PMMInventoryAPI {
 	return NewHTTPClientWithConfig(formats, nil)
 }
 
-// NewHTTPClientWithConfig creates a new PMM d baa s HTTP client,
+// NewHTTPClientWithConfig creates a new PMM inventory API HTTP client,
 // using a customizable transport config.
-func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMMDBaaS {
+func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMMInventoryAPI {
 	// ensure nullable parameters have default
 	if cfg == nil {
 		cfg = DefaultTransportConfig()
@@ -51,21 +48,18 @@ func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMM
 	return New(transport, formats)
 }
 
-// New creates a new PMM d baa s client
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMDBaaS {
+// New creates a new PMM inventory API client
+func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMInventoryAPI {
 	// ensure nullable parameters have default
 	if formats == nil {
 		formats = strfmt.Default
 	}
 
-	cli := new(PMMDBaaS)
+	cli := new(PMMInventoryAPI)
 	cli.Transport = transport
-	cli.Components = components.New(transport, formats)
-	cli.DBClusters = db_clusters.New(transport, formats)
-	cli.Kubernetes = kubernetes.New(transport, formats)
-	cli.LogsAPI = logs_api.New(transport, formats)
-	cli.PSMDBClusters = psmdb_clusters.New(transport, formats)
-	cli.PXCClusters = pxc_clusters.New(transport, formats)
+	cli.Agents = agents.New(transport, formats)
+	cli.Nodes = nodes.New(transport, formats)
+	cli.Services = services.New(transport, formats)
 	return cli
 }
 
@@ -108,30 +102,21 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 	return cfg
 }
 
-// PMMDBaaS is a client for PMM d baa s
-type PMMDBaaS struct {
-	Components components.ClientService
+// PMMInventoryAPI is a client for PMM inventory API
+type PMMInventoryAPI struct {
+	Agents agents.ClientService
 
-	DBClusters db_clusters.ClientService
+	Nodes nodes.ClientService
 
-	Kubernetes kubernetes.ClientService
-
-	LogsAPI logs_api.ClientService
-
-	PSMDBClusters psmdb_clusters.ClientService
-
-	PXCClusters pxc_clusters.ClientService
+	Services services.ClientService
 
 	Transport runtime.ClientTransport
 }
 
 // SetTransport changes the transport on the client and all its subresources
-func (c *PMMDBaaS) SetTransport(transport runtime.ClientTransport) {
+func (c *PMMInventoryAPI) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
-	c.Components.SetTransport(transport)
-	c.DBClusters.SetTransport(transport)
-	c.Kubernetes.SetTransport(transport)
-	c.LogsAPI.SetTransport(transport)
-	c.PSMDBClusters.SetTransport(transport)
-	c.PXCClusters.SetTransport(transport)
+	c.Agents.SetTransport(transport)
+	c.Nodes.SetTransport(transport)
+	c.Services.SetTransport(transport)
 }

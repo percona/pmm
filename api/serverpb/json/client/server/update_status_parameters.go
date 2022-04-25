@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewUpdateStatusParams creates a new UpdateStatusParams object
-// with the default values initialized.
+// NewUpdateStatusParams creates a new UpdateStatusParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewUpdateStatusParams() *UpdateStatusParams {
-	var ()
 	return &UpdateStatusParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewUpdateStatusParamsWithTimeout creates a new UpdateStatusParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewUpdateStatusParamsWithTimeout(timeout time.Duration) *UpdateStatusParams {
-	var ()
 	return &UpdateStatusParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewUpdateStatusParamsWithContext creates a new UpdateStatusParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewUpdateStatusParamsWithContext(ctx context.Context) *UpdateStatusParams {
-	var ()
 	return &UpdateStatusParams{
-
 		Context: ctx,
 	}
 }
 
 // NewUpdateStatusParamsWithHTTPClient creates a new UpdateStatusParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewUpdateStatusParamsWithHTTPClient(client *http.Client) *UpdateStatusParams {
-	var ()
 	return &UpdateStatusParams{
 		HTTPClient: client,
 	}
 }
 
-/*UpdateStatusParams contains all the parameters to send to the API endpoint
-for the update status operation typically these are written to a http.Request
+/* UpdateStatusParams contains all the parameters to send to the API endpoint
+   for the update status operation.
+
+   Typically these are written to a http.Request.
 */
 type UpdateStatusParams struct {
 
-	/*Body*/
+	// Body.
 	Body UpdateStatusBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the update status params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *UpdateStatusParams) WithDefaults() *UpdateStatusParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the update status params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *UpdateStatusParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the update status params
@@ -119,7 +133,6 @@ func (o *UpdateStatusParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

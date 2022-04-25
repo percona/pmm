@@ -9,8 +9,8 @@ import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "managementpb/ia/boolean_flag.proto";
-import "managementpb/ia/pagination.proto";
 import "managementpb/ia/params.proto";
+import "managementpb/pagination.proto";
 import "managementpb/severity.proto";
 
 // TODO move it to parent directory / package once API is v1-stable
@@ -117,13 +117,13 @@ message ListTemplatesRequest {
   // If true, template files will be re-read from disk.
   bool reload = 1;
   // Page request.
-  PageParams page_params = 2;
+  management.PageParams page_params = 2;
 }
 
 message ListTemplatesResponse {
   repeated Template templates = 1;
   // Total items and pages.
-  PageTotals totals = 2;
+  management.PageTotals totals = 2;
 }
 
 message CreateTemplateRequest {

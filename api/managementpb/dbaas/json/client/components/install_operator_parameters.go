@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewInstallOperatorParams creates a new InstallOperatorParams object
-// with the default values initialized.
+// NewInstallOperatorParams creates a new InstallOperatorParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewInstallOperatorParams() *InstallOperatorParams {
-	var ()
 	return &InstallOperatorParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewInstallOperatorParamsWithTimeout creates a new InstallOperatorParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewInstallOperatorParamsWithTimeout(timeout time.Duration) *InstallOperatorParams {
-	var ()
 	return &InstallOperatorParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewInstallOperatorParamsWithContext creates a new InstallOperatorParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewInstallOperatorParamsWithContext(ctx context.Context) *InstallOperatorParams {
-	var ()
 	return &InstallOperatorParams{
-
 		Context: ctx,
 	}
 }
 
 // NewInstallOperatorParamsWithHTTPClient creates a new InstallOperatorParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewInstallOperatorParamsWithHTTPClient(client *http.Client) *InstallOperatorParams {
-	var ()
 	return &InstallOperatorParams{
 		HTTPClient: client,
 	}
 }
 
-/*InstallOperatorParams contains all the parameters to send to the API endpoint
-for the install operator operation typically these are written to a http.Request
+/* InstallOperatorParams contains all the parameters to send to the API endpoint
+   for the install operator operation.
+
+   Typically these are written to a http.Request.
 */
 type InstallOperatorParams struct {
 
-	/*Body*/
+	// Body.
 	Body InstallOperatorBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the install operator params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *InstallOperatorParams) WithDefaults() *InstallOperatorParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the install operator params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *InstallOperatorParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the install operator params
@@ -119,7 +133,6 @@ func (o *InstallOperatorParams) WriteToRequest(r runtime.ClientRequest, reg strf
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

@@ -6,6 +6,7 @@ package channels
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewChangeChannelOK() *ChangeChannelOK {
 	return &ChangeChannelOK{}
 }
 
-/*ChangeChannelOK handles this case with default header values.
+/* ChangeChannelOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type ChangeChannelOK struct {
 func (o *ChangeChannelOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Channels/Change][%d] changeChannelOk  %+v", 200, o.Payload)
 }
-
 func (o *ChangeChannelOK) GetPayload() interface{} {
 	return o.Payload
 }
@@ -80,7 +80,7 @@ func NewChangeChannelDefault(code int) *ChangeChannelDefault {
 	}
 }
 
-/*ChangeChannelDefault handles this case with default header values.
+/* ChangeChannelDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -98,7 +98,6 @@ func (o *ChangeChannelDefault) Code() int {
 func (o *ChangeChannelDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Channels/Change][%d] ChangeChannel default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ChangeChannelDefault) GetPayload() *ChangeChannelDefaultBody {
 	return o.Payload
 }
@@ -169,7 +168,6 @@ func (o *ChangeChannelBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *ChangeChannelBody) validateEmailConfig(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.EmailConfig) { // not required
 		return nil
 	}
@@ -178,6 +176,8 @@ func (o *ChangeChannelBody) validateEmailConfig(formats strfmt.Registry) error {
 		if err := o.EmailConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "email_config")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "email_config")
 			}
 			return err
 		}
@@ -187,7 +187,6 @@ func (o *ChangeChannelBody) validateEmailConfig(formats strfmt.Registry) error {
 }
 
 func (o *ChangeChannelBody) validatePagerdutyConfig(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.PagerdutyConfig) { // not required
 		return nil
 	}
@@ -196,6 +195,8 @@ func (o *ChangeChannelBody) validatePagerdutyConfig(formats strfmt.Registry) err
 		if err := o.PagerdutyConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "pagerduty_config")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "pagerduty_config")
 			}
 			return err
 		}
@@ -205,7 +206,6 @@ func (o *ChangeChannelBody) validatePagerdutyConfig(formats strfmt.Registry) err
 }
 
 func (o *ChangeChannelBody) validateSlackConfig(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.SlackConfig) { // not required
 		return nil
 	}
@@ -214,6 +214,8 @@ func (o *ChangeChannelBody) validateSlackConfig(formats strfmt.Registry) error {
 		if err := o.SlackConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "slack_config")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "slack_config")
 			}
 			return err
 		}
@@ -223,7 +225,6 @@ func (o *ChangeChannelBody) validateSlackConfig(formats strfmt.Registry) error {
 }
 
 func (o *ChangeChannelBody) validateWebhookConfig(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.WebhookConfig) { // not required
 		return nil
 	}
@@ -232,6 +233,98 @@ func (o *ChangeChannelBody) validateWebhookConfig(formats strfmt.Registry) error
 		if err := o.WebhookConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "webhook_config")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "webhook_config")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change channel body based on the context it is used
+func (o *ChangeChannelBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateEmailConfig(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidatePagerdutyConfig(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateSlackConfig(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateWebhookConfig(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeChannelBody) contextValidateEmailConfig(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.EmailConfig != nil {
+		if err := o.EmailConfig.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "email_config")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "email_config")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeChannelBody) contextValidatePagerdutyConfig(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.PagerdutyConfig != nil {
+		if err := o.PagerdutyConfig.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "pagerduty_config")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "pagerduty_config")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeChannelBody) contextValidateSlackConfig(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.SlackConfig != nil {
+		if err := o.SlackConfig.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "slack_config")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "slack_config")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeChannelBody) contextValidateWebhookConfig(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.WebhookConfig != nil {
+		if err := o.WebhookConfig.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "webhook_config")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "webhook_config")
 			}
 			return err
 		}
@@ -273,7 +366,7 @@ type ChangeChannelDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*ChangeChannelDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this change channel default body
@@ -291,7 +384,6 @@ func (o *ChangeChannelDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *ChangeChannelDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -305,6 +397,42 @@ func (o *ChangeChannelDefaultBody) validateDetails(formats strfmt.Registry) erro
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ChangeChannel default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ChangeChannel default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change channel default body based on the context it is used
+func (o *ChangeChannelDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeChannelDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("ChangeChannel default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ChangeChannel default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -333,6 +461,47 @@ func (o *ChangeChannelDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*ChangeChannelDefaultBodyDetailsItems0 change channel default body details items0
+swagger:model ChangeChannelDefaultBodyDetailsItems0
+*/
+type ChangeChannelDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this change channel default body details items0
+func (o *ChangeChannelDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change channel default body details items0 based on context it is used
+func (o *ChangeChannelDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeChannelDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeChannelDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res ChangeChannelDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*ChangeChannelParamsBodyEmailConfig EmailConfig represents email configuration.
 swagger:model ChangeChannelParamsBodyEmailConfig
 */
@@ -347,6 +516,11 @@ type ChangeChannelParamsBodyEmailConfig struct {
 
 // Validate validates this change channel params body email config
 func (o *ChangeChannelParamsBodyEmailConfig) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change channel params body email config based on context it is used
+func (o *ChangeChannelParamsBodyEmailConfig) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -388,6 +562,11 @@ func (o *ChangeChannelParamsBodyPagerdutyConfig) Validate(formats strfmt.Registr
 	return nil
 }
 
+// ContextValidate validates this change channel params body pagerduty config based on context it is used
+func (o *ChangeChannelParamsBodyPagerdutyConfig) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *ChangeChannelParamsBodyPagerdutyConfig) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -420,6 +599,11 @@ type ChangeChannelParamsBodySlackConfig struct {
 
 // Validate validates this change channel params body slack config
 func (o *ChangeChannelParamsBodySlackConfig) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change channel params body slack config based on context it is used
+func (o *ChangeChannelParamsBodySlackConfig) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -474,7 +658,6 @@ func (o *ChangeChannelParamsBodyWebhookConfig) Validate(formats strfmt.Registry)
 }
 
 func (o *ChangeChannelParamsBodyWebhookConfig) validateHTTPConfig(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.HTTPConfig) { // not required
 		return nil
 	}
@@ -483,6 +666,38 @@ func (o *ChangeChannelParamsBodyWebhookConfig) validateHTTPConfig(formats strfmt
 		if err := o.HTTPConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "webhook_config" + "." + "http_config")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "webhook_config" + "." + "http_config")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change channel params body webhook config based on the context it is used
+func (o *ChangeChannelParamsBodyWebhookConfig) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateHTTPConfig(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeChannelParamsBodyWebhookConfig) contextValidateHTTPConfig(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.HTTPConfig != nil {
+		if err := o.HTTPConfig.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "webhook_config" + "." + "http_config")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "webhook_config" + "." + "http_config")
 			}
 			return err
 		}
@@ -549,7 +764,6 @@ func (o *ChangeChannelParamsBodyWebhookConfigHTTPConfig) Validate(formats strfmt
 }
 
 func (o *ChangeChannelParamsBodyWebhookConfigHTTPConfig) validateBasicAuth(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.BasicAuth) { // not required
 		return nil
 	}
@@ -558,6 +772,8 @@ func (o *ChangeChannelParamsBodyWebhookConfigHTTPConfig) validateBasicAuth(forma
 		if err := o.BasicAuth.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "webhook_config" + "." + "http_config" + "." + "basic_auth")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "webhook_config" + "." + "http_config" + "." + "basic_auth")
 			}
 			return err
 		}
@@ -567,7 +783,6 @@ func (o *ChangeChannelParamsBodyWebhookConfigHTTPConfig) validateBasicAuth(forma
 }
 
 func (o *ChangeChannelParamsBodyWebhookConfigHTTPConfig) validateTLSConfig(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.TLSConfig) { // not required
 		return nil
 	}
@@ -576,6 +791,58 @@ func (o *ChangeChannelParamsBodyWebhookConfigHTTPConfig) validateTLSConfig(forma
 		if err := o.TLSConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "webhook_config" + "." + "http_config" + "." + "tls_config")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "webhook_config" + "." + "http_config" + "." + "tls_config")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change channel params body webhook config HTTP config based on the context it is used
+func (o *ChangeChannelParamsBodyWebhookConfigHTTPConfig) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateBasicAuth(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateTLSConfig(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeChannelParamsBodyWebhookConfigHTTPConfig) contextValidateBasicAuth(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.BasicAuth != nil {
+		if err := o.BasicAuth.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "webhook_config" + "." + "http_config" + "." + "basic_auth")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "webhook_config" + "." + "http_config" + "." + "basic_auth")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeChannelParamsBodyWebhookConfigHTTPConfig) contextValidateTLSConfig(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.TLSConfig != nil {
+		if err := o.TLSConfig.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "webhook_config" + "." + "http_config" + "." + "tls_config")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "webhook_config" + "." + "http_config" + "." + "tls_config")
 			}
 			return err
 		}
@@ -619,6 +886,11 @@ type ChangeChannelParamsBodyWebhookConfigHTTPConfigBasicAuth struct {
 
 // Validate validates this change channel params body webhook config HTTP config basic auth
 func (o *ChangeChannelParamsBodyWebhookConfigHTTPConfigBasicAuth) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change channel params body webhook config HTTP config basic auth based on context it is used
+func (o *ChangeChannelParamsBodyWebhookConfigHTTPConfigBasicAuth) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -679,6 +951,11 @@ type ChangeChannelParamsBodyWebhookConfigHTTPConfigTLSConfig struct {
 
 // Validate validates this change channel params body webhook config HTTP config TLS config
 func (o *ChangeChannelParamsBodyWebhookConfigHTTPConfigTLSConfig) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change channel params body webhook config HTTP config TLS config based on context it is used
+func (o *ChangeChannelParamsBodyWebhookConfigHTTPConfigTLSConfig) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

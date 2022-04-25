@@ -6,6 +6,7 @@ package security_checks
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,7 +50,7 @@ func NewGetSecurityCheckResultsOK() *GetSecurityCheckResultsOK {
 	return &GetSecurityCheckResultsOK{}
 }
 
-/*GetSecurityCheckResultsOK handles this case with default header values.
+/* GetSecurityCheckResultsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -60,7 +61,6 @@ type GetSecurityCheckResultsOK struct {
 func (o *GetSecurityCheckResultsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/GetCheckResults][%d] getSecurityCheckResultsOk  %+v", 200, o.Payload)
 }
-
 func (o *GetSecurityCheckResultsOK) GetPayload() *GetSecurityCheckResultsOKBody {
 	return o.Payload
 }
@@ -84,7 +84,7 @@ func NewGetSecurityCheckResultsDefault(code int) *GetSecurityCheckResultsDefault
 	}
 }
 
-/*GetSecurityCheckResultsDefault handles this case with default header values.
+/* GetSecurityCheckResultsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -102,7 +102,6 @@ func (o *GetSecurityCheckResultsDefault) Code() int {
 func (o *GetSecurityCheckResultsDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/GetCheckResults][%d] GetSecurityCheckResults default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *GetSecurityCheckResultsDefault) GetPayload() *GetSecurityCheckResultsDefaultBody {
 	return o.Payload
 }
@@ -134,7 +133,7 @@ type GetSecurityCheckResultsDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*GetSecurityCheckResultsDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this get security check results default body
@@ -152,7 +151,6 @@ func (o *GetSecurityCheckResultsDefaultBody) Validate(formats strfmt.Registry) e
 }
 
 func (o *GetSecurityCheckResultsDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -166,6 +164,42 @@ func (o *GetSecurityCheckResultsDefaultBody) validateDetails(formats strfmt.Regi
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("GetSecurityCheckResults default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("GetSecurityCheckResults default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get security check results default body based on the context it is used
+func (o *GetSecurityCheckResultsDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetSecurityCheckResultsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("GetSecurityCheckResults default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("GetSecurityCheckResults default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -194,13 +228,54 @@ func (o *GetSecurityCheckResultsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*GetSecurityCheckResultsDefaultBodyDetailsItems0 get security check results default body details items0
+swagger:model GetSecurityCheckResultsDefaultBodyDetailsItems0
+*/
+type GetSecurityCheckResultsDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this get security check results default body details items0
+func (o *GetSecurityCheckResultsDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get security check results default body details items0 based on context it is used
+func (o *GetSecurityCheckResultsDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetSecurityCheckResultsDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetSecurityCheckResultsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetSecurityCheckResultsDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*GetSecurityCheckResultsOKBody get security check results OK body
 swagger:model GetSecurityCheckResultsOKBody
 */
 type GetSecurityCheckResultsOKBody struct {
 
 	// results
-	Results []*ResultsItems0 `json:"results"`
+	Results []*GetSecurityCheckResultsOKBodyResultsItems0 `json:"results"`
 }
 
 // Validate validates this get security check results OK body
@@ -218,7 +293,6 @@ func (o *GetSecurityCheckResultsOKBody) Validate(formats strfmt.Registry) error 
 }
 
 func (o *GetSecurityCheckResultsOKBody) validateResults(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Results) { // not required
 		return nil
 	}
@@ -232,6 +306,42 @@ func (o *GetSecurityCheckResultsOKBody) validateResults(formats strfmt.Registry)
 			if err := o.Results[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getSecurityCheckResultsOk" + "." + "results" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getSecurityCheckResultsOk" + "." + "results" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get security check results OK body based on the context it is used
+func (o *GetSecurityCheckResultsOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateResults(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetSecurityCheckResultsOKBody) contextValidateResults(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Results); i++ {
+
+		if o.Results[i] != nil {
+			if err := o.Results[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("getSecurityCheckResultsOk" + "." + "results" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getSecurityCheckResultsOk" + "." + "results" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -260,10 +370,10 @@ func (o *GetSecurityCheckResultsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ResultsItems0 SecurityCheckResult represents the check result returned from pmm-managed after running the check.
-swagger:model ResultsItems0
+/*GetSecurityCheckResultsOKBodyResultsItems0 SecurityCheckResult represents the check result returned from pmm-managed after running the check.
+swagger:model GetSecurityCheckResultsOKBodyResultsItems0
 */
-type ResultsItems0 struct {
+type GetSecurityCheckResultsOKBodyResultsItems0 struct {
 
 	// summary
 	Summary string `json:"summary,omitempty"`
@@ -285,8 +395,8 @@ type ResultsItems0 struct {
 	ServiceName string `json:"service_name,omitempty"`
 }
 
-// Validate validates this results items0
-func (o *ResultsItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this get security check results OK body results items0
+func (o *GetSecurityCheckResultsOKBodyResultsItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateSeverity(formats); err != nil {
@@ -299,7 +409,7 @@ func (o *ResultsItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var resultsItems0TypeSeverityPropEnum []interface{}
+var getSecurityCheckResultsOkBodyResultsItems0TypeSeverityPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -307,50 +417,49 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		resultsItems0TypeSeverityPropEnum = append(resultsItems0TypeSeverityPropEnum, v)
+		getSecurityCheckResultsOkBodyResultsItems0TypeSeverityPropEnum = append(getSecurityCheckResultsOkBodyResultsItems0TypeSeverityPropEnum, v)
 	}
 }
 
 const (
 
-	// ResultsItems0SeveritySEVERITYINVALID captures enum value "SEVERITY_INVALID"
-	ResultsItems0SeveritySEVERITYINVALID string = "SEVERITY_INVALID"
+	// GetSecurityCheckResultsOKBodyResultsItems0SeveritySEVERITYINVALID captures enum value "SEVERITY_INVALID"
+	GetSecurityCheckResultsOKBodyResultsItems0SeveritySEVERITYINVALID string = "SEVERITY_INVALID"
 
-	// ResultsItems0SeveritySEVERITYEMERGENCY captures enum value "SEVERITY_EMERGENCY"
-	ResultsItems0SeveritySEVERITYEMERGENCY string = "SEVERITY_EMERGENCY"
+	// GetSecurityCheckResultsOKBodyResultsItems0SeveritySEVERITYEMERGENCY captures enum value "SEVERITY_EMERGENCY"
+	GetSecurityCheckResultsOKBodyResultsItems0SeveritySEVERITYEMERGENCY string = "SEVERITY_EMERGENCY"
 
-	// ResultsItems0SeveritySEVERITYALERT captures enum value "SEVERITY_ALERT"
-	ResultsItems0SeveritySEVERITYALERT string = "SEVERITY_ALERT"
+	// GetSecurityCheckResultsOKBodyResultsItems0SeveritySEVERITYALERT captures enum value "SEVERITY_ALERT"
+	GetSecurityCheckResultsOKBodyResultsItems0SeveritySEVERITYALERT string = "SEVERITY_ALERT"
 
-	// ResultsItems0SeveritySEVERITYCRITICAL captures enum value "SEVERITY_CRITICAL"
-	ResultsItems0SeveritySEVERITYCRITICAL string = "SEVERITY_CRITICAL"
+	// GetSecurityCheckResultsOKBodyResultsItems0SeveritySEVERITYCRITICAL captures enum value "SEVERITY_CRITICAL"
+	GetSecurityCheckResultsOKBodyResultsItems0SeveritySEVERITYCRITICAL string = "SEVERITY_CRITICAL"
 
-	// ResultsItems0SeveritySEVERITYERROR captures enum value "SEVERITY_ERROR"
-	ResultsItems0SeveritySEVERITYERROR string = "SEVERITY_ERROR"
+	// GetSecurityCheckResultsOKBodyResultsItems0SeveritySEVERITYERROR captures enum value "SEVERITY_ERROR"
+	GetSecurityCheckResultsOKBodyResultsItems0SeveritySEVERITYERROR string = "SEVERITY_ERROR"
 
-	// ResultsItems0SeveritySEVERITYWARNING captures enum value "SEVERITY_WARNING"
-	ResultsItems0SeveritySEVERITYWARNING string = "SEVERITY_WARNING"
+	// GetSecurityCheckResultsOKBodyResultsItems0SeveritySEVERITYWARNING captures enum value "SEVERITY_WARNING"
+	GetSecurityCheckResultsOKBodyResultsItems0SeveritySEVERITYWARNING string = "SEVERITY_WARNING"
 
-	// ResultsItems0SeveritySEVERITYNOTICE captures enum value "SEVERITY_NOTICE"
-	ResultsItems0SeveritySEVERITYNOTICE string = "SEVERITY_NOTICE"
+	// GetSecurityCheckResultsOKBodyResultsItems0SeveritySEVERITYNOTICE captures enum value "SEVERITY_NOTICE"
+	GetSecurityCheckResultsOKBodyResultsItems0SeveritySEVERITYNOTICE string = "SEVERITY_NOTICE"
 
-	// ResultsItems0SeveritySEVERITYINFO captures enum value "SEVERITY_INFO"
-	ResultsItems0SeveritySEVERITYINFO string = "SEVERITY_INFO"
+	// GetSecurityCheckResultsOKBodyResultsItems0SeveritySEVERITYINFO captures enum value "SEVERITY_INFO"
+	GetSecurityCheckResultsOKBodyResultsItems0SeveritySEVERITYINFO string = "SEVERITY_INFO"
 
-	// ResultsItems0SeveritySEVERITYDEBUG captures enum value "SEVERITY_DEBUG"
-	ResultsItems0SeveritySEVERITYDEBUG string = "SEVERITY_DEBUG"
+	// GetSecurityCheckResultsOKBodyResultsItems0SeveritySEVERITYDEBUG captures enum value "SEVERITY_DEBUG"
+	GetSecurityCheckResultsOKBodyResultsItems0SeveritySEVERITYDEBUG string = "SEVERITY_DEBUG"
 )
 
 // prop value enum
-func (o *ResultsItems0) validateSeverityEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, resultsItems0TypeSeverityPropEnum, true); err != nil {
+func (o *GetSecurityCheckResultsOKBodyResultsItems0) validateSeverityEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, getSecurityCheckResultsOkBodyResultsItems0TypeSeverityPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *ResultsItems0) validateSeverity(formats strfmt.Registry) error {
-
+func (o *GetSecurityCheckResultsOKBodyResultsItems0) validateSeverity(formats strfmt.Registry) error {
 	if swag.IsZero(o.Severity) { // not required
 		return nil
 	}
@@ -363,8 +472,13 @@ func (o *ResultsItems0) validateSeverity(formats strfmt.Registry) error {
 	return nil
 }
 
+// ContextValidate validates this get security check results OK body results items0 based on context it is used
+func (o *GetSecurityCheckResultsOKBodyResultsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
-func (o *ResultsItems0) MarshalBinary() ([]byte, error) {
+func (o *GetSecurityCheckResultsOKBodyResultsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -372,8 +486,8 @@ func (o *ResultsItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *ResultsItems0) UnmarshalBinary(b []byte) error {
-	var res ResultsItems0
+func (o *GetSecurityCheckResultsOKBodyResultsItems0) UnmarshalBinary(b []byte) error {
+	var res GetSecurityCheckResultsOKBodyResultsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

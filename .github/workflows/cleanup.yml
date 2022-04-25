@@ -13,7 +13,7 @@ jobs:
       fail-fast: false
       matrix:
         go-version:
-          - 1.17.x
+          - 1.18.x
           - tip
         os: [ubuntu-latest]
 
@@ -50,7 +50,7 @@ jobs:
           echo "GOROOT=$HOME/gotip" >> $GITHUB_ENV
           echo "$HOME/gotip/bin" >> $GITHUB_PATH
       - name: Check out code into the Go module directory
-        uses: percona-platform/checkout@v2
+        uses: percona-platform/checkout@v3
         with:
           lfs: true
 

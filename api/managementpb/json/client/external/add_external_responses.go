@@ -6,6 +6,7 @@ package external
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,7 +50,7 @@ func NewAddExternalOK() *AddExternalOK {
 	return &AddExternalOK{}
 }
 
-/*AddExternalOK handles this case with default header values.
+/* AddExternalOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -60,7 +61,6 @@ type AddExternalOK struct {
 func (o *AddExternalOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/External/Add][%d] addExternalOk  %+v", 200, o.Payload)
 }
-
 func (o *AddExternalOK) GetPayload() *AddExternalOKBody {
 	return o.Payload
 }
@@ -84,7 +84,7 @@ func NewAddExternalDefault(code int) *AddExternalDefault {
 	}
 }
 
-/*AddExternalDefault handles this case with default header values.
+/* AddExternalDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -102,7 +102,6 @@ func (o *AddExternalDefault) Code() int {
 func (o *AddExternalDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/External/Add][%d] AddExternal default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AddExternalDefault) GetPayload() *AddExternalDefaultBody {
 	return o.Payload
 }
@@ -237,7 +236,6 @@ func (o *AddExternalBody) validateMetricsModeEnum(path, location string, value s
 }
 
 func (o *AddExternalBody) validateMetricsMode(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.MetricsMode) { // not required
 		return nil
 	}
@@ -251,7 +249,6 @@ func (o *AddExternalBody) validateMetricsMode(formats strfmt.Registry) error {
 }
 
 func (o *AddExternalBody) validateAddNode(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.AddNode) { // not required
 		return nil
 	}
@@ -260,6 +257,38 @@ func (o *AddExternalBody) validateAddNode(formats strfmt.Registry) error {
 		if err := o.AddNode.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "add_node")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "add_node")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add external body based on the context it is used
+func (o *AddExternalBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateAddNode(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddExternalBody) contextValidateAddNode(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.AddNode != nil {
+		if err := o.AddNode.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "add_node")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "add_node")
 			}
 			return err
 		}
@@ -301,7 +330,7 @@ type AddExternalDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*AddExternalDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this add external default body
@@ -319,7 +348,6 @@ func (o *AddExternalDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *AddExternalDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -333,6 +361,42 @@ func (o *AddExternalDefaultBody) validateDetails(formats strfmt.Registry) error 
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("AddExternal default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddExternal default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add external default body based on the context it is used
+func (o *AddExternalDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddExternalDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("AddExternal default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddExternal default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -354,6 +418,47 @@ func (o *AddExternalDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddExternalDefaultBody) UnmarshalBinary(b []byte) error {
 	var res AddExternalDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddExternalDefaultBodyDetailsItems0 add external default body details items0
+swagger:model AddExternalDefaultBodyDetailsItems0
+*/
+type AddExternalDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this add external default body details items0
+func (o *AddExternalDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add external default body details items0 based on context it is used
+func (o *AddExternalDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddExternalDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddExternalDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res AddExternalDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -392,7 +497,6 @@ func (o *AddExternalOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *AddExternalOKBody) validateExternalExporter(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.ExternalExporter) { // not required
 		return nil
 	}
@@ -401,6 +505,8 @@ func (o *AddExternalOKBody) validateExternalExporter(formats strfmt.Registry) er
 		if err := o.ExternalExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addExternalOk" + "." + "external_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addExternalOk" + "." + "external_exporter")
 			}
 			return err
 		}
@@ -410,7 +516,6 @@ func (o *AddExternalOKBody) validateExternalExporter(formats strfmt.Registry) er
 }
 
 func (o *AddExternalOKBody) validateService(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Service) { // not required
 		return nil
 	}
@@ -419,6 +524,58 @@ func (o *AddExternalOKBody) validateService(formats strfmt.Registry) error {
 		if err := o.Service.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addExternalOk" + "." + "service")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addExternalOk" + "." + "service")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add external OK body based on the context it is used
+func (o *AddExternalOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateExternalExporter(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateService(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddExternalOKBody) contextValidateExternalExporter(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.ExternalExporter != nil {
+		if err := o.ExternalExporter.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addExternalOk" + "." + "external_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addExternalOk" + "." + "external_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddExternalOKBody) contextValidateService(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Service != nil {
+		if err := o.Service.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addExternalOk" + "." + "service")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addExternalOk" + "." + "service")
 			}
 			return err
 		}
@@ -489,6 +646,11 @@ func (o *AddExternalOKBodyExternalExporter) Validate(formats strfmt.Registry) er
 	return nil
 }
 
+// ContextValidate validates this add external OK body external exporter based on context it is used
+func (o *AddExternalOKBodyExternalExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *AddExternalOKBodyExternalExporter) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -539,6 +701,11 @@ type AddExternalOKBodyService struct {
 
 // Validate validates this add external OK body service
 func (o *AddExternalOKBodyService) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add external OK body service based on context it is used
+func (o *AddExternalOKBodyService) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -653,7 +820,6 @@ func (o *AddExternalParamsBodyAddNode) validateNodeTypeEnum(path, location strin
 }
 
 func (o *AddExternalParamsBodyAddNode) validateNodeType(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.NodeType) { // not required
 		return nil
 	}
@@ -663,6 +829,11 @@ func (o *AddExternalParamsBodyAddNode) validateNodeType(formats strfmt.Registry)
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this add external params body add node based on context it is used
+func (o *AddExternalParamsBodyAddNode) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -677,42 +848,6 @@ func (o *AddExternalParamsBodyAddNode) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddExternalParamsBodyAddNode) UnmarshalBinary(b []byte) error {
 	var res AddExternalParamsBodyAddNode
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*DetailsItems0 details items0
-swagger:model DetailsItems0
-*/
-type DetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
-}
-
-// Validate validates this details items0
-func (o *DetailsItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
-	var res DetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

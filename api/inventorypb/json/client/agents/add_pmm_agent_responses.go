@@ -6,6 +6,7 @@ package agents
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewAddPMMAgentOK() *AddPMMAgentOK {
 	return &AddPMMAgentOK{}
 }
 
-/*AddPMMAgentOK handles this case with default header values.
+/* AddPMMAgentOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type AddPMMAgentOK struct {
 func (o *AddPMMAgentOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddPMMAgent][%d] addPmmAgentOk  %+v", 200, o.Payload)
 }
-
 func (o *AddPMMAgentOK) GetPayload() *AddPMMAgentOKBody {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewAddPMMAgentDefault(code int) *AddPMMAgentDefault {
 	}
 }
 
-/*AddPMMAgentDefault handles this case with default header values.
+/* AddPMMAgentDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *AddPMMAgentDefault) Code() int {
 func (o *AddPMMAgentDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddPMMAgent][%d] AddPMMAgent default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AddPMMAgentDefault) GetPayload() *AddPMMAgentDefaultBody {
 	return o.Payload
 }
@@ -131,6 +130,11 @@ type AddPMMAgentBody struct {
 
 // Validate validates this add PMM agent body
 func (o *AddPMMAgentBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add PMM agent body based on context it is used
+func (o *AddPMMAgentBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -167,7 +171,7 @@ type AddPMMAgentDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*AddPMMAgentDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this add PMM agent default body
@@ -185,7 +189,6 @@ func (o *AddPMMAgentDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *AddPMMAgentDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -199,6 +202,42 @@ func (o *AddPMMAgentDefaultBody) validateDetails(formats strfmt.Registry) error 
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("AddPMMAgent default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddPMMAgent default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add PMM agent default body based on the context it is used
+func (o *AddPMMAgentDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddPMMAgentDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("AddPMMAgent default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddPMMAgent default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -220,6 +259,47 @@ func (o *AddPMMAgentDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddPMMAgentDefaultBody) UnmarshalBinary(b []byte) error {
 	var res AddPMMAgentDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddPMMAgentDefaultBodyDetailsItems0 add PMM agent default body details items0
+swagger:model AddPMMAgentDefaultBodyDetailsItems0
+*/
+type AddPMMAgentDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this add PMM agent default body details items0
+func (o *AddPMMAgentDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add PMM agent default body details items0 based on context it is used
+func (o *AddPMMAgentDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddPMMAgentDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddPMMAgentDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res AddPMMAgentDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -251,7 +331,6 @@ func (o *AddPMMAgentOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *AddPMMAgentOKBody) validatePMMAgent(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.PMMAgent) { // not required
 		return nil
 	}
@@ -260,6 +339,38 @@ func (o *AddPMMAgentOKBody) validatePMMAgent(formats strfmt.Registry) error {
 		if err := o.PMMAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addPmmAgentOk" + "." + "pmm_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addPmmAgentOk" + "." + "pmm_agent")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add PMM agent OK body based on the context it is used
+func (o *AddPMMAgentOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidatePMMAgent(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddPMMAgentOKBody) contextValidatePMMAgent(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.PMMAgent != nil {
+		if err := o.PMMAgent.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addPmmAgentOk" + "." + "pmm_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addPmmAgentOk" + "." + "pmm_agent")
 			}
 			return err
 		}
@@ -309,6 +420,11 @@ type AddPMMAgentOKBodyPMMAgent struct {
 
 // Validate validates this add PMM agent OK body PMM agent
 func (o *AddPMMAgentOKBodyPMMAgent) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add PMM agent OK body PMM agent based on context it is used
+func (o *AddPMMAgentOKBodyPMMAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

@@ -6,6 +6,7 @@ package services
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewAddMongoDBServiceOK() *AddMongoDBServiceOK {
 	return &AddMongoDBServiceOK{}
 }
 
-/*AddMongoDBServiceOK handles this case with default header values.
+/* AddMongoDBServiceOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type AddMongoDBServiceOK struct {
 func (o *AddMongoDBServiceOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/AddMongoDB][%d] addMongoDbServiceOk  %+v", 200, o.Payload)
 }
-
 func (o *AddMongoDBServiceOK) GetPayload() *AddMongoDBServiceOKBody {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewAddMongoDBServiceDefault(code int) *AddMongoDBServiceDefault {
 	}
 }
 
-/*AddMongoDBServiceDefault handles this case with default header values.
+/* AddMongoDBServiceDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *AddMongoDBServiceDefault) Code() int {
 func (o *AddMongoDBServiceDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/AddMongoDB][%d] AddMongoDBService default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AddMongoDBServiceDefault) GetPayload() *AddMongoDBServiceDefaultBody {
 	return o.Payload
 }
@@ -158,6 +157,11 @@ func (o *AddMongoDBServiceBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+// ContextValidate validates this add mongo DB service body based on context it is used
+func (o *AddMongoDBServiceBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *AddMongoDBServiceBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -191,7 +195,7 @@ type AddMongoDBServiceDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*AddMongoDBServiceDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this add mongo DB service default body
@@ -209,7 +213,6 @@ func (o *AddMongoDBServiceDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *AddMongoDBServiceDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -223,6 +226,42 @@ func (o *AddMongoDBServiceDefaultBody) validateDetails(formats strfmt.Registry) 
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("AddMongoDBService default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddMongoDBService default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add mongo DB service default body based on the context it is used
+func (o *AddMongoDBServiceDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddMongoDBServiceDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("AddMongoDBService default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddMongoDBService default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -244,6 +283,47 @@ func (o *AddMongoDBServiceDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddMongoDBServiceDefaultBody) UnmarshalBinary(b []byte) error {
 	var res AddMongoDBServiceDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddMongoDBServiceDefaultBodyDetailsItems0 add mongo DB service default body details items0
+swagger:model AddMongoDBServiceDefaultBodyDetailsItems0
+*/
+type AddMongoDBServiceDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this add mongo DB service default body details items0
+func (o *AddMongoDBServiceDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add mongo DB service default body details items0 based on context it is used
+func (o *AddMongoDBServiceDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddMongoDBServiceDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddMongoDBServiceDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res AddMongoDBServiceDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -275,7 +355,6 @@ func (o *AddMongoDBServiceOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *AddMongoDBServiceOKBody) validateMongodb(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Mongodb) { // not required
 		return nil
 	}
@@ -284,6 +363,38 @@ func (o *AddMongoDBServiceOKBody) validateMongodb(formats strfmt.Registry) error
 		if err := o.Mongodb.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addMongoDbServiceOk" + "." + "mongodb")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addMongoDbServiceOk" + "." + "mongodb")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add mongo DB service OK body based on the context it is used
+func (o *AddMongoDBServiceOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMongodb(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddMongoDBServiceOKBody) contextValidateMongodb(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Mongodb != nil {
+		if err := o.Mongodb.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addMongoDbServiceOk" + "." + "mongodb")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addMongoDbServiceOk" + "." + "mongodb")
 			}
 			return err
 		}
@@ -351,6 +462,11 @@ type AddMongoDBServiceOKBodyMongodb struct {
 
 // Validate validates this add mongo DB service OK body mongodb
 func (o *AddMongoDBServiceOKBodyMongodb) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add mongo DB service OK body mongodb based on context it is used
+func (o *AddMongoDBServiceOKBodyMongodb) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

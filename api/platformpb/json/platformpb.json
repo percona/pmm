@@ -41,6 +41,11 @@
                   "type": "string",
                   "x-order": 2
                 },
+                "personal_access_token": {
+                  "description": "Personal Access Token that the user obtains from Percona Portal.",
+                  "type": "string",
+                  "x-order": 3
+                },
                 "server_name": {
                   "description": "User defined human readable PMM Server Name.",
                   "type": "string",
@@ -396,6 +401,156 @@
                       }
                     }
                   },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/Platform/ServerInfo": {
+      "post": {
+        "description": "ServerInfo returns PMM server ID and name.",
+        "tags": [
+          "Platform"
+        ],
+        "summary": "ServerInfo",
+        "operationId": "ServerInfo",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "pmm_server_id": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "pmm_server_name": {
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/Platform/UserStatus": {
+      "post": {
+        "description": "UserStatus returns a boolean indicating whether the current user is logged in with their Percona Account or not.",
+        "tags": [
+          "Platform"
+        ],
+        "summary": "UserStatus",
+        "operationId": "UserStatus",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "is_platform_user": {
+                  "type": "boolean",
                   "x-order": 0
                 }
               }

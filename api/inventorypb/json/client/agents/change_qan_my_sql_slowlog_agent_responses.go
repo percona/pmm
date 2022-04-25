@@ -6,6 +6,7 @@ package agents
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,7 +50,7 @@ func NewChangeQANMySQLSlowlogAgentOK() *ChangeQANMySQLSlowlogAgentOK {
 	return &ChangeQANMySQLSlowlogAgentOK{}
 }
 
-/*ChangeQANMySQLSlowlogAgentOK handles this case with default header values.
+/* ChangeQANMySQLSlowlogAgentOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -60,7 +61,6 @@ type ChangeQANMySQLSlowlogAgentOK struct {
 func (o *ChangeQANMySQLSlowlogAgentOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeQANMySQLSlowlogAgent][%d] changeQanMySqlSlowlogAgentOk  %+v", 200, o.Payload)
 }
-
 func (o *ChangeQANMySQLSlowlogAgentOK) GetPayload() *ChangeQANMySQLSlowlogAgentOKBody {
 	return o.Payload
 }
@@ -84,7 +84,7 @@ func NewChangeQANMySQLSlowlogAgentDefault(code int) *ChangeQANMySQLSlowlogAgentD
 	}
 }
 
-/*ChangeQANMySQLSlowlogAgentDefault handles this case with default header values.
+/* ChangeQANMySQLSlowlogAgentDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -102,7 +102,6 @@ func (o *ChangeQANMySQLSlowlogAgentDefault) Code() int {
 func (o *ChangeQANMySQLSlowlogAgentDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeQANMySQLSlowlogAgent][%d] ChangeQANMySQLSlowlogAgent default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ChangeQANMySQLSlowlogAgentDefault) GetPayload() *ChangeQANMySQLSlowlogAgentDefaultBody {
 	return o.Payload
 }
@@ -146,7 +145,6 @@ func (o *ChangeQANMySQLSlowlogAgentBody) Validate(formats strfmt.Registry) error
 }
 
 func (o *ChangeQANMySQLSlowlogAgentBody) validateCommon(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Common) { // not required
 		return nil
 	}
@@ -155,6 +153,38 @@ func (o *ChangeQANMySQLSlowlogAgentBody) validateCommon(formats strfmt.Registry)
 		if err := o.Common.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "common")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "common")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change QAN my SQL slowlog agent body based on the context it is used
+func (o *ChangeQANMySQLSlowlogAgentBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateCommon(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeQANMySQLSlowlogAgentBody) contextValidateCommon(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Common != nil {
+		if err := o.Common.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "common")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "common")
 			}
 			return err
 		}
@@ -196,7 +226,7 @@ type ChangeQANMySQLSlowlogAgentDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*ChangeQANMySQLSlowlogAgentDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this change QAN my SQL slowlog agent default body
@@ -214,7 +244,6 @@ func (o *ChangeQANMySQLSlowlogAgentDefaultBody) Validate(formats strfmt.Registry
 }
 
 func (o *ChangeQANMySQLSlowlogAgentDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -228,6 +257,42 @@ func (o *ChangeQANMySQLSlowlogAgentDefaultBody) validateDetails(formats strfmt.R
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ChangeQANMySQLSlowlogAgent default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ChangeQANMySQLSlowlogAgent default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change QAN my SQL slowlog agent default body based on the context it is used
+func (o *ChangeQANMySQLSlowlogAgentDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeQANMySQLSlowlogAgentDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("ChangeQANMySQLSlowlogAgent default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ChangeQANMySQLSlowlogAgent default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -249,6 +314,47 @@ func (o *ChangeQANMySQLSlowlogAgentDefaultBody) MarshalBinary() ([]byte, error) 
 // UnmarshalBinary interface implementation
 func (o *ChangeQANMySQLSlowlogAgentDefaultBody) UnmarshalBinary(b []byte) error {
 	var res ChangeQANMySQLSlowlogAgentDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ChangeQANMySQLSlowlogAgentDefaultBodyDetailsItems0 change QAN my SQL slowlog agent default body details items0
+swagger:model ChangeQANMySQLSlowlogAgentDefaultBodyDetailsItems0
+*/
+type ChangeQANMySQLSlowlogAgentDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this change QAN my SQL slowlog agent default body details items0
+func (o *ChangeQANMySQLSlowlogAgentDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change QAN my SQL slowlog agent default body details items0 based on context it is used
+func (o *ChangeQANMySQLSlowlogAgentDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeQANMySQLSlowlogAgentDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeQANMySQLSlowlogAgentDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res ChangeQANMySQLSlowlogAgentDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -280,7 +386,6 @@ func (o *ChangeQANMySQLSlowlogAgentOKBody) Validate(formats strfmt.Registry) err
 }
 
 func (o *ChangeQANMySQLSlowlogAgentOKBody) validateQANMysqlSlowlogAgent(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.QANMysqlSlowlogAgent) { // not required
 		return nil
 	}
@@ -289,6 +394,38 @@ func (o *ChangeQANMySQLSlowlogAgentOKBody) validateQANMysqlSlowlogAgent(formats 
 		if err := o.QANMysqlSlowlogAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changeQanMySqlSlowlogAgentOk" + "." + "qan_mysql_slowlog_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeQanMySqlSlowlogAgentOk" + "." + "qan_mysql_slowlog_agent")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change QAN my SQL slowlog agent OK body based on the context it is used
+func (o *ChangeQANMySQLSlowlogAgentOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateQANMysqlSlowlogAgent(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeQANMySQLSlowlogAgentOKBody) contextValidateQANMysqlSlowlogAgent(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.QANMysqlSlowlogAgent != nil {
+		if err := o.QANMysqlSlowlogAgent.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeQanMySqlSlowlogAgentOk" + "." + "qan_mysql_slowlog_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeQanMySqlSlowlogAgentOk" + "." + "qan_mysql_slowlog_agent")
 			}
 			return err
 		}
@@ -433,7 +570,6 @@ func (o *ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent) validateStatusEnu
 }
 
 func (o *ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -443,6 +579,11 @@ func (o *ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent) validateStatus(fo
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this change QAN my SQL slowlog agent OK body QAN mysql slowlog agent based on context it is used
+func (o *ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -491,6 +632,11 @@ type ChangeQANMySQLSlowlogAgentParamsBodyCommon struct {
 
 // Validate validates this change QAN my SQL slowlog agent params body common
 func (o *ChangeQANMySQLSlowlogAgentParamsBodyCommon) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change QAN my SQL slowlog agent params body common based on context it is used
+func (o *ChangeQANMySQLSlowlogAgentParamsBodyCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

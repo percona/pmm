@@ -17,59 +17,73 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// NewStatus2Params creates a new Status2Params object
-// with the default values initialized.
+// NewStatus2Params creates a new Status2Params object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewStatus2Params() *Status2Params {
-	var ()
 	return &Status2Params{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewStatus2ParamsWithTimeout creates a new Status2Params object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewStatus2ParamsWithTimeout(timeout time.Duration) *Status2Params {
-	var ()
 	return &Status2Params{
-
 		timeout: timeout,
 	}
 }
 
 // NewStatus2ParamsWithContext creates a new Status2Params object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewStatus2ParamsWithContext(ctx context.Context) *Status2Params {
-	var ()
 	return &Status2Params{
-
 		Context: ctx,
 	}
 }
 
 // NewStatus2ParamsWithHTTPClient creates a new Status2Params object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewStatus2ParamsWithHTTPClient(client *http.Client) *Status2Params {
-	var ()
 	return &Status2Params{
 		HTTPClient: client,
 	}
 }
 
-/*Status2Params contains all the parameters to send to the API endpoint
-for the status2 operation typically these are written to a http.Request
+/* Status2Params contains all the parameters to send to the API endpoint
+   for the status2 operation.
+
+   Typically these are written to a http.Request.
 */
 type Status2Params struct {
 
-	/*GetNetworkInfo
-	  Returns network info (latency and clock_drift) if true.
+	/* GetNetworkInfo.
 
+	   Returns network info (latency and clock_drift) if true.
 	*/
 	GetNetworkInfo *bool
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the status2 params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *Status2Params) WithDefaults() *Status2Params {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the status2 params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *Status2Params) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the status2 params
@@ -128,16 +142,17 @@ func (o *Status2Params) WriteToRequest(r runtime.ClientRequest, reg strfmt.Regis
 
 		// query param get_network_info
 		var qrGetNetworkInfo bool
+
 		if o.GetNetworkInfo != nil {
 			qrGetNetworkInfo = *o.GetNetworkInfo
 		}
 		qGetNetworkInfo := swag.FormatBool(qrGetNetworkInfo)
 		if qGetNetworkInfo != "" {
+
 			if err := r.SetQueryParam("get_network_info", qGetNetworkInfo); err != nil {
 				return err
 			}
 		}
-
 	}
 
 	if len(res) > 0 {

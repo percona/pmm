@@ -6,6 +6,7 @@ package actions
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewGetActionOK() *GetActionOK {
 	return &GetActionOK{}
 }
 
-/*GetActionOK handles this case with default header values.
+/* GetActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type GetActionOK struct {
 func (o *GetActionOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/Get][%d] getActionOk  %+v", 200, o.Payload)
 }
-
 func (o *GetActionOK) GetPayload() *GetActionOKBody {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewGetActionDefault(code int) *GetActionDefault {
 	}
 }
 
-/*GetActionDefault handles this case with default header values.
+/* GetActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *GetActionDefault) Code() int {
 func (o *GetActionDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/Get][%d] GetAction default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *GetActionDefault) GetPayload() *GetActionDefaultBody {
 	return o.Payload
 }
@@ -128,6 +127,11 @@ type GetActionBody struct {
 
 // Validate validates this get action body
 func (o *GetActionBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get action body based on context it is used
+func (o *GetActionBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -164,7 +168,7 @@ type GetActionDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*GetActionDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this get action default body
@@ -182,7 +186,6 @@ func (o *GetActionDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *GetActionDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -196,6 +199,42 @@ func (o *GetActionDefaultBody) validateDetails(formats strfmt.Registry) error {
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("GetAction default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("GetAction default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get action default body based on the context it is used
+func (o *GetActionDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetActionDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("GetAction default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("GetAction default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -217,6 +256,47 @@ func (o *GetActionDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetActionDefaultBody) UnmarshalBinary(b []byte) error {
 	var res GetActionDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetActionDefaultBodyDetailsItems0 get action default body details items0
+swagger:model GetActionDefaultBodyDetailsItems0
+*/
+type GetActionDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this get action default body details items0
+func (o *GetActionDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get action default body details items0 based on context it is used
+func (o *GetActionDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetActionDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetActionDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetActionDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -247,6 +327,11 @@ type GetActionOKBody struct {
 
 // Validate validates this get action OK body
 func (o *GetActionOKBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get action OK body based on context it is used
+func (o *GetActionOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

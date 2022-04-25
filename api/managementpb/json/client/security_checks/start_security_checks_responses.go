@@ -6,6 +6,7 @@ package security_checks
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewStartSecurityChecksOK() *StartSecurityChecksOK {
 	return &StartSecurityChecksOK{}
 }
 
-/*StartSecurityChecksOK handles this case with default header values.
+/* StartSecurityChecksOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type StartSecurityChecksOK struct {
 func (o *StartSecurityChecksOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/Start][%d] startSecurityChecksOk  %+v", 200, o.Payload)
 }
-
 func (o *StartSecurityChecksOK) GetPayload() interface{} {
 	return o.Payload
 }
@@ -80,7 +80,7 @@ func NewStartSecurityChecksDefault(code int) *StartSecurityChecksDefault {
 	}
 }
 
-/*StartSecurityChecksDefault handles this case with default header values.
+/* StartSecurityChecksDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -98,7 +98,6 @@ func (o *StartSecurityChecksDefault) Code() int {
 func (o *StartSecurityChecksDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/Start][%d] StartSecurityChecks default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *StartSecurityChecksDefault) GetPayload() *StartSecurityChecksDefaultBody {
 	return o.Payload
 }
@@ -126,6 +125,11 @@ type StartSecurityChecksBody struct {
 
 // Validate validates this start security checks body
 func (o *StartSecurityChecksBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this start security checks body based on context it is used
+func (o *StartSecurityChecksBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -162,7 +166,7 @@ type StartSecurityChecksDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*StartSecurityChecksDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this start security checks default body
@@ -180,7 +184,6 @@ func (o *StartSecurityChecksDefaultBody) Validate(formats strfmt.Registry) error
 }
 
 func (o *StartSecurityChecksDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -194,6 +197,42 @@ func (o *StartSecurityChecksDefaultBody) validateDetails(formats strfmt.Registry
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("StartSecurityChecks default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("StartSecurityChecks default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this start security checks default body based on the context it is used
+func (o *StartSecurityChecksDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *StartSecurityChecksDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("StartSecurityChecks default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("StartSecurityChecks default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -215,6 +254,47 @@ func (o *StartSecurityChecksDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *StartSecurityChecksDefaultBody) UnmarshalBinary(b []byte) error {
 	var res StartSecurityChecksDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*StartSecurityChecksDefaultBodyDetailsItems0 start security checks default body details items0
+swagger:model StartSecurityChecksDefaultBodyDetailsItems0
+*/
+type StartSecurityChecksDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this start security checks default body details items0
+func (o *StartSecurityChecksDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this start security checks default body details items0 based on context it is used
+func (o *StartSecurityChecksDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *StartSecurityChecksDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *StartSecurityChecksDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res StartSecurityChecksDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

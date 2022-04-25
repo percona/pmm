@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewReloadParams creates a new ReloadParams object
-// with the default values initialized.
+// NewReloadParams creates a new ReloadParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewReloadParams() *ReloadParams {
-	var ()
 	return &ReloadParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewReloadParamsWithTimeout creates a new ReloadParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewReloadParamsWithTimeout(timeout time.Duration) *ReloadParams {
-	var ()
 	return &ReloadParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewReloadParamsWithContext creates a new ReloadParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewReloadParamsWithContext(ctx context.Context) *ReloadParams {
-	var ()
 	return &ReloadParams{
-
 		Context: ctx,
 	}
 }
 
 // NewReloadParamsWithHTTPClient creates a new ReloadParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewReloadParamsWithHTTPClient(client *http.Client) *ReloadParams {
-	var ()
 	return &ReloadParams{
 		HTTPClient: client,
 	}
 }
 
-/*ReloadParams contains all the parameters to send to the API endpoint
-for the reload operation typically these are written to a http.Request
+/* ReloadParams contains all the parameters to send to the API endpoint
+   for the reload operation.
+
+   Typically these are written to a http.Request.
 */
 type ReloadParams struct {
 
-	/*Body*/
+	// Body.
 	Body interface{}
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the reload params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ReloadParams) WithDefaults() *ReloadParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the reload params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ReloadParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the reload params
@@ -119,7 +133,6 @@ func (o *ReloadParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Regist
 		return err
 	}
 	var res []error
-
 	if o.Body != nil {
 		if err := r.SetBodyParam(o.Body); err != nil {
 			return err

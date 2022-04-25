@@ -23,11 +23,14 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	DeleteArtifact(params *DeleteArtifactParams) (*DeleteArtifactOK, error)
+	DeleteArtifact(params *DeleteArtifactParams, opts ...ClientOption) (*DeleteArtifactOK, error)
 
-	ListArtifacts(params *ListArtifactsParams) (*ListArtifactsOK, error)
+	ListArtifacts(params *ListArtifactsParams, opts ...ClientOption) (*ListArtifactsOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -35,13 +38,12 @@ type ClientService interface {
 /*
   DeleteArtifact deletes artifact deletes specified artifact
 */
-func (a *Client) DeleteArtifact(params *DeleteArtifactParams) (*DeleteArtifactOK, error) {
+func (a *Client) DeleteArtifact(params *DeleteArtifactParams, opts ...ClientOption) (*DeleteArtifactOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewDeleteArtifactParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "DeleteArtifact",
 		Method:             "POST",
 		PathPattern:        "/v1/management/backup/Artifacts/Delete",
@@ -52,7 +54,12 @@ func (a *Client) DeleteArtifact(params *DeleteArtifactParams) (*DeleteArtifactOK
 		Reader:             &DeleteArtifactReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -68,13 +75,12 @@ func (a *Client) DeleteArtifact(params *DeleteArtifactParams) (*DeleteArtifactOK
 /*
   ListArtifacts lists artifacts returns a list of all backup artifacts
 */
-func (a *Client) ListArtifacts(params *ListArtifactsParams) (*ListArtifactsOK, error) {
+func (a *Client) ListArtifacts(params *ListArtifactsParams, opts ...ClientOption) (*ListArtifactsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewListArtifactsParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "ListArtifacts",
 		Method:             "POST",
 		PathPattern:        "/v1/management/backup/Artifacts/List",
@@ -85,7 +91,12 @@ func (a *Client) ListArtifacts(params *ListArtifactsParams) (*ListArtifactsOK, e
 		Reader:             &ListArtifactsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

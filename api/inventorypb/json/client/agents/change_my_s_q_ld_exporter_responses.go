@@ -6,6 +6,7 @@ package agents
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,7 +50,7 @@ func NewChangeMySQLdExporterOK() *ChangeMySQLdExporterOK {
 	return &ChangeMySQLdExporterOK{}
 }
 
-/*ChangeMySQLdExporterOK handles this case with default header values.
+/* ChangeMySQLdExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -60,7 +61,6 @@ type ChangeMySQLdExporterOK struct {
 func (o *ChangeMySQLdExporterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeMySQLdExporter][%d] changeMySQLdExporterOk  %+v", 200, o.Payload)
 }
-
 func (o *ChangeMySQLdExporterOK) GetPayload() *ChangeMySQLdExporterOKBody {
 	return o.Payload
 }
@@ -84,7 +84,7 @@ func NewChangeMySQLdExporterDefault(code int) *ChangeMySQLdExporterDefault {
 	}
 }
 
-/*ChangeMySQLdExporterDefault handles this case with default header values.
+/* ChangeMySQLdExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -102,7 +102,6 @@ func (o *ChangeMySQLdExporterDefault) Code() int {
 func (o *ChangeMySQLdExporterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeMySQLdExporter][%d] ChangeMySQLdExporter default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ChangeMySQLdExporterDefault) GetPayload() *ChangeMySQLdExporterDefaultBody {
 	return o.Payload
 }
@@ -146,7 +145,6 @@ func (o *ChangeMySQLdExporterBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *ChangeMySQLdExporterBody) validateCommon(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Common) { // not required
 		return nil
 	}
@@ -155,6 +153,38 @@ func (o *ChangeMySQLdExporterBody) validateCommon(formats strfmt.Registry) error
 		if err := o.Common.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "common")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "common")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change my s q ld exporter body based on the context it is used
+func (o *ChangeMySQLdExporterBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateCommon(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeMySQLdExporterBody) contextValidateCommon(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Common != nil {
+		if err := o.Common.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "common")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "common")
 			}
 			return err
 		}
@@ -196,7 +226,7 @@ type ChangeMySQLdExporterDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*ChangeMySQLdExporterDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this change my s q ld exporter default body
@@ -214,7 +244,6 @@ func (o *ChangeMySQLdExporterDefaultBody) Validate(formats strfmt.Registry) erro
 }
 
 func (o *ChangeMySQLdExporterDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -228,6 +257,42 @@ func (o *ChangeMySQLdExporterDefaultBody) validateDetails(formats strfmt.Registr
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ChangeMySQLdExporter default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ChangeMySQLdExporter default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change my s q ld exporter default body based on the context it is used
+func (o *ChangeMySQLdExporterDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeMySQLdExporterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("ChangeMySQLdExporter default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ChangeMySQLdExporter default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -249,6 +314,47 @@ func (o *ChangeMySQLdExporterDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ChangeMySQLdExporterDefaultBody) UnmarshalBinary(b []byte) error {
 	var res ChangeMySQLdExporterDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ChangeMySQLdExporterDefaultBodyDetailsItems0 change my s q ld exporter default body details items0
+swagger:model ChangeMySQLdExporterDefaultBodyDetailsItems0
+*/
+type ChangeMySQLdExporterDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this change my s q ld exporter default body details items0
+func (o *ChangeMySQLdExporterDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change my s q ld exporter default body details items0 based on context it is used
+func (o *ChangeMySQLdExporterDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeMySQLdExporterDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeMySQLdExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res ChangeMySQLdExporterDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -280,7 +386,6 @@ func (o *ChangeMySQLdExporterOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *ChangeMySQLdExporterOKBody) validateMysqldExporter(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.MysqldExporter) { // not required
 		return nil
 	}
@@ -289,6 +394,38 @@ func (o *ChangeMySQLdExporterOKBody) validateMysqldExporter(formats strfmt.Regis
 		if err := o.MysqldExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changeMySQLdExporterOk" + "." + "mysqld_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeMySQLdExporterOk" + "." + "mysqld_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change my s q ld exporter OK body based on the context it is used
+func (o *ChangeMySQLdExporterOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMysqldExporter(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeMySQLdExporterOKBody) contextValidateMysqldExporter(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.MysqldExporter != nil {
+		if err := o.MysqldExporter.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeMySQLdExporterOk" + "." + "mysqld_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeMySQLdExporterOk" + "." + "mysqld_exporter")
 			}
 			return err
 		}
@@ -444,7 +581,6 @@ func (o *ChangeMySQLdExporterOKBodyMysqldExporter) validateStatusEnum(path, loca
 }
 
 func (o *ChangeMySQLdExporterOKBodyMysqldExporter) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -454,6 +590,11 @@ func (o *ChangeMySQLdExporterOKBodyMysqldExporter) validateStatus(formats strfmt
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this change my s q ld exporter OK body mysqld exporter based on context it is used
+func (o *ChangeMySQLdExporterOKBodyMysqldExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -502,6 +643,11 @@ type ChangeMySQLdExporterParamsBodyCommon struct {
 
 // Validate validates this change my s q ld exporter params body common
 func (o *ChangeMySQLdExporterParamsBodyCommon) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change my s q ld exporter params body common based on context it is used
+func (o *ChangeMySQLdExporterParamsBodyCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

@@ -6,6 +6,7 @@ package nodes
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewAddGenericNodeOK() *AddGenericNodeOK {
 	return &AddGenericNodeOK{}
 }
 
-/*AddGenericNodeOK handles this case with default header values.
+/* AddGenericNodeOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type AddGenericNodeOK struct {
 func (o *AddGenericNodeOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddGeneric][%d] addGenericNodeOk  %+v", 200, o.Payload)
 }
-
 func (o *AddGenericNodeOK) GetPayload() *AddGenericNodeOKBody {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewAddGenericNodeDefault(code int) *AddGenericNodeDefault {
 	}
 }
 
-/*AddGenericNodeDefault handles this case with default header values.
+/* AddGenericNodeDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *AddGenericNodeDefault) Code() int {
 func (o *AddGenericNodeDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddGeneric][%d] AddGenericNode default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AddGenericNodeDefault) GetPayload() *AddGenericNodeDefaultBody {
 	return o.Payload
 }
@@ -152,6 +151,11 @@ func (o *AddGenericNodeBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+// ContextValidate validates this add generic node body based on context it is used
+func (o *AddGenericNodeBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *AddGenericNodeBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -185,7 +189,7 @@ type AddGenericNodeDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*AddGenericNodeDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this add generic node default body
@@ -203,7 +207,6 @@ func (o *AddGenericNodeDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *AddGenericNodeDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -217,6 +220,42 @@ func (o *AddGenericNodeDefaultBody) validateDetails(formats strfmt.Registry) err
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("AddGenericNode default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddGenericNode default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add generic node default body based on the context it is used
+func (o *AddGenericNodeDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddGenericNodeDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("AddGenericNode default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddGenericNode default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -238,6 +277,47 @@ func (o *AddGenericNodeDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddGenericNodeDefaultBody) UnmarshalBinary(b []byte) error {
 	var res AddGenericNodeDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddGenericNodeDefaultBodyDetailsItems0 add generic node default body details items0
+swagger:model AddGenericNodeDefaultBodyDetailsItems0
+*/
+type AddGenericNodeDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this add generic node default body details items0
+func (o *AddGenericNodeDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add generic node default body details items0 based on context it is used
+func (o *AddGenericNodeDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddGenericNodeDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddGenericNodeDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res AddGenericNodeDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -269,7 +349,6 @@ func (o *AddGenericNodeOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *AddGenericNodeOKBody) validateGeneric(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Generic) { // not required
 		return nil
 	}
@@ -278,6 +357,38 @@ func (o *AddGenericNodeOKBody) validateGeneric(formats strfmt.Registry) error {
 		if err := o.Generic.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addGenericNodeOk" + "." + "generic")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addGenericNodeOk" + "." + "generic")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add generic node OK body based on the context it is used
+func (o *AddGenericNodeOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateGeneric(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddGenericNodeOKBody) contextValidateGeneric(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Generic != nil {
+		if err := o.Generic.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addGenericNodeOk" + "." + "generic")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addGenericNodeOk" + "." + "generic")
 			}
 			return err
 		}
@@ -339,6 +450,11 @@ type AddGenericNodeOKBodyGeneric struct {
 
 // Validate validates this add generic node OK body generic
 func (o *AddGenericNodeOKBodyGeneric) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add generic node OK body generic based on context it is used
+func (o *AddGenericNodeOKBodyGeneric) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

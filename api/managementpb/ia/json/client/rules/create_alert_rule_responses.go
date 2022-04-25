@@ -6,6 +6,7 @@ package rules
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,7 +50,7 @@ func NewCreateAlertRuleOK() *CreateAlertRuleOK {
 	return &CreateAlertRuleOK{}
 }
 
-/*CreateAlertRuleOK handles this case with default header values.
+/* CreateAlertRuleOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -60,7 +61,6 @@ type CreateAlertRuleOK struct {
 func (o *CreateAlertRuleOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Rules/Create][%d] createAlertRuleOk  %+v", 200, o.Payload)
 }
-
 func (o *CreateAlertRuleOK) GetPayload() *CreateAlertRuleOKBody {
 	return o.Payload
 }
@@ -84,7 +84,7 @@ func NewCreateAlertRuleDefault(code int) *CreateAlertRuleDefault {
 	}
 }
 
-/*CreateAlertRuleDefault handles this case with default header values.
+/* CreateAlertRuleDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -102,7 +102,6 @@ func (o *CreateAlertRuleDefault) Code() int {
 func (o *CreateAlertRuleDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Rules/Create][%d] CreateAlertRule default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *CreateAlertRuleDefault) GetPayload() *CreateAlertRuleDefaultBody {
 	return o.Payload
 }
@@ -137,7 +136,7 @@ type CreateAlertRuleBody struct {
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Rule parameters. All template parameters should be set.
-	Params []*ParamsItems0 `json:"params"`
+	Params []*CreateAlertRuleParamsBodyParamsItems0 `json:"params"`
 
 	// Rule duration. Should be set.
 	For string `json:"for,omitempty"`
@@ -150,7 +149,7 @@ type CreateAlertRuleBody struct {
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Filters. Should be set.
-	Filters []*FiltersItems0 `json:"filters"`
+	Filters []*CreateAlertRuleParamsBodyFiltersItems0 `json:"filters"`
 
 	// Channels. Should be set.
 	ChannelIds []string `json:"channel_ids"`
@@ -179,7 +178,6 @@ func (o *CreateAlertRuleBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *CreateAlertRuleBody) validateParams(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Params) { // not required
 		return nil
 	}
@@ -193,6 +191,8 @@ func (o *CreateAlertRuleBody) validateParams(formats strfmt.Registry) error {
 			if err := o.Params[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("body" + "." + "params" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("body" + "." + "params" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -254,7 +254,6 @@ func (o *CreateAlertRuleBody) validateSeverityEnum(path, location string, value 
 }
 
 func (o *CreateAlertRuleBody) validateSeverity(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Severity) { // not required
 		return nil
 	}
@@ -268,7 +267,6 @@ func (o *CreateAlertRuleBody) validateSeverity(formats strfmt.Registry) error {
 }
 
 func (o *CreateAlertRuleBody) validateFilters(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Filters) { // not required
 		return nil
 	}
@@ -282,6 +280,66 @@ func (o *CreateAlertRuleBody) validateFilters(formats strfmt.Registry) error {
 			if err := o.Filters[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("body" + "." + "filters" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("body" + "." + "filters" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this create alert rule body based on the context it is used
+func (o *CreateAlertRuleBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateParams(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateFilters(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *CreateAlertRuleBody) contextValidateParams(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Params); i++ {
+
+		if o.Params[i] != nil {
+			if err := o.Params[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("body" + "." + "params" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("body" + "." + "params" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *CreateAlertRuleBody) contextValidateFilters(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Filters); i++ {
+
+		if o.Filters[i] != nil {
+			if err := o.Filters[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("body" + "." + "filters" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("body" + "." + "filters" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -325,7 +383,7 @@ type CreateAlertRuleDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*CreateAlertRuleDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this create alert rule default body
@@ -343,7 +401,6 @@ func (o *CreateAlertRuleDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *CreateAlertRuleDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -357,6 +414,42 @@ func (o *CreateAlertRuleDefaultBody) validateDetails(formats strfmt.Registry) er
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("CreateAlertRule default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("CreateAlertRule default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this create alert rule default body based on the context it is used
+func (o *CreateAlertRuleDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *CreateAlertRuleDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("CreateAlertRule default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("CreateAlertRule default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -385,6 +478,47 @@ func (o *CreateAlertRuleDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*CreateAlertRuleDefaultBodyDetailsItems0 create alert rule default body details items0
+swagger:model CreateAlertRuleDefaultBodyDetailsItems0
+*/
+type CreateAlertRuleDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this create alert rule default body details items0
+func (o *CreateAlertRuleDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this create alert rule default body details items0 based on context it is used
+func (o *CreateAlertRuleDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *CreateAlertRuleDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *CreateAlertRuleDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res CreateAlertRuleDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*CreateAlertRuleOKBody create alert rule OK body
 swagger:model CreateAlertRuleOKBody
 */
@@ -396,6 +530,11 @@ type CreateAlertRuleOKBody struct {
 
 // Validate validates this create alert rule OK body
 func (o *CreateAlertRuleOKBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this create alert rule OK body based on context it is used
+func (o *CreateAlertRuleOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -417,46 +556,10 @@ func (o *CreateAlertRuleOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*DetailsItems0 details items0
-swagger:model DetailsItems0
+/*CreateAlertRuleParamsBodyFiltersItems0 Filter repsents a single filter condition.
+swagger:model CreateAlertRuleParamsBodyFiltersItems0
 */
-type DetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
-}
-
-// Validate validates this details items0
-func (o *DetailsItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
-	var res DetailsItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*FiltersItems0 Filter repsents a single filter condition.
-swagger:model FiltersItems0
-*/
-type FiltersItems0 struct {
+type CreateAlertRuleParamsBodyFiltersItems0 struct {
 
 	// FilterType represents filter matching type.
 	//
@@ -472,8 +575,8 @@ type FiltersItems0 struct {
 	Value string `json:"value,omitempty"`
 }
 
-// Validate validates this filters items0
-func (o *FiltersItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this create alert rule params body filters items0
+func (o *CreateAlertRuleParamsBodyFiltersItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateType(formats); err != nil {
@@ -486,7 +589,7 @@ func (o *FiltersItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var filtersItems0TypeTypePropEnum []interface{}
+var createAlertRuleParamsBodyFiltersItems0TypeTypePropEnum []interface{}
 
 func init() {
 	var res []string
@@ -494,32 +597,31 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		filtersItems0TypeTypePropEnum = append(filtersItems0TypeTypePropEnum, v)
+		createAlertRuleParamsBodyFiltersItems0TypeTypePropEnum = append(createAlertRuleParamsBodyFiltersItems0TypeTypePropEnum, v)
 	}
 }
 
 const (
 
-	// FiltersItems0TypeFILTERTYPEINVALID captures enum value "FILTER_TYPE_INVALID"
-	FiltersItems0TypeFILTERTYPEINVALID string = "FILTER_TYPE_INVALID"
+	// CreateAlertRuleParamsBodyFiltersItems0TypeFILTERTYPEINVALID captures enum value "FILTER_TYPE_INVALID"
+	CreateAlertRuleParamsBodyFiltersItems0TypeFILTERTYPEINVALID string = "FILTER_TYPE_INVALID"
 
-	// FiltersItems0TypeEQUAL captures enum value "EQUAL"
-	FiltersItems0TypeEQUAL string = "EQUAL"
+	// CreateAlertRuleParamsBodyFiltersItems0TypeEQUAL captures enum value "EQUAL"
+	CreateAlertRuleParamsBodyFiltersItems0TypeEQUAL string = "EQUAL"
 
-	// FiltersItems0TypeREGEX captures enum value "REGEX"
-	FiltersItems0TypeREGEX string = "REGEX"
+	// CreateAlertRuleParamsBodyFiltersItems0TypeREGEX captures enum value "REGEX"
+	CreateAlertRuleParamsBodyFiltersItems0TypeREGEX string = "REGEX"
 )
 
 // prop value enum
-func (o *FiltersItems0) validateTypeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, filtersItems0TypeTypePropEnum, true); err != nil {
+func (o *CreateAlertRuleParamsBodyFiltersItems0) validateTypeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, createAlertRuleParamsBodyFiltersItems0TypeTypePropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *FiltersItems0) validateType(formats strfmt.Registry) error {
-
+func (o *CreateAlertRuleParamsBodyFiltersItems0) validateType(formats strfmt.Registry) error {
 	if swag.IsZero(o.Type) { // not required
 		return nil
 	}
@@ -532,8 +634,13 @@ func (o *FiltersItems0) validateType(formats strfmt.Registry) error {
 	return nil
 }
 
+// ContextValidate validates this create alert rule params body filters items0 based on context it is used
+func (o *CreateAlertRuleParamsBodyFiltersItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
-func (o *FiltersItems0) MarshalBinary() ([]byte, error) {
+func (o *CreateAlertRuleParamsBodyFiltersItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -541,8 +648,8 @@ func (o *FiltersItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *FiltersItems0) UnmarshalBinary(b []byte) error {
-	var res FiltersItems0
+func (o *CreateAlertRuleParamsBodyFiltersItems0) UnmarshalBinary(b []byte) error {
+	var res CreateAlertRuleParamsBodyFiltersItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -550,10 +657,10 @@ func (o *FiltersItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ParamsItems0 ParamValue represents a single rule parameter value for List, Change and Update APIs.
-swagger:model ParamsItems0
+/*CreateAlertRuleParamsBodyParamsItems0 ParamValue represents a single rule parameter value for List, Change and Update APIs.
+swagger:model CreateAlertRuleParamsBodyParamsItems0
 */
-type ParamsItems0 struct {
+type CreateAlertRuleParamsBodyParamsItems0 struct {
 
 	// Machine-readable name (ID) that is used in expression.
 	Name string `json:"name,omitempty"`
@@ -572,8 +679,8 @@ type ParamsItems0 struct {
 	String string `json:"string,omitempty"`
 }
 
-// Validate validates this params items0
-func (o *ParamsItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this create alert rule params body params items0
+func (o *CreateAlertRuleParamsBodyParamsItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateType(formats); err != nil {
@@ -586,7 +693,7 @@ func (o *ParamsItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var paramsItems0TypeTypePropEnum []interface{}
+var createAlertRuleParamsBodyParamsItems0TypeTypePropEnum []interface{}
 
 func init() {
 	var res []string
@@ -594,35 +701,34 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		paramsItems0TypeTypePropEnum = append(paramsItems0TypeTypePropEnum, v)
+		createAlertRuleParamsBodyParamsItems0TypeTypePropEnum = append(createAlertRuleParamsBodyParamsItems0TypeTypePropEnum, v)
 	}
 }
 
 const (
 
-	// ParamsItems0TypePARAMTYPEINVALID captures enum value "PARAM_TYPE_INVALID"
-	ParamsItems0TypePARAMTYPEINVALID string = "PARAM_TYPE_INVALID"
+	// CreateAlertRuleParamsBodyParamsItems0TypePARAMTYPEINVALID captures enum value "PARAM_TYPE_INVALID"
+	CreateAlertRuleParamsBodyParamsItems0TypePARAMTYPEINVALID string = "PARAM_TYPE_INVALID"
 
-	// ParamsItems0TypeBOOL captures enum value "BOOL"
-	ParamsItems0TypeBOOL string = "BOOL"
+	// CreateAlertRuleParamsBodyParamsItems0TypeBOOL captures enum value "BOOL"
+	CreateAlertRuleParamsBodyParamsItems0TypeBOOL string = "BOOL"
 
-	// ParamsItems0TypeFLOAT captures enum value "FLOAT"
-	ParamsItems0TypeFLOAT string = "FLOAT"
+	// CreateAlertRuleParamsBodyParamsItems0TypeFLOAT captures enum value "FLOAT"
+	CreateAlertRuleParamsBodyParamsItems0TypeFLOAT string = "FLOAT"
 
-	// ParamsItems0TypeSTRING captures enum value "STRING"
-	ParamsItems0TypeSTRING string = "STRING"
+	// CreateAlertRuleParamsBodyParamsItems0TypeSTRING captures enum value "STRING"
+	CreateAlertRuleParamsBodyParamsItems0TypeSTRING string = "STRING"
 )
 
 // prop value enum
-func (o *ParamsItems0) validateTypeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, paramsItems0TypeTypePropEnum, true); err != nil {
+func (o *CreateAlertRuleParamsBodyParamsItems0) validateTypeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, createAlertRuleParamsBodyParamsItems0TypeTypePropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *ParamsItems0) validateType(formats strfmt.Registry) error {
-
+func (o *CreateAlertRuleParamsBodyParamsItems0) validateType(formats strfmt.Registry) error {
 	if swag.IsZero(o.Type) { // not required
 		return nil
 	}
@@ -635,8 +741,13 @@ func (o *ParamsItems0) validateType(formats strfmt.Registry) error {
 	return nil
 }
 
+// ContextValidate validates this create alert rule params body params items0 based on context it is used
+func (o *CreateAlertRuleParamsBodyParamsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
-func (o *ParamsItems0) MarshalBinary() ([]byte, error) {
+func (o *CreateAlertRuleParamsBodyParamsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -644,8 +755,8 @@ func (o *ParamsItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *ParamsItems0) UnmarshalBinary(b []byte) error {
-	var res ParamsItems0
+func (o *CreateAlertRuleParamsBodyParamsItems0) UnmarshalBinary(b []byte) error {
+	var res CreateAlertRuleParamsBodyParamsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

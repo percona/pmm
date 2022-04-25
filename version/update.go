@@ -1,8 +1,6 @@
 package version
 
-import (
-	"time"
-)
+import "time"
 
 // PackageInfo describes a single package version.
 type PackageInfo struct {

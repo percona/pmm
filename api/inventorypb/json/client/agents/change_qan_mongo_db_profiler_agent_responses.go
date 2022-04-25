@@ -6,6 +6,7 @@ package agents
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,7 +50,7 @@ func NewChangeQANMongoDBProfilerAgentOK() *ChangeQANMongoDBProfilerAgentOK {
 	return &ChangeQANMongoDBProfilerAgentOK{}
 }
 
-/*ChangeQANMongoDBProfilerAgentOK handles this case with default header values.
+/* ChangeQANMongoDBProfilerAgentOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -60,7 +61,6 @@ type ChangeQANMongoDBProfilerAgentOK struct {
 func (o *ChangeQANMongoDBProfilerAgentOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeQANMongoDBProfilerAgent][%d] changeQanMongoDbProfilerAgentOk  %+v", 200, o.Payload)
 }
-
 func (o *ChangeQANMongoDBProfilerAgentOK) GetPayload() *ChangeQANMongoDBProfilerAgentOKBody {
 	return o.Payload
 }
@@ -84,7 +84,7 @@ func NewChangeQANMongoDBProfilerAgentDefault(code int) *ChangeQANMongoDBProfiler
 	}
 }
 
-/*ChangeQANMongoDBProfilerAgentDefault handles this case with default header values.
+/* ChangeQANMongoDBProfilerAgentDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -102,7 +102,6 @@ func (o *ChangeQANMongoDBProfilerAgentDefault) Code() int {
 func (o *ChangeQANMongoDBProfilerAgentDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeQANMongoDBProfilerAgent][%d] ChangeQANMongoDBProfilerAgent default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ChangeQANMongoDBProfilerAgentDefault) GetPayload() *ChangeQANMongoDBProfilerAgentDefaultBody {
 	return o.Payload
 }
@@ -146,7 +145,6 @@ func (o *ChangeQANMongoDBProfilerAgentBody) Validate(formats strfmt.Registry) er
 }
 
 func (o *ChangeQANMongoDBProfilerAgentBody) validateCommon(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Common) { // not required
 		return nil
 	}
@@ -155,6 +153,38 @@ func (o *ChangeQANMongoDBProfilerAgentBody) validateCommon(formats strfmt.Regist
 		if err := o.Common.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "common")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "common")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change QAN mongo DB profiler agent body based on the context it is used
+func (o *ChangeQANMongoDBProfilerAgentBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateCommon(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeQANMongoDBProfilerAgentBody) contextValidateCommon(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Common != nil {
+		if err := o.Common.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "common")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "common")
 			}
 			return err
 		}
@@ -196,7 +226,7 @@ type ChangeQANMongoDBProfilerAgentDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*ChangeQANMongoDBProfilerAgentDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this change QAN mongo DB profiler agent default body
@@ -214,7 +244,6 @@ func (o *ChangeQANMongoDBProfilerAgentDefaultBody) Validate(formats strfmt.Regis
 }
 
 func (o *ChangeQANMongoDBProfilerAgentDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -228,6 +257,42 @@ func (o *ChangeQANMongoDBProfilerAgentDefaultBody) validateDetails(formats strfm
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ChangeQANMongoDBProfilerAgent default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ChangeQANMongoDBProfilerAgent default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change QAN mongo DB profiler agent default body based on the context it is used
+func (o *ChangeQANMongoDBProfilerAgentDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeQANMongoDBProfilerAgentDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("ChangeQANMongoDBProfilerAgent default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ChangeQANMongoDBProfilerAgent default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -249,6 +314,47 @@ func (o *ChangeQANMongoDBProfilerAgentDefaultBody) MarshalBinary() ([]byte, erro
 // UnmarshalBinary interface implementation
 func (o *ChangeQANMongoDBProfilerAgentDefaultBody) UnmarshalBinary(b []byte) error {
 	var res ChangeQANMongoDBProfilerAgentDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ChangeQANMongoDBProfilerAgentDefaultBodyDetailsItems0 change QAN mongo DB profiler agent default body details items0
+swagger:model ChangeQANMongoDBProfilerAgentDefaultBodyDetailsItems0
+*/
+type ChangeQANMongoDBProfilerAgentDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this change QAN mongo DB profiler agent default body details items0
+func (o *ChangeQANMongoDBProfilerAgentDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change QAN mongo DB profiler agent default body details items0 based on context it is used
+func (o *ChangeQANMongoDBProfilerAgentDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeQANMongoDBProfilerAgentDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeQANMongoDBProfilerAgentDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res ChangeQANMongoDBProfilerAgentDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -280,7 +386,6 @@ func (o *ChangeQANMongoDBProfilerAgentOKBody) Validate(formats strfmt.Registry) 
 }
 
 func (o *ChangeQANMongoDBProfilerAgentOKBody) validateQANMongodbProfilerAgent(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.QANMongodbProfilerAgent) { // not required
 		return nil
 	}
@@ -289,6 +394,38 @@ func (o *ChangeQANMongoDBProfilerAgentOKBody) validateQANMongodbProfilerAgent(fo
 		if err := o.QANMongodbProfilerAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changeQanMongoDbProfilerAgentOk" + "." + "qan_mongodb_profiler_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeQanMongoDbProfilerAgentOk" + "." + "qan_mongodb_profiler_agent")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change QAN mongo DB profiler agent OK body based on the context it is used
+func (o *ChangeQANMongoDBProfilerAgentOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateQANMongodbProfilerAgent(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeQANMongoDBProfilerAgentOKBody) contextValidateQANMongodbProfilerAgent(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.QANMongodbProfilerAgent != nil {
+		if err := o.QANMongodbProfilerAgent.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeQanMongoDbProfilerAgentOk" + "." + "qan_mongodb_profiler_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeQanMongoDbProfilerAgentOk" + "." + "qan_mongodb_profiler_agent")
 			}
 			return err
 		}
@@ -418,7 +555,6 @@ func (o *ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent) validateSta
 }
 
 func (o *ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -428,6 +564,11 @@ func (o *ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent) validateSta
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this change QAN mongo DB profiler agent OK body QAN mongodb profiler agent based on context it is used
+func (o *ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -476,6 +617,11 @@ type ChangeQANMongoDBProfilerAgentParamsBodyCommon struct {
 
 // Validate validates this change QAN mongo DB profiler agent params body common
 func (o *ChangeQANMongoDBProfilerAgentParamsBodyCommon) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change QAN mongo DB profiler agent params body common based on context it is used
+func (o *ChangeQANMongoDBProfilerAgentParamsBodyCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

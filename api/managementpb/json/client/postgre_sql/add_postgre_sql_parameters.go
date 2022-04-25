@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewAddPostgreSQLParams creates a new AddPostgreSQLParams object
-// with the default values initialized.
+// NewAddPostgreSQLParams creates a new AddPostgreSQLParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewAddPostgreSQLParams() *AddPostgreSQLParams {
-	var ()
 	return &AddPostgreSQLParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewAddPostgreSQLParamsWithTimeout creates a new AddPostgreSQLParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewAddPostgreSQLParamsWithTimeout(timeout time.Duration) *AddPostgreSQLParams {
-	var ()
 	return &AddPostgreSQLParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewAddPostgreSQLParamsWithContext creates a new AddPostgreSQLParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewAddPostgreSQLParamsWithContext(ctx context.Context) *AddPostgreSQLParams {
-	var ()
 	return &AddPostgreSQLParams{
-
 		Context: ctx,
 	}
 }
 
 // NewAddPostgreSQLParamsWithHTTPClient creates a new AddPostgreSQLParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewAddPostgreSQLParamsWithHTTPClient(client *http.Client) *AddPostgreSQLParams {
-	var ()
 	return &AddPostgreSQLParams{
 		HTTPClient: client,
 	}
 }
 
-/*AddPostgreSQLParams contains all the parameters to send to the API endpoint
-for the add postgre SQL operation typically these are written to a http.Request
+/* AddPostgreSQLParams contains all the parameters to send to the API endpoint
+   for the add postgre SQL operation.
+
+   Typically these are written to a http.Request.
 */
 type AddPostgreSQLParams struct {
 
-	/*Body*/
+	// Body.
 	Body AddPostgreSQLBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the add postgre SQL params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AddPostgreSQLParams) WithDefaults() *AddPostgreSQLParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the add postgre SQL params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AddPostgreSQLParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the add postgre SQL params
@@ -119,7 +133,6 @@ func (o *AddPostgreSQLParams) WriteToRequest(r runtime.ClientRequest, reg strfmt
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

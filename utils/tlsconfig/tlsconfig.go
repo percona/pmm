@@ -1,8 +1,6 @@
 package tlsconfig
 
-import (
-	"crypto/tls"
-)
+import "crypto/tls"
 
 // Get returns a new tls.Config instance configured according to Percona's security baseline.
 func Get() *tls.Config {

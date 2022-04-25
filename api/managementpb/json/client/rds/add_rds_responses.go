@@ -6,6 +6,7 @@ package rds
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,7 +50,7 @@ func NewAddRDSOK() *AddRDSOK {
 	return &AddRDSOK{}
 }
 
-/*AddRDSOK handles this case with default header values.
+/* AddRDSOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -60,7 +61,6 @@ type AddRDSOK struct {
 func (o *AddRDSOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/RDS/Add][%d] addRdsOk  %+v", 200, o.Payload)
 }
-
 func (o *AddRDSOK) GetPayload() *AddRDSOKBody {
 	return o.Payload
 }
@@ -84,7 +84,7 @@ func NewAddRDSDefault(code int) *AddRDSDefault {
 	}
 }
 
-/*AddRDSDefault handles this case with default header values.
+/* AddRDSDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -102,7 +102,6 @@ func (o *AddRDSDefault) Code() int {
 func (o *AddRDSDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/RDS/Add][%d] AddRDS default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AddRDSDefault) GetPayload() *AddRDSDefaultBody {
 	return o.Payload
 }
@@ -268,7 +267,6 @@ func (o *AddRDSBody) validateEngineEnum(path, location string, value string) err
 }
 
 func (o *AddRDSBody) validateEngine(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Engine) { // not required
 		return nil
 	}
@@ -314,7 +312,6 @@ func (o *AddRDSBody) validateMetricsModeEnum(path, location string, value string
 }
 
 func (o *AddRDSBody) validateMetricsMode(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.MetricsMode) { // not required
 		return nil
 	}
@@ -324,6 +321,11 @@ func (o *AddRDSBody) validateMetricsMode(formats strfmt.Registry) error {
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this add RDS body based on context it is used
+func (o *AddRDSBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -360,7 +362,7 @@ type AddRDSDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*AddRDSDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this add RDS default body
@@ -378,7 +380,6 @@ func (o *AddRDSDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *AddRDSDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -392,6 +393,42 @@ func (o *AddRDSDefaultBody) validateDetails(formats strfmt.Registry) error {
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("AddRDS default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddRDS default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add RDS default body based on the context it is used
+func (o *AddRDSDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddRDSDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("AddRDS default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddRDS default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -413,6 +450,47 @@ func (o *AddRDSDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddRDSDefaultBody) UnmarshalBinary(b []byte) error {
 	var res AddRDSDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddRDSDefaultBodyDetailsItems0 add RDS default body details items0
+swagger:model AddRDSDefaultBodyDetailsItems0
+*/
+type AddRDSDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this add RDS default body details items0
+func (o *AddRDSDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add RDS default body details items0 based on context it is used
+func (o *AddRDSDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddRDSDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddRDSDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res AddRDSDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -496,7 +574,6 @@ func (o *AddRDSOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *AddRDSOKBody) validateMysql(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Mysql) { // not required
 		return nil
 	}
@@ -505,6 +582,8 @@ func (o *AddRDSOKBody) validateMysql(formats strfmt.Registry) error {
 		if err := o.Mysql.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addRdsOk" + "." + "mysql")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addRdsOk" + "." + "mysql")
 			}
 			return err
 		}
@@ -514,7 +593,6 @@ func (o *AddRDSOKBody) validateMysql(formats strfmt.Registry) error {
 }
 
 func (o *AddRDSOKBody) validateMysqldExporter(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.MysqldExporter) { // not required
 		return nil
 	}
@@ -523,6 +601,8 @@ func (o *AddRDSOKBody) validateMysqldExporter(formats strfmt.Registry) error {
 		if err := o.MysqldExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addRdsOk" + "." + "mysqld_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addRdsOk" + "." + "mysqld_exporter")
 			}
 			return err
 		}
@@ -532,7 +612,6 @@ func (o *AddRDSOKBody) validateMysqldExporter(formats strfmt.Registry) error {
 }
 
 func (o *AddRDSOKBody) validateNode(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Node) { // not required
 		return nil
 	}
@@ -541,6 +620,8 @@ func (o *AddRDSOKBody) validateNode(formats strfmt.Registry) error {
 		if err := o.Node.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addRdsOk" + "." + "node")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addRdsOk" + "." + "node")
 			}
 			return err
 		}
@@ -550,7 +631,6 @@ func (o *AddRDSOKBody) validateNode(formats strfmt.Registry) error {
 }
 
 func (o *AddRDSOKBody) validatePostgresql(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Postgresql) { // not required
 		return nil
 	}
@@ -559,6 +639,8 @@ func (o *AddRDSOKBody) validatePostgresql(formats strfmt.Registry) error {
 		if err := o.Postgresql.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addRdsOk" + "." + "postgresql")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addRdsOk" + "." + "postgresql")
 			}
 			return err
 		}
@@ -568,7 +650,6 @@ func (o *AddRDSOKBody) validatePostgresql(formats strfmt.Registry) error {
 }
 
 func (o *AddRDSOKBody) validatePostgresqlExporter(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.PostgresqlExporter) { // not required
 		return nil
 	}
@@ -577,6 +658,8 @@ func (o *AddRDSOKBody) validatePostgresqlExporter(formats strfmt.Registry) error
 		if err := o.PostgresqlExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addRdsOk" + "." + "postgresql_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addRdsOk" + "." + "postgresql_exporter")
 			}
 			return err
 		}
@@ -586,7 +669,6 @@ func (o *AddRDSOKBody) validatePostgresqlExporter(formats strfmt.Registry) error
 }
 
 func (o *AddRDSOKBody) validateQANMysqlPerfschema(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.QANMysqlPerfschema) { // not required
 		return nil
 	}
@@ -595,6 +677,8 @@ func (o *AddRDSOKBody) validateQANMysqlPerfschema(formats strfmt.Registry) error
 		if err := o.QANMysqlPerfschema.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addRdsOk" + "." + "qan_mysql_perfschema")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addRdsOk" + "." + "qan_mysql_perfschema")
 			}
 			return err
 		}
@@ -604,7 +688,6 @@ func (o *AddRDSOKBody) validateQANMysqlPerfschema(formats strfmt.Registry) error
 }
 
 func (o *AddRDSOKBody) validateQANPostgresqlPgstatements(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.QANPostgresqlPgstatements) { // not required
 		return nil
 	}
@@ -613,6 +696,8 @@ func (o *AddRDSOKBody) validateQANPostgresqlPgstatements(formats strfmt.Registry
 		if err := o.QANPostgresqlPgstatements.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addRdsOk" + "." + "qan_postgresql_pgstatements")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addRdsOk" + "." + "qan_postgresql_pgstatements")
 			}
 			return err
 		}
@@ -622,7 +707,6 @@ func (o *AddRDSOKBody) validateQANPostgresqlPgstatements(formats strfmt.Registry
 }
 
 func (o *AddRDSOKBody) validateRDSExporter(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.RDSExporter) { // not required
 		return nil
 	}
@@ -631,6 +715,178 @@ func (o *AddRDSOKBody) validateRDSExporter(formats strfmt.Registry) error {
 		if err := o.RDSExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addRdsOk" + "." + "rds_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addRdsOk" + "." + "rds_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add RDS OK body based on the context it is used
+func (o *AddRDSOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMysql(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateMysqldExporter(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateNode(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidatePostgresql(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidatePostgresqlExporter(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateQANMysqlPerfschema(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateQANPostgresqlPgstatements(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateRDSExporter(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddRDSOKBody) contextValidateMysql(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Mysql != nil {
+		if err := o.Mysql.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addRdsOk" + "." + "mysql")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addRdsOk" + "." + "mysql")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddRDSOKBody) contextValidateMysqldExporter(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.MysqldExporter != nil {
+		if err := o.MysqldExporter.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addRdsOk" + "." + "mysqld_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addRdsOk" + "." + "mysqld_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddRDSOKBody) contextValidateNode(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Node != nil {
+		if err := o.Node.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addRdsOk" + "." + "node")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addRdsOk" + "." + "node")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddRDSOKBody) contextValidatePostgresql(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Postgresql != nil {
+		if err := o.Postgresql.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addRdsOk" + "." + "postgresql")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addRdsOk" + "." + "postgresql")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddRDSOKBody) contextValidatePostgresqlExporter(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.PostgresqlExporter != nil {
+		if err := o.PostgresqlExporter.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addRdsOk" + "." + "postgresql_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addRdsOk" + "." + "postgresql_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddRDSOKBody) contextValidateQANMysqlPerfschema(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.QANMysqlPerfschema != nil {
+		if err := o.QANMysqlPerfschema.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addRdsOk" + "." + "qan_mysql_perfschema")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addRdsOk" + "." + "qan_mysql_perfschema")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddRDSOKBody) contextValidateQANPostgresqlPgstatements(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.QANPostgresqlPgstatements != nil {
+		if err := o.QANPostgresqlPgstatements.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addRdsOk" + "." + "qan_postgresql_pgstatements")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addRdsOk" + "." + "qan_postgresql_pgstatements")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddRDSOKBody) contextValidateRDSExporter(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.RDSExporter != nil {
+		if err := o.RDSExporter.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addRdsOk" + "." + "rds_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addRdsOk" + "." + "rds_exporter")
 			}
 			return err
 		}
@@ -698,6 +954,11 @@ type AddRDSOKBodyMysql struct {
 
 // Validate validates this add RDS OK body mysql
 func (o *AddRDSOKBodyMysql) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add RDS OK body mysql based on context it is used
+func (o *AddRDSOKBodyMysql) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -848,7 +1109,6 @@ func (o *AddRDSOKBodyMysqldExporter) validateStatusEnum(path, location string, v
 }
 
 func (o *AddRDSOKBodyMysqldExporter) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -858,6 +1118,11 @@ func (o *AddRDSOKBodyMysqldExporter) validateStatus(formats strfmt.Registry) err
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this add RDS OK body mysqld exporter based on context it is used
+func (o *AddRDSOKBodyMysqldExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -908,6 +1173,11 @@ type AddRDSOKBodyNode struct {
 
 // Validate validates this add RDS OK body node
 func (o *AddRDSOKBodyNode) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add RDS OK body node based on context it is used
+func (o *AddRDSOKBodyNode) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -973,6 +1243,11 @@ type AddRDSOKBodyPostgresql struct {
 
 // Validate validates this add RDS OK body postgresql
 func (o *AddRDSOKBodyPostgresql) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add RDS OK body postgresql based on context it is used
+func (o *AddRDSOKBodyPostgresql) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -1106,7 +1381,6 @@ func (o *AddRDSOKBodyPostgresqlExporter) validateStatusEnum(path, location strin
 }
 
 func (o *AddRDSOKBodyPostgresqlExporter) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -1116,6 +1390,11 @@ func (o *AddRDSOKBodyPostgresqlExporter) validateStatus(formats strfmt.Registry)
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this add RDS OK body postgresql exporter based on context it is used
+func (o *AddRDSOKBodyPostgresqlExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -1252,7 +1531,6 @@ func (o *AddRDSOKBodyQANMysqlPerfschema) validateStatusEnum(path, location strin
 }
 
 func (o *AddRDSOKBodyQANMysqlPerfschema) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -1262,6 +1540,11 @@ func (o *AddRDSOKBodyQANMysqlPerfschema) validateStatus(formats strfmt.Registry)
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this add RDS OK body QAN mysql perfschema based on context it is used
+func (o *AddRDSOKBodyQANMysqlPerfschema) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -1386,7 +1669,6 @@ func (o *AddRDSOKBodyQANPostgresqlPgstatements) validateStatusEnum(path, locatio
 }
 
 func (o *AddRDSOKBodyQANPostgresqlPgstatements) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -1396,6 +1678,11 @@ func (o *AddRDSOKBodyQANPostgresqlPgstatements) validateStatus(formats strfmt.Re
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this add RDS OK body QAN postgresql pgstatements based on context it is used
+func (o *AddRDSOKBodyQANPostgresqlPgstatements) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -1526,7 +1813,6 @@ func (o *AddRDSOKBodyRDSExporter) validateStatusEnum(path, location string, valu
 }
 
 func (o *AddRDSOKBodyRDSExporter) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -1536,6 +1822,11 @@ func (o *AddRDSOKBodyRDSExporter) validateStatus(formats strfmt.Registry) error 
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this add RDS OK body RDS exporter based on context it is used
+func (o *AddRDSOKBodyRDSExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -1550,42 +1841,6 @@ func (o *AddRDSOKBodyRDSExporter) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddRDSOKBodyRDSExporter) UnmarshalBinary(b []byte) error {
 	var res AddRDSOKBodyRDSExporter
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*DetailsItems0 details items0
-swagger:model DetailsItems0
-*/
-type DetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
-}
-
-// Validate validates this details items0
-func (o *DetailsItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
-	var res DetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

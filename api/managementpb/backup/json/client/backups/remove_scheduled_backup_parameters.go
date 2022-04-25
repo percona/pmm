@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewRemoveScheduledBackupParams creates a new RemoveScheduledBackupParams object
-// with the default values initialized.
+// NewRemoveScheduledBackupParams creates a new RemoveScheduledBackupParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewRemoveScheduledBackupParams() *RemoveScheduledBackupParams {
-	var ()
 	return &RemoveScheduledBackupParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewRemoveScheduledBackupParamsWithTimeout creates a new RemoveScheduledBackupParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewRemoveScheduledBackupParamsWithTimeout(timeout time.Duration) *RemoveScheduledBackupParams {
-	var ()
 	return &RemoveScheduledBackupParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewRemoveScheduledBackupParamsWithContext creates a new RemoveScheduledBackupParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewRemoveScheduledBackupParamsWithContext(ctx context.Context) *RemoveScheduledBackupParams {
-	var ()
 	return &RemoveScheduledBackupParams{
-
 		Context: ctx,
 	}
 }
 
 // NewRemoveScheduledBackupParamsWithHTTPClient creates a new RemoveScheduledBackupParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewRemoveScheduledBackupParamsWithHTTPClient(client *http.Client) *RemoveScheduledBackupParams {
-	var ()
 	return &RemoveScheduledBackupParams{
 		HTTPClient: client,
 	}
 }
 
-/*RemoveScheduledBackupParams contains all the parameters to send to the API endpoint
-for the remove scheduled backup operation typically these are written to a http.Request
+/* RemoveScheduledBackupParams contains all the parameters to send to the API endpoint
+   for the remove scheduled backup operation.
+
+   Typically these are written to a http.Request.
 */
 type RemoveScheduledBackupParams struct {
 
-	/*Body*/
+	// Body.
 	Body RemoveScheduledBackupBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the remove scheduled backup params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *RemoveScheduledBackupParams) WithDefaults() *RemoveScheduledBackupParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the remove scheduled backup params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *RemoveScheduledBackupParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the remove scheduled backup params
@@ -119,7 +133,6 @@ func (o *RemoveScheduledBackupParams) WriteToRequest(r runtime.ClientRequest, re
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

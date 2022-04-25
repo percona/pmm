@@ -6,6 +6,7 @@ package ha_proxy
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,7 +50,7 @@ func NewAddHAProxyOK() *AddHAProxyOK {
 	return &AddHAProxyOK{}
 }
 
-/*AddHAProxyOK handles this case with default header values.
+/* AddHAProxyOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -60,7 +61,6 @@ type AddHAProxyOK struct {
 func (o *AddHAProxyOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/HAProxy/Add][%d] addHaProxyOk  %+v", 200, o.Payload)
 }
-
 func (o *AddHAProxyOK) GetPayload() *AddHAProxyOKBody {
 	return o.Payload
 }
@@ -84,7 +84,7 @@ func NewAddHAProxyDefault(code int) *AddHAProxyDefault {
 	}
 }
 
-/*AddHAProxyDefault handles this case with default header values.
+/* AddHAProxyDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -102,7 +102,6 @@ func (o *AddHAProxyDefault) Code() int {
 func (o *AddHAProxyDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/HAProxy/Add][%d] AddHAProxy default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AddHAProxyDefault) GetPayload() *AddHAProxyDefaultBody {
 	return o.Payload
 }
@@ -229,7 +228,6 @@ func (o *AddHAProxyBody) validateMetricsModeEnum(path, location string, value st
 }
 
 func (o *AddHAProxyBody) validateMetricsMode(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.MetricsMode) { // not required
 		return nil
 	}
@@ -243,7 +241,6 @@ func (o *AddHAProxyBody) validateMetricsMode(formats strfmt.Registry) error {
 }
 
 func (o *AddHAProxyBody) validateAddNode(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.AddNode) { // not required
 		return nil
 	}
@@ -252,6 +249,38 @@ func (o *AddHAProxyBody) validateAddNode(formats strfmt.Registry) error {
 		if err := o.AddNode.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "add_node")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "add_node")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add HA proxy body based on the context it is used
+func (o *AddHAProxyBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateAddNode(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddHAProxyBody) contextValidateAddNode(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.AddNode != nil {
+		if err := o.AddNode.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "add_node")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "add_node")
 			}
 			return err
 		}
@@ -293,7 +322,7 @@ type AddHAProxyDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*AddHAProxyDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this add HA proxy default body
@@ -311,7 +340,6 @@ func (o *AddHAProxyDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *AddHAProxyDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -325,6 +353,42 @@ func (o *AddHAProxyDefaultBody) validateDetails(formats strfmt.Registry) error {
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("AddHAProxy default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddHAProxy default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add HA proxy default body based on the context it is used
+func (o *AddHAProxyDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddHAProxyDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("AddHAProxy default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddHAProxy default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -346,6 +410,47 @@ func (o *AddHAProxyDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddHAProxyDefaultBody) UnmarshalBinary(b []byte) error {
 	var res AddHAProxyDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddHAProxyDefaultBodyDetailsItems0 add HA proxy default body details items0
+swagger:model AddHAProxyDefaultBodyDetailsItems0
+*/
+type AddHAProxyDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this add HA proxy default body details items0
+func (o *AddHAProxyDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add HA proxy default body details items0 based on context it is used
+func (o *AddHAProxyDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddHAProxyDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddHAProxyDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res AddHAProxyDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -384,7 +489,6 @@ func (o *AddHAProxyOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *AddHAProxyOKBody) validateExternalExporter(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.ExternalExporter) { // not required
 		return nil
 	}
@@ -393,6 +497,8 @@ func (o *AddHAProxyOKBody) validateExternalExporter(formats strfmt.Registry) err
 		if err := o.ExternalExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addHaProxyOk" + "." + "external_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addHaProxyOk" + "." + "external_exporter")
 			}
 			return err
 		}
@@ -402,7 +508,6 @@ func (o *AddHAProxyOKBody) validateExternalExporter(formats strfmt.Registry) err
 }
 
 func (o *AddHAProxyOKBody) validateService(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Service) { // not required
 		return nil
 	}
@@ -411,6 +516,58 @@ func (o *AddHAProxyOKBody) validateService(formats strfmt.Registry) error {
 		if err := o.Service.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addHaProxyOk" + "." + "service")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addHaProxyOk" + "." + "service")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add HA proxy OK body based on the context it is used
+func (o *AddHAProxyOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateExternalExporter(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateService(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddHAProxyOKBody) contextValidateExternalExporter(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.ExternalExporter != nil {
+		if err := o.ExternalExporter.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addHaProxyOk" + "." + "external_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addHaProxyOk" + "." + "external_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddHAProxyOKBody) contextValidateService(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Service != nil {
+		if err := o.Service.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addHaProxyOk" + "." + "service")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addHaProxyOk" + "." + "service")
 			}
 			return err
 		}
@@ -481,6 +638,11 @@ func (o *AddHAProxyOKBodyExternalExporter) Validate(formats strfmt.Registry) err
 	return nil
 }
 
+// ContextValidate validates this add HA proxy OK body external exporter based on context it is used
+func (o *AddHAProxyOKBodyExternalExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *AddHAProxyOKBodyExternalExporter) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -528,6 +690,11 @@ type AddHAProxyOKBodyService struct {
 
 // Validate validates this add HA proxy OK body service
 func (o *AddHAProxyOKBodyService) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add HA proxy OK body service based on context it is used
+func (o *AddHAProxyOKBodyService) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -642,7 +809,6 @@ func (o *AddHAProxyParamsBodyAddNode) validateNodeTypeEnum(path, location string
 }
 
 func (o *AddHAProxyParamsBodyAddNode) validateNodeType(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.NodeType) { // not required
 		return nil
 	}
@@ -652,6 +818,11 @@ func (o *AddHAProxyParamsBodyAddNode) validateNodeType(formats strfmt.Registry) 
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this add HA proxy params body add node based on context it is used
+func (o *AddHAProxyParamsBodyAddNode) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -666,42 +837,6 @@ func (o *AddHAProxyParamsBodyAddNode) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddHAProxyParamsBodyAddNode) UnmarshalBinary(b []byte) error {
 	var res AddHAProxyParamsBodyAddNode
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*DetailsItems0 details items0
-swagger:model DetailsItems0
-*/
-type DetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
-}
-
-// Validate validates this details items0
-func (o *DetailsItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
-	var res DetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

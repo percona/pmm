@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewAddProxySQLServiceParams creates a new AddProxySQLServiceParams object
-// with the default values initialized.
+// NewAddProxySQLServiceParams creates a new AddProxySQLServiceParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewAddProxySQLServiceParams() *AddProxySQLServiceParams {
-	var ()
 	return &AddProxySQLServiceParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewAddProxySQLServiceParamsWithTimeout creates a new AddProxySQLServiceParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewAddProxySQLServiceParamsWithTimeout(timeout time.Duration) *AddProxySQLServiceParams {
-	var ()
 	return &AddProxySQLServiceParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewAddProxySQLServiceParamsWithContext creates a new AddProxySQLServiceParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewAddProxySQLServiceParamsWithContext(ctx context.Context) *AddProxySQLServiceParams {
-	var ()
 	return &AddProxySQLServiceParams{
-
 		Context: ctx,
 	}
 }
 
 // NewAddProxySQLServiceParamsWithHTTPClient creates a new AddProxySQLServiceParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewAddProxySQLServiceParamsWithHTTPClient(client *http.Client) *AddProxySQLServiceParams {
-	var ()
 	return &AddProxySQLServiceParams{
 		HTTPClient: client,
 	}
 }
 
-/*AddProxySQLServiceParams contains all the parameters to send to the API endpoint
-for the add proxy SQL service operation typically these are written to a http.Request
+/* AddProxySQLServiceParams contains all the parameters to send to the API endpoint
+   for the add proxy SQL service operation.
+
+   Typically these are written to a http.Request.
 */
 type AddProxySQLServiceParams struct {
 
-	/*Body*/
+	// Body.
 	Body AddProxySQLServiceBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the add proxy SQL service params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AddProxySQLServiceParams) WithDefaults() *AddProxySQLServiceParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the add proxy SQL service params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AddProxySQLServiceParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the add proxy SQL service params
@@ -119,7 +133,6 @@ func (o *AddProxySQLServiceParams) WriteToRequest(r runtime.ClientRequest, reg s
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

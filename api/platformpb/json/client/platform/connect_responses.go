@@ -6,6 +6,7 @@ package platform
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewConnectOK() *ConnectOK {
 	return &ConnectOK{}
 }
 
-/*ConnectOK handles this case with default header values.
+/* ConnectOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type ConnectOK struct {
 func (o *ConnectOK) Error() string {
 	return fmt.Sprintf("[POST /v1/Platform/Connect][%d] connectOk  %+v", 200, o.Payload)
 }
-
 func (o *ConnectOK) GetPayload() interface{} {
 	return o.Payload
 }
@@ -80,7 +80,7 @@ func NewConnectDefault(code int) *ConnectDefault {
 	}
 }
 
-/*ConnectDefault handles this case with default header values.
+/* ConnectDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -98,7 +98,6 @@ func (o *ConnectDefault) Code() int {
 func (o *ConnectDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/Platform/Connect][%d] Connect default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ConnectDefault) GetPayload() *ConnectDefaultBody {
 	return o.Payload
 }
@@ -128,10 +127,18 @@ type ConnectBody struct {
 
 	// Existing Percona Platform user's password.
 	Password string `json:"password,omitempty"`
+
+	// Personal Access Token that the user obtains from Percona Portal.
+	PersonalAccessToken string `json:"personal_access_token,omitempty"`
 }
 
 // Validate validates this connect body
 func (o *ConnectBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this connect body based on context it is used
+func (o *ConnectBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -168,7 +175,7 @@ type ConnectDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*ConnectDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this connect default body
@@ -186,7 +193,6 @@ func (o *ConnectDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *ConnectDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -200,6 +206,42 @@ func (o *ConnectDefaultBody) validateDetails(formats strfmt.Registry) error {
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("Connect default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("Connect default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this connect default body based on the context it is used
+func (o *ConnectDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ConnectDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("Connect default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("Connect default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -228,10 +270,10 @@ func (o *ConnectDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*DetailsItems0 details items0
-swagger:model DetailsItems0
+/*ConnectDefaultBodyDetailsItems0 connect default body details items0
+swagger:model ConnectDefaultBodyDetailsItems0
 */
-type DetailsItems0 struct {
+type ConnectDefaultBodyDetailsItems0 struct {
 
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
@@ -241,13 +283,18 @@ type DetailsItems0 struct {
 	Value strfmt.Base64 `json:"value,omitempty"`
 }
 
-// Validate validates this details items0
-func (o *DetailsItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this connect default body details items0
+func (o *ConnectDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this connect default body details items0 based on context it is used
+func (o *ConnectDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
+func (o *ConnectDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -255,8 +302,8 @@ func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
-	var res DetailsItems0
+func (o *ConnectDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res ConnectDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

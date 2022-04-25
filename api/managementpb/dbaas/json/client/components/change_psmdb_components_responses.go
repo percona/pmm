@@ -6,6 +6,7 @@ package components
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewChangePSMDBComponentsOK() *ChangePSMDBComponentsOK {
 	return &ChangePSMDBComponentsOK{}
 }
 
-/*ChangePSMDBComponentsOK handles this case with default header values.
+/* ChangePSMDBComponentsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type ChangePSMDBComponentsOK struct {
 func (o *ChangePSMDBComponentsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/ChangePSMDB][%d] changePsmdbComponentsOk  %+v", 200, o.Payload)
 }
-
 func (o *ChangePSMDBComponentsOK) GetPayload() interface{} {
 	return o.Payload
 }
@@ -80,7 +80,7 @@ func NewChangePSMDBComponentsDefault(code int) *ChangePSMDBComponentsDefault {
 	}
 }
 
-/*ChangePSMDBComponentsDefault handles this case with default header values.
+/* ChangePSMDBComponentsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -98,7 +98,6 @@ func (o *ChangePSMDBComponentsDefault) Code() int {
 func (o *ChangePSMDBComponentsDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/ChangePSMDB][%d] ChangePSMDBComponents default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ChangePSMDBComponentsDefault) GetPayload() *ChangePSMDBComponentsDefaultBody {
 	return o.Payload
 }
@@ -142,7 +141,6 @@ func (o *ChangePSMDBComponentsBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *ChangePSMDBComponentsBody) validateMongod(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Mongod) { // not required
 		return nil
 	}
@@ -151,6 +149,38 @@ func (o *ChangePSMDBComponentsBody) validateMongod(formats strfmt.Registry) erro
 		if err := o.Mongod.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "mongod")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "mongod")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change PSMDB components body based on the context it is used
+func (o *ChangePSMDBComponentsBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMongod(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangePSMDBComponentsBody) contextValidateMongod(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Mongod != nil {
+		if err := o.Mongod.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "mongod")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "mongod")
 			}
 			return err
 		}
@@ -192,7 +222,7 @@ type ChangePSMDBComponentsDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*ChangePSMDBComponentsDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this change PSMDB components default body
@@ -210,7 +240,6 @@ func (o *ChangePSMDBComponentsDefaultBody) Validate(formats strfmt.Registry) err
 }
 
 func (o *ChangePSMDBComponentsDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -224,6 +253,42 @@ func (o *ChangePSMDBComponentsDefaultBody) validateDetails(formats strfmt.Regist
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ChangePSMDBComponents default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ChangePSMDBComponents default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change PSMDB components default body based on the context it is used
+func (o *ChangePSMDBComponentsDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangePSMDBComponentsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("ChangePSMDBComponents default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ChangePSMDBComponents default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -245,6 +310,47 @@ func (o *ChangePSMDBComponentsDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ChangePSMDBComponentsDefaultBody) UnmarshalBinary(b []byte) error {
 	var res ChangePSMDBComponentsDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ChangePSMDBComponentsDefaultBodyDetailsItems0 change PSMDB components default body details items0
+swagger:model ChangePSMDBComponentsDefaultBodyDetailsItems0
+*/
+type ChangePSMDBComponentsDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this change PSMDB components default body details items0
+func (o *ChangePSMDBComponentsDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change PSMDB components default body details items0 based on context it is used
+func (o *ChangePSMDBComponentsDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangePSMDBComponentsDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangePSMDBComponentsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res ChangePSMDBComponentsDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -279,7 +385,6 @@ func (o *ChangePSMDBComponentsParamsBodyMongod) Validate(formats strfmt.Registry
 }
 
 func (o *ChangePSMDBComponentsParamsBodyMongod) validateVersions(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Versions) { // not required
 		return nil
 	}
@@ -293,6 +398,42 @@ func (o *ChangePSMDBComponentsParamsBodyMongod) validateVersions(formats strfmt.
 			if err := o.Versions[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("body" + "." + "mongod" + "." + "versions" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("body" + "." + "mongod" + "." + "versions" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change PSMDB components params body mongod based on the context it is used
+func (o *ChangePSMDBComponentsParamsBodyMongod) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateVersions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangePSMDBComponentsParamsBodyMongod) contextValidateVersions(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Versions); i++ {
+
+		if o.Versions[i] != nil {
+			if err := o.Versions[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("body" + "." + "mongod" + "." + "versions" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("body" + "." + "mongod" + "." + "versions" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -341,6 +482,11 @@ func (o *ChangePSMDBComponentsParamsBodyMongodVersionsItems0) Validate(formats s
 	return nil
 }
 
+// ContextValidate validates this change PSMDB components params body mongod versions items0 based on context it is used
+func (o *ChangePSMDBComponentsParamsBodyMongodVersionsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *ChangePSMDBComponentsParamsBodyMongodVersionsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -352,42 +498,6 @@ func (o *ChangePSMDBComponentsParamsBodyMongodVersionsItems0) MarshalBinary() ([
 // UnmarshalBinary interface implementation
 func (o *ChangePSMDBComponentsParamsBodyMongodVersionsItems0) UnmarshalBinary(b []byte) error {
 	var res ChangePSMDBComponentsParamsBodyMongodVersionsItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*DetailsItems0 details items0
-swagger:model DetailsItems0
-*/
-type DetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
-}
-
-// Validate validates this details items0
-func (o *DetailsItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
-	var res DetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
