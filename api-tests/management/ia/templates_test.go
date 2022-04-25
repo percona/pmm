@@ -40,28 +40,28 @@ import (
 // Note: Even though the IA services check for alerting enabled or disabled before returning results
 // we don't enable or disable IA explicit in our tests since it is enabled by default through
 // ENABLE_ALERTING env var.
-func assertTemplate(t *testing.T, expectedTemplate alert.Template, listTemplates []*templates.TemplatesItems0) {
+func assertTemplate(t *testing.T, expectedTemplate alert.Template, listTemplates []*templates.ListTemplatesOKBodyTemplatesItems0) {
 	convertParamUnit := func(u string) alert.Unit {
 		switch u {
-		case templates.TemplatesItems0ParamsItems0UnitPERCENTAGE:
+		case templates.ListTemplatesOKBodyTemplatesItems0ParamsItems0UnitPERCENTAGE:
 			return alert.Percentage
-		case templates.TemplatesItems0ParamsItems0UnitSECONDS:
+		case templates.ListTemplatesOKBodyTemplatesItems0ParamsItems0UnitSECONDS:
 			return alert.Seconds
 		}
 		return "INVALID"
 	}
 	convertParamType := func(u string) alert.Type {
 		switch u {
-		case templates.TemplatesItems0ParamsItems0TypeFLOAT:
+		case templates.ListTemplatesOKBodyTemplatesItems0ParamsItems0TypeFLOAT:
 			return alert.Float
-		case templates.TemplatesItems0ParamsItems0TypeSTRING:
+		case templates.ListTemplatesOKBodyTemplatesItems0ParamsItems0TypeSTRING:
 			return alert.String
-		case templates.TemplatesItems0ParamsItems0TypeBOOL:
+		case templates.ListTemplatesOKBodyTemplatesItems0ParamsItems0TypeBOOL:
 			return alert.Bool
 		}
 		return "INVALID"
 	}
-	var tmpl *templates.TemplatesItems0
+	var tmpl *templates.ListTemplatesOKBodyTemplatesItems0
 	for _, listTmpl := range listTemplates {
 		if listTmpl.Name == expectedTemplate.Name {
 			tmpl = listTmpl
@@ -358,7 +358,7 @@ func TestTemplatesAPI(t *testing.T) {
 			channelID, _ := createChannel(t)
 			defer deleteChannel(t, templatesClient.Default.Channels, channelID)
 
-			params := createAlertRuleParams(name, "", channelID, &rules.FiltersItems0{
+			params := createAlertRuleParams(name, "", channelID, &rules.CreateAlertRuleParamsBodyFiltersItems0{
 				Type:  pointer.ToString("EQUAL"),
 				Key:   "threshold",
 				Value: "12",
@@ -470,7 +470,7 @@ func TestTemplatesAPI(t *testing.T) {
 			assert.Equal(t, int32(len(listAllTemplates.Payload.Templates)), listAllTemplates.Payload.Totals.TotalItems)
 			assert.Equal(t, int32(1), listAllTemplates.Payload.Totals.TotalPages)
 
-			assertFindTemplate := func(list []*templates.TemplatesItems0, name string) func() bool {
+			assertFindTemplate := func(list []*templates.ListTemplatesOKBodyTemplatesItems0, name string) func() bool {
 				return func() bool {
 					for _, tmpl := range list {
 						if tmpl.Name == name {

@@ -89,10 +89,10 @@ func restoreCheckIntervalDefaults(t *testing.T) {
 	for _, check := range resp.Payload.Checks {
 		params = &security_checks.ChangeSecurityChecksParams{
 			Body: security_checks.ChangeSecurityChecksBody{
-				Params: []*security_checks.ParamsItems0{
+				Params: []*security_checks.ChangeSecurityChecksParamsBodyParamsItems0{
 					{
 						Name:     check.Name,
-						Interval: pointer.ToString(security_checks.ParamsItems0IntervalSTANDARD),
+						Interval: pointer.ToString(security_checks.ChangeSecurityChecksParamsBodyParamsItems0IntervalSTANDARD),
 					},
 				},
 			},

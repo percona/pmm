@@ -354,14 +354,14 @@ func TestPMMAgent(t *testing.T) {
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, &agents.ListAgentsOKBody{
-			NodeExporter: []*agents.NodeExporterItems0{
+			NodeExporter: []*agents.ListAgentsOKBodyNodeExporterItems0{
 				{
 					PMMAgentID: pmmAgentID,
 					AgentID:    nodeExporterID,
 					Status:     &AgentStatusUnknown,
 				},
 			},
-			MysqldExporter: []*agents.MysqldExporterItems0{
+			MysqldExporter: []*agents.ListAgentsOKBodyMysqldExporterItems0{
 				{
 					PMMAgentID: pmmAgentID,
 					AgentID:    mySqldExporterID,

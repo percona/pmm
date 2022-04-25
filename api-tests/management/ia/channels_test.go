@@ -330,7 +330,7 @@ func TestChannelsAPI(t *testing.T) {
 			assert.Equal(t, int32(len(listAllChannels.Payload.Channels)), listAllChannels.Payload.Totals.TotalItems)
 			assert.Equal(t, int32(1), listAllChannels.Payload.Totals.TotalPages)
 
-			assertFindChannel := func(list []*channels.ChannelsItems0, id string) func() bool {
+			assertFindChannel := func(list []*channels.ListChannelsOKBodyChannelsItems0, id string) func() bool {
 				return func() bool {
 					for _, channel := range list {
 						if channel.ChannelID == id {

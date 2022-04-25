@@ -43,7 +43,7 @@ func TestRulesAPI(t *testing.T) {
 	templatesClient := client.Default.Templates
 	channelsClient := client.Default.Channels
 
-	dummyFilter := &rules.FiltersItems0{
+	dummyFilter := &rules.CreateAlertRuleParamsBodyFiltersItems0{
 		Type:  pointer.ToString("EQUAL"),
 		Key:   "threshold",
 		Value: "12",
@@ -87,7 +87,7 @@ func TestRulesAPI(t *testing.T) {
 			t.Parallel()
 
 			params := createAlertRuleParams("pmm_mongodb_restarted", "", channelID, dummyFilter)
-			params.Body.Params = []*rules.ParamsItems0{{
+			params.Body.Params = []*rules.CreateAlertRuleParamsBodyParamsItems0{{
 				Name:  "threshold",
 				Type:  pointer.ToString("FLOAT"),
 				Float: 3.14,
@@ -195,7 +195,7 @@ func TestRulesAPI(t *testing.T) {
 			params := createAlertRuleParams(templateName, "", channelID, dummyFilter)
 			params.Body.Params = append(
 				params.Body.Params,
-				&rules.ParamsItems0{
+				&rules.CreateAlertRuleParamsBodyParamsItems0{
 					Name:  "unknown parameter",
 					Type:  pointer.ToString("FLOAT"),
 					Float: 12,
@@ -208,7 +208,7 @@ func TestRulesAPI(t *testing.T) {
 			t.Parallel()
 
 			params := createAlertRuleParams(templateName, "", channelID, dummyFilter)
-			params.Body.Params = []*rules.ParamsItems0{
+			params.Body.Params = []*rules.CreateAlertRuleParamsBodyParamsItems0{
 				{
 					Name: "param1",
 					Type: pointer.ToString("BOOL"),
@@ -239,7 +239,7 @@ func TestRulesAPI(t *testing.T) {
 				Body: rules.UpdateAlertRuleBody{
 					RuleID:   rule.Payload.RuleID,
 					Disabled: false,
-					Params: []*rules.ParamsItems0{
+					Params: []*rules.UpdateAlertRuleParamsBodyParamsItems0{
 						{
 							Name:  "param1",
 							Type:  pointer.ToString("FLOAT"),
@@ -254,7 +254,7 @@ func TestRulesAPI(t *testing.T) {
 					For:          "10s",
 					Severity:     pointer.ToString("SEVERITY_ERROR"),
 					CustomLabels: map[string]string{"foo": "bar", "baz": "faz"},
-					Filters: []*rules.FiltersItems0{{
+					Filters: []*rules.UpdateAlertRuleParamsBodyFiltersItems0{{
 						Type:  pointer.ToString("EQUAL"),
 						Key:   "param1",
 						Value: "21",
@@ -315,7 +315,7 @@ func TestRulesAPI(t *testing.T) {
 				Body: rules.UpdateAlertRuleBody{
 					RuleID:   rule.Payload.RuleID,
 					Disabled: false,
-					Params: []*rules.ParamsItems0{
+					Params: []*rules.UpdateAlertRuleParamsBodyParamsItems0{
 						{
 							Name:  "param1",
 							Type:  pointer.ToString("FLOAT"),
@@ -329,7 +329,7 @@ func TestRulesAPI(t *testing.T) {
 					For:          "10s",
 					Severity:     pointer.ToString("SEVERITY_ERROR"),
 					CustomLabels: map[string]string{"foo": "bar", "baz": "faz"},
-					Filters: []*rules.FiltersItems0{{
+					Filters: []*rules.UpdateAlertRuleParamsBodyFiltersItems0{{
 						Type:  pointer.ToString("EQUAL"),
 						Key:   "param1",
 						Value: "21",
@@ -354,7 +354,7 @@ func TestRulesAPI(t *testing.T) {
 				Body: rules.UpdateAlertRuleBody{
 					RuleID:   rule.Payload.RuleID,
 					Disabled: false,
-					Params: []*rules.ParamsItems0{{
+					Params: []*rules.UpdateAlertRuleParamsBodyParamsItems0{{
 						Name:  "param2",
 						Type:  pointer.ToString("FLOAT"),
 						Float: 12,
@@ -366,7 +366,7 @@ func TestRulesAPI(t *testing.T) {
 					For:          "10s",
 					Severity:     pointer.ToString("SEVERITY_ERROR"),
 					CustomLabels: map[string]string{"foo": "bar", "baz": "faz"},
-					Filters: []*rules.FiltersItems0{{
+					Filters: []*rules.UpdateAlertRuleParamsBodyFiltersItems0{{
 						Type:  pointer.ToString("EQUAL"),
 						Key:   "param1",
 						Value: "21",
@@ -395,7 +395,7 @@ func TestRulesAPI(t *testing.T) {
 					For:          "10s",
 					Severity:     pointer.ToString("SEVERITY_ERROR"),
 					CustomLabels: map[string]string{"foo": "bar", "baz": "faz"},
-					Filters: []*rules.FiltersItems0{{
+					Filters: []*rules.UpdateAlertRuleParamsBodyFiltersItems0{{
 						Type:  pointer.ToString("EQUAL"),
 						Key:   "param1",
 						Value: "21",
@@ -420,7 +420,7 @@ func TestRulesAPI(t *testing.T) {
 				Body: rules.UpdateAlertRuleBody{
 					RuleID:   rule.Payload.RuleID,
 					Disabled: false,
-					Params: []*rules.ParamsItems0{
+					Params: []*rules.UpdateAlertRuleParamsBodyParamsItems0{
 						{
 							Name: "param1",
 							Type: pointer.ToString("BOOL"),
@@ -434,7 +434,7 @@ func TestRulesAPI(t *testing.T) {
 					For:          "10s",
 					Severity:     pointer.ToString("SEVERITY_ERROR"),
 					CustomLabels: map[string]string{"foo": "bar", "baz": "faz"},
-					Filters: []*rules.FiltersItems0{{
+					Filters: []*rules.UpdateAlertRuleParamsBodyFiltersItems0{{
 						Type:  pointer.ToString("EQUAL"),
 						Key:   "param1",
 						Value: "21",
@@ -659,14 +659,14 @@ func deleteRule(t *testing.T, client rules.ClientService, id string) {
 	require.NoError(t, err)
 }
 
-func createAlertRuleParams(templateName, sourceRuleID, channelID string, filter *rules.FiltersItems0) *rules.CreateAlertRuleParams {
+func createAlertRuleParams(templateName, sourceRuleID, channelID string, filter *rules.CreateAlertRuleParamsBodyFiltersItems0) *rules.CreateAlertRuleParams {
 	rule := &rules.CreateAlertRuleParams{
 		Body: rules.CreateAlertRuleBody{
 			TemplateName: templateName,
 			SourceRuleID: sourceRuleID,
 			Disabled:     true,
 			Name:         "example rule",
-			Params: []*rules.ParamsItems0{
+			Params: []*rules.CreateAlertRuleParamsBodyParamsItems0{
 				{
 					Name:  "param1",
 					Type:  pointer.ToString("FLOAT"),
@@ -690,7 +690,7 @@ func createAlertRuleParams(templateName, sourceRuleID, channelID string, filter 
 	}
 
 	if filter != nil {
-		rule.Body.Filters = []*rules.FiltersItems0{filter}
+		rule.Body.Filters = []*rules.CreateAlertRuleParamsBodyFiltersItems0{filter}
 	}
 
 	return rule

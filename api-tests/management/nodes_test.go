@@ -221,7 +221,7 @@ func TestNodeRegister(t *testing.T) {
 			assert.NoError(t, err)
 			require.Len(t, listAgentsOK.Payload.NodeExporter, 1)
 			nodeExporterAgentID := listAgentsOK.Payload.NodeExporter[0].AgentID
-			ok := assert.Equal(t, agents.NodeExporterItems0{
+			ok := assert.Equal(t, agents.ListAgentsOKBodyNodeExporterItems0{
 				PMMAgentID:         pmmAgentID,
 				AgentID:            nodeExporterAgentID,
 				DisabledCollectors: []string{"diskstats", "filesystem", "standard.process"},

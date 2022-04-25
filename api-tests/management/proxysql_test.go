@@ -95,7 +95,7 @@ func TestAddProxySQL(t *testing.T) {
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, agents.ListAgentsOKBody{
-			ProxysqlExporter: []*agents.ProxysqlExporterItems0{
+			ProxysqlExporter: []*agents.ListAgentsOKBodyProxysqlExporterItems0{
 				{
 					AgentID:            listAgents.Payload.ProxysqlExporter[0].AgentID,
 					ServiceID:          serviceID,
@@ -173,7 +173,7 @@ func TestAddProxySQL(t *testing.T) {
 		defer removeAllAgentsInList(t, listAgents)
 		require.Len(t, listAgents.Payload.ProxysqlExporter, 1)
 		assert.Equal(t, agents.ListAgentsOKBody{
-			ProxysqlExporter: []*agents.ProxysqlExporterItems0{
+			ProxysqlExporter: []*agents.ListAgentsOKBodyProxysqlExporterItems0{
 				{
 					AgentID:            listAgents.Payload.ProxysqlExporter[0].AgentID,
 					ServiceID:          serviceID,
@@ -401,7 +401,7 @@ func TestAddProxySQL(t *testing.T) {
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, agents.ListAgentsOKBody{
-			ProxysqlExporter: []*agents.ProxysqlExporterItems0{
+			ProxysqlExporter: []*agents.ListAgentsOKBodyProxysqlExporterItems0{
 				{
 					AgentID:            listAgents.Payload.ProxysqlExporter[0].AgentID,
 					ServiceID:          serviceID,

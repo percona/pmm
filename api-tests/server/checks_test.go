@@ -105,7 +105,7 @@ func TestChangeSecurityChecks(t *testing.T) {
 			require.NoError(t, err)
 			require.NotEmpty(t, resp.Payload.Checks)
 
-			var check *security_checks.ChecksItems0
+			var check *security_checks.ListSecurityChecksOKBodyChecksItems0
 
 			// enable ⥁ disable loop, it checks current state of first returned check and changes its state,
 			// then in second iteration it returns state to its origin.
@@ -113,7 +113,7 @@ func TestChangeSecurityChecks(t *testing.T) {
 				check = resp.Payload.Checks[0]
 				params := &security_checks.ChangeSecurityChecksParams{
 					Body: security_checks.ChangeSecurityChecksBody{
-						Params: []*security_checks.ParamsItems0{
+						Params: []*security_checks.ChangeSecurityChecksParamsBodyParamsItems0{
 							{
 								Name:    check.Name,
 								Disable: !check.Disabled,
@@ -151,7 +151,7 @@ func TestChangeSecurityChecks(t *testing.T) {
 			interval := *check.Interval
 			params := &security_checks.ChangeSecurityChecksParams{
 				Body: security_checks.ChangeSecurityChecksBody{
-					Params: []*security_checks.ParamsItems0{
+					Params: []*security_checks.ChangeSecurityChecksParamsBodyParamsItems0{
 						{
 							Name:     check.Name,
 							Interval: pointer.ToString("unknown_interval"),
@@ -187,11 +187,11 @@ func TestChangeSecurityChecks(t *testing.T) {
 			require.NotEmpty(t, resp.Payload.Checks)
 
 			// convert all checks to RARE interval
-			pp := make([]*security_checks.ParamsItems0, len(resp.Payload.Checks))
+			pp := make([]*security_checks.ChangeSecurityChecksParamsBodyParamsItems0, len(resp.Payload.Checks))
 			for i, check := range resp.Payload.Checks {
-				pp[i] = &security_checks.ParamsItems0{
+				pp[i] = &security_checks.ChangeSecurityChecksParamsBodyParamsItems0{
 					Name:     check.Name,
-					Interval: pointer.ToString(security_checks.ParamsItems0IntervalRARE),
+					Interval: pointer.ToString(security_checks.ChangeSecurityChecksParamsBodyParamsItems0IntervalRARE),
 				}
 			}
 

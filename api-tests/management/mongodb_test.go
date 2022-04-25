@@ -94,7 +94,7 @@ func TestAddMongoDB(t *testing.T) {
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, agents.ListAgentsOKBody{
-			MongodbExporter: []*agents.MongodbExporterItems0{
+			MongodbExporter: []*agents.ListAgentsOKBodyMongodbExporterItems0{
 				{
 					AgentID:            listAgents.Payload.MongodbExporter[0].AgentID,
 					ServiceID:          serviceID,
@@ -174,7 +174,7 @@ func TestAddMongoDB(t *testing.T) {
 		require.Len(t, listAgents.Payload.MongodbExporter, 1)
 		require.Len(t, listAgents.Payload.QANMongodbProfilerAgent, 1)
 		assert.Equal(t, agents.ListAgentsOKBody{
-			MongodbExporter: []*agents.MongodbExporterItems0{
+			MongodbExporter: []*agents.ListAgentsOKBodyMongodbExporterItems0{
 				{
 					AgentID:            listAgents.Payload.MongodbExporter[0].AgentID,
 					ServiceID:          serviceID,
@@ -184,7 +184,7 @@ func TestAddMongoDB(t *testing.T) {
 					Status:             &AgentStatusUnknown,
 				},
 			},
-			QANMongodbProfilerAgent: []*agents.QANMongodbProfilerAgentItems0{
+			QANMongodbProfilerAgent: []*agents.ListAgentsOKBodyQANMongodbProfilerAgentItems0{
 				{
 					AgentID:    listAgents.Payload.QANMongodbProfilerAgent[0].AgentID,
 					ServiceID:  serviceID,
@@ -404,7 +404,7 @@ func TestAddMongoDB(t *testing.T) {
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, agents.ListAgentsOKBody{
-			MongodbExporter: []*agents.MongodbExporterItems0{
+			MongodbExporter: []*agents.ListAgentsOKBodyMongodbExporterItems0{
 				{
 					AgentID:            listAgents.Payload.MongodbExporter[0].AgentID,
 					ServiceID:          serviceID,
@@ -621,7 +621,7 @@ func TestAddMongoDB(t *testing.T) {
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, agents.ListAgentsOKBody{
-			MongodbExporter: []*agents.MongodbExporterItems0{
+			MongodbExporter: []*agents.ListAgentsOKBodyMongodbExporterItems0{
 				{
 					AgentID:            listAgents.Payload.MongodbExporter[0].AgentID,
 					ServiceID:          serviceID,
@@ -693,7 +693,7 @@ func TestAddMongoDB(t *testing.T) {
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, agents.ListAgentsOKBody{
-			MongodbExporter: []*agents.MongodbExporterItems0{
+			MongodbExporter: []*agents.ListAgentsOKBodyMongodbExporterItems0{
 				{
 					AgentID:            listAgents.Payload.MongodbExporter[0].AgentID,
 					ServiceID:          serviceID,
@@ -765,7 +765,7 @@ func TestAddMongoDB(t *testing.T) {
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, agents.ListAgentsOKBody{
-			MongodbExporter: []*agents.MongodbExporterItems0{
+			MongodbExporter: []*agents.ListAgentsOKBodyMongodbExporterItems0{
 				{
 					AgentID:    listAgents.Payload.MongodbExporter[0].AgentID,
 					ServiceID:  serviceID,
@@ -836,7 +836,7 @@ func TestAddMongoDB(t *testing.T) {
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, agents.ListAgentsOKBody{
-			MongodbExporter: []*agents.MongodbExporterItems0{
+			MongodbExporter: []*agents.ListAgentsOKBodyMongodbExporterItems0{
 				{
 					AgentID:            listAgents.Payload.MongodbExporter[0].AgentID,
 					ServiceID:          serviceID,

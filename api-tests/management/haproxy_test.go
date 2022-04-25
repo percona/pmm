@@ -89,7 +89,7 @@ func TestAddHAProxy(t *testing.T) {
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, agents.ListAgentsOKBody{
-			ExternalExporter: []*agents.ExternalExporterItems0{
+			ExternalExporter: []*agents.ListAgentsOKBodyExternalExporterItems0{
 				{
 					AgentID:            listAgents.Payload.ExternalExporter[0].AgentID,
 					ServiceID:          serviceID,
@@ -238,7 +238,7 @@ func TestAddHAProxy(t *testing.T) {
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, agents.ListAgentsOKBody{
-			ExternalExporter: []*agents.ExternalExporterItems0{
+			ExternalExporter: []*agents.ListAgentsOKBodyExternalExporterItems0{
 				{
 					AgentID:      listAgents.Payload.ExternalExporter[0].AgentID,
 					ServiceID:    serviceID,

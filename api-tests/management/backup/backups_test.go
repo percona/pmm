@@ -115,7 +115,7 @@ func TestScheduleBackup(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		var backup *backups.ScheduledBackupsItems0
+		var backup *backups.ListScheduledBackupsOKBodyScheduledBackupsItems0
 		for _, b := range listRes.Payload.ScheduledBackups {
 			if b.ScheduledBackupID == backupRes.Payload.ScheduledBackupID {
 				backup = b
@@ -138,7 +138,7 @@ func TestScheduleBackup(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		find := func(id string, backups []*backups.ScheduledBackupsItems0) *backups.ScheduledBackupsItems0 {
+		find := func(id string, backups []*backups.ListScheduledBackupsOKBodyScheduledBackupsItems0) *backups.ListScheduledBackupsOKBodyScheduledBackupsItems0 {
 			for _, b := range backups {
 				if b.ScheduledBackupID == id {
 					return b

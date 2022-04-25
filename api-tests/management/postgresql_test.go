@@ -98,7 +98,7 @@ func TestAddPostgreSQL(t *testing.T) {
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, agents.ListAgentsOKBody{
-			PostgresExporter: []*agents.PostgresExporterItems0{
+			PostgresExporter: []*agents.ListAgentsOKBodyPostgresExporterItems0{
 				{
 					AgentID:            listAgents.Payload.PostgresExporter[0].AgentID,
 					ServiceID:          serviceID,
@@ -182,7 +182,7 @@ func TestAddPostgreSQL(t *testing.T) {
 		require.Len(t, listAgents.Payload.QANPostgresqlPgstatementsAgent, 1)
 		require.Len(t, listAgents.Payload.QANPostgresqlPgstatmonitorAgent, 1)
 		assert.Equal(t, agents.ListAgentsOKBody{
-			PostgresExporter: []*agents.PostgresExporterItems0{
+			PostgresExporter: []*agents.ListAgentsOKBodyPostgresExporterItems0{
 				{
 					AgentID:            listAgents.Payload.PostgresExporter[0].AgentID,
 					ServiceID:          serviceID,
@@ -192,7 +192,7 @@ func TestAddPostgreSQL(t *testing.T) {
 					Status:             &AgentStatusUnknown,
 				},
 			},
-			QANPostgresqlPgstatementsAgent: []*agents.QANPostgresqlPgstatementsAgentItems0{
+			QANPostgresqlPgstatementsAgent: []*agents.ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0{
 				{
 					AgentID:    listAgents.Payload.QANPostgresqlPgstatementsAgent[0].AgentID,
 					ServiceID:  serviceID,
@@ -201,7 +201,7 @@ func TestAddPostgreSQL(t *testing.T) {
 					Status:     &AgentStatusUnknown,
 				},
 			},
-			QANPostgresqlPgstatmonitorAgent: []*agents.QANPostgresqlPgstatmonitorAgentItems0{
+			QANPostgresqlPgstatmonitorAgent: []*agents.ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0{
 				{
 					AgentID:               listAgents.Payload.QANPostgresqlPgstatmonitorAgent[0].AgentID,
 					ServiceID:             serviceID,
@@ -426,7 +426,7 @@ func TestAddPostgreSQL(t *testing.T) {
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, agents.ListAgentsOKBody{
-			PostgresExporter: []*agents.PostgresExporterItems0{
+			PostgresExporter: []*agents.ListAgentsOKBodyPostgresExporterItems0{
 				{
 					AgentID:            listAgents.Payload.PostgresExporter[0].AgentID,
 					ServiceID:          serviceID,
@@ -652,7 +652,7 @@ func TestAddPostgreSQL(t *testing.T) {
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, agents.ListAgentsOKBody{
-			PostgresExporter: []*agents.PostgresExporterItems0{
+			PostgresExporter: []*agents.ListAgentsOKBodyPostgresExporterItems0{
 				{
 					AgentID:            listAgents.Payload.PostgresExporter[0].AgentID,
 					ServiceID:          serviceID,
@@ -727,7 +727,7 @@ func TestAddPostgreSQL(t *testing.T) {
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, agents.ListAgentsOKBody{
-			PostgresExporter: []*agents.PostgresExporterItems0{
+			PostgresExporter: []*agents.ListAgentsOKBodyPostgresExporterItems0{
 				{
 					AgentID:    listAgents.Payload.PostgresExporter[0].AgentID,
 					ServiceID:  serviceID,
@@ -801,7 +801,7 @@ func TestAddPostgreSQL(t *testing.T) {
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, agents.ListAgentsOKBody{
-			PostgresExporter: []*agents.PostgresExporterItems0{
+			PostgresExporter: []*agents.ListAgentsOKBodyPostgresExporterItems0{
 				{
 					AgentID:            listAgents.Payload.PostgresExporter[0].AgentID,
 					ServiceID:          serviceID,

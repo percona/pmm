@@ -1143,7 +1143,7 @@ func TestExternalService(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
-		containsExternalWithGroup := func(items []*services.ExternalItems0, expectedGroup string) func() bool {
+		containsExternalWithGroup := func(items []*services.ListServicesOKBodyExternalItems0, expectedGroup string) func() bool {
 			return func() bool {
 				for _, ext := range items {
 					if ext.Group == expectedGroup {

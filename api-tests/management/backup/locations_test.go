@@ -250,7 +250,7 @@ func TestChangeLocation(t *testing.T) {
 	t.Parallel()
 	client := backupClient.Default.Locations
 
-	checkChange := func(t *testing.T, req locations.ChangeLocationBody, locations []*locations.LocationsItems0) {
+	checkChange := func(t *testing.T, req locations.ChangeLocationBody, locations []*locations.ListLocationsOKBodyLocationsItems0) {
 		t.Helper()
 		var found bool
 		for _, loc := range locations {
@@ -357,7 +357,7 @@ func TestChangeLocation(t *testing.T) {
 		listResp, err := client.ListLocations(&locations.ListLocationsParams{Context: pmmapitests.Context})
 		require.NoError(t, err)
 
-		var location *locations.LocationsItems0
+		var location *locations.ListLocationsOKBodyLocationsItems0
 		for _, loc := range listResp.Payload.Locations {
 			if loc.LocationID == resp.Payload.LocationID {
 				location = loc
@@ -479,7 +479,7 @@ func TestRemoveLocation(t *testing.T) {
 
 	require.NoError(t, err)
 
-	assertNotFound := func(id string, locations []*locations.LocationsItems0) func() bool {
+	assertNotFound := func(id string, locations []*locations.ListLocationsOKBodyLocationsItems0) func() bool {
 		return func() bool {
 			for _, loc := range locations {
 				if loc.LocationID == id {

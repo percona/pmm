@@ -79,7 +79,7 @@ func assertNodeExporterCreated(t pmmapitests.TestingT, pmmAgentID string) (strin
 	assert.NoError(t, err)
 	require.Len(t, listAgentsOK.Payload.NodeExporter, 1)
 	nodeExporterAgentID := listAgentsOK.Payload.NodeExporter[0].AgentID
-	asserted := assert.Equal(t, agents.NodeExporterItems0{
+	asserted := assert.Equal(t, agents.ListAgentsOKBodyNodeExporterItems0{
 		PMMAgentID:         pmmAgentID,
 		AgentID:            nodeExporterAgentID,
 		PushMetricsEnabled: true,

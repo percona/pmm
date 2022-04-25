@@ -95,7 +95,7 @@ func TestAddMySQL(t *testing.T) {
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, agents.ListAgentsOKBody{
-			MysqldExporter: []*agents.MysqldExporterItems0{
+			MysqldExporter: []*agents.ListAgentsOKBodyMysqldExporterItems0{
 				{
 					AgentID:                   listAgents.Payload.MysqldExporter[0].AgentID,
 					ServiceID:                 serviceID,
@@ -179,7 +179,7 @@ func TestAddMySQL(t *testing.T) {
 		require.Len(t, listAgents.Payload.QANMysqlSlowlogAgent, 1)
 		require.Len(t, listAgents.Payload.QANMysqlPerfschemaAgent, 1)
 		assert.Equal(t, agents.ListAgentsOKBody{
-			MysqldExporter: []*agents.MysqldExporterItems0{
+			MysqldExporter: []*agents.ListAgentsOKBodyMysqldExporterItems0{
 				{
 					AgentID:                   listAgents.Payload.MysqldExporter[0].AgentID,
 					ServiceID:                 serviceID,
@@ -191,7 +191,7 @@ func TestAddMySQL(t *testing.T) {
 					Status:                    &AgentStatusUnknown,
 				},
 			},
-			QANMysqlSlowlogAgent: []*agents.QANMysqlSlowlogAgentItems0{
+			QANMysqlSlowlogAgent: []*agents.ListAgentsOKBodyQANMysqlSlowlogAgentItems0{
 				{
 					AgentID:            listAgents.Payload.QANMysqlSlowlogAgent[0].AgentID,
 					ServiceID:          serviceID,
@@ -201,7 +201,7 @@ func TestAddMySQL(t *testing.T) {
 					Status:             &AgentStatusUnknown,
 				},
 			},
-			QANMysqlPerfschemaAgent: []*agents.QANMysqlPerfschemaAgentItems0{
+			QANMysqlPerfschemaAgent: []*agents.ListAgentsOKBodyQANMysqlPerfschemaAgentItems0{
 				{
 					AgentID:    listAgents.Payload.QANMysqlPerfschemaAgent[0].AgentID,
 					ServiceID:  serviceID,
@@ -428,7 +428,7 @@ func TestAddMySQL(t *testing.T) {
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, agents.ListAgentsOKBody{
-			MysqldExporter: []*agents.MysqldExporterItems0{
+			MysqldExporter: []*agents.ListAgentsOKBodyMysqldExporterItems0{
 				{
 					AgentID:                   listAgents.Payload.MysqldExporter[0].AgentID,
 					ServiceID:                 serviceID,
@@ -681,7 +681,7 @@ func TestAddMySQL(t *testing.T) {
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, agents.ListAgentsOKBody{
-			MysqldExporter: []*agents.MysqldExporterItems0{
+			MysqldExporter: []*agents.ListAgentsOKBodyMysqldExporterItems0{
 				{
 					AgentID:                   listAgents.Payload.MysqldExporter[0].AgentID,
 					ServiceID:                 serviceID,
@@ -756,7 +756,7 @@ func TestAddMySQL(t *testing.T) {
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, agents.ListAgentsOKBody{
-			MysqldExporter: []*agents.MysqldExporterItems0{
+			MysqldExporter: []*agents.ListAgentsOKBodyMysqldExporterItems0{
 				{
 					AgentID:                   listAgents.Payload.MysqldExporter[0].AgentID,
 					ServiceID:                 serviceID,
@@ -830,7 +830,7 @@ func TestAddMySQL(t *testing.T) {
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, agents.ListAgentsOKBody{
-			MysqldExporter: []*agents.MysqldExporterItems0{
+			MysqldExporter: []*agents.ListAgentsOKBodyMysqldExporterItems0{
 				{
 					AgentID:                   listAgents.Payload.MysqldExporter[0].AgentID,
 					ServiceID:                 serviceID,

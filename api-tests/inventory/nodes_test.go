@@ -389,7 +389,7 @@ func TestRemoveNode(t *testing.T) {
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, &services.ListServicesOKBody{
-			Mysql: []*services.MysqlItems0{
+			Mysql: []*services.ListServicesOKBodyMysqlItems0{
 				{
 					NodeID:      node.NodeID,
 					ServiceID:   serviceID,
