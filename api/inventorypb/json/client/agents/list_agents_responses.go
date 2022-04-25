@@ -1353,6 +1353,9 @@ type ListAgentsOKBodyAzureDatabaseExporterItems0 struct {
 
 	// True if the exporter operates in push metrics mode.
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+
+	// Path to exec process
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this list agents OK body azure database exporter items0
@@ -1483,6 +1486,9 @@ type ListAgentsOKBodyExternalExporterItems0 struct {
 
 	// True if exporter uses push metrics mode.
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+
+	// Path to exec process
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this list agents OK body external exporter items0
