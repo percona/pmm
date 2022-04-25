@@ -474,6 +474,10 @@ type AddProxySQLExporterOKBodyProxysqlExporter struct {
 
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Log level for exporters
+	// Enum: [warn debug info error fatal]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add proxy SQL exporter OK body proxysql exporter
@@ -481,6 +485,10 @@ func (o *AddProxySQLExporterOKBodyProxysqlExporter) Validate(formats strfmt.Regi
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -541,6 +549,57 @@ func (o *AddProxySQLExporterOKBodyProxysqlExporter) validateStatus(formats strfm
 
 	// value enum
 	if err := o.validateStatusEnum("addProxySqlExporterOk"+"."+"proxysql_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addProxySqlExporterOkBodyProxysqlExporterTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["warn","debug","info","error","fatal"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addProxySqlExporterOkBodyProxysqlExporterTypeLogLevelPropEnum = append(addProxySqlExporterOkBodyProxysqlExporterTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddProxySQLExporterOKBodyProxysqlExporterLogLevelWarn captures enum value "warn"
+	AddProxySQLExporterOKBodyProxysqlExporterLogLevelWarn string = "warn"
+
+	// AddProxySQLExporterOKBodyProxysqlExporterLogLevelDebug captures enum value "debug"
+	AddProxySQLExporterOKBodyProxysqlExporterLogLevelDebug string = "debug"
+
+	// AddProxySQLExporterOKBodyProxysqlExporterLogLevelInfo captures enum value "info"
+	AddProxySQLExporterOKBodyProxysqlExporterLogLevelInfo string = "info"
+
+	// AddProxySQLExporterOKBodyProxysqlExporterLogLevelError captures enum value "error"
+	AddProxySQLExporterOKBodyProxysqlExporterLogLevelError string = "error"
+
+	// AddProxySQLExporterOKBodyProxysqlExporterLogLevelFatal captures enum value "fatal"
+	AddProxySQLExporterOKBodyProxysqlExporterLogLevelFatal string = "fatal"
+)
+
+// prop value enum
+func (o *AddProxySQLExporterOKBodyProxysqlExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addProxySqlExporterOkBodyProxysqlExporterTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddProxySQLExporterOKBodyProxysqlExporter) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addProxySqlExporterOk"+"."+"proxysql_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 

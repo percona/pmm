@@ -1300,6 +1300,10 @@ type GetAgentOKBodyMongodbExporter struct {
 
 	// Enable All collectors.
 	EnableAllCollectors bool `json:"enable_all_collectors,omitempty"`
+
+	// Log level for exporters
+	// Enum: [warn debug info error fatal]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this get agent OK body mongodb exporter
@@ -1307,6 +1311,10 @@ func (o *GetAgentOKBodyMongodbExporter) Validate(formats strfmt.Registry) error 
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1367,6 +1375,57 @@ func (o *GetAgentOKBodyMongodbExporter) validateStatus(formats strfmt.Registry) 
 
 	// value enum
 	if err := o.validateStatusEnum("getAgentOk"+"."+"mongodb_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var getAgentOkBodyMongodbExporterTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["warn","debug","info","error","fatal"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getAgentOkBodyMongodbExporterTypeLogLevelPropEnum = append(getAgentOkBodyMongodbExporterTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// GetAgentOKBodyMongodbExporterLogLevelWarn captures enum value "warn"
+	GetAgentOKBodyMongodbExporterLogLevelWarn string = "warn"
+
+	// GetAgentOKBodyMongodbExporterLogLevelDebug captures enum value "debug"
+	GetAgentOKBodyMongodbExporterLogLevelDebug string = "debug"
+
+	// GetAgentOKBodyMongodbExporterLogLevelInfo captures enum value "info"
+	GetAgentOKBodyMongodbExporterLogLevelInfo string = "info"
+
+	// GetAgentOKBodyMongodbExporterLogLevelError captures enum value "error"
+	GetAgentOKBodyMongodbExporterLogLevelError string = "error"
+
+	// GetAgentOKBodyMongodbExporterLogLevelFatal captures enum value "fatal"
+	GetAgentOKBodyMongodbExporterLogLevelFatal string = "fatal"
+)
+
+// prop value enum
+func (o *GetAgentOKBodyMongodbExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, getAgentOkBodyMongodbExporterTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyMongodbExporter) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("getAgentOk"+"."+"mongodb_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
@@ -1461,6 +1520,10 @@ type GetAgentOKBodyMysqldExporter struct {
 
 	// True if tablestats group collectors are currently disabled.
 	TablestatsGroupDisabled bool `json:"tablestats_group_disabled,omitempty"`
+
+	// Log level for exporters
+	// Enum: [warn debug info error fatal]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this get agent OK body mysqld exporter
@@ -1468,6 +1531,10 @@ func (o *GetAgentOKBodyMysqldExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1528,6 +1595,57 @@ func (o *GetAgentOKBodyMysqldExporter) validateStatus(formats strfmt.Registry) e
 
 	// value enum
 	if err := o.validateStatusEnum("getAgentOk"+"."+"mysqld_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var getAgentOkBodyMysqldExporterTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["warn","debug","info","error","fatal"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getAgentOkBodyMysqldExporterTypeLogLevelPropEnum = append(getAgentOkBodyMysqldExporterTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// GetAgentOKBodyMysqldExporterLogLevelWarn captures enum value "warn"
+	GetAgentOKBodyMysqldExporterLogLevelWarn string = "warn"
+
+	// GetAgentOKBodyMysqldExporterLogLevelDebug captures enum value "debug"
+	GetAgentOKBodyMysqldExporterLogLevelDebug string = "debug"
+
+	// GetAgentOKBodyMysqldExporterLogLevelInfo captures enum value "info"
+	GetAgentOKBodyMysqldExporterLogLevelInfo string = "info"
+
+	// GetAgentOKBodyMysqldExporterLogLevelError captures enum value "error"
+	GetAgentOKBodyMysqldExporterLogLevelError string = "error"
+
+	// GetAgentOKBodyMysqldExporterLogLevelFatal captures enum value "fatal"
+	GetAgentOKBodyMysqldExporterLogLevelFatal string = "fatal"
+)
+
+// prop value enum
+func (o *GetAgentOKBodyMysqldExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, getAgentOkBodyMysqldExporterTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyMysqldExporter) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("getAgentOk"+"."+"mysqld_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
@@ -1783,6 +1901,10 @@ type GetAgentOKBodyPostgresExporter struct {
 
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Log level for exporters
+	// Enum: [warn debug info error fatal]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this get agent OK body postgres exporter
@@ -1790,6 +1912,10 @@ func (o *GetAgentOKBodyPostgresExporter) Validate(formats strfmt.Registry) error
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1850,6 +1976,57 @@ func (o *GetAgentOKBodyPostgresExporter) validateStatus(formats strfmt.Registry)
 
 	// value enum
 	if err := o.validateStatusEnum("getAgentOk"+"."+"postgres_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var getAgentOkBodyPostgresExporterTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["warn","debug","info","error","fatal"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getAgentOkBodyPostgresExporterTypeLogLevelPropEnum = append(getAgentOkBodyPostgresExporterTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// GetAgentOKBodyPostgresExporterLogLevelWarn captures enum value "warn"
+	GetAgentOKBodyPostgresExporterLogLevelWarn string = "warn"
+
+	// GetAgentOKBodyPostgresExporterLogLevelDebug captures enum value "debug"
+	GetAgentOKBodyPostgresExporterLogLevelDebug string = "debug"
+
+	// GetAgentOKBodyPostgresExporterLogLevelInfo captures enum value "info"
+	GetAgentOKBodyPostgresExporterLogLevelInfo string = "info"
+
+	// GetAgentOKBodyPostgresExporterLogLevelError captures enum value "error"
+	GetAgentOKBodyPostgresExporterLogLevelError string = "error"
+
+	// GetAgentOKBodyPostgresExporterLogLevelFatal captures enum value "fatal"
+	GetAgentOKBodyPostgresExporterLogLevelFatal string = "fatal"
+)
+
+// prop value enum
+func (o *GetAgentOKBodyPostgresExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, getAgentOkBodyPostgresExporterTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyPostgresExporter) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("getAgentOk"+"."+"postgres_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
@@ -1927,6 +2104,10 @@ type GetAgentOKBodyProxysqlExporter struct {
 
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Log level for exporters
+	// Enum: [warn debug info error fatal]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this get agent OK body proxysql exporter
@@ -1934,6 +2115,10 @@ func (o *GetAgentOKBodyProxysqlExporter) Validate(formats strfmt.Registry) error
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1994,6 +2179,57 @@ func (o *GetAgentOKBodyProxysqlExporter) validateStatus(formats strfmt.Registry)
 
 	// value enum
 	if err := o.validateStatusEnum("getAgentOk"+"."+"proxysql_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var getAgentOkBodyProxysqlExporterTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["warn","debug","info","error","fatal"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getAgentOkBodyProxysqlExporterTypeLogLevelPropEnum = append(getAgentOkBodyProxysqlExporterTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// GetAgentOKBodyProxysqlExporterLogLevelWarn captures enum value "warn"
+	GetAgentOKBodyProxysqlExporterLogLevelWarn string = "warn"
+
+	// GetAgentOKBodyProxysqlExporterLogLevelDebug captures enum value "debug"
+	GetAgentOKBodyProxysqlExporterLogLevelDebug string = "debug"
+
+	// GetAgentOKBodyProxysqlExporterLogLevelInfo captures enum value "info"
+	GetAgentOKBodyProxysqlExporterLogLevelInfo string = "info"
+
+	// GetAgentOKBodyProxysqlExporterLogLevelError captures enum value "error"
+	GetAgentOKBodyProxysqlExporterLogLevelError string = "error"
+
+	// GetAgentOKBodyProxysqlExporterLogLevelFatal captures enum value "fatal"
+	GetAgentOKBodyProxysqlExporterLogLevelFatal string = "fatal"
+)
+
+// prop value enum
+func (o *GetAgentOKBodyProxysqlExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, getAgentOkBodyProxysqlExporterTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyProxysqlExporter) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("getAgentOk"+"."+"proxysql_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 

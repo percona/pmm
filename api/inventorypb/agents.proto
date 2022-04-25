@@ -8,6 +8,7 @@ import "protoc-gen-openapiv2/options/annotations.proto";
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "inventorypb/agent_status.proto";
+import "inventorypb/log_level.proto";
 
 // AgentType describes supported Agent types.
 enum AgentType {
@@ -127,6 +128,8 @@ message MySQLdExporter {
   uint32 listen_port = 10;
   // True if tablestats group collectors are currently disabled.
   bool tablestats_group_disabled = 12;
+
+  LogLevel log_level = 18;
 }
 
 // MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.
@@ -166,6 +169,8 @@ message MongoDBExporter {
   int32 collections_limit = 14;
   // Enable All collectors.
   bool enable_all_collectors = 15;
+
+  LogLevel log_level = 16;
 }
 
 // PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
@@ -194,6 +199,8 @@ message PostgresExporter {
   AgentStatus status = 9;
   // Listen port for scraping metrics.
   uint32 listen_port = 10;
+
+  LogLevel log_level = 13;
 }
 
 // ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.
@@ -226,6 +233,8 @@ message ProxySQLExporter {
   AgentStatus status = 9;
   // Listen port for scraping metrics.
   uint32 listen_port = 10;
+
+  LogLevel log_level = 13;
 }
 
 // QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.

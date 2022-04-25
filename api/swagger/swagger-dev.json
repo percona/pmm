@@ -4469,6 +4469,19 @@
                       "description": "Enable All collectors.",
                       "type": "boolean",
                       "x-order": 14
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "warn",
+                      "enum": [
+                        "warn",
+                        "debug",
+                        "info",
+                        "error",
+                        "fatal"
+                      ],
+                      "x-order": 15
                     }
                   },
                   "x-order": 0
@@ -4732,6 +4745,19 @@
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
                       "x-order": 16
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "warn",
+                      "enum": [
+                        "warn",
+                        "debug",
+                        "info",
+                        "error",
+                        "fatal"
+                      ],
+                      "x-order": 17
                     }
                   },
                   "x-order": 0
@@ -5244,6 +5270,19 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "warn",
+                      "enum": [
+                        "warn",
+                        "debug",
+                        "info",
+                        "error",
+                        "fatal"
+                      ],
+                      "x-order": 12
                     }
                   },
                   "x-order": 0
@@ -5460,6 +5499,19 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "warn",
+                      "enum": [
+                        "warn",
+                        "debug",
+                        "info",
+                        "error",
+                        "fatal"
+                      ],
+                      "x-order": 12
                     }
                   },
                   "x-order": 0
@@ -7287,6 +7339,19 @@
                       "description": "Enable All collectors.",
                       "type": "boolean",
                       "x-order": 14
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "warn",
+                      "enum": [
+                        "warn",
+                        "debug",
+                        "info",
+                        "error",
+                        "fatal"
+                      ],
+                      "x-order": 15
                     }
                   },
                   "x-order": 0
@@ -7512,6 +7577,19 @@
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
                       "x-order": 16
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "warn",
+                      "enum": [
+                        "warn",
+                        "debug",
+                        "info",
+                        "error",
+                        "fatal"
+                      ],
+                      "x-order": 17
                     }
                   },
                   "x-order": 0
@@ -7890,6 +7968,19 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "warn",
+                      "enum": [
+                        "warn",
+                        "debug",
+                        "info",
+                        "error",
+                        "fatal"
+                      ],
+                      "x-order": 12
                     }
                   },
                   "x-order": 0
@@ -8089,6 +8180,19 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "warn",
+                      "enum": [
+                        "warn",
+                        "debug",
+                        "info",
+                        "error",
+                        "fatal"
+                      ],
+                      "x-order": 12
                     }
                   },
                   "x-order": 0
@@ -9543,6 +9647,19 @@
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
                       "x-order": 16
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "warn",
+                      "enum": [
+                        "warn",
+                        "debug",
+                        "info",
+                        "error",
+                        "fatal"
+                      ],
+                      "x-order": 17
                     }
                   },
                   "x-order": 3
@@ -9646,6 +9763,19 @@
                       "description": "Enable All collectors.",
                       "type": "boolean",
                       "x-order": 14
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "warn",
+                      "enum": [
+                        "warn",
+                        "debug",
+                        "info",
+                        "error",
+                        "fatal"
+                      ],
+                      "x-order": 15
                     }
                   },
                   "x-order": 4
@@ -9730,6 +9860,19 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "warn",
+                      "enum": [
+                        "warn",
+                        "debug",
+                        "info",
+                        "error",
+                        "fatal"
+                      ],
+                      "x-order": 12
                     }
                   },
                   "x-order": 5
@@ -9814,6 +9957,19 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "warn",
+                      "enum": [
+                        "warn",
+                        "debug",
+                        "info",
+                        "error",
+                        "fatal"
+                      ],
+                      "x-order": 12
                     }
                   },
                   "x-order": 6
@@ -10755,6 +10911,19 @@
                         "description": "True if tablestats group collectors are currently disabled.",
                         "type": "boolean",
                         "x-order": 16
+                      },
+                      "log_level": {
+                        "type": "string",
+                        "title": "Log level for exporters",
+                        "default": "warn",
+                        "enum": [
+                          "warn",
+                          "debug",
+                          "info",
+                          "error",
+                          "fatal"
+                        ],
+                        "x-order": 17
                       }
                     }
                   },
@@ -10861,6 +11030,19 @@
                         "description": "Enable All collectors.",
                         "type": "boolean",
                         "x-order": 14
+                      },
+                      "log_level": {
+                        "type": "string",
+                        "title": "Log level for exporters",
+                        "default": "warn",
+                        "enum": [
+                          "warn",
+                          "debug",
+                          "info",
+                          "error",
+                          "fatal"
+                        ],
+                        "x-order": 15
                       }
                     }
                   },
@@ -10948,6 +11130,19 @@
                         "type": "integer",
                         "format": "int64",
                         "x-order": 11
+                      },
+                      "log_level": {
+                        "type": "string",
+                        "title": "Log level for exporters",
+                        "default": "warn",
+                        "enum": [
+                          "warn",
+                          "debug",
+                          "info",
+                          "error",
+                          "fatal"
+                        ],
+                        "x-order": 12
                       }
                     }
                   },
@@ -11035,6 +11230,19 @@
                         "type": "integer",
                         "format": "int64",
                         "x-order": 11
+                      },
+                      "log_level": {
+                        "type": "string",
+                        "title": "Log level for exporters",
+                        "default": "warn",
+                        "enum": [
+                          "warn",
+                          "debug",
+                          "info",
+                          "error",
+                          "fatal"
+                        ],
+                        "x-order": 12
                       }
                     }
                   },
@@ -21433,6 +21641,19 @@
                   "type": "boolean",
                   "title": "Enable all collectors",
                   "x-order": 28
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "warn",
+                  "enum": [
+                    "warn",
+                    "debug",
+                    "info",
+                    "error",
+                    "fatal"
+                  ],
+                  "x-order": 29
                 }
               }
             }
@@ -21604,6 +21825,19 @@
                       "description": "Enable All collectors.",
                       "type": "boolean",
                       "x-order": 14
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "warn",
+                      "enum": [
+                        "warn",
+                        "debug",
+                        "info",
+                        "error",
+                        "fatal"
+                      ],
+                      "x-order": 15
                     }
                   },
                   "x-order": 1
@@ -21952,6 +22186,19 @@
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 27
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "warn",
+                  "enum": [
+                    "warn",
+                    "debug",
+                    "info",
+                    "error",
+                    "fatal"
+                  ],
+                  "x-order": 28
                 }
               }
             }
@@ -22130,6 +22377,19 @@
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
                       "x-order": 16
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "warn",
+                      "enum": [
+                        "warn",
+                        "debug",
+                        "info",
+                        "error",
+                        "fatal"
+                      ],
+                      "x-order": 17
                     }
                   },
                   "x-order": 1
@@ -22895,6 +23155,19 @@
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 26
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "warn",
+                  "enum": [
+                    "warn",
+                    "debug",
+                    "info",
+                    "error",
+                    "fatal"
+                  ],
+                  "x-order": 27
                 }
               }
             }
@@ -23052,6 +23325,19 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "warn",
+                      "enum": [
+                        "warn",
+                        "debug",
+                        "info",
+                        "error",
+                        "fatal"
+                      ],
+                      "x-order": 12
                     }
                   },
                   "x-order": 1
@@ -23428,6 +23714,19 @@
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 19
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "warn",
+                  "enum": [
+                    "warn",
+                    "debug",
+                    "info",
+                    "error",
+                    "fatal"
+                  ],
+                  "x-order": 20
                 }
               }
             }
@@ -23580,6 +23879,19 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "warn",
+                      "enum": [
+                        "warn",
+                        "debug",
+                        "info",
+                        "error",
+                        "fatal"
+                      ],
+                      "x-order": 12
                     }
                   },
                   "x-order": 1
@@ -24105,6 +24417,19 @@
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
                       "x-order": 16
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "warn",
+                      "enum": [
+                        "warn",
+                        "debug",
+                        "info",
+                        "error",
+                        "fatal"
+                      ],
+                      "x-order": 17
                     }
                   },
                   "x-order": 3
@@ -24346,6 +24671,19 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "warn",
+                      "enum": [
+                        "warn",
+                        "debug",
+                        "info",
+                        "error",
+                        "fatal"
+                      ],
+                      "x-order": 12
                     }
                   },
                   "x-order": 7
