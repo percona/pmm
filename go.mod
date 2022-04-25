@@ -20,7 +20,7 @@ require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.0.12
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
 	github.com/aws/aws-sdk-go v1.43.37
-	github.com/brianvoe/gofakeit/v6 v6.15.0
+	github.com/brianvoe/gofakeit/v6 v6.16.0
 	github.com/davecgh/go-spew v1.1.1
 	github.com/go-co-op/gocron v1.13.0
 	github.com/go-openapi/runtime v0.23.3
