@@ -6,6 +6,7 @@ package server
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -48,7 +49,7 @@ func NewCheckUpdatesOK() *CheckUpdatesOK {
 	return &CheckUpdatesOK{}
 }
 
-/*CheckUpdatesOK handles this case with default header values.
+/* CheckUpdatesOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -59,7 +60,6 @@ type CheckUpdatesOK struct {
 func (o *CheckUpdatesOK) Error() string {
 	return fmt.Sprintf("[POST /v1/Updates/Check][%d] checkUpdatesOk  %+v", 200, o.Payload)
 }
-
 func (o *CheckUpdatesOK) GetPayload() *CheckUpdatesOKBody {
 	return o.Payload
 }
@@ -83,7 +83,7 @@ func NewCheckUpdatesDefault(code int) *CheckUpdatesDefault {
 	}
 }
 
-/*CheckUpdatesDefault handles this case with default header values.
+/* CheckUpdatesDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -101,7 +101,6 @@ func (o *CheckUpdatesDefault) Code() int {
 func (o *CheckUpdatesDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/Updates/Check][%d] CheckUpdates default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *CheckUpdatesDefault) GetPayload() *CheckUpdatesDefaultBody {
 	return o.Payload
 }
@@ -132,6 +131,11 @@ type CheckUpdatesBody struct {
 
 // Validate validates this check updates body
 func (o *CheckUpdatesBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this check updates body based on context it is used
+func (o *CheckUpdatesBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -168,7 +172,7 @@ type CheckUpdatesDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*CheckUpdatesDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this check updates default body
@@ -186,7 +190,6 @@ func (o *CheckUpdatesDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *CheckUpdatesDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -200,6 +203,42 @@ func (o *CheckUpdatesDefaultBody) validateDetails(formats strfmt.Registry) error
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("CheckUpdates default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("CheckUpdates default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this check updates default body based on the context it is used
+func (o *CheckUpdatesDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *CheckUpdatesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("CheckUpdates default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("CheckUpdates default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -221,6 +260,47 @@ func (o *CheckUpdatesDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *CheckUpdatesDefaultBody) UnmarshalBinary(b []byte) error {
 	var res CheckUpdatesDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*CheckUpdatesDefaultBodyDetailsItems0 check updates default body details items0
+swagger:model CheckUpdatesDefaultBodyDetailsItems0
+*/
+type CheckUpdatesDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this check updates default body details items0
+func (o *CheckUpdatesDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this check updates default body details items0 based on context it is used
+func (o *CheckUpdatesDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *CheckUpdatesDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *CheckUpdatesDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res CheckUpdatesDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -273,7 +353,6 @@ func (o *CheckUpdatesOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *CheckUpdatesOKBody) validateLastCheck(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.LastCheck) { // not required
 		return nil
 	}
@@ -286,7 +365,6 @@ func (o *CheckUpdatesOKBody) validateLastCheck(formats strfmt.Registry) error {
 }
 
 func (o *CheckUpdatesOKBody) validateInstalled(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Installed) { // not required
 		return nil
 	}
@@ -295,6 +373,8 @@ func (o *CheckUpdatesOKBody) validateInstalled(formats strfmt.Registry) error {
 		if err := o.Installed.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("checkUpdatesOk" + "." + "installed")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("checkUpdatesOk" + "." + "installed")
 			}
 			return err
 		}
@@ -304,7 +384,6 @@ func (o *CheckUpdatesOKBody) validateInstalled(formats strfmt.Registry) error {
 }
 
 func (o *CheckUpdatesOKBody) validateLatest(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Latest) { // not required
 		return nil
 	}
@@ -313,6 +392,58 @@ func (o *CheckUpdatesOKBody) validateLatest(formats strfmt.Registry) error {
 		if err := o.Latest.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("checkUpdatesOk" + "." + "latest")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("checkUpdatesOk" + "." + "latest")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this check updates OK body based on the context it is used
+func (o *CheckUpdatesOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateInstalled(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateLatest(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *CheckUpdatesOKBody) contextValidateInstalled(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Installed != nil {
+		if err := o.Installed.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("checkUpdatesOk" + "." + "installed")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("checkUpdatesOk" + "." + "installed")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *CheckUpdatesOKBody) contextValidateLatest(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Latest != nil {
+		if err := o.Latest.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("checkUpdatesOk" + "." + "latest")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("checkUpdatesOk" + "." + "latest")
 			}
 			return err
 		}
@@ -370,7 +501,6 @@ func (o *CheckUpdatesOKBodyInstalled) Validate(formats strfmt.Registry) error {
 }
 
 func (o *CheckUpdatesOKBodyInstalled) validateTimestamp(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Timestamp) { // not required
 		return nil
 	}
@@ -379,6 +509,11 @@ func (o *CheckUpdatesOKBodyInstalled) validateTimestamp(formats strfmt.Registry)
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this check updates OK body installed based on context it is used
+func (o *CheckUpdatesOKBodyInstalled) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -431,7 +566,6 @@ func (o *CheckUpdatesOKBodyLatest) Validate(formats strfmt.Registry) error {
 }
 
 func (o *CheckUpdatesOKBodyLatest) validateTimestamp(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Timestamp) { // not required
 		return nil
 	}
@@ -440,6 +574,11 @@ func (o *CheckUpdatesOKBodyLatest) validateTimestamp(formats strfmt.Registry) er
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this check updates OK body latest based on context it is used
+func (o *CheckUpdatesOKBodyLatest) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

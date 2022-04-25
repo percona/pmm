@@ -24,7 +24,7 @@ import (
 	"github.com/percona/pmm/api/managementpb/json/client/service"
 )
 
-// Default PMM management HTTP client.
+// Default PMM management API HTTP client.
 var Default = NewHTTPClient(nil)
 
 const (
@@ -39,14 +39,14 @@ const (
 // DefaultSchemes are the default schemes found in Meta (info) section of spec file
 var DefaultSchemes = []string{"http", "https"}
 
-// NewHTTPClient creates a new PMM management HTTP client.
-func NewHTTPClient(formats strfmt.Registry) *PMMManagement {
+// NewHTTPClient creates a new PMM management API HTTP client.
+func NewHTTPClient(formats strfmt.Registry) *PMMManagementAPI {
 	return NewHTTPClientWithConfig(formats, nil)
 }
 
-// NewHTTPClientWithConfig creates a new PMM management HTTP client,
+// NewHTTPClientWithConfig creates a new PMM management API HTTP client,
 // using a customizable transport config.
-func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMMManagement {
+func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMMManagementAPI {
 	// ensure nullable parameters have default
 	if cfg == nil {
 		cfg = DefaultTransportConfig()
@@ -57,14 +57,14 @@ func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMM
 	return New(transport, formats)
 }
 
-// New creates a new PMM management client
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMManagement {
+// New creates a new PMM management API client
+func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMManagementAPI {
 	// ensure nullable parameters have default
 	if formats == nil {
 		formats = strfmt.Default
 	}
 
-	cli := new(PMMManagement)
+	cli := new(PMMManagementAPI)
 	cli.Transport = transport
 	cli.Actions = actions.New(transport, formats)
 	cli.Annotation = annotation.New(transport, formats)
@@ -120,8 +120,8 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 	return cfg
 }
 
-// PMMManagement is a client for PMM management
-type PMMManagement struct {
+// PMMManagementAPI is a client for PMM management API
+type PMMManagementAPI struct {
 	Actions actions.ClientService
 
 	Annotation annotation.ClientService
@@ -150,7 +150,7 @@ type PMMManagement struct {
 }
 
 // SetTransport changes the transport on the client and all its subresources
-func (c *PMMManagement) SetTransport(transport runtime.ClientTransport) {
+func (c *PMMManagementAPI) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
 	c.Actions.SetTransport(transport)
 	c.Annotation.SetTransport(transport)

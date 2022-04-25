@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewGetFailedChecksParams creates a new GetFailedChecksParams object
-// with the default values initialized.
+// NewGetFailedChecksParams creates a new GetFailedChecksParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewGetFailedChecksParams() *GetFailedChecksParams {
-	var ()
 	return &GetFailedChecksParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewGetFailedChecksParamsWithTimeout creates a new GetFailedChecksParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewGetFailedChecksParamsWithTimeout(timeout time.Duration) *GetFailedChecksParams {
-	var ()
 	return &GetFailedChecksParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewGetFailedChecksParamsWithContext creates a new GetFailedChecksParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewGetFailedChecksParamsWithContext(ctx context.Context) *GetFailedChecksParams {
-	var ()
 	return &GetFailedChecksParams{
-
 		Context: ctx,
 	}
 }
 
 // NewGetFailedChecksParamsWithHTTPClient creates a new GetFailedChecksParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewGetFailedChecksParamsWithHTTPClient(client *http.Client) *GetFailedChecksParams {
-	var ()
 	return &GetFailedChecksParams{
 		HTTPClient: client,
 	}
 }
 
-/*GetFailedChecksParams contains all the parameters to send to the API endpoint
-for the get failed checks operation typically these are written to a http.Request
+/* GetFailedChecksParams contains all the parameters to send to the API endpoint
+   for the get failed checks operation.
+
+   Typically these are written to a http.Request.
 */
 type GetFailedChecksParams struct {
 
-	/*Body*/
+	// Body.
 	Body GetFailedChecksBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the get failed checks params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *GetFailedChecksParams) WithDefaults() *GetFailedChecksParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the get failed checks params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *GetFailedChecksParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the get failed checks params
@@ -119,7 +133,6 @@ func (o *GetFailedChecksParams) WriteToRequest(r runtime.ClientRequest, reg strf
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

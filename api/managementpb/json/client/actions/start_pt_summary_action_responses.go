@@ -6,6 +6,7 @@ package actions
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewStartPTSummaryActionOK() *StartPTSummaryActionOK {
 	return &StartPTSummaryActionOK{}
 }
 
-/*StartPTSummaryActionOK handles this case with default header values.
+/* StartPTSummaryActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type StartPTSummaryActionOK struct {
 func (o *StartPTSummaryActionOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartPTSummary][%d] startPtSummaryActionOk  %+v", 200, o.Payload)
 }
-
 func (o *StartPTSummaryActionOK) GetPayload() *StartPTSummaryActionOKBody {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewStartPTSummaryActionDefault(code int) *StartPTSummaryActionDefault {
 	}
 }
 
-/*StartPTSummaryActionDefault handles this case with default header values.
+/* StartPTSummaryActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *StartPTSummaryActionDefault) Code() int {
 func (o *StartPTSummaryActionDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartPTSummary][%d] StartPTSummaryAction default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *StartPTSummaryActionDefault) GetPayload() *StartPTSummaryActionDefaultBody {
 	return o.Payload
 }
@@ -131,6 +130,11 @@ type StartPTSummaryActionBody struct {
 
 // Validate validates this start PT summary action body
 func (o *StartPTSummaryActionBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this start PT summary action body based on context it is used
+func (o *StartPTSummaryActionBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -167,7 +171,7 @@ type StartPTSummaryActionDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*StartPTSummaryActionDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this start PT summary action default body
@@ -185,7 +189,6 @@ func (o *StartPTSummaryActionDefaultBody) Validate(formats strfmt.Registry) erro
 }
 
 func (o *StartPTSummaryActionDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -199,6 +202,42 @@ func (o *StartPTSummaryActionDefaultBody) validateDetails(formats strfmt.Registr
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("StartPTSummaryAction default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("StartPTSummaryAction default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this start PT summary action default body based on the context it is used
+func (o *StartPTSummaryActionDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *StartPTSummaryActionDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("StartPTSummaryAction default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("StartPTSummaryAction default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -227,6 +266,47 @@ func (o *StartPTSummaryActionDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*StartPTSummaryActionDefaultBodyDetailsItems0 start PT summary action default body details items0
+swagger:model StartPTSummaryActionDefaultBodyDetailsItems0
+*/
+type StartPTSummaryActionDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this start PT summary action default body details items0
+func (o *StartPTSummaryActionDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this start PT summary action default body details items0 based on context it is used
+func (o *StartPTSummaryActionDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *StartPTSummaryActionDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *StartPTSummaryActionDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res StartPTSummaryActionDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*StartPTSummaryActionOKBody start PT summary action OK body
 swagger:model StartPTSummaryActionOKBody
 */
@@ -241,6 +321,11 @@ type StartPTSummaryActionOKBody struct {
 
 // Validate validates this start PT summary action OK body
 func (o *StartPTSummaryActionOKBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this start PT summary action OK body based on context it is used
+func (o *StartPTSummaryActionOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

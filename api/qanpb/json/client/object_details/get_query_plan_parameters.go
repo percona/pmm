@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewGetQueryPlanParams creates a new GetQueryPlanParams object
-// with the default values initialized.
+// NewGetQueryPlanParams creates a new GetQueryPlanParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewGetQueryPlanParams() *GetQueryPlanParams {
-	var ()
 	return &GetQueryPlanParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewGetQueryPlanParamsWithTimeout creates a new GetQueryPlanParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewGetQueryPlanParamsWithTimeout(timeout time.Duration) *GetQueryPlanParams {
-	var ()
 	return &GetQueryPlanParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewGetQueryPlanParamsWithContext creates a new GetQueryPlanParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewGetQueryPlanParamsWithContext(ctx context.Context) *GetQueryPlanParams {
-	var ()
 	return &GetQueryPlanParams{
-
 		Context: ctx,
 	}
 }
 
 // NewGetQueryPlanParamsWithHTTPClient creates a new GetQueryPlanParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewGetQueryPlanParamsWithHTTPClient(client *http.Client) *GetQueryPlanParams {
-	var ()
 	return &GetQueryPlanParams{
 		HTTPClient: client,
 	}
 }
 
-/*GetQueryPlanParams contains all the parameters to send to the API endpoint
-for the get query plan operation typically these are written to a http.Request
+/* GetQueryPlanParams contains all the parameters to send to the API endpoint
+   for the get query plan operation.
+
+   Typically these are written to a http.Request.
 */
 type GetQueryPlanParams struct {
 
-	/*Body*/
+	// Body.
 	Body GetQueryPlanBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the get query plan params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *GetQueryPlanParams) WithDefaults() *GetQueryPlanParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the get query plan params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *GetQueryPlanParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the get query plan params
@@ -119,7 +133,6 @@ func (o *GetQueryPlanParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

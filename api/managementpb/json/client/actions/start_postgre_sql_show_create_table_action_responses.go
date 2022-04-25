@@ -6,6 +6,7 @@ package actions
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewStartPostgreSQLShowCreateTableActionOK() *StartPostgreSQLShowCreateTable
 	return &StartPostgreSQLShowCreateTableActionOK{}
 }
 
-/*StartPostgreSQLShowCreateTableActionOK handles this case with default header values.
+/* StartPostgreSQLShowCreateTableActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type StartPostgreSQLShowCreateTableActionOK struct {
 func (o *StartPostgreSQLShowCreateTableActionOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartPostgreSQLShowCreateTable][%d] startPostgreSqlShowCreateTableActionOk  %+v", 200, o.Payload)
 }
-
 func (o *StartPostgreSQLShowCreateTableActionOK) GetPayload() *StartPostgreSQLShowCreateTableActionOKBody {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewStartPostgreSQLShowCreateTableActionDefault(code int) *StartPostgreSQLSh
 	}
 }
 
-/*StartPostgreSQLShowCreateTableActionDefault handles this case with default header values.
+/* StartPostgreSQLShowCreateTableActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *StartPostgreSQLShowCreateTableActionDefault) Code() int {
 func (o *StartPostgreSQLShowCreateTableActionDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartPostgreSQLShowCreateTable][%d] StartPostgreSQLShowCreateTableAction default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *StartPostgreSQLShowCreateTableActionDefault) GetPayload() *StartPostgreSQLShowCreateTableActionDefaultBody {
 	return o.Payload
 }
@@ -140,6 +139,11 @@ func (o *StartPostgreSQLShowCreateTableActionBody) Validate(formats strfmt.Regis
 	return nil
 }
 
+// ContextValidate validates this start postgre SQL show create table action body based on context it is used
+func (o *StartPostgreSQLShowCreateTableActionBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *StartPostgreSQLShowCreateTableActionBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -173,7 +177,7 @@ type StartPostgreSQLShowCreateTableActionDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*StartPostgreSQLShowCreateTableActionDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this start postgre SQL show create table action default body
@@ -191,7 +195,6 @@ func (o *StartPostgreSQLShowCreateTableActionDefaultBody) Validate(formats strfm
 }
 
 func (o *StartPostgreSQLShowCreateTableActionDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -205,6 +208,42 @@ func (o *StartPostgreSQLShowCreateTableActionDefaultBody) validateDetails(format
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("StartPostgreSQLShowCreateTableAction default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("StartPostgreSQLShowCreateTableAction default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this start postgre SQL show create table action default body based on the context it is used
+func (o *StartPostgreSQLShowCreateTableActionDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *StartPostgreSQLShowCreateTableActionDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("StartPostgreSQLShowCreateTableAction default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("StartPostgreSQLShowCreateTableAction default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -233,6 +272,47 @@ func (o *StartPostgreSQLShowCreateTableActionDefaultBody) UnmarshalBinary(b []by
 	return nil
 }
 
+/*StartPostgreSQLShowCreateTableActionDefaultBodyDetailsItems0 start postgre SQL show create table action default body details items0
+swagger:model StartPostgreSQLShowCreateTableActionDefaultBodyDetailsItems0
+*/
+type StartPostgreSQLShowCreateTableActionDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this start postgre SQL show create table action default body details items0
+func (o *StartPostgreSQLShowCreateTableActionDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this start postgre SQL show create table action default body details items0 based on context it is used
+func (o *StartPostgreSQLShowCreateTableActionDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *StartPostgreSQLShowCreateTableActionDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *StartPostgreSQLShowCreateTableActionDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res StartPostgreSQLShowCreateTableActionDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*StartPostgreSQLShowCreateTableActionOKBody start postgre SQL show create table action OK body
 swagger:model StartPostgreSQLShowCreateTableActionOKBody
 */
@@ -247,6 +327,11 @@ type StartPostgreSQLShowCreateTableActionOKBody struct {
 
 // Validate validates this start postgre SQL show create table action OK body
 func (o *StartPostgreSQLShowCreateTableActionOKBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this start postgre SQL show create table action OK body based on context it is used
+func (o *StartPostgreSQLShowCreateTableActionOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

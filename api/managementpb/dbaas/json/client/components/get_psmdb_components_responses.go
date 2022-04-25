@@ -6,6 +6,7 @@ package components
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewGetPSMDBComponentsOK() *GetPSMDBComponentsOK {
 	return &GetPSMDBComponentsOK{}
 }
 
-/*GetPSMDBComponentsOK handles this case with default header values.
+/* GetPSMDBComponentsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type GetPSMDBComponentsOK struct {
 func (o *GetPSMDBComponentsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/GetPSMDB][%d] getPsmdbComponentsOk  %+v", 200, o.Payload)
 }
-
 func (o *GetPSMDBComponentsOK) GetPayload() *GetPSMDBComponentsOKBody {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewGetPSMDBComponentsDefault(code int) *GetPSMDBComponentsDefault {
 	}
 }
 
-/*GetPSMDBComponentsDefault handles this case with default header values.
+/* GetPSMDBComponentsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *GetPSMDBComponentsDefault) Code() int {
 func (o *GetPSMDBComponentsDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/GetPSMDB][%d] GetPSMDBComponents default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *GetPSMDBComponentsDefault) GetPayload() *GetPSMDBComponentsDefaultBody {
 	return o.Payload
 }
@@ -131,6 +130,11 @@ type GetPSMDBComponentsBody struct {
 
 // Validate validates this get PSMDB components body
 func (o *GetPSMDBComponentsBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get PSMDB components body based on context it is used
+func (o *GetPSMDBComponentsBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -167,7 +171,7 @@ type GetPSMDBComponentsDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*GetPSMDBComponentsDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this get PSMDB components default body
@@ -185,7 +189,6 @@ func (o *GetPSMDBComponentsDefaultBody) Validate(formats strfmt.Registry) error 
 }
 
 func (o *GetPSMDBComponentsDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -199,6 +202,42 @@ func (o *GetPSMDBComponentsDefaultBody) validateDetails(formats strfmt.Registry)
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("GetPSMDBComponents default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("GetPSMDBComponents default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get PSMDB components default body based on the context it is used
+func (o *GetPSMDBComponentsDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetPSMDBComponentsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("GetPSMDBComponents default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("GetPSMDBComponents default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -227,13 +266,54 @@ func (o *GetPSMDBComponentsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*GetPSMDBComponentsDefaultBodyDetailsItems0 get PSMDB components default body details items0
+swagger:model GetPSMDBComponentsDefaultBodyDetailsItems0
+*/
+type GetPSMDBComponentsDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this get PSMDB components default body details items0
+func (o *GetPSMDBComponentsDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get PSMDB components default body details items0 based on context it is used
+func (o *GetPSMDBComponentsDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetPSMDBComponentsDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetPSMDBComponentsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetPSMDBComponentsDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*GetPSMDBComponentsOKBody get PSMDB components OK body
 swagger:model GetPSMDBComponentsOKBody
 */
 type GetPSMDBComponentsOKBody struct {
 
 	// versions
-	Versions []*VersionsItems0 `json:"versions"`
+	Versions []*GetPSMDBComponentsOKBodyVersionsItems0 `json:"versions"`
 }
 
 // Validate validates this get PSMDB components OK body
@@ -251,7 +331,6 @@ func (o *GetPSMDBComponentsOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *GetPSMDBComponentsOKBody) validateVersions(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Versions) { // not required
 		return nil
 	}
@@ -265,6 +344,42 @@ func (o *GetPSMDBComponentsOKBody) validateVersions(formats strfmt.Registry) err
 			if err := o.Versions[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getPsmdbComponentsOk" + "." + "versions" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getPsmdbComponentsOk" + "." + "versions" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get PSMDB components OK body based on the context it is used
+func (o *GetPSMDBComponentsOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateVersions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetPSMDBComponentsOKBody) contextValidateVersions(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Versions); i++ {
+
+		if o.Versions[i] != nil {
+			if err := o.Versions[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("getPsmdbComponentsOk" + "." + "versions" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getPsmdbComponentsOk" + "." + "versions" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -293,10 +408,10 @@ func (o *GetPSMDBComponentsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*VersionsItems0 OperatorVersion contains information about operator and components matrix.
-swagger:model VersionsItems0
+/*GetPSMDBComponentsOKBodyVersionsItems0 OperatorVersion contains information about operator and components matrix.
+swagger:model GetPSMDBComponentsOKBodyVersionsItems0
 */
-type VersionsItems0 struct {
+type GetPSMDBComponentsOKBodyVersionsItems0 struct {
 
 	// product
 	Product string `json:"product,omitempty"`
@@ -305,11 +420,11 @@ type VersionsItems0 struct {
 	Operator string `json:"operator,omitempty"`
 
 	// matrix
-	Matrix *VersionsItems0Matrix `json:"matrix,omitempty"`
+	Matrix *GetPSMDBComponentsOKBodyVersionsItems0Matrix `json:"matrix,omitempty"`
 }
 
-// Validate validates this versions items0
-func (o *VersionsItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this get PSMDB components OK body versions items0
+func (o *GetPSMDBComponentsOKBodyVersionsItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateMatrix(formats); err != nil {
@@ -322,8 +437,7 @@ func (o *VersionsItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *VersionsItems0) validateMatrix(formats strfmt.Registry) error {
-
+func (o *GetPSMDBComponentsOKBodyVersionsItems0) validateMatrix(formats strfmt.Registry) error {
 	if swag.IsZero(o.Matrix) { // not required
 		return nil
 	}
@@ -332,6 +446,38 @@ func (o *VersionsItems0) validateMatrix(formats strfmt.Registry) error {
 		if err := o.Matrix.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("matrix")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("matrix")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get PSMDB components OK body versions items0 based on the context it is used
+func (o *GetPSMDBComponentsOKBodyVersionsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMatrix(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetPSMDBComponentsOKBodyVersionsItems0) contextValidateMatrix(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Matrix != nil {
+		if err := o.Matrix.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("matrix")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("matrix")
 			}
 			return err
 		}
@@ -341,7 +487,7 @@ func (o *VersionsItems0) validateMatrix(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (o *VersionsItems0) MarshalBinary() ([]byte, error) {
+func (o *GetPSMDBComponentsOKBodyVersionsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -349,8 +495,8 @@ func (o *VersionsItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *VersionsItems0) UnmarshalBinary(b []byte) error {
-	var res VersionsItems0
+func (o *GetPSMDBComponentsOKBodyVersionsItems0) UnmarshalBinary(b []byte) error {
+	var res GetPSMDBComponentsOKBodyVersionsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -358,38 +504,38 @@ func (o *VersionsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*VersionsItems0Matrix Matrix contains all available components.
-swagger:model VersionsItems0Matrix
+/*GetPSMDBComponentsOKBodyVersionsItems0Matrix Matrix contains all available components.
+swagger:model GetPSMDBComponentsOKBodyVersionsItems0Matrix
 */
-type VersionsItems0Matrix struct {
+type GetPSMDBComponentsOKBodyVersionsItems0Matrix struct {
 
 	// mongod
-	Mongod map[string]VersionsItems0MatrixMongodAnon `json:"mongod,omitempty"`
+	Mongod map[string]GetPSMDBComponentsOKBodyVersionsItems0MatrixMongodAnon `json:"mongod,omitempty"`
 
 	// pxc
-	PXC map[string]VersionsItems0MatrixPXCAnon `json:"pxc,omitempty"`
+	PXC map[string]GetPSMDBComponentsOKBodyVersionsItems0MatrixPXCAnon `json:"pxc,omitempty"`
 
 	// pmm
-	PMM map[string]VersionsItems0MatrixPMMAnon `json:"pmm,omitempty"`
+	PMM map[string]GetPSMDBComponentsOKBodyVersionsItems0MatrixPMMAnon `json:"pmm,omitempty"`
 
 	// proxysql
-	Proxysql map[string]VersionsItems0MatrixProxysqlAnon `json:"proxysql,omitempty"`
+	Proxysql map[string]GetPSMDBComponentsOKBodyVersionsItems0MatrixProxysqlAnon `json:"proxysql,omitempty"`
 
 	// haproxy
-	Haproxy map[string]VersionsItems0MatrixHaproxyAnon `json:"haproxy,omitempty"`
+	Haproxy map[string]GetPSMDBComponentsOKBodyVersionsItems0MatrixHaproxyAnon `json:"haproxy,omitempty"`
 
 	// backup
-	Backup map[string]VersionsItems0MatrixBackupAnon `json:"backup,omitempty"`
+	Backup map[string]GetPSMDBComponentsOKBodyVersionsItems0MatrixBackupAnon `json:"backup,omitempty"`
 
 	// operator
-	Operator map[string]VersionsItems0MatrixOperatorAnon `json:"operator,omitempty"`
+	Operator map[string]GetPSMDBComponentsOKBodyVersionsItems0MatrixOperatorAnon `json:"operator,omitempty"`
 
 	// log collector
-	LogCollector map[string]VersionsItems0MatrixLogCollectorAnon `json:"log_collector,omitempty"`
+	LogCollector map[string]GetPSMDBComponentsOKBodyVersionsItems0MatrixLogCollectorAnon `json:"log_collector,omitempty"`
 }
 
-// Validate validates this versions items0 matrix
-func (o *VersionsItems0Matrix) Validate(formats strfmt.Registry) error {
+// Validate validates this get PSMDB components OK body versions items0 matrix
+func (o *GetPSMDBComponentsOKBodyVersionsItems0Matrix) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateMongod(formats); err != nil {
@@ -430,8 +576,7 @@ func (o *VersionsItems0Matrix) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *VersionsItems0Matrix) validateMongod(formats strfmt.Registry) error {
-
+func (o *GetPSMDBComponentsOKBodyVersionsItems0Matrix) validateMongod(formats strfmt.Registry) error {
 	if swag.IsZero(o.Mongod) { // not required
 		return nil
 	}
@@ -443,6 +588,11 @@ func (o *VersionsItems0Matrix) validateMongod(formats strfmt.Registry) error {
 		}
 		if val, ok := o.Mongod[k]; ok {
 			if err := val.Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("matrix" + "." + "mongod" + "." + k)
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("matrix" + "." + "mongod" + "." + k)
+				}
 				return err
 			}
 		}
@@ -452,8 +602,7 @@ func (o *VersionsItems0Matrix) validateMongod(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *VersionsItems0Matrix) validatePXC(formats strfmt.Registry) error {
-
+func (o *GetPSMDBComponentsOKBodyVersionsItems0Matrix) validatePXC(formats strfmt.Registry) error {
 	if swag.IsZero(o.PXC) { // not required
 		return nil
 	}
@@ -465,6 +614,11 @@ func (o *VersionsItems0Matrix) validatePXC(formats strfmt.Registry) error {
 		}
 		if val, ok := o.PXC[k]; ok {
 			if err := val.Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("matrix" + "." + "pxc" + "." + k)
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("matrix" + "." + "pxc" + "." + k)
+				}
 				return err
 			}
 		}
@@ -474,8 +628,7 @@ func (o *VersionsItems0Matrix) validatePXC(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *VersionsItems0Matrix) validatePMM(formats strfmt.Registry) error {
-
+func (o *GetPSMDBComponentsOKBodyVersionsItems0Matrix) validatePMM(formats strfmt.Registry) error {
 	if swag.IsZero(o.PMM) { // not required
 		return nil
 	}
@@ -487,6 +640,11 @@ func (o *VersionsItems0Matrix) validatePMM(formats strfmt.Registry) error {
 		}
 		if val, ok := o.PMM[k]; ok {
 			if err := val.Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("matrix" + "." + "pmm" + "." + k)
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("matrix" + "." + "pmm" + "." + k)
+				}
 				return err
 			}
 		}
@@ -496,8 +654,7 @@ func (o *VersionsItems0Matrix) validatePMM(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *VersionsItems0Matrix) validateProxysql(formats strfmt.Registry) error {
-
+func (o *GetPSMDBComponentsOKBodyVersionsItems0Matrix) validateProxysql(formats strfmt.Registry) error {
 	if swag.IsZero(o.Proxysql) { // not required
 		return nil
 	}
@@ -509,6 +666,11 @@ func (o *VersionsItems0Matrix) validateProxysql(formats strfmt.Registry) error {
 		}
 		if val, ok := o.Proxysql[k]; ok {
 			if err := val.Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("matrix" + "." + "proxysql" + "." + k)
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("matrix" + "." + "proxysql" + "." + k)
+				}
 				return err
 			}
 		}
@@ -518,8 +680,7 @@ func (o *VersionsItems0Matrix) validateProxysql(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *VersionsItems0Matrix) validateHaproxy(formats strfmt.Registry) error {
-
+func (o *GetPSMDBComponentsOKBodyVersionsItems0Matrix) validateHaproxy(formats strfmt.Registry) error {
 	if swag.IsZero(o.Haproxy) { // not required
 		return nil
 	}
@@ -531,6 +692,11 @@ func (o *VersionsItems0Matrix) validateHaproxy(formats strfmt.Registry) error {
 		}
 		if val, ok := o.Haproxy[k]; ok {
 			if err := val.Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("matrix" + "." + "haproxy" + "." + k)
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("matrix" + "." + "haproxy" + "." + k)
+				}
 				return err
 			}
 		}
@@ -540,8 +706,7 @@ func (o *VersionsItems0Matrix) validateHaproxy(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *VersionsItems0Matrix) validateBackup(formats strfmt.Registry) error {
-
+func (o *GetPSMDBComponentsOKBodyVersionsItems0Matrix) validateBackup(formats strfmt.Registry) error {
 	if swag.IsZero(o.Backup) { // not required
 		return nil
 	}
@@ -553,6 +718,11 @@ func (o *VersionsItems0Matrix) validateBackup(formats strfmt.Registry) error {
 		}
 		if val, ok := o.Backup[k]; ok {
 			if err := val.Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("matrix" + "." + "backup" + "." + k)
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("matrix" + "." + "backup" + "." + k)
+				}
 				return err
 			}
 		}
@@ -562,8 +732,7 @@ func (o *VersionsItems0Matrix) validateBackup(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *VersionsItems0Matrix) validateOperator(formats strfmt.Registry) error {
-
+func (o *GetPSMDBComponentsOKBodyVersionsItems0Matrix) validateOperator(formats strfmt.Registry) error {
 	if swag.IsZero(o.Operator) { // not required
 		return nil
 	}
@@ -575,6 +744,11 @@ func (o *VersionsItems0Matrix) validateOperator(formats strfmt.Registry) error {
 		}
 		if val, ok := o.Operator[k]; ok {
 			if err := val.Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("matrix" + "." + "operator" + "." + k)
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("matrix" + "." + "operator" + "." + k)
+				}
 				return err
 			}
 		}
@@ -584,8 +758,7 @@ func (o *VersionsItems0Matrix) validateOperator(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *VersionsItems0Matrix) validateLogCollector(formats strfmt.Registry) error {
-
+func (o *GetPSMDBComponentsOKBodyVersionsItems0Matrix) validateLogCollector(formats strfmt.Registry) error {
 	if swag.IsZero(o.LogCollector) { // not required
 		return nil
 	}
@@ -597,6 +770,173 @@ func (o *VersionsItems0Matrix) validateLogCollector(formats strfmt.Registry) err
 		}
 		if val, ok := o.LogCollector[k]; ok {
 			if err := val.Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("matrix" + "." + "log_collector" + "." + k)
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("matrix" + "." + "log_collector" + "." + k)
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get PSMDB components OK body versions items0 matrix based on the context it is used
+func (o *GetPSMDBComponentsOKBodyVersionsItems0Matrix) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMongod(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidatePXC(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidatePMM(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateProxysql(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateHaproxy(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateBackup(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateOperator(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateLogCollector(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetPSMDBComponentsOKBodyVersionsItems0Matrix) contextValidateMongod(ctx context.Context, formats strfmt.Registry) error {
+
+	for k := range o.Mongod {
+
+		if val, ok := o.Mongod[k]; ok {
+			if err := val.ContextValidate(ctx, formats); err != nil {
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *GetPSMDBComponentsOKBodyVersionsItems0Matrix) contextValidatePXC(ctx context.Context, formats strfmt.Registry) error {
+
+	for k := range o.PXC {
+
+		if val, ok := o.PXC[k]; ok {
+			if err := val.ContextValidate(ctx, formats); err != nil {
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *GetPSMDBComponentsOKBodyVersionsItems0Matrix) contextValidatePMM(ctx context.Context, formats strfmt.Registry) error {
+
+	for k := range o.PMM {
+
+		if val, ok := o.PMM[k]; ok {
+			if err := val.ContextValidate(ctx, formats); err != nil {
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *GetPSMDBComponentsOKBodyVersionsItems0Matrix) contextValidateProxysql(ctx context.Context, formats strfmt.Registry) error {
+
+	for k := range o.Proxysql {
+
+		if val, ok := o.Proxysql[k]; ok {
+			if err := val.ContextValidate(ctx, formats); err != nil {
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *GetPSMDBComponentsOKBodyVersionsItems0Matrix) contextValidateHaproxy(ctx context.Context, formats strfmt.Registry) error {
+
+	for k := range o.Haproxy {
+
+		if val, ok := o.Haproxy[k]; ok {
+			if err := val.ContextValidate(ctx, formats); err != nil {
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *GetPSMDBComponentsOKBodyVersionsItems0Matrix) contextValidateBackup(ctx context.Context, formats strfmt.Registry) error {
+
+	for k := range o.Backup {
+
+		if val, ok := o.Backup[k]; ok {
+			if err := val.ContextValidate(ctx, formats); err != nil {
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *GetPSMDBComponentsOKBodyVersionsItems0Matrix) contextValidateOperator(ctx context.Context, formats strfmt.Registry) error {
+
+	for k := range o.Operator {
+
+		if val, ok := o.Operator[k]; ok {
+			if err := val.ContextValidate(ctx, formats); err != nil {
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *GetPSMDBComponentsOKBodyVersionsItems0Matrix) contextValidateLogCollector(ctx context.Context, formats strfmt.Registry) error {
+
+	for k := range o.LogCollector {
+
+		if val, ok := o.LogCollector[k]; ok {
+			if err := val.ContextValidate(ctx, formats); err != nil {
 				return err
 			}
 		}
@@ -607,7 +947,7 @@ func (o *VersionsItems0Matrix) validateLogCollector(formats strfmt.Registry) err
 }
 
 // MarshalBinary interface implementation
-func (o *VersionsItems0Matrix) MarshalBinary() ([]byte, error) {
+func (o *GetPSMDBComponentsOKBodyVersionsItems0Matrix) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -615,8 +955,8 @@ func (o *VersionsItems0Matrix) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *VersionsItems0Matrix) UnmarshalBinary(b []byte) error {
-	var res VersionsItems0Matrix
+func (o *GetPSMDBComponentsOKBodyVersionsItems0Matrix) UnmarshalBinary(b []byte) error {
+	var res GetPSMDBComponentsOKBodyVersionsItems0Matrix
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -624,10 +964,10 @@ func (o *VersionsItems0Matrix) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*VersionsItems0MatrixBackupAnon Component contains information about component.
-swagger:model VersionsItems0MatrixBackupAnon
+/*GetPSMDBComponentsOKBodyVersionsItems0MatrixBackupAnon Component contains information about component.
+swagger:model GetPSMDBComponentsOKBodyVersionsItems0MatrixBackupAnon
 */
-type VersionsItems0MatrixBackupAnon struct {
+type GetPSMDBComponentsOKBodyVersionsItems0MatrixBackupAnon struct {
 
 	// image path
 	ImagePath string `json:"image_path,omitempty"`
@@ -648,13 +988,18 @@ type VersionsItems0MatrixBackupAnon struct {
 	Disabled bool `json:"disabled,omitempty"`
 }
 
-// Validate validates this versions items0 matrix backup anon
-func (o *VersionsItems0MatrixBackupAnon) Validate(formats strfmt.Registry) error {
+// Validate validates this get PSMDB components OK body versions items0 matrix backup anon
+func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixBackupAnon) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get PSMDB components OK body versions items0 matrix backup anon based on context it is used
+func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixBackupAnon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *VersionsItems0MatrixBackupAnon) MarshalBinary() ([]byte, error) {
+func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixBackupAnon) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -662,8 +1007,8 @@ func (o *VersionsItems0MatrixBackupAnon) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *VersionsItems0MatrixBackupAnon) UnmarshalBinary(b []byte) error {
-	var res VersionsItems0MatrixBackupAnon
+func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixBackupAnon) UnmarshalBinary(b []byte) error {
+	var res GetPSMDBComponentsOKBodyVersionsItems0MatrixBackupAnon
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -671,10 +1016,10 @@ func (o *VersionsItems0MatrixBackupAnon) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*VersionsItems0MatrixHaproxyAnon Component contains information about component.
-swagger:model VersionsItems0MatrixHaproxyAnon
+/*GetPSMDBComponentsOKBodyVersionsItems0MatrixHaproxyAnon Component contains information about component.
+swagger:model GetPSMDBComponentsOKBodyVersionsItems0MatrixHaproxyAnon
 */
-type VersionsItems0MatrixHaproxyAnon struct {
+type GetPSMDBComponentsOKBodyVersionsItems0MatrixHaproxyAnon struct {
 
 	// image path
 	ImagePath string `json:"image_path,omitempty"`
@@ -695,13 +1040,18 @@ type VersionsItems0MatrixHaproxyAnon struct {
 	Disabled bool `json:"disabled,omitempty"`
 }
 
-// Validate validates this versions items0 matrix haproxy anon
-func (o *VersionsItems0MatrixHaproxyAnon) Validate(formats strfmt.Registry) error {
+// Validate validates this get PSMDB components OK body versions items0 matrix haproxy anon
+func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixHaproxyAnon) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get PSMDB components OK body versions items0 matrix haproxy anon based on context it is used
+func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixHaproxyAnon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *VersionsItems0MatrixHaproxyAnon) MarshalBinary() ([]byte, error) {
+func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixHaproxyAnon) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -709,8 +1059,8 @@ func (o *VersionsItems0MatrixHaproxyAnon) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *VersionsItems0MatrixHaproxyAnon) UnmarshalBinary(b []byte) error {
-	var res VersionsItems0MatrixHaproxyAnon
+func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixHaproxyAnon) UnmarshalBinary(b []byte) error {
+	var res GetPSMDBComponentsOKBodyVersionsItems0MatrixHaproxyAnon
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -718,10 +1068,10 @@ func (o *VersionsItems0MatrixHaproxyAnon) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*VersionsItems0MatrixLogCollectorAnon Component contains information about component.
-swagger:model VersionsItems0MatrixLogCollectorAnon
+/*GetPSMDBComponentsOKBodyVersionsItems0MatrixLogCollectorAnon Component contains information about component.
+swagger:model GetPSMDBComponentsOKBodyVersionsItems0MatrixLogCollectorAnon
 */
-type VersionsItems0MatrixLogCollectorAnon struct {
+type GetPSMDBComponentsOKBodyVersionsItems0MatrixLogCollectorAnon struct {
 
 	// image path
 	ImagePath string `json:"image_path,omitempty"`
@@ -742,13 +1092,18 @@ type VersionsItems0MatrixLogCollectorAnon struct {
 	Disabled bool `json:"disabled,omitempty"`
 }
 
-// Validate validates this versions items0 matrix log collector anon
-func (o *VersionsItems0MatrixLogCollectorAnon) Validate(formats strfmt.Registry) error {
+// Validate validates this get PSMDB components OK body versions items0 matrix log collector anon
+func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixLogCollectorAnon) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get PSMDB components OK body versions items0 matrix log collector anon based on context it is used
+func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixLogCollectorAnon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *VersionsItems0MatrixLogCollectorAnon) MarshalBinary() ([]byte, error) {
+func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixLogCollectorAnon) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -756,8 +1111,8 @@ func (o *VersionsItems0MatrixLogCollectorAnon) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *VersionsItems0MatrixLogCollectorAnon) UnmarshalBinary(b []byte) error {
-	var res VersionsItems0MatrixLogCollectorAnon
+func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixLogCollectorAnon) UnmarshalBinary(b []byte) error {
+	var res GetPSMDBComponentsOKBodyVersionsItems0MatrixLogCollectorAnon
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -765,10 +1120,10 @@ func (o *VersionsItems0MatrixLogCollectorAnon) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*VersionsItems0MatrixMongodAnon Component contains information about component.
-swagger:model VersionsItems0MatrixMongodAnon
+/*GetPSMDBComponentsOKBodyVersionsItems0MatrixMongodAnon Component contains information about component.
+swagger:model GetPSMDBComponentsOKBodyVersionsItems0MatrixMongodAnon
 */
-type VersionsItems0MatrixMongodAnon struct {
+type GetPSMDBComponentsOKBodyVersionsItems0MatrixMongodAnon struct {
 
 	// image path
 	ImagePath string `json:"image_path,omitempty"`
@@ -789,13 +1144,18 @@ type VersionsItems0MatrixMongodAnon struct {
 	Disabled bool `json:"disabled,omitempty"`
 }
 
-// Validate validates this versions items0 matrix mongod anon
-func (o *VersionsItems0MatrixMongodAnon) Validate(formats strfmt.Registry) error {
+// Validate validates this get PSMDB components OK body versions items0 matrix mongod anon
+func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixMongodAnon) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get PSMDB components OK body versions items0 matrix mongod anon based on context it is used
+func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixMongodAnon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *VersionsItems0MatrixMongodAnon) MarshalBinary() ([]byte, error) {
+func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixMongodAnon) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -803,8 +1163,8 @@ func (o *VersionsItems0MatrixMongodAnon) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *VersionsItems0MatrixMongodAnon) UnmarshalBinary(b []byte) error {
-	var res VersionsItems0MatrixMongodAnon
+func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixMongodAnon) UnmarshalBinary(b []byte) error {
+	var res GetPSMDBComponentsOKBodyVersionsItems0MatrixMongodAnon
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -812,10 +1172,10 @@ func (o *VersionsItems0MatrixMongodAnon) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*VersionsItems0MatrixOperatorAnon Component contains information about component.
-swagger:model VersionsItems0MatrixOperatorAnon
+/*GetPSMDBComponentsOKBodyVersionsItems0MatrixOperatorAnon Component contains information about component.
+swagger:model GetPSMDBComponentsOKBodyVersionsItems0MatrixOperatorAnon
 */
-type VersionsItems0MatrixOperatorAnon struct {
+type GetPSMDBComponentsOKBodyVersionsItems0MatrixOperatorAnon struct {
 
 	// image path
 	ImagePath string `json:"image_path,omitempty"`
@@ -836,13 +1196,18 @@ type VersionsItems0MatrixOperatorAnon struct {
 	Disabled bool `json:"disabled,omitempty"`
 }
 
-// Validate validates this versions items0 matrix operator anon
-func (o *VersionsItems0MatrixOperatorAnon) Validate(formats strfmt.Registry) error {
+// Validate validates this get PSMDB components OK body versions items0 matrix operator anon
+func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixOperatorAnon) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get PSMDB components OK body versions items0 matrix operator anon based on context it is used
+func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixOperatorAnon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *VersionsItems0MatrixOperatorAnon) MarshalBinary() ([]byte, error) {
+func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixOperatorAnon) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -850,8 +1215,8 @@ func (o *VersionsItems0MatrixOperatorAnon) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *VersionsItems0MatrixOperatorAnon) UnmarshalBinary(b []byte) error {
-	var res VersionsItems0MatrixOperatorAnon
+func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixOperatorAnon) UnmarshalBinary(b []byte) error {
+	var res GetPSMDBComponentsOKBodyVersionsItems0MatrixOperatorAnon
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -859,10 +1224,10 @@ func (o *VersionsItems0MatrixOperatorAnon) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*VersionsItems0MatrixPMMAnon Component contains information about component.
-swagger:model VersionsItems0MatrixPMMAnon
+/*GetPSMDBComponentsOKBodyVersionsItems0MatrixPMMAnon Component contains information about component.
+swagger:model GetPSMDBComponentsOKBodyVersionsItems0MatrixPMMAnon
 */
-type VersionsItems0MatrixPMMAnon struct {
+type GetPSMDBComponentsOKBodyVersionsItems0MatrixPMMAnon struct {
 
 	// image path
 	ImagePath string `json:"image_path,omitempty"`
@@ -883,13 +1248,18 @@ type VersionsItems0MatrixPMMAnon struct {
 	Disabled bool `json:"disabled,omitempty"`
 }
 
-// Validate validates this versions items0 matrix PMM anon
-func (o *VersionsItems0MatrixPMMAnon) Validate(formats strfmt.Registry) error {
+// Validate validates this get PSMDB components OK body versions items0 matrix PMM anon
+func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixPMMAnon) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get PSMDB components OK body versions items0 matrix PMM anon based on context it is used
+func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixPMMAnon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *VersionsItems0MatrixPMMAnon) MarshalBinary() ([]byte, error) {
+func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixPMMAnon) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -897,8 +1267,8 @@ func (o *VersionsItems0MatrixPMMAnon) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *VersionsItems0MatrixPMMAnon) UnmarshalBinary(b []byte) error {
-	var res VersionsItems0MatrixPMMAnon
+func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixPMMAnon) UnmarshalBinary(b []byte) error {
+	var res GetPSMDBComponentsOKBodyVersionsItems0MatrixPMMAnon
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -906,10 +1276,10 @@ func (o *VersionsItems0MatrixPMMAnon) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*VersionsItems0MatrixPXCAnon Component contains information about component.
-swagger:model VersionsItems0MatrixPXCAnon
+/*GetPSMDBComponentsOKBodyVersionsItems0MatrixPXCAnon Component contains information about component.
+swagger:model GetPSMDBComponentsOKBodyVersionsItems0MatrixPXCAnon
 */
-type VersionsItems0MatrixPXCAnon struct {
+type GetPSMDBComponentsOKBodyVersionsItems0MatrixPXCAnon struct {
 
 	// image path
 	ImagePath string `json:"image_path,omitempty"`
@@ -930,13 +1300,18 @@ type VersionsItems0MatrixPXCAnon struct {
 	Disabled bool `json:"disabled,omitempty"`
 }
 
-// Validate validates this versions items0 matrix PXC anon
-func (o *VersionsItems0MatrixPXCAnon) Validate(formats strfmt.Registry) error {
+// Validate validates this get PSMDB components OK body versions items0 matrix PXC anon
+func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixPXCAnon) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get PSMDB components OK body versions items0 matrix PXC anon based on context it is used
+func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixPXCAnon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *VersionsItems0MatrixPXCAnon) MarshalBinary() ([]byte, error) {
+func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixPXCAnon) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -944,8 +1319,8 @@ func (o *VersionsItems0MatrixPXCAnon) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *VersionsItems0MatrixPXCAnon) UnmarshalBinary(b []byte) error {
-	var res VersionsItems0MatrixPXCAnon
+func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixPXCAnon) UnmarshalBinary(b []byte) error {
+	var res GetPSMDBComponentsOKBodyVersionsItems0MatrixPXCAnon
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -953,10 +1328,10 @@ func (o *VersionsItems0MatrixPXCAnon) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*VersionsItems0MatrixProxysqlAnon Component contains information about component.
-swagger:model VersionsItems0MatrixProxysqlAnon
+/*GetPSMDBComponentsOKBodyVersionsItems0MatrixProxysqlAnon Component contains information about component.
+swagger:model GetPSMDBComponentsOKBodyVersionsItems0MatrixProxysqlAnon
 */
-type VersionsItems0MatrixProxysqlAnon struct {
+type GetPSMDBComponentsOKBodyVersionsItems0MatrixProxysqlAnon struct {
 
 	// image path
 	ImagePath string `json:"image_path,omitempty"`
@@ -977,13 +1352,18 @@ type VersionsItems0MatrixProxysqlAnon struct {
 	Disabled bool `json:"disabled,omitempty"`
 }
 
-// Validate validates this versions items0 matrix proxysql anon
-func (o *VersionsItems0MatrixProxysqlAnon) Validate(formats strfmt.Registry) error {
+// Validate validates this get PSMDB components OK body versions items0 matrix proxysql anon
+func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixProxysqlAnon) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get PSMDB components OK body versions items0 matrix proxysql anon based on context it is used
+func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixProxysqlAnon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *VersionsItems0MatrixProxysqlAnon) MarshalBinary() ([]byte, error) {
+func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixProxysqlAnon) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -991,8 +1371,8 @@ func (o *VersionsItems0MatrixProxysqlAnon) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *VersionsItems0MatrixProxysqlAnon) UnmarshalBinary(b []byte) error {
-	var res VersionsItems0MatrixProxysqlAnon
+func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixProxysqlAnon) UnmarshalBinary(b []byte) error {
+	var res GetPSMDBComponentsOKBodyVersionsItems0MatrixProxysqlAnon
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

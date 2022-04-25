@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewStartPostgreSQLShowCreateTableActionParams creates a new StartPostgreSQLShowCreateTableActionParams object
-// with the default values initialized.
+// NewStartPostgreSQLShowCreateTableActionParams creates a new StartPostgreSQLShowCreateTableActionParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewStartPostgreSQLShowCreateTableActionParams() *StartPostgreSQLShowCreateTableActionParams {
-	var ()
 	return &StartPostgreSQLShowCreateTableActionParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewStartPostgreSQLShowCreateTableActionParamsWithTimeout creates a new StartPostgreSQLShowCreateTableActionParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewStartPostgreSQLShowCreateTableActionParamsWithTimeout(timeout time.Duration) *StartPostgreSQLShowCreateTableActionParams {
-	var ()
 	return &StartPostgreSQLShowCreateTableActionParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewStartPostgreSQLShowCreateTableActionParamsWithContext creates a new StartPostgreSQLShowCreateTableActionParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewStartPostgreSQLShowCreateTableActionParamsWithContext(ctx context.Context) *StartPostgreSQLShowCreateTableActionParams {
-	var ()
 	return &StartPostgreSQLShowCreateTableActionParams{
-
 		Context: ctx,
 	}
 }
 
 // NewStartPostgreSQLShowCreateTableActionParamsWithHTTPClient creates a new StartPostgreSQLShowCreateTableActionParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewStartPostgreSQLShowCreateTableActionParamsWithHTTPClient(client *http.Client) *StartPostgreSQLShowCreateTableActionParams {
-	var ()
 	return &StartPostgreSQLShowCreateTableActionParams{
 		HTTPClient: client,
 	}
 }
 
-/*StartPostgreSQLShowCreateTableActionParams contains all the parameters to send to the API endpoint
-for the start postgre SQL show create table action operation typically these are written to a http.Request
+/* StartPostgreSQLShowCreateTableActionParams contains all the parameters to send to the API endpoint
+   for the start postgre SQL show create table action operation.
+
+   Typically these are written to a http.Request.
 */
 type StartPostgreSQLShowCreateTableActionParams struct {
 
-	/*Body*/
+	// Body.
 	Body StartPostgreSQLShowCreateTableActionBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the start postgre SQL show create table action params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *StartPostgreSQLShowCreateTableActionParams) WithDefaults() *StartPostgreSQLShowCreateTableActionParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the start postgre SQL show create table action params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *StartPostgreSQLShowCreateTableActionParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the start postgre SQL show create table action params
@@ -119,7 +133,6 @@ func (o *StartPostgreSQLShowCreateTableActionParams) WriteToRequest(r runtime.Cl
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

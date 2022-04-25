@@ -6,6 +6,7 @@ package rds
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,7 +50,7 @@ func NewDiscoverRDSOK() *DiscoverRDSOK {
 	return &DiscoverRDSOK{}
 }
 
-/*DiscoverRDSOK handles this case with default header values.
+/* DiscoverRDSOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -60,7 +61,6 @@ type DiscoverRDSOK struct {
 func (o *DiscoverRDSOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/RDS/Discover][%d] discoverRdsOk  %+v", 200, o.Payload)
 }
-
 func (o *DiscoverRDSOK) GetPayload() *DiscoverRDSOKBody {
 	return o.Payload
 }
@@ -84,7 +84,7 @@ func NewDiscoverRDSDefault(code int) *DiscoverRDSDefault {
 	}
 }
 
-/*DiscoverRDSDefault handles this case with default header values.
+/* DiscoverRDSDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -102,7 +102,6 @@ func (o *DiscoverRDSDefault) Code() int {
 func (o *DiscoverRDSDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/RDS/Discover][%d] DiscoverRDS default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *DiscoverRDSDefault) GetPayload() *DiscoverRDSDefaultBody {
 	return o.Payload
 }
@@ -133,6 +132,11 @@ type DiscoverRDSBody struct {
 
 // Validate validates this discover RDS body
 func (o *DiscoverRDSBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this discover RDS body based on context it is used
+func (o *DiscoverRDSBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -169,7 +173,7 @@ type DiscoverRDSDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*DiscoverRDSDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this discover RDS default body
@@ -187,7 +191,6 @@ func (o *DiscoverRDSDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *DiscoverRDSDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -201,6 +204,42 @@ func (o *DiscoverRDSDefaultBody) validateDetails(formats strfmt.Registry) error 
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("DiscoverRDS default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("DiscoverRDS default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this discover RDS default body based on the context it is used
+func (o *DiscoverRDSDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *DiscoverRDSDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("DiscoverRDS default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("DiscoverRDS default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -229,13 +268,54 @@ func (o *DiscoverRDSDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*DiscoverRDSDefaultBodyDetailsItems0 discover RDS default body details items0
+swagger:model DiscoverRDSDefaultBodyDetailsItems0
+*/
+type DiscoverRDSDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this discover RDS default body details items0
+func (o *DiscoverRDSDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this discover RDS default body details items0 based on context it is used
+func (o *DiscoverRDSDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *DiscoverRDSDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *DiscoverRDSDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res DiscoverRDSDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*DiscoverRDSOKBody discover RDS OK body
 swagger:model DiscoverRDSOKBody
 */
 type DiscoverRDSOKBody struct {
 
 	// rds instances
-	RDSInstances []*RDSInstancesItems0 `json:"rds_instances"`
+	RDSInstances []*DiscoverRDSOKBodyRDSInstancesItems0 `json:"rds_instances"`
 }
 
 // Validate validates this discover RDS OK body
@@ -253,7 +333,6 @@ func (o *DiscoverRDSOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *DiscoverRDSOKBody) validateRDSInstances(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.RDSInstances) { // not required
 		return nil
 	}
@@ -267,6 +346,42 @@ func (o *DiscoverRDSOKBody) validateRDSInstances(formats strfmt.Registry) error 
 			if err := o.RDSInstances[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("discoverRdsOk" + "." + "rds_instances" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("discoverRdsOk" + "." + "rds_instances" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this discover RDS OK body based on the context it is used
+func (o *DiscoverRDSOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateRDSInstances(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *DiscoverRDSOKBody) contextValidateRDSInstances(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.RDSInstances); i++ {
+
+		if o.RDSInstances[i] != nil {
+			if err := o.RDSInstances[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("discoverRdsOk" + "." + "rds_instances" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("discoverRdsOk" + "." + "rds_instances" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -295,10 +410,10 @@ func (o *DiscoverRDSOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*RDSInstancesItems0 DiscoverRDSInstance models an unique RDS instance for the list of instances returned by Discovery.
-swagger:model RDSInstancesItems0
+/*DiscoverRDSOKBodyRDSInstancesItems0 DiscoverRDSInstance models an unique RDS instance for the list of instances returned by Discovery.
+swagger:model DiscoverRDSOKBodyRDSInstancesItems0
 */
-type RDSInstancesItems0 struct {
+type DiscoverRDSOKBodyRDSInstancesItems0 struct {
 
 	// AWS region.
 	Region string `json:"region,omitempty"`
@@ -326,8 +441,8 @@ type RDSInstancesItems0 struct {
 	EngineVersion string `json:"engine_version,omitempty"`
 }
 
-// Validate validates this RDS instances items0
-func (o *RDSInstancesItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this discover RDS OK body RDS instances items0
+func (o *DiscoverRDSOKBodyRDSInstancesItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateEngine(formats); err != nil {
@@ -340,7 +455,7 @@ func (o *RDSInstancesItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var rdsInstancesItems0TypeEnginePropEnum []interface{}
+var discoverRdsOkBodyRdsInstancesItems0TypeEnginePropEnum []interface{}
 
 func init() {
 	var res []string
@@ -348,32 +463,31 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		rdsInstancesItems0TypeEnginePropEnum = append(rdsInstancesItems0TypeEnginePropEnum, v)
+		discoverRdsOkBodyRdsInstancesItems0TypeEnginePropEnum = append(discoverRdsOkBodyRdsInstancesItems0TypeEnginePropEnum, v)
 	}
 }
 
 const (
 
-	// RDSInstancesItems0EngineDISCOVERRDSENGINEINVALID captures enum value "DISCOVER_RDS_ENGINE_INVALID"
-	RDSInstancesItems0EngineDISCOVERRDSENGINEINVALID string = "DISCOVER_RDS_ENGINE_INVALID"
+	// DiscoverRDSOKBodyRDSInstancesItems0EngineDISCOVERRDSENGINEINVALID captures enum value "DISCOVER_RDS_ENGINE_INVALID"
+	DiscoverRDSOKBodyRDSInstancesItems0EngineDISCOVERRDSENGINEINVALID string = "DISCOVER_RDS_ENGINE_INVALID"
 
-	// RDSInstancesItems0EngineDISCOVERRDSMYSQL captures enum value "DISCOVER_RDS_MYSQL"
-	RDSInstancesItems0EngineDISCOVERRDSMYSQL string = "DISCOVER_RDS_MYSQL"
+	// DiscoverRDSOKBodyRDSInstancesItems0EngineDISCOVERRDSMYSQL captures enum value "DISCOVER_RDS_MYSQL"
+	DiscoverRDSOKBodyRDSInstancesItems0EngineDISCOVERRDSMYSQL string = "DISCOVER_RDS_MYSQL"
 
-	// RDSInstancesItems0EngineDISCOVERRDSPOSTGRESQL captures enum value "DISCOVER_RDS_POSTGRESQL"
-	RDSInstancesItems0EngineDISCOVERRDSPOSTGRESQL string = "DISCOVER_RDS_POSTGRESQL"
+	// DiscoverRDSOKBodyRDSInstancesItems0EngineDISCOVERRDSPOSTGRESQL captures enum value "DISCOVER_RDS_POSTGRESQL"
+	DiscoverRDSOKBodyRDSInstancesItems0EngineDISCOVERRDSPOSTGRESQL string = "DISCOVER_RDS_POSTGRESQL"
 )
 
 // prop value enum
-func (o *RDSInstancesItems0) validateEngineEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, rdsInstancesItems0TypeEnginePropEnum, true); err != nil {
+func (o *DiscoverRDSOKBodyRDSInstancesItems0) validateEngineEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, discoverRdsOkBodyRdsInstancesItems0TypeEnginePropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *RDSInstancesItems0) validateEngine(formats strfmt.Registry) error {
-
+func (o *DiscoverRDSOKBodyRDSInstancesItems0) validateEngine(formats strfmt.Registry) error {
 	if swag.IsZero(o.Engine) { // not required
 		return nil
 	}
@@ -386,8 +500,13 @@ func (o *RDSInstancesItems0) validateEngine(formats strfmt.Registry) error {
 	return nil
 }
 
+// ContextValidate validates this discover RDS OK body RDS instances items0 based on context it is used
+func (o *DiscoverRDSOKBodyRDSInstancesItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
-func (o *RDSInstancesItems0) MarshalBinary() ([]byte, error) {
+func (o *DiscoverRDSOKBodyRDSInstancesItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -395,8 +514,8 @@ func (o *RDSInstancesItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *RDSInstancesItems0) UnmarshalBinary(b []byte) error {
-	var res RDSInstancesItems0
+func (o *DiscoverRDSOKBodyRDSInstancesItems0) UnmarshalBinary(b []byte) error {
+	var res DiscoverRDSOKBodyRDSInstancesItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

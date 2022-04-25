@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewChangePostgresExporterParams creates a new ChangePostgresExporterParams object
-// with the default values initialized.
+// NewChangePostgresExporterParams creates a new ChangePostgresExporterParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewChangePostgresExporterParams() *ChangePostgresExporterParams {
-	var ()
 	return &ChangePostgresExporterParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewChangePostgresExporterParamsWithTimeout creates a new ChangePostgresExporterParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewChangePostgresExporterParamsWithTimeout(timeout time.Duration) *ChangePostgresExporterParams {
-	var ()
 	return &ChangePostgresExporterParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewChangePostgresExporterParamsWithContext creates a new ChangePostgresExporterParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewChangePostgresExporterParamsWithContext(ctx context.Context) *ChangePostgresExporterParams {
-	var ()
 	return &ChangePostgresExporterParams{
-
 		Context: ctx,
 	}
 }
 
 // NewChangePostgresExporterParamsWithHTTPClient creates a new ChangePostgresExporterParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewChangePostgresExporterParamsWithHTTPClient(client *http.Client) *ChangePostgresExporterParams {
-	var ()
 	return &ChangePostgresExporterParams{
 		HTTPClient: client,
 	}
 }
 
-/*ChangePostgresExporterParams contains all the parameters to send to the API endpoint
-for the change postgres exporter operation typically these are written to a http.Request
+/* ChangePostgresExporterParams contains all the parameters to send to the API endpoint
+   for the change postgres exporter operation.
+
+   Typically these are written to a http.Request.
 */
 type ChangePostgresExporterParams struct {
 
-	/*Body*/
+	// Body.
 	Body ChangePostgresExporterBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the change postgres exporter params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ChangePostgresExporterParams) WithDefaults() *ChangePostgresExporterParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the change postgres exporter params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ChangePostgresExporterParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the change postgres exporter params
@@ -119,7 +133,6 @@ func (o *ChangePostgresExporterParams) WriteToRequest(r runtime.ClientRequest, r
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

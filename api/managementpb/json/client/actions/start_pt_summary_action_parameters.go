@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewStartPTSummaryActionParams creates a new StartPTSummaryActionParams object
-// with the default values initialized.
+// NewStartPTSummaryActionParams creates a new StartPTSummaryActionParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewStartPTSummaryActionParams() *StartPTSummaryActionParams {
-	var ()
 	return &StartPTSummaryActionParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewStartPTSummaryActionParamsWithTimeout creates a new StartPTSummaryActionParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewStartPTSummaryActionParamsWithTimeout(timeout time.Duration) *StartPTSummaryActionParams {
-	var ()
 	return &StartPTSummaryActionParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewStartPTSummaryActionParamsWithContext creates a new StartPTSummaryActionParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewStartPTSummaryActionParamsWithContext(ctx context.Context) *StartPTSummaryActionParams {
-	var ()
 	return &StartPTSummaryActionParams{
-
 		Context: ctx,
 	}
 }
 
 // NewStartPTSummaryActionParamsWithHTTPClient creates a new StartPTSummaryActionParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewStartPTSummaryActionParamsWithHTTPClient(client *http.Client) *StartPTSummaryActionParams {
-	var ()
 	return &StartPTSummaryActionParams{
 		HTTPClient: client,
 	}
 }
 
-/*StartPTSummaryActionParams contains all the parameters to send to the API endpoint
-for the start PT summary action operation typically these are written to a http.Request
+/* StartPTSummaryActionParams contains all the parameters to send to the API endpoint
+   for the start PT summary action operation.
+
+   Typically these are written to a http.Request.
 */
 type StartPTSummaryActionParams struct {
 
-	/*Body*/
+	// Body.
 	Body StartPTSummaryActionBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the start PT summary action params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *StartPTSummaryActionParams) WithDefaults() *StartPTSummaryActionParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the start PT summary action params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *StartPTSummaryActionParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the start PT summary action params
@@ -119,7 +133,6 @@ func (o *StartPTSummaryActionParams) WriteToRequest(r runtime.ClientRequest, reg
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

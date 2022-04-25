@@ -6,6 +6,7 @@ package artifacts
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,7 +50,7 @@ func NewListArtifactsOK() *ListArtifactsOK {
 	return &ListArtifactsOK{}
 }
 
-/*ListArtifactsOK handles this case with default header values.
+/* ListArtifactsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -60,7 +61,6 @@ type ListArtifactsOK struct {
 func (o *ListArtifactsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Artifacts/List][%d] listArtifactsOk  %+v", 200, o.Payload)
 }
-
 func (o *ListArtifactsOK) GetPayload() *ListArtifactsOKBody {
 	return o.Payload
 }
@@ -84,7 +84,7 @@ func NewListArtifactsDefault(code int) *ListArtifactsDefault {
 	}
 }
 
-/*ListArtifactsDefault handles this case with default header values.
+/* ListArtifactsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -102,7 +102,6 @@ func (o *ListArtifactsDefault) Code() int {
 func (o *ListArtifactsDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Artifacts/List][%d] ListArtifacts default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ListArtifactsDefault) GetPayload() *ListArtifactsDefaultBody {
 	return o.Payload
 }
@@ -119,10 +118,262 @@ func (o *ListArtifactsDefault) readResponse(response runtime.ClientResponse, con
 	return nil
 }
 
-/*ArtifactsItems0 Artifact represents single backup artifact.
-swagger:model ArtifactsItems0
+/*ListArtifactsDefaultBody list artifacts default body
+swagger:model ListArtifactsDefaultBody
 */
-type ArtifactsItems0 struct {
+type ListArtifactsDefaultBody struct {
+
+	// error
+	Error string `json:"error,omitempty"`
+
+	// code
+	Code int32 `json:"code,omitempty"`
+
+	// message
+	Message string `json:"message,omitempty"`
+
+	// details
+	Details []*ListArtifactsDefaultBodyDetailsItems0 `json:"details"`
+}
+
+// Validate validates this list artifacts default body
+func (o *ListArtifactsDefaultBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateDetails(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListArtifactsDefaultBody) validateDetails(formats strfmt.Registry) error {
+	if swag.IsZero(o.Details) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Details); i++ {
+		if swag.IsZero(o.Details[i]) { // not required
+			continue
+		}
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("ListArtifacts default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ListArtifacts default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list artifacts default body based on the context it is used
+func (o *ListArtifactsDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListArtifactsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("ListArtifacts default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ListArtifacts default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListArtifactsDefaultBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListArtifactsDefaultBody) UnmarshalBinary(b []byte) error {
+	var res ListArtifactsDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ListArtifactsDefaultBodyDetailsItems0 list artifacts default body details items0
+swagger:model ListArtifactsDefaultBodyDetailsItems0
+*/
+type ListArtifactsDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this list artifacts default body details items0
+func (o *ListArtifactsDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list artifacts default body details items0 based on context it is used
+func (o *ListArtifactsDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListArtifactsDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListArtifactsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res ListArtifactsDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ListArtifactsOKBody list artifacts OK body
+swagger:model ListArtifactsOKBody
+*/
+type ListArtifactsOKBody struct {
+
+	// artifacts
+	Artifacts []*ListArtifactsOKBodyArtifactsItems0 `json:"artifacts"`
+}
+
+// Validate validates this list artifacts OK body
+func (o *ListArtifactsOKBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateArtifacts(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListArtifactsOKBody) validateArtifacts(formats strfmt.Registry) error {
+	if swag.IsZero(o.Artifacts) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Artifacts); i++ {
+		if swag.IsZero(o.Artifacts[i]) { // not required
+			continue
+		}
+
+		if o.Artifacts[i] != nil {
+			if err := o.Artifacts[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listArtifactsOk" + "." + "artifacts" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listArtifactsOk" + "." + "artifacts" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list artifacts OK body based on the context it is used
+func (o *ListArtifactsOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateArtifacts(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListArtifactsOKBody) contextValidateArtifacts(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Artifacts); i++ {
+
+		if o.Artifacts[i] != nil {
+			if err := o.Artifacts[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listArtifactsOk" + "." + "artifacts" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listArtifactsOk" + "." + "artifacts" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListArtifactsOKBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListArtifactsOKBody) UnmarshalBinary(b []byte) error {
+	var res ListArtifactsOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ListArtifactsOKBodyArtifactsItems0 Artifact represents single backup artifact.
+swagger:model ListArtifactsOKBodyArtifactsItems0
+*/
+type ListArtifactsOKBodyArtifactsItems0 struct {
 
 	// Machine-readable artifact ID.
 	ArtifactID string `json:"artifact_id,omitempty"`
@@ -162,8 +413,8 @@ type ArtifactsItems0 struct {
 	Mode *string `json:"mode,omitempty"`
 }
 
-// Validate validates this artifacts items0
-func (o *ArtifactsItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this list artifacts OK body artifacts items0
+func (o *ListArtifactsOKBodyArtifactsItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateDataModel(formats); err != nil {
@@ -188,7 +439,7 @@ func (o *ArtifactsItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var artifactsItems0TypeDataModelPropEnum []interface{}
+var listArtifactsOkBodyArtifactsItems0TypeDataModelPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -196,32 +447,31 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		artifactsItems0TypeDataModelPropEnum = append(artifactsItems0TypeDataModelPropEnum, v)
+		listArtifactsOkBodyArtifactsItems0TypeDataModelPropEnum = append(listArtifactsOkBodyArtifactsItems0TypeDataModelPropEnum, v)
 	}
 }
 
 const (
 
-	// ArtifactsItems0DataModelDATAMODELINVALID captures enum value "DATA_MODEL_INVALID"
-	ArtifactsItems0DataModelDATAMODELINVALID string = "DATA_MODEL_INVALID"
+	// ListArtifactsOKBodyArtifactsItems0DataModelDATAMODELINVALID captures enum value "DATA_MODEL_INVALID"
+	ListArtifactsOKBodyArtifactsItems0DataModelDATAMODELINVALID string = "DATA_MODEL_INVALID"
 
-	// ArtifactsItems0DataModelPHYSICAL captures enum value "PHYSICAL"
-	ArtifactsItems0DataModelPHYSICAL string = "PHYSICAL"
+	// ListArtifactsOKBodyArtifactsItems0DataModelPHYSICAL captures enum value "PHYSICAL"
+	ListArtifactsOKBodyArtifactsItems0DataModelPHYSICAL string = "PHYSICAL"
 
-	// ArtifactsItems0DataModelLOGICAL captures enum value "LOGICAL"
-	ArtifactsItems0DataModelLOGICAL string = "LOGICAL"
+	// ListArtifactsOKBodyArtifactsItems0DataModelLOGICAL captures enum value "LOGICAL"
+	ListArtifactsOKBodyArtifactsItems0DataModelLOGICAL string = "LOGICAL"
 )
 
 // prop value enum
-func (o *ArtifactsItems0) validateDataModelEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, artifactsItems0TypeDataModelPropEnum, true); err != nil {
+func (o *ListArtifactsOKBodyArtifactsItems0) validateDataModelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listArtifactsOkBodyArtifactsItems0TypeDataModelPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *ArtifactsItems0) validateDataModel(formats strfmt.Registry) error {
-
+func (o *ListArtifactsOKBodyArtifactsItems0) validateDataModel(formats strfmt.Registry) error {
 	if swag.IsZero(o.DataModel) { // not required
 		return nil
 	}
@@ -234,7 +484,7 @@ func (o *ArtifactsItems0) validateDataModel(formats strfmt.Registry) error {
 	return nil
 }
 
-var artifactsItems0TypeStatusPropEnum []interface{}
+var listArtifactsOkBodyArtifactsItems0TypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -242,47 +492,46 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		artifactsItems0TypeStatusPropEnum = append(artifactsItems0TypeStatusPropEnum, v)
+		listArtifactsOkBodyArtifactsItems0TypeStatusPropEnum = append(listArtifactsOkBodyArtifactsItems0TypeStatusPropEnum, v)
 	}
 }
 
 const (
 
-	// ArtifactsItems0StatusBACKUPSTATUSINVALID captures enum value "BACKUP_STATUS_INVALID"
-	ArtifactsItems0StatusBACKUPSTATUSINVALID string = "BACKUP_STATUS_INVALID"
+	// ListArtifactsOKBodyArtifactsItems0StatusBACKUPSTATUSINVALID captures enum value "BACKUP_STATUS_INVALID"
+	ListArtifactsOKBodyArtifactsItems0StatusBACKUPSTATUSINVALID string = "BACKUP_STATUS_INVALID"
 
-	// ArtifactsItems0StatusBACKUPSTATUSPENDING captures enum value "BACKUP_STATUS_PENDING"
-	ArtifactsItems0StatusBACKUPSTATUSPENDING string = "BACKUP_STATUS_PENDING"
+	// ListArtifactsOKBodyArtifactsItems0StatusBACKUPSTATUSPENDING captures enum value "BACKUP_STATUS_PENDING"
+	ListArtifactsOKBodyArtifactsItems0StatusBACKUPSTATUSPENDING string = "BACKUP_STATUS_PENDING"
 
-	// ArtifactsItems0StatusBACKUPSTATUSINPROGRESS captures enum value "BACKUP_STATUS_IN_PROGRESS"
-	ArtifactsItems0StatusBACKUPSTATUSINPROGRESS string = "BACKUP_STATUS_IN_PROGRESS"
+	// ListArtifactsOKBodyArtifactsItems0StatusBACKUPSTATUSINPROGRESS captures enum value "BACKUP_STATUS_IN_PROGRESS"
+	ListArtifactsOKBodyArtifactsItems0StatusBACKUPSTATUSINPROGRESS string = "BACKUP_STATUS_IN_PROGRESS"
 
-	// ArtifactsItems0StatusBACKUPSTATUSPAUSED captures enum value "BACKUP_STATUS_PAUSED"
-	ArtifactsItems0StatusBACKUPSTATUSPAUSED string = "BACKUP_STATUS_PAUSED"
+	// ListArtifactsOKBodyArtifactsItems0StatusBACKUPSTATUSPAUSED captures enum value "BACKUP_STATUS_PAUSED"
+	ListArtifactsOKBodyArtifactsItems0StatusBACKUPSTATUSPAUSED string = "BACKUP_STATUS_PAUSED"
 
-	// ArtifactsItems0StatusBACKUPSTATUSSUCCESS captures enum value "BACKUP_STATUS_SUCCESS"
-	ArtifactsItems0StatusBACKUPSTATUSSUCCESS string = "BACKUP_STATUS_SUCCESS"
+	// ListArtifactsOKBodyArtifactsItems0StatusBACKUPSTATUSSUCCESS captures enum value "BACKUP_STATUS_SUCCESS"
+	ListArtifactsOKBodyArtifactsItems0StatusBACKUPSTATUSSUCCESS string = "BACKUP_STATUS_SUCCESS"
 
-	// ArtifactsItems0StatusBACKUPSTATUSERROR captures enum value "BACKUP_STATUS_ERROR"
-	ArtifactsItems0StatusBACKUPSTATUSERROR string = "BACKUP_STATUS_ERROR"
+	// ListArtifactsOKBodyArtifactsItems0StatusBACKUPSTATUSERROR captures enum value "BACKUP_STATUS_ERROR"
+	ListArtifactsOKBodyArtifactsItems0StatusBACKUPSTATUSERROR string = "BACKUP_STATUS_ERROR"
 
-	// ArtifactsItems0StatusBACKUPSTATUSDELETING captures enum value "BACKUP_STATUS_DELETING"
-	ArtifactsItems0StatusBACKUPSTATUSDELETING string = "BACKUP_STATUS_DELETING"
+	// ListArtifactsOKBodyArtifactsItems0StatusBACKUPSTATUSDELETING captures enum value "BACKUP_STATUS_DELETING"
+	ListArtifactsOKBodyArtifactsItems0StatusBACKUPSTATUSDELETING string = "BACKUP_STATUS_DELETING"
 
-	// ArtifactsItems0StatusBACKUPSTATUSFAILEDTODELETE captures enum value "BACKUP_STATUS_FAILED_TO_DELETE"
-	ArtifactsItems0StatusBACKUPSTATUSFAILEDTODELETE string = "BACKUP_STATUS_FAILED_TO_DELETE"
+	// ListArtifactsOKBodyArtifactsItems0StatusBACKUPSTATUSFAILEDTODELETE captures enum value "BACKUP_STATUS_FAILED_TO_DELETE"
+	ListArtifactsOKBodyArtifactsItems0StatusBACKUPSTATUSFAILEDTODELETE string = "BACKUP_STATUS_FAILED_TO_DELETE"
 )
 
 // prop value enum
-func (o *ArtifactsItems0) validateStatusEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, artifactsItems0TypeStatusPropEnum, true); err != nil {
+func (o *ListArtifactsOKBodyArtifactsItems0) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listArtifactsOkBodyArtifactsItems0TypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *ArtifactsItems0) validateStatus(formats strfmt.Registry) error {
-
+func (o *ListArtifactsOKBodyArtifactsItems0) validateStatus(formats strfmt.Registry) error {
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -295,8 +544,7 @@ func (o *ArtifactsItems0) validateStatus(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *ArtifactsItems0) validateCreatedAt(formats strfmt.Registry) error {
-
+func (o *ListArtifactsOKBodyArtifactsItems0) validateCreatedAt(formats strfmt.Registry) error {
 	if swag.IsZero(o.CreatedAt) { // not required
 		return nil
 	}
@@ -308,7 +556,7 @@ func (o *ArtifactsItems0) validateCreatedAt(formats strfmt.Registry) error {
 	return nil
 }
 
-var artifactsItems0TypeModePropEnum []interface{}
+var listArtifactsOkBodyArtifactsItems0TypeModePropEnum []interface{}
 
 func init() {
 	var res []string
@@ -316,35 +564,34 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		artifactsItems0TypeModePropEnum = append(artifactsItems0TypeModePropEnum, v)
+		listArtifactsOkBodyArtifactsItems0TypeModePropEnum = append(listArtifactsOkBodyArtifactsItems0TypeModePropEnum, v)
 	}
 }
 
 const (
 
-	// ArtifactsItems0ModeBACKUPMODEINVALID captures enum value "BACKUP_MODE_INVALID"
-	ArtifactsItems0ModeBACKUPMODEINVALID string = "BACKUP_MODE_INVALID"
+	// ListArtifactsOKBodyArtifactsItems0ModeBACKUPMODEINVALID captures enum value "BACKUP_MODE_INVALID"
+	ListArtifactsOKBodyArtifactsItems0ModeBACKUPMODEINVALID string = "BACKUP_MODE_INVALID"
 
-	// ArtifactsItems0ModeSNAPSHOT captures enum value "SNAPSHOT"
-	ArtifactsItems0ModeSNAPSHOT string = "SNAPSHOT"
+	// ListArtifactsOKBodyArtifactsItems0ModeSNAPSHOT captures enum value "SNAPSHOT"
+	ListArtifactsOKBodyArtifactsItems0ModeSNAPSHOT string = "SNAPSHOT"
 
-	// ArtifactsItems0ModeINCREMENTAL captures enum value "INCREMENTAL"
-	ArtifactsItems0ModeINCREMENTAL string = "INCREMENTAL"
+	// ListArtifactsOKBodyArtifactsItems0ModeINCREMENTAL captures enum value "INCREMENTAL"
+	ListArtifactsOKBodyArtifactsItems0ModeINCREMENTAL string = "INCREMENTAL"
 
-	// ArtifactsItems0ModePITR captures enum value "PITR"
-	ArtifactsItems0ModePITR string = "PITR"
+	// ListArtifactsOKBodyArtifactsItems0ModePITR captures enum value "PITR"
+	ListArtifactsOKBodyArtifactsItems0ModePITR string = "PITR"
 )
 
 // prop value enum
-func (o *ArtifactsItems0) validateModeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, artifactsItems0TypeModePropEnum, true); err != nil {
+func (o *ListArtifactsOKBodyArtifactsItems0) validateModeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listArtifactsOkBodyArtifactsItems0TypeModePropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *ArtifactsItems0) validateMode(formats strfmt.Registry) error {
-
+func (o *ListArtifactsOKBodyArtifactsItems0) validateMode(formats strfmt.Registry) error {
 	if swag.IsZero(o.Mode) { // not required
 		return nil
 	}
@@ -357,8 +604,13 @@ func (o *ArtifactsItems0) validateMode(formats strfmt.Registry) error {
 	return nil
 }
 
+// ContextValidate validates this list artifacts OK body artifacts items0 based on context it is used
+func (o *ListArtifactsOKBodyArtifactsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
-func (o *ArtifactsItems0) MarshalBinary() ([]byte, error) {
+func (o *ListArtifactsOKBodyArtifactsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -366,149 +618,8 @@ func (o *ArtifactsItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *ArtifactsItems0) UnmarshalBinary(b []byte) error {
-	var res ArtifactsItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*ListArtifactsDefaultBody list artifacts default body
-swagger:model ListArtifactsDefaultBody
-*/
-type ListArtifactsDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
-
-	// code
-	Code int32 `json:"code,omitempty"`
-
-	// message
-	Message string `json:"message,omitempty"`
-
-	// details
-	Details []*DetailsItems0 `json:"details"`
-}
-
-// Validate validates this list artifacts default body
-func (o *ListArtifactsDefaultBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateDetails(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *ListArtifactsDefaultBody) validateDetails(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Details) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(o.Details); i++ {
-		if swag.IsZero(o.Details[i]) { // not required
-			continue
-		}
-
-		if o.Details[i] != nil {
-			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("ListArtifacts default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ListArtifactsDefaultBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ListArtifactsDefaultBody) UnmarshalBinary(b []byte) error {
-	var res ListArtifactsDefaultBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*ListArtifactsOKBody list artifacts OK body
-swagger:model ListArtifactsOKBody
-*/
-type ListArtifactsOKBody struct {
-
-	// artifacts
-	Artifacts []*ArtifactsItems0 `json:"artifacts"`
-}
-
-// Validate validates this list artifacts OK body
-func (o *ListArtifactsOKBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateArtifacts(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *ListArtifactsOKBody) validateArtifacts(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Artifacts) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(o.Artifacts); i++ {
-		if swag.IsZero(o.Artifacts[i]) { // not required
-			continue
-		}
-
-		if o.Artifacts[i] != nil {
-			if err := o.Artifacts[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listArtifactsOk" + "." + "artifacts" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ListArtifactsOKBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ListArtifactsOKBody) UnmarshalBinary(b []byte) error {
-	var res ListArtifactsOKBody
+func (o *ListArtifactsOKBodyArtifactsItems0) UnmarshalBinary(b []byte) error {
+	var res ListArtifactsOKBodyArtifactsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

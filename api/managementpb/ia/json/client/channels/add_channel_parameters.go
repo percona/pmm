@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewAddChannelParams creates a new AddChannelParams object
-// with the default values initialized.
+// NewAddChannelParams creates a new AddChannelParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewAddChannelParams() *AddChannelParams {
-	var ()
 	return &AddChannelParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewAddChannelParamsWithTimeout creates a new AddChannelParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewAddChannelParamsWithTimeout(timeout time.Duration) *AddChannelParams {
-	var ()
 	return &AddChannelParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewAddChannelParamsWithContext creates a new AddChannelParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewAddChannelParamsWithContext(ctx context.Context) *AddChannelParams {
-	var ()
 	return &AddChannelParams{
-
 		Context: ctx,
 	}
 }
 
 // NewAddChannelParamsWithHTTPClient creates a new AddChannelParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewAddChannelParamsWithHTTPClient(client *http.Client) *AddChannelParams {
-	var ()
 	return &AddChannelParams{
 		HTTPClient: client,
 	}
 }
 
-/*AddChannelParams contains all the parameters to send to the API endpoint
-for the add channel operation typically these are written to a http.Request
+/* AddChannelParams contains all the parameters to send to the API endpoint
+   for the add channel operation.
+
+   Typically these are written to a http.Request.
 */
 type AddChannelParams struct {
 
-	/*Body*/
+	// Body.
 	Body AddChannelBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the add channel params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AddChannelParams) WithDefaults() *AddChannelParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the add channel params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AddChannelParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the add channel params
@@ -119,7 +133,6 @@ func (o *AddChannelParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Re
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

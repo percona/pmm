@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewAddRDSExporterParams creates a new AddRDSExporterParams object
-// with the default values initialized.
+// NewAddRDSExporterParams creates a new AddRDSExporterParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewAddRDSExporterParams() *AddRDSExporterParams {
-	var ()
 	return &AddRDSExporterParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewAddRDSExporterParamsWithTimeout creates a new AddRDSExporterParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewAddRDSExporterParamsWithTimeout(timeout time.Duration) *AddRDSExporterParams {
-	var ()
 	return &AddRDSExporterParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewAddRDSExporterParamsWithContext creates a new AddRDSExporterParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewAddRDSExporterParamsWithContext(ctx context.Context) *AddRDSExporterParams {
-	var ()
 	return &AddRDSExporterParams{
-
 		Context: ctx,
 	}
 }
 
 // NewAddRDSExporterParamsWithHTTPClient creates a new AddRDSExporterParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewAddRDSExporterParamsWithHTTPClient(client *http.Client) *AddRDSExporterParams {
-	var ()
 	return &AddRDSExporterParams{
 		HTTPClient: client,
 	}
 }
 
-/*AddRDSExporterParams contains all the parameters to send to the API endpoint
-for the add RDS exporter operation typically these are written to a http.Request
+/* AddRDSExporterParams contains all the parameters to send to the API endpoint
+   for the add RDS exporter operation.
+
+   Typically these are written to a http.Request.
 */
 type AddRDSExporterParams struct {
 
-	/*Body*/
+	// Body.
 	Body AddRDSExporterBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the add RDS exporter params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AddRDSExporterParams) WithDefaults() *AddRDSExporterParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the add RDS exporter params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AddRDSExporterParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the add RDS exporter params
@@ -119,7 +133,6 @@ func (o *AddRDSExporterParams) WriteToRequest(r runtime.ClientRequest, reg strfm
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewAddRDSParams creates a new AddRDSParams object
-// with the default values initialized.
+// NewAddRDSParams creates a new AddRDSParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewAddRDSParams() *AddRDSParams {
-	var ()
 	return &AddRDSParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewAddRDSParamsWithTimeout creates a new AddRDSParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewAddRDSParamsWithTimeout(timeout time.Duration) *AddRDSParams {
-	var ()
 	return &AddRDSParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewAddRDSParamsWithContext creates a new AddRDSParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewAddRDSParamsWithContext(ctx context.Context) *AddRDSParams {
-	var ()
 	return &AddRDSParams{
-
 		Context: ctx,
 	}
 }
 
 // NewAddRDSParamsWithHTTPClient creates a new AddRDSParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewAddRDSParamsWithHTTPClient(client *http.Client) *AddRDSParams {
-	var ()
 	return &AddRDSParams{
 		HTTPClient: client,
 	}
 }
 
-/*AddRDSParams contains all the parameters to send to the API endpoint
-for the add RDS operation typically these are written to a http.Request
+/* AddRDSParams contains all the parameters to send to the API endpoint
+   for the add RDS operation.
+
+   Typically these are written to a http.Request.
 */
 type AddRDSParams struct {
 
-	/*Body*/
+	// Body.
 	Body AddRDSBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the add RDS params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AddRDSParams) WithDefaults() *AddRDSParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the add RDS params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AddRDSParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the add RDS params
@@ -119,7 +133,6 @@ func (o *AddRDSParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Regist
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

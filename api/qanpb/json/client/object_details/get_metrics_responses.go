@@ -6,6 +6,7 @@ package object_details
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -48,7 +49,7 @@ func NewGetMetricsOK() *GetMetricsOK {
 	return &GetMetricsOK{}
 }
 
-/*GetMetricsOK handles this case with default header values.
+/* GetMetricsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -59,7 +60,6 @@ type GetMetricsOK struct {
 func (o *GetMetricsOK) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetMetrics][%d] getMetricsOk  %+v", 200, o.Payload)
 }
-
 func (o *GetMetricsOK) GetPayload() *GetMetricsOKBody {
 	return o.Payload
 }
@@ -83,7 +83,7 @@ func NewGetMetricsDefault(code int) *GetMetricsDefault {
 	}
 }
 
-/*GetMetricsDefault handles this case with default header values.
+/* GetMetricsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -101,7 +101,6 @@ func (o *GetMetricsDefault) Code() int {
 func (o *GetMetricsDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetMetrics][%d] GetMetrics default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *GetMetricsDefault) GetPayload() *GetMetricsDefaultBody {
 	return o.Payload
 }
@@ -138,7 +137,7 @@ type GetMetricsBody struct {
 	GroupBy string `json:"group_by,omitempty"`
 
 	// labels
-	Labels []*LabelsItems0 `json:"labels"`
+	Labels []*GetMetricsParamsBodyLabelsItems0 `json:"labels"`
 
 	// include only fields
 	IncludeOnlyFields []string `json:"include_only_fields"`
@@ -170,7 +169,6 @@ func (o *GetMetricsBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *GetMetricsBody) validatePeriodStartFrom(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.PeriodStartFrom) { // not required
 		return nil
 	}
@@ -183,7 +181,6 @@ func (o *GetMetricsBody) validatePeriodStartFrom(formats strfmt.Registry) error 
 }
 
 func (o *GetMetricsBody) validatePeriodStartTo(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.PeriodStartTo) { // not required
 		return nil
 	}
@@ -196,7 +193,6 @@ func (o *GetMetricsBody) validatePeriodStartTo(formats strfmt.Registry) error {
 }
 
 func (o *GetMetricsBody) validateLabels(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Labels) { // not required
 		return nil
 	}
@@ -210,6 +206,42 @@ func (o *GetMetricsBody) validateLabels(formats strfmt.Registry) error {
 			if err := o.Labels[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get metrics body based on the context it is used
+func (o *GetMetricsBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateLabels(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetMetricsBody) contextValidateLabels(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Labels); i++ {
+
+		if o.Labels[i] != nil {
+			if err := o.Labels[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -253,7 +285,7 @@ type GetMetricsDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*GetMetricsDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this get metrics default body
@@ -271,7 +303,6 @@ func (o *GetMetricsDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *GetMetricsDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -285,6 +316,42 @@ func (o *GetMetricsDefaultBody) validateDetails(formats strfmt.Registry) error {
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("GetMetrics default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("GetMetrics default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get metrics default body based on the context it is used
+func (o *GetMetricsDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetMetricsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("GetMetrics default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("GetMetrics default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -313,22 +380,63 @@ func (o *GetMetricsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*GetMetricsDefaultBodyDetailsItems0 get metrics default body details items0
+swagger:model GetMetricsDefaultBodyDetailsItems0
+*/
+type GetMetricsDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this get metrics default body details items0
+func (o *GetMetricsDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get metrics default body details items0 based on context it is used
+func (o *GetMetricsDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetMetricsDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetMetricsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetMetricsDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*GetMetricsOKBody MetricsReply defines metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
 swagger:model GetMetricsOKBody
 */
 type GetMetricsOKBody struct {
 
 	// metrics
-	Metrics map[string]MetricsAnon `json:"metrics,omitempty"`
+	Metrics map[string]GetMetricsOKBodyMetricsAnon `json:"metrics,omitempty"`
 
 	// text metrics
 	TextMetrics map[string]string `json:"text_metrics,omitempty"`
 
 	// sparkline
-	Sparkline []*SparklineItems0 `json:"sparkline"`
+	Sparkline []*GetMetricsOKBodySparklineItems0 `json:"sparkline"`
 
 	// totals
-	Totals map[string]TotalsAnon `json:"totals,omitempty"`
+	Totals map[string]GetMetricsOKBodyTotalsAnon `json:"totals,omitempty"`
 
 	// fingerprint
 	Fingerprint string `json:"fingerprint,omitempty"`
@@ -357,7 +465,6 @@ func (o *GetMetricsOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *GetMetricsOKBody) validateMetrics(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Metrics) { // not required
 		return nil
 	}
@@ -369,6 +476,11 @@ func (o *GetMetricsOKBody) validateMetrics(formats strfmt.Registry) error {
 		}
 		if val, ok := o.Metrics[k]; ok {
 			if err := val.Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("getMetricsOk" + "." + "metrics" + "." + k)
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getMetricsOk" + "." + "metrics" + "." + k)
+				}
 				return err
 			}
 		}
@@ -379,7 +491,6 @@ func (o *GetMetricsOKBody) validateMetrics(formats strfmt.Registry) error {
 }
 
 func (o *GetMetricsOKBody) validateSparkline(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Sparkline) { // not required
 		return nil
 	}
@@ -393,6 +504,8 @@ func (o *GetMetricsOKBody) validateSparkline(formats strfmt.Registry) error {
 			if err := o.Sparkline[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getMetricsOk" + "." + "sparkline" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getMetricsOk" + "." + "sparkline" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -404,7 +517,6 @@ func (o *GetMetricsOKBody) validateSparkline(formats strfmt.Registry) error {
 }
 
 func (o *GetMetricsOKBody) validateTotals(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Totals) { // not required
 		return nil
 	}
@@ -416,6 +528,83 @@ func (o *GetMetricsOKBody) validateTotals(formats strfmt.Registry) error {
 		}
 		if val, ok := o.Totals[k]; ok {
 			if err := val.Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("getMetricsOk" + "." + "totals" + "." + k)
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getMetricsOk" + "." + "totals" + "." + k)
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get metrics OK body based on the context it is used
+func (o *GetMetricsOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetrics(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateSparkline(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateTotals(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetMetricsOKBody) contextValidateMetrics(ctx context.Context, formats strfmt.Registry) error {
+
+	for k := range o.Metrics {
+
+		if val, ok := o.Metrics[k]; ok {
+			if err := val.ContextValidate(ctx, formats); err != nil {
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *GetMetricsOKBody) contextValidateSparkline(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Sparkline); i++ {
+
+		if o.Sparkline[i] != nil {
+			if err := o.Sparkline[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("getMetricsOk" + "." + "sparkline" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getMetricsOk" + "." + "sparkline" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *GetMetricsOKBody) contextValidateTotals(ctx context.Context, formats strfmt.Registry) error {
+
+	for k := range o.Totals {
+
+		if val, ok := o.Totals[k]; ok {
+			if err := val.ContextValidate(ctx, formats); err != nil {
 				return err
 			}
 		}
@@ -443,10 +632,10 @@ func (o *GetMetricsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*MetricsAnon MetricValues is statistics of specific metric.
-swagger:model MetricsAnon
+/*GetMetricsOKBodyMetricsAnon MetricValues is statistics of specific metric.
+swagger:model GetMetricsOKBodyMetricsAnon
 */
-type MetricsAnon struct {
+type GetMetricsOKBodyMetricsAnon struct {
 
 	// rate
 	Rate float32 `json:"rate,omitempty"`
@@ -473,13 +662,18 @@ type MetricsAnon struct {
 	PercentOfTotal float32 `json:"percent_of_total,omitempty"`
 }
 
-// Validate validates this metrics anon
-func (o *MetricsAnon) Validate(formats strfmt.Registry) error {
+// Validate validates this get metrics OK body metrics anon
+func (o *GetMetricsOKBodyMetricsAnon) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get metrics OK body metrics anon based on context it is used
+func (o *GetMetricsOKBodyMetricsAnon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *MetricsAnon) MarshalBinary() ([]byte, error) {
+func (o *GetMetricsOKBodyMetricsAnon) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -487,8 +681,8 @@ func (o *MetricsAnon) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *MetricsAnon) UnmarshalBinary(b []byte) error {
-	var res MetricsAnon
+func (o *GetMetricsOKBodyMetricsAnon) UnmarshalBinary(b []byte) error {
+	var res GetMetricsOKBodyMetricsAnon
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -496,11 +690,11 @@ func (o *MetricsAnon) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*SparklineItems0 Point contains values that represents abscissa (time) and ordinate (volume etc.)
+/*GetMetricsOKBodySparklineItems0 Point contains values that represents abscissa (time) and ordinate (volume etc.)
 // of every point in a coordinate system of Sparklines.
-swagger:model SparklineItems0
+swagger:model GetMetricsOKBodySparklineItems0
 */
-type SparklineItems0 struct {
+type GetMetricsOKBodySparklineItems0 struct {
 
 	// The serial number of the chart point from the largest time in the time interval to the lowest time in the time range.
 	Point int64 `json:"point,omitempty"`
@@ -698,13 +892,18 @@ type SparklineItems0 struct {
 	MPlanTimeSumPerSec float32 `json:"m_plan_time_sum_per_sec,omitempty"`
 }
 
-// Validate validates this sparkline items0
-func (o *SparklineItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this get metrics OK body sparkline items0
+func (o *GetMetricsOKBodySparklineItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get metrics OK body sparkline items0 based on context it is used
+func (o *GetMetricsOKBodySparklineItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *SparklineItems0) MarshalBinary() ([]byte, error) {
+func (o *GetMetricsOKBodySparklineItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -712,8 +911,8 @@ func (o *SparklineItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *SparklineItems0) UnmarshalBinary(b []byte) error {
-	var res SparklineItems0
+func (o *GetMetricsOKBodySparklineItems0) UnmarshalBinary(b []byte) error {
+	var res GetMetricsOKBodySparklineItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -721,10 +920,10 @@ func (o *SparklineItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*TotalsAnon MetricValues is statistics of specific metric.
-swagger:model TotalsAnon
+/*GetMetricsOKBodyTotalsAnon MetricValues is statistics of specific metric.
+swagger:model GetMetricsOKBodyTotalsAnon
 */
-type TotalsAnon struct {
+type GetMetricsOKBodyTotalsAnon struct {
 
 	// rate
 	Rate float32 `json:"rate,omitempty"`
@@ -751,13 +950,18 @@ type TotalsAnon struct {
 	PercentOfTotal float32 `json:"percent_of_total,omitempty"`
 }
 
-// Validate validates this totals anon
-func (o *TotalsAnon) Validate(formats strfmt.Registry) error {
+// Validate validates this get metrics OK body totals anon
+func (o *GetMetricsOKBodyTotalsAnon) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get metrics OK body totals anon based on context it is used
+func (o *GetMetricsOKBodyTotalsAnon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *TotalsAnon) MarshalBinary() ([]byte, error) {
+func (o *GetMetricsOKBodyTotalsAnon) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -765,8 +969,48 @@ func (o *TotalsAnon) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *TotalsAnon) UnmarshalBinary(b []byte) error {
-	var res TotalsAnon
+func (o *GetMetricsOKBodyTotalsAnon) UnmarshalBinary(b []byte) error {
+	var res GetMetricsOKBodyTotalsAnon
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetMetricsParamsBodyLabelsItems0 MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.
+swagger:model GetMetricsParamsBodyLabelsItems0
+*/
+type GetMetricsParamsBodyLabelsItems0 struct {
+
+	// key
+	Key string `json:"key,omitempty"`
+
+	// value
+	Value []string `json:"value"`
+}
+
+// Validate validates this get metrics params body labels items0
+func (o *GetMetricsParamsBodyLabelsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get metrics params body labels items0 based on context it is used
+func (o *GetMetricsParamsBodyLabelsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetMetricsParamsBodyLabelsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetMetricsParamsBodyLabelsItems0) UnmarshalBinary(b []byte) error {
+	var res GetMetricsParamsBodyLabelsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

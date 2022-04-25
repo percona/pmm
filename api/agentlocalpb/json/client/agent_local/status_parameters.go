@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewStatusParams creates a new StatusParams object
-// with the default values initialized.
+// NewStatusParams creates a new StatusParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewStatusParams() *StatusParams {
-	var ()
 	return &StatusParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewStatusParamsWithTimeout creates a new StatusParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewStatusParamsWithTimeout(timeout time.Duration) *StatusParams {
-	var ()
 	return &StatusParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewStatusParamsWithContext creates a new StatusParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewStatusParamsWithContext(ctx context.Context) *StatusParams {
-	var ()
 	return &StatusParams{
-
 		Context: ctx,
 	}
 }
 
 // NewStatusParamsWithHTTPClient creates a new StatusParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewStatusParamsWithHTTPClient(client *http.Client) *StatusParams {
-	var ()
 	return &StatusParams{
 		HTTPClient: client,
 	}
 }
 
-/*StatusParams contains all the parameters to send to the API endpoint
-for the status operation typically these are written to a http.Request
+/* StatusParams contains all the parameters to send to the API endpoint
+   for the status operation.
+
+   Typically these are written to a http.Request.
 */
 type StatusParams struct {
 
-	/*Body*/
+	// Body.
 	Body StatusBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the status params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *StatusParams) WithDefaults() *StatusParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the status params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *StatusParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the status params
@@ -119,7 +133,6 @@ func (o *StatusParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Regist
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

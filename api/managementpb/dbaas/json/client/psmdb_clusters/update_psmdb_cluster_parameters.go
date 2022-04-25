@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewUpdatePSMDBClusterParams creates a new UpdatePSMDBClusterParams object
-// with the default values initialized.
+// NewUpdatePSMDBClusterParams creates a new UpdatePSMDBClusterParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewUpdatePSMDBClusterParams() *UpdatePSMDBClusterParams {
-	var ()
 	return &UpdatePSMDBClusterParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewUpdatePSMDBClusterParamsWithTimeout creates a new UpdatePSMDBClusterParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewUpdatePSMDBClusterParamsWithTimeout(timeout time.Duration) *UpdatePSMDBClusterParams {
-	var ()
 	return &UpdatePSMDBClusterParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewUpdatePSMDBClusterParamsWithContext creates a new UpdatePSMDBClusterParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewUpdatePSMDBClusterParamsWithContext(ctx context.Context) *UpdatePSMDBClusterParams {
-	var ()
 	return &UpdatePSMDBClusterParams{
-
 		Context: ctx,
 	}
 }
 
 // NewUpdatePSMDBClusterParamsWithHTTPClient creates a new UpdatePSMDBClusterParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewUpdatePSMDBClusterParamsWithHTTPClient(client *http.Client) *UpdatePSMDBClusterParams {
-	var ()
 	return &UpdatePSMDBClusterParams{
 		HTTPClient: client,
 	}
 }
 
-/*UpdatePSMDBClusterParams contains all the parameters to send to the API endpoint
-for the update PSMDB cluster operation typically these are written to a http.Request
+/* UpdatePSMDBClusterParams contains all the parameters to send to the API endpoint
+   for the update PSMDB cluster operation.
+
+   Typically these are written to a http.Request.
 */
 type UpdatePSMDBClusterParams struct {
 
-	/*Body*/
+	// Body.
 	Body UpdatePSMDBClusterBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the update PSMDB cluster params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *UpdatePSMDBClusterParams) WithDefaults() *UpdatePSMDBClusterParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the update PSMDB cluster params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *UpdatePSMDBClusterParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the update PSMDB cluster params
@@ -119,7 +133,6 @@ func (o *UpdatePSMDBClusterParams) WriteToRequest(r runtime.ClientRequest, reg s
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

@@ -6,6 +6,7 @@ package actions
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewStartMongoDBExplainActionOK() *StartMongoDBExplainActionOK {
 	return &StartMongoDBExplainActionOK{}
 }
 
-/*StartMongoDBExplainActionOK handles this case with default header values.
+/* StartMongoDBExplainActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type StartMongoDBExplainActionOK struct {
 func (o *StartMongoDBExplainActionOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartMongoDBExplain][%d] startMongoDbExplainActionOk  %+v", 200, o.Payload)
 }
-
 func (o *StartMongoDBExplainActionOK) GetPayload() *StartMongoDBExplainActionOKBody {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewStartMongoDBExplainActionDefault(code int) *StartMongoDBExplainActionDef
 	}
 }
 
-/*StartMongoDBExplainActionDefault handles this case with default header values.
+/* StartMongoDBExplainActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *StartMongoDBExplainActionDefault) Code() int {
 func (o *StartMongoDBExplainActionDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartMongoDBExplain][%d] StartMongoDBExplainAction default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *StartMongoDBExplainActionDefault) GetPayload() *StartMongoDBExplainActionDefaultBody {
 	return o.Payload
 }
@@ -137,6 +136,11 @@ func (o *StartMongoDBExplainActionBody) Validate(formats strfmt.Registry) error 
 	return nil
 }
 
+// ContextValidate validates this start mongo DB explain action body based on context it is used
+func (o *StartMongoDBExplainActionBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *StartMongoDBExplainActionBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -170,7 +174,7 @@ type StartMongoDBExplainActionDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*StartMongoDBExplainActionDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this start mongo DB explain action default body
@@ -188,7 +192,6 @@ func (o *StartMongoDBExplainActionDefaultBody) Validate(formats strfmt.Registry)
 }
 
 func (o *StartMongoDBExplainActionDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -202,6 +205,42 @@ func (o *StartMongoDBExplainActionDefaultBody) validateDetails(formats strfmt.Re
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("StartMongoDBExplainAction default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("StartMongoDBExplainAction default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this start mongo DB explain action default body based on the context it is used
+func (o *StartMongoDBExplainActionDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *StartMongoDBExplainActionDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("StartMongoDBExplainAction default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("StartMongoDBExplainAction default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -230,6 +269,47 @@ func (o *StartMongoDBExplainActionDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*StartMongoDBExplainActionDefaultBodyDetailsItems0 start mongo DB explain action default body details items0
+swagger:model StartMongoDBExplainActionDefaultBodyDetailsItems0
+*/
+type StartMongoDBExplainActionDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this start mongo DB explain action default body details items0
+func (o *StartMongoDBExplainActionDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this start mongo DB explain action default body details items0 based on context it is used
+func (o *StartMongoDBExplainActionDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *StartMongoDBExplainActionDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *StartMongoDBExplainActionDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res StartMongoDBExplainActionDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*StartMongoDBExplainActionOKBody start mongo DB explain action OK body
 swagger:model StartMongoDBExplainActionOKBody
 */
@@ -244,6 +324,11 @@ type StartMongoDBExplainActionOKBody struct {
 
 // Validate validates this start mongo DB explain action OK body
 func (o *StartMongoDBExplainActionOKBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this start mongo DB explain action OK body based on context it is used
+func (o *StartMongoDBExplainActionOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

@@ -6,6 +6,7 @@ package agents
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,7 +50,7 @@ func NewChangePostgresExporterOK() *ChangePostgresExporterOK {
 	return &ChangePostgresExporterOK{}
 }
 
-/*ChangePostgresExporterOK handles this case with default header values.
+/* ChangePostgresExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -60,7 +61,6 @@ type ChangePostgresExporterOK struct {
 func (o *ChangePostgresExporterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangePostgresExporter][%d] changePostgresExporterOk  %+v", 200, o.Payload)
 }
-
 func (o *ChangePostgresExporterOK) GetPayload() *ChangePostgresExporterOKBody {
 	return o.Payload
 }
@@ -84,7 +84,7 @@ func NewChangePostgresExporterDefault(code int) *ChangePostgresExporterDefault {
 	}
 }
 
-/*ChangePostgresExporterDefault handles this case with default header values.
+/* ChangePostgresExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -102,7 +102,6 @@ func (o *ChangePostgresExporterDefault) Code() int {
 func (o *ChangePostgresExporterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangePostgresExporter][%d] ChangePostgresExporter default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ChangePostgresExporterDefault) GetPayload() *ChangePostgresExporterDefaultBody {
 	return o.Payload
 }
@@ -146,7 +145,6 @@ func (o *ChangePostgresExporterBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *ChangePostgresExporterBody) validateCommon(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Common) { // not required
 		return nil
 	}
@@ -155,6 +153,38 @@ func (o *ChangePostgresExporterBody) validateCommon(formats strfmt.Registry) err
 		if err := o.Common.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "common")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "common")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change postgres exporter body based on the context it is used
+func (o *ChangePostgresExporterBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateCommon(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangePostgresExporterBody) contextValidateCommon(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Common != nil {
+		if err := o.Common.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "common")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "common")
 			}
 			return err
 		}
@@ -196,7 +226,7 @@ type ChangePostgresExporterDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*ChangePostgresExporterDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this change postgres exporter default body
@@ -214,7 +244,6 @@ func (o *ChangePostgresExporterDefaultBody) Validate(formats strfmt.Registry) er
 }
 
 func (o *ChangePostgresExporterDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -228,6 +257,42 @@ func (o *ChangePostgresExporterDefaultBody) validateDetails(formats strfmt.Regis
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ChangePostgresExporter default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ChangePostgresExporter default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change postgres exporter default body based on the context it is used
+func (o *ChangePostgresExporterDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangePostgresExporterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("ChangePostgresExporter default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ChangePostgresExporter default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -249,6 +314,47 @@ func (o *ChangePostgresExporterDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ChangePostgresExporterDefaultBody) UnmarshalBinary(b []byte) error {
 	var res ChangePostgresExporterDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ChangePostgresExporterDefaultBodyDetailsItems0 change postgres exporter default body details items0
+swagger:model ChangePostgresExporterDefaultBodyDetailsItems0
+*/
+type ChangePostgresExporterDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this change postgres exporter default body details items0
+func (o *ChangePostgresExporterDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change postgres exporter default body details items0 based on context it is used
+func (o *ChangePostgresExporterDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangePostgresExporterDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangePostgresExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res ChangePostgresExporterDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -280,7 +386,6 @@ func (o *ChangePostgresExporterOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *ChangePostgresExporterOKBody) validatePostgresExporter(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.PostgresExporter) { // not required
 		return nil
 	}
@@ -289,6 +394,38 @@ func (o *ChangePostgresExporterOKBody) validatePostgresExporter(formats strfmt.R
 		if err := o.PostgresExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changePostgresExporterOk" + "." + "postgres_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changePostgresExporterOk" + "." + "postgres_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change postgres exporter OK body based on the context it is used
+func (o *ChangePostgresExporterOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidatePostgresExporter(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangePostgresExporterOKBody) contextValidatePostgresExporter(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.PostgresExporter != nil {
+		if err := o.PostgresExporter.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changePostgresExporterOk" + "." + "postgres_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changePostgresExporterOk" + "." + "postgres_exporter")
 			}
 			return err
 		}
@@ -424,7 +561,6 @@ func (o *ChangePostgresExporterOKBodyPostgresExporter) validateStatusEnum(path, 
 }
 
 func (o *ChangePostgresExporterOKBodyPostgresExporter) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -434,6 +570,11 @@ func (o *ChangePostgresExporterOKBodyPostgresExporter) validateStatus(formats st
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this change postgres exporter OK body postgres exporter based on context it is used
+func (o *ChangePostgresExporterOKBodyPostgresExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -482,6 +623,11 @@ type ChangePostgresExporterParamsBodyCommon struct {
 
 // Validate validates this change postgres exporter params body common
 func (o *ChangePostgresExporterParamsBodyCommon) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change postgres exporter params body common based on context it is used
+func (o *ChangePostgresExporterParamsBodyCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

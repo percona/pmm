@@ -16,52 +16,66 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewReadinessParams creates a new ReadinessParams object
-// with the default values initialized.
+// NewReadinessParams creates a new ReadinessParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewReadinessParams() *ReadinessParams {
-
 	return &ReadinessParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewReadinessParamsWithTimeout creates a new ReadinessParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewReadinessParamsWithTimeout(timeout time.Duration) *ReadinessParams {
-
 	return &ReadinessParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewReadinessParamsWithContext creates a new ReadinessParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewReadinessParamsWithContext(ctx context.Context) *ReadinessParams {
-
 	return &ReadinessParams{
-
 		Context: ctx,
 	}
 }
 
 // NewReadinessParamsWithHTTPClient creates a new ReadinessParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewReadinessParamsWithHTTPClient(client *http.Client) *ReadinessParams {
-
 	return &ReadinessParams{
 		HTTPClient: client,
 	}
 }
 
-/*ReadinessParams contains all the parameters to send to the API endpoint
-for the readiness operation typically these are written to a http.Request
+/* ReadinessParams contains all the parameters to send to the API endpoint
+   for the readiness operation.
+
+   Typically these are written to a http.Request.
 */
 type ReadinessParams struct {
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the readiness params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ReadinessParams) WithDefaults() *ReadinessParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the readiness params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ReadinessParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the readiness params
