@@ -19,7 +19,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/url"
 	"os"
 	"os/exec"
@@ -308,7 +307,6 @@ func pbmConfigure(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL, con
 		"config",
 		"--mongodb-uri="+dbURL.String(),
 		"--file="+confFile).CombinedOutput()
-
 	if err != nil {
 		return errors.Wrapf(err, "pbm config error: %s", string(output))
 	}
@@ -317,7 +315,7 @@ func pbmConfigure(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL, con
 }
 
 func writePBMConfigFile(conf *PBMConfig) (string, error) {
-	tmp, err := ioutil.TempFile("", "pbm-config-*.yml")
+	tmp, err := os.CreateTemp("", "pbm-config-*.yml")
 	if err != nil {
 		return "", errors.Wrap(err, "failed to create pbm configuration file")
 	}

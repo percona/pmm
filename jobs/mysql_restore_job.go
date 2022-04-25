@@ -19,28 +19,30 @@ import (
 	"bytes"
 	"context"
 	"io"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"os/user"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"time"
 
-	"github.com/golang/protobuf/ptypes"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const (
-	xbstreamBin      = "xbstream"
-	mySQLServiceName = "mysql"
-	mySQLUserName    = "mysql"
-	mySQLGroupName   = "mysql"
+	xbstreamBin          = "xbstream"
+	mySQLSystemUserName  = "mysql"
+	mySQLSystemGroupName = "mysql"
+	// TODO make mySQLDirectory autorecognized as done in 'xtrabackup' utility; see 'xtrabackup --help' --datadir parameter
 	mySQLDirectory   = "/var/lib/mysql"
 	systemctlTimeout = 10 * time.Second
 )
+
+var mysqlServiceRegex = regexp.MustCompile(`mysql(d)?\.service`) // this is used to lookup MySQL service in the list of all system services
 
 // MySQLRestoreJob implements Job for MySQL backup restore.
 type MySQLRestoreJob struct {
@@ -91,7 +93,7 @@ func (j *MySQLRestoreJob) Run(ctx context.Context, send Send) (rerr error) {
 		return errors.WithStack(err)
 	}
 
-	tmpDir, err := ioutil.TempDir("", "backup-restore")
+	tmpDir, err := os.MkdirTemp("", "backup-restore")
 	if err != nil {
 		return errors.Wrap(err, "cannot create temporary directory")
 	}
@@ -101,16 +103,22 @@ func (j *MySQLRestoreJob) Run(ctx context.Context, send Send) (rerr error) {
 		}
 	}()
 
+	mySQLServiceName, err := getMysqlServiceName(ctx)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	j.l.Debugf("Using MySQL service name: %s", mySQLServiceName)
+
 	if err := j.restoreMySQLFromS3(ctx, tmpDir); err != nil {
 		return errors.WithStack(err)
 	}
 
-	active, err := mySQLActive(ctx)
+	active, err := mySQLActive(ctx, mySQLServiceName)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 	if active {
-		if err := stopMySQL(ctx); err != nil {
+		if err := stopMySQL(ctx, mySQLServiceName); err != nil {
 			return errors.WithStack(err)
 		}
 	}
@@ -119,13 +127,13 @@ func (j *MySQLRestoreJob) Run(ctx context.Context, send Send) (rerr error) {
 		return errors.WithStack(err)
 	}
 
-	if err := startMySQL(ctx); err != nil {
+	if err := startMySQL(ctx, mySQLServiceName); err != nil {
 		return errors.WithStack(err)
 	}
 
 	send(&agentpb.JobResult{
 		JobId:     j.id,
-		Timestamp: ptypes.TimestampNow(),
+		Timestamp: timestamppb.Now(),
 		Result: &agentpb.JobResult_MysqlRestoreBackup{
 			MysqlRestoreBackup: &agentpb.JobResult_MySQLRestoreBackup{},
 		},
@@ -248,7 +256,7 @@ func (j *MySQLRestoreJob) restoreMySQLFromS3(ctx context.Context, targetDirector
 	return nil
 }
 
-func mySQLActive(ctx context.Context) (bool, error) {
+func mySQLActive(ctx context.Context, mySQLServiceName string) (bool, error) {
 	ctx, cancel := context.WithTimeout(ctx, systemctlTimeout)
 	defer cancel()
 
@@ -270,7 +278,7 @@ func mySQLActive(ctx context.Context) (bool, error) {
 	}
 }
 
-func stopMySQL(ctx context.Context) error {
+func stopMySQL(ctx context.Context, mySQLServiceName string) error {
 	ctx, cancel := context.WithTimeout(ctx, systemctlTimeout)
 	defer cancel()
 
@@ -282,7 +290,7 @@ func stopMySQL(ctx context.Context) error {
 	return errors.Wrap(cmd.Wait(), "waiting systemctl stop command failed")
 }
 
-func startMySQL(ctx context.Context) error {
+func startMySQL(ctx context.Context, mySQLServiceName string) error {
 	ctx, cancel := context.WithTimeout(ctx, systemctlTimeout)
 	defer cancel()
 
@@ -306,7 +314,7 @@ func chownRecursive(path string, uid, gid int) error {
 
 // mySQLUserAndGroupIDs returns uid, gid if error is nil.
 func mySQLUserAndGroupIDs() (int, int, error) {
-	u, err := user.Lookup(mySQLUserName)
+	u, err := user.Lookup(mySQLSystemUserName)
 	if err != nil {
 		return 0, 0, errors.WithStack(err)
 	}
@@ -316,7 +324,7 @@ func mySQLUserAndGroupIDs() (int, int, error) {
 		return 0, 0, errors.WithStack(err)
 	}
 
-	g, err := user.LookupGroup(mySQLGroupName)
+	g, err := user.LookupGroup(mySQLSystemGroupName)
 	if err != nil {
 		return 0, 0, errors.WithStack(err)
 	}
@@ -341,7 +349,19 @@ func isPathExists(path string) (bool, error) {
 	}
 }
 
+func getPermissions(path string) (os.FileMode, error) {
+	info, err := os.Stat(path)
+	if err != nil {
+		return 0, errors.Wrapf(err, "failed to get permissions for path: %s", path)
+	}
+	return info.Mode(), nil
+}
+
 func restoreBackup(ctx context.Context, backupDirectory, mySQLDirectory string) error {
+	// TODO We should implement recognizing correct default permissions based on DB configuration.
+	// Setting default value in case the base MySQL folder have been lost.
+	mysqlDirPermissions := os.FileMode(0o750)
+
 	if output, err := exec.CommandContext( //nolint:gosec
 		ctx,
 		xtrabackupBin,
@@ -363,6 +383,10 @@ func restoreBackup(ctx context.Context, backupDirectory, mySQLDirectory string) 
 		return errors.WithStack(err)
 	}
 	if exists {
+		mysqlDirPermissions, err = getPermissions(mySQLDirectory)
+		if err != nil {
+			return errors.Wrap(err, "failed to get MySQL base directory permissions")
+		}
 		postfix := ".old" + strconv.FormatInt(time.Now().Unix(), 10)
 		if err := os.Rename(mySQLDirectory, mySQLDirectory+postfix); err != nil {
 			return errors.WithStack(err)
@@ -386,5 +410,30 @@ func restoreBackup(ctx context.Context, backupDirectory, mySQLDirectory string) 
 		return errors.WithStack(err)
 	}
 
+	// Set such permissions as original directory has before restoring.
+	// If original directory was absent, we set predefined permissions.
+	// Permissions inside DB's main directory are managed by xtrabackup utility, and we don't change them.
+	if err := os.Chmod(mySQLDirectory, mysqlDirPermissions); err != nil {
+		return errors.Wrap(err, "failed to change permissions for MySQL base directory")
+	}
+
 	return nil
+}
+
+// getMysqlServiceName returns MySQL system service name
+func getMysqlServiceName(ctx context.Context) (string, error) {
+	ctx, cancel := context.WithTimeout(ctx, systemctlTimeout)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, "systemctl", "list-units", "--type=service")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return "", errors.Wrapf(err, "failed to list system services, output: %s", string(output))
+	}
+
+	if serviceName := mysqlServiceRegex.Find(output); serviceName != nil {
+		return string(serviceName), nil
+	}
+
+	return "", errors.New("mysql service not found in the system")
 }

@@ -125,7 +125,8 @@ func (c *Collector) Name() string {
 }
 
 func start(ctx context.Context, wg *sync.WaitGroup, client *mongo.Client, dbName string,
-	docsChan chan<- proto.SystemProfile, doneChan <-chan struct{}, ready *sync.Cond, logger *logrus.Entry) {
+	docsChan chan<- proto.SystemProfile, doneChan <-chan struct{}, ready *sync.Cond, logger *logrus.Entry,
+) {
 	// signal WaitGroup when goroutine finished
 	defer wg.Done()
 	collection := client.Database(dbName).Collection("system.profile")

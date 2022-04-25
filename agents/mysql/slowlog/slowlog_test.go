@@ -18,7 +18,6 @@ package slowlog
 import (
 	"context"
 	"encoding/json"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -36,7 +35,7 @@ import (
 )
 
 func getDataFromFile(t *testing.T, filePath string, data interface{}) {
-	jsonData, err := ioutil.ReadFile(filePath) //nolint:gosec
+	jsonData, err := os.ReadFile(filePath) //nolint:gosec
 	require.NoError(t, err)
 	err = json.Unmarshal(jsonData, &data)
 	require.NoError(t, err)
@@ -66,7 +65,7 @@ func TestSlowLogMakeBucketsInvalidUTF8(t *testing.T) {
 				PeriodStartUnixSecs: 1557137220,
 				PeriodLengthSecs:    60,
 				Example:             "SELECT * FROM contacts t0 WHERE t0.person_id = '߿�\ufffd\\ud83d\ufffd'",
-				ExampleFormat:       agentpb.ExampleFormat_EXAMPLE, //nolint:staticcheck
+				ExampleFormat:       agentpb.ExampleFormat_EXAMPLE,
 				ExampleType:         agentpb.ExampleType_RANDOM,
 			},
 			Mysql: &agentpb.MetricsBucket_MySQL{},

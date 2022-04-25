@@ -16,7 +16,6 @@
 package config
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -28,7 +27,7 @@ import (
 )
 
 func writeConfig(t *testing.T, cfg *Config) string {
-	f, err := ioutil.TempFile("", "pmm-agent-test-")
+	f, err := os.CreateTemp("", "pmm-agent-test-")
 	require.NoError(t, err)
 	require.NoError(t, f.Close())
 	require.NoError(t, SaveToFile(f.Name(), cfg, t.Name()))
@@ -57,7 +56,7 @@ func TestLoadFromFile(t *testing.T) {
 
 	t.Run("PermissionDenied", func(t *testing.T) {
 		name := writeConfig(t, &Config{ID: "agent-id"})
-		require.NoError(t, os.Chmod(name, 0000))
+		require.NoError(t, os.Chmod(name, 0o000))
 		defer removeConfig(t, name)
 
 		cfg, err := loadFromFile(name)
@@ -69,7 +68,7 @@ func TestLoadFromFile(t *testing.T) {
 
 	t.Run("NotYAML", func(t *testing.T) {
 		name := writeConfig(t, nil)
-		require.NoError(t, ioutil.WriteFile(name, []byte(`not YAML`), 0666))
+		require.NoError(t, os.WriteFile(name, []byte(`not YAML`), 0o666)) //nolint:gosec
 		defer removeConfig(t, name)
 
 		cfg, err := loadFromFile(name)

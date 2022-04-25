@@ -20,10 +20,10 @@ import (
 	"io"
 	"net"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
-	"github.com/golang/protobuf/ptypes"
 	"github.com/percona/exporter_shared/helpers"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
@@ -32,13 +32,16 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/percona/pmm-agent/utils/truncate"
 )
 
 type testServer struct {
 	connectFunc func(agentpb.Agent_ConnectServer) error
+	agentpb.UnimplementedAgentServer
 }
 
 func (s *testServer) Connect(stream agentpb.Agent_ConnectServer) error {
@@ -72,7 +75,7 @@ func setup(t *testing.T, connect func(agentpb.Agent_ConnectServer) error, expect
 	// make client and channel
 	opts := []grpc.DialOption{
 		grpc.WithBlock(),
-		grpc.WithInsecure(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	}
 	cc, err = grpc.DialContext(ctx, lis.Addr().String(), opts...)
 	require.NoError(t, err, "failed to dial server")
@@ -85,13 +88,14 @@ func setup(t *testing.T, connect func(agentpb.Agent_ConnectServer) error, expect
 
 		assert.Conditionf(t, func() (success bool) {
 			for _, e := range expected {
-				if errors.Is(err, e) {
+				// have to use strings.Contains because grpc returns error with random ports in message.
+				if errors.Is(err, e) || strings.Contains(err.Error(), e.Error()) {
 					return true
 				}
 			}
 			return false
 		}, "%+v", err)
-		//assert.Contains(t, expected, errors.Cause(err), "%+v", err)
+		// assert.Contains(t, expected, errors.Cause(err), "%+v", err)
 
 		server.Stop()
 		cancel()
@@ -232,9 +236,7 @@ func TestServerRequest(t *testing.T) {
 			assert.Equal(t, i, msg.Id)
 			pong := msg.GetPong()
 			require.NotNil(t, pong)
-			ts, err := ptypes.Timestamp(pong.CurrentTime)
-			assert.NoError(t, err)
-			assert.InDelta(t, time.Now().Unix(), ts.Unix(), 1)
+			assert.InDelta(t, time.Now().Unix(), pong.CurrentTime.AsTime().Unix(), 1)
 		}
 
 		return nil
@@ -249,7 +251,7 @@ func TestServerRequest(t *testing.T) {
 		channel.Send(&AgentResponse{
 			ID: req.ID,
 			Payload: &agentpb.Pong{
-				CurrentTime: ptypes.TimestampNow(),
+				CurrentTime: timestamppb.Now(),
 			},
 		})
 	}
@@ -319,7 +321,10 @@ func TestAgentClosesStream(t *testing.T) {
 }
 
 func TestAgentClosesConnection(t *testing.T) {
+	var wg sync.WaitGroup
+	wg.Add(1)
 	connect := func(stream agentpb.Agent_ConnectServer) error { //nolint:unparam
+		defer wg.Done()
 		err := stream.Send(&agentpb.ServerMessage{
 			Id:      1,
 			Payload: (&agentpb.Ping{}).ServerMessageRequestPayload(),
@@ -327,16 +332,20 @@ func TestAgentClosesConnection(t *testing.T) {
 		assert.NoError(t, err)
 
 		msg, err := stream.Recv()
-		assert.Equal(t, status.Error(codes.Canceled, context.Canceled.Error()), err)
+		assert.Equal(t, status.Error(codes.Canceled, context.Canceled.Error()).Error(), err.Error())
 		assert.Nil(t, msg)
 
 		return nil
 	}
 
-	// gRPC library has a race in that case, so we can get two errors
+	// gRPC library has a race in that case, so we can get three errors
 	errClientConnClosing := status.Error(codes.Canceled, "grpc: the client connection is closing") // == grpc.ErrClientConnClosing
 	errConnClosing := status.Error(codes.Unavailable, "transport is closing")
-	channel, cc, teardown := setup(t, connect, errClientConnClosing, errConnClosing)
+	// For an explanation of why we are using a dynamic error here, and why we are comparing the string representation of this error, see:
+	// https://github.com/golang/go/issues/4373
+	// https://github.com/golang/go/blob/master/src/internal/poll/fd.go#L20
+	errConnClosed := errors.New("use of closed network connection")
+	channel, cc, teardown := setup(t, connect, errClientConnClosing, errConnClosing, errConnClosed) // nolint:varnamelen
 	defer teardown()
 
 	req := <-channel.Requests()
@@ -345,6 +354,7 @@ func TestAgentClosesConnection(t *testing.T) {
 
 	err := cc.Close()
 	assert.NoError(t, err)
+	wg.Wait()
 }
 
 func TestUnexpectedResponseIDFromServer(t *testing.T) {
@@ -409,7 +419,7 @@ func TestUnexpectedResponsePayloadFromServer(t *testing.T) {
 	channel.Send(&AgentResponse{
 		ID: req.ID,
 		Payload: &agentpb.Pong{
-			CurrentTime: ptypes.TimestampNow(),
+			CurrentTime: timestamppb.Now(),
 		},
 	})
 }

@@ -18,16 +18,15 @@ package jobs
 import (
 	"bytes"
 	"context"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"strconv"
 	"time"
 
-	"github.com/golang/protobuf/ptypes"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const (
@@ -94,7 +93,7 @@ func (j *MySQLBackupJob) Run(ctx context.Context, send Send) error {
 
 	send(&agentpb.JobResult{
 		JobId:     j.id,
-		Timestamp: ptypes.TimestampNow(),
+		Timestamp: timestamppb.Now(),
 		Result: &agentpb.JobResult_MysqlBackup{
 			MysqlBackup: &agentpb.JobResult_MySQLBackup{},
 		},
@@ -125,7 +124,7 @@ func (j *MySQLBackupJob) backup(ctx context.Context) (rerr error) {
 	pipeCtx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	tmpDir, err := ioutil.TempDir("", "mysql-backup")
+	tmpDir, err := os.MkdirTemp("", "mysql-backup")
 	if err != nil {
 		return errors.Wrapf(err, "failed to create tempdir")
 	}

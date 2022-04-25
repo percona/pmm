@@ -40,7 +40,8 @@ func TestCache(t *testing.T) {
 		2: {},
 		3: {},
 		4: {},
-		5: {}}
+		5: {},
+	}
 
 	set2 := map[int64]*someType{
 		1: {},
@@ -48,7 +49,8 @@ func TestCache(t *testing.T) {
 		3: {},
 		4: {},
 		6: {},
-		7: {}}
+		7: {},
+	}
 
 	t.Run("DoesntReachLimits", func(t *testing.T) {
 		t.Parallel()

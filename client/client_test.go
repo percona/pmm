@@ -22,20 +22,22 @@ import (
 	"testing"
 	"time"
 
-	"github.com/golang/protobuf/proto" //nolint:staticcheck
-	"github.com/golang/protobuf/ptypes"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/protobuf/encoding/prototext"
+	"google.golang.org/protobuf/types/known/durationpb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/percona/pmm-agent/config"
 )
 
 type testServer struct {
 	connectFunc func(agentpb.Agent_ConnectServer) error
+	agentpb.UnimplementedAgentServer
 }
 
 func (s *testServer) Connect(stream agentpb.Agent_ConnectServer) error {
@@ -132,7 +134,7 @@ func TestClient(t *testing.T) {
 				require.NotNil(t, ping)
 				err = stream.Send(&agentpb.ServerMessage{
 					Id:      msg.Id,
-					Payload: (&agentpb.Pong{CurrentTime: ptypes.TimestampNow()}).ServerMessageResponsePayload(),
+					Payload: (&agentpb.Pong{CurrentTime: timestamppb.Now()}).ServerMessageResponsePayload(),
 				})
 				require.NoError(t, err)
 
@@ -197,19 +199,19 @@ func TestGetActionTimeout(t *testing.T) {
 	}
 
 	testCases := []*testStartActionReq{{
-		req:      &agentpb.StartActionRequest{Timeout: ptypes.DurationProto(0 * time.Second)},
+		req:      &agentpb.StartActionRequest{Timeout: durationpb.New(0 * time.Second)},
 		expected: 10 * time.Second,
 	}, {
 		req:      &agentpb.StartActionRequest{Timeout: nil},
 		expected: 10 * time.Second,
 	}, {
-		req:      &agentpb.StartActionRequest{Timeout: ptypes.DurationProto(15 * time.Second)},
+		req:      &agentpb.StartActionRequest{Timeout: durationpb.New(15 * time.Second)},
 		expected: 15 * time.Second,
 	}}
 
 	for _, tc := range testCases {
 		tc := tc
-		t.Run(proto.CompactTextString(tc.req), func(t *testing.T) {
+		t.Run(prototext.Format(tc.req), func(t *testing.T) {
 			client := New(nil, nil, nil, nil)
 			actual := client.getActionTimeout(tc.req)
 			assert.Equal(t, tc.expected, actual)
@@ -234,7 +236,7 @@ func TestUnexpectedActionType(t *testing.T) {
 		require.NotNil(t, ping)
 		err = stream.Send(&agentpb.ServerMessage{
 			Id:      msg.Id,
-			Payload: (&agentpb.Pong{CurrentTime: ptypes.TimestampNow()}).ServerMessageResponsePayload(),
+			Payload: (&agentpb.Pong{CurrentTime: timestamppb.Now()}).ServerMessageResponsePayload(),
 		})
 		require.NoError(t, err)
 
@@ -282,27 +284,36 @@ func TestArgListFromPgParams(t *testing.T) {
 	}
 
 	testCases := []*testParams{
-		{&agentpb.StartActionRequest_PTPgSummaryParams{Host: "10.20.30.40", Port: 555, Username: "person",
-			Password: "secret"}, []string{"--host", "10.20.30.40", "--port", "555", "--username", "person", "--password", "secret"}},
-		{&agentpb.StartActionRequest_PTPgSummaryParams{Host: "10.20.30.40", Port: 555, Username: "person",
-			Password: ""}, []string{"--host", "10.20.30.40", "--port", "555", "--username", "person"}},
-		{&agentpb.StartActionRequest_PTPgSummaryParams{Host: "10.20.30.40", Port: 555, Username: "",
-			Password: "secret"}, []string{"--host", "10.20.30.40", "--port", "555", "--password", "secret"}},
-		{&agentpb.StartActionRequest_PTPgSummaryParams{Host: "10.20.30.40", Port: 65536, Username: "",
-			Password: "secret"}, []string{"--host", "10.20.30.40", "--password", "secret"}},
-		{&agentpb.StartActionRequest_PTPgSummaryParams{Host: "", Port: 555, Username: "", Password: "secret"},
-			[]string{"--port", "555", "--password", "secret"}},
-
-		{&agentpb.StartActionRequest_PTPgSummaryParams{Host: "", Port: 0, Username: "", Password: ""}, []string{}},
-		{&agentpb.StartActionRequest_PTPgSummaryParams{Host: "", Port: 0, Username: "王华", Password: `"`},
-			[]string{"--username", "王华", "--password", `"`}},
-		{&agentpb.StartActionRequest_PTPgSummaryParams{Host: "10.20.30.40", Port: 555, Username: "person",
-			Password: "   "}, []string{"--username", "person", "--port", "555", "--host", "10.20.30.40"}},
+		{
+			&agentpb.StartActionRequest_PTPgSummaryParams{Host: "10.20.30.40", Port: 555, Username: "person", Password: "secret"},
+			[]string{"--host", "10.20.30.40", "--port", "555", "--username", "person", "--password", "secret"},
+		}, {
+			&agentpb.StartActionRequest_PTPgSummaryParams{Host: "10.20.30.40", Port: 555, Username: "person", Password: ""},
+			[]string{"--host", "10.20.30.40", "--port", "555", "--username", "person"},
+		}, {
+			&agentpb.StartActionRequest_PTPgSummaryParams{Host: "10.20.30.40", Port: 555, Username: "", Password: "secret"},
+			[]string{"--host", "10.20.30.40", "--port", "555", "--password", "secret"},
+		}, {
+			&agentpb.StartActionRequest_PTPgSummaryParams{Host: "10.20.30.40", Port: 65536, Username: "", Password: "secret"},
+			[]string{"--host", "10.20.30.40", "--password", "secret"},
+		}, {
+			&agentpb.StartActionRequest_PTPgSummaryParams{Host: "", Port: 555, Username: "", Password: "secret"},
+			[]string{"--port", "555", "--password", "secret"},
+		}, {
+			&agentpb.StartActionRequest_PTPgSummaryParams{Host: "", Port: 0, Username: "", Password: ""},
+			[]string{},
+		}, {
+			&agentpb.StartActionRequest_PTPgSummaryParams{Host: "", Port: 0, Username: "王华", Password: `"`},
+			[]string{"--username", "王华", "--password", `"`},
+		}, {
+			&agentpb.StartActionRequest_PTPgSummaryParams{Host: "10.20.30.40", Port: 555, Username: "person", Password: "   "},
+			[]string{"--username", "person", "--port", "555", "--host", "10.20.30.40"},
+		},
 	}
 
 	for _, tc := range testCases {
 		tc := tc
-		t.Run(proto.CompactTextString(tc.req), func(t *testing.T) {
+		t.Run(prototext.Format(tc.req), func(t *testing.T) {
 			actual := argListFromPgParams(tc.req)
 			fmt.Printf("\n%+v\n", actual)
 			assert.ElementsMatch(t, tc.expected, actual)
@@ -317,27 +328,43 @@ func TestArgListFromMongoDBParams(t *testing.T) {
 	}
 
 	testCases := []*testParams{
-		{&agentpb.StartActionRequest_PTMongoDBSummaryParams{Host: "10.20.30.40", Port: 555, Username: "person",
-			Password: "secret"}, []string{"--username", "person", "--password=secret", "10.20.30.40:555"}},
-		{&agentpb.StartActionRequest_PTMongoDBSummaryParams{Host: "10.20.30.40", Port: 555, Username: "person",
-			Password: ""}, []string{"--username", "person", "10.20.30.40:555"}},
-		{&agentpb.StartActionRequest_PTMongoDBSummaryParams{Host: "10.20.30.40", Port: 555, Username: "",
-			Password: "secret"}, []string{"--password=secret", "10.20.30.40:555"}},
-		{&agentpb.StartActionRequest_PTMongoDBSummaryParams{Host: "10.20.30.40", Port: 65536, Username: "",
-			Password: "secret"}, []string{"--password=secret", "10.20.30.40"}},
-		{&agentpb.StartActionRequest_PTMongoDBSummaryParams{Host: "", Port: 555, Username: "", Password: "secret"},
-			[]string{"--password=secret"}},
-
-		{&agentpb.StartActionRequest_PTMongoDBSummaryParams{Host: "", Port: 0, Username: "", Password: ""}, []string{}},
-		{&agentpb.StartActionRequest_PTMongoDBSummaryParams{Host: "", Port: 0, Username: "王华", Password: `"`},
-			[]string{"--username", "王华", `--password="`}},
-		{&agentpb.StartActionRequest_PTMongoDBSummaryParams{Host: "10.20.30.40", Port: 555, Username: "person",
-			Password: "   "}, []string{"--username", "person", "--password=   ", "10.20.30.40:555"}},
+		{
+			&agentpb.StartActionRequest_PTMongoDBSummaryParams{Host: "10.20.30.40", Port: 555, Username: "person", Password: "secret"},
+			[]string{"--username", "person", "--password=secret", "10.20.30.40:555"},
+		},
+		{
+			&agentpb.StartActionRequest_PTMongoDBSummaryParams{Host: "10.20.30.40", Port: 555, Username: "person", Password: ""},
+			[]string{"--username", "person", "10.20.30.40:555"},
+		},
+		{
+			&agentpb.StartActionRequest_PTMongoDBSummaryParams{Host: "10.20.30.40", Port: 555, Username: "", Password: "secret"},
+			[]string{"--password=secret", "10.20.30.40:555"},
+		},
+		{
+			&agentpb.StartActionRequest_PTMongoDBSummaryParams{Host: "10.20.30.40", Port: 65536, Username: "", Password: "secret"},
+			[]string{"--password=secret", "10.20.30.40"},
+		},
+		{
+			&agentpb.StartActionRequest_PTMongoDBSummaryParams{Host: "", Port: 555, Username: "", Password: "secret"},
+			[]string{"--password=secret"},
+		},
+		{
+			&agentpb.StartActionRequest_PTMongoDBSummaryParams{Host: "", Port: 0, Username: "", Password: ""},
+			[]string{},
+		},
+		{
+			&agentpb.StartActionRequest_PTMongoDBSummaryParams{Host: "", Port: 0, Username: "王华", Password: `"`},
+			[]string{"--username", "王华", `--password="`},
+		},
+		{
+			&agentpb.StartActionRequest_PTMongoDBSummaryParams{Host: "10.20.30.40", Port: 555, Username: "person", Password: "   "},
+			[]string{"--username", "person", "--password=   ", "10.20.30.40:555"},
+		},
 	}
 
 	for _, tc := range testCases {
 		tc := tc
-		t.Run(proto.CompactTextString(tc.req), func(t *testing.T) {
+		t.Run(prototext.Format(tc.req), func(t *testing.T) {
 			actual := argListFromMongoDBParams(tc.req)
 			assert.ElementsMatch(t, tc.expected, actual)
 		})

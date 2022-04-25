@@ -21,10 +21,10 @@ import (
 	"os/exec"
 	"time"
 
-	"github.com/golang/protobuf/ptypes"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // MongoDBRestoreJob implements Job for MongoDB restore.
@@ -122,7 +122,7 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 
 	send(&agentpb.JobResult{
 		JobId:     j.id,
-		Timestamp: ptypes.TimestampNow(),
+		Timestamp: timestamppb.Now(),
 		Result: &agentpb.JobResult_MongodbRestoreBackup{
 			MongodbRestoreBackup: &agentpb.JobResult_MongoDBRestoreBackup{},
 		},

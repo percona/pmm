@@ -34,6 +34,7 @@ type historyCache struct {
 func (c *historyCache) Set(src historyMap) error {
 	return c.cache.Set(src)
 }
+
 func (c *historyCache) Get(dest historyMap) error {
 	return c.cache.Get(dest)
 }

@@ -21,8 +21,8 @@ import (
 	"sort"
 	"strings"
 
-	pgquery "github.com/lfittl/pg_query_go"
-	pgquerynodes "github.com/lfittl/pg_query_go/nodes"
+	pgquery "github.com/pganalyze/pg_query_go"
+	pgquerynodes "github.com/pganalyze/pg_query_go/nodes"
 	"github.com/pkg/errors"
 )
 

@@ -6,7 +6,6 @@ import (
 	context "context"
 
 	agentpb "github.com/percona/pmm/api/agentpb"
-
 	mock "github.com/stretchr/testify/mock"
 )
 

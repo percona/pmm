@@ -17,7 +17,7 @@ package parser
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -38,12 +38,12 @@ func TestExtractTables(t *testing.T) {
 	for _, file := range files {
 		file := file
 		t.Run(filepath.Base(file), func(t *testing.T) {
-			d, err := ioutil.ReadFile(file) //nolint:gosec
+			d, err := os.ReadFile(file) //nolint:gosec
 			require.NoError(t, err)
 			query := string(d)
 
 			goldenFile := strings.TrimSuffix(file, ".sql") + ".json"
-			d, err = ioutil.ReadFile(goldenFile) //nolint:gosec
+			d, err = os.ReadFile(goldenFile) //nolint:gosec
 			require.NoError(t, err)
 			var expected expectedResult
 			err = json.Unmarshal(d, &expected)
@@ -81,11 +81,11 @@ func BenchmarkExtractTables(b *testing.B) {
 		goldenFile := strings.TrimSuffix(file, ".sql") + ".json"
 		name := strings.TrimSuffix(filepath.Base(file), ".log")
 		b.Run(name, func(b *testing.B) {
-			d, err := ioutil.ReadFile(file) //nolint:gosec
+			d, err := os.ReadFile(file) //nolint:gosec
 			require.NoError(b, err)
 			query := string(d)
 
-			d, err = ioutil.ReadFile(goldenFile) //nolint:gosec
+			d, err = os.ReadFile(goldenFile) //nolint:gosec
 			require.NoError(b, err)
 			var expected expectedResult
 			err = json.Unmarshal(d, &expected)

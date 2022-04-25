@@ -22,7 +22,7 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	pgquery "github.com/lfittl/pg_query_go"
+	pgquery "github.com/pganalyze/pg_query_go"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
@@ -83,7 +83,7 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 	databases := queryDatabases(q)
 	usernames := queryUsernames(q)
 
-	pgMonitorVersion, err := getPGMonitorVersion(q)
+	pgMonitorVersion, _, err := getPGMonitorVersion(q)
 	if err != nil {
 		err = errors.Wrap(err, "failed to get row and view for pg_stat_monitor version")
 		return

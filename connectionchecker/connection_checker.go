@@ -20,7 +20,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"math"
 	"net/http"
 	"path/filepath"
@@ -28,7 +28,6 @@ import (
 	"strings"
 
 	"github.com/go-sql-driver/mysql"
-	"github.com/golang/protobuf/ptypes"
 	"github.com/lib/pq"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
@@ -59,7 +58,7 @@ func New(paths *config.Paths) *ConnectionChecker {
 
 // Check checks connection to a service. It returns context cancelation/timeout or driver errors as is.
 func (cc *ConnectionChecker) Check(ctx context.Context, msg *agentpb.CheckConnectionRequest, id uint32) *agentpb.CheckConnectionResponse {
-	timeout, _ := ptypes.Duration(msg.Timeout)
+	timeout := msg.Timeout.AsDuration()
 	if timeout > 0 {
 		var cancel context.CancelFunc
 		ctx, cancel = context.WithTimeout(ctx, timeout)
@@ -261,7 +260,7 @@ func (cc *ConnectionChecker) checkExternalConnection(ctx context.Context, uri st
 		return &res
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		res.Error = fmt.Sprintf("Cannot read body of exporter's response: %v", err)
 		return &res
